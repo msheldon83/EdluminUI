@@ -7,13 +7,12 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const loaders = require("./loaders");
 const HardSourceWebpackPlugin = require("hard-source-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-const RollbarSourceMapPlugin = require("rollbar-sourcemap-webpack-plugin");
 const { execSync } = require("child_process");
 
 const os = require("os");
 const DEV_PORT = config.get("devServer.port");
 
-const PROXY_HOST = config.get("server.apiHost");
+const PROXY_HOST = "localhost";
 
 function codeVersion() {
   return (
@@ -109,26 +108,11 @@ module.exports = {
       __DEV__: JSON.stringify(process.env.NODE_ENV !== "production"),
       __TEST__: "false",
 
-      "process.env.ENABLE_DEVELOPER_LOGIN": config.get(
-        "server.enableDeveloperLogin"
-      ),
-
-      // Allow checking of USE_FAKE_DATA in client (mainly for the big bad reset button)
-      "process.env.USE_FAKE_DATA": JSON.stringify(process.env.USE_FAKE_DATA),
-
       // ALlow switching on NODE_ENV in client code
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
 
       // Expose Google Analytics ID to client
       "process.env.TRACKING_ID": JSON.stringify(process.env.TRACKING_ID),
-
-      "process.env.ROLLBAR_CLIENT_ACCESS_TOKEN": JSON.stringify(
-        config.get("rollbar.clientAccessToken")
-      ),
-
-      "process.env.IDENTITY_PROVIDER_HOST_LOGIN": JSON.stringify(
-        process.env.IDENTITY_PROVIDER_HOST_LOGIN
-      ),
 
       "process.env.CODE_VERSION": JSON.stringify(codeVersion()),
     }),
@@ -210,22 +194,6 @@ module.exports = {
       "/auth/*": `http://${PROXY_HOST}`,
       "/arena/*": `http://${PROXY_HOST}`,
       "/api/*": `http://${PROXY_HOST}`,
-      "/dangerous-reset": `http://${PROXY_HOST}`,
     },
   },
 };
-
-// Upload source maps to Rollbar
-if (
-  process.env.NODE_ENV === "production" &&
-  config.get("rollbar.serverAccessToken")
-) {
-  module.exports.plugins.push(
-    new RollbarSourceMapPlugin({
-      accessToken: config.get("rollbar.serverAccessToken"),
-      version: codeVersion(),
-      publicPath: `//${config.get("server.publicHost")}`,
-      // publicPath: "//localhost:3001", // for development - run make app with the rollbar tokens and production env
-    })
-  );
-}
