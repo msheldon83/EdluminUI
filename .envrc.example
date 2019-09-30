@@ -1,0 +1,8 @@
+export PATH="$(pwd)/bin:$(pwd)/node_modules/.bin:$PATH"
+# This is to make this issue go away:
+# https://github.com/Realytics/fork-ts-checker-webpack-plugin/issues/236
+export TSC_NONPOLLING_WATCHER=true
+
+# If you'd like to limit jest concurrency on your own machine without affecting
+# anyone else, you can do so here:
+# export EXTRA_JEST_ARGS="--maxWorkers 1"
