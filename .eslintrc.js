@@ -21,13 +21,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: "module",
   },
-  plugins: [
-    "react",
-    "react-hooks",
-    "@typescript-eslint",
-    "@typescript-eslint/tslint",
-    "jest",
-  ],
+  plugins: ["react", "react-hooks", "@typescript-eslint", "jest"],
   /*
   https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/ROADMAP.md
    */
@@ -41,13 +35,6 @@ module.exports = {
             fixWith: "React.FunctionComponent",
           },
         },
-      },
-    ],
-
-    "@typescript-eslint/tslint/config": [
-      "error",
-      {
-        lintFile: "./tslint.json",
       },
     ],
 

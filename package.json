@@ -38,9 +38,11 @@
     "@storybook/addon-links": "^5.2.1",
     "@storybook/addons": "^5.2.1",
     "@storybook/react": "^5.2.1",
+    "@types/jest": "^24.0.18",
+    "@typescript-eslint/eslint-plugin": "^2.3.0",
+    "@typescript-eslint/parser": "^2.3.0",
     "babel-loader": "^8.0.6",
-    "file-loader": "^4.0.0",
-    "url-loader": "^2.0.0",
+    "compression-webpack-plugin": "^3.0.0",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "eslint": "^6.5.0",
@@ -48,24 +50,27 @@
     "eslint-plugin-jest": "^22.17.0",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^2.1.1",
+    "file-loader": "^4.0.0",
+    "fork-ts-checker-webpack-plugin": "^1.3.5",
+    "hard-source-webpack-plugin": "^0.13.1",
+    "html-webpack-plugin": "^3.2.0",
     "jest": "^24.9.0",
+    "jest-junit": "^8.0.0",
     "jsverify": "^0.8.4",
     "prettier": "^1.18.2",
     "ts-jest": "^24.1.0",
     "ts-loader": "^6.2.0",
+    "url-loader": "^2.0.0",
     "webpack": "^4.41.0",
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.8.1",
     "webpack-node-externals": "^1.7.2",
-    "webpack-split-by-path": "^2.0.0",
-    "hard-source-webpack-plugin": "^0.13.1",
-    "html-webpack-plugin": "^3.2.0",
-    "compression-webpack-plugin": "^3.0.0",
-    "fork-ts-checker-webpack-plugin": "^1.3.5"
+    "webpack-split-by-path": "^2.0.0"
   },
   "scripts": {
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "lint": "eslint \"./modules/**/*.{ts,tsx}\""
   }
 }

@@ -7,11 +7,11 @@ export default {
 };
 
 export const emoji = () => (
-  <div onClick={action("clicked")}>
+  <button onClick={action("clicked")}>
     <span role="img" aria-label="so cool">
       😀 😎 👍 💯
     </span>
-  </div>
+  </button>
 );
 
 emoji.story = {
