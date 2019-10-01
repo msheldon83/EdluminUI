@@ -1,9 +1,9 @@
 import { makeStyles } from "@material-ui/styles";
-import { AppShell } from "client/components/app";
 import * as React from "react";
 import { Route, Switch } from "react-router-dom";
 import { IndexLoader } from "./pages/index/loader";
 import { Index } from "./routes";
+import { AppShell } from "./components/app";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
