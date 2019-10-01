@@ -5,6 +5,8 @@ import { Router } from "react-router-dom";
 import { App } from "ui";
 
 import { Example } from "graphql/queries/Example.gen";
+import { ApolloProvider } from "@apollo/react-common";
+import { buildGraphqlClient } from "graphql/client";
 
 const history = createBrowserHistory();
 // history.listen((location, action) => {
@@ -14,14 +16,14 @@ const history = createBrowserHistory();
 // });
 
 const bootstrapClient = () => {
-  // const graphqlClient = buildGraphqlClient({ history });
+  const graphqlClient = buildGraphqlClient({ history });
 
   const rootEl = (
-    // <ApolloProvider client={graphqlClient}>
-    <Router history={history}>
-      <App />
-    </Router>
-    // </ApolloProvider>
+    <ApolloProvider client={graphqlClient}>
+      <Router history={history}>
+        <App />
+      </Router>
+    </ApolloProvider>
   );
   console.log(document.getElementById("edlumin-app"));
   ReactDom.render(
