@@ -1,0 +1,8 @@
+query Example {
+  branding {
+    all {
+      id
+      domainName
+    }
+  }
+}

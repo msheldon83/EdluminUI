@@ -1,0 +1,3416 @@
+enum AbsenceDocumentType {
+  INVALID
+}
+
+type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  validUntil: Date
+  expired: Boolean
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+  allowNegativeBalance: Boolean!
+  isBucket: Boolean!
+  limitPerDay: Int
+  parentAbsenceReasonId: Int
+  parentAbsenceReason: AbsenceReason
+  prioritySequence: Int
+  childrenAbsenceReasons: [AbsenceReason]
+}
+
+type AbsenceReasonBalance implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  rowVersion: Int!
+  employeeId: Int!
+  schoolYearId: Int
+  schoolYear: SchoolYear
+  absenceReasonId: Int
+  absenceReason: AbsenceReason
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+  balanceAsOf: Date!
+  initialBalance: Decimal!
+  usedBalance: Decimal!
+  unusedBalance: Decimal!
+}
+
+input AbsenceReasonBalanceCreateInput {
+  orgId: Int!
+  employeeId: Int!
+  schoolYearId: Int
+  absenceReasonId: Int
+  initialBalance: Decimal
+  balanceAsOf: Date
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+}
+
+type AbsenceReasonBalanceMutations {
+  create(
+    absenceReasonBalance: AbsenceReasonBalanceCreateInput!
+  ): AbsenceReasonBalance
+  update(
+    absenceReasonBalance: AbsenceReasonBalanceUpdateInput!
+  ): AbsenceReasonBalance
+  delete(absenceReasonBalanceId: Int!): Boolean
+}
+
+input AbsenceReasonBalanceUpdateInput {
+  absenceReasonBalanceId: Int!
+  rowVersion: ID
+  schoolYearId: Int
+  absenceReasonId: Int
+  initialBalance: Decimal
+  balanceAsOf: Date
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+}
+
+input AbsenceReasonCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  externalId: String
+  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
+  allowNegativeBalance: Boolean!
+  isBucket: Boolean!
+  limitPerDay: Int
+  parentAbsenceReasonId: Int
+  prioritySequence: Int
+}
+
+enum AbsenceReasonTrackingTypeId {
+  INVALID
+  HOURLY
+  DAILY
+}
+
+input AbsenceReasonUpdateInput {
+  id: Int!
+  rowVersion: String
+  name: String
+  description: String
+  externalId: String
+  expired: Boolean
+  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
+  allowNegativeBalance: Boolean!
+  isBucket: Boolean!
+  limitPerDay: Int
+  parentAbsenceReasonId: Int
+  prioritySequence: Int
+}
+
+enum AbsenceStatus {
+  INVALID
+  SAVED
+  NEEDS_APPROVAL
+  REJECTED
+  APPROVED
+  CANCELLED
+}
+
+enum AbsenceType {
+  INVALID
+  HOME_ADDRESS
+  WORK_ADDRESS
+}
+
+type AccountingCode implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  validUntil: Date
+  expired: Boolean
+}
+
+input AccountingCodeCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  externalId: String
+}
+
+input AccountingCodeUpdateInput {
+  id: Int!
+  rowVersion: String
+  name: String
+  description: String
+  externalId: String
+  expired: Boolean
+}
+
+type Address {
+  _info: [ReturnMessage]
+  address1: String
+  address2: String
+  city: String
+  state: StateCode
+  postalCode: String
+  country: CountryCode
+  lat: Float
+  long: Float
+  isMappable: Boolean
+}
+
+input AddressInput {
+  address1: String
+  address2: String
+  city: String
+  state: StateCode
+  postalCode: String
+  country: CountryCode
+  lat: Float
+  long: Float
+  isMappable: Boolean
+}
+
+type Assignment {
+  _info: [ReturnMessage]
+}
+
+type Branding implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  name: String
+  description: String
+  majorLogoUrl: String
+  minorLogoUrl: String
+  navigationColor: String
+  navigationHoverColor: String
+  navigationActiveColor: String
+  frontendPrimaryColor: String
+  frontendPrimaryLightColor: String
+  frontendPrimaryDarkerColor: String
+  frontendSecondaryColor: String
+  frontendSecondaryLightColor: String
+  frontendSecondaryDarkerColor: String
+  supportEmailAddress: String
+  supportPhoneNumber: String
+  domainName: String
+  productName: String
+  poweredByUrl: String
+  emailIconUrl: String
+}
+
+input BrandingInput {
+  id: ID
+  name: String
+  description: String
+  majorLogoUrl: String
+  minorLogoUrl: String
+  navigationColor: String
+  navigationHoverColor: String
+  navigationActiveColor: String
+  frontendPrimaryColor: String
+  frontendPrimaryLightColor: String
+  frontendPrimaryDarkerColor: String
+  frontendSecondaryColor: String
+  frontendSecondaryLightColor: String
+  frontendSecondaryDarkerColor: String
+  supportEmailAddress: String
+  supportPhoneNumber: String
+  domainName: String
+  productName: String
+  certificateExpirationDate: Date
+  poweredByUrl: String
+  emailIconUrl: String
+}
+
+type BrandingMutations {
+  save(branding: BrandingInput!): Branding
+  delete(brandingId: Int!): Boolean
+}
+
+type BrandingQueries {
+  defaultBranding: Branding
+  byId(id: ID!): Branding
+  all: [Branding]
+}
+
+type CalendarChange implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  startDate: Date!
+  endDate: Date!
+  description: String
+  calendarChangeReasonId: Int!
+  calendarChangeReason: CalendarChangeReason
+  countTowardContractDays: Boolean!
+  changedContracts: [ChangedContract]
+  schoolYearId: Int!
+  schoolYear: SchoolYear
+  affectsAllContracts: Boolean!
+}
+
+input CalendarChangeCreateInput {
+  orgId: Int!
+  description: String
+  startDate: Date
+  endDate: Date
+  calendarChangeReasonId: Int
+  contractIds: [Int!]!
+  countTowardContractDays: Boolean
+  affectsAllContracts: Boolean!
+}
+
+type CalendarChangeMutations {
+  create(calendarChange: CalendarChangeCreateInput!): CalendarChange
+  update(calendarChange: CalendarChangeUpdateInput!): CalendarChange
+  delete(calendarChangeId: Int!): Boolean
+}
+
+type CalendarChangeQueries {
+  byId(id: ID!): CalendarChange
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [CalendarChange]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedCalendarChange
+}
+
+type CalendarChangeReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  validUntil: Date
+  expired: Boolean
+  calendarDayTypeId: CalendarDayType
+  workDayScheduleVariantTypeId: Int
+  workDayScheduleVariantType: WorkDayScheduleVariant
+}
+
+input CalendarChangeReasonCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  externalId: String
+  calendarDayTypeId: CalendarDayType
+  workDayScheduleVariantTypeId: Int
+}
+
+input CalendarChangeReasonUpdateInput {
+  id: Int!
+  rowVersion: String
+  name: String
+  description: String
+  externalId: String
+  expired: Boolean
+  calendarDayTypeId: CalendarDayType
+  workDayScheduleVariantTypeId: Int
+}
+
+input CalendarChangeUpdateInput {
+  calendarChangeId: Int!
+  rowVersion: Int!
+  description: String
+  startDate: Date
+  endDate: Date
+  calendarChangeReasonId: Int
+  contractIds: [Int!]!
+  countTowardContractDays: Boolean
+  affectsAllContracts: Boolean!
+}
+
+enum CalendarDayType {
+  INVALID
+  INSTRUCTIONAL_DAY
+  NON_WORK_DAY
+  TEACHER_WORK_DAY
+  CANCELLED_DAY
+}
+
+type ChangedContract implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  calendarChangeId: Int!
+  contractId: Int!
+  contract: Contract
+}
+
+type ChangeLogQueries {
+  byId(id: ID!): ChangeLogTypeDef
+  byObjectId(id: ID!, objectType: ObjectType!): [ChangeLogTypeDef]
+  byEventLogId(id: ID!): [ChangeLogTypeDef]
+}
+
+type ChangeLogTypeDef {
+  _info: [ReturnMessage]
+  messages: String!
+  changes: String!
+}
+
+type Contract implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  numberOfDays: Int
+  workDayPatternId: Int!
+  validUntil: DateTime
+  expired: Boolean!
+}
+
+input ContractCreateInput {
+  orgId: Int!
+  name: String!
+  externalId: String
+  numberOfDays: Int
+  workDayPatternId: Int
+}
+
+type ContractDate implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  contractScheduleId: Int!
+  contractId: Int!
+  contract: Contract
+  workDayPatternId: Int!
+  workDayPattern: WorkDayPattern
+  schoolYearId: Int!
+  schoolYear: SchoolYear
+  date: Date!
+  calendarDayTypeId: CalendarDayType
+  daysFromStart: Int
+  daysToEnd: Int
+  workDayId: Int
+  workDay: WorkDay
+  workDayScheduleVariantTypeId: Int
+  workDayScheduleVariantType: WorkDayScheduleVariant
+}
+
+type ContractMutations {
+  create(contract: ContractCreateInput!): Contract
+  update(contract: ContractUpdateInput!): Contract
+  delete(contractId: Int!): Boolean
+}
+
+type ContractQueries {
+  byId(id: ID!): Contract
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [Contract]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedContract
+}
+
+type ContractSchedule implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  contractId: Int!
+  contract: Contract
+  schoolYearId: Int!
+  schoolYear: SchoolYear
+  startDate: Date!
+  daysToWork: [DayOfWeek]
+  firstWorkDayId: Int!
+  firstWorkDay: WorkDay
+  projectedEndDate: Date!
+  contractDates: [ContractDate]
+}
+
+input ContractScheduleCreateInput {
+  orgId: Int!
+  startDate: Date
+  firstWorkDayId: Int
+  daysToWork: [DayOfWeek]
+  contractId: Int!
+  schoolYearId: Int!
+}
+
+type ContractScheduleMutations {
+  create(contractSchedule: ContractScheduleCreateInput!): ContractSchedule
+  update(contractSchedule: ContractScheduleUpdateInput!): ContractSchedule
+  delete(contractScheduleId: Int!): Boolean
+  seedContractSchedule(contractScheduleId: Int!): ContractSchedule
+}
+
+type ContractScheduleQueries {
+  byId(id: ID!): ContractSchedule
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ContractSchedule]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedContractSchedule
+}
+
+input ContractScheduleUpdateInput {
+  startDate: Date
+  firstWorkDayId: Int
+  rowVersion: ID
+  contractScheduleId: Int
+  daysToWork: [DayOfWeek]
+}
+
+input ContractUpdateInput {
+  contractId: Int!
+  rowVersion: Int!
+  name: String
+  externalId: String
+  numberOfDays: Int
+  workDayPatternId: Int
+  expired: Boolean
+}
+
+enum CountryCode {
+  INVALID
+  US
+  CA
+}
+
+enum Culture {
+  INVALID
+  US_ENGLISH
+}
+
+enum Currency {
+  INVALID
+  USD
+  CAD
+}
+
+type CustomField implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  stringId: String!
+  description: String
+  customFieldTypeId: CustomFieldType
+  maxResponses: Int!
+  customFieldVisibilityId: CustomFieldVisibility
+  customFieldRequirementLevelId: CustomFieldRequirementLevel
+  format: String
+  searchable: Boolean
+  listItems: [String]
+  label: String!
+  displayOrder: Int!
+  customFieldSetType: String!
+  validUntil: Date
+  expired: Boolean
+}
+
+input CustomFieldCreateInput {
+  orgId: Int!
+  customFieldSetTypeId: CustomFieldSetType
+  label: String!
+  description: String
+  displayOrder: Int!
+  customFieldTypeId: CustomFieldType
+  maxResponses: Int!
+  customFieldVisibilityId: CustomFieldVisibility
+  customFieldRequirementLevelId: CustomFieldRequirementLevel
+  format: String
+  listItems: [String]
+}
+
+type CustomFieldMutations {
+  create(customField: CustomFieldCreateInput!): CustomField
+  update(customField: CustomFieldUpdateInput!): CustomField
+  delete(customFieldId: Int!): Boolean
+}
+
+type CustomFieldQueries {
+  byId(id: ID!): CustomField
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [CustomField]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedCustomField
+}
+
+enum CustomFieldRequirementLevel {
+  INVALID
+  ERROR
+  WARN
+  NONE
+}
+
+enum CustomFieldSetType {
+  INVALID
+  JUST_FOR_TESTING
+}
+
+enum CustomFieldType {
+  INVALID
+  TEXT
+  DROP_DOWN
+  COMBO
+}
+
+input CustomFieldUpdateInput {
+  customFieldId: Int!
+  rowVersion: String
+  label: String
+  description: String
+  displayOrder: Int
+  customFieldTypeId: CustomFieldType
+  maxResponses: Int
+  customFieldVisibilityId: CustomFieldVisibility
+  customFieldRequirementLevelId: CustomFieldRequirementLevel
+  format: String
+  listItems: [String]
+}
+
+enum CustomFieldVisibility {
+  INVALID
+  SHOW
+  SELECT
+  HIDE
+}
+
+# The `Date` scalar type represents a year, month and day in accordance with the
+# [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) standard.
+scalar Date
+
+enum DateRangeType {
+  DAY_OF_WEEK
+  WEEK
+  MONTH
+  YEAR
+}
+
+# The `DateTime` scalar type represents a date and time. `DateTime` expects
+# timestamps to be formatted in accordance with the
+# [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) standard.
+scalar DateTime
+
+# The `DateTimeOffset` scalar type represents a date, time and offset from UTC.
+# `DateTimeOffset` expects timestamps to be formatted in accordance with the
+# [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) standard.
+scalar DateTimeOffset
+
+enum DayOfWeek {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+scalar Decimal
+
+enum DensityUnit {
+  INVALID
+  POUNDS_PER_CUBIC_FOOT
+  KILOGRAMS_PER_CUBIC_METER
+}
+
+enum DimensionUnit {
+  INVALID
+  INCHES
+  CENTIMETERS
+  FEET
+  METERS
+}
+
+enum DistanceUnit {
+  INVALID
+  MILES
+  KILOMETERS
+}
+
+interface DomainObjectInterface {
+  externalId: String
+  rowVersion: String
+}
+
+type Employee implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  canFillVacancies: Boolean!
+  isShadowEmployee: Boolean!
+  shadowEmployeeId: Int
+  shadowEmployee: Employee
+  primaryPositionId: Int
+  primaryPosition: Position
+  dateOfBirth: Date!
+  assignments: [Assignment]
+  absenceReasonBalances: [AbsenceReasonBalance]
+  employmentHistories: [EmploymentHistory]
+  endorsements: [Endorsement]
+  addresses: [EmployeeAddress]
+  phoneNumbers: [EmployeePhone]
+}
+
+type EmployeeAddress implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  address1: String
+  address2: String
+  city: String
+  state: StateCode
+  postalCode: String
+  country: CountryCode
+}
+
+input EmployeeAddressInput {
+  employeeAddressId: Int
+  addressTypeId: AbsenceType
+  address1: String
+  address2: String
+  city: String
+  postalCode: String
+  stateId: StateCode
+  countryId: CountryCode
+}
+
+input EmployeeCreateInput {
+  orgId: Int!
+  externalId: String
+  canFillVacancies: Boolean!
+  dateOfBirth: Date!
+  shadowEmployeeId: Int
+  primaryPositionId: Int
+  primaryPosition: PositionCreateInput
+  addresses: [EmployeeAddressInput]
+  phoneNumbers: [EmployeePhoneInput]
+}
+
+type EmployeeMutations {
+  create(employee: EmployeeCreateInput!): Employee
+  update(employee: EmployeeUpdateInput!): Employee
+  delete(employeeId: Int!): Boolean
+}
+
+type EmployeePhone implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  phoneType: PhoneType
+  number: String
+  country: CountryCode
+}
+
+input EmployeePhoneInput {
+  employeePhoneId: Int
+  phoneTypeId: PhoneType
+  number: String!
+  countryId: CountryCode
+}
+
+type EmployeeQueries {
+  byId(id: ID!): Employee
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Employee]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedEmployee
+}
+
+input EmployeeUpdateInput {
+  externalId: String
+  canFillVacancies: Boolean!
+  dateOfBirth: Date!
+  shadowEmployeeId: Int
+  primaryPositionId: Int
+  addresses: [EmployeeAddressInput]
+  phoneNumbers: [EmployeePhoneInput]
+}
+
+type EmploymentHistory {
+  _info: [ReturnMessage]
+}
+
+type EndEmploymentReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  validUntil: Date
+  expired: Boolean
+}
+
+input EndEmploymentReasonCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  externalId: String
+}
+
+input EndEmploymentReasonUpdateInput {
+  id: Int!
+  rowVersion: String
+  name: String
+  description: String
+  externalId: String
+  expired: Boolean
+}
+
+type Endorsement implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  validUntil: Date
+  expired: Boolean
+  expires: Boolean!
+}
+
+input EndorsementCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  externalId: String
+  expires: Boolean!
+}
+
+input EndorsementUpdateInput {
+  id: Int!
+  rowVersion: String
+  name: String
+  description: String
+  externalId: String
+  expired: Boolean
+  expires: Boolean!
+}
+
+type EventLog {
+  _info: [ReturnMessage]
+  id: Int!
+  eventFullName: String!
+  eventJson: String!
+  transactionId: String!
+  objectKey: Int!
+  objectTypeId: ObjectType
+  eventTypeId: EventType
+  orgId: Int
+  actingUserId: Int
+  actualUserId: Int
+  actingOrgUserId: Int
+  actualOrgUserId: Int
+}
+
+type EventQueue {
+  _info: [ReturnMessage]
+  id: Int!
+  orgId: Int
+  objectTypeId: ObjectType
+  objectKey: Int!
+  eventTypeId: EventType
+  eventQueueStatusId: EventQueueStatus
+  numAttempts: Int!
+  nextAttemptUtc: DateTime
+  lastAttemptUtc: DateTime
+  createdUtc: DateTime
+  changedUtc: DateTime
+  tasks: [EventTask]
+  eventLog: EventLog
+}
+
+type EventQueueMutations {
+  retryEvent(eventQueueId: ID!): Boolean
+  delete(eventQueueId: ID!): Boolean
+}
+
+type EventQueueQueries {
+  byId(id: ID!): EventQueue
+  paged(limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedEventQueue
+}
+
+enum EventQueueStatus {
+  INVALID
+  WAITING
+  IN_PROCESS
+  SUCCESS
+  PARTIAL_SUCCESS
+  FAILURE
+  PERMANENT_FAILURE
+  DESERIALIZATION_FAILURE
+  MISSING_EVENT_HANDLER
+}
+
+type EventTask {
+  _info: [ReturnMessage]
+  id: Int!
+  eventQueueId: Int!
+  taskNumber: Int!
+  eventTaskStatusId: EventTaskStatus
+  name: String
+  numAttempts: Int!
+  lastAttemptUtc: DateTime
+  errorMessage: String
+  callStack: String
+}
+
+enum EventTaskStatus {
+  WAITING
+  IN_PROCESS
+  SUCCESS
+  FAILURE
+}
+
+enum EventType {
+  INVALID
+  USER_CREATED
+  USER_UPDATED
+  USER_DELETED
+  USER_ACCESS_REVOKED
+  USER_ACCESS_RESTORED
+  USER_LOGGED_IN
+  USER_LOGGED_OUT
+  USER_PASSWORD_LIMIT_EXCEEDED
+  USER_PASSWORD_CHANGED
+  USER_PASSWORD_RESET_REQUESTED
+  USER_LOGIN_EMAIL_CHANGED
+  USER_RECOVERY_EMAIL_CHANGED
+  USER_CONTACT_INFO_CHANGED
+  USER_ACCEPTED_EULA
+  ORGANIZATION_CREATED
+  ORGANIZATION_UPDATED
+  ORGANIZATION_DELETED
+  ORGANIZATION_TIME_ZONE_CHANGED
+  ORGANIZATION_DATA_SEEDED
+  LOCATION_CREATED
+  LOCATION_UPDATED
+  LOCATION_DELETED
+  LOCATION_GEO_CODED
+  LOCATION_ADDRESS_CHANGED
+  LOCATION_TIME_ZONE_CHANGED
+  LOCATION_VALID_UNTIL_CHANGED
+  LOCATION_DIVISION_CHANGED
+  ORGANIZATION_USER_CREATED
+  ORGANIZATION_USER_UPDATED
+  ORGANIZATION_USER_DELETED
+  ORGANIZATION_USER_ACTIVATED
+  ORGANIZATION_USER_INACTIVATED
+  PERMISSION_PROFILE_CREATED
+  PERMISSION_PROFILE_UPDATED
+  PERMISSION_PROFILE_DELETED
+  SCHOOL_YEAR_CREATED
+  SCHOOL_YEAR_UPDATED
+  SCHOOL_YEAR_DELETED
+  WORK_DAY_PATTERN_CREATED
+  WORK_DAY_PATTERN_UPDATED
+  WORK_DAY_PATTERN_DELETED
+  ABSENCE_REASON_CREATED
+  ABSENCE_REASON_UPDATED
+  ABSENCE_REASON_DELETED
+  WORK_DAY_SCHEDULE_VARIANT_TYPE_CREATED
+  WORK_DAY_SCHEDULE_VARIANT_TYPE_UPDATED
+  WORK_DAY_SCHEDULE_VARIANT_TYPE_DELETED
+  END_EMPLOYMENT_REASON_CREATED
+  END_EMPLOYMENT_REASON_UPDATED
+  END_EMPLOYMENT_REASON_DELETED
+  CALENDAR_CHANGE_REASON_CREATED
+  CALENDAR_CHANGE_REASON_UPDATED
+  CALENDAR_CHANGE_REASON_DELETED
+  ENDORSEMENT_CREATED
+  ENDORSEMENT_UPDATED
+  ENDORSEMENT_DELETED
+  CONTRACT_CREATED
+  CONTRACT_UPDATED
+  CONTRACT_DELETED
+  CONTRACT_SCHEDULE_CREATED
+  CONTRACT_SCHEDULE_UPDATED
+  CONTRACT_SCHEDULE_DELETED
+  CONTRACT_SCHEDULE_SEEDED
+  RESEED_CONTRACT_SCHEDULE
+  POSITION_TYPE_CREATED
+  POSITION_TYPE_UPDATED
+  POSITION_TYPE_DELETED
+  POSITION_CREATED
+  POSITION_UPDATED
+  POSITION_DELETED
+  POSITION_SCHEDULE_CREATED
+  POSITION_SCHEDULE_UPDATED
+  POSITION_SCHEDULE_DELETED
+  POSITION_SCHEDULE_VARIANT_CREATED
+  POSITION_SCHEDULE_VARIANT_UPDATED
+  POSITION_SCHEDULE_VARIANT_DELETED
+  CALENDAR_CHANGE_CREATED
+  CALENDAR_CHANGE_UPDATED
+  CALENDAR_CHANGE_DELETED
+  WORK_DAY_SCHEDULE_CREATED
+  WORK_DAY_SCHEDULE_UPDATED
+  WORK_DAY_SCHEDULE_DELETED
+  WORK_DAY_SCHEDULE_VARIANT_CREATED
+  WORK_DAY_SCHEDULE_VARIANT_UPDATED
+  WORK_DAY_SCHEDULE_VARIANT_DELETED
+  LABEL_CREATED
+  LABEL_UPDATED
+  LABEL_DELETED
+  PAY_CODE_CREATED
+  PAY_CODE_UPDATED
+  PAY_CODE_DELETED
+  ACCOUNTING_CODE_CREATED
+  ACCOUNTING_CODE_UPDATED
+  ACCOUNTING_CODE_DELETED
+  ABSENCE_REASON_BALANCE_CREATED
+  ABSENCE_REASON_BALANCE_UPDATED
+  ABSENCE_REASON_BALANCE_DELETED
+  ABSENCE_REASON_BALANCE_DEDUCTED
+  EMPLOYEE_CREATED
+  EMPLOYEE_UPDATED
+  EMPLOYEE_DELETED
+  ASSIGNMENT_CREATED
+  ASSIGNMENT_UPDATED
+  ASSIGNMENT_DELETED
+  ABSENCE_CREATED
+  ABSENCE_UPDATED
+  ABSENCE_DELETED
+  VACANCY_CREATED
+  VACANCY_UPDATED
+  VACANCY_DELETED
+  FILE_UPLOAD_CREATED
+  FILE_UPLOADED
+  FILE_UPLOAD_DELETED
+  SHIPMENT_FILE_CREATED
+  SHIPMENT_FILE_UPDATED
+  SHIPMENT_FILE_DELETED
+  EXTERNAL_SHIPMENT_FILE_RECEIVED
+  PARSED_INVOICE_RECEIVED
+  INVOICE_CREATED_FROM_SHIPMENT_FILE
+  PARSING_SUBMISSION_PERMANENT_FAILURE
+  PARSEABLE_FILE_RECEIVED
+  RE_SUBMIT_SHIPMENT_FILE_FOR_PARSING_REQUEST
+  BRANDING_CREATED
+  BRANDING_UPDATED
+  BRANDING_DELETED
+  CUSTOM_FIELD_CREATED
+  CUSTOM_FIELD_UPDATED
+  CUSTOM_FIELD_DELETED
+  CUSTOM_FIELD_VALID_UNTIL_UPDATED
+  EMAIL_RECEIVED
+  EXTERNAL_FILE_CREATED
+  EXTERNAL_FILE_UPDATED
+  EXTERNAL_FILE_DELETED
+  SAVED_VIEW_CREATED
+  SAVED_VIEW_UPDATED
+  SAVED_VIEW_DELETED
+  DATA_IMPORT_CREATED
+  DATA_IMPORT_FILE_UPLOADED
+  DATA_IMPORT_STARTED
+  DATA_IMPORT_FINISHED
+  LOCATION_GROUP_CREATED
+  LOCATION_GROUP_UPDATED
+  LOCATION_GROUP_DELETED
+}
+
+enum FeatureFlag {
+  NONE
+  FULL_DAY_ABSENCES
+  HALF_DAY_ABSENCES
+  QUARTER_DAY_ABSENCES
+  HOURLY_ABSENCES
+}
+
+enum FilePurpose {
+  INVALID
+  BRANDING
+  ABSENCE
+  VACANCY
+  IMPORT
+  OTHER
+}
+
+enum FileType {
+  INVALID
+  PDF
+  JPG
+  PNG
+  GIF
+  TIF
+}
+
+enum FillStatus {
+  INVALID
+  UNFILLED
+  PARTLY_FILLED
+  FILLED
+}
+
+type Label implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  validUntil: Date
+  expired: Boolean
+  allowedLabelTypes: LabelType
+}
+
+input LabelCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  externalId: String
+  allowedLabelTypes: LabelType
+}
+
+enum LabelType {
+  NONE
+  CONTRACT
+  LOCATION
+  POSITION
+  EMPLOYEE
+  ABSENCE_REASON
+}
+
+input LabelUpdateInput {
+  id: Int!
+  rowVersion: String
+  name: String
+  description: String
+  externalId: String
+  expired: Boolean
+  allowedLabelTypes: LabelType
+}
+
+type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  timeZoneId: TimeZone
+  address: Address
+  locationConfig: LocationConfig
+  address1: String
+  address2: String
+  city: String
+  stateName: String
+  postalCode: String
+  countryName: String
+  validUntil: DateTime
+  active: Boolean
+}
+
+type LocationConfig implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  replacementStartOffsetMinutes: Int
+  replacementEndOffsetMinutes: Int
+}
+
+input LocationConfigInputType {
+  locationConfigId: Int
+  replacementStartOffsetMinutes: Int
+  replacementEndOffsetMinutes: Int
+}
+
+input LocationCreateInput {
+  orgId: Int!
+  name: String!
+  externalId: String
+  address: AddressInput
+  timeZoneId: TimeZone
+  locationGroupId: Int!
+  locationConfig: LocationConfigInputType
+}
+
+type LocationGroup implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  locationConfig: LocationConfig
+  locations: [Location]
+}
+
+input LocationGroupCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  locationConfig: LocationConfigInputType
+}
+
+type LocationGroupMutations {
+  create(locationGroup: LocationGroupCreateInput!): LocationGroup
+  update(locationGroup: LocationGroupUpdateInput!): LocationGroup
+  delete(locationGroupId: Int!): Boolean
+}
+
+type LocationGroupQueries {
+  byId(id: ID!): LocationGroup
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [LocationGroup]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedLocationGroup
+}
+
+input LocationGroupUpdateInput {
+  id: Int!
+  name: String
+  description: String
+  rowVersion: String
+  locationConfig: LocationConfigInputType
+}
+
+type LocationMutations {
+  create(location: LocationCreateInput!): Location
+  update(location: LocationUpdateInput!): Location
+  delete(locationId: Int!): Boolean
+}
+
+type LocationQueries {
+  byId(id: ID!): Location
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [Location]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedLocation
+}
+
+input LocationUpdateInput {
+  id: Int!
+  name: String
+  externalId: String
+  address: AddressInput
+  timeZoneId: TimeZone
+  rowVersion: String
+  expired: Boolean
+  locationConfig: LocationConfigInputType
+}
+
+# The `Milliseconds` scalar type represents a period of time represented as the total number of milliseconds.
+scalar Milliseconds
+
+interface ModelObjectInterface {
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+}
+
+type Mutation {
+  absenceReasonBalance: AbsenceReasonBalanceMutations
+  branding: BrandingMutations
+  calendarChange: CalendarChangeMutations
+  contract: ContractMutations
+  contractSchedule: ContractScheduleMutations
+  customField: CustomFieldMutations
+  employee: EmployeeMutations
+  eventQueue: EventQueueMutations
+  locationGroup: LocationGroupMutations
+  location: LocationMutations
+  notificationLog: NotificationLogMutations
+  organization: OrganizationMutations
+  orgUser: OrgUserMutations
+  positionSchedule: PositionScheduleMutations
+  positionType: PositionTypeMutations
+  savedView: SavedViewMutations
+  schoolYear: SchoolYearMutations
+  user: UserMutations
+  workDayPattern: WorkDayPatternMutations
+  workDaySchedule: WorkDayScheduleMutations
+  orgRef_AbsenceReason: OrgRef_AbsenceReasonMutations
+  orgRef_AccountingCode: OrgRef_AccountingCodeMutations
+  orgRef_CalendarChangeReason: OrgRef_CalendarChangeReasonMutations
+  orgRef_EndEmploymentReason: OrgRef_EndEmploymentReasonMutations
+  orgRef_Endorsement: OrgRef_EndorsementMutations
+  orgRef_Label: OrgRef_LabelMutations
+  orgRef_PayCode: OrgRef_PayCodeMutations
+  orgRef_WorkDayScheduleVariantType: OrgRef_WorkDayScheduleVariantTypeMutations
+}
+
+enum NeedsReplacement {
+  NO
+  YES
+  SOMETIMES
+}
+
+type NotificationLog implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  title: String
+  content: String
+  headerMessage: String
+  link: String
+  viewed: Boolean!
+  orgId: Int
+}
+
+type NotificationLogMutations {
+  markSingleNotificationViewed(notificationId: String!): Boolean
+  markMultipleNotificationsViewed(notificationIds: [String]!): Boolean
+}
+
+type NotificationLogQueries {
+  byId(id: ID!): NotificationLog
+  paged(
+    limit: Int
+    offset: Int
+    orgId: ID
+    includeViewed: Boolean
+  ): PagedNotificationLog
+  unreadNotificationCount(orgId: ID): Int
+}
+
+type NotificationPreference {
+  _info: [ReturnMessage]
+  notificationReasonId: NotificationReason
+  receiveInAppNotifications: Boolean!
+  receiveEmailNotifications: Boolean!
+  includeInEmailDigest: Boolean!
+}
+
+input NotificationPreferenceInput {
+  notificationReasonId: NotificationReason
+  receiveInAppNotifications: Boolean!
+  receiveEmailNotifications: Boolean!
+  includeInEmailDigest: Boolean!
+}
+
+enum NotificationReason {
+  INVALID
+  DIGEST
+  ABSENCE_ASSIGNED
+  ABSENCE_CANCELLED
+}
+
+enum ObjectType {
+  INVALID
+  USER
+  ORGANIZATION
+  CONTACT
+  LOCATION
+  ORG_USER
+  PERMISSION_SET
+  SCHOOL_YEAR
+  WORK_DAY_PATTERN
+  ABSENCE_REASON
+  WORK_DAY_SCHEDULE_VARIANT_TYPE
+  END_EMPLOYMENT_REASON
+  CALENDAR_CHANGE_REASON
+  ENDORSEMENT
+  CONTRACT
+  CONTRACT_SCHEDULE
+  POSITION_TYPE
+  POSITION
+  CALENDAR_CHANGE
+  WORK_DAY_SCHEDULE
+  LOCATION_GROUP
+  LABEL
+  PAY_CODE
+  ACCOUNTING_CODE
+  ABSENCE_REASON_BALANCE
+  EMPLOYEE
+  ASSIGNMENT
+  ABSENCE
+  VACANCY
+  FILE_UPLOAD
+  BRANDING
+  CUSTOM_FIELD
+  RECEIVED_EMAIL
+  EXTERNAL_FILE
+  SAVED_VIEW
+  DATA_IMPORT
+}
+
+type Organization implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  timeZoneId: TimeZone
+  propelClientId: Int
+  config: organizationConfig
+}
+
+type organizationConfig {
+  _info: [ReturnMessage]
+  organizationTypeId: OrganizationType
+  defaultUnitType: UnitType
+  defaultDensityUnit: DensityUnit
+  defaultVolumeUnit: VolumeUnit
+  defaultDimensionUnit: DimensionUnit
+  defaultDistanceUnit: DistanceUnit
+  defaultWeightUnit: WeightUnit
+  defaultCurrency: Currency
+  defaultCountry: CountryCode
+  defaultLocationId: Int
+  orgUsersMustAcceptEula: Boolean!
+  leadTimeWindowsMinutes: Int!
+  brandingId: Int!
+  branding: Branding
+  featureFlags: [FeatureFlag]
+}
+
+input organizationConfigInput {
+  organizationTypeId: OrganizationType
+  featureFlags: [FeatureFlag]
+  defaultUnitType: UnitType
+  defaultCurrency: Currency
+  defaultCountry: CountryCode
+  orgUsersMustAcceptEula: Boolean
+  defaultLeadTimeWindowMinutes: Int
+  brandingId: Int
+}
+
+input OrganizationCreateInput {
+  name: String!
+  externalId: String
+  superUserLoginEmail: String!
+  superUserFirstName: String!
+  superUserLastName: String!
+  timeZoneId: TimeZone
+  seedOrgRefDataOption: SeedOrgRefDataOptionEnum
+  config: organizationConfigInput
+}
+
+type OrganizationMutations {
+  create(organization: OrganizationCreateInput!): Organization
+  update(organization: OrganizationUpdateInput!): Organization
+}
+
+type OrganizationQueries {
+  byId(id: ID!): Organization
+  all(searchText: String): [Organization]
+  paged(limit: Int, offset: Int, searchText: String): PagedOrganization
+}
+
+enum OrganizationType {
+  INVALID
+  STANDARD
+  DEMO
+}
+
+input OrganizationUpdateInput {
+  orgId: Int!
+  name: String
+  externalId: String
+  timeZoneId: TimeZone
+  rowVersion: String
+  config: organizationConfigInput
+}
+
+interface OrgObjectInterface {
+  orgId: Int!
+}
+
+type OrgRef_AbsenceReasonMutations {
+  create(absenceReason: AbsenceReasonCreateInput!): AbsenceReason
+  update(absenceReason: AbsenceReasonUpdateInput!): AbsenceReason
+  delete(absenceReasonId: Int!): Boolean
+}
+
+type OrgRef_AbsenceReasonQueries {
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [AbsenceReason]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedAbsenceReason
+}
+
+type OrgRef_AccountingCodeMutations {
+  create(accountingCode: AccountingCodeCreateInput!): AccountingCode
+  update(accountingCode: AccountingCodeUpdateInput!): AccountingCode
+  delete(accountingCodeId: Int!): Boolean
+}
+
+type OrgRef_AccountingCodeQueries {
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [AccountingCode]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedAccountingCode
+}
+
+type OrgRef_CalendarChangeReasonMutations {
+  create(
+    calendarChangeReason: CalendarChangeReasonCreateInput!
+  ): CalendarChangeReason
+  update(
+    calendarChangeReason: CalendarChangeReasonUpdateInput!
+  ): CalendarChangeReason
+  delete(calendarChangeReasonId: Int!): Boolean
+}
+
+type OrgRef_CalendarChangeReasonQueries {
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [CalendarChangeReason]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedCalendarChangeReason
+}
+
+type OrgRef_EndEmploymentReasonMutations {
+  create(
+    endEmploymentReason: EndEmploymentReasonCreateInput!
+  ): EndEmploymentReason
+  update(
+    endEmploymentReason: EndEmploymentReasonUpdateInput!
+  ): EndEmploymentReason
+  delete(endEmploymentReasonId: Int!): Boolean
+}
+
+type OrgRef_EndEmploymentReasonQueries {
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [EndEmploymentReason]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedEndEmploymentReason
+}
+
+type OrgRef_EndorsementMutations {
+  create(endorsement: EndorsementCreateInput!): Endorsement
+  update(endorsement: EndorsementUpdateInput!): Endorsement
+  delete(endorsementId: Int!): Boolean
+}
+
+type OrgRef_EndorsementQueries {
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [Endorsement]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedEndorsement
+}
+
+type OrgRef_LabelMutations {
+  create(label: LabelCreateInput!): Label
+  update(label: LabelUpdateInput!): Label
+  delete(labelId: Int!): Boolean
+}
+
+type OrgRef_LabelQueries {
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [Label]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedLabel
+}
+
+type OrgRef_PayCodeMutations {
+  create(payCode: PayCodeCreateInput!): PayCode
+  update(payCode: PayCodeUpdateInput!): PayCode
+  delete(payCodeId: Int!): Boolean
+}
+
+type OrgRef_PayCodeQueries {
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [PayCode]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedPayCode
+}
+
+type OrgRef_WorkDayScheduleVariantTypeMutations {
+  create(
+    workDayScheduleVariantType: WorkDayScheduleVariantTypeCreateInput!
+  ): WorkDayScheduleVariantType
+  update(
+    workDayScheduleVariantType: WorkDayScheduleVariantTypeUpdateInput!
+  ): WorkDayScheduleVariantType
+  delete(workDayScheduleVariantTypeId: Int!): Boolean
+}
+
+type OrgRef_WorkDayScheduleVariantTypeQueries {
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [WorkDayScheduleVariantType]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedWorkDayScheduleVariantType
+}
+
+type OrgUser implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  firstName: String!
+  middleName: String!
+  lastName: String!
+  email: String!
+  active: Boolean!
+  userId: Int
+  isSuperUser: Boolean!
+  permissionSets: [PermissionSet]
+  adminScopeLocationRules: [String!]!
+  adminScopePositionTypeRules: [String!]!
+  adminLocations: [Location]
+  adminPositionTypes: [PositionType]
+}
+
+input OrgUserCreateInput {
+  orgId: Int!
+  email: String!
+  active: Boolean
+  firstName: String!
+  middleName: String
+  lastName: String!
+  isSuperUser: Boolean!
+  permissionSetIds: [Int]
+  adminScopeLocationRules: [String]
+  adminScopePositionTypeRules: [String]
+}
+
+type OrgUserMutations {
+  create(orgUser: OrgUserCreateInput!): OrgUser
+  update(orgUser: OrgUserUpdateInput!): OrgUser
+  delete(orgUserId: Int!): Boolean
+}
+
+type OrgUserQueries {
+  byId(id: ID!): OrgUser
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [OrgUser]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedOrgUser
+}
+
+enum OrgUserRole {
+  INVALID
+  ADMINISTRATOR
+  EMPLOYEE
+  ADMIN_OR_EMPLOYEE
+  REPLACEMENT_EMPLOYEE
+  ADMIN_OR_REPLACEMENT
+}
+
+input OrgUserUpdateInput {
+  id: Int!
+  email: String
+  active: Boolean
+  firstName: String
+  middleName: String
+  lastName: String
+  isSuperUser: Boolean
+  permissionSetIds: [Int]
+  adminScopeLocationRules: [String]
+  adminScopePositionTypeRules: [String]
+}
+
+type PagedAbsenceReason {
+  _info: [ReturnMessage]
+  results: [AbsenceReason]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedAccountingCode {
+  _info: [ReturnMessage]
+  results: [AccountingCode]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedCalendarChange {
+  _info: [ReturnMessage]
+  results: [CalendarChange]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedCalendarChangeReason {
+  _info: [ReturnMessage]
+  results: [CalendarChangeReason]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedContract {
+  _info: [ReturnMessage]
+  results: [Contract]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedContractSchedule {
+  _info: [ReturnMessage]
+  results: [ContractSchedule]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedCustomField {
+  _info: [ReturnMessage]
+  results: [CustomField]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedEmployee {
+  _info: [ReturnMessage]
+  results: [Employee]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedEndEmploymentReason {
+  _info: [ReturnMessage]
+  results: [EndEmploymentReason]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedEndorsement {
+  _info: [ReturnMessage]
+  results: [Endorsement]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedEventQueue {
+  _info: [ReturnMessage]
+  results: [EventQueue]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedLabel {
+  _info: [ReturnMessage]
+  results: [Label]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedLocation {
+  _info: [ReturnMessage]
+  results: [Location]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedLocationGroup {
+  _info: [ReturnMessage]
+  results: [LocationGroup]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedNotificationLog {
+  _info: [ReturnMessage]
+  results: [NotificationLog]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedOrganization {
+  _info: [ReturnMessage]
+  results: [Organization]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedOrgUser {
+  _info: [ReturnMessage]
+  results: [OrgUser]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedPayCode {
+  _info: [ReturnMessage]
+  results: [PayCode]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedPositionSchedule {
+  _info: [ReturnMessage]
+  results: [PositionSchedule]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedPositionType {
+  _info: [ReturnMessage]
+  results: [PositionType]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedSavedView {
+  _info: [ReturnMessage]
+  results: [SavedView]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedSchoolYear {
+  _info: [ReturnMessage]
+  results: [SchoolYear]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedUser {
+  _info: [ReturnMessage]
+  results: [User]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedWorkDayPattern {
+  _info: [ReturnMessage]
+  results: [WorkDayPattern]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedWorkDaySchedule {
+  _info: [ReturnMessage]
+  results: [WorkDaySchedule]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedWorkDayScheduleVariantType {
+  _info: [ReturnMessage]
+  results: [WorkDayScheduleVariantType]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+enum ParsingStatus {
+  INVALID
+  NOT_PARSED
+  WAITING_FOR_PARSING
+  PARSING
+  PARSING_COMPLETE
+  PARSING_ERROR
+  PARSING_FAILURE
+}
+
+type PayCode implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  validUntil: Date
+  expired: Boolean
+}
+
+input PayCodeCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  externalId: String
+}
+
+input PayCodeUpdateInput {
+  id: Int!
+  rowVersion: String
+  name: String
+  description: String
+  externalId: String
+  expired: Boolean
+}
+
+enum PermissionEnum {
+  INVALID
+  CONTRACT_SAVE
+  CONTRACT_DELETE
+  LOCATION_SAVE
+  LOCATION_DELETE
+  LOCATION_GROUP_SAVE
+  LOCATION_GROUP_DELETE
+  SCHOOL_YEAR_SAVE
+  SCHOOL_YEAR_DELETE
+  WORK_DAY_PATTERN_SAVE
+  WORK_DAY_PATTERN_DELETE
+  WORK_DAY_SCHEDULE_SAVE
+  WORK_DAY_SCHEDULE_DELETE
+  POSITION_TYPE_SAVE
+  POSITION_TYPE_DELETE
+  ORGANIZATION_UPDATE
+  ORGANIZATION_USER_SAVE
+  ORGANIZATION_USER_DELETE
+  ORG_REFERENCE_DATA_SAVE
+  ORG_REFERENCE_DATA_DELETE
+  SHIPMENT_FILE_UPLOAD
+  SHIPMENT_FILE_DELETE
+  CUSTOM_FIELD_SAVE
+  CUSTOM_FIELD_DELETE
+  DATA_IMPORT
+  ABSENCE_REASON_BALANCE_SAVE
+  ABSENCE_REASON_BALANCE_DELETE
+  POSITION_SAVE
+  POSITION_DELETE
+  EMPLOYEE_SAVE
+  EMPLOYEE_DELETE
+  USER_RESET_PASSWORD
+  USER_CHANGE_EMAIL
+  PERMISSION_SET_CREATE
+  PERMISSION_SET_SAVE
+  PERMISSION_SET_DELETE
+  POSITION_SCHEDULE_SAVE
+  POSITION_SCHEDULE_DELETE
+  CALENDAR_CHANGE_SAVE
+  CALENDAR_CHANGE_DELETE
+}
+
+type PermissionSet implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  forRole: OrgUserRole
+  permissions: [PermissionEnum]
+  isShadow: Boolean!
+  shadowFromOrgId: Int
+}
+
+enum PhoneType {
+  INVALID
+  HOME_PHONE
+  WORK_PHONE
+  MOBILE_PHONE
+}
+
+type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  positionTypeId: Int!
+  positionType: PositionType
+  currentEmployeeId: Int
+  currentContractId: Int
+  currentContract: Contract
+  positionConfigId: Int!
+  positionConfig: [PositionType]
+  needsReplacement: NeedsReplacement
+  isStaffAugmentation: Boolean!
+}
+
+input PositionConfigInputType {
+  positionConfigId: Int
+  needsReplacement: Boolean!
+}
+
+input PositionCreateInput {
+  name: String!
+  orgId: Int!
+  externalId: String
+  positionTypeId: Int!
+  currentEmployeeId: Int
+  currentContractId: Int
+  needsReplacement: NeedsReplacement
+  isStaffAugmentation: Boolean!
+  positionConfig: PositionConfigInputType
+}
+
+type PositionSchedule implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  name: String!
+  positionId: Int!
+  rowVersion: String
+  periods: [PositionSchedulePeriod]
+  variants: [PositionScheduleVariant]
+}
+
+input PositionScheduleCreateInput {
+  orgId: Int!
+  positionId: Int!
+  name: String!
+  periods: [PositionSchedulePeriodInput]
+}
+
+type PositionScheduleMutations {
+  create(positionSchedule: PositionScheduleCreateInput!): PositionSchedule
+  update(positionSchedule: PositionScheduleUpdateInput!): PositionSchedule
+  delete(positionScheduleId: Int!): Boolean
+  modifyScheduleVariant(
+    positionScheduleVariant: PositionScheduleVariantModifyInput!
+  ): PositionScheduleVariant
+  deleteScheduleVariant(
+    positionScheduleVariant: PositionScheduleVariantDeleteInput!
+  ): Boolean
+}
+
+type PositionSchedulePeriod implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  positionId: Int!
+  positionScheduleId: Int!
+  sequence: Int
+  name: String!
+  description: String
+  needsReplacement: Boolean!
+  deductFromAbsenceBalance: Boolean!
+  locationId: Int!
+  workDayScheduleId: Int
+  workDaySchedulePeriodId: Int
+}
+
+input PositionSchedulePeriodInput {
+  positionSchedulePeriodId: Int
+  name: String
+  description: String
+  locationId: Int
+  workDayScheduleId: Int
+  workDaySchedulePeriodId: Int
+  needsReplacement: Boolean
+  deductFromAbsenceBalance: Boolean
+}
+
+type PositionScheduleQueries {
+  byId(id: ID!): PositionSchedule
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [PositionSchedule]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedPositionSchedule
+}
+
+input PositionScheduleUpdateInput {
+  positionScheduleId: Int!
+  rowVersion: Int!
+  name: String
+  periods: [PositionSchedulePeriodInput]
+}
+
+type PositionScheduleVariant implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  positionScheduleId: Int!
+  workDayScheduleVariantTypeId: Int!
+  isStandard: Boolean!
+  startTime: Seconds
+  endTime: Seconds
+  duration: Int
+  halfDayMorningEnd: Seconds
+  halfDayAfternoonStart: Seconds
+  halfDayMorningDuration: Int
+  halfDayAfternoonDuration: Int
+  quarterDayEarlyMorningEnd: Seconds
+  quarterDayLateMorningStart: Seconds
+  quarterDayLateMorningEnd: Seconds
+  quarterDayEarlyAfternoonStart: Seconds
+  quarterDayEarlyAfternoonEnd: Seconds
+  quarterDayLateAfternoonStart: Seconds
+  quarterDayEarlyMorningDuration: Int
+  quarterDayLateMorningDuration: Int
+  quarterDayEarlyAfternoonDuration: Int
+  quarterDayLateAfternoonDuration: Int
+  periods: [PositionScheduleVariantPeriod]
+}
+
+input PositionScheduleVariantDeleteInput {
+  positionScheduleId: Int!
+  positionScheduleVariantId: Int!
+}
+
+input PositionScheduleVariantInput {
+  positionScheduleVariantId: Int
+  workDayScheduleVariantTypeId: Int
+  periods: [PositionScheduleVariantPeriodCreateInput]
+}
+
+input PositionScheduleVariantModifyInput {
+  positionScheduleId: Int
+  rowVersion: Int!
+  scheduleVariant: PositionScheduleVariantInput
+}
+
+type PositionScheduleVariantPeriod implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  sequence: Int
+  startTime: Seconds!
+  endTime: Seconds!
+  duration: Int
+  dayPortion: Decimal!
+  isHalfDayMorningEnd: Boolean!
+  isHalfDayAfternoonStart: Boolean!
+  isQuarterDayEarlyMorningEnd: Boolean!
+  isQuarterDayLateMorningStart: Boolean!
+  isQuarterDayLateMorningEnd: Boolean!
+  isQuarterDayEarlyAfternoonStart: Boolean!
+  isQuarterDayEarlyAfternoonEnd: Boolean!
+  isQuarterDayLateAfternoonStart: Boolean!
+}
+
+input PositionScheduleVariantPeriodCreateInput {
+  positionScheduleVariantPeriodId: Int
+  positionSchedulePeriodName: String!
+  startTime: Int
+  isHalfDayMorningEnd: Boolean
+  isHalfDayAfternoonStart: Boolean
+  isQuarterDayEarlyMorningEnd: Boolean
+  isQuarterDayLateMorningStart: Boolean
+  isQuarterDayLateMorningEnd: Boolean
+  isQuarterDayEarlyAfternoonStart: Boolean
+  isQuarterDayEarlyAfternoonEnd: Boolean
+  isQuarterDayLateAfternoonStart: Boolean
+}
+
+type PositionType implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  needsReplacement: Boolean!
+}
+
+input PositionTypeCreateInput {
+  name: String!
+  orgId: Int!
+  forStaffAugmentation: Boolean!
+  forPermanentPositions: Boolean!
+  externalId: String
+  positionConfig: PositionConfigInputType
+}
+
+type PositionTypeMutations {
+  create(positionType: PositionTypeCreateInput!): PositionType
+  update(positionType: PositionTypeUpdateInput!): PositionType
+  delete(positionTypeId: Int!): Boolean
+}
+
+type PositionTypeQueries {
+  byId(id: ID!): PositionType
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [PositionType]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedPositionType
+}
+
+input PositionTypeUpdateInput {
+  positionTypeId: Int!
+  rowVersion: Int!
+  name: String
+  forStaffAugmentation: Boolean
+  forPermanentPositions: Boolean
+  externalId: String
+  positionConfig: PositionConfigInputType
+}
+
+type Query {
+  branding: BrandingQueries
+  calendarChange: CalendarChangeQueries
+  changeLog: ChangeLogQueries
+  contract: ContractQueries
+  contractSchedule: ContractScheduleQueries
+  customField: CustomFieldQueries
+  employee: EmployeeQueries
+  eventQueue: EventQueueQueries
+  locationGroup: LocationGroupQueries
+  location: LocationQueries
+  notificationLog: NotificationLogQueries
+  organization: OrganizationQueries
+  orgRef_AbsenceReason: OrgRef_AbsenceReasonQueries
+  orgRef_AccountingCode: OrgRef_AccountingCodeQueries
+  orgRef_CalendarChangeReason: OrgRef_CalendarChangeReasonQueries
+  orgRef_EndEmploymentReason: OrgRef_EndEmploymentReasonQueries
+  orgRef_Endorsement: OrgRef_EndorsementQueries
+  orgRef_Label: OrgRef_LabelQueries
+  orgRef_PayCode: OrgRef_PayCodeQueries
+  orgRef_WorkDayScheduleVariantType: OrgRef_WorkDayScheduleVariantTypeQueries
+  orgUser: OrgUserQueries
+  positionSchedule: PositionScheduleQueries
+  positionType: PositionTypeQueries
+  referenceData: ReferenceDataQueries
+  returnMessageTest: ReturnMessageTestQueries
+  savedView: SavedViewQueries
+  schoolYear: SchoolYearQueries
+  search: SearchQueries
+  userAccess: UserAccessQueries
+  user: UserQueries
+  workDayPattern: WorkDayPatternQueries
+  workDaySchedule: WorkDayScheduleQueries
+}
+
+type RefAbsenceDocumentType {
+  _info: [ReturnMessage]
+  enumValue: AbsenceDocumentType
+  name: String!
+  description: String
+}
+
+type RefAbsenceReasonTrackingType {
+  _info: [ReturnMessage]
+  enumValue: AbsenceReasonTrackingTypeId
+  name: String!
+  description: String
+}
+
+type RefAbsenceStatus {
+  _info: [ReturnMessage]
+  enumValue: AbsenceStatus
+  name: String!
+  description: String
+}
+
+type RefAddressType {
+  _info: [ReturnMessage]
+  enumValue: AbsenceType
+  name: String!
+  description: String
+}
+
+type RefCalendarDayType {
+  _info: [ReturnMessage]
+  enumValue: CalendarDayType
+  name: String!
+  description: String
+}
+
+type RefCountryCode {
+  _info: [ReturnMessage]
+  enumValue: CountryCode
+  name: String!
+  description: String
+}
+
+type RefCulture {
+  _info: [ReturnMessage]
+  enumValue: Culture
+  name: String!
+  description: String
+}
+
+type RefCurrency {
+  _info: [ReturnMessage]
+  enumValue: Currency
+  name: String!
+  description: String
+}
+
+type RefCustomFieldRequirementLevel {
+  _info: [ReturnMessage]
+  enumValue: CustomFieldRequirementLevel
+  name: String!
+  description: String
+}
+
+type RefCustomFieldSetType {
+  _info: [ReturnMessage]
+  enumValue: CustomFieldSetType
+  name: String!
+  description: String
+}
+
+type RefCustomFieldType {
+  _info: [ReturnMessage]
+  enumValue: CustomFieldType
+  name: String!
+  description: String
+}
+
+type RefCustomFieldVisibility {
+  _info: [ReturnMessage]
+  enumValue: CustomFieldVisibility
+  name: String!
+  description: String
+}
+
+type RefDateRangeType {
+  _info: [ReturnMessage]
+  enumValue: DateRangeType
+  name: String!
+  description: String
+}
+
+type RefDensityUnit {
+  _info: [ReturnMessage]
+  enumValue: DensityUnit
+  name: String!
+  description: String
+}
+
+type RefDimensionUnit {
+  _info: [ReturnMessage]
+  enumValue: DimensionUnit
+  name: String!
+  description: String
+}
+
+type ReferenceDataQueries {
+  absenceDocumentTypes: [RefAbsenceDocumentType]
+  absenceReasonTrackingTypes: [RefAbsenceReasonTrackingType]
+  absenceStatuses: [RefAbsenceStatus]
+  addressTypes: [RefAddressType]
+  calendarDayTypes: [RefCalendarDayType]
+  country: [RefCountryCode]
+  cultures: [RefCulture]
+  customFieldTypes: [RefCustomFieldType]
+  customFieldVisibilitys: [RefCustomFieldVisibility]
+  customFieldRequirementLevels: [RefCustomFieldRequirementLevel]
+  customFieldSetTypes: [RefCustomFieldSetType]
+  currencies: [RefCurrency]
+  dateRangeTypes: [RefDateRangeType]
+  densityUnits: [RefDensityUnit]
+  dimensionUnits: [RefDimensionUnit]
+  featureFlags: [RefFeatureFlag]
+  fileTypes: [RefFileType]
+  filePurposes: [RefFilePurpose]
+  notificationReasons: [RefNotificationReason]
+  parsingStatuses: [RefParsingStatus]
+  objectTypes: [RefObjectType]
+  organizationTypes: [RefOrganizationType]
+  permissions: [RefPermission]
+  phoneTypes: [RefPhoneType]
+  requirementTypes: [RefRequirementType]
+  states: [RefStateCode]
+  labelTypes: [RefLabelType]
+  fillStatuses: [RefFillStatus]
+  timeZones: [RefTimeZone]
+  unitTypes: [RefVolumeUnit]
+  volumeUnits: [RefVolumeUnit]
+  weightUnits: [RefWeightUnit]
+}
+
+type RefFeatureFlag {
+  _info: [ReturnMessage]
+  enumValue: FeatureFlag
+  name: String!
+  description: String
+}
+
+type RefFilePurpose {
+  _info: [ReturnMessage]
+  enumValue: FilePurpose
+  name: String!
+  description: String
+}
+
+type RefFileType {
+  _info: [ReturnMessage]
+  enumValue: FileType
+  name: String!
+  description: String
+}
+
+type RefFillStatus {
+  _info: [ReturnMessage]
+  enumValue: FillStatus
+  name: String!
+  description: String
+}
+
+type RefLabelType {
+  _info: [ReturnMessage]
+  enumValue: LabelType
+  name: String!
+  description: String
+}
+
+type RefNotificationReason {
+  _info: [ReturnMessage]
+  enumValue: NotificationReason
+  name: String!
+  description: String
+}
+
+type RefObjectType {
+  _info: [ReturnMessage]
+  enumValue: ObjectType
+  name: String!
+  description: String
+}
+
+type RefOrganizationType {
+  _info: [ReturnMessage]
+  enumValue: OrganizationType
+  name: String!
+  description: String
+}
+
+type RefParsingStatus {
+  _info: [ReturnMessage]
+  enumValue: ParsingStatus
+  name: String!
+  description: String
+}
+
+type RefPermission {
+  _info: [ReturnMessage]
+  enumValue: PermissionEnum
+  name: String!
+  description: String
+}
+
+type RefPhoneType {
+  _info: [ReturnMessage]
+  enumValue: PhoneType
+  name: String!
+  description: String
+}
+
+type RefRequirementType {
+  _info: [ReturnMessage]
+  enumValue: RequirementType
+  name: String!
+  description: String
+}
+
+type RefStateCode {
+  _info: [ReturnMessage]
+  enumValue: StateCode
+  name: String!
+  description: String
+}
+
+type RefTimeZone {
+  _info: [ReturnMessage]
+  enumValue: TimeZone
+  name: String!
+  description: String
+}
+
+type RefVolumeUnit {
+  _info: [ReturnMessage]
+  enumValue: VolumeUnit
+  name: String!
+  description: String
+}
+
+type RefWeightUnit {
+  _info: [ReturnMessage]
+  enumValue: WeightUnit
+  name: String!
+  description: String
+}
+
+enum RequirementType {
+  INVALID
+  REQUIRED
+  DESIRED
+  DISQUALIFYING
+}
+
+input ResetUserPasswordInput {
+  userId: Int!
+  orgId: Int
+}
+
+type ReturnMessage {
+  text: String
+  code: String
+  severity: String
+}
+
+type ReturnMessageTestQueries {
+  testInfo(
+    includeInfo: Boolean
+    includeWarning: Boolean
+    includeError: Boolean
+  ): TestTypeDef
+}
+
+type SavedView implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  query: String!
+  viewType: SavedViewType
+  createdByOrgUser: OrgUser
+  createdByOrgUserId: Int
+  createdByUser: User
+  createdByUserId: Int!
+  changedByOrgUser: OrgUser
+  changedByOrgUserId: Int
+  changedByUser: User
+  changedByUserId: Int!
+  fromClause: String!
+  selectClause: String!
+  whereClause: String!
+  orderByClause: String!
+  pageSizeClause: String!
+  fields: [SavedViewField]
+  fieldNames: [String]
+  sort: [SavedViewSort]
+  pageSize: Int
+  filters: [SavedViewFilter]
+}
+
+input SavedViewCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  query: String!
+}
+
+type SavedViewField {
+  _info: [ReturnMessage]
+  name: String!
+}
+
+type SavedViewFilter {
+  _info: [ReturnMessage]
+  field: SavedViewField
+  fieldName: String!
+  operator: String!
+  values: [String!]!
+}
+
+type SavedViewMutations {
+  create(savedView: SavedViewCreateInput!): SavedView
+  update(savedView: SavedViewUpdateInput!): SavedView
+  delete(savedViewId: Int!): Boolean
+}
+
+type SavedViewQueries {
+  byId(id: ID!): SavedView
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [SavedView]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+    searchText: String
+  ): PagedSavedView
+}
+
+type SavedViewSort {
+  _info: [ReturnMessage]
+  direction: SavedViewSortDirection
+  field: SavedViewField
+  fieldName: String!
+}
+
+enum SavedViewSortDirection {
+  ASC
+  DESC
+}
+
+enum SavedViewType {
+  ABSENCE_SUMMARY
+  VACANCY_SUMMARY
+  LOOSE
+  INVALID
+}
+
+input SavedViewUpdateInput {
+  savedViewId: Int!
+  name: String
+  description: String
+  query: String
+  rowVersion: String
+}
+
+type SchoolYear implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  startDate: Date
+  endDate: Date
+  earliestDateForAbsenceEntry: Date
+}
+
+input SchoolYearCreateInput {
+  orgId: Int!
+  name: String!
+  externalId: String
+  startDate: Date
+  endDate: Date
+  earliestDateForAbsenceEntry: Date
+}
+
+type SchoolYearMutations {
+  create(schoolYear: SchoolYearCreateInput!): SchoolYear
+  update(schoolYear: SchoolYearUpdateInput!): SchoolYear
+  delete(schoolYearId: Int!): Boolean
+}
+
+type SchoolYearQueries {
+  byId(id: ID!): SchoolYear
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [SchoolYear]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedSchoolYear
+  currentSchoolYear(orgId: ID!): SchoolYear
+}
+
+input SchoolYearUpdateInput {
+  schoolYearId: Int!
+  rowVersion: Int!
+  name: String
+  externalId: String
+  startDate: Date
+  endDate: Date
+  earliestDateForAbsenceEntry: Date
+}
+
+type SearchQueries {
+  global(orgId: ID, searchText: String, limit: Int): [SearchResult]
+}
+
+type SearchResult {
+  _info: [ReturnMessage]
+  id: ID
+  type: ObjectType
+  orgId: Int!
+  fieldName: String
+  value: String!
+  matches: [SearchResultMatch]
+}
+
+type SearchResultMatch {
+  _info: [ReturnMessage]
+  fieldName: String
+  value: String!
+}
+
+# The `Seconds` scalar type represents a period of time represented as the total number of seconds.
+scalar Seconds
+
+enum SeedOrgRefDataOptionEnum {
+  DONT_SEED
+  SEED_SYNCHRONOUSLY
+  SEED_ASYNCHRONOUSLY
+}
+
+input SortDetailsInput {
+  sortByPropertyName: String
+  sortAscending: Boolean
+}
+
+enum StateCode {
+  INVALID
+  AL
+  AK
+  AZ
+  AR
+  CA
+  CO
+  CT
+  DE
+  FL
+  GA
+  HI
+  ID
+  IL
+  IN
+  IA
+  KS
+  KY
+  LA
+  ME
+  MD
+  MA
+  MI
+  MN
+  MS
+  MO
+  MT
+  NE
+  NV
+  NH
+  NJ
+  NM
+  NY
+  NC
+  ND
+  OH
+  OK
+  OR
+  PA
+  RI
+  SC
+  SD
+  TN
+  TX
+  UT
+  VT
+  VA
+  WA
+  WV
+  WI
+  WY
+  AS
+  DC
+  FM
+  GU
+  MH
+  MP
+  PW
+  PR
+  VI
+  AB
+  BC
+  MB
+  NB
+  NL
+  NS
+  NT
+  NU
+  ON
+  PE
+  QC
+  SK
+  YT
+}
+
+type TestTypeDef {
+  _info: [ReturnMessage]
+  test: String
+}
+
+enum TimeZone {
+  INVALID
+  UTC
+  ATLANTIC_STANDARD_TIME_CANADA
+  EASTERN_STANDARD_TIME_US_CANADA
+  EASTERN_STANDARD_TIME_INDIANA_EAST
+  CENTRAL_STANDARD_TIME_US_CANADA
+  CENTRAL_STANDARD_TIME_SASKATCHEWAN
+  MOUNTAIN_STANDARD_TIME_US_CANADA
+  MOUNTAIN_STANDARD_TIME_ARIZONA
+  PACIFIC_STANDARD_TIME_US_CANADA
+  ALASKAN_STANDARD_TIME
+  HAWAIIAN_STANDARD_TIME
+}
+
+enum UnitType {
+  INVALID
+  IMPERIAL
+  METRIC
+}
+
+type User implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  firstName: String
+  middleName: String
+  lastName: String
+  loginEmail: String!
+  recoveryEmail: String
+  phone: String
+  cultureId: Culture
+  timeZoneId: TimeZone
+  rowVersion: String
+  orgUsers: [OrgUser]
+  preferences: UserPreferences
+  eulaAcceptedAtUtc: DateTime
+  eulaAccepted: Boolean!
+}
+
+type UserAccess {
+  _info: [ReturnMessage]
+  user: User
+  isSystemAdministrator: Boolean!
+  visibleOrganizations: [Organization]
+}
+
+type UserAccessQueries {
+  me: UserAccess
+}
+
+input UserCreateInput {
+  firstName: String!
+  middleName: String
+  lastName: String!
+  loginEmail: String!
+  recoveryEmail: String
+  phone: String
+  timeZoneId: TimeZone
+  cultureId: Culture
+  preferences: UserPreferencesInput
+}
+
+input UserLoginEmailChangeInput {
+  userId: Int!
+  loginEmail: String!
+  rowVersion: String
+}
+
+type UserMutations {
+  create(user: UserCreateInput!): User
+  update(user: UserUpdateInput!): User
+  changeLoginEmail(loginEmailChange: UserLoginEmailChangeInput!): User
+  delete(userId: Int!): Boolean
+  resetPassword(userInfo: ResetUserPasswordInput!): User
+  acceptEula: User
+}
+
+type UserPreferences {
+  _info: [ReturnMessage]
+  receiveEmailDigest: Boolean
+  emailDigestReceiveAll: Boolean
+  emailDigestReceiveTime: Seconds
+  notificationPreferences: [NotificationPreference]
+}
+
+input UserPreferencesInput {
+  receiveEmailDigest: Boolean
+  emailDigestReceiveAll: Boolean
+  emailDigestReceiveTime: Int
+  notificationPreferences: [NotificationPreferenceInput]
+}
+
+type UserQueries {
+  byId(id: ID!): User
+  paged(limit: Int, offset: Int, searchText: String): PagedUser
+}
+
+input UserUpdateInput {
+  id: Int!
+  firstName: String
+  middleName: String
+  lastName: String
+  recoveryEmail: String
+  phone: String
+  timeZoneId: TimeZone
+  cultureId: Culture
+  rowVersion: String
+  preferences: UserPreferencesInput
+}
+
+enum VolumeUnit {
+  INVALID
+  CUBIC_INCHES
+  CUBIC_FEET
+  CUBIC_CENTIMETERS
+  CUBIC_METERS
+}
+
+enum WeightUnit {
+  INVALID
+  POUNDS
+  KILOGRAMS
+}
+
+type WorkDay implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  workDayPatternId: Int!
+  sequence: Int
+  name: String!
+  fullDayEquivalence: Decimal!
+  dayOfWeek: DayOfWeek
+}
+
+input WorkDayCreateInput {
+  name: String!
+  dayOfWeek: DayOfWeek
+  fullDayEquivalence: Decimal!
+}
+
+type WorkDayPattern implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  shiftContractSchedulesForNonInstructionalDays: Boolean
+  validUntilUtc: DateTime
+  isExpired: Boolean
+  workDays: [WorkDay]
+}
+
+input WorkDayPatternCreateInput {
+  orgId: Int!
+  name: String!
+  externalId: String
+  shiftContractSchedulesForNonInstructionalDays: Boolean!
+  workDays: [WorkDayCreateInput]
+}
+
+type WorkDayPatternMutations {
+  create(workDayPattern: WorkDayPatternCreateInput!): WorkDayPattern
+  update(workDayPattern: WorkDayPatternUpdateInput!): WorkDayPattern
+  delete(workDayPatternId: Int!): Boolean
+}
+
+type WorkDayPatternQueries {
+  byId(id: ID!): WorkDayPattern
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [WorkDayPattern]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedWorkDayPattern
+}
+
+input WorkDayPatternUpdateInput {
+  workDayPatternId: Int!
+  rowVersion: Int!
+  name: String
+  externalId: String
+  shiftContractSchedulesForNonInstructionalDays: Boolean
+  expired: Boolean
+  workDays: [WorkDayCreateInput]
+}
+
+type WorkDaySchedule implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String!
+  workDayPatternId: Int!
+  validUntil: DateTime
+  isExpired: Boolean
+  periods: [WorkDaySchedulePeriod]
+  variants: [WorkDayScheduleVariant]
+}
+
+input WorkDayScheduleCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  externalId: String
+  workDayPatternId: Int
+  periods: [WorkDaySchedulePeriodInput]
+  standardSchedule: WorkDayScheduleVariantInput
+}
+
+type WorkDayScheduleMutations {
+  create(workDaySchedule: WorkDayScheduleCreateInput!): WorkDaySchedule
+  update(workDaySchedule: WorkDayScheduleUpdateInput!): WorkDaySchedule
+  delete(workDayScheduleId: Int!): Boolean
+  modifyScheduleVariant(
+    workDayScheduleVariant: WorkDayScheduleVariantModifyInput!
+  ): WorkDayScheduleVariant
+  deleteScheduleVariant(
+    workDayScheduleVariant: WorkDayScheduleVariantDeleteInput!
+  ): Boolean
+}
+
+type WorkDaySchedulePeriod implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  sequence: Int
+  name: String!
+  description: String
+  workDayScheduleId: Int!
+}
+
+input WorkDaySchedulePeriodInput {
+  workDaySchedulePeriodId: Int
+  name: String
+  description: String
+}
+
+type WorkDayScheduleQueries {
+  byId(id: ID!): WorkDaySchedule
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [WorkDaySchedule]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedWorkDaySchedule
+}
+
+input WorkDayScheduleUpdateInput {
+  workDayScheduleId: Int!
+  rowVersion: Int!
+  name: String
+  description: String
+  externalId: String
+  workDayPatternId: Int
+  expired: Boolean
+  periods: [WorkDaySchedulePeriodInput]
+  standardSchedule: WorkDayScheduleVariantInput
+}
+
+type WorkDayScheduleVariant implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  workDayScheduleId: Int!
+  workDayScheduleVariantTypeId: Int!
+  isStandard: Boolean!
+  startTime: Seconds
+  endTime: Seconds
+  duration: Int
+  halfDayMorningEnd: Seconds
+  halfDayAfternoonStart: Seconds
+  halfDayMorningDuration: Int
+  halfDayAfternoonDuration: Int
+  quarterDayEarlyMorningEnd: Seconds
+  quarterDayLateMorningStart: Seconds
+  quarterDayLateMorningEnd: Seconds
+  quarterDayEarlyAfternoonStart: Seconds
+  quarterDayEarlyAfternoonEnd: Seconds
+  quarterDayLateAfternoonStart: Seconds
+  quarterDayEarlyMorningDuration: Int
+  quarterDayLateMorningDuration: Int
+  quarterDayEarlyAfternoonDuration: Int
+  quarterDayLateAfternoonDuration: Int
+  periods: [WorkDayScheduleVariantPeriod]
+}
+
+input WorkDayScheduleVariantDeleteInput {
+  workDayScheduleId: Int!
+  workDayScheduleVariantId: Int!
+}
+
+input WorkDayScheduleVariantInput {
+  workDayScheduleVariantId: Int
+  workDayScheduleVariantTypeId: Int
+  periods: [WorkDayScheduleVariantPeriodInput]
+}
+
+input WorkDayScheduleVariantModifyInput {
+  workDayScheduleId: Int
+  rowVersion: Int!
+  scheduleVariant: WorkDayScheduleVariantInput
+}
+
+type WorkDayScheduleVariantPeriod implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  sequence: Int
+  startTime: Seconds!
+  endTime: Seconds!
+  duration: Int
+  dayPortion: Decimal!
+  isHalfDayMorningEnd: Boolean!
+  isHalfDayAfternoonStart: Boolean!
+  isQuarterDayEarlyMorningEnd: Boolean!
+  isQuarterDayLateMorningStart: Boolean!
+  isQuarterDayLateMorningEnd: Boolean!
+  isQuarterDayEarlyAfternoonStart: Boolean!
+  isQuarterDayEarlyAfternoonEnd: Boolean!
+  isQuarterDayLateAfternoonStart: Boolean!
+}
+
+input WorkDayScheduleVariantPeriodInput {
+  workDayScheduleVariantPeriodId: Int
+  workDaySchedulePeriodName: String!
+  startTime: Int
+  isHalfDayMorningEnd: Boolean
+  isHalfDayAfternoonStart: Boolean
+  isQuarterDayEarlyMorningEnd: Boolean
+  isQuarterDayLateMorningStart: Boolean
+  isQuarterDayLateMorningEnd: Boolean
+  isQuarterDayEarlyAfternoonStart: Boolean
+  isQuarterDayEarlyAfternoonEnd: Boolean
+  isQuarterDayLateAfternoonStart: Boolean
+}
+
+type WorkDayScheduleVariantType implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  description: String
+  validUntil: Date
+  expired: Boolean
+  isStandard: Boolean!
+}
+
+input WorkDayScheduleVariantTypeCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  externalId: String
+  isStandard: Boolean!
+}
+
+input WorkDayScheduleVariantTypeUpdateInput {
+  id: Int!
+  rowVersion: String
+  name: String
+  description: String
+  externalId: String
+  expired: Boolean
+  isStandard: Boolean!
+}

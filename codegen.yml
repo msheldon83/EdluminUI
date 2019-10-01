@@ -1,0 +1,23 @@
+generates:
+  modules/graphql/server-types.gen.ts:
+    schema:
+      - modules/graphql/server-schema.graphql
+    plugins:
+      - typescript
+  modules/:
+    preset: near-operation-file
+    presetConfig:
+      extension: .gen.ts
+      baseTypesPath: graphql/server-types.gen.ts
+    schema:
+      - modules/graphql/server-schema.graphql
+    documents:
+      - modules/graphql/*/*.graphql
+    plugins:
+      - typescript-operations
+      # - typescript-react-apollo:
+      #   withHOC: false
+      #   withComponent: false
+      #   reactApolloVersion: 3
+      - typescript-compatibility:
+        strict: true
