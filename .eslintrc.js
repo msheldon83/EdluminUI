@@ -20,6 +20,11 @@ module.exports = {
     project: "tsconfig.base.json",
     ecmaVersion: 2018,
     sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
+    },
+    useJSXTextNode: true,
+    extraFileExtensions: [".tsx", ".d.ts"],
   },
   plugins: ["react", "react-hooks", "@typescript-eslint", "jest"],
   /*
