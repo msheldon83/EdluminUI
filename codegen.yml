@@ -21,3 +21,4 @@ generates:
           reactApolloVersion: 3
       - typescript-compatibility:
           strict: true
+      - "./scripts/codegen-type-constants.js"
