@@ -6,38 +6,15 @@ import Auth0Client from "@auth0/auth0-spa-js/dist/typings/Auth0Client";
 const DEFAULT_REDIRECT_CALLBACK = () =>
   window.history.replaceState({}, document.title, window.location.pathname);
 
-type ExposedAuth0ClientFields = Pick<
-  Auth0Client,
-  | "loginWithPopup"
-  | "loginWithRedirect"
-  | "getIdTokenClaims"
-  | "handleRedirectCallback"
-  | "loginWithRedirect"
-  | "getTokenSilently"
-  | "getTokenWithPopup"
-  | "logout"
->;
-
-type Auth0Context =
-  | { loading: true }
-  | ({
-      loading: false;
-      isAuthenticated: boolean;
-      user: any;
-      popupOpen: boolean;
-    } & ExposedAuth0ClientFields);
-
-export const Auth0Context = React.createContext<Auth0Context>({
-  loading: true,
-});
-
 type Auth0State =
   | {
-      client: null;
+      loading: true;
     }
   | {
+      loading: false;
       client: Auth0Client;
       isAuthenticated: boolean;
+      token: any;
       user: any;
       popupOpen: boolean;
     };
@@ -47,15 +24,22 @@ type Auth0Action = {
   client: Auth0Client;
   isAuthenticated: boolean;
   user: any;
+  token: any;
 };
 
-const authReducer = (state: Auth0State, action: Auth0Action) => {
+export const Auth0Context = React.createContext<Auth0State>({
+  loading: true,
+});
+
+const authReducer: Reducer<Auth0State, Auth0Action> = (state, action) => {
   switch (action.type) {
     case "initialized": {
       return {
+        loading: false,
         client: action.client,
         isAuthenticated: action.isAuthenticated,
         user: action.user,
+        token: action.token,
         popupOpen: false,
       };
     }
@@ -64,7 +48,7 @@ const authReducer = (state: Auth0State, action: Auth0Action) => {
 
 export const useAuth0 = () => useContext(Auth0Context);
 export const Auth0Provider: React.FC<
-  { onRedirectCallback: () => void } & Auth0ClientOptions
+  { onRedirectCallback: (state: any) => any } & Auth0ClientOptions
 > = ({
   children,
   onRedirectCallback = DEFAULT_REDIRECT_CALLBACK,
@@ -72,84 +56,39 @@ export const Auth0Provider: React.FC<
 }) => {
   const [state, dispatch] = useReducer<Reducer<Auth0State, Auth0Action>>(
     authReducer,
-    {
-      client: null,
-    }
+    { loading: true }
   );
 
   useEffect(() => {
     const initAuth0 = async () => {
-      const auth0FromHook = await createAuth0Client(initOptions);
+      const client = await createAuth0Client(initOptions);
 
       // TODO
-      // if (window.location.search.includes("code=")) {
-      //   const { appState } = await auth0FromHook.handleRedirectCallback();
-      //   onRedirectCallback(appState);
-      // }
+      if (window.location.search.includes("code=")) {
+        const { appState } = await client.handleRedirectCallback();
+        setTimeout(() => onRedirectCallback(appState));
+      }
 
-      const isAuthenticated = await auth0FromHook.isAuthenticated();
+      const isAuthenticated = await client.isAuthenticated();
+      const token = await client.getTokenSilently();
 
       let user = null;
       if (isAuthenticated) {
-        user = await auth0FromHook.getUser();
+        user = await client.getUser();
       }
       dispatch({
         type: "initialized",
-        client: auth0FromHook,
+        client,
         isAuthenticated,
         user,
+        token,
       });
     };
-    initAuth0();
+    initAuth0(); // eslint-disable-line
     // eslint-disable-next-line
   }, []);
 
-  const loginWithPopup = async (params = {}) => {
-    console.log("loginWithPopup");
-    // setPopupOpen(true);
-    // try {
-    await state.client!.loginWithPopup(params);
-    // } catch (error) {
-    //   console.error(error);
-    // } finally {
-    //   setPopupOpen(false);
-    // }
-    // const user = await auth0Client.getUser();
-    // setUser(user);
-    // setIsAuthenticated(true);
-  };
-
-  const handleRedirectCallback = async () => {
-    console.log("handleRedirectCallback");
-    // setLoading(true);
-    // await auth0Client.handleRedirectCallback();
-    // const user = await auth0Client.getUser();
-    // setLoading(false);
-    // setIsAuthenticated(true);
-    // setUser(user);
-  };
-
-  let value: Auth0Context = React.useMemo(() => {
-    if (state.client) {
-      let auth0Client = state.client;
-      return {
-        loading: false,
-        isAuthenticated: state.isAuthenticated,
-        user: state.user,
-        popupOpen: state.popupOpen,
-        loginWithPopup: loginWithPopup as any,
-        handleRedirectCallback: handleRedirectCallback as any,
-        getIdTokenClaims: (...p) => auth0Client.getIdTokenClaims(...p),
-        loginWithRedirect: (...p) => auth0Client.loginWithRedirect(...p),
-        getTokenSilently: (...p) => auth0Client.getTokenSilently(...p),
-        getTokenWithPopup: (...p) => auth0Client.getTokenWithPopup(...p),
-        logout: (...p) => auth0Client.logout(...p),
-      };
-    }
-    return { loading: true };
-  }, [state]);
-
   return (
-    <Auth0Context.Provider value={value}>{children}</Auth0Context.Provider>
+    <Auth0Context.Provider value={state}>{children}</Auth0Context.Provider>
   );
 };

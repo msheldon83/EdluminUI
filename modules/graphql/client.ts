@@ -2,6 +2,7 @@ import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory";
 import ApolloClient from "apollo-client";
 import { ApolloLink } from "apollo-link";
 import { BatchHttpLink } from "apollo-link-batch-http";
+import { createHttpLink } from "apollo-link-http";
 import { History } from "history";
 import { compact } from "lodash-es";
 
@@ -18,12 +19,13 @@ export function buildGraphqlClient(opts: {
   const cache = new InMemoryCache();
   const links = [
     ...compact([prefixLink]),
-    new BatchHttpLink({
-      uri: uri,
-      batchInterval: 10,
-      credentials: "same-origin",
-      fetch,
-    }),
+    createHttpLink({ uri }),
+    // new BatchHttpLink({
+    //   uri: uri,
+    //   batchInterval: 10,
+    //   credentials: "same-origin",
+    //   fetch,
+    // }),
   ];
   const link = ApolloLink.from(links);
   const client = new ApolloClient({

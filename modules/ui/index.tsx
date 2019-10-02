@@ -13,16 +13,10 @@ import { Button } from "@material-ui/core";
 export function App(props: {}) {
   const classes = useStyles();
   const auth0 = useAuth0();
-  // useEffect(() => {
-  //   if (auth0.loading) return;
-  //   if (!auth0.isAuthenticated) {
-  //     auth0.loginWithRedirect({ redirect_uri: "http://localhost:3000" });
-  //   }
-  // }, [auth0]);
+
   const login = useCallback(() => {
     if (auth0.loading) return;
-    auth0.loginWithRedirect({ redirect_uri: "http://localhost:3000" });
-    // auth0.loginWithPopup({});
+    auth0.client.loginWithRedirect({ redirect_uri: "http://localhost:3000/" });
   }, [auth0]);
   return (
     <AppShell>

@@ -189,8 +189,12 @@ module.exports = {
     stats: "errors-only",
     disableHostCheck: config.get("devServer.disableHostCheck"),
     proxy: {
-      "/graphql/*": `${PROXY_HOST}`,
-      "/api/*": `${PROXY_HOST}`,
+      "/graphql/*": {
+        secure: false,
+        changeOrigin: true,
+        target: `${PROXY_HOST}`,
+      },
+      "/api/*": { secure: false, changeOrigin: true, target: `${PROXY_HOST}` },
     },
   },
 };
