@@ -12,7 +12,7 @@ const { execSync } = require("child_process");
 const os = require("os");
 const DEV_PORT = config.get("devServer.port");
 
-const PROXY_HOST = "localhost";
+const PROXY_HOST = "https://edlumin-api-dev.azurewebsites.net/";
 
 function codeVersion() {
   return (
@@ -189,11 +189,8 @@ module.exports = {
     stats: "errors-only",
     disableHostCheck: config.get("devServer.disableHostCheck"),
     proxy: {
-      "/graphql/*": `http://${PROXY_HOST}`,
-      "/graphiql/*": `http://${PROXY_HOST}`,
-      "/auth/*": `http://${PROXY_HOST}`,
-      "/arena/*": `http://${PROXY_HOST}`,
-      "/api/*": `http://${PROXY_HOST}`,
+      "/graphql/*": `${PROXY_HOST}`,
+      "/api/*": `${PROXY_HOST}`,
     },
   },
 };
