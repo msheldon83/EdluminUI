@@ -88,7 +88,10 @@
   "scripts": {
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "lint": "eslint \"./modules/**/*.{ts,tsx}\"",
-    "dev": "webpack-dev-server --config webpack/client.config.js"
+    "codegen": "yarn run gql-gen -o",
+    "build": "yarn codegen ; yarn build:client",
+    "build:client": "yarn run webpack --config ./webpack/client.config.js",
+    "dev": "webpack-dev-server --config webpack/client.config.js",
+    "lint": "eslint \"./modules/**/*.{ts,tsx}\""
   }
 }
