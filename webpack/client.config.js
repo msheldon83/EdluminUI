@@ -112,6 +112,8 @@ module.exports = {
       "Config.Auth0.redirectUrl": JSON.stringify(
         process.env.AUTH0_REDIRECT_URL
       ),
+      "Config.Auth0.audience": JSON.stringify(process.env.AUTH0_AUDIENCE),
+      "Config.Auth0.scope": JSON.stringify(process.env.AUTH0_SCOPE),
 
       // ALlow switching on NODE_ENV in client code
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),

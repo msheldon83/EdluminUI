@@ -1,10 +1,32 @@
 import * as React from "react";
-import { useState, useReducer, useEffect, useContext, Reducer } from "react";
+import {
+  useState,
+  useCallback,
+  useReducer,
+  useEffect,
+  useContext,
+  Reducer,
+} from "react";
 import createAuth0Client from "@auth0/auth0-spa-js";
 import Auth0Client from "@auth0/auth0-spa-js/dist/typings/Auth0Client";
+import { History } from "history";
 
-const DEFAULT_REDIRECT_CALLBACK = () =>
-  window.history.replaceState({}, document.title, window.location.pathname);
+export type Auth0Context = {
+  isAuthenticated: boolean;
+  getToken: () => Promise<string>;
+  login: () => void;
+  logout: () => void;
+};
+const Empty: Auth0Context = {
+  isAuthenticated: false,
+  getToken: async () => {
+    throw Error("no");
+  },
+  login: () => {},
+  logout: () => {},
+};
+export const Auth0Context = React.createContext<Auth0Context>(Empty);
+export const useAuth0 = () => useContext(Auth0Context);
 
 type Auth0State =
   | {
@@ -14,7 +36,6 @@ type Auth0State =
       loading: false;
       client: Auth0Client;
       isAuthenticated: boolean;
-      token: any;
       claims?: IdToken;
       user: any;
     };
@@ -24,13 +45,8 @@ type Auth0Action = {
   client: Auth0Client;
   isAuthenticated: boolean;
   user: any;
-  token: any;
   claims?: IdToken;
 };
-
-export const Auth0Context = React.createContext<Auth0State>({
-  loading: true,
-});
 
 const authReducer: Reducer<Auth0State, Auth0Action> = (state, action) => {
   switch (action.type) {
@@ -40,21 +56,16 @@ const authReducer: Reducer<Auth0State, Auth0Action> = (state, action) => {
         client: action.client,
         isAuthenticated: action.isAuthenticated,
         user: action.user,
-        token: action.token,
         claims: action.claims,
       };
     }
   }
 };
 
-export const useAuth0 = () => useContext(Auth0Context);
-export const Auth0Provider: React.FC<{
-  onRedirectCallback: (state: any) => any;
-}> = ({
-  children,
-  onRedirectCallback = DEFAULT_REDIRECT_CALLBACK,
-  ...initOptions
-}) => {
+type Props = {
+  history: History<any>;
+};
+export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
   const [state, dispatch] = useReducer<Reducer<Auth0State, Auth0Action>>(
     authReducer,
     { loading: true }
@@ -68,11 +79,12 @@ export const Auth0Provider: React.FC<{
         redirect_uri: Config.Auth0.redirectUrl,
       });
 
-      // TODO
-      if (window.location.search.includes("code=")) {
-        console.log("got back", window.location.search);
+      if (history.location.search.includes("code=")) {
+        console.log("got back", history.location.search);
         const { appState } = await client.handleRedirectCallback();
-        setTimeout(() => onRedirectCallback(appState));
+        await client.getUser();
+        history.replace("/");
+        window.location.reload();
       }
 
       const isAuthenticated = await client.isAuthenticated();
@@ -81,13 +93,8 @@ export const Auth0Provider: React.FC<{
       if (isAuthenticated) {
         user = await client.getUser();
       }
-      let token = null;
       let claims: IdToken | undefined;
       if (isAuthenticated) {
-        token = await client.getTokenSilently({
-          scope: "openid profile email",
-          audience: "https://hcmdev/api",
-        });
         claims = await client.getIdTokenClaims();
       }
 
@@ -96,7 +103,6 @@ export const Auth0Provider: React.FC<{
         client,
         isAuthenticated,
         user,
-        token,
         claims,
       });
     };
@@ -104,7 +110,51 @@ export const Auth0Provider: React.FC<{
     // eslint-disable-next-line
   }, []);
 
+  const isAuthenticated = !state.loading && state.isAuthenticated;
+  const identity = !state.loading && state.user && state.user.email;
+
+  const getToken = useCallback(async () => {
+    if (state.loading) throw Error("still loading");
+    return (await state.client.getTokenSilently({
+      scope: "openid profile email",
+      audience: "https://hcmdev/api",
+    })) as string;
+  }, /* eslint-disable-line react-hooks/exhaustive-deps */ [
+    isAuthenticated,
+    identity,
+  ]);
+
+  const login = useCallback(() => {
+    if (!state.loading) {
+      return state.client.loginWithRedirect({
+        audience: Config.Auth0.audience,
+        redirect_uri: Config.Auth0.redirectUrl,
+      });
+    }
+  }, /* eslint-disable-line react-hooks/exhaustive-deps */ [
+    isAuthenticated,
+    identity,
+  ]);
+
+  const logout = useCallback(() => {
+    if (!state.loading) {
+      return state.client.logout();
+    }
+  }, /* eslint-disable-line react-hooks/exhaustive-deps */ [
+    isAuthenticated,
+    identity,
+  ]);
+
+  const context: Auth0Context = React.useMemo(
+    () => ({
+      isAuthenticated,
+      getToken,
+      login,
+      logout,
+    }),
+    [isAuthenticated, getToken, login, logout]
+  );
   return (
-    <Auth0Context.Provider value={state}>{children}</Auth0Context.Provider>
+    <Auth0Context.Provider value={context}>{children}</Auth0Context.Provider>
   );
 };

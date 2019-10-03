@@ -14,27 +14,14 @@ export function App(props: {}) {
   const classes = useStyles();
   const auth0 = useAuth0();
 
-  const login = useCallback(() => {
-    if (auth0.loading) return;
-    /* eslint-disable-next-line */
-    auth0.client.loginWithRedirect({
-      audience: "https://hcmdev/api",
-      redirect_uri: Config.Auth0.redirectUrl, //TODO make an abstraction for this in auth0.tsx
-    });
-  }, [auth0]);
-
-  const logout = useCallback(() => {
-    if (auth0.loading) return;
-    auth0.client.logout();
-  }, [auth0]);
   return (
     <AppShell>
       <div className={classes.container}>
         <div className={classes.main}>
-          <Button onClick={login} variant="contained">
+          <Button onClick={auth0.login} variant="contained">
             Login
           </Button>
-          <Button onClick={logout} variant="contained">
+          <Button onClick={auth0.logout} variant="contained">
             Logout
           </Button>
           <Switch>

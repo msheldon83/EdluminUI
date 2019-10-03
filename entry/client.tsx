@@ -1,13 +1,15 @@
 import { createBrowserHistory } from "history";
 import * as React from "react";
+import { useCallback } from "react";
 import * as ReactDom from "react-dom";
 import { Router } from "react-router-dom";
 import { App } from "ui";
 
 import { Example } from "graphql/queries/Example.gen";
-import { ApolloProvider } from "@apollo/react-common";
 import { buildGraphqlClient } from "graphql/client";
 import { Auth0Provider } from "auth/auth0";
+import { ApolloLink } from "apollo-link";
+import { AuthenticatedApolloProvider } from "auth/authenticated-apollo-provider";
 
 const history = createBrowserHistory();
 // history.listen((location, action) => {
@@ -17,19 +19,16 @@ const history = createBrowserHistory();
 // });
 
 const bootstrapClient = () => {
-  const graphqlClient = buildGraphqlClient({ history });
+  const graphqlClient = (authLink: ApolloLink) =>
+    buildGraphqlClient({ history, prefixLink: authLink });
 
   const rootEl = (
-    <Auth0Provider
-      onRedirectCallback={() => {
-        history.replace("/");
-      }}
-    >
-      <ApolloProvider client={graphqlClient}>
+    <Auth0Provider history={history}>
+      <AuthenticatedApolloProvider buildApolloClient={graphqlClient}>
         <Router history={history}>
           <App />
         </Router>
-      </ApolloProvider>
+      </AuthenticatedApolloProvider>
     </Auth0Provider>
   );
   console.log(document.getElementById("edlumin-app"));

@@ -9,5 +9,7 @@ declare const Config: {
     domain: string;
     clientId: string;
     redirectUrl: string;
+    audience: string;
+    scope: string;
   };
 };

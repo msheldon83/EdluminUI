@@ -1,3 +1,11 @@
+import { QueryResult } from "@apollo/react-common";
+import {
+  MutationHookOptions,
+  MutationTuple,
+  QueryHookOptions,
+  useMutation,
+  useQuery,
+} from "@apollo/react-hooks";
 import {
   ApolloQueryResult,
   FetchMoreOptions,
@@ -6,17 +14,8 @@ import {
   ObservableQuery,
 } from "apollo-client";
 import { useMemo } from "react";
-import { GraphqlBundle } from "./core";
-import {
-  useMutation,
-  MutationHookOptions,
-  MutationTuple,
-  useQuery,
-  QueryHookOptions,
-} from "@apollo/react-hooks";
-import { QueryResult } from "@apollo/react-common";
 import { useLoadingIndicator } from "ui/components/page-loading-indicator";
-import { useAuth0 } from "auth/auth0";
+import { GraphqlBundle } from "./core";
 
 type NonOptional<O> = O extends null | undefined | (infer T) ? T : O;
 
@@ -53,17 +52,8 @@ export function useQueryBundle<Result, Vars>(
   query: GraphqlBundle<Result, Vars>,
   options?: QueryHookOptions<Result, Vars>
 ): HookQueryResult<Result, Vars> {
-  const authState = useAuth0();
-  let authorization = "";
-  if (!authState.loading && authState.isAuthenticated && authState.token) {
-    authorization = `Bearer ${authState.token}`;
-  }
   const rawResult = useQuery<Result, Vars>(query.Document, {
     ...options,
-    skip: authState.loading,
-    context: {
-      headers: { Authorization: authorization },
-    },
   });
 
   const ourResult = useMemo<HookQueryResult<Result, Vars>>((): any => {
@@ -97,16 +87,8 @@ export function useMutationBundle<T, TVariables>(
   mutation: GraphqlBundle<T, TVariables>,
   options?: MutationHookOptions<T, TVariables>
 ): MutationTuple<T, TVariables> {
-  const authState = useAuth0();
-  let authorization = "";
-  if (!authState.loading && authState.isAuthenticated && authState.token) {
-    authorization = `Bearer ${authState.claims && authState.claims.__raw}${
-      authState.token
-    }`;
-  }
   const [func, result] = useMutation(mutation.Document, {
     ...options,
-    context: { headers: { Authorization: authorization } },
   });
 
   // This may be too aggressive, but if this works well it'll be easy to provide
