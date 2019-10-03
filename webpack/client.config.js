@@ -11,8 +11,7 @@ const { execSync } = require("child_process");
 
 const os = require("os");
 const DEV_PORT = config.get("devServer.port");
-
-const PROXY_HOST = "https://edlumin-api-dev.azurewebsites.net/";
+const PROXY_HOST = config.get("devServer.proxyHost");
 
 function codeVersion() {
   return (
@@ -107,6 +106,12 @@ module.exports = {
       // Flag to detect non-production
       __DEV__: JSON.stringify(process.env.NODE_ENV !== "production"),
       __TEST__: "false",
+
+      "Config.Auth0.domain": JSON.stringify(process.env.AUTH0_DOMAIN),
+      "Config.Auth0.clientId": JSON.stringify(process.env.AUTH0_CLIENT_ID),
+      "Config.Auth0.redirectUrl": JSON.stringify(
+        process.env.AUTH0_REDIRECT_URL
+      ),
 
       // ALlow switching on NODE_ENV in client code
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),

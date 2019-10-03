@@ -5,8 +5,6 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const CONCURRENCY = parseInt(process.env.WEB_CONCURRENCY, 10) || 1;
-const WORKER_CONCURRENCY =
-  parseInt(process.env.WORKER_CONCURRENCY, 10) || CONCURRENCY;
 
 // function definedOr<T> (x: (T | null | undefined), fallback: T) { // oh yeah, this isn't TS =\
 function definedOr(x, fallback) {
@@ -31,12 +29,19 @@ module.exports = {
   //   clientAccessToken: process.env.ROLLBAR_CLIENT_ACCESS_TOKEN || null,
   // },
 
+  auth0: {
+    domain: process.env.AUTH0_DOMAIN,
+    clientId: process.env.AUTH0_CLIENT_ID,
+    redirectUrl: process.env.AUTH0_REDIRECT_URL,
+  },
+
   devServer: {
     url: "http://localhost",
     port: 3000,
     hot: true,
     inline: true,
     noInfo: true,
+    proxyHost: "https://edlumin-api-dev.azurewebsites.net/",
     disableHostCheck: ["1", "true"].includes(
       process.env.DEV_SERVER_DISABLE_HOST_CHECK
     ),

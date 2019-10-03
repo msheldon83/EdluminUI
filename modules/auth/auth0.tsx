@@ -47,9 +47,9 @@ const authReducer: Reducer<Auth0State, Auth0Action> = (state, action) => {
 };
 
 export const useAuth0 = () => useContext(Auth0Context);
-export const Auth0Provider: React.FC<
-  { onRedirectCallback: (state: any) => any } & Auth0ClientOptions
-> = ({
+export const Auth0Provider: React.FC<{
+  onRedirectCallback: (state: any) => any;
+}> = ({
   children,
   onRedirectCallback = DEFAULT_REDIRECT_CALLBACK,
   ...initOptions
@@ -61,7 +61,11 @@ export const Auth0Provider: React.FC<
 
   useEffect(() => {
     const initAuth0 = async () => {
-      const client = await createAuth0Client(initOptions);
+      const client = await createAuth0Client({
+        domain: Config.Auth0.domain,
+        client_id: Config.Auth0.clientId,
+        redirect_uri: Config.Auth0.redirectUrl,
+      });
 
       // TODO
       if (window.location.search.includes("code=")) {

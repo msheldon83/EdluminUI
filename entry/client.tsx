@@ -24,8 +24,6 @@ const bootstrapClient = () => {
       onRedirectCallback={() => {
         history.replace("/");
       }}
-      domain="hcmdev.auth0.com"
-      client_id="eLiUtXy2kn7cRvjpl3o7oQGCTlbbxeNS"
     >
       <ApolloProvider client={graphqlClient}>
         <Router history={history}>

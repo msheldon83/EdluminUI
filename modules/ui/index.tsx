@@ -16,7 +16,10 @@ export function App(props: {}) {
 
   const login = useCallback(() => {
     if (auth0.loading) return;
-    auth0.client.loginWithRedirect({ redirect_uri: "http://localhost:3000/" });
+    /* eslint-disable-next-line */
+    auth0.client.loginWithRedirect({
+      redirect_uri: Config.Auth0.redirectUrl, //TODO make an abstraction for this in auth0.tsx
+    });
   }, [auth0]);
   return (
     <AppShell>
