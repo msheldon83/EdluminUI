@@ -154,6 +154,8 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
     }),
     [isAuthenticated, getToken, login, logout]
   );
+
+  if (state.loading) return <></>;
   return (
     <Auth0Context.Provider value={context}>{children}</Auth0Context.Provider>
   );

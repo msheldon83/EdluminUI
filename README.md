@@ -13,7 +13,7 @@ This project is a single-page webapp using the following technologies:
 
 ## Setup
 
-- Install Node 10 LTS and yarn. Older or newer versions may or may not work. (Recommend `nvm` and `brew install yarn --without-node` on mac.)
+- Install Node 10 LTS and yarn. Older or newer versions may or may not work. (Recommend `nodenv` and `brew install yarn --without-node` on mac.)
 - Install Docker.app. Our database and other services are configured to run in docker.
 - Symlink `.env.example` to `.env`, which sets up your environment to run from Docker. You can copy and modify `.env.example` to `.env` if the defaults won't work for you.
 - Symlink `.envrc.example` to `.envrc`. This allows you to set some environment variables for development

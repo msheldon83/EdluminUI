@@ -31,7 +31,6 @@ const bootstrapClient = () => {
       </AuthenticatedApolloProvider>
     </Auth0Provider>
   );
-  console.log(document.getElementById("edlumin-app"));
   ReactDom.render(
     (rootEl as any) as React.ReactElement<any>,
     document.getElementById("edlumin-app")
