@@ -1,9 +1,9 @@
 query Example {
-  user {
-    byId(id: "chris.farber@atomicobject.com") {
-      id
-      firstName
-      lastName
+  userAccess {
+    me {
+      user {
+        id
+      }
     }
   }
 }

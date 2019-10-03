@@ -62,7 +62,7 @@ export function useQueryBundle<Result, Vars>(
     ...options,
     skip: authState.loading,
     context: {
-      headers: { authorization: authorization },
+      headers: { Authorization: authorization },
     },
   });
 
@@ -100,11 +100,13 @@ export function useMutationBundle<T, TVariables>(
   const authState = useAuth0();
   let authorization = "";
   if (!authState.loading && authState.isAuthenticated && authState.token) {
-    authorization = `Bearer ${authState.token}`;
+    authorization = `Bearer ${authState.claims && authState.claims.__raw}${
+      authState.token
+    }`;
   }
   const [func, result] = useMutation(mutation.Document, {
     ...options,
-    context: { headers: { authorization: authorization } },
+    context: { headers: { Authorization: authorization } },
   });
 
   // This may be too aggressive, but if this works well it'll be easy to provide

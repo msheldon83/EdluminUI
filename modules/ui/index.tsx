@@ -18,8 +18,14 @@ export function App(props: {}) {
     if (auth0.loading) return;
     /* eslint-disable-next-line */
     auth0.client.loginWithRedirect({
+      audience: "https://hcmdev/api",
       redirect_uri: Config.Auth0.redirectUrl, //TODO make an abstraction for this in auth0.tsx
     });
+  }, [auth0]);
+
+  const logout = useCallback(() => {
+    if (auth0.loading) return;
+    auth0.client.logout();
   }, [auth0]);
   return (
     <AppShell>
@@ -27,6 +33,9 @@ export function App(props: {}) {
         <div className={classes.main}>
           <Button onClick={login} variant="contained">
             Login
+          </Button>
+          <Button onClick={logout} variant="contained">
+            Logout
           </Button>
           <Switch>
             <Route component={IndexLoader} path={Index.PATH_TEMPLATE} />

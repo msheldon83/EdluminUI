@@ -15,8 +15,8 @@ type Auth0State =
       client: Auth0Client;
       isAuthenticated: boolean;
       token: any;
+      claims?: IdToken;
       user: any;
-      popupOpen: boolean;
     };
 
 type Auth0Action = {
@@ -25,6 +25,7 @@ type Auth0Action = {
   isAuthenticated: boolean;
   user: any;
   token: any;
+  claims?: IdToken;
 };
 
 export const Auth0Context = React.createContext<Auth0State>({
@@ -40,7 +41,7 @@ const authReducer: Reducer<Auth0State, Auth0Action> = (state, action) => {
         isAuthenticated: action.isAuthenticated,
         user: action.user,
         token: action.token,
-        popupOpen: false,
+        claims: action.claims,
       };
     }
   }
@@ -69,23 +70,34 @@ export const Auth0Provider: React.FC<{
 
       // TODO
       if (window.location.search.includes("code=")) {
+        console.log("got back", window.location.search);
         const { appState } = await client.handleRedirectCallback();
         setTimeout(() => onRedirectCallback(appState));
       }
 
       const isAuthenticated = await client.isAuthenticated();
-      const token = await client.getTokenSilently();
 
       let user = null;
       if (isAuthenticated) {
         user = await client.getUser();
       }
+      let token = null;
+      let claims: IdToken | undefined;
+      if (isAuthenticated) {
+        token = await client.getTokenSilently({
+          scope: "openid profile email",
+          audience: "https://hcmdev/api",
+        });
+        claims = await client.getIdTokenClaims();
+      }
+
       dispatch({
         type: "initialized",
         client,
         isAuthenticated,
         user,
         token,
+        claims,
       });
     };
     initAuth0(); // eslint-disable-line
