@@ -7,6 +7,7 @@ import { App } from "ui";
 import { Example } from "graphql/queries/Example.gen";
 import { ApolloProvider } from "@apollo/react-common";
 import { buildGraphqlClient } from "graphql/client";
+import { Auth0Provider } from "auth/auth0";
 
 const history = createBrowserHistory();
 // history.listen((location, action) => {
@@ -19,11 +20,17 @@ const bootstrapClient = () => {
   const graphqlClient = buildGraphqlClient({ history });
 
   const rootEl = (
-    <ApolloProvider client={graphqlClient}>
-      <Router history={history}>
-        <App />
-      </Router>
-    </ApolloProvider>
+    <Auth0Provider
+      onRedirectCallback={() => {
+        history.replace("/");
+      }}
+    >
+      <ApolloProvider client={graphqlClient}>
+        <Router history={history}>
+          <App />
+        </Router>
+      </ApolloProvider>
+    </Auth0Provider>
   );
   console.log(document.getElementById("edlumin-app"));
   ReactDom.render(

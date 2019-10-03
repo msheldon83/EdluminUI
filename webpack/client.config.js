@@ -11,8 +11,7 @@ const { execSync } = require("child_process");
 
 const os = require("os");
 const DEV_PORT = config.get("devServer.port");
-
-const PROXY_HOST = "localhost";
+const PROXY_HOST = config.get("devServer.proxyHost");
 
 function codeVersion() {
   return (
@@ -108,6 +107,12 @@ module.exports = {
       __DEV__: JSON.stringify(process.env.NODE_ENV !== "production"),
       __TEST__: "false",
 
+      "Config.Auth0.domain": JSON.stringify(process.env.AUTH0_DOMAIN),
+      "Config.Auth0.clientId": JSON.stringify(process.env.AUTH0_CLIENT_ID),
+      "Config.Auth0.redirectUrl": JSON.stringify(
+        process.env.AUTH0_REDIRECT_URL
+      ),
+
       // ALlow switching on NODE_ENV in client code
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
 
@@ -189,11 +194,12 @@ module.exports = {
     stats: "errors-only",
     disableHostCheck: config.get("devServer.disableHostCheck"),
     proxy: {
-      "/graphql/*": `http://${PROXY_HOST}`,
-      "/graphiql/*": `http://${PROXY_HOST}`,
-      "/auth/*": `http://${PROXY_HOST}`,
-      "/arena/*": `http://${PROXY_HOST}`,
-      "/api/*": `http://${PROXY_HOST}`,
+      "/graphql/*": {
+        secure: false,
+        changeOrigin: true,
+        target: `${PROXY_HOST}`,
+      },
+      "/api/*": { secure: false, changeOrigin: true, target: `${PROXY_HOST}` },
     },
   },
 };

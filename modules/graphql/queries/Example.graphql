@@ -1,8 +1,9 @@
 query Example {
-  branding {
-    all {
+  user {
+    byId(id: "chris.farber@atomicobject.com") {
       id
-      domainName
+      firstName
+      lastName
     }
   }
 }

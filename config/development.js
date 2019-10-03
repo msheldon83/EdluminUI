@@ -1,7 +1,7 @@
 // todo: put this in one place and import it
 function envVarOrBust(s) {
   if (!s) {
-    var e =
+    const e =
       "\n\n" +
       "========== CONFIGURATION ERROR! ==========\n" +
       "  Database env var is absent.             \n" +
