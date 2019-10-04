@@ -46,6 +46,4 @@ We are using `eslint` for linting. Run `yarn lint`.
 
 ## Testing
 
-- To run unit tests, run `yarn test:unit` or `yarn test:unit --watch` (for the interactive jest-based test runner). This simply runs jest in the current directory, which will use config in the `jest` section of `package.json`.
-
-Note: `yarn test:unit` is an alias for running `jest` directly.
+- To run unit tests, run `yarn jest` or `yarn jest --watch` (for the interactive jest-based test runner). This simply runs jest in the current directory, which will use config in the `jest` section of `package.json`.

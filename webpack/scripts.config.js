@@ -4,7 +4,7 @@ const webpack = require("webpack");
 const loaders = require("./loaders");
 const fs = require("fs");
 
-const scriptsNeededForTests = ["make-test-dbs.ts", "migrate-and-seed.ts"];
+const scriptsNeededForTests = [];
 
 const scriptsDir = path.join(__dirname, "../entry/scripts");
 
