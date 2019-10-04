@@ -21,18 +21,16 @@ This project is a single-page webapp using the following technologies:
 ## Running the app
 
 - Run `yarn` to install dependencies.
-- Run `yarn build` to, among other things, create generated types and scripts.
-  - We decided not to check in the generated GraphQL types for this project. If you view or edit the source code before building the app, you will see many type errors and failed imports. (This is because generated type / files will not exist yet.)
-- Run `yarn dev` to start the hot-reloading dev server.
+- Run `yarn start`. This will run code generation for graphql types and start a live-reloading
+  webpack-dev-server.
 - Visit port 3000 to view the running app.
 
 ## Generating Graphql Types
 
 The `codegen` task generates all type files. It:
 
-1.  Runs a regex on the `server-schema.graphql` to conform to the code generator syntax
-2.  Generates `schema-types.gen.ts` in the graphql module
-3.  Generates `graphql-types.ts` in the client
+1.  Generates `schema-types.gen.ts` in the graphql module
+2.  Generates `graphql-types.ts` in the client
 
 ## Interactive Style Guide
 
