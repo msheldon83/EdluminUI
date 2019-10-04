@@ -65,6 +65,10 @@ msl-website.iml
 dist/*.js
 dist/**/*.*
 
+# storybook
+
+storybook-static
+
 # shared
 shared/**/*.js
 
