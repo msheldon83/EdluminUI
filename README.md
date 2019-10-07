@@ -58,7 +58,7 @@ The `codegen` task generates all type files. It:
 
 We are using [React Storybook](https://storybook.js.org/) to generate a styleguide for our react components.
 
-- To view the interactive style guide and component tests run `yarn dev:storybook` and visit `localhost:9001`
+- To view the interactive style guide and component tests run `yarn storybook` and visit `localhost:6006`
 
 ## Linting
 

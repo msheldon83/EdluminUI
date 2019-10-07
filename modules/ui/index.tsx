@@ -25,7 +25,7 @@ export function App(props: {}) {
             Logout
           </Button>
           <Switch>
-            <Route component={IndexLoader} path={Index.PATH_TEMPLATE} />
+            <Route exact component={IndexLoader} path={Index.PATH_TEMPLATE} />
           </Switch>
         </div>
       </div>

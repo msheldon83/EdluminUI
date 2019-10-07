@@ -30,7 +30,7 @@ module.exports = {
     hot: true,
     inline: true,
     noInfo: true,
-    proxyHost: process.env.DEV_SERVER_PROXY_HOST,
+    proxyHost: process.env.DEV_SERVER_PROXY_HOST || null,
     disableHostCheck: ["1", "true"].includes(
       process.env.DEV_SERVER_DISABLE_HOST_CHECK
     ),

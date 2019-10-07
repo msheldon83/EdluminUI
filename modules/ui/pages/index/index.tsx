@@ -6,9 +6,6 @@ import { useAuth0 } from "auth/auth0";
 export const ExamplePage: React.FunctionComponent = props => {
   const loggedIn = useAuth0().isAuthenticated;
   const data = useQueryBundle(Example, { skip: !loggedIn });
-  if (data.state === "DONE") {
-    console.log("omg", data.data);
-  }
   console.log("rendering.", loggedIn, data);
   const name =
     data.state === "DONE" &&
