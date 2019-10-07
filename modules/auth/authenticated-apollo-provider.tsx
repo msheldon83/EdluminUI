@@ -18,7 +18,6 @@ export const AuthenticatedApolloProvider: React.FC<Props> = ({
     const authLink = new ApolloLink((op, forward) => {
       return fromPromise(addTokenToOperation(op, auth0)).flatMap(forward);
     });
-    console.log("building apollo client");
     return buildApolloClient(authLink);
   }, [auth0, buildApolloClient]);
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
