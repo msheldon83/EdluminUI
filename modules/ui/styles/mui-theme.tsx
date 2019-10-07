@@ -67,7 +67,7 @@ const themeColors: Theme["customColors"] = {
 const breakpointCustomization: BreakpointsOptions = {};
 const breakpoints = createBreakpoints(breakpointCustomization);
 
-export const PlacementTheme = createMuiTheme({
+export const EdluminTheme = createMuiTheme({
   breakpoints: breakpointCustomization,
   overrides: {
     MuiButton: {

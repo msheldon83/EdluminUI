@@ -7,19 +7,14 @@ export default {
   title: "Button",
 };
 
-export const emoji = () => (
+export const muiButton = () => (
   <>
-    <button onClick={action("clicked")}>
-      <span role="img" aria-label="so cool">
-        😀 😎 👍 💯
-      </span>
-    </button>
-    <Button variant="contained" onClick={action("clicked2")}>
+    <Button variant="contained" onClick={action("clicked")}>
       Material-UI button
     </Button>
   </>
 );
 
-emoji.story = {
-  name: "with emoji",
+muiButton.story = {
+  name: "material-ui",
 };
