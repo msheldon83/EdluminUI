@@ -33,8 +33,6 @@ export function App(props: {}) {
   );
 }
 
-// This setup pins the footer to the bottom of the screen. This makes things
-// jump much less.
 const useStyles = makeStyles({
   container: {
     display: "flex",

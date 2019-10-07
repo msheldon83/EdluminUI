@@ -8,7 +8,7 @@ export const ExamplePage: React.FunctionComponent = props => {
   const classes = useStyles();
   const loggedIn = useAuth0().isAuthenticated;
   const data = useQueryBundle(Example, { skip: !loggedIn });
-  const name =
+  let name =
     data.state === "DONE" &&
     data.data.userAccess &&
     data.data.userAccess.me &&
@@ -16,6 +16,7 @@ export const ExamplePage: React.FunctionComponent = props => {
     data.data.userAccess.me.user.id
       ? data.data.userAccess.me.user.id
       : "anonymous";
+  if (data.state !== "DONE") name = "...";
   return <div className={classes.name}>Hello {name}</div>;
 };
 
