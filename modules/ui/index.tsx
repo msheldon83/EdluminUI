@@ -1,12 +1,14 @@
-import { makeStyles } from "@material-ui/styles";
-import * as React from "react";
-import { useEffect, useCallback } from "react";
-import { Route, Switch } from "react-router-dom";
-import { IndexLoader } from "./pages/index/loader";
-import { Index } from "./routes";
-import { AppShell } from "./components/app";
+import { CssBaseline, Button } from "@material-ui/core";
+import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { useAuth0 } from "auth/auth0";
-import { Button } from "@material-ui/core";
+import * as React from "react";
+import { Route, Switch } from "react-router-dom";
+import { IfAuthenticated } from "./components/auth/if-authenticated";
+import { RedirectToLogin } from "./components/auth/redirect-to-login";
+import { IndexLoader } from "./pages/index/loader";
+import { LoginPageRouteLoader } from "./pages/login/loader";
+import { Index } from "./routes";
+import { EdluminTheme } from "./styles/mui-theme";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -15,21 +17,37 @@ export function App(props: {}) {
   const auth0 = useAuth0();
 
   return (
-    <AppShell>
+    <ThemeProvider theme={EdluminTheme}>
+      <CssBaseline />
       <div className={classes.container}>
         <div className={classes.main}>
-          <Button onClick={auth0.login} variant="contained">
-            Login
-          </Button>
-          <Button onClick={auth0.logout} variant="contained">
-            Logout
-          </Button>
           <Switch>
-            <Route exact component={IndexLoader} path={Index.PATH_TEMPLATE} />
+            <Route exact path={"/login"} component={LoginPageRouteLoader} />
+            <Route>
+              <IfAuthenticated>
+                <Switch>
+                  {/* Protected routes go here */}
+                  <Route
+                    exact
+                    component={IndexLoader}
+                    path={Index.PATH_TEMPLATE}
+                  />
+                </Switch>
+              </IfAuthenticated>
+              <IfAuthenticated not>
+                <RedirectToLogin />
+                {/* <Button onClick={auth0.login} variant="contained">
+                  Login
+                </Button>
+                <Button onClick={auth0.logout} variant="contained">
+                  Logout
+                </Button> */}
+              </IfAuthenticated>
+            </Route>
           </Switch>
         </div>
       </div>
-    </AppShell>
+    </ThemeProvider>
   );
 }
 

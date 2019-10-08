@@ -9,7 +9,8 @@ declare const Config: {
     domain: string;
     clientId: string;
     redirectUrl: string;
-    audience: string;
+    authAudience: string;
+    apiAudience: string;
     scope: string;
   };
 };

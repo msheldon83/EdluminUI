@@ -73,18 +73,17 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
 
   useEffect(() => {
     const initAuth0 = async () => {
-      const client = await createAuth0Client({
-        domain: Config.Auth0.domain,
-        client_id: Config.Auth0.clientId,
-        redirect_uri: Config.Auth0.redirectUrl,
-      });
+      let client: Auth0Client;
 
+      client = await getAuth0Client();
       if (history.location.search.includes("code=")) {
-        console.log("got back", history.location.search);
-        const { appState } = await client.handleRedirectCallback();
-        await client.getUser();
+        await client.handleRedirectCallback();
         history.replace("/");
-        window.location.reload();
+        /* cf - 2019-10-07 -
+             after calling handleRedirectCallback(), the client does not correctly return
+             the new authentication status.
+             so we throw it away and get a new one before proceeding. */
+        client = await getAuth0Client();
       }
 
       const isAuthenticated = await client.isAuthenticated();
@@ -116,8 +115,8 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
   const getToken = useCallback(async () => {
     if (state.loading) throw Error("still loading");
     return (await state.client.getTokenSilently({
-      scope: "openid profile email",
-      audience: "https://hcmdev/api",
+      scope: Config.Auth0.scope,
+      audience: Config.Auth0.apiAudience,
     })) as string;
   }, /* eslint-disable-line react-hooks/exhaustive-deps */ [
     isAuthenticated,
@@ -127,7 +126,7 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
   const login = useCallback(() => {
     if (!state.loading) {
       return state.client.loginWithRedirect({
-        audience: Config.Auth0.audience,
+        audience: Config.Auth0.authAudience,
         redirect_uri: Config.Auth0.redirectUrl,
       });
     }
@@ -160,3 +159,10 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
     <Auth0Context.Provider value={context}>{children}</Auth0Context.Provider>
   );
 };
+
+const getAuth0Client = () =>
+  createAuth0Client({
+    domain: Config.Auth0.domain,
+    client_id: Config.Auth0.clientId,
+    redirect_uri: Config.Auth0.redirectUrl,
+  });

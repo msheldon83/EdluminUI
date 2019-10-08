@@ -3,10 +3,11 @@ import { Example } from "graphql/queries/Example.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { useAuth0 } from "auth/auth0";
 import { makeStyles } from "@material-ui/styles";
+import { Button } from "@material-ui/core";
 
 export const ExamplePage: React.FunctionComponent = props => {
   const classes = useStyles();
-  const loggedIn = useAuth0().isAuthenticated;
+  const { isAuthenticated: loggedIn, logout } = useAuth0();
   const data = useQueryBundle(Example, { skip: !loggedIn });
   let name =
     data.state === "DONE" &&
@@ -17,7 +18,14 @@ export const ExamplePage: React.FunctionComponent = props => {
       ? data.data.userAccess.me.user.id
       : "anonymous";
   if (data.state !== "DONE") name = "...";
-  return <div className={classes.name}>Hello {name}</div>;
+  return (
+    <>
+      <div className={classes.name}>Hello {name}</div>
+      <Button onClick={logout} variant="contained">
+        Logout
+      </Button>
+    </>
+  );
 };
 
 const useStyles = makeStyles(theme => ({
