@@ -4,6 +4,7 @@ import { useQueryBundle } from "graphql/hooks";
 import { useAuth0 } from "auth/auth0";
 import { makeStyles } from "@material-ui/styles";
 import { Button } from "@material-ui/core";
+import { NavigationSideBar } from "ui/components/navigation";
 
 export const ExamplePage: React.FunctionComponent = props => {
   const classes = useStyles();
@@ -20,6 +21,8 @@ export const ExamplePage: React.FunctionComponent = props => {
   if (data.state !== "DONE") name = "...";
   return (
     <>
+      <NavigationSideBar />
+
       <div className={classes.name}>Hello {name}</div>
       <Button onClick={logout} variant="contained">
         Logout
