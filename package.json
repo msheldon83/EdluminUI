@@ -109,6 +109,7 @@
     "dev:server": "webpack-dev-server --config webpack/client.config.js",
     "start": "yarn run concurrently -c green,yellow -n webpack,codegen \"yarn dev:server\" \"yarn codegen:watch\"",
     "dev": "yarn start",
+    "watch-server-schema": "nodemon -w $SERVER_SCHEMA_PATH --exec \"cp $SERVER_SCHEMA_PATH modules/graphql/server-schema.graphql\"",
     "lint": "eslint \"./modules/**/*.{ts,tsx}\""
   }
 }
