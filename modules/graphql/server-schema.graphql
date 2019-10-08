@@ -1,5 +1,77 @@
+type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  employeeId: Int!
+  notesToApprover: String!
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
+  numDays: Int
+  totalDuration: Int!
+  details: [AbsenceDetail]
+}
+
+input AbsenceCreateInput {
+  orgId: Int!
+  employeeId: Int!
+  notesToApprover: String
+  details: [AbsenceDetailCreateInput]
+}
+
+type AbsenceDetail implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  absenceId: Int!
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
+  duration: Int
+  dayPartId: DayPart
+  absenceReasonUsages: [AbsenceReasonUsage]
+}
+
+input AbsenceDetailCreateInput {
+  absenceDetailId: Int
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  dayPartId: DayPart
+  reasons: [AbsenceReasonUsageInput]
+}
+
 enum AbsenceDocumentType {
   INVALID
+}
+
+type AbsenceMutations {
+  create(absence: AbsenceCreateInput!): Absence
+  update(absence: AbsenceUpdateInput!): Absence
+  delete(absenceId: Int!): Boolean
+}
+
+type AbsenceQueries {
+  byId(id: ID!): Absence
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedAbsence
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -96,7 +168,7 @@ enum AbsenceReasonTrackingTypeId {
 }
 
 input AbsenceReasonUpdateInput {
-  id: Int!
+  absenceReasonID: Int!
   rowVersion: String
   name: String
   description: String
@@ -110,6 +182,32 @@ input AbsenceReasonUpdateInput {
   prioritySequence: Int
 }
 
+type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  orgId: Int!
+  absenceId: Int!
+  absenceDetailId: Int!
+  absenceReasonId: Int!
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  duration: Int
+  dayPortion: Decimal!
+  description: String!
+}
+
+input AbsenceReasonUsageInput {
+  absenceReasonUsageId: Int
+  absenceReasonId: Int!
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  description: String
+}
+
 enum AbsenceStatus {
   INVALID
   SAVED
@@ -119,10 +217,11 @@ enum AbsenceStatus {
   CANCELLED
 }
 
-enum AbsenceType {
-  INVALID
-  HOME_ADDRESS
-  WORK_ADDRESS
+input AbsenceUpdateInput {
+  absenceId: Int!
+  rowVersion: Int!
+  notesToApprover: String
+  details: [AbsenceDetailCreateInput]
 }
 
 type AccountingCode implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -149,7 +248,7 @@ input AccountingCodeCreateInput {
 }
 
 input AccountingCodeUpdateInput {
-  id: Int!
+  accountingCodeId: Int!
   rowVersion: String
   name: String
   description: String
@@ -182,6 +281,12 @@ input AddressInput {
   isMappable: Boolean
 }
 
+enum AddressType {
+  INVALID
+  HOME_ADDRESS
+  WORK_ADDRESS
+}
+
 type Assignment {
   _info: [ReturnMessage]
 }
@@ -210,6 +315,35 @@ type Branding implements ModelObjectInterface {
   supportPhoneNumber: String
   domainName: String
   productName: String
+  poweredByUrl: String
+  emailIconUrl: String
+}
+
+type BrandingCsPage implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID
+  createdUtc: DateTime
+  changedUtc: DateTime
+  deletedUtc: DateTime
+  isDeleted: Boolean!
+  name: String
+  description: String
+  majorLogoUrl: String
+  minorLogoUrl: String
+  navigationColor: String
+  navigationHoverColor: String
+  navigationActiveColor: String
+  frontendPrimaryColor: String
+  frontendPrimaryLightColor: String
+  frontendPrimaryDarkerColor: String
+  frontendSecondaryColor: String
+  frontendSecondaryLightColor: String
+  frontendSecondaryDarkerColor: String
+  supportEmailAddress: String
+  supportPhoneNumber: String
+  domainName: String
+  productName: String
+  certificateExpirationDate: Date
   poweredByUrl: String
   emailIconUrl: String
 }
@@ -245,9 +379,11 @@ type BrandingMutations {
 
 type BrandingQueries {
   defaultBranding: Branding
-  byId(id: ID!): Branding
-  all: [Branding]
+  byId(id: ID!): BrandingCsPage
+  all: [BrandingCsPage]
 }
+
+scalar Byte
 
 type CalendarChange implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
@@ -329,7 +465,7 @@ input CalendarChangeReasonCreateInput {
 }
 
 input CalendarChangeReasonUpdateInput {
-  id: Int!
+  calendarChangeReasonId: Int!
   rowVersion: String
   name: String
   description: String
@@ -647,8 +783,6 @@ enum CustomFieldVisibility {
   HIDE
 }
 
-# The `Date` scalar type represents a year, month and day in accordance with the
-# [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) standard.
 scalar Date
 
 enum DateRangeType {
@@ -658,14 +792,8 @@ enum DateRangeType {
   YEAR
 }
 
-# The `DateTime` scalar type represents a date and time. `DateTime` expects
-# timestamps to be formatted in accordance with the
-# [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) standard.
 scalar DateTime
 
-# The `DateTimeOffset` scalar type represents a date, time and offset from UTC.
-# `DateTimeOffset` expects timestamps to be formatted in accordance with the
-# [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) standard.
 scalar DateTimeOffset
 
 enum DayOfWeek {
@@ -676,6 +804,20 @@ enum DayOfWeek {
   THURSDAY
   FRIDAY
   SATURDAY
+}
+
+enum DayPart {
+  NONE
+  FULL_DAY
+  HALF_DAY_MORNING
+  HALF_DAY_AFTERNOON
+  HALF_DAYS
+  QUARTER_DAY_EARLY_MORNING
+  QUARTER_DAY_LATE_MORNING
+  QUARTER_DAY_EARLY_AFTERNOON
+  QUARTER_DAY_LATE_AFTERNOON
+  QUARTER_DAYS
+  HOURLY
 }
 
 scalar Decimal
@@ -747,7 +889,7 @@ type EmployeeAddress implements ModelObjectInterface {
 
 input EmployeeAddressInput {
   employeeAddressId: Int
-  addressTypeId: AbsenceType
+  addressTypeId: AddressType
   address1: String
   address2: String
   city: String
@@ -758,6 +900,7 @@ input EmployeeAddressInput {
 
 input EmployeeCreateInput {
   orgId: Int!
+  orgUserId: Int!
   externalId: String
   canFillVacancies: Boolean!
   dateOfBirth: Date!
@@ -843,7 +986,7 @@ input EndEmploymentReasonCreateInput {
 }
 
 input EndEmploymentReasonUpdateInput {
-  id: Int!
+  endEmploymentReasonId: Int!
   rowVersion: String
   name: String
   description: String
@@ -877,7 +1020,7 @@ input EndorsementCreateInput {
 }
 
 input EndorsementUpdateInput {
-  id: Int!
+  endorsementId: Int!
   rowVersion: String
   name: String
   description: String
@@ -1106,6 +1249,9 @@ enum EventType {
   LOCATION_GROUP_CREATED
   LOCATION_GROUP_UPDATED
   LOCATION_GROUP_DELETED
+  PERMISSION_SET_CREATED
+  PERMISSION_SET_UPDATED
+  PERMISSION_SET_DELETED
 }
 
 enum FeatureFlag {
@@ -1140,6 +1286,8 @@ enum FillStatus {
   PARTLY_FILLED
   FILLED
 }
+
+scalar Guid
 
 type Label implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
@@ -1176,7 +1324,7 @@ enum LabelType {
 }
 
 input LabelUpdateInput {
-  id: Int!
+  labelId: Int!
   rowVersion: String
   name: String
   description: String
@@ -1198,7 +1346,8 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   name: String!
   timeZoneId: TimeZone
   address: Address
-  locationConfig: LocationConfig
+  replacementStartOffsetMinutes: Int
+  replacementEndOffsetMinutes: Int
   address1: String
   address2: String
   city: String
@@ -1209,23 +1358,6 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   active: Boolean
 }
 
-type LocationConfig implements ModelObjectInterface {
-  _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
-  isDeleted: Boolean!
-  replacementStartOffsetMinutes: Int
-  replacementEndOffsetMinutes: Int
-}
-
-input LocationConfigInputType {
-  locationConfigId: Int
-  replacementStartOffsetMinutes: Int
-  replacementEndOffsetMinutes: Int
-}
-
 input LocationCreateInput {
   orgId: Int!
   name: String!
@@ -1233,7 +1365,8 @@ input LocationCreateInput {
   address: AddressInput
   timeZoneId: TimeZone
   locationGroupId: Int!
-  locationConfig: LocationConfigInputType
+  replacementStartOffsetMinutes: Int
+  replacementEndOffsetMinutes: Int
 }
 
 type LocationGroup implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -1248,7 +1381,8 @@ type LocationGroup implements ModelObjectInterface & OrgObjectInterface & Domain
   rowVersion: String
   name: String!
   description: String
-  locationConfig: LocationConfig
+  replacementStartOffsetMinutes: Int
+  replacementEndOffsetMinutes: Int
   locations: [Location]
 }
 
@@ -1256,7 +1390,8 @@ input LocationGroupCreateInput {
   orgId: Int!
   name: String!
   description: String
-  locationConfig: LocationConfigInputType
+  replacementStartOffsetMinutes: Int
+  replacementEndOffsetMinutes: Int
 }
 
 type LocationGroupMutations {
@@ -1282,7 +1417,8 @@ input LocationGroupUpdateInput {
   name: String
   description: String
   rowVersion: String
-  locationConfig: LocationConfigInputType
+  replacementStartOffsetMinutes: Int
+  replacementEndOffsetMinutes: Int
 }
 
 type LocationMutations {
@@ -1317,10 +1453,10 @@ input LocationUpdateInput {
   timeZoneId: TimeZone
   rowVersion: String
   expired: Boolean
-  locationConfig: LocationConfigInputType
+  replacementStartOffsetMinutes: Int
+  replacementEndOffsetMinutes: Int
 }
 
-# The `Milliseconds` scalar type represents a period of time represented as the total number of milliseconds.
 scalar Milliseconds
 
 interface ModelObjectInterface {
@@ -1332,6 +1468,7 @@ interface ModelObjectInterface {
 }
 
 type Mutation {
+  absence: AbsenceMutations
   absenceReasonBalance: AbsenceReasonBalanceMutations
   branding: BrandingMutations
   calendarChange: CalendarChangeMutations
@@ -1345,6 +1482,7 @@ type Mutation {
   notificationLog: NotificationLogMutations
   organization: OrganizationMutations
   orgUser: OrgUserMutations
+  permissionSet: PermissionSetMutations
   positionSchedule: PositionScheduleMutations
   positionType: PositionTypeMutations
   savedView: SavedViewMutations
@@ -1493,6 +1631,9 @@ type organizationConfig {
   brandingId: Int!
   branding: Branding
   featureFlags: [FeatureFlag]
+  longTermVacancyThresholdDays: Int!
+  minLeadTimeMinutesToCancelVacancy: Int!
+  minLeadTimeMinutesToCancelVacancyWithoutPunishment: Int!
 }
 
 input organizationConfigInput {
@@ -1504,6 +1645,9 @@ input organizationConfigInput {
   orgUsersMustAcceptEula: Boolean
   defaultLeadTimeWindowMinutes: Int
   brandingId: Int
+  longTermVacancyThresholdDays: Int
+  minLeadTimeMinutesToCancelVacancy: Int
+  minLeadTimeMinutesToCancelVacancyWithoutPunishment: Int
 }
 
 input OrganizationCreateInput {
@@ -1759,8 +1903,8 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface {
   userId: Int
   isSuperUser: Boolean!
   permissionSets: [PermissionSet]
-  adminScopeLocationRules: [String!]!
-  adminScopePositionTypeRules: [String!]!
+  adminScopeLocationRules: [String]!
+  adminScopePositionTypeRules: [String]!
   adminLocations: [Location]
   adminPositionTypes: [PositionType]
 }
@@ -1773,9 +1917,11 @@ input OrgUserCreateInput {
   middleName: String
   lastName: String!
   isSuperUser: Boolean!
-  permissionSetIds: [Int]
+  permissionSetIds: [Int!]
   adminScopeLocationRules: [String]
   adminScopePositionTypeRules: [String]
+  allLocationIdsInScope: Boolean
+  allPositionTypeIdsInScope: Boolean
 }
 
 type OrgUserMutations {
@@ -1813,9 +1959,20 @@ input OrgUserUpdateInput {
   middleName: String
   lastName: String
   isSuperUser: Boolean
-  permissionSetIds: [Int]
+  permissions: [Int!]
   adminScopeLocationRules: [String]
   adminScopePositionTypeRules: [String]
+  allLocationIdsInScope: Boolean
+  allPositionTypeIdsInScope: Boolean
+}
+
+type PagedAbsence {
+  _info: [ReturnMessage]
+  results: [Absence]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
 }
 
 type PagedAbsenceReason {
@@ -1980,6 +2137,15 @@ type PagedPayCode {
   totalCount: Int
 }
 
+type PagedPermissionSet {
+  _info: [ReturnMessage]
+  results: [PermissionSet]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedPositionSchedule {
   _info: [ReturnMessage]
   results: [PositionSchedule]
@@ -2086,7 +2252,7 @@ input PayCodeCreateInput {
 }
 
 input PayCodeUpdateInput {
-  id: Int!
+  payCodeId: Int!
   rowVersion: String
   name: String
   description: String
@@ -2128,13 +2294,14 @@ enum PermissionEnum {
   EMPLOYEE_DELETE
   USER_RESET_PASSWORD
   USER_CHANGE_EMAIL
-  PERMISSION_SET_CREATE
-  PERMISSION_SET_SAVE
-  PERMISSION_SET_DELETE
   POSITION_SCHEDULE_SAVE
   POSITION_SCHEDULE_DELETE
   CALENDAR_CHANGE_SAVE
   CALENDAR_CHANGE_DELETE
+  PERMISSION_SET_SAVE
+  PERMISSION_SET_DELETE
+  ABSENCE_SAVE
+  ABSENCE_DELETE
 }
 
 type PermissionSet implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2149,10 +2316,44 @@ type PermissionSet implements ModelObjectInterface & OrgObjectInterface & Domain
   rowVersion: String
   name: String!
   description: String
-  forRole: OrgUserRole
-  permissions: [PermissionEnum]
-  isShadow: Boolean!
+  orgUserRole: OrgUserRole
+  permissionSet: [PermissionEnum]
+  shadowFromPermissionSetId: Int
+  shadowFromOrganizationRelationshipId: Int
   shadowFromOrgId: Int
+}
+
+input PermissionSetCreateInput {
+  orgId: Int!
+  name: String!
+  description: String
+  orgUserRole: OrgUserRole
+  permissionSet: [PermissionEnum]
+}
+
+type PermissionSetMutations {
+  create(permissionSet: PermissionSetCreateInput!): PermissionSet
+  update(permissionSet: PermissionSetUpdateInput!): PermissionSet
+  delete(permissionSetId: Int!): Boolean
+}
+
+type PermissionSetQueries {
+  byId(id: ID!): PermissionSet
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [PermissionSet]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedPermissionSet
+}
+
+input PermissionSetUpdateInput {
+  permissionSetId: Int!
+  rowVersion: Int!
+  name: String!
+  description: String
 }
 
 enum PhoneType {
@@ -2178,15 +2379,8 @@ type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   currentEmployeeId: Int
   currentContractId: Int
   currentContract: Contract
-  positionConfigId: Int!
-  positionConfig: [PositionType]
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
-}
-
-input PositionConfigInputType {
-  positionConfigId: Int
-  needsReplacement: Boolean!
 }
 
 input PositionCreateInput {
@@ -2198,7 +2392,6 @@ input PositionCreateInput {
   currentContractId: Int
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
-  positionConfig: PositionConfigInputType
 }
 
 type PositionSchedule implements ModelObjectInterface & OrgObjectInterface {
@@ -2248,6 +2441,7 @@ type PositionSchedulePeriod implements ModelObjectInterface & OrgObjectInterface
   sequence: Int
   name: String!
   description: String
+  room: String
   needsReplacement: Boolean!
   deductFromAbsenceBalance: Boolean!
   locationId: Int!
@@ -2259,6 +2453,7 @@ input PositionSchedulePeriodInput {
   positionSchedulePeriodId: Int
   name: String
   description: String
+  room: String
   locationId: Int
   workDayScheduleId: Int
   workDaySchedulePeriodId: Int
@@ -2370,14 +2565,21 @@ input PositionScheduleVariantPeriodCreateInput {
   isQuarterDayLateAfternoonStart: Boolean
 }
 
-type PositionType implements ModelObjectInterface {
+type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID
   createdUtc: DateTime
   changedUtc: DateTime
   deletedUtc: DateTime
   isDeleted: Boolean!
-  needsReplacement: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String
+  name: String!
+  forStaffAugmentation: Boolean!
+  forPermanentPositions: Boolean!
+  needsReplacement: NeedsReplacement
+  minAbsenceDurationMinutes: Int!
 }
 
 input PositionTypeCreateInput {
@@ -2386,7 +2588,8 @@ input PositionTypeCreateInput {
   forStaffAugmentation: Boolean!
   forPermanentPositions: Boolean!
   externalId: String
-  positionConfig: PositionConfigInputType
+  needsReplacement: NeedsReplacement
+  minAbsenceDurationMinutes: Int!
 }
 
 type PositionTypeMutations {
@@ -2414,10 +2617,12 @@ input PositionTypeUpdateInput {
   forStaffAugmentation: Boolean
   forPermanentPositions: Boolean
   externalId: String
-  positionConfig: PositionConfigInputType
+  needsReplacement: NeedsReplacement
+  minAbsenceDurationMinutes: Int
 }
 
 type Query {
+  absence: AbsenceQueries
   branding: BrandingQueries
   calendarChange: CalendarChangeQueries
   changeLog: ChangeLogQueries
@@ -2439,6 +2644,7 @@ type Query {
   orgRef_PayCode: OrgRef_PayCodeQueries
   orgRef_WorkDayScheduleVariantType: OrgRef_WorkDayScheduleVariantTypeQueries
   orgUser: OrgUserQueries
+  permissionSet: PermissionSetQueries
   positionSchedule: PositionScheduleQueries
   positionType: PositionTypeQueries
   referenceData: ReferenceDataQueries
@@ -2475,7 +2681,7 @@ type RefAbsenceStatus {
 
 type RefAddressType {
   _info: [ReturnMessage]
-  enumValue: AbsenceType
+  enumValue: AddressType
   name: String!
   description: String
 }
@@ -2587,7 +2793,7 @@ type ReferenceDataQueries {
   labelTypes: [RefLabelType]
   fillStatuses: [RefFillStatus]
   timeZones: [RefTimeZone]
-  unitTypes: [RefVolumeUnit]
+  unitTypes: [RefUnitType]
   volumeUnits: [RefVolumeUnit]
   weightUnits: [RefWeightUnit]
 }
@@ -2690,6 +2896,13 @@ type RefTimeZone {
   description: String
 }
 
+type RefUnitType {
+  _info: [ReturnMessage]
+  enumValue: UnitType
+  name: String!
+  description: String
+}
+
 type RefVolumeUnit {
   _info: [ReturnMessage]
   enumValue: VolumeUnit
@@ -2781,7 +2994,7 @@ type SavedViewFilter {
   field: SavedViewField
   fieldName: String!
   operator: String!
-  values: [String!]!
+  values: [String]!
 }
 
 type SavedViewMutations {
@@ -2829,6 +3042,8 @@ input SavedViewUpdateInput {
   query: String
   rowVersion: String
 }
+
+scalar SByte
 
 type SchoolYear implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
@@ -2904,7 +3119,6 @@ type SearchResultMatch {
   value: String!
 }
 
-# The `Seconds` scalar type represents a period of time represented as the total number of seconds.
 scalar Seconds
 
 enum SeedOrgRefDataOptionEnum {
@@ -2912,6 +3126,8 @@ enum SeedOrgRefDataOptionEnum {
   SEED_SYNCHRONOUSLY
   SEED_ASYNCHRONOUSLY
 }
+
+scalar Short
 
 input SortDetailsInput {
   sortByPropertyName: String
@@ -3014,11 +3230,17 @@ enum TimeZone {
   HAWAIIAN_STANDARD_TIME
 }
 
+scalar UInt
+
+scalar ULong
+
 enum UnitType {
   INVALID
   IMPERIAL
   METRIC
 }
+
+scalar Uri
 
 type User implements ModelObjectInterface {
   _info: [ReturnMessage]
@@ -3112,6 +3334,8 @@ input UserUpdateInput {
   rowVersion: String
   preferences: UserPreferencesInput
 }
+
+scalar UShort
 
 enum VolumeUnit {
   INVALID
@@ -3406,7 +3630,7 @@ input WorkDayScheduleVariantTypeCreateInput {
 }
 
 input WorkDayScheduleVariantTypeUpdateInput {
-  id: Int!
+  workDayScheduleVariantTypeId: Int!
   rowVersion: String
   name: String
   description: String
