@@ -7,6 +7,7 @@ module.exports = {
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:jest/recommended",
     "plugin:react/recommended",
     "prettier",
@@ -83,19 +84,18 @@ module.exports = {
 
     // way may want these eventually, but they'll be a chore to fix:
     "@typescript-eslint/camelcase": 0,
-    "@typescript-eslint/class-name-casing": 0,
-    "@typescript-eslint/explicit-member-accessibility": 0,
     "@typescript-eslint/interface-name-prefix": 0,
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/no-non-null-assertion": 0,
     "@typescript-eslint/no-object-literal-type-assertion": 0, // e.g. `{...} as Foo`, which we use for branding and permissions
-    "@typescript-eslint/no-parameter-properties": 0,
-    "@typescript-eslint/no-var-requires": 0,
-    "jest/no-alias-methods": 0,
-    "no-dupe-class-members": 0,
-    "react/display-name": 0,
+    // "@typescript-eslint/no-parameter-properties": 0,
+    // "jest/no-alias-methods": 0,
+    // "no-dupe-class-members": 0,
+    // "react/display-name": 0,
 
     // don't want, at least for now:
+    "@typescript-eslint/no-var-requires": 0,
+    "@typescript-eslint/require-await": 0,
     "@typescript-eslint/explicit-function-return-type": 0,
     "@typescript-eslint/no-namespace": 0,
     "@typescript-eslint/no-unused-vars": 0,

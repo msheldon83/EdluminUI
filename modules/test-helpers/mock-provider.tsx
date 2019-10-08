@@ -239,5 +239,9 @@ export function mockProvider(opts?: MockProviderOpts) {
 
 export function mockProviderDecorator(opts?: MockProviderOpts) {
   const Provider = mockProvider(opts);
-  return (story: () => React.ReactElement) => <Provider>{story()}</Provider>;
+  const decorator = (story: () => React.ReactElement) => (
+    <Provider>{story()}</Provider>
+  );
+  decorator.displayName = "Mock Provider Decorator";
+  return decorator;
 }
