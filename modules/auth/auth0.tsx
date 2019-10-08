@@ -27,6 +27,7 @@ const Empty: Auth0Context = {
 };
 export const Auth0Context = React.createContext<Auth0Context>(Empty);
 export const useAuth0 = () => useContext(Auth0Context);
+const AFTER_AUTH_REDIRECT_URL = "AFTER_AUTH_REDIRECT_URL";
 
 type Auth0State =
   | {
@@ -78,7 +79,12 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
       client = await getAuth0Client();
       if (history.location.search.includes("code=")) {
         await client.handleRedirectCallback();
-        history.replace("/");
+
+        const afterAuthRedirectUrl = sessionStorage.getItem(
+          AFTER_AUTH_REDIRECT_URL
+        );
+        sessionStorage.removeItem(AFTER_AUTH_REDIRECT_URL);
+        history.replace(afterAuthRedirectUrl || "/");
         /* cf - 2019-10-07 -
              after calling handleRedirectCallback(), the client does not correctly return
              the new authentication status.
@@ -125,6 +131,11 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
 
   const login = useCallback(() => {
     if (!state.loading) {
+      const { pathname, search, hash } = history.location;
+      sessionStorage.setItem(
+        AFTER_AUTH_REDIRECT_URL,
+        `${pathname}${search}${hash}`
+      );
       return state.client.loginWithRedirect({
         audience: Config.Auth0.authAudience,
         redirect_uri: Config.Auth0.redirectUrl,
