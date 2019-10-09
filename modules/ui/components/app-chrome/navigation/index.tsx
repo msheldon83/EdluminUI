@@ -13,48 +13,50 @@ import {
 } from "@material-ui/core";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import MenuIcon from "@material-ui/icons/Menu";
+import { useBreakpoint, ScreenSize } from "hooks";
 
-export const NavigationSideBar: React.FC<{}> = props => {
+type Props = {
+  drawerStyle: "temporary" | "permanent";
+  expanded: boolean;
+  expand: () => void;
+  collapse: () => void;
+};
+
+export const NavigationSideBar: React.FC<Props> = props => {
   const classes = useStyles();
-  const [isOpen, setIsOpen] = React.useState(true);
-  const handleDrawerOpen = () => {
-    setIsOpen(true);
-  };
-  const handleDrawerClose = () => {
-    setIsOpen(false);
-  };
 
   return (
     <Drawer
-      open={isOpen}
-      variant={"permanent"}
-      className={isOpen ? classes.drawerOpen : classes.drawerClose}
+      onClose={props.collapse}
+      open={props.expanded}
+      variant={props.drawerStyle}
+      className={props.expanded ? classes.drawerOpen : classes.drawerClose}
       classes={{
         paper: `${classes.drawer} ${
-          isOpen ? classes.drawerOpen : classes.drawerClose
+          props.expanded ? classes.drawerOpen : classes.drawerClose
         }`,
       }}
     >
       <Grid
         container
         className={classes.toolbar}
-        justify={isOpen ? "space-between" : "center"}
+        justify={props.expanded ? "space-between" : "center"}
         alignItems="center"
       >
-        {isOpen && (
+        {props.expanded && (
           <Typography variant={"h2"} className={classes.text}>
             Edlumin
           </Typography>
         )}
-        {isOpen ? (
-          <IconButton onClick={handleDrawerClose}>
+        {props.expanded ? (
+          <IconButton onClick={props.collapse}>
             <ChevronLeftIcon className={classes.text} />
           </IconButton>
         ) : (
           <IconButton
             className={classes.text}
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            onClick={props.expand}
             edge="start"
           >
             <MenuIcon />
@@ -81,7 +83,7 @@ export const NavigationSideBar: React.FC<{}> = props => {
             <ListItemIcon className={classes.icon}>
               <ChevronLeftIcon />
             </ListItemIcon>
-            {isOpen && (
+            {props.expanded && (
               <ListItemText
                 primary={text}
                 primaryTypographyProps={{ className: classes.text }}

@@ -17,3 +17,12 @@ export const useBreakpoint = (
   const theme = useTheme();
   return useMediaQuery(theme.breakpoints[direction](breakpoint));
 };
+
+export type ScreenSize = "mobile" | "medium" | "large";
+export const useScreenSize = (): ScreenSize => {
+  const smDown = useBreakpoint("sm", "down");
+  const lgUp = useBreakpoint("lg", "up");
+  if (smDown) return "mobile";
+  if (lgUp) return "large";
+  return "medium";
+};
