@@ -1,22 +1,22 @@
 import * as React from "react";
 import { AppBar, Toolbar, IconButton, makeStyles } from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
+import SearchIcon from "@material-ui/icons/Search";
 
-type Props = {};
+type Props = { className?: string };
 export const TopBar: React.FC<Props> = props => {
   const iconButtonClasses = useIconButtonClasses();
   const mobileToolbarClasses = useMobileToolbarClasses();
   return (
     <>
-      <AppBar position="fixed">
+      <AppBar position="fixed" className={props.className}>
         <Toolbar classes={mobileToolbarClasses}>
-          {/* <IconButton
+          <IconButton
             edge="start"
             classes={iconButtonClasses}
-            onClick={props.expandDrawer}
+            // onClick={props.expandDrawer}
           >
-            <MenuIcon />
-          </IconButton> */}
+            <SearchIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
       <Toolbar>{/* This is here to make space for the app bar */}</Toolbar>
@@ -32,6 +32,6 @@ const useMobileToolbarClasses = makeStyles(theme => ({
 
 const useIconButtonClasses = makeStyles(theme => ({
   label: {
-    color: theme.customColors.white,
+    color: theme.customColors.black,
   },
 }));

@@ -17,10 +17,7 @@ export const AppChrome: React.FunctionComponent = props => {
   const mobile = screenSize === "mobile";
   const expand = useCallback(() => setExpanded(true), [setExpanded]);
   const collapse = useCallback(() => setExpanded(false), [setExpanded]);
-  const classes = useStyles({
-    mobile: screenSize === "mobile",
-    expanded: expanded,
-  });
+  const classes = useStyles();
 
   /* cf - 2019-10-09
       it's important that both mobile and not mobile return the same number of items
@@ -39,16 +36,19 @@ export const AppChrome: React.FunctionComponent = props => {
       </>
     );
   } else {
+    const navBarSpacingClass = expanded
+      ? classes.navSpacerExpanded
+      : classes.navSpacerCompact;
     return (
       <>
-        <TopBar />
+        <TopBar className={navBarSpacingClass} />
         <NavigationSideBar
           drawerStyle={screenSize === "mobile" ? "temporary" : "permanent"}
           expanded={expanded}
           expand={expand}
           collapse={collapse}
         />
-        <div className={classes.navSpacer}>{props.children}</div>
+        <div className={navBarSpacingClass}>{props.children}</div>
       </>
     );
   }
@@ -60,12 +60,22 @@ const useStyles = makeStyles(theme => ({
     padding: theme.typography.pxToRem(24),
     marginTop: theme.typography.pxToRem(18),
   },
-  navSpacer: (props: { mobile: boolean; expanded: boolean }) => {
-    return {
-      paddingLeft: theme.typography.pxToRem(
-        navBarWidth(props.mobile, props.expanded)
-      ),
-    };
+  navSpacerCompact: {
+    paddingLeft: theme.spacing(7) + 1,
+    [theme.breakpoints.up("sm")]: {
+      paddingLeft: theme.spacing(9) + 1,
+    },
+    transition: theme.transitions.create("padding", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.short,
+    }),
+  },
+  navSpacerExpanded: {
+    paddingLeft: theme.typography.pxToRem(240),
+    transition: theme.transitions.create("padding", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.short,
+    }),
   },
 }));
 

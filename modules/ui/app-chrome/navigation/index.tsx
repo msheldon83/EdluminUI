@@ -221,13 +221,13 @@ const useStyles = makeStyles(theme => ({
     width: theme.typography.pxToRem(240),
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
+      duration: theme.transitions.duration.short,
     }),
   },
   drawerClose: {
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
+      duration: theme.transitions.duration.short,
     }),
     overflowX: "hidden",
     width: theme.spacing(7) + 1,
