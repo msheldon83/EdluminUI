@@ -1,0 +1,22 @@
+pool:
+  vmImage: "Ubuntu 16.04"
+
+# Build Number format
+name: $(date:yy).$(DayOfYear)$(Rev:.rr)
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+      - pull/*
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "10.x"
+
+  - script: |
+      yarn
+      yarn build
+    displayName: "yarn build"
