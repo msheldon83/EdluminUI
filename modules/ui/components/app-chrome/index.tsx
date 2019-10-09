@@ -1,12 +1,12 @@
 import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
 import { NavigationSideBar } from "ui/components/app-chrome/navigation";
-import { useMediaQuery, Menu } from "@material-ui/core";
-import { EdluminTheme } from "ui/styles/mui-theme";
+import { Menu } from "@material-ui/core";
+import { useBreakpoint } from "hooks";
 
 export const AppChrome: React.FunctionComponent = props => {
   const classes = useStyles();
-  const isXsDown = useMediaQuery(EdluminTheme.breakpoints.down("xs"));
+  const isXsDown = useBreakpoint("xs", "down");
 
   return (
     <>
