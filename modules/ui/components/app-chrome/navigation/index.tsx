@@ -21,7 +21,6 @@ export const NavigationSideBar: React.FC<{}> = props => {
     setIsOpen(true);
   };
   const handleDrawerClose = () => {
-    console.log("close");
     setIsOpen(false);
   };
 
@@ -31,7 +30,9 @@ export const NavigationSideBar: React.FC<{}> = props => {
       variant={"permanent"}
       className={isOpen ? classes.drawerOpen : classes.drawerClose}
       classes={{
-        paper: isOpen ? classes.drawerOpen : classes.drawerClose,
+        paper: `${classes.drawer} ${
+          isOpen ? classes.drawerOpen : classes.drawerClose
+        }`,
       }}
     >
       <Grid
@@ -40,14 +41,18 @@ export const NavigationSideBar: React.FC<{}> = props => {
         justify={isOpen ? "space-between" : "center"}
         alignItems="center"
       >
-        {isOpen && <Typography variant={"h2"}>Edlumin</Typography>}
+        {isOpen && (
+          <Typography variant={"h2"} className={classes.text}>
+            Edlumin
+          </Typography>
+        )}
         {isOpen ? (
           <IconButton onClick={handleDrawerClose}>
-            <ChevronLeftIcon />
+            <ChevronLeftIcon className={classes.text} />
           </IconButton>
         ) : (
           <IconButton
-            color="inherit"
+            className={classes.text}
             aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
@@ -57,7 +62,7 @@ export const NavigationSideBar: React.FC<{}> = props => {
         )}
       </Grid>
       <Divider />
-      <List>
+      <List className={classes.list}>
         {[
           "Home",
           "Absences & Vacancies",
@@ -72,11 +77,16 @@ export const NavigationSideBar: React.FC<{}> = props => {
           "Sub Preferences",
           "My Availability",
         ].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>
+          <ListItem button key={text} className={classes.menuItem}>
+            <ListItemIcon className={classes.icon}>
               <ChevronLeftIcon />
             </ListItemIcon>
-            {isOpen && <ListItemText primary={text} />}
+            {isOpen && (
+              <ListItemText
+                primary={text}
+                primaryTypographyProps={{ className: classes.text }}
+              />
+            )}
           </ListItem>
         ))}
       </List>
@@ -89,8 +99,11 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(0, 1),
     ...theme.mixins.toolbar,
   },
+  drawer: {
+    background: theme.customColors.edluminSlate,
+  },
   drawerOpen: {
-    width: 240,
+    width: theme.typography.pxToRem(240),
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -105,6 +118,27 @@ const useStyles = makeStyles(theme => ({
     width: theme.spacing(7) + 1,
     [theme.breakpoints.up("sm")]: {
       width: theme.spacing(9) + 1,
+    },
+  },
+  icon: {
+    minWidth: 0,
+    paddingRight: theme.typography.pxToRem(11),
+  },
+  text: {
+    color: theme.customColors.white,
+    fontWeight: 600,
+  },
+  list: {
+    paddingRight: theme.typography.pxToRem(8),
+    paddingLeft: theme.typography.pxToRem(8),
+  },
+  menuItem: {
+    opacity: 0.7,
+    borderRadius: theme.typography.pxToRem(5),
+    margin: `${theme.typography.pxToRem(5)} 0`,
+    "&:hover": {
+      backgroundColor: theme.customColors.edluminLightSlate,
+      opacity: 1,
     },
   },
 }));

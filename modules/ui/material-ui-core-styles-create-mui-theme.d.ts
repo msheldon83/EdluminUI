@@ -17,6 +17,8 @@ interface EdluminTheme extends Theme {
 
     eduBlue: string;
     eduBlack: string;
+    edluminSlate: string;
+    edluminLightSlate: string;
     raspberry: string;
     pumpkin: string;
     mustard: string;
@@ -65,6 +67,8 @@ declare module "@material-ui/core/styles/createMuiTheme" {
 
       eduBlue: string;
       eduBlack: string;
+      edluminSlate: string;
+      edluminLightSlate: string;
       raspberry: string;
       pumpkin: string;
       mustard: string;
@@ -101,6 +105,8 @@ declare module "@material-ui/core/styles/createMuiTheme" {
       lightBlueGray?: string;
       eduBlue?: string;
       eduBlack?: string;
+      edluminSlate?: string;
+      edluminLightSlate?: string;
       raspberry?: string;
       pumpkin?: string;
       mustard?: string;

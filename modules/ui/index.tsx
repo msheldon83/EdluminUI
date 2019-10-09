@@ -9,6 +9,7 @@ import { IndexLoader } from "./pages/index/loader";
 import { LoginPageRouteLoader } from "./pages/login/loader";
 import { Index } from "./routes";
 import { EdluminTheme } from "./styles/mui-theme";
+import { AppChrome } from "./components/app-chrome";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -24,16 +25,18 @@ export function App(props: {}) {
           <Switch>
             <Route exact path={"/login"} component={LoginPageRouteLoader} />
             <Route>
-              <IfAuthenticated>
-                <Switch>
-                  {/* Protected routes go here */}
-                  <Route
-                    exact
-                    component={IndexLoader}
-                    path={Index.PATH_TEMPLATE}
-                  />
-                </Switch>
-              </IfAuthenticated>
+              <AppChrome>
+                <IfAuthenticated>
+                  <Switch>
+                    {/* Protected routes go here */}
+                    <Route
+                      exact
+                      component={IndexLoader}
+                      path={Index.PATH_TEMPLATE}
+                    />
+                  </Switch>
+                </IfAuthenticated>
+              </AppChrome>
               <IfAuthenticated not>
                 <RedirectToLogin />
                 {/* <Button onClick={auth0.login} variant="contained">

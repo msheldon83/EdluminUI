@@ -43,6 +43,8 @@ const themeColors: Theme["customColors"] = {
   lightBlueGray: "#f4f7f9",
   eduBlue: "#0a4e80",
   eduBlack: "#373637",
+  edluminSlate: "#2B3648",
+  edluminLightSlate: "#56657F",
 
   raspberry: "#CC0079",
   pumpkin: "#E96B1C",
@@ -159,6 +161,7 @@ export const EdluminTheme = createMuiTheme({
   },
   typography: palette => ({
     color: themeColors.black,
+    fontFamily: "Poppins",
     fontSize: baseFontSize,
     htmlFontSize: htmlFontSize,
     body1: {
