@@ -13,6 +13,15 @@ import {
 } from "@material-ui/core";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import MenuIcon from "@material-ui/icons/Menu";
+import HomeIcon from "@material-ui/icons/Home";
+import SwapCallsIcon from "@material-ui/icons/SwapCalls";
+import TimelineIcon from "@material-ui/icons/Timeline";
+import LocationCityIcon from "@material-ui/icons/LocationCity";
+import PeopleIcon from "@material-ui/icons/People";
+import DateRangeIcon from "@material-ui/icons/DateRange";
+import SettingsIcon from "@material-ui/icons/Settings";
+import LockIcon from "@material-ui/icons/Lock";
+import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import { useBreakpoint, ScreenSize } from "hooks";
 
 type Props = {
@@ -65,32 +74,136 @@ export const NavigationSideBar: React.FC<Props> = props => {
       </Grid>
       <Divider />
       <List className={classes.list}>
-        {[
-          "Home",
-          "Absences & Vacancies",
-          "Analytics & Reports",
-          "Places",
-          "People",
-          "Calendars",
-          "Configuration",
-          "Security",
-          "PTO Balances",
-          "Schedule",
-          "Sub Preferences",
-          "My Availability",
-        ].map((text, index) => (
-          <ListItem button key={text} className={classes.menuItem}>
-            <ListItemIcon className={classes.icon}>
-              <ChevronLeftIcon />
-            </ListItemIcon>
-            {props.expanded && (
-              <ListItemText
-                primary={text}
-                primaryTypographyProps={{ className: classes.text }}
-              />
-            )}
-          </ListItem>
-        ))}
+        <ListItem button key={"Home"} className={classes.menuItem}>
+          <ListItemIcon className={classes.icon}>
+            <HomeIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary="Home"
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
+        <ListItem
+          button
+          key={"Absences & Vacancies"}
+          className={classes.menuItem}
+        >
+          <ListItemIcon className={classes.icon}>
+            <SwapCallsIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary={"Absences & Vacancies"}
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
+        <ListItem
+          button
+          key={"Analytics & Reports"}
+          className={classes.menuItem}
+        >
+          <ListItemIcon className={classes.icon}>
+            <TimelineIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary={"Analytics & Reports"}
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
+        <ListItem button key={"Schools"} className={classes.menuItem}>
+          <ListItemIcon className={classes.icon}>
+            <LocationCityIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary="Schools"
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
+        <ListItem button key={"People"} className={classes.menuItem}>
+          <ListItemIcon className={classes.icon}>
+            <PeopleIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary="People"
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
+        <ListItem button key={"Calendars"} className={classes.menuItem}>
+          <ListItemIcon className={classes.icon}>
+            <DateRangeIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary="Calendars"
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
+        <ListItem button key={"Configuration"} className={classes.menuItem}>
+          <ListItemIcon className={classes.icon}>
+            <SettingsIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary="Configuration"
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
+        <ListItem button key={"Security"} className={classes.menuItem}>
+          <ListItemIcon className={classes.icon}>
+            <LockIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary="Security"
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
+
+        <ListItem button key={"My Schedule"} className={classes.menuItem}>
+          <ListItemIcon className={classes.icon}>
+            <DateRangeIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary="My Schedule"
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
+        <ListItem button key={"PTO Balances"} className={classes.menuItem}>
+          <ListItemIcon className={classes.icon}>
+            <AccountBalanceWalletIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary="PTO Balances"
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
+        <ListItem button key={"Sub Preferences"} className={classes.menuItem}>
+          <ListItemIcon className={classes.icon}>
+            <SettingsIcon />
+          </ListItemIcon>
+          {props.expanded && (
+            <ListItemText
+              primary="Sub Preferences"
+              primaryTypographyProps={{ className: classes.text }}
+            />
+          )}
+        </ListItem>
       </List>
     </Drawer>
   );
