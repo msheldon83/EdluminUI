@@ -1,7 +1,7 @@
 import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
 import { Auth0Context } from "auth/auth0";
-import { NavigationSideBar } from ".";
+import { NavigationSideBar } from "../navigation";
 
 export default {
   title: "Components/Navigation Side Bar",

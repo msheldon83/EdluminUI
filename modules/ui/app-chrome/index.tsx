@@ -1,11 +1,12 @@
 import { makeStyles, DefaultTheme } from "@material-ui/styles";
 import * as React from "react";
 import { useState, useEffect, useCallback } from "react";
-import { NavigationSideBar } from "ui/components/app-chrome/navigation";
+import { NavigationSideBar } from "ui/app-chrome/navigation";
 import { Menu } from "@material-ui/core";
 import { useBreakpoint, useScreenSize } from "hooks";
 import { MobileTopBar } from "./mobile-top-bar";
 import { MobileNavigationSideBar } from "./mobile-navigation-side-bar";
+import { TopBar } from "./top-bar";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -21,6 +22,14 @@ export const AppChrome: React.FunctionComponent = props => {
     expanded: expanded,
   });
 
+  /* cf - 2019-10-09
+      it's important that both mobile and not mobile return the same number of items
+      in the fragment, and that the final item is a <div> containing children.
+
+      otherwise, react's dom diffing will end up throwing all the state of children away
+      and re-render from scratch, which could cause graphql queries to be re-run and
+      other strange things.
+      */
   if (mobile) {
     return (
       <>
@@ -30,19 +39,19 @@ export const AppChrome: React.FunctionComponent = props => {
       </>
     );
   } else {
+    return (
+      <>
+        <TopBar />
+        <NavigationSideBar
+          drawerStyle={screenSize === "mobile" ? "temporary" : "permanent"}
+          expanded={expanded}
+          expand={expand}
+          collapse={collapse}
+        />
+        <div className={classes.navSpacer}>{props.children}</div>
+      </>
+    );
   }
-
-  return (
-    <>
-      <NavigationSideBar
-        drawerStyle={screenSize === "mobile" ? "temporary" : "permanent"}
-        expanded={expanded}
-        expand={expand}
-        collapse={collapse}
-      />
-      <div className={classes.navSpacer}>{props.children}</div>
-    </>
-  );
 };
 
 const useStyles = makeStyles(theme => ({

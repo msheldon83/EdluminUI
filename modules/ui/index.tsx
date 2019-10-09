@@ -9,7 +9,7 @@ import { IndexLoader } from "./pages/index/loader";
 import { LoginPageRouteLoader } from "./pages/login/loader";
 import { Index } from "./routes";
 import { EdluminTheme } from "./styles/mui-theme";
-import { AppChrome } from "./components/app-chrome";
+import { AppChrome } from "./app-chrome";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
