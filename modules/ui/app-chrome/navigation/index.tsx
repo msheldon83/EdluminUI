@@ -15,7 +15,7 @@ import {
   SecurityNavLink,
   SignOutNavLink,
   SubPreferencesNavLink,
-} from "./custom-nav-links";
+} from "../custom-nav-links";
 
 type Props = {
   expanded: boolean;

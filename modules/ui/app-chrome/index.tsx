@@ -2,14 +2,14 @@ import { Fab } from "@material-ui/core";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import { makeStyles } from "@material-ui/styles";
+import { not } from "helpers";
 import { useScreenSize } from "hooks";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { NavigationSideBar } from "ui/app-chrome/navigation";
-import { MobileNavigationSideBar } from "./mobile-navigation-side-bar";
-import { MobileTopBar } from "./mobile-top-bar";
-import { TopBar } from "./top-bar";
-import { not } from "helpers";
+import { MobileNavigationSideBar } from "./mobile-navigation/mobile-navigation-side-bar";
+import { MobileTopBar } from "./mobile-navigation/mobile-top-bar";
+import { TopBar } from "./navigation/top-bar";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();

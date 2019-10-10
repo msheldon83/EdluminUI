@@ -13,11 +13,11 @@ import {
   SecurityNavLink,
   SignOutNavLink,
   SubPreferencesNavLink,
-} from "./navigation/custom-nav-links";
+} from "../custom-nav-links";
 import * as React from "react";
-import { ProfileAvatar } from "./navigation/profile-avatar";
+import { ProfileAvatar } from "../profile-avatar";
 import { EdluminLogo } from "ui/components/edlumin-logo";
-import { MobileSearchBar } from "./mobile-navigation/mobile-search";
+import { MobileSearchBar } from "./mobile-search";
 
 type Props = {
   expanded: boolean;
