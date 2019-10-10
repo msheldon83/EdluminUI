@@ -84,7 +84,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.typography.pxToRem(18),
   },
   leftPaddingExpanded: {
-    paddingLeft: theme.typography.pxToRem(240),
+    paddingLeft: theme.typography.pxToRem(258),
     transition: theme.transitions.create("padding", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,

@@ -8,6 +8,7 @@ import { Example } from "graphql/queries/Example.gen";
 import { buildGraphqlClient } from "graphql/client";
 import { Auth0Provider } from "auth/auth0";
 import { ApolloLink } from "apollo-link";
+import "./i18n";
 import { AuthenticatedApolloProvider } from "auth/authenticated-apollo-provider";
 
 const history = createBrowserHistory();

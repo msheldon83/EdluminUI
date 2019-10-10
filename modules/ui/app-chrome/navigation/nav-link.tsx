@@ -7,7 +7,7 @@ import {
 import * as React from "react";
 
 type Props = {
-  title: string;
+  title: string | JSX.Element;
   icon: JSX.Element;
   route: string;
 };
@@ -15,7 +15,7 @@ type Props = {
 export const NavLink: React.FC<Props> = props => {
   const classes = useStyles();
   return (
-    <ListItem button key={props.title} className={classes.menuItem}>
+    <ListItem button className={classes.menuItem}>
       <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
       <ListItemText
         primary={props.title}
