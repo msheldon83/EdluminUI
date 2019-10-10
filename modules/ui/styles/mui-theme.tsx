@@ -48,6 +48,7 @@ const themeColors: Theme["customColors"] = {
 
   raspberry: "#CC0079",
   pumpkin: "#E96B1C",
+  marigold: "#FFB946",
   mustard: "#CFAA2A",
   ocean: "#03A8A4",
   grape: "#B80FD5",

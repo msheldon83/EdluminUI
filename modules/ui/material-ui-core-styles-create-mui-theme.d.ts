@@ -22,6 +22,7 @@ interface EdluminTheme extends Theme {
     raspberry: string;
     pumpkin: string;
     mustard: string;
+    marigold: string;
     ocean: string;
     grape: string;
     twilight: string;
@@ -72,6 +73,7 @@ declare module "@material-ui/core/styles/createMuiTheme" {
       raspberry: string;
       pumpkin: string;
       mustard: string;
+      marigold: string;
       ocean: string;
       grape: string;
       twilight: string;
@@ -110,6 +112,7 @@ declare module "@material-ui/core/styles/createMuiTheme" {
       raspberry?: string;
       pumpkin?: string;
       mustard?: string;
+      marigold?: string;
       ocean?: string;
       grape?: string;
       twilight?: string;

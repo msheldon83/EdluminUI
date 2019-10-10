@@ -1,15 +1,15 @@
-import { CssBaseline, Button } from "@material-ui/core";
+import { CssBaseline } from "@material-ui/core";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { useAuth0 } from "auth/auth0";
 import * as React from "react";
 import { Route, Switch } from "react-router-dom";
+import { AppChrome } from "./app-chrome";
 import { IfAuthenticated } from "./components/auth/if-authenticated";
 import { RedirectToLogin } from "./components/auth/redirect-to-login";
 import { IndexLoader } from "./pages/index/loader";
 import { LoginPageRouteLoader } from "./pages/login/loader";
 import { Index } from "./routes";
 import { EdluminTheme } from "./styles/mui-theme";
-import { AppChrome } from "./app-chrome";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 

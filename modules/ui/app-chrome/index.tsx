@@ -1,14 +1,14 @@
-import { makeStyles, DefaultTheme } from "@material-ui/styles";
-import * as React from "react";
-import { useState, useEffect, useCallback } from "react";
-import { NavigationSideBar } from "ui/app-chrome/navigation";
-import { Menu, Fab } from "@material-ui/core";
-import { useBreakpoint, useScreenSize } from "hooks";
-import { MobileTopBar } from "./mobile-top-bar";
-import { MobileNavigationSideBar } from "./mobile-navigation-side-bar";
-import { TopBar } from "./top-bar";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import { Fab } from "@material-ui/core";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import { makeStyles } from "@material-ui/styles";
+import { useScreenSize } from "hooks";
+import * as React from "react";
+import { useCallback, useEffect, useState } from "react";
+import { NavigationSideBar } from "ui/app-chrome/navigation";
+import { MobileNavigationSideBar } from "./mobile-navigation-side-bar";
+import { MobileTopBar } from "./mobile-top-bar";
+import { TopBar } from "./top-bar";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -115,7 +115,7 @@ const useStyles = makeStyles(theme => ({
     }),
   },
   leftMarginExpanded: {
-    marginLeft: theme.typography.pxToRem(240),
+    marginLeft: theme.typography.pxToRem(258),
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
