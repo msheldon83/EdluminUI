@@ -1,13 +1,5 @@
+import { Drawer, Grid, makeStyles } from "@material-ui/core";
 import * as React from "react";
-import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  makeStyles,
-  Drawer,
-  Grid,
-} from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
 
 type Props = {
   expanded: boolean;

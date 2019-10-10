@@ -35,7 +35,10 @@ export const AppChrome: React.FunctionComponent = props => {
       <>
         <MobileTopBar expandDrawer={expand} />
         <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
-        <div>{props.children}</div>
+        <div>
+          <div />
+          <div className={classes.contentView}>{props.children}</div>
+        </div>
       </>
     );
   } else {
@@ -52,32 +55,58 @@ export const AppChrome: React.FunctionComponent = props => {
           expand={expand}
           collapse={collapse}
         />
-        <div
-          className={`${
-            expanded ? classes.leftMarginExpanded : classes.leftMarginCompact
-          } ${classes.navBarSpacer}`}
-        >
-          {props.children}
+        <div className={`${classes.container}`}>
+          <div
+            className={`${
+              expanded ? classes.navWidthExpanded : classes.navWidthCompact
+            }`}
+          >
+            <div className={classes.fabContainer}>
+              <Fab onClick={toggleExpand} size="small" className={classes.fab}>
+                {expanded ? (
+                  <ChevronLeftIcon className={classes.white} />
+                ) : (
+                  <ChevronRightIcon className={classes.white} />
+                )}
+              </Fab>
+            </div>
+          </div>
+          <div className={`${classes.contentView}`}>{props.children}</div>
         </div>
-        <Fab
-          onClick={toggleExpand}
-          size="small"
-          className={`${
-            expanded ? classes.leftMarginExpanded : classes.leftMarginCompact
-          } ${classes.fab}`}
-        >
-          {expanded ? (
-            <ChevronLeftIcon className={classes.white} />
-          ) : (
-            <ChevronRightIcon className={classes.white} />
-          )}
-        </Fab>
       </>
     );
   }
 };
 
 const useStyles = makeStyles(theme => ({
+  container: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  navWidthExpanded: {
+    width: theme.typography.pxToRem(258),
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.short,
+    }),
+  },
+  navWidthCompact: {
+    width: theme.spacing(7) + 1,
+    [theme.breakpoints.up("sm")]: {
+      width: theme.spacing(9) + 1,
+    },
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.short,
+    }),
+  },
+  contentView: {
+    flexGrow: 1,
+    padding: theme.spacing(2),
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(1),
+    },
+  },
   name: {
     backgroundColor: theme.customColors.mustard,
     padding: theme.typography.pxToRem(24),
@@ -100,32 +129,16 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.short,
     }),
   },
-  navBarSpacer: {
-    position: "absolute",
+  fabContainer: {
     width: "100%",
-  },
-  leftMarginCompact: {
-    marginLeft: theme.spacing(7) + 1,
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing(9) + 1,
-    },
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.short,
-    }),
-  },
-  leftMarginExpanded: {
-    marginLeft: theme.typography.pxToRem(258),
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.short,
-    }),
+    height: "100%",
+    position: "relative",
   },
   fab: {
     backgroundColor: theme.customColors.edluminSlate,
     position: "absolute",
-    left: "-20px",
-    top: theme.typography.pxToRem(45),
+    top: theme.typography.pxToRem(-20),
+    right: theme.typography.pxToRem(-20),
     zIndex: 4000,
   },
   white: {

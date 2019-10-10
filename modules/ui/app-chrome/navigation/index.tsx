@@ -122,7 +122,7 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 600,
   },
   list: {
-    paddingRight: theme.typography.pxToRem(8),
-    paddingLeft: theme.typography.pxToRem(8),
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
   },
 }));
