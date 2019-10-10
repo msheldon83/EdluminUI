@@ -35,7 +35,7 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
       }}
     >
       <Grid item className={classes.avatar}>
-        <ProfileAvatar initials={"ZZ"} />
+        <ProfileAvatar className={classes.avatar} initials={"ZZ"} />
       </Grid>
 
       <Divider className={classes.divider} />
@@ -72,8 +72,12 @@ const useStyles = makeStyles(theme => ({
   divider: {
     background: theme.customColors.edluminLightSlate,
   },
-  avatar: {
+  avatarContainer: {
     padding: theme.spacing(2),
+  },
+  avatar: {
+    height: theme.typography.pxToRem(60),
+    width: theme.typography.pxToRem(60),
   },
   searchBar: {
     paddingTop: theme.spacing(2),
