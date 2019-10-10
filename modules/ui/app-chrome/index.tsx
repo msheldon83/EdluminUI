@@ -51,7 +51,6 @@ export const AppChrome: React.FunctionComponent = props => {
           }
         />
         <NavigationSideBar
-          drawerStyle={screenSize === "mobile" ? "temporary" : "permanent"}
           expanded={expanded}
           expand={expand}
           collapse={collapse}

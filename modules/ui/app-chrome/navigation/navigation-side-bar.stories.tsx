@@ -26,7 +26,6 @@ export const nav = () => {
     <Provider>
       <Auth0Context.Provider value={{ isAuthenticated: true } as any}>
         <NavigationSideBar
-          drawerStyle={"permanent"}
           expanded={true}
           expand={() => {}}
           collapse={() => {}}
