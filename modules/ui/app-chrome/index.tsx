@@ -9,6 +9,7 @@ import { NavigationSideBar } from "ui/app-chrome/navigation";
 import { MobileNavigationSideBar } from "./mobile-navigation-side-bar";
 import { MobileTopBar } from "./mobile-top-bar";
 import { TopBar } from "./top-bar";
+import { not } from "helpers";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -19,7 +20,7 @@ export const AppChrome: React.FunctionComponent = props => {
   const mobile = screenSize === "mobile";
   const expand = useCallback(() => setExpanded(true), [setExpanded]);
   const collapse = useCallback(() => setExpanded(false), [setExpanded]);
-  const toggleExpand = useCallback(() => setExpanded(v => !v), [setExpanded]);
+  const toggleExpand = useCallback(() => setExpanded(not), [setExpanded]);
   const classes = useStyles();
 
   /* cf - 2019-10-09
