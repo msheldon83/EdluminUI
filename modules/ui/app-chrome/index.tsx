@@ -2,11 +2,13 @@ import { makeStyles, DefaultTheme } from "@material-ui/styles";
 import * as React from "react";
 import { useState, useEffect, useCallback } from "react";
 import { NavigationSideBar } from "ui/app-chrome/navigation";
-import { Menu } from "@material-ui/core";
+import { Menu, Fab } from "@material-ui/core";
 import { useBreakpoint, useScreenSize } from "hooks";
 import { MobileTopBar } from "./mobile-top-bar";
 import { MobileNavigationSideBar } from "./mobile-navigation-side-bar";
 import { TopBar } from "./top-bar";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -17,6 +19,7 @@ export const AppChrome: React.FunctionComponent = props => {
   const mobile = screenSize === "mobile";
   const expand = useCallback(() => setExpanded(true), [setExpanded]);
   const collapse = useCallback(() => setExpanded(false), [setExpanded]);
+  const toggleExpand = useCallback(() => setExpanded(v => !v), [setExpanded]);
   const classes = useStyles();
 
   /* cf - 2019-10-09
@@ -36,19 +39,39 @@ export const AppChrome: React.FunctionComponent = props => {
       </>
     );
   } else {
-    const navBarSpacingClass = expanded
-      ? classes.navSpacerExpanded
-      : classes.navSpacerCompact;
     return (
       <>
-        <TopBar className={navBarSpacingClass} />
+        <TopBar
+          className={
+            expanded ? classes.leftPaddingExpanded : classes.leftPaddingCompact
+          }
+        />
         <NavigationSideBar
           drawerStyle={screenSize === "mobile" ? "temporary" : "permanent"}
           expanded={expanded}
           expand={expand}
           collapse={collapse}
         />
-        <div className={navBarSpacingClass}>{props.children}</div>
+        <div
+          className={`${
+            expanded ? classes.leftMarginExpanded : classes.leftMarginCompact
+          } ${classes.navBarSpacer}`}
+        >
+          {props.children}
+        </div>
+        <Fab
+          onClick={toggleExpand}
+          size="small"
+          className={`${
+            expanded ? classes.leftMarginExpanded : classes.leftMarginCompact
+          } ${classes.fab}`}
+        >
+          {expanded ? (
+            <ChevronLeftIcon className={classes.white} />
+          ) : (
+            <ChevronRightIcon className={classes.white} />
+          )}
+        </Fab>
       </>
     );
   }
@@ -60,7 +83,14 @@ const useStyles = makeStyles(theme => ({
     padding: theme.typography.pxToRem(24),
     marginTop: theme.typography.pxToRem(18),
   },
-  navSpacerCompact: {
+  leftPaddingExpanded: {
+    paddingLeft: theme.typography.pxToRem(240),
+    transition: theme.transitions.create("padding", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.short,
+    }),
+  },
+  leftPaddingCompact: {
     paddingLeft: theme.spacing(7) + 1,
     [theme.breakpoints.up("sm")]: {
       paddingLeft: theme.spacing(9) + 1,
@@ -70,19 +100,35 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.short,
     }),
   },
-  navSpacerExpanded: {
-    paddingLeft: theme.typography.pxToRem(240),
-    transition: theme.transitions.create("padding", {
+  navBarSpacer: {
+    position: "absolute",
+    width: "100%",
+  },
+  leftMarginCompact: {
+    marginLeft: theme.spacing(7) + 1,
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: theme.spacing(9) + 1,
+    },
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
     }),
   },
+  leftMarginExpanded: {
+    marginLeft: theme.typography.pxToRem(240),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.short,
+    }),
+  },
+  fab: {
+    backgroundColor: theme.customColors.edluminSlate,
+    position: "absolute",
+    left: "-20px",
+    top: theme.typography.pxToRem(45),
+    zIndex: 4000,
+  },
+  white: {
+    color: theme.customColors.white,
+  },
 }));
-
-const navBarWidth = (mobile: boolean, expanded: boolean): number => {
-  const fullWidth = 240;
-  const smallWidth = 50;
-  if (mobile && !expanded) return 0;
-  if (!mobile && !expanded) return smallWidth;
-  return fullWidth;
-};

@@ -10,8 +10,9 @@ import {
   Typography,
   Grid,
   ListItemIcon,
+  Fab,
+  Icon,
 } from "@material-ui/core";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import MenuIcon from "@material-ui/icons/Menu";
 import HomeIcon from "@material-ui/icons/Home";
 import SwapCallsIcon from "@material-ui/icons/SwapCalls";
@@ -23,6 +24,8 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import LockIcon from "@material-ui/icons/Lock";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import { useBreakpoint, ScreenSize } from "hooks";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 
 type Props = {
   drawerStyle: "temporary" | "permanent";
