@@ -25,8 +25,8 @@ export function App(props: {}) {
           <Switch>
             <Route exact path={"/login"} component={LoginPageRouteLoader} />
             <Route>
-              <AppChrome>
-                <IfAuthenticated>
+              <IfAuthenticated>
+                <AppChrome>
                   <Switch>
                     {/* Protected routes go here */}
                     <Route
@@ -35,8 +35,8 @@ export function App(props: {}) {
                       path={Index.PATH_TEMPLATE}
                     />
                   </Switch>
-                </IfAuthenticated>
-              </AppChrome>
+                </AppChrome>
+              </IfAuthenticated>
               <IfAuthenticated not>
                 <RedirectToLogin />
                 {/* <Button onClick={auth0.login} variant="contained">
