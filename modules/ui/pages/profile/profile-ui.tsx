@@ -1,19 +1,18 @@
-import * as React from "react";
-import { MyProfile } from "graphql/queries/MyProfile.gen";
-import { PageTitle } from "ui/components/page-title";
-import { Trans } from "react-i18next";
 import {
-  makeStyles,
-  Card,
-  Paper,
-  Typography,
-  TextField,
-  Grid,
-  MenuItem,
   Button,
+  Grid,
+  Hidden,
+  makeStyles,
+  MenuItem,
+  TextField,
 } from "@material-ui/core";
-import { Section } from "ui/components/section";
+import { MyProfile } from "graphql/queries/MyProfile.gen";
+import { useBreakpoint } from "hooks";
+import * as React from "react";
+import { Trans } from "react-i18next";
 import { AvatarCard } from "ui/components/avatar-card";
+import { PageTitle } from "ui/components/page-title";
+import { Section } from "ui/components/section";
 import { TextButton } from "ui/components/text-button";
 
 type Props = {
@@ -25,6 +24,13 @@ export const ProfileUI: React.FC<Props> = props => {
   const initials = `${
     props.user.firstName ? props.user.firstName.substr(0, 1) : ""
   }${props.user.lastName ? props.user.lastName.substr(0, 1) : ""}`;
+  const isSmDown = useBreakpoint("sm", "down");
+
+  const saveButton = (
+    <Button variant="contained" fullWidth={isSmDown}>
+      <Trans i18nKey={"save"}>Save</Trans>
+    </Button>
+  );
   return (
     <>
       <PageTitle>
@@ -33,32 +39,32 @@ export const ProfileUI: React.FC<Props> = props => {
 
       <Section>
         <Grid container spacing={3}>
-          <Grid>
+          <Grid
+            item
+            container={isSmDown}
+            justify={isSmDown ? "center" : undefined}
+          >
             <AvatarCard initials={initials} />
-            <Typography>
-              Hello {props.user.firstName} {props.user.lastName}
-            </Typography>
           </Grid>
 
-          <Grid item md={6}>
+          <Grid item md={6} xs={12}>
             <Grid container direction="column">
-              {/*  */}
               <Grid container item>
-                <Grid item md={6}>
+                <Grid item md={6} xs={12}>
                   <TextField
                     label="First Name"
-                    // className={classes.textField}
                     value={props.user.firstName || ""}
-                    margin="normal"
+                    margin={isSmDown ? "normal" : "none"}
                     variant="outlined"
                     fullWidth
                   />
                 </Grid>
-                <Grid item md={6}>
+                <Grid item md={6} xs={12}>
                   <TextField
+                    className={isSmDown ? "" : classes.spacing}
                     label="Last Name"
                     value={props.user.lastName || ""}
-                    margin="normal"
+                    margin={isSmDown ? "normal" : "none"}
                     variant="outlined"
                     fullWidth
                   />
@@ -66,7 +72,7 @@ export const ProfileUI: React.FC<Props> = props => {
               </Grid>
 
               <Grid item container>
-                <Grid item md={6}>
+                <Grid item md={6} xs={12}>
                   <TextField
                     label="Mobile Phone"
                     value={props.user.phone || ""}
@@ -77,8 +83,12 @@ export const ProfileUI: React.FC<Props> = props => {
                 </Grid>
               </Grid>
 
+              <Hidden mdUp>
+                <Grid item>{saveButton}</Grid>
+              </Hidden>
+
               <Grid item container alignItems="baseline">
-                <Grid item md={6}>
+                <div className={classes.field}>
                   <TextField
                     label="Email"
                     value={props.user.loginEmail}
@@ -87,17 +97,25 @@ export const ProfileUI: React.FC<Props> = props => {
                     variant="outlined"
                     fullWidth
                   />
-                </Grid>
+                </div>
 
-                <Grid item md={6}>
-                  <TextButton>
+                {isSmDown ? (
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    className={classes.button}
+                  >
+                    <Trans i18nKey={"profile.changeEmail"}>Change Email</Trans>
+                  </Button>
+                ) : (
+                  <TextButton className={classes.buttonSpacing}>
                     <Trans i18nKey={"profile.change"}>Change</Trans>
                   </TextButton>
-                </Grid>
+                )}
               </Grid>
 
               <Grid item container>
-                <Grid item md={6}>
+                <Grid item md={6} xs={12}>
                   <Button variant="outlined" fullWidth>
                     <Trans i18nKey={"profile.resetPassword"}>
                       Reset Password
@@ -107,7 +125,7 @@ export const ProfileUI: React.FC<Props> = props => {
               </Grid>
 
               <Grid item container alignItems="baseline">
-                <Grid item md={6}>
+                <div className={classes.field}>
                   <TextField
                     label="Time Zone"
                     select
@@ -121,16 +139,34 @@ export const ProfileUI: React.FC<Props> = props => {
                       {props.user.timeZoneId}
                     </MenuItem>
                   </TextField>
-                </Grid>
+                </div>
 
-                <Grid item md={6}>
-                  <TextButton>
-                    <Trans i18nKey={"profile.change"}>Change</Trans>
-                  </TextButton>
+                <Grid item md={6} xs={12}>
+                  {isSmDown ? (
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      className={classes.button}
+                    >
+                      <Trans i18nKey={"profile.changeTimeZone"}>
+                        Change Timezone
+                      </Trans>
+                    </Button>
+                  ) : (
+                    <TextButton className={classes.buttonSpacing}>
+                      <Trans i18nKey={"profile.change"}>Change</Trans>
+                    </TextButton>
+                  )}
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
+
+          <Hidden smDown>
+            <Grid item container alignContent="flex-end" justify="flex-end">
+              <Grid item>{saveButton}</Grid>
+            </Grid>
+          </Hidden>
         </Grid>
       </Section>
     </>
@@ -140,5 +176,22 @@ export const ProfileUI: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   filled: {
     background: theme.customColors.grayWhite,
+  },
+  spacing: {
+    marginLeft: theme.spacing(2),
+  },
+  buttonSpacing: {
+    marginLeft: theme.spacing(4),
+  },
+  button: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+  },
+  field: {
+    display: "flex",
+    width: "50%",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+    },
   },
 }));

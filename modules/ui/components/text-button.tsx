@@ -7,7 +7,7 @@ type Props = ButtonProps;
 export const TextButton: React.FC<Props> = props => {
   const classes = useStyles();
   return (
-    <Button {...props} className={classes.button}>
+    <Button {...props} className={`${classes.button} ${props.className}`}>
       {props.children}
     </Button>
   );
