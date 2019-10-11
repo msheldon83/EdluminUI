@@ -6,10 +6,10 @@ import { Route, Switch } from "react-router-dom";
 import { AppChrome } from "./app-chrome";
 import { IfAuthenticated } from "./components/auth/if-authenticated";
 import { RedirectToLogin } from "./components/auth/redirect-to-login";
-import { IndexLoader } from "./pages/index/loader";
 import { LoginPageRouteLoader } from "./pages/login/loader";
-import { Index } from "./routes";
+import { Index, IndexLoader } from "./routes";
 import { EdluminTheme } from "./styles/mui-theme";
+import { ProfileLoader, Profile } from "./routes/profile";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -33,6 +33,10 @@ export function App(props: {}) {
                       exact
                       component={IndexLoader}
                       path={Index.PATH_TEMPLATE}
+                    />
+                    <Route
+                      component={ProfileLoader}
+                      path={Profile.PATH_TEMPLATE}
                     />
                   </Switch>
                 </AppChrome>
