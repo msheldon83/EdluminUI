@@ -150,6 +150,12 @@ const useStyles = makeStyles(theme => ({
     top: theme.typography.pxToRem(-20),
     right: theme.typography.pxToRem(-20),
     zIndex: 4000,
+    "&:hover": {
+      backgroundColor: theme.customColors.edluminSlate,
+      border: `${theme.typography.pxToRem(1)} solid ${
+        theme.customColors.white
+      }`,
+    },
   },
   white: {
     color: theme.customColors.white,
