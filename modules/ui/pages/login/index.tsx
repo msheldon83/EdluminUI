@@ -9,6 +9,9 @@ export const LoginPage: React.FunctionComponent<{}> = props => {
       <Button onClick={auth0.login} variant="contained">
         Login
       </Button>
+      <Button onClick={auth0.logout} variant="contained">
+        Logout
+      </Button>
     </div>
   );
 };
