@@ -32,6 +32,7 @@ const themeColors: Theme["customColors"] = {
   /* Colors here are used by new app */
   appBackgroundGray: "#F2F2F2",
   white: "#ffffff",
+  grayWhite: "#f7f7f7",
   lightBlue: "#E3F2FD",
   blue: "#2196F3",
 
@@ -42,7 +43,6 @@ const themeColors: Theme["customColors"] = {
   edluminLightSlate: "#56657F",
 
   /* colors below are historical */
-  grayWhite: "#f7f7f7",
   black: "#262c36",
   darkBlue: "#031F3C",
   gray: "#b4b6b9",
@@ -89,6 +89,8 @@ export const EdluminTheme = createMuiTheme({
       },
 
       outlined: {
+        color: themeColors.blue,
+        textTransform: "uppercase",
         borderColor: themeColors.blue,
         borderWidth: pxToRem(2),
         "&$disabled": {
