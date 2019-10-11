@@ -37,5 +37,6 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.white,
     fontWeight: 600,
     marginLeft: theme.spacing(1),
+    fontFamily: "Poppins",
   },
 }));

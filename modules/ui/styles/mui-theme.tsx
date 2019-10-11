@@ -29,11 +29,21 @@ const fontWeightRegular = 400;
 const fontWeightLight = 300;
 
 const themeColors: Theme["customColors"] = {
+  /* Colors here are used by new app */
   appBackgroundGray: "#F2F2F2",
   white: "#ffffff",
+  lightBlue: "#E3F2FD",
+  blue: "#2196F3",
+
+  sectionBorder: "#e5e5e5",
+  marigold: "#FFB946",
+
+  edluminSlate: "#2B3648",
+  edluminLightSlate: "#56657F",
+
+  /* colors below are historical */
   grayWhite: "#f7f7f7",
   black: "#262c36",
-  blue: "#378ff6",
   darkBlue: "#031F3C",
   gray: "#b4b6b9",
   darkGray: "#6f6f6f",
@@ -41,16 +51,13 @@ const themeColors: Theme["customColors"] = {
   lightGray: "#f4f4f4",
   lighterGray: "#fafafa",
   lightBlueGray: "#f4f7f9",
+
+  /* the colors below are from placement */
   eduBlue: "#0a4e80",
   eduBlack: "#373637",
-  edluminSlate: "#2B3648",
-  edluminLightSlate: "#56657F",
-
-  sectionBorder: "#e5e5e5",
 
   raspberry: "#CC0079",
   pumpkin: "#E96B1C",
-  marigold: "#FFB946",
   mustard: "#CFAA2A",
   ocean: "#03A8A4",
   grape: "#B80FD5",
@@ -78,11 +85,11 @@ export const EdluminTheme = createMuiTheme({
     MuiButton: {
       contained: {
         color: themeColors.white,
-        backgroundColor: themeColors.sky,
+        backgroundColor: themeColors.blue,
       },
 
       outlined: {
-        borderColor: themeColors.sky,
+        borderColor: themeColors.blue,
         borderWidth: pxToRem(2),
         "&$disabled": {
           borderWidth: pxToRem(2),
@@ -147,13 +154,13 @@ export const EdluminTheme = createMuiTheme({
     },
     MuiRadio: {
       colorPrimary: {
-        color: themeColors.sky,
+        color: themeColors.blue,
       },
     },
   },
   palette: {
     primary: {
-      main: themeColors.sky,
+      main: themeColors.blue,
     },
     secondary: {
       main: themeColors.darkGray,
@@ -164,7 +171,7 @@ export const EdluminTheme = createMuiTheme({
   },
   typography: palette => ({
     color: themeColors.black,
-    fontFamily: "Poppins",
+    fontFamily: "Roboto",
     fontSize: baseFontSize,
     htmlFontSize: htmlFontSize,
     body1: {

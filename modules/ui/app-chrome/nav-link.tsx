@@ -37,6 +37,7 @@ const useStyles = makeStyles(theme => ({
   text: {
     color: theme.customColors.white,
     fontWeight: 600,
+    fontFamily: "Poppins",
   },
   menuItem: {
     opacity: 0.7,
