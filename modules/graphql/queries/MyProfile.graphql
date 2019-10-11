@@ -1,0 +1,14 @@
+query MyProfile {
+  userAccess {
+    me {
+      user {
+        id
+        firstName
+        lastName
+        loginEmail
+        phone
+        timeZoneId
+      }
+    }
+  }
+}

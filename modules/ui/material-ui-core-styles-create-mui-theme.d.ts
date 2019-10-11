@@ -15,6 +15,8 @@ interface EdluminTheme extends Theme {
     lighterGray: string;
     lightBlueGray: string;
 
+    sectionBorder: string;
+
     eduBlue: string;
     eduBlack: string;
     edluminSlate: string;
@@ -65,6 +67,8 @@ declare module "@material-ui/core/styles/createMuiTheme" {
       lightGray: string;
       lighterGray: string;
       lightBlueGray: string;
+
+      sectionBorder: string;
 
       eduBlue: string;
       eduBlack: string;
@@ -120,6 +124,8 @@ declare module "@material-ui/core/styles/createMuiTheme" {
       slate?: string;
       tomato?: string;
       grass?: string;
+
+      sectionBorder?: string;
 
       lightTomato?: string;
       lightRaspberry?: string;

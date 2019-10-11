@@ -29,7 +29,7 @@ const fontWeightRegular = 400;
 const fontWeightLight = 300;
 
 const themeColors: Theme["customColors"] = {
-  appBackgroundGray: "#eaeff4",
+  appBackgroundGray: "#F2F2F2",
   white: "#ffffff",
   grayWhite: "#f7f7f7",
   black: "#262c36",
@@ -45,6 +45,8 @@ const themeColors: Theme["customColors"] = {
   eduBlack: "#373637",
   edluminSlate: "#2B3648",
   edluminLightSlate: "#56657F",
+
+  sectionBorder: "#e5e5e5",
 
   raspberry: "#CC0079",
   pumpkin: "#E96B1C",
