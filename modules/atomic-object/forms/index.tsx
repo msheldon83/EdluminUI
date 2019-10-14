@@ -13,9 +13,9 @@ export type SchemaBuilder<T extends object> = SchemaBuilder<T>;
 // import { SelectOption, SelectProps } from "../../client/components/form/select";
 // export type SelectOption = SelectOption;
 // export type SelectProps = SelectProps;
-// export { TextField } from "../../client/components/form/text-field";
-// import { TextFieldProps } from "../../client/components/form/text-field";
-// export type TextFieldProps = TextFieldProps;
+export { TextField } from "ui/components/form/text-field";
+import { TextFieldProps } from "ui/components/form/text-field";
+export type TextFieldProps = TextFieldProps;
 // export { CheckBox } from "../../client/components/form/checkbox";
 // export { ShowFormData } from "../../client/components/form/show-form-data";
 

@@ -14,25 +14,46 @@ import { AvatarCard } from "ui/components/avatar-card";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { TextButton } from "ui/components/text-button";
+import { MutationFunction } from "@apollo/react-common";
+import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
+import { ChangeLoginEmailDialog } from "./change-email-dialog";
 
 type Props = {
   user: MyProfile.User;
+  updateLoginEmail: MutationFunction<
+    UpdateLoginEmail.Mutation,
+    UpdateLoginEmail.Variables
+  >;
 };
 
 export const ProfileUI: React.FC<Props> = props => {
   const classes = useStyles();
+  const isSmDown = useBreakpoint("sm", "down");
+  const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
+
   const initials = `${
     props.user.firstName ? props.user.firstName.substr(0, 1) : ""
   }${props.user.lastName ? props.user.lastName.substr(0, 1) : ""}`;
-  const isSmDown = useBreakpoint("sm", "down");
 
   const saveButton = (
     <Button variant="contained" fullWidth={isSmDown}>
       <Trans i18nKey={"save"}>Save</Trans>
     </Button>
   );
+  const onCloseEmailDialog = React.useCallback(
+    () => setChangeEmailIsOpen(false),
+    [setChangeEmailIsOpen]
+  );
+
   return (
     <>
+      <ChangeLoginEmailDialog
+        open={changeEmailIsOpen}
+        onClose={onCloseEmailDialog}
+        updateLoginEmail={props.updateLoginEmail}
+        loginEmail={props.user.loginEmail}
+      />
+
       <PageTitle>
         <Trans i18nKey="profile.title">My Profile</Trans>
       </PageTitle>
@@ -47,7 +68,7 @@ export const ProfileUI: React.FC<Props> = props => {
             <AvatarCard initials={initials} />
           </Grid>
 
-          <Grid item md={6} xs={12}>
+          <Grid item md={7} xs={12}>
             <Grid container direction="column">
               <Grid container item>
                 <Grid item md={6} xs={12}>
@@ -96,6 +117,7 @@ export const ProfileUI: React.FC<Props> = props => {
                     margin="normal"
                     variant="outlined"
                     fullWidth
+                    disabled
                   />
                 </div>
 
@@ -104,11 +126,15 @@ export const ProfileUI: React.FC<Props> = props => {
                     variant="outlined"
                     fullWidth
                     className={classes.button}
+                    onClick={() => setChangeEmailIsOpen(true)}
                   >
                     <Trans i18nKey={"profile.changeEmail"}>Change Email</Trans>
                   </Button>
                 ) : (
-                  <TextButton className={classes.buttonSpacing}>
+                  <TextButton
+                    className={classes.buttonSpacing}
+                    onClick={() => setChangeEmailIsOpen(true)}
+                  >
                     <Trans i18nKey={"profile.change"}>Change</Trans>
                   </TextButton>
                 )}

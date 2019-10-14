@@ -1,12 +1,15 @@
 import * as React from "react";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { MyProfile } from "graphql/queries/MyProfile.gen";
 import { ProfileUI } from "./profile-ui";
+import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
 
 type Props = {};
 
 export const ProfilePage: React.FC<Props> = props => {
   const myProfile = useQueryBundle(MyProfile);
+  const [updateLoginEmail] = useMutationBundle(UpdateLoginEmail);
+
   if (myProfile.state !== "DONE") {
     return <div>loading</div>;
   }
@@ -18,5 +21,10 @@ export const ProfilePage: React.FC<Props> = props => {
   ) {
     return <div>oh no</div>;
   }
-  return <ProfileUI user={myProfile.data.userAccess.me.user} />;
+  return (
+    <ProfileUI
+      user={myProfile.data.userAccess.me.user}
+      updateLoginEmail={updateLoginEmail}
+    />
+  );
 };
