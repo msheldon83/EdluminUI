@@ -11,10 +11,14 @@ import SearchIcon from "@material-ui/icons/Search";
 import * as React from "react";
 import { LoadingStateIndicator } from "ui/components/loading-state/loading-state-indicator";
 import { ProfileAvatar } from "../profile-avatar";
+import { ProfileSubMenu } from "./profile-submenu";
 
 type Props = { contentClassName?: string };
 export const TopBar: React.FC<Props> = props => {
   const iconButtonClasses = useIconButtonClasses();
+  const [subMenuAnchor, setSubMenuAnchor] = React.useState<null | HTMLElement>(
+    null
+  );
   const mobileToolbarClasses = useMobileToolbarClasses();
   return (
     <>
@@ -38,12 +42,26 @@ export const TopBar: React.FC<Props> = props => {
                   <NotificationsNoneIcon />
                 </IconButton>
 
-                <IconButton edge="end" classes={iconButtonClasses}>
+                <IconButton
+                  aria-haspopup="true"
+                  aria-owns="profileMenu"
+                  edge="end"
+                  classes={iconButtonClasses}
+                  onClick={event => {
+                    console.log(event.currentTarget);
+                    setSubMenuAnchor(event.currentTarget);
+                  }}
+                >
                   <ProfileAvatar
                     initials={"ZZ"}
                     className={mobileToolbarClasses.avatar}
                   />
                 </IconButton>
+                <ProfileSubMenu
+                  anchorElement={subMenuAnchor}
+                  open={Boolean(subMenuAnchor)}
+                  onClose={() => setSubMenuAnchor(null)}
+                />
               </Grid>
             </Grid>
           </Toolbar>

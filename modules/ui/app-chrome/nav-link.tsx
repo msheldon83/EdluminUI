@@ -10,17 +10,20 @@ type Props = {
   title: string | JSX.Element;
   icon: JSX.Element;
   route: string;
+  className?: string;
+  iconClassName?: string;
+  textClassName?: string;
 };
 
 export const NavLink: React.FC<Props> = props => {
   const classes = useStyles();
   return (
-    <ListItem button className={classes.menuItem}>
-      <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
+    <ListItem button className={`${classes.menuItem} ${props.className}`}>
+      <ListItemIcon className={`${classes.icon} ${props.iconClassName}`}>{props.icon}</ListItemIcon>
       <ListItemText
         primary={props.title}
         primaryTypographyProps={{
-          className: classes.text,
+          className: `${classes.text} ${props.textClassName}`,
           noWrap: true,
         }}
       />
