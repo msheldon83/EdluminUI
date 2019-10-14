@@ -7,10 +7,7 @@ import { useScreenSize } from "hooks";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { NavigationSideBar } from "ui/app-chrome/navigation";
-import {
-  PageLoadingIndicatorFullScreen,
-  PageLoadingProvider,
-} from "ui/components/page-loading-indicator";
+import { LoadingStateProvider } from "ui/components/page-loading-indicator";
 import { MobileNavigationSideBar } from "./mobile-navigation/mobile-navigation-side-bar";
 import { MobileTopBar } from "./mobile-navigation/mobile-top-bar";
 import { TopBar } from "./navigation/top-bar";
@@ -37,22 +34,22 @@ export const AppChrome: React.FunctionComponent = props => {
       */
   if (mobile) {
     return (
-      <PageLoadingProvider>
+      <LoadingStateProvider>
         <MobileTopBar expandDrawer={expand} />
         <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
         <div>
           <div />
           <div className={classes.contentView}>
-            <PageLoadingIndicatorFullScreen>
-              {props.children}
-            </PageLoadingIndicatorFullScreen>
+            {/* <PageLoadingIndicatorFullScreen> */}
+            {props.children}
+            {/* </PageLoadingIndicatorFullScreen> */}
           </div>
         </div>
-      </PageLoadingProvider>
+      </LoadingStateProvider>
     );
   } else {
     return (
-      <PageLoadingProvider>
+      <LoadingStateProvider>
         <TopBar
           contentClassName={
             expanded ? classes.leftPaddingExpanded : classes.leftPaddingCompact
@@ -80,12 +77,12 @@ export const AppChrome: React.FunctionComponent = props => {
             </div>
           </div>
           <div className={`${classes.contentView}`}>
-            <PageLoadingIndicatorFullScreen>
-              {props.children}
-            </PageLoadingIndicatorFullScreen>
+            {/* <PageLoadingIndicatorFullScreen> */}
+            {props.children}
+            {/* </PageLoadingIndicatorFullScreen> */}
           </div>
         </div>
-      </PageLoadingProvider>
+      </LoadingStateProvider>
     );
   }
 };

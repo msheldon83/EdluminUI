@@ -1,6 +1,6 @@
 import * as React from "react";
 import { lazy, Suspense } from "react";
-import { PageLoadingTrigger } from "./components/page-loading-indicator";
+import { LoadingStateTrigger } from "./components/page-loading-indicator/loading-state-trigger";
 
 export interface AsyncComponentArgs<C extends React.ComponentType<any>> {
   resolve: () => Promise<C>;
@@ -16,7 +16,7 @@ export function asyncComponent<C extends React.ComponentType<any>>(
 ): C {
   const Comp = lazy(async () => ({ default: await args.resolve() }));
   const Wrapped = (props: any) => (
-    <Suspense fallback={<PageLoadingTrigger fullScreen />}>
+    <Suspense fallback={<LoadingStateTrigger fullScreen />}>
       <Comp {...props} />
     </Suspense>
   );

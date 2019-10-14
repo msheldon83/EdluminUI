@@ -13,8 +13,8 @@ import {
   NetworkStatus,
   ObservableQuery,
 } from "apollo-client";
-import { useMemo } from "react";
-import { useLoadingIndicator } from "ui/components/page-loading-indicator";
+import { useCallback, useMemo } from "react";
+import { useLoadingState } from "ui/components/page-loading-indicator";
 import { GraphqlBundle } from "./core";
 
 type NonOptional<O> = O extends null | undefined | (infer T) ? T : O;
@@ -87,11 +87,20 @@ export function useMutationBundle<T, TVariables>(
   mutation: GraphqlBundle<T, TVariables>,
   options?: MutationHookOptions<T, TVariables>
 ): MutationTuple<T, TVariables> {
+  const notifyLoading = useLoadingState().start;
   const [func, result] = useMutation(mutation.Document, {
     ...options,
   });
 
-  // This may be too aggressive, but if this works well it'll be easy to provide
-  // other options
-  return [useLoadingIndicator(func), result];
+  const loadingWrappedFunc: typeof func = useCallback(
+    async opts => {
+      const stop = notifyLoading(false);
+      const v = await func(opts);
+      stop();
+      return v;
+    },
+    [func, notifyLoading]
+  );
+
+  return [loadingWrappedFunc, result];
 }

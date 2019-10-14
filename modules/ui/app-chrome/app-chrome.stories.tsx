@@ -1,11 +1,9 @@
-import * as React from "react";
-import { AppChrome } from ".";
-import { mockProvider } from "test-helpers/mock-provider";
-import { PageLoadingTrigger } from "ui/components/page-loading-indicator";
 import { Checkbox, FormControlLabel, makeStyles } from "@material-ui/core";
 import { not } from "helpers";
-import { classes } from "istanbul-lib-coverage";
 import { range } from "lodash-es";
+import * as React from "react";
+import { LoadingStateTrigger } from "ui/components/page-loading-indicator/loading-state-trigger";
+import { AppChrome } from ".";
 
 export default {
   title: "App Chrome",
@@ -34,8 +32,8 @@ export const AppChromeLoading = () => {
   return (
     <>
       <AppChrome>
-        {isLoading && <PageLoadingTrigger />}
-        {isLoadingFullScreen && <PageLoadingTrigger fullScreen />}
+        {isLoading && <LoadingStateTrigger />}
+        {isLoadingFullScreen && <LoadingStateTrigger fullScreen />}
         {range(100).map((_, i) => (
           <p key={i}>this is my page content</p>
         ))}

@@ -1,7 +1,7 @@
-import * as React from "react";
-import { AppBar, Toolbar, IconButton, makeStyles } from "@material-ui/core";
+import { AppBar, IconButton, makeStyles, Toolbar } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
-import { PageLoadingIndicator } from "ui/components/page-loading-indicator";
+import * as React from "react";
+import { LoadingStateIndicator } from "ui/components/page-loading-indicator/loading-state-indicator";
 
 type Props = { contentClassName?: string };
 export const TopBar: React.FC<Props> = props => {
@@ -10,7 +10,7 @@ export const TopBar: React.FC<Props> = props => {
   return (
     <>
       <AppBar position="fixed">
-        <PageLoadingIndicator />
+        <LoadingStateIndicator />
         <div className={props.contentClassName}>
           <Toolbar classes={mobileToolbarClasses}>
             <IconButton

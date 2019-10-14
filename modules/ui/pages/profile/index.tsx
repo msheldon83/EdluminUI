@@ -1,15 +1,15 @@
-import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { MyProfile } from "graphql/queries/MyProfile.gen";
+import * as React from "react";
+import { LoadingStateTrigger } from "ui/components/page-loading-indicator/loading-state-trigger";
 import { ProfileUI } from "./profile-ui";
-import { PageLoadingTrigger } from "ui/components/page-loading-indicator";
 
 type Props = {};
 
 export const ProfilePage: React.FC<Props> = props => {
   const myProfile = useQueryBundle(MyProfile);
-  if (myProfile.state !== "DONE") {
-    return <PageLoadingTrigger debugName="ProfilePage" />;
+  if (myProfile.state === "LOADING") {
+    return <LoadingStateTrigger debugMsg="ProfilePage" />;
   }
   if (
     !myProfile.data ||
