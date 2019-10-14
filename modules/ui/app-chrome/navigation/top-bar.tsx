@@ -1,23 +1,27 @@
 import * as React from "react";
 import { AppBar, Toolbar, IconButton, makeStyles } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
+import { PageLoadingIndicator } from "ui/components/page-loading-indicator";
 
-type Props = { className?: string };
+type Props = { contentClassName?: string };
 export const TopBar: React.FC<Props> = props => {
   const iconButtonClasses = useIconButtonClasses();
   const mobileToolbarClasses = useMobileToolbarClasses();
   return (
     <>
-      <AppBar position="fixed" className={props.className}>
-        <Toolbar classes={mobileToolbarClasses}>
-          <IconButton
-            edge="start"
-            classes={iconButtonClasses}
-            // onClick={props.expandDrawer}
-          >
-            <SearchIcon />
-          </IconButton>
-        </Toolbar>
+      <AppBar position="fixed">
+        <PageLoadingIndicator />
+        <div className={props.contentClassName}>
+          <Toolbar classes={mobileToolbarClasses}>
+            <IconButton
+              edge="start"
+              classes={iconButtonClasses}
+              // onClick={props.expandDrawer}
+            >
+              <SearchIcon />
+            </IconButton>
+          </Toolbar>
+        </div>
       </AppBar>
       <Toolbar>{/* This is here to make space for the app bar */}</Toolbar>
     </>

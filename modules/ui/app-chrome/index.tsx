@@ -7,6 +7,10 @@ import { useScreenSize } from "hooks";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { NavigationSideBar } from "ui/app-chrome/navigation";
+import {
+  PageLoadingIndicatorFullScreen,
+  PageLoadingProvider,
+} from "ui/components/page-loading-indicator";
 import { MobileNavigationSideBar } from "./mobile-navigation/mobile-navigation-side-bar";
 import { MobileTopBar } from "./mobile-navigation/mobile-top-bar";
 import { TopBar } from "./navigation/top-bar";
@@ -33,20 +37,24 @@ export const AppChrome: React.FunctionComponent = props => {
       */
   if (mobile) {
     return (
-      <>
+      <PageLoadingProvider>
         <MobileTopBar expandDrawer={expand} />
         <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
         <div>
           <div />
-          <div className={classes.contentView}>{props.children}</div>
+          <div className={classes.contentView}>
+            <PageLoadingIndicatorFullScreen>
+              {props.children}
+            </PageLoadingIndicatorFullScreen>
+          </div>
         </div>
-      </>
+      </PageLoadingProvider>
     );
   } else {
     return (
-      <>
+      <PageLoadingProvider>
         <TopBar
-          className={
+          contentClassName={
             expanded ? classes.leftPaddingExpanded : classes.leftPaddingCompact
           }
         />
@@ -71,9 +79,13 @@ export const AppChrome: React.FunctionComponent = props => {
               </Fab>
             </div>
           </div>
-          <div className={`${classes.contentView}`}>{props.children}</div>
+          <div className={`${classes.contentView}`}>
+            <PageLoadingIndicatorFullScreen>
+              {props.children}
+            </PageLoadingIndicatorFullScreen>
+          </div>
         </div>
-      </>
+      </PageLoadingProvider>
     );
   }
 };

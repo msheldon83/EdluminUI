@@ -16,7 +16,7 @@ export function asyncComponent<C extends React.ComponentType<any>>(
 ): C {
   const Comp = lazy(async () => ({ default: await args.resolve() }));
   const Wrapped = (props: any) => (
-    <Suspense fallback={<PageLoadingTrigger fullScreen={true} />}>
+    <Suspense fallback={<PageLoadingTrigger fullScreen />}>
       <Comp {...props} />
     </Suspense>
   );

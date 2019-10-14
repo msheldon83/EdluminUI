@@ -30,7 +30,7 @@ const DefaultLoadingState: LoadingState = {
 };
 
 type LoadingStateAction = {
-  status: "BEGIN" | "FINISH" | "DISPLAY";
+  type: "BEGIN" | "FINISH" | "DISPLAY";
   id: number;
   isFullScreen?: boolean;
 };
@@ -45,7 +45,7 @@ const loadingStateReducer = (
   state: LoadingState,
   action: LoadingStateAction
 ): LoadingState => {
-  if (action && action.status == "BEGIN") {
+  if (action && action.type == "BEGIN") {
     const activeSpinners = new Set(state.activeSpinners).add(action.id);
     // console.log("BEGIN", action.id, activeSpinners);
     return {
@@ -53,7 +53,7 @@ const loadingStateReducer = (
       activeSpinners,
       isFullScreen: state.isFullScreen || !!action.isFullScreen,
     };
-  } else if (action && action.status == "FINISH") {
+  } else if (action && action.type == "FINISH") {
     const activeSpinners = new Set(state.activeSpinners);
     activeSpinners.delete(action.id);
     // console.log("FINISH", action.id, activeSpinners);
@@ -71,7 +71,7 @@ const loadingStateReducer = (
           ? false
           : state.isShowingIndicator,
     };
-  } else if (action && action.status == "DISPLAY") {
+  } else if (action && action.type == "DISPLAY") {
     // console.log(
     //   "DISPLAY",
     //   action.id,
@@ -115,7 +115,7 @@ export const PageLoadingIndicator: React.FunctionComponent<{}> = props => {
         return (
           <>
             <Fade in={isLoading} timeout={SHOW_DELAY} unmountOnExit>
-              <LinearProgress className={classes.progressBar} />
+              <LinearProgress className={classes.progressBar} color="primary" />
             </Fade>
           </>
         );
@@ -126,8 +126,6 @@ export const PageLoadingIndicator: React.FunctionComponent<{}> = props => {
 
 export const PageLoadingIndicatorFullScreen: React.FunctionComponent<{}> = props => {
   const classes = useStyles();
-
-  const [isVisible, setIsVisible] = React.useState(false);
 
   return (
     <PageLoadingContext.Consumer>
@@ -145,6 +143,11 @@ export const PageLoadingIndicatorFullScreen: React.FunctionComponent<{}> = props
                 </div>
               </div>
             </Fade>
+            {isLoading ? (
+              <div className={classes.hiddenLoading}>{props.children}</div>
+            ) : (
+              props.children
+            )}
           </>
         );
       }}
@@ -165,14 +168,14 @@ export const useLoadingIndicator = __TEST__ /* eslint-disable-line no-undef */
         async (...args: Parameters<T>): Promise<R> => {
           const id = getSpinnerId();
           try {
-            dispatchLoadingState({ id, status: "BEGIN" });
+            dispatchLoadingState({ id, type: "BEGIN" });
             setTimeout(() => {
-              dispatchLoadingState({ id, status: "DISPLAY" });
+              dispatchLoadingState({ id, type: "DISPLAY" });
             }, SHOW_DELAY);
             return await func(...args);
           } finally {
             setTimeout(() => {
-              dispatchLoadingState({ id, status: "FINISH" });
+              dispatchLoadingState({ id, type: "FINISH" });
             }, HIDE_DELAY);
           }
         },
@@ -182,10 +185,12 @@ export const useLoadingIndicator = __TEST__ /* eslint-disable-line no-undef */
 
 export const PageLoadingTrigger: React.FunctionComponent<{
   fullScreen?: boolean;
+  debugName?: string;
 }> = props => {
   const [loadingState, dispatchLoadingState] = React.useContext(
     PageLoadingContext
   );
+  const debugName = props.debugName;
 
   React.useEffect(() => {
     if (__TEST__ /* eslint-disable-line */) {
@@ -194,12 +199,13 @@ export const PageLoadingTrigger: React.FunctionComponent<{
     const id = getSpinnerId();
     dispatchLoadingState({
       id,
-      status: "BEGIN",
+      type: "BEGIN",
       isFullScreen: props.fullScreen,
     });
     setTimeout(
       () => {
-        dispatchLoadingState({ id, status: "DISPLAY" });
+        console.log("show trigger", id, debugName);
+        dispatchLoadingState({ id, type: "DISPLAY" });
       },
       loadingState.isFullScreen ? SHOW_DELAY_FS : SHOW_DELAY
     );
@@ -207,7 +213,8 @@ export const PageLoadingTrigger: React.FunctionComponent<{
     return () => {
       setTimeout(
         () => {
-          dispatchLoadingState({ id, status: "FINISH" });
+          console.log("remove trigger", id, debugName);
+          dispatchLoadingState({ id, type: "FINISH" });
         },
         loadingState.isFullScreen ? HIDE_DELAY_FS : HIDE_DELAY
       );
@@ -223,24 +230,22 @@ const useStyles = makeStyles(theme => ({
     top: 0,
     left: 0,
     width: "100%",
-    zIndex: 100,
+    zIndex: 1000000,
   },
   overlay: {
     backgroundColor: theme.customColors.appBackgroundGray,
-    position: "absolute",
-    zIndex: 100,
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100vh",
-    alignItems: "center",
-    justifyContent: "center",
+    // backgroundColor: "green",
+    flexGrow: 1,
     display: "flex",
+    alignItems: "center",
+    flexDirection: "column",
   },
   overlayContent: {
-    minHeight: "10em",
+    // backgroundColor: "blue",
+    alignItems: "center",
   },
-  overlayContainer: {
-    position: "relative",
+  overlayContainer: {},
+  hiddenLoading: {
+    display: "none",
   },
 }));
