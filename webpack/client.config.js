@@ -112,9 +112,6 @@ module.exports = {
       "Config.Auth0.redirectUrl": JSON.stringify(
         process.env.AUTH0_REDIRECT_URL
       ),
-      "Config.Auth0.authAudience": JSON.stringify(
-        process.env.AUTH0_AUTH_AUDIENCE
-      ),
       "Config.Auth0.apiAudience": JSON.stringify(
         process.env.AUTH0_API_AUDIENCE
       ),

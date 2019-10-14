@@ -27,7 +27,7 @@ The compiled frontend is influenced by environment variables. The current list i
 - `AUTH0_DOMAIN`: The auth0 domain.
 - `AUTH0_CLIENT_ID`: Client ID to use for Auth0.
 - `AUTH0_REDIRECT_URL`: Full URL of where Auth0 will send the user back to after authenticating.
-- `AUTH0_AUDIENCE`: This specifies the Auth0 audience. It should match the API's configuration.
+- `AUTH0_API_AUDIENCE`: This specifies the Auth0 audience. It should match the API's configuration.
 - `AUTH0_SCOPE`: Additional information that will be included in the token sent to our API.
 
 The .env file is used to default these, via `config/default.js`. You can override these by setting
