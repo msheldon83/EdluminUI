@@ -27,7 +27,7 @@ export const AppChromeLoading = () => {
   const [isLoadingFullScreen, setIsLoadingFullScreen] = React.useState(false);
   const toggleLoadingFullScreen = React.useCallback(
     () => setIsLoadingFullScreen(not),
-    [setIsLoading]
+    [setIsLoadingFullScreen]
   );
   return (
     <>
