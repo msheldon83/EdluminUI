@@ -15,11 +15,13 @@ import { InformationHelperText } from "ui/components/information-helper-text";
 import { Formik } from "formik";
 import * as Forms from "atomic-object/forms";
 import * as Yup from "yup";
+import { UserLoginEmailChangeInput } from "graphql/server-types.gen";
+import { useAuth0 } from "auth/auth0";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  loginEmail: MyProfile.User["loginEmail"];
+  user: MyProfile.User;
   updateLoginEmail: MutationFunction<
     UpdateLoginEmail.Mutation,
     UpdateLoginEmail.Variables
@@ -28,57 +30,63 @@ type Props = {
 
 export const ChangeLoginEmailDialog: React.FC<Props> = props => {
   const classes = useStyles();
+  const initialValues: UserLoginEmailChangeInput = {
+    loginEmail: "",
+    userId: props.user.id!, // we should get rid of the ! when id is not nullable
+    rowVersion: props.user.rowVersion,
+  };
+  const auth0 = useAuth0();
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <Formik
-        initialValues={{ loginEmail: "" }}
-        onSubmit={(values: any) =>
-          props.updateLoginEmail({ variables: values })
-        }
+        initialValues={initialValues}
+        onSubmit={async (values: UserLoginEmailChangeInput) => {
+          await props.updateLoginEmail({
+            variables: { loginEmailChange: { ...values } },
+          });
+          auth0.login();
+          props.onClose();
+        }}
         validationSchema={Yup.object().shape({
           loginEmail: Yup.string()
-            .email()
+            .email("Must be a valid email")
             .required("Required"),
         })}
       >
         {({ values, handleSubmit, isSubmitting }) => (
-          <div className={classes.spacing}>
-            <DialogTitle>
-              <Trans i18nKey="profile.changeEmail">Change Email</Trans>
-            </DialogTitle>
-            <DialogContent>
-              <Forms.TextField
-                name={"loginEmail"}
-                margin="normal"
-                variant="outlined"
-                placeholder={"New Email Address"}
-                fullWidth
-              />
+          <form onSubmit={handleSubmit}>
+            <div className={classes.spacing}>
+              <DialogTitle>
+                <Trans i18nKey="profile.changeEmail">Change Email</Trans>
+              </DialogTitle>
+              <DialogContent>
+                <Forms.TextField
+                  name={"loginEmail"}
+                  margin="normal"
+                  variant="outlined"
+                  placeholder={"New Email Address"}
+                  fullWidth
+                />
 
-              <InformationHelperText
-                text={
-                  <Trans i18nKey="profile.newEmailIsUserId">
-                    Your new email will be used as your User Id.
-                  </Trans>
-                }
-                className={classes.helperText}
-              />
-            </DialogContent>
-            <DialogActions>
-              <TextButton onClick={props.onClose}>
-                <Trans i18nKey="core.cancel">Cancel</Trans>
-              </TextButton>
-              <TextButton
-                type="submit"
-                onClick={() => {
-                  console.log("submit new value", values);
-                }}
-                disabled={isSubmitting}
-              >
-                <Trans i18nKey="core.save">Save</Trans>
-              </TextButton>
-            </DialogActions>
-          </div>
+                <InformationHelperText
+                  text={
+                    <Trans i18nKey="profile.newEmailIsUserId">
+                      Your new email will be used as your User Id.
+                    </Trans>
+                  }
+                  className={classes.helperText}
+                />
+              </DialogContent>
+              <DialogActions>
+                <TextButton onClick={props.onClose}>
+                  <Trans i18nKey="core.cancel">Cancel</Trans>
+                </TextButton>
+                <TextButton type="submit" disabled={isSubmitting}>
+                  <Trans i18nKey="core.save">Save</Trans>
+                </TextButton>
+              </DialogActions>
+            </div>
+          </form>
         )}
       </Formik>
     </Dialog>

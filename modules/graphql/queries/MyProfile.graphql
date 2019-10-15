@@ -3,6 +3,7 @@ query MyProfile {
     me {
       user {
         id
+        rowVersion
         firstName
         lastName
         loginEmail

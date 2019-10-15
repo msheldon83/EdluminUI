@@ -14,7 +14,7 @@ export const nav = () => {
         userAccess: () => ({
           me: {
             user: {
-              id: "1234",
+              id: 1234,
             },
           },
         }),

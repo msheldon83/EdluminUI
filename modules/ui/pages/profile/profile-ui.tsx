@@ -51,7 +51,7 @@ export const ProfileUI: React.FC<Props> = props => {
         open={changeEmailIsOpen}
         onClose={onCloseEmailDialog}
         updateLoginEmail={props.updateLoginEmail}
-        loginEmail={props.user.loginEmail}
+        user={props.user}
       />
 
       <PageTitle>

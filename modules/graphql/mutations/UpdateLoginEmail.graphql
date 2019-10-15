@@ -2,6 +2,7 @@ mutation UpdateLoginEmail($loginEmailChange: UserLoginEmailChangeInput!) {
   user {
     changeLoginEmail(loginEmailChange: $loginEmailChange) {
       id
+      rowVersion
       loginEmail
     }
   }

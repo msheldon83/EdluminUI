@@ -11,12 +11,13 @@ export const Basic = () => {
   return (
     <ProfileUI
       user={{
-        id: "1",
+        id: 1,
         firstName: "Melanie",
         lastName: "Persons",
         loginEmail: "mpersons@edlumin.com",
         phone: "610-555-1212",
       }}
+      updateLoginEmail={(): any => {}}
     />
   );
 };
