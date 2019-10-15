@@ -4,13 +4,19 @@ import { range } from "lodash-es";
 import * as React from "react";
 import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-trigger";
 import { AppChrome } from ".";
+import { mockProvider } from "test-helpers/mock-provider";
 
 export default {
   title: "App Chrome",
 };
 
 export const AppChromeStory = () => {
-  return <AppChrome>page content here</AppChrome>;
+  const Provider = mockProvider();
+  return (
+    <Provider>
+      <AppChrome>page content here</AppChrome>
+    </Provider>
+  );
 };
 
 AppChromeStory.story = {
@@ -18,6 +24,7 @@ AppChromeStory.story = {
 };
 
 export const AppChromeLoading = () => {
+  const Provider = mockProvider();
   const classes = useStyles();
   const [isLoading, setIsLoading] = React.useState(true);
   const toggleLoading = React.useCallback(() => setIsLoading(not), [
@@ -30,7 +37,7 @@ export const AppChromeLoading = () => {
     [setIsLoadingFullScreen]
   );
   return (
-    <>
+    <Provider>
       <AppChrome>
         {isLoading && <LoadingStateTrigger />}
         {isLoadingFullScreen && <LoadingStateTrigger fullScreen />}
@@ -56,7 +63,7 @@ export const AppChromeLoading = () => {
           ></FormControlLabel>
         </div>
       </div>
-    </>
+    </Provider>
   );
 };
 
