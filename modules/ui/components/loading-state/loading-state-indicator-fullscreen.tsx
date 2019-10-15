@@ -1,56 +1,49 @@
-// export const PageLoadingIndicatorFullScreen: React.FunctionComponent<{}> = props => {
-//   const classes = useStyles();
+import * as React from "react";
+import { useEffect } from "react";
+import { useLoadingState } from ".";
+import { LinearProgress, Fade, CircularProgress } from "@material-ui/core";
+import { makeStyles } from "@material-ui/styles";
 
-//   return (
-//     <PageLoadingContext.Consumer>
-//       {([state, _]) => {
-//         const isLoading = state.isShowingIndicator && state.isFullScreen;
+export const LoadingStateIndicatorFullScreen: React.FunctionComponent<{}> = props => {
+  const classes = useStyles();
+  const isLoading = useLoadingState().state === "fullScreen";
 
-//         return (
-//           <>
-//             <Fade in={isLoading} timeout={SHOW_DELAY} unmountOnExit>
-//               <div className={classes.overlayContainer}>
-//                 <div className={classes.overlay}>
-//                   <div className={classes.overlayContent}>
-//                     <CircularProgress />
-//                   </div>
-//                 </div>
-//               </div>
-//             </Fade>
-//             {isLoading ? (
-//               <div className={classes.hiddenLoading}>{props.children}</div>
-//             ) : (
-//               props.children
-//             )}
-//           </>
-//         );
-//       }}
-//     </PageLoadingContext.Consumer>
-//   );
-// };
+  return (
+    <>
+      <Fade in={isLoading} timeout={100} unmountOnExit>
+        <div className={classes.overlayContainer}>
+          <div className={classes.overlay}>
+            <div className={classes.overlayContent}>
+              <CircularProgress />
+            </div>
+          </div>
+        </div>
+      </Fade>
+      {isLoading ? (
+        <div className={classes.hiddenLoading}>{props.children}</div>
+      ) : (
+        props.children
+      )}
+    </>
+  );
+};
 
-// const useStyles = makeStyles(theme => ({
-//   progressBar: {
-//     position: "absolute",
-//     top: 0,
-//     left: 0,
-//     width: "100%",
-//     zIndex: 1000000,
-//   },
-//   overlay: {
-//     backgroundColor: theme.customColors.appBackgroundGray,
-//     // backgroundColor: "green",
-//     flexGrow: 1,
-//     display: "flex",
-//     alignItems: "center",
-//     flexDirection: "column",
-//   },
-//   overlayContent: {
-//     // backgroundColor: "blue",
-//     alignItems: "center",
-//   },
-//   overlayContainer: {},
-//   hiddenLoading: {
-//     display: "none",
-//   },
-// }));
+const useStyles = makeStyles(theme => ({
+  overlay: {
+    // backgroundColor: "green",
+    flexGrow: 1,
+    height: 0,
+    overflow: "show",
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "column",
+  },
+  overlayContent: {
+    // backgroundColor: "blue",
+    alignItems: "center",
+  },
+  overlayContainer: {},
+  hiddenLoading: {
+    display: "none",
+  },
+}));

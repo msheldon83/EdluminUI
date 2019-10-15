@@ -11,6 +11,7 @@ import { LoadingStateProvider } from "ui/components/loading-state";
 import { MobileNavigationSideBar } from "./mobile-navigation/mobile-navigation-side-bar";
 import { MobileTopBar } from "./mobile-navigation/mobile-top-bar";
 import { TopBar } from "./navigation/top-bar";
+import { LoadingStateIndicatorFullScreen } from "ui/components/loading-state/loading-state-indicator-fullscreen";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -40,9 +41,9 @@ export const AppChrome: React.FunctionComponent = props => {
         <div>
           <div />
           <div className={classes.contentView}>
-            {/* <PageLoadingIndicatorFullScreen> */}
-            {props.children}
-            {/* </PageLoadingIndicatorFullScreen> */}
+            <LoadingStateIndicatorFullScreen>
+              {props.children}
+            </LoadingStateIndicatorFullScreen>
           </div>
         </div>
       </LoadingStateProvider>
@@ -77,9 +78,9 @@ export const AppChrome: React.FunctionComponent = props => {
             </div>
           </div>
           <div className={`${classes.contentView}`}>
-            {/* <PageLoadingIndicatorFullScreen> */}
-            {props.children}
-            {/* </PageLoadingIndicatorFullScreen> */}
+            <LoadingStateIndicatorFullScreen>
+              {props.children}
+            </LoadingStateIndicatorFullScreen>
           </div>
         </div>
       </LoadingStateProvider>
