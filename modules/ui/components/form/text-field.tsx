@@ -1,23 +1,27 @@
-import { Field, FieldAttributes } from "formik";
-import * as FMUI from "formik-material-ui";
-import { TextFieldProps as FMUITextFieldProps } from "formik-material-ui";
+import { Field, FieldAttributes, useField, useFormikContext } from "formik";
+import { TextField as MUITextField } from "@material-ui/core";
+import { TextFieldProps as MUITextFieldProps } from "@material-ui/core/TextField";
 import * as React from "react";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 
-export type TextFieldProps = {
-  name: string;
-} & FieldAttributes<{}> &
-  FMUITextFieldProps["inputProps"];
+export type TextFieldProps = FieldAttributes<MUITextFieldProps>;
 
 /** A thin wrapper around Material UI TextField supporting Formik and translations. */
 export const TextField: React.FunctionComponent<TextFieldProps> = props => {
   const classes = useStyles();
+  const formik = useFormikContext();
+  const [field, meta] = useField(props.name);
+  const error = meta.error;
+  const showError = meta.touched && !!error;
+  const disabled = formik.isSubmitting;
 
   return (
     <Field
+      as={MUITextField}
       className={classes.alignCenter}
-      component={FMUI.TextField}
-      // label={props.translation && i18n(props.translation)}
+      error={showError}
+      helperText={showError && error}
+      disabled={disabled}
       {...props}
     />
   );
