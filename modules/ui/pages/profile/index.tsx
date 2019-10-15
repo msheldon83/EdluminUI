@@ -3,6 +3,7 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { MyProfile } from "graphql/queries/MyProfile.gen";
 import { ProfileUI } from "./profile-ui";
 import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
+import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-trigger";
 
 type Props = {};
 
@@ -10,8 +11,8 @@ export const ProfilePage: React.FC<Props> = props => {
   const myProfile = useQueryBundle(MyProfile);
   const [updateLoginEmail] = useMutationBundle(UpdateLoginEmail);
 
-  if (myProfile.state !== "DONE") {
-    return <div>loading</div>;
+  if (myProfile.state === "LOADING") {
+    return <LoadingStateTrigger fullScreen />;
   }
   if (
     !myProfile.data ||
