@@ -2,7 +2,7 @@ import { Checkbox, FormControlLabel, makeStyles } from "@material-ui/core";
 import { not } from "helpers";
 import { range } from "lodash-es";
 import * as React from "react";
-import { LoadingStateTrigger } from "ui/components/page-loading-indicator/loading-state-trigger";
+import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-trigger";
 import { AppChrome } from ".";
 
 export default {

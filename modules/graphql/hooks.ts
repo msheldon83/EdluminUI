@@ -14,7 +14,7 @@ import {
   ObservableQuery,
 } from "apollo-client";
 import { useCallback, useMemo } from "react";
-import { useLoadingState } from "ui/components/page-loading-indicator";
+import { useLoadingState } from "ui/components/loading-state";
 import { GraphqlBundle } from "./core";
 
 type NonOptional<O> = O extends null | undefined | (infer T) ? T : O;

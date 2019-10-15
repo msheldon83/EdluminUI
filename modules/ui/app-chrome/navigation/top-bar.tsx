@@ -1,7 +1,7 @@
 import { AppBar, IconButton, makeStyles, Toolbar } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import * as React from "react";
-import { LoadingStateIndicator } from "ui/components/page-loading-indicator/loading-state-indicator";
+import { LoadingStateIndicator } from "ui/components/loading-state/loading-state-indicator";
 
 type Props = { contentClassName?: string };
 export const TopBar: React.FC<Props> = props => {

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { lazy, Suspense } from "react";
-import { LoadingStateTrigger } from "./components/page-loading-indicator/loading-state-trigger";
+import { LoadingStateTrigger } from "./components/loading-state/loading-state-trigger";
 
 export interface AsyncComponentArgs<C extends React.ComponentType<any>> {
   resolve: () => Promise<C>;

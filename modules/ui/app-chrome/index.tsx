@@ -7,7 +7,7 @@ import { useScreenSize } from "hooks";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { NavigationSideBar } from "ui/app-chrome/navigation";
-import { LoadingStateProvider } from "ui/components/page-loading-indicator";
+import { LoadingStateProvider } from "ui/components/loading-state";
 import { MobileNavigationSideBar } from "./mobile-navigation/mobile-navigation-side-bar";
 import { MobileTopBar } from "./mobile-navigation/mobile-top-bar";
 import { TopBar } from "./navigation/top-bar";
