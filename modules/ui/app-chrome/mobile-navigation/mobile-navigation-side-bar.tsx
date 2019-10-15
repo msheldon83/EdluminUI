@@ -34,8 +34,8 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
         paper: classes.drawer,
       }}
     >
-      <Grid item className={classes.avatar}>
-        <ProfileAvatar className={classes.avatar} initials={"ZZ"} />
+      <Grid item className={classes.avatarContainer}>
+        <ProfileAvatar className={classes.avatar} />
       </Grid>
 
       <Divider className={classes.divider} />

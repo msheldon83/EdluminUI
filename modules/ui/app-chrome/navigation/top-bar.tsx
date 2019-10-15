@@ -47,15 +47,9 @@ export const TopBar: React.FC<Props> = props => {
                   aria-owns="user-menu"
                   edge="end"
                   classes={iconButtonClasses}
-                  onClick={event => {
-                    console.log(event.currentTarget);
-                    setSubMenuAnchor(event.currentTarget);
-                  }}
+                  onClick={event => setSubMenuAnchor(event.currentTarget)}
                 >
-                  <ProfileAvatar
-                    initials={"ZZ"}
-                    className={mobileToolbarClasses.avatar}
-                  />
+                  <ProfileAvatar className={classes.avatar} />
                 </IconButton>
                 <UserMenu
                   anchorElement={subMenuAnchor}
@@ -72,13 +66,16 @@ export const TopBar: React.FC<Props> = props => {
   );
 };
 
-const useMobileToolbarClasses = makeStyles(theme => ({
-  root: {
-    background: theme.customColors.white,
-  },
+const useStyles = makeStyles(theme => ({
   avatar: {
     backgroundColor: theme.customColors.eduBlue,
     color: theme.customColors.white,
+  },
+}));
+
+const useMobileToolbarClasses = makeStyles(theme => ({
+  root: {
+    background: theme.customColors.white,
   },
 }));
 
