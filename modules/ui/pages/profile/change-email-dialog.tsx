@@ -9,7 +9,7 @@ import {
 import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
 import { MyProfile } from "graphql/queries/MyProfile.gen";
 import * as React from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { TextButton } from "ui/components/text-button";
 import { InformationHelperText } from "ui/components/information-helper-text";
 import { Formik } from "formik";
@@ -30,6 +30,8 @@ type Props = {
 
 export const ChangeLoginEmailDialog: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const initialValues: UserLoginEmailChangeInput = {
     loginEmail: "",
     userId: props.user.id!, // we should get rid of the ! when id is not nullable
@@ -49,8 +51,8 @@ export const ChangeLoginEmailDialog: React.FC<Props> = props => {
         }}
         validationSchema={Yup.object().shape({
           loginEmail: Yup.string()
-            .email("Must be a valid email")
-            .required("Required"),
+            .email(t("profile.changeEmailInvalid", "Must be a valid email"))
+            .required(t("profile.changeEmailRequired", "Required")),
         })}
       >
         {({ values, handleSubmit, isSubmitting }) => (
@@ -64,7 +66,10 @@ export const ChangeLoginEmailDialog: React.FC<Props> = props => {
                   name={"loginEmail"}
                   margin="normal"
                   variant="outlined"
-                  placeholder={"New Email Address"}
+                  placeholder={t(
+                    "profile.newEmailAddress",
+                    "New Email Address"
+                  )}
                   fullWidth
                 />
 
