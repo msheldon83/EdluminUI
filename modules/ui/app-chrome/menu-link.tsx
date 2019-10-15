@@ -9,6 +9,7 @@ import * as React from "react";
 type Props = {
   title: string | JSX.Element;
   icon: JSX.Element;
+  onClick: () => void;
   className?: string;
 };
 
@@ -16,7 +17,7 @@ export const MenuLink: React.FC<Props> = props => {
   const classes = useStyles();
 
   return (
-    <MenuItem button className={`${classes.menuItem} ${props.className}`}>
+    <MenuItem button className={props.className} onClick={props.onClick}>
       <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
       <ListItemText
         primary={props.title}
@@ -39,14 +40,5 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 600,
     fontFamily: "Poppins",
     color: "inherit",
-  },
-  menuItem: {
-    // color: theme.customColors.medLightGray,
-    // borderRadius: theme.typography.pxToRem(5),
-    // margin: `${theme.typography.pxToRem(5)} 0`,
-    // "&:hover": {
-    // backgroundColor: theme.customColors.edluminLightSlate,
-    // color: theme.customColors.white,
-    // },
   },
 }));

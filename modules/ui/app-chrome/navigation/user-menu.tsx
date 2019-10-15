@@ -12,16 +12,21 @@ import {
   SignOutMenuLink,
   HelpMenuLink,
 } from "../custom-menu-links";
+import { useAuth0 } from "auth/auth0";
+import { RouteComponentProps, withRouter } from "react-router-dom";
+import { Profile } from "ui/routes/profile";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   anchorElement: null | HTMLElement;
-};
+} & RouteComponentProps;
 
-export const UserMenu: React.FC<Props> = props => {
+export const RoutedUserMenu: React.FC<Props> = props => {
   const classes = useStyles();
   const userMenuListClasses = useUserMenuListStyles();
+  const auth0 = useAuth0();
+
   return (
     <Menu
       keepMounted
@@ -37,13 +42,21 @@ export const UserMenu: React.FC<Props> = props => {
       classes={userMenuListClasses}
     >
       <MenuList variant="menu" className={classes.menuList}>
-        <MyProfileMenuLink className={classes.userMenuLink} />
-        <SignOutMenuLink className={classes.userMenuLink} />
-        <HelpMenuLink className={classes.userMenuLink} />
+        <MyProfileMenuLink
+          onClick={() => props.history.push(Profile.PATH_TEMPLATE)}
+          className={classes.userMenuLink}
+        />
+        <SignOutMenuLink
+          onClick={auth0.logout}
+          className={classes.userMenuLink}
+        />
+        <HelpMenuLink onClick={() => {}} className={classes.userMenuLink} />
       </MenuList>
     </Menu>
   );
 };
+
+export const UserMenu = withRouter(RoutedUserMenu);
 
 const useStyles = makeStyles(theme => ({
   menuList: {

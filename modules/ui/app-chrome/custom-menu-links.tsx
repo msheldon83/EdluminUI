@@ -6,6 +6,7 @@ import { Trans } from "react-i18next";
 import { MenuLink } from "./menu-link";
 
 type Props = {
+  onClick: () => void;
   className?: string;
 };
 
