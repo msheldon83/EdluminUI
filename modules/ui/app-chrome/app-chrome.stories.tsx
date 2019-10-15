@@ -6,6 +6,7 @@ import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-t
 import { AppChrome } from ".";
 import { mockProvider } from "test-helpers/mock-provider";
 import { Route } from "react-router-dom";
+import { PageTitle } from "ui/components/page-title";
 
 export default {
   title: "App Chrome",
@@ -15,7 +16,16 @@ export const AppChromeStory = () => {
   const Provider = mockProvider();
   return (
     <Provider>
-      <Route component={() => <AppChrome>page content here</AppChrome>} />
+      <Route
+        component={() => (
+          <AppChrome>
+            <PageTitle title="This is my page title" />
+            {range(100).map((_, i) => (
+              <p key={i}>this is my page content</p>
+            ))}
+          </AppChrome>
+        )}
+      />
     </Provider>
   );
 };

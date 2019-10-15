@@ -1,3 +1,4 @@
+import { MutationFunction } from "@apollo/react-common";
 import {
   Button,
   Grid,
@@ -6,6 +7,7 @@ import {
   MenuItem,
   TextField,
 } from "@material-ui/core";
+import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
 import { MyProfile } from "graphql/queries/MyProfile.gen";
 import { useBreakpoint } from "hooks";
 import * as React from "react";
@@ -14,8 +16,6 @@ import { AvatarCard } from "ui/components/avatar-card";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { TextButton } from "ui/components/text-button";
-import { MutationFunction } from "@apollo/react-common";
-import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
 import { ChangeLoginEmailDialog } from "./change-email-dialog";
 import { getInitials } from "ui/components/helpers";
 
@@ -54,7 +54,7 @@ export const ProfileUI: React.FC<Props> = props => {
         user={props.user}
       />
 
-      <PageTitle>{t("My Profile")}</PageTitle>
+      <PageTitle title={t("My Profile")} />
 
       <Section>
         <Grid container spacing={3}>
