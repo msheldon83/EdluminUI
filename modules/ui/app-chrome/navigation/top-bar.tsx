@@ -7,19 +7,22 @@ import {
 } from "@material-ui/core";
 import AddToPhotosIcon from "@material-ui/icons/AddToPhotos";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
-import SearchIcon from "@material-ui/icons/Search";
 import * as React from "react";
 import { LoadingStateIndicator } from "ui/components/loading-state/loading-state-indicator";
 import { ProfileAvatar } from "../profile-avatar";
+import { SearchBar } from "./search-bar";
 import { UserMenu } from "./user-menu";
 
 type Props = { contentClassName?: string };
+
 export const TopBar: React.FC<Props> = props => {
+  const classes = useStyles();
   const iconButtonClasses = useIconButtonClasses();
   const [subMenuAnchor, setSubMenuAnchor] = React.useState<null | HTMLElement>(
     null
   );
   const mobileToolbarClasses = useMobileToolbarClasses();
+
   return (
     <>
       <AppBar position="fixed">
@@ -28,9 +31,7 @@ export const TopBar: React.FC<Props> = props => {
           <Toolbar classes={mobileToolbarClasses}>
             <Grid container justify="space-between" alignItems="center">
               <Grid item>
-                <IconButton edge="start" classes={iconButtonClasses}>
-                  <SearchIcon />
-                </IconButton>
+                <SearchBar />
               </Grid>
 
               <Grid item>

@@ -6,6 +6,12 @@ import {
   HelpNavLink,
 } from "../custom-nav-links";
 import { makeStyles } from "@material-ui/styles";
+import { MenuList, MenuItem } from "@material-ui/core";
+import {
+  MyProfileMenuLink,
+  SignOutMenuLink,
+  HelpMenuLink,
+} from "../custom-menu-links";
 
 type Props = {
   open: boolean;
@@ -23,26 +29,31 @@ export const UserMenu: React.FC<Props> = props => {
       open={props.open}
       onClose={props.onClose}
       anchorEl={props.anchorElement}
+      getContentAnchorEl={null}
       anchorOrigin={{
         vertical: "bottom",
         horizontal: "right",
       }}
       classes={userMenuListClasses}
     >
-      <MyProfileNavLink className={classes.userMenuLink} />
-      <SignOutNavLink className={classes.userMenuLink} />
-      <HelpNavLink className={classes.userMenuLink} />
+      <MenuList variant="menu" className={classes.menuList}>
+        <MyProfileMenuLink className={classes.userMenuLink} />
+        <SignOutMenuLink className={classes.userMenuLink} />
+        <HelpMenuLink className={classes.userMenuLink} />
+      </MenuList>
     </Menu>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  menuList: {
+    padding: `${theme.typography.pxToRem(4)} 0`,
+  },
   userMenuLink: {
+    paddingRight: theme.spacing(3),
     color: theme.customColors.darkGray,
-    borderRadius: 0,
     "&:hover": {
       color: theme.customColors.black,
-      backgroundColor: theme.customColors.medLightGray,
     },
   },
 }));
