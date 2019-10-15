@@ -11,7 +11,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import * as React from "react";
 import { LoadingStateIndicator } from "ui/components/loading-state/loading-state-indicator";
 import { ProfileAvatar } from "../profile-avatar";
-import { ProfileSubMenu } from "./profile-submenu";
+import { UserMenu } from "./user-menu";
 
 type Props = { contentClassName?: string };
 export const TopBar: React.FC<Props> = props => {
@@ -44,7 +44,7 @@ export const TopBar: React.FC<Props> = props => {
 
                 <IconButton
                   aria-haspopup="true"
-                  aria-owns="profileMenu"
+                  aria-owns="user-menu"
                   edge="end"
                   classes={iconButtonClasses}
                   onClick={event => {
@@ -57,7 +57,7 @@ export const TopBar: React.FC<Props> = props => {
                     className={mobileToolbarClasses.avatar}
                   />
                 </IconButton>
-                <ProfileSubMenu
+                <UserMenu
                   anchorElement={subMenuAnchor}
                   open={Boolean(subMenuAnchor)}
                   onClose={() => setSubMenuAnchor(null)}

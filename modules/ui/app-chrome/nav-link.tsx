@@ -11,19 +11,17 @@ type Props = {
   icon: JSX.Element;
   route: string;
   className?: string;
-  iconClassName?: string;
-  textClassName?: string;
 };
 
 export const NavLink: React.FC<Props> = props => {
   const classes = useStyles();
   return (
     <ListItem button className={`${classes.menuItem} ${props.className}`}>
-      <ListItemIcon className={`${classes.icon} ${props.iconClassName}`}>{props.icon}</ListItemIcon>
+      <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
       <ListItemText
         primary={props.title}
         primaryTypographyProps={{
-          className: `${classes.text} ${props.textClassName}`,
+          className: classes.text,
           noWrap: true,
         }}
       />
@@ -35,20 +33,20 @@ const useStyles = makeStyles(theme => ({
   icon: {
     minWidth: 0,
     paddingRight: theme.typography.pxToRem(24),
-    color: theme.customColors.white,
+    color: "inherit",
   },
   text: {
-    color: theme.customColors.white,
     fontWeight: 600,
     fontFamily: "Poppins",
+    color: "inherit",
   },
   menuItem: {
-    opacity: 0.7,
+    color: theme.customColors.medLightGray,
     borderRadius: theme.typography.pxToRem(5),
     margin: `${theme.typography.pxToRem(5)} 0`,
     "&:hover": {
       backgroundColor: theme.customColors.edluminLightSlate,
-      opacity: 1,
+      color: theme.customColors.white,
     },
   },
 }));

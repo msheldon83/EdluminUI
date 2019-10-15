@@ -16,8 +16,6 @@ import { NavLink } from "./nav-link";
 
 type Props = {
   className?: string;
-  iconClassName?: string;
-  textClassName?: string;
 };
 
 export const HomeNavLink: React.FC<Props> = props => {
