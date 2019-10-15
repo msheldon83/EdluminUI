@@ -30,6 +30,7 @@ const loadingStateReducer: Reducer<LoadingState, LoadingAction> = (
   s,
   action
 ) => {
+  // console.log("action", action);
   switch (action.type) {
     case "start": {
       return {

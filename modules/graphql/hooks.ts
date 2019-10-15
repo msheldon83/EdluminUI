@@ -13,7 +13,7 @@ import {
   NetworkStatus,
   ObservableQuery,
 } from "apollo-client";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import { useLoadingState } from "ui/components/loading-state";
 import { GraphqlBundle } from "./core";
 
@@ -71,6 +71,13 @@ export function useQueryBundle<Result, Vars>(
     }
   }, [rawResult, options]);
 
+  const isLoading =
+    ourResult.state === "LOADING" || ourResult.state === "UPDATING";
+  const startLoadingState = useLoadingState().start;
+  useEffect(() => {
+    if (isLoading) return startLoadingState(false, `useQueryBundle()`);
+  }, [isLoading, startLoadingState]);
+
   if (ourResult.state == "ERROR") {
     const isUnauthorized =
       ourResult.error &&
@@ -94,7 +101,7 @@ export function useMutationBundle<T, TVariables>(
 
   const loadingWrappedFunc: typeof func = useCallback(
     async opts => {
-      const stop = notifyLoading(false);
+      const stop = notifyLoading(false, "useMutationBundle()");
       const v = await func(opts);
       stop();
       return v;
