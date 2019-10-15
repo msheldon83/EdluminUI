@@ -64,7 +64,8 @@ type LoadingStateContext = {
 const LoadingStateContext = React.createContext<LoadingStateContext>({
   state: "off",
   start: () => {
-    throw new Error("No LoadingStateProvider in tree!");
+    console.warn("No LoadingStateProvider in tree!");
+    return () => {};
   },
 });
 
