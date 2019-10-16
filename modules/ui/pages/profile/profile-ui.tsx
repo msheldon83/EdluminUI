@@ -17,7 +17,6 @@ import { TextButton } from "ui/components/text-button";
 import { MutationFunction } from "@apollo/react-common";
 import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
 import { ResetPassword } from "graphql/mutations/ResetPassword.gen";
-import { ResetUserPasswordInput } from "graphql/server-types.gen";
 import { ChangeLoginEmailDialog } from "./change-email-dialog";
 
 type Props = {
