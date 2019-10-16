@@ -9,7 +9,7 @@ import {
 import { MyProfile } from "graphql/queries/MyProfile.gen";
 import { useBreakpoint } from "hooks";
 import * as React from "react";
-import { Trans } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { AvatarCard } from "ui/components/avatar-card";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -28,6 +28,7 @@ type Props = {
 
 export const ProfileUI: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
   const isSmDown = useBreakpoint("sm", "down");
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
 
@@ -37,7 +38,7 @@ export const ProfileUI: React.FC<Props> = props => {
 
   const saveButton = (
     <Button variant="contained" fullWidth={isSmDown}>
-      <Trans i18nKey={"save"}>Save</Trans>
+      {t("Save")}
     </Button>
   );
   const onCloseEmailDialog = React.useCallback(
@@ -54,9 +55,7 @@ export const ProfileUI: React.FC<Props> = props => {
         user={props.user}
       />
 
-      <PageTitle>
-        <Trans i18nKey="profile.title">My Profile</Trans>
-      </PageTitle>
+      <PageTitle>{t("My Profile")}</PageTitle>
 
       <Section>
         <Grid container spacing={3}>
@@ -128,14 +127,14 @@ export const ProfileUI: React.FC<Props> = props => {
                     className={classes.button}
                     onClick={() => setChangeEmailIsOpen(true)}
                   >
-                    <Trans i18nKey={"profile.changeEmail"}>Change Email</Trans>
+                    {t("Change Email")}
                   </Button>
                 ) : (
                   <TextButton
                     className={classes.buttonSpacing}
                     onClick={() => setChangeEmailIsOpen(true)}
                   >
-                    <Trans i18nKey={"profile.change"}>Change</Trans>
+                    {t("Change")}
                   </TextButton>
                 )}
               </Grid>
@@ -143,9 +142,7 @@ export const ProfileUI: React.FC<Props> = props => {
               <Grid item container>
                 <Grid item md={6} xs={12}>
                   <Button variant="outlined" fullWidth>
-                    <Trans i18nKey={"profile.resetPassword"}>
-                      Reset Password
-                    </Trans>
+                    {t("Reset Password")}
                   </Button>
                 </Grid>
               </Grid>
@@ -174,13 +171,11 @@ export const ProfileUI: React.FC<Props> = props => {
                       fullWidth
                       className={classes.button}
                     >
-                      <Trans i18nKey={"profile.changeTimeZone"}>
-                        Change Timezone
-                      </Trans>
+                      {t("Change Timezone")}
                     </Button>
                   ) : (
                     <TextButton className={classes.buttonSpacing}>
-                      <Trans i18nKey={"profile.change"}>Change</Trans>
+                      {t("Change")}
                     </TextButton>
                   )}
                 </Grid>

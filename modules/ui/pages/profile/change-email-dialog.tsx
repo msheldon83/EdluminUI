@@ -6,17 +6,17 @@ import {
   DialogTitle,
   makeStyles,
 } from "@material-ui/core";
+import * as Forms from "atomic-object/forms";
+import { useAuth0 } from "auth/auth0";
+import { Formik } from "formik";
 import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
 import { MyProfile } from "graphql/queries/MyProfile.gen";
-import * as React from "react";
-import { Trans, useTranslation } from "react-i18next";
-import { TextButton } from "ui/components/text-button";
-import { InformationHelperText } from "ui/components/information-helper-text";
-import { Formik } from "formik";
-import * as Forms from "atomic-object/forms";
-import * as Yup from "yup";
 import { UserLoginEmailChangeInput } from "graphql/server-types.gen";
-import { useAuth0 } from "auth/auth0";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { InformationHelperText } from "ui/components/information-helper-text";
+import { TextButton } from "ui/components/text-button";
+import * as Yup from "yup";
 
 type Props = {
   open: boolean;
@@ -58,9 +58,7 @@ export const ChangeLoginEmailDialog: React.FC<Props> = props => {
         {({ values, handleSubmit, isSubmitting }) => (
           <form onSubmit={handleSubmit}>
             <div className={classes.spacing}>
-              <DialogTitle>
-                <Trans i18nKey="profile.changeEmail">Change Email</Trans>
-              </DialogTitle>
+              <DialogTitle>{t("Change Email")}</DialogTitle>
               <DialogContent>
                 <Forms.TextField
                   name={"loginEmail"}
@@ -74,20 +72,14 @@ export const ChangeLoginEmailDialog: React.FC<Props> = props => {
                 />
 
                 <InformationHelperText
-                  text={
-                    <Trans i18nKey="profile.newEmailIsUserId">
-                      Your new email will be used as your User Id.
-                    </Trans>
-                  }
+                  text={t("Your new email will be used as your User Id.")}
                   className={classes.helperText}
                 />
               </DialogContent>
               <DialogActions>
-                <TextButton onClick={props.onClose}>
-                  <Trans i18nKey="core.cancel">Cancel</Trans>
-                </TextButton>
+                <TextButton onClick={props.onClose}>{t("Cancel")}</TextButton>
                 <TextButton type="submit" disabled={isSubmitting}>
-                  <Trans i18nKey="core.save">Save</Trans>
+                  {t("Save")}
                 </TextButton>
               </DialogActions>
             </div>
