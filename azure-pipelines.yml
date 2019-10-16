@@ -12,11 +12,47 @@ trigger:
       - pull/*
 
 steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: "10.x"
+- task: NodeTool@0
+  inputs:
+    versionSpec: "10.x"
 
-  - script: |
-      yarn
-      yarn build
-    displayName: "yarn build"
+- script: |
+    yarn
+    yarn build
+  displayName: "install dependencies and build"
+
+- script: |
+    yarn lint
+    yarn run jest --reporters=jest-junit
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: JUnit
+    testResultsFiles: "junit.xml"
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+- script: |
+    yarn production-build
+  displayName: "production build"
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: './dist'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\Edlumin.UI.$(Build.BuildNumber).zip'
+  displayName: "zip files"
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+- task: OctopusPush@4
+  displayName: 'Push packages to Octopus'
+  inputs:
+    OctoConnectedServiceName: 'Octopus Deploy'
+    Space: 'Default'
+    Replace: true
+    Package: |
+      '$(Build.ArtifactStagingDirectory)\Edlumin.UI.$(Build.BuildNumber).zip'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
