@@ -54,5 +54,5 @@ steps:
       Space: "Default"
       Replace: true
       Package: |
-        '$(Build.ArtifactStagingDirectory)\Edlumin.UI.$(Build.BuildNumber).zip'
+        '$(Build.ArtifactStagingDirectory)\Edlumin.UI.$(Build.BuildNumber).nupkg'
     condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
