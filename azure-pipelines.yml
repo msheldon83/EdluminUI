@@ -47,13 +47,6 @@ steps:
       OutputPath: $(Build.ArtifactStagingDirectory)
     condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
 
-  - script: |
-      ls
-      cd ./dist
-      ls
-      cd $(Build.ArtifactStagingDirectory)
-      ls
-
   - task: OctopusPush@4
     displayName: "Push packages to Octopus"
     inputs:
@@ -61,5 +54,5 @@ steps:
       Space: "Default"
       Replace: true
       Package: |
-        '$(Build.ArtifactStagingDirectory)\Edlumin.UI.$(Build.BuildNumber).nupkg'
+        $(Build.ArtifactStagingDirectory)\Edlumin.UI.$(Build.BuildNumber).nupkg
     condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
