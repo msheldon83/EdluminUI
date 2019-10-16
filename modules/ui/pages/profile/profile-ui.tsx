@@ -9,6 +9,8 @@ import {
 } from "@material-ui/core";
 import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
 import { MyProfile } from "graphql/queries/MyProfile.gen";
+import { ResetPassword } from "graphql/mutations/ResetPassword.gen";
+import { ChangeLoginEmailDialog } from "./change-email-dialog";
 import { useBreakpoint } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -16,9 +18,7 @@ import { AvatarCard } from "ui/components/avatar-card";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { TextButton } from "ui/components/text-button";
-import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
-import { ResetPassword } from "graphql/mutations/ResetPassword.gen";
-import { ChangeLoginEmailDialog } from "./change-email-dialog";
+
 import { getInitials } from "ui/components/helpers";
 
 type Props = {
@@ -156,7 +156,7 @@ export const ProfileUI: React.FC<Props> = props => {
                     fullWidth
                     onClick={() => onResetPassword()}
                   >
-                    {t(Reset Password)}                    
+                    {t("Reset Password")}                    
                   </Button>
                 </Grid>
               </Grid>
