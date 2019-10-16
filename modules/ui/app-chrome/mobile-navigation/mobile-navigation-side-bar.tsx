@@ -1,4 +1,15 @@
-import { Drawer, Grid, makeStyles, List, Divider } from "@material-ui/core";
+import {
+  Divider,
+  Drawer,
+  Grid,
+  IconButton,
+  List,
+  makeStyles,
+} from "@material-ui/core";
+import * as React from "react";
+import { RouteComponentProps, withRouter } from "react-router";
+import { EdluminLogo } from "ui/components/edlumin-logo";
+import { Profile } from "ui/routes/profile";
 import {
   AbsenceNavLink,
   AnalyticsAndReportsNavLink,
@@ -14,16 +25,15 @@ import {
   SignOutNavLink,
   SubPreferencesNavLink,
 } from "../custom-nav-links";
-import * as React from "react";
 import { ProfileAvatar } from "../profile-avatar";
-import { EdluminLogo } from "ui/components/edlumin-logo";
 import { MobileSearchBar } from "./mobile-search";
 
 type Props = {
   expanded: boolean;
   collapse: () => void;
-};
-export const MobileNavigationSideBar: React.FC<Props> = props => {
+} & RouteComponentProps;
+
+export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
   const classes = useStyles();
   return (
     <Drawer
@@ -35,7 +45,14 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
       }}
     >
       <Grid item className={classes.avatarContainer}>
-        <ProfileAvatar className={classes.avatar} />
+        <IconButton
+          onClick={() => {
+            props.history.push(Profile.PATH_TEMPLATE);
+            props.collapse();
+          }}
+        >
+          <ProfileAvatar className={classes.avatar} />
+        </IconButton>
       </Grid>
 
       <Divider className={classes.divider} />
@@ -62,6 +79,10 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
     </Drawer>
   );
 };
+
+export const MobileNavigationSideBar = withRouter(
+  RoutedMobileNavigationSideBar
+);
 
 const useStyles = makeStyles(theme => ({
   drawer: {
