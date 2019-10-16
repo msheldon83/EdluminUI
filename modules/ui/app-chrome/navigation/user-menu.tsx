@@ -1,20 +1,13 @@
-import * as React from "react";
+import { MenuList } from "@material-ui/core";
 import Menu from "@material-ui/core/Menu";
-import {
-  MyProfileNavLink,
-  SignOutNavLink,
-  HelpNavLink,
-} from "../custom-nav-links";
 import { makeStyles } from "@material-ui/styles";
-import { MenuList, MenuItem } from "@material-ui/core";
+import * as React from "react";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 import {
+  HelpMenuLink,
   MyProfileMenuLink,
   SignOutMenuLink,
-  HelpMenuLink,
 } from "../custom-menu-links";
-import { useAuth0 } from "auth/auth0";
-import { RouteComponentProps, withRouter } from "react-router-dom";
-import { Profile } from "ui/routes/profile";
 
 type Props = {
   open: boolean;
@@ -25,11 +18,9 @@ type Props = {
 export const RoutedUserMenu: React.FC<Props> = props => {
   const classes = useStyles();
   const userMenuListClasses = useUserMenuListStyles();
-  const auth0 = useAuth0();
 
   return (
     <Menu
-      keepMounted
       id="user-menu"
       open={props.open}
       onClose={props.onClose}
@@ -42,15 +33,9 @@ export const RoutedUserMenu: React.FC<Props> = props => {
       classes={userMenuListClasses}
     >
       <MenuList variant="menu" className={classes.menuList}>
-        <MyProfileMenuLink
-          onClick={() => props.history.push(Profile.PATH_TEMPLATE)}
-          className={classes.userMenuLink}
-        />
-        <SignOutMenuLink
-          onClick={auth0.logout}
-          className={classes.userMenuLink}
-        />
-        <HelpMenuLink onClick={() => {}} className={classes.userMenuLink} />
+        <MyProfileMenuLink className={classes.userMenuLink} />
+        <SignOutMenuLink className={classes.userMenuLink} />
+        <HelpMenuLink className={classes.userMenuLink} />
       </MenuList>
     </Menu>
   );

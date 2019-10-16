@@ -5,6 +5,7 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import * as React from "react";
+import { Link } from "react-router-dom";
 
 type Props = {
   title: string | JSX.Element;
@@ -16,20 +17,27 @@ type Props = {
 export const NavLink: React.FC<Props> = props => {
   const classes = useStyles();
   return (
-    <ListItem button className={`${classes.menuItem} ${props.className}`}>
-      <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
-      <ListItemText
-        primary={props.title}
-        primaryTypographyProps={{
-          className: classes.text,
-          noWrap: true,
-        }}
-      />
-    </ListItem>
+    <Link to={props.route} className={classes.link}>
+      <ListItem
+        button
+        className={`${classes.menuItem} ${props.className}`}
+        href={props.route}
+      >
+        <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
+        <ListItemText
+          primary={props.title}
+          primaryTypographyProps={{
+            className: classes.text,
+            noWrap: true,
+          }}
+        />
+      </ListItem>
+    </Link>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  link: { textDecoration: "none" },
   icon: {
     minWidth: 0,
     paddingRight: theme.typography.pxToRem(24),

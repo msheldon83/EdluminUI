@@ -13,6 +13,7 @@ import TimelineIcon from "@material-ui/icons/Timeline";
 import * as React from "react";
 import { Trans } from "react-i18next";
 import { NavLink } from "./nav-link";
+import { Index } from "ui/routes";
 
 type Props = {
   className?: string;
@@ -23,7 +24,7 @@ export const HomeNavLink: React.FC<Props> = props => {
     <NavLink
       title={<Trans i18nKey="home">Home</Trans>}
       icon={<HomeIcon />}
-      route={"/"}
+      route={Index.PATH_TEMPLATE}
       {...props}
     />
   );
