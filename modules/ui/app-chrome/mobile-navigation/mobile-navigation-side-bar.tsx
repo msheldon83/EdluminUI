@@ -27,6 +27,7 @@ import {
 } from "../custom-nav-links";
 import { ProfileAvatar } from "../profile-avatar";
 import { MobileSearchBar } from "./mobile-search";
+import { Link } from "react-router-dom";
 
 type Props = {
   expanded: boolean;
@@ -45,14 +46,15 @@ export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
       }}
     >
       <Grid item className={classes.avatarContainer}>
-        <IconButton
+        <Link
+          to={Profile.PATH_TEMPLATE}
           onClick={() => {
-            props.history.push(Profile.PATH_TEMPLATE);
             props.collapse();
           }}
+          className={classes.link}
         >
           <ProfileAvatar className={classes.avatar} />
-        </IconButton>
+        </Link>
       </Grid>
 
       <Divider className={classes.divider} />
@@ -93,6 +95,7 @@ const useStyles = makeStyles(theme => ({
   divider: {
     background: theme.customColors.edluminLightSlate,
   },
+  link: { textDecoration: "none" },
   avatarContainer: {
     padding: theme.spacing(2),
   },
