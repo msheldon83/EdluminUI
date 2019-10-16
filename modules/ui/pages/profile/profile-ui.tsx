@@ -13,11 +13,12 @@ import { useBreakpoint } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AvatarCard } from "ui/components/avatar-card";
+import { getInitials } from "ui/components/helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { TextButton } from "ui/components/text-button";
 import { ChangeLoginEmailDialog } from "./change-email-dialog";
-import { getInitials } from "ui/components/helpers";
+import { ChangeTimezoneDialog } from "./change-timezone-dialog";
 
 type Props = {
   user: MyProfile.User;
@@ -32,6 +33,7 @@ export const ProfileUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isSmDown = useBreakpoint("sm", "down");
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
+  const [changeTimezoneIsOpen, setChangeTimezoneIsOpen] = React.useState(false);
 
   const initials = getInitials(props.user);
 
@@ -45,6 +47,11 @@ export const ProfileUI: React.FC<Props> = props => {
     [setChangeEmailIsOpen]
   );
 
+  const onCloseTimezoneDialog = React.useCallback(
+    () => setChangeTimezoneIsOpen(false),
+    [setChangeTimezoneIsOpen]
+  );
+
   return (
     <>
       <ChangeLoginEmailDialog
@@ -52,6 +59,12 @@ export const ProfileUI: React.FC<Props> = props => {
         onClose={onCloseEmailDialog}
         updateLoginEmail={props.updateLoginEmail}
         user={props.user}
+      />
+      <ChangeTimezoneDialog
+        open={changeTimezoneIsOpen}
+        onClose={onCloseTimezoneDialog}
+        user={props.user}
+        updateTimezone={() => console.log("things")}
       />
 
       <PageTitle title={t("My Profile")} />
@@ -156,6 +169,7 @@ export const ProfileUI: React.FC<Props> = props => {
                     margin="normal"
                     variant="outlined"
                     fullWidth
+                    disabled
                   >
                     <MenuItem value={props.user.timeZoneId || ""}>
                       {props.user.timeZoneId}
@@ -169,11 +183,15 @@ export const ProfileUI: React.FC<Props> = props => {
                       variant="outlined"
                       fullWidth
                       className={classes.button}
+                      onClick={() => setChangeTimezoneIsOpen(true)}
                     >
                       {t("Change Timezone")}
                     </Button>
                   ) : (
-                    <TextButton className={classes.buttonSpacing}>
+                    <TextButton
+                      className={classes.buttonSpacing}
+                      onClick={() => setChangeTimezoneIsOpen(true)}
+                    >
                       {t("Change")}
                     </TextButton>
                   )}
