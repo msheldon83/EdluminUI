@@ -89,6 +89,10 @@ client/tests/**/*.jsx
 .env
 .envrc
 
+# These should not be necessary.
+*.envrc
+*.env
+
 # Generated schema used in typescript type generation
 modules/graphql-api/schema.json
 
@@ -108,6 +112,3 @@ junit.xml
 
 # Database backups
 backups/
-*.envrc
-
-*.env
