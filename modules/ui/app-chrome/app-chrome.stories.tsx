@@ -5,6 +5,7 @@ import * as React from "react";
 import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-trigger";
 import { AppChrome } from ".";
 import { mockProvider } from "test-helpers/mock-provider";
+import { Route } from "react-router-dom";
 
 export default {
   title: "App Chrome",
@@ -14,7 +15,7 @@ export const AppChromeStory = () => {
   const Provider = mockProvider();
   return (
     <Provider>
-      <AppChrome>page content here</AppChrome>
+      <Route component={() => <AppChrome>page content here</AppChrome>} />
     </Provider>
   );
 };
@@ -38,13 +39,17 @@ export const AppChromeLoading = () => {
   );
   return (
     <Provider>
-      <AppChrome>
-        {isLoading && <LoadingStateTrigger />}
-        {isLoadingFullScreen && <LoadingStateTrigger fullScreen />}
-        {range(100).map((_, i) => (
-          <p key={i}>this is my page content</p>
-        ))}
-      </AppChrome>
+      <Route
+        component={() => (
+          <AppChrome>
+            {isLoading && <LoadingStateTrigger />}
+            {isLoadingFullScreen && <LoadingStateTrigger fullScreen />}
+            {range(100).map((_, i) => (
+              <p key={i}>this is my page content</p>
+            ))}
+          </AppChrome>
+        )}
+      />
       <div className={classes.controls}>
         <div>
           <FormControlLabel

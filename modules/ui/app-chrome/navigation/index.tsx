@@ -54,8 +54,6 @@ export const NavigationSideBar: React.FC<Props> = props => {
         <MyScheduleNavLink />
         <PTOBalancesNavLink />
         <SubPreferencesNavLink />
-        {/* <HelpNavLink />
-        <SignOutNavLink /> */}
       </List>
     </Drawer>
   );
