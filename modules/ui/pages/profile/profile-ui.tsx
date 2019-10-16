@@ -17,6 +17,7 @@ import { TextButton } from "ui/components/text-button";
 import { MutationFunction } from "@apollo/react-common";
 import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
 import { ChangeLoginEmailDialog } from "./change-email-dialog";
+import { getInitials } from "ui/components/helpers";
 
 type Props = {
   user: MyProfile.User;
@@ -32,9 +33,7 @@ export const ProfileUI: React.FC<Props> = props => {
   const isSmDown = useBreakpoint("sm", "down");
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
 
-  const initials = `${
-    props.user.firstName ? props.user.firstName.substr(0, 1) : ""
-  }${props.user.lastName ? props.user.lastName.substr(0, 1) : ""}`;
+  const initials = getInitials(props.user);
 
   const saveButton = (
     <Button variant="contained" fullWidth={isSmDown}>

@@ -4,6 +4,7 @@ import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-trigger";
 import { ProfileAvatar as ProfileAvatarQuery } from "graphql/queries/ProfileAvatar.gen";
+import { getInitials } from "../components/helpers";
 
 type Props = {
   className?: string;
@@ -24,10 +25,7 @@ export const ProfileAvatar: React.FC<Props> = props => {
     return <ProfileAvatarUI initials={""} {...props} />;
   }
 
-  const { firstName, lastName } = profile.data.userAccess.me.user;
-  const initials = `${firstName ? firstName.substr(0, 1) : ""}${
-    lastName ? lastName.substr(0, 1) : ""
-  }`;
+  const initials = getInitials(profile.data.userAccess.me.user);
 
   return <ProfileAvatarUI initials={initials} {...props} />;
 };
