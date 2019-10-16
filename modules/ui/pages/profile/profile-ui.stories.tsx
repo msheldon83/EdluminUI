@@ -18,6 +18,7 @@ export const Basic = () => {
         phone: "610-555-1212",
       }}
       updateLoginEmail={(): any => {}}
+      resetPassword={(): any => {}}
     />
   );
 };

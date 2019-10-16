@@ -16,6 +16,8 @@ import { Section } from "ui/components/section";
 import { TextButton } from "ui/components/text-button";
 import { MutationFunction } from "@apollo/react-common";
 import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
+import { ResetPassword } from "graphql/mutations/ResetPassword.gen";
+import { ResetUserPasswordInput } from "graphql/server-types.gen";
 import { ChangeLoginEmailDialog } from "./change-email-dialog";
 
 type Props = {
@@ -23,6 +25,10 @@ type Props = {
   updateLoginEmail: MutationFunction<
     UpdateLoginEmail.Mutation,
     UpdateLoginEmail.Variables
+  >;
+  resetPassword: MutationFunction<
+    ResetPassword.Mutation,
+    ResetPassword.Variables
   >;
 };
 
@@ -44,6 +50,12 @@ export const ProfileUI: React.FC<Props> = props => {
     () => setChangeEmailIsOpen(false),
     [setChangeEmailIsOpen]
   );
+
+  const onResetPassword = async () => {
+    await props.resetPassword({
+      variables: { resetPasswordInput: { userId: props.user.id! } },
+    });
+  };
 
   return (
     <>
@@ -142,7 +154,10 @@ export const ProfileUI: React.FC<Props> = props => {
 
               <Grid item container>
                 <Grid item md={6} xs={12}>
-                  <Button variant="outlined" fullWidth>
+                  <Button variant="outlined"
+                    fullWidth
+                    onClick={() => onResetPassword()}
+                  >
                     <Trans i18nKey={"profile.resetPassword"}>
                       Reset Password
                     </Trans>
