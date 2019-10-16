@@ -2,7 +2,7 @@ import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import * as React from "react";
-import { Trans } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { MenuLink } from "./menu-link";
 import { Profile } from "ui/routes/profile";
 import { Index } from "ui/routes";
@@ -13,9 +13,10 @@ type Props = {
 };
 
 export const MyProfileMenuLink: React.FC<Props> = props => {
+  const { t } = useTranslation();
   return (
     <MenuLink
-      title={<Trans i18nKey="myProfile">My Profile</Trans>}
+      title={t("My Profile")}
       icon={<AccountCircleIcon />}
       route={Profile.PATH_TEMPLATE}
       {...props}
@@ -24,10 +25,11 @@ export const MyProfileMenuLink: React.FC<Props> = props => {
 };
 
 export const SignOutMenuLink: React.FC<Props> = props => {
+  const { t } = useTranslation();
   const auth0 = useAuth0();
   return (
     <MenuLink
-      title={<Trans i18nKey="signOut">Sign Out</Trans>}
+      title={t("Sign Out")}
       icon={<ExitToAppIcon />}
       route={Index.PATH_TEMPLATE}
       onClick={auth0.logout}
@@ -37,9 +39,10 @@ export const SignOutMenuLink: React.FC<Props> = props => {
 };
 
 export const HelpMenuLink: React.FC<Props> = props => {
+  const { t } = useTranslation();
   return (
     <MenuLink
-      title={<Trans i18nKey="help">Help</Trans>}
+      title={t("Help")}
       icon={<HelpOutlineIcon />}
       route={Index.PATH_TEMPLATE}
       {...props}
