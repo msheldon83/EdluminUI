@@ -225,13 +225,11 @@ export function mockProvider(opts?: MockProviderOpts) {
 
     render() {
       return (
-        <ThemeProvider theme={EdluminTheme}>
-          <MemoryRouter initialEntries={[initialUrl]} initialIndex={0}>
-            <ApolloProvider client={apollo}>
-              <>{this.props.children}</>
-            </ApolloProvider>
-          </MemoryRouter>
-        </ThemeProvider>
+        <MemoryRouter initialEntries={[initialUrl]} initialIndex={0}>
+          <ApolloProvider client={apollo}>
+            <>{this.props.children}</>
+          </ApolloProvider>
+        </MemoryRouter>
       );
     }
   };

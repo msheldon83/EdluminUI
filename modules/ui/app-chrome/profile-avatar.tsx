@@ -1,9 +1,8 @@
 import { makeStyles } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
-import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
-import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-trigger";
 import { ProfileAvatar as ProfileAvatarQuery } from "graphql/queries/ProfileAvatar.gen";
+import * as React from "react";
 import { getInitials } from "../components/helpers";
 
 type Props = {
@@ -14,7 +13,7 @@ export const ProfileAvatar: React.FC<Props> = props => {
   const profile = useQueryBundle(ProfileAvatarQuery);
 
   if (profile.state === "LOADING") {
-    return <LoadingStateTrigger fullScreen />;
+    return <></>;
   }
   if (
     !profile.data ||

@@ -32,7 +32,6 @@ export const ProfileUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isSmDown = useBreakpoint("sm", "down");
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
-  const [t] = useTranslation();
 
   const initials = getInitials(props.user);
 
