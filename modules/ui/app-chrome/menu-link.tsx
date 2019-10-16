@@ -1,8 +1,8 @@
 import {
-  ListItem,
   ListItemIcon,
   ListItemText,
   makeStyles,
+  MenuItem,
 } from "@material-ui/core";
 import * as React from "react";
 import { Link } from "react-router-dom";
@@ -11,18 +11,16 @@ type Props = {
   title: string | JSX.Element;
   icon: JSX.Element;
   route: string;
+  onClick?: () => void;
   className?: string;
 };
 
-export const NavLink: React.FC<Props> = props => {
+export const MenuLink: React.FC<Props> = props => {
   const classes = useStyles();
+
   return (
     <Link to={props.route} className={classes.link}>
-      <ListItem
-        button
-        className={`${classes.menuItem} ${props.className}`}
-        href={props.route}
-      >
+      <MenuItem button className={props.className} onClick={props.onClick}>
         <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
         <ListItemText
           primary={props.title}
@@ -31,7 +29,7 @@ export const NavLink: React.FC<Props> = props => {
             noWrap: true,
           }}
         />
-      </ListItem>
+      </MenuItem>
     </Link>
   );
 };
@@ -47,14 +45,5 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 600,
     fontFamily: "Poppins",
     color: "inherit",
-  },
-  menuItem: {
-    color: theme.customColors.medLightGray,
-    borderRadius: theme.typography.pxToRem(5),
-    margin: `${theme.typography.pxToRem(5)} 0`,
-    "&:hover": {
-      backgroundColor: theme.customColors.edluminLightSlate,
-      color: theme.customColors.white,
-    },
   },
 }));

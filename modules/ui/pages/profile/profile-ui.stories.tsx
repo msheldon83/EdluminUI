@@ -1,25 +1,29 @@
 import * as React from "react";
-import { mockProvider } from "test-helpers/mock-provider";
-import { Auth0Context } from "auth/auth0";
 import { ProfileUI } from "./profile-ui";
+import { mockProvider } from "test-helpers/mock-provider";
 
 export default {
   title: "Pages/Profile",
 };
 
 export const Basic = () => {
+  const Provider = mockProvider();
   return (
-    <ProfileUI
-      user={{
-        id: 1,
-        firstName: "Melanie",
-        lastName: "Persons",
-        loginEmail: "mpersons@edlumin.com",
-        phone: "610-555-1212",
-      }}
-      updateLoginEmail={(): any => {}}
-      resetPassword={(): any => {}}
-    />
+    <Provider>
+      <ProfileUI
+        user={{
+          id: 1,
+          rowVersion: "1",
+          firstName: "Melanie",
+          lastName: "Persons",
+          loginEmail: "mpersons@edlumin.com",
+          phone: "610-555-1212",
+          timeZoneId: "EASTERN_STANDARD_TIME_US_CANADA" as any,
+        }}
+        updateLoginEmail={(): any => {}}
+        resetPassword={(): any => {}}
+      />
+    </Provider>     
   );
 };
 Basic.story = {

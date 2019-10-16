@@ -1,3 +1,4 @@
+import { MutationFunction } from "@apollo/react-common";
 import {
   Button,
   Grid,
@@ -6,18 +7,19 @@ import {
   MenuItem,
   TextField,
 } from "@material-ui/core";
+import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
 import { MyProfile } from "graphql/queries/MyProfile.gen";
 import { useBreakpoint } from "hooks";
 import * as React from "react";
-import { Trans } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { AvatarCard } from "ui/components/avatar-card";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { TextButton } from "ui/components/text-button";
-import { MutationFunction } from "@apollo/react-common";
 import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
 import { ResetPassword } from "graphql/mutations/ResetPassword.gen";
 import { ChangeLoginEmailDialog } from "./change-email-dialog";
+import { getInitials } from "ui/components/helpers";
 
 type Props = {
   user: MyProfile.User;
@@ -33,16 +35,15 @@ type Props = {
 
 export const ProfileUI: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
   const isSmDown = useBreakpoint("sm", "down");
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
 
-  const initials = `${
-    props.user.firstName ? props.user.firstName.substr(0, 1) : ""
-  }${props.user.lastName ? props.user.lastName.substr(0, 1) : ""}`;
+  const initials = getInitials(props.user);
 
   const saveButton = (
     <Button variant="contained" fullWidth={isSmDown}>
-      <Trans i18nKey={"save"}>Save</Trans>
+      {t("Save")}
     </Button>
   );
   const onCloseEmailDialog = React.useCallback(
@@ -65,9 +66,7 @@ export const ProfileUI: React.FC<Props> = props => {
         user={props.user}
       />
 
-      <PageTitle>
-        <Trans i18nKey="profile.title">My Profile</Trans>
-      </PageTitle>
+      <PageTitle title={t("My Profile")} />
 
       <Section>
         <Grid container spacing={3}>
@@ -139,14 +138,14 @@ export const ProfileUI: React.FC<Props> = props => {
                     className={classes.button}
                     onClick={() => setChangeEmailIsOpen(true)}
                   >
-                    <Trans i18nKey={"profile.changeEmail"}>Change Email</Trans>
+                    {t("Change Email")}
                   </Button>
                 ) : (
                   <TextButton
                     className={classes.buttonSpacing}
                     onClick={() => setChangeEmailIsOpen(true)}
                   >
-                    <Trans i18nKey={"profile.change"}>Change</Trans>
+                    {t("Change")}
                   </TextButton>
                 )}
               </Grid>
@@ -157,9 +156,7 @@ export const ProfileUI: React.FC<Props> = props => {
                     fullWidth
                     onClick={() => onResetPassword()}
                   >
-                    <Trans i18nKey={"profile.resetPassword"}>
-                      Reset Password
-                    </Trans>
+                    {t(Reset Password)}                    
                   </Button>
                 </Grid>
               </Grid>
@@ -188,13 +185,11 @@ export const ProfileUI: React.FC<Props> = props => {
                       fullWidth
                       className={classes.button}
                     >
-                      <Trans i18nKey={"profile.changeTimeZone"}>
-                        Change Timezone
-                      </Trans>
+                      {t("Change Timezone")}
                     </Button>
                   ) : (
                     <TextButton className={classes.buttonSpacing}>
-                      <Trans i18nKey={"profile.change"}>Change</Trans>
+                      {t("Change")}
                     </TextButton>
                   )}
                 </Grid>

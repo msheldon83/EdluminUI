@@ -1,4 +1,15 @@
-import { Drawer, Grid, makeStyles, List, Divider } from "@material-ui/core";
+import {
+  Divider,
+  Drawer,
+  Grid,
+  IconButton,
+  List,
+  makeStyles,
+} from "@material-ui/core";
+import * as React from "react";
+import { RouteComponentProps, withRouter } from "react-router";
+import { EdluminLogo } from "ui/components/edlumin-logo";
+import { Profile } from "ui/routes/profile";
 import {
   AbsenceNavLink,
   AnalyticsAndReportsNavLink,
@@ -14,16 +25,16 @@ import {
   SignOutNavLink,
   SubPreferencesNavLink,
 } from "../custom-nav-links";
-import * as React from "react";
 import { ProfileAvatar } from "../profile-avatar";
-import { EdluminLogo } from "ui/components/edlumin-logo";
 import { MobileSearchBar } from "./mobile-search";
+import { Link } from "react-router-dom";
 
 type Props = {
   expanded: boolean;
   collapse: () => void;
-};
-export const MobileNavigationSideBar: React.FC<Props> = props => {
+} & RouteComponentProps;
+
+export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
   const classes = useStyles();
   return (
     <Drawer
@@ -34,8 +45,16 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
         paper: classes.drawer,
       }}
     >
-      <Grid item className={classes.avatar}>
-        <ProfileAvatar initials={"ZZ"} />
+      <Grid item className={classes.avatarContainer}>
+        <Link
+          to={Profile.PATH_TEMPLATE}
+          onClick={() => {
+            props.collapse();
+          }}
+          className={classes.link}
+        >
+          <ProfileAvatar className={classes.avatar} />
+        </Link>
       </Grid>
 
       <Divider className={classes.divider} />
@@ -63,6 +82,10 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
   );
 };
 
+export const MobileNavigationSideBar = withRouter(
+  RoutedMobileNavigationSideBar
+);
+
 const useStyles = makeStyles(theme => ({
   drawer: {
     background: theme.customColors.edluminSlate,
@@ -72,8 +95,13 @@ const useStyles = makeStyles(theme => ({
   divider: {
     background: theme.customColors.edluminLightSlate,
   },
-  avatar: {
+  link: { textDecoration: "none" },
+  avatarContainer: {
     padding: theme.spacing(2),
+  },
+  avatar: {
+    height: theme.typography.pxToRem(60),
+    width: theme.typography.pxToRem(60),
   },
   searchBar: {
     paddingTop: theme.spacing(2),
