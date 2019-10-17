@@ -3,6 +3,7 @@ mutation UpdateUserTimezone($user: UserUpdateInput!) {
     update(user: $user) {
       id
       timeZoneId
+      rowVersion
     }
   }
 }

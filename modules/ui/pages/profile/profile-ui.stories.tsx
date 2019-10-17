@@ -22,6 +22,7 @@ export const Basic = () => {
           timeZoneId: "EASTERN_STANDARD_TIME_US_CANADA" as any,
         }}
         updateLoginEmail={(): any => {}}
+        resetPassword={(): any => {}}
         updateTimezone={(): any => {}}
         timeZoneOptions={[
           {
@@ -34,7 +35,7 @@ export const Basic = () => {
           },
         ]}
       />
-    </Provider>
+    </Provider>     
   );
 };
 Basic.story = {

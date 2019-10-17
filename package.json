@@ -104,7 +104,7 @@
     "build-storybook": "build-storybook",
     "codegen": "yarn run gql-gen -o",
     "codegen:watch": "nodemon  -e graphql -x \"yarn codegen\"",
-    "build": "yarn codegen ; yarn build:client",
+    "build": "yarn codegen && yarn build:client",
     "build:client": "yarn run webpack --config ./webpack/client.config.js",
     "production-build": "cross-env NODE_ENV=production yarn build",
     "analyze": "cross-env NODE_ENV=production ANALYZE=true yarn build",

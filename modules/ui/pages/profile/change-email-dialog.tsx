@@ -34,7 +34,7 @@ export const ChangeLoginEmailDialog: React.FC<Props> = props => {
 
   const initialValues: UserLoginEmailChangeInput = {
     loginEmail: "",
-    userId: props.user.id!, // we should get rid of the ! when id is not nullable
+    id: props.user.id,
     rowVersion: props.user.rowVersion,
   };
   const auth0 = useAuth0();

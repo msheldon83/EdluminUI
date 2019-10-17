@@ -1,7 +1,14 @@
 import { MutationFunction } from "@apollo/react-common";
-import { Button, Grid, Hidden, makeStyles, MenuItem } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
 import { Maybe } from "graphql/server-types.gen";
+import {
+  Button,
+  Grid,
+  Hidden,
+  makeStyles,
+  MenuItem,
+  TextField,
+} from "@material-ui/core";
+
 import { useBreakpoint } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -14,6 +21,7 @@ import { TextButton } from "ui/components/text-button";
 import { MyProfile } from "ui/pages/profile/MyProfile.gen";
 import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
 import { UpdateUserTimezone } from "ui/pages/profile/UpdateUserTimezone.gen";
+import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { ChangeLoginEmailDialog } from "./change-email-dialog";
 import { ChangeTimezoneDialog } from "./change-timezone-dialog";
 
@@ -28,6 +36,10 @@ type Props = {
     UpdateUserTimezone.Variables
   >;
   timeZoneOptions: Maybe<GetTimezones.TimeZones>[];
+  resetPassword: MutationFunction<
+    ResetPassword.Mutation,
+    ResetPassword.Variables
+  >;
 };
 
 export const ProfileUI: React.FC<Props> = props => {
@@ -52,6 +64,12 @@ export const ProfileUI: React.FC<Props> = props => {
     [setChangeEmailIsOpen]
   );
 
+  const onResetPassword = async () => {
+    await props.resetPassword({
+      variables: { resetPasswordInput: { id: props.user.id } },
+    });
+  };
+
   const onCloseTimezoneDialog = React.useCallback(
     () => setChangeTimezoneIsOpen(false),
     [setChangeTimezoneIsOpen]
@@ -62,7 +80,7 @@ export const ProfileUI: React.FC<Props> = props => {
       await props.updateTimezone({
         variables: {
           user: {
-            id: props.user.id!,
+            id: props.user.id,
             timeZoneId,
             rowVersion: props.user.rowVersion,
           },
@@ -176,8 +194,11 @@ export const ProfileUI: React.FC<Props> = props => {
 
               <Grid item container>
                 <Grid item md={6} xs={12}>
-                  <Button variant="outlined" fullWidth>
-                    {t("Reset Password")}
+                  <Button variant="outlined"
+                    fullWidth
+                    onClick={() => onResetPassword()}
+                  >
+                    {t("Reset Password")}                    
                   </Button>
                 </Grid>
               </Grid>
