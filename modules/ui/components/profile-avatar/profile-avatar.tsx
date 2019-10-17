@@ -10,7 +10,9 @@ type Props = {
 };
 
 export const ProfileAvatar: React.FC<Props> = props => {
-  const profile = useQueryBundle(UserProfileAvatar);
+  const profile = useQueryBundle(UserProfileAvatar, {
+    fetchPolicy: "cache-first",
+  });
 
   if (profile.state === "LOADING") {
     return <></>;
