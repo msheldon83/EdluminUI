@@ -26,6 +26,10 @@ type Props = {
     UpdateLoginEmail.Mutation,
     UpdateLoginEmail.Variables
   >;
+  updateTimezone: MutationFunction<
+    UpdateUserTimezone.Mutation,
+    UpdateUserTimezone.Variables
+  >;
 };
 
 export const ProfileUI: React.FC<Props> = props => {
@@ -52,6 +56,20 @@ export const ProfileUI: React.FC<Props> = props => {
     [setChangeTimezoneIsOpen]
   );
 
+  const updateTimezoneCallback = React.useCallback(
+    async (timeZoneId: any) =>
+      await props.updateTimezone({
+        variables: {
+          user: {
+            id: props.user.id!,
+            timeZoneId,
+            rowVersion: props.user.rowVersion,
+          },
+        },
+      }),
+    [props]
+  );
+
   return (
     <>
       <ChangeLoginEmailDialog
@@ -64,7 +82,7 @@ export const ProfileUI: React.FC<Props> = props => {
         open={changeTimezoneIsOpen}
         onClose={onCloseTimezoneDialog}
         user={props.user}
-        updateTimezone={() => console.log("things")}
+        updateTimezone={updateTimezoneCallback}
       />
 
       <PageTitle title={t("My Profile")} />
@@ -84,7 +102,7 @@ export const ProfileUI: React.FC<Props> = props => {
               <Grid container item>
                 <Grid item md={6} xs={12}>
                   <TextField
-                    label="First Name"
+                    label={t("First Name")}
                     value={props.user.firstName || ""}
                     margin={isSmDown ? "normal" : "none"}
                     variant="outlined"
@@ -94,7 +112,7 @@ export const ProfileUI: React.FC<Props> = props => {
                 <Grid item md={6} xs={12}>
                   <TextField
                     className={isSmDown ? "" : classes.spacing}
-                    label="Last Name"
+                    label={t("Last Name")}
                     value={props.user.lastName || ""}
                     margin={isSmDown ? "normal" : "none"}
                     variant="outlined"
@@ -106,7 +124,7 @@ export const ProfileUI: React.FC<Props> = props => {
               <Grid item container>
                 <Grid item md={6} xs={12}>
                   <TextField
-                    label="Mobile Phone"
+                    label={t("Mobile Phone")}
                     value={props.user.phone || ""}
                     margin="normal"
                     variant="outlined"
@@ -122,7 +140,7 @@ export const ProfileUI: React.FC<Props> = props => {
               <Grid item container alignItems="baseline">
                 <div className={classes.field}>
                   <TextField
-                    label="Email"
+                    label={t("Email")}
                     value={props.user.loginEmail}
                     className={classes.filled}
                     margin="normal"
@@ -162,7 +180,7 @@ export const ProfileUI: React.FC<Props> = props => {
               <Grid item container alignItems="baseline">
                 <div className={classes.field}>
                   <TextField
-                    label="Time Zone"
+                    label={t("Time Zone")}
                     select
                     value={props.user.timeZoneId}
                     className={classes.filled}

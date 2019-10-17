@@ -14,16 +14,17 @@ import { useTranslation } from "react-i18next";
 import { InformationHelperText } from "ui/components/information-helper-text";
 import { TextButton } from "ui/components/text-button";
 import * as Forms from "atomic-object/forms";
+import * as Yup from "yup";
 
 export type MinimalUpdateTimezoneArgs = Pick<
   UserUpdateInput,
-  "id" | "timeZoneId"
+  "id" | "timeZoneId" | "rowVersion"
 >;
 type Props = {
   open: boolean;
   onClose: () => void;
   user: MyProfile.User;
-  updateTimezone: (timeZoneId: TimeZone) => void;
+  updateTimezone: (timeZoneId: TimeZone) => Promise<any>;
 };
 
 export const ChangeTimezoneDialog: React.FC<Props> = props => {
@@ -33,6 +34,7 @@ export const ChangeTimezoneDialog: React.FC<Props> = props => {
   const initialValues: MinimalUpdateTimezoneArgs = {
     id: props.user.id! /* The Id should always be there*/,
     timeZoneId: props.user.timeZoneId,
+    rowVersion: props.user.rowVersion,
   };
 
   return (
@@ -40,23 +42,26 @@ export const ChangeTimezoneDialog: React.FC<Props> = props => {
       <Formik
         initialValues={initialValues}
         onSubmit={async (values: MinimalUpdateTimezoneArgs) => {
-          props.updateTimezone(values.timeZoneId!); // !
+          await props.updateTimezone(values.timeZoneId!); // !
           props.onClose();
         }}
+        validationSchema={Yup.object().shape({
+          timeZoneId: Yup.string().required(t("Required")),
+        })}
       >
         {({ values, handleSubmit, isSubmitting }) => (
           <form onSubmit={handleSubmit}>
             <div className={classes.spacing}>
-              <DialogTitle>{t("Change Timezone")}</DialogTitle>
+              <DialogTitle>{t("Change Time Zone")}</DialogTitle>
               <DialogContent>
                 <Forms.TextField
                   name="changeTimezone"
+                  label={t("Time Zone")}
                   select
                   value={values.timeZoneId || undefined}
                   margin="normal"
                   variant="outlined"
                   fullWidth
-                  // className={classes.select}
                 >
                   {[values.timeZoneId].map((tz, i) => (
                     <MenuItem key={i} value={tz || undefined}>

@@ -102,9 +102,12 @@ export function useMutationBundle<T, TVariables>(
   const loadingWrappedFunc: typeof func = useCallback(
     async opts => {
       const stop = notifyLoading(false, "useMutationBundle()");
-      const v = await func(opts);
-      stop();
-      return v;
+      try {
+        const v = await func(opts);
+        return v;
+      } finally {
+        stop();
+      }
     },
     [func, notifyLoading]
   );
