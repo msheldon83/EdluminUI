@@ -1,13 +1,7 @@
-import {
-  Divider,
-  Drawer,
-  Grid,
-  IconButton,
-  List,
-  makeStyles,
-} from "@material-ui/core";
+import { Divider, Drawer, Grid, List, makeStyles } from "@material-ui/core";
 import * as React from "react";
 import { RouteComponentProps, withRouter } from "react-router";
+import { Link } from "react-router-dom";
 import { EdluminLogo } from "ui/components/edlumin-logo";
 import { Profile } from "ui/routes/profile";
 import {
@@ -25,9 +19,8 @@ import {
   SignOutNavLink,
   SubPreferencesNavLink,
 } from "../custom-nav-links";
-import { ProfileAvatar } from "../profile-avatar";
 import { MobileSearchBar } from "./mobile-search";
-import { Link } from "react-router-dom";
+import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
 
 type Props = {
   expanded: boolean;

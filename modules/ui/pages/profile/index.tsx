@@ -1,7 +1,7 @@
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
-import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
-import { UpdateUserTimezone } from "graphql/mutations/UpdateUserTimezone.gen";
-import { MyProfile } from "graphql/queries/MyProfile.gen";
+import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
+import { UpdateUserTimezone } from "ui/pages/profile/UpdateUserTimezone.gen";
+import { MyProfile } from "ui/pages/profile/MyProfile.gen";
 import * as React from "react";
 import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-trigger";
 import { ProfileUI } from "./profile-ui";

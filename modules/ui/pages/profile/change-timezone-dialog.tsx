@@ -7,7 +7,7 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import { Formik } from "formik";
-import { MyProfile } from "graphql/queries/MyProfile.gen";
+import { MyProfile } from "ui/pages/profile/MyProfile.gen";
 import { UserUpdateInput, TimeZone } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";

@@ -1,0 +1,8 @@
+mutation UpdateUserTimezone($user: UserUpdateInput!) {
+  user {
+    update(user: $user) {
+      id
+      timeZoneId
+    }
+  }
+}

@@ -1,14 +1,6 @@
 import { MutationFunction } from "@apollo/react-common";
-import {
-  Button,
-  Grid,
-  Hidden,
-  makeStyles,
-  MenuItem,
-  TextField,
-} from "@material-ui/core";
-import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
-import { MyProfile } from "graphql/queries/MyProfile.gen";
+import { Button, Grid, Hidden, makeStyles, MenuItem } from "@material-ui/core";
+import TextField from "@material-ui/core/TextField";
 import { useBreakpoint } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -17,6 +9,9 @@ import { getInitials } from "ui/components/helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { TextButton } from "ui/components/text-button";
+import { MyProfile } from "ui/pages/profile/MyProfile.gen";
+import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
+import { UpdateUserTimezone } from "ui/pages/profile/UpdateUserTimezone.gen";
 import { ChangeLoginEmailDialog } from "./change-email-dialog";
 import { ChangeTimezoneDialog } from "./change-timezone-dialog";
 
