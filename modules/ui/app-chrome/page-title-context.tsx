@@ -1,6 +1,7 @@
 import * as React from "react";
-import { useMemo, useState, useCallback, useContext } from "react";
+import { useMemo, useState, useCallback, useContext, useEffect } from "react";
 import { useScreenSize } from "hooks";
+import { compact } from "lodash-es";
 
 type PageTitleContext = {
   showIn: "menu-bar" | "page-content";
@@ -17,6 +18,10 @@ type PageTitleState = {};
 export const PageTitleProvider: React.FC<{}> = props => {
   const screenSize = useScreenSize();
   const [title, setTitle] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    document.title = compact([title, "Edlumin"]).join(" - ");
+  }, [title]);
   /*
   the logic for supplyTitle might have race conditions.
   probably unlikely to encounter in normal use?
