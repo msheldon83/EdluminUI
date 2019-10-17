@@ -1,16 +1,16 @@
 import { makeStyles } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import { useQueryBundle } from "graphql/hooks";
-import { ProfileAvatar as ProfileAvatarQuery } from "graphql/queries/ProfileAvatar.gen";
 import * as React from "react";
-import { getInitials } from "../components/helpers";
+import { UserProfileAvatar } from "ui/components/profile-avatar/UserProfileAvatar.gen";
+import { getInitials } from "../helpers";
 
 type Props = {
   className?: string;
 };
 
 export const ProfileAvatar: React.FC<Props> = props => {
-  const profile = useQueryBundle(ProfileAvatarQuery);
+  const profile = useQueryBundle(UserProfileAvatar);
 
   if (profile.state === "LOADING") {
     return <></>;

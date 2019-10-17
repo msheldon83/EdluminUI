@@ -5,7 +5,7 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useRouteMatch } from "react-router-dom";
 
 type Props = {
   title: string | JSX.Element;
@@ -16,11 +16,14 @@ type Props = {
 
 export const NavLink: React.FC<Props> = props => {
   const classes = useStyles();
+  const matches =
+    useRouteMatch({ exact: true, path: props.route }) !== null && props.route;
   return (
     <Link to={props.route} className={classes.link}>
       <ListItem
         button
-        className={`${classes.menuItem} ${props.className}`}
+        className={`${classes.menuItem} ${props.className} ${matches &&
+          classes.active}`}
         href={props.route}
       >
         <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
@@ -56,5 +59,12 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.customColors.edluminLightSlate,
       color: theme.customColors.white,
     },
+    transition: theme.transitions.create("background", {
+      easing: theme.transitions.easing.easeInOut,
+      duration: theme.transitions.duration.standard,
+    }),
+  },
+  active: {
+    backgroundColor: theme.customColors.edluminLightSlate,
   },
 }));

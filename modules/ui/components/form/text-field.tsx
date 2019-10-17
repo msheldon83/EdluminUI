@@ -1,5 +1,5 @@
 import { Field, FieldAttributes, useField, useFormikContext } from "formik";
-import { TextField as MUITextField } from "@material-ui/core";
+import MUITextField from "@material-ui/core/TextField";
 import { TextFieldProps as MUITextFieldProps } from "@material-ui/core/TextField";
 import * as React from "react";
 import makeStyles from "@material-ui/core/styles/makeStyles";

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ProfileUI } from "./profile-ui";
 import { mockProvider } from "test-helpers/mock-provider";
+import { TimeZone } from "graphql/server-types.gen";
 
 export default {
   title: "Pages/Profile",
@@ -22,6 +23,17 @@ export const Basic = () => {
         }}
         updateLoginEmail={(): any => {}}
         resetPassword={(): any => {}}
+        updateTimezone={(): any => {}}
+        timeZoneOptions={[
+          {
+            enumValue: "EASTERN_STANDARD_TIME_US_CANADA" as TimeZone,
+            name: "US Eastern Standard Time",
+          },
+          {
+            enumValue: "CENTRAL_STANDARD_TIME_US_CANADA" as TimeZone,
+            name: "Central Standard Time",
+          },
+        ]}
       />
     </Provider>     
   );

@@ -14,7 +14,7 @@ generates:
     schema:
       - modules/graphql/server-schema.graphql
     documents:
-      - modules/graphql/*/*.graphql
+      - modules/**/*.graphql
     plugins:
       - typescript-operations
       - typescript-react-apollo:

@@ -1,78 +1,81 @@
-import { MutationFunction } from "@apollo/react-common";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   makeStyles,
+  MenuItem,
 } from "@material-ui/core";
 import * as Forms from "atomic-object/forms";
-import { useAuth0 } from "auth/auth0";
 import { Formik } from "formik";
-import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
-import { MyProfile } from "ui/pages/profile/MyProfile.gen";
-import { UserLoginEmailChangeInput } from "graphql/server-types.gen";
+import { TimeZone, UserUpdateInput, Maybe } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { GetTimezones } from "reference-data/GetTimezones.gen";
 import { InformationHelperText } from "ui/components/information-helper-text";
 import { TextButton } from "ui/components/text-button";
+import { MyProfile } from "ui/pages/profile/MyProfile.gen";
 import * as Yup from "yup";
 
+export type MinimalUpdateTimezoneArgs = Pick<
+  UserUpdateInput,
+  "id" | "timeZoneId" | "rowVersion"
+>;
 type Props = {
   open: boolean;
   onClose: () => void;
   user: MyProfile.User;
-  updateLoginEmail: MutationFunction<
-    UpdateLoginEmail.Mutation,
-    UpdateLoginEmail.Variables
-  >;
+  updateTimezone: (timeZoneId: TimeZone) => Promise<any>;
+  timeZoneOptions: Maybe<GetTimezones.TimeZones>[];
 };
 
-export const ChangeLoginEmailDialog: React.FC<Props> = props => {
+export const ChangeTimezoneDialog: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const initialValues: UserLoginEmailChangeInput = {
-    loginEmail: "",
-    userId: props.user.id!, // we should get rid of the ! when id is not nullable
+  const initialValues: MinimalUpdateTimezoneArgs = {
+    id: props.user.id! /* The Id should always be there*/,
+    timeZoneId: props.user.timeZoneId,
     rowVersion: props.user.rowVersion,
   };
-  const auth0 = useAuth0();
+
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <Formik
         initialValues={initialValues}
-        onSubmit={async (values: UserLoginEmailChangeInput) => {
-          await props.updateLoginEmail({
-            variables: { loginEmailChange: { ...values } },
-          });
-          auth0.login();
+        onSubmit={async (values: MinimalUpdateTimezoneArgs) => {
+          await props.updateTimezone(values.timeZoneId!); // !
           props.onClose();
         }}
         validationSchema={Yup.object().shape({
-          loginEmail: Yup.string()
-            .email(t("profile.changeEmailInvalid", "Must be a valid email"))
-            .required(t("profile.changeEmailRequired", "Required")),
+          timeZoneId: Yup.string().required(t("Required")),
         })}
       >
         {({ values, handleSubmit, isSubmitting }) => (
           <form onSubmit={handleSubmit}>
             <div className={classes.spacing}>
-              <DialogTitle>{t("Change Email")}</DialogTitle>
+              <DialogTitle>{t("Change Time Zone")}</DialogTitle>
               <DialogContent>
                 <Forms.TextField
-                  name={"loginEmail"}
+                  name="timeZoneId"
+                  label={t("Time Zone")}
+                  select
+                  value={values.timeZoneId || undefined}
                   margin="normal"
                   variant="outlined"
-                  placeholder={t(
-                    "profile.newEmailAddress",
-                    "New Email Address"
-                  )}
                   fullWidth
-                />
+                >
+                  {props.timeZoneOptions.map((tz, i) => (
+                    <MenuItem key={i} value={(tz && tz.enumValue) || undefined}>
+                      {tz && tz.name}
+                    </MenuItem>
+                  ))}
+                </Forms.TextField>
 
                 <InformationHelperText
-                  text={t("Your new email will be used as your User Id.")}
+                  text={t(
+                    "Your availability times will be adjusted to reflect this change."
+                  )}
                   className={classes.helperText}
                 />
               </DialogContent>

@@ -9,9 +9,9 @@ import AddToPhotosIcon from "@material-ui/icons/AddToPhotos";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import * as React from "react";
 import { LoadingStateIndicator } from "ui/components/loading-state/loading-state-indicator";
-import { ProfileAvatar } from "../profile-avatar";
 import { SearchBar } from "./search-bar";
 import { UserMenu } from "./user-menu";
+import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
 
 type Props = { contentClassName?: string };
 

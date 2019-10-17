@@ -1,4 +1,4 @@
-query ProfileAvatar {
+query UserProfileAvatar {
   userAccess {
     me {
       user {

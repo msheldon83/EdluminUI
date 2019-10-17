@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Example } from "graphql/queries/Example.gen";
+import { Example } from "ui/pages/index/Example.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { useAuth0 } from "auth/auth0";
 import { makeStyles } from "@material-ui/styles";

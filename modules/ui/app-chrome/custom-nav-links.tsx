@@ -37,7 +37,7 @@ export const AbsenceNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Absences & Vacancies")}
       icon={<SwapCallsIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
@@ -49,7 +49,7 @@ export const AnalyticsAndReportsNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Analytics & Reports")}
       icon={<TimelineIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
@@ -61,7 +61,7 @@ export const SchoolsNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Schools")}
       icon={<LocationCityIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
@@ -70,7 +70,12 @@ export const SchoolsNavLink: React.FC<Props> = props => {
 export const PeopleNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <NavLink title={t("People")} icon={<PeopleIcon />} route={"/"} {...props} />
+    <NavLink
+      title={t("People")}
+      icon={<PeopleIcon />}
+      route={"/404"}
+      {...props}
+    />
   );
 };
 
@@ -80,7 +85,7 @@ export const CalendarNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Calendars")}
       icon={<DateRangeIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
@@ -92,7 +97,7 @@ export const ConfigurationNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Configuration")}
       icon={<SettingsIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
@@ -101,7 +106,12 @@ export const ConfigurationNavLink: React.FC<Props> = props => {
 export const SecurityNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <NavLink title={t("Security")} icon={<LockIcon />} route={"/"} {...props} />
+    <NavLink
+      title={t("Security")}
+      icon={<LockIcon />}
+      route={"/404"}
+      {...props}
+    />
   );
 };
 
@@ -111,7 +121,7 @@ export const MyScheduleNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("My Schedule")}
       icon={<DateRangeIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
@@ -123,7 +133,7 @@ export const PTOBalancesNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("PTO Balances")}
       icon={<AccountBalanceWalletIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
@@ -135,7 +145,7 @@ export const SubPreferencesNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Sub Preferences")}
       icon={<SettingsIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
@@ -147,7 +157,7 @@ export const MyProfileNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("My Profile")}
       icon={<AccountCircleIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
@@ -159,7 +169,7 @@ export const HelpNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Help")}
       icon={<HelpOutlineIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
@@ -171,7 +181,7 @@ export const SignOutNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Sign Out")}
       icon={<ExitToAppIcon />}
-      route={"/"}
+      route={"/404"}
       {...props}
     />
   );
