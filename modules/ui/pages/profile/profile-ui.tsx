@@ -140,7 +140,10 @@ export const ProfileUI: React.FC<Props> = props => {
               </Hidden>
 
               <Grid item container alignItems="baseline">
-                <div className={classes.field}>
+                <div
+                  className={classes.field}
+                  onClick={() => setChangeEmailIsOpen(true)}
+                >
                   <TextField
                     label={t("Email")}
                     value={props.user.loginEmail}
@@ -180,7 +183,10 @@ export const ProfileUI: React.FC<Props> = props => {
               </Grid>
 
               <Grid item container alignItems="baseline">
-                <div className={classes.field}>
+                <div
+                  className={classes.field}
+                  onClick={() => setChangeTimezoneIsOpen(true)}
+                >
                   <TextField
                     label={t("Time Zone")}
                     select
