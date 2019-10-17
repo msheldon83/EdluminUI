@@ -11,6 +11,7 @@ type Props = {
   title: string | JSX.Element;
   icon: JSX.Element;
   route: string;
+  onClick?: () => void;
   className?: string;
 };
 
@@ -25,6 +26,7 @@ export const NavLink: React.FC<Props> = props => {
         className={`${classes.menuItem} ${props.className} ${matches &&
           classes.active}`}
         href={props.route}
+        onClick={props.onClick}
       >
         <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
         <ListItemText

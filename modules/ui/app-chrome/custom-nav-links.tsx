@@ -17,6 +17,7 @@ import { NavLink } from "./nav-link";
 
 type Props = {
   className?: string;
+  onClose?: () => void;
 };
 
 export const HomeNavLink: React.FC<Props> = props => {

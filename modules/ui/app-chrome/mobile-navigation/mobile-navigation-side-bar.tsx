@@ -55,18 +55,18 @@ export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
         <MobileSearchBar />
       </div>
       <List className={classes.list}>
-        <HomeNavLink />
-        <AbsenceNavLink />
-        <AnalyticsAndReportsNavLink />
-        <SchoolsNavLink />
-        <PeopleNavLink />
-        <CalendarNavLink />
-        <ConfigurationNavLink />
-        <SecurityNavLink />
-        <MyScheduleNavLink />
-        <PTOBalancesNavLink />
-        <SubPreferencesNavLink />
-        <HelpNavLink />
+        <HomeNavLink onClick={props.collapse} />
+        <AbsenceNavLink onClick={props.collapse} />
+        <AnalyticsAndReportsNavLink onClick={props.collapse} />
+        <SchoolsNavLink onClick={props.collapse} />
+        <PeopleNavLink onClick={props.collapse} />
+        <CalendarNavLink onClick={props.collapse} />
+        <ConfigurationNavLink onClick={props.collapse} />
+        <SecurityNavLink onClick={props.collapse} />
+        <MyScheduleNavLink onClick={props.collapse} />
+        <PTOBalancesNavLink onClick={props.collapse} />
+        <SubPreferencesNavLink onClick={props.collapse} />
+        <HelpNavLink onClick={props.collapse} />
         <SignOutNavLink />
       </List>
 
