@@ -1,13 +1,13 @@
 type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   employeeId: Int!
   notesToApprover: String!
   startTimeLocal: DateTime
@@ -28,10 +28,10 @@ input AbsenceCreateInput {
 
 type AbsenceDetail implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   absenceId: Int!
@@ -70,14 +70,14 @@ type AbsenceQueries {
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   validUntil: Date
@@ -85,6 +85,7 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isBucket: Boolean!
+  appliesToAssignmentTypes: AssignmentType
   limitPerDay: Int
   parentAbsenceReasonId: Int
   parentAbsenceReason: AbsenceReason
@@ -94,10 +95,10 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
 
 type AbsenceReasonBalance implements ModelObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   rowVersion: Int!
   employeeId: Int!
@@ -143,6 +144,7 @@ input AbsenceReasonCreateInput {
   name: String!
   description: String
   externalId: String
+  appliesToAssignmentTypes: AssignmentType
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isBucket: Boolean!
@@ -164,6 +166,7 @@ input AbsenceReasonUpdateInput {
   description: String
   externalId: String
   expired: Boolean
+  appliesToAssignmentTypes: AssignmentType
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isBucket: Boolean!
@@ -174,10 +177,10 @@ input AbsenceReasonUpdateInput {
 
 type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   absenceId: Int!
@@ -216,14 +219,14 @@ input AbsenceUpdateInput {
 
 type AccountingCode implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   validUntil: Date
@@ -277,16 +280,53 @@ enum AddressType {
   WORK_ADDRESS
 }
 
-type Assignment {
+type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  externalId: String
+  rowVersion: String!
+  assignmentTypeId: AssignmentType
+  employeeId: Int!
+  positionId: Int!
+  contractId: Int!
+  vacancyId: Int
+  cancellationReasonId: Int
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
+}
+
+type AssignmentMutations {
+  create(assignment: ContractedAssignmentCreateInput!): Assignment
+  update(assignment: ContractedAssignmentUpdateInput!): Assignment
+  delete(assignmentId: Int!): Boolean
+}
+
+type AssignmentQueries {
+  byId(id: ID!): Assignment
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Assignment]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAssignment
+}
+
+enum AssignmentType {
+  INVALID
+  CONTRACT_ASSIGNMENT
+  LONG_TERM_ASSIGNMENT
+  DAILY_ASSIGNMENT
 }
 
 type Branding implements ModelObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   name: String
   description: String
@@ -311,10 +351,10 @@ type Branding implements ModelObjectInterface {
 
 type BrandingCsPage implements ModelObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   name: String
   description: String
@@ -377,14 +417,14 @@ scalar Byte
 
 type CalendarChange implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   startDate: Date!
   endDate: Date!
   description: String
@@ -422,14 +462,14 @@ type CalendarChangeQueries {
 
 type CalendarChangeReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   validUntil: Date
@@ -481,10 +521,10 @@ enum CalendarDayType {
 
 type ChangedContract implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   calendarChangeId: Int!
@@ -506,14 +546,14 @@ type ChangeLogTypeDef {
 
 type Contract implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   numberOfDays: Int
   workDayPatternId: Int!
@@ -531,10 +571,10 @@ input ContractCreateInput {
 
 type ContractDate implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   contractScheduleId: Int!
@@ -550,8 +590,23 @@ type ContractDate implements ModelObjectInterface & OrgObjectInterface {
   daysToEnd: Int
   workDayId: Int
   workDay: WorkDay
-  workDayScheduleVariantTypeId: Int
+  workDayScheduleVariantTypeId: Int!
   workDayScheduleVariantType: WorkDayScheduleVariant
+}
+
+input ContractedAssignmentCreateInput {
+  orgId: Int!
+  employeeId: Int!
+  positionId: Int!
+  startDate: DateTime
+  endDate: DateTime
+}
+
+input ContractedAssignmentUpdateInput {
+  assignmentId: Int!
+  rowVersion: Int!
+  startDate: DateTime
+  endDate: DateTime
 }
 
 type ContractMutations {
@@ -568,14 +623,14 @@ type ContractQueries {
 
 type ContractSchedule implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   contractId: Int!
   contract: Contract
   schoolYearId: Int!
@@ -647,14 +702,14 @@ enum Currency {
 
 type CustomField implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   stringId: String!
   description: String
   customFieldTypeId: CustomFieldType
@@ -798,19 +853,19 @@ enum DistanceUnit {
 
 interface DomainObjectInterface {
   externalId: String
-  rowVersion: String
+  rowVersion: String!
 }
 
 type Employee implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   canFillVacancies: Boolean!
   isShadowEmployee: Boolean!
   shadowEmployeeId: Int
@@ -828,10 +883,10 @@ type Employee implements ModelObjectInterface & OrgObjectInterface & DomainObjec
 
 type EmployeeAddress implements ModelObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   address1: String
   address2: String
@@ -873,10 +928,10 @@ type EmployeeMutations {
 
 type EmployeePhone implements ModelObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   phoneType: PhoneType
   number: String
@@ -912,14 +967,14 @@ type EmploymentHistory {
 
 type EndEmploymentReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   validUntil: Date
@@ -944,14 +999,14 @@ input EndEmploymentReasonUpdateInput {
 
 type Endorsement implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   validUntil: Date
@@ -1155,15 +1210,20 @@ enum EventType {
   EMPLOYEE_CREATED
   EMPLOYEE_UPDATED
   EMPLOYEE_DELETED
-  ASSIGNMENT_CREATED
-  ASSIGNMENT_UPDATED
-  ASSIGNMENT_DELETED
+  CONTRACTED_ASSIGNMENT_CREATED
+  CONTRACTED_ASSIGNMENT_UPDATED
+  CONTRACTED_ASSIGNMENT_ENDED
+  VACANCY_ASSIGNMENT_CREATED
+  VACANCY_ASSIGNMENT_UPDATED
+  VACANCY_ASSIGNMENT_CANCELLED
   ABSENCE_CREATED
   ABSENCE_UPDATED
   ABSENCE_DELETED
   VACANCY_CREATED
   VACANCY_UPDATED
   VACANCY_DELETED
+  VACANCY_ASSIGNED
+  VACANCY_UNASSIGNED
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
@@ -1239,14 +1299,14 @@ scalar Guid
 
 type Label implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   validUntil: Date
@@ -1283,14 +1343,14 @@ input LabelUpdateInput {
 
 type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   timeZoneId: TimeZone
   address: Address
@@ -1319,14 +1379,14 @@ input LocationCreateInput {
 
 type LocationGroup implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   replacementStartOffsetMinutes: Int
@@ -1390,16 +1450,17 @@ input LocationUpdateInput {
 scalar Milliseconds
 
 interface ModelObjectInterface {
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
 }
 
 type Mutation {
   absence: AbsenceMutations
   absenceReasonBalance: AbsenceReasonBalanceMutations
+  assignment: AssignmentMutations
   branding: BrandingMutations
   calendarChange: CalendarChangeMutations
   contract: ContractMutations
@@ -1438,10 +1499,10 @@ enum NeedsReplacement {
 
 type NotificationLog implements ModelObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   title: String
   content: String
@@ -1525,17 +1586,16 @@ enum ObjectType {
 
 type Organization implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   timeZoneId: TimeZone
-  propelClientId: Int
   config: organizationConfig
 }
 
@@ -1582,7 +1642,7 @@ input OrganizationCreateInput {
   superUserFirstName: String!
   superUserLastName: String!
   timeZoneId: TimeZone
-  seedOrgRefDataOption: SeedOrgRefDataOptionEnum
+  seedOrgDataOption: SeedOrgDataOptionEnum
   config: organizationConfigInput
 }
 
@@ -1706,10 +1766,10 @@ type OrgRef_WorkDayScheduleVariantTypeQueries {
 
 type OrgUser implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   firstName: String!
@@ -1798,6 +1858,15 @@ type PagedAbsenceReason {
 type PagedAccountingCode {
   _info: [ReturnMessage]
   results: [AccountingCode]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedAssignment {
+  _info: [ReturnMessage]
+  results: [Assignment]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -2041,14 +2110,14 @@ enum ParsingStatus {
 
 type PayCode implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   validUntil: Date
@@ -2113,18 +2182,22 @@ enum PermissionEnum {
   PERMISSION_SET_DELETE
   ABSENCE_SAVE
   ABSENCE_DELETE
+  CONTRACTED_ASSIGNMENT_SAVE
+  CONTRACTED_ASSIGNMENT_DELETE
+  VACANCY_ASSIGNMENT_SAVE
+  VACANCY_ASSIGNMENT_DELETE
 }
 
 type PermissionSet implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   orgUserRole: OrgUserRole
@@ -2170,41 +2243,47 @@ enum PhoneType {
 
 type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
+  startDate: Date
+  endDate: Date
   positionTypeId: Int!
   positionType: PositionType
   currentEmployeeId: Int
-  currentContractId: Int
+  currentContractId: Int!
   currentContract: Contract
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
+  hoursPerFullWorkDay: Decimal
 }
 
 input PositionCreateInput {
   name: String!
   orgId: Int!
   externalId: String
+  startDate: Date
+  endDate: Date
   positionTypeId: Int!
   currentEmployeeId: Int
-  currentContractId: Int
+  currentContractId: Int!
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
+  hoursPerFullWorkDay: Decimal
 }
 
 type PositionSchedule implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   name: String!
@@ -2231,10 +2310,10 @@ type PositionScheduleMutations {
 
 type PositionSchedulePeriod implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   positionId: Int!
@@ -2277,10 +2356,10 @@ input PositionScheduleUpdateInput {
 
 type PositionScheduleVariant implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   positionScheduleId: Int!
@@ -2325,10 +2404,10 @@ input PositionScheduleVariantModifyInput {
 
 type PositionScheduleVariantPeriod implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   sequence: Int
@@ -2362,14 +2441,14 @@ input PositionScheduleVariantPeriodCreateInput {
 
 type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   forStaffAugmentation: Boolean!
   forPermanentPositions: Boolean!
@@ -2412,6 +2491,7 @@ input PositionTypeUpdateInput {
 
 type Query {
   absence: AbsenceQueries
+  assignment: AssignmentQueries
   branding: BrandingQueries
   calendarChange: CalendarChangeQueries
   changeLog: ChangeLogQueries
@@ -2714,7 +2794,7 @@ enum RequirementType {
 }
 
 input ResetUserPasswordInput {
-  userId: Int!
+  id: Int!
   orgId: Int
 }
 
@@ -2730,14 +2810,14 @@ type ReturnMessageTestQueries {
 
 type SavedView implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   query: String!
@@ -2825,14 +2905,14 @@ scalar SByte
 
 type SchoolYear implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   startDate: Date
   endDate: Date
@@ -2893,7 +2973,7 @@ type SearchResultMatch {
 
 scalar Seconds
 
-enum SeedOrgRefDataOptionEnum {
+enum SeedOrgDataOptionEnum {
   DONT_SEED
   SEED_SYNCHRONOUSLY
   SEED_ASYNCHRONOUSLY
@@ -3016,20 +3096,20 @@ scalar Uri
 
 type User implements ModelObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
-  firstName: String
+  firstName: String!
   middleName: String
-  lastName: String
+  lastName: String!
   loginEmail: String!
   recoveryEmail: String
   phone: String
   cultureId: Culture
   timeZoneId: TimeZone
-  rowVersion: String
+  rowVersion: String!
   orgUsers: [OrgUser]
   preferences: UserPreferences
   eulaAcceptedAtUtc: DateTime
@@ -3060,7 +3140,7 @@ input UserCreateInput {
 }
 
 input UserLoginEmailChangeInput {
-  userId: Int!
+  id: Int!
   loginEmail: String!
   rowVersion: String
 }
@@ -3069,7 +3149,7 @@ type UserMutations {
   create(user: UserCreateInput!): User
   update(user: UserUpdateInput!): User
   changeLoginEmail(loginEmailChange: UserLoginEmailChangeInput!): User
-  delete(userId: Int!): Boolean
+  delete(id: Int!): Boolean
   resetPassword(userInfo: ResetUserPasswordInput!): User
   acceptEula: User
 }
@@ -3125,10 +3205,10 @@ enum WeightUnit {
 
 type WorkDay implements ModelObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   workDayPatternId: Int!
   sequence: Int
@@ -3145,14 +3225,14 @@ input WorkDayCreateInput {
 
 type WorkDayPattern implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   shiftContractSchedulesForNonInstructionalDays: Boolean
   validUntilUtc: DateTime
@@ -3192,14 +3272,14 @@ input WorkDayPatternUpdateInput {
 
 type WorkDaySchedule implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String!
   workDayPatternId: Int!
@@ -3229,10 +3309,10 @@ type WorkDayScheduleMutations {
 
 type WorkDaySchedulePeriod implements ModelObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   sequence: Int
   name: String!
@@ -3266,10 +3346,10 @@ input WorkDayScheduleUpdateInput {
 
 type WorkDayScheduleVariant implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   workDayScheduleId: Int!
@@ -3314,10 +3394,10 @@ input WorkDayScheduleVariantModifyInput {
 
 type WorkDayScheduleVariantPeriod implements ModelObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   sequence: Int
   startTime: Seconds!
@@ -3350,14 +3430,14 @@ input WorkDayScheduleVariantPeriodInput {
 
 type WorkDayScheduleVariantType implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
-  id: ID
-  createdUtc: DateTime
-  changedUtc: DateTime
-  deletedUtc: DateTime
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
   isDeleted: Boolean!
   orgId: Int!
   externalId: String
-  rowVersion: String
+  rowVersion: String!
   name: String!
   description: String
   validUntil: Date

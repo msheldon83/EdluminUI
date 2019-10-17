@@ -66,7 +66,7 @@ export const ProfileUI: React.FC<Props> = props => {
 
   const onResetPassword = async () => {
     await props.resetPassword({
-      variables: { resetPasswordInput: { userId: props.user.id! } },
+      variables: { resetPasswordInput: { id: props.user.id } },
     });
   };
 
@@ -80,7 +80,7 @@ export const ProfileUI: React.FC<Props> = props => {
       await props.updateTimezone({
         variables: {
           user: {
-            id: props.user.id!,
+            id: props.user.id,
             timeZoneId,
             rowVersion: props.user.rowVersion,
           },
