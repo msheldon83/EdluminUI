@@ -5,6 +5,8 @@ import { useAuth0 } from "auth/auth0";
 import { makeStyles } from "@material-ui/styles";
 import { Button } from "@material-ui/core";
 import { NavigationSideBar } from "ui/app-chrome/navigation";
+import { PageTitle } from "ui/components/page-title";
+import { useTranslation } from "react-i18next";
 
 export const ExamplePage: React.FunctionComponent = props => {
   const classes = useStyles();
@@ -12,6 +14,7 @@ export const ExamplePage: React.FunctionComponent = props => {
   const data = useQueryBundle(Example, {
     skip: !loggedIn,
   });
+  const { t } = useTranslation();
   /* cf 2019-10-16
     this is not a good example of how to do anything relating to grapqhl.
     if you're seeking patterns to follow, look elsewhere.
@@ -27,10 +30,8 @@ export const ExamplePage: React.FunctionComponent = props => {
   if (data.state !== "DONE" && data.state !== "UPDATING") name = "...";
   return (
     <>
+      <PageTitle title={t("Home")} />
       <div className={classes.name}>Hello {name}</div>
-      <Button onClick={logout} variant="contained">
-        Logout
-      </Button>
     </>
   );
 };
