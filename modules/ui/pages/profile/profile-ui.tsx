@@ -1,9 +1,11 @@
 import { MutationFunction } from "@apollo/react-common";
 import { Button, Grid, Hidden, makeStyles, MenuItem } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
+import { Maybe } from "graphql/server-types.gen";
 import { useBreakpoint } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { GetTimezones } from "reference-data/GetTimezones.gen";
 import { AvatarCard } from "ui/components/avatar-card";
 import { getInitials } from "ui/components/helpers";
 import { PageTitle } from "ui/components/page-title";
@@ -25,6 +27,7 @@ type Props = {
     UpdateUserTimezone.Mutation,
     UpdateUserTimezone.Variables
   >;
+  timeZoneOptions: Maybe<GetTimezones.TimeZones>[];
 };
 
 export const ProfileUI: React.FC<Props> = props => {
@@ -33,6 +36,9 @@ export const ProfileUI: React.FC<Props> = props => {
   const isSmDown = useBreakpoint("sm", "down");
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
   const [changeTimezoneIsOpen, setChangeTimezoneIsOpen] = React.useState(false);
+  const selectTimeZoneOption = props.timeZoneOptions.find(
+    tz => tz && tz.enumValue === props.user.timeZoneId
+  );
 
   const initials = getInitials(props.user);
 
@@ -78,6 +84,7 @@ export const ProfileUI: React.FC<Props> = props => {
         onClose={onCloseTimezoneDialog}
         user={props.user}
         updateTimezone={updateTimezoneCallback}
+        timeZoneOptions={props.timeZoneOptions}
       />
 
       <PageTitle title={t("My Profile")} />
@@ -184,9 +191,13 @@ export const ProfileUI: React.FC<Props> = props => {
                     fullWidth
                     disabled
                   >
-                    <MenuItem value={props.user.timeZoneId || ""}>
-                      {props.user.timeZoneId}
-                    </MenuItem>
+                    {selectTimeZoneOption && (
+                      <MenuItem
+                        value={selectTimeZoneOption.enumValue || undefined}
+                      >
+                        {selectTimeZoneOption.name}
+                      </MenuItem>
+                    )}
                   </TextField>
                 </div>
 

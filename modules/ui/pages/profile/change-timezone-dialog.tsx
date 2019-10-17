@@ -6,16 +6,16 @@ import {
   makeStyles,
   MenuItem,
 } from "@material-ui/core";
+import * as Forms from "atomic-object/forms";
 import { Formik } from "formik";
-import { MyProfile } from "ui/pages/profile/MyProfile.gen";
-import { UserUpdateInput, TimeZone } from "graphql/server-types.gen";
+import { TimeZone, UserUpdateInput, Maybe } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { GetTimezones } from "reference-data/GetTimezones.gen";
 import { InformationHelperText } from "ui/components/information-helper-text";
 import { TextButton } from "ui/components/text-button";
-import * as Forms from "atomic-object/forms";
+import { MyProfile } from "ui/pages/profile/MyProfile.gen";
 import * as Yup from "yup";
-import { useTimezones } from "reference-data/timezones";
 
 export type MinimalUpdateTimezoneArgs = Pick<
   UserUpdateInput,
@@ -26,12 +26,12 @@ type Props = {
   onClose: () => void;
   user: MyProfile.User;
   updateTimezone: (timeZoneId: TimeZone) => Promise<any>;
+  timeZoneOptions: Maybe<GetTimezones.TimeZones>[];
 };
 
 export const ChangeTimezoneDialog: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const timeZones = useTimezones();
 
   const initialValues: MinimalUpdateTimezoneArgs = {
     id: props.user.id! /* The Id should always be there*/,
@@ -65,15 +65,11 @@ export const ChangeTimezoneDialog: React.FC<Props> = props => {
                   variant="outlined"
                   fullWidth
                 >
-                  {timeZones &&
-                    timeZones.map((tz, i) => (
-                      <MenuItem
-                        key={i}
-                        value={(tz && tz.enumValue) || undefined}
-                      >
-                        {tz && tz.name}
-                      </MenuItem>
-                    ))}
+                  {props.timeZoneOptions.map((tz, i) => (
+                    <MenuItem key={i} value={(tz && tz.enumValue) || undefined}>
+                      {tz && tz.name}
+                    </MenuItem>
+                  ))}
                 </Forms.TextField>
 
                 <InformationHelperText
