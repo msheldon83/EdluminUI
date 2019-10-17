@@ -10,6 +10,7 @@ import { useAuth0 } from "auth/auth0";
 
 type Props = {
   className?: string;
+  onClick?: () => void;
 };
 
 export const MyProfileMenuLink: React.FC<Props> = props => {
@@ -31,9 +32,8 @@ export const SignOutMenuLink: React.FC<Props> = props => {
     <MenuLink
       title={t("Sign Out")}
       icon={<ExitToAppIcon />}
-      route={Index.PATH_TEMPLATE}
-      onClick={auth0.logout}
       {...props}
+      onClick={auth0.logout}
     />
   );
 };

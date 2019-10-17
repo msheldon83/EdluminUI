@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 type Props = {
   title: string | JSX.Element;
   icon: JSX.Element;
-  route: string;
+  route?: string;
   onClick?: () => void;
   className?: string;
 };
@@ -18,20 +18,26 @@ type Props = {
 export const MenuLink: React.FC<Props> = props => {
   const classes = useStyles();
 
-  return (
-    <Link to={props.route} className={classes.link}>
-      <MenuItem button className={props.className} onClick={props.onClick}>
-        <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
-        <ListItemText
-          primary={props.title}
-          primaryTypographyProps={{
-            className: classes.text,
-            noWrap: true,
-          }}
-        />
-      </MenuItem>
-    </Link>
+  const menuItem = (
+    <MenuItem button className={props.className} onClick={props.onClick}>
+      <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
+      <ListItemText
+        primary={props.title}
+        primaryTypographyProps={{
+          className: classes.text,
+          noWrap: true,
+        }}
+      />
+    </MenuItem>
   );
+  if (props.route) {
+    return (
+      <Link to={props.route} className={classes.link}>
+        {menuItem}
+      </Link>
+    );
+  }
+  return menuItem;
 };
 
 const useStyles = makeStyles(theme => ({

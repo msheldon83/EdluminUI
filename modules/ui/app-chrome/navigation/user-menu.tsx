@@ -33,9 +33,18 @@ export const RoutedUserMenu: React.FC<Props> = props => {
       classes={userMenuListClasses}
     >
       <MenuList variant="menu" className={classes.menuList}>
-        <MyProfileMenuLink className={classes.userMenuLink} />
-        <SignOutMenuLink className={classes.userMenuLink} />
-        <HelpMenuLink className={classes.userMenuLink} />
+        <MyProfileMenuLink
+          onClick={props.onClose}
+          className={classes.userMenuLink}
+        />
+        <SignOutMenuLink
+          onClick={props.onClose}
+          className={classes.userMenuLink}
+        />
+        <HelpMenuLink
+          onClick={props.onClose}
+          className={classes.userMenuLink}
+        />
       </MenuList>
     </Menu>
   );
