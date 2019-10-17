@@ -1,13 +1,11 @@
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
 import { UpdateUserTimezone } from "ui/pages/profile/UpdateUserTimezone.gen";
+import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { MyProfile } from "ui/pages/profile/MyProfile.gen";
 import * as React from "react";
 import { ProfileUI } from "./profile-ui";
 import { useTimezones } from "reference-data/timezones";
-import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
-import { ResetPassword } from "graphql/mutations/ResetPassword.gen";
-import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-trigger";
 
 type Props = {};
 
