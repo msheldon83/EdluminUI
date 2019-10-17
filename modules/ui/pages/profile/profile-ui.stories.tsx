@@ -21,6 +21,7 @@ export const Basic = () => {
           timeZoneId: "EASTERN_STANDARD_TIME_US_CANADA" as any,
         }}
         updateLoginEmail={(): any => {}}
+        updateTimezone={(): any => {}}
       />
     </Provider>
   );

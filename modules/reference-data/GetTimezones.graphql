@@ -1,0 +1,9 @@
+query GetTimezones {
+  referenceData {
+    timeZones {
+      enumValue
+      name
+      description
+    }
+  }
+}

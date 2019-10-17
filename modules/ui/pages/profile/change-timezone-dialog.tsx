@@ -15,6 +15,7 @@ import { InformationHelperText } from "ui/components/information-helper-text";
 import { TextButton } from "ui/components/text-button";
 import * as Forms from "atomic-object/forms";
 import * as Yup from "yup";
+import { useTimezones } from "reference-data/timezones";
 
 export type MinimalUpdateTimezoneArgs = Pick<
   UserUpdateInput,
@@ -30,6 +31,7 @@ type Props = {
 export const ChangeTimezoneDialog: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const timeZones = useTimezones();
 
   const initialValues: MinimalUpdateTimezoneArgs = {
     id: props.user.id! /* The Id should always be there*/,
@@ -55,7 +57,7 @@ export const ChangeTimezoneDialog: React.FC<Props> = props => {
               <DialogTitle>{t("Change Time Zone")}</DialogTitle>
               <DialogContent>
                 <Forms.TextField
-                  name="changeTimezone"
+                  name="timeZoneId"
                   label={t("Time Zone")}
                   select
                   value={values.timeZoneId || undefined}
@@ -63,11 +65,15 @@ export const ChangeTimezoneDialog: React.FC<Props> = props => {
                   variant="outlined"
                   fullWidth
                 >
-                  {[values.timeZoneId].map((tz, i) => (
-                    <MenuItem key={i} value={tz || undefined}>
-                      {tz}
-                    </MenuItem>
-                  ))}
+                  {timeZones &&
+                    timeZones.map((tz, i) => (
+                      <MenuItem
+                        key={i}
+                        value={(tz && tz.enumValue) || undefined}
+                      >
+                        {tz && tz.name}
+                      </MenuItem>
+                    ))}
                 </Forms.TextField>
 
                 <InformationHelperText
