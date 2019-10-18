@@ -38,10 +38,12 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
           vertical: "bottom",
           horizontal: "left",
         },
+        classes: selectClasses,
       }}
     >
       {props.roleOptions.map(role => (
         <MenuItem
+          key={role}
           className={[classes.menuItem, classes.font].join(" ")}
           value={role}
         >
@@ -71,7 +73,7 @@ const useStyles = makeStyles(theme => ({
   },
   menuItem: {
     margin: 0,
-    padding: 10,
+    padding: theme.typography.pxToRem(10),
     backgroundColor: theme.customColors.edluminLightSlate,
     color: theme.customColors.medLightGray,
     "&:hover": {
@@ -83,6 +85,10 @@ const useStyles = makeStyles(theme => ({
 
 const useSelectedStyles = makeStyles(theme => ({
   root: {
+    backgroundColor: theme.customColors.edluminSlate,
+  },
+  list: {
+    padding: 0,
     backgroundColor: theme.customColors.edluminLightSlate,
     "&$selected": {
       backgroundColor: theme.customColors.edluminLightSlate,
