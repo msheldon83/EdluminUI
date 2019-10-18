@@ -20,10 +20,12 @@ import { Section } from "ui/components/section";
 import { TextButton } from "ui/components/text-button";
 import { MyProfile } from "ui/pages/profile/MyProfile.gen";
 import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
-import { UpdateUserTimezone } from "ui/pages/profile/UpdateUserTimezone.gen";
+import { UpdateUser } from "./UpdateUser.gen";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { ChangeLoginEmailDialog } from "./change-email-dialog";
 import { ChangeTimezoneDialog } from "./change-timezone-dialog";
+import { Formik } from "formik";
+import { TextField as FormTextField } from "ui/components/form/text-field";
 
 type Props = {
   user: MyProfile.User;
@@ -31,10 +33,7 @@ type Props = {
     UpdateLoginEmail.Mutation,
     UpdateLoginEmail.Variables
   >;
-  updateTimezone: MutationFunction<
-    UpdateUserTimezone.Mutation,
-    UpdateUserTimezone.Variables
-  >;
+  updateUser: MutationFunction<UpdateUser.Mutation, UpdateUser.Variables>;
   timeZoneOptions: Maybe<GetTimezones.TimeZones>[];
   resetPassword: MutationFunction<
     ResetPassword.Mutation,
@@ -52,13 +51,14 @@ export const ProfileUI: React.FC<Props> = props => {
     tz => tz && tz.enumValue === props.user.timeZoneId
   );
 
+  const initialBasicProfileValues = {
+    firstName: props.user.firstName,
+    lastName: props.user.lastName,
+    phone: props.user.phone || "",
+  };
+
   const initials = getInitials(props.user);
 
-  const saveButton = (
-    <Button variant="contained" fullWidth={isSmDown}>
-      {t("Save")}
-    </Button>
-  );
   const onCloseEmailDialog = React.useCallback(
     () => setChangeEmailIsOpen(false),
     [setChangeEmailIsOpen]
@@ -77,7 +77,7 @@ export const ProfileUI: React.FC<Props> = props => {
 
   const updateTimezoneCallback = React.useCallback(
     async (timeZoneId: any) =>
-      await props.updateTimezone({
+      await props.updateUser({
         variables: {
           user: {
             id: props.user.id,
@@ -86,6 +86,28 @@ export const ProfileUI: React.FC<Props> = props => {
           },
         },
       }),
+    [props]
+  );
+
+  const updateBasicDetails = React.useCallback(
+    async (data: {
+      firstName: string;
+      lastName: string;
+      phone: string | null;
+    }) => {
+      const { firstName, lastName, phone } = data;
+      await props.updateUser({
+        variables: {
+          user: {
+            id: props.user.id,
+            rowVersion: props.user.rowVersion,
+            firstName,
+            lastName,
+            phone,
+          },
+        },
+      });
+    },
     [props]
   );
 
@@ -107,157 +129,190 @@ export const ProfileUI: React.FC<Props> = props => {
 
       <PageTitle title={t("My Profile")} />
 
-      <Section>
-        <Grid container spacing={3}>
-          <Grid
-            item
-            container={isSmDown}
-            justify={isSmDown ? "center" : undefined}
-          >
-            <AvatarCard initials={initials} />
-          </Grid>
-
-          <Grid item md={7} xs={12}>
-            <Grid container direction="column">
-              <Grid container item>
-                <Grid item md={6} xs={12}>
-                  <TextField
-                    label={t("First Name")}
-                    value={props.user.firstName || ""}
-                    margin={isSmDown ? "normal" : "none"}
-                    variant="outlined"
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item md={6} xs={12}>
-                  <TextField
-                    className={isSmDown ? "" : classes.spacing}
-                    label={t("Last Name")}
-                    value={props.user.lastName || ""}
-                    margin={isSmDown ? "normal" : "none"}
-                    variant="outlined"
-                    fullWidth
-                  />
-                </Grid>
-              </Grid>
-
-              <Grid item container>
-                <Grid item md={6} xs={12}>
-                  <TextField
-                    label={t("Mobile Phone")}
-                    value={props.user.phone || ""}
-                    margin="normal"
-                    variant="outlined"
-                    fullWidth
-                  />
-                </Grid>
-              </Grid>
-
-              <Hidden mdUp>
-                <Grid item>{saveButton}</Grid>
-              </Hidden>
-
-              <Grid item container alignItems="baseline">
-                <div
-                  className={classes.field}
-                  onClick={() => setChangeEmailIsOpen(true)}
+      <Formik
+        initialValues={initialBasicProfileValues}
+        onSubmit={(data, meta) => updateBasicDetails(data)}
+      >
+        {({ handleSubmit, submitForm }) => (
+          <form onSubmit={handleSubmit}>
+            <Section>
+              <Grid container spacing={3}>
+                <Grid
+                  item
+                  container={isSmDown}
+                  justify={isSmDown ? "center" : undefined}
                 >
-                  <TextField
-                    label={t("Email")}
-                    value={props.user.loginEmail}
-                    className={classes.filled}
-                    margin="normal"
-                    variant="outlined"
-                    fullWidth
-                    disabled
-                  />
-                </div>
-
-                {isSmDown ? (
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    className={classes.button}
-                    onClick={() => setChangeEmailIsOpen(true)}
-                  >
-                    {t("Change Email")}
-                  </Button>
-                ) : (
-                  <TextButton
-                    className={classes.buttonSpacing}
-                    onClick={() => setChangeEmailIsOpen(true)}
-                  >
-                    {t("Change")}
-                  </TextButton>
-                )}
-              </Grid>
-
-              <Grid item container>
-                <Grid item md={6} xs={12}>
-                  <Button variant="outlined"
-                    fullWidth
-                    onClick={() => onResetPassword()}
-                  >
-                    {t("Reset Password")}                    
-                  </Button>
+                  <AvatarCard initials={initials} />
                 </Grid>
-              </Grid>
 
-              <Grid item container alignItems="baseline">
-                <div
-                  className={classes.field}
-                  onClick={() => setChangeTimezoneIsOpen(true)}
-                >
-                  <TextField
-                    label={t("Time Zone")}
-                    select
-                    value={props.user.timeZoneId}
-                    className={classes.filled}
-                    margin="normal"
-                    variant="outlined"
-                    fullWidth
-                    disabled
-                  >
-                    {selectTimeZoneOption && (
-                      <MenuItem
-                        value={selectTimeZoneOption.enumValue || undefined}
+                <Grid item md={7} xs={12}>
+                  <Grid container direction="column">
+                    <Grid container item>
+                      <Grid item md={6} xs={12}>
+                        <FormTextField
+                          label={t("First Name")}
+                          name="firstName"
+                          margin={isSmDown ? "normal" : "none"}
+                          variant="outlined"
+                          fullWidth
+                        />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <FormTextField
+                          className={isSmDown ? "" : classes.spacing}
+                          label={t("Last Name")}
+                          name="lastName"
+                          margin={isSmDown ? "normal" : "none"}
+                          variant="outlined"
+                          fullWidth
+                        />
+                      </Grid>
+                    </Grid>
+
+                    <Grid item container>
+                      <Grid item md={6} xs={12}>
+                        <FormTextField
+                          label={t("Mobile Phone")}
+                          name="phone"
+                          margin="normal"
+                          variant="outlined"
+                          fullWidth
+                        />
+                      </Grid>
+                    </Grid>
+
+                    <Hidden mdUp>
+                      <Grid item>
+                        <Button
+                          onClick={submitForm}
+                          variant="contained"
+                          fullWidth={isSmDown}
+                        >
+                          {t("Save")}
+                        </Button>
+                      </Grid>
+                    </Hidden>
+
+                    <Grid item container alignItems="baseline">
+                      <div
+                        className={classes.field}
+                        onClick={() => setChangeEmailIsOpen(true)}
                       >
-                        {selectTimeZoneOption.name}
-                      </MenuItem>
-                    )}
-                  </TextField>
-                </div>
+                        <TextField
+                          label={t("Email")}
+                          value={props.user.loginEmail}
+                          className={classes.filled}
+                          margin="normal"
+                          variant="outlined"
+                          fullWidth
+                          disabled
+                        />
+                      </div>
 
-                <Grid item md={6} xs={12}>
-                  {isSmDown ? (
-                    <Button
-                      variant="outlined"
-                      fullWidth
-                      className={classes.button}
-                      onClick={() => setChangeTimezoneIsOpen(true)}
-                    >
-                      {t("Change Timezone")}
-                    </Button>
-                  ) : (
-                    <TextButton
-                      className={classes.buttonSpacing}
-                      onClick={() => setChangeTimezoneIsOpen(true)}
-                    >
-                      {t("Change")}
-                    </TextButton>
-                  )}
+                      {isSmDown ? (
+                        <Button
+                          variant="outlined"
+                          fullWidth
+                          className={classes.button}
+                          onClick={() => setChangeEmailIsOpen(true)}
+                        >
+                          {t("Change Email")}
+                        </Button>
+                      ) : (
+                        <TextButton
+                          className={classes.buttonSpacing}
+                          onClick={() => setChangeEmailIsOpen(true)}
+                        >
+                          {t("Change")}
+                        </TextButton>
+                      )}
+                    </Grid>
+
+                    <Grid item container>
+                      <Grid item md={6} xs={12}>
+                        <Button
+                          variant="outlined"
+                          fullWidth
+                          onClick={() => onResetPassword()}
+                        >
+                          {t("Reset Password")}
+                        </Button>
+                      </Grid>
+                    </Grid>
+
+                    <Grid item container alignItems="baseline">
+                      <div
+                        className={classes.field}
+                        onClick={() => setChangeTimezoneIsOpen(true)}
+                      >
+                        <TextField
+                          label={t("Time Zone")}
+                          select
+                          value={props.user.timeZoneId}
+                          className={classes.filled}
+                          margin="normal"
+                          variant="outlined"
+                          fullWidth
+                          disabled
+                        >
+                          {selectTimeZoneOption && (
+                            <MenuItem
+                              value={
+                                selectTimeZoneOption.enumValue || undefined
+                              }
+                            >
+                              {selectTimeZoneOption.name}
+                            </MenuItem>
+                          )}
+                        </TextField>
+                      </div>
+
+                      <Grid item md={6} xs={12}>
+                        {isSmDown ? (
+                          <Button
+                            variant="outlined"
+                            fullWidth
+                            className={classes.button}
+                            onClick={() => setChangeTimezoneIsOpen(true)}
+                          >
+                            {t("Change Timezone")}
+                          </Button>
+                        ) : (
+                          <TextButton
+                            className={classes.buttonSpacing}
+                            onClick={() => setChangeTimezoneIsOpen(true)}
+                          >
+                            {t("Change")}
+                          </TextButton>
+                        )}
+                      </Grid>
+                    </Grid>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
 
-          <Hidden smDown>
-            <Grid item container alignContent="flex-end" justify="flex-end">
-              <Grid item>{saveButton}</Grid>
-            </Grid>
-          </Hidden>
-        </Grid>
-      </Section>
+                <Hidden smDown>
+                  <Grid
+                    item
+                    container
+                    alignContent="flex-end"
+                    justify="flex-end"
+                  >
+                    <Grid item>
+                      <Button
+                        onClick={submitForm}
+                        variant="contained"
+                        fullWidth={isSmDown}
+                      >
+                        {t("Save")}
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Hidden>
+              </Grid>
+            </Section>
+          </form>
+        )}
+      </Formik>
     </>
   );
 };
