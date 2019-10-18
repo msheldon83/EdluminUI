@@ -12,4 +12,5 @@ declare const Config: {
     apiAudience: string;
     scope: string;
   };
+  apiUri: string;
 };

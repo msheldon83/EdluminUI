@@ -107,15 +107,16 @@ module.exports = {
       __DEV__: JSON.stringify(process.env.NODE_ENV !== "production"),
       __TEST__: "false",
 
-      "Config.Auth0.domain": JSON.stringify(process.env.AUTH0_DOMAIN),
-      "Config.Auth0.clientId": JSON.stringify(process.env.AUTH0_CLIENT_ID),
+      "Config.Auth0.domain": JSON.stringify(config.get("auth0_domain")),
+      "Config.Auth0.clientId": JSON.stringify(config.get("auth0_client")),
       "Config.Auth0.redirectUrl": JSON.stringify(
-        process.env.AUTH0_REDIRECT_URL
+        config.get("auth0_redirect_url")
       ),
       "Config.Auth0.apiAudience": JSON.stringify(
-        process.env.AUTH0_API_AUDIENCE
+        config.get("auth0_api_audience")
       ),
-      "Config.Auth0.scope": JSON.stringify(process.env.AUTH0_SCOPE),
+      "Config.Auth0.scope": JSON.stringify(config.get("auth0_scope")),
+      "Config.apiUri": JSON.stringify(config.get("apiUrl")),
 
       // ALlow switching on NODE_ENV in client code
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
