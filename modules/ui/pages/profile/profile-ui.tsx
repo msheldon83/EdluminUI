@@ -26,6 +26,7 @@ import { ChangeLoginEmailDialog } from "./change-email-dialog";
 import { ChangeTimezoneDialog } from "./change-timezone-dialog";
 import { Formik } from "formik";
 import { TextField as FormTextField } from "ui/components/form/text-field";
+import * as yup from "yup";
 
 type Props = {
   user: MyProfile.User;
@@ -111,6 +112,16 @@ export const ProfileUI: React.FC<Props> = props => {
     [props]
   );
 
+  const validateBasicDetails = React.useMemo(
+    () =>
+      yup.object().shape({
+        firstName: yup.string().required(t("First name is required")),
+        lastName: yup.string().required(t("Last name is required")),
+        phone: yup.string(),
+      }),
+    [t]
+  );
+
   return (
     <>
       <ChangeLoginEmailDialog
@@ -132,6 +143,7 @@ export const ProfileUI: React.FC<Props> = props => {
       <Formik
         initialValues={initialBasicProfileValues}
         onSubmit={(data, meta) => updateBasicDetails(data)}
+        validationSchema={validateBasicDetails}
       >
         {({ handleSubmit, submitForm }) => (
           <form onSubmit={handleSubmit}>
