@@ -30,7 +30,6 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
         classes: {
           icon: classes.icon,
         },
-        id: "age-simple",
       }}
       MenuProps={{
         getContentAnchorEl: null,
@@ -63,7 +62,7 @@ const useStyles = makeStyles(theme => ({
     fill: theme.customColors.medLightGray,
   },
   select: {
-    width: 225,
+    width: theme.typography.pxToRem(225),
     paddingLeft: theme.spacing(4),
     color: theme.customColors.medLightGray,
     backgroundColor: theme.customColors.edluminSlate,
@@ -86,12 +85,14 @@ const useStyles = makeStyles(theme => ({
 const useSelectedStyles = makeStyles(theme => ({
   root: {
     backgroundColor: theme.customColors.edluminSlate,
+    color: theme.customColors.white,
   },
   list: {
     padding: 0,
     backgroundColor: theme.customColors.edluminLightSlate,
     "&$selected": {
       backgroundColor: theme.customColors.edluminLightSlate,
+      color: theme.customColors.white,
     },
   },
 }));
