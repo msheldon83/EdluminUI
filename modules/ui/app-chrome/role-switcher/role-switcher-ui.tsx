@@ -1,9 +1,6 @@
 import * as React from "react";
-import { MenuList, makeStyles, MenuItem, Select } from "@material-ui/core";
-import Menu from "@material-ui/core/Menu";
-import { withRouter } from "react-router";
-import { MenuLink } from "../menu-link";
-import { useTranslation } from "react-i18next";
+import { makeStyles, MenuItem, Select } from "@material-ui/core";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 
 type Props = {
   roleOptions: string[];
@@ -18,21 +15,29 @@ type RoleProps = {
 
 export const RoleSwitcherUI: React.FC<Props> = props => {
   const classes = useStyles();
+  const selectClasses = useSelectedStyles();
+
   return (
     <Select
+      disableUnderline={true}
+      IconComponent={ArrowDropDownIcon}
+      className={[classes.select, classes.font].join(" ")}
+      value={props.selectedRole}
+      classes={selectClasses}
+      //onChange={handleChange}
+      inputProps={{
+        name: "",
+        classes: {
+          icon: classes.icon,
+        },
+        id: "age-simple",
+      }}
       MenuProps={{
         getContentAnchorEl: null,
         anchorOrigin: {
           vertical: "bottom",
           horizontal: "left",
         },
-      }}
-      className={[classes.select, classes.font].join(" ")}
-      value={props.selectedRole}
-      // onChange={handleChange}
-      inputProps={{
-        name: "",
-        id: "age-simple",
       }}
     >
       {props.roleOptions.map(role => (
@@ -50,20 +55,37 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   font: {
     fontFamily: "Poppins",
+    fontWeight: 500,
   },
-
+  icon: {
+    fill: theme.customColors.medLightGray,
+  },
   select: {
-    paddingRight: theme.spacing(3),
-    paddingLeft: theme.spacing(3),
-    color: theme.customColors.grayWhite,
+    width: 225,
+    paddingLeft: theme.spacing(4),
+    color: theme.customColors.medLightGray,
     backgroundColor: theme.customColors.edluminSlate,
-  },
-  menuItem: {
-    padding: 10,
-    backgroundColor: theme.customColors.edluminSlate,
-    color: theme.customColors.grayWhite,
     "&:hover": {
       color: theme.customColors.white,
+    },
+  },
+  menuItem: {
+    margin: 0,
+    padding: 10,
+    backgroundColor: theme.customColors.edluminLightSlate,
+    color: theme.customColors.medLightGray,
+    "&:hover": {
+      color: theme.customColors.white,
+      backgroundColor: theme.customColors.edluminLightSlate,
+    },
+  },
+}));
+
+const useSelectedStyles = makeStyles(theme => ({
+  root: {
+    backgroundColor: theme.customColors.edluminLightSlate,
+    "&$selected": {
+      backgroundColor: theme.customColors.edluminLightSlate,
     },
   },
 }));
