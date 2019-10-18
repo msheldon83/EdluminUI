@@ -1,5 +1,5 @@
+import { Card, makeStyles, Typography } from "@material-ui/core";
 import * as React from "react";
-import { makeStyles, Card, Typography, Grid } from "@material-ui/core";
 
 type Props = { initials?: string };
 export const AvatarCard: React.FC<Props> = props => {

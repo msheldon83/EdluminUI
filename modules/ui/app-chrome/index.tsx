@@ -12,6 +12,7 @@ import { MobileNavigationSideBar } from "./mobile-navigation/mobile-navigation-s
 import { MobileTopBar } from "./mobile-navigation/mobile-top-bar";
 import { TopBar } from "./navigation/top-bar";
 import { LoadingStateIndicatorFullScreen } from "ui/components/loading-state/loading-state-indicator-fullscreen";
+import { PageTitleProvider } from "./page-title-context";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -36,53 +37,63 @@ export const AppChrome: React.FunctionComponent = props => {
   if (mobile) {
     return (
       <LoadingStateProvider>
-        <MobileTopBar expandDrawer={expand} />
-        <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
-        <div>
-          <div />
-          <div className={classes.contentView}>
-            <LoadingStateIndicatorFullScreen>
-              {props.children}
-            </LoadingStateIndicatorFullScreen>
+        <PageTitleProvider>
+          <MobileTopBar expandDrawer={expand} />
+          <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
+          <div>
+            <div />
+            <div className={classes.contentView}>
+              <LoadingStateIndicatorFullScreen>
+                {props.children}
+              </LoadingStateIndicatorFullScreen>
+            </div>
           </div>
-        </div>
+        </PageTitleProvider>
       </LoadingStateProvider>
     );
   } else {
     return (
       <LoadingStateProvider>
-        <TopBar
-          contentClassName={
-            expanded ? classes.leftPaddingExpanded : classes.leftPaddingCompact
-          }
-        />
-        <NavigationSideBar
-          expanded={expanded}
-          expand={expand}
-          collapse={collapse}
-        />
-        <div className={`${classes.container}`}>
-          <div
-            className={`${
-              expanded ? classes.navWidthExpanded : classes.navWidthCompact
-            }`}
-          >
-            <div className={classes.fabContainer}>
-              <Fab onClick={toggleExpand} size="small" className={classes.fab}>
-                {expanded ? (
-                  <ChevronLeftIcon className={classes.white} />
-                ) : (
-                  <ChevronRightIcon className={classes.white} />
-                )}
-              </Fab>
+        <PageTitleProvider>
+          <TopBar
+            contentClassName={
+              expanded
+                ? classes.leftPaddingExpanded
+                : classes.leftPaddingCompact
+            }
+          />
+          <NavigationSideBar
+            expanded={expanded}
+            expand={expand}
+            collapse={collapse}
+          />
+          <div className={`${classes.container}`}>
+            <div
+              className={`${
+                expanded ? classes.navWidthExpanded : classes.navWidthCompact
+              }`}
+            >
+              <div className={classes.fabContainer}>
+                <Fab
+                  onClick={toggleExpand}
+                  size="small"
+                  className={classes.fab}
+                >
+                  {expanded ? (
+                    <ChevronLeftIcon className={classes.white} />
+                  ) : (
+                    <ChevronRightIcon className={classes.white} />
+                  )}
+                </Fab>
+              </div>
+            </div>
+            <div className={`${classes.contentView}`}>
+              <LoadingStateIndicatorFullScreen>
+                {props.children}
+              </LoadingStateIndicatorFullScreen>
             </div>
           </div>
-          <div className={`${classes.contentView}`}>
-            <LoadingStateIndicatorFullScreen>
-              {props.children}
-            </LoadingStateIndicatorFullScreen>
-          </div>
-        </div>
+        </PageTitleProvider>
       </LoadingStateProvider>
     );
   }

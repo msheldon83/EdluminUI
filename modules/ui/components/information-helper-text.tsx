@@ -1,7 +1,6 @@
 import { Grid, makeStyles } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
 import * as React from "react";
-import { Trans } from "react-i18next";
 
 type Props = {
   text: JSX.Element;

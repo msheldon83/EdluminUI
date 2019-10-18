@@ -1,0 +1,11 @@
+query UserProfileAvatar {
+  userAccess {
+    me {
+      user {
+        id
+        firstName
+        lastName
+      }
+    }
+  }
+}

@@ -1,11 +1,13 @@
 import * as React from "react";
 import { Grid, makeStyles, Typography } from "@material-ui/core";
 import EmojiObjectsOutlinedIcon from "@material-ui/icons/EmojiObjectsOutlined";
-import { Trans } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 type Props = { className?: string; titleClassName?: string };
 export const EdluminLogo: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
+
   return (
     <Grid
       container
@@ -19,7 +21,7 @@ export const EdluminLogo: React.FC<Props> = props => {
         variant={"h2"}
         className={`${classes.productTitle} ${props.titleClassName}`}
       >
-        <Trans i18nKey="product">Edlumin</Trans>
+        {t("Edlumin")}
       </Typography>
     </Grid>
   );

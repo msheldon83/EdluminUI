@@ -1,24 +1,30 @@
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
+import { UpdateUserTimezone } from "ui/pages/profile/UpdateUserTimezone.gen";
+import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
+import { MyProfile } from "ui/pages/profile/MyProfile.gen";
 import * as React from "react";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { MyProfile } from "graphql/queries/MyProfile.gen";
 import { ProfileUI } from "./profile-ui";
-import { UpdateLoginEmail } from "graphql/mutations/UpdateLoginEmail.gen";
-import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-trigger";
+import { useTimezones } from "reference-data/timezones";
 
 type Props = {};
 
 export const ProfilePage: React.FC<Props> = props => {
   const myProfile = useQueryBundle(MyProfile);
+  const timeZones = useTimezones();
   const [updateLoginEmail] = useMutationBundle(UpdateLoginEmail);
+  const [resetPassword] = useMutationBundle(ResetPassword);
+  const [updateTimezone] = useMutationBundle(UpdateUserTimezone);
 
   if (myProfile.state === "LOADING") {
-    return <LoadingStateTrigger fullScreen />;
+    return <></>;
   }
   if (
     !myProfile.data ||
     !myProfile.data.userAccess ||
     !myProfile.data.userAccess.me ||
-    !myProfile.data.userAccess.me.user
+    !myProfile.data.userAccess.me.user ||
+    !timeZones
   ) {
     return <div>oh no</div>;
   }
@@ -26,6 +32,9 @@ export const ProfilePage: React.FC<Props> = props => {
     <ProfileUI
       user={myProfile.data.userAccess.me.user}
       updateLoginEmail={updateLoginEmail}
+      updateTimezone={updateTimezone}
+      timeZoneOptions={timeZones}
+      resetPassword={resetPassword}
     />
   );
 };
