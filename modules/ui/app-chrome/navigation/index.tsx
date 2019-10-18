@@ -2,6 +2,7 @@ import { Divider, Drawer, List, makeStyles } from "@material-ui/core";
 import * as React from "react";
 import { EdluminLogo } from "ui/components/edlumin-logo";
 import { AutoSwitchingNavLinks } from "../navigation-links/role-nav-links";
+import { RoleSwitcher } from "../role-switcher";
 
 type Props = {
   expanded: boolean;
@@ -25,9 +26,8 @@ export const NavigationSideBar: React.FC<Props> = props => {
       }}
     >
       <EdluminLogo titleClassName={classes.spacing} />
-
-      <Divider />
-
+      <RoleSwitcher />
+      <Divider className={classes.divider} />
       <List className={classes.list}>
         <AutoSwitchingNavLinks />
       </List>
@@ -46,6 +46,9 @@ const useStyles = makeStyles(theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
     }),
+  },
+  divider: {
+    background: theme.customColors.edluminLightSlate,
   },
   drawerClose: {
     transition: theme.transitions.create("width", {
