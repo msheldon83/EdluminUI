@@ -14,6 +14,7 @@ import { TopBar } from "./navigation/top-bar";
 import { LoadingStateIndicatorFullScreen } from "ui/components/loading-state/loading-state-indicator-fullscreen";
 import { PageTitleProvider } from "./page-title-context";
 import { ErrorBoundary } from "ui/components/error-boundary";
+import { OrganizationSwitcher } from "./organization-switcher";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -51,6 +52,7 @@ export const AppChrome: React.FunctionComponent = props => {
               </ErrorBoundary>
             </div>
           </div>
+          <OrganizationSwitcher />
         </PageTitleProvider>
       </LoadingStateProvider>
     );
@@ -98,6 +100,13 @@ export const AppChrome: React.FunctionComponent = props => {
               </ErrorBoundary>
             </div>
           </div>
+          <OrganizationSwitcher
+            contentClassName={
+              expanded
+                ? classes.leftPaddingExpanded
+                : classes.leftPaddingCompact
+            }
+          />
         </PageTitleProvider>
       </LoadingStateProvider>
     );
