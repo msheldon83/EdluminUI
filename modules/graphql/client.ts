@@ -13,7 +13,7 @@ export function buildGraphqlClient(opts: {
   prefixLink?: ApolloLink;
 }): ApolloClient<NormalizedCacheObject> {
   const { history, fetch, uri, prefixLink } = {
-    uri: "/graphql",
+    uri: Config.apiUri,
     ...opts,
   };
   const cache = new InMemoryCache();

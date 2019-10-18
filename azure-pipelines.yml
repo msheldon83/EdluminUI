@@ -19,4 +19,40 @@ steps:
   - script: |
       yarn
       yarn build
-    displayName: "yarn build"
+    displayName: "install dependencies and build"
+
+  - script: |
+      yarn lint
+      yarn run jest --reporters=jest-junit
+    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: "lint and unit tests"
+
+  - task: PublishTestResults@2
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: "junit.xml"
+    condition: and(succeededOrFailed(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+  - script: |
+      yarn production-build
+    displayName: "production build"
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+  - task: OctopusPack@4
+    displayName: "Package for Octopus"
+    inputs:
+      PackageId: "Edlumin.UI"
+      PackageVersion: $(Build.BuildNumber)
+      SourcePath: "./dist"
+      OutputPath: $(Build.ArtifactStagingDirectory)
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+  - task: OctopusPush@4
+    displayName: "Push packages to Octopus"
+    inputs:
+      OctoConnectedServiceName: "Octopus Deploy"
+      Space: "Default"
+      Replace: true
+      Package: |
+        $(Build.ArtifactStagingDirectory)/Edlumin.UI.$(Build.BuildNumber).nupkg
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))

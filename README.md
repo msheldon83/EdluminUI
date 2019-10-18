@@ -14,13 +14,10 @@ This project is a single-page webapp using the following technologies:
 ## Setup
 
 - Install Node 10 LTS and yarn. Older or newer versions may or may not work. (Recommend `nodenv` and `brew install yarn --without-node` on mac.)
-- Install Docker.app. Our database and other services are configured to run in docker.
-- Symlink `.env.example` to `.env`, which sets up your environment to run from Docker. You can copy and modify `.env.example` to `.env` if the defaults won't work for you.
-- Symlink `.envrc.example` to `.envrc`. This allows you to set some environment variables for development
 
 ## Configuration
 
-The compiled frontend is influenced by environment variables. The current list is:
+The compiled frontend is influenced by config variables which can optionally be set as environment variables. The current list is:
 
 - `NODE_ENV`: If "production", the app will be built minified and compressed.
 - `DEV_PROXY_HOST`: The URL that webpack-dev-server will proxy graphql requests to.
@@ -30,8 +27,10 @@ The compiled frontend is influenced by environment variables. The current list i
 - `AUTH0_API_AUDIENCE`: This specifies the Auth0 audience. It should match the API's configuration.
 - `AUTH0_SCOPE`: Additional information that will be included in the token sent to our API.
 
-The .env file is used to default these, via `config/default.js`. You can override these by setting
-them at the unix shell, or using the `cross-env` utility.
+The `config/default.js` is used to default these variables and `config/production.js` is used for defaulting the production build.  
+
+The .env file can be used to override these variables. See the `.env.example` file.  You can override these by setting
+them at the unix shell, or using the `cross-env` utility.  In most cases, the `DEV_PROXY_HOST` variable is likely to be changed for testing against a local version of the API.
 
 ### Adding additional configuration vars
 
