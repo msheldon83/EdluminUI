@@ -36,7 +36,7 @@ steps:
   - script: |
       yarn production-build
     displayName: "production build"
-    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - task: OctopusPack@4
     displayName: "Package for Octopus"
@@ -45,7 +45,7 @@ steps:
       PackageVersion: $(Build.BuildNumber)
       SourcePath: "./dist"
       OutputPath: $(Build.ArtifactStagingDirectory)
-    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - task: OctopusPush@4
     displayName: "Push packages to Octopus"
@@ -55,4 +55,4 @@ steps:
       Replace: true
       Package: |
         $(Build.ArtifactStagingDirectory)/Edlumin.UI.$(Build.BuildNumber).nupkg
-    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
