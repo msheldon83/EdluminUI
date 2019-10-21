@@ -1,5 +1,6 @@
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import BusinessIcon from "@material-ui/icons/Business";
 import DateRangeIcon from "@material-ui/icons/DateRange";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
@@ -12,10 +13,11 @@ import SwapCallsIcon from "@material-ui/icons/SwapCalls";
 import TimelineIcon from "@material-ui/icons/Timeline";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { NavLink } from "./nav-link";
 import { AppChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
+import { Organizations } from "ui/routes/organizations";
 import { ProfileRoute } from "ui/routes/profile";
+import { NavLink } from "./nav-link";
 
 type Props = {
   className?: string;
@@ -188,6 +190,18 @@ export const SignOutNavLink: React.FC<Props> = props => {
       title={t("Sign Out")}
       icon={<ExitToAppIcon />}
       route={"/404"}
+      {...props}
+    />
+  );
+};
+
+export const OrganizationsNavLink: React.FC<Props> = props => {
+  const { t } = useTranslation();
+  return (
+    <NavLink
+      title={t("Organizations")}
+      icon={<BusinessIcon />}
+      route={Organizations.PATH_TEMPLATE}
       {...props}
     />
   );

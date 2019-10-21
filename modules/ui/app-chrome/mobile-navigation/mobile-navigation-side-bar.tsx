@@ -18,6 +18,7 @@ import {
   SecurityNavLink,
   SignOutNavLink,
   SubPreferencesNavLink,
+  OrganizationsNavLink,
 } from "../custom-nav-links";
 import { MobileSearchBar } from "./mobile-search";
 import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
@@ -66,6 +67,7 @@ export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
         <CalendarNavLink onClick={props.collapse} />
         <ConfigurationNavLink onClick={props.collapse} />
         <SecurityNavLink onClick={props.collapse} />
+        <OrganizationsNavLink onClick={props.collapse} />
         <MyScheduleNavLink onClick={props.collapse} />
         <PTOBalancesNavLink onClick={props.collapse} />
         <SubPreferencesNavLink onClick={props.collapse} />

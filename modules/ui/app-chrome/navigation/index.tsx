@@ -6,14 +6,13 @@ import {
   AnalyticsAndReportsNavLink,
   CalendarNavLink,
   ConfigurationNavLink,
-  HelpNavLink,
   HomeNavLink,
   MyScheduleNavLink,
+  OrganizationsNavLink,
   PeopleNavLink,
   PTOBalancesNavLink,
   SchoolsNavLink,
   SecurityNavLink,
-  SignOutNavLink,
   SubPreferencesNavLink,
 } from "../custom-nav-links";
 
@@ -50,6 +49,7 @@ export const NavigationSideBar: React.FC<Props> = props => {
         <PeopleNavLink />
         <CalendarNavLink />
         <ConfigurationNavLink />
+        <OrganizationsNavLink />
         <SecurityNavLink />
         <MyScheduleNavLink />
         <PTOBalancesNavLink />

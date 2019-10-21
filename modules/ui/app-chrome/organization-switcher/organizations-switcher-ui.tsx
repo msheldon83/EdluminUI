@@ -10,7 +10,11 @@ import {
 import { useTranslation } from "react-i18next";
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz";
 
-type Props = { currentOrganizationName: string; contentClassName?: string };
+type Props = {
+  currentOrganizationName: string;
+  onSwitch: () => void;
+  contentClassName?: string;
+};
 
 export const OrganizationSwitcherUI: React.FC<Props> = props => {
   const { t } = useTranslation();
@@ -28,7 +32,11 @@ export const OrganizationSwitcherUI: React.FC<Props> = props => {
             <Typography className={classes.orgName}>
               {props.currentOrganizationName}
             </Typography>
-            <Button className={classes.button} endIcon={<SwapHorizIcon />}>
+            <Button
+              onClick={props.onSwitch}
+              className={classes.button}
+              endIcon={<SwapHorizIcon />}
+            >
               {t("Switch")}
             </Button>
           </Grid>

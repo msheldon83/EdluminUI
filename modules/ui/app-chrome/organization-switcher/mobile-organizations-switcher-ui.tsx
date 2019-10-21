@@ -9,7 +9,11 @@ import {
 } from "@material-ui/core";
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz";
 
-type Props = { currentOrganizationName: string; contentClassName?: string };
+type Props = {
+  currentOrganizationName: string;
+  onSwitch: () => void;
+  contentClassName?: string;
+};
 
 export const MobileOrganizationSwitcherUI: React.FC<Props> = props => {
   const classes = useStyles();
@@ -26,7 +30,7 @@ export const MobileOrganizationSwitcherUI: React.FC<Props> = props => {
           </Grid>
 
           <Grid item>
-            <IconButton className={classes.button}>
+            <IconButton onClick={props.onSwitch} className={classes.button}>
               <SwapHorizIcon />
             </IconButton>
           </Grid>
