@@ -67,7 +67,13 @@ type AbsenceMutations {
 type AbsenceQueries {
   byId(id: ID!): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedAbsence
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -127,8 +133,12 @@ input AbsenceReasonBalanceCreateInput {
 }
 
 type AbsenceReasonBalanceMutations {
-  create(absenceReasonBalance: AbsenceReasonBalanceCreateInput!): AbsenceReasonBalance
-  update(absenceReasonBalance: AbsenceReasonBalanceUpdateInput!): AbsenceReasonBalance
+  create(
+    absenceReasonBalance: AbsenceReasonBalanceCreateInput!
+  ): AbsenceReasonBalance
+  update(
+    absenceReasonBalance: AbsenceReasonBalanceUpdateInput!
+  ): AbsenceReasonBalance
   delete(absenceReasonBalanceId: Int!): Boolean
 }
 
@@ -317,7 +327,13 @@ type AssignmentMutations {
 type AssignmentQueries {
   byId(id: ID!): Assignment
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Assignment]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAssignment
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedAssignment
 }
 
 enum AssignmentType {
@@ -464,7 +480,13 @@ type CalendarChangeMutations {
 type CalendarChangeQueries {
   byId(id: ID!): CalendarChange
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [CalendarChange]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedCalendarChange
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedCalendarChange
 }
 
 type CalendarChangeReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -628,8 +650,20 @@ type ContractMutations {
 
 type ContractQueries {
   byId(id: ID!): Contract
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Contract]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedContract
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [Contract]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedContract
 }
 
 type ContractSchedule implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -674,7 +708,13 @@ type ContractScheduleMutations {
 type ContractScheduleQueries {
   byId(id: ID!): ContractSchedule
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ContractSchedule]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedContractSchedule
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedContractSchedule
 }
 
 input ContractScheduleUpdateInput {
@@ -761,8 +801,20 @@ type CustomFieldMutations {
 
 type CustomFieldQueries {
   byId(id: ID!): CustomField
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [CustomField]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedCustomField
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [CustomField]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedCustomField
 }
 
 enum CustomFieldRequirementLevel {
@@ -962,7 +1014,13 @@ input EmployeePhoneInput {
 type EmployeeQueries {
   byId(id: ID!): Employee
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Employee]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedEmployee
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedEmployee
 }
 
 input EmployeeUpdateInput {
@@ -1434,7 +1492,13 @@ type LocationGroupMutations {
 type LocationGroupQueries {
   byId(id: ID!): LocationGroup
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [LocationGroup]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedLocationGroup
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedLocationGroup
 }
 
 input LocationGroupUpdateInput {
@@ -1454,8 +1518,20 @@ type LocationMutations {
 
 type LocationQueries {
   byId(id: ID!): Location
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Location]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedLocation
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [Location]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedLocation
 }
 
 input LocationUpdateInput {
@@ -1543,7 +1619,12 @@ type NotificationLogMutations {
 
 type NotificationLogQueries {
   byId(id: ID!): NotificationLog
-  paged(limit: Int, offset: Int, orgId: ID, includeViewed: Boolean): PagedNotificationLog
+  paged(
+    limit: Int
+    offset: Int
+    orgId: ID
+    includeViewed: Boolean
+  ): PagedNotificationLog
   unreadNotificationCount(orgId: ID): Int
 }
 
@@ -1710,8 +1791,20 @@ type OrgRef_AbsenceReasonMutations {
 }
 
 type OrgRef_AbsenceReasonQueries {
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AbsenceReason]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAbsenceReason
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [AbsenceReason]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedAbsenceReason
 }
 
 type OrgRef_AccountingCodeMutations {
@@ -1721,30 +1814,74 @@ type OrgRef_AccountingCodeMutations {
 }
 
 type OrgRef_AccountingCodeQueries {
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AccountingCode]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAccountingCode
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [AccountingCode]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedAccountingCode
 }
 
 type OrgRef_CalendarChangeReasonMutations {
-  create(calendarChangeReason: CalendarChangeReasonCreateInput!): CalendarChangeReason
-  update(calendarChangeReason: CalendarChangeReasonUpdateInput!): CalendarChangeReason
+  create(
+    calendarChangeReason: CalendarChangeReasonCreateInput!
+  ): CalendarChangeReason
+  update(
+    calendarChangeReason: CalendarChangeReasonUpdateInput!
+  ): CalendarChangeReason
   delete(calendarChangeReasonId: Int!): Boolean
 }
 
 type OrgRef_CalendarChangeReasonQueries {
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [CalendarChangeReason]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedCalendarChangeReason
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [CalendarChangeReason]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedCalendarChangeReason
 }
 
 type OrgRef_EndEmploymentReasonMutations {
-  create(endEmploymentReason: EndEmploymentReasonCreateInput!): EndEmploymentReason
-  update(endEmploymentReason: EndEmploymentReasonUpdateInput!): EndEmploymentReason
+  create(
+    endEmploymentReason: EndEmploymentReasonCreateInput!
+  ): EndEmploymentReason
+  update(
+    endEmploymentReason: EndEmploymentReasonUpdateInput!
+  ): EndEmploymentReason
   delete(endEmploymentReasonId: Int!): Boolean
 }
 
 type OrgRef_EndEmploymentReasonQueries {
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [EndEmploymentReason]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedEndEmploymentReason
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [EndEmploymentReason]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedEndEmploymentReason
 }
 
 type OrgRef_EndorsementMutations {
@@ -1754,8 +1891,20 @@ type OrgRef_EndorsementMutations {
 }
 
 type OrgRef_EndorsementQueries {
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Endorsement]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedEndorsement
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [Endorsement]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedEndorsement
 }
 
 type OrgRef_LabelMutations {
@@ -1765,8 +1914,20 @@ type OrgRef_LabelMutations {
 }
 
 type OrgRef_LabelQueries {
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Label]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedLabel
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [Label]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedLabel
 }
 
 type OrgRef_PayCodeMutations {
@@ -1776,19 +1937,47 @@ type OrgRef_PayCodeMutations {
 }
 
 type OrgRef_PayCodeQueries {
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [PayCode]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedPayCode
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [PayCode]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedPayCode
 }
 
 type OrgRef_WorkDayScheduleVariantTypeMutations {
-  create(workDayScheduleVariantType: WorkDayScheduleVariantTypeCreateInput!): WorkDayScheduleVariantType
-  update(workDayScheduleVariantType: WorkDayScheduleVariantTypeUpdateInput!): WorkDayScheduleVariantType
+  create(
+    workDayScheduleVariantType: WorkDayScheduleVariantTypeCreateInput!
+  ): WorkDayScheduleVariantType
+  update(
+    workDayScheduleVariantType: WorkDayScheduleVariantTypeUpdateInput!
+  ): WorkDayScheduleVariantType
   delete(workDayScheduleVariantTypeId: Int!): Boolean
 }
 
 type OrgRef_WorkDayScheduleVariantTypeQueries {
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [WorkDayScheduleVariantType]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedWorkDayScheduleVariantType
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [WorkDayScheduleVariantType]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedWorkDayScheduleVariantType
 }
 
 type OrgUser implements ModelObjectInterface & OrgObjectInterface {
@@ -1841,7 +2030,13 @@ type OrgUserMutations {
 type OrgUserQueries {
   byId(id: ID!): OrgUser
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [OrgUser]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedOrgUser
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedOrgUser
 }
 
 enum OrgUserRole {
@@ -2268,7 +2463,13 @@ type PermissionSetMutations {
 type PermissionSetQueries {
   byId(id: ID!): PermissionSet
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [PermissionSet]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedPermissionSet
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedPermissionSet
 }
 
 input PermissionSetUpdateInput {
@@ -2350,8 +2551,12 @@ type PositionScheduleMutations {
   create(positionSchedule: PositionScheduleCreateInput!): PositionSchedule
   update(positionSchedule: PositionScheduleUpdateInput!): PositionSchedule
   delete(positionScheduleId: Int!): Boolean
-  modifyScheduleVariant(positionScheduleVariant: PositionScheduleVariantModifyInput!): PositionScheduleVariant
-  deleteScheduleVariant(positionScheduleVariant: PositionScheduleVariantDeleteInput!): Boolean
+  modifyScheduleVariant(
+    positionScheduleVariant: PositionScheduleVariantModifyInput!
+  ): PositionScheduleVariant
+  deleteScheduleVariant(
+    positionScheduleVariant: PositionScheduleVariantDeleteInput!
+  ): Boolean
 }
 
 type PositionSchedulePeriod implements ModelObjectInterface & OrgObjectInterface {
@@ -2391,7 +2596,13 @@ input PositionSchedulePeriodInput {
 type PositionScheduleQueries {
   byId(id: ID!): PositionSchedule
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [PositionSchedule]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedPositionSchedule
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedPositionSchedule
 }
 
 input PositionScheduleUpdateInput {
@@ -2528,7 +2739,13 @@ type PositionTypeMutations {
 type PositionTypeQueries {
   byId(id: ID!): PositionType
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [PositionType]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedPositionType
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedPositionType
 }
 
 input PositionTypeUpdateInput {
@@ -2871,15 +3088,29 @@ input ReplacementPoolConfigCreateInput {
 }
 
 type ReplacementPoolConfigMutations {
-  create(replacementPoolConfig: ReplacementPoolConfigCreateInput!): ReplacementPoolConfig
-  update(replacementPoolConfig: ReplacementPoolConfigUpdateInput!): ReplacementPoolConfig
+  create(
+    replacementPoolConfig: ReplacementPoolConfigCreateInput!
+  ): ReplacementPoolConfig
+  update(
+    replacementPoolConfig: ReplacementPoolConfigUpdateInput!
+  ): ReplacementPoolConfig
   delete(replacementPoolConfigId: Int!): Boolean
 }
 
 type ReplacementPoolConfigQueries {
   byId(id: ID!): ReplacementPoolConfig
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ReplacementPoolConfig]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedReplacementPoolConfig
+  all(
+    orgId: ID
+    orgIds: [ID]
+    sortBy: [SortDetailsInput]
+  ): [ReplacementPoolConfig]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedReplacementPoolConfig
 }
 
 input ReplacementPoolConfigUpdateInput {
@@ -2913,7 +3144,11 @@ type ReturnMessage {
 }
 
 type ReturnMessageTestQueries {
-  testInfo(includeInfo: Boolean, includeWarning: Boolean, includeError: Boolean): TestTypeDef
+  testInfo(
+    includeInfo: Boolean
+    includeWarning: Boolean
+    includeError: Boolean
+  ): TestTypeDef
 }
 
 type SavedView implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2980,7 +3215,14 @@ type SavedViewMutations {
 type SavedViewQueries {
   byId(id: ID!): SavedView
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [SavedView]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String): PagedSavedView
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+    searchText: String
+  ): PagedSavedView
 }
 
 type SavedViewSort {
@@ -3047,7 +3289,13 @@ type SchoolYearMutations {
 type SchoolYearQueries {
   byId(id: ID!): SchoolYear
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [SchoolYear]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedSchoolYear
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+  ): PagedSchoolYear
   currentSchoolYear(orgId: ID!): SchoolYear
 }
 
@@ -3367,8 +3615,20 @@ type WorkDayPatternMutations {
 
 type WorkDayPatternQueries {
   byId(id: ID!): WorkDayPattern
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [WorkDayPattern]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedWorkDayPattern
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [WorkDayPattern]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedWorkDayPattern
 }
 
 input WorkDayPatternUpdateInput {
@@ -3415,8 +3675,12 @@ type WorkDayScheduleMutations {
   create(workDaySchedule: WorkDayScheduleCreateInput!): WorkDaySchedule
   update(workDaySchedule: WorkDayScheduleUpdateInput!): WorkDaySchedule
   delete(workDayScheduleId: Int!): Boolean
-  modifyScheduleVariant(workDayScheduleVariant: WorkDayScheduleVariantModifyInput!): WorkDayScheduleVariant
-  deleteScheduleVariant(workDayScheduleVariant: WorkDayScheduleVariantDeleteInput!): Boolean
+  modifyScheduleVariant(
+    workDayScheduleVariant: WorkDayScheduleVariantModifyInput!
+  ): WorkDayScheduleVariant
+  deleteScheduleVariant(
+    workDayScheduleVariant: WorkDayScheduleVariantDeleteInput!
+  ): Boolean
 }
 
 type WorkDaySchedulePeriod implements ModelObjectInterface {
@@ -3440,8 +3704,20 @@ input WorkDaySchedulePeriodInput {
 
 type WorkDayScheduleQueries {
   byId(id: ID!): WorkDaySchedule
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [WorkDaySchedule]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedWorkDaySchedule
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [WorkDaySchedule]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedWorkDaySchedule
 }
 
 input WorkDayScheduleUpdateInput {
