@@ -1,0 +1,13 @@
+query QueryOrgUserRoles{
+  userAccess {
+      me{
+        user{
+          orgUsers{
+            isAdmin
+            isEmployee
+            isReplacementEmployee
+          }
+        }
+      }
+  }
+}

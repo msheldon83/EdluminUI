@@ -1,31 +1,23 @@
 import * as React from "react";
 import { RoleSwitcherUI } from "./role-switcher-ui";
 import { useQueryBundle } from "../../../graphql/hooks";
+import { QueryOrgUserRoles } from "ui/role-switcher/QueryOrgUserRoles.gen";
 
-type Props = {};
+type Props = {
+  roles: string[];
+};
 
 // //GQL query
-// export const ProfileAvatar: React.FC<Props> = props => {
-//   const profile = useQueryBundle(ProfileAvatarQuery);
-
-//   if (profile.state === "LOADING") {
-//     return <></>;
-//   }
-//   if (
-//     !profile.data ||
-//     !profile.data.userAccess ||
-//     !profile.data.userAccess.me ||
-//     !profile.data.userAccess.me.user
-//   ) {
-//     return <ProfileAvatarUI initials={""} {...props} />;
-//   }
-
-//   const initials = getInitials(profile.data.userAccess.me.user);
-
-//   return <ProfileAvatarUI initials={initials} {...props} />;
-// };
-
 export const RoleSwitcher: React.FC<Props> = props => {
+  const OrgUserRoles = useQueryBundle(QueryOrgUserRoles);
+  OrgUserRoles.props.roles;
+
+  const orgUserRoles = {
+    isAdmin: props.roles,
+    isEmployee: props.roles,
+    isReplacementEmployee: props.roles,
+  };
+
   return (
     <RoleSwitcherUI
       selectedRole="Administrator"
