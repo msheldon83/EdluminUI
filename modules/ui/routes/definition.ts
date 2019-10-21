@@ -10,10 +10,15 @@ export function defineRoute<Params extends string>(
   params: Params[]
 ): Route<Params> {
   return {
-    path,
+    path: normalizePath(path),
     generate: (params: { [k in Params]: string }) => generatePath(path, params),
   };
 }
+
+export function defineSubRoute<Params extends string>(
+  parent: Route<Params>,
+  subPath: string
+): Route<Params>;
 
 export function defineSubRoute<
   ParentParams extends string,
@@ -23,7 +28,7 @@ export function defineSubRoute<
   subPath: string,
   params: OwnParams[] = []
 ): Route<ParentParams | OwnParams> {
-  const path = `${parent.path}${subPath}`;
+  const path = `${parent.path}${normalizePath(subPath)}`;
   return {
     path,
     generate: (params: { [k in ParentParams & OwnParams]: string }) =>
@@ -33,4 +38,14 @@ export function defineSubRoute<
 
 export function useRouteParams<Params extends string>(route: Route<Params>) {
   return useParams<{ [k in Params]: string }>();
+}
+
+function normalizePath(path: string) {
+  return (
+    "/" +
+    path
+      .trim()
+      .replace(/^(\/+)/, "")
+      .replace(/(\/+)$/, "")
+  );
 }
