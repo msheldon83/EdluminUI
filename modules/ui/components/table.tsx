@@ -70,18 +70,13 @@ export const Table: React.FC<Props> = props => {
       options={{
         search: false,
         selection: props.selection,
-        paging: props.paging
+        paging: props.paging,
       }}
     />
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  button: {
-    color: theme.customColors.blue,
-    textTransform: "uppercase",
-    "&:hover": {
-      backgroundColor: "inherit",
-    },
-  },
+  //TODO: Left here because I figure we are going to need this
+  // in the future
 }));
