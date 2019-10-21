@@ -10,6 +10,7 @@ import { LoginPageRouteLoader } from "./pages/login/loader";
 import { Index, IndexLoader } from "./routes";
 import { EdluminTheme } from "./styles/mui-theme";
 import { ProfileLoader, Profile } from "./routes/profile";
+import { PositionTypeLoader, PositionType } from "./routes/position-type";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -37,6 +38,10 @@ export function App(props: {}) {
                     <Route
                       component={ProfileLoader}
                       path={Profile.PATH_TEMPLATE}
+                    />
+                    <Route
+                      component={PositionTypeLoader}
+                      path={PositionType.PATH_TEMPLATE}
                     />
                   </Switch>
                 </AppChrome>
