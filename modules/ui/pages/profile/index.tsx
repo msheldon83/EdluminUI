@@ -1,6 +1,6 @@
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
-import { UpdateUserTimezone } from "ui/pages/profile/UpdateUserTimezone.gen";
+import { UpdateUser } from "./UpdateUser.gen";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { MyProfile } from "ui/pages/profile/MyProfile.gen";
 import * as React from "react";
@@ -14,7 +14,7 @@ export const ProfilePage: React.FC<Props> = props => {
   const timeZones = useTimezones();
   const [updateLoginEmail] = useMutationBundle(UpdateLoginEmail);
   const [resetPassword] = useMutationBundle(ResetPassword);
-  const [updateTimezone] = useMutationBundle(UpdateUserTimezone);
+  const [updateUser] = useMutationBundle(UpdateUser);
 
   if (myProfile.state === "LOADING") {
     return <></>;
@@ -32,7 +32,7 @@ export const ProfilePage: React.FC<Props> = props => {
     <ProfileUI
       user={myProfile.data.userAccess.me.user}
       updateLoginEmail={updateLoginEmail}
-      updateTimezone={updateTimezone}
+      updateUser={updateUser}
       timeZoneOptions={timeZones}
       resetPassword={resetPassword}
     />
