@@ -145,25 +145,25 @@ export const AppChromeAdmin = () => {
   const Provider = mockProvider({
     mocks: {
       Query: () => ({
-        organization: () => ({
-          byId: {
-            id: 1,
-            name: "Kent County ISD",
-          },
-        }),
         userAccess: () => ({
           me: {
             user: () => ({
               orgUsers: [
                 {
                   id: 1,
-                  orgId: 1,
                   isAdmin: true,
+                  organization: {
+                    id: 1,
+                    name: "Kent County ISD",
+                  },
                 },
                 {
                   id: 12,
-                  orgId: 12,
                   isAdmin: true,
+                  organization: {
+                    id: 12,
+                    name: "Berrien County ISD",
+                  },
                 },
               ],
             }),

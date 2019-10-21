@@ -33,7 +33,10 @@ export const RoutedOrganizationSwitcher: React.FC<Props> = props => {
   if (possibleOrgs.length < 1) {
     return <></>;
   }
-  const currentOrganization = possibleOrgs.find(org => org && org.id === 1); // get from URL
+  const currentOrganization = possibleOrgs.find(
+    org => org && Number(org.id) === 1
+  ); // get from URL
+
   const currentOrganizationName =
     currentOrganization && currentOrganization.name;
 
