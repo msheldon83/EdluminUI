@@ -1,12 +1,15 @@
 import { generatePath, RouteComponentProps } from "react-router-dom";
 import { asyncComponent } from "ui/async-component";
 import * as React from "react";
+import { AppChrome } from "./app-chrome";
 
 export namespace Index {
-  export const PATH_TEMPLATE = "/";
+  export const PATH_TEMPLATE = "/:organizationId/:role";
 
-  export function generate() {
-    return generatePath(PATH_TEMPLATE);
+  export type Params = AppChrome.Params;
+
+  export function generate(params: Params) {
+    return generatePath(PATH_TEMPLATE, params);
   }
 }
 

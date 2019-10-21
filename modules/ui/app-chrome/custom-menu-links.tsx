@@ -7,6 +7,8 @@ import { MenuLink } from "./menu-link";
 import { Profile } from "ui/routes/profile";
 import { Index } from "ui/routes";
 import { useAuth0 } from "auth/auth0";
+import { useRouteMatch, useParams } from "react-router";
+import { AppChrome } from "ui/routes/app-chrome";
 
 type Props = {
   className?: string;
@@ -15,11 +17,12 @@ type Props = {
 
 export const MyProfileMenuLink: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const params = useParams<Profile.Params>();
   return (
     <MenuLink
       title={t("My Profile")}
       icon={<AccountCircleIcon />}
-      route={Profile.PATH_TEMPLATE}
+      route={Profile.generate(params)}
       {...props}
     />
   );

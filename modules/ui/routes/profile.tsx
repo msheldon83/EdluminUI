@@ -1,12 +1,15 @@
 import { generatePath, RouteComponentProps } from "react-router-dom";
 import { asyncComponent } from "ui/async-component";
 import * as React from "react";
+import { AppChrome } from "./app-chrome";
 
 export namespace Profile {
-  export const PATH_TEMPLATE = "/profile";
+  export const PATH_TEMPLATE = `${AppChrome.PATH_TEMPLATE}/profile`;
 
-  export function generate() {
-    return generatePath(PATH_TEMPLATE);
+  export type Params = AppChrome.Params;
+
+  export function generate(params: Params) {
+    return generatePath(PATH_TEMPLATE, params);
   }
 }
 

@@ -14,6 +14,9 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Index } from "ui/routes";
 import { NavLink } from "./nav-link";
+import { useParams, useRouteMatch } from "react-router";
+import { Profile } from "ui/routes/profile";
+import { AppChrome } from "ui/routes/app-chrome";
 
 type Props = {
   className?: string;
@@ -22,11 +25,12 @@ type Props = {
 
 export const HomeNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const params = useParams<AppChrome.Params>();
   return (
     <NavLink
       title={t("Home")}
       icon={<HomeIcon />}
-      route={Index.PATH_TEMPLATE}
+      route={AppChrome.generate(params)}
       {...props}
     />
   );
@@ -154,11 +158,12 @@ export const SubPreferencesNavLink: React.FC<Props> = props => {
 
 export const MyProfileNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const params = useParams<AppChrome.Params>();
   return (
     <NavLink
       title={t("My Profile")}
       icon={<AccountCircleIcon />}
-      route={"/404"}
+      route={Profile.generate(params)}
       {...props}
     />
   );
