@@ -1,6 +1,6 @@
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/PositionTypes.gen";
+import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/position-types.gen";
 import * as React from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
@@ -8,7 +8,10 @@ import { PageTitle } from "ui/components/page-title";
 type Props = {};
 export const PositionTypePage: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg);
+  const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
+    // TODO: Commenting out until we have a way to get the current Org Id
+    //variables: { orgId: 1006 },
+  });
 
   const columns = [
     { title: t("Name"), field: "name", defaultSort: "asc" },
