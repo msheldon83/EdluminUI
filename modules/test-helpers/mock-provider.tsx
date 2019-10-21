@@ -9,7 +9,7 @@ import {
   mergeSchemas,
   MockList,
 } from "graphql-tools";
-import { mapValues as _mapValues } from "lodash-es";
+import { mapValues as _mapValues, initial } from "lodash-es";
 import * as React from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router";
 import * as uuid from "uuid";
@@ -17,6 +17,7 @@ import { ThemeProvider } from "@material-ui/styles";
 import { EdluminTheme } from "ui/styles/mui-theme";
 import { ApolloProvider } from "@apollo/react-common";
 import { SchemaMap, rawSchema } from "graphql/schema-base";
+import { AppChromeRoute } from "ui/routes/app-chrome";
 
 export { MockList } from "graphql-tools";
 
@@ -215,7 +216,9 @@ export function mockProvider(opts?: MockProviderOpts) {
     //not jest
   }
 
-  const initialUrl = opts.initialUrl || "/";
+  const initialUrl =
+    opts.initialUrl || AppChromeRoute.generate({ role: "admin" });
+  console.log("initial url", initialUrl);
 
   const mockFn = maybeJest ? maybeJest.fn : (x: any) => x;
 

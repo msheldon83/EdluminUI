@@ -25,6 +25,7 @@ type Props = {
 export const HomeNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(AppChromeRoute);
+  console.log("what are params", params);
   return (
     <NavLink
       title={t("Home")}
