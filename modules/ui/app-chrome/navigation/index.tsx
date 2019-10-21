@@ -75,6 +75,6 @@ const useStyles = makeStyles(theme => ({
   },
   icon: {
     color: theme.customColors.medLightGray,
-    //paddingRight: theme.typography.pxToRem(24),
+    marginLeft: theme.typography.pxToRem(24),
   },
 }));

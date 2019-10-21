@@ -60,10 +60,11 @@ const useStyles = makeStyles(theme => ({
   },
   icon: {
     fill: theme.customColors.medLightGray,
+    marginRight: theme.typography.pxToRem(15),
   },
   select: {
     width: theme.typography.pxToRem(225),
-    paddingLeft: theme.spacing(4),
+    marginLeft: theme.typography.pxToRem(24),
     color: theme.customColors.medLightGray,
     backgroundColor: theme.customColors.edluminSlate,
     "&:hover": {

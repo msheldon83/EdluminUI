@@ -1,0 +1,14 @@
+query OrgUserRoles {
+{
+  orgUser {
+        byId (
+          id: 
+        )    	  
+    {           
+          isAdmin
+          isEmployee
+          isReplacementEmployee              
+        }
+      }
+    }
+}
