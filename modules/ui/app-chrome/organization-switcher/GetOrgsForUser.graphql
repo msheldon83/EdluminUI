@@ -1,0 +1,18 @@
+query GetOrgsForUser {
+  userAccess {
+    me {
+      user {
+        id
+        rowVersion
+        orgUsers {
+          id
+          isAdmin
+          organization {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}

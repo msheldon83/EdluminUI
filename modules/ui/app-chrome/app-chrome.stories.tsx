@@ -14,7 +14,31 @@ export default {
 };
 
 export const AppChromeStory = () => {
-  const Provider = mockProvider();
+  const Provider = mockProvider({
+    mocks: {
+      Query: () => ({
+        organization: () => ({
+          byId: {
+            id: 1,
+            name: "Berrien ISD",
+          },
+        }),
+        userAccess: () => ({
+          me: {
+            user: () => ({
+              orgUsers: [
+                {
+                  id: 1,
+                  orgId: 1,
+                  isAdmin: false,
+                },
+              ],
+            }),
+          },
+        }),
+      }),
+    },
+  });
   return (
     <Provider>
       <Route path={AppChromeRoute.path}>
@@ -115,4 +139,57 @@ class ComponentWithError extends React.Component<object, {}> {
 
 AppChromeError.story = {
   name: "Error",
+};
+
+export const AppChromeAdmin = () => {
+  const Provider = mockProvider({
+    mocks: {
+      Query: () => ({
+        organization: () => ({
+          byId: {
+            id: 1,
+            name: "Kent County ISD",
+          },
+        }),
+        userAccess: () => ({
+          me: {
+            user: () => ({
+              orgUsers: [
+                {
+                  id: 1,
+                  orgId: 1,
+                  isAdmin: true,
+                },
+                {
+                  id: 12,
+                  orgId: 12,
+                  isAdmin: true,
+                },
+              ],
+            }),
+          },
+        }),
+      }),
+    },
+  });
+  return (
+    <Provider>
+      <AppChrome>
+        <Route
+          component={() => (
+            <>
+              <PageTitle title="This is my page title" />
+              {range(20).map((_, i) => (
+                <p key={i}>this is my page content</p>
+              ))}
+            </>
+          )}
+        />
+      </AppChrome>
+    </Provider>
+  );
+};
+
+AppChromeAdmin.story = {
+  name: "Admin in mulitple buildings",
 };
