@@ -8,7 +8,7 @@ import { IfAuthenticated } from "./components/auth/if-authenticated";
 import { RedirectToLogin } from "./components/auth/redirect-to-login";
 import { LoginPageRouteLoader } from "./pages/login/loader";
 import { IndexLoader } from "./routes";
-import { AppChromeRoute } from "./routes/app-chrome";
+import { AppChromeRoute, AdminChromeRoute } from "./routes/app-chrome";
 import { ProfileRoute, ProfileLoader } from "./routes/profile";
 import { EdluminTheme } from "./styles/mui-theme";
 
@@ -33,7 +33,7 @@ export function App(props: {}) {
               <p>
                 For now, though,{" "}
                 <Link
-                  to={AppChromeRoute.generate({
+                  to={AdminChromeRoute.generate({
                     organizationId: "1",
                     role: "admin",
                   })}

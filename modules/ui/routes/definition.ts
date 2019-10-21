@@ -26,6 +26,15 @@ export function defineSubRoute<
 >(
   parent: Route<ParentParams>,
   subPath: string,
+  params: OwnParams[]
+): Route<ParentParams | OwnParams>;
+
+export function defineSubRoute<
+  ParentParams extends string,
+  OwnParams extends string
+>(
+  parent: Route<ParentParams>,
+  subPath: string,
   params: OwnParams[] = []
 ): Route<ParentParams | OwnParams> {
   const path = `${parent.path}${normalizePath(subPath)}`;

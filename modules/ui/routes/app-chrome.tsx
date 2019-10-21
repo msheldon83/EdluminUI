@@ -1,6 +1,9 @@
-import { defineRoute } from "./definition";
+import { defineRoute, defineSubRoute } from "./definition";
 
-export const AppChromeRoute = defineRoute("/:organizationId/:role", [
-  "organizationId",
-  "role",
-]);
+export const AppChromeRoute = defineRoute("/:role", ["role"]);
+
+export const AdminChromeRoute = defineSubRoute(
+  AppChromeRoute,
+  "/:organizationId",
+  ["organizationId"]
+);
