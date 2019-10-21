@@ -1,13 +1,6 @@
-import { generatePath } from "react-router";
+import { defineRoute } from "./definition";
 
-export namespace AppChrome {
-  export type Params = {
-    organizationId: string;
-    role: string;
-  };
-  export const PATH_TEMPLATE = "/:organizationId/:role";
-
-  export function generate(params: Params) {
-    return generatePath(PATH_TEMPLATE, params);
-  }
-}
+export const AppChromeRoute = defineRoute("/:organizationId/:role", [
+  "organizationId",
+  "role",
+]);
