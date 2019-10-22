@@ -3,7 +3,6 @@ import * as React from "react";
 import { EdluminLogo } from "ui/components/edlumin-logo";
 import { AutoSwitchingNavLinks } from "../navigation-links/role-nav-links";
 import { RoleSwitcher } from "../role-switcher";
-import AccountBoxIcon from "@material-ui/icons/AccountBox";
 
 type Props = {
   expanded: boolean;
@@ -27,11 +26,7 @@ export const NavigationSideBar: React.FC<Props> = props => {
       }}
     >
       <EdluminLogo titleClassName={classes.spacing} />
-      {props.expanded ? (
-        <RoleSwitcher />
-      ) : (
-        <AccountBoxIcon className={classes.icon} />
-      )}
+      <RoleSwitcher />
       <Divider className={classes.divider} />
       <List className={classes.list}>
         <AutoSwitchingNavLinks />

@@ -3,6 +3,7 @@ import { RoleSwitcherUI } from "./role-switcher-ui";
 import { some } from "lodash-es";
 import { useQueryBundle } from "graphql/hooks";
 import { QueryOrgUserRoles } from "ui/app-chrome/role-switcher/QueryOrgUserRoles.gen";
+import { oc } from 'ts-optchain';
 
 type Props = {};
 
@@ -11,67 +12,36 @@ export const RoleSwitcher: React.FC<Props> = props => {
     fetchPolicy: "cache-and-network",
   });
 
-  if (
-    orgUserQuery.state === "LOADING" ||
-    !orgUserQuery.data.userAccess ||
-    !orgUserQuery.data.userAccess.me ||
-    !orgUserQuery.data.userAccess.me.user
-  ) {
+  if (orgUserQuery.state === "LOADING") {
     return <></>;
   }
 
-  const isSystemAdministrator =
-    orgUserQuery.data.userAccess.me.isSystemAdministrator;
+  const userAccess = oc(orgUserQuery).data.userAccess.me;
 
-  if (isSystemAdministrator) {
-    return <></>;
-  }
-
-  if (!orgUserQuery.data.userAccess.me.user.orgUsers) {
-    return <></>;
-  }
-
-  const orgUserRoles = orgUserQuery.data.userAccess.me.user.orgUsers;
-
-  //Find elidgable roles in the orgUserRoles array
+  //Find elidgible roles in the orgUserRoles array
   const roles = {
-    isAdmin: some(orgUserRoles, r => r.isAdmin),
-    isEmployee: some(orgUserRoles, r => r.isEmployee),
-    isReplacementEmployee: some(orgUserRoles, r => r.isReplacementEmployee),
+    isAdmin: some(userAccess.user.orgUsers, 'isAdmin'),
+    isEmployee: some(userAccess.user.orgUsers, 'isEmployee'),
+    isReplacementEmployee: some(userAccess.user.orgUsers, 'isReplacementEmployee'),
   };
 
-  if (roles.isAdmin && roles.isEmployee && roles.isReplacementEmployee) {
-    return (
-      <RoleSwitcherUI
-        selectedRole="Administrator"
-        roleOptions={["Administrator", "Employee", "Replacement Employee"]}
-      />
-    );
-  }
-  if (roles.isAdmin && roles.isEmployee) {
-    return (
-      <RoleSwitcherUI
-        selectedRole="Administrator"
-        roleOptions={["Administrator", "Employee"]}
-      />
-    );
-  }
-  if (roles.isAdmin && roles.isReplacementEmployee) {
-    return (
-      <RoleSwitcherUI
-        selectedRole="Administrator"
-        roleOptions={["Administrator", "Replacement Employee"]}
-      />
-    );
-  }
-  if (roles.isEmployee && roles.isReplacementEmployee) {
-    return (
-      <RoleSwitcherUI
-        selectedRole="Employee"
-        roleOptions={["Employee", "Replacement Employee"]}
-      />
-    );
-  } else {
+  const roleOptions: string[] = [];
+  roles.isAdmin && roleOptions.push("Administrator");
+  roles.isEmployee && roleOptions.push("Employee");
+  roles.isReplacementEmployee && roleOptions.push("Subsitute");
+
+  // Not showing the role switcher if the user is a system admin, or only has one role
+  if (userAccess.isSystemAdministrator || roleOptions.length === 1) {
     return <></>;
-  }
+  }  
+
+  // Default selected Role is Admin followed by sub.  Technically Employee would never be the default
+  const selectedRole = roles.isAdmin ? "Administrator" : roles.isReplacementEmployee ? "Substitute" : "Employee";
+
+  return (
+    <RoleSwitcherUI
+      selectedRole={selectedRole}
+      roleOptions={roleOptions}
+    />
+  );  
 };

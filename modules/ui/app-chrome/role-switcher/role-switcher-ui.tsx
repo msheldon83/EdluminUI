@@ -1,6 +1,6 @@
 import * as React from "react";
 import { makeStyles, MenuItem, Select } from "@material-ui/core";
-import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import AccountBoxIcon from "@material-ui/icons/AccountBox";
 
 type Props = {
   roleOptions: string[];
@@ -20,7 +20,7 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
   return (
     <Select
       disableUnderline={true}
-      IconComponent={ArrowDropDownIcon}
+      IconComponent={AccountBoxIcon}
       className={[classes.select, classes.font].join(" ")}
       value={props.selectedRole}
       classes={selectClasses}
