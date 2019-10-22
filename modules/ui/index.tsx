@@ -28,32 +28,23 @@ export function App(props: {}) {
           <Switch>
             <Route exact path={"/login"} component={LoginPageRouteLoader} />
             <Route exact path={"/"}>
-              <p>
-                TODO: automatically direct you to the correct organization and
-                role.
-              </p>
-              <p>
-                For now, though,{" "}
-                <Link
-                  to={AdminChromeRoute.generate({
-                    organizationId: "1",
-                    role: "admin",
-                  })}
-                >
-                  click here.
-                </Link>
-              </p>
+              <IfAuthenticated>
+                <Route
+                  exact
+                  component={IndexLoader}
+                  path={"/"}
+                />
+              </IfAuthenticated>
+              <IfAuthenticated not>
+                <RedirectToLogin />
+              </IfAuthenticated>
             </Route>
             <Route path={AppChromeRoute.path}>
               <IfAuthenticated>
                 <AppChrome>
                   <Switch>
                     {/* Protected routes go here */}
-                    <Route
-                      exact
-                      component={IndexLoader}
-                      path={AppChromeRoute.path}
-                    />
+                    
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
                     <Route
                       component={PositionTypeLoader}

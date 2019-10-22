@@ -1,6 +1,7 @@
-query Example {
+query GetUserAccess {
   userAccess {
     me {
+      isSystemAdministrator
       user {
         id
       }
