@@ -20,6 +20,7 @@ export const OrganizationSwitcherUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const toolbarClasses = useToolbarClasses();
+  console.log("orgswitcherui", props);
 
   return (
     <AppBar position="fixed" className={classes.bottomBar}>

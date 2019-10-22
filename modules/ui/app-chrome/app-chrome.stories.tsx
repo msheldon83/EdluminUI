@@ -179,15 +179,13 @@ export const AppChromeAdmin = () => {
 
   return (
     <Provider>
-      <Route path={AppChromeRoute.path}>
+      <Route path={AdminChromeRoute.path}>
         <AppChrome>
           <Route path={AdminChromeRoute.path}>
-            <>
-              <PageTitle title="This is my page title" />
-              {range(20).map((_, i) => (
-                <p key={i}>this is my page content</p>
-              ))}
-            </>
+            <PageTitle title="This is my page title" />
+            {range(20).map((_, i) => (
+              <p key={i}>this is my page content</p>
+            ))}
             <OrganizationSwitcher />
           </Route>
         </AppChrome>
@@ -197,5 +195,5 @@ export const AppChromeAdmin = () => {
 };
 
 AppChromeAdmin.story = {
-  name: "Admin in mulitple buildings",
+  name: "Admin in mulitple organizations",
 };

@@ -1,5 +1,5 @@
 import { useQueryBundle } from "graphql/hooks";
-import { useBreakpoint } from "hooks";
+import { useBreakpoint, useScreenSize } from "hooks";
 import * as React from "react";
 import { RouteComponentProps, withRouter } from "react-router";
 import { GetOrgsForUser } from "ui/app-chrome/organization-switcher/GetOrgsForUser.gen";
@@ -12,8 +12,9 @@ import { OrganizationSwitcherUI } from "./organizations-switcher-ui";
 type Props = { contentClassName?: string } & RouteComponentProps;
 
 export const RoutedOrganizationSwitcher: React.FC<Props> = props => {
-  const isMobile = useBreakpoint("sm", "down");
+  const isMobile = useScreenSize() === "mobile";
   const params = useRouteParams(AdminChromeRoute);
+  console.log("routed organization params", params);
 
   const orgUserQuery = useQueryBundle(GetOrgsForUser, {
     fetchPolicy: "cache-and-network",
@@ -48,25 +49,17 @@ export const RoutedOrganizationSwitcher: React.FC<Props> = props => {
     return <></>;
   }
 
-  return (
-    <>
-      {isMobile ? (
-        <MobileOrganizationSwitcherUI
-          currentOrganizationName={currentOrganizationName}
-          onSwitch={() =>
-            props.history.push(OrganizationsRoute.generate(params))
-          }
-        />
-      ) : (
-        <OrganizationSwitcherUI
-          currentOrganizationName={currentOrganizationName}
-          contentClassName={props.contentClassName}
-          onSwitch={() =>
-            props.history.push(OrganizationsRoute.generate(params))
-          }
-        />
-      )}
-    </>
+  return isMobile ? (
+    <MobileOrganizationSwitcherUI
+      currentOrganizationName={currentOrganizationName}
+      onSwitch={() => props.history.push(OrganizationsRoute.generate(params))}
+    />
+  ) : (
+    <OrganizationSwitcherUI
+      currentOrganizationName={currentOrganizationName}
+      contentClassName={props.contentClassName}
+      onSwitch={() => props.history.push(OrganizationsRoute.generate(params))}
+    />
   );
 };
 
