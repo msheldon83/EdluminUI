@@ -2,6 +2,7 @@ import * as React from "react";
 import { Redirect } from "react-router-dom";
 import { GetUserAccess } from "ui/pages/index/UserAccess.gen";
 import { useQueryBundle } from "graphql/hooks";
+import { oc } from 'ts-optchain';
 
 export const IndexPage: React.FunctionComponent = props => {
   const getUserAccess = useQueryBundle(GetUserAccess);
@@ -10,20 +11,14 @@ export const IndexPage: React.FunctionComponent = props => {
   if (getUserAccess.state === "LOADING") {
     return <></>;
   }
-  
-  if (
-    !getUserAccess.data ||
-    !getUserAccess.data.userAccess ||
-    !getUserAccess.data.userAccess.me ||
-    !getUserAccess.data.userAccess.me.user
-  ) {
-    return <div>oh no</div>;
-  }  
-    
+
+  const userAccess = oc(getUserAccess).data.userAccess.me;
+
   return (
     <>
-      {getUserAccess.data.userAccess.me.isSystemAdministrator &&
+      {userAccess.isSystemAdministrator &&
         <Redirect to="/admin/organizations" />}
+        //TODO handle other roles
     </>
   );
 };

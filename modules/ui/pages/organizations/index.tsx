@@ -4,6 +4,7 @@ import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
 import * as React from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
+import { oc } from 'ts-optchain';
 
 type Props = {};
 export const OrganizationsPage: React.FC<Props> = props => {
@@ -21,16 +22,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
     return <></>;
   }
 
-  if (
-    !getOrganizations.data ||
-    !getOrganizations.data.organization ||
-    !getOrganizations.data.organization.paged ||
-    !getOrganizations.data.organization.paged.results
-  ) {
-    return <div>oh no</div>;
-  }
-
-  const organizations = getOrganizations.data.organization.paged.results;
+  const organizations = oc(getOrganizations).data.organization.paged.results([]);
   const organizationsCount = organizations.length;
 
   return (
