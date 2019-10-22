@@ -4,6 +4,7 @@ import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/position-ty
 import * as React from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
+import { oc } from 'ts-optchain';
 
 type Props = {
   match: Match;
@@ -48,15 +49,7 @@ export const PositionTypePage: React.FC<Props> = props => {
     return <></>;
   }
 
-  if (
-    !getPositionTypes.data ||
-    !getPositionTypes.data.positionType ||
-    !getPositionTypes.data.positionType.all
-  ) {
-    return <div>oh no</div>;
-  }
-
-  const positionTypes = getPositionTypes.data.positionType.all;
+  const positionTypes = oc(getPositionTypes).data.positionType.all([]);
   const positionTypesCount = positionTypes.length;
 
   return (
