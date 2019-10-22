@@ -1,46 +1,46 @@
-import * as React from "react";
-import { AllOrganizations } from "ui/pages/index/AllOrganizations.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { useAuth0 } from "auth/auth0";
-import { makeStyles } from "@material-ui/styles";
-import { Button } from "@material-ui/core";
-import { NavigationSideBar } from "ui/app-chrome/navigation";
-import { PageTitle } from "ui/components/page-title";
 import { useTranslation } from "react-i18next";
+import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
+import * as React from "react";
+import { Table } from "ui/components/table";
+import { PageTitle } from "ui/components/page-title";
 
-export const OrganizationsPage: React.FunctionComponent = props => {
-  const classes = useStyles();
-  const { isAuthenticated: loggedIn, logout } = useAuth0();
-  const data = useQueryBundle(AllOrganizations, {
-    variables: {limit: 25,
-    offset: 0}
-  });
+type Props = {};
+export const OrganizationsPage: React.FC<Props> = props => {
   const { t } = useTranslation();
-  /* cf 2019-10-16
-    this is not a good example of how to do anything relating to grapqhl.
-    if you're seeking patterns to follow, look elsewhere.
-    */
-  let name =
-    (data.state === "DONE" || data.state === "UPDATING") &&
-    data.data.userAccess &&
-    data.data.userAccess.me &&
-    data.data.userAccess.me.user &&
-    data.data.userAccess.me.user.id
-      ? data.data.userAccess.me.user.id
-      : "anonymous";
-  if (data.state !== "DONE" && data.state !== "UPDATING") name = "...";
+  const getOrganizations = useQueryBundle(AllOrganizations, {
+    variables: { limit: 25, offset: 0 },
+  });
+
+  const columns = [
+    { title: t("OrgId"), field: "id", defaultSort: "asc" },
+    { title: t("Name"), field: "name" }
+  ];
+
+  if (getOrganizations.state === "LOADING") {
+    return <></>;
+  }
+
+  if (
+    !getOrganizations.data ||
+    !getOrganizations.data.organization ||
+    !getOrganizations.data.organization.paged
+  ) {
+    return <div>oh no</div>;
+  }
+
+  const organizations = getOrganizations.data.organization.paged.results;
+  const organizationsCount = organizations ? organizations.length : 0;
+
   return (
     <>
-      <PageTitle title={t("Home")} />
-      <div className={classes.name}>Hello {name}</div>
+      <PageTitle title={t("Organizations")} />
+      <Table
+        title={`${organizationsCount} ${t("Organizations")}`}
+        columns={columns}
+        data={organizations}
+        selection={true}
+      ></Table>
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  name: {
-    backgroundColor: theme.customColors.mustard,
-    padding: theme.typography.pxToRem(24),
-    marginTop: theme.typography.pxToRem(18),
-  },
-}));

@@ -1,14 +1,10 @@
 import { generatePath, RouteComponentProps } from "react-router-dom";
 import { asyncComponent } from "ui/async-component";
 import * as React from "react";
+import { AppChromeRoute } from "./app-chrome";
+import { defineSubRoute } from "./definition";
 
-export namespace Organizations {
-  export const PATH_TEMPLATE = "/admin/organizations";
-
-  export function generate() {
-    return generatePath(PATH_TEMPLATE);
-  }
-}
+export const OrganizationsRoute = defineSubRoute(AppChromeRoute, "/organizations");
 
 export const OrganizationsLoader = asyncComponent({
   resolve: async () => {
