@@ -25,13 +25,6 @@ import { OptionProps } from "react-select/src/components/Option";
 import { SingleValueProps } from "react-select/src/components/SingleValue";
 import { MultiValueProps } from "react-select/src/components/MultiValue";
 
-interface OptionType {
-  label: string | number;
-  value: string | number;
-}
-
-export type SelectValueType = ValueType<OptionType>;
-
 type Props = {
   native?: boolean;
   multi?: boolean;
@@ -47,56 +40,84 @@ type Props = {
   placeholder?: string;
 };
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1,
-      height: 250,
-      minWidth: 290,
-    },
-    input: {
-      display: "flex",
-      padding: theme.spacing(1.5),
-      height: "auto",
-    },
-    valueContainer: {
-      display: "flex",
-      flexWrap: "wrap",
-      flex: 1,
-      alignItems: "center",
-      overflow: "hidden",
-      paddingLeft: theme.spacing(0.5),
-    },
-    chip: {
-      margin: theme.spacing(0.5, 0.25),
-      fontSize: theme.typography.button.fontSize,
-    },
-    chipFocused: {
-      backgroundColor: emphasize(
-        theme.palette.type === "light"
-          ? theme.palette.grey[300]
-          : theme.palette.grey[700],
-        0.08
-      ),
-    },
-    noOptionsMessage: {
-      padding: theme.spacing(1, 2),
-    },
-    singleValue: {
-      fontSize: theme.typography.button.fontSize,
-    },
-    paper: {
-      position: "absolute",
-      zIndex: 1,
-      marginTop: theme.spacing(1),
-      left: 0,
-      right: 0,
-    },
-    divider: {
-      height: theme.spacing(2),
-    },
-  })
-);
+// TODO: bring back old component logic to support Native
+
+export const Select: React.FC<Props> = props => {
+  const classes = useStyles();
+  const theme = useTheme();
+
+  const selectStyles = {
+    input: (base: React.CSSProperties) => ({
+      ...base,
+      color: theme.palette.text.primary,
+      "& input": {
+        font: "inherit",
+      },
+    }),
+  };
+
+  /*
+    The divider isn't necessary to render unless it meets 2 conditions:
+      1. There is a value selected
+      2. It is in multi-selec tmode
+
+    The divider helps separate the clear button from the dropdown button
+  */
+  const hasValue = false;
+  // const hasValue = props.multi
+  //   ? props.value && props.value.length > 0
+  //   : props.value;
+  const showIndicatorDivider = hasValue && props.multi;
+  // undefined means don't override and () => means render nothing
+  const extraComponents = showIndicatorDivider
+    ? {}
+    : { IndicatorSeparator: () => null };
+
+  return (
+    <ReactSelect
+      classes={classes}
+      styles={selectStyles}
+      inputId="react-select-single"
+      TextFieldProps={{
+        label: props.label,
+        InputLabelProps: {
+          htmlFor: "react-select-single",
+          shrink: true,
+        },
+      }}
+      placeholder={props.placeholder}
+      options={props.options}
+      components={{
+        ...components,
+        ...extraComponents,
+      }}
+      value={props.value}
+      onChange={props.onChange}
+      isMulti={props.multi}
+      hideSelectedOptions
+    />
+  );
+};
+
+interface OptionType {
+  label: string | number;
+  value: string | number;
+}
+
+export type SelectValueType = ValueType<OptionType>;
+
+type InputComponentProps = Pick<BaseTextFieldProps, "inputRef"> &
+  React.HTMLAttributes<HTMLDivElement>;
+
+const components = {
+  Control,
+  Menu,
+  MultiValue,
+  NoOptionsMessage,
+  Option,
+  // SingleValue,
+  ValueContainer,
+};
 
 function Menu(props: MenuProps<OptionType>) {
   return (
@@ -109,9 +130,6 @@ function Menu(props: MenuProps<OptionType>) {
     </Paper>
   );
 }
-
-type InputComponentProps = Pick<BaseTextFieldProps, "inputRef"> &
-  React.HTMLAttributes<HTMLDivElement>;
 
 function inputComponent({ inputRef, ...props }: InputComponentProps) {
   return <div ref={inputRef} {...props} />;
@@ -210,71 +228,53 @@ function MultiValue(props: MultiValueProps<OptionType>) {
   );
 }
 
-const components = {
-  Control,
-  Menu,
-  MultiValue,
-  NoOptionsMessage,
-  Option,
-  // SingleValue,
-  ValueContainer,
-};
-
-// TODO: bring back old component logic to support Native
-
-export const Select: React.FC<Props> = props => {
-  const classes = useStyles();
-  const theme = useTheme();
-
-  const selectStyles = {
-    input: (base: React.CSSProperties) => ({
-      ...base,
-      color: theme.palette.text.primary,
-      "& input": {
-        font: "inherit",
-      },
-    }),
-  };
-
-  /*
-    The divider isn't necessary to render unless it meets 2 conditions:
-      1. There is a value selected
-      2. It is in multi-selec tmode
-
-    The divider helps separate the clear button from the dropdown button
-  */
-  const hasValue = false;
-  // const hasValue = props.multi
-  //   ? props.value && props.value.length > 0
-  //   : props.value;
-  const showIndicatorDivider = hasValue && props.multi;
-  // undefined means don't override and () => means render nothing
-  const extraComponents = showIndicatorDivider
-    ? {}
-    : { IndicatorSeparator: () => null };
-
-  return (
-    <ReactSelect
-      classes={classes}
-      styles={selectStyles}
-      inputId="react-select-single"
-      TextFieldProps={{
-        label: props.label,
-        InputLabelProps: {
-          htmlFor: "react-select-single",
-          shrink: true,
-        },
-      }}
-      placeholder={props.placeholder}
-      options={props.options}
-      components={{
-        ...components,
-        ...extraComponents,
-      }}
-      value={props.value}
-      onChange={props.onChange}
-      isMulti={props.multi}
-      hideSelectedOptions
-    />
-  );
-};
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      flexGrow: 1,
+      height: 250,
+      minWidth: 290,
+    },
+    input: {
+      display: "flex",
+      padding: theme.spacing(1.5),
+      height: "auto",
+    },
+    valueContainer: {
+      display: "flex",
+      flexWrap: "wrap",
+      flex: 1,
+      alignItems: "center",
+      overflow: "hidden",
+      paddingLeft: theme.spacing(0.5),
+    },
+    chip: {
+      margin: theme.spacing(0.5, 0.25),
+      fontSize: theme.typography.button.fontSize,
+    },
+    chipFocused: {
+      backgroundColor: emphasize(
+        theme.palette.type === "light"
+          ? theme.palette.grey[300]
+          : theme.palette.grey[700],
+        0.08
+      ),
+    },
+    noOptionsMessage: {
+      padding: theme.spacing(1, 2),
+    },
+    singleValue: {
+      fontSize: theme.typography.button.fontSize,
+    },
+    paper: {
+      position: "absolute",
+      zIndex: 1,
+      marginTop: theme.spacing(1),
+      left: 0,
+      right: 0,
+    },
+    divider: {
+      height: theme.spacing(2),
+    },
+  })
+);

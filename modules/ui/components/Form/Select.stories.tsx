@@ -1,7 +1,7 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
-import { Select, SelectValueType } from "./Select";
+import { Select, SelectValueType } from "./select";
 
 export default {
   title: "Forms/Select",
