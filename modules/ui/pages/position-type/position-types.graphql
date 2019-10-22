@@ -6,6 +6,9 @@ query GetAllPositionTypesWithinOrg($orgId: ID) {
       externalId
       forPermanentPositions
       forStaffAugmentation
+      defaultContract {
+        name
+      }
     }
   }
 }

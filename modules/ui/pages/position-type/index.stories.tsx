@@ -18,6 +18,9 @@ export const Basic = () => {
               externalId: "Math-12345235",
               forPermanentPositions: true,
               forStaffAugmentation: false,
+              defaultContract: {
+                name: "Initial Contract",
+              },
             },
             {
               id: 1001,
@@ -25,6 +28,9 @@ export const Basic = () => {
               externalId: "Gym-2321342",
               forPermanentPositions: true,
               forStaffAugmentation: true,
+              defaultContract: {
+                name: "Latest Contract",
+              },
             },
           ],
         }),

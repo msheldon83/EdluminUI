@@ -26,6 +26,7 @@ export const PositionTypePage: React.FC<Props> = props => {
       field: "forStaffAugmentation",
       type: "boolean",
     },
+    { title: t("Default Contract Name"), field: "defaultContract.name" },
   ];
 
   if (getPositionTypes.state === "LOADING") {
