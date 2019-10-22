@@ -1,0 +1,14 @@
+query GetAllPositionTypesWithinOrg($orgId: ID) {
+  positionType {
+    all(orgId: $orgId) {
+      id
+      name
+      externalId
+      forPermanentPositions
+      forStaffAugmentation
+      defaultContract {
+        name
+      }
+    }
+  }
+}
