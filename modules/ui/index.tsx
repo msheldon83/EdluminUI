@@ -11,6 +11,7 @@ import { IndexLoader } from "./routes";
 import { AppChromeRoute, AdminChromeRoute } from "./routes/app-chrome";
 import { ProfileRoute, ProfileLoader } from "./routes/profile";
 import { PositionTypeRoute, PositionTypeLoader } from "./routes/position-type";
+import { OrganizationsRoute, OrganizationsLoader } from "./routes/organizations";
 import { EdluminTheme } from "./styles/mui-theme";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -57,6 +58,10 @@ export function App(props: {}) {
                     <Route
                       component={PositionTypeLoader}
                       path={PositionTypeRoute.path}
+                    />
+                    <Route
+                      component={OrganizationsLoader}
+                      path={OrganizationsRoute.path}
                     />
                   </Switch>
                 </AppChrome>

@@ -24,22 +24,23 @@ export const OrganizationsPage: React.FC<Props> = props => {
   if (
     !getOrganizations.data ||
     !getOrganizations.data.organization ||
-    !getOrganizations.data.organization.paged
+    !getOrganizations.data.organization.paged ||
+    !getOrganizations.data.organization.paged.results
   ) {
     return <div>oh no</div>;
   }
 
   const organizations = getOrganizations.data.organization.paged.results;
-  const organizationsCount = organizations ? organizations.length : 0;
+  const organizationsCount = organizations.length;
 
   return (
     <>
-      <PageTitle title={t("Organizations")} />
+      <PageTitle title={`${organizationsCount} ${t("Organizations")}`} />
       <Table
-        title={`${organizationsCount} ${t("Organizations")}`}
+        title={""}
         columns={columns}
         data={organizations}
-        selection={true}
+        selection={false}
       ></Table>
     </>
   );
