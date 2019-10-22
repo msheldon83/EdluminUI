@@ -12,8 +12,10 @@ import SwapCallsIcon from "@material-ui/icons/SwapCalls";
 import TimelineIcon from "@material-ui/icons/Timeline";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Index } from "ui/routes";
 import { NavLink } from "./nav-link";
+import { AppChromeRoute } from "ui/routes/app-chrome";
+import { useRouteParams } from "ui/routes/definition";
+import { ProfileRoute } from "ui/routes/profile";
 
 type Props = {
   className?: string;
@@ -22,11 +24,13 @@ type Props = {
 
 export const HomeNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const params = useRouteParams(AppChromeRoute);
+  console.log("what are params", params);
   return (
     <NavLink
       title={t("Home")}
       icon={<HomeIcon />}
-      route={Index.PATH_TEMPLATE}
+      route={AppChromeRoute.generate(params)}
       {...props}
     />
   );
@@ -154,11 +158,12 @@ export const SubPreferencesNavLink: React.FC<Props> = props => {
 
 export const MyProfileNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const params = useRouteParams(AppChromeRoute);
   return (
     <NavLink
       title={t("My Profile")}
       icon={<AccountCircleIcon />}
-      route={"/404"}
+      route={ProfileRoute.generate(params)}
       {...props}
     />
   );

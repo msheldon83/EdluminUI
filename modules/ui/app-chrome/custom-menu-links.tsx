@@ -4,9 +4,11 @@ import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { MenuLink } from "./menu-link";
-import { Profile } from "ui/routes/profile";
-import { Index } from "ui/routes";
+import { ProfileRoute } from "ui/routes/profile";
 import { useAuth0 } from "auth/auth0";
+import { useRouteMatch, useParams } from "react-router";
+import { AppChromeRoute } from "ui/routes/app-chrome";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
   className?: string;
@@ -15,11 +17,12 @@ type Props = {
 
 export const MyProfileMenuLink: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const params = useRouteParams(AppChromeRoute);
   return (
     <MenuLink
       title={t("My Profile")}
       icon={<AccountCircleIcon />}
-      route={Profile.PATH_TEMPLATE}
+      route={ProfileRoute.generate(params)}
       {...props}
     />
   );
@@ -40,11 +43,12 @@ export const SignOutMenuLink: React.FC<Props> = props => {
 
 export const HelpMenuLink: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const params = useRouteParams(AppChromeRoute);
   return (
     <MenuLink
       title={t("Help")}
       icon={<HelpOutlineIcon />}
-      route={Index.PATH_TEMPLATE}
+      route={AppChromeRoute.generate(params)}
       {...props}
     />
   );

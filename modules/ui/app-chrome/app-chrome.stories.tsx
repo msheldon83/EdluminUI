@@ -7,6 +7,7 @@ import { AppChrome } from ".";
 import { mockProvider } from "test-helpers/mock-provider";
 import { Route } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
+import { AppChromeRoute } from "ui/routes/app-chrome";
 
 export default {
   title: "App Chrome",
@@ -16,18 +17,14 @@ export const AppChromeStory = () => {
   const Provider = mockProvider();
   return (
     <Provider>
-      <AppChrome>
-        <Route
-          component={() => (
-            <>
-              <PageTitle title="This is my page title" />
-              {range(100).map((_, i) => (
-                <p key={i}>this is my page content</p>
-              ))}
-            </>
-          )}
-        />
-      </AppChrome>
+      <Route path={AppChromeRoute.path}>
+        <AppChrome>
+          <PageTitle title="This is my page title" />
+          {range(100).map((_, i) => (
+            <p key={i}>this is my page content</p>
+          ))}
+        </AppChrome>
+      </Route>
     </Provider>
   );
 };
@@ -51,19 +48,15 @@ export const AppChromeLoading = () => {
   );
   return (
     <Provider>
-      <AppChrome>
-        <Route
-          component={() => (
-            <>
-              {isLoading && <LoadingStateTrigger />}
-              {isLoadingFullScreen && <LoadingStateTrigger fullScreen />}
-              {range(100).map((_, i) => (
-                <p key={i}>this is my page content</p>
-              ))}
-            </>
-          )}
-        />
-      </AppChrome>
+      <Route path={AppChromeRoute.path}>
+        <AppChrome>
+          {isLoading && <LoadingStateTrigger />}
+          {isLoadingFullScreen && <LoadingStateTrigger fullScreen />}
+          {range(100).map((_, i) => (
+            <p key={i}>this is my page content</p>
+          ))}
+        </AppChrome>
+      </Route>
       <div className={classes.controls}>
         <div>
           <FormControlLabel
