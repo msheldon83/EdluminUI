@@ -10,7 +10,12 @@ import { LoginPageRouteLoader } from "./pages/login/loader";
 import { IndexLoader } from "./routes";
 import { AppChromeRoute, AdminChromeRoute } from "./routes/app-chrome";
 import { ProfileRoute, ProfileLoader } from "./routes/profile";
-import { PositionTypeRoute, PositionTypeLoader } from "./routes/position-type";
+import {
+  PositionTypeRoute,
+  PositionTypeLoader,
+  PositionTypeViewRoute,
+  PositionTypeViewLoader,
+} from "./routes/position-type";
 import { EdluminTheme } from "./styles/mui-theme";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -54,6 +59,10 @@ export function App(props: {}) {
                       path={AppChromeRoute.path}
                     />
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
+                    <Route
+                      component={PositionTypeViewLoader}
+                      path={PositionTypeViewRoute.path}
+                    />
                     <Route
                       component={PositionTypeLoader}
                       path={PositionTypeRoute.path}

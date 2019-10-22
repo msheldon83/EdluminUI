@@ -4,10 +4,12 @@ import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/position-ty
 import * as React from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
-import { oc } from 'ts-optchain';
+import { oc } from "ts-optchain";
+import { History } from "history";
 
 type Props = {
   match: Match;
+  history: History;
 };
 type Match = {
   params: MatchParams;
@@ -60,6 +62,9 @@ export const PositionTypePage: React.FC<Props> = props => {
         columns={columns}
         data={positionTypes}
         selection={true}
+        onEdit={(rowData: any) => {
+          props.history.push(`position-type/${rowData.id}`);
+        }}
       ></Table>
     </>
   );

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { PositionTypePage } from "./index";
 import { mockProvider } from "test-helpers/mock-provider";
+import { createMemoryHistory } from "history";
 
 export default {
   title: "Pages/Position Types",
@@ -13,6 +14,7 @@ const props = {
       organizationId: 1000,
     },
   },
+  history: createMemoryHistory(),
 };
 
 export const Basic = () => {
