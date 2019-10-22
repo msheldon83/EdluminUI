@@ -232,13 +232,14 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
-      height: 250,
-      minWidth: 290,
+      height: theme.typography.pxToRem(250),
+      minWidth: theme.typography.pxToRem(250),
     },
     input: {
       display: "flex",
       padding: theme.spacing(1.5),
       height: "auto",
+      cursor: "pointer",
     },
     valueContainer: {
       display: "flex",
