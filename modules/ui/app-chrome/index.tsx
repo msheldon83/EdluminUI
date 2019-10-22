@@ -13,6 +13,7 @@ import { MobileTopBar } from "./mobile-navigation/mobile-top-bar";
 import { TopBar } from "./navigation/top-bar";
 import { LoadingStateIndicatorFullScreen } from "ui/components/loading-state/loading-state-indicator-fullscreen";
 import { PageTitleProvider } from "./page-title-context";
+import { ErrorBoundary } from "ui/components/error-boundary";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -43,9 +44,11 @@ export const AppChrome: React.FunctionComponent = props => {
           <div>
             <div />
             <div className={classes.contentView}>
-              <LoadingStateIndicatorFullScreen>
-                {props.children}
-              </LoadingStateIndicatorFullScreen>
+              <ErrorBoundary>
+                <LoadingStateIndicatorFullScreen>
+                  {props.children}
+                </LoadingStateIndicatorFullScreen>
+              </ErrorBoundary>
             </div>
           </div>
         </PageTitleProvider>
@@ -88,9 +91,11 @@ export const AppChrome: React.FunctionComponent = props => {
               </div>
             </div>
             <div className={`${classes.contentView}`}>
-              <LoadingStateIndicatorFullScreen>
-                {props.children}
-              </LoadingStateIndicatorFullScreen>
+              <ErrorBoundary>
+                <LoadingStateIndicatorFullScreen>
+                  {props.children}
+                </LoadingStateIndicatorFullScreen>
+              </ErrorBoundary>
             </div>
           </div>
         </PageTitleProvider>
