@@ -1,4 +1,3 @@
-import { generatePath, RouteComponentProps } from "react-router-dom";
 import { asyncComponent } from "ui/async-component";
 import * as React from "react";
 import { AdminChromeRoute, AppChromeRoute } from "./app-chrome";

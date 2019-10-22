@@ -1,6 +1,12 @@
 import { Divider, Drawer, Grid, List, makeStyles } from "@material-ui/core";
 import * as React from "react";
-import { RouteComponentProps, withRouter, useParams } from "react-router";
+import {
+  RouteComponentProps,
+  withRouter,
+  useParams,
+  Route,
+  Switch,
+} from "react-router";
 import { Link } from "react-router-dom";
 import { EdluminLogo } from "ui/components/edlumin-logo";
 import { ProfileRoute } from "ui/routes/profile";
@@ -19,11 +25,15 @@ import {
   SignOutNavLink,
   SubPreferencesNavLink,
   OrganizationsNavLink,
-} from "../custom-nav-links";
+} from "../navigation-links/custom-nav-links";
 import { MobileSearchBar } from "./mobile-search";
 import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
-import { AppChromeRoute } from "ui/routes/app-chrome";
+import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
+import {
+  AdminNavLinks,
+  EmployeeNavLinks,
+} from "../navigation-links/role-nav-links";
 
 type Props = {
   expanded: boolean;
@@ -59,7 +69,14 @@ export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
         <MobileSearchBar />
       </div>
       <List className={classes.list}>
-        <HomeNavLink onClick={props.collapse} />
+        <Switch>
+          <Route path="/employee" component={() => <EmployeeNavLinks />} />
+          <Route
+            path={AdminChromeRoute.path}
+            component={() => <AdminNavLinks />}
+          />
+        </Switch>
+        {/* <HomeNavLink onClick={props.collapse} />
         <AbsenceNavLink onClick={props.collapse} />
         <AnalyticsAndReportsNavLink onClick={props.collapse} />
         <SchoolsNavLink onClick={props.collapse} />
@@ -72,7 +89,7 @@ export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
         <PTOBalancesNavLink onClick={props.collapse} />
         <SubPreferencesNavLink onClick={props.collapse} />
         <HelpNavLink onClick={props.collapse} />
-        <SignOutNavLink />
+        <SignOutNavLink /> */}
       </List>
 
       <EdluminLogo />

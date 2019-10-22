@@ -16,8 +16,13 @@ import {
   PositionTypeViewRoute,
   PositionTypeViewLoader,
 } from "./routes/position-type";
-import { OrganizationsRoute, OrganizationsNoOrgRoute, OrganizationsLoader } from "./routes/organizations";
+import {
+  OrganizationsRoute,
+  OrganizationsNoOrgRoute,
+  OrganizationsLoader,
+} from "./routes/organizations";
 import { EdluminTheme } from "./styles/mui-theme";
+import { OrganizationSwitcher } from "./app-chrome/organization-switcher";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -34,11 +39,7 @@ export function App(props: {}) {
             <Route exact path={"/login"} component={LoginPageRouteLoader} />
             <Route exact path={"/"}>
               <IfAuthenticated>
-                <Route
-                  exact
-                  component={IndexLoader}
-                  path={"/"}
-                />
+                <Route exact component={IndexLoader} path={"/"} />
               </IfAuthenticated>
               <IfAuthenticated not>
                 <RedirectToLogin />
@@ -49,7 +50,7 @@ export function App(props: {}) {
                 <AppChrome>
                   <Switch>
                     {/* Protected routes go here */}
-                    
+
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
                     <Route
                       component={PositionTypeViewLoader}
@@ -69,6 +70,18 @@ export function App(props: {}) {
                       path={OrganizationsNoOrgRoute.path}
                     />
                   </Switch>
+
+                  <Route path={AdminChromeRoute.path}>
+                    {/* Admin routes go here*/}
+                    <OrganizationSwitcher />
+                    <Switch>
+                      <Route
+                        exact
+                        component={OrganizationsLoader}
+                        path={OrganizationsRoute.path}
+                      />
+                    </Switch>
+                  </Route>
                 </AppChrome>
               </IfAuthenticated>
               <IfAuthenticated not>

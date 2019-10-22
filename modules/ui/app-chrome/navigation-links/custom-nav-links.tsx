@@ -13,29 +13,17 @@ import SwapCallsIcon from "@material-ui/icons/SwapCalls";
 import TimelineIcon from "@material-ui/icons/Timeline";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { AppChromeRoute } from "ui/routes/app-chrome";
-import { useRouteParams } from "ui/routes/definition";
-import { Organizations } from "ui/routes/organizations";
-import { ProfileRoute } from "ui/routes/profile";
 import { NavLink } from "./nav-link";
 
 type Props = {
   className?: string;
+  route: string;
   onClick?: () => void;
 };
 
 export const HomeNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const params = useRouteParams(AppChromeRoute);
-  console.log("what are params", params);
-  return (
-    <NavLink
-      title={t("Home")}
-      icon={<HomeIcon />}
-      route={AppChromeRoute.generate(params)}
-      {...props}
-    />
-  );
+  return <NavLink title={t("Home")} icon={<HomeIcon />} {...props} />;
 };
 
 export const AbsenceNavLink: React.FC<Props> = props => {
@@ -44,7 +32,6 @@ export const AbsenceNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Absences & Vacancies")}
       icon={<SwapCallsIcon />}
-      route={"/404"}
       {...props}
     />
   );
@@ -56,7 +43,6 @@ export const AnalyticsAndReportsNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Analytics & Reports")}
       icon={<TimelineIcon />}
-      route={"/404"}
       {...props}
     />
   );
@@ -65,72 +51,36 @@ export const AnalyticsAndReportsNavLink: React.FC<Props> = props => {
 export const SchoolsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <NavLink
-      title={t("Schools")}
-      icon={<LocationCityIcon />}
-      route={"/404"}
-      {...props}
-    />
+    <NavLink title={t("Schools")} icon={<LocationCityIcon />} {...props} />
   );
 };
 
 export const PeopleNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return (
-    <NavLink
-      title={t("People")}
-      icon={<PeopleIcon />}
-      route={"/404"}
-      {...props}
-    />
-  );
+  return <NavLink title={t("People")} icon={<PeopleIcon />} {...props} />;
 };
 
 export const CalendarNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return (
-    <NavLink
-      title={t("Calendars")}
-      icon={<DateRangeIcon />}
-      route={"/404"}
-      {...props}
-    />
-  );
+  return <NavLink title={t("Calendars")} icon={<DateRangeIcon />} {...props} />;
 };
 
 export const ConfigurationNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <NavLink
-      title={t("Configuration")}
-      icon={<SettingsIcon />}
-      route={"/404"}
-      {...props}
-    />
+    <NavLink title={t("Configuration")} icon={<SettingsIcon />} {...props} />
   );
 };
 
 export const SecurityNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return (
-    <NavLink
-      title={t("Security")}
-      icon={<LockIcon />}
-      route={"/404"}
-      {...props}
-    />
-  );
+  return <NavLink title={t("Security")} icon={<LockIcon />} {...props} />;
 };
 
 export const MyScheduleNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <NavLink
-      title={t("My Schedule")}
-      icon={<DateRangeIcon />}
-      route={"/404"}
-      {...props}
-    />
+    <NavLink title={t("My Schedule")} icon={<DateRangeIcon />} {...props} />
   );
 };
 
@@ -140,7 +90,6 @@ export const PTOBalancesNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("PTO Balances")}
       icon={<AccountBalanceWalletIcon />}
-      route={"/404"}
       {...props}
     />
   );
@@ -149,38 +98,20 @@ export const PTOBalancesNavLink: React.FC<Props> = props => {
 export const SubPreferencesNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <NavLink
-      title={t("Sub Preferences")}
-      icon={<SettingsIcon />}
-      route={"/404"}
-      {...props}
-    />
+    <NavLink title={t("Sub Preferences")} icon={<SettingsIcon />} {...props} />
   );
 };
 
 export const MyProfileNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const params = useRouteParams(AppChromeRoute);
   return (
-    <NavLink
-      title={t("My Profile")}
-      icon={<AccountCircleIcon />}
-      route={ProfileRoute.generate(params)}
-      {...props}
-    />
+    <NavLink title={t("My Profile")} icon={<AccountCircleIcon />} {...props} />
   );
 };
 
 export const HelpNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return (
-    <NavLink
-      title={t("Help")}
-      icon={<HelpOutlineIcon />}
-      route={"/404"}
-      {...props}
-    />
-  );
+  return <NavLink title={t("Help")} icon={<HelpOutlineIcon />} {...props} />;
 };
 
 export const SignOutNavLink: React.FC<Props> = props => {
@@ -198,11 +129,6 @@ export const SignOutNavLink: React.FC<Props> = props => {
 export const OrganizationsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <NavLink
-      title={t("Organizations")}
-      icon={<BusinessIcon />}
-      route={Organizations.PATH_TEMPLATE}
-      {...props}
-    />
+    <NavLink title={t("Organizations")} icon={<BusinessIcon />} {...props} />
   );
 };

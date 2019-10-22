@@ -1,20 +1,13 @@
 import { Divider, Drawer, List, makeStyles } from "@material-ui/core";
 import * as React from "react";
+import { Route, Switch } from "react-router-dom";
 import { EdluminLogo } from "ui/components/edlumin-logo";
+import { AdminChromeRoute, AppChromeRoute } from "ui/routes/app-chrome";
 import {
-  AbsenceNavLink,
-  AnalyticsAndReportsNavLink,
-  CalendarNavLink,
-  ConfigurationNavLink,
-  HomeNavLink,
-  MyScheduleNavLink,
-  OrganizationsNavLink,
-  PeopleNavLink,
-  PTOBalancesNavLink,
-  SchoolsNavLink,
-  SecurityNavLink,
-  SubPreferencesNavLink,
-} from "../custom-nav-links";
+  AdminNavLinks,
+  EmployeeNavLinks,
+  SubstituteNavLinks,
+} from "../navigation-links/role-nav-links";
 
 type Props = {
   expanded: boolean;
@@ -42,18 +35,16 @@ export const NavigationSideBar: React.FC<Props> = props => {
       <Divider />
 
       <List className={classes.list}>
-        <HomeNavLink />
-        <AbsenceNavLink />
-        <AnalyticsAndReportsNavLink />
-        <SchoolsNavLink />
-        <PeopleNavLink />
-        <CalendarNavLink />
-        <ConfigurationNavLink />
-        <OrganizationsNavLink />
-        <SecurityNavLink />
-        <MyScheduleNavLink />
-        <PTOBalancesNavLink />
-        <SubPreferencesNavLink />
+        <Switch>
+          <Route
+            path={AppChromeRoute.path}
+            component={() => <EmployeeNavLinks />}
+          />
+          <Route
+            path={AdminChromeRoute.path}
+            component={() => <AdminNavLinks />}
+          />
+        </Switch>
       </List>
     </Drawer>
   );

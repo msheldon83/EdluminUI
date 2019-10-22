@@ -7,7 +7,8 @@ import { AppChrome } from ".";
 import { mockProvider } from "test-helpers/mock-provider";
 import { Route } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
-import { AppChromeRoute } from "ui/routes/app-chrome";
+import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
+import { OrganizationSwitcher } from "./organization-switcher";
 
 export default {
   title: "App Chrome",
@@ -143,6 +144,9 @@ AppChromeError.story = {
 
 export const AppChromeAdmin = () => {
   const Provider = mockProvider({
+    initialUrl: AdminChromeRoute.generate({
+      organizationId: "1",
+    }),
     mocks: {
       Query: () => ({
         userAccess: () => ({
@@ -172,20 +176,22 @@ export const AppChromeAdmin = () => {
       }),
     },
   });
+
   return (
     <Provider>
-      <AppChrome>
-        <Route
-          component={() => (
+      <Route path={AppChromeRoute.path}>
+        <AppChrome>
+          <Route path={AdminChromeRoute.path}>
             <>
               <PageTitle title="This is my page title" />
               {range(20).map((_, i) => (
                 <p key={i}>this is my page content</p>
               ))}
             </>
-          )}
-        />
-      </AppChrome>
+            <OrganizationSwitcher />
+          </Route>
+        </AppChrome>
+      </Route>
     </Provider>
   );
 };
