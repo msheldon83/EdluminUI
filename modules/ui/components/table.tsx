@@ -34,6 +34,9 @@ type Column = {
   field: string;
 };
 
+/* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
+/* eslint-disable react/display-name */
+
 const tableIcons: Icons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
   Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
