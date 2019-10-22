@@ -92,3 +92,27 @@ const useStyles = makeStyles({
     zIndex: 5000,
   },
 });
+
+export const AppChromeError = () => {
+  const Provider = mockProvider();
+  return (
+    <Provider>
+      <Route path={AppChromeRoute.path}>
+        <AppChrome>
+          <ComponentWithError />
+        </AppChrome>
+      </Route>
+    </Provider>
+  );
+};
+
+class ComponentWithError extends React.Component<object, {}> {
+  render() {
+    throw "Error";
+    return <h1>Hello</h1>;
+  }
+}
+
+AppChromeError.story = {
+  name: "Error",
+};
