@@ -6,6 +6,15 @@ export default {
   title: "Pages/Position Types",
 };
 
+const props = {
+  match: {
+    params: {
+      role: "admin",
+      organizationId: 1000,
+    },
+  },
+};
+
 export const Basic = () => {
   const Provider = mockProvider({
     mocks: {
@@ -39,7 +48,7 @@ export const Basic = () => {
   });
   return (
     <Provider>
-      <PositionTypePage />
+      <PositionTypePage {...props} />
     </Provider>
   );
 };
@@ -59,7 +68,7 @@ export const NoResults = () => {
   });
   return (
     <Provider>
-      <PositionTypePage />
+      <PositionTypePage {...props} />
     </Provider>
   );
 };

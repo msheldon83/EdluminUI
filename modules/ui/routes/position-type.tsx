@@ -1,13 +1,11 @@
-import { generatePath } from "react-router-dom";
 import { asyncComponent } from "ui/async-component";
+import { AdminChromeRoute } from "./app-chrome";
+import { defineSubRoute } from "./definition";
 
-export namespace PositionType {
-  export const PATH_TEMPLATE = "/position-type";
-
-  export function generate() {
-    return generatePath(PATH_TEMPLATE);
-  }
-}
+export const PositionTypeRoute = defineSubRoute(
+  AdminChromeRoute,
+  "/position-type"
+);
 
 export const PositionTypeLoader = asyncComponent({
   resolve: async () => {

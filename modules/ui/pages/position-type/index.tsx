@@ -5,12 +5,27 @@ import * as React from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
 
-type Props = {};
+type Props = {
+  match: Match;
+};
+type Match = {
+  params: MatchParams;
+};
+type MatchParams = {
+  role: string;
+  organizationId: number;
+};
+
 export const PositionTypePage: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const {
+    match: {
+      params: { organizationId: orgId },
+    },
+  } = props;
+
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
-    // TODO: Commenting out until we have a way to get the current Org Id
-    //variables: { orgId: 1006 },
+    variables: { orgId },
   });
 
   const columns = [
