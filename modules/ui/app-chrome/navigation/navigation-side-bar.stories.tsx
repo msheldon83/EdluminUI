@@ -3,13 +3,13 @@ import { mockProvider } from "test-helpers/mock-provider";
 import { Auth0Context } from "auth/auth0";
 import { NavigationSideBar } from "../navigation";
 import { Route } from "react-router-dom";
-import { AppChromeRoute } from "ui/routes/app-chrome";
+import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
 
 export default {
   title: "Components/Navigation Side Bar",
 };
 
-export const nav = () => {
+const render = (path: string) => () => {
   const Provider = mockProvider({
     mocks: {
       Query: () => ({
@@ -22,13 +22,14 @@ export const nav = () => {
         }),
       }),
     },
+    initialUrl: path,
   });
 
   return (
     <Provider>
       <Auth0Context.Provider value={{ isAuthenticated: true } as any}>
         <Route
-          path={AppChromeRoute.path}
+          path={path}
           component={() => (
             <NavigationSideBar
               expanded={true}
@@ -42,6 +43,10 @@ export const nav = () => {
   );
 };
 
-nav.story = {
-  name: "Open",
-};
+export const asEmployee = render(AppChromeRoute.generate({ role: "employee" }));
+export const asSubstitute = render(
+  AppChromeRoute.generate({ role: "substitute" })
+);
+export const asAdmin = render(
+  AdminChromeRoute.generate({ organizationId: "some-id" })
+);
