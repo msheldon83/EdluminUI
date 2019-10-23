@@ -2,6 +2,8 @@ import * as React from "react";
 import { makeStyles, MenuItem, Select } from "@material-ui/core";
 import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import { Link } from "@reach/router";
+import { AppChromeRoute } from "ui/routes/app-chrome";
 
 type Props = {
   roleOptions: string[];
@@ -18,8 +20,11 @@ type RoleProps = {
 export const RoleSwitcherUI: React.FC<Props> = props => {
   const classes = useStyles();
   const selectClasses = useSelectedStyles();
-
   const icon = props.expanded ? ArrowDropDownIcon : AccountBoxIcon;
+
+  const onChange = val => {
+    AppChromeRoute.generate({ val: val });
+  };
 
   if (!props.expanded)
     return <AccountBoxIcon className={classes.iconNotExpanded} />;
@@ -30,8 +35,8 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
       IconComponent={icon}
       className={[classes.select, classes.font].join(" ")}
       value={props.selectedRole}
+      onChange={onChange({ value })}
       classes={selectClasses}
-      //onChange={handleChange}
       inputProps={{
         name: "",
         classes: {
@@ -48,6 +53,10 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
       }}
     >
       {props.roleOptions.map(role => (
+        // <Link
+        //   to={AppChromeRoute.generate({ role: role.toLowerCase() })}
+        //   className={classes.noTextDecoration}
+        // >
         <MenuItem
           key={role}
           className={[classes.menuItem, classes.font].join(" ")}
@@ -55,6 +64,7 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
         >
           {role}
         </MenuItem>
+        //</Link>
       ))}
     </Select>
   );
@@ -72,6 +82,7 @@ const useStyles = makeStyles(theme => ({
   iconNotExpanded: {
     color: theme.customColors.medLightGray,
     marginLeft: theme.typography.pxToRem(24),
+    marginBottom: theme.typography.pxToRem(8),
   },
   select: {
     width: theme.typography.pxToRem(225),
@@ -91,6 +102,9 @@ const useStyles = makeStyles(theme => ({
       color: theme.customColors.white,
       backgroundColor: theme.customColors.edluminLightSlate,
     },
+  },
+  noTextDecoration: {
+    textDecoration: "none",
   },
 }));
 

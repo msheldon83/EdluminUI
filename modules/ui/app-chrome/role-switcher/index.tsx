@@ -4,6 +4,8 @@ import { some } from "lodash-es";
 import { useQueryBundle } from "graphql/hooks";
 import { QueryOrgUserRoles } from "ui/app-chrome/role-switcher/QueryOrgUserRoles.gen";
 import { oc } from "ts-optchain";
+import { AppChromeRoute } from "ui/routes/app-chrome";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
   expanded: boolean;
@@ -18,7 +20,6 @@ export const RoleSwitcher: React.FC<Props> = props => {
     return <></>;
   }
 
-  //OC needs to be reviewed
   const userAccess = oc(orgUserQuery).data.userAccess.me();
 
   const roles = {
@@ -40,12 +41,8 @@ export const RoleSwitcher: React.FC<Props> = props => {
     return <></>;
   }
 
-  // Default selected Role is Admin followed by sub.  Technically Employee would never be the default
-  const selectedRole = roles.isAdmin
-    ? "Administrator"
-    : roles.isReplacementEmployee
-    ? "Substitute"
-    : "Employee";
+  const params = useRouteParams(AppChromeRoute);
+  const selectedRole = params.role.charAt(0).toUpperCase();
 
   return (
     <RoleSwitcherUI
