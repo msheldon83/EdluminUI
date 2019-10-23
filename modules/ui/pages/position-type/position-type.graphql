@@ -1,6 +1,7 @@
 query GetPositionTypeById($id: ID!) {
   positionType {
     byId(id: $id) {
+      id
       name
       externalId
       forPermanentPositions

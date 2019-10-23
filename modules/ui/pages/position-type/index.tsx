@@ -5,30 +5,20 @@ import * as React from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
 import { oc } from "ts-optchain";
-import { History } from "history";
+import {
+  PositionTypeViewRoute,
+  PositionTypeRoute,
+} from "ui/routes/position-type";
+import { useHistory } from "react-router";
+import { useRouteParams } from "ui/routes/definition";
 
-type Props = {
-  match: Match;
-  history: History;
-};
-type Match = {
-  params: MatchParams;
-};
-type MatchParams = {
-  role: string;
-  organizationId: number;
-};
-
-export const PositionTypePage: React.FC<Props> = props => {
+export const PositionTypePage: React.FC<{}> = props => {
   const { t } = useTranslation();
-  const {
-    match: {
-      params: { organizationId: orgId },
-    },
-  } = props;
+  const history = useHistory();
+  const { role, organizationId } = useRouteParams(PositionTypeRoute);
 
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
-    variables: { orgId },
+    variables: { orgId: Number(organizationId) },
   });
 
   const columns = [
@@ -63,7 +53,12 @@ export const PositionTypePage: React.FC<Props> = props => {
         data={positionTypes}
         selection={true}
         onEdit={(rowData: any) => {
-          props.history.push(`position-type/${rowData.id}`);
+          const params = {
+            role,
+            organizationId,
+            positionTypeId: rowData.id,
+          };
+          history.push(PositionTypeViewRoute.generate(params));
         }}
       ></Table>
     </>
