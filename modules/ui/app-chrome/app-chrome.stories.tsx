@@ -8,7 +8,7 @@ import { mockProvider } from "test-helpers/mock-provider";
 import { Route } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
 import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
-import { OrganizationSwitcher } from "./organization-switcher";
+import { OrganizationSwitcherBar } from "./organization-switcher-bar";
 
 export default {
   title: "App Chrome",
@@ -186,7 +186,7 @@ export const AppChromeAdmin = () => {
             {range(20).map((_, i) => (
               <p key={i}>this is my page content</p>
             ))}
-            <OrganizationSwitcher />
+            <OrganizationSwitcherBar />
           </Route>
         </AppChrome>
       </Route>

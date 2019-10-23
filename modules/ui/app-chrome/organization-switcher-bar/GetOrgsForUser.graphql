@@ -1,6 +1,7 @@
 query GetOrgsForUser {
   userAccess {
     me {
+      isSystemAdministrator
       user {
         id
         rowVersion

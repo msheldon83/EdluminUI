@@ -16,11 +16,10 @@ type Props = {
   contentClassName?: string;
 };
 
-export const OrganizationSwitcherUI: React.FC<Props> = props => {
+export const OrganizationSwitcherBarUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const toolbarClasses = useToolbarClasses();
-  console.log("orgswitcherui", props);
 
   return (
     <AppBar position="fixed" className={classes.bottomBar}>

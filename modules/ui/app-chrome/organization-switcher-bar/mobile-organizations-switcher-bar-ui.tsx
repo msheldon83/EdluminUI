@@ -15,7 +15,7 @@ type Props = {
   contentClassName?: string;
 };
 
-export const MobileOrganizationSwitcherUI: React.FC<Props> = props => {
+export const MobileOrganizationSwitcherBarUI: React.FC<Props> = props => {
   const classes = useStyles();
   const toolbarClasses = useToolbarClasses();
 

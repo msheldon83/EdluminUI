@@ -2,27 +2,26 @@ import { CssBaseline } from "@material-ui/core";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { useAuth0 } from "auth/auth0";
 import * as React from "react";
-import { Link, Route, Switch } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 import { AppChrome } from "./app-chrome";
 import { IfAuthenticated } from "./components/auth/if-authenticated";
 import { RedirectToLogin } from "./components/auth/redirect-to-login";
 import { LoginPageRouteLoader } from "./pages/login/loader";
 import { IndexLoader } from "./routes";
-import { AppChromeRoute, AdminChromeRoute } from "./routes/app-chrome";
-import { ProfileRoute, ProfileLoader } from "./routes/profile";
+import { AdminChromeRoute, AppChromeRoute } from "./routes/app-chrome";
 import {
-  PositionTypeRoute,
-  PositionTypeLoader,
-  PositionTypeViewRoute,
-  PositionTypeViewLoader,
-} from "./routes/position-type";
-import {
-  OrganizationsRoute,
-  OrganizationsNoOrgRoute,
   OrganizationsLoader,
+  OrganizationsNoOrgRoute,
+  OrganizationsRoute,
 } from "./routes/organizations";
+import {
+  PositionTypeLoader,
+  PositionTypeRoute,
+  PositionTypeViewLoader,
+  PositionTypeViewRoute,
+} from "./routes/position-type";
+import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { EdluminTheme } from "./styles/mui-theme";
-import { OrganizationSwitcher } from "./app-chrome/organization-switcher";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -73,7 +72,6 @@ export function App(props: {}) {
 
                   <Route path={AdminChromeRoute.path}>
                     {/* Admin routes go here*/}
-                    <OrganizationSwitcher />
                     <Switch>
                       <Route
                         exact
@@ -86,12 +84,6 @@ export function App(props: {}) {
               </IfAuthenticated>
               <IfAuthenticated not>
                 <RedirectToLogin />
-                {/* <Button onClick={auth0.login} variant="contained">
-                  Login
-                </Button>
-                <Button onClick={auth0.logout} variant="contained">
-                  Logout
-                </Button> */}
               </IfAuthenticated>
             </Route>
           </Switch>
