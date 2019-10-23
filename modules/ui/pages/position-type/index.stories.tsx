@@ -10,7 +10,6 @@ export default {
 export const Basic = () => {
   const Provider = mockProvider({
     initialUrl: PositionTypeRoute.generate({
-      role: "admin",
       organizationId: "1000",
     }),
     mocks: {
@@ -56,7 +55,6 @@ Basic.story = {
 export const NoResults = () => {
   const Provider = mockProvider({
     initialUrl: PositionTypeRoute.generate({
-      role: "admin",
       organizationId: "1000",
     }),
     mocks: {

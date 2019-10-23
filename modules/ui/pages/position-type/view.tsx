@@ -23,12 +23,10 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
-  const { role, organizationId, positionTypeId } = useRouteParams(
-    PositionTypeViewRoute
-  );
+  const params = useRouteParams(PositionTypeViewRoute);
 
   const getPositionType = useQueryBundle(GetPositionTypeById, {
-    variables: { id: Number(positionTypeId) },
+    variables: { id: params.positionTypeId },
   });
 
   if (getPositionType.state === "LOADING") {
@@ -38,10 +36,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const positionType = oc(getPositionType).data.positionType.byId();
   if (!positionType) {
     // Redirect the User back to the List page
-    const listUrl = PositionTypeRoute.generate({
-      role,
-      organizationId,
-    });
+    const listUrl = PositionTypeRoute.generate(params);
     return <Redirect to={listUrl} />;
   }
 

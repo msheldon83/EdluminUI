@@ -14,7 +14,6 @@ export default {
 export const Basic = () => {
   const Provider = mockProvider({
     initialUrl: PositionTypeViewRoute.generate({
-      role: "admin",
       organizationId: "1000",
       positionTypeId: "1000",
     }),
@@ -22,7 +21,7 @@ export const Basic = () => {
       Query: () => ({
         positionType: () => ({
           byId: {
-            id: 1000,
+            id: "1000",
             name: "Math Teacher",
             externalId: "Math-12345235",
             forPermanentPositions: true,
@@ -30,7 +29,7 @@ export const Basic = () => {
             minAbsenceDurationMinutes: 90,
             needsReplacement: NeedsReplacement.No,
             defaultContract: {
-              id: 1001,
+              id: "1001",
               name: "Initial Contract",
             },
           },
