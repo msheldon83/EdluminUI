@@ -1,21 +1,23 @@
 import * as React from "react";
-import { PositionTypeViewPage } from "./view";
 import { mockProvider } from "test-helpers/mock-provider";
+import {
+  PositionTypeViewRoute,
+  PositionTypeViewLoader,
+} from "ui/routes/position-type";
+import { Route } from "react-router-dom";
+import { NeedsReplacement } from "graphql/server-types.gen";
 
 export default {
   title: "Pages/Position Type View",
 };
 
-const props = {
-  match: {
-    params: {
-      positionTypeId: 1000,
-    },
-  },
-};
-
 export const Basic = () => {
   const Provider = mockProvider({
+    initialUrl: PositionTypeViewRoute.generate({
+      role: "admin",
+      organizationId: "1000",
+      positionTypeId: "1000",
+    }),
     mocks: {
       Query: () => ({
         positionType: () => ({
@@ -26,6 +28,7 @@ export const Basic = () => {
             forPermanentPositions: true,
             forStaffAugmentation: false,
             minAbsenceDurationMinutes: 90,
+            needsReplacement: NeedsReplacement.No,
             defaultContract: {
               id: 1001,
               name: "Initial Contract",
@@ -37,7 +40,10 @@ export const Basic = () => {
   });
   return (
     <Provider>
-      <PositionTypeViewPage {...props} />
+      <Route
+        component={PositionTypeViewLoader}
+        path={PositionTypeViewRoute.path}
+      />
     </Provider>
   );
 };

@@ -1,24 +1,18 @@
 import * as React from "react";
-import { PositionTypePage } from "./index";
 import { mockProvider } from "test-helpers/mock-provider";
-import { createMemoryHistory } from "history";
+import { PositionTypeRoute, PositionTypeLoader } from "ui/routes/position-type";
+import { Route } from "react-router-dom";
 
 export default {
   title: "Pages/Position Types",
 };
 
-const props = {
-  match: {
-    params: {
-      role: "admin",
-      organizationId: 1000,
-    },
-  },
-  history: createMemoryHistory(),
-};
-
 export const Basic = () => {
   const Provider = mockProvider({
+    initialUrl: PositionTypeRoute.generate({
+      role: "admin",
+      organizationId: "1000",
+    }),
     mocks: {
       Query: () => ({
         positionType: () => ({
@@ -48,9 +42,10 @@ export const Basic = () => {
       }),
     },
   });
+
   return (
     <Provider>
-      <PositionTypePage {...props} />
+      <Route component={PositionTypeLoader} path={PositionTypeRoute.path} />
     </Provider>
   );
 };
@@ -60,6 +55,10 @@ Basic.story = {
 
 export const NoResults = () => {
   const Provider = mockProvider({
+    initialUrl: PositionTypeRoute.generate({
+      role: "admin",
+      organizationId: "1000",
+    }),
     mocks: {
       Query: () => ({
         positionType: () => ({
@@ -68,9 +67,10 @@ export const NoResults = () => {
       }),
     },
   });
+
   return (
     <Provider>
-      <PositionTypePage {...props} />
+      <Route component={PositionTypeLoader} path={PositionTypeRoute.path} />
     </Provider>
   );
 };

@@ -1,6 +1,6 @@
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { useBreakpoint } from "hooks";
+import { useScreenSize } from "hooks";
 import { makeStyles } from "@material-ui/core";
 import { GetPositionTypeById } from "ui/pages/position-type/position-type.gen";
 import * as React from "react";
@@ -13,29 +13,22 @@ import Edit from "@material-ui/icons/Edit";
 import { minutesToHours, boolToDisplay } from "ui/components/helpers";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { Redirect } from "react-router";
+import {
+  PositionTypeRoute,
+  PositionTypeViewRoute,
+} from "ui/routes/position-type";
+import { useRouteParams } from "ui/routes/definition";
 
-type Props = {
-  match: Match;
-};
-type Match = {
-  params: MatchParams;
-};
-type MatchParams = {
-  positionTypeId: number;
-};
-
-export const PositionTypeViewPage: React.FC<Props> = props => {
+export const PositionTypeViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isSmDown = useBreakpoint("sm", "down");
-  const {
-    match: {
-      params: { positionTypeId },
-    },
-  } = props;
+  const isMobile = useScreenSize() === "mobile";
+  const { role, organizationId, positionTypeId } = useRouteParams(
+    PositionTypeViewRoute
+  );
 
   const getPositionType = useQueryBundle(GetPositionTypeById, {
-    variables: { id: positionTypeId },
+    variables: { id: Number(positionTypeId) },
   });
 
   if (getPositionType.state === "LOADING") {
@@ -45,12 +38,16 @@ export const PositionTypeViewPage: React.FC<Props> = props => {
   const positionType = oc(getPositionType).data.positionType.byId();
   if (!positionType) {
     // Redirect the User back to the List page
-    return <Redirect to={"../position-type"} />;
+    const listUrl = PositionTypeRoute.generate({
+      role,
+      organizationId,
+    });
+    return <Redirect to={listUrl} />;
   }
 
   return (
     <>
-      {isSmDown && <PageTitle title={t("Position Type")} />}
+      <PageTitle title={t("Position Type")} withoutHeading={!isMobile} />
       <div className={classes.header}>
         <Grid container alignItems="center" spacing={2}>
           <Grid item>

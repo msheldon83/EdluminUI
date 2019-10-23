@@ -6,6 +6,7 @@ import { useEffect } from "react";
 type Props = {
   title: string;
   children?: never;
+  withoutHeading?: boolean;
 };
 /**
  * Page Title component.
@@ -19,7 +20,7 @@ export const PageTitle: React.FC<Props> = props => {
   const supplyTitle = pageTitleContext.supplyTitle;
   useEffect(() => supplyTitle(props.title), [supplyTitle, props.title]);
 
-  if (pageTitleContext.showIn === "page-content") {
+  if (pageTitleContext.showIn === "page-content" && !props.withoutHeading) {
     return (
       <Typography className={classes.header} variant="h1">
         {pageTitleContext.title || props.title}
