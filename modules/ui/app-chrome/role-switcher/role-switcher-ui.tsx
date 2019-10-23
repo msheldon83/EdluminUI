@@ -21,7 +21,8 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
 
   const icon = props.expanded ? ArrowDropDownIcon : AccountBoxIcon;
 
-  if (!props.expanded) return <AccountBoxIcon className={classes.icon} />;
+  if (!props.expanded)
+    return <AccountBoxIcon className={classes.iconNotExpanded} />;
 
   return (
     <Select
@@ -68,13 +69,13 @@ const useStyles = makeStyles(theme => ({
     fill: theme.customColors.medLightGray,
     marginRight: theme.typography.pxToRem(15),
   },
-  icon: {
+  iconNotExpanded: {
     color: theme.customColors.medLightGray,
     marginLeft: theme.typography.pxToRem(24),
   },
   select: {
     width: theme.typography.pxToRem(225),
-    marginLeft: theme.typography.pxToRem(29),
+    marginLeft: theme.typography.pxToRem(24),
     color: theme.customColors.medLightGray,
     backgroundColor: theme.customColors.edluminSlate,
     "&:hover": {

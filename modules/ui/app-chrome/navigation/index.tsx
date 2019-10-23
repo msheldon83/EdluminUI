@@ -48,6 +48,7 @@ const useStyles = makeStyles(theme => ({
   },
   drawerOpen: {
     width: theme.typography.pxToRem(258),
+    overflowX: "hidden",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
@@ -72,7 +73,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(1),
   },
   spacing: {
-    marginLeft: theme.typography.pxToRem(20),
+    marginLeft: theme.typography.pxToRem(23),
   },
   icon: {
     color: theme.customColors.medLightGray,
