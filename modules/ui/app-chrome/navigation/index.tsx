@@ -3,7 +3,6 @@ import * as React from "react";
 import { EdluminLogo } from "ui/components/edlumin-logo";
 import { AutoSwitchingNavLinks } from "../navigation-links/role-nav-links";
 import { RoleSwitcher } from "../role-switcher";
-import AccountBoxIcon from "@material-ui/icons/AccountBox";
 
 type Props = {
   expanded: boolean;
