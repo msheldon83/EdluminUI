@@ -17,6 +17,7 @@ import { useRouteParams, defineSubRoute } from "ui/routes/definition";
 import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
 import { OrganizationsRoute } from "ui/routes/organizations";
 import { Switch, Route } from "react-router";
+import { useIsSystemAdminOrAdminInMultipleOrgs } from "../hooks";
 
 type Props = {
   onClick?: () => void;
@@ -81,6 +82,7 @@ export const SubstituteNavLinks: React.FC<Props> = props => {
 
 export const AdminNavLinks: React.FC<Props> = props => {
   const params = useRouteParams(AdminChromeRoute);
+  const showOrgs = useIsSystemAdminOrAdminInMultipleOrgs();
   return (
     <>
       <HomeNavLink
@@ -115,10 +117,12 @@ export const AdminNavLinks: React.FC<Props> = props => {
         onClick={props.onClick}
         route={adminTbd.generate(params)}
       />
-      <OrganizationsNavLink
-        onClick={props.onClick}
-        route={OrganizationsRoute.generate(params)}
-      />
+      {showOrgs && (
+        <OrganizationsNavLink
+          onClick={props.onClick}
+          route={OrganizationsRoute.generate(params)}
+        />
+      )}
     </>
   );
 };

@@ -142,6 +142,61 @@ AppChromeError.story = {
   name: "Error",
 };
 
+export const AppChromeAdminOneOrg = () => {
+  const Provider = mockProvider({
+    initialUrl: AdminChromeRoute.generate({
+      organizationId: "1",
+    }),
+    mocks: {
+      Query: () => ({
+        organization: () => ({
+          byId: () => ({
+            id: "1",
+            name: "Kent County ISD",
+          }),
+        }),
+        userAccess: () => ({
+          me: () => ({
+            isSystemAdministrator: false,
+            user: () => ({
+              orgUsers: [
+                {
+                  id: "1",
+                  isAdmin: false,
+                  organization: {
+                    id: "1",
+                    name: "Kent County ISD",
+                  },
+                },
+              ],
+            }),
+          }),
+        }),
+      }),
+    },
+  });
+
+  return (
+    <Provider>
+      <Route path={AdminChromeRoute.path}>
+        <AppChrome>
+          <Route path={AdminChromeRoute.path}>
+            <PageTitle title="This is my page title" />
+            {range(20).map((_, i) => (
+              <p key={i}>this is my page content</p>
+            ))}
+            <OrganizationSwitcherBar />
+          </Route>
+        </AppChrome>
+      </Route>
+    </Provider>
+  );
+};
+
+AppChromeAdminOneOrg.story = {
+  name: "Admin in one organization",
+};
+
 export const AppChromeAdmin = () => {
   const Provider = mockProvider({
     initialUrl: AdminChromeRoute.generate({
@@ -157,6 +212,7 @@ export const AppChromeAdmin = () => {
         }),
         userAccess: () => ({
           me: {
+            isSystemAdministrator: false,
             user: () => ({
               orgUsers: [
                 {
@@ -202,4 +258,50 @@ export const AppChromeAdmin = () => {
 
 AppChromeAdmin.story = {
   name: "Admin in mulitple organizations",
+};
+
+export const AppChromeSystemAdmin = () => {
+  const Provider = mockProvider({
+    initialUrl: AdminChromeRoute.generate({
+      organizationId: "1",
+    }),
+    mocks: {
+      Query: () => ({
+        organization: () => ({
+          byId: () => ({
+            id: "1",
+            name: "Kent County ISD",
+          }),
+        }),
+        userAccess: () => ({
+          me: () => ({
+            isSystemAdministrator: true,
+            user: () => ({
+              orgUsers: [],
+            }),
+          }),
+        }),
+      }),
+    },
+  });
+
+  return (
+    <Provider>
+      <Route path={AdminChromeRoute.path}>
+        <AppChrome>
+          <Route path={AdminChromeRoute.path}>
+            <PageTitle title="This is my page title" />
+            {range(20).map((_, i) => (
+              <p key={i}>this is my page content</p>
+            ))}
+            <OrganizationSwitcherBar />
+          </Route>
+        </AppChrome>
+      </Route>
+    </Provider>
+  );
+};
+
+AppChromeSystemAdmin.story = {
+  name: "System admin",
 };
