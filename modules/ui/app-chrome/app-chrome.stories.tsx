@@ -149,6 +149,12 @@ export const AppChromeAdmin = () => {
     }),
     mocks: {
       Query: () => ({
+        organization: () => ({
+          byId: () => ({
+            id: "1",
+            name: "Kent County ISD",
+          }),
+        }),
         userAccess: () => ({
           me: {
             user: () => ({
