@@ -39,7 +39,7 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
           <ProfileAvatar className={classes.avatar} />
         </Link>
       </Grid>
-      <RoleSwitcher />
+      <RoleSwitcher expanded={props.expanded} />
       <Divider className={classes.divider} />
       <div className={classes.searchBar}>
         <MobileSearchBar />

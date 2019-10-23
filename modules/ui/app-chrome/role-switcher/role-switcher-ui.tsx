@@ -1,10 +1,12 @@
 import * as React from "react";
 import { makeStyles, MenuItem, Select } from "@material-ui/core";
 import AccountBoxIcon from "@material-ui/icons/AccountBox";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 
 type Props = {
   roleOptions: string[];
   selectedRole: string;
+  expanded: boolean;
 };
 
 type RoleProps = {
@@ -17,10 +19,12 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
   const classes = useStyles();
   const selectClasses = useSelectedStyles();
 
+  const icon = props.expanded ? ArrowDropDownIcon : AccountBoxIcon;
+
   return (
     <Select
       disableUnderline={true}
-      IconComponent={AccountBoxIcon}
+      IconComponent={icon}
       className={[classes.select, classes.font].join(" ")}
       value={props.selectedRole}
       classes={selectClasses}
@@ -64,7 +68,7 @@ const useStyles = makeStyles(theme => ({
   },
   select: {
     width: theme.typography.pxToRem(225),
-    marginLeft: theme.typography.pxToRem(24),
+    marginLeft: theme.typography.pxToRem(29),
     color: theme.customColors.medLightGray,
     backgroundColor: theme.customColors.edluminSlate,
     "&:hover": {

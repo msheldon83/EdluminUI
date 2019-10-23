@@ -12,6 +12,7 @@ export const nav = () => {
     <RoleSwitcherUI
       selectedRole="Administrator"
       roleOptions={["Administrator", "Employee", "Replacement Employee"]}
+      expanded={false}
     />
   );
 };

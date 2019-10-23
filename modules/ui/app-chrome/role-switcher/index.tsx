@@ -5,7 +5,9 @@ import { useQueryBundle } from "graphql/hooks";
 import { QueryOrgUserRoles } from "ui/app-chrome/role-switcher/QueryOrgUserRoles.gen";
 import { oc } from "ts-optchain";
 
-type Props = {};
+type Props = {
+  expanded: boolean;
+};
 
 export const RoleSwitcher: React.FC<Props> = props => {
   const orgUserQuery = useQueryBundle(QueryOrgUserRoles, {
@@ -17,16 +19,15 @@ export const RoleSwitcher: React.FC<Props> = props => {
   }
 
   //OC needs to be reviewed
-  const userAccessOc = oc(orgUserQuery).data.userAccess.me;
-  const orgUserRoles = orgUserQuery.data.userAccess.me.user.orgUsers;
-  const isSystemAdministrator =
-    orgUserQuery.data.userAccess.me.isSystemAdministrator;
+  const userAccess = oc(orgUserQuery).data.userAccess.me;
 
-  //Find elidgible roles in the orgUserRoles array
   const roles = {
-    isAdmin: some(orgUserRoles, r => r.isAdmin),
-    isEmployee: some(orgUserRoles, r => r.isEmployee),
-    isReplacementEmployee: some(orgUserRoles, r => r.isReplacementEmployee),
+    isAdmin: some(userAccess.user.orgUsers, "isAdmin"),
+    isEmployee: some(userAccess.user.orgUsers, "isEmployee"),
+    isReplacementEmployee: some(
+      userAccess.user.orgUsers,
+      "isReplacementEmployee"
+    ),
   };
 
   const roleOptions: string[] = [];
@@ -34,11 +35,10 @@ export const RoleSwitcher: React.FC<Props> = props => {
   roles.isEmployee && roleOptions.push("Employee");
   roles.isReplacementEmployee && roleOptions.push("Subsitute");
 
-  console.log(isSystemAdministrator);
   console.log(roles);
 
   // Not showing the role switcher if the user is a system admin, or only has one role
-  if (isSystemAdministrator || roleOptions.length === 1) {
+  if (userAccess.isSystemAdministrator || roleOptions.length === 1) {
     return <></>;
   }
 
@@ -50,6 +50,10 @@ export const RoleSwitcher: React.FC<Props> = props => {
     : "Employee";
 
   return (
-    <RoleSwitcherUI selectedRole={selectedRole} roleOptions={roleOptions} />
+    <RoleSwitcherUI
+      selectedRole={selectedRole}
+      roleOptions={roleOptions}
+      expanded={props.expanded}
+    />
   );
 };
