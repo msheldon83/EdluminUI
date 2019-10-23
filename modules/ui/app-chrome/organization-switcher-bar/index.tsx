@@ -8,6 +8,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { OrganizationsRoute } from "ui/routes/organizations";
 import { MobileOrganizationSwitcherBarUI } from "./mobile-organizations-switcher-bar-ui";
 import { OrganizationSwitcherBarUI } from "./organizations-switcher-bar-ui";
+import { GetOrganizationName } from "./GetOrganizationName.gen";
 
 type Props = { contentClassName?: string } & RouteComponentProps;
 
@@ -19,44 +20,49 @@ export const RoutedOrganizationSwitcherBar: React.FC<Props> = props => {
     fetchPolicy: "cache-and-network",
   });
 
+  let show = false;
   if (
-    orgUserQuery.state === "LOADING" ||
-    !orgUserQuery.data.userAccess ||
-    !orgUserQuery.data.userAccess.me ||
-    !orgUserQuery.data.userAccess.me.user ||
-    !orgUserQuery.data.userAccess.me.user.orgUsers
+    orgUserQuery.state !== "LOADING" &&
+    orgUserQuery.data.userAccess &&
+    orgUserQuery.data.userAccess.me &&
+    orgUserQuery.data.userAccess.me.user &&
+    orgUserQuery.data.userAccess.me.user.orgUsers
   ) {
-    return <></>;
+    const { isSystemAdministrator } = orgUserQuery.data.userAccess.me;
+
+    const { orgUsers } = orgUserQuery.data.userAccess.me.user;
+
+    const isAdminInOrgs = orgUsers.filter(r => r && r.isAdmin);
+    const possibleOrgs = isAdminInOrgs.map(r => r && r.organization);
+    if (isSystemAdministrator || possibleOrgs.length > 1) {
+      show = true;
+    }
   }
-  // TODO check if superUser
-  const { isSystemAdministrator } = orgUserQuery.data.userAccess.me;
 
-  const { orgUsers } = orgUserQuery.data.userAccess.me.user;
+  const currentOrg = useQueryBundle(GetOrganizationName, {
+    variables: { id: params.organizationId },
+    fetchPolicy: "cache-first",
+    skip: !show,
+  });
 
-  const isAdminInOrgs = orgUsers.filter(r => r && r.isAdmin);
-  const possibleOrgs = isAdminInOrgs.map(r => r && r.organization);
-  if (possibleOrgs.length < 1) {
-    return <></>;
-  }
-  const currentOrganization = possibleOrgs.find(
-    org => org && org.id === params.organizationId
-  );
-
-  const currentOrganizationName =
-    currentOrganization && currentOrganization.name;
-
-  if (!currentOrganizationName) {
+  if (
+    !show ||
+    (currentOrg.state === "LOADING" ||
+      !currentOrg.data.organization ||
+      !currentOrg.data.organization.byId ||
+      !currentOrg.data.organization.byId.name)
+  ) {
     return <></>;
   }
 
   return isMobile ? (
     <MobileOrganizationSwitcherBarUI
-      currentOrganizationName={currentOrganizationName}
+      currentOrganizationName={currentOrg.data.organization.byId.name}
       onSwitch={() => props.history.push(OrganizationsRoute.generate(params))}
     />
   ) : (
     <OrganizationSwitcherBarUI
-      currentOrganizationName={currentOrganizationName}
+      currentOrganizationName={currentOrg.data.organization.byId.name}
       contentClassName={props.contentClassName}
       onSwitch={() => props.history.push(OrganizationsRoute.generate(params))}
     />
