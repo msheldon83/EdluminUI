@@ -132,7 +132,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
       variables: {
         positionType: {
           positionTypeId: positionType.id,
-          rowVersion: Number(positionType.rowVersion),
+          rowVersion: positionType.rowVersion,
           name,
         },
       },
@@ -193,7 +193,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
       variables: {
         positionType: {
           positionTypeId: positionType.id,
-          rowVersion: Number(positionType.rowVersion),
+          rowVersion: positionType.rowVersion,
           externalId,
         },
       },
