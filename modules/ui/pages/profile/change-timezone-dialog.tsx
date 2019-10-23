@@ -34,7 +34,7 @@ export const ChangeTimezoneDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const initialValues: MinimalUpdateTimezoneArgs = {
-    id: props.user.id /* The Id should always be there*/,
+    id: Number(props.user.id),
     timeZoneId: props.user.timeZoneId,
     rowVersion: props.user.rowVersion,
   };

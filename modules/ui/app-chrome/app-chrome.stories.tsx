@@ -20,7 +20,7 @@ export const AppChromeStory = () => {
       Query: () => ({
         organization: () => ({
           byId: {
-            id: 1,
+            id: "1",
             name: "Berrien ISD",
           },
         }),
@@ -29,7 +29,7 @@ export const AppChromeStory = () => {
             user: () => ({
               orgUsers: [
                 {
-                  id: 1,
+                  id: "1",
                   orgId: 1,
                   isAdmin: false,
                 },
@@ -154,18 +154,18 @@ export const AppChromeAdmin = () => {
             user: () => ({
               orgUsers: [
                 {
-                  id: 1,
+                  id: "1",
                   isAdmin: true,
                   organization: {
-                    id: 1,
+                    id: "1",
                     name: "Kent County ISD",
                   },
                 },
                 {
-                  id: 12,
+                  id: "12",
                   isAdmin: true,
                   organization: {
-                    id: 12,
+                    id: "12",
                     name: "Berrien County ISD",
                   },
                 },

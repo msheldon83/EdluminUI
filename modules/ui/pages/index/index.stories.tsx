@@ -15,7 +15,7 @@ export const whoAmI = () => {
           me: {
             isSystemAdministrator: true,
             user: {
-              id: 1234,
+              id: "1234",
             },
           },
         }),

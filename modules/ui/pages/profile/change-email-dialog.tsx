@@ -34,7 +34,7 @@ export const ChangeLoginEmailDialog: React.FC<Props> = props => {
 
   const initialValues: UserLoginEmailChangeInput = {
     loginEmail: "",
-    id: props.user.id,
+    id: Number(props.user.id),
     rowVersion: props.user.rowVersion,
   };
   const auth0 = useAuth0();

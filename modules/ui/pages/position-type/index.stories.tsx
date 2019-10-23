@@ -18,7 +18,7 @@ export const Basic = () => {
         positionType: () => ({
           all: [
             {
-              id: 1000,
+              id: "1000",
               name: "Math Teacher",
               externalId: "Math-12345235",
               forPermanentPositions: true,
@@ -28,7 +28,7 @@ export const Basic = () => {
               },
             },
             {
-              id: 1001,
+              id: "1001",
               name: "Gym Teacher",
               externalId: "Gym-2321342",
               forPermanentPositions: true,

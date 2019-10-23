@@ -39,7 +39,7 @@ export const RoutedOrganizationSwitcherBar: React.FC<Props> = props => {
     return <></>;
   }
   const currentOrganization = possibleOrgs.find(
-    org => org && Number(org.id) === Number(params.organizationId)
+    org => org && org.id === params.organizationId
   );
 
   const currentOrganizationName =

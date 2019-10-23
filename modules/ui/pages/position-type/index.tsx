@@ -15,10 +15,10 @@ import { useRouteParams } from "ui/routes/definition";
 export const PositionTypePage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { role, organizationId } = useRouteParams(PositionTypeRoute);
+  const params = useRouteParams(PositionTypeRoute);
 
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
-    variables: { orgId: Number(organizationId) },
+    variables: { orgId: params.organizationId },
   });
 
   const columns = [
@@ -52,13 +52,12 @@ export const PositionTypePage: React.FC<{}> = props => {
         columns={columns}
         data={positionTypes}
         selection={true}
-        onEdit={(rowData: any) => {
-          const params = {
-            role,
-            organizationId,
-            positionTypeId: rowData.id,
+        onEdit={(positionType: Exclude<(typeof positionTypes)[0], null>) => {
+          const newParams = {
+            ...params,
+            positionTypeId: positionType.id,
           };
-          history.push(PositionTypeViewRoute.generate(params));
+          history.push(PositionTypeViewRoute.generate(newParams));
         }}
       ></Table>
     </>
