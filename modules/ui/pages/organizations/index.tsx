@@ -8,10 +8,13 @@ import { PageTitle } from "ui/components/page-title";
 import { oc } from 'ts-optchain';
 import { GetOrgsForUser } from "ui/pages/organizations/GetOrgsForUser.gen";
 import { Link } from "react-router-dom";
+import { makeStyles, Button, IconButton } from "@material-ui/core";
+import LaunchIcon from '@material-ui/icons/Launch';
 
 type Props = {};
 export const OrganizationsPage: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const classes = useStyles();
   
   const columns = [
     { title: t("OrgId"), field: "id" },
@@ -22,23 +25,25 @@ export const OrganizationsPage: React.FC<Props> = props => {
       render: (rowData: Organization) => {
         const switchOrg = () => {
           return (
-            <Link to={`/admin/${rowData.id}`} >{t("Switch")}</Link>
+            <div className={classes.switchAlign}>
+              <Button
+                variant="contained"
+                className={classes.switchButton}
+                component={Link}
+                to={`/admin/${rowData.id}`}
+              >{t("Select")}</Button>
+            
+              <IconButton
+                className={classes.switchColor}
+                component={Link}
+                to={`/admin/${rowData.id}`} 
+                target={"_blank"}
+              ><LaunchIcon /></IconButton>
+            </div>
           );
         };  
         return switchOrg();
-      },
-    },
-    { title: "",
-      field: "actions",
-      sorting: false,
-      render: (rowData: Organization) => {
-        const switchOrg = () => {
-          return (
-            <Link to={`/admin/${rowData.id}`} target="_blank">{t("Switch To New Tab")}</Link>
-          );
-        };  
-        return switchOrg();
-      },
+      }
     }
   ];
 
@@ -79,3 +84,19 @@ export const OrganizationsPage: React.FC<Props> = props => {
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  switchButton: {
+    backgroundColor: "#E3F2FD",
+    borderRadius: theme.typography.pxToRem(4),
+    fontFamily: "Roboto",
+    color: "#2196F3",
+    textTransform: "uppercase"
+  },
+  switchColor: {
+    color: "#2196F3"
+  },
+  switchAlign: {
+    textAlign: "right"
+  }
+}));

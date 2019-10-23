@@ -50,6 +50,7 @@ export function App(props: {}) {
                       component={PositionTypeLoader}
                       path={PositionTypeRoute.path}
                     />
+                    {/*We will need to figure out how to prevent non admin users from accessing this route */}
                     <Route
                       component={OrganizationsLoader}
                       path={OrganizationsRoute.path}
