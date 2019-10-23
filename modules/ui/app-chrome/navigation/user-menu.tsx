@@ -2,7 +2,6 @@ import { MenuList } from "@material-ui/core";
 import Menu from "@material-ui/core/Menu";
 import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import {
   HelpMenuLink,
   MyProfileMenuLink,
@@ -13,9 +12,9 @@ type Props = {
   open: boolean;
   onClose: () => void;
   anchorElement: null | HTMLElement;
-} & RouteComponentProps;
+};
 
-export const RoutedUserMenu: React.FC<Props> = props => {
+export const UserMenu: React.FC<Props> = props => {
   const classes = useStyles();
   const userMenuListClasses = useUserMenuListStyles();
 
@@ -49,8 +48,6 @@ export const RoutedUserMenu: React.FC<Props> = props => {
     </Menu>
   );
 };
-
-export const UserMenu = withRouter(RoutedUserMenu);
 
 const useStyles = makeStyles(theme => ({
   menuList: {

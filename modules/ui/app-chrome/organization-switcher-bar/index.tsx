@@ -1,7 +1,6 @@
 import { useQueryBundle } from "graphql/hooks";
 import { useScreenSize } from "hooks";
 import * as React from "react";
-import { RouteComponentProps, withRouter } from "react-router";
 import { GetOrgsForUser } from "ui/app-chrome/organization-switcher-bar/GetOrgsForUser.gen";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
@@ -9,12 +8,14 @@ import { OrganizationsRoute } from "ui/routes/organizations";
 import { MobileOrganizationSwitcherBarUI } from "./mobile-organizations-switcher-bar-ui";
 import { OrganizationSwitcherBarUI } from "./organizations-switcher-bar-ui";
 import { GetOrganizationName } from "./GetOrganizationName.gen";
+import { useHistory } from "react-router";
 
-type Props = { contentClassName?: string } & RouteComponentProps;
+type Props = { contentClassName?: string };
 
-export const RoutedOrganizationSwitcherBar: React.FC<Props> = props => {
+export const OrganizationSwitcherBar: React.FC<Props> = props => {
   const isMobile = useScreenSize() === "mobile";
   const params = useRouteParams(AdminChromeRoute);
+  const history = useHistory();
 
   const orgUserQuery = useQueryBundle(GetOrgsForUser, {
     fetchPolicy: "cache-and-network",
@@ -29,7 +30,6 @@ export const RoutedOrganizationSwitcherBar: React.FC<Props> = props => {
     orgUserQuery.data.userAccess.me.user.orgUsers
   ) {
     const { isSystemAdministrator } = orgUserQuery.data.userAccess.me;
-
     const { orgUsers } = orgUserQuery.data.userAccess.me.user;
 
     const isAdminInOrgs = orgUsers.filter(r => r && r.isAdmin);
@@ -58,17 +58,13 @@ export const RoutedOrganizationSwitcherBar: React.FC<Props> = props => {
   return isMobile ? (
     <MobileOrganizationSwitcherBarUI
       currentOrganizationName={currentOrg.data.organization.byId.name}
-      onSwitch={() => props.history.push(OrganizationsRoute.generate(params))}
+      onSwitch={() => history.push(OrganizationsRoute.generate(params))}
     />
   ) : (
     <OrganizationSwitcherBarUI
       currentOrganizationName={currentOrg.data.organization.byId.name}
       contentClassName={props.contentClassName}
-      onSwitch={() => props.history.push(OrganizationsRoute.generate(params))}
+      onSwitch={() => history.push(OrganizationsRoute.generate(params))}
     />
   );
 };
-
-export const OrganizationSwitcherBar = withRouter(
-  RoutedOrganizationSwitcherBar
-);

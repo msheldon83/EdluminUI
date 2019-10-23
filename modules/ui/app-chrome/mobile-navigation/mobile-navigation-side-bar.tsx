@@ -1,6 +1,5 @@
 import { Divider, Drawer, Grid, List, makeStyles } from "@material-ui/core";
 import * as React from "react";
-import { RouteComponentProps, withRouter } from "react-router";
 import { Link } from "react-router-dom";
 import { EdluminLogo } from "ui/components/edlumin-logo";
 import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
@@ -13,11 +12,12 @@ import { MobileSearchBar } from "./mobile-search";
 type Props = {
   expanded: boolean;
   collapse: () => void;
-} & RouteComponentProps;
+};
 
-export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
+export const MobileNavigationSideBar: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(AppChromeRoute);
+
   return (
     <Drawer
       open={props.expanded}
@@ -51,10 +51,6 @@ export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
     </Drawer>
   );
 };
-
-export const MobileNavigationSideBar = withRouter(
-  RoutedMobileNavigationSideBar
-);
 
 const useStyles = makeStyles(theme => ({
   drawer: {
