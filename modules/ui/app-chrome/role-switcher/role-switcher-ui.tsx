@@ -21,6 +21,8 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
 
   const icon = props.expanded ? ArrowDropDownIcon : AccountBoxIcon;
 
+  if (!props.expanded) return <AccountBoxIcon className={classes.icon} />;
+
   return (
     <Select
       disableUnderline={true}
@@ -32,7 +34,7 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
       inputProps={{
         name: "",
         classes: {
-          icon: classes.icon,
+          icon: classes.iconExpanded,
         },
       }}
       MenuProps={{
@@ -62,9 +64,13 @@ const useStyles = makeStyles(theme => ({
     fontFamily: "Poppins",
     fontWeight: 500,
   },
-  icon: {
+  iconExpanded: {
     fill: theme.customColors.medLightGray,
     marginRight: theme.typography.pxToRem(15),
+  },
+  icon: {
+    color: theme.customColors.medLightGray,
+    marginLeft: theme.typography.pxToRem(24),
   },
   select: {
     width: theme.typography.pxToRem(225),

@@ -19,7 +19,7 @@ export const RoleSwitcher: React.FC<Props> = props => {
   }
 
   //OC needs to be reviewed
-  const userAccess = oc(orgUserQuery).data.userAccess.me;
+  const userAccess = oc(orgUserQuery).data.userAccess.me();
 
   const roles = {
     isAdmin: some(userAccess.user.orgUsers, "isAdmin"),
@@ -33,9 +33,7 @@ export const RoleSwitcher: React.FC<Props> = props => {
   const roleOptions: string[] = [];
   roles.isAdmin && roleOptions.push("Administrator");
   roles.isEmployee && roleOptions.push("Employee");
-  roles.isReplacementEmployee && roleOptions.push("Subsitute");
-
-  console.log(roles);
+  roles.isReplacementEmployee && roleOptions.push("Substitute");
 
   // Not showing the role switcher if the user is a system admin, or only has one role
   if (userAccess.isSystemAdministrator || roleOptions.length === 1) {
