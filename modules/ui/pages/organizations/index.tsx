@@ -87,14 +87,14 @@ export const OrganizationsPage: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   switchButton: {
-    backgroundColor: "#E3F2FD",
+    backgroundColor: theme.customColors.lightBlue,
     borderRadius: theme.typography.pxToRem(4),
-    fontFamily: "Roboto",
-    color: "#2196F3",
+    fontFamily: theme.typography.fontFamily,
+    color: theme.customColors.blue,
     textTransform: "uppercase"
   },
   switchColor: {
-    color: "#2196F3"
+    color: theme.customColors.blue
   },
   switchAlign: {
     textAlign: "right"
