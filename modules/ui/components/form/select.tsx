@@ -7,6 +7,7 @@ import {
   createStyles,
   useTheme,
 } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import MenuItem from "@material-ui/core/MenuItem";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
@@ -15,6 +16,8 @@ import Chip from "@material-ui/core/Chip";
 import TextField, { BaseTextFieldProps } from "@material-ui/core/TextField";
 import Paper from "@material-ui/core/Paper";
 import CancelIcon from "@material-ui/icons/Cancel";
+import MuiSelect from "@material-ui/core/Select";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 
 // Types from react-select
 import { ValueType } from "react-select/src/types";
@@ -29,7 +32,7 @@ type Props = {
   native?: boolean;
   multi?: boolean;
   value: SelectValueType;
-  onChange?: (value: SelectValueType) => void;
+  onChange: (value: SelectValueType) => void;
   /*
     Options are passed as a prop instead of as children so that
     support for native mode is configured automatically everywhere.
@@ -37,14 +40,91 @@ type Props = {
   options: Array<OptionType>;
   label: string;
   disabled?: boolean;
-  placeholder?: string;
 };
 
-// TODO: bring back old component logic to support Native
-
 export const Select: React.FC<Props> = props => {
+  const theme = useTheme();
+
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  // The multi-select doesn't really translate to using the native dropdown on smaller screens.
+  const forceNative = !props.multi && isSmallScreen;
+
+  return forceNative || props.native ? (
+    <NativeSelect {...props} />
+  ) : (
+    <StyledSelect {...props} />
+  );
+};
+
+export const NativeSelect: React.FC<Props> = props => {
+  const classes = useStyles();
+  const inputLabel = React.useRef<HTMLLabelElement>(null);
+  const [labelWidth, setLabelWidth] = React.useState(0);
+
+  React.useEffect(() => {
+    setLabelWidth(inputLabel.current!.offsetWidth);
+  }, []);
+
+  /*
+    This is not ideal, but because we are combining to elements that require
+    two different types of data, the type checker is not happy. This alleviates
+    that, but also ensures there is always a valid value.
+  */
+  const valueObject = props.value as any;
+  const value = valueObject ? valueObject.value : "";
+
+  const handleChange = (event: any) => {
+    /*
+    This gets the data needed to mimic the changed value coming from
+    react-select. It should always be defined so need need to error check
+    here.
+    */
+    const label = event.target.selectedOptions[0].innerText;
+    const value = event.target.value;
+
+    props.onChange({ label, value });
+  };
+
+  return (
+    <FormControl variant="outlined" style={{ width: "100%" }}>
+      <InputLabel ref={inputLabel} htmlFor={props.label}>
+        {props.label}
+      </InputLabel>
+      <MuiSelect
+        className={classes.nativeInput}
+        native
+        onChange={handleChange}
+        labelWidth={labelWidth}
+        inputProps={{
+          name: props.label,
+          id: props.label,
+        }}
+        disabled={props.disabled}
+        value={value}
+      >
+        <option value="" />
+        {props.options.map(option => {
+          return (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          );
+        })}
+      </MuiSelect>
+    </FormControl>
+  );
+};
+
+export const StyledSelect: React.FC<Props> = props => {
   const classes = useStyles();
   const theme = useTheme();
+
+  /*
+    react-select does something weird with the label shrinking that unshrinks it
+    even in scenarios where is shouldn't be. This state tracks focus so that
+    doesn't happen.
+  */
+  const [hasFocus, setHasFocus] = React.useState(false);
 
   const selectStyles = {
     input: (base: React.CSSProperties) => ({
@@ -56,23 +136,6 @@ export const Select: React.FC<Props> = props => {
     }),
   };
 
-  /*
-    The divider isn't necessary to render unless it meets 2 conditions:
-      1. There is a value selected
-      2. It is in multi-selec tmode
-
-    The divider helps separate the clear button from the dropdown button
-  */
-  const hasValue = false;
-  // const hasValue = props.multi
-  //   ? props.value && props.value.length > 0
-  //   : props.value;
-  const showIndicatorDivider = hasValue && props.multi;
-  // undefined means don't override and () => means render nothing
-  const extraComponents = showIndicatorDivider
-    ? {}
-    : { IndicatorSeparator: () => null };
-
   return (
     <ReactSelect
       classes={classes}
@@ -82,19 +145,19 @@ export const Select: React.FC<Props> = props => {
         label: props.label,
         InputLabelProps: {
           htmlFor: "react-select-single",
-          shrink: true,
+          shrink: !!props.value || hasFocus,
+          placeholder: "",
         },
       }}
-      placeholder={props.placeholder}
       options={props.options}
-      components={{
-        ...components,
-        ...extraComponents,
-      }}
+      components={components}
+      placeholder=""
       value={props.value}
       onChange={props.onChange}
       isMulti={props.multi}
       hideSelectedOptions
+      onFocus={() => setHasFocus(true)}
+      onBlur={() => setHasFocus(false)}
     />
   );
 };
@@ -115,9 +178,20 @@ const components = {
   MultiValue,
   NoOptionsMessage,
   Option,
-  // SingleValue,
   ValueContainer,
+  DropdownIndicator,
+  IndicatorSeparator,
 };
+
+function IndicatorSeparator() {
+  return null;
+}
+
+function DropdownIndicator() {
+  const classes = useStyles();
+
+  return <ArrowDropDownIcon className={classes.arrowDownIcon} />;
+}
 
 function Menu(props: MenuProps<OptionType>) {
   return (
@@ -232,13 +306,13 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
-      height: theme.typography.pxToRem(250),
       minWidth: theme.typography.pxToRem(250),
     },
     input: {
       display: "flex",
-      padding: theme.spacing(1.5),
-      height: "auto",
+      cursor: "pointer",
+    },
+    nativeInput: {
       cursor: "pointer",
     },
     valueContainer: {
@@ -273,9 +347,13 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(1),
       left: 0,
       right: 0,
+      borderRadius: theme.typography.pxToRem(4),
     },
     divider: {
       height: theme.spacing(2),
+    },
+    arrowDownIcon: {
+      color: "rgba(0, 0, 0, 0.54)",
     },
   })
 );
