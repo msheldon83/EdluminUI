@@ -31,7 +31,6 @@ export const NavigationSideBar: React.FC<Props> = props => {
       />
 
       <RoleSwitcher expanded={props.expanded} />
-
       <Divider className={classes.divider} />
       <List className={classes.list}>
         <AutoSwitchingNavLinks />
