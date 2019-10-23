@@ -1,0 +1,19 @@
+query GetOrgsForUser {
+  userAccess {
+    me {
+      isSystemAdministrator
+      user {
+        id
+        orgUsers {
+          id
+          isSuperUser
+          isAdmin
+          organization {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}
