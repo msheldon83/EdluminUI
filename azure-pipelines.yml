@@ -22,7 +22,7 @@ steps:
     displayName: "install dependencies and build"
 
   - script: |
-      yarn lint
+      yarn lint &&
       yarn run jest --reporters=jest-junit
     condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
     displayName: "lint and unit tests"
