@@ -9,6 +9,7 @@ type Props = {
 };
 type Action = {
   text: string;
+  visible: boolean;
   execute: Function;
 };
 
@@ -20,9 +21,11 @@ export const SectionHeader: React.FC<Props> = props => {
         <h3>{props.title}</h3>
       </Grid>
       <Grid item>
-        <TextButton onClick={() => props.action.execute()}>
-          {props.action.text}
-        </TextButton>
+        {props.action.visible && (
+          <TextButton onClick={() => props.action.execute()}>
+            {props.action.text}
+          </TextButton>
+        )}
       </Grid>
     </Grid>
   );

@@ -1,0 +1,9 @@
+mutation UpdatePositionTypeExternalId($positionType: PositionTypeUpdateInput!) {
+  positionType {
+    update(positionType: $positionType) {
+      id
+      externalId
+      rowVersion
+    }
+  }
+}

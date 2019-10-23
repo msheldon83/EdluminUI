@@ -3,6 +3,7 @@ query GetAllPositionTypesWithinOrg($orgId: ID) {
     all(orgId: $orgId) {
       id
       name
+      rowVersion
       externalId
       forPermanentPositions
       forStaffAugmentation

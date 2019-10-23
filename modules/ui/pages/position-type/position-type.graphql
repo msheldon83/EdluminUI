@@ -3,6 +3,7 @@ query GetPositionTypeById($id: ID!) {
     byId(id: $id) {
       id
       name
+      rowVersion
       externalId
       forPermanentPositions
       forStaffAugmentation
