@@ -27,6 +27,7 @@ type Props = {
   data: Array<any>;
   selection?: boolean;
   paging?: boolean;
+  onRowClick?: (event?: React.MouseEvent, rowData?: any) => void;
   onEdit?: Function;
 };
 
@@ -95,6 +96,7 @@ export const Table: React.FC<Props> = props => {
       title={props.title}
       columns={allColumns}
       data={props.data}
+      onRowClick={props.onRowClick}
       options={{
         search: false,
         selection: props.selection,

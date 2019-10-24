@@ -52,7 +52,7 @@ export const PositionTypePage: React.FC<{}> = props => {
         columns={columns}
         data={positionTypes}
         selection={true}
-        onEdit={(rowData: any) => {
+        onRowClick={(e, rowData) => {
           const params = {
             role,
             organizationId,
