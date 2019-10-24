@@ -6,6 +6,8 @@ import { TextButton } from "ui/components/text-button";
 type Props = {
   title: string;
   action: Action;
+  cancel: Action;
+  submit: Action;
 };
 type Action = {
   text: string;
@@ -24,6 +26,16 @@ export const SectionHeader: React.FC<Props> = props => {
         {props.action.visible && (
           <TextButton onClick={() => props.action.execute()}>
             {props.action.text}
+          </TextButton>
+        )}
+        {props.cancel.visible && (
+          <TextButton onClick={() => props.cancel.execute()}>
+            {props.cancel.text}
+          </TextButton>
+        )}
+        {props.submit.visible && (
+          <TextButton onClick={() => props.submit.execute()}>
+            {props.submit.text}
           </TextButton>
         )}
       </Grid>
