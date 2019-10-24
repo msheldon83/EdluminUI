@@ -22,6 +22,7 @@ import * as yup from "yup";
 import { UpdatePositionTypeName } from "./graphql/update-position-type-name.gen";
 import { UpdatePositionTypeExternalId } from "./graphql/update-position-type-external-id.gen";
 import { PageHeader } from "ui/components/page-header";
+import Maybe from "graphql/tsutils/Maybe";
 
 const editableSections = {
   name: "edit-name",
@@ -92,8 +93,8 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         validationSchema={yup.object().shape({
           value: yup.string().required(t("Name is required")),
         })}
-        onSubmit={async (data: { value: string }) => {
-          await updateName(data.value);
+        onSubmit={async (data: { value: Maybe<string> }) => {
+          await updateName(data.value!);
           setEditing(null);
         }}
         onCancel={() => setEditing(null)}
@@ -120,7 +121,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
-        onSubmit={async (data: { value: string | null }) => {
+        onSubmit={async (data: { value: Maybe<string> }) => {
           await updateExternalId(data.value);
           setEditing(null);
         }}

@@ -5,6 +5,7 @@ import { Option, ActionMenu } from "./action-menu";
 import { Formik } from "formik";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { useScreenSize } from "hooks";
+import Maybe from "graphql/tsutils/Maybe";
 
 type Props = {
   text: string | null | undefined;
@@ -13,7 +14,7 @@ type Props = {
   editable?: boolean;
   onEdit?: Function;
   validationSchema?: any;
-  onSubmit?: Function;
+  onSubmit?: (data: { value: Maybe<string> }) => Promise<unknown>;
   onCancel?: Function;
   isSubHeader?: boolean;
   showLabel?: boolean;
@@ -85,8 +86,10 @@ export const PageHeader: React.FC<Props> = props => {
   return wrapper(
     <Formik
       initialValues={{ value: props.text }}
-      onSubmit={async (data, meta) => {
-        await props.onSubmit!(data);
+      onSubmit={async (data: { value: Maybe<string> }, meta) => {
+        if (props.onSubmit) {
+          await props.onSubmit(data);
+        }
         setEditing(false);
       }}
       validationSchema={props.validationSchema || null}
