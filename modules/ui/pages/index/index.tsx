@@ -6,7 +6,6 @@ import { oc } from 'ts-optchain';
 
 export const IndexPage: React.FunctionComponent = props => {
   const getUserAccess = useQueryBundle(GetUserAccess);
-  console.log(getUserAccess);
 
   if (getUserAccess.state === "LOADING") {
     return <></>;

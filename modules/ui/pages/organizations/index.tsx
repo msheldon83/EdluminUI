@@ -1,15 +1,17 @@
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
-import { Organization } from "graphql/server-types.gen";
 import * as React from "react";
+import { useMemo } from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
 import { oc } from 'ts-optchain';
 import { GetOrgsForUser } from "ui/pages/organizations/GetOrgsForUser.gen";
 import { Link } from "react-router-dom";
-import { makeStyles, Button, IconButton } from "@material-ui/core";
+import { makeStyles, IconButton, Button } from "@material-ui/core";
+import { TextButton } from "ui/components/text-button";
 import LaunchIcon from '@material-ui/icons/Launch';
+import { AdminChromeRoute } from "ui/routes/app-chrome";
 
 type Props = {};
 export const OrganizationsPage: React.FC<Props> = props => {
@@ -22,7 +24,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
     { title: "",
       field: "actions",
       sorting: false,
-      render: (rowData: Organization) => {
+      render: (rowData: GetOrgsForUser.Organization) => {
         const switchOrg = () => {
           return (
             <div className={classes.switchAlign}>
@@ -30,13 +32,13 @@ export const OrganizationsPage: React.FC<Props> = props => {
                 variant="contained"
                 className={classes.switchButton}
                 component={Link}
-                to={`/admin/${rowData.id}`}
+                to={AdminChromeRoute.generate({ role: "admin", organizationId: rowData.id.toString() })}
               >{t("Select")}</Button>
             
               <IconButton
                 className={classes.switchColor}
                 component={Link}
-                to={`/admin/${rowData.id}`} 
+                to={AdminChromeRoute.generate({ role: "admin", organizationId: rowData.id.toString() })}
                 target={"_blank"}
               ><LaunchIcon /></IconButton>
             </div>
@@ -56,20 +58,31 @@ export const OrganizationsPage: React.FC<Props> = props => {
     fetchPolicy: "cache-and-network",
   });
   
-  if (getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING") {
+  const isSystemAdministrator = (getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING") ? false : oc(orgUserQuery).data.userAccess.me.isSystemAdministrator();
+  const orgUsers = (getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING") ? [] : oc(orgUserQuery).data.userAccess.me.user.orgUsers([]);
+
+  const isAdminInOrgs = useMemo(
+    () => { return orgUsers.filter(r => r && r.isAdmin)},
+    [orgUsers]
+  );
+
+  let organizations = useMemo(
+    () => {return isAdminInOrgs.map(r => r && r.organization)},
+    [isAdminInOrgs]
+  );   
+
+  if ((getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING")) {
     return <></>;
   }
-
-  const isSystemAdministrator = oc(orgUserQuery).data.userAccess.me.isSystemAdministrator();
-  const orgUsers = oc(orgUserQuery).data.userAccess.me.user.orgUsers([]);
-  const isAdminInOrgs = orgUsers.filter(r => r && r.isAdmin);
-  let organizations = isAdminInOrgs.map(r => r && r.organization);
+  
   let organizationsCount = organizations.length;
 
   if (isSystemAdministrator) {
     organizations = oc(getOrganizations).data.organization.paged.results([]);
     organizationsCount = oc(getOrganizations).data.organization.paged.totalCount(0);
-  } 
+  }
+
+  
 
   return (
     <>
@@ -90,11 +103,11 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.customColors.lightBlue,
     borderRadius: theme.typography.pxToRem(4),
     fontFamily: theme.typography.fontFamily,
-    color: theme.customColors.blue,
+    color: theme.customColors.sky,
     textTransform: "uppercase"
   },
   switchColor: {
-    color: theme.customColors.blue
+    color: theme.customColors.sky
   },
   switchAlign: {
     textAlign: "right"
