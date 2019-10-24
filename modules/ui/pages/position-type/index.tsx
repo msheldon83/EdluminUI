@@ -53,6 +53,7 @@ export const PositionTypePage: React.FC<{}> = props => {
         data={positionTypes}
         selection={true}
         onRowClick={(
+          event,
           positionType: Exclude<(typeof positionTypes)[0], null>
         ) => {
           const newParams = {

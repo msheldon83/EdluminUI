@@ -56,10 +56,12 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   }
 
   const updateName = async (name: string) => {
+    const test = positionType.id;
+
     await updatePositionTypeName({
       variables: {
         positionType: {
-          positionTypeId: positionType.id,
+          positionTypeId: Number(positionType.id),
           rowVersion: positionType.rowVersion,
           name,
         },
@@ -71,7 +73,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     await updatePositionTypeExternalId({
       variables: {
         positionType: {
-          positionTypeId: positionType.id,
+          positionTypeId: Number(positionType.id),
           rowVersion: positionType.rowVersion,
           externalId,
         },
