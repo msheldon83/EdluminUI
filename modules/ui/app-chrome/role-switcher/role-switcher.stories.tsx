@@ -22,16 +22,16 @@ export const admin = () => {
           me: {
             isSystemAdministrator: false,
             user: {
-              id: 1234,
+              id: "1234",
               orgUsers: [
                 {
-                  id: 1,
+                  id: "1",
                   isAdmin: true,
                   isEmployee: false,
                   isReplacementEmployee: false,
                 },
                 {
-                  id: 2,
+                  id: "2",
                   isAdmin: false,
                   isEmployee: true,
                   isReplacementEmployee: false,
@@ -60,23 +60,23 @@ export const admin = () => {
 
 export const substitute = () => {
   const Provider = mockProvider({
-    initialUrl: AppChromeRoute.generate({ role: "admin" }),
+    initialUrl: AppChromeRoute.generate({ role: "substitute" }),
     mocks: {
       Query: () => ({
         userAccess: () => ({
           me: {
             isSystemAdministrator: false,
             user: {
-              id: 1234,
+              id: "1234",
               orgUsers: [
                 {
-                  id: 1,
+                  id: "1",
                   isAdmin: false,
                   isEmployee: true,
                   isReplacementEmployee: true,
                 },
                 {
-                  id: 2,
+                  id: "2",
                   isAdmin: false,
                   isEmployee: true,
                   isReplacementEmployee: true,
@@ -105,23 +105,23 @@ export const substitute = () => {
 
 export const sysAdmin = () => {
   const Provider = mockProvider({
-    initialUrl: AppChromeRoute.generate({ role: "substitute" }),
+    initialUrl: AppChromeRoute.generate({ role: "admin" }),
     mocks: {
       Query: () => ({
         userAccess: () => ({
           me: {
             isSystemAdministrator: true,
             user: {
-              id: 1234,
+              id: "1234",
               orgUsers: [
                 {
-                  id: 1,
+                  id: "1",
                   isAdmin: false,
                   isEmployee: true,
                   isReplacementEmployee: true,
                 },
                 {
-                  id: 2,
+                  id: "2",
                   isAdmin: false,
                   isEmployee: true,
                   isReplacementEmployee: true,

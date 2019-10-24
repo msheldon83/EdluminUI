@@ -29,7 +29,7 @@ export const RoleSwitcher: React.FC<Props> = props => {
 
   const orgUser = oc(userAccess).user.orgUsers([
     {
-      id: 0,
+      id: "never",
       isAdmin: false,
       isEmployee: false,
       isReplacementEmployee: false,
