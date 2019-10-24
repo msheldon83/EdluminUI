@@ -16,20 +16,20 @@ export const SysAdmin = () => {
           me: {
             isSystemAdministrator: true,
             user: {
-              id: 1234,
+              id: "1234",
             },
           },
-        }), 
+        }),
         organization: () => ({
           paged: {
             results: [
               {
-                id: 1000,
-                name: "Test Org 1"
+                id: "1000",
+                name: "Test Org 1",
               },
               {
-                id: 1001,
-                name: "Test Org 2"
+                id: "1001",
+                name: "Test Org 2",
               },
             ],
           },
@@ -55,38 +55,38 @@ export const OrgAdmin = () => {
           me: {
             isSystemAdministrator: false,
             user: {
-              id: 1234,
+              id: "1234",
               orgUsers: [
                 {
-                  id: 1000,
+                  id: "1000",
                   isAdmin: true,
                   organization: {
-                    id: 1000,
-                    name: "Test Org 1"
-                  }
+                    id: "1000",
+                    name: "Test Org 1",
+                  },
                 },
                 {
-                  id: 1001,
+                  id: "1001",
                   isAdmin: false,
                   organization: {
-                    id: 1001,
-                    name: "Test Org 1"
-                  }
-                }
-              ]
+                    id: "1001",
+                    name: "Test Org 1",
+                  },
+                },
+              ],
             },
           },
-        }), 
+        }),
         organization: () => ({
           paged: {
             results: [
               {
-                id: 1000,
-                name: "Test Org 1"
+                id: "1000",
+                name: "Test Org 1",
               },
               {
-                id: 1001,
-                name: "Test Org 2"
+                id: "1001",
+                name: "Test Org 2",
               },
             ],
           },
@@ -112,10 +112,10 @@ export const NoResults = () => {
           me: {
             isSystemAdministrator: true,
             user: {
-              id: 1234,
+              id: "1234",
             },
           },
-        }), 
+        }),
         organization: () => ({
           paged: {
             results: [],
