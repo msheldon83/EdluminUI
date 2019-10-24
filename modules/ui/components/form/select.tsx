@@ -7,7 +7,6 @@ import {
   createStyles,
   useTheme,
 } from "@material-ui/core/styles";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
 import MenuItem from "@material-ui/core/MenuItem";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
@@ -27,6 +26,7 @@ import { ValueContainerProps } from "react-select/src/components/containers";
 import { OptionProps } from "react-select/src/components/Option";
 import { SingleValueProps } from "react-select/src/components/SingleValue";
 import { MultiValueProps } from "react-select/src/components/MultiValue";
+import { useScreenSize } from "hooks";
 
 type Props = {
   native?: boolean;
@@ -45,7 +45,7 @@ type Props = {
 export const Select: React.FC<Props> = props => {
   const theme = useTheme();
 
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isSmallScreen = useScreenSize() === "mobile";
   // The multi-select doesn't really translate to using the native dropdown on smaller screens.
   const forceNative = !props.multi && isSmallScreen;
 
