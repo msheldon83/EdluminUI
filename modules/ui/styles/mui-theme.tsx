@@ -161,6 +161,12 @@ export const EdluminTheme = createMuiTheme({
         color: themeColors.blue,
       },
     },
+    MuiSelect: {
+      iconOutlined: {
+        // Override to match select with react-select positioning
+        right: pxToRem(14),
+      },
+    },
   },
   palette: {
     primary: {
