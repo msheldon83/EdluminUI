@@ -1,12 +1,14 @@
 import * as React from "react";
-import { makeStyles, MenuItem, Select } from "@material-ui/core";
+import { makeStyles, Select, MenuItem } from "@material-ui/core";
 import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
-import { Link } from "@reach/router";
 import { AppChromeRoute } from "ui/routes/app-chrome";
+import { useScreenSize } from "hooks/index";
+import { useHistory } from "react-router";
+import { useCallback } from "react";
 
 type Props = {
-  roleOptions: string[];
+  roleOptions: { name: string; value: string }[];
   selectedRole: string;
   expanded: boolean;
 };
@@ -19,12 +21,23 @@ type RoleProps = {
 
 export const RoleSwitcherUI: React.FC<Props> = props => {
   const classes = useStyles();
-  const selectClasses = useSelectedStyles();
+  const selectClasses = useSelectStyles();
+  const selectMenuClasses = useSelectMenuStyles();
+
+  const history = useHistory();
+  const isMobile = useScreenSize() === "mobile";
   const icon = props.expanded ? ArrowDropDownIcon : AccountBoxIcon;
 
-  const onChange = val => {
-    AppChromeRoute.generate({ val: val });
-  };
+  const onChange = useCallback(
+    e => {
+      const route = AppChromeRoute.generate({
+        role: e.target.value,
+      }).toLowerCase();
+
+      history.push(route);
+    },
+    [history]
+  );
 
   if (!props.expanded)
     return <AccountBoxIcon className={classes.iconNotExpanded} />;
@@ -33,9 +46,10 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
     <Select
       disableUnderline={true}
       IconComponent={icon}
+      native={isMobile}
       className={[classes.select, classes.font].join(" ")}
       value={props.selectedRole}
-      onChange={onChange({ value })}
+      onChange={onChange}
       classes={selectClasses}
       inputProps={{
         name: "",
@@ -49,22 +63,17 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
           vertical: "bottom",
           horizontal: "left",
         },
-        classes: selectClasses,
+        classes: selectMenuClasses,
       }}
     >
       {props.roleOptions.map(role => (
-        // <Link
-        //   to={AppChromeRoute.generate({ role: role.toLowerCase() })}
-        //   className={classes.noTextDecoration}
-        // >
         <MenuItem
-          key={role}
+          key={role.value}
+          value={role.value}
           className={[classes.menuItem, classes.font].join(" ")}
-          value={role}
         >
-          {role}
+          {role.name}
         </MenuItem>
-        //</Link>
       ))}
     </Select>
   );
@@ -103,20 +112,20 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.customColors.edluminLightSlate,
     },
   },
-  noTextDecoration: {
-    textDecoration: "none",
-  },
 }));
 
-const useSelectedStyles = makeStyles(theme => ({
-  root: {
+const useSelectStyles = makeStyles(theme => ({
+  selectMenu: {
     backgroundColor: theme.customColors.edluminSlate,
     color: theme.customColors.white,
   },
+}));
+
+const useSelectMenuStyles = makeStyles(theme => ({
   list: {
     padding: 0,
     backgroundColor: theme.customColors.edluminLightSlate,
-    "&$selected": {
+    "&selected": {
       backgroundColor: theme.customColors.edluminLightSlate,
       color: theme.customColors.white,
     },

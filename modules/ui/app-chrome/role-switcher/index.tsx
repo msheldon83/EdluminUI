@@ -16,37 +16,42 @@ export const RoleSwitcher: React.FC<Props> = props => {
     fetchPolicy: "cache-and-network",
   });
 
+  const params = useRouteParams(AppChromeRoute);
+
   if (orgUserQuery.state === "LOADING") {
     return <></>;
   }
 
   const userAccess = oc(orgUserQuery).data.userAccess.me();
 
+  const orgUser = oc(userAccess).user.orgUsers([
+    {
+      isAdmin: false,
+      isEmployee: false,
+      isReplacementEmployee: false,
+    },
+  ]);
+
   const roles = {
-    isAdmin: some(userAccess.user.orgUsers, "isAdmin"),
-    isEmployee: some(userAccess.user.orgUsers, "isEmployee"),
-    isReplacementEmployee: some(
-      userAccess.user.orgUsers,
-      "isReplacementEmployee"
-    ),
+    isAdmin: some(orgUser, "isAdmin"),
+    isEmployee: some(orgUser, "isEmployee"),
+    isReplacementEmployee: some(orgUser, "isReplacementEmployee"),
   };
 
-  const roleOptions: string[] = [];
-  roles.isAdmin && roleOptions.push("Administrator");
-  roles.isEmployee && roleOptions.push("Employee");
-  roles.isReplacementEmployee && roleOptions.push("Substitute");
+  const roleOptions: { name: string; value: string }[] = [];
+  roles.isAdmin && roleOptions.push({ name: "Administrator", value: "admin" });
+  roles.isEmployee && roleOptions.push({ name: "Employee", value: "employee" });
+  roles.isReplacementEmployee &&
+    roleOptions.push({ name: "Substitute", value: "substitute" });
 
   // Not showing the role switcher if the user is a system admin, or only has one role
   if (userAccess.isSystemAdministrator || roleOptions.length === 1) {
     return <></>;
   }
 
-  const params = useRouteParams(AppChromeRoute);
-  const selectedRole = params.role.charAt(0).toUpperCase();
-
   return (
     <RoleSwitcherUI
-      selectedRole={selectedRole}
+      selectedRole={params.role}
       roleOptions={roleOptions}
       expanded={props.expanded}
     />
