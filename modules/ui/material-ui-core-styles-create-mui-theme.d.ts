@@ -10,6 +10,7 @@ interface CustomColors {
   darkBlue: string;
   gray: string;
   darkGray: string;
+  darkBlueGray: string;
   medLightGray: string;
   lightGray: string;
   lighterGray: string;

@@ -1,21 +1,7 @@
 import { Divider, Drawer, List, makeStyles } from "@material-ui/core";
 import * as React from "react";
 import { EdluminLogo } from "ui/components/edlumin-logo";
-import {
-  AbsenceNavLink,
-  AnalyticsAndReportsNavLink,
-  CalendarNavLink,
-  ConfigurationNavLink,
-  HelpNavLink,
-  HomeNavLink,
-  MyScheduleNavLink,
-  PeopleNavLink,
-  PTOBalancesNavLink,
-  SchoolsNavLink,
-  SecurityNavLink,
-  SignOutNavLink,
-  SubPreferencesNavLink,
-} from "../custom-nav-links";
+import { AutoSwitchingNavLinks } from "../navigation-links/role-nav-links";
 
 type Props = {
   expanded: boolean;
@@ -43,17 +29,7 @@ export const NavigationSideBar: React.FC<Props> = props => {
       <Divider />
 
       <List className={classes.list}>
-        <HomeNavLink />
-        <AbsenceNavLink />
-        <AnalyticsAndReportsNavLink />
-        <SchoolsNavLink />
-        <PeopleNavLink />
-        <CalendarNavLink />
-        <ConfigurationNavLink />
-        <SecurityNavLink />
-        <MyScheduleNavLink />
-        <PTOBalancesNavLink />
-        <SubPreferencesNavLink />
+        <AutoSwitchingNavLinks />
       </List>
     </Drawer>
   );

@@ -217,8 +217,7 @@ export function mockProvider(opts?: MockProviderOpts) {
   }
 
   const initialUrl =
-    opts.initialUrl || AppChromeRoute.generate({ role: "admin" });
-  console.log("initial url", initialUrl);
+    opts.initialUrl || AppChromeRoute.generate({ role: "employee" });
 
   const mockFn = maybeJest ? maybeJest.fn : (x: any) => x;
 

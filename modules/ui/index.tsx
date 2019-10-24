@@ -2,20 +2,25 @@ import { CssBaseline } from "@material-ui/core";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { useAuth0 } from "auth/auth0";
 import * as React from "react";
-import { Link, Route, Switch } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 import { AppChrome } from "./app-chrome";
 import { IfAuthenticated } from "./components/auth/if-authenticated";
 import { RedirectToLogin } from "./components/auth/redirect-to-login";
 import { LoginPageRouteLoader } from "./pages/login/loader";
 import { IndexLoader } from "./routes";
-import { AppChromeRoute, AdminChromeRoute } from "./routes/app-chrome";
-import { ProfileRoute, ProfileLoader } from "./routes/profile";
+import { AdminChromeRoute, AppChromeRoute } from "./routes/app-chrome";
 import {
-  PositionTypeRoute,
+  OrganizationsLoader,
+  OrganizationsNoOrgRoute,
+  OrganizationsRoute,
+} from "./routes/organizations";
+import {
   PositionTypeLoader,
-  PositionTypeViewRoute,
+  PositionTypeRoute,
   PositionTypeViewLoader,
+  PositionTypeViewRoute,
 } from "./routes/position-type";
+import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { EdluminTheme } from "./styles/mui-theme";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -32,32 +37,19 @@ export function App(props: {}) {
           <Switch>
             <Route exact path={"/login"} component={LoginPageRouteLoader} />
             <Route exact path={"/"}>
-              <p>
-                TODO: automatically direct you to the correct organization and
-                role.
-              </p>
-              <p>
-                For now, though,{" "}
-                <Link
-                  to={AdminChromeRoute.generate({
-                    organizationId: "1",
-                    role: "admin",
-                  })}
-                >
-                  click here.
-                </Link>
-              </p>
+              <IfAuthenticated>
+                <Route exact component={IndexLoader} path={"/"} />
+              </IfAuthenticated>
+              <IfAuthenticated not>
+                <RedirectToLogin />
+              </IfAuthenticated>
             </Route>
             <Route path={AppChromeRoute.path}>
               <IfAuthenticated>
                 <AppChrome>
                   <Switch>
                     {/* Protected routes go here */}
-                    <Route
-                      exact
-                      component={IndexLoader}
-                      path={AppChromeRoute.path}
-                    />
+
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
                     <Route
                       component={PositionTypeViewLoader}
@@ -68,16 +60,25 @@ export function App(props: {}) {
                       path={PositionTypeRoute.path}
                     />
                   </Switch>
+
+                  <Route path={AdminChromeRoute.path}>
+                    {/* Admin routes go here*/}
+                    <Switch>
+                      {/*We will need to figure out how to prevent non admin users from accessing this route */}
+                      <Route
+                        component={OrganizationsLoader}
+                        path={OrganizationsRoute.path}
+                      />
+                      <Route
+                        component={OrganizationsLoader}
+                        path={OrganizationsNoOrgRoute.path}
+                      />
+                    </Switch>
+                  </Route>
                 </AppChrome>
               </IfAuthenticated>
               <IfAuthenticated not>
                 <RedirectToLogin />
-                {/* <Button onClick={auth0.login} variant="contained">
-                  Login
-                </Button>
-                <Button onClick={auth0.logout} variant="contained">
-                  Logout
-                </Button> */}
               </IfAuthenticated>
             </Route>
           </Switch>

@@ -72,7 +72,8 @@ export function useQueryBundle<Result, Vars>(
   }, [rawResult, options]);
 
   const isLoading =
-    ourResult.state === "LOADING" || ourResult.state === "UPDATING";
+    !(options && options.skip) &&
+    (ourResult.state === "LOADING" || ourResult.state === "UPDATING");
   const startLoadingState = useLoadingState().start;
   useEffect(() => {
     if (isLoading) return startLoadingState(false, `useQueryBundle()`);

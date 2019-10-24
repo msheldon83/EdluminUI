@@ -46,6 +46,17 @@ them at the unix shell, or using the `cross-env` utility.  In most cases, the `D
   webpack-dev-server.
 - Visit port 3000 to view the running app.
 
+## Updating the Server Schema
+
+To keep the client schema up to date with the server:
+
+- Checkout the server code and pull
+- Run `dotnet build`
+- In the client, run `yarn watch-server-schema`
+- Finally, run `yarn start` to generate the new GraphQL types
+
+Commit the updated schema.
+
 ## Generating Graphql Types
 
 The `codegen` task generates all type files. It:

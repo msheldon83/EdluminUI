@@ -1,37 +1,23 @@
 import { Divider, Drawer, Grid, List, makeStyles } from "@material-ui/core";
 import * as React from "react";
-import { RouteComponentProps, withRouter, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import { EdluminLogo } from "ui/components/edlumin-logo";
-import { ProfileRoute } from "ui/routes/profile";
-import {
-  AbsenceNavLink,
-  AnalyticsAndReportsNavLink,
-  CalendarNavLink,
-  ConfigurationNavLink,
-  HelpNavLink,
-  HomeNavLink,
-  MyScheduleNavLink,
-  PeopleNavLink,
-  PTOBalancesNavLink,
-  SchoolsNavLink,
-  SecurityNavLink,
-  SignOutNavLink,
-  SubPreferencesNavLink,
-} from "../custom-nav-links";
-import { MobileSearchBar } from "./mobile-search";
 import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
 import { AppChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
+import { ProfileRoute } from "ui/routes/profile";
+import { AutoSwitchingNavLinks } from "../navigation-links/role-nav-links";
+import { MobileSearchBar } from "./mobile-search";
 
 type Props = {
   expanded: boolean;
   collapse: () => void;
-} & RouteComponentProps;
+};
 
-export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
+export const MobileNavigationSideBar: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(AppChromeRoute);
+
   return (
     <Drawer
       open={props.expanded}
@@ -58,29 +44,13 @@ export const RoutedMobileNavigationSideBar: React.FC<Props> = props => {
         <MobileSearchBar />
       </div>
       <List className={classes.list}>
-        <HomeNavLink onClick={props.collapse} />
-        <AbsenceNavLink onClick={props.collapse} />
-        <AnalyticsAndReportsNavLink onClick={props.collapse} />
-        <SchoolsNavLink onClick={props.collapse} />
-        <PeopleNavLink onClick={props.collapse} />
-        <CalendarNavLink onClick={props.collapse} />
-        <ConfigurationNavLink onClick={props.collapse} />
-        <SecurityNavLink onClick={props.collapse} />
-        <MyScheduleNavLink onClick={props.collapse} />
-        <PTOBalancesNavLink onClick={props.collapse} />
-        <SubPreferencesNavLink onClick={props.collapse} />
-        <HelpNavLink onClick={props.collapse} />
-        <SignOutNavLink />
+        <AutoSwitchingNavLinks onClick={props.collapse} />
       </List>
 
       <EdluminLogo />
     </Drawer>
   );
 };
-
-export const MobileNavigationSideBar = withRouter(
-  RoutedMobileNavigationSideBar
-);
 
 const useStyles = makeStyles(theme => ({
   drawer: {

@@ -4,8 +4,6 @@ generates:
       - modules/graphql/server-schema.graphql
     plugins:
       - typescript:
-          scalars:
-            ID: number
   modules/:
     preset: near-operation-file
     presetConfig:

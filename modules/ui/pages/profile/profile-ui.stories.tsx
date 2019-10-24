@@ -13,7 +13,7 @@ export const Basic = () => {
     <Provider>
       <ProfileUI
         user={{
-          id: 1,
+          id: "1",
           rowVersion: "1",
           firstName: "Melanie",
           lastName: "Persons",
