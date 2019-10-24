@@ -12,7 +12,7 @@ import { Grid } from "@material-ui/core";
 import { Edit, Clear, Check } from "@material-ui/icons";
 import { minutesToHours, boolToDisplay } from "ui/components/helpers";
 import { getDisplayName } from "ui/components/enumHelpers";
-import { Redirect } from "react-router";
+import { Redirect, useHistory } from "react-router";
 import {
   PositionTypeRoute,
   PositionTypeViewRoute,
@@ -26,15 +26,16 @@ import { UpdatePositionTypeName } from "./update-position-type-name.gen";
 import { UpdatePositionTypeExternalId } from "./update-position-type-external-id.gen";
 
 const editableSections = {
-  name: "name",
-  externalId: "externalId",
-  settings: "settings",
+  name: "edit-name",
+  externalId: "edit-external-id",
+  settings: "edit-settings",
 };
 
 export const PositionTypeViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
+  const history = useHistory();
   const [editing, setEditing] = useState<string | null>(null);
   const { role, organizationId, positionTypeId } = useRouteParams(
     PositionTypeViewRoute
@@ -62,15 +63,30 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     return <Redirect to={listUrl} />;
   }
 
-  const singleLineWrapper = (sectionName: string, child: JSX.Element) => {
+  const generateUrl = (editSection?: string | null) => {
+    const url = PositionTypeViewRoute.generate({
+      role,
+      organizationId,
+      positionTypeId,
+    });
+    return editSection ? `${url}/${editSection}` : url;
+  };
+
+  const singleLineWrapper = (
+    sectionName: string,
+    actionClass: string,
+    child: JSX.Element
+  ) => {
     return (
       <>
         <Grid item>{child}</Grid>
         <Grid item>
           {!editing && (
             <Edit
-              className={classes.action}
-              onClick={() => setEditing(sectionName)}
+              className={actionClass}
+              onClick={() => {
+                setEditing(sectionName);
+              }}
             />
           )}
         </Grid>
@@ -82,12 +98,14 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     if (editing !== editableSections.name) {
       return singleLineWrapper(
         editableSections.name,
+        classes.action,
         <h1 className={classes.headerText}>{positionType.name}</h1>
       );
     }
 
     return singleLineWrapper(
       editableSections.name,
+      classes.action,
       <Formik
         initialValues={{ name }}
         onSubmit={async (data, meta) => {
@@ -113,7 +131,10 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               <Grid item>
                 <Clear
                   className={classes.action}
-                  onClick={() => setEditing(null)}
+                  onClick={() => {
+                    setEditing(null);
+                    history.push(generateUrl());
+                  }}
                 />
               </Grid>
               <Grid item>
@@ -143,12 +164,21 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     if (editing !== editableSections.externalId) {
       return singleLineWrapper(
         editableSections.externalId,
-        <>{`${t("External Id")} ${positionType.externalId || "[NONE]"}`}</>
+        classes.smallAction,
+        <span className={classes.externalId}>
+          {`${t("External Id")}: `}
+          {positionType.externalId ? (
+            positionType.externalId
+          ) : (
+            <span className={classes.externalIdMissing}>Not Specified</span>
+          )}
+        </span>
       );
     }
 
     return singleLineWrapper(
       editableSections.externalId,
+      classes.smallAction,
       <Formik
         initialValues={{ externalId }}
         onSubmit={async (data, meta) => {
@@ -173,12 +203,15 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               </Grid>
               <Grid item>
                 <Clear
-                  className={classes.action}
-                  onClick={() => setEditing(null)}
+                  className={classes.smallAction}
+                  onClick={() => {
+                    setEditing(null);
+                    history.push(generateUrl());
+                  }}
                 />
               </Grid>
               <Grid item>
-                <Check className={classes.action} onClick={submitForm} />
+                <Check className={classes.smallAction} onClick={submitForm} />
               </Grid>
             </Grid>
           </form>
@@ -200,8 +233,6 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     });
   };
 
-  const renderSettings = () => {};
-
   return (
     <>
       <PageTitle title={t("Position Type")} withoutHeading={!isMobile} />
@@ -219,7 +250,20 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           action={{
             text: t("Edit"),
             visible: !editing,
-            execute: () => {},
+            execute: () => setEditing(editableSections.settings),
+          }}
+          cancel={{
+            text: t("Cancel"),
+            visible: editing === editableSections.settings,
+            execute: () => setEditing(null),
+          }}
+          submit={{
+            text: t("Save"),
+            visible: editing === editableSections.settings,
+            execute: () => {
+              // Actually save the settings changes
+              setEditing(null);
+            },
           }}
         />
         <Grid container spacing={2}>
@@ -261,10 +305,10 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
 
 const useStyles = makeStyles(theme => ({
   header: {
-    marginBottom: "20px",
+    //marginBottom: "20px",
   },
   headerText: {
-    margin: 0,
+    //margin: 0,
   },
   action: {
     cursor: "pointer",
@@ -275,5 +319,13 @@ const useStyles = makeStyles(theme => ({
   },
   label: {
     fontWeight: 500,
+  },
+  externalId: {
+    fontWeight: 500,
+  },
+  externalIdMissing: {
+    fontWeight: "normal",
+    opacity: "0.6",
+    filter: "alpha(opacity = 60)",
   },
 }));
