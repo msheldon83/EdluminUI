@@ -9,7 +9,7 @@ type Props = {
   options: Array<Option>;
 };
 
-type Option = {
+export type Option = {
   name: string;
   onClick: (event: React.MouseEvent) => void;
 };
@@ -43,7 +43,13 @@ export const ActionMenu: React.FC<Props> = props => {
         }}
       >
         {props.options.map((option: Option, index: number) => (
-          <MenuItem key={index} onClick={option.onClick}>
+          <MenuItem
+            key={index}
+            onClick={event => {
+              option.onClick(event);
+              handleClose();
+            }}
+          >
             {option.name}
           </MenuItem>
         ))}
