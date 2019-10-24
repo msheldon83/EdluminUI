@@ -10,7 +10,12 @@ import { LoginPageRouteLoader } from "./pages/login/loader";
 import { IndexLoader } from "./routes";
 import { AppChromeRoute, AdminChromeRoute } from "./routes/app-chrome";
 import { ProfileRoute, ProfileLoader } from "./routes/profile";
-import { PositionTypeRoute, PositionTypeLoader } from "./routes/position-type";
+import {
+  PositionTypeRoute,
+  PositionTypeLoader,
+  PositionTypeViewRoute,
+  PositionTypeViewLoader,
+} from "./routes/position-type";
 import { OrganizationsRoute, OrganizationsLoader } from "./routes/organizations";
 import { EdluminTheme } from "./styles/mui-theme";
 
@@ -46,6 +51,10 @@ export function App(props: {}) {
                     {/* Protected routes go here */}
                     
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
+                    <Route
+                      component={PositionTypeViewLoader}
+                      path={PositionTypeViewRoute.path}
+                    />
                     <Route
                       component={PositionTypeLoader}
                       path={PositionTypeRoute.path}

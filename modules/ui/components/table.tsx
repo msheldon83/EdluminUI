@@ -27,11 +27,14 @@ type Props = {
   data: Array<any>;
   selection?: boolean;
   paging?: boolean;
+  onEdit?: Function;
 };
 
 type Column = {
   title: string;
   field: string;
+  sorting?: boolean;
+  render?: any;
 };
 
 /* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
@@ -64,11 +67,33 @@ const tableIcons: Icons = {
 export const Table: React.FC<Props> = props => {
   const classes = useStyles();
 
+  const allColumns: Array<Column> = props.columns;
+  if (props.onEdit) {
+    allColumns.push({
+      field: "actions",
+      title: "",
+      sorting: false,
+      render: (rowData: object) => {
+        const editOption = () => {
+          return (
+            <Edit
+              className={classes.action}
+              onClick={() => {
+                props.onEdit!(rowData);
+              }}
+            />
+          );
+        };
+        return editOption();
+      },
+    });
+  }
+
   return (
     <MaterialTable
       icons={tableIcons}
       title={props.title}
-      columns={props.columns}
+      columns={allColumns}
       data={props.data}
       options={{
         search: false,
@@ -80,6 +105,7 @@ export const Table: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  //TODO: Left here because I figure we are going to need this
-  // in the future
+  action: {
+    cursor: "pointer",
+  },
 }));
