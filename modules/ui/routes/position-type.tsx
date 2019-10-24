@@ -32,3 +32,19 @@ export const PositionTypeViewLoader = asyncComponent({
   },
   name: "PositionTypeViewPage",
 });
+
+// Add
+export const PositionTypeAddRoute = defineSubRoute(
+  PositionTypeRoute,
+  "/add",
+  []
+);
+
+export const PositionTypeAddLoader = asyncComponent({
+  resolve: async () => {
+    const PositionTypeAddPage = (await import("ui/pages/position-type/add"))
+      .PositionTypeAddPage;
+    return PositionTypeAddPage;
+  },
+  name: "PositionTypeAddPage",
+});

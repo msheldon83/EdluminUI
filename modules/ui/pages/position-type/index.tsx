@@ -8,9 +8,12 @@ import { oc } from "ts-optchain";
 import {
   PositionTypeViewRoute,
   PositionTypeRoute,
+  PositionTypeAddRoute,
 } from "ui/routes/position-type";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
+import { Link } from "react-router-dom";
+import { Grid, Button } from "@material-ui/core";
 
 export const PositionTypePage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -46,7 +49,25 @@ export const PositionTypePage: React.FC<{}> = props => {
 
   return (
     <>
-      <PageTitle title={t("Position Types")} />
+      <Grid
+        container
+        alignItems="flex-start"
+        justify="space-between"
+        spacing={2}
+      >
+        <Grid item>
+          <PageTitle title={t("Position Types")} />
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            component={Link}
+            to={PositionTypeAddRoute.generate(params)}
+          >
+            {t("Add Position Type")}
+          </Button>
+        </Grid>
+      </Grid>
       <Table
         title={`${positionTypesCount} ${t("Position Types")}`}
         columns={columns}

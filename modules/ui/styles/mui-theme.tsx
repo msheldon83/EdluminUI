@@ -87,6 +87,7 @@ export const EdluminTheme = createMuiTheme({
       contained: {
         color: themeColors.white,
         backgroundColor: themeColors.blue,
+        textTransform: "uppercase",
       },
 
       outlined: {

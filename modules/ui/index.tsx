@@ -19,6 +19,8 @@ import {
   PositionTypeRoute,
   PositionTypeViewLoader,
   PositionTypeViewRoute,
+  PositionTypeAddLoader,
+  PositionTypeAddRoute,
 } from "./routes/position-type";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { EdluminTheme } from "./styles/mui-theme";
@@ -51,6 +53,10 @@ export function App(props: {}) {
                     {/* Protected routes go here */}
 
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
+                    <Route
+                      component={PositionTypeAddLoader}
+                      path={PositionTypeAddRoute.path}
+                    />
                     <Route
                       component={PositionTypeViewLoader}
                       path={PositionTypeViewRoute.path}
