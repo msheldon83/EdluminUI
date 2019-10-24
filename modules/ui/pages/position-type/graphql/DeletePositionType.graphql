@@ -1,0 +1,5 @@
+mutation DeletePostionType($positionTypeId: Int!) {
+  positionType {
+    delete(positionTypeId: $positionTypeId)
+  }
+}
