@@ -22,10 +22,14 @@ export const RoleSwitcher: React.FC<Props> = props => {
     return <></>;
   }
 
-  const userAccess = oc(orgUserQuery).data.userAccess.me();
+  const userAccess = oc(orgUserQuery).data.userAccess.me({
+    isSystemAdministrator: false,
+    user: null,
+  });
 
   const orgUser = oc(userAccess).user.orgUsers([
     {
+      id: 0,
       isAdmin: false,
       isEmployee: false,
       isReplacementEmployee: false,
