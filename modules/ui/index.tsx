@@ -16,7 +16,7 @@ import {
   PositionTypeViewRoute,
   PositionTypeViewLoader,
 } from "./routes/position-type";
-import { OrganizationsRoute, OrganizationsLoader } from "./routes/organizations";
+import { OrganizationsRoute, OrganizationsNoOrgRoute, OrganizationsLoader } from "./routes/organizations";
 import { EdluminTheme } from "./styles/mui-theme";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -63,6 +63,10 @@ export function App(props: {}) {
                     <Route
                       component={OrganizationsLoader}
                       path={OrganizationsRoute.path}
+                    />
+                    <Route
+                      component={OrganizationsLoader}
+                      path={OrganizationsNoOrgRoute.path}
                     />
                   </Switch>
                 </AppChrome>

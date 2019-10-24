@@ -58,7 +58,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
     fetchPolicy: "cache-and-network",
   });
   
-  const isSystemAdministrator = (getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING") ? false : oc(orgUserQuery).data.userAccess.me.isSystemAdministrator();
+  const isSystemAdministrator = (getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING") ? false: oc(orgUserQuery).data.userAccess.me.isSystemAdministrator();
   const orgUsers = (getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING") ? [] : oc(orgUserQuery).data.userAccess.me.user.orgUsers([]);
 
   const isAdminInOrgs = useMemo(
@@ -71,7 +71,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
     [isAdminInOrgs]
   );   
 
-  if ((getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING")) {
+  if (getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING") {
     return <></>;
   }
   
@@ -81,8 +81,6 @@ export const OrganizationsPage: React.FC<Props> = props => {
     organizations = oc(getOrganizations).data.organization.paged.results([]);
     organizationsCount = oc(getOrganizations).data.organization.paged.totalCount(0);
   }
-
-  
 
   return (
     <>
