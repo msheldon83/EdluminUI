@@ -28,8 +28,6 @@ type Props = {
   selection?: boolean;
   paging?: boolean;
   onEdit?: Function;
-  pageSize: string;
-  pageOptions: [];
 };
 
 type Column = {
