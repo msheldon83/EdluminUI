@@ -2,7 +2,7 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useScreenSize } from "hooks";
 import { makeStyles } from "@material-ui/core";
-import { GetPositionTypeById } from "ui/pages/position-type/position-type.gen";
+import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -22,8 +22,8 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Formik } from "formik";
 import { useState } from "react";
 import * as yup from "yup";
-import { UpdatePositionTypeName } from "./update-position-type-name.gen";
-import { UpdatePositionTypeExternalId } from "./update-position-type-external-id.gen";
+import { UpdatePositionTypeName } from "./graphql/update-position-type-name.gen";
+import { UpdatePositionTypeExternalId } from "./graphql/update-position-type-external-id.gen";
 
 const editableSections = {
   name: "edit-name",
