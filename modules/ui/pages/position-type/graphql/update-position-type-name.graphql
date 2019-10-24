@@ -1,0 +1,9 @@
+mutation UpdatePositionTypeName($positionType: PositionTypeUpdateInput!) {
+  positionType {
+    update(positionType: $positionType) {
+      id
+      name
+      rowVersion
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/position-types.gen";
+import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/graphql/position-types.gen";
 import * as React from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
@@ -52,7 +52,10 @@ export const PositionTypePage: React.FC<{}> = props => {
         columns={columns}
         data={positionTypes}
         selection={true}
-        onEdit={(positionType: Exclude<(typeof positionTypes)[0], null>) => {
+        onRowClick={(
+          event,
+          positionType: Exclude<(typeof positionTypes)[0], null>
+        ) => {
           const newParams = {
             ...params,
             positionTypeId: positionType.id,

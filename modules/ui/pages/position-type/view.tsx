@@ -1,15 +1,14 @@
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useScreenSize } from "hooks";
 import { makeStyles } from "@material-ui/core";
-import { GetPositionTypeById } from "ui/pages/position-type/position-type.gen";
+import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { oc } from "ts-optchain";
 import { Grid } from "@material-ui/core";
-import Edit from "@material-ui/icons/Edit";
 import { minutesToHours, boolToDisplay } from "ui/components/helpers";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { Redirect } from "react-router";
@@ -18,13 +17,29 @@ import {
   PositionTypeViewRoute,
 } from "ui/routes/position-type";
 import { useRouteParams } from "ui/routes/definition";
+import { useState } from "react";
+import * as yup from "yup";
+import { UpdatePositionTypeName } from "./graphql/update-position-type-name.gen";
+import { UpdatePositionTypeExternalId } from "./graphql/update-position-type-external-id.gen";
+import { PageHeader } from "ui/components/page-header";
+
+const editableSections = {
+  name: "edit-name",
+  externalId: "edit-external-id",
+  settings: "edit-settings",
+};
 
 export const PositionTypeViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
   const params = useRouteParams(PositionTypeViewRoute);
+  const [editing, setEditing] = useState<string | null>(null);
 
+  const [updatePositionTypeName] = useMutationBundle(UpdatePositionTypeName);
+  const [updatePositionTypeExternalId] = useMutationBundle(
+    UpdatePositionTypeExternalId
+  );
   const getPositionType = useQueryBundle(GetPositionTypeById, {
     variables: { id: params.positionTypeId },
   });
@@ -40,32 +55,86 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     return <Redirect to={listUrl} />;
   }
 
+  const updateName = async (name: string) => {
+    const test = positionType.id;
+
+    await updatePositionTypeName({
+      variables: {
+        positionType: {
+          positionTypeId: Number(positionType.id),
+          rowVersion: positionType.rowVersion,
+          name,
+        },
+      },
+    });
+  };
+
+  const updateExternalId = async (externalId?: string | null) => {
+    await updatePositionTypeExternalId({
+      variables: {
+        positionType: {
+          positionTypeId: Number(positionType.id),
+          rowVersion: positionType.rowVersion,
+          externalId,
+        },
+      },
+    });
+  };
+
   return (
     <>
       <PageTitle title={t("Position Type")} withoutHeading={!isMobile} />
-      <div className={classes.header}>
-        <Grid container alignItems="center" spacing={2}>
-          <Grid item>
-            <h1 className={classes.headerText}>{positionType.name}</h1>
-          </Grid>
-          <Grid item>
-            <Edit className={classes.action} />
-          </Grid>
-        </Grid>
-        <Grid container alignItems="center" spacing={2}>
-          <Grid item>
-            {`${t("External Id")} ${positionType.externalId || "[NONE]"}`}
-          </Grid>
-          <Grid item>
-            <Edit className={classes.smallAction} />
-          </Grid>
-        </Grid>
-      </div>
+      <PageHeader
+        text={positionType.name}
+        label={t("Name")}
+        editable={editing === null}
+        onEdit={() => setEditing(editableSections.name)}
+        validationSchema={yup.object().shape({
+          value: yup.string().required(t("Name is required")),
+        })}
+        onSubmit={async (data: { value: string }) => {
+          await updateName(data.value);
+          setEditing(null);
+        }}
+        onCancel={() => setEditing(null)}
+        actions={[
+          {
+            name: t("Change History"),
+            onClick: () => {},
+          },
+          {
+            name: t("Disable"),
+            onClick: () => {},
+          },
+          {
+            name: t("Delete"),
+            onClick: () => {},
+          },
+        ]}
+      />
+      <PageHeader
+        text={positionType.externalId}
+        label={t("External Id")}
+        editable={editing === null}
+        onEdit={() => setEditing(editableSections.externalId)}
+        validationSchema={yup.object().shape({
+          value: yup.string().nullable(),
+        })}
+        onSubmit={async (data: { value: string | null }) => {
+          await updateExternalId(data.value);
+          setEditing(null);
+        }}
+        onCancel={() => setEditing(null)}
+        isSubHeader={true}
+        showLabel={true}
+      />
+
       <Section>
         <SectionHeader
           title={t("Settings")}
           action={{
             text: t("Edit"),
+            visible: !editing,
             execute: () => {},
           }}
         />
@@ -87,11 +156,11 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
                 )}
             </div>
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} sm={6} lg={6}>
             <div className={classes.label}>{t("Use For Vacancies")}</div>
             <div>{boolToDisplay(t, positionType.forStaffAugmentation)}</div>
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} sm={6} lg={6}>
             <div className={classes.label}>{t("Minimum Absence Duration")}</div>
             <div>
               {`${minutesToHours(
@@ -107,19 +176,6 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  header: {
-    marginBottom: "20px",
-  },
-  headerText: {
-    margin: 0,
-  },
-  action: {
-    cursor: "pointer",
-  },
-  smallAction: {
-    cursor: "pointer",
-    height: "0.75em",
-  },
   label: {
     fontWeight: 500,
   },

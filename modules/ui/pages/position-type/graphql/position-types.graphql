@@ -1,13 +1,12 @@
-query GetPositionTypeById($id: ID!) {
+query GetAllPositionTypesWithinOrg($orgId: ID) {
   positionType {
-    byId(id: $id) {
+    all(orgId: $orgId) {
       id
       name
+      rowVersion
       externalId
       forPermanentPositions
       forStaffAugmentation
-      minAbsenceDurationMinutes
-      needsReplacement
       defaultContract {
         id
         name
