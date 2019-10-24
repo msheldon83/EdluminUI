@@ -101,6 +101,8 @@ export const Table: React.FC<Props> = props => {
         search: false,
         selection: props.selection,
         paging: props.paging,
+        pageSize: 10,
+        pageSizeOptions: [10, 25, 50, 100],
       }}
     />
   );

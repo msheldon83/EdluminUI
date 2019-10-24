@@ -7,6 +7,7 @@ import { AppChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
 import { ProfileRoute } from "ui/routes/profile";
 import { AutoSwitchingNavLinks } from "../navigation-links/role-nav-links";
+import { RoleSwitcher } from "../role-switcher";
 import { MobileSearchBar } from "./mobile-search";
 
 type Props = {
@@ -38,7 +39,7 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
           <ProfileAvatar className={classes.avatar} />
         </Link>
       </Grid>
-
+      <RoleSwitcher expanded />
       <Divider className={classes.divider} />
       <div className={classes.searchBar}>
         <MobileSearchBar />
@@ -46,7 +47,6 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
       <List className={classes.list}>
         <AutoSwitchingNavLinks onClick={props.collapse} />
       </List>
-
       <EdluminLogo />
     </Drawer>
   );

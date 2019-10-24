@@ -20,14 +20,15 @@ export const BasicSelect = () => {
   const [value, setValue] = React.useState<SelectValueType>();
 
   return (
-    <div className={classes.container}>
-      <Select
-        label="Basic Select"
-        placeholder="Choose one"
-        value={value}
-        onChange={setValue}
-        options={options}
-      />
+    <div>
+      <div className={classes.container}>
+        <Select
+          label="Basic Select"
+          value={value}
+          onChange={setValue}
+          options={options}
+        />
+      </div>
     </div>
   );
 };
@@ -40,7 +41,6 @@ export const MultiSelect = () => {
     <div className={classes.container}>
       <Select
         label="Multi Select"
-        placeholder="Choose some"
         value={value}
         onChange={setValue}
         options={options}
@@ -50,9 +50,27 @@ export const MultiSelect = () => {
   );
 };
 
+export const NativeSelect = () => {
+  const classes = useStyles();
+  const [value, setValue] = React.useState<SelectValueType>();
+
+  return (
+    <div className={classes.container}>
+      <Select
+        label="Native Select"
+        value={value}
+        onChange={setValue}
+        options={options}
+        native
+      />
+    </div>
+  );
+};
+
 const useStyles = makeStyles(theme => ({
   container: {
-    margin: theme.spacing(2),
+    padding: theme.spacing(2),
     maxWidth: theme.typography.pxToRem(400),
+    width: "100%",
   },
 }));
