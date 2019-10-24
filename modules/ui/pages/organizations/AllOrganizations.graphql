@@ -1,0 +1,13 @@
+query AllOrganizations($limit: Int, $offset: Int) {
+  organization {
+    paged(limit: $limit, offset: $offset) {
+      results {
+        id
+        name
+      }
+      hasMoreData
+      limit
+      totalCount
+    }
+  }
+}

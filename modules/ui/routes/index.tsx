@@ -4,7 +4,7 @@ import * as React from "react";
 
 export const IndexLoader = asyncComponent({
   resolve: async () => {
-    const IndexPage = (await import("ui/pages/index")).ExamplePage;
+    const IndexPage = (await import("ui/pages/index")).IndexPage;
     return IndexPage;
   },
   name: "Index",

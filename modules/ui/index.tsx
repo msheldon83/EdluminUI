@@ -16,6 +16,7 @@ import {
   PositionTypeViewRoute,
   PositionTypeViewLoader,
 } from "./routes/position-type";
+import { OrganizationsRoute, OrganizationsNoOrgRoute, OrganizationsLoader } from "./routes/organizations";
 import { EdluminTheme } from "./styles/mui-theme";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -32,32 +33,23 @@ export function App(props: {}) {
           <Switch>
             <Route exact path={"/login"} component={LoginPageRouteLoader} />
             <Route exact path={"/"}>
-              <p>
-                TODO: automatically direct you to the correct organization and
-                role.
-              </p>
-              <p>
-                For now, though,{" "}
-                <Link
-                  to={AdminChromeRoute.generate({
-                    organizationId: "1",
-                    role: "admin",
-                  })}
-                >
-                  click here.
-                </Link>
-              </p>
+              <IfAuthenticated>
+                <Route
+                  exact
+                  component={IndexLoader}
+                  path={"/"}
+                />
+              </IfAuthenticated>
+              <IfAuthenticated not>
+                <RedirectToLogin />
+              </IfAuthenticated>
             </Route>
             <Route path={AppChromeRoute.path}>
               <IfAuthenticated>
                 <AppChrome>
                   <Switch>
                     {/* Protected routes go here */}
-                    <Route
-                      exact
-                      component={IndexLoader}
-                      path={AppChromeRoute.path}
-                    />
+                    
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
                     <Route
                       component={PositionTypeViewLoader}
@@ -66,6 +58,15 @@ export function App(props: {}) {
                     <Route
                       component={PositionTypeLoader}
                       path={PositionTypeRoute.path}
+                    />
+                    {/*We will need to figure out how to prevent non admin users from accessing this route */}
+                    <Route
+                      component={OrganizationsLoader}
+                      path={OrganizationsRoute.path}
+                    />
+                    <Route
+                      component={OrganizationsLoader}
+                      path={OrganizationsNoOrgRoute.path}
                     />
                   </Switch>
                 </AppChrome>

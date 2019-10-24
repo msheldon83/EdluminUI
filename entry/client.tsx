@@ -1,10 +1,8 @@
 import { createBrowserHistory } from "history";
 import * as React from "react";
-import { useCallback } from "react";
 import * as ReactDom from "react-dom";
 import { Router } from "react-router-dom";
 import { App } from "ui";
-import { Example } from "ui/pages/index/Example.gen";
 import { buildGraphqlClient } from "graphql/client";
 import { Auth0Provider } from "auth/auth0";
 import { ApolloLink } from "apollo-link";

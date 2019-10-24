@@ -1,6 +1,6 @@
 import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
-import { ExamplePage } from ".";
+import { IndexPage } from ".";
 import { Auth0Provider, Auth0Context } from "auth/auth0";
 
 export default {
@@ -13,6 +13,7 @@ export const whoAmI = () => {
       Query: () => ({
         userAccess: () => ({
           me: {
+            isSystemAdministrator: true,
             user: {
               id: 1234,
             },
@@ -25,12 +26,12 @@ export const whoAmI = () => {
   return (
     <Provider>
       <Auth0Context.Provider value={{ isAuthenticated: true } as any}>
-        <ExamplePage />
+        <IndexPage />
       </Auth0Context.Provider>
     </Provider>
   );
 };
 
 whoAmI.story = {
-  name: "Example graphql connected component",
+  name: "Index page redirection",
 };
