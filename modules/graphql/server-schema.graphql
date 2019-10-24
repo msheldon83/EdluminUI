@@ -2923,6 +2923,7 @@ type ReferenceDataQueries {
   densityUnits: [RefDensityUnit]
   dimensionUnits: [RefDimensionUnit]
   featureFlags: [RefFeatureFlag]
+  orgUserRoleFlags: [RefOrgUserRole]
   fileTypes: [RefFileType]
   filePurposes: [RefFilePurpose]
   notificationReasons: [RefNotificationReason]
@@ -2993,6 +2994,13 @@ type RefObjectType {
 type RefOrganizationType {
   _info: [ReturnMessage]
   enumValue: OrganizationType
+  name: String!
+  description: String
+}
+
+type RefOrgUserRole {
+  _info: [ReturnMessage]
+  enumValue: OrgUserRole
   name: String!
   description: String
 }

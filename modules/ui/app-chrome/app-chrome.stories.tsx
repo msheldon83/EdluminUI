@@ -132,8 +132,9 @@ export const AppChromeError = () => {
 };
 
 class ComponentWithError extends React.Component<object, {}> {
-  render() {
+  render(): JSX.Element {
     throw "Error";
+    /* eslint-disable-next-line */
     return <h1>Hello</h1>;
   }
 }
