@@ -8,6 +8,7 @@ query GetAllPositionTypesWithinOrg($orgId: ID) {
       forPermanentPositions
       forStaffAugmentation
       defaultContract {
+        id
         name
       }
     }
