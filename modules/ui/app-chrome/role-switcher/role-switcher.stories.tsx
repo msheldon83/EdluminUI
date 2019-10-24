@@ -60,7 +60,7 @@ export const admin = () => {
 
 export const substitute = () => {
   const Provider = mockProvider({
-    initialUrl: AppChromeRoute.generate({ role: "substitute" }),
+    initialUrl: AppChromeRoute.generate({ role: "admin" }),
     mocks: {
       Query: () => ({
         userAccess: () => ({
