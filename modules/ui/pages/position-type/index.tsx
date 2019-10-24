@@ -51,7 +51,7 @@ export const PositionTypePage: React.FC<{}> = props => {
         title={`${positionTypesCount} ${t("Position Types")}`}
         columns={columns}
         data={positionTypes}
-        paging={true}
+        paging={false}
         selection={true}
         onEdit={(positionType: Exclude<(typeof positionTypes)[0], null>) => {
           const newParams = {
