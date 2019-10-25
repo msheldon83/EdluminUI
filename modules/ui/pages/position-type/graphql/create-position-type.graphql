@@ -1,0 +1,18 @@
+mutation CreatePositionType($positionType: PositionTypeCreateInput!) {
+  positionType {
+    create(positionType: $positionType) {
+      id
+      name
+      rowVersion
+      externalId
+      forPermanentPositions
+      forStaffAugmentation
+      minAbsenceDurationMinutes
+      needsReplacement
+      defaultContract {
+        id
+        name
+      }
+    }
+  }
+}

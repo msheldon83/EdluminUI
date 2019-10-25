@@ -57,8 +57,6 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   }
 
   const updateName = async (name: string) => {
-    const test = positionType.id;
-
     await updatePositionTypeName({
       variables: {
         positionType: {

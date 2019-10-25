@@ -7,6 +7,7 @@ import { Formik } from "formik";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { TextField as FormTextField } from "ui/components/form/text-field";
+import { ActionButtons } from "./action-buttons";
 
 type Props = {
   positionType: { name: string | null; externalId: string | null };
@@ -63,28 +64,10 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 />
               </Grid>
             </Grid>
-            <Grid
-              container
-              justify="flex-end"
-              spacing={2}
-              className={classes.actions}
-            >
-              <Grid item>
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    props.onCancel();
-                  }}
-                >
-                  {t("Cancel")}
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button variant="contained" onClick={submitForm}>
-                  {t("Next")}
-                </Button>
-              </Grid>
-            </Grid>
+            <ActionButtons
+              submit={{ text: t("Next"), execute: submitForm }}
+              cancel={{ text: t("Cancel"), execute: props.onCancel }}
+            />
           </form>
         )}
       </Formik>
