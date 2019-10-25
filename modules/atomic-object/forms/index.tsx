@@ -1,6 +1,6 @@
 import { SubmitFn, SchemaBuilder } from "./core";
-export type SubmitFn<Values> = SubmitFn<Values>;
-export type SchemaBuilder<T extends object> = SchemaBuilder<T>;
+// export type SubmitFn<Values> = SubmitFn<Values>;
+// export type SchemaBuilder<T extends object> = SchemaBuilder<T>;
 // export { IsoForm, IsoFormProps } from "./iso-form";
 
 // export {
@@ -14,8 +14,8 @@ export type SchemaBuilder<T extends object> = SchemaBuilder<T>;
 // export type SelectOption = SelectOption;
 // export type SelectProps = SelectProps;
 export { TextField } from "ui/components/form/text-field";
-import { TextFieldProps } from "ui/components/form/text-field";
-export type TextFieldProps = TextFieldProps;
+// import { TextFieldProps } from "ui/components/form/text-field";
+// export type TextFieldProps = TextFieldProps;
 // export { CheckBox } from "../../client/components/form/checkbox";
 // export { ShowFormData } from "../../client/components/form/show-form-data";
 
