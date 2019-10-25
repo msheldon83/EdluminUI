@@ -1,6 +1,5 @@
 import { useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { makeStyles, Tabs, Tab, Paper, Button } from "@material-ui/core";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import {
@@ -18,15 +17,10 @@ import {
 } from "graphql/server-types.gen";
 import { CreatePositionType } from "./graphql/create.gen";
 import { oc } from "ts-optchain";
-
-type Step = {
-  stepNumber: number;
-  name: string;
-};
+import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 
 export const PositionTypeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
   const history = useHistory();
   const params = useRouteParams(PositionTypeAddRoute);
   const [createPositionType] = useMutationBundle(CreatePositionType);
@@ -44,43 +38,9 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     defaultContractId: null,
   });
 
-  const steps: Array<Step> = [
-    {
-      stepNumber: 0,
-      name: t("Basic Info"),
-    },
-    {
-      stepNumber: 1,
-      name: t("Settings"),
-    },
-  ];
-  const [step, setStep] = React.useState(steps[0].stepNumber);
-  const handleStepChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    // Allow someone to go back a tab, but not forward due to
-    // validation needing to be done before moving forward
-    if (newValue < step) {
-      setStep(newValue);
-    }
-  };
-
-  const tabs = () => {
-    return (
-      <Paper square className={classes.tabs}>
-        <Tabs
-          value={step}
-          indicatorColor="primary"
-          textColor="primary"
-          onChange={handleStepChange}
-        >
-          {steps.map((s, i) => (
-            <Tab key={i} label={`${s.stepNumber + 1}. ${s.name}`} />
-          ))}
-        </Tabs>
-      </Paper>
-    );
-  };
-
-  const renderBasicInfoStep = () => {
+  const renderBasicInfoStep = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
     return (
       <AddBasicInfo
         positionType={positionType}
@@ -90,7 +50,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
             name: name,
             externalId: externalId,
           });
-          setStep(step + 1);
+          setStep(steps[1].stepNumber);
         }}
         onCancel={() => {
           const url = PositionTypeRoute.generate(params);
@@ -100,7 +60,9 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     );
   };
 
-  const renderSettings = () => {
+  const renderSettings = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
     return (
       <Settings
         orgId={params.organizationId}
@@ -149,29 +111,23 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     return oc(result).data.positionType.create.id();
   };
 
+  const steps: Array<Step> = [
+    {
+      stepNumber: 0,
+      name: t("Basic Info"),
+      content: renderBasicInfoStep,
+    },
+    {
+      stepNumber: 1,
+      name: t("Settings"),
+      content: renderSettings,
+    },
+  ];
+
   return (
     <>
       <PageTitle title={t("Create new position type")} />
-      {tabs()}
-      {step === steps[0].stepNumber && renderBasicInfoStep()}
-      {step === steps[1].stepNumber && renderSettings()}
+      <Tabs steps={steps} preventForwardTabClicking={true}></Tabs>
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  label: {
-    fontWeight: 500,
-  },
-  tabs: {
-    borderRadius: theme.typography.pxToRem(5),
-    borderWidth: theme.typography.pxToRem(1),
-    borderColor: theme.customColors.sectionBorder,
-    borderStyle: "solid",
-    borderBottom: "0",
-    boxShadow: "initial",
-    "& button": {
-      textTransform: "uppercase",
-    },
-  },
-}));
