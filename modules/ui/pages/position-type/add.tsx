@@ -16,7 +16,7 @@ import {
   NeedsReplacement,
   PositionTypeCreateInput,
 } from "graphql/server-types.gen";
-import { CreatePositionType } from "./graphql/create-position-type.gen";
+import { CreatePositionType } from "./graphql/create.gen";
 import { oc } from "ts-optchain";
 
 type Step = {

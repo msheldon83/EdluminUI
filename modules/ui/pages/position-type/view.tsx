@@ -20,8 +20,8 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { useState } from "react";
 import * as yup from "yup";
-import { UpdatePositionTypeName } from "./graphql/update-position-type-name.gen";
-import { UpdatePositionTypeExternalId } from "./graphql/update-position-type-external-id.gen";
+import { UpdatePositionTypeName } from "./graphql/update-name.gen";
+import { UpdatePositionTypeExternalId } from "./graphql/update-external-id.gen";
 import { PageHeader } from "ui/components/page-header";
 import Maybe from "graphql/tsutils/Maybe";
 
