@@ -57,8 +57,6 @@ export const PositionTypePage: React.FC<{}> = props => {
 
   const positionTypes = compact(getPositionTypes?.data?.positionType?.all ?? [])
   const positionTypesCount = positionTypes.length;
-  console.log(positionTypes);
-  console.log("first", positionTypes[0]);
   return (
     <>
       <Grid

@@ -5,7 +5,7 @@ import { Table } from "ui/components/table";
 import { useQueryBundle } from "graphql/hooks";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
-import { GetAllPeopleForOrg } from "./GetAllPeopleForOrg.gen";
+import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import { compact } from "lodash-es";
 import { makeStyles } from "@material-ui/core";
@@ -22,12 +22,11 @@ export const PeoplePage: React.FC<Props> = props => {
   });
   if (
     allPeopleQuery.state === "LOADING" ||
-    !allPeopleQuery.data.orgUser ||
-    !allPeopleQuery.data.orgUser.all
+    !allPeopleQuery.data.orgUser?.paged?.results
   ) {
     return <></>;
   }
-  const people = compact(allPeopleQuery.data.orgUser.all);
+  const people = compact(allPeopleQuery.data.orgUser?.paged?.results);
   const peopleCount = people.length;
 
   const columns = [
