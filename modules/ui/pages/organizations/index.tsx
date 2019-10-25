@@ -5,7 +5,6 @@ import * as React from "react";
 import { useMemo } from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
-import { oc } from "ts-optchain";
 import { GetOrgsForUser } from "ui/pages/organizations/GetOrgsForUser.gen";
 import { Link } from "react-router-dom";
 import { makeStyles, IconButton, Button } from "@material-ui/core";
@@ -70,11 +69,11 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const isSystemAdministrator =
     getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING"
       ? false
-      : oc(orgUserQuery).data.userAccess.me.isSystemAdministrator();
+      : orgUserQuery?.data?.userAccess?.me?.isSystemAdministrator
   const orgUsers =
     getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING"
       ? []
-      : oc(orgUserQuery).data.userAccess.me.user.orgUsers([]);
+      : orgUserQuery?.data?.userAccess?.me?.user?.orgUsers || []
 
   const isAdminInOrgs = useMemo(() => {
     return orgUsers.filter(r => r && r.isAdmin);
@@ -94,10 +93,9 @@ export const OrganizationsPage: React.FC<Props> = props => {
   let organizationsCount = organizations.length;
 
   if (isSystemAdministrator) {
-    organizations = oc(getOrganizations).data.organization.paged.results([]);
-    organizationsCount = oc(
-      getOrganizations
-    ).data.organization.paged.totalCount(0);
+    organizations = getOrganizations?.data?.organization?.paged?.results ?? [];
+    organizationsCount = 
+      getOrganizations?.data?.organization?.paged?.totalCount || 0;
   }
 
   return (

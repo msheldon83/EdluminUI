@@ -7,8 +7,7 @@ import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { oc } from "ts-optchain";
-import { makeStyles, Grid } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { minutesToHours, boolToDisplay } from "ui/components/helpers";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { Redirect, useHistory } from "react-router";
@@ -62,7 +61,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const positionType = oc(getPositionType).data.positionType.byId();
+  const positionType = getPositionType?.data?.positionType?.byId;
   if (!positionType) {
     // Redirect the User back to the List page
     const listUrl = PositionTypeRoute.generate(params);

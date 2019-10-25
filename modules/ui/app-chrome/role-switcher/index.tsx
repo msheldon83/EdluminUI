@@ -3,7 +3,6 @@ import { RoleSwitcherUI } from "./role-switcher-ui";
 import { some } from "lodash-es";
 import { useQueryBundle } from "graphql/hooks";
 import { QueryOrgUserRoles } from "ui/app-chrome/role-switcher/QueryOrgUserRoles.gen";
-import { oc } from "ts-optchain";
 import { AppChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
 
@@ -22,19 +21,19 @@ export const RoleSwitcher: React.FC<Props> = props => {
     return <></>;
   }
 
-  const userAccess = oc(orgUserQuery).data.userAccess.me({
+  const userAccess = (orgUserQuery)?.data?.userAccess?.me ?? {
     isSystemAdministrator: false,
     user: null,
-  });
+  };
 
-  const orgUser = oc(userAccess).user.orgUsers([
+  const orgUser = userAccess?.user?.orgUsers ?? [
     {
       id: "never",
       isAdmin: false,
       isEmployee: false,
       isReplacementEmployee: false,
     },
-  ]);
+  ];
 
   const roles = {
     isAdmin: some(orgUser, "isAdmin"),
