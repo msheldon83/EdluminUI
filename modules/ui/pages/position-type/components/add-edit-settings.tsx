@@ -21,7 +21,7 @@ import { ActionButtons } from "./action-buttons";
 type Props = {
   positionType: {
     forPermanentPositions: boolean;
-    needsReplacement: NeedsReplacement;
+    needsReplacement?: NeedsReplacement | undefined | null;
     forStaffAugmentation: boolean;
     minAbsenceDurationMinutes: number;
   };

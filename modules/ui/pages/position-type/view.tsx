@@ -11,10 +11,11 @@ import { oc } from "ts-optchain";
 import { Grid } from "@material-ui/core";
 import { minutesToHours, boolToDisplay } from "ui/components/helpers";
 import { getDisplayName } from "ui/components/enumHelpers";
-import { Redirect } from "react-router";
+import { Redirect, useHistory } from "react-router";
 import {
   PositionTypeRoute,
   PositionTypeViewRoute,
+  PositionTypeEditSettingsRoute,
 } from "ui/routes/position-type";
 import { useRouteParams } from "ui/routes/definition";
 import { useState } from "react";
@@ -34,6 +35,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
+  const history = useHistory();
   const params = useRouteParams(PositionTypeViewRoute);
   const [editing, setEditing] = useState<string | null>(null);
 
@@ -134,7 +136,12 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           action={{
             text: t("Edit"),
             visible: !editing,
-            execute: () => {},
+            execute: () => {
+              const editSettingsUrl = PositionTypeEditSettingsRoute.generate(
+                params
+              );
+              history.push(editSettingsUrl);
+            },
           }}
         />
         <Grid container spacing={2}>

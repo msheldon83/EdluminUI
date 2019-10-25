@@ -1,4 +1,4 @@
-mutation UpdatePositionTypeExternalId($positionType: PositionTypeUpdateInput!) {
+mutation UpdatePositionTypeSettings($positionType: PositionTypeUpdateInput!) {
   positionType {
     update(positionType: $positionType) {
       id

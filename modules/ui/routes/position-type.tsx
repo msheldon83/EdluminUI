@@ -48,3 +48,20 @@ export const PositionTypeAddLoader = asyncComponent({
   },
   name: "PositionTypeAddPage",
 });
+
+// Edit Settings
+export const PositionTypeEditSettingsRoute = defineSubRoute(
+  PositionTypeViewRoute,
+  "/edit-settings",
+  []
+);
+
+export const PositionTypeEditSettingsLoader = asyncComponent({
+  resolve: async () => {
+    const PositionTypeEditSettingsPage = (await import(
+      "ui/pages/position-type/edit-settings"
+    )).PositionTypeEditSettingsPage;
+    return PositionTypeEditSettingsPage;
+  },
+  name: "PositionTypeEditSettingsPage",
+});

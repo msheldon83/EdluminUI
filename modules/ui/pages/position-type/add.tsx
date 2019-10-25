@@ -1,6 +1,5 @@
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import { useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { useScreenSize } from "hooks";
 import { makeStyles, Tabs, Tab, Paper, Button } from "@material-ui/core";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
@@ -28,7 +27,6 @@ type Step = {
 export const PositionTypeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
   const history = useHistory();
   const params = useRouteParams(PositionTypeAddRoute);
   const [createPositionType] = useMutationBundle(CreatePositionType);
@@ -52,18 +50,11 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
       stepNumber: 1,
       name: t("Settings"),
     },
-    // {
-    //   stepNumber: 2,
-    //   name: t("Replacement"),
-    // },
-    // {
-    //   stepNumber: 3,
-    //   name: t("Substitute"),
-    // },
   ];
   const [step, setStep] = React.useState(steps[0].stepNumber);
   const handleStepChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    // Allow someone to go back a tab, but not forward
+    // Allow someone to go back a tab, but not forward due to
+    // validation needing to be done before moving forward
     if (newValue < step) {
       setStep(newValue);
     }
@@ -71,7 +62,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
 
   const tabs = () => {
     return (
-      <Paper square>
+      <Paper square className={classes.tabs}>
         <Tabs
           value={step}
           indicatorColor="primary"
@@ -86,12 +77,6 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     );
   };
 
-  const generateUrl = (step: number) => {
-    const routeUrl = PositionTypeAddRoute.generate(params);
-    const nextStepurl = `${routeUrl}/${step}`;
-    return nextStepurl;
-  };
-
   const renderBasicInfoStep = () => {
     return (
       <AddBasicInfo
@@ -103,8 +88,6 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
             externalId: externalId,
           });
           setStep(step + 1);
-          // Update the URL to the next step
-          //history.push(generateUrl(steps.settings + 1));
         }}
         onCancel={() => {
           const url = PositionTypeRoute.generate(params);
@@ -133,15 +116,14 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
             minAbsenceDurationMinutes: minAbsenceDurationMinutes,
           };
           setPositionType(newPositionType);
-          //setStep(step + 1);
-          // Update the URL to the next step
-          //history.push(generateUrl(steps.replacement + 1));
 
+          // Create the Position Type
           const id = await create(newPositionType);
           const viewParams = {
             ...params,
             positionTypeId: id!,
           };
+          // Go to the Position Type View page
           history.push(PositionTypeViewRoute.generate(viewParams));
         }}
         onCancel={() => {
@@ -183,5 +165,13 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
 const useStyles = makeStyles(theme => ({
   label: {
     fontWeight: 500,
+  },
+  tabs: {
+    borderRadius: theme.typography.pxToRem(5),
+    borderWidth: theme.typography.pxToRem(1),
+    borderColor: theme.customColors.sectionBorder,
+    borderStyle: "solid",
+    borderBottom: "0",
+    boxShadow: "initial",
   },
 }));

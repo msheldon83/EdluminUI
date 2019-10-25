@@ -7,6 +7,8 @@ query GetAllPositionTypesWithinOrg($orgId: ID) {
       externalId
       forPermanentPositions
       forStaffAugmentation
+      minAbsenceDurationMinutes
+      needsReplacement
       defaultContract {
         id
         name
