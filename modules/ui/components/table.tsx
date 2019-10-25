@@ -1,6 +1,7 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core";
 import MaterialTable from "material-table";
+import { MaterialTableProps } from "material-table";
 
 import { forwardRef } from "react";
 import { Icons } from "material-table";
@@ -29,7 +30,7 @@ type Props = {
   paging?: boolean;
   onRowClick?: (event?: React.MouseEvent, rowData?: any) => void;
   onEdit?: Function;
-};
+} & Pick<MaterialTableProps<any>, "options">;
 
 type Column = {
   title: string;
@@ -103,6 +104,7 @@ export const Table: React.FC<Props> = props => {
         paging: props.paging,
         pageSize: 10,
         pageSizeOptions: [10, 25, 50, 100],
+        ...props.options,
       }}
     />
   );
