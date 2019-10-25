@@ -4,7 +4,6 @@ import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/graphql/pos
 import * as React from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
-import { oc } from "ts-optchain";
 import {
   PositionTypeViewRoute,
   PositionTypeRoute,
@@ -46,7 +45,7 @@ export const PositionTypePage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const positionTypes = oc(getPositionTypes).data.positionType.all([]);
+  const positionTypes = getPositionTypes?.data?.positionType?.all ?? [];
   const positionTypesCount = positionTypes.length;
 
   return (
