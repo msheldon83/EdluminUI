@@ -1,0 +1,13 @@
+query GetAllPeopleForOrg($orgId: IDq) {
+  orgUser {
+    all(orgId: $orgId) {
+      id
+      firstName
+      lastName
+      active
+      isReplacementEmployee
+      isEmployee
+      isAdmin
+    }
+  }
+}

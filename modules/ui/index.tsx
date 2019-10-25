@@ -26,6 +26,7 @@ import {
 } from "./routes/position-type";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { EdluminTheme } from "./styles/mui-theme";
+import { PeopleLoader, PeopleRoute } from "./routes/people";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -85,6 +86,7 @@ export function App(props: {}) {
                         component={OrganizationsLoader}
                         path={OrganizationsNoOrgRoute.path}
                       />
+                      <Route component={PeopleLoader} path={PeopleRoute.path} />
                     </Switch>
                   </Route>
                 </AppChrome>
