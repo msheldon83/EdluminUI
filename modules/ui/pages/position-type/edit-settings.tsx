@@ -57,7 +57,7 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
 
   return (
     <>
-      <PageTitle title={`${positionType.name}: ${t("Edit Settings")}`} />
+      <PageTitle title={positionType.name} />
       <Settings
         positionType={positionType}
         submitText={t("Save")}

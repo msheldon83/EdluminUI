@@ -173,5 +173,8 @@ const useStyles = makeStyles(theme => ({
     borderStyle: "solid",
     borderBottom: "0",
     boxShadow: "initial",
+    "& button": {
+      textTransform: "uppercase",
+    },
   },
 }));

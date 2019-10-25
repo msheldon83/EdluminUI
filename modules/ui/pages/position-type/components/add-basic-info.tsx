@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useScreenSize } from "hooks";
-import { makeStyles, Grid, Button } from "@material-ui/core";
+import { Grid, Typography } from "@material-ui/core";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { Section } from "ui/components/section";
@@ -17,7 +17,6 @@ type Props = {
 
 export const AddBasicInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
 
   return (
@@ -41,9 +40,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
       >
         {({ handleSubmit, submitForm }) => (
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
+            <Grid container spacing={8}>
               <Grid item xs={12} sm={6} lg={6}>
-                <div className={classes.label}>{t("Position type name")}</div>
+                <Typography variant="h6">{t("Position type name")}</Typography>
                 <FormTextField
                   placeholder={t("Position name")}
                   name="name"
@@ -53,7 +52,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 />
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
-                <div className={classes.label}>{t("External ID")}</div>
+                <Typography variant="h6">{t("External ID")}</Typography>
                 <FormTextField
                   placeholder={t("External ID")}
                   name="externalId"
@@ -74,12 +73,3 @@ export const AddBasicInfo: React.FC<Props> = props => {
     </Section>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  label: {
-    fontWeight: 500,
-  },
-  actions: {
-    marginTop: theme.spacing(4),
-  },
-}));

@@ -1,5 +1,6 @@
 import * as React from "react";
-import { makeStyles, Grid } from "@material-ui/core";
+import { useTranslation } from "react-i18next";
+import { makeStyles, Grid, Typography } from "@material-ui/core";
 import { Edit, Clear, Check } from "@material-ui/icons";
 import { Option, ActionMenu } from "./action-menu";
 import { Formik } from "formik";
@@ -22,6 +23,7 @@ type Props = {
 
 export const PageHeader: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
   const isMobile = useScreenSize() === "mobile";
   const [editing, setEditing] = React.useState(false);
 
@@ -49,21 +51,30 @@ export const PageHeader: React.FC<Props> = props => {
   const headerIsEditable =
     props.editable && props.onEdit && props.onSubmit && props.onCancel;
 
-  const display = props.text ? (
+  const textDisplay = props.text ? (
     props.text
   ) : (
-    <span className={classes.valueMissing}>Not Specified</span>
+    <span className={classes.valueMissing}>{t("Not Specified")}</span>
   );
+
+  const label = props.showLabel ? <>{`${props.label}: `}</> : "";
 
   if (!editing) {
     return wrapper(
       <Grid item>
         <Grid item container alignItems="center" spacing={2}>
           <Grid item>
-            {props.showLabel && (
-              <span className={classes.label}>{`${props.label}: `}</span>
+            {!props.isSubHeader ? (
+              <Typography variant="h1">
+                {label}
+                {textDisplay}
+              </Typography>
+            ) : (
+              <Typography variant="h6">
+                {label}
+                {textDisplay}
+              </Typography>
             )}
-            {!props.isSubHeader ? <h1>{display}</h1> : <span>{display}</span>}
           </Grid>
           <Grid item>
             {headerIsEditable && (
@@ -141,9 +152,6 @@ const useStyles = makeStyles(theme => ({
   },
   subHeader: {
     marginBottom: theme.spacing(2),
-  },
-  label: {
-    fontWeight: 500,
   },
   action: {
     cursor: "pointer",

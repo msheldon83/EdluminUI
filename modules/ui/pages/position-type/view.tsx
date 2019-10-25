@@ -1,7 +1,7 @@
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useScreenSize } from "hooks";
-import { makeStyles } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
@@ -33,7 +33,6 @@ const editableSections = {
 
 export const PositionTypeViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
   const history = useHistory();
   const params = useRouteParams(PositionTypeViewRoute);
@@ -115,7 +114,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
       />
       <PageHeader
         text={positionType.externalId}
-        label={t("External Id")}
+        label={t("External ID")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
         validationSchema={yup.object().shape({
@@ -146,13 +145,13 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} lg={6}>
-            <div className={classes.label}>{t("Use For Employees")}</div>
+            <Typography variant="h6">{t("Use For Employees")}</Typography>
             <div>{boolToDisplay(t, positionType.forPermanentPositions)}</div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
-            <div className={classes.label}>
+            <Typography variant="h6">
               {t("Needs Substitute (default)")}
-            </div>
+            </Typography>
             <div>
               {positionType.needsReplacement &&
                 getDisplayName(
@@ -163,11 +162,13 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
             </div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
-            <div className={classes.label}>{t("Use For Vacancies")}</div>
+            <Typography variant="h6">{t("Use For Vacancies")}</Typography>
             <div>{boolToDisplay(t, positionType.forStaffAugmentation)}</div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
-            <div className={classes.label}>{t("Minimum Absence Duration")}</div>
+            <Typography variant="h6">
+              {t("Minimum Absence Duration")}
+            </Typography>
             <div>
               {`${minutesToHours(
                 positionType.minAbsenceDurationMinutes,
@@ -180,9 +181,3 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  label: {
-    fontWeight: 500,
-  },
-}));
