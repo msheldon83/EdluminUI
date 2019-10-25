@@ -24,7 +24,7 @@ export const PositionTypePage: React.FC<{}> = props => {
     variables: { orgId: params.organizationId },
   });
 
-  const columns: Column<(typeof positionTypes)[0]>[] = [
+  const columns: Column<GetAllPositionTypesWithinOrg.All>[] = [
     {
       title: t("Name"),
       field: "name",
@@ -85,7 +85,8 @@ export const PositionTypePage: React.FC<{}> = props => {
         columns={columns}
         data={positionTypes}
         selection={true}
-        onRowClick={(event, positionType: (typeof positionTypes)[0]) => {
+        onRowClick={(event, positionType) => {
+          if (!positionType) return;
           const newParams = {
             ...params,
             positionTypeId: positionType.id,

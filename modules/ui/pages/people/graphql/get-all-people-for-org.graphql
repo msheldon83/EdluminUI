@@ -1,4 +1,4 @@
-query GetAllPeopleForOrg($orgId: IDq) {
+query GetAllPeopleForOrg($orgId: ID) {
   orgUser {
     all(orgId: $orgId) {
       id
