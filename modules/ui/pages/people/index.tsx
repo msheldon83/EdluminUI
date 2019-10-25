@@ -7,12 +7,16 @@ import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./GetAllPeopleForOrg.gen";
 import { AccountCircleOutlined } from "@material-ui/icons";
+import { compact } from "lodash-es";
+import { makeStyles } from "@material-ui/core";
+import { useTheme } from "@material-ui/styles";
 
 type Props = {};
 
 export const PeoplePage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(PeopleRoute);
+  const theme = useTheme();
   const allPeopleQuery = useQueryBundle(GetAllPeopleForOrg, {
     variables: { orgId: params.organizationId },
   });
@@ -23,13 +27,16 @@ export const PeoplePage: React.FC<Props> = props => {
   ) {
     return <></>;
   }
-  const people = allPeopleQuery.data.orgUser.all;
+  const people = compact(allPeopleQuery.data.orgUser.all);
   const peopleCount = people.length;
 
   const columns = [
     {
+      cellStyle: { width: theme.typography.pxToRem(70), alignItems: "center" },
+      render: () => <AccountCircleOutlined />, // eslint-disable-line
+    },
+    {
       title: t("Name"),
-      field: "name",
       render: (p: Exclude<(typeof people)[0], null>) =>
         p && `${p.firstName} ${p.lastName}`,
     },
