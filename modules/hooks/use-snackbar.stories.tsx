@@ -38,7 +38,7 @@ export const DefaultSnackbar = () => {
 };
 
 const ConfiguredSnackbarButton = () => {
-  const { openSnackbar. closeSnackbar } = useSnackbar();
+  const { openSnackbar, closeSnackbar } = useSnackbar();
 
   const snackbarConfiguration = {
     message: "Configured Snackbar",
@@ -46,7 +46,7 @@ const ConfiguredSnackbarButton = () => {
       <Button color="inherit" size="small" onClick={() => closeSnackbar()}>
         Close
       </Button>
-    )
+    ),
   };
 
   return (

@@ -66,8 +66,12 @@ type ContextValue = {
 
 // Defaults to make the compiler happy
 const Context = React.createContext<ContextValue>({
-  openSnackbar() {},
-  closeSnackbar() {},
+  openSnackbar() {
+    return undefined;
+  },
+  closeSnackbar() {
+    return undefined;
+  },
 });
 
 export const useSnackbar = () => {
