@@ -10,7 +10,10 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionButtons } from "./action-buttons";
 
 type Props = {
-  positionType: { name: string | null; externalId: string | null };
+  positionType: {
+    name?: string | null;
+    externalId?: string | null | undefined;
+  };
   onSubmit: Function;
   onCancel: Function;
 };

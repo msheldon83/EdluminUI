@@ -59,13 +59,15 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
     <>
       <PageTitle title={positionType.name} />
       <Settings
+        orgId={params.organizationId}
         positionType={positionType}
         submitText={t("Save")}
         onSubmit={async (
           forPermanentPositions: boolean,
           needsReplacement: NeedsReplacement,
           forStaffAugmentation: boolean,
-          minAbsenceDurationMinutes: number
+          minAbsenceDurationMinutes: number,
+          defaultContractId: number
         ) => {
           const positionTypeSettings: PositionTypeUpdateInput = {
             positionTypeId: Number(positionType.id),
@@ -73,6 +75,7 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
             needsReplacement: needsReplacement,
             forStaffAugmentation: forStaffAugmentation,
             minAbsenceDurationMinutes: minAbsenceDurationMinutes,
+            defaultContractId: defaultContractId,
           };
 
           // Update the Position Type

@@ -31,14 +31,17 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
   const params = useRouteParams(PositionTypeAddRoute);
   const [createPositionType] = useMutationBundle(CreatePositionType);
 
-  const [positionType, setPositionType] = React.useState({
+  const [positionType, setPositionType] = React.useState<
+    PositionTypeCreateInput
+  >({
     orgId: Number(params.organizationId),
     name: "",
-    externalId: "",
+    externalId: null,
     forPermanentPositions: true,
     needsReplacement: NeedsReplacement.Yes,
     forStaffAugmentation: true,
     minAbsenceDurationMinutes: 15,
+    defaultContractId: null,
   });
 
   const steps: Array<Step> = [
@@ -100,13 +103,15 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
   const renderSettings = () => {
     return (
       <Settings
+        orgId={params.organizationId}
         positionType={positionType}
         submitText={t("Save")}
         onSubmit={async (
           forPermanentPositions: boolean,
           needsReplacement: NeedsReplacement,
           forStaffAugmentation: boolean,
-          minAbsenceDurationMinutes: number
+          minAbsenceDurationMinutes: number,
+          defaultContractId: number | null
         ) => {
           const newPositionType = {
             ...positionType,
@@ -114,6 +119,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
             needsReplacement: needsReplacement,
             forStaffAugmentation: forStaffAugmentation,
             minAbsenceDurationMinutes: minAbsenceDurationMinutes,
+            defaultContractId: defaultContractId,
           };
           setPositionType(newPositionType);
 
@@ -137,16 +143,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
   const create = async (positionType: PositionTypeCreateInput) => {
     const result = await createPositionType({
       variables: {
-        positionType: {
-          orgId: positionType.orgId,
-          name: positionType.name,
-          forStaffAugmentation: positionType.forStaffAugmentation,
-          forPermanentPositions: positionType.forPermanentPositions,
-          needsReplacement: positionType.needsReplacement,
-          minAbsenceDurationMinutes: positionType.minAbsenceDurationMinutes,
-          externalId: positionType.externalId,
-          //defaultContractId: positionType.defaultContractId
-        },
+        positionType,
       },
     });
     return oc(result).data.positionType.create.id();

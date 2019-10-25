@@ -8,7 +8,7 @@ import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { oc } from "ts-optchain";
-import { Grid } from "@material-ui/core";
+import { makeStyles, Grid } from "@material-ui/core";
 import { minutesToHours, boolToDisplay } from "ui/components/helpers";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { Redirect, useHistory } from "react-router";
@@ -33,6 +33,7 @@ const editableSections = {
 };
 
 export const PositionTypeViewPage: React.FC<{}> = props => {
+  const classes = useStyles();
   const { t } = useTranslation();
   const isMobile = useScreenSize() === "mobile";
   const history = useHistory();
@@ -156,12 +157,12 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">{t("Use For Employees")}</Typography>
+            <Typography variant="h6">{t("Use for employees")}</Typography>
             <div>{boolToDisplay(t, positionType.forPermanentPositions)}</div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
             <Typography variant="h6">
-              {t("Needs Substitute (default)")}
+              {t("Needs substitute (default)")}
             </Typography>
             <div>
               {positionType.needsReplacement &&
@@ -173,12 +174,12 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
             </div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">{t("Use For Vacancies")}</Typography>
+            <Typography variant="h6">{t("Use for vacancies")}</Typography>
             <div>{boolToDisplay(t, positionType.forStaffAugmentation)}</div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
             <Typography variant="h6">
-              {t("Minimum Absence Duration")}
+              {t("Minimum absence duration")}
             </Typography>
             <div>
               {`${minutesToHours(
@@ -187,8 +188,27 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               )} hour(s)`}
             </div>
           </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Default Contract")}</Typography>
+            <div>
+              {positionType.defaultContract ? (
+                positionType.defaultContract.name
+              ) : (
+                <span className={classes.valueMissing}>
+                  {t("Not Specified")}
+                </span>
+              )}
+            </div>
+          </Grid>
         </Grid>
       </Section>
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  valueMissing: {
+    opacity: "0.6",
+    filter: "alpha(opacity = 60)",
+  },
+}));

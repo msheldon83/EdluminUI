@@ -1,9 +1,9 @@
 import * as React from "react";
+import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useScreenSize } from "hooks";
 import {
   makeStyles,
-  Grid,
   Checkbox,
   Radio,
   FormControlLabel,
@@ -16,25 +16,72 @@ import { Formik } from "formik";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { TextField as FormTextField } from "ui/components/form/text-field";
-import { NeedsReplacement } from "graphql/server-types.gen";
+import { NeedsReplacement, Contract, Maybe } from "graphql/server-types.gen";
 import { ActionButtons } from "./action-buttons";
+import { Select, SelectValueType } from "ui/components/form/select";
+import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
+import { oc } from "ts-optchain";
 
 type Props = {
+  orgId: string;
   positionType: {
     forPermanentPositions: boolean;
     needsReplacement?: NeedsReplacement | undefined | null;
     forStaffAugmentation: boolean;
     minAbsenceDurationMinutes: number;
+    defaultContractId?: number | undefined | null;
+    defaultContract?: {
+      id: number;
+      name: string;
+    };
   };
   submitText: string;
   onSubmit: Function;
   onCancel: Function;
 };
 
+const buildContractOptions = (
+  contracts: Array<Contract>,
+  positionType: Props["positionType"]
+) => {
+  // Format the contracts as dropdown options
+  const contractOptions = contracts.map(c => {
+    return { value: Number(c.id), label: c.name };
+  });
+
+  // Handle if the current Position Type is associated with an Expired Contract
+  if (
+    positionType.defaultContract &&
+    !contracts.find(c => Number(c.id) === positionType.defaultContractId)
+  ) {
+    contractOptions.push({
+      value: positionType.defaultContract.id,
+      label: positionType.defaultContract.name,
+    });
+  }
+
+  return contractOptions;
+};
+
 export const Settings: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
+
+  const getAllActiveContracts = useQueryBundle(GetAllActiveContracts, {
+    variables: { orgId: props.orgId },
+  });
+  if (getAllActiveContracts.state === "LOADING") {
+    return <></>;
+  }
+
+  const allActiveContracts: any = oc(getAllActiveContracts).data.contract.all(
+    []
+  );
+  const contractOptions = buildContractOptions(
+    allActiveContracts,
+    props.positionType
+  );
 
   return (
     <Section>
@@ -46,13 +93,15 @@ export const Settings: React.FC<Props> = props => {
           forStaffAugmentation: props.positionType.forStaffAugmentation,
           minAbsenceDurationMinutes:
             props.positionType.minAbsenceDurationMinutes,
+          defaultContractId: props.positionType.defaultContractId,
         }}
         onSubmit={(data, meta) => {
           props.onSubmit(
             data.forPermanentPositions,
             data.needsReplacement,
             data.forStaffAugmentation,
-            data.minAbsenceDurationMinutes
+            data.minAbsenceDurationMinutes,
+            data.defaultContractId
           );
         }}
         validationSchema={yup.object().shape({
@@ -97,7 +146,7 @@ export const Settings: React.FC<Props> = props => {
               onChange={e => {
                 setFieldValue("needsReplacement", e.target.value);
               }}
-              row
+              row={!isMobile}
               className={classes.useForEmployeesSubItems}
             >
               <FormControlLabel
@@ -147,18 +196,24 @@ export const Settings: React.FC<Props> = props => {
                 "Will you need to request a substitute without an employee being absent?"
               )}
             </FormHelperText>
-            {/*TODO: Make this work. Is this a type ahead search or a dropdown?*/}
             <div className={classes.contractSection}>
               <div>{t("Default contract")}</div>
-              <FormTextField
-                name="defaultContract"
-                //margin={isMobile ? "normal" : "none"}
-                variant="outlined"
-                helperText={t(
+              <Select
+                value={contractOptions.find(
+                  (c: any) => c.value === values.defaultContractId
+                )}
+                label=""
+                options={contractOptions}
+                onChange={(e: SelectValueType) => {
+                  console.log(e);
+                  //setFieldValue("defaultContractId", e.value);
+                }}
+              />
+              <FormHelperText>
+                {t(
                   "Positions of this type will likely be associated with this contract"
                 )}
-                //fullWidth
-              />
+              </FormHelperText>
             </div>
             <div className={classes.minAbsenceSection}>
               <Typography variant="h6">
@@ -174,12 +229,12 @@ export const Settings: React.FC<Props> = props => {
               </div>
               <FormTextField
                 name="minAbsenceDurationMinutes"
-                //margin={isMobile ? "normal" : "none"}
+                margin={isMobile ? "normal" : "none"}
                 variant="outlined"
                 helperText={t(
                   "The shortest time that an employee with this position can be absent."
                 )}
-                //fullWidth
+                fullWidth
               />
             </div>
             <ActionButtons
@@ -201,13 +256,15 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
   contractSection: {
-    marginTop: theme.spacing(4),
+    marginTop: theme.spacing(6),
+    maxWidth: "500px",
     "& p": {
       marginLeft: 0,
     },
   },
   minAbsenceSection: {
-    marginTop: theme.spacing(4),
+    marginTop: theme.spacing(6),
+    maxWidth: "500px",
     "& p": {
       marginLeft: 0,
     },
