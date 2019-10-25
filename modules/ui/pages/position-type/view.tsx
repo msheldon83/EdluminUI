@@ -23,6 +23,7 @@ import * as yup from "yup";
 import { UpdatePositionTypeName } from "./graphql/update-name.gen";
 import { UpdatePositionTypeExternalId } from "./graphql/update-external-id.gen";
 import { PageHeader } from "ui/components/page-header";
+import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import Maybe from "graphql/tsutils/Maybe";
 
 const editableSections = {
@@ -36,7 +37,18 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const isMobile = useScreenSize() === "mobile";
   const history = useHistory();
   const params = useRouteParams(PositionTypeViewRoute);
+  const history = useHistory();
   const [editing, setEditing] = useState<string | null>(null);
+
+  const [deletePositionMutation] = useMutationBundle(DeletePostionType);
+  const deletePosition = React.useCallback(() => {
+    history.push(PositionTypeRoute.generate(params));
+    return deletePositionMutation({
+      variables: {
+        positionTypeId: Number(params.positionTypeId),
+      },
+    });
+  }, [deletePositionMutation, history, params]);
 
   const [updatePositionTypeName] = useMutationBundle(UpdatePositionTypeName);
   const [updatePositionTypeExternalId] = useMutationBundle(
@@ -108,7 +120,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           },
           {
             name: t("Delete"),
-            onClick: () => {},
+            onClick: deletePosition,
           },
         ]}
       />

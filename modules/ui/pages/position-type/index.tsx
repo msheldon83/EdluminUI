@@ -19,25 +19,30 @@ export const PositionTypePage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PositionTypeRoute);
-
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
     variables: { orgId: params.organizationId },
   });
 
   const columns = [
-    { title: t("Name"), field: "name", defaultSort: "asc" },
-    { title: t("External Id"), field: "externalId" },
+    { title: t("Name"), field: "name", defaultSort: "asc", searchable: true },
+    { title: t("External Id"), field: "externalId", searchable: true },
     {
       title: t("Use for Employees"),
       field: "forPermanentPositions",
       type: "boolean",
+      searchable: false,
     },
     {
       title: t("Use for Vacancies"),
       field: "forStaffAugmentation",
       type: "boolean",
+      searchable: false,
     },
-    { title: t("Default Contract Name"), field: "defaultContract.name" },
+    {
+      title: t("Default Contract Name"),
+      field: "defaultContract.name",
+      searchable: false,
+    },
   ];
 
   if (getPositionTypes.state === "LOADING") {
@@ -83,7 +88,10 @@ export const PositionTypePage: React.FC<{}> = props => {
           };
           history.push(PositionTypeViewRoute.generate(newParams));
         }}
-      ></Table>
+        options={{
+          search: true,
+        }}
+      />
     </>
   );
 };
