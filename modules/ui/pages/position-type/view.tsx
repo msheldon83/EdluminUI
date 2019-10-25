@@ -37,7 +37,6 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const isMobile = useScreenSize() === "mobile";
   const history = useHistory();
   const params = useRouteParams(PositionTypeViewRoute);
-  const history = useHistory();
   const [editing, setEditing] = useState<string | null>(null);
 
   const [deletePositionMutation] = useMutationBundle(DeletePostionType);
