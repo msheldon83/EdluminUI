@@ -20,7 +20,6 @@ import { NeedsReplacement, Contract, Maybe } from "graphql/server-types.gen";
 import { ActionButtons } from "./action-buttons";
 import { Select, SelectValueType } from "ui/components/form/select";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
-import { oc } from "ts-optchain";
 
 type Props = {
   orgId: string;
@@ -75,9 +74,7 @@ export const Settings: React.FC<Props> = props => {
     return <></>;
   }
 
-  const allActiveContracts: any = oc(getAllActiveContracts).data.contract.all(
-    []
-  );
+  const allActiveContracts: any = getAllActiveContracts?.data?.contract?.all || [];
   const contractOptions = buildContractOptions(
     allActiveContracts,
     props.positionType

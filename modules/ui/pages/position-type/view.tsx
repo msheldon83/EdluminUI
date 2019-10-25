@@ -7,7 +7,7 @@ import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { Grid } from "@material-ui/core";
+import { makeStyles, Grid } from "@material-ui/core";
 import { minutesToHours, boolToDisplay } from "ui/components/helpers";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { Redirect, useHistory } from "react-router";

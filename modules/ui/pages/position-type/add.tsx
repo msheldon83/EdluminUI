@@ -16,7 +16,6 @@ import {
   PositionTypeCreateInput,
 } from "graphql/server-types.gen";
 import { CreatePositionType } from "./graphql/create.gen";
-import { oc } from "ts-optchain";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 
 export const PositionTypeAddPage: React.FC<{}> = props => {
@@ -108,7 +107,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
         positionType,
       },
     });
-    return oc(result).data.positionType.create.id();
+    return result?.data?.positionType?.create?.id;
   };
 
   const steps: Array<Step> = [

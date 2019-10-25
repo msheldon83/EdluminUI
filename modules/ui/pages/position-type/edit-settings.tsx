@@ -15,7 +15,6 @@ import {
   PositionTypeUpdateInput,
 } from "graphql/server-types.gen";
 import { UpdatePositionTypeSettings } from "./graphql/update-settings.gen";
-import { oc } from "ts-optchain";
 import { GetPositionTypeById } from "./graphql/position-type.gen";
 
 export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
@@ -32,7 +31,7 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const positionType = oc(getPositionType).data.positionType.byId();
+  const positionType = getPositionType?.data?.positionType?.byId;
   if (!positionType) {
     // Redirect the User back to the List page
     const listUrl = PositionTypeRoute.generate(params);
@@ -50,7 +49,10 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
   const update = async (positionTypeSettings: PositionTypeUpdateInput) => {
     await updatePositionType({
       variables: {
-        positionType: positionTypeSettings,
+        positionType: {
+          ...positionTypeSettings,
+          rowVersion: positionType.rowVersion
+        },
       },
     });
   };
