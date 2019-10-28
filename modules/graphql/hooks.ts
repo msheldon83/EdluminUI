@@ -15,9 +15,9 @@ import {
 } from "apollo-client";
 import {
   PaginationQueryParams,
-  useQueryParamIso,
-  QueryIso,
   PaginationSettings,
+  QueryIso,
+  useQueryParamIso,
 } from "hooks/query-params";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLoadingState } from "ui/components/loading-state";
