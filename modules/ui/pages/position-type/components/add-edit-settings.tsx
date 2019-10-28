@@ -220,7 +220,7 @@ export const Settings: React.FC<Props> = props => {
                   } else {
                     selectedValue = (e as OptionTypeBase).value;
                   }
-                  setFieldValue("defaultContractId", selectedValue);
+                  setFieldValue("defaultContractId", selectedValue === 0 ? null : selectedValue);
                 }}
               />
               <FormHelperText>
