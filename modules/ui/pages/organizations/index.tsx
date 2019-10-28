@@ -8,16 +8,17 @@ import { PageTitle } from "ui/components/page-title";
 import { GetOrgsForUser } from "ui/pages/organizations/GetOrgsForUser.gen";
 import { Link } from "react-router-dom";
 import { makeStyles, IconButton, Button } from "@material-ui/core";
-import { TextButton } from "ui/components/text-button";
 import LaunchIcon from "@material-ui/icons/Launch";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
+import { compact } from "lodash-es";
+import { Column } from "material-table";
 
 type Props = {};
 export const OrganizationsPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const columns = [
+  const columns: Column<GetOrgsForUser.Organization>[] = [
     { title: t("OrgId"), field: "id" },
     { title: t("Name"), field: "name", defaultSort: "asc" },
     {
@@ -80,7 +81,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
   }, [orgUsers]);
 
   let organizations = useMemo(() => {
-    return isAdminInOrgs.map(r => r && r.organization);
+    return compact(isAdminInOrgs.map(r => r && r.organization));
   }, [isAdminInOrgs]);
 
   if (
@@ -93,9 +94,11 @@ export const OrganizationsPage: React.FC<Props> = props => {
   let organizationsCount = organizations.length;
 
   if (isSystemAdministrator) {
-    organizations = getOrganizations?.data?.organization?.paged?.results ?? [];
+    organizations = compact(
+      getOrganizations?.data?.organization?.paged?.results ?? []
+    );
     organizationsCount = 
-      getOrganizations?.data?.organization?.paged?.totalCount || 0;
+      getOrganizations?.data?.organization?.paged?.totalCount ?? 0
   }
 
   return (

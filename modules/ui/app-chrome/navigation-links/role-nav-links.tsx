@@ -18,6 +18,7 @@ import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
 import { OrganizationsRoute } from "ui/routes/organizations";
 import { Switch, Route } from "react-router";
 import { useIsSystemAdminOrAdminInMultipleOrgs } from "../hooks";
+import { PeopleRoute } from "ui/routes/people";
 
 type Props = {
   onClick?: () => void;
@@ -103,7 +104,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
       />
       <PeopleNavLink
         onClick={props.onClick}
-        route={adminTbd.generate(params)}
+        route={PeopleRoute.generate(params)}
       />
       <CalendarNavLink
         onClick={props.onClick}

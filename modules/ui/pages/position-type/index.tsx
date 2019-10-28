@@ -13,6 +13,8 @@ import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { Link } from "react-router-dom";
 import { Grid, Button } from "@material-ui/core";
+import { compact } from "lodash-es";
+import { Column } from "material-table";
 
 export const PositionTypePage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -22,8 +24,13 @@ export const PositionTypePage: React.FC<{}> = props => {
     variables: { orgId: params.organizationId },
   });
 
-  const columns = [
-    { title: t("Name"), field: "name", defaultSort: "asc", searchable: true },
+  const columns: Column<GetAllPositionTypesWithinOrg.All>[] = [
+    {
+      title: t("Name"),
+      field: "name",
+      defaultSort: "asc",
+      searchable: true,
+    },
     { title: t("External Id"), field: "externalId", searchable: true },
     {
       title: t("Use for Employees"),
@@ -48,9 +55,8 @@ export const PositionTypePage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const positionTypes = getPositionTypes?.data?.positionType?.all ?? [];
+  const positionTypes = compact(getPositionTypes?.data?.positionType?.all ?? [])
   const positionTypesCount = positionTypes.length;
-
   return (
     <>
       <Grid
@@ -77,10 +83,8 @@ export const PositionTypePage: React.FC<{}> = props => {
         columns={columns}
         data={positionTypes}
         selection={true}
-        onRowClick={(
-          event,
-          positionType: Exclude<(typeof positionTypes)[0], null>
-        ) => {
+        onRowClick={(event, positionType) => {
+          if (!positionType) return;
           const newParams = {
             ...params,
             positionTypeId: positionType.id,

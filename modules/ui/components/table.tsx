@@ -22,22 +22,14 @@ import SaveAlt from "@material-ui/icons/SaveAlt";
 import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
 
-type Props = {
+type Props<T extends object> = {
   title: string;
-  columns: Array<Column>;
-  data: Array<any>;
+  data: Array<T>;
   selection?: boolean;
   paging?: boolean;
-  onRowClick?: (event?: React.MouseEvent, rowData?: any) => void;
+  onRowClick?: (event?: React.MouseEvent, rowData?: T) => void;
   onEdit?: Function;
-} & Pick<MaterialTableProps<any>, "options">;
-
-type Column = {
-  title: string;
-  field: string;
-  sorting?: boolean;
-  render?: any;
-};
+} & Pick<MaterialTableProps<T>, "options" | "columns">;
 
 /* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
 /* eslint-disable react/display-name */
@@ -66,16 +58,16 @@ const tableIcons: Icons = {
   ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
 };
 
-export const Table: React.FC<Props> = props => {
+export function Table<T extends object>(props: Props<T>) {
   const classes = useStyles();
 
-  const allColumns: Array<Column> = props.columns;
+  const allColumns: MaterialTableProps<T>["columns"] = props.columns;
   if (props.onEdit) {
     allColumns.push({
       field: "actions",
       title: "",
       sorting: false,
-      render: (rowData: object) => {
+      render: (rowData: T) => {
         const editOption = () => {
           return (
             <Edit
@@ -108,7 +100,7 @@ export const Table: React.FC<Props> = props => {
       }}
     />
   );
-};
+}
 
 const useStyles = makeStyles(theme => ({
   action: {

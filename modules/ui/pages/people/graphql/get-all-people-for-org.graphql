@@ -1,0 +1,19 @@
+query GetAllPeopleForOrg($orgId: ID, $limit: Int, $offset: Int) {
+  orgUser {
+    paged(orgId: $orgId, limit: $limit, offset: $offset) {
+      offset
+      limit
+      hasMoreData
+      totalCount
+      results {
+        id
+        firstName
+        lastName
+        active
+        isReplacementEmployee
+        isEmployee
+        isAdmin
+      }
+    }
+  }
+}
