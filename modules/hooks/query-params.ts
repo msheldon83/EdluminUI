@@ -18,14 +18,13 @@ export const useQueryParams = <K extends string>(
   const update = useCallback(
     (newParams: Partial<Record<K, string | null>>) => {
       const params = new URLSearchParams(location.search);
-      for (const key in newParams) {
-        const v = newParams[key];
-        if (typeof v === "string") {
-          params.set(key, v);
+      forEach(newParams, (v, k) => {
+        if (v) {
+          params.set(k, v);
         } else {
-          params.delete(key);
+          params.delete(k);
         }
-      }
+      });
       history.push({ ...location, search: params.toString() });
     },
     [location, history]
