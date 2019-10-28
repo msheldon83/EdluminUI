@@ -35,25 +35,28 @@ export const PageHeader: React.FC<Props> = props => {
     return (
       <>
         {props.isInactive && (
-          <div className={classes.activateHeader}>
-            <Grid container justify="space-between" alignItems="center">
-              <Grid item>
-                {props.inactiveDisplayText || t("This is currently inactive.")}
-              </Grid>
-              {props.onActivate && (
-                <Grid item>
-                  <TextButton
-                    className={classes.activateAction}
-                    onClick={async () => {
-                      await props.onActivate!();
-                    }}
-                  >
-                    {t("Activate")}
-                  </TextButton>
-                </Grid>
-              )}
+          <Grid
+            container
+            justify="space-between"
+            alignItems="center"
+            className={classes.activateHeader}
+          >
+            <Grid item>
+              {props.inactiveDisplayText || t("This is currently inactive.")}
             </Grid>
-          </div>
+            {props.onActivate && (
+              <Grid item>
+                <TextButton
+                  className={classes.activateAction}
+                  onClick={async () => {
+                    await props.onActivate!();
+                  }}
+                >
+                  {t("Activate")}
+                </TextButton>
+              </Grid>
+            )}
+          </Grid>
         )}
         <div className={classes.header}>
           <Grid
@@ -202,6 +205,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    minHeight: theme.spacing(6),
   },
   activateAction: {
     color: theme.customColors.eduBlack,
