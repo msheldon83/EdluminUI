@@ -69,7 +69,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
         submitText={t("Save")}
         onSubmit={async (
           forPermanentPositions: boolean,
-          needsReplacement?: NeedsReplacement | undefined | null,
+          needsReplacement: NeedsReplacement | undefined | null,
           forStaffAugmentation: boolean,
           minAbsenceDurationMinutes: number,
           defaultContractId?: number | null | undefined
@@ -104,7 +104,10 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
   const create = async (positionType: PositionTypeCreateInput) => {
     const result = await createPositionType({
       variables: {
-        positionType,
+        positionType: {
+          ...positionType,
+          externalId: positionType.externalId && positionType.externalId.trim().length === 0 ? null : positionType.externalId
+        }
       },
     });
     return result?.data?.positionType?.create?.id;

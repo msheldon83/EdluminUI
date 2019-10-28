@@ -25,9 +25,9 @@ type Props = {
   orgId: string;
   positionType: {
     forPermanentPositions: boolean;
-    needsReplacement?: NeedsReplacement | undefined | null;
     forStaffAugmentation: boolean;
     minAbsenceDurationMinutes: number;
+    needsReplacement?: NeedsReplacement | undefined | null;
     defaultContractId?: number | undefined | null;
     defaultContract?: {
       id: number;
@@ -36,7 +36,7 @@ type Props = {
   };
   submitText: string;
   onSubmit: (forPermanentPositions: boolean,
-    needsReplacement?: NeedsReplacement | undefined | null,
+    needsReplacement: NeedsReplacement | undefined | null,
     forStaffAugmentation: boolean,
     minAbsenceDurationMinutes: number,
     defaultContractId: number | undefined | null) => Promise<unknown>;

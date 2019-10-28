@@ -15,7 +15,7 @@ type Props = {
   editable?: boolean;
   onEdit?: Function;
   validationSchema?: any;
-  onSubmit?: (data: { value: Maybe<string> }) => Promise<unknown>;
+  onSubmit?: (value: Maybe<string>) => Promise<unknown>;
   onCancel?: Function;
   isSubHeader?: boolean;
   showLabel?: boolean;
@@ -96,10 +96,12 @@ export const PageHeader: React.FC<Props> = props => {
 
   return wrapper(
     <Formik
-      initialValues={{ value: props.text }}
+      initialValues={{ value: props.text || "" }}
       onSubmit={async (data: { value: Maybe<string> }, meta) => {
         if (props.onSubmit) {
-          await props.onSubmit(data);
+          const valueToSend =
+            data.value && data.value.trim().length === 0 ? null : data.value;
+          await props.onSubmit(valueToSend);
         }
         setEditing(false);
       }}

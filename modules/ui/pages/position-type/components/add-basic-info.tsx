@@ -11,7 +11,7 @@ import { ActionButtons } from "./action-buttons";
 
 type Props = {
   positionType: {
-    name?: string | null;
+    name: string;
     externalId?: string | null | undefined;
   };
   onSubmit: (name: string, externalId?: string | null | undefined) => void;
@@ -28,10 +28,10 @@ export const AddBasicInfo: React.FC<Props> = props => {
       <Formik
         initialValues={{
           name: props.positionType.name,
-          externalId: props.positionType.externalId,
+          externalId: props.positionType.externalId || "",
         }}
         onSubmit={(data, meta) => {
-          props.onSubmit(data.name!, data.externalId);
+          props.onSubmit(data.name, data.externalId);
         }}
         validationSchema={yup.object().shape({
           name: yup

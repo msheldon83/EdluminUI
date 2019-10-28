@@ -115,8 +115,8 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         validationSchema={yup.object().shape({
           value: yup.string().required(t("Name is required")),
         })}
-        onSubmit={async (data: { value: Maybe<string> }) => {
-          await updateName(data.value!);
+        onSubmit={async (value: Maybe<string>) => {
+          await updateName(value!);
           setEditing(null);
         }}
         onCancel={() => setEditing(null)}
@@ -146,8 +146,8 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
-        onSubmit={async (data: { value: Maybe<string> }) => {
-          await updateExternalId(data.value);
+        onSubmit={async (value: Maybe<string>) => {
+          await updateExternalId(value);
           setEditing(null);
         }}
         onCancel={() => setEditing(null)}
