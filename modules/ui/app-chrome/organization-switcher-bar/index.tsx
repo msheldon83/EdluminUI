@@ -16,7 +16,13 @@ export const OrganizationSwitcherBar: React.FC<Props> = props => {
   const isMobile = useScreenSize() === "mobile";
   const params = useRouteParams(AdminChromeRoute);
   const history = useHistory();
-  const show = useIsSystemAdminOrAdminInMultipleOrgs();
+  let show = useIsSystemAdminOrAdminInMultipleOrgs();
+
+  // If the user has not yet selected an org, this param will not be a valid Number
+  // and trying to run the Gql query will blow up
+  if (isNaN(+params.organizationId)) {
+    show = false;
+  }
 
   const currentOrg = useQueryBundle(GetOrganizationName, {
     variables: { id: params.organizationId },
