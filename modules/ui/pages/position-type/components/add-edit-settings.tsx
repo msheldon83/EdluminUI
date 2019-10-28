@@ -20,6 +20,8 @@ import { NeedsReplacement, Contract, Maybe } from "graphql/server-types.gen";
 import { ActionButtons } from "./action-buttons";
 import { Select, SelectValueType } from "ui/components/form/select";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
+import { OptionTypeBase } from "react-select/src/types";
+import { TFunction } from "i18next";
 
 type Props = {
   orgId: string;
@@ -45,7 +47,8 @@ type Props = {
 
 const buildContractOptions = (
   contracts: Array<Contract>,
-  positionType: Props["positionType"]
+  positionType: Props["positionType"],
+  t: TFunction
 ) => {
   // Format the contracts as dropdown options
   const contractOptions = contracts.map(c => {
@@ -63,7 +66,9 @@ const buildContractOptions = (
     });
   }
 
-  return contractOptions;
+  const contractOptionsWithNoneSelected = [{ value: 0, label: t("None Selected").toString() }, ...contractOptions]
+
+  return contractOptionsWithNoneSelected;
 };
 
 export const Settings: React.FC<Props> = props => {
@@ -81,7 +86,8 @@ export const Settings: React.FC<Props> = props => {
   const allActiveContracts: any = getAllActiveContracts?.data?.contract?.all || [];
   const contractOptions = buildContractOptions(
     allActiveContracts,
-    props.positionType
+    props.positionType,
+    t
   );
 
   return (
@@ -206,8 +212,15 @@ export const Settings: React.FC<Props> = props => {
                 label=""
                 options={contractOptions}
                 onChange={(e: SelectValueType) => {
-                  //TODO: Get this working
-                  //setFieldValue("defaultContractId", e.value);
+                  //TODO: Once the select component is updated,
+                  // can remove the Array checking
+                  let selectedValue = null;
+                  if (Array.isArray(e)) {
+                    selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                  } else {
+                    selectedValue = (e as OptionTypeBase).value;
+                  }
+                  setFieldValue("defaultContractId", selectedValue);
                 }}
               />
               <FormHelperText>

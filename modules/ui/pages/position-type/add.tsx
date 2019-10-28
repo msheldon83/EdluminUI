@@ -34,7 +34,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     needsReplacement: NeedsReplacement.Yes,
     forStaffAugmentation: true,
     minAbsenceDurationMinutes: 15,
-    defaultContractId: null,
+    defaultContractId: 0,
   });
 
   const renderBasicInfoStep = (
