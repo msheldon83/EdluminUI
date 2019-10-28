@@ -4,6 +4,15 @@ mutation UpdatePositionTypeName($positionType: PositionTypeUpdateInput!) {
       id
       name
       rowVersion
+      externalId
+      forPermanentPositions
+      forStaffAugmentation
+      minAbsenceDurationMinutes
+      needsReplacement
+      defaultContract {
+        id
+        name
+      }
     }
   }
 }

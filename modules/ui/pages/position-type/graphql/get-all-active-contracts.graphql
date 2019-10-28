@@ -1,0 +1,9 @@
+query GetAllActiveContracts($orgId: ID) {
+  contract {
+    all(orgId: $orgId, includeExpired: false) {
+      id
+      name
+      expired
+    }
+  }
+}

@@ -87,15 +87,16 @@ export const EdluminTheme = createMuiTheme({
       contained: {
         color: themeColors.white,
         backgroundColor: themeColors.blue,
+        textTransform: "uppercase",
       },
 
       outlined: {
-        color: themeColors.blue,
+        color: themeColors.edluminSlate,
         textTransform: "uppercase",
-        borderColor: themeColors.blue,
-        borderWidth: pxToRem(2),
+        borderColor: themeColors.edluminLightSlate,
+        borderWidth: pxToRem(1),
         "&$disabled": {
-          borderWidth: pxToRem(2),
+          borderWidth: pxToRem(1),
         },
       },
       root: {
@@ -196,23 +197,31 @@ export const EdluminTheme = createMuiTheme({
       },
     },
     h1: {
-      fontSize: pxToRem(36),
-      fontWeight: fontWeightMedium,
+      fontSize: pxToRem(48),
+      fontWeight: "bold",
       [breakpoints.down("sm")]: {
         fontSize: pxToRem(30),
       },
     },
     h2: {
-      fontSize: pxToRem(20),
-      fontWeight: "bold",
+      fontSize: pxToRem(44),
       [breakpoints.down("sm")]: {
         fontSize: pxToRem(18),
       },
     },
     h3: {
-      fontSize: pxToRem(14),
+      fontSize: pxToRem(38),
+    },
+    h4: {
+      fontSize: pxToRem(32),
       fontWeight: "bold",
-      color: themeColors.eduBlue,
+    },
+    h5: {
+      fontSize: pxToRem(24),
+    },
+    h6: {
+      fontSize: pxToRem(16),
+      fontWeight: "bold",
     },
   }),
 });

@@ -32,3 +32,36 @@ export const PositionTypeViewLoader = asyncComponent({
   },
   name: "PositionTypeViewPage",
 });
+
+// Add
+export const PositionTypeAddRoute = defineSubRoute(
+  PositionTypeRoute,
+  "/add",
+  []
+);
+
+export const PositionTypeAddLoader = asyncComponent({
+  resolve: async () => {
+    const PositionTypeAddPage = (await import("ui/pages/position-type/add"))
+      .PositionTypeAddPage;
+    return PositionTypeAddPage;
+  },
+  name: "PositionTypeAddPage",
+});
+
+// Edit Settings
+export const PositionTypeEditSettingsRoute = defineSubRoute(
+  PositionTypeViewRoute,
+  "/edit-settings",
+  []
+);
+
+export const PositionTypeEditSettingsLoader = asyncComponent({
+  resolve: async () => {
+    const PositionTypeEditSettingsPage = (await import(
+      "ui/pages/position-type/edit-settings"
+    )).PositionTypeEditSettingsPage;
+    return PositionTypeEditSettingsPage;
+  },
+  name: "PositionTypeEditSettingsPage",
+});

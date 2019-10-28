@@ -1,27 +1,29 @@
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useScreenSize } from "hooks";
-import { makeStyles } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { Grid } from "@material-ui/core";
+import { makeStyles, Grid } from "@material-ui/core";
 import { minutesToHours, boolToDisplay } from "ui/components/helpers";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { Redirect, useHistory } from "react-router";
 import {
   PositionTypeRoute,
   PositionTypeViewRoute,
+  PositionTypeEditSettingsRoute,
 } from "ui/routes/position-type";
 import { useRouteParams } from "ui/routes/definition";
 import { useState } from "react";
 import * as yup from "yup";
-import { UpdatePositionTypeName } from "./graphql/update-position-type-name.gen";
-import { UpdatePositionTypeExternalId } from "./graphql/update-position-type-external-id.gen";
+import { UpdatePositionTypeName } from "./graphql/update-name.gen";
+import { UpdatePositionTypeExternalId } from "./graphql/update-external-id.gen";
 import { PageHeader } from "ui/components/page-header";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
+import Maybe from "graphql/tsutils/Maybe";
 
 const editableSections = {
   name: "edit-name",
@@ -30,11 +32,11 @@ const editableSections = {
 };
 
 export const PositionTypeViewPage: React.FC<{}> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
+  const { t } = useTranslation();
   const isMobile = useScreenSize() === "mobile";
-  const params = useRouteParams(PositionTypeViewRoute);
   const history = useHistory();
+  const params = useRouteParams(PositionTypeViewRoute);
   const [editing, setEditing] = useState<string | null>(null);
 
   const [deletePositionMutation] = useMutationBundle(DeletePostionType);
@@ -67,8 +69,6 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   }
 
   const updateName = async (name: string) => {
-    const test = positionType.id;
-
     await updatePositionTypeName({
       variables: {
         positionType: {
@@ -103,8 +103,8 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         validationSchema={yup.object().shape({
           value: yup.string().required(t("Name is required")),
         })}
-        onSubmit={async (data: { value: string }) => {
-          await updateName(data.value);
+        onSubmit={async (value: Maybe<string>) => {
+          await updateName(value!);
           setEditing(null);
         }}
         onCancel={() => setEditing(null)}
@@ -125,14 +125,14 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
       />
       <PageHeader
         text={positionType.externalId}
-        label={t("External Id")}
+        label={t("External ID")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
-        onSubmit={async (data: { value: string | null }) => {
-          await updateExternalId(data.value);
+        onSubmit={async (value: Maybe<string>) => {
+          await updateExternalId(value);
           setEditing(null);
         }}
         onCancel={() => setEditing(null)}
@@ -146,18 +146,23 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           action={{
             text: t("Edit"),
             visible: !editing,
-            execute: () => {},
+            execute: () => {
+              const editSettingsUrl = PositionTypeEditSettingsRoute.generate(
+                params
+              );
+              history.push(editSettingsUrl);
+            },
           }}
         />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} lg={6}>
-            <div className={classes.label}>{t("Use For Employees")}</div>
+            <Typography variant="h6">{t("Use for employees")}</Typography>
             <div>{boolToDisplay(t, positionType.forPermanentPositions)}</div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
-            <div className={classes.label}>
-              {t("Needs Substitute (default)")}
-            </div>
+            <Typography variant="h6">
+              {t("Needs substitute (default)")}
+            </Typography>
             <div>
               {positionType.needsReplacement &&
                 getDisplayName(
@@ -168,16 +173,30 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
             </div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
-            <div className={classes.label}>{t("Use For Vacancies")}</div>
+            <Typography variant="h6">{t("Use for vacancies")}</Typography>
             <div>{boolToDisplay(t, positionType.forStaffAugmentation)}</div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
-            <div className={classes.label}>{t("Minimum Absence Duration")}</div>
+            <Typography variant="h6">
+              {t("Minimum absence duration")}
+            </Typography>
             <div>
               {`${minutesToHours(
                 positionType.minAbsenceDurationMinutes,
                 2
               )} hour(s)`}
+            </div>
+          </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Default Contract")}</Typography>
+            <div>
+              {positionType.defaultContract ? (
+                positionType.defaultContract.name
+              ) : (
+                <span className={classes.valueMissing}>
+                  {t("Not Specified")}
+                </span>
+              )}
             </div>
           </Grid>
         </Grid>
@@ -187,7 +206,8 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  label: {
-    fontWeight: 500,
+  valueMissing: {
+    opacity: "0.6",
+    filter: "alpha(opacity = 60)",
   },
 }));

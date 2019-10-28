@@ -1,6 +1,6 @@
-query GetPositionTypeById($id: ID!) {
+mutation CreatePositionType($positionType: PositionTypeCreateInput!) {
   positionType {
-    byId(id: $id) {
+    create(positionType: $positionType) {
       id
       name
       rowVersion
@@ -9,7 +9,6 @@ query GetPositionTypeById($id: ID!) {
       forStaffAugmentation
       minAbsenceDurationMinutes
       needsReplacement
-      defaultContractId
       defaultContract {
         id
         name
