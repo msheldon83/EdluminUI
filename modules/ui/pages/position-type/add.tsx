@@ -43,7 +43,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     return (
       <AddBasicInfo
         positionType={positionType}
-        onSubmit={(name: string, externalId: string) => {
+        onSubmit={(name, externalId) => {
           setPositionType({
             ...positionType,
             name: name,
@@ -69,10 +69,10 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
         submitText={t("Save")}
         onSubmit={async (
           forPermanentPositions: boolean,
-          needsReplacement: NeedsReplacement,
+          needsReplacement?: NeedsReplacement | undefined | null,
           forStaffAugmentation: boolean,
           minAbsenceDurationMinutes: number,
-          defaultContractId: number | null
+          defaultContractId?: number | null | undefined
         ) => {
           const newPositionType = {
             ...positionType,
@@ -126,7 +126,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
   return (
     <>
       <PageTitle title={t("Create new position type")} />
-      <Tabs steps={steps} preventForwardTabClicking={true}></Tabs>
+      <Tabs steps={steps} isWizard={true}></Tabs>
     </>
   );
 };

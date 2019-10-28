@@ -3,7 +3,7 @@ import { makeStyles, Tabs, Tab, Paper } from "@material-ui/core";
 
 type Props = {
   steps: Array<Step>;
-  preventForwardTabClicking?: boolean;
+  isWizard?: boolean;
 };
 export type Step = {
   stepNumber: number;
@@ -19,7 +19,7 @@ export const TabbedHeader: React.FC<Props> = props => {
     props.steps[0].stepNumber
   );
   const handleStepChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    if (props.preventForwardTabClicking && newValue > currentStepNumber) {
+    if (props.isWizard && newValue > currentStepNumber) {
       return;
     }
 

@@ -14,8 +14,8 @@ type Props = {
     name?: string | null;
     externalId?: string | null | undefined;
   };
-  onSubmit: Function;
-  onCancel: Function;
+  onSubmit: (name: string, externalId?: string | null | undefined) => void;
+  onCancel: () => void;
 };
 
 export const AddBasicInfo: React.FC<Props> = props => {
@@ -31,7 +31,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
           externalId: props.positionType.externalId,
         }}
         onSubmit={(data, meta) => {
-          props.onSubmit(data.name, data.externalId);
+          props.onSubmit(data.name!, data.externalId);
         }}
         validationSchema={yup.object().shape({
           name: yup

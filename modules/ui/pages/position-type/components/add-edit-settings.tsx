@@ -35,8 +35,12 @@ type Props = {
     };
   };
   submitText: string;
-  onSubmit: Function;
-  onCancel: Function;
+  onSubmit: (forPermanentPositions: boolean,
+    needsReplacement?: NeedsReplacement | undefined | null,
+    forStaffAugmentation: boolean,
+    minAbsenceDurationMinutes: number,
+    defaultContractId: number | undefined | null) => Promise<unknown>;
+  onCancel: () => void;
 };
 
 const buildContractOptions = (
