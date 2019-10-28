@@ -135,7 +135,7 @@ export function Table<T extends object>(props: Props<T>) {
                     }
                     label={
                       <Typography variant="h6">
-                        {t("Include expired")}
+                        {t("Include inactive")}
                       </Typography>
                     }
                   />

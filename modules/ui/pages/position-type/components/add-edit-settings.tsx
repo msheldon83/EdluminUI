@@ -66,7 +66,7 @@ const buildContractOptions = (
     });
   }
 
-  const contractOptionsWithNoneSelected = [{ value: 0, label: t("None Selected").toString() }, ...contractOptions]
+  const contractOptionsWithNoneSelected = [{ label: t("None Selected").toString() }, ...contractOptions]
 
   return contractOptionsWithNoneSelected;
 };
@@ -207,7 +207,7 @@ export const Settings: React.FC<Props> = props => {
               <div>{t("Default contract")}</div>
               <Select
                 value={contractOptions.find(
-                  (c: any) => c.value === values.defaultContractId
+                  (c: any) => c.value === (values.defaultContractId || undefined)
                 )}
                 label=""
                 options={contractOptions}
@@ -220,7 +220,7 @@ export const Settings: React.FC<Props> = props => {
                   } else {
                     selectedValue = (e as OptionTypeBase).value;
                   }
-                  setFieldValue("defaultContractId", selectedValue === 0 ? null : selectedValue);
+                  setFieldValue("defaultContractId", selectedValue);
                 }}
               />
               <FormHelperText>

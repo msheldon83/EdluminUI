@@ -51,13 +51,25 @@ export const PositionTypePage: React.FC<{}> = props => {
       field: "defaultContract.name",
       searchable: false,
     },
+    {
+      title: t("Active"),
+      field: "active",
+      type: "boolean",
+      searchable: false,
+    },
   ];
 
   if (getPositionTypes.state === "LOADING") {
     return <></>;
   }
 
-  const positionTypes = compact(getPositionTypes?.data?.positionType?.all ?? []);
+  const positionTypes = compact(getPositionTypes?.data?.positionType?.all ?? [])
+  .map(p => {
+    return {
+      ...p,
+      active: !p.expired
+    }
+  });
   const positionTypesCount = positionTypes.length;
 
   return (

@@ -34,7 +34,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     needsReplacement: NeedsReplacement.Yes,
     forStaffAugmentation: true,
     minAbsenceDurationMinutes: 15,
-    defaultContractId: 0,
+    defaultContractId: undefined,
   });
 
   const renderBasicInfoStep = (
@@ -80,7 +80,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
             needsReplacement: needsReplacement,
             forStaffAugmentation: forStaffAugmentation,
             minAbsenceDurationMinutes: minAbsenceDurationMinutes,
-            defaultContractId: defaultContractId,
+            defaultContractId: defaultContractId || null,
           };
           setPositionType(newPositionType);
 

@@ -77,7 +77,7 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
             needsReplacement: needsReplacement,
             forStaffAugmentation: forStaffAugmentation,
             minAbsenceDurationMinutes: minAbsenceDurationMinutes,
-            defaultContractId: defaultContractId,
+            defaultContractId: defaultContractId || null,
           };
 
           // Update the Position Type
