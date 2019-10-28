@@ -164,7 +164,7 @@ export const StyledSelect: React.FC<Props> = props => {
 
 interface OptionType {
   label: string | number;
-  value: string | number;
+  value?: string | number;
 }
 
 export type SelectValueType = ValueType<OptionType>;
