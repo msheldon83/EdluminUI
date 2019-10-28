@@ -202,7 +202,7 @@ export const Settings: React.FC<Props> = props => {
                 label=""
                 options={contractOptions}
                 onChange={(e: SelectValueType) => {
-                  console.log(e);
+                  //TODO: Get this working
                   //setFieldValue("defaultContractId", e.value);
                 }}
               />

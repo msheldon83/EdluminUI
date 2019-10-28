@@ -9,7 +9,10 @@ const buildEnumMap = (t: i18next.TFunction) => {
   const enumMap: Array<EnumDefinition> = [
     { name: "needsReplacement.YES", displayName: t("Yes") },
     { name: "needsReplacement.NO", displayName: t("No") },
-    { name: "needsReplacement.SOMETIMES", displayName: t("Sometimes") },
+    {
+      name: "needsReplacement.SOMETIMES",
+      displayName: t("Employee should specify"),
+    },
   ];
   return enumMap;
 };
