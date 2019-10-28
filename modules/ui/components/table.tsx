@@ -1,6 +1,12 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/core";
-import MaterialTable from "material-table";
+import {
+  makeStyles,
+  FormControlLabel,
+  Checkbox,
+  Grid,
+  Typography,
+} from "@material-ui/core";
+import MaterialTable, { MTableToolbar } from "material-table";
 import { MaterialTableProps } from "material-table";
 
 import { forwardRef } from "react";
@@ -21,6 +27,7 @@ import Remove from "@material-ui/icons/Remove";
 import SaveAlt from "@material-ui/icons/SaveAlt";
 import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
+import { useTranslation } from "react-i18next";
 
 type Props<T extends object> = {
   title: string;
@@ -29,6 +36,8 @@ type Props<T extends object> = {
   paging?: boolean;
   onRowClick?: (event?: React.MouseEvent, rowData?: T) => void;
   onEdit?: Function;
+  showIncludeExpired?: boolean;
+  onIncludeExpiredChange?: (checked: boolean) => void;
 } & Pick<MaterialTableProps<T>, "options" | "columns">;
 
 /* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
@@ -60,6 +69,8 @@ const tableIcons: Icons = {
 
 export function Table<T extends object>(props: Props<T>) {
   const classes = useStyles();
+  const { t } = useTranslation();
+  const [includeExpired, setIncludeExpired] = React.useState(false);
 
   const allColumns: MaterialTableProps<T>["columns"] = props.columns;
   if (props.onEdit) {
@@ -83,6 +94,9 @@ export function Table<T extends object>(props: Props<T>) {
     });
   }
 
+  const showIncludeExpiredSetting = props.showIncludeExpired;
+  const onIncludeExpiredChangeFunc = props.onIncludeExpiredChange;
+
   return (
     <MaterialTable
       icons={tableIcons}
@@ -97,6 +111,39 @@ export function Table<T extends object>(props: Props<T>) {
         pageSize: 10,
         pageSizeOptions: [10, 25, 50, 100],
         ...props.options,
+      }}
+      components={{
+        Toolbar: props => (
+          <>
+            <MTableToolbar {...props} />
+            {showIncludeExpiredSetting && (
+              <Grid container justify="flex-end">
+                <Grid item>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={includeExpired}
+                        onChange={async e => {
+                          setIncludeExpired(e.target.checked);
+                          if (onIncludeExpiredChangeFunc) {
+                            onIncludeExpiredChangeFunc(e.target.checked);
+                          }
+                        }}
+                        value={includeExpired}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Typography variant="h6">
+                        {t("Include expired")}
+                      </Typography>
+                    }
+                  />
+                </Grid>
+              </Grid>
+            )}
+          </>
+        ),
       }}
     />
   );

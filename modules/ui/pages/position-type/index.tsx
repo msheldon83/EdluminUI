@@ -20,8 +20,10 @@ export const PositionTypePage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PositionTypeRoute);
+  const [includeExpired, setIncludeExpired] = React.useState(false);
+  
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
-    variables: { orgId: params.organizationId },
+    variables: { orgId: params.organizationId, includeExpired },
   });
 
   const columns: Column<GetAllPositionTypesWithinOrg.All>[] = [
@@ -55,8 +57,9 @@ export const PositionTypePage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const positionTypes = compact(getPositionTypes?.data?.positionType?.all ?? [])
+  const positionTypes = compact(getPositionTypes?.data?.positionType?.all ?? []);
   const positionTypesCount = positionTypes.length;
+
   return (
     <>
       <Grid
@@ -94,6 +97,8 @@ export const PositionTypePage: React.FC<{}> = props => {
         options={{
           search: true,
         }}
+        showIncludeExpired={true}
+        onIncludeExpiredChange={(checked) => { setIncludeExpired(checked);}}
       />
     </>
   );

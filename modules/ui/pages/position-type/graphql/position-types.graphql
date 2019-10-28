@@ -1,6 +1,6 @@
-query GetAllPositionTypesWithinOrg($orgId: ID) {
+query GetAllPositionTypesWithinOrg($orgId: ID, $includeExpired: Boolean) {
   positionType {
-    all(orgId: $orgId) {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
       id
       name
       rowVersion
