@@ -1,4 +1,4 @@
-query GetAllPeopleForOrg($orgId: ID, $limit: Int, $offset: Int) {
+query GetAllPeopleForOrg($orgId: ID!, $limit: Int!, $offset: Int!) {
   orgUser {
     paged(orgId: $orgId, limit: $limit, offset: $offset) {
       offset

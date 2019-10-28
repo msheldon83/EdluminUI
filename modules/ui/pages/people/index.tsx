@@ -1,6 +1,6 @@
 import { AccountCircleOutlined } from "@material-ui/icons";
 import { useTheme } from "@material-ui/styles";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, usePagedQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,7 @@ import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { Column } from "material-table";
 import { useScreenSize } from "hooks";
+import { useQueryParams, PaginationParams, useQueryIso } from "hooks/query-params";
 
 type Props = {};
 
@@ -19,7 +20,12 @@ export const PeoplePage: React.FC<Props> = props => {
   const params = useRouteParams(PeopleRoute);
   const theme = useTheme();
   const isMobile = useScreenSize() === "mobile"
-  const allPeopleQuery = useQueryBundle(GetAllPeopleForOrg, {
+  const [pagination, updatePagination] = useQueryIso(["page", "limit"], PaginationParams);
+  console.log("pagination?", pagination);
+  if (pagination.page < 1) {
+    updatePagination({page: 1})
+  }
+  const allPeopleQuery = usePagedQueryBundle(GetAllPeopleForOrg, {
     variables: { orgId: params.organizationId },
   });
   if (
@@ -61,3 +67,22 @@ export const PeoplePage: React.FC<Props> = props => {
     </>
   );
 };
+
+type PaginationInputs = {
+  perPage?: number;
+
+}
+
+type PaginationState = {
+  perPage: number;
+  offset: number;
+  total: number;
+  sortingBy: any[];
+}
+
+
+
+const usePagination = () => {
+  const [offset, setOffset] = React.useState(0);
+  const []
+}
