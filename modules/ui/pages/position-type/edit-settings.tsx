@@ -14,7 +14,7 @@ import {
   NeedsReplacement,
   PositionTypeUpdateInput,
 } from "graphql/server-types.gen";
-import { UpdatePositionTypeSettings } from "./graphql/update-settings.gen";
+import { UpdatePositionType } from "./graphql/update-position-type.gen";
 import { GetPositionTypeById } from "./graphql/position-type.gen";
 
 export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
@@ -22,7 +22,7 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
   const history = useHistory();
   const params = useRouteParams(PositionTypeEditSettingsRoute);
 
-  const [updatePositionType] = useMutationBundle(UpdatePositionTypeSettings);
+  const [updatePositionType] = useMutationBundle(UpdatePositionType);
   const getPositionType = useQueryBundle(GetPositionTypeById, {
     variables: { id: params.positionTypeId },
   });

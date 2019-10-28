@@ -19,16 +19,14 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { useState } from "react";
 import * as yup from "yup";
-import { UpdatePositionTypeName } from "./graphql/update-name.gen";
-import { UpdatePositionTypeExternalId } from "./graphql/update-external-id.gen";
+import { UpdatePositionType } from "./graphql/update-position-type.gen";
 import { PageHeader } from "ui/components/page-header";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import Maybe from "graphql/tsutils/Maybe";
 
 const editableSections = {
   name: "edit-name",
-  externalId: "edit-external-id",
-  settings: "edit-settings",
+  externalId: "edit-external-id"
 };
 
 export const PositionTypeViewPage: React.FC<{}> = props => {
@@ -38,6 +36,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const history = useHistory();
   const params = useRouteParams(PositionTypeViewRoute);
   const [editing, setEditing] = useState<string | null>(null);
+  const [enabled, setEnabled] = useState<boolean | null>(null);
 
   const [deletePositionMutation] = useMutationBundle(DeletePostionType);
   const deletePosition = React.useCallback(() => {
@@ -49,10 +48,19 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     });
   }, [deletePositionMutation, history, params]);
 
-  const [updatePositionTypeName] = useMutationBundle(UpdatePositionTypeName);
-  const [updatePositionTypeExternalId] = useMutationBundle(
-    UpdatePositionTypeExternalId
-  );
+  const [updatePositionType] = useMutationBundle(UpdatePositionType);
+  const enableDisablePositionType = React.useCallback((enabled: boolean, rowVersion: string) => {
+    return updatePositionType({
+      variables: {
+        positionType: {
+          positionTypeId: Number(params.positionTypeId),
+          rowVersion: rowVersion,
+          expired: !enabled
+        }
+      },
+    });
+  }, [updatePositionType, params]);
+
   const getPositionType = useQueryBundle(GetPositionTypeById, {
     variables: { id: params.positionTypeId },
   });
@@ -68,8 +76,12 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     return <Redirect to={listUrl} />;
   }
 
+  if (enabled === null) {
+    setEnabled(!positionType.expired);
+  }
+
   const updateName = async (name: string) => {
-    await updatePositionTypeName({
+    await updatePositionType({
       variables: {
         positionType: {
           positionTypeId: Number(positionType.id),
@@ -81,7 +93,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   };
 
   const updateExternalId = async (externalId?: string | null) => {
-    await updatePositionTypeExternalId({
+    await updatePositionType({
       variables: {
         positionType: {
           positionTypeId: Number(positionType.id),
@@ -114,8 +126,11 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
             onClick: () => {},
           },
           {
-            name: t("Disable"),
-            onClick: () => {},
+            name: enabled ? t("Disable") : t("Enable"),
+            onClick: async () => {
+              await enableDisablePositionType(!enabled, positionType.rowVersion);              
+              setEnabled(!enabled);
+            },
           },
           {
             name: t("Delete"),

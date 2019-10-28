@@ -9,6 +9,7 @@ query GetAllPositionTypesWithinOrg($orgId: ID) {
       forStaffAugmentation
       minAbsenceDurationMinutes
       needsReplacement
+      expired
       defaultContract {
         id
         name
