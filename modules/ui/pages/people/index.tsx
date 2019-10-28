@@ -1,15 +1,14 @@
-import * as React from "react";
-import { PageTitle } from "ui/components/page-title";
-import { useTranslation } from "react-i18next";
-import { Table } from "ui/components/table";
+import { AccountCircleOutlined } from "@material-ui/icons";
+import { useTheme } from "@material-ui/styles";
 import { useQueryBundle } from "graphql/hooks";
+import { compact } from "lodash-es";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { PageTitle } from "ui/components/page-title";
+import { Table } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
-import { AccountCircleOutlined } from "@material-ui/icons";
-import { compact } from "lodash-es";
-import { makeStyles } from "@material-ui/core";
-import { useTheme } from "@material-ui/styles";
 
 type Props = {};
 
@@ -27,12 +26,12 @@ export const PeoplePage: React.FC<Props> = props => {
     return <></>;
   }
   const people = compact(allPeopleQuery.data.orgUser?.paged?.results);
-  const peopleCount = people.length;
+  const peopleCount = allPeopleQuery.data.orgUser?.paged?.totalCount ?? 0;
 
   const columns = [
     {
-      cellStyle: { width: theme.typography.pxToRem(70), alignItems: "center" },
-      render: () => <AccountCircleOutlined />, // eslint-disable-line
+      cellStyle: { width: theme.typography.pxToRem(70) },
+      render: () => <AccountCircleOutlined  />, // eslint-disable-line
     },
     {
       title: t("Name"),
