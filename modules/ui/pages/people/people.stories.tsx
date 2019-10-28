@@ -29,6 +29,11 @@ export const PeopleList = () => {
                 firstName: "Melanie",
                 lastName: "Persons",
               },
+              {
+                id: "104",
+                firstName: "Angela",
+                lastName: "Forence",
+              },
             ],
           }),
         }),

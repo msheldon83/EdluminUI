@@ -9,6 +9,8 @@ import { Table } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
+import { Column } from "material-table";
+import { useScreenSize } from "hooks";
 
 type Props = {};
 
@@ -16,6 +18,7 @@ export const PeoplePage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(PeopleRoute);
   const theme = useTheme();
+  const isMobile = useScreenSize() === "mobile"
   const allPeopleQuery = useQueryBundle(GetAllPeopleForOrg, {
     variables: { orgId: params.organizationId },
   });
@@ -28,15 +31,20 @@ export const PeoplePage: React.FC<Props> = props => {
   const people = compact(allPeopleQuery.data.orgUser?.paged?.results);
   const peopleCount = allPeopleQuery.data.orgUser?.paged?.totalCount ?? 0;
 
-  const columns = [
+  const columns: Column<GetAllPeopleForOrg.Results>[] = [
     {
-      cellStyle: { width: theme.typography.pxToRem(70) },
+      cellStyle: { width: isMobile ? theme.typography.pxToRem(40)
+        : theme.typography.pxToRem(70) },
       render: () => <AccountCircleOutlined  />, // eslint-disable-line
     },
     {
-      title: t("Name"),
-      render: (p: Exclude<(typeof people)[0], null>) =>
-        p && `${p.firstName} ${p.lastName}`,
+      title: t("First Name"),
+      field: "firstName",
+    },
+    {
+      title: t("Last Name"),
+      defaultSort: "asc",
+      field: "lastName"
     },
   ];
 
@@ -48,6 +56,7 @@ export const PeoplePage: React.FC<Props> = props => {
         columns={columns}
         data={people}
         selection={true}
+        options={{ sorting: true }}
       />
     </>
   );
