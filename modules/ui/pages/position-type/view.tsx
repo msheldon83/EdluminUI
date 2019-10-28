@@ -23,6 +23,7 @@ import { UpdatePositionType } from "./graphql/update-position-type.gen";
 import { PageHeader } from "ui/components/page-header";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import Maybe from "graphql/tsutils/Maybe";
+import { TextButton } from "ui/components/text-button";
 
 const editableSections = {
   name: "edit-name",
@@ -107,6 +108,17 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   return (
     <>
       <PageTitle title={t("Position Type")} withoutHeading={!isMobile} />
+      {!enabled && (<div className={classes.activateHeader}><Grid container justify="space-between" alignItems="center">
+        <Grid item>
+          This position is currently inactive.
+        </Grid>
+        <Grid item>
+          <TextButton className={classes.action}>
+            Activate
+          </TextButton>
+        </Grid>
+        </Grid></div>)}
+
       <PageHeader
         text={positionType.name}
         label={t("Name")}
@@ -126,7 +138,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
             onClick: () => {},
           },
           {
-            name: enabled ? t("Disable") : t("Enable"),
+            name: enabled ? t("Inactivate") : t("Activate"),
             onClick: async () => {
               await enableDisablePositionType(!enabled, positionType.rowVersion);              
               setEnabled(!enabled);
@@ -225,4 +237,18 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
   },
+  // MOVE
+  activateHeader: {
+    background: "#FFC107",
+    boxShadow: "0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12)",
+    borderRadius: "4px",
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    /*paddingTop: theme.spacing(),
+    paddingBottom: theme.spacing(),*/
+    marginBottom: theme.spacing(2)
+  },
+  action: {
+    color: "black"
+  }
 }));

@@ -19,6 +19,9 @@ type Props = {
   onCancel?: Function;
   isSubHeader?: boolean;
   showLabel?: boolean;
+  isInactive?: boolean;
+  inactiveDisplayText?: string | null | undefined;
+  onActivate?: Function;
 };
 
 export const PageHeader: React.FC<Props> = props => {
