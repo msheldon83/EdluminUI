@@ -21,7 +21,6 @@ import { ActionButtons } from "./action-buttons";
 import { Select, SelectValueType } from "ui/components/form/select";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
 import { OptionTypeBase } from "react-select/src/types";
-import { TFunction } from "i18next";
 
 type Props = {
   orgId: string;
@@ -47,8 +46,7 @@ type Props = {
 
 const buildContractOptions = (
   contracts: Array<Contract>,
-  positionType: Props["positionType"],
-  t: TFunction
+  positionType: Props["positionType"]
 ) => {
   // Format the contracts as dropdown options
   const contractOptions = contracts.map(c => {
@@ -66,9 +64,7 @@ const buildContractOptions = (
     });
   }
 
-  const contractOptionsWithNoneSelected = [{ label: t("None Selected").toString() }, ...contractOptions]
-
-  return contractOptionsWithNoneSelected;
+  return contractOptions;
 };
 
 export const Settings: React.FC<Props> = props => {
@@ -86,8 +82,7 @@ export const Settings: React.FC<Props> = props => {
   const allActiveContracts: any = getAllActiveContracts?.data?.contract?.all || [];
   const contractOptions = buildContractOptions(
     allActiveContracts,
-    props.positionType,
-    t
+    props.positionType
   );
 
   return (
@@ -207,19 +202,21 @@ export const Settings: React.FC<Props> = props => {
               <div>{t("Default contract")}</div>
               <Select
                 value={contractOptions.find(
-                  (c: any) => c.value === (values.defaultContractId || undefined)
+                  (c: any) => c.value === values.defaultContractId
                 )}
                 label=""
                 options={contractOptions}
                 onChange={(e: SelectValueType) => {
                   //TODO: Once the select component is updated,
-                  // can remove the Array checking
+                  // can remove the Array checking                  
                   let selectedValue = null;
-                  if (Array.isArray(e)) {
-                    selectedValue = (e as Array<OptionTypeBase>)[0].value;
-                  } else {
-                    selectedValue = (e as OptionTypeBase).value;
-                  }
+                  if (e) {
+                    if (Array.isArray(e)) {
+                      selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                    } else {
+                      selectedValue = (e as OptionTypeBase).value;
+                    }
+                  }                  
                   setFieldValue("defaultContractId", selectedValue);
                 }}
               />
