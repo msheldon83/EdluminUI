@@ -43,7 +43,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
       >
         {({ handleSubmit, submitForm }) => (
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={8}>
+            <Grid container spacing={isMobile ? 2 : 8}>
               <Grid item xs={12} sm={6} lg={6}>
                 <Typography variant="h6">{t("Position type name")}</Typography>
                 <FormTextField

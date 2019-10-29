@@ -91,8 +91,14 @@ export const PageHeader: React.FC<Props> = props => {
 
   if (!editing) {
     return wrapper(
-      <Grid item>
-        <Grid item container alignItems="center" spacing={2}>
+      <Grid item xs={10}>
+        <Grid
+          item
+          container
+          alignItems="center"
+          justify="flex-start"
+          spacing={isMobile ? 1 : 2}
+        >
           <Grid item>
             {!props.isSubHeader ? (
               <Typography variant="h1">
@@ -106,8 +112,8 @@ export const PageHeader: React.FC<Props> = props => {
               </Typography>
             )}
           </Grid>
-          <Grid item>
-            {headerIsEditable && (
+          {headerIsEditable && (
+            <Grid item>
               <Edit
                 className={
                   props.isSubHeader ? classes.smallAction : classes.action
@@ -117,8 +123,8 @@ export const PageHeader: React.FC<Props> = props => {
                   setEditing(true);
                 }}
               />
-            )}
-          </Grid>
+            </Grid>
+          )}
         </Grid>
       </Grid>
     );

@@ -198,7 +198,10 @@ export const Settings: React.FC<Props> = props => {
                 "Will you need to request a substitute without an employee being absent?"
               )}
             </FormHelperText>
-            <div className={classes.contractSection}>
+            <div className={[
+              classes.contractSection,
+              isMobile ? classes.mobileSectionSpacing : classes.normalSectionSpacing,
+            ].join(" ")}>
               <div>{t("Default contract")}</div>
               <Select
                 value={contractOptions.find(
@@ -226,7 +229,10 @@ export const Settings: React.FC<Props> = props => {
                 )}
               </FormHelperText>
             </div>
-            <div className={classes.minAbsenceSection}>
+            <div className={[
+              classes.minAbsenceSection,
+              isMobile ? classes.mobileSectionSpacing : classes.normalSectionSpacing,
+            ].join(" ")}>
               <Typography variant="h6">
                 {t("How should the system behave for this position?")}
               </Typography>
@@ -266,15 +272,19 @@ const useStyles = makeStyles(theme => ({
   needSubLabel: {
     marginTop: theme.spacing(2),
   },
-  contractSection: {
+  mobileSectionSpacing: {
+    marginTop: theme.spacing(2)
+  },
+  normalSectionSpacing: {
     marginTop: theme.spacing(6),
+  },
+  contractSection: {
     maxWidth: "500px",
     "& p": {
       marginLeft: 0,
     },
   },
   minAbsenceSection: {
-    marginTop: theme.spacing(6),
     maxWidth: "500px",
     "& p": {
       marginLeft: 0,
