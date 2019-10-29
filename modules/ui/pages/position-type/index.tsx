@@ -1,4 +1,4 @@
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/graphql/position-types.gen";
 import * as React from "react";
@@ -15,6 +15,8 @@ import { Link } from "react-router-dom";
 import { Grid, Button } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
+import { DeletePostionType } from "./graphql/DeletePositionType.gen";
+import DeleteOutline from "@material-ui/icons/DeleteOutline";
 
 export const PositionTypePage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -23,6 +25,23 @@ export const PositionTypePage: React.FC<{}> = props => {
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
     variables: { orgId: params.organizationId },
   });
+  const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType);
+  const deletePositionType = (positionTypeId: string) => {
+    return deletePositionTypeMutation({
+      variables: {
+        positionTypeId: Number(positionTypeId),
+      },
+    });
+  };
+
+  const deleteSelected = async (data: {id: string} | {id: string}[]) => {
+    if (Array.isArray(data)) {
+      await Promise.all(data.map(id => deletePositionType(id.id)));
+    } else {
+      await Promise.resolve(deletePositionType(data.id));
+    }    
+    getPositionTypes.refetch();
+  };
 
   const columns: Column<GetAllPositionTypesWithinOrg.All>[] = [
     {
@@ -94,6 +113,15 @@ export const PositionTypePage: React.FC<{}> = props => {
         options={{
           search: true,
         }}
+        actions={[
+          {
+            tooltip: `${t("Delete selected position types")}`,
+            icon: () => <DeleteOutline />,  // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
+            onClick: (event, data) => {
+              deleteSelected(data);
+            },
+          },
+        ]}
       />
     </>
   );

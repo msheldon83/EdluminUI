@@ -29,7 +29,7 @@ type Props<T extends object> = {
   paging?: boolean;
   onRowClick?: (event?: React.MouseEvent, rowData?: T) => void;
   onEdit?: Function;
-} & Pick<MaterialTableProps<T>, "options" | "columns">;
+} & Pick<MaterialTableProps<T>, "options" | "columns" | "actions" >;
 
 /* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
 /* eslint-disable react/display-name */
@@ -98,6 +98,7 @@ export function Table<T extends object>(props: Props<T>) {
         pageSizeOptions: [10, 25, 50, 100],
         ...props.options,
       }}
+      actions={props.actions}
     />
   );
 }

@@ -39,15 +39,15 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const params = useRouteParams(PositionTypeViewRoute);
   const [editing, setEditing] = useState<string | null>(null);
 
-  const [deletePositionMutation] = useMutationBundle(DeletePostionType);
-  const deletePosition = React.useCallback(() => {
+  const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType);
+  const deletePositionType = React.useCallback(() => {
     history.push(PositionTypeRoute.generate(params));
-    return deletePositionMutation({
+    return deletePositionTypeMutation({
       variables: {
         positionTypeId: Number(params.positionTypeId),
       },
     });
-  }, [deletePositionMutation, history, params]);
+  }, [deletePositionTypeMutation, history, params]);
 
   const [updatePositionTypeName] = useMutationBundle(UpdatePositionTypeName);
   const [updatePositionTypeExternalId] = useMutationBundle(
@@ -119,7 +119,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           },
           {
             name: t("Delete"),
-            onClick: deletePosition,
+            onClick: deletePositionType,
           },
         ]}
       />
