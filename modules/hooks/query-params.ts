@@ -38,7 +38,7 @@ type QueryIso<K extends string, T> = {
   iso: Isomorphism<Record<K, string>, T>;
 };
 
-export const useQueryIso = <K extends string, T>(
+export const useQueryParamIso = <K extends string, T>(
   queryIso: QueryIso<K, T>
 ): [T, (newT: Partial<T>) => void] => {
   const { defaults, iso } = queryIso;
@@ -64,8 +64,8 @@ const PaginationParams: Isomorphism<
   PaginationSettings
 > = {
   to: k => ({
-    page: Number(k.page) || 0,
-    limit: Number(k.limit) || 10,
+    page: Number(k.page),
+    limit: Number(k.limit),
   }),
   from: s => ({
     page: s.page.toString(),
