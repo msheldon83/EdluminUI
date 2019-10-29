@@ -42,6 +42,16 @@ type Props = {
   disabled?: boolean;
 };
 
+interface OptionType {
+  label: string | number;
+  value?: string | number;
+}
+
+export type SelectValueType = ValueType<OptionType>;
+
+type InputComponentProps = Pick<BaseTextFieldProps, "inputRef"> &
+  React.HTMLAttributes<HTMLDivElement>;
+
 export const Select: React.FC<Props> = props => {
   const theme = useTheme();
 
@@ -158,19 +168,10 @@ export const StyledSelect: React.FC<Props> = props => {
       hideSelectedOptions
       onFocus={() => setHasFocus(true)}
       onBlur={() => setHasFocus(false)}
+      isClearable
     />
   );
 };
-
-interface OptionType {
-  label: string | number;
-  value?: string | number;
-}
-
-export type SelectValueType = ValueType<OptionType>;
-
-type InputComponentProps = Pick<BaseTextFieldProps, "inputRef"> &
-  React.HTMLAttributes<HTMLDivElement>;
 
 const components = {
   Control,

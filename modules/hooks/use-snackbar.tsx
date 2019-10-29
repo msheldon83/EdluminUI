@@ -1,67 +1,148 @@
 import * as React from "react";
-import MuiSnackbar, {
-  SnackbarProps,
-  SnackbarOrigin,
-} from "@material-ui/core/Snackbar";
+import { makeStyles } from "@material-ui/core/styles";
+import MuiSnackbar, { SnackbarProps } from "@material-ui/core/Snackbar";
+import SnackbarContent, {
+  SnackbarContentProps,
+} from "@material-ui/core/SnackbarContent";
+import Fade from "@material-ui/core/Fade";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import ErrorIcon from "@material-ui/icons/Error";
+import InfoIcon from "@material-ui/icons/Info";
+import WarningIcon from "@material-ui/icons/Warning";
 
-type Props = {
+type SnackbarHookType = {
+  status?: StatusType;
+  dismissable?: boolean;
+  message: React.ReactNode;
+  autoHideDuration?: number | null;
+};
+
+type SnackbarProviderProps = {
   children: React.ReactNode;
   snackbarProps?: SnackbarProps;
 };
 
-export const SnackbarProvider = (props: Props) => {
-  const defaultSnackbarProps: SnackbarProps = {
-    open: false,
+type SnackbarPropsState = Omit<SnackbarProps, "open">;
+
+type StatusType = "success" | "warning" | "error" | "info";
+
+type ContextValue = {
+  openSnackbar: (snackbarConfig: SnackbarHookType) => void;
+  closeSnackbar: () => void;
+};
+
+export const SnackbarProvider = (props: SnackbarProviderProps) => {
+  const classes = useStyles();
+
+  const defaultSnackbarProps: SnackbarPropsState = {
     anchorOrigin: {
       vertical: "top",
       horizontal: "right",
     },
-    autoHideDuration: 6000,
+    autoHideDuration: null,
     onClose: closeSnackbar,
+    TransitionComponent: Fade,
+
+    // Don't auto hide the snackbar if there's a click outside of it
+    ClickAwayListenerProps: {
+      mouseEvent: false,
+    },
   };
 
-  const [snackbarConfiguration, setSnackbar] = React.useState<SnackbarProps>(
+  const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
+  const [snackbarProps, setSnackbarProps] = React.useState<SnackbarPropsState>(
     defaultSnackbarProps
   );
+  const [snackbarContentProps, setSnackbarContentProps] = React.useState<
+    SnackbarContentProps
+  >({});
 
-  function openSnackbar(newSnackbarConfiguration: Omit<SnackbarProps, "open">) {
-    setSnackbar({
-      ...newSnackbarConfiguration,
-      open: true,
+  const openSnackbar = (snackbarConfig: SnackbarHookType) => {
+    // // The status defaults to "info"
+    const status: StatusType = snackbarConfig.status
+      ? snackbarConfig.status
+      : "info";
+
+    // Each status will use a different icon
+    const Icon = statusIcon[status];
+
+    const message = (
+      <span className={classes.message}>
+        <Icon className={classes.icon} />
+        {snackbarConfig.message}
+      </span>
+    );
+
+    const action = snackbarConfig.dismissable ? (
+      <DismissableAction onClose={closeSnackbar} />
+    ) : (
+      undefined
+    );
+
+    setSnackbarProps({
+      classes: {
+        root: classes[status],
+      },
+      autoHideDuration: snackbarConfig.autoHideDuration,
     });
-  }
+
+    setSnackbarContentProps({ action, className: classes[status], message });
+
+    setIsSnackbarOpen(true);
+  };
 
   function closeSnackbar() {
-    setSnackbar({
-      open: false,
-    });
+    setIsSnackbarOpen(false);
   }
 
-  // Cascading defautls
-  const snackbarProps: SnackbarProps = {
-    ...defaultSnackbarProps,
-    ...props.snackbarProps,
-    ...snackbarConfiguration,
-  };
-
-  const providerValue = {
-    openSnackbar,
-    closeSnackbar,
-  };
-
   return (
-    <Context.Provider value={providerValue}>
+    <Context.Provider
+      value={{
+        openSnackbar,
+        closeSnackbar,
+      }}
+    >
       {props.children}
 
       {/* This provider will allow the Snackbar to exists across routes and renders */}
-      <MuiSnackbar {...snackbarProps} />
+      <MuiSnackbar
+        className={classes.snackbar}
+        {...defaultSnackbarProps}
+        {...props.snackbarProps}
+        {...snackbarProps}
+        open={isSnackbarOpen}
+      >
+        <SnackbarContent
+          aria-describedby="client-snackbar"
+          {...snackbarContentProps}
+        />
+      </MuiSnackbar>
     </Context.Provider>
   );
 };
 
-type ContextValue = {
-  openSnackbar: (snackbarProps: Omit<SnackbarProps, "open">) => void;
-  closeSnackbar: () => void;
+const DismissableAction = ({ onClose }: { onClose: () => void }) => {
+  const classes = useStyles();
+
+  return (
+    <IconButton
+      key="close"
+      aria-label="close"
+      color="inherit"
+      onClick={onClose}
+    >
+      <CloseIcon className={classes.dismissableIcon} />
+    </IconButton>
+  );
+};
+
+const statusIcon = {
+  success: CheckCircleIcon,
+  warning: WarningIcon,
+  error: ErrorIcon,
+  info: InfoIcon,
 };
 
 // Defaults to make the compiler happy
@@ -77,3 +158,33 @@ const Context = React.createContext<ContextValue>({
 export const useSnackbar = () => {
   return React.useContext(Context);
 };
+
+const useStyles = makeStyles(theme => ({
+  dismissableIcon: {
+    fontSize: theme.typography.pxToRem(20),
+  },
+  message: {
+    display: "flex",
+    alignItems: "center",
+  },
+  icon: {
+    fontSize: theme.typography.pxToRem(20),
+    opacity: 0.9,
+    marginRight: theme.spacing(1),
+  },
+  success: {
+    backgroundColor: theme.customColors.grass,
+  },
+  error: {
+    backgroundColor: theme.palette.error.dark,
+  },
+  info: {
+    backgroundColor: theme.palette.primary.dark,
+  },
+  warning: {
+    backgroundColor: theme.customColors.mustard,
+  },
+  snackbar: {
+    borderRadius: theme.typography.pxToRem(4),
+  },
+}));
