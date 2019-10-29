@@ -1,10 +1,12 @@
 import * as React from "react";
+import { action } from "@storybook/addon-actions";
+import { text, boolean, object } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
-import { Select, SelectValueType } from "./select";
+import { Select as CustomSelect, SelectValueType } from "./select";
 
 export default {
-  title: "Forms/Select",
+  title: "Forms",
 };
 
 const options = [
@@ -15,54 +17,26 @@ const options = [
   { value: "five", label: "Five" },
 ];
 
-export const BasicSelect = () => {
+export const Select = () => {
   const classes = useStyles();
   const [value, setValue] = React.useState<SelectValueType>();
 
   return (
     <div>
       <div className={classes.container}>
-        <Select
-          label="Basic Select"
+        <CustomSelect
+          label={text("Label", "Basic Select")}
           value={value}
-          onChange={setValue}
-          options={options}
+          onChange={value => {
+            action("Set Value")(value);
+            setValue(value);
+          }}
+          options={object("Options", options)}
+          multi={boolean("Multiple", false)}
+          native={boolean("Native", false)}
+          disabled={boolean("Disabled", false)}
         />
       </div>
-    </div>
-  );
-};
-
-export const MultiSelect = () => {
-  const classes = useStyles();
-  const [value, setValue] = React.useState<SelectValueType>();
-
-  return (
-    <div className={classes.container}>
-      <Select
-        label="Multi Select"
-        value={value}
-        onChange={setValue}
-        options={options}
-        multi
-      />
-    </div>
-  );
-};
-
-export const NativeSelect = () => {
-  const classes = useStyles();
-  const [value, setValue] = React.useState<SelectValueType>();
-
-  return (
-    <div className={classes.container}>
-      <Select
-        label="Native Select"
-        value={value}
-        onChange={setValue}
-        options={options}
-        native
-      />
     </div>
   );
 };

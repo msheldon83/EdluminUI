@@ -1,5 +1,6 @@
 import { configure, addDecorator } from "@storybook/react";
 import { withTheme } from "storybook/with-theme";
+import { withKnobs } from "@storybook/addon-knobs";
 
 // automatically import all files ending in *.stories.js
 configure(
@@ -8,3 +9,4 @@ configure(
 );
 
 addDecorator(withTheme);
+addDecorator(withKnobs);
