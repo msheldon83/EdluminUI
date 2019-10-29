@@ -17,12 +17,16 @@ import {
 } from "graphql/server-types.gen";
 import { CreatePositionType } from "./graphql/create.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
+import { Typography, makeStyles } from "@material-ui/core";
 
 export const PositionTypeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PositionTypeAddRoute);
+  const classes = useStyles();
   const [createPositionType] = useMutationBundle(CreatePositionType);
+  const namePlaceholder = t("Math teacher");
+  const [name, setName] = React.useState(namePlaceholder);  
 
   const [positionType, setPositionType] = React.useState<
     PositionTypeCreateInput
@@ -55,6 +59,8 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
           const url = PositionTypeRoute.generate(params);
           history.push(url);
         }}
+        onNameChange={(name) => setName(name)}
+        namePlaceholder={namePlaceholder}
       />
     );
   };
@@ -128,8 +134,23 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
 
   return (
     <>
-      <PageTitle title={t("Create new position type")} />
+      <div className={classes.header}>
+        <PageTitle title={t("Create new position type")} />
+        <Typography variant="h1">
+          {name || <span className={classes.placeholder}>{namePlaceholder}</span>}
+        </Typography>
+      </div>
       <Tabs steps={steps} isWizard={true}></Tabs>
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  header: {
+    marginBottom: theme.spacing(2)
+  },
+  placeholder: {
+    opacity: "0.2",
+    filter: "alpha(opacity = 20)",
+  }
+}));
