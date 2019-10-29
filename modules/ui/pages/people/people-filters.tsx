@@ -14,40 +14,108 @@ import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
 import { Section } from "ui/components/section";
 import { useQueryParams } from "hooks/query-params";
+import { Isomorphism } from "@atomic-object/lenses";
+import { OrgUserRole } from "graphql/server-types.gen";
 
 type Props = { className?: string };
+
+export const FilterQueryParamDefaults: PeopleFilters = {
+  // name: "",
+  firstName: "desc",
+  lastName: "",
+  roleFilter: "",
+};
+
+type PeopleFilters = {
+  // name: string | "";
+  firstName: "asc" | "desc" | "";
+  lastName: "asc" | "desc" | "";
+  // active: boolean,
+} & (
+  | { roleFilter: "" }
+  | {
+      roleFilter: OrgUserRole.Employee;
+      // location: { id: number; name: string }[];
+      // positionType: string;
+    }
+  | {
+      roleFilter: OrgUserRole.ReplacementEmployee;
+      // endorsements: { id: number; name: string }[]
+    }
+  | {
+      roleFilter: OrgUserRole.Administrator;
+      // managesLocation: { id: number; name: string }[];
+      // managesPositionType: string;
+    });
+
+// const FilterParams: Isomorphism<
+//   typeof FilterQueryParamDefaults,
+//   PeopleFilters
+// > = {
+//   to: k => ({
+//     firstName: k.firstName,
+//     lastName: k.lastName,
+//     roleFilter: k.roleFilter
+//   }),
+//   from: s => ({
+//     // page: s.page.toString(),
+//     firstName: s.firstName,
+//     lastName: s.lastName ,
+//     roleFilter: s.roleFilter
+//   }),
+// };
+
+// export const FilterQueryParams = {
+//   defaults: FilterQueryParamDefaults,
+//   iso: FilterParams,
+// };
 
 export const PeopleFilters: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [value, setValue] = React.useState(2);
 
-  const [queryParams, updateQueryParams] = useQueryParams(["active"]);
+  const [filters, updateFilters] = useQueryParams(FilterQueryParamDefaults);
 
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setValue(newValue);
-  };
+  const updateRoleFilter = React.useCallback(
+    (event: React.ChangeEvent<{}>, newRoleFilter: string) => {
+      updateFilters({ ...filters, roleFilter: newRoleFilter });
+    },
+    [updateFilters, filters]
+  );
 
   return (
     <Paper square className={props.className}>
       <Tabs
-        value={value}
+        value={filters.roleFilter}
         indicatorColor="primary"
         textColor="primary"
-        onChange={handleChange}
+        onChange={updateRoleFilter}
         aria-label="people-role-filters"
       >
-        <Tab label={t("All")} className={classes.tab} />
-        <Tab label={t("Employees")} className={classes.tab} />
-        <Tab label={t("Substitutes")} className={classes.tab} />
-        <Tab label={t("Admins")} className={classes.tab} />
+        <Tab label={t("All")} value={""} className={classes.tab} />
+        <Tab
+          label={t("Employees")}
+          value={OrgUserRole.Employee}
+          className={classes.tab}
+        />
+        <Tab
+          label={t("Substitutes")}
+          value={OrgUserRole.ReplacementEmployee}
+          className={classes.tab}
+        />
+        <Tab
+          label={t("Admins")}
+          value={OrgUserRole.Administrator}
+          className={classes.tab}
+        />
       </Tabs>
 
       <Section>
         <Grid container>
           <Grid item container md={3}>
-            <InputLabel>{t("Name")}</InputLabel>
+            <InputLabel className={classes.label}>{t("Name")}</InputLabel>
             <TextField
+              className={classes.textField}
               variant="outlined"
               name={"name"}
               placeholder={t("Search for first or last name")}
@@ -62,15 +130,12 @@ export const PeopleFilters: React.FC<Props> = props => {
           </Grid>
 
           <Grid item container md={3}>
-            <InputLabel>{t("Status")}</InputLabel>
+            <InputLabel className={classes.label}>{t("Status")}</InputLabel>
             <Grid item container>
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={
-                      queryParams.active !== null &&
-                      queryParams.active === "true" // This will not do
-                    }
+                    checked={true}
                     // onChange={updateQueryParams({
                     //   active: "true",
                     //   ...queryParams,
@@ -83,10 +148,7 @@ export const PeopleFilters: React.FC<Props> = props => {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={
-                      queryParams.active === null ||
-                      queryParams.active !== "true"
-                    }
+                    checked={true}
                     // onChange={updateQueryParams({
                     //   active: "false",
                     //   ...queryParams,
@@ -107,5 +169,12 @@ export const PeopleFilters: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   tab: {
     textTransform: "uppercase",
+  },
+  label: {
+    // color: theme.customColors.black,
+    fontWeight: 500,
+  },
+  textField: {
+    marginTop: theme.spacing(2),
   },
 }));

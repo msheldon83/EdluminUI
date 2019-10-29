@@ -1,8 +1,9 @@
-import { Button } from "@material-ui/core";
 import { AccountCircleOutlined } from "@material-ui/icons";
-import { useTheme } from "@material-ui/styles";
-import { usePagedQueryBundle } from "graphql/hooks";
+import { makeStyles, useTheme } from "@material-ui/styles";
+import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
+import { OrgUserRole } from "graphql/server-types.gen";
 import { useScreenSize } from "hooks";
+import { useQueryParams } from "hooks/query-params";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
@@ -13,6 +14,7 @@ import { Table } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
+import { FilterQueryParamDefaults, PeopleFilters } from "./people-filters";
 
 type Props = {};
 
@@ -20,12 +22,18 @@ export const PeoplePage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(PeopleRoute);
   const theme = useTheme();
-  const isMobile = useScreenSize() === "mobile"
-  const [allPeopleQuery, pagination] = usePagedQueryBundle(GetAllPeopleForOrg,
+  const classes = useStyles();
+  const isMobile = useScreenSize() === "mobile";
+
+  const [filters] = useQueryParams(FilterQueryParamDefaults);
+  const role: OrgUserRole[] = compact(
+    filters.roleFilter == "" ? [null] : ([filters.roleFilter] as OrgUserRole[])
+  );
+  const [allPeopleQuery, pagination] = usePagedQueryBundle(GetAllPeopleForOrg, 
     r => r.orgUser?.paged?.totalCount,
     {
-    variables: { orgId: params.organizationId },
-  });
+    variables: { orgId: params.organizationId, role },});
+
   if (
     allPeopleQuery.state === "LOADING" ||
     !allPeopleQuery.data.orgUser?.paged?.results
@@ -36,11 +44,15 @@ export const PeoplePage: React.FC<Props> = props => {
   const people = compact(allPeopleQuery.data.orgUser?.paged?.results);
   const peopleCount = pagination.totalCount;
 
+  console.log("results", people);
   const columns: Column<GetAllPeopleForOrg.Results>[] = [
     {
-      cellStyle: { width: isMobile ? theme.typography.pxToRem(40)
-        : theme.typography.pxToRem(70) },
-      render: () => <AccountCircleOutlined  />, // eslint-disable-line
+      cellStyle: {
+        width: isMobile
+          ? theme.typography.pxToRem(40)
+          : theme.typography.pxToRem(70),
+      },
+      render: () => <AccountCircleOutlined />, // eslint-disable-line
     },
     {
       title: t("First Name"),
@@ -48,8 +60,7 @@ export const PeoplePage: React.FC<Props> = props => {
     },
     {
       title: t("Last Name"),
-      defaultSort: "asc",
-      field: "lastName"
+      field: "lastName",
     },
   ];
 
@@ -57,15 +68,37 @@ export const PeoplePage: React.FC<Props> = props => {
     <>
       <PageTitle title={t("People")} />
       
+      <PeopleFilters className={classes.filters} />
       <Table
-        title={`${peopleCount} ${peopleCount > 1 ? t("People") : t("Person")}`}
+        title={`${peopleCount} ${
+          peopleCount === 1 ? t("Person") : t("People")
+        }`}
         columns={columns}
         data={people}
         selection={true}
-        options={{ sorting: true }}
-        
       />
       <PaginationControls pagination={pagination} />
     </>
   );
 };
+
+type PaginationInputs = {
+  perPage?: number;
+};
+
+type PaginationState = {
+  perPage: number;
+  offset: number;
+  total: number;
+  sortingBy: any[];
+};
+
+const usePagination = () => {
+  const [offset, setOffset] = React.useState(0);
+};
+const useStyles = makeStyles(theme => ({
+  filters: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+}));

@@ -1,6 +1,20 @@
-query GetAllPeopleForOrg($orgId: ID!, $limit: Int, $offset: Int) {
+query GetAllPeopleForOrg(
+  $orgId: ID!
+  $limit: Int
+  $offset: Int
+  $sortBy: [SortDetailsInput]
+  $role: [OrgUserRole]
+  $active: Boolean
+) {
   orgUser {
-    paged(orgId: $orgId, limit: $limit, offset: $offset) {
+    paged(
+      orgId: $orgId
+      limit: $limit
+      offset: $offset
+      sortBy: $sortBy
+      role: $role
+      active: $active
+    ) {
       offset
       limit
       hasMoreData

@@ -2337,13 +2337,22 @@
     regexpp "^2.0.1"
     tsutils "^3.17.1"
 
-"@typescript-eslint/experimental-utils@2.6.0", "@typescript-eslint/experimental-utils@^2.5.0":
+"@typescript-eslint/experimental-utils@2.6.0":
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/experimental-utils/-/experimental-utils-2.6.0.tgz#ed70bef72822bff54031ff0615fc888b9e2b6e8a"
   integrity sha512-34BAFpNOwHXeqT+AvdalLxOvcPYnCxA5JGmBAFL64RGMdP0u65rXjii7l/nwpgk5aLEE1LaqF+SsCU0/Cb64xA==
   dependencies:
     "@types/json-schema" "^7.0.3"
     "@typescript-eslint/typescript-estree" "2.6.0"
+    eslint-scope "^5.0.0"
+
+"@typescript-eslint/experimental-utils@^2.5.0":
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/experimental-utils/-/experimental-utils-2.5.0.tgz#383a97ded9a7940e5053449f6d73995e782b8fb1"
+  integrity sha512-UgcQGE0GKJVChyRuN1CWqDW8Pnu7+mVst0aWrhiyuUD1J9c+h8woBdT4XddCvhcXDodTDVIfE3DzGHVjp7tUeQ==
+  dependencies:
+    "@types/json-schema" "^7.0.3"
+    "@typescript-eslint/typescript-estree" "2.5.0"
     eslint-scope "^5.0.0"
 
 "@typescript-eslint/parser@^2.3.0":
