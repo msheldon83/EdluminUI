@@ -8,64 +8,128 @@ export default {
   title: "Hooks/Snackbar",
 };
 
-const DefaultSnackbarButton = () => {
-  const { openSnackbar } = useSnackbar();
+/*
+  NOTE: the buttons that open the snackbar need to be inside the provider in order
+  to properly get the context, so they are defined as separate components.
+*/
 
-  const snackbarConfiguration = {
-    message: "Default Snackbar",
-  };
+const InfoSnackbarButton = () => {
+  const { openSnackbar } = useSnackbar();
 
   return (
     <Button
-      variant="contained"
-      onClick={() => openSnackbar(snackbarConfiguration)}
+      onClick={() =>
+        openSnackbar({
+          message: "Info Snackbar",
+          dismissable: true,
+        })
+      }
     >
-      Open Default Snackbar
+      Open Info Snackbar
     </Button>
   );
 };
 
-export const DefaultSnackbar = () => {
+export const Info = () => {
   const classes = useStyles();
 
   return (
     <div className={classes.container}>
       <SnackbarProvider>
-        <DefaultSnackbarButton />
+        <InfoSnackbarButton />
       </SnackbarProvider>
     </div>
   );
 };
 
-const ConfiguredSnackbarButton = () => {
+const SuccessSnackbarButton = () => {
   const { openSnackbar, closeSnackbar } = useSnackbar();
-
-  const snackbarConfiguration = {
-    message: "Configured Snackbar",
-    action: (
-      <Button color="inherit" size="small" onClick={() => closeSnackbar()}>
-        Close
-      </Button>
-    ),
-  };
 
   return (
     <Button
-      variant="contained"
-      onClick={() => openSnackbar(snackbarConfiguration)}
+      onClick={() =>
+        openSnackbar({
+          message: "Success Snackbar",
+          dismissable: true,
+          status: "success",
+          autoHideDuration: null,
+        })
+      }
     >
-      Open Configured Snackbar
+      Open Success Snackbar
     </Button>
   );
 };
 
-export const ConfiguredSnackbar = () => {
+export const Success = () => {
   const classes = useStyles();
 
   return (
     <div className={classes.container}>
       <SnackbarProvider>
-        <ConfiguredSnackbarButton />
+        <SuccessSnackbarButton />
+      </SnackbarProvider>
+    </div>
+  );
+};
+
+const WarningSnackbarButton = () => {
+  const { openSnackbar, closeSnackbar } = useSnackbar();
+
+  return (
+    <Button
+      onClick={() =>
+        openSnackbar({
+          message: "Warning Snackbar",
+          dismissable: true,
+          status: "warning",
+          autoHideDuration: null,
+        })
+      }
+    >
+      Open Warning Snackbar
+    </Button>
+  );
+};
+
+export const Warning = () => {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.container}>
+      <SnackbarProvider>
+        <WarningSnackbarButton />
+      </SnackbarProvider>
+    </div>
+  );
+};
+
+const ErrorSnackbarButton = () => {
+  const { openSnackbar, closeSnackbar } = useSnackbar();
+
+  return (
+    <Button
+      onClick={() =>
+        openSnackbar({
+          message: "Error Snackbar",
+          dismissable: true,
+          status: "error",
+          autoHideDuration: null,
+        })
+      }
+    >
+      Open Error Snackbar
+    </Button>
+  );
+};
+
+export const Error = () => {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.container}>
+      <SnackbarProvider>
+        <ErrorSnackbarButton />
       </SnackbarProvider>
     </div>
   );
