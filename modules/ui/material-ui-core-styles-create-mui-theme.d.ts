@@ -42,6 +42,10 @@ interface CustomColors {
   lightGrape: string;
   lightTwilight: string;
   lightSlate: string;
+
+  success: string;
+  warning: string;
+  info: string;
 }
 
 interface EdluminTheme extends Theme {

@@ -173,16 +173,16 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(1),
   },
   success: {
-    backgroundColor: theme.customColors.grass,
+    backgroundColor: theme.customColors.success,
   },
   error: {
-    backgroundColor: theme.palette.error.dark,
+    backgroundColor: theme.palette.error.main,
   },
   info: {
-    backgroundColor: theme.palette.primary.dark,
+    backgroundColor: theme.customColors.info,
   },
   warning: {
-    backgroundColor: theme.customColors.mustard,
+    backgroundColor: theme.customColors.warning,
   },
   snackbar: {
     borderRadius: theme.typography.pxToRem(4),
