@@ -16,6 +16,7 @@ import { Section } from "ui/components/section";
 import { useQueryParams } from "hooks/query-params";
 import { Isomorphism } from "@atomic-object/lenses";
 import { OrgUserRole } from "graphql/server-types.gen";
+import { FiltersByRole } from "./filters-by-role";
 
 type Props = { className?: string };
 
@@ -24,13 +25,14 @@ export const FilterQueryParamDefaults: PeopleFilters = {
   firstName: "desc",
   lastName: "",
   roleFilter: "",
+  active: "true",
 };
 
 type PeopleFilters = {
   // name: string | "";
   firstName: "asc" | "desc" | "";
   lastName: "asc" | "desc" | "";
-  // active: boolean,
+  active: ActiveStatus;
 } & (
   | { roleFilter: "" }
   | {
@@ -47,28 +49,6 @@ type PeopleFilters = {
       // managesLocation: { id: number; name: string }[];
       // managesPositionType: string;
     });
-
-// const FilterParams: Isomorphism<
-//   typeof FilterQueryParamDefaults,
-//   PeopleFilters
-// > = {
-//   to: k => ({
-//     firstName: k.firstName,
-//     lastName: k.lastName,
-//     roleFilter: k.roleFilter
-//   }),
-//   from: s => ({
-//     // page: s.page.toString(),
-//     firstName: s.firstName,
-//     lastName: s.lastName ,
-//     roleFilter: s.roleFilter
-//   }),
-// };
-
-// export const FilterQueryParams = {
-//   defaults: FilterQueryParamDefaults,
-//   iso: FilterParams,
-// };
 
 export const PeopleFilters: React.FC<Props> = props => {
   const classes = useStyles();
@@ -111,7 +91,7 @@ export const PeopleFilters: React.FC<Props> = props => {
       </Tabs>
 
       <Section>
-        <Grid container>
+        <Grid container justify="space-between">
           <Grid item container md={3}>
             <InputLabel className={classes.label}>{t("Name")}</InputLabel>
             <TextField
@@ -122,14 +102,10 @@ export const PeopleFilters: React.FC<Props> = props => {
               fullWidth
             />
           </Grid>
-          <Grid item container md={3}>
-            {/* position type */}
-          </Grid>
-          <Grid item container md={3}>
-            {/* locations */}
-          </Grid>
 
-          <Grid item container md={3}>
+          <FiltersByRole />
+
+          <Grid item container md={2}>
             <InputLabel className={classes.label}>{t("Status")}</InputLabel>
             <Grid item container>
               <FormControlLabel
