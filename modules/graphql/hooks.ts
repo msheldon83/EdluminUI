@@ -17,7 +17,11 @@ import { useCallback, useMemo, useEffect, useState } from "react";
 import { useLoadingState } from "ui/components/loading-state";
 import { GraphqlBundle } from "./core";
 import { useLocation, useHistory } from "react-router";
-import { useQueryParams } from "hooks/query-params";
+import {
+  useQueryParams,
+  useQueryParamIso,
+  PaginationQueryParams,
+} from "hooks/query-params";
 
 type NonOptional<O> = O extends null | undefined | (infer T) ? T : O;
 
@@ -97,38 +101,31 @@ type PagedVars = {
   offset: number;
   limit: number;
 };
-// export function usePagedQueryBundle<Result, Vars extends PagedVars>(
-//   query: GraphqlBundle<Result, Vars>,
-//   options?: QueryHookOptions<Result, Omit<Vars, "offset" | "limit">>
-// ): HookQueryResult<Result, Vars> {
-//   const [params, setParams] = useQueryParams(["limit", "page"]);
-//   params.limit; // = "5"
 
-//   //   const [limit, setLimit] = useState(10);
-//   //   const [offset, setOffset] = useState(0);
-//   //   const [params, updateParams] = useQueryParams();
-//   //   const vars = options?.variables;
-//   //   if (!vars) {
-//   //     throw Error("variables are required");
-//   //   }
-//   //   const pagedVars: Vars = {...vars, limit, offset};
-//   //   const mergedOptions: QueryHookOptions<Result,Vars> = {
-//   //     ...options,
-//   //     variables: {...options?.variables, limit, offset},
-//   //   }
-//   // const wat2 = useLocation();
-//   // const parms = new URLSearchParams(wat2.search)
-//   // parms.has("q");
-//   // parms.set("q", "oh yeah");
-//   // const history = useHistory();
-//   // history.push({
-//   //   ...wat2,
-//   //   search: parms.toString(),
-//   // })
-//   const wat = useQueryBundle(query, options);
-//   return wat;
-// }
-export const usePagedQueryBundle = useQueryBundle;
+export function usePagedQueryBundle<Result, Vars>(
+  query: GraphqlBundle<Result, Vars & PagedVars>,
+  options?: QueryHookOptions<Result, Vars>
+): HookQueryResult<Result, Vars> {
+  const [params, setParams] = useQueryParamIso(PaginationQueryParams);
+  const ovars = options && options.variables;
+  if (!ovars) {
+    throw Error("variables are required");
+  }
+  const vars = {
+    ...ovars,
+    limit: params.limit,
+    offset: params.limit * (params.page - 1),
+  };
+  const mergedOptions: QueryHookOptions<Result, Vars & PagedVars> = {
+    ...options,
+    variables: vars,
+  };
+  const wat = useQueryBundle(query, mergedOptions);
+  if (wat.state === "DONE" || wat.state === "UPDATING") {
+    wat.data;
+  }
+  return wat;
+}
 
 export function useMutationBundle<T, TVariables>(
   mutation: GraphqlBundle<T, TVariables>,

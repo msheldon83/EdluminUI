@@ -2,7 +2,7 @@ import { AccountCircleOutlined } from "@material-ui/icons";
 import { useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { useScreenSize } from "hooks";
-import { PaginationQueryParams, useQueryIso } from "hooks/query-params";
+import { PaginationQueryParams, useQueryParamIso, useQueryParams } from "hooks/query-params";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
@@ -20,13 +20,8 @@ export const PeoplePage: React.FC<Props> = props => {
   const params = useRouteParams(PeopleRoute);
   const theme = useTheme();
   const isMobile = useScreenSize() === "mobile"
-  const [pagination, updatePagination] = useQueryIso(PaginationQueryParams);
-  console.log("pagination?", pagination);
-  if (pagination.page < 2) {
-    updatePagination({page: 2})
-  }
   const allPeopleQuery = usePagedQueryBundle(GetAllPeopleForOrg, {
-    variables: { orgId: params.organizationId, limit: pagination.limit, offset: pagination.page },
+    variables: { orgId: params.organizationId },
   });
   if (
     allPeopleQuery.state === "LOADING" ||
