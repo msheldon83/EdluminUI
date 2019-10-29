@@ -12,6 +12,8 @@ import { Table } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
+import { useApolloClient } from "@apollo/react-hooks";
+import { Button } from "@material-ui/core";
 
 type Props = {};
 
@@ -20,7 +22,9 @@ export const PeoplePage: React.FC<Props> = props => {
   const params = useRouteParams(PeopleRoute);
   const theme = useTheme();
   const isMobile = useScreenSize() === "mobile"
-  const allPeopleQuery = usePagedQueryBundle(GetAllPeopleForOrg, {
+  const [allPeopleQuery, pagination] = usePagedQueryBundle(GetAllPeopleForOrg, 
+    r => r.orgUser?.paged?.totalCount ?? 0,
+    {
     variables: { orgId: params.organizationId },
   });
   if (
@@ -29,6 +33,7 @@ export const PeoplePage: React.FC<Props> = props => {
   ) {
     return <></>;
   }
+  
   const people = compact(allPeopleQuery.data.orgUser?.paged?.results);
   const peopleCount = allPeopleQuery.data.orgUser?.paged?.totalCount ?? 0;
 
@@ -52,6 +57,8 @@ export const PeoplePage: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={t("People")} />
+      {JSON.stringify(pagination)}
+      <Button onClick={pagination.nextPage} variant="contained">Next Page</Button>
       <Table
         title={`${peopleCount} ${peopleCount > 1 ? t("People") : t("Person")}`}
         columns={columns}

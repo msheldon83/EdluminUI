@@ -97,17 +97,30 @@ export function useQueryBundle<Result, Vars>(
   return ourResult;
 }
 
-type PagedVars = {
+type QueryPaginationVars = {
   offset: number;
   limit: number;
 };
 
+type PaginationInfo = {
+  /** currentPage starts at 1 */
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  resultsPerPage: number;
+  nextPage: () => void;
+  previousPage: () => void;
+  goToPage: (page: number) => void;
+  setResultsPerPage: (resultsPerPage: number) => void;
+};
+
 export function usePagedQueryBundle<Result, Vars>(
-  query: GraphqlBundle<Result, Vars & PagedVars>,
-  options?: QueryHookOptions<Result, Vars>
-): HookQueryResult<Result, Vars> {
+  query: GraphqlBundle<Result, Vars & QueryPaginationVars>,
+  totalCount: (r: Result) => number,
+  options: QueryHookOptions<Result, Vars>
+): [HookQueryResult<Result, Vars>, PaginationInfo] {
   const [params, setParams] = useQueryParamIso(PaginationQueryParams);
-  const ovars = options && options.variables;
+  const ovars = options.variables;
   if (!ovars) {
     throw Error("variables are required");
   }
@@ -116,15 +129,37 @@ export function usePagedQueryBundle<Result, Vars>(
     limit: params.limit,
     offset: params.limit * (params.page - 1),
   };
-  const mergedOptions: QueryHookOptions<Result, Vars & PagedVars> = {
+  const mergedOptions: QueryHookOptions<Result, Vars & QueryPaginationVars> = {
     ...options,
     variables: vars,
   };
-  const wat = useQueryBundle(query, mergedOptions);
-  if (wat.state === "DONE" || wat.state === "UPDATING") {
-    wat.data;
+  const result = useQueryBundle(query, mergedOptions);
+  let count = 0;
+  if (result.state === "DONE" || result.state === "UPDATING") {
+    count = totalCount(result.data);
   }
-  return wat;
+  const currentPage = params.page;
+  const totalPages = Math.max(1, Math.ceil(count / params.limit));
+  const paginationInfo: PaginationInfo = {
+    currentPage,
+    totalPages,
+    totalCount: count,
+    resultsPerPage: params.limit,
+    nextPage: useCallback(
+      () => setParams({ page: Math.min(currentPage + 1, totalPages) }),
+      [setParams, currentPage, totalPages]
+    ),
+    previousPage: useCallback(
+      () => setParams({ page: Math.max(currentPage - 1, 1) }),
+      [setParams, currentPage]
+    ),
+    goToPage: useCallback(
+      page => setParams({ page: Math.max(1, Math.min(totalPages, page)) }),
+      [totalPages, setParams]
+    ),
+    setResultsPerPage: useCallback(r => setParams({ limit: r }), [setParams]),
+  };
+  return [result, paginationInfo];
 }
 
 export function useMutationBundle<T, TVariables>(
