@@ -97,37 +97,38 @@ type PagedVars = {
   offset: number;
   limit: number;
 };
-export function usePagedQueryBundle<Result, Vars extends PagedVars>(
-  query: GraphqlBundle<Result, Vars>,
-  options?: QueryHookOptions<Result, Omit<Vars, "offset" | "limit">>
-): HookQueryResult<Result, Vars> {
-  const [params, setParams] = useQueryParams(["limit", "page"]);
-  params.limit; // = "5"
+// export function usePagedQueryBundle<Result, Vars extends PagedVars>(
+//   query: GraphqlBundle<Result, Vars>,
+//   options?: QueryHookOptions<Result, Omit<Vars, "offset" | "limit">>
+// ): HookQueryResult<Result, Vars> {
+//   const [params, setParams] = useQueryParams(["limit", "page"]);
+//   params.limit; // = "5"
 
-  //   const [limit, setLimit] = useState(10);
-  //   const [offset, setOffset] = useState(0);
-  //   const [params, updateParams] = useQueryParams();
-  //   const vars = options?.variables;
-  //   if (!vars) {
-  //     throw Error("variables are required");
-  //   }
-  //   const pagedVars: Vars = {...vars, limit, offset};
-  //   const mergedOptions: QueryHookOptions<Result,Vars> = {
-  //     ...options,
-  //     variables: {...options?.variables, limit, offset},
-  //   }
-  // const wat2 = useLocation();
-  // const parms = new URLSearchParams(wat2.search)
-  // parms.has("q");
-  // parms.set("q", "oh yeah");
-  // const history = useHistory();
-  // history.push({
-  //   ...wat2,
-  //   search: parms.toString(),
-  // })
-  const wat = useQueryBundle(query, options);
-  return wat;
-}
+//   //   const [limit, setLimit] = useState(10);
+//   //   const [offset, setOffset] = useState(0);
+//   //   const [params, updateParams] = useQueryParams();
+//   //   const vars = options?.variables;
+//   //   if (!vars) {
+//   //     throw Error("variables are required");
+//   //   }
+//   //   const pagedVars: Vars = {...vars, limit, offset};
+//   //   const mergedOptions: QueryHookOptions<Result,Vars> = {
+//   //     ...options,
+//   //     variables: {...options?.variables, limit, offset},
+//   //   }
+//   // const wat2 = useLocation();
+//   // const parms = new URLSearchParams(wat2.search)
+//   // parms.has("q");
+//   // parms.set("q", "oh yeah");
+//   // const history = useHistory();
+//   // history.push({
+//   //   ...wat2,
+//   //   search: parms.toString(),
+//   // })
+//   const wat = useQueryBundle(query, options);
+//   return wat;
+// }
+export const usePagedQueryBundle = useQueryBundle;
 
 export function useMutationBundle<T, TVariables>(
   mutation: GraphqlBundle<T, TVariables>,

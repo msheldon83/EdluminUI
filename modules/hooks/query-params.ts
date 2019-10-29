@@ -1,23 +1,19 @@
-import { forEach, fromPairs } from "lodash-es";
+import { Isomorphism } from "@atomic-object/lenses";
+import { mapValues } from "lodash-es";
 import { useCallback, useMemo } from "react";
 import { useHistory, useLocation } from "react-router";
-import { Isomorphism } from "@atomic-object/lenses";
 
 export const useQueryParams = <K extends string>(
-  ks: K[]
-): [
-  Record<K, string | null>,
-  (newParams: Partial<Record<K, string | null>>) => void
-] => {
+  defaults: Record<K, string>
+): [Record<K, string>, (newParams: Partial<Record<K, string>>) => void] => {
   const history = useHistory();
   const location = useLocation();
   const urlSearch = useMemo(() => new URLSearchParams(location.search), [
     location,
   ]);
   const params = useMemo(
-    () =>
-      fromPairs(ks.map(k => [k, urlSearch.get(k)])) as Record<K, string | null>,
-    [urlSearch, ks]
+    () => mapValues(defaults, (v, k) => urlSearch.get(k) ?? v),
+    [urlSearch, defaults]
   );
   const update = useCallback(
     (newParams: Partial<Record<K, string | null>>) => {
@@ -37,11 +33,16 @@ export const useQueryParams = <K extends string>(
   return [params, update];
 };
 
+type QueryIso<K extends string, T> = {
+  defaults: Record<K, string>;
+  iso: Isomorphism<Record<K, string>, T>;
+};
+
 export const useQueryIso = <K extends string, T>(
-  ks: K[],
-  iso: Isomorphism<Record<K, string | null>, T>
+  queryIso: QueryIso<K, T>
 ): [T, (newT: Partial<T>) => void] => {
-  const [raw, rawSet] = useQueryParams(ks);
+  const { defaults, iso } = queryIso;
+  const [raw, rawSet] = useQueryParams(defaults);
   const t = useMemo(() => iso.to(raw), [raw, iso]);
   const update = useCallback(
     (nT: Partial<T>) => rawSet(iso.from({ ...t, ...nT })),
@@ -50,16 +51,16 @@ export const useQueryIso = <K extends string, T>(
   return [t, update];
 };
 
-type PaginationQueryParams = {
-  page: string | null;
-  limit: string | null;
+export const PaginationQueryParamDefaults = {
+  page: "1",
+  limit: "10",
 };
 type PaginationSettings = {
   page: number;
   limit: number;
 };
-export const PaginationParams: Isomorphism<
-  PaginationQueryParams,
+const PaginationParams: Isomorphism<
+  typeof PaginationQueryParamDefaults,
   PaginationSettings
 > = {
   to: k => ({
@@ -70,4 +71,9 @@ export const PaginationParams: Isomorphism<
     page: s.page.toString(),
     limit: s.limit.toString(),
   }),
+};
+
+export const PaginationQueryParams = {
+  defaults: PaginationQueryParamDefaults,
+  iso: PaginationParams,
 };
