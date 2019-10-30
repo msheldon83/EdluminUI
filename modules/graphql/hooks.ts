@@ -102,7 +102,7 @@ type QueryPaginationVars = {
   limit: number;
 };
 
-type PaginationInfo = {
+export type PaginationInfo = {
   /** currentPage starts at 1 */
   currentPage: number;
   totalPages: number;
@@ -151,7 +151,7 @@ export function usePagedQueryBundle<Result, Vars>(
       previousPage: () => setParams({ page: Math.max(currentPage - 1, 1) }),
       goToPage: page =>
         setParams({ page: Math.max(1, Math.min(totalPages, page)) }),
-      setResultsPerPage: r => setParams({ limit: r }),
+      setResultsPerPage: r => setParams({ limit: r, page: 1 }),
     }),
     [setParams, currentPage, totalPages, count, params.limit]
   );

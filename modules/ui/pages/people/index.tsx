@@ -1,19 +1,18 @@
+import { Button } from "@material-ui/core";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import { useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { useScreenSize } from "hooks";
-import { PaginationQueryParams, useQueryParamIso, useQueryParams } from "hooks/query-params";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
+import { PaginationControls } from "ui/components/pagination-controls";
 import { Table } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
-import { useApolloClient } from "@apollo/react-hooks";
-import { Button } from "@material-ui/core";
 
 type Props = {};
 
@@ -35,7 +34,7 @@ export const PeoplePage: React.FC<Props> = props => {
   }
   
   const people = compact(allPeopleQuery.data.orgUser?.paged?.results);
-  const peopleCount = allPeopleQuery.data.orgUser?.paged?.totalCount ?? 0;
+  const peopleCount = pagination.totalCount;
 
   const columns: Column<GetAllPeopleForOrg.Results>[] = [
     {
@@ -57,34 +56,16 @@ export const PeoplePage: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={t("People")} />
-      {JSON.stringify(pagination)}
-      <Button onClick={pagination.nextPage} variant="contained">Next Page</Button>
+      
       <Table
         title={`${peopleCount} ${peopleCount > 1 ? t("People") : t("Person")}`}
         columns={columns}
         data={people}
         selection={true}
         options={{ sorting: true }}
+        
       />
+      <PaginationControls pagination={pagination} />
     </>
   );
 };
-
-type PaginationInputs = {
-  perPage?: number;
-
-}
-
-type PaginationState = {
-  perPage: number;
-  offset: number;
-  total: number;
-  sortingBy: any[];
-}
-
-
-
-const usePagination = () => {
-  const [offset, setOffset] = React.useState(0);
-  
-}
