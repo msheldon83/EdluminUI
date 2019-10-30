@@ -6,7 +6,7 @@ import {
   Grid,
   Typography,
 } from "@material-ui/core";
-import MaterialTable, { MTableToolbar } from "material-table";
+import MaterialTable, { MTableToolbar, MTableBodyRow } from "material-table";
 import { MaterialTableProps } from "material-table";
 
 import { forwardRef } from "react";
@@ -38,6 +38,7 @@ type Props<T extends object> = {
   onEdit?: Function;
   showIncludeExpired?: boolean;
   onIncludeExpiredChange?: (checked: boolean) => void;
+  expiredRowCheck?: (rowData: T) => boolean;
 } & Pick<MaterialTableProps<T>, "options" | "columns">;
 
 /* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
@@ -72,7 +73,7 @@ export function Table<T extends object>(props: Props<T>) {
   const { t } = useTranslation();
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
-  const allColumns: MaterialTableProps<T>["columns"] = props.columns;
+  const allColumns = props.columns;
   if (props.onEdit) {
     allColumns.push({
       field: "actions",
@@ -96,6 +97,7 @@ export function Table<T extends object>(props: Props<T>) {
 
   const showIncludeExpiredSetting = props.showIncludeExpired;
   const onIncludeExpiredChangeFunc = props.onIncludeExpiredChange;
+  const expiredRowCheckFunc = props.expiredRowCheck;
 
   return (
     <MaterialTable
@@ -113,6 +115,12 @@ export function Table<T extends object>(props: Props<T>) {
         ...props.options,
       }}
       components={{
+        Row: props => {
+          if (expiredRowCheckFunc && expiredRowCheckFunc(props.data)) {
+            return <MTableBodyRow className={classes.inactiveRow} {...props} />;
+          }
+          return <MTableBodyRow {...props} />;
+        },
         Toolbar: props => (
           <>
             <MTableToolbar {...props} />
@@ -152,5 +160,8 @@ export function Table<T extends object>(props: Props<T>) {
 const useStyles = makeStyles(theme => ({
   action: {
     cursor: "pointer",
+  },
+  inactiveRow: {
+    color: theme.customColors.gray,
   },
 }));
