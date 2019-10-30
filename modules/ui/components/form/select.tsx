@@ -169,6 +169,7 @@ export const StyledSelect: React.FC<Props> = props => {
       onFocus={() => setHasFocus(true)}
       onBlur={() => setHasFocus(false)}
       isClearable
+      isDisabled={props.disabled}
     />
   );
 };
@@ -312,6 +313,15 @@ const useStyles = makeStyles((theme: Theme) =>
     input: {
       display: "flex",
       cursor: "pointer",
+      /*
+        This magic number is the total of th eborders and padding to default
+        Mui inputs. Since this component transitions between a styled and native
+        select dropdown, this ensures things don't get weird in multi select
+        mode.
+      */
+      height: theme.typography.pxToRem(56),
+      paddingTop: 0,
+      paddingBottom: 0,
     },
     nativeInput: {
       cursor: "pointer",
@@ -322,7 +332,6 @@ const useStyles = makeStyles((theme: Theme) =>
       flex: 1,
       alignItems: "center",
       overflow: "hidden",
-      paddingLeft: theme.spacing(0.5),
     },
     chip: {
       margin: theme.spacing(0.5, 0.25),
