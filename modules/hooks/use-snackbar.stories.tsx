@@ -1,11 +1,11 @@
 import * as React from "react";
+import { select, text, boolean } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
 import { useSnackbar, SnackbarProvider } from "./use-snackbar";
-import Snackbar from "@material-ui/core/Snackbar";
 import Button from "@material-ui/core/Button";
 
 export default {
-  title: "Hooks/Snackbar",
+  title: "Hooks",
 };
 
 /*
@@ -20,8 +20,13 @@ const InfoSnackbarButton = () => {
     <Button
       onClick={() =>
         openSnackbar({
-          message: "Info Snackbar",
-          dismissable: true,
+          message: text("message", "Info Snackbar"),
+          dismissable: boolean("dismissable", true),
+          status: select(
+            "status",
+            ["info", "success", "warning", "error"],
+            "info"
+          ),
         })
       }
     >
@@ -30,7 +35,7 @@ const InfoSnackbarButton = () => {
   );
 };
 
-export const Info = () => {
+export const Snackbar = () => {
   const classes = useStyles();
 
   return (
@@ -42,98 +47,98 @@ export const Info = () => {
   );
 };
 
-const SuccessSnackbarButton = () => {
-  const { openSnackbar, closeSnackbar } = useSnackbar();
+// const SuccessSnackbarButton = () => {
+//   const { openSnackbar, closeSnackbar } = useSnackbar();
 
-  return (
-    <Button
-      onClick={() =>
-        openSnackbar({
-          message: "Success Snackbar",
-          dismissable: true,
-          status: "success",
-          autoHideDuration: null,
-        })
-      }
-    >
-      Open Success Snackbar
-    </Button>
-  );
-};
+//   return (
+//     <Button
+//       onClick={() =>
+//         openSnackbar({
+//           message: "Success Snackbar",
+//           dismissable: true,
+//           status: "success",
+//           autoHideDuration: null,
+//         })
+//       }
+//     >
+//       Open Success Snackbar
+//     </Button>
+//   );
+// };
 
-export const Success = () => {
-  const classes = useStyles();
+// export const Success = () => {
+//   const classes = useStyles();
 
-  return (
-    <div className={classes.container}>
-      <SnackbarProvider>
-        <SuccessSnackbarButton />
-      </SnackbarProvider>
-    </div>
-  );
-};
+//   return (
+//     <div className={classes.container}>
+//       <SnackbarProvider>
+//         <SuccessSnackbarButton />
+//       </SnackbarProvider>
+//     </div>
+//   );
+// };
 
-const WarningSnackbarButton = () => {
-  const { openSnackbar, closeSnackbar } = useSnackbar();
+// const WarningSnackbarButton = () => {
+//   const { openSnackbar, closeSnackbar } = useSnackbar();
 
-  return (
-    <Button
-      onClick={() =>
-        openSnackbar({
-          message: "Warning Snackbar",
-          dismissable: true,
-          status: "warning",
-          autoHideDuration: null,
-        })
-      }
-    >
-      Open Warning Snackbar
-    </Button>
-  );
-};
+//   return (
+//     <Button
+//       onClick={() =>
+//         openSnackbar({
+//           message: "Warning Snackbar",
+//           dismissable: true,
+//           status: "warning",
+//           autoHideDuration: null,
+//         })
+//       }
+//     >
+//       Open Warning Snackbar
+//     </Button>
+//   );
+// };
 
-export const Warning = () => {
-  const classes = useStyles();
+// export const Warning = () => {
+//   const classes = useStyles();
 
-  return (
-    <div className={classes.container}>
-      <SnackbarProvider>
-        <WarningSnackbarButton />
-      </SnackbarProvider>
-    </div>
-  );
-};
+//   return (
+//     <div className={classes.container}>
+//       <SnackbarProvider>
+//         <WarningSnackbarButton />
+//       </SnackbarProvider>
+//     </div>
+//   );
+// };
 
-const ErrorSnackbarButton = () => {
-  const { openSnackbar, closeSnackbar } = useSnackbar();
+// const ErrorSnackbarButton = () => {
+//   const { openSnackbar, closeSnackbar } = useSnackbar();
 
-  return (
-    <Button
-      onClick={() =>
-        openSnackbar({
-          message: "Error Snackbar",
-          dismissable: true,
-          status: "error",
-          autoHideDuration: null,
-        })
-      }
-    >
-      Open Error Snackbar
-    </Button>
-  );
-};
+//   return (
+//     <Button
+//       onClick={() =>
+//         openSnackbar({
+//           message: "Error Snackbar",
+//           dismissable: true,
+//           status: "error",
+//           autoHideDuration: null,
+//         })
+//       }
+//     >
+//       Open Error Snackbar
+//     </Button>
+//   );
+// };
 
-export const Error = () => {
-  const classes = useStyles();
+// export const Error = () => {
+//   const classes = useStyles();
 
-  return (
-    <div className={classes.container}>
-      <SnackbarProvider>
-        <ErrorSnackbarButton />
-      </SnackbarProvider>
-    </div>
-  );
-};
+//   return (
+//     <div className={classes.container}>
+//       <SnackbarProvider>
+//         <ErrorSnackbarButton />
+//       </SnackbarProvider>
+//     </div>
+//   );
+// };
 
 const useStyles = makeStyles(theme => ({
   container: {
