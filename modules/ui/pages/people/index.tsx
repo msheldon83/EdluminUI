@@ -21,7 +21,7 @@ export const PeoplePage: React.FC<Props> = props => {
   const params = useRouteParams(PeopleRoute);
   const theme = useTheme();
   const isMobile = useScreenSize() === "mobile"
-  const [allPeopleQuery, pagination] = usePagedQueryBundle(GetAllPeopleForOrg, 
+  const [allPeopleQuery, pagination] = usePagedQueryBundle(GetAllPeopleForOrg,
     r => r.orgUser?.paged?.totalCount ?? 0,
     {
     variables: { orgId: params.organizationId },

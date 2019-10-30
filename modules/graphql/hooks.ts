@@ -98,8 +98,8 @@ export function useQueryBundle<Result, Vars>(
 }
 
 type QueryPaginationVars = {
-  offset: number;
-  limit: number;
+  offset?: number | null;
+  limit?: number | null;
 };
 
 export type PaginationInfo = {
@@ -114,8 +114,8 @@ export type PaginationInfo = {
   setResultsPerPage: (resultsPerPage: number) => void;
 };
 
-export function usePagedQueryBundle<Result, Vars>(
-  query: GraphqlBundle<Result, Vars & QueryPaginationVars>,
+export function usePagedQueryBundle<Result, Vars extends QueryPaginationVars>(
+  query: GraphqlBundle<Result, Vars>,
   totalCount: (r: Result) => number,
   options: QueryHookOptions<Result, Vars>
 ): [HookQueryResult<Result, Vars>, PaginationInfo] {
@@ -129,7 +129,7 @@ export function usePagedQueryBundle<Result, Vars>(
     limit: params.limit,
     offset: params.limit * (params.page - 1),
   };
-  const mergedOptions: QueryHookOptions<Result, Vars & QueryPaginationVars> = {
+  const mergedOptions: QueryHookOptions<Result, Vars> = {
     ...options,
     variables: vars,
   };
