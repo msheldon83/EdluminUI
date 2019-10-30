@@ -13,7 +13,12 @@ import {
   NetworkStatus,
   ObservableQuery,
 } from "apollo-client";
-import { PaginationQueryParams, useQueryParamIso } from "hooks/query-params";
+import {
+  PaginationQueryParams,
+  useQueryParamIso,
+  QueryIso,
+  PaginationSettings,
+} from "hooks/query-params";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLoadingState } from "ui/components/loading-state";
 import { GraphqlBundle } from "./core";
@@ -109,13 +114,26 @@ export type PaginationInfo = {
   setResultsPerPage: (resultsPerPage: number) => void;
 };
 
+/**
+ * Wrap a query bundle so that the `limit` and `offset` variables are automatically
+ * supplied to the query's input variables. These values are taken from query params
+ * on the URL.
+ *
+ * Additionally, this hook takes care of managing pagination state for you.
+ *
+ * @param query a query bundle
+ * @param totalCount a lambda that extracts the `totalCount` from the query result
+ * @param options see useQueryBundle() for details
+ * @param queryParams optional: a query param iso for extracting limit and offset.
+ */
 export function usePagedQueryBundle<Result, Vars extends QueryPaginationVars>(
   query: GraphqlBundle<Result, Vars>,
   totalCount: (r: Result) => number | null | undefined,
-  options: QueryHookOptions<Result, Vars>
+  options: QueryHookOptions<Result, Vars>,
+  queryParams: QueryIso<string, PaginationSettings> = PaginationQueryParams
 ): [HookQueryResult<Result, Vars>, PaginationInfo] {
   const [lastCount, setLastCount] = useState(0);
-  const [params, setParams] = useQueryParamIso(PaginationQueryParams);
+  const [params, setParams] = useQueryParamIso(queryParams);
   const ovars = options.variables;
   if (!ovars) {
     throw Error("variables are required");

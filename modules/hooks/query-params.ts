@@ -33,7 +33,7 @@ export const useQueryParams = <K extends string>(
   return [params, update];
 };
 
-type QueryIso<K extends string, T> = {
+export type QueryIso<K extends string, T> = {
   defaults: Record<K, string>;
   iso: Isomorphism<Record<K, string>, T>;
 };
@@ -55,7 +55,7 @@ export const PaginationQueryParamDefaults = {
   page: "1",
   limit: "10",
 };
-type PaginationSettings = {
+export type PaginationSettings = {
   page: number;
   limit: number;
 };
@@ -73,7 +73,9 @@ const PaginationParams: Isomorphism<
   }),
 };
 
-export const PaginationQueryParams = {
+const makeQueryIso = <K extends string, T>(v: QueryIso<K, T>) => v;
+
+export const PaginationQueryParams = makeQueryIso({
   defaults: PaginationQueryParamDefaults,
   iso: PaginationParams,
-};
+});
