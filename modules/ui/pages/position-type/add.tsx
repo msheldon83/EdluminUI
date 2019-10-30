@@ -25,8 +25,8 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
   const params = useRouteParams(PositionTypeAddRoute);
   const classes = useStyles();
   const [createPositionType] = useMutationBundle(CreatePositionType);
+  const [name, setName] = React.useState<string | null>(null);
   const namePlaceholder = t("Math teacher");
-  const [name, setName] = React.useState(namePlaceholder);  
 
   const [positionType, setPositionType] = React.useState<
     PositionTypeCreateInput
