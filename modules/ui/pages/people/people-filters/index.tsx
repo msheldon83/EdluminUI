@@ -10,14 +10,14 @@ import {
   TextField,
 } from "@material-ui/core";
 import { OrgUserRole } from "graphql/server-types.gen";
-import { useQueryParams, useQueryParamIso } from "hooks/query-params";
+import { useQueryParamIso, useQueryParams } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import {
-  FilterQueryParamDefaults,
   FilterQueryParams,
-  ActiveStatus,
+  FilterQueryParamDefaults,
+  FilterRole,
 } from "./filter-params";
 import { FiltersByRole } from "./filters-by-role";
 

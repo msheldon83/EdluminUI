@@ -6,33 +6,116 @@ export const FilterQueryParamDefaults: PeopleFilters = {
   firstName: "desc",
   lastName: "",
   roleFilter: "",
-  active: true,
-  inactive: true,
+  active: "",
 };
+
+export type FilterRole =
+  | OrgUserRole.Employee
+  | OrgUserRole.ReplacementEmployee
+  | OrgUserRole.Administrator;
 
 type PeopleFilters = {
   // name: string | "";
-  firstName: "asc" | "desc" | "";
-  lastName: "asc" | "desc" | "";
-  active: boolean;
-  inactive: boolean;
-} & (
-  | { roleFilter: "" }
-  | {
-      roleFilter: OrgUserRole.Employee;
-      // location: { id: number; name: string }[];
-      // positionType: string;
-    }
-  | {
-      roleFilter: OrgUserRole.ReplacementEmployee;
-      // endorsements: { id: number; name: string }[]
-    }
-  | {
-      roleFilter: OrgUserRole.Administrator;
-      // managesLocation: { id: number; name: string }[];
-      // managesPositionType: string;
-    });
+  firstName: string;
+  lastName: string;
+  active: string;
+  roleFilter: string;
+};
 
+// } & (
+// | { roleFilter: "" }
+// | {
+//     roleFilter: OrgUserRole.Employee;
+//     // location: { id: number; name: string }[];
+//     // positionType: string;
+//   }
+// | {
+//     roleFilter: OrgUserRole.ReplacementEmployee;
+//     // endorsements: { id: number; name: string }[]
+//   }
+// | {
+//     roleFilter: OrgUserRole.Administrator;
+//     // managesLocation: { id: number; name: string }[];
+//     // managesPositionType: string;
+//   });
+
+type PeopleFilterQueryParams = Omit<PeopleFilters, "active" | "roleFilter"> & {
+  active: boolean | undefined;
+  roleFilter: OrgUserRole | null;
+};
+
+const FilterParams: Isomorphism<PeopleFilters, PeopleFilterQueryParams> = {
+  to: k => ({
+    firstName: k.firstName,
+    lastName: k.lastName,
+    roleFilter: strToOrgUserRoleOrNull(k.roleFilter),
+    active: stringToBool(k.active),
+  }),
+  from: s => ({
+    firstName: s.firstName,
+    lastName: s.lastName,
+    roleFilter: orgUserRoleOrNullToStr(s.roleFilter),
+    active: boolToString(s.active),
+  }),
+};
+
+export const FilterQueryParams = {
+  defaults: FilterQueryParamDefaults,
+  iso: FilterParams,
+};
+
+// type ActiveStatus = "true" | "false" | "";
+export const stringToBool = (s: string): boolean | undefined => {
+  switch (s) {
+    case "true":
+      return true;
+    case "false":
+      return false;
+    case "":
+    default:
+      return undefined;
+  }
+};
+const boolToString = (b: boolean | undefined): "true" | "false" | "" => {
+  console.log("boolToString", b);
+  switch (b) {
+    case true:
+      return "true";
+    case false:
+      return "false";
+    case undefined:
+      return "";
+  }
+};
+
+const strToOrgUserRoleOrNull = (r: string): OrgUserRole | null => {
+  switch (r) {
+    case OrgUserRole.Administrator:
+      return OrgUserRole.Administrator;
+    case OrgUserRole.Employee:
+      return OrgUserRole.Employee;
+    case OrgUserRole.ReplacementEmployee:
+      return OrgUserRole.ReplacementEmployee;
+    case "":
+    default:
+      return null;
+  }
+};
+const orgUserRoleOrNullToStr = (r: OrgUserRole | null): string => {
+  switch (r) {
+    case OrgUserRole.Administrator:
+      return OrgUserRole.Administrator;
+    case OrgUserRole.Employee:
+      return OrgUserRole.Employee;
+    case OrgUserRole.ReplacementEmployee:
+      return OrgUserRole.ReplacementEmployee;
+    case null:
+    default:
+      return "";
+  }
+};
+
+// Keeping around for reference
 type EmptyStringToNull<T, K extends keyof T> = Omit<T, K> &
   {
     [P in K]: Exclude<T[P], ""> | null;
@@ -45,71 +128,3 @@ type Whatever = Omit<PeopleFilters, "firstName" | "lastName" | "active"> &
       ""
     > | null;
   };
-
-type NoEmptyStrings = Omit<PeopleFilters, "active" | "roleFilter"> & {
-  active: boolean | null;
-  roleFilter: OrgUserRole | null;
-};
-type FilterRole =
-  | OrgUserRole.Employee
-  | OrgUserRole.ReplacementEmployee
-  | OrgUserRole.Administrator;
-
-const FilterParams: Isomorphism<PeopleFilters, NoEmptyStrings> = {
-  to: k => ({
-    firstName: k.firstName,
-    lastName: k.lastName,
-    roleFilter: strToOrgUserRoleOrNull(k.roleFilter),
-    active: k.active,
-    inactive: k.inactive,
-  }),
-  from: s => ({
-    firstName: s.firstName,
-    lastName: s.lastName,
-    roleFilter: s.roleFilter, // orgUserRoleOrNullToStr(s.roleFilter),
-    active: s.active,
-  }),
-};
-
-// type ActiveStatus = "true" | "false" | "";
-export type ActiveStatus = "active" | "inactive" | "all";
-export const statusToBool = (s: ActiveStatus): boolean | undefined => {
-  switch (s) {
-    case "active":
-      return true;
-    case "inactive":
-      return false;
-    default:
-      return undefined;
-  }
-};
-const boolToStatus = (b: boolean | null): ActiveStatus => {
-  switch (b) {
-    case true:
-      return "active";
-    case false:
-      return "inactive";
-    case null:
-      return "all";
-  }
-};
-
-const strToOrgUserRoleOrNull = (r: string): OrgUserRole | null => {
-  if (r === "") {
-    return null;
-  } else {
-    return r as OrgUserRole;
-  }
-};
-const orgUserRoleOrNullToStr = (r: OrgUserRole | null): FilterRole | "" => {
-  if (r === null) {
-    return "";
-  } else {
-    return r as FilterRole;
-  }
-};
-
-export const FilterQueryParams = {
-  defaults: FilterQueryParamDefaults,
-  iso: FilterParams,
-};

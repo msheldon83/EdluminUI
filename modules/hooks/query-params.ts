@@ -19,7 +19,7 @@ export const useQueryParams = <K extends string>(
     (newParams: Partial<Record<K, string | null>>) => {
       const params = new URLSearchParams(location.search);
       forEach(newParams, (v, k) => {
-        if (v) {
+        if (typeof v === "string") {
           params.set(k, v);
         } else {
           params.delete(k);
