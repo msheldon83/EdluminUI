@@ -13,15 +13,10 @@ import {
   NetworkStatus,
   ObservableQuery,
 } from "apollo-client";
-import { useCallback, useMemo, useEffect, useState } from "react";
+import { PaginationQueryParams, useQueryParamIso } from "hooks/query-params";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLoadingState } from "ui/components/loading-state";
 import { GraphqlBundle } from "./core";
-import { useLocation, useHistory } from "react-router";
-import {
-  useQueryParams,
-  useQueryParamIso,
-  PaginationQueryParams,
-} from "hooks/query-params";
 
 type NonOptional<O> = O extends null | undefined | (infer T) ? T : O;
 
@@ -116,9 +111,10 @@ export type PaginationInfo = {
 
 export function usePagedQueryBundle<Result, Vars extends QueryPaginationVars>(
   query: GraphqlBundle<Result, Vars>,
-  totalCount: (r: Result) => number,
+  totalCount: (r: Result) => number | null | undefined,
   options: QueryHookOptions<Result, Vars>
 ): [HookQueryResult<Result, Vars>, PaginationInfo] {
+  const [lastCount, setLastCount] = useState(0);
   const [params, setParams] = useQueryParamIso(PaginationQueryParams);
   const ovars = options.variables;
   if (!ovars) {
@@ -134,10 +130,14 @@ export function usePagedQueryBundle<Result, Vars extends QueryPaginationVars>(
     variables: vars,
   };
   const result = useQueryBundle(query, mergedOptions);
-  let count = 0;
+  let countFromQueryResult: number | null | undefined = null;
   if (result.state === "DONE" || result.state === "UPDATING") {
-    count = totalCount(result.data);
+    countFromQueryResult = totalCount(result.data);
   }
+  useEffect(() => {
+    if (countFromQueryResult) setLastCount(countFromQueryResult);
+  }, [countFromQueryResult]);
+  const count = countFromQueryResult || lastCount;
   const currentPage = params.page;
   const totalPages = Math.max(1, Math.ceil(count / params.limit));
   const paginationInfo: PaginationInfo = useMemo(
