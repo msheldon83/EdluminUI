@@ -76,6 +76,10 @@ const themeColors: Theme["customColors"] = {
   lightGrape: "#F7E7FA",
   lightTwilight: "#EAE6F3",
   lightSlate: "#F0F0F0",
+
+  success: "#00c853",
+  warning: "#ffa000",
+  info: "#56657F",
 };
 const breakpointCustomization: BreakpointsOptions = {};
 const breakpoints = createBreakpoints(breakpointCustomization);
@@ -174,6 +178,9 @@ export const EdluminTheme = createMuiTheme({
     },
     secondary: {
       main: themeColors.darkGray,
+    },
+    error: {
+      main: "#c62828",
     },
   },
   customColors: {
