@@ -80,7 +80,5 @@ const useStyles = makeStyles(theme => ({
   label: {
     marginRight: theme.spacing(2),
     marginLeft: theme.spacing(2),
-    // flex: 1,
-    // backgroundColor: "blue",
   },
 }));
