@@ -168,11 +168,8 @@ export const StyledSelect: React.FC<Props> = props => {
       hideSelectedOptions
       onFocus={() => setHasFocus(true)}
       onBlur={() => setHasFocus(false)}
-<<<<<<< HEAD
       isClearable
-=======
       isDisabled={props.disabled}
->>>>>>> Support for knobs in stories
     />
   );
 };
