@@ -1,66 +1,50 @@
 import {
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  InputLabel,
   makeStyles,
   Paper,
   Tab,
   Tabs,
   TextField,
-  InputLabel,
-  FormControlLabel,
-  Checkbox,
-  Grid,
 } from "@material-ui/core";
+import { OrgUserRole } from "graphql/server-types.gen";
+import { useQueryParams, useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router";
 import { Section } from "ui/components/section";
-import { useQueryParams } from "hooks/query-params";
-import { Isomorphism } from "@atomic-object/lenses";
-import { OrgUserRole } from "graphql/server-types.gen";
+import {
+  FilterQueryParamDefaults,
+  FilterQueryParams,
+  ActiveStatus,
+} from "./filter-params";
 import { FiltersByRole } from "./filters-by-role";
 
 type Props = { className?: string };
-
-export const FilterQueryParamDefaults: PeopleFilters = {
-  // name: "",
-  firstName: "desc",
-  lastName: "",
-  roleFilter: "",
-  active: "true",
-};
-
-type PeopleFilters = {
-  // name: string | "";
-  firstName: "asc" | "desc" | "";
-  lastName: "asc" | "desc" | "";
-  active: ActiveStatus;
-} & (
-  | { roleFilter: "" }
-  | {
-      roleFilter: OrgUserRole.Employee;
-      // location: { id: number; name: string }[];
-      // positionType: string;
-    }
-  | {
-      roleFilter: OrgUserRole.ReplacementEmployee;
-      // endorsements: { id: number; name: string }[]
-    }
-  | {
-      roleFilter: OrgUserRole.Administrator;
-      // managesLocation: { id: number; name: string }[];
-      // managesPositionType: string;
-    });
 
 export const PeopleFilters: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
   const [filters, updateFilters] = useQueryParams(FilterQueryParamDefaults);
+  const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
 
   const updateRoleFilter = React.useCallback(
     (event: React.ChangeEvent<{}>, newRoleFilter: string) => {
-      updateFilters({ ...filters, roleFilter: newRoleFilter });
+      updateFilters({ roleFilter: newRoleFilter });
     },
-    [updateFilters, filters]
+    [updateFilters]
+  );
+
+  const updateActiveFilter = React.useCallback(
+    e => {
+      console.log("event ==>", e.target.value);
+      return updateIsoFilters({
+        active: e.target.value,
+      });
+    },
+    [updateIsoFilters]
   );
 
   return (
@@ -111,12 +95,11 @@ export const PeopleFilters: React.FC<Props> = props => {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={true}
-                    // onChange={updateQueryParams({
-                    //   active: "true",
-                    //   ...queryParams,
-                    // })}
-                    value=""
+                    checked={
+                      filters.active === "active" || filters.active === "all"
+                    }
+                    onChange={updateActiveFilter}
+                    value={"active"}
                   />
                 }
                 label={t("Active")}
@@ -124,12 +107,11 @@ export const PeopleFilters: React.FC<Props> = props => {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={true}
-                    // onChange={updateQueryParams({
-                    //   active: "false",
-                    //   ...queryParams,
-                    // })}
-                    value=""
+                    checked={
+                      filters.active === "inactive" || filters.active === "all"
+                    }
+                    onChange={updateActiveFilter}
+                    value="inactive"
                   />
                 }
                 label={t("Inactive")}

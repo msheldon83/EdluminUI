@@ -1,9 +1,9 @@
 import { AccountCircleOutlined } from "@material-ui/icons";
 import { makeStyles, useTheme } from "@material-ui/styles";
-import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle } from "graphql/hooks";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { useScreenSize } from "hooks";
-import { useQueryParams } from "hooks/query-params";
+import { useQueryParamIso } from "hooks/query-params";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
@@ -14,7 +14,8 @@ import { Table } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
-import { FilterQueryParamDefaults, PeopleFilters } from "./people-filters";
+import { PeopleFilters } from "./people-filters";
+import { FilterQueryParams } from "./people-filters/filter-params";
 
 type Props = {};
 
@@ -25,10 +26,9 @@ export const PeoplePage: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
 
-  const [filters] = useQueryParams(FilterQueryParamDefaults);
-  const role: OrgUserRole[] = compact(
-    filters.roleFilter == "" ? [null] : ([filters.roleFilter] as OrgUserRole[])
-  );
+    const [filters] = useQueryParamIso(FilterQueryParams);
+    const role: OrgUserRole[] = compact([filters.roleFilter]);
+    console.log("active?", filters.active);
   const [allPeopleQuery, pagination] = usePagedQueryBundle(GetAllPeopleForOrg, 
     r => r.orgUser?.paged?.totalCount,
     {
@@ -40,11 +40,11 @@ export const PeoplePage: React.FC<Props> = props => {
   ) {
     return <></>;
   }
-  
+
   const people = compact(allPeopleQuery.data.orgUser?.paged?.results);
   const peopleCount = pagination.totalCount;
 
-  console.log("results", people);
+  // console.log("results", people);
   const columns: Column<GetAllPeopleForOrg.Results>[] = [
     {
       cellStyle: {

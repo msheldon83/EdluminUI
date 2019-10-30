@@ -1,14 +1,20 @@
 import * as React from "react";
-import { FilterQueryParams } from ".";
 import { useQueryParamIso } from "hooks/query-params";
 import { OrgUserRole } from "graphql/server-types.gen";
-import { Grid, TextField, InputLabel, makeStyles } from "@material-ui/core";
+import {
+  Grid,
+  TextField,
+  InputLabel,
+  makeStyles,
+  MenuItem,
+} from "@material-ui/core";
 import { useTranslation } from "react-i18next";
+import { FilterQueryParams } from "./filter-params";
 
 type Props = {};
 export const FiltersByRole: React.FC<Props> = props => {
   const [filters] = useQueryParamIso(FilterQueryParams);
-  console.log("made it with role: ", filters.roleFilter);
+
   switch (filters.roleFilter) {
     case OrgUserRole.Employee:
       return <EmployeeFilters />;
@@ -36,8 +42,9 @@ export const EmployeeFilters: React.FC<Props> = props => {
           name={"position-type"}
           select
           fullWidth
+          value=""
         >
-          {[]}
+          <MenuItem value={""}>{}</MenuItem>
         </TextField>
       </Grid>
       <Grid item container md={3}>
@@ -49,8 +56,9 @@ export const EmployeeFilters: React.FC<Props> = props => {
           name={"location"}
           select
           fullWidth
+          value=""
         >
-          {[]}
+          <MenuItem value={""}>{}</MenuItem>
         </TextField>
       </Grid>
     </>
@@ -70,8 +78,9 @@ export const ReplacementEmployeeFilters: React.FC<Props> = props => {
           name={"endorsements"}
           select
           fullWidth
+          value=""
         >
-          {[]}
+          <MenuItem value={""}>{}</MenuItem>
         </TextField>
       </Grid>
     </>
@@ -93,8 +102,9 @@ export const AdministratorFilters: React.FC<Props> = props => {
           name={"manages -position-type"}
           select
           fullWidth
+          value=""
         >
-          {[]}
+          <MenuItem value={""}>{}</MenuItem>
         </TextField>
       </Grid>
       <Grid item container md={3}>
@@ -108,8 +118,9 @@ export const AdministratorFilters: React.FC<Props> = props => {
           name={"manages-location"}
           select
           fullWidth
+          value=""
         >
-          {[]}
+          <MenuItem value={""}>{}</MenuItem>
         </TextField>
       </Grid>
     </>
