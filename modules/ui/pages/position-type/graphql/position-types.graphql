@@ -10,6 +10,7 @@ query GetAllPositionTypesWithinOrg($orgId: ID, $includeExpired: Boolean) {
       minAbsenceDurationMinutes
       needsReplacement
       expired
+      defaultContractId
       defaultContract {
         id
         name
