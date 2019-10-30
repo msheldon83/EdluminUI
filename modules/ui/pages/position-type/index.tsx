@@ -116,7 +116,7 @@ export const PositionTypePage: React.FC<{}> = props => {
         actions={[
           {
             tooltip: `${t("Delete selected position types")}`,
-            icon: () => <DeleteOutline />,  // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
+            icon: () => <DeleteOutline />, /* eslint-disable-line */ // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
             onClick: (event, data) => {
               deleteSelected(data);
             },
