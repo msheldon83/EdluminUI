@@ -73,7 +73,7 @@ export function Table<T extends object>(props: Props<T>) {
   const { t } = useTranslation();
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
-  const allColumns = props.columns;
+  const allColumns: MaterialTableProps<T>["columns"] = props.columns;
   if (props.onEdit) {
     allColumns.push({
       field: "actions",
