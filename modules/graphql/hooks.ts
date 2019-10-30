@@ -140,25 +140,21 @@ export function usePagedQueryBundle<Result, Vars>(
   }
   const currentPage = params.page;
   const totalPages = Math.max(1, Math.ceil(count / params.limit));
-  const paginationInfo: PaginationInfo = {
-    currentPage,
-    totalPages,
-    totalCount: count,
-    resultsPerPage: params.limit,
-    nextPage: useCallback(
-      () => setParams({ page: Math.min(currentPage + 1, totalPages) }),
-      [setParams, currentPage, totalPages]
-    ),
-    previousPage: useCallback(
-      () => setParams({ page: Math.max(currentPage - 1, 1) }),
-      [setParams, currentPage]
-    ),
-    goToPage: useCallback(
-      page => setParams({ page: Math.max(1, Math.min(totalPages, page)) }),
-      [totalPages, setParams]
-    ),
-    setResultsPerPage: useCallback(r => setParams({ limit: r }), [setParams]),
-  };
+  const paginationInfo: PaginationInfo = useMemo(
+    () => ({
+      currentPage,
+      totalPages,
+      totalCount: count,
+      resultsPerPage: params.limit,
+      nextPage: () =>
+        setParams({ page: Math.min(currentPage + 1, totalPages) }),
+      previousPage: () => setParams({ page: Math.max(currentPage - 1, 1) }),
+      goToPage: page =>
+        setParams({ page: Math.max(1, Math.min(totalPages, page)) }),
+      setResultsPerPage: r => setParams({ limit: r }),
+    }),
+    [setParams, currentPage, totalPages, count, params.limit]
+  );
   return [result, paginationInfo];
 }
 
