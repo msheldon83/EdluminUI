@@ -77,7 +77,7 @@ module.exports = {
     "no-empty": "warn",
     "no-prototype-builtins": "warn",
     "no-redeclare": "warn",
-    "no-undef": "warn",
+    "no-undef": 0, // disable this until eslint bugs are fixed
     "no-unreachable": "warn",
     "react-hooks/exhaustive-deps": "warn",
     "react/no-children-prop": "warn",
