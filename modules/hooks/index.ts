@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState, SetStateAction, Dispatch } from "react";
 import { useTheme, useMediaQuery } from "@material-ui/core";
 import { Breakpoint } from "@material-ui/core/styles/createBreakpoints";
 
@@ -25,4 +25,21 @@ export const useScreenSize = (): ScreenSize => {
   if (smDown) return "mobile";
   if (lgUp) return "large";
   return "medium";
+};
+
+export const useDeferredState = <T>(
+  initialT: T,
+  delay: number
+): [T, T, Dispatch<SetStateAction<T>>] => {
+  const [value, setValue] = useState<T>(initialT);
+  const [pendingValue, setPendingValue] = useState<T>(initialT);
+  useEffect(() => {
+    if (value !== pendingValue) {
+      const id = setTimeout(() => {
+        setValue(pendingValue);
+      }, delay);
+      return () => clearTimeout(id);
+    }
+  }, [pendingValue, value, setValue, delay]);
+  return [value, pendingValue, setPendingValue];
 };

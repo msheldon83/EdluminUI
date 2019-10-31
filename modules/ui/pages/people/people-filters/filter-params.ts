@@ -2,9 +2,9 @@ import { Isomorphism } from "@atomic-object/lenses";
 import { OrgUserRole } from "graphql/server-types.gen";
 
 export const FilterQueryParamDefaults: PeopleFilters = {
-  // name: "",
-  firstName: "desc",
-  lastName: "",
+  name: "",
+  firstNameSort: "desc",
+  lastNameSort: "",
   roleFilter: "",
   active: "",
 };
@@ -15,9 +15,9 @@ export type FilterRole =
   | OrgUserRole.Administrator;
 
 type PeopleFilters = {
-  // name: string | "";
-  firstName: string;
-  lastName: string;
+  name: string | "";
+  firstNameSort: string;
+  lastNameSort: string;
   active: string;
   roleFilter: string;
 };
@@ -29,14 +29,16 @@ type PeopleFilterQueryParams = Omit<PeopleFilters, "active" | "roleFilter"> & {
 
 const FilterParams: Isomorphism<PeopleFilters, PeopleFilterQueryParams> = {
   to: k => ({
-    firstName: k.firstName,
-    lastName: k.lastName,
+    name: k.name,
+    firstNameSort: k.firstNameSort,
+    lastNameSort: k.lastNameSort,
     roleFilter: strToOrgUserRoleOrNull(k.roleFilter),
     active: stringToBool(k.active),
   }),
   from: s => ({
-    firstName: s.firstName,
-    lastName: s.lastName,
+    name: s.name,
+    firstNameSort: s.firstNameSort,
+    lastNameSort: s.lastNameSort,
     roleFilter: orgUserRoleOrNullToStr(s.roleFilter),
     active: boolToString(s.active),
   }),
@@ -96,16 +98,16 @@ const orgUserRoleOrNullToStr = (r: OrgUserRole | null): string => {
   }
 };
 
-// Keeping around for reference
-type EmptyStringToNull<T, K extends keyof T> = Omit<T, K> &
-  {
-    [P in K]: Exclude<T[P], ""> | null;
-  };
-type Whatever2 = EmptyStringToNull<PeopleFilters, "active" | "roleFilter">;
-type Whatever = Omit<PeopleFilters, "firstName" | "lastName" | "active"> &
-  {
-    [P in "lastName" | "lastName" | "active"]: Exclude<
-      PeopleFilters[P],
-      ""
-    > | null;
-  };
+// // Keeping around for reference
+// type EmptyStringToNull<T, K extends keyof T> = Omit<T, K> &
+//   {
+//     [P in K]: Exclude<T[P], ""> | null;
+//   };
+// type Whatever2 = EmptyStringToNull<PeopleFilters, "active" | "roleFilter">;
+// type Whatever = Omit<PeopleFilters, "firstName" | "lastName" | "active"> &
+//   {
+//     [P in "lastName" | "lastName" | "active"]: Exclude<
+//       PeopleFilters[P],
+//       ""
+//     > | null;
+//   };

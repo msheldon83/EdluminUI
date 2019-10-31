@@ -5,6 +5,7 @@ query GetAllPeopleForOrg(
   $sortBy: [SortDetailsInput]
   $role: [OrgUserRole]
   $active: Boolean
+  $name: String
 ) {
   orgUser {
     paged(
@@ -14,6 +15,7 @@ query GetAllPeopleForOrg(
       sortBy: $sortBy
       role: $role
       active: $active
+      name: $name
     ) {
       offset
       limit

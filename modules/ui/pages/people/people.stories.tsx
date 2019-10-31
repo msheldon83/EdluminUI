@@ -1,6 +1,8 @@
 import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
 import { PeoplePage } from ".";
+import { PeopleRoute } from "ui/routes/people";
+import { Route } from "react-router";
 
 export default {
   title: "Pages/People",
@@ -8,6 +10,7 @@ export default {
 
 export const PeopleList = () => {
   const Provider = mockProvider({
+    initialUrl: PeopleRoute.generate({ organizationId: "1000" }),
     mocks: {
       Query: () => ({
         orgUser: () => ({
@@ -68,7 +71,9 @@ export const PeopleList = () => {
 
   return (
     <Provider>
-      <PeoplePage />
+      <Route path={PeopleRoute.path}>
+        <PeoplePage />
+      </Route>
     </Provider>
   );
 };

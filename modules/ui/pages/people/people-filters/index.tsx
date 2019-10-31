@@ -16,6 +16,8 @@ import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { FilterQueryParams, FilterRole } from "./filter-params";
 import { FiltersByRole } from "./filters-by-role";
+import { useDeferredState } from "hooks";
+import { useEffect } from "react";
 
 type Props = { className?: string };
 
@@ -24,6 +26,27 @@ export const PeopleFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
+  const [name, pendingName, setPendingName] = useDeferredState(
+    isoFilters.name,
+    200
+  );
+
+  /* Navigating in the browser will update the query params but not
+    the state in the UI. Here we update the pending value if the
+    param changed and disregarding value stored in state to keep them
+    in sync. */
+  useEffect(() => {
+    if (name !== isoFilters.name) {
+      setPendingName(isoFilters.name);
+    }
+  }, [isoFilters.name]); // eslint-disable-line
+
+  /* As the value changes, update query params */
+  useEffect(() => {
+    if (name !== isoFilters.name) {
+      updateIsoFilters({ name });
+    }
+  }, [name]); // eslint-disable-line
 
   const updateRoleFilter = React.useCallback(
     (event: React.ChangeEvent<{}>, newRoleFilter: FilterRole | "") => {
@@ -31,6 +54,13 @@ export const PeopleFilters: React.FC<Props> = props => {
       updateIsoFilters({ roleFilter });
     },
     [updateIsoFilters]
+  );
+
+  const updateNameFilter = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setPendingName(event.target.value);
+    },
+    [setPendingName]
   );
 
   const updateActiveFilter = React.useCallback(
@@ -41,7 +71,6 @@ export const PeopleFilters: React.FC<Props> = props => {
       } else if (isoFilters.active === a || isoFilters.active !== undefined) {
         active = undefined;
       }
-
       return updateIsoFilters({ active });
     },
     [updateIsoFilters, isoFilters]
@@ -82,6 +111,8 @@ export const PeopleFilters: React.FC<Props> = props => {
               className={classes.textField}
               variant="outlined"
               name={"name"}
+              value={pendingName}
+              onChange={updateNameFilter}
               placeholder={t("Search for first or last name")}
               fullWidth
             />
