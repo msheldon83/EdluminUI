@@ -33,7 +33,12 @@ export const PeoplePage: React.FC<Props> = props => {
     GetAllPeopleForOrg,
     r => r.orgUser?.paged?.totalCount,
     {
-      variables: { orgId: params.organizationId, role, active: filters.active, name: filters.name },
+      variables: {
+        orgId: params.organizationId,
+        role,
+        active: filters.active,
+        name: filters.name,
+      },
     }
   );
 

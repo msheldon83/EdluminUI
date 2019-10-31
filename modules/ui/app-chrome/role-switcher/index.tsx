@@ -21,7 +21,7 @@ export const RoleSwitcher: React.FC<Props> = props => {
     return <></>;
   }
 
-  const userAccess = (orgUserQuery)?.data?.userAccess?.me ?? {
+  const userAccess = orgUserQuery?.data?.userAccess?.me ?? {
     isSystemAdministrator: false,
     user: null,
   };

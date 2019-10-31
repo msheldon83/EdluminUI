@@ -70,11 +70,11 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const isSystemAdministrator =
     getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING"
       ? false
-      : orgUserQuery?.data?.userAccess?.me?.isSystemAdministrator
+      : orgUserQuery?.data?.userAccess?.me?.isSystemAdministrator;
   const orgUsers =
     getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING"
       ? []
-      : orgUserQuery?.data?.userAccess?.me?.user?.orgUsers || []
+      : orgUserQuery?.data?.userAccess?.me?.user?.orgUsers || [];
 
   const isAdminInOrgs = useMemo(() => {
     return orgUsers.filter(r => r && r.isAdmin);
@@ -97,8 +97,8 @@ export const OrganizationsPage: React.FC<Props> = props => {
     organizations = compact(
       getOrganizations?.data?.organization?.paged?.results ?? []
     );
-    organizationsCount = 
-      getOrganizations?.data?.organization?.paged?.totalCount ?? 0
+    organizationsCount =
+      getOrganizations?.data?.organization?.paged?.totalCount ?? 0;
   }
 
   return (
