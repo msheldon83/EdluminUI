@@ -14,8 +14,10 @@ type Props = {
     name: string;
     externalId?: string | null | undefined;
   };
+  namePlaceholder: string;
   onSubmit: (name: string, externalId?: string | null | undefined) => void;
   onCancel: () => void;
+  onNameChange: (name: string) => void;
 };
 
 export const AddBasicInfo: React.FC<Props> = props => {
@@ -41,23 +43,26 @@ export const AddBasicInfo: React.FC<Props> = props => {
           externalId: yup.string().nullable(),
         })}
       >
-        {({ handleSubmit, submitForm }) => (
+        {({ handleSubmit, handleChange, values, submitForm }) => (
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={8}>
+            <Grid container spacing={isMobile ? 2 : 8}>
               <Grid item xs={12} sm={6} lg={6}>
                 <Typography variant="h6">{t("Position type name")}</Typography>
                 <FormTextField
-                  placeholder={t("Position name")}
+                  placeholder={`E.g ${props.namePlaceholder}`}
                   name="name"
                   margin={isMobile ? "normal" : "none"}
                   variant="outlined"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    handleChange(e);
+                    props.onNameChange(e.currentTarget.value);
+                  }}
                   fullWidth
                 />
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
                 <Typography variant="h6">{t("External ID")}</Typography>
                 <FormTextField
-                  placeholder={t("External ID")}
                   name="externalId"
                   margin={isMobile ? "normal" : "none"}
                   variant="outlined"

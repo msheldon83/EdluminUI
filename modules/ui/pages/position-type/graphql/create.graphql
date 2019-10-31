@@ -9,6 +9,8 @@ mutation CreatePositionType($positionType: PositionTypeCreateInput!) {
       forStaffAugmentation
       minAbsenceDurationMinutes
       needsReplacement
+      expired
+      defaultContractId
       defaultContract {
         id
         name

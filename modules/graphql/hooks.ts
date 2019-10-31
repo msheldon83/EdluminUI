@@ -13,7 +13,13 @@ import {
   NetworkStatus,
   ObservableQuery,
 } from "apollo-client";
-import { useCallback, useMemo, useEffect } from "react";
+import {
+  PaginationQueryParams,
+  useQueryParamIso,
+  QueryIso,
+  PaginationSettings,
+} from "hooks/query-params";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLoadingState } from "ui/components/loading-state";
 import { GraphqlBundle } from "./core";
 
@@ -89,6 +95,85 @@ export function useQueryBundle<Result, Vars>(
     }
   }
   return ourResult;
+}
+
+type QueryPaginationVars = {
+  offset?: number | null;
+  limit?: number | null;
+};
+
+export type PaginationInfo = {
+  /** currentPage starts at 1 */
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  resultsPerPage: number;
+  nextPage: () => void;
+  previousPage: () => void;
+  goToPage: (page: number) => void;
+  setResultsPerPage: (resultsPerPage: number) => void;
+};
+
+/**
+ * Wrap a query bundle so that the `limit` and `offset` variables are automatically
+ * supplied to the query's input variables. These values are taken from query params
+ * on the URL.
+ *
+ * Additionally, this hook takes care of managing pagination state for you.
+ *
+ * @param query a query bundle
+ * @param totalCount a lambda that extracts the `totalCount` from the query result
+ * @param options see useQueryBundle() for details
+ * @param queryParams optional: a query param iso for extracting limit and offset.
+ */
+export function usePagedQueryBundle<Result, Vars extends QueryPaginationVars>(
+  query: GraphqlBundle<Result, Vars>,
+  totalCount: (r: Result) => number | null | undefined,
+  options: QueryHookOptions<Result, Vars>,
+  queryParams: QueryIso<string, PaginationSettings> = PaginationQueryParams
+): [HookQueryResult<Result, Vars>, PaginationInfo] {
+  const [lastCount, setLastCount] = useState(0);
+  const [params, setParams] = useQueryParamIso(queryParams);
+  const ovars = options.variables;
+  if (!ovars) {
+    throw Error("variables are required");
+  }
+  const vars = {
+    ...ovars,
+    limit: params.limit,
+    offset: params.limit * (params.page - 1),
+  };
+  const mergedOptions: QueryHookOptions<Result, Vars> = {
+    ...options,
+    variables: vars,
+  };
+  const result = useQueryBundle(query, mergedOptions);
+  let countFromQueryResult: number | null | undefined = null;
+  if (result.state === "DONE" || result.state === "UPDATING") {
+    countFromQueryResult = totalCount(result.data);
+  }
+  useEffect(() => {
+    if (countFromQueryResult) setLastCount(countFromQueryResult);
+  }, [countFromQueryResult]);
+  const count = countFromQueryResult || lastCount;
+  const currentPage = params.page;
+  const totalPages = Math.max(1, Math.ceil(count / params.limit));
+  const paginationInfo: PaginationInfo = useMemo(
+    () => ({
+      currentPage,
+      totalPages,
+      totalCount: count,
+      resultsPerPage: params.limit,
+      nextPage: () =>
+        setParams({ page: Math.min(currentPage + 1, totalPages) }),
+      previousPage: () => setParams({ page: Math.max(currentPage - 1, 1) }),
+      goToPage: page =>
+        setParams({ page: Math.max(1, Math.min(totalPages, page)) }),
+      setResultsPerPage: r => setParams({ limit: r, page: 1 }),
+    }),
+    [setParams, currentPage, totalPages, count, params.limit]
+  );
+  return [result, paginationInfo];
 }
 
 export function useMutationBundle<T, TVariables>(
