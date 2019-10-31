@@ -2,9 +2,9 @@ import { AccountCircleOutlined } from "@material-ui/icons";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { OrgUserRole } from "graphql/server-types.gen";
-import { useScreenSize } from "hooks";
+import { useScreenSize, usePrevious } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
-import { compact } from "lodash-es";
+import { compact, isEqual } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +16,7 @@ import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";
+import { useEffect } from "react";
 
 type Props = {};
 
@@ -40,6 +41,15 @@ export const PeoplePage: React.FC<Props> = props => {
         name: filters.name,
       },
     }
+  );
+  const oldFilters = usePrevious(filters);
+  useEffect(
+    () => {
+      /* When filters are changed, go to page 1 */
+      if (!isEqual(oldFilters, filters)) pagination.goToPage(1);
+    },
+    /* eslint-disable-next-line */
+    [filters, oldFilters]
   );
 
   if (
