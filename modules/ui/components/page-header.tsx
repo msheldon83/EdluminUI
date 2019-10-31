@@ -7,6 +7,7 @@ import { Formik } from "formik";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { useScreenSize } from "hooks";
 import Maybe from "graphql/tsutils/Maybe";
+import { TextButton } from "./text-button";
 
 type Props = {
   text: string | null | undefined;
@@ -19,6 +20,9 @@ type Props = {
   onCancel?: Function;
   isSubHeader?: boolean;
   showLabel?: boolean;
+  isInactive?: boolean;
+  inactiveDisplayText?: string | null | undefined;
+  onActivate?: () => Promise<unknown>;
 };
 
 export const PageHeader: React.FC<Props> = props => {
@@ -29,22 +33,48 @@ export const PageHeader: React.FC<Props> = props => {
 
   const wrapper = (child: JSX.Element) => {
     return (
-      <div className={classes.header}>
-        <Grid
-          container
-          alignItems="center"
-          justify="space-between"
-          spacing={2}
-          className={`${props.isSubHeader ? classes.subHeader : ""}`}
-        >
-          {child}
-          {props.actions && (
+      <>
+        {props.isInactive && (
+          <Grid
+            container
+            justify="space-between"
+            alignItems="center"
+            className={classes.activateHeader}
+          >
             <Grid item>
-              <ActionMenu options={props.actions} />
+              {props.inactiveDisplayText || t("This is currently inactive.")}
             </Grid>
-          )}
-        </Grid>
-      </div>
+            {props.onActivate && (
+              <Grid item>
+                <TextButton
+                  className={classes.activateAction}
+                  onClick={async () => {
+                    await props.onActivate!();
+                  }}
+                >
+                  {t("Activate")}
+                </TextButton>
+              </Grid>
+            )}
+          </Grid>
+        )}
+        <div className={classes.header}>
+          <Grid
+            container
+            alignItems="center"
+            justify="space-between"
+            spacing={2}
+            className={`${props.isSubHeader ? classes.subHeader : ""}`}
+          >
+            {child}
+            {props.actions && (
+              <Grid item>
+                <ActionMenu options={props.actions} />
+              </Grid>
+            )}
+          </Grid>
+        </div>
+      </>
     );
   };
 
@@ -61,8 +91,14 @@ export const PageHeader: React.FC<Props> = props => {
 
   if (!editing) {
     return wrapper(
-      <Grid item>
-        <Grid item container alignItems="center" spacing={2}>
+      <Grid item xs={10}>
+        <Grid
+          item
+          container
+          alignItems="center"
+          justify="flex-start"
+          spacing={isMobile ? 1 : 2}
+        >
           <Grid item>
             {!props.isSubHeader ? (
               <Typography variant="h1">
@@ -76,8 +112,8 @@ export const PageHeader: React.FC<Props> = props => {
               </Typography>
             )}
           </Grid>
-          <Grid item>
-            {headerIsEditable && (
+          {headerIsEditable && (
+            <Grid item>
               <Edit
                 className={
                   props.isSubHeader ? classes.smallAction : classes.action
@@ -87,8 +123,8 @@ export const PageHeader: React.FC<Props> = props => {
                   setEditing(true);
                 }}
               />
-            )}
-          </Grid>
+            </Grid>
+          )}
         </Grid>
       </Grid>
     );
@@ -166,5 +202,18 @@ const useStyles = makeStyles(theme => ({
     fontWeight: "normal",
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
+  },
+  activateHeader: {
+    background: theme.customColors.marigold,
+    boxShadow:
+      "0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12)",
+    borderRadius: "4px",
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+    minHeight: theme.spacing(6),
+  },
+  activateAction: {
+    color: theme.customColors.eduBlack,
   },
 }));

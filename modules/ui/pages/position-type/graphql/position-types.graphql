@@ -1,6 +1,6 @@
-query GetAllPositionTypesWithinOrg($orgId: ID) {
+query GetAllPositionTypesWithinOrg($orgId: ID, $includeExpired: Boolean) {
   positionType {
-    all(orgId: $orgId) {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
       id
       name
       rowVersion
@@ -9,6 +9,8 @@ query GetAllPositionTypesWithinOrg($orgId: ID) {
       forStaffAugmentation
       minAbsenceDurationMinutes
       needsReplacement
+      expired
+      defaultContractId
       defaultContract {
         id
         name

@@ -20,6 +20,7 @@ import { NeedsReplacement, Contract, Maybe } from "graphql/server-types.gen";
 import { ActionButtons } from "./action-buttons";
 import { Select, SelectValueType } from "ui/components/form/select";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
+import { OptionTypeBase } from "react-select/src/types";
 
 type Props = {
   orgId: string;
@@ -197,7 +198,10 @@ export const Settings: React.FC<Props> = props => {
                 "Will you need to request a substitute without an employee being absent?"
               )}
             </FormHelperText>
-            <div className={classes.contractSection}>
+            <div className={[
+              classes.contractSection,
+              isMobile ? classes.mobileSectionSpacing : classes.normalSectionSpacing,
+            ].join(" ")}>
               <div>{t("Default contract")}</div>
               <Select
                 value={contractOptions.find(
@@ -206,8 +210,17 @@ export const Settings: React.FC<Props> = props => {
                 label=""
                 options={contractOptions}
                 onChange={(e: SelectValueType) => {
-                  //TODO: Get this working
-                  //setFieldValue("defaultContractId", e.value);
+                  //TODO: Once the select component is updated,
+                  // can remove the Array checking                  
+                  let selectedValue = null;
+                  if (e) {
+                    if (Array.isArray(e)) {
+                      selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                    } else {
+                      selectedValue = (e as OptionTypeBase).value;
+                    }
+                  }                  
+                  setFieldValue("defaultContractId", selectedValue);
                 }}
               />
               <FormHelperText>
@@ -216,7 +229,10 @@ export const Settings: React.FC<Props> = props => {
                 )}
               </FormHelperText>
             </div>
-            <div className={classes.minAbsenceSection}>
+            <div className={[
+              classes.minAbsenceSection,
+              isMobile ? classes.mobileSectionSpacing : classes.normalSectionSpacing,
+            ].join(" ")}>
               <Typography variant="h6">
                 {t("How should the system behave for this position?")}
               </Typography>
@@ -256,15 +272,19 @@ const useStyles = makeStyles(theme => ({
   needSubLabel: {
     marginTop: theme.spacing(2),
   },
-  contractSection: {
+  mobileSectionSpacing: {
+    marginTop: theme.spacing(2)
+  },
+  normalSectionSpacing: {
     marginTop: theme.spacing(6),
+  },
+  contractSection: {
     maxWidth: "500px",
     "& p": {
       marginLeft: 0,
     },
   },
   minAbsenceSection: {
-    marginTop: theme.spacing(6),
     maxWidth: "500px",
     "& p": {
       marginLeft: 0,

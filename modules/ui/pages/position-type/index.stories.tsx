@@ -4,10 +4,10 @@ import { PositionTypeRoute, PositionTypeLoader } from "ui/routes/position-type";
 import { Route } from "react-router-dom";
 
 export default {
-  title: "Pages/Position Types",
+  title: "Pages/Position Type/List",
 };
 
-export const Basic = () => {
+export const BasicListView = () => {
   const Provider = mockProvider({
     initialUrl: PositionTypeRoute.generate({
       organizationId: "1000",
@@ -48,8 +48,8 @@ export const Basic = () => {
     </Provider>
   );
 };
-Basic.story = {
-  name: "List View",
+BasicListView.story = {
+  name: "Basic List View",
 };
 
 export const NoResults = () => {
