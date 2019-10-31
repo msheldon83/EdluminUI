@@ -38,15 +38,15 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const [editing, setEditing] = useState<string | null>(null);
   const [enabled, setEnabled] = useState<boolean | null>(null);
 
-  const [deletePositionMutation] = useMutationBundle(DeletePostionType);
-  const deletePosition = React.useCallback(() => {
+  const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType);
+  const deletePositionType = React.useCallback(() => {
     history.push(PositionTypeRoute.generate(params));
-    return deletePositionMutation({
+    return deletePositionTypeMutation({
       variables: {
         positionTypeId: Number(params.positionTypeId),
       },
     });
-  }, [deletePositionMutation, history, params]);
+  }, [deletePositionTypeMutation, history, params]);
 
   const [updatePositionType] = useMutationBundle(UpdatePositionType);
   const enableDisablePositionType = React.useCallback((enabled: boolean, rowVersion: string) => {
@@ -134,7 +134,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           },
           {
             name: t("Delete"),
-            onClick: deletePosition,
+            onClick: deletePositionType,
           },
         ]}
         isInactive={!enabled}
