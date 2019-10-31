@@ -153,7 +153,8 @@ export function usePagedQueryBundle<Result, Vars extends QueryPaginationVars>(
     countFromQueryResult = totalCount(result.data);
   }
   useEffect(() => {
-    if (countFromQueryResult) setLastCount(countFromQueryResult);
+    if (typeof countFromQueryResult === "number")
+      setLastCount(countFromQueryResult);
   }, [countFromQueryResult]);
   const count = countFromQueryResult || lastCount;
   const currentPage = params.page;
