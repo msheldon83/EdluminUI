@@ -10,15 +10,11 @@ import {
   TextField,
 } from "@material-ui/core";
 import { OrgUserRole } from "graphql/server-types.gen";
-import { useQueryParamIso, useQueryParams } from "hooks/query-params";
+import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
-import {
-  FilterQueryParams,
-  FilterQueryParamDefaults,
-  FilterRole,
-} from "./filter-params";
+import { FilterQueryParams, FilterRole } from "./filter-params";
 import { FiltersByRole } from "./filters-by-role";
 
 type Props = { className?: string };
@@ -27,30 +23,34 @@ export const PeopleFilters: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const [filters, updateFilters] = useQueryParams(FilterQueryParamDefaults);
   const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
 
   const updateRoleFilter = React.useCallback(
-    (event: React.ChangeEvent<{}>, newRoleFilter: string) => {
-      updateFilters({ roleFilter: newRoleFilter });
+    (event: React.ChangeEvent<{}>, newRoleFilter: FilterRole | "") => {
+      const roleFilter = newRoleFilter === "" ? null : newRoleFilter;
+      updateIsoFilters({ roleFilter });
     },
-    [updateFilters]
+    [updateIsoFilters]
   );
 
   const updateActiveFilter = React.useCallback(
-    e => {
-      console.log("event ==>", e.target.value);
-      return updateIsoFilters({
-        active: e.target.value,
-      });
+    (a: boolean) => () => {
+      let active: boolean | undefined = a;
+      if (isoFilters.active === undefined) {
+        active = !a;
+      } else if (isoFilters.active === a || isoFilters.active !== undefined) {
+        active = undefined;
+      }
+
+      return updateIsoFilters({ active });
     },
-    [updateIsoFilters]
+    [updateIsoFilters, isoFilters]
   );
 
   return (
     <Paper square className={props.className}>
       <Tabs
-        value={filters.roleFilter}
+        value={isoFilters.roleFilter === null ? "" : isoFilters.roleFilter}
         indicatorColor="primary"
         textColor="primary"
         onChange={updateRoleFilter}
@@ -96,10 +96,10 @@ export const PeopleFilters: React.FC<Props> = props => {
                 control={
                   <Checkbox
                     checked={
-                      filters.active === "active" || filters.active === "all"
+                      isoFilters.active === true ||
+                      isoFilters.active === undefined
                     }
-                    onChange={updateActiveFilter}
-                    value={"active"}
+                    onChange={updateActiveFilter(true)}
                   />
                 }
                 label={t("Active")}
@@ -108,10 +108,10 @@ export const PeopleFilters: React.FC<Props> = props => {
                 control={
                   <Checkbox
                     checked={
-                      filters.active === "inactive" || filters.active === "all"
+                      isoFilters.active === false ||
+                      isoFilters.active === undefined
                     }
-                    onChange={updateActiveFilter}
-                    value="inactive"
+                    onChange={updateActiveFilter(false)}
                   />
                 }
                 label={t("Inactive")}

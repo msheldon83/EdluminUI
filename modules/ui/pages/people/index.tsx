@@ -26,13 +26,16 @@ export const PeoplePage: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
 
-    const [filters] = useQueryParamIso(FilterQueryParams);
-    const role: OrgUserRole[] = compact([filters.roleFilter]);
-    console.log("active?", filters.active);
-  const [allPeopleQuery, pagination] = usePagedQueryBundle(GetAllPeopleForOrg, 
+  const [filters] = useQueryParamIso(FilterQueryParams);
+  const role: OrgUserRole[] = compact([filters.roleFilter]);
+
+  const [allPeopleQuery, pagination] = usePagedQueryBundle(
+    GetAllPeopleForOrg,
     r => r.orgUser?.paged?.totalCount,
     {
-    variables: { orgId: params.organizationId, role },});
+      variables: { orgId: params.organizationId, role, active: filters.active },
+    }
+  );
 
   if (
     allPeopleQuery.state === "LOADING" ||
@@ -44,7 +47,6 @@ export const PeoplePage: React.FC<Props> = props => {
   const people = compact(allPeopleQuery.data.orgUser?.paged?.results);
   const peopleCount = pagination.totalCount;
 
-  // console.log("results", people);
   const columns: Column<GetAllPeopleForOrg.Results>[] = [
     {
       cellStyle: {
@@ -67,7 +69,7 @@ export const PeoplePage: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={t("People")} />
-      
+
       <PeopleFilters className={classes.filters} />
       <Table
         title={`${peopleCount} ${
@@ -82,20 +84,6 @@ export const PeoplePage: React.FC<Props> = props => {
   );
 };
 
-type PaginationInputs = {
-  perPage?: number;
-};
-
-type PaginationState = {
-  perPage: number;
-  offset: number;
-  total: number;
-  sortingBy: any[];
-};
-
-const usePagination = () => {
-  const [offset, setOffset] = React.useState(0);
-};
 const useStyles = makeStyles(theme => ({
   filters: {
     marginTop: theme.spacing(2),

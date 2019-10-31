@@ -22,23 +22,6 @@ type PeopleFilters = {
   roleFilter: string;
 };
 
-// } & (
-// | { roleFilter: "" }
-// | {
-//     roleFilter: OrgUserRole.Employee;
-//     // location: { id: number; name: string }[];
-//     // positionType: string;
-//   }
-// | {
-//     roleFilter: OrgUserRole.ReplacementEmployee;
-//     // endorsements: { id: number; name: string }[]
-//   }
-// | {
-//     roleFilter: OrgUserRole.Administrator;
-//     // managesLocation: { id: number; name: string }[];
-//     // managesPositionType: string;
-//   });
-
 type PeopleFilterQueryParams = Omit<PeopleFilters, "active" | "roleFilter"> & {
   active: boolean | undefined;
   roleFilter: OrgUserRole | null;
@@ -64,7 +47,6 @@ export const FilterQueryParams = {
   iso: FilterParams,
 };
 
-// type ActiveStatus = "true" | "false" | "";
 export const stringToBool = (s: string): boolean | undefined => {
   switch (s) {
     case "true":
@@ -77,7 +59,6 @@ export const stringToBool = (s: string): boolean | undefined => {
   }
 };
 const boolToString = (b: boolean | undefined): "true" | "false" | "" => {
-  console.log("boolToString", b);
   switch (b) {
     case true:
       return "true";
