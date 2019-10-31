@@ -18,7 +18,7 @@ export const EdluminLogo: React.FC<Props> = props => {
       <EmojiObjectsOutlinedIcon fontSize="large" className={classes.logo} />
       <Typography
         display="inline"
-        variant={"h2"}
+        variant={"h5"}
         className={`${classes.productTitle} ${props.titleClassName}`}
       >
         {t("Edlumin")}
