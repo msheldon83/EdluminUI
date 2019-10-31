@@ -56,22 +56,6 @@ export function App(props: {}) {
                     {/* Protected routes go here */}
 
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
-                    <Route
-                      component={PositionTypeAddLoader}
-                      path={PositionTypeAddRoute.path}
-                    />
-                    <Route
-                      component={PositionTypeEditSettingsLoader}
-                      path={PositionTypeEditSettingsRoute.path}
-                    />
-                    <Route
-                      component={PositionTypeViewLoader}
-                      path={PositionTypeViewRoute.path}
-                    />
-                    <Route
-                      component={PositionTypeLoader}
-                      path={PositionTypeRoute.path}
-                    />
                   </Switch>
 
                   <Route path={AdminChromeRoute.path}>
@@ -87,6 +71,22 @@ export function App(props: {}) {
                         path={OrganizationsNoOrgRoute.path}
                       />
                       <Route component={PeopleLoader} path={PeopleRoute.path} />
+                      <Route
+                        component={PositionTypeAddLoader}
+                        path={PositionTypeAddRoute.path}
+                      />
+                      <Route
+                        component={PositionTypeEditSettingsLoader}
+                        path={PositionTypeEditSettingsRoute.path}
+                      />
+                      <Route
+                        component={PositionTypeViewLoader}
+                        path={PositionTypeViewRoute.path}
+                      />
+                      <Route
+                        component={PositionTypeLoader}
+                        path={PositionTypeRoute.path}
+                      />
                     </Switch>
                   </Route>
                 </AppChrome>

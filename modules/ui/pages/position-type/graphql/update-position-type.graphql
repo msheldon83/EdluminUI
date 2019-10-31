@@ -1,4 +1,4 @@
-mutation UpdatePositionTypeExternalId($positionType: PositionTypeUpdateInput!) {
+mutation UpdatePositionType($positionType: PositionTypeUpdateInput!) {
   positionType {
     update(positionType: $positionType) {
       id
@@ -9,6 +9,8 @@ mutation UpdatePositionTypeExternalId($positionType: PositionTypeUpdateInput!) {
       forStaffAugmentation
       minAbsenceDurationMinutes
       needsReplacement
+      expired
+      defaultContractId
       defaultContract {
         id
         name

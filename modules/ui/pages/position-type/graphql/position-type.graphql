@@ -9,6 +9,7 @@ query GetPositionTypeById($id: ID!) {
       forStaffAugmentation
       minAbsenceDurationMinutes
       needsReplacement
+      expired
       defaultContractId
       defaultContract {
         id
