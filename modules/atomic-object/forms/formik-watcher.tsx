@@ -1,11 +1,11 @@
 import * as React from "react";
-import { FormikContext, useFormikContext } from "formik";
+import { useFormikContext, FormikContextType } from "formik";
 import { usePrevious } from "hooks";
 
 export type FormikWatcher<ValuesT> = (
   prev: ValuesT,
   next: ValuesT,
-  formik: FormikContext<ValuesT>
+  formik: FormikContextType<ValuesT>
 ) => unknown;
 export function useFormikValuesWatcher<ValuesT>(
   onChange: FormikWatcher<ValuesT>
