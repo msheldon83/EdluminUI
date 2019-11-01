@@ -15,7 +15,7 @@ export type FilterRole =
   | OrgUserRole.ReplacementEmployee
   | OrgUserRole.Administrator;
 
-type PeopleFilters = {
+export type PeopleFilters = {
   name: string;
   firstNameSort: string;
   lastNameSort: string;
@@ -24,7 +24,7 @@ type PeopleFilters = {
   endorsements: string;
 };
 
-type RoleSpecificFilters =
+export type RoleSpecificFilters =
   | { roleFilter: null }
   | { roleFilter: OrgUserRole.ReplacementEmployee; endorsements: string[] }
   | { roleFilter: OrgUserRole.Employee }
@@ -51,7 +51,10 @@ type AdminFilters = {
   managesLocation: string;
 };
 
-const FilterParams: Isomorphism<PeopleFilters, PeopleFilterQueryParams> = {
+export const FilterParams: Isomorphism<
+  PeopleFilters,
+  PeopleFilterQueryParams
+> = {
   to: k => ({
     name: k.name,
     firstNameSort: k.firstNameSort,

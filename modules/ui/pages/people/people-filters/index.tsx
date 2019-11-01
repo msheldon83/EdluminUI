@@ -14,7 +14,11 @@ import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
-import { FilterQueryParams, FilterRole } from "./filter-params";
+import {
+  FilterQueryParams,
+  FilterRole,
+  RoleSpecificFilters,
+} from "./filter-params";
 import { FiltersByRole } from "./filters-by-role";
 import { useDeferredState } from "hooks";
 import { useEffect } from "react";
@@ -51,7 +55,8 @@ export const PeopleFilters: React.FC<Props> = props => {
   const updateRoleFilter = React.useCallback(
     (event: React.ChangeEvent<{}>, newRoleFilter: FilterRole | "") => {
       const roleFilter = newRoleFilter === "" ? null : newRoleFilter;
-      updateIsoFilters({ roleFilter });
+      const up: RoleSpecificFilters = { roleFilter };
+      updateIsoFilters(up);
     },
     [updateIsoFilters]
   );
