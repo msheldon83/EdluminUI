@@ -91,6 +91,7 @@ export function App(props: {}) {
                       <Route
                         component={BellScheduleLoader}
                         path={BellScheduleRoute.path}
+                      />
                     </Switch>
                   </Route>
                 </AppChrome>
