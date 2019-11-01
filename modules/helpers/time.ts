@@ -23,6 +23,12 @@ export const humanizeTimeStamp = (time: number): string => {
   return formattedTime;
 };
 
+const ISO_REGEX = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(.[0-9]+)?(Z)?$/g
+export const isIso = (time: any) => ISO_REGEX.test(time)
+
+export const timeStampToIso = (time: number): string => new Date(time).toISOString()
+export const isoToTimestamp = (iso: string): number => Date.parse(iso)
+
 export const midnightTime = (): number => {
   const startTime = new Date();
   startTime.setHours(0, 0, 0, 0);
