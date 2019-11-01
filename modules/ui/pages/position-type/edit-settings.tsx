@@ -72,7 +72,8 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
           defaultContractId?:  number | null
         ) => {
           const positionTypeSettings: PositionTypeUpdateInput = {
-            positionTypeId: Number(positionType.id),
+            id: Number(positionType.id),
+            rowVersion: positionType.rowVersion,
             forPermanentPositions: forPermanentPositions,
             needsReplacement: needsReplacement,
             forStaffAugmentation: forStaffAugmentation,
