@@ -40,9 +40,13 @@ type Props = {
   label: string;
   disabled?: boolean;
   withDropdownIndicator?: boolean;
+  filterOption?: ((option: OptionType, rawInput: string) => boolean) | null;
+  isClearable?: boolean;
+  onBlur?: (event: React.FocusEvent) => void;
+  onFocus?: (event: React.FocusEvent) => void;
 };
 
-interface OptionType {
+export interface OptionType {
   label: string | number;
   value?: string | number;
 }
@@ -68,6 +72,7 @@ export const Select: React.FC<Props> = props => {
 
 Select.defaultProps = {
   withDropdownIndicator: true,
+  isClearable: true,
 };
 
 export const NativeSelect: React.FC<Props> = props => {
@@ -183,11 +188,18 @@ export const StyledSelect: React.FC<Props> = props => {
       value={props.value}
       onChange={props.onChange}
       isMulti={props.multi}
-      hideSelectedOptions
-      onFocus={() => setHasFocus(true)}
-      onBlur={() => setHasFocus(false)}
-      isClearable
+      hideSelectedOptions={props.multi}
+      onFocus={e => {
+        setHasFocus(true);
+        props.onFocus && props.onFocus(e);
+      }}
+      onBlur={e => {
+        setHasFocus(false);
+        props.onBlur && props.onBlur(e);
+      }}
+      isClearable={props.isClearable}
       isDisabled={props.disabled}
+      filterOption={props.filterOption}
     />
   );
 };
