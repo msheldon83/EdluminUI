@@ -7,6 +7,7 @@ export const FilterQueryParamDefaults: PeopleFilters = {
   lastNameSort: "",
   roleFilter: "",
   active: "",
+  endorsements: "",
 };
 
 export type FilterRole =
@@ -15,16 +16,39 @@ export type FilterRole =
   | OrgUserRole.Administrator;
 
 type PeopleFilters = {
-  name: string | "";
+  name: string;
   firstNameSort: string;
   lastNameSort: string;
   active: string;
   roleFilter: string;
+  endorsements: string;
 };
 
-type PeopleFilterQueryParams = Omit<PeopleFilters, "active" | "roleFilter"> & {
+type RoleSpecificFilters =
+  | { roleFilter: null }
+  | { roleFilter: OrgUserRole.ReplacementEmployee; endorsements: string[] }
+  | { roleFilter: OrgUserRole.Employee }
+  | { roleFilter: OrgUserRole.Administrator };
+
+type PeopleFilterQueryParams = Omit<
+  PeopleFilters,
+  "active" | "roleFilter" | "endorsements"
+> & {
   active: boolean | undefined;
-  roleFilter: OrgUserRole | null;
+} & RoleSpecificFilters;
+
+type ReplacementEmployeeQueryFilters = {
+  endorsements: string[];
+};
+
+type EmployeeFilters = {
+  positionTypes: string;
+  location: string;
+};
+
+type AdminFilters = {
+  managesPositionTypes: string;
+  managesLocation: string;
 };
 
 const FilterParams: Isomorphism<PeopleFilters, PeopleFilterQueryParams> = {
@@ -32,14 +56,15 @@ const FilterParams: Isomorphism<PeopleFilters, PeopleFilterQueryParams> = {
     name: k.name,
     firstNameSort: k.firstNameSort,
     lastNameSort: k.lastNameSort,
-    roleFilter: strToOrgUserRoleOrNull(k.roleFilter),
     active: stringToBool(k.active),
+    ...to(k),
   }),
   from: s => ({
+    ...FilterQueryParamDefaults,
+    ...from(s),
     name: s.name,
     firstNameSort: s.firstNameSort,
     lastNameSort: s.lastNameSort,
-    roleFilter: orgUserRoleOrNullToStr(s.roleFilter),
     active: boolToString(s.active),
   }),
 };
@@ -68,6 +93,42 @@ const boolToString = (b: boolean | undefined): "true" | "false" | "" => {
       return "false";
     case undefined:
       return "";
+  }
+};
+
+const to = (o: PeopleFilters): RoleSpecificFilters => {
+  console.log("to?", o);
+  switch (o.roleFilter) {
+    case OrgUserRole.Administrator:
+      return { roleFilter: OrgUserRole.Administrator };
+    case OrgUserRole.Employee:
+      return { roleFilter: OrgUserRole.Employee };
+    case OrgUserRole.ReplacementEmployee:
+      return {
+        roleFilter: OrgUserRole.ReplacementEmployee,
+        endorsements: o.endorsements.split(","),
+      };
+    case "":
+    default:
+      return { roleFilter: null };
+  }
+};
+
+const from = (o: RoleSpecificFilters) => {
+  console.log("from?", o);
+  switch (o.roleFilter) {
+    case OrgUserRole.Administrator:
+      return { roleFilter: OrgUserRole.Administrator };
+    case OrgUserRole.Employee:
+      return { roleFilter: OrgUserRole.Employee };
+    case OrgUserRole.ReplacementEmployee:
+      return {
+        roleFilter: OrgUserRole.ReplacementEmployee,
+        endorsements: o.endorsements.join(","),
+      };
+    case null:
+    default:
+      return { roleFilter: "" };
   }
 };
 

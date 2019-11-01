@@ -13,7 +13,7 @@ const options = [
   { value: "five", label: "Five" },
 ];
 
-export const Select = () => {
+export const SelectStory = () => {
   const classes = useStyles();
   const [value, setValue] = React.useState<SelectValueType>();
 

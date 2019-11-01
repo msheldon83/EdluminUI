@@ -10,6 +10,11 @@ import {
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { FilterQueryParams } from "./filter-params";
+import { useEndorsements } from "reference-data/endorsements";
+import { useRouteParams } from "ui/routes/definition";
+import { PeopleRoute } from "ui/routes/people";
+import { Select, OptionType } from "ui/components/form/select";
+import { useMemo, useState, useCallback } from "react";
 
 type Props = {};
 export const FiltersByRole: React.FC<Props> = props => {
@@ -33,7 +38,7 @@ export const EmployeeFilters: React.FC<Props> = props => {
   const classes = useStyles();
   return (
     <>
-      <Grid item container md={3}>
+      <Grid item md={3}>
         {/* position type */}
         <InputLabel className={classes.label}>{t("Position type")}</InputLabel>
         <TextField
@@ -47,7 +52,7 @@ export const EmployeeFilters: React.FC<Props> = props => {
           <MenuItem value={""}>{}</MenuItem>
         </TextField>
       </Grid>
-      <Grid item container md={3}>
+      <Grid item md={3}>
         {/* locations */}
         <InputLabel className={classes.label}>{t("Locations")}</InputLabel>
         <TextField
@@ -68,22 +73,56 @@ export const EmployeeFilters: React.FC<Props> = props => {
 export const ReplacementEmployeeFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const params = useRouteParams(PeopleRoute);
+  const endorsements = useEndorsements(params.organizationId);
+  const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
+
+  const endorsementFilters =
+    filters.roleFilter === OrgUserRole.ReplacementEmployee
+      ? filters.endorsements
+      : [];
+
+  const endorsementOptions: OptionType[] = useMemo(
+    () => endorsements.map(e => ({ label: e.name, value: e.id })),
+    [endorsements]
+  );
+  console.log(endorsementOptions);
+  const onChange = useCallback(
+    e => {
+      console.log("selected value", e);
+      console.log("filters", endorsementFilters);
+      if (e && e.value) {
+        if (endorsementFilters.includes(e.value)) {
+          updateFilters({ endorsements: endorsementFilters });
+        }
+        endorsementFilters.push(e.value);
+        updateFilters({ endorsements: endorsementFilters });
+      }
+      // const val = e;
+      // if (e) {
+      //   if (vals.map(val => val.value).includes(val)) {
+      //     updateVals(vals);
+      //   }
+      //   vals.push(val);
+      //   updateVals(vals);
+      // }
+    },
+    [updateFilters, endorsementFilters]
+  );
+
   return (
-    <>
-      <Grid item container md={3}>
-        <InputLabel className={classes.label}>{t("Endorsements")}</InputLabel>
-        <TextField
-          className={classes.textField}
-          variant="outlined"
-          name={"endorsements"}
-          select
-          fullWidth
-          value=""
-        >
-          <MenuItem value={""}>{}</MenuItem>
-        </TextField>
-      </Grid>
-    </>
+    <Grid item md={3}>
+      <InputLabel className={classes.selectLabel}>
+        {t("Endorsements")}
+      </InputLabel>
+      <Select
+        onChange={onChange}
+        options={endorsementOptions}
+        value={endorsementFilters.map(e => ({ value: e, label: e } as any))}
+        // value={null}
+        multi
+      />
+    </Grid>
   );
 };
 
@@ -92,7 +131,7 @@ export const AdministratorFilters: React.FC<Props> = props => {
   const classes = useStyles();
   return (
     <>
-      <Grid item container md={3}>
+      <Grid item md={3}>
         <InputLabel className={classes.label}>
           {t("Manages position type")}
         </InputLabel>
@@ -107,7 +146,7 @@ export const AdministratorFilters: React.FC<Props> = props => {
           <MenuItem value={""}>{}</MenuItem>
         </TextField>
       </Grid>
-      <Grid item container md={3}>
+      <Grid item md={3}>
         {/* locations */}
         <InputLabel className={classes.label}>
           {t("Manages locations")}
@@ -131,6 +170,10 @@ const useStyles = makeStyles(theme => ({
   label: {
     // color: theme.customColors.black,
     fontWeight: 500,
+  },
+  selectLabel: {
+    fontWeight: 500,
+    marginBottom: theme.typography.pxToRem(16),
   },
   textField: {
     marginTop: theme.spacing(2),
