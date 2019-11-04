@@ -31,8 +31,11 @@ export const PaginationControls: React.FC<Props> = props => {
   const { t } = useTranslation();
   const options = sortBy(uniq([10, 25, 50, 100, resultsPerPage]));
 
-  const startIndex = (currentPage - 1) * resultsPerPage + 1;
-  const endIndex = startIndex + resultsPerPage - 1;
+  const startIndex = Math.min(
+    totalCount,
+    (currentPage - 1) * resultsPerPage + 1
+  );
+  const endIndex = Math.min(totalCount, startIndex + resultsPerPage - 1);
 
   return (
     <div className={classes.container}>

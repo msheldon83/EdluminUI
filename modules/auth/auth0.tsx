@@ -67,10 +67,9 @@ type Props = {
   history: History<any>;
 };
 export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
-  const [state, dispatch] = useReducer<Reducer<Auth0State, Auth0Action>>(
-    authReducer,
-    { loading: true }
-  );
+  const [state, dispatch] = useReducer<
+    Reducer<Auth0State, Auth0Action>
+  >(authReducer, { loading: true });
 
   useEffect(() => {
     const initAuth0 = async () => {
@@ -117,43 +116,52 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
   const isAuthenticated = !state.loading && state.isAuthenticated;
   const identity = !state.loading && state.user && state.user.email;
 
-  const getToken = useCallback(async () => {
-    if (state.loading) throw Error("still loading");
-    return await state.client.getTokenSilently({
-      scope: Config.Auth0.scope,
-      audience: Config.Auth0.apiAudience,
-    });
-  }, /* eslint-disable-line react-hooks/exhaustive-deps */ [
-    isAuthenticated,
-    identity,
-  ]);
-
-  const login = useCallback(() => {
-    if (!state.loading) {
-      const { pathname, search, hash } = history.location;
-      sessionStorage.setItem(
-        AFTER_AUTH_REDIRECT_URL,
-        `${pathname}${search}${hash}`
-      );
-      return state.client.loginWithRedirect({
-        audience: Config.Auth0.apiAudience,
-        redirect_uri: Config.Auth0.redirectUrl,
+  const getToken = useCallback(
+    async () => {
+      if (state.loading) throw Error("still loading");
+      return await state.client.getTokenSilently({
         scope: Config.Auth0.scope,
+        audience: Config.Auth0.apiAudience,
       });
-    }
-  }, /* eslint-disable-line react-hooks/exhaustive-deps */ [
-    isAuthenticated,
-    identity,
-  ]);
+    },
+    /* eslint-disable-line react-hooks/exhaustive-deps */ [
+      isAuthenticated,
+      identity,
+    ]
+  );
 
-  const logout = useCallback(() => {
-    if (!state.loading) {
-      return state.client.logout();
-    }
-  }, /* eslint-disable-line react-hooks/exhaustive-deps */ [
-    isAuthenticated,
-    identity,
-  ]);
+  const login = useCallback(
+    () => {
+      if (!state.loading) {
+        const { pathname, search, hash } = history.location;
+        sessionStorage.setItem(
+          AFTER_AUTH_REDIRECT_URL,
+          `${pathname}${search}${hash}`
+        );
+        return state.client.loginWithRedirect({
+          audience: Config.Auth0.apiAudience,
+          redirect_uri: Config.Auth0.redirectUrl,
+          scope: Config.Auth0.scope,
+        });
+      }
+    },
+    /* eslint-disable-line react-hooks/exhaustive-deps */ [
+      isAuthenticated,
+      identity,
+    ]
+  );
+
+  const logout = useCallback(
+    () => {
+      if (!state.loading) {
+        return state.client.logout();
+      }
+    },
+    /* eslint-disable-line react-hooks/exhaustive-deps */ [
+      isAuthenticated,
+      identity,
+    ]
+  );
 
   const context: Auth0Context = React.useMemo(
     () => ({

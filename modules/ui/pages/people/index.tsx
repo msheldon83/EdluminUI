@@ -1,9 +1,10 @@
-import { Button } from "@material-ui/core";
 import { AccountCircleOutlined } from "@material-ui/icons";
-import { useTheme } from "@material-ui/styles";
+import { makeStyles, useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle } from "graphql/hooks";
-import { useScreenSize } from "hooks";
-import { compact } from "lodash-es";
+import { OrgUserRole } from "graphql/server-types.gen";
+import { useScreenSize, usePrevious } from "hooks";
+import { useQueryParamIso } from "hooks/query-params";
+import { compact, isEqual } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,9 @@ import { Table } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
+import { PeopleFilters } from "./people-filters";
+import { FilterQueryParams } from "./people-filters/filter-params";
+import { useEffect } from "react";
 
 type Props = {};
 
@@ -20,27 +24,52 @@ export const PeoplePage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(PeopleRoute);
   const theme = useTheme();
-  const isMobile = useScreenSize() === "mobile"
-  const [allPeopleQuery, pagination] = usePagedQueryBundle(GetAllPeopleForOrg,
+  const classes = useStyles();
+  const isMobile = useScreenSize() === "mobile";
+
+  const [filters] = useQueryParamIso(FilterQueryParams);
+  const role: OrgUserRole[] = compact([filters.roleFilter]);
+
+  const [allPeopleQuery, pagination] = usePagedQueryBundle(
+    GetAllPeopleForOrg,
     r => r.orgUser?.paged?.totalCount,
     {
-    variables: { orgId: params.organizationId },
-  });
+      variables: {
+        orgId: params.organizationId,
+        role,
+        active: filters.active,
+        name: filters.name,
+      },
+    }
+  );
+  const oldFilters = usePrevious(filters);
+  useEffect(
+    () => {
+      /* When filters are changed, go to page 1 */
+      if (!isEqual(oldFilters, filters)) pagination.goToPage(1);
+    },
+    /* eslint-disable-next-line */
+    [filters, oldFilters]
+  );
+
   if (
     allPeopleQuery.state === "LOADING" ||
     !allPeopleQuery.data.orgUser?.paged?.results
   ) {
     return <></>;
   }
-  
+
   const people = compact(allPeopleQuery.data.orgUser?.paged?.results);
   const peopleCount = pagination.totalCount;
 
   const columns: Column<GetAllPeopleForOrg.Results>[] = [
     {
-      cellStyle: { width: isMobile ? theme.typography.pxToRem(40)
-        : theme.typography.pxToRem(70) },
-      render: () => <AccountCircleOutlined  />, // eslint-disable-line
+      cellStyle: {
+        width: isMobile
+          ? theme.typography.pxToRem(40)
+          : theme.typography.pxToRem(70),
+      },
+      render: () => <AccountCircleOutlined />, // eslint-disable-line
     },
     {
       title: t("First Name"),
@@ -48,24 +77,31 @@ export const PeoplePage: React.FC<Props> = props => {
     },
     {
       title: t("Last Name"),
-      defaultSort: "asc",
-      field: "lastName"
+      field: "lastName",
     },
   ];
 
   return (
     <>
       <PageTitle title={t("People")} />
-      
+
+      <PeopleFilters className={classes.filters} />
       <Table
-        title={`${peopleCount} ${peopleCount > 1 ? t("People") : t("Person")}`}
+        title={`${peopleCount} ${
+          peopleCount === 1 ? t("Person") : t("People")
+        }`}
         columns={columns}
         data={people}
         selection={true}
-        options={{ sorting: true }}
-        
       />
       <PaginationControls pagination={pagination} />
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  filters: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+}));

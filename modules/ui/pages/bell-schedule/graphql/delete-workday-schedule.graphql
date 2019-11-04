@@ -1,0 +1,5 @@
+mutation DeleteWorkDaySchedule($workDayScheduleId: Int!) {
+  workDaySchedule {
+    delete(workDayScheduleId: $workDayScheduleId)
+  }
+}

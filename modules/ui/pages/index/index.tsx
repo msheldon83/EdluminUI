@@ -14,9 +14,10 @@ export const IndexPage: React.FunctionComponent = props => {
 
   return (
     <>
-      {userAccess?.isSystemAdministrator &&
-        <Redirect to="/admin/organizations" />}
-        //TODO handle other roles
+      {userAccess?.isSystemAdministrator && (
+        <Redirect to="/admin/organizations" />
+      )}
+      //TODO handle other roles
     </>
   );
 };

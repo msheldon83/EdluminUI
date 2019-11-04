@@ -26,7 +26,7 @@ export const PositionTypePage: React.FC<{}> = props => {
   const params = useRouteParams(PositionTypeRoute);
   const isMobile = useScreenSize() === "mobile";
   const [includeExpired, setIncludeExpired] = React.useState(false);
-  
+
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired },
   });
@@ -39,12 +39,12 @@ export const PositionTypePage: React.FC<{}> = props => {
     });
   };
 
-  const deleteSelected = async (data: {id: string} | {id: string}[]) => {
+  const deleteSelected = async (data: { id: string } | { id: string }[]) => {
     if (Array.isArray(data)) {
       await Promise.all(data.map(id => deletePositionType(id.id)));
     } else {
       await Promise.resolve(deletePositionType(data.id));
-    }    
+    }
     getPositionTypes.refetch();
   };
 
@@ -53,36 +53,43 @@ export const PositionTypePage: React.FC<{}> = props => {
       title: t("Name"),
       field: "name",
       defaultSort: "asc",
-      searchable: true
+      searchable: true,
     },
-    { title: t("External Id"), field: "externalId", searchable: true, hidden:isMobile },
+    {
+      title: t("External Id"),
+      field: "externalId",
+      searchable: true,
+      hidden: isMobile,
+    },
     {
       title: t("Use for Employees"),
       field: "forPermanentPositions",
       type: "boolean",
       searchable: false,
-      hidden:isMobile
+      hidden: isMobile,
     },
     {
       title: t("Use for Vacancies"),
       field: "forStaffAugmentation",
       type: "boolean",
       searchable: false,
-      hidden:isMobile
+      hidden: isMobile,
     },
     {
       title: t("Default Contract Name"),
       field: "defaultContract.name",
       searchable: false,
-      hidden:isMobile
-    }
+      hidden: isMobile,
+    },
   ];
 
   if (getPositionTypes.state === "LOADING") {
     return <></>;
   }
 
-  const positionTypes = compact(getPositionTypes?.data?.positionType?.all ?? []);
+  const positionTypes = compact(
+    getPositionTypes?.data?.positionType?.all ?? []
+  );
   const positionTypesCount = positionTypes.length;
 
   return (
@@ -121,15 +128,19 @@ export const PositionTypePage: React.FC<{}> = props => {
           history.push(PositionTypeViewRoute.generate(newParams));
         }}
         options={{
-          search: true
+          search: true,
         }}
         showIncludeExpired={true}
-        onIncludeExpiredChange={(checked) => { setIncludeExpired(checked);}}
-        expiredRowCheck={(rowData: GetAllPositionTypesWithinOrg.All) => rowData.expired}
+        onIncludeExpiredChange={checked => {
+          setIncludeExpired(checked);
+        }}
+        expiredRowCheck={(rowData: GetAllPositionTypesWithinOrg.All) =>
+          rowData.expired
+        }
         actions={[
           {
             tooltip: `${t("Delete selected position types")}`,
-            icon: () => <DeleteOutline />, /* eslint-disable-line */ // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
+            icon: () => <DeleteOutline /> /* eslint-disable-line */, // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
             onClick: (event, data) => {
               deleteSelected(data);
             },
@@ -142,6 +153,6 @@ export const PositionTypePage: React.FC<{}> = props => {
 
 const useStyles = makeStyles(theme => ({
   header: {
-    marginBottom: theme.spacing()
-  }
+    marginBottom: theme.spacing(),
+  },
 }));
