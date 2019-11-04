@@ -6,9 +6,10 @@ import * as React from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
+import { Link } from "react-router-dom";
 import { useRouteParams } from "ui/routes/definition";
 import { Column } from "material-table";
-import { BellScheduleRoute } from "ui/routes/bell-schedule";
+import { BellScheduleRoute, BellScheduleAddRoute } from "ui/routes/bell-schedule";
 import { makeStyles, Grid, Button } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useScreenSize } from "hooks";
@@ -91,6 +92,15 @@ export const BellSchedulePage: React.FC<{}> = props => {
           <Grid item>
             <PageTitle title={t("Bell Schedules")} />
           </Grid>
+          <Grid item>
+          <Button
+            variant="contained"
+            component={Link}
+            to={BellScheduleAddRoute.generate(params)}
+          >
+            {t("Add Bell Schedule")}
+          </Button>
+        </Grid>
         </Grid>
       <Table
         title={`${workDaySchedulesCount} ${workDaySchedulesCount > 1 ? t("Bell Schedules") : t("Bell Schedule")}`}

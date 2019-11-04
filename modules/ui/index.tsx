@@ -24,7 +24,12 @@ import {
   PositionTypeEditSettingsLoader,
   PositionTypeEditSettingsRoute,
 } from "./routes/position-type";
-import { BellScheduleLoader, BellScheduleRoute } from "./routes/bell-schedule";
+import {
+  BellScheduleLoader,
+  BellScheduleRoute,
+  BellScheduleAddLoader,
+  BellScheduleAddRoute,
+} from "./routes/bell-schedule";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { EdluminTheme } from "./styles/mui-theme";
 import { PeopleLoader, PeopleRoute } from "./routes/people";
@@ -87,6 +92,10 @@ export function App(props: {}) {
                       <Route
                         component={PositionTypeLoader}
                         path={PositionTypeRoute.path}
+                      />
+                      <Route
+                        component={BellScheduleAddLoader}
+                        path={BellScheduleAddRoute.path}
                       />
                       <Route
                         component={BellScheduleLoader}
