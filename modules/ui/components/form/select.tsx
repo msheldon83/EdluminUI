@@ -40,6 +40,7 @@ type Props = {
   options: Array<OptionType>;
   label: string;
   disabled?: boolean;
+  required?: boolean;
 };
 
 interface OptionType {
@@ -168,7 +169,7 @@ export const StyledSelect: React.FC<Props> = props => {
       hideSelectedOptions
       onFocus={() => setHasFocus(true)}
       onBlur={() => setHasFocus(false)}
-      isClearable
+      isClearable={!props.required}
       isDisabled={props.disabled}
     />
   );
