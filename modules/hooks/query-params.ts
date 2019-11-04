@@ -8,13 +8,10 @@ export const useQueryParams = <K extends string>(
 ): [Record<K, string>, (newParams: Partial<Record<K, string>>) => void] => {
   const history = useHistory();
   const location = useLocation();
-  const urlSearch = useMemo(() => new URLSearchParams(location.search), [
-    location,
-  ]);
-  const params = useMemo(
-    () => mapValues(defaults, (v, k) => urlSearch.get(k) ?? v),
-    [urlSearch, defaults]
-  );
+  const params = useMemo(() => {
+    const urlSearch = new URLSearchParams(location.search);
+    return mapValues(defaults, (v, k) => urlSearch.get(k) ?? v);
+  }, [location.search, defaults]);
   const update = useCallback(
     (newParams: Partial<Record<K, string | null>>) => {
       const params = new URLSearchParams(location.search);
