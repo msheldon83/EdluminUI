@@ -93,7 +93,7 @@ export const BellSchedulePage: React.FC<{}> = props => {
           </Grid>
         </Grid>
       <Table
-        title={`${workDaySchedulesCount} ${workDaySchedulesCount > 1 ? t("Bell Schedules") : t("Bell Schedule")}`}
+        title={`${workDaySchedulesCount} ${workDaySchedulesCount == 1 ? t("Bell Schedule") : t("Bell Schedules")}`}
         columns={columns}
         data={workDaySchedules}
         selection={!isMobile}
