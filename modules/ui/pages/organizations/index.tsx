@@ -122,10 +122,13 @@ export const OrganizationsPage: React.FC<Props> = props => {
     <>
       <PageTitle title={t("Organizations")} />
       <Table
-        title={!isMobile && `${organizationsCount} Records`}
+        title={`${organizationsCount} Records`}
         columns={columns}
         data={organizations}
         selection={!isMobile}
+        options={{
+          showTitle: !isMobile
+        }}
       />
       <PaginationControls pagination={pagination} />
     </>
