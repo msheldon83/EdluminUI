@@ -1,4 +1,4 @@
-import { useQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
 import * as React from "react";
@@ -9,17 +9,21 @@ import { GetOrgsForUser } from "ui/pages/organizations/GetOrgsForUser.gen";
 import { Link } from "react-router-dom";
 import { makeStyles, IconButton, Button } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
+import PlayForWork from "@material-ui/icons/PlayForWork";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
 import { compact } from "lodash-es";
+import { useScreenSize } from "hooks";
 import { Column } from "material-table";
+import { PaginationControls } from "ui/components/pagination-controls";
 
 type Props = {};
 export const OrganizationsPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const isMobile = useScreenSize() === "mobile";
 
   const columns: Column<GetOrgsForUser.Organization>[] = [
-    { title: t("OrgId"), field: "id" },
+    { title: t("Id"), field: "id" },
     { title: t("Name"), field: "name", defaultSort: "asc" },
     {
       title: "",
@@ -29,27 +33,39 @@ export const OrganizationsPage: React.FC<Props> = props => {
         const switchOrg = () => {
           return (
             <div className={classes.switchAlign}>
-              <Button
-                variant="contained"
-                className={classes.switchButton}
-                component={Link}
-                to={AdminChromeRoute.generate({
-                  organizationId: rowData.id.toString(),
-                })}
-              >
-                {t("Select")}
-              </Button>
-
-              <IconButton
-                className={classes.switchColor}
-                component={Link}
-                to={AdminChromeRoute.generate({
-                  organizationId: rowData.id.toString(),
-                })}
-                target={"_blank"}
-              >
-                <LaunchIcon />
-              </IconButton>
+              { isMobile ?
+                <IconButton
+                  component={Link}
+                  to={AdminChromeRoute.generate({
+                    organizationId: rowData.id.toString()
+                  })}
+                >
+                  <PlayForWork />
+                </IconButton>
+                :
+                <>
+                  <Button
+                    variant="contained"
+                    className={classes.switchButton}
+                    component={Link}
+                    to={AdminChromeRoute.generate({
+                      organizationId: rowData.id.toString()
+                    })}
+                  >
+                    {t("Select")}
+                  </Button>
+                  <IconButton
+                    className={classes.switchColor}
+                    component={Link}
+                    to={AdminChromeRoute.generate({
+                      organizationId: rowData.id.toString()
+                    })}
+                    target={"_blank"}
+                  >
+                    <LaunchIcon />
+                  </IconButton>
+                </>
+              }
             </div>
           );
         };
@@ -62,9 +78,11 @@ export const OrganizationsPage: React.FC<Props> = props => {
     fetchPolicy: "cache-and-network",
   });
 
-  const getOrganizations = useQueryBundle(AllOrganizations, {
-    variables: { limit: 25, offset: 0 }, //TODO Figure out paging
-    fetchPolicy: "cache-and-network",
+  const [getOrganizations, pagination] = usePagedQueryBundle(AllOrganizations, 
+    r => r.organization?.paged?.totalCount,
+    {
+      variables: {},
+      fetchPolicy: "cache-and-network",
   });
 
   const isSystemAdministrator =
@@ -97,8 +115,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
     organizations = compact(
       getOrganizations?.data?.organization?.paged?.results ?? []
     );
-    organizationsCount =
-      getOrganizations?.data?.organization?.paged?.totalCount ?? 0;
+    organizationsCount = pagination.totalCount;
   }
 
   return (
@@ -108,9 +125,12 @@ export const OrganizationsPage: React.FC<Props> = props => {
         title={`${organizationsCount} Records`}
         columns={columns}
         data={organizations}
-        selection={true}
-        paging={true}
-      ></Table>
+        selection={!isMobile}
+        options={{
+          showTitle: !isMobile
+        }}
+      />
+      <PaginationControls pagination={pagination} />
     </>
   );
 };
