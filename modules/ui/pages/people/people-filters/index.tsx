@@ -10,8 +10,10 @@ import {
   TextField,
 } from "@material-ui/core";
 import { OrgUserRole } from "graphql/server-types.gen";
+import { useDeferredState } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import {
@@ -20,8 +22,6 @@ import {
   RoleSpecificFilters,
 } from "./filter-params";
 import { FiltersByRole } from "./filters-by-role";
-import { useDeferredState } from "hooks";
-import { useEffect } from "react";
 
 type Props = { className?: string };
 
@@ -55,8 +55,24 @@ export const PeopleFilters: React.FC<Props> = props => {
   const updateRoleFilter = React.useCallback(
     (event: React.ChangeEvent<{}>, newRoleFilter: FilterRole | "") => {
       const roleFilter = newRoleFilter === "" ? null : newRoleFilter;
-      const up: RoleSpecificFilters = { roleFilter };
-      updateIsoFilters(up);
+      let filters: RoleSpecificFilters;
+      switch (roleFilter) {
+        case OrgUserRole.Employee:
+          filters = { roleFilter /* location: "", positionTypes: "" */ };
+          break;
+        case OrgUserRole.ReplacementEmployee:
+          filters = { roleFilter, endorsements: [] };
+          break;
+        case OrgUserRole.Administrator:
+          filters = {
+            roleFilter /* managesLocation: "", managesPositionTypes: "" */,
+          };
+          break;
+        case null:
+        default:
+          filters = { roleFilter };
+      }
+      updateIsoFilters(filters);
     },
     [updateIsoFilters]
   );
