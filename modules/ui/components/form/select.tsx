@@ -24,7 +24,6 @@ import { ControlProps } from "react-select/src/components/Control";
 import { MenuProps, NoticeProps } from "react-select/src/components/Menu";
 import { ValueContainerProps } from "react-select/src/components/containers";
 import { OptionProps } from "react-select/src/components/Option";
-import { SingleValueProps } from "react-select/src/components/SingleValue";
 import { MultiValueProps } from "react-select/src/components/MultiValue";
 import { useScreenSize } from "hooks";
 
@@ -40,9 +39,14 @@ type Props = {
   options: Array<OptionType>;
   label: string;
   disabled?: boolean;
+  withDropdownIndicator?: boolean;
+  filterOption?: ((option: OptionType, rawInput: string) => boolean) | null;
+  isClearable?: boolean;
+  onBlur?: (event: React.FocusEvent) => void;
+  onFocus?: (event: React.FocusEvent) => void;
 };
 
-interface OptionType {
+export interface OptionType {
   label: string | number;
   value?: string | number;
 }
@@ -64,6 +68,11 @@ export const Select: React.FC<Props> = props => {
   ) : (
     <StyledSelect {...props} />
   );
+};
+
+Select.defaultProps = {
+  withDropdownIndicator: true,
+  isClearable: true,
 };
 
 export const NativeSelect: React.FC<Props> = props => {
@@ -126,7 +135,7 @@ export const NativeSelect: React.FC<Props> = props => {
 };
 
 export const StyledSelect: React.FC<Props> = props => {
-  const classes = useStyles();
+  const classes = useStyles(props);
   const theme = useTheme();
 
   /*
@@ -146,6 +155,11 @@ export const StyledSelect: React.FC<Props> = props => {
     }),
   };
 
+  const DropdownIndicator = () =>
+    props.withDropdownIndicator ? (
+      <ArrowDropDownIcon className={classes.arrowDownIcon} />
+    ) : null;
+
   return (
     <ReactSelect
       classes={classes}
@@ -160,39 +174,38 @@ export const StyledSelect: React.FC<Props> = props => {
         },
       }}
       options={props.options}
-      components={components}
+      components={{
+        Control,
+        Menu,
+        MultiValue,
+        NoOptionsMessage,
+        Option,
+        ValueContainer,
+        DropdownIndicator,
+        IndicatorSeparator,
+      }}
       placeholder=""
       value={props.value}
       onChange={props.onChange}
       isMulti={props.multi}
-      hideSelectedOptions
-      onFocus={() => setHasFocus(true)}
-      onBlur={() => setHasFocus(false)}
-      isClearable
+      hideSelectedOptions={props.multi}
+      onFocus={e => {
+        setHasFocus(true);
+        props.onFocus && props.onFocus(e);
+      }}
+      onBlur={e => {
+        setHasFocus(false);
+        props.onBlur && props.onBlur(e);
+      }}
+      isClearable={props.isClearable}
       isDisabled={props.disabled}
+      filterOption={props.filterOption}
     />
   );
 };
 
-const components = {
-  Control,
-  Menu,
-  MultiValue,
-  NoOptionsMessage,
-  Option,
-  ValueContainer,
-  DropdownIndicator,
-  IndicatorSeparator,
-};
-
 function IndicatorSeparator() {
   return null;
-}
-
-function DropdownIndicator() {
-  const classes = useStyles();
-
-  return <ArrowDropDownIcon className={classes.arrowDownIcon} />;
 }
 
 function Menu(props: MenuProps<OptionType>) {
@@ -276,17 +289,6 @@ function Option(props: OptionProps<OptionType>) {
   );
 }
 
-function SingleValue(props: SingleValueProps<OptionType>) {
-  return (
-    <Typography
-      className={props.selectProps.classes.singleValue}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Typography>
-  );
-}
-
 function MultiValue(props: MultiValueProps<OptionType>) {
   const className = `${props.selectProps.classes.chip} ${
     props.isFocused ? props.selectProps.classes.chipFocused : ""
@@ -347,9 +349,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     noOptionsMessage: {
       padding: theme.spacing(1, 2),
-    },
-    singleValue: {
-      fontSize: theme.typography.button.fontSize,
     },
     paper: {
       position: "absolute",

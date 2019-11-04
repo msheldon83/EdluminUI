@@ -5,10 +5,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import { Select as CustomSelect, SelectValueType } from "./select";
 
-export default {
-  title: "Forms",
-};
-
 const options = [
   { value: "one", label: "One" },
   { value: "two", label: "Two" },
