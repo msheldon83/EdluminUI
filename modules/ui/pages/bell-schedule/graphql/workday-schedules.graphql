@@ -1,0 +1,36 @@
+query GetAllWorkDaySchedulesWithinOrg(
+  $orgId: ID
+  $limit: Int
+  $offset: Int
+  $includeExpired: Boolean
+  $sortBy: [SortDetailsInput]
+) {
+  workDaySchedule {
+    paged(
+      orgId: $orgId
+      limit: $limit
+      offset: $offset
+      includeExpired: $includeExpired
+      sortBy: $sortBy
+    ) {
+      hasMoreData
+      totalCount
+      limit
+      results {
+        id
+        name
+        externalId
+        isExpired
+        periods {
+          id
+        }
+        variants {
+          id
+        }
+        usages {
+          id
+        }
+      }
+    }
+  }
+}
