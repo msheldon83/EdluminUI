@@ -7,7 +7,7 @@ import { Formik } from "formik";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { TextField as FormTextField } from "ui/components/form/text-field";
-import { ActionButtons } from "./action-buttons";
+import { ActionButtons } from "../../../components/action-buttons";
 
 type Props = {
   positionType: {
