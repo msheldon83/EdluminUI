@@ -23,16 +23,17 @@ export const humanizeTimeStamp = (time: number): string => {
   return formattedTime;
 };
 
-const ISO_REGEX = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(.[0-9]+)?(Z)?$/g
-export const isIso = (time: any) => ISO_REGEX.test(time)
+const ISO_REGEX = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(.[0-9]+)?(Z)?$/g;
+export const isIso = (time: any) => ISO_REGEX.test(time);
 
-export const timeStampToIso = (time: number): string => new Date(time).toISOString()
-export const isoToTimestamp = (iso: string): number => Date.parse(iso)
+export const timeStampToIso = (time: number): string =>
+  new Date(time).toISOString();
+export const isoToTimestamp = (iso: string): number => Date.parse(iso);
 
-export const midnightTime = (): number => {
+export const midnightTime = (): Date => {
   const startTime = new Date();
   startTime.setHours(0, 0, 0, 0);
-  return startTime.getTime();
+  return startTime;
 };
 
 /*
@@ -44,11 +45,21 @@ export const midnightTime = (): number => {
   https://jsbin.com/goxukajika/4/edit?js,console,output
 */
 
-export const parseTimeFromString = (time: string): number => {
+export const parseTimeFromString = (
+  time: string,
+  earliestTime?: string
+): number => {
   let hour = 0;
   let minute = 0;
-  let pm = time?.match(/p/i) !== null;
-  const num = time?.replace(/[^0-9]/g, "");
+  let pmFromInput = /p/i.exec(time) !== null;
+  const amFromInput = /a/i.exec(time) !== null;
+  const periodDefined = amFromInput || pmFromInput;
+  const num = time.replace(/[^0-9]/g, "");
+
+  const earliestTimesamp = earliestTime
+    ? parseTimeFromString(humanizeTimeStamp(isoToTimestamp(earliestTime)))
+    : midnightTime().getTime();
+  const earliestHour = new Date(earliestTimesamp).getHours();
 
   // Parse for hour and minute
   switch (num.length) {
@@ -71,20 +82,21 @@ export const parseTimeFromString = (time: string): number => {
   }
 
   // Make sure hour is in 24 hour format
-  if (pm === true && hour > 0 && hour < 12) {
+  if (pmFromInput === true && hour > 0 && hour < 12) {
     hour = hour + 12;
   }
 
   // Force pm for hours between 13:00 and 23:00
   if (hour >= 13 && hour <= 23) {
-    pm = true;
+    pmFromInput = true;
   }
 
-  // Keep within range
-  if (hour <= 0 || hour >= 24 || (hour === 12 && !pm)) {
+  // Keep hours within range
+  if (hour <= 0 || hour >= 24 || (hour === 12 && !pmFromInput)) {
     hour = 0;
   }
 
+  // Keep minutes within range
   if (minute < 0 || minute > 59) {
     minute = 0;
   }
@@ -93,6 +105,17 @@ export const parseTimeFromString = (time: string): number => {
   date.setHours(hour);
   date.setMinutes(minute);
   date.setSeconds(0);
+
+  /*
+    When there is no am or pm for in the input, assume a am or pm based off of the
+    earliestTime
+  */
+  if (!periodDefined && hour < earliestHour) {
+    date.setHours(hour + 12);
+  }
+
+  // Minimum hour based off of earliest possible time given
+  date.setHours(Math.max(date.getHours(), earliestHour));
 
   return date.getTime();
 };

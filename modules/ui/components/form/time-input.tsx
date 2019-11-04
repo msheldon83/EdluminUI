@@ -7,6 +7,7 @@ import {
   parseTimeFromString,
   timeStampToIso,
   isoToTimestamp,
+  midnightTime,
 } from "../../../helpers/time";
 
 type Props = {
@@ -14,31 +15,38 @@ type Props = {
   value?: string;
   onChange: (value: string) => void;
   onValidTime: (value: string) => void;
+  earliestTime?: string;
 };
 
 export const TimeInput = (props: Props) => {
-  const guarenteedValue = props.value || "";
+  //2019-11-04T06:00:00.000Z/
+  const { earliestTime, onValidTime, label, value = "", onChange } = props;
 
-  const value = isIso(guarenteedValue)
-    ? humanizeTimeStamp(isoToTimestamp(guarenteedValue))
-    : guarenteedValue;
+  const parsedValue = isIso(value)
+    ? humanizeTimeStamp(isoToTimestamp(value))
+    : value;
+
+  const handleBlur = React.useCallback(
+    event => {
+      // It's not a valid time if there is no input
+      if (!parsedValue) {
+        return;
+      }
+
+      onValidTime(
+        timeStampToIso(parseTimeFromString(event.target.value, earliestTime))
+      );
+    },
+    [earliestTime, onValidTime, parsedValue]
+  );
 
   return (
     <TextField
-      label={props.label}
+      label={label}
       variant="outlined"
-      value={value}
-      onChange={event => props.onChange(event.target.value)}
-      onBlur={event => {
-        // It's not a valid time if there is no input
-        if (!value) {
-          return;
-        }
-
-        props.onValidTime(
-          timeStampToIso(parseTimeFromString(event.target.value))
-        );
-      }}
+      value={parsedValue}
+      onChange={event => onChange(event.target.value)}
+      onBlur={handleBlur}
     />
   );
 };
