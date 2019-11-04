@@ -55,7 +55,7 @@ type AbsenceDetail implements ModelObjectInterface & OrgObjectInterface {
 }
 
 input AbsenceDetailCreateInput {
-  absenceDetailId: Int
+  id: Int
   date: DateTime
   dayPartId: DayPart
   startTime: Seconds
@@ -143,8 +143,8 @@ type AbsenceReasonBalanceMutations {
 }
 
 input AbsenceReasonBalanceUpdateInput {
-  absenceReasonBalanceId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   schoolYearId: Int
   absenceReasonId: Int
   initialBalance: Decimal
@@ -173,8 +173,8 @@ enum AbsenceReasonTrackingTypeId {
 }
 
 input AbsenceReasonUpdateInput {
-  absenceReasonID: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   externalId: String
@@ -206,7 +206,7 @@ type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
 }
 
 input AbsenceReasonUsageInput {
-  absenceReasonUsageId: Int
+  id: Int
   absenceReasonId: Int!
   amount: Decimal
 }
@@ -221,8 +221,8 @@ enum AbsenceStatus {
 }
 
 input AbsenceUpdateInput {
-  absenceId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   notesToApprover: String
   notesToReplacement: String
   details: [AbsenceDetailCreateInput]
@@ -253,8 +253,8 @@ input AccountingCodeCreateInput {
 }
 
 input AccountingCodeUpdateInput {
-  accountingCodeId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   externalId: String
@@ -386,7 +386,7 @@ type BrandingCsPage implements ModelObjectInterface {
 }
 
 input BrandingInput {
-  id: ID
+  id: Int
   name: String
   description: String
   majorLogoUrl: String
@@ -498,8 +498,8 @@ input CalendarChangeReasonCreateInput {
 }
 
 input CalendarChangeReasonUpdateInput {
-  calendarChangeReasonId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   externalId: String
@@ -509,8 +509,8 @@ input CalendarChangeReasonUpdateInput {
 }
 
 input CalendarChangeUpdateInput {
-  calendarChangeId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   description: String
   startDate: Date
   endDate: Date
@@ -621,8 +621,8 @@ type ContractedAssignmentMutations {
 }
 
 input ContractedAssignmentUpdateInput {
-  assignmentId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   startDate: DateTime
   endDate: DateTime
 }
@@ -685,16 +685,16 @@ type ContractScheduleQueries {
 }
 
 input ContractScheduleUpdateInput {
+  id: Int!
+  rowVersion: String!
   startDate: Date
   firstWorkDayId: Int
-  rowVersion: String
-  contractScheduleId: Int
   daysToWork: [DayOfWeek]
 }
 
 input ContractUpdateInput {
-  contractId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   externalId: String
   numberOfDays: Int
@@ -792,8 +792,8 @@ enum CustomFieldType {
 }
 
 input CustomFieldUpdateInput {
-  customFieldId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   label: String
   description: String
   displayOrder: Int
@@ -895,7 +895,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   assignments: [Assignment]
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
-  endorsements: [Endorsement]
+  endorsements: [EmployeeEndorsement]
   addresses: [EmployeeAddress]
   phoneNumbers: [EmployeePhone]
 }
@@ -916,7 +916,7 @@ type EmployeeAddress implements ModelObjectInterface {
 }
 
 input EmployeeAddressInput {
-  employeeAddressId: Int
+  id: Int
   addressTypeId: AddressType
   address1: String
   address2: String
@@ -939,6 +939,42 @@ input EmployeeCreateInput {
   phoneNumbers: [EmployeePhoneInput]
 }
 
+type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  employeeId: Int!
+  endorsementDate: Date
+  expirationDate: Date
+  endorsementId: Int!
+  endorsement: Endorsement
+}
+
+input EmployeeEndorsementCreateInput {
+  orgId: Int!
+  employeeId: Int!
+  endorsementId: Int!
+  endorsementDate: Date
+  expirationDate: Date
+}
+
+type EmployeeEndorsementMutations {
+  create(employeeEndorsement: EmployeeEndorsementCreateInput!): EmployeeEndorsement
+  update(employeeEndorsement: EmployeeEndorsementUpdateInput!): EmployeeEndorsement
+  delete(employeeEndorsementId: Int!): Boolean
+}
+
+input EmployeeEndorsementUpdateInput {
+  id: Int!
+  endorsementDate: Date
+  expirationDate: Date
+}
+
 type EmployeeMutations {
   create(employee: EmployeeCreateInput!): Employee
   update(employee: EmployeeUpdateInput!): Employee
@@ -958,7 +994,7 @@ type EmployeePhone implements ModelObjectInterface {
 }
 
 input EmployeePhoneInput {
-  employeePhoneId: Int
+  id: Int
   phoneTypeId: PhoneType
   number: String!
   countryId: CountryCode
@@ -971,6 +1007,8 @@ type EmployeeQueries {
 }
 
 input EmployeeUpdateInput {
+  id: Int!
+  rowVersion: String!
   externalId: String
   canFillVacancies: Boolean!
   dateOfBirth: Date!
@@ -1009,8 +1047,8 @@ input EndEmploymentReasonCreateInput {
 }
 
 input EndEmploymentReasonUpdateInput {
-  endEmploymentReasonId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   externalId: String
@@ -1044,8 +1082,8 @@ input EndorsementCreateInput {
 }
 
 input EndorsementUpdateInput {
-  endorsementId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   externalId: String
@@ -1229,6 +1267,9 @@ enum EventType {
   ABSENCE_REASON_BALANCE_UPDATED
   ABSENCE_REASON_BALANCE_DELETED
   ABSENCE_REASON_BALANCE_DEDUCTED
+  EMPLOYEE_ENDORSEMENT_CREATED
+  EMPLOYEE_ENDORSEMENT_UPDATED
+  EMPLOYEE_ENDORSEMENT_DELETED
   REPLACEMENT_POOL_CONFIG_CREATED
   REPLACEMENT_POOL_CONFIG_UPDATED
   REPLACEMENT_POOL_CONFIG_DELETED
@@ -1244,11 +1285,17 @@ enum EventType {
   ABSENCE_CREATED
   ABSENCE_UPDATED
   ABSENCE_DELETED
+  ABSENCE_DETAIL_ADDED
+  ABSENCE_DETAIL_CHANGED
+  ABSENCE_DETAIL_REMOVED
   VACANCY_CREATED
   VACANCY_UPDATED
   VACANCY_DELETED
   VACANCY_ASSIGNED
   VACANCY_UNASSIGNED
+  VACANCY_DETAIL_ADDED
+  VACANCY_DETAIL_CHANGED
+  VACANCY_DETAIL_REMOVED
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
@@ -1358,8 +1405,8 @@ enum LabelType {
 }
 
 input LabelUpdateInput {
-  labelId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   externalId: String
@@ -1444,9 +1491,9 @@ type LocationGroupQueries {
 
 input LocationGroupUpdateInput {
   id: Int!
+  rowVersion: String!
   name: String
   description: String
-  rowVersion: String
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
 }
@@ -1465,11 +1512,11 @@ type LocationQueries {
 
 input LocationUpdateInput {
   id: Int!
+  rowVersion: String!
   name: String
   externalId: String
   address: AddressInput
   timeZoneId: TimeZone
-  rowVersion: String
   expired: Boolean
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
@@ -1494,6 +1541,7 @@ type Mutation {
   contract: ContractMutations
   contractSchedule: ContractScheduleMutations
   customField: CustomFieldMutations
+  employeeEndorsement: EmployeeEndorsementMutations
   employee: EmployeeMutations
   eventQueue: EventQueueMutations
   locationGroup: LocationGroupMutations
@@ -1702,10 +1750,10 @@ enum OrganizationType {
 
 input OrganizationUpdateInput {
   orgId: Int!
+  rowVersion: String!
   name: String
   externalId: String
   timeZoneId: TimeZone
-  rowVersion: String
   config: organizationConfigInput
 }
 
@@ -1812,7 +1860,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface {
   orgId: Int!
   organization: Organization!
   firstName: String!
-  middleName: String!
+  middleName: String
   lastName: String!
   email: String!
   active: Boolean!
@@ -1852,8 +1900,8 @@ type OrgUserMutations {
 
 type OrgUserQueries {
   byId(id: ID!): OrgUser
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [OrgUser]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedOrgUser
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [Int]): [OrgUser]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [Int]): PagedOrgUser
 }
 
 enum OrgUserRole {
@@ -2185,8 +2233,8 @@ input PayCodeCreateInput {
 }
 
 input PayCodeUpdateInput {
-  payCodeId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   externalId: String
@@ -2284,8 +2332,8 @@ type PermissionSetQueries {
 }
 
 input PermissionSetUpdateInput {
-  permissionSetId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String!
   description: String
 }
@@ -2389,7 +2437,7 @@ type PositionSchedulePeriod implements ModelObjectInterface & OrgObjectInterface
 }
 
 input PositionSchedulePeriodInput {
-  positionSchedulePeriodId: Int
+  id: Int
   name: String
   description: String
   room: String
@@ -2407,8 +2455,8 @@ type PositionScheduleQueries {
 }
 
 input PositionScheduleUpdateInput {
-  positionScheduleId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   periods: [PositionSchedulePeriodInput]
 }
@@ -2451,7 +2499,7 @@ input PositionScheduleVariantDeleteInput {
 }
 
 input PositionScheduleVariantInput {
-  positionScheduleVariantId: Int
+  id: Int
   workDayScheduleVariantTypeId: Int
   periods: [PositionScheduleVariantPeriodCreateInput]
 }
@@ -2487,7 +2535,7 @@ type PositionScheduleVariantPeriod implements ModelObjectInterface & OrgObjectIn
 }
 
 input PositionScheduleVariantPeriodCreateInput {
-  positionScheduleVariantPeriodId: Int
+  id: Int
   positionSchedulePeriodName: String!
   startTime: Int
   isHalfDayMorningEnd: Boolean
@@ -2546,8 +2594,8 @@ type PositionTypeQueries {
 }
 
 input PositionTypeUpdateInput {
-  positionTypeId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   forStaffAugmentation: Boolean
   forPermanentPositions: Boolean
@@ -2898,8 +2946,8 @@ type ReplacementPoolConfigQueries {
 }
 
 input ReplacementPoolConfigUpdateInput {
-  replacementPoolConfigId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   exclude: Boolean
@@ -3018,11 +3066,11 @@ enum SavedViewType {
 }
 
 input SavedViewUpdateInput {
-  savedViewId: Int!
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   query: String
-  rowVersion: String
 }
 
 scalar SByte
@@ -3067,8 +3115,8 @@ type SchoolYearQueries {
 }
 
 input SchoolYearUpdateInput {
-  schoolYearId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   externalId: String
   startDate: Date
@@ -3267,8 +3315,8 @@ input UserCreateInput {
 
 input UserLoginEmailChangeInput {
   id: Int!
+  rowVersion: String!
   loginEmail: String!
-  rowVersion: String
 }
 
 type UserMutations {
@@ -3302,6 +3350,7 @@ type UserQueries {
 
 input UserUpdateInput {
   id: Int!
+  rowVersion: String!
   firstName: String
   middleName: String
   lastName: String
@@ -3309,7 +3358,6 @@ input UserUpdateInput {
   phone: String
   timeZoneId: TimeZone
   cultureId: Culture
-  rowVersion: String
   preferences: UserPreferencesInput
 }
 
@@ -3388,8 +3436,8 @@ type WorkDayPatternQueries {
 }
 
 input WorkDayPatternUpdateInput {
-  workDayPatternId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   externalId: String
   shiftContractSchedulesForNonInstructionalDays: Boolean
@@ -3415,6 +3463,7 @@ type WorkDaySchedule implements ModelObjectInterface & OrgObjectInterface & Doma
   isExpired: Boolean
   periods: [WorkDaySchedulePeriod]
   variants: [WorkDayScheduleVariant]
+  usages: [WorkDayScheduleUsage]
 }
 
 input WorkDayScheduleCreateInput {
@@ -3449,7 +3498,7 @@ type WorkDaySchedulePeriod implements ModelObjectInterface {
 }
 
 input WorkDaySchedulePeriodInput {
-  workDaySchedulePeriodId: Int
+  id: Int
   name: String
   description: String
 }
@@ -3461,8 +3510,8 @@ type WorkDayScheduleQueries {
 }
 
 input WorkDayScheduleUpdateInput {
-  workDayScheduleId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   externalId: String
@@ -3470,6 +3519,24 @@ input WorkDayScheduleUpdateInput {
   expired: Boolean
   periods: [WorkDaySchedulePeriodInput]
   standardSchedule: WorkDayScheduleVariantInput
+}
+
+type WorkDayScheduleUsage implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  workDayScheduleId: Int!
+  workDayId: Int!
+  locationId: Int!
+  locationGroupId: Int!
+  workDay: WorkDay
+  location: Location
+  locationGroup: LocationGroup
 }
 
 type WorkDayScheduleVariant implements ModelObjectInterface & OrgObjectInterface {
@@ -3510,7 +3577,7 @@ input WorkDayScheduleVariantDeleteInput {
 }
 
 input WorkDayScheduleVariantInput {
-  workDayScheduleVariantId: Int
+  id: Int
   workDayScheduleVariantTypeId: Int
   periods: [WorkDayScheduleVariantPeriodInput]
 }
@@ -3546,7 +3613,7 @@ type WorkDayScheduleVariantPeriod implements ModelObjectInterface {
 }
 
 input WorkDayScheduleVariantPeriodInput {
-  workDayScheduleVariantPeriodId: Int
+  id: Int
   workDaySchedulePeriodName: String!
   startTime: Int
   endTime: Int
@@ -3587,8 +3654,8 @@ input WorkDayScheduleVariantTypeCreateInput {
 }
 
 input WorkDayScheduleVariantTypeUpdateInput {
-  workDayScheduleVariantTypeId: Int!
-  rowVersion: String
+  id: Int!
+  rowVersion: String!
   name: String
   description: String
   externalId: String
