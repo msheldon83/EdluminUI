@@ -1,0 +1,8 @@
+query GetLocations($orgId: ID!) {
+  location {
+    all(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}
