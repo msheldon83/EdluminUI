@@ -26,7 +26,7 @@ export type PeopleFilters = {
 
 export type RoleSpecificFilters =
   | { roleFilter: null }
-  | { roleFilter: OrgUserRole.ReplacementEmployee; endorsements: string[] }
+  | { roleFilter: OrgUserRole.ReplacementEmployee; endorsements: number[] }
   | { roleFilter: OrgUserRole.Employee }
   | { roleFilter: OrgUserRole.Administrator };
 
@@ -100,7 +100,6 @@ const boolToString = (b: boolean | undefined): "true" | "false" | "" => {
 };
 
 const to = (o: PeopleFilters): RoleSpecificFilters => {
-  console.log("to?", o);
   switch (o.roleFilter) {
     case OrgUserRole.Administrator:
       return { roleFilter: OrgUserRole.Administrator };
@@ -109,7 +108,10 @@ const to = (o: PeopleFilters): RoleSpecificFilters => {
     case OrgUserRole.ReplacementEmployee:
       return {
         roleFilter: OrgUserRole.ReplacementEmployee,
-        endorsements: o.endorsements.split(","),
+        endorsements:
+          o.endorsements === ""
+            ? []
+            : o.endorsements.split(",").map(e => Number(e)),
       };
     case "":
     default:
@@ -118,7 +120,6 @@ const to = (o: PeopleFilters): RoleSpecificFilters => {
 };
 
 const from = (o: RoleSpecificFilters) => {
-  console.log("from?", o);
   switch (o.roleFilter) {
     case OrgUserRole.Administrator:
       return { roleFilter: OrgUserRole.Administrator };

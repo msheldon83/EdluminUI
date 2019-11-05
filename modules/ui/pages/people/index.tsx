@@ -35,10 +35,9 @@ export const PeoplePage: React.FC<Props> = props => {
     r => r.orgUser?.paged?.totalCount,
     {
       variables: {
+        ...filters,
         orgId: params.organizationId,
         role,
-        active: filters.active,
-        name: filters.name,
       },
     }
   );

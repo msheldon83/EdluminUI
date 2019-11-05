@@ -1,20 +1,21 @@
-import * as React from "react";
-import { useQueryParamIso } from "hooks/query-params";
-import { OrgUserRole } from "graphql/server-types.gen";
 import {
   Grid,
-  TextField,
   InputLabel,
   makeStyles,
   MenuItem,
+  TextField,
 } from "@material-ui/core";
+import { OrgUserRole } from "graphql/server-types.gen";
+import { useQueryParamIso } from "hooks/query-params";
+import * as React from "react";
+import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { FilterQueryParams } from "./filter-params";
 import { useEndorsements } from "reference-data/endorsements";
+import { OptionType, Select } from "ui/components/form/select";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
-import { Select, OptionType } from "ui/components/form/select";
-import { useMemo, useState, useCallback } from "react";
+import { FilterQueryParams } from "./filter-params";
+import OptionsType from "@storybook/addon-knobs/dist/components/types/Options";
 
 type Props = {};
 export const FiltersByRole: React.FC<Props> = props => {
@@ -77,37 +78,23 @@ export const ReplacementEmployeeFilters: React.FC<Props> = props => {
   const endorsements = useEndorsements(params.organizationId);
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
 
-  const endorsementFilters =
-    filters.roleFilter === OrgUserRole.ReplacementEmployee
-      ? filters.endorsements
-      : [];
-
   const endorsementOptions: OptionType[] = useMemo(
     () => endorsements.map(e => ({ label: e.name, value: e.id })),
     [endorsements]
   );
-  console.log(endorsementOptions);
+  const endorsementParams =
+    filters.roleFilter === OrgUserRole.ReplacementEmployee
+      ? filters.endorsements
+      : [];
+
   const onChange = useCallback(
-    e => {
-      console.log("selected value", e);
-      console.log("filters", endorsementFilters);
-      if (e && e.value) {
-        if (endorsementFilters.includes(e.value)) {
-          updateFilters({ endorsements: endorsementFilters });
-        }
-        endorsementFilters.push(e.value);
-        updateFilters({ endorsements: endorsementFilters });
-      }
-      // const val = e;
-      // if (e) {
-      //   if (vals.map(val => val.value).includes(val)) {
-      //     updateVals(vals);
-      //   }
-      //   vals.push(val);
-      //   updateVals(vals);
-      // }
+    (value /* OptionType[] */) => {
+      const ids: number[] = value
+        ? value.map((v: OptionType) => Number(v.value))
+        : [];
+      updateFilters({ endorsements: ids });
     },
-    [updateFilters, endorsementFilters]
+    [updateFilters]
   );
 
   return (
@@ -118,8 +105,9 @@ export const ReplacementEmployeeFilters: React.FC<Props> = props => {
       <Select
         onChange={onChange}
         options={endorsementOptions}
-        value={endorsementFilters.map(e => ({ value: e, label: e } as any))}
-        // value={null}
+        value={endorsementOptions.filter(
+          e => e.value && endorsementParams.includes(Number(e.value))
+        )}
         multi
       />
     </Grid>
