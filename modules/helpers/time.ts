@@ -36,6 +36,13 @@ export const midnightTime = (): Date => {
   return startTime;
 };
 
+export const secondsSinceMidnight = (time: string): number => {
+  const currentTime = +new Date(time);
+  const midnight = +midnightTime();
+  const seconds = (currentTime - midnight) / 1000;
+  return seconds;
+}
+
 /*
   This algorithm is a bunch of ideas I found from libraries and aroudn the internet
   to correctly parse common time inputs.
@@ -105,6 +112,7 @@ export const parseTimeFromString = (
   date.setHours(hour);
   date.setMinutes(minute);
   date.setSeconds(0);
+  date.setMilliseconds(0);
 
   /*
     When there is no am or pm for in the input, assume a am or pm based off of the
