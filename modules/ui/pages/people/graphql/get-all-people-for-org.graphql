@@ -31,6 +31,20 @@ query GetAllPeopleForOrg(
         isReplacementEmployee
         isEmployee
         isAdmin
+        email
+        employee {
+          id
+          externalId
+          phoneNumbers {
+            id
+            country
+            number
+          }
+          primaryPosition {
+            id
+            name
+          }
+        }
       }
     }
   }
