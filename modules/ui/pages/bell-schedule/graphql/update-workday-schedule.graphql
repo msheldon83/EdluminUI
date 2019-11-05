@@ -1,0 +1,11 @@
+mutation UpdateWorkDaySchedule($workDaySchedule: WorkDayScheduleUpdateInput!) {
+  workDaySchedule {
+    update(workDaySchedule: $workDaySchedule) {
+      id
+      name
+      rowVersion
+      externalId
+      expired
+    }
+  }
+}

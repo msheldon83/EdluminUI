@@ -7,9 +7,10 @@ import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Link } from "react-router-dom";
+import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { Column } from "material-table";
-import { BellScheduleRoute, BellScheduleAddRoute } from "ui/routes/bell-schedule";
+import { BellScheduleRoute, BellScheduleAddRoute, BellScheduleViewRoute } from "ui/routes/bell-schedule";
 import { makeStyles, Grid, Button } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useScreenSize } from "hooks";
@@ -18,6 +19,7 @@ import DeleteOutline from "@material-ui/icons/DeleteOutline";
 export const BellSchedulePage: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const history = useHistory();
   const params = useRouteParams(BellScheduleRoute);
   const isMobile = useScreenSize() === "mobile";
   const [includeExpired, setIncludeExpired] = React.useState(false);
@@ -107,6 +109,14 @@ export const BellSchedulePage: React.FC<{}> = props => {
         columns={columns}
         data={workDaySchedules}
         selection={!isMobile}
+        onRowClick={(event, workDaySchedule) => {
+          if (!workDaySchedule) return;
+          const newParams = {
+            ...params,
+            workDayScheduleId: workDaySchedule.id,
+          };
+          history.push(BellScheduleViewRoute.generate(newParams));
+        }}
         options={{
           search: true,
           sorting: true,
@@ -116,7 +126,7 @@ export const BellSchedulePage: React.FC<{}> = props => {
         }}
         showIncludeExpired={true}
         onIncludeExpiredChange={(checked) => { setIncludeExpired(checked);}}
-        expiredRowCheck={(rowData: GetAllWorkDaySchedulesWithinOrg.Results) => rowData.isExpired ?? false}
+        expiredRowCheck={(rowData: GetAllWorkDaySchedulesWithinOrg.Results) => rowData.expired ?? false}
         actions={[
           {
             tooltip: `${t("Delete selected bell schedules")}`,

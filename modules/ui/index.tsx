@@ -29,6 +29,8 @@ import {
   BellScheduleRoute,
   BellScheduleAddLoader,
   BellScheduleAddRoute,
+  BellScheduleViewLoader,
+  BellScheduleViewRoute,
 } from "./routes/bell-schedule";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { EdluminTheme } from "./styles/mui-theme";
@@ -96,6 +98,10 @@ export function App(props: {}) {
                       <Route
                         component={BellScheduleAddLoader}
                         path={BellScheduleAddRoute.path}
+                      />
+                      <Route
+                        component={BellScheduleViewLoader}
+                        path={BellScheduleViewRoute.path}
                       />
                       <Route
                         component={BellScheduleLoader}
