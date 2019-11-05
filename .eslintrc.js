@@ -93,7 +93,7 @@ module.exports = {
     // "@typescript-eslint/no-parameter-properties": 0,
     // "jest/no-alias-methods": 0,
     // "no-dupe-class-members": 0,
-    // "react/display-name": 0,
+    "react/display-name": 0,
 
     // don't want, at least for now:
     "@typescript-eslint/no-var-requires": 0,
