@@ -20,7 +20,8 @@ query GetAllWorkDaySchedulesWithinOrg(
         id
         name
         externalId
-        isExpired
+        expired
+        rowVersion
         periods {
           id
         }
