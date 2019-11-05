@@ -8,6 +8,8 @@ export const FilterQueryParamDefaults: PeopleFilters = {
   roleFilter: "",
   active: "",
   endorsements: "",
+  positionTypes: "",
+  locations: "",
 };
 
 export type FilterRole =
@@ -22,17 +24,23 @@ export type PeopleFilters = {
   active: string;
   roleFilter: string;
   endorsements: string;
+  positionTypes: string;
+  locations: string;
 };
 
 export type RoleSpecificFilters =
   | { roleFilter: null }
   | { roleFilter: OrgUserRole.ReplacementEmployee; endorsements: number[] }
-  | { roleFilter: OrgUserRole.Employee }
+  | {
+      roleFilter: OrgUserRole.Employee;
+      positionTypes: number[];
+      locations: number[];
+    }
   | { roleFilter: OrgUserRole.Administrator };
 
 type PeopleFilterQueryParams = Omit<
   PeopleFilters,
-  "active" | "roleFilter" | "endorsements"
+  "active" | "roleFilter" | "endorsements" | "positionTypes" | "locations"
 > & {
   active: boolean | undefined;
 } & RoleSpecificFilters;
@@ -104,14 +112,15 @@ const to = (o: PeopleFilters): RoleSpecificFilters => {
     case OrgUserRole.Administrator:
       return { roleFilter: OrgUserRole.Administrator };
     case OrgUserRole.Employee:
-      return { roleFilter: OrgUserRole.Employee };
+      return {
+        roleFilter: OrgUserRole.Employee,
+        positionTypes: stringToNumberArray(o.positionTypes),
+        locations: stringToNumberArray(o.locations),
+      };
     case OrgUserRole.ReplacementEmployee:
       return {
         roleFilter: OrgUserRole.ReplacementEmployee,
-        endorsements:
-          o.endorsements === ""
-            ? []
-            : o.endorsements.split(",").map(e => Number(e)),
+        endorsements: stringToNumberArray(o.endorsements),
       };
     case "":
     default:
@@ -119,12 +128,20 @@ const to = (o: PeopleFilters): RoleSpecificFilters => {
   }
 };
 
+const stringToNumberArray = (s: string): number[] => {
+  return s === "" ? [] : s.split(",").map(e => Number(e));
+};
+
 const from = (o: RoleSpecificFilters) => {
   switch (o.roleFilter) {
     case OrgUserRole.Administrator:
       return { roleFilter: OrgUserRole.Administrator };
     case OrgUserRole.Employee:
-      return { roleFilter: OrgUserRole.Employee };
+      return {
+        roleFilter: OrgUserRole.Employee,
+        positionTypes: o.positionTypes.join(","),
+        locations: o.locations.join(","),
+      };
     case OrgUserRole.ReplacementEmployee:
       return {
         roleFilter: OrgUserRole.ReplacementEmployee,

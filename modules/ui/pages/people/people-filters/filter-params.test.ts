@@ -4,18 +4,20 @@ import { isEqual } from "lodash-es";
 import { OrgUserRole } from "graphql/server-types.gen";
 
 describe("FilterParams isomorphism", () => {
-  const endorsements = jsc.array(jsc.nat).smap(
+  const listOfIds = jsc.array(jsc.nat).smap(
     nums => nums.map(n => n.toString()).join(","),
     str => str.split(",").map(s => Number(s))
   );
 
   const roleReplacementEmployee = jsc.record({
     roleFilter: jsc.constant(OrgUserRole.ReplacementEmployee),
-    endorsements,
+    endorsements: listOfIds,
   });
 
   const roleEmployee = jsc.record({
     roleFilter: jsc.constant(OrgUserRole.Employee),
+    locations: listOfIds,
+    positionTypes: listOfIds,
   });
 
   const roleAdministrator = jsc.record({
@@ -35,6 +37,8 @@ describe("FilterParams isomorphism", () => {
     lastNameSort: jsc.elements(["", "asc", "desc"]),
     active: jsc.elements(["", "true", "false"]),
     endorsements: jsc.constant(""),
+    positionTypes: jsc.constant(""),
+    locations: jsc.constant(""),
   });
 
   jsc.property(

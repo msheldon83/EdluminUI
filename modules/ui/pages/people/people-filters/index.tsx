@@ -58,7 +58,7 @@ export const PeopleFilters: React.FC<Props> = props => {
       let filters: RoleSpecificFilters;
       switch (roleFilter) {
         case OrgUserRole.Employee:
-          filters = { roleFilter /* location: "", positionTypes: "" */ };
+          filters = { roleFilter, locations: [], positionTypes: [] };
           break;
         case OrgUserRole.ReplacementEmployee:
           filters = { roleFilter, endorsements: [] };
