@@ -22,6 +22,8 @@ describe("FilterParams isomorphism", () => {
 
   const roleAdministrator = jsc.record({
     roleFilter: jsc.constant(OrgUserRole.Administrator),
+    managesLocations: listOfIds,
+    managesPositionTypes: listOfIds,
   });
 
   const roleSpecific = jsc.oneof([
@@ -39,6 +41,8 @@ describe("FilterParams isomorphism", () => {
     endorsements: jsc.constant(""),
     positionTypes: jsc.constant(""),
     locations: jsc.constant(""),
+    managesPositionTypes: jsc.constant(""),
+    managesLocations: jsc.constant(""),
   });
 
   jsc.property(

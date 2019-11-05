@@ -10,6 +10,8 @@ export const FilterQueryParamDefaults: PeopleFilters = {
   endorsements: "",
   positionTypes: "",
   locations: "",
+  managesPositionTypes: "",
+  managesLocations: "",
 };
 
 export type FilterRole =
@@ -26,37 +28,44 @@ export type PeopleFilters = {
   endorsements: string;
   positionTypes: string;
   locations: string;
+  managesPositionTypes: string;
+  managesLocations: string;
 };
-
-export type RoleSpecificFilters =
-  | { roleFilter: null }
-  | { roleFilter: OrgUserRole.ReplacementEmployee; endorsements: number[] }
-  | {
-      roleFilter: OrgUserRole.Employee;
-      positionTypes: number[];
-      locations: number[];
-    }
-  | { roleFilter: OrgUserRole.Administrator };
 
 type PeopleFilterQueryParams = Omit<
   PeopleFilters,
-  "active" | "roleFilter" | "endorsements" | "positionTypes" | "locations"
+  | "active"
+  | "roleFilter"
+  | "endorsements"
+  | "positionTypes"
+  | "locations"
+  | "managesPositionTypes"
+  | "managesLocations"
 > & {
   active: boolean | undefined;
 } & RoleSpecificFilters;
 
-type ReplacementEmployeeQueryFilters = {
-  endorsements: string[];
+export type RoleSpecificFilters =
+  | { roleFilter: null }
+  | ReplacementEmployeeQueryFilters
+  | EmployeeQueryFilters
+  | AdminQueryFilters;
+
+export type ReplacementEmployeeQueryFilters = {
+  roleFilter: OrgUserRole.ReplacementEmployee;
+  endorsements: number[];
 };
 
-type EmployeeFilters = {
-  positionTypes: string;
-  location: string;
+export type EmployeeQueryFilters = {
+  roleFilter: OrgUserRole.Employee;
+  positionTypes: number[];
+  locations: number[];
 };
 
-type AdminFilters = {
-  managesPositionTypes: string;
-  managesLocation: string;
+export type AdminQueryFilters = {
+  roleFilter: OrgUserRole.Administrator;
+  managesPositionTypes: number[];
+  managesLocations: number[];
 };
 
 export const FilterParams: Isomorphism<
@@ -110,7 +119,11 @@ const boolToString = (b: boolean | undefined): "true" | "false" | "" => {
 const to = (o: PeopleFilters): RoleSpecificFilters => {
   switch (o.roleFilter) {
     case OrgUserRole.Administrator:
-      return { roleFilter: OrgUserRole.Administrator };
+      return {
+        roleFilter: OrgUserRole.Administrator,
+        managesPositionTypes: stringToNumberArray(o.managesPositionTypes),
+        managesLocations: stringToNumberArray(o.managesLocations),
+      };
     case OrgUserRole.Employee:
       return {
         roleFilter: OrgUserRole.Employee,
@@ -135,7 +148,11 @@ const stringToNumberArray = (s: string): number[] => {
 const from = (o: RoleSpecificFilters) => {
   switch (o.roleFilter) {
     case OrgUserRole.Administrator:
-      return { roleFilter: OrgUserRole.Administrator };
+      return {
+        roleFilter: OrgUserRole.Administrator,
+        managesPositionTypes: o.managesPositionTypes.join(","),
+        managesLocations: o.managesLocations.join(","),
+      };
     case OrgUserRole.Employee:
       return {
         roleFilter: OrgUserRole.Employee,
@@ -150,33 +167,6 @@ const from = (o: RoleSpecificFilters) => {
     case null:
     default:
       return { roleFilter: "" };
-  }
-};
-
-const strToOrgUserRoleOrNull = (r: string): OrgUserRole | null => {
-  switch (r) {
-    case OrgUserRole.Administrator:
-      return OrgUserRole.Administrator;
-    case OrgUserRole.Employee:
-      return OrgUserRole.Employee;
-    case OrgUserRole.ReplacementEmployee:
-      return OrgUserRole.ReplacementEmployee;
-    case "":
-    default:
-      return null;
-  }
-};
-const orgUserRoleOrNullToStr = (r: OrgUserRole | null): string => {
-  switch (r) {
-    case OrgUserRole.Administrator:
-      return OrgUserRole.Administrator;
-    case OrgUserRole.Employee:
-      return OrgUserRole.Employee;
-    case OrgUserRole.ReplacementEmployee:
-      return OrgUserRole.ReplacementEmployee;
-    case null:
-    default:
-      return "";
   }
 };
 

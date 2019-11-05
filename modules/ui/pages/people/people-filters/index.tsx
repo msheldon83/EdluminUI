@@ -65,7 +65,9 @@ export const PeopleFilters: React.FC<Props> = props => {
           break;
         case OrgUserRole.Administrator:
           filters = {
-            roleFilter /* managesLocation: "", managesPositionTypes: "" */,
+            roleFilter,
+            managesLocations: [],
+            managesPositionTypes: [],
           };
           break;
         case null:
