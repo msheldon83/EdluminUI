@@ -22,7 +22,10 @@ import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
 import { PageHeader } from "ui/components/page-header";
 import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import Maybe from "graphql/tsutils/Maybe";
-import { RegularSchedule } from "./components/regular-schedule";
+import { RegularSchedule, Period } from "./components/regular-schedule";
+import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
+import { WorkDayScheduleVariant, WorkDayScheduleVariantPeriod, WorkDaySchedule } from "graphql/server-types.gen";
+import { humanizeTimeStamp } from "helpers/time";
 
 const editableSections = {
   name: "edit-name",
@@ -107,6 +110,37 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     });
   };
 
+  const renderRegularSchedule = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    const standardSchedule = (workDaySchedule as WorkDaySchedule).variants!.find((v: Maybe<WorkDayScheduleVariant>) => v!.isStandard)!;
+    const periods: Array<Period> = standardSchedule.periods!.map((p: Maybe<WorkDayScheduleVariantPeriod>) => {
+      return {
+        name: "",
+        placeholder: "",
+        startTime: humanizeTimeStamp(p!.startTime),
+        endTime: humanizeTimeStamp(p!.endTime),
+        isHalfDayMorningEnd: p!.isHalfDayMorningEnd,
+        isHalfDayAfternoonStart: p!.isHalfDayAfternoonStart
+      }
+    })
+
+    return (
+      <RegularSchedule
+        periods={periods}
+        onSubmit={async (
+          periods: Array<Period>
+        ) => {
+          
+        }}
+        onCancel={() => {
+          const url = BellScheduleRoute.generate(params);
+          history.push(url);
+        }}
+      />
+    );
+  };
+
   return (
     <>
       <PageTitle title={t("Bell Schedule")} withoutHeading={!isMobile} />
@@ -166,9 +200,13 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
         isSubHeader={true}
         showLabel={true}
       />
-      <Section>
-
-      </Section>
+      <Tabs steps={[{
+          stepNumber: 0,
+          name: t("Regular"),
+          content: renderRegularSchedule,
+        }]} 
+        isWizard={false} 
+      />
     </>
   );
 };

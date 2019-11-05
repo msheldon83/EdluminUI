@@ -11,6 +11,15 @@ query GetWorkDayScheduleById($id: ID!) {
         }
         variants {
           id
+          isStandard
+          periods {
+            id
+            startTime
+            endTime
+            periodDuration
+            isHalfDayMorningEnd
+            isHalfDayAfternoonStart
+          }
         }
         usages {
           id
