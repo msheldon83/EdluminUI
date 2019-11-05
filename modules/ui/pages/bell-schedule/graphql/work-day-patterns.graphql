@@ -1,0 +1,8 @@
+query GetWorkDayPatterns($orgId: ID) {
+  workDayPattern {
+    all(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}

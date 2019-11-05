@@ -7,7 +7,7 @@ mutation CreateWorkdaySchedule($workdaySchedule: WorkDayScheduleCreateInput!) {
       externalId
       description
       orgId
-      isExpired
+      expired
       periods {
         id
         name

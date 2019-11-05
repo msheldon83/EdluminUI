@@ -64,8 +64,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
           externalId: props.bellSchedule.externalId || "",
           isBasicSchedule: props.scheduleSettings.isBasic ? 1 : 0,
           basicHasVariants: props.scheduleSettings.basicSettings.hasVariants,
-          basicHasHalfDayBreak:
-            props.scheduleSettings.basicSettings.hasHalfDayBreak,
           periodNumberOfPeriods:
             props.scheduleSettings.periodSettings.numberOfPeriods,
         }}
@@ -73,8 +71,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
           const scheduleSettings = {
             isBasic: data.isBasicSchedule === 1,
             basicSettings: {
-              hasVariants: data.basicHasVariants,
-              hasHalfDayBreak: data.basicHasHalfDayBreak,
+              hasVariants: data.basicHasVariants
             },
             periodSettings: {
               numberOfPeriods: data.periodNumberOfPeriods,
@@ -83,11 +80,11 @@ export const AddBasicInfo: React.FC<Props> = props => {
           props.onSubmit(data.name, scheduleSettings, data.externalId);
         }}
         validationSchema={yup.object().shape({
-          // name: yup
-          //   .string()
-          //   .nullable()
-          //   .required(t("Name is required")),
-          // externalId: yup.string().nullable(),
+          name: yup
+            .string()
+            .nullable()
+            .required(t("Name is required")),
+          externalId: yup.string().nullable(),
         })}
       >
         {({
@@ -143,7 +140,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     labelPlacement="end"
                   />
                   <FormHelperText className={classes.radioHelperText}>
-                    {t("Simple morning, lunch and evening")}
+                    {t("Simple morning, lunch and afternoon")}
                   </FormHelperText>
                   <div className={classes.basicScheduleSubItems}>
                     <div>
@@ -165,25 +162,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                         label={t("Varies for delays and dismissals")}
                       />
                     </div>
-                    <div>
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={values.basicHasHalfDayBreak}
-                            onChange={e => {
-                              setFieldValue(
-                                "basicHasHalfDayBreak",
-                                e.target.checked
-                              );
-                            }}
-                            value={values.basicHasHalfDayBreak}
-                            disabled={!isBasicSchedule}
-                            color="primary"
-                          />
-                        }
-                        label={t("Has a half day break")}
-                      />
-                    </div>
                   </div>
                   <FormControlLabel
                     value={0}
@@ -203,7 +181,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                         )}
                         label=""
                         options={periodOptions}
-                        required={true}
+                        isClearable={false}
                         disabled={isBasicSchedule}
                         onChange={(e: SelectValueType) => {
                           //TODO: Once the select component is updated,

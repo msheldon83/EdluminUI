@@ -1,11 +1,10 @@
-import { useMutationBundle } from "graphql/hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
-// import { Settings } from "./components/add-edit-settings";
-import { WorkDayScheduleCreateInput } from "graphql/server-types.gen";
+import { WorkDayScheduleCreateInput, FeatureFlag } from "graphql/server-types.gen";
 import { CreateWorkdaySchedule } from "./graphql/create.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
@@ -15,36 +14,54 @@ import {
 } from "ui/routes/bell-schedule";
 import { AddBasicInfo } from "./components/add-basic-info";
 import { TFunction } from "i18next";
-import { RegularSchedule } from "./components/regular-schedule";
+import { RegularSchedule, Period } from "./components/regular-schedule";
+import { secondsSinceMidnight } from "../../../helpers/time"
+import { GetWorkDayPatterns } from "./graphql/work-day-patterns.gen";
+import { GetOrgConfigFeatureFlags } from "./graphql/org-config-feature-flags.gen";
+import { GetWorkDayScheduleVariantTypes } from "./graphql/org-work-day-schedule-variant-types.gen";
 
 export type ScheduleSettings = {
   isBasic: boolean;
   basicSettings: {
     hasVariants: boolean;
-    hasHalfDayBreak: boolean;
   };
   periodSettings: {
     numberOfPeriods: number;
   };
 };
 
-export type Period = {
-  name?: string;
-  placeholder: string;
-  startTime: string;
-  endTime: string;
-  isHalfDayBreakPeriod?: boolean;
-};
-
 const scheduleSettingsDefaults: ScheduleSettings = {
   isBasic: true,
   basicSettings: {
     hasVariants: true,
-    hasHalfDayBreak: true,
   },
   periodSettings: {
     numberOfPeriods: 1,
   },
+};
+
+const buildPeriodsFromScheduleSettings = (settings: ScheduleSettings, useHalfDayBreaks: boolean, t: TFunction): Array<Period> => {  
+  const periods: Array<Period> = [];
+
+  if (settings.isBasic) {
+    // Basic Schedule
+    periods.push({ placeholder: t("Morning"), startTime: undefined, endTime: undefined });
+    periods.push({ placeholder: t("Afternoon"), startTime: undefined, endTime: undefined });
+  } else {
+    // Period Schedule
+    for (let i = 0; i < settings.periodSettings.numberOfPeriods; i++) {
+      periods.push({ placeholder: `${t("Period")} ${i+1}`, startTime: undefined, endTime: undefined });
+    }
+  }
+
+  // If using Half Day Breaks, add one into the list
+  if (useHalfDayBreaks) {
+    const middleIndex = Math.ceil(periods.length / 2);
+    periods.splice(middleIndex, 0, { placeholder: t("Lunch"), startTime: undefined, endTime: undefined, isHalfDayAfternoonStart: true });
+    periods[middleIndex-1].isHalfDayMorningEnd = true;
+  }
+
+  return periods;
 };
 
 export const BellScheduleAddPage: React.FC<{}> = props => {
@@ -54,14 +71,8 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   const classes = useStyles();
   const [createWorkdaySchedule] = useMutationBundle(CreateWorkdaySchedule);
   const [name, setName] = React.useState<string | null>(null);
+  const [scheduleSettings, setScheduleSettings] = React.useState<ScheduleSettings>(scheduleSettingsDefaults);
   const namePlaceholder = t("Eastend High School");
-  const [periodInfo, setPeriodInfo] = React.useState<{
-    hasHalfDayBreak: boolean;
-    periods: Array<Period>;
-  }>({
-    hasHalfDayBreak: true,
-    periods: []
-  });
 
   const [bellSchedule, setBellSchedule] = React.useState<
     WorkDayScheduleCreateInput
@@ -69,29 +80,36 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     orgId: Number(params.organizationId),
     name: "",
     externalId: null,
-    description: null,
-    workDayPatternId: null,
     periods: null,
     standardSchedule: null,
   });
 
-  const buildPeriodsFromScheduleSettings = (settings: ScheduleSettings, t: TFunction): Array<Period> => {
-    const periods: Array<Period> = [];
+  // Get the Org's Work Day Patterns (for now each org will only have one)
+  const getWorkDayPatterns = useQueryBundle(GetWorkDayPatterns, {
+    variables: { orgId: params.organizationId },
+  });
+  // Get the Org's Feature Flags to determine if they are using Half Day Absences
+  const getOrgConfigFeatureFlags = useQueryBundle(GetOrgConfigFeatureFlags, {
+    variables: { orgId: params.organizationId },
+  });
+  // Get the Org's defined Variant Types
+  const getWorkDayScheduleVariantTypes = useQueryBundle(GetWorkDayScheduleVariantTypes, {
+    variables: { orgId: params.organizationId },
+  });
 
-    if (settings.isBasic) {
-      // Basic Schedule
-      periods.push({ placeholder: t("Morning"), startTime: "", endTime: "" });
-      periods.push({ placeholder: t("Afternoon"), startTime: "", endTime: "" });
-      return periods;
-    }
-
-    // Period Schedule
-    for (let i = 0; i < settings.periodSettings.numberOfPeriods; i++) {
-      periods.push({ placeholder: `${t("Period")} ${i+1}`, startTime: "", endTime: "" });
-    }
-
-    return periods;
+  if (getWorkDayPatterns.state === "LOADING" 
+    || getOrgConfigFeatureFlags.state === "LOADING"
+    || getWorkDayScheduleVariantTypes.state === "LOADING") {
+    return <></>;
   }
+  const allWorkDayPatterns = getWorkDayPatterns?.data?.workDayPattern?.all;
+  const workDayPatternId: number = allWorkDayPatterns != null && allWorkDayPatterns.length
+  ? Number(allWorkDayPatterns[0]!.id) : 0;
+  const orgFeatureFlags = getOrgConfigFeatureFlags?.data?.organization?.byId?.config?.featureFlags;
+  const orgUsesHalfDayBreaks: boolean = orgFeatureFlags != null && orgFeatureFlags.includes(FeatureFlag.HalfDayAbsences);
+  const workDayScheduleVariantTypes = getWorkDayScheduleVariantTypes?.data?.orgRef_WorkDayScheduleVariantType?.all;
+  const standardVariantType = workDayScheduleVariantTypes != null ? workDayScheduleVariantTypes.find(v => v!.isStandard) : null;
+  const standardVariantTypeId: number = standardVariantType ? Number(standardVariantType.id) : 0;
 
   const renderBasicInfoStep = (
     setStep: React.Dispatch<React.SetStateAction<number>>
@@ -106,10 +124,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
             name: name,
             externalId: externalId,
           });
-          setPeriodInfo({
-            hasHalfDayBreak: scheduleSettings.isBasic && scheduleSettings.basicSettings.hasHalfDayBreak,
-            periods: buildPeriodsFromScheduleSettings(scheduleSettings, t)
-          });
+          setScheduleSettings(scheduleSettings);
           setStep(steps[1].stepNumber);
         }}
         onCancel={() => {
@@ -125,10 +140,10 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   const renderRegularSchedule = (
     setStep: React.Dispatch<React.SetStateAction<number>>
   ) => {
+    const periods = buildPeriodsFromScheduleSettings(scheduleSettings, orgUsesHalfDayBreaks, t);
     return (
       <RegularSchedule
-        periods={periodInfo.periods}
-        hasHalfDayBreak={periodInfo.hasHalfDayBreak}
+        periods={periods}
         onSubmit={async (
           periods: Array<Period>
         ) => {
@@ -140,11 +155,14 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
               }
             }),
             standardSchedule: {
+              workDayScheduleVariantTypeId: standardVariantTypeId,
               periods: periods.map(p => {
                 return {
                   workDaySchedulePeriodName: p.name || p.placeholder,
-                  startTime: Number(p.startTime),
-                  endTime: Number(p.endTime)
+                  startTime: p.startTime ? secondsSinceMidnight(p.startTime) : null,
+                  endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
+                  isHalfDayMorningEnd: p.isHalfDayMorningEnd,
+                  isHalfDayAfternoonStart: p.isHalfDayAfternoonStart
                 }
               })
             }
@@ -173,6 +191,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
       variables: {
         workdaySchedule: {
           ...bellSchedule,
+          workDayPatternId: workDayPatternId,
           externalId: bellSchedule.externalId && bellSchedule.externalId.trim().length === 0 ? null : bellSchedule.externalId
         }
       },
@@ -191,21 +210,22 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
       name: t("Regular"),
       content: renderRegularSchedule,
     },
-    {
-      stepNumber: 1,
-      name: t("2 HR Delay"),
-      content: () => <div>Regular1</div>,
-    },
-    {
-      stepNumber: 1,
-      name: t("3 HR Delay"),
-      content: () => <div>Regular2</div>,
-    },
-    {
-      stepNumber: 1,
-      name: t("Early Dismissal"),
-      content: () => <div>Regular3</div>,
-    },
+    // TODO: Coming Soon (this should come from the Org's defined Variant Types)
+    // {
+    //   stepNumber: 1,
+    //   name: t("2 HR Delay"),
+    //   content: () => <div>Regular1</div>,
+    // },
+    // {
+    //   stepNumber: 1,
+    //   name: t("3 HR Delay"),
+    //   content: () => <div>Regular2</div>,
+    // },
+    // {
+    //   stepNumber: 1,
+    //   name: t("Early Dismissal"),
+    //   content: () => <div>Regular3</div>,
+    // },
   ];
 
   return (

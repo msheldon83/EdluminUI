@@ -1,0 +1,9 @@
+query GetWorkDayScheduleVariantTypes($orgId: ID) {
+  orgRef_WorkDayScheduleVariantType {
+    all(orgId: $orgId) {
+      id
+      name
+      isStandard
+    }
+  }
+}

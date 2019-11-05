@@ -3,21 +3,17 @@ import { useTranslation } from "react-i18next";
 import { useScreenSize } from "hooks";
 import {
   makeStyles,
-  Grid,
-  Typography,
-  RadioGroup,
   FormControlLabel,
-  Radio,
   Checkbox,
-  FormHelperText,
+  Chip,
 } from "@material-ui/core";
 import * as yup from "yup";
 import { Formik, FormikHelpers } from "formik";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { TextField as FormTextField } from "ui/components/form/text-field";
+import { TimeInput as TimeInputComponent } from "ui/components/form/time-input";
 import { ActionButtons } from "../../../components/action-buttons";
-import { Period } from "../add";
 import { CancelOutlined, DragHandle } from "@material-ui/icons";
 import {
   DragDropContext,
@@ -29,96 +25,58 @@ import { TFunction } from "i18next";
 
 type Props = {
   periods: Array<Period>;
-  hasHalfDayBreak: boolean;
   onSubmit: (periods: Array<Period>) => void;
   onCancel: () => void;
 };
 
-const buildPeriods = (
-  periods: Array<Period>,
-  hasHalfDayBreak: boolean,
-  t: TFunction
-) => {
-  let periodItems = Array.from(periods);
-  const alreadyHasHalfDayBreakPeriod =
-    periodItems.find(p => p.isHalfDayBreakPeriod) != null;
-
-  // Add Half Day Break if enabled and not already present
-  if (hasHalfDayBreak && !alreadyHasHalfDayBreakPeriod) {
-    const halfDayBreakIndex = Math.ceil(periodItems.length / 2);
-    periodItems.splice(halfDayBreakIndex, 0, {
-      placeholder: t("Lunch"),
-      startTime: "",
-      endTime: "",
-      isHalfDayBreakPeriod: true,
-    });
-  }
-
-  // Remove Half Day Break if disabled, but currently present in the list
-  if (!hasHalfDayBreak && alreadyHasHalfDayBreakPeriod) {
-    periodItems = periodItems.filter(p => !p.isHalfDayBreakPeriod);
-  }
-
-  // Handle placeholder content
-  if (hasHalfDayBreak && periodItems.length === 3) {
-    periodItems[0].placeholder = t("Morning");
-    periodItems[2].placeholder = t("Afternoon");
-  } else if (!hasHalfDayBreak && periodItems.length === 2) {
-    periodItems[0].placeholder = t("Morning");
-    periodItems[1].placeholder = t("Afternoon");
-  } else {
-    periodItems.forEach((p, i) => {
-      p.placeholder = p.isHalfDayBreakPeriod
-        ? t("Lunch")
-        : `${t("Period")} ${i + 1}`;
-    });
-  }
-
-  console.log(periodItems);
-  return periodItems;
+export type Period = {
+  name?: string;
+  placeholder: string;
+  startTime?: string;
+  endTime?: string;
+  isHalfDayMorningEnd?: boolean;
+  isHalfDayAfternoonStart?: boolean;
 };
 
 export const RegularSchedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
-  const [periods, setPeriods] = React.useState<Array<Period>>(
-    buildPeriods(props.periods, props.hasHalfDayBreak, t)
-  );
-  const [hasHalfDayBreak, setHasHalfDayBreak] = React.useState<boolean>(
-    props.hasHalfDayBreak
-  );
+  const [periods, setPeriods] = React.useState<Array<Period>>(props.periods);
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) {
       return;
     }
 
-    const periodItems = Array.from(periods);
-    const [removed] = periodItems.splice(result.source.index, 1);
-    periodItems.splice(result.destination.index, 0, removed);
-
-    setPeriods(periodItems);
+    // TODO: For Drag and Drop functionality
+    // const periodItems = Array.from(periods);
+    // const [removed] = periodItems.splice(result.source.index, 1);
+    // periodItems.splice(result.destination.index, 0, removed);
+    // setPeriods(periodItems);
   };
 
   const removePeriod = (index: number) => {
     const periodItems = Array.from(periods);
     const [removed] = periodItems.splice(index, 1);
-    setPeriods(buildPeriods(periodItems, hasHalfDayBreak, t));
+
+    // Handle the renames of period placeholders
+    // Handle the moving of what is endOfMorning and startOfAfternoon
+
+    setPeriods(periodItems);
   };
 
   const addPeriod = (t: TFunction) => {
     const placeholder = `${t("Period")} ${periods.length + 1}`;
     const periodItems = [
       ...periods,
-      { placeholder, startTime: "", endTime: "" },
+      { placeholder, startTime: undefined, endTime: undefined },
     ];
-    setPeriods(buildPeriods(periodItems, hasHalfDayBreak, t));
+    setPeriods(periodItems);
   };
 
   const renderPeriods = (
     periods: Array<Period>,
-    hasHalfDayBreak: boolean,
     setFieldValue: Function
   ) => {
     const periodResult = periods.map((p, i) => {
@@ -134,52 +92,65 @@ export const RegularSchedule: React.FC<Props> = props => {
               <CancelOutlined onClick={() => removePeriod(i)} />
             )}
           </div>
-          <Draggable key={i} draggableId={i.toString()} index={i}>
+          {/* <Draggable key={i} draggableId={i.toString()} index={i}>
             {(provided, snapshot) => (
               <div
                 ref={provided.innerRef}
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
               >
-                <FormTextField
-                  placeholder={p.placeholder}
-                  value={p.name || ""}
-                  name={`periods[${i}].name`}
-                  className={classes.nameInput}
-                  variant="outlined"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setFieldValue(`periods[${i}].name`, e.target.value);
-                  }}
-                />
                 <span className={classes.action}>
                   <DragHandle />
                 </span>
               </div>
             )}
-          </Draggable>
+          </Draggable> */}
+          {/* FormTextField should move into Draggable when implementing drag and drop */}
           <div>
             <FormTextField
-              name={`periods[${i}].startTime`}
-              value={p.startTime || ""}
+              placeholder={p.placeholder}
+              value={p.name || ""}
+              name={`periods[${i}].name`}
+              className={classes.nameInput}
               variant="outlined"
-              className={classes.timeInput}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setFieldValue(`periods[${i}].startTime`, e.target.value);
+                setFieldValue(`periods[${i}].name`, e.target.value);
               }}
             />
           </div>
-          <div>
-            <FormTextField
-              name={`periods[${i}].endTime`}
-              value={p.endTime || ""}
-              variant="outlined"
-              className={classes.timeInput}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setFieldValue(`periods[${i}].endTime`, e.target.value);
+          <div className={classes.startOfAfternoon}>
+            <Chip className={!p.isHalfDayAfternoonStart ? classes.hidden : ""} label={t("Start of afternoon")} />
+          </div>
+          <div className={classes.timeInput}>
+            <TimeInputComponent
+              label=""
+              value={p.startTime || undefined}
+              onValidTime={time => {
+                setFieldValue(`periods[${i}].startTime`, time);
+              }}
+              onChange={value => {
+                setFieldValue(`periods[${i}].startTime`, value);
+              }}
+            />            
+          </div>
+          <div className={classes.timeInput}>
+            <TimeInputComponent
+              label=""
+              value={p.endTime || undefined}
+              onValidTime={time => {
+                setFieldValue(`periods[${i}].endTime`, time);
+              }}
+              onChange={value => {
+                setFieldValue(`periods[${i}].endTime`, value);
               }}
             />
           </div>
-          <div>Extra time info - {i}</div>
+          <div className={classes.endOfMorning}>
+            <Chip className={!p.isHalfDayMorningEnd ? classes.hidden : ""} label={t("End of morning")} />
+          </div>
+          <div>
+            {/* Add the time duration as a string */}
+          </div>
         </div>
       );
     });
@@ -189,25 +160,13 @@ export const RegularSchedule: React.FC<Props> = props => {
   return (
     <Section>
       <SectionHeader title={t("Regular")} />
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={hasHalfDayBreak}
-            onChange={e => {
-              setHasHalfDayBreak(e.target.checked);
-              setPeriods(buildPeriods(periods, e.target.checked, t));
-            }}
-            value={hasHalfDayBreak}
-            color="primary"
-          />
-        }
-        label={t("Has a half day break")}
-      />
       <Formik
         initialValues={{
           periods,
         }}
+        enableReinitialize={true}
         onSubmit={(data, meta) => {
+          console.log(data);
           props.onSubmit(data.periods);
         }}
         validationSchema={yup.object().shape({
@@ -234,7 +193,6 @@ export const RegularSchedule: React.FC<Props> = props => {
                     <div ref={provided.innerRef} {...provided.droppableProps}>
                       {renderPeriods(
                         values.periods,
-                        hasHalfDayBreak,
                         setFieldValue
                       )}
                       {provided.placeholder}
@@ -261,6 +219,7 @@ const useStyles = makeStyles(theme => ({
   period: {
     display: "flex",
     justifyContent: "flex-start",
+    alignItems: "center"
   },
   action: {
     width: theme.typography.pxToRem(50),
@@ -268,13 +227,28 @@ const useStyles = makeStyles(theme => ({
   },
   nameInput: {
     width: theme.typography.pxToRem(200),
+    margin: theme.spacing()
   },
   timeInput: {
     width: theme.typography.pxToRem(100),
+    margin: theme.spacing()
+  },
+  hidden: {
+    visibility: "hidden"
+  },
+  startOfAfternoon: {
+    flexGrow: 2,
+    textAlign: "right",
+    paddingRight: theme.spacing()
+  },
+  endOfMorning: {
+    flexGrow: 2,
+    textAlign: "left",
+    paddingLeft: theme.spacing()
   },
   alternatingItem: {
-    background: "#F5F5F5",
-    borderTop: "1px solid #E5E5E5",
-    borderBottom: "1px solid #E5E5E5",
+    background: theme.customColors.lightGray,
+    borderTop: `1px solid ${theme.customColors.medLightGray}`,
+    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
 }));
