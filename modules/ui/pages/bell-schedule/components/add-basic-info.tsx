@@ -19,6 +19,7 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionButtons } from "../../../components/action-buttons";
 import { SelectValueType, Select } from "ui/components/form/select";
 import { OptionTypeBase } from "react-select/src/types";
+import { ScheduleSettings } from "../add";
 
 type Props = {
   bellSchedule: {
@@ -34,17 +35,6 @@ type Props = {
   ) => void;
   onCancel: () => void;
   onNameChange: (name: string) => void;
-};
-
-export type ScheduleSettings = {
-  isBasic: boolean;
-  basicSettings: {
-    hasVariants: boolean;
-    hasHalfDayBreak: boolean;
-  };
-  periodSettings: {
-    numberOfPeriods: number;
-  };
 };
 
 const buildPeriodOptions = () => {
@@ -93,11 +83,11 @@ export const AddBasicInfo: React.FC<Props> = props => {
           props.onSubmit(data.name, scheduleSettings, data.externalId);
         }}
         validationSchema={yup.object().shape({
-          name: yup
-            .string()
-            .nullable()
-            .required(t("Name is required")),
-          externalId: yup.string().nullable(),
+          // name: yup
+          //   .string()
+          //   .nullable()
+          //   .required(t("Name is required")),
+          // externalId: yup.string().nullable(),
         })}
       >
         {({

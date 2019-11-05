@@ -6,36 +6,61 @@ import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
 // import { Settings } from "./components/add-edit-settings";
 import { WorkDayScheduleCreateInput } from "graphql/server-types.gen";
-// import { CreatePositionType } from "./graphql/create.gen";
+import { CreateWorkdaySchedule } from "./graphql/create.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import {
   BellScheduleRoute,
   BellScheduleAddRoute,
 } from "ui/routes/bell-schedule";
-import { AddBasicInfo, ScheduleSettings } from "./components/add-basic-info";
+import { AddBasicInfo } from "./components/add-basic-info";
+import { TFunction } from "i18next";
+import { RegularSchedule } from "./components/regular-schedule";
+
+export type ScheduleSettings = {
+  isBasic: boolean;
+  basicSettings: {
+    hasVariants: boolean;
+    hasHalfDayBreak: boolean;
+  };
+  periodSettings: {
+    numberOfPeriods: number;
+  };
+};
+
+export type Period = {
+  name?: string;
+  placeholder: string;
+  startTime: string;
+  endTime: string;
+  isHalfDayBreakPeriod?: boolean;
+};
+
+const scheduleSettingsDefaults: ScheduleSettings = {
+  isBasic: true,
+  basicSettings: {
+    hasVariants: true,
+    hasHalfDayBreak: true,
+  },
+  periodSettings: {
+    numberOfPeriods: 1,
+  },
+};
 
 export const BellScheduleAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(BellScheduleAddRoute);
   const classes = useStyles();
-  //const [createPositionType] = useMutationBundle(CreatePositionType);
+  const [createWorkdaySchedule] = useMutationBundle(CreateWorkdaySchedule);
   const [name, setName] = React.useState<string | null>(null);
   const namePlaceholder = t("Eastend High School");
-
-  // Keep track of the initial Schedule settings to configure
-  const [scheduleSettings, setScheduleSettings] = React.useState<
-    ScheduleSettings
-  >({
-    isBasic: true,
-    basicSettings: {
-      hasVariants: true,
-      hasHalfDayBreak: true,
-    },
-    periodSettings: {
-      numberOfPeriods: 1,
-    },
+  const [periodInfo, setPeriodInfo] = React.useState<{
+    hasHalfDayBreak: boolean;
+    periods: Array<Period>;
+  }>({
+    hasHalfDayBreak: true,
+    periods: []
   });
 
   const [bellSchedule, setBellSchedule] = React.useState<
@@ -50,20 +75,41 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     standardSchedule: null,
   });
 
+  const buildPeriodsFromScheduleSettings = (settings: ScheduleSettings, t: TFunction): Array<Period> => {
+    const periods: Array<Period> = [];
+
+    if (settings.isBasic) {
+      // Basic Schedule
+      periods.push({ placeholder: t("Morning"), startTime: "", endTime: "" });
+      periods.push({ placeholder: t("Afternoon"), startTime: "", endTime: "" });
+      return periods;
+    }
+
+    // Period Schedule
+    for (let i = 0; i < settings.periodSettings.numberOfPeriods; i++) {
+      periods.push({ placeholder: `${t("Period")} ${i+1}`, startTime: "", endTime: "" });
+    }
+
+    return periods;
+  }
+
   const renderBasicInfoStep = (
     setStep: React.Dispatch<React.SetStateAction<number>>
   ) => {
     return (
       <AddBasicInfo
         bellSchedule={bellSchedule}
-        scheduleSettings={scheduleSettings}
+        scheduleSettings={scheduleSettingsDefaults}
         onSubmit={(name, scheduleSettings, externalId) => {
           setBellSchedule({
             ...bellSchedule,
             name: name,
             externalId: externalId,
           });
-          setScheduleSettings(scheduleSettings);
+          setPeriodInfo({
+            hasHalfDayBreak: scheduleSettings.isBasic && scheduleSettings.basicSettings.hasHalfDayBreak,
+            periods: buildPeriodsFromScheduleSettings(scheduleSettings, t)
+          });
           setStep(steps[1].stepNumber);
         }}
         onCancel={() => {
@@ -76,59 +122,63 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     );
   };
 
-  // const renderSettings = (
-  //   setStep: React.Dispatch<React.SetStateAction<number>>
-  // ) => {
-  //   return (
-  //     <Settings
-  //       orgId={params.organizationId}
-  //       positionType={positionType}
-  //       submitText={t("Save")}
-  //       onSubmit={async (
-  //         forPermanentPositions: boolean,
-  //         needsReplacement: NeedsReplacement | undefined | null,
-  //         forStaffAugmentation: boolean,
-  //         minAbsenceDurationMinutes: number,
-  //         defaultContractId?: number | null
-  //       ) => {
-  //         const newPositionType = {
-  //           ...positionType,
-  //           forPermanentPositions: forPermanentPositions,
-  //           needsReplacement: needsReplacement,
-  //           forStaffAugmentation: forStaffAugmentation,
-  //           minAbsenceDurationMinutes: minAbsenceDurationMinutes,
-  //           defaultContractId: defaultContractId,
-  //         };
-  //         setPositionType(newPositionType);
+  const renderRegularSchedule = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    return (
+      <RegularSchedule
+        periods={periodInfo.periods}
+        hasHalfDayBreak={periodInfo.hasHalfDayBreak}
+        onSubmit={async (
+          periods: Array<Period>
+        ) => {
+          const newBellSchedule = {
+            ...bellSchedule,
+            periods: periods.map(p => {
+              return {
+                name: p.name || p.placeholder
+              }
+            }),
+            standardSchedule: {
+              periods: periods.map(p => {
+                return {
+                  workDaySchedulePeriodName: p.name || p.placeholder,
+                  startTime: Number(p.startTime),
+                  endTime: Number(p.endTime)
+                }
+              })
+            }
+          }
 
-  //         // Create the Position Type
-  //         const id = await create(newPositionType);
-  //         const viewParams = {
-  //           ...params,
-  //           positionTypeId: id!,
-  //         };
-  //         // Go to the Position Type View page
-  //         history.push(PositionTypeViewRoute.generate(viewParams));
-  //       }}
-  //       onCancel={() => {
-  //         const url = PositionTypeRoute.generate(params);
-  //         history.push(url);
-  //       }}
-  //     />
-  //   );
-  // };
+          // Create the Work Day Schedule
+          const id = await create(newBellSchedule);
+          console.log(id);
+          // const viewParams = {
+          //   ...params,
+          //   positionTypeId: id!,
+          // };
+          // // Go to the Position Type View page
+          // history.push(PositionTypeViewRoute.generate(viewParams));
+        }}
+        onCancel={() => {
+          const url = BellScheduleRoute.generate(params);
+          history.push(url);
+        }}
+      />
+    );
+  };
 
-  // const create = async (positionType: PositionTypeCreateInput) => {
-  //   const result = await createPositionType({
-  //     variables: {
-  //       positionType: {
-  //         ...positionType,
-  //         externalId: positionType.externalId && positionType.externalId.trim().length === 0 ? null : positionType.externalId
-  //       }
-  //     },
-  //   });
-  //   return result?.data?.positionType?.create?.id;
-  // };
+  const create = async (bellSchedule: WorkDayScheduleCreateInput) => {
+    const result = await createWorkdaySchedule({
+      variables: {
+        workdaySchedule: {
+          ...bellSchedule,
+          externalId: bellSchedule.externalId && bellSchedule.externalId.trim().length === 0 ? null : bellSchedule.externalId
+        }
+      },
+    });
+    return result?.data?.workDaySchedule?.create?.id;
+  };
 
   const steps: Array<Step> = [
     {
@@ -139,7 +189,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     {
       stepNumber: 1,
       name: t("Regular"),
-      content: () => <div>Regular</div>,
+      content: renderRegularSchedule,
     },
     {
       stepNumber: 1,
