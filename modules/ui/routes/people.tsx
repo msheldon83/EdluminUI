@@ -5,6 +5,16 @@ import { defineSubRoute } from "./definition";
 
 export const PeopleRoute = defineSubRoute(AdminChromeRoute, "/people");
 
+export enum QueryParamKeys {
+  name = "name",
+  acitve = "active",
+}
+
+export type QueryParams = {
+  name: string;
+  active: boolean;
+};
+
 export const PeopleLoader = asyncComponent({
   resolve: async () => {
     const PeoplePage = (await import("ui/pages/people")).PeoplePage;

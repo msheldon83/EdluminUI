@@ -26,7 +26,7 @@ import Maybe from "graphql/tsutils/Maybe";
 
 const editableSections = {
   name: "edit-name",
-  externalId: "edit-external-id"
+  externalId: "edit-external-id",
 };
 
 export const PositionTypeViewPage: React.FC<{}> = props => {
@@ -49,17 +49,20 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   }, [deletePositionTypeMutation, history, params]);
 
   const [updatePositionType] = useMutationBundle(UpdatePositionType);
-  const enableDisablePositionType = React.useCallback((enabled: boolean, rowVersion: string) => {
-    return updatePositionType({
-      variables: {
-        positionType: {
-          positionTypeId: Number(params.positionTypeId),
-          rowVersion: rowVersion,
-          expired: !enabled
-        }
-      },
-    });
-  }, [updatePositionType, params]);
+  const enableDisablePositionType = React.useCallback(
+    (enabled: boolean, rowVersion: string) => {
+      return updatePositionType({
+        variables: {
+          positionType: {
+            id: Number(params.positionTypeId),
+            rowVersion: rowVersion,
+            expired: !enabled,
+          },
+        },
+      });
+    },
+    [updatePositionType, params]
+  );
 
   const getPositionType = useQueryBundle(GetPositionTypeById, {
     variables: { id: params.positionTypeId },
@@ -84,7 +87,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     await updatePositionType({
       variables: {
         positionType: {
-          positionTypeId: Number(positionType.id),
+          id: Number(positionType.id),
           rowVersion: positionType.rowVersion,
           name,
         },
@@ -96,7 +99,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     await updatePositionType({
       variables: {
         positionType: {
-          positionTypeId: Number(positionType.id),
+          id: Number(positionType.id),
           rowVersion: positionType.rowVersion,
           externalId,
         },
@@ -128,7 +131,10 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           {
             name: enabled ? t("Inactivate") : t("Activate"),
             onClick: async () => {
-              await enableDisablePositionType(!enabled, positionType.rowVersion);
+              await enableDisablePositionType(
+                !enabled,
+                positionType.rowVersion
+              );
               setEnabled(!enabled);
             },
           },
@@ -230,5 +236,5 @@ const useStyles = makeStyles(theme => ({
   valueMissing: {
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
-  }
+  },
 }));

@@ -59,7 +59,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
           const url = PositionTypeRoute.generate(params);
           history.push(url);
         }}
-        onNameChange={(name) => setName(name)}
+        onNameChange={name => setName(name)}
         namePlaceholder={namePlaceholder}
       />
     );
@@ -112,8 +112,12 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
       variables: {
         positionType: {
           ...positionType,
-          externalId: positionType.externalId && positionType.externalId.trim().length === 0 ? null : positionType.externalId
-        }
+          externalId:
+            positionType.externalId &&
+            positionType.externalId.trim().length === 0
+              ? null
+              : positionType.externalId,
+        },
       },
     });
     return result?.data?.positionType?.create?.id;
@@ -137,7 +141,9 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
       <div className={classes.header}>
         <PageTitle title={t("Create new position type")} />
         <Typography variant="h1">
-          {name || <span className={classes.placeholder}>{namePlaceholder}</span>}
+          {name || (
+            <span className={classes.placeholder}>{namePlaceholder}</span>
+          )}
         </Typography>
       </div>
       <Tabs steps={steps} isWizard={true} showStepNumber={true}></Tabs>
@@ -147,10 +153,10 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
 
 const useStyles = makeStyles(theme => ({
   header: {
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(2),
   },
   placeholder: {
     opacity: "0.2",
     filter: "alpha(opacity = 20)",
-  }
+  },
 }));

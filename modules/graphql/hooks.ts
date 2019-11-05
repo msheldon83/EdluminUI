@@ -15,15 +15,15 @@ import {
 } from "apollo-client";
 import {
   PaginationQueryParams,
-  useQueryParamIso,
-  QueryIso,
   PaginationSettings,
+  QueryIso,
+  useQueryParamIso,
 } from "hooks/query-params";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLoadingState } from "ui/components/loading-state";
 import { GraphqlBundle } from "./core";
 
-type NonOptional<O> = O extends null | undefined | (infer T) ? T : O;
+type NonOptional<O> = O extends null | undefined | infer T ? T : O;
 
 /** Extra query stuff we get from apollo hooks. */
 type QueryExtras<TData, TVariables> = Pick<
@@ -47,12 +47,12 @@ export type HookQueryResult<TResult, TVars> =
   // Initial loading state. No data to show.
   // Skipped is a key on the loading type to avoid having two types returning QueryExtras
   // (which doesn't have the data key)
-  | { state: "LOADING"; skipped: boolean } & QueryExtras<TResult, TVars>
+  | ({ state: "LOADING"; skipped: boolean } & QueryExtras<TResult, TVars>)
   // Updating, but we have data to show. Usually render this.
-  | { state: "UPDATING" } & QueryBaseResult<TResult, TVars>
+  | ({ state: "UPDATING" } & QueryBaseResult<TResult, TVars>)
   // Loaded. We have data to show
-  | { state: "DONE" } & QueryBaseResult<TResult, TVars>
-  | { state: "ERROR" } & QueryBaseResult<TResult, TVars>;
+  | ({ state: "DONE" } & QueryBaseResult<TResult, TVars>)
+  | ({ state: "ERROR" } & QueryBaseResult<TResult, TVars>);
 
 export function useQueryBundle<Result, Vars>(
   query: GraphqlBundle<Result, Vars>,
@@ -153,7 +153,8 @@ export function usePagedQueryBundle<Result, Vars extends QueryPaginationVars>(
     countFromQueryResult = totalCount(result.data);
   }
   useEffect(() => {
-    if (countFromQueryResult) setLastCount(countFromQueryResult);
+    if (typeof countFromQueryResult === "number")
+      setLastCount(countFromQueryResult);
   }, [countFromQueryResult]);
   const count = countFromQueryResult || lastCount;
   const currentPage = params.page;

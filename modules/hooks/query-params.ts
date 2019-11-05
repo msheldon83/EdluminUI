@@ -1,5 +1,5 @@
 import { Isomorphism } from "@atomic-object/lenses";
-import { mapValues } from "lodash-es";
+import { mapValues, forEach } from "lodash-es";
 import { useCallback, useMemo } from "react";
 import { useHistory, useLocation } from "react-router";
 
@@ -18,14 +18,13 @@ export const useQueryParams = <K extends string>(
   const update = useCallback(
     (newParams: Partial<Record<K, string | null>>) => {
       const params = new URLSearchParams(location.search);
-      for (const key in newParams) {
-        const v = newParams[key];
+      forEach(newParams, (v, k) => {
         if (typeof v === "string") {
-          params.set(key, v);
+          params.set(k, v);
         } else {
-          params.delete(key);
+          params.delete(k);
         }
-      }
+      });
       history.push({ ...location, search: params.toString() });
     },
     [location, history]

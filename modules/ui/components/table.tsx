@@ -36,10 +36,20 @@ type Props<T extends object> = {
   paging?: boolean;
   onRowClick?: (event?: React.MouseEvent, rowData?: T) => void;
   onEdit?: Function;
+  /**
+   * @deprecated This is temporary functionality, we're going to create
+   * a new filter component for tables that will allow Active filtering
+   * and then this should be removed
+   */
   showIncludeExpired?: boolean;
+  /**
+   * @deprecated This is temporary functionality, we're going to create
+   * a new filter component for tables that will allow Active filtering
+   * and then this should be removed
+   */
   onIncludeExpiredChange?: (checked: boolean) => void;
   expiredRowCheck?: (rowData: T) => boolean;
-} & Pick<MaterialTableProps<T>, "options" | "columns" | "actions" >;
+} & Pick<MaterialTableProps<T>, "options" | "columns" | "actions">;
 
 /* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
 /* eslint-disable react/display-name */

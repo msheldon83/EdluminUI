@@ -36,11 +36,13 @@ type Props = {
     };
   };
   submitText: string;
-  onSubmit: (forPermanentPositions: boolean,
+  onSubmit: (
+    forPermanentPositions: boolean,
     needsReplacement: NeedsReplacement | undefined | null,
     forStaffAugmentation: boolean,
     minAbsenceDurationMinutes: number,
-    defaultContractId: number | undefined | null) => Promise<unknown>;
+    defaultContractId: number | undefined | null
+  ) => Promise<unknown>;
   onCancel: () => void;
 };
 
@@ -79,7 +81,8 @@ export const Settings: React.FC<Props> = props => {
     return <></>;
   }
 
-  const allActiveContracts: any = getAllActiveContracts?.data?.contract?.all || [];
+  const allActiveContracts: any =
+    getAllActiveContracts?.data?.contract?.all || [];
   const contractOptions = buildContractOptions(
     allActiveContracts,
     props.positionType
@@ -198,10 +201,14 @@ export const Settings: React.FC<Props> = props => {
                 "Will you need to request a substitute without an employee being absent?"
               )}
             </FormHelperText>
-            <div className={[
-              classes.contractSection,
-              isMobile ? classes.mobileSectionSpacing : classes.normalSectionSpacing,
-            ].join(" ")}>
+            <div
+              className={[
+                classes.contractSection,
+                isMobile
+                  ? classes.mobileSectionSpacing
+                  : classes.normalSectionSpacing,
+              ].join(" ")}
+            >
               <div>{t("Default contract")}</div>
               <Select
                 value={contractOptions.find(
@@ -211,7 +218,7 @@ export const Settings: React.FC<Props> = props => {
                 options={contractOptions}
                 onChange={(e: SelectValueType) => {
                   //TODO: Once the select component is updated,
-                  // can remove the Array checking                  
+                  // can remove the Array checking
                   let selectedValue = null;
                   if (e) {
                     if (Array.isArray(e)) {
@@ -219,7 +226,7 @@ export const Settings: React.FC<Props> = props => {
                     } else {
                       selectedValue = (e as OptionTypeBase).value;
                     }
-                  }                  
+                  }
                   setFieldValue("defaultContractId", selectedValue);
                 }}
               />
@@ -229,10 +236,14 @@ export const Settings: React.FC<Props> = props => {
                 )}
               </FormHelperText>
             </div>
-            <div className={[
-              classes.minAbsenceSection,
-              isMobile ? classes.mobileSectionSpacing : classes.normalSectionSpacing,
-            ].join(" ")}>
+            <div
+              className={[
+                classes.minAbsenceSection,
+                isMobile
+                  ? classes.mobileSectionSpacing
+                  : classes.normalSectionSpacing,
+              ].join(" ")}
+            >
               <Typography variant="h6">
                 {t("How should the system behave for this position?")}
               </Typography>
@@ -273,7 +284,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
   mobileSectionSpacing: {
-    marginTop: theme.spacing(2)
+    marginTop: theme.spacing(2),
   },
   normalSectionSpacing: {
     marginTop: theme.spacing(6),

@@ -5,8 +5,9 @@ query AllOrganizations($limit: Int, $offset: Int) {
         id
         name
       }
-      hasMoreData
+      offset
       limit
+      hasMoreData
       totalCount
     }
   }
