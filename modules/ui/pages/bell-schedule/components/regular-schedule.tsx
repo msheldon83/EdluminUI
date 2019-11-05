@@ -205,6 +205,8 @@ export const RegularSchedule: React.FC<Props> = props => {
           console.log(data);
           props.onSubmit(data.periods);
         }}
+        validateOnChange={false}
+        validateOnBlur={false}
         validationSchema={yup.object().shape({
           periods: yup.array()
             .of(
