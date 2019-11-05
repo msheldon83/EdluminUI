@@ -1,0 +1,20 @@
+query GetWorkDayScheduleById($id: ID!) {
+  workDaySchedule {
+    byId(id: $id) {
+      id
+        name
+        externalId
+        expired
+        rowVersion
+        periods {
+          id
+        }
+        variants {
+          id
+        }
+        usages {
+          id
+        }
+    }
+  }
+}
