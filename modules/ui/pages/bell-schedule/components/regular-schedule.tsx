@@ -6,9 +6,10 @@ import {
   FormControlLabel,
   Checkbox,
   Chip,
+  FormHelperText,
 } from "@material-ui/core";
 import * as yup from "yup";
-import { Formik, FormikHelpers } from "formik";
+import { Formik, FormikHelpers, FormikErrors } from "formik";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { TextField as FormTextField } from "ui/components/form/text-field";
@@ -42,7 +43,6 @@ export const RegularSchedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
-  const [periods, setPeriods] = React.useState<Array<Period>>(props.periods);
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) {
@@ -56,28 +56,59 @@ export const RegularSchedule: React.FC<Props> = props => {
     // setPeriods(periodItems);
   };
 
-  const removePeriod = (index: number) => {
+  const removePeriod = (periods: Array<Period>, index: number) => {
     const periodItems = Array.from(periods);
     const [removed] = periodItems.splice(index, 1);
 
     // Handle the renames of period placeholders
     // Handle the moving of what is endOfMorning and startOfAfternoon
 
-    setPeriods(periodItems);
+    return periodItems;
   };
 
-  const addPeriod = (t: TFunction) => {
+  const addPeriod = (periods: Array<Period>, t: TFunction) => {
     const placeholder = `${t("Period")} ${periods.length + 1}`;
     const periodItems = [
       ...periods,
       { placeholder, startTime: undefined, endTime: undefined },
     ];
-    setPeriods(periodItems);
+
+    // Handle renames of period placeholders if we've just introduced more than Morning / Afternoon
+
+    return periodItems;
   };
+
+  const getError = (errors: any, fieldName: string, index: number) => {
+    if (!errors.periods || !errors.periods[index]) {
+      return null;
+    }
+
+    const periodError = errors.periods[index];
+    if (!periodError) {
+      return null;
+    }
+
+    if (!periodError[fieldName]) {
+      return null;
+    }
+
+    const errorMessage: string = periodError[fieldName];
+    return errorMessage;
+  }
+
+  const displayErrorIfPresent = (errors: any, fieldName: string, index: number) => {
+    const error = getError(errors, fieldName, index);
+    if (!error) {
+      return null;
+    }
+
+    return <FormHelperText error={true}>{error}</FormHelperText>
+  }
 
   const renderPeriods = (
     periods: Array<Period>,
-    setFieldValue: Function
+    setFieldValue: Function,
+    errors: FormikErrors<{ periods: Period[] }>
   ) => {
     const periodResult = periods.map((p, i) => {
       const periodClasses = [classes.period];
@@ -89,7 +120,10 @@ export const RegularSchedule: React.FC<Props> = props => {
         <div key={i} className={periodClasses.join(" ")}>
           <div className={classes.action}>
             {periods.length > 1 && (
-              <CancelOutlined onClick={() => removePeriod(i)} />
+              <CancelOutlined onClick={() => { 
+                const updatedPeriods = removePeriod(periods, i);
+                setFieldValue('periods', updatedPeriods);
+              }} />
             )}
           </div>
           {/* <Draggable key={i} draggableId={i.toString()} index={i}>
@@ -131,7 +165,8 @@ export const RegularSchedule: React.FC<Props> = props => {
               onChange={value => {
                 setFieldValue(`periods[${i}].startTime`, value);
               }}
-            />            
+            />
+            {displayErrorIfPresent(errors, "startTime", i)}
           </div>
           <div className={classes.timeInput}>
             <TimeInputComponent
@@ -144,6 +179,7 @@ export const RegularSchedule: React.FC<Props> = props => {
                 setFieldValue(`periods[${i}].endTime`, value);
               }}
             />
+            {displayErrorIfPresent(errors, "endTime", i)}
           </div>
           <div className={classes.endOfMorning}>
             <Chip className={!p.isHalfDayMorningEnd ? classes.hidden : ""} label={t("End of morning")} />
@@ -162,7 +198,7 @@ export const RegularSchedule: React.FC<Props> = props => {
       <SectionHeader title={t("Regular")} />
       <Formik
         initialValues={{
-          periods,
+          periods: props.periods,
         }}
         enableReinitialize={true}
         onSubmit={(data, meta) => {
@@ -170,20 +206,21 @@ export const RegularSchedule: React.FC<Props> = props => {
           props.onSubmit(data.periods);
         }}
         validationSchema={yup.object().shape({
-          // name: yup
-          //   .string()
-          //   .nullable()
-          //   .required(t("Name is required")),
-          // externalId: yup.string().nullable(),
-          //TODO: Handle validation of array of objects
+          periods: yup.array()
+            .of(
+              yup.object().shape({
+                startTime: yup.string().required(t("Required")),
+                endTime: yup.string().required(t("Required")),
+              })
+            )
         })}
       >
         {({
           handleSubmit,
-          handleChange,
           values,
           setFieldValue,
           submitForm,
+          errors
         }) => (
           <form onSubmit={handleSubmit}>
             <DragDropContext onDragEnd={onDragEnd}>
@@ -193,7 +230,8 @@ export const RegularSchedule: React.FC<Props> = props => {
                     <div ref={provided.innerRef} {...provided.droppableProps}>
                       {renderPeriods(
                         values.periods,
-                        setFieldValue
+                        setFieldValue,
+                        errors
                       )}
                       {provided.placeholder}
                     </div>
@@ -205,7 +243,12 @@ export const RegularSchedule: React.FC<Props> = props => {
               submit={{ text: t("Save"), execute: submitForm }}
               cancel={{ text: t("Cancel"), execute: props.onCancel }}
               additionalActions={[
-                { text: t("Add Row"), execute: () => addPeriod(t) },
+                { text: t("Add Row"), 
+                  execute: () => { 
+                    const updatedPeriods = addPeriod(values.periods, t);
+                    setFieldValue('periods', updatedPeriods);
+                  }
+                },
               ]}
             />
           </form>
@@ -250,5 +293,5 @@ const useStyles = makeStyles(theme => ({
     background: theme.customColors.lightGray,
     borderTop: `1px solid ${theme.customColors.medLightGray}`,
     borderBottom: `1px solid ${theme.customColors.medLightGray}`,
-  },
+  }
 }));

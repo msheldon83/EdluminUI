@@ -204,7 +204,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           stepNumber: 0,
           name: t("Regular"),
           content: renderRegularSchedule,
-        }]} 
+        }]}
         isWizard={false} 
       />
     </>
