@@ -128,7 +128,12 @@ export const Schedule: React.FC<Props> = props => {
 
   const removePeriod = (periods: Array<Period>, index: number) => {
     const periodItems = Array.from(periods);
-    periodItems.splice(index, 1);
+    const [removed] = periodItems.splice(index, 1);
+    // Preserve a half day break
+    if (periodItems[index]) {
+      periodItems[index].isHalfDayAfternoonStart = removed.isHalfDayAfternoonStart;
+      periodItems[index].isHalfDayMorningEnd = removed.isHalfDayMorningEnd;
+    }
     updatePeriodPlaceholders(periodItems, t);
     return periodItems;
   };
