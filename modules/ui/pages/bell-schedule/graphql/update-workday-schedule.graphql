@@ -3,9 +3,30 @@ mutation UpdateWorkDaySchedule($workDaySchedule: WorkDayScheduleUpdateInput!) {
     update(workDaySchedule: $workDaySchedule) {
       id
       name
-      rowVersion
       externalId
       expired
+      rowVersion
+      periods {
+        id
+        name
+        sequence
+      }
+      variants {
+        id
+        isStandard
+        periods {
+          id
+          startTime
+          endTime
+          periodDuration
+          isHalfDayMorningEnd
+          isHalfDayAfternoonStart
+          sequence
+        }
+      }
+      usages {
+        id
+      }
     }
   }
 }

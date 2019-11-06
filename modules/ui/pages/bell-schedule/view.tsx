@@ -25,7 +25,7 @@ import Maybe from "graphql/tsutils/Maybe";
 import { Schedule, Period } from "./components/schedule";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { WorkDayScheduleVariant, WorkDayScheduleVariantPeriod, WorkDaySchedule, WorkDaySchedulePeriod } from "graphql/server-types.gen";
-import { humanizeTimeStamp } from "helpers/time";
+import { humanizeTimeStamp, secondsSinceMidnight } from "helpers/time";
 
 const editableSections = {
   name: "edit-name",
@@ -117,6 +117,8 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     const periods: Array<Period> = standardSchedule.periods!.map((p: Maybe<WorkDayScheduleVariantPeriod>) => {
       const matchingPeriod = (workDaySchedule as WorkDaySchedule).periods ? workDaySchedule.periods!.find((w: any) => w.sequence! === p!.sequence) : null;
       return {
+        periodId: matchingPeriod?.id,
+        variantPeriodId: p?.id,
         name: matchingPeriod ? matchingPeriod.name : "",
         placeholder: "",
         startTime: humanizeTimeStamp(p!.startTime),
@@ -128,12 +130,16 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
 
     return (
       <Schedule
-        isVariant={false}
+        isStandard={true}
         periods={periods}
         onSubmit={async (
-          periods: Array<Period>
+          periods: Array<Period>,
+          variantId: number | null | undefined
         ) => {
-          
+          // Regular allows update of Periods so call updateWorkDaySchedule
+          // Variants only allow modifying the times and no drag and drop (and no add or remove row?)
+
+          await updateStandardSchedule(periods, variantId);          
         }}
         onCancel={() => {
           const url = BellScheduleRoute.generate(params);
@@ -141,6 +147,35 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
         }}
       />
     );
+  };
+
+  const updateStandardSchedule = async (periods: Array<Period>, variantId?: number | null | undefined) => {
+    await updateWorkDaySchedule({
+      variables: {
+        workDaySchedule: {
+          id: Number(workDaySchedule.id),
+          rowVersion: workDaySchedule.rowVersion,
+          periods: periods.map(p => {
+            return {
+              id: Number(p.periodId),
+              name: p.name
+            }
+          }),
+          standardSchedule: {
+            id: variantId,
+            periods: periods.map(p => {
+              return {
+                workDaySchedulePeriodName: p.name ? p.name : "",
+                startTime: p.startTime ? secondsSinceMidnight(p.startTime) : null,
+                endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
+                isHalfDayMorningEnd: p.isHalfDayMorningEnd,
+                isHalfDayAfternoonStart: p.isHalfDayAfternoonStart
+              }
+            })
+          }
+        },
+      },
+    });
   };
 
   return (

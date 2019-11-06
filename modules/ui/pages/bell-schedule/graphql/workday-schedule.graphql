@@ -2,31 +2,31 @@ query GetWorkDayScheduleById($id: ID!) {
   workDaySchedule {
     byId(id: $id) {
       id
+      name
+      externalId
+      expired
+      rowVersion
+      periods {
+        id
         name
-        externalId
-        expired
-        rowVersion
+        sequence
+      }
+      variants {
+        id
+        isStandard
         periods {
           id
-          name
+          startTime
+          endTime
+          periodDuration
+          isHalfDayMorningEnd
+          isHalfDayAfternoonStart
           sequence
         }
-        variants {
-          id
-          isStandard
-          periods {
-            id
-            startTime
-            endTime
-            periodDuration
-            isHalfDayMorningEnd
-            isHalfDayAfternoonStart
-            sequence
-          }
-        }
-        usages {
-          id
-        }
+      }
+      usages {
+        id
+      }
     }
   }
 }

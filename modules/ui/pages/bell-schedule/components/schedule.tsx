@@ -23,16 +23,18 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import { TFunction } from "i18next";
-import { isNumber } from "util";
 
 type Props = {
-  isVariant: boolean;
+  isStandard: boolean;
   periods: Array<Period>;
-  onSubmit: (periods: Array<Period>) => void;
+  variantId?: number | null | undefined;
+  onSubmit: (periods: Array<Period>, variantId?: number | null | undefined) => void;
   onCancel: () => void;
 };
 
 export type Period = {
+  periodId?: string | null | undefined;
+  variantPeriodId?: string | null | undefined;
   name?: string;
   placeholder: string;
   startTime?: string;
@@ -237,7 +239,7 @@ export const Schedule: React.FC<Props> = props => {
         enableReinitialize={true}
         onSubmit={(data, meta) => {
           console.log(data);
-          props.onSubmit(data.periods);
+          props.onSubmit(data.periods, props.variantId);
         }}
         validateOnChange={false}
         validateOnBlur={false}

@@ -138,7 +138,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     const periods = buildPeriodsFromScheduleSettings(scheduleSettings, orgUsesHalfDayBreaks, t);
     return (
       <Schedule
-        isVariant={false}
+        isStandard={true}
         periods={periods}
         onSubmit={async (
           periods: Array<Period>
