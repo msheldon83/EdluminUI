@@ -51,16 +51,39 @@ export const Schedule: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
 
-  const onDragEnd = (result: DropResult) => {
-    if (!result.destination) {
-      return;
+  const onDragEnd = (result: DropResult, periods: Array<Period>, t: TFunction): Array<Period> => {
+    const {destination, source} = result;
+    
+    if (!destination) {
+      return periods;
+    }
+    if (destination.droppableId === source.droppableId 
+      && destination.index === source.index) {
+      return periods;
     }
 
-    // TODO: For Drag and Drop functionality
-    // const periodItems = Array.from(periods);
-    // const [removed] = periodItems.splice(result.source.index, 1);
-    // periodItems.splice(result.destination.index, 0, removed);
-    // setPeriods(periodItems);
+    // Just reordering the names of the periods
+    const oldPeriods = periods.map(p => { return {...p}});
+    if (source.index < destination.index) {
+      // Dragging down the list
+      for (let i = destination.index-1; i >= source.index; i--) {
+        console.log("DRAG DOWN", i, periods[i].name, oldPeriods[i+1].name);
+        periods[i].name = oldPeriods[i+1].name;
+      }
+    } else {
+      // Dragging up the list
+      for (let i = destination.index+1; i <= source.index; i++) {
+        console.log("DRAG UP", i, periods[i].name, oldPeriods[i-1].name);
+        periods[i].name = oldPeriods[i-1].name;
+      }
+    }
+    // Update the destination name that was actually dragged
+    periods[destination.index].name = oldPeriods[source.index].name;
+
+    // Update placeholders
+    updatePeriodPlaceholders(periods, t);
+
+    return periods;
   };
 
   const removePeriod = (periods: Array<Period>, index: number) => {
@@ -97,6 +120,10 @@ export const Schedule: React.FC<Props> = props => {
           p.placeholder = `${t("Period")} ${periodNumber++}`;
         }
       })
+    }
+
+    if (halfDayBreakPeriod) {
+      halfDayBreakPeriod.placeholder = t("Lunch");
     }
   } 
 
@@ -175,32 +202,32 @@ export const Schedule: React.FC<Props> = props => {
               }} />
             )}
           </div>
-          {/* <Draggable key={i} draggableId={i.toString()} index={i}>
+          <Draggable key={i} draggableId={i.toString()} index={i}>
             {(provided, snapshot) => (
               <div
                 ref={provided.innerRef}
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
+                className={classes.draggableSection}
               >
-                <span className={classes.action}>
-                  <DragHandle />
-                </span>
+                <div>
+                  <FormTextField
+                    placeholder={p.placeholder}
+                    value={p.name || ""}
+                    name={`periods[${i}].name`}
+                    className={classes.nameInput}
+                    variant="outlined"
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setFieldValue(`periods[${i}].name`, e.target.value);
+                    }}
+                  />
+                </div>
+                <div className={classes.dragHandle}>
+                  {props.isStandard && <DragHandle />}
+                </div>
               </div>
             )}
-          </Draggable> */}
-          {/* FormTextField should move into Draggable when implementing drag and drop */}
-          <div>
-            <FormTextField
-              placeholder={p.placeholder}
-              value={p.name || ""}
-              name={`periods[${i}].name`}
-              className={classes.nameInput}
-              variant="outlined"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setFieldValue(`periods[${i}].name`, e.target.value);
-              }}
-            />
-          </div>
+          </Draggable>
           <div className={classes.startOfAfternoon}>
             <Chip className={!p.isHalfDayAfternoonStart ? classes.hidden : classes.startOfAfternoonChip} label={t("Start of afternoon")} />
           </div>
@@ -276,7 +303,10 @@ export const Schedule: React.FC<Props> = props => {
           errors
         }) => (
           <form onSubmit={handleSubmit}>
-            <DragDropContext onDragEnd={onDragEnd}>
+            <DragDropContext onDragEnd={(result: DropResult) => {
+              const updatedPeriods = onDragEnd(result, values.periods, t);
+              setFieldValue('periods', updatedPeriods);
+            }}>
               <Droppable droppableId="droppable">
                 {(provided, snapshot) => {
                   const { innerRef } = provided;
@@ -317,6 +347,14 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "flex-start",
     alignItems: "center"
+  },
+  draggableSection: {
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center"
+  },
+  dragHandle: {
+    width: theme.typography.pxToRem(50),
   },
   action: {
     width: theme.typography.pxToRem(50),
