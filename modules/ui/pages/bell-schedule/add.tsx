@@ -15,7 +15,7 @@ import {
 } from "ui/routes/bell-schedule";
 import { AddBasicInfo } from "./components/add-basic-info";
 import { TFunction } from "i18next";
-import { RegularSchedule, Period } from "./components/regular-schedule";
+import { Schedule, Period } from "./components/schedule";
 import { secondsSinceMidnight } from "../../../helpers/time"
 import { GetWorkDayPatterns } from "./graphql/work-day-patterns.gen";
 import { GetOrgConfigFeatureFlags } from "./graphql/org-config-feature-flags.gen";
@@ -137,7 +137,8 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   ) => {
     const periods = buildPeriodsFromScheduleSettings(scheduleSettings, orgUsesHalfDayBreaks, t);
     return (
-      <RegularSchedule
+      <Schedule
+        isVariant={false}
         periods={periods}
         onSubmit={async (
           periods: Array<Period>

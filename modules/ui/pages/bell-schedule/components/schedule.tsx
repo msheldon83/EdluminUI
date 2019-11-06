@@ -26,6 +26,7 @@ import { TFunction } from "i18next";
 import { isNumber } from "util";
 
 type Props = {
+  isVariant: boolean;
   periods: Array<Period>;
   onSubmit: (periods: Array<Period>) => void;
   onCancel: () => void;
@@ -40,7 +41,7 @@ export type Period = {
   isHalfDayAfternoonStart?: boolean;
 };
 
-export const RegularSchedule: React.FC<Props> = props => {
+export const Schedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";

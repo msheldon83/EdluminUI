@@ -22,7 +22,7 @@ import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
 import { PageHeader } from "ui/components/page-header";
 import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import Maybe from "graphql/tsutils/Maybe";
-import { RegularSchedule, Period } from "./components/regular-schedule";
+import { Schedule, Period } from "./components/schedule";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { WorkDayScheduleVariant, WorkDayScheduleVariantPeriod, WorkDaySchedule, WorkDaySchedulePeriod } from "graphql/server-types.gen";
 import { humanizeTimeStamp } from "helpers/time";
@@ -127,7 +127,8 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     })
 
     return (
-      <RegularSchedule
+      <Schedule
+        isVariant={false}
         periods={periods}
         onSubmit={async (
           periods: Array<Period>
