@@ -10,36 +10,41 @@ import { LoginPageRouteLoader } from "./pages/login/loader";
 import { IndexLoader } from "./routes";
 import { AdminChromeRoute, AppChromeRoute } from "./routes/app-chrome";
 import {
+  BellScheduleAddLoader,
+  BellScheduleAddRoute,
+  BellScheduleLoader,
+  BellScheduleRoute,
+  BellScheduleViewLoader,
+  BellScheduleViewRoute,
+} from "./routes/bell-schedule";
+import {
+  AdminCreateAbsenceRoute,
+  CreateAbsenceLoader,
+  EmployeeCreateAbsenceRoute,
+} from "./routes/create-absence";
+import {
   OrganizationsLoader,
   OrganizationsNoOrgRoute,
   OrganizationsRoute,
 } from "./routes/organizations";
 import {
-  PositionTypeLoader,
-  PositionTypeRoute,
-  PositionTypeViewLoader,
-  PositionTypeViewRoute,
+  PeopleLoader,
+  PeopleRoute,
+  PersonViewLoader,
+  PersonViewRoute,
+} from "./routes/people";
+import {
   PositionTypeAddLoader,
   PositionTypeAddRoute,
   PositionTypeEditSettingsLoader,
   PositionTypeEditSettingsRoute,
+  PositionTypeLoader,
+  PositionTypeRoute,
+  PositionTypeViewLoader,
+  PositionTypeViewRoute,
 } from "./routes/position-type";
-import {
-  BellScheduleLoader,
-  BellScheduleRoute,
-  BellScheduleAddLoader,
-  BellScheduleAddRoute,
-  BellScheduleViewLoader,
-  BellScheduleViewRoute,
-} from "./routes/bell-schedule";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { EdluminTheme } from "./styles/mui-theme";
-import { 
-  PeopleLoader, 
-  PeopleRoute, 
-  PersonViewLoader, 
-  PersonViewRoute 
-} from "./routes/people";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -69,6 +74,10 @@ export function App(props: {}) {
                     {/* Protected routes go here */}
 
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
+                    <Route
+                      component={CreateAbsenceLoader}
+                      path={EmployeeCreateAbsenceRoute.path}
+                    />
                   </Switch>
 
                   <Route path={AdminChromeRoute.path}>
@@ -83,8 +92,11 @@ export function App(props: {}) {
                         component={OrganizationsLoader}
                         path={OrganizationsNoOrgRoute.path}
                       />
-                      <Route component={PersonViewLoader} path={PersonViewRoute.path} />
-                      <Route component={PeopleLoader} path={PeopleRoute.path} />                      
+                      <Route
+                        component={PersonViewLoader}
+                        path={PersonViewRoute.path}
+                      />
+                      <Route component={PeopleLoader} path={PeopleRoute.path} />
                       <Route
                         component={PositionTypeAddLoader}
                         path={PositionTypeAddRoute.path}
@@ -112,6 +124,10 @@ export function App(props: {}) {
                       <Route
                         component={BellScheduleLoader}
                         path={BellScheduleRoute.path}
+                      />
+                      <Route
+                        component={CreateAbsenceLoader}
+                        path={AdminCreateAbsenceRoute.path}
                       />
                     </Switch>
                   </Route>
