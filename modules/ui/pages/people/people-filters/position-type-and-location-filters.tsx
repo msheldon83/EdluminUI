@@ -8,15 +8,20 @@ import { usePositionTypes } from "reference-data/position-types";
 import { OptionType, Select } from "ui/components/form/select";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
-import { EmployeeQueryFilters, FilterQueryParams } from "./filter-params";
+import {
+  FilterQueryParams,
+  PositionTypesAndLocationsQueryFilters,
+} from "./filter-params";
 import { useFilterStyles } from "./filters-by-role";
 
-type Props = EmployeeQueryFilters;
+type Props = {
+  positionTypeLabel: string;
+  locationLabel: string;
+} & PositionTypesAndLocationsQueryFilters;
 
-export const EmployeeFilters: React.FC<Props> = props => {
+export const PositionTypeAndLocationFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useFilterStyles();
-
   const params = useRouteParams(PeopleRoute);
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
@@ -53,7 +58,9 @@ export const EmployeeFilters: React.FC<Props> = props => {
   return (
     <>
       <Grid item md={3}>
-        <InputLabel className={classes.label}>{t("Position type")}</InputLabel>
+        <InputLabel className={classes.label}>
+          {props.positionTypeLabel}
+        </InputLabel>
         <Select
           onChange={onChangePositionType}
           options={positionTypesOptions}
@@ -64,7 +71,7 @@ export const EmployeeFilters: React.FC<Props> = props => {
         />
       </Grid>
       <Grid item md={3}>
-        <InputLabel className={classes.label}>{t("Locations")}</InputLabel>
+        <InputLabel className={classes.label}>{props.locationLabel}</InputLabel>
         <Select
           onChange={onChangeLocations}
           options={locationOptions}
