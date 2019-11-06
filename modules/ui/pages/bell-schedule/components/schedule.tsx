@@ -79,7 +79,7 @@ export const Schedule: React.FC<Props> = props => {
   const updatePeriodPlaceholders = (periods: Array<Period>, t: TFunction) => {
     const halfDayBreakPeriod = periods.find(p => p.isHalfDayAfternoonStart);
 
-    if (halfDayBreakPeriod && periods.length === 3) {
+    if (halfDayBreakPeriod && periods.length === 3 && periods[1].isHalfDayAfternoonStart) {
       periods[0].placeholder = t("Morning");
       periods[2].placeholder = t("Afternoon");
     } else if (!halfDayBreakPeriod && periods.length === 2) {
