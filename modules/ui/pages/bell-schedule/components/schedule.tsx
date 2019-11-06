@@ -262,7 +262,7 @@ export const Schedule: React.FC<Props> = props => {
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="droppable">
                 {(provided, snapshot) => {
-                  const innerRef = this.provided.innerRef;
+                  const { innerRef } = provided;
                   return (
                     <div ref={innerRef} {...provided.droppableProps}>
                       {renderPeriods(
