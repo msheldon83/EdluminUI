@@ -6,7 +6,7 @@ import {
   timeStampToIso,
   isoToTimestamp,
 } from "../../../helpers/time";
-import { Input } from './input'
+import { Input } from "./input";
 
 type Props = {
   label: string;
