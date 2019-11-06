@@ -25,7 +25,7 @@ import Maybe from "graphql/tsutils/Maybe";
 import { Schedule, Period } from "./components/schedule";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { WorkDayScheduleVariant, WorkDayScheduleVariantPeriod, WorkDaySchedule, WorkDaySchedulePeriod } from "graphql/server-types.gen";
-import { humanizeTimeStamp } from "helpers/time";
+import { humanizeTimeStamp, midnightTime, timeStampToIso } from "helpers/time";
 
 const editableSections = {
   name: "edit-name",
@@ -116,11 +116,15 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     const standardSchedule = (workDaySchedule as WorkDaySchedule).variants!.find((v: Maybe<WorkDayScheduleVariant>) => v!.isStandard)!;
     const periods: Array<Period> = standardSchedule.periods!.map((p: Maybe<WorkDayScheduleVariantPeriod>) => {
       const matchingPeriod = (workDaySchedule as WorkDaySchedule).periods ? workDaySchedule.periods!.find((w: any) => w.sequence! === p!.sequence) : null;
+      
+      const startTimeString = timeStampToIso(midnightTime().setSeconds(p!.startTime));
+      const endTimeString = timeStampToIso(midnightTime().setSeconds(p!.endTime))
+      
       return {
         name: matchingPeriod ? matchingPeriod.name : "",
         placeholder: "",
-        startTime: humanizeTimeStamp(p!.startTime),
-        endTime: humanizeTimeStamp(p!.endTime),
+        startTime: startTimeString,
+        endTime: endTimeString,
         isHalfDayMorningEnd: p!.isHalfDayMorningEnd,
         isHalfDayAfternoonStart: p!.isHalfDayAfternoonStart
       }
