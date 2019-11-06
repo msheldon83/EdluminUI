@@ -45,43 +45,83 @@ export type Period = {
 };
 
 const travelDuration = 5;
+const draggablePrefixes = {
+  nameDrag: "nameDrag-",
+  startOfAfternoonDrag: "startOfAfternoonDrag-",
+  endOfMorningDrag: "endOfMorningDrag-"
+}
 
 export const Schedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
 
-  const onDragEnd = (result: DropResult, periods: Array<Period>, t: TFunction): Array<Period> => {
-    const {destination, source} = result;
-    
+  const onDragEnd = (result: DropResult, periods: Array<Period>, t: TFunction): Array<Period> | null => {
+    const {destination, source, draggableId} = result;
+
     if (!destination) {
-      return periods;
+      return null;
     }
     if (destination.droppableId === source.droppableId 
       && destination.index === source.index) {
-      return periods;
+      return null;
     }
 
-    // Just reordering the names of the periods
-    const oldPeriods = periods.map(p => { return {...p}});
-    if (source.index < destination.index) {
-      // Dragging down the list
-      for (let i = destination.index-1; i >= source.index; i--) {
-        console.log("DRAG DOWN", i, periods[i].name, oldPeriods[i+1].name);
-        periods[i].name = oldPeriods[i+1].name;
-      }
-    } else {
-      // Dragging up the list
-      for (let i = destination.index+1; i <= source.index; i++) {
-        console.log("DRAG UP", i, periods[i].name, oldPeriods[i-1].name);
-        periods[i].name = oldPeriods[i-1].name;
-      }
+    // Determine the appropriate Period indexes
+    const draggableItemsPerPeriod = Object.keys(draggablePrefixes).length;
+    let sourceIndex = Math.ceil(source.index / draggableItemsPerPeriod) - 1;
+    if (sourceIndex < 0) {
+      sourceIndex = 0;
     }
-    // Update the destination name that was actually dragged
-    periods[destination.index].name = oldPeriods[source.index].name;
+    let destinationIndex = Math.ceil(destination.index / draggableItemsPerPeriod) - 1;
+    if (destinationIndex < 0) {
+      destinationIndex = 0;
+    }
 
-    // Update placeholders
-    updatePeriodPlaceholders(periods, t);
+    if (draggableId.startsWith(draggablePrefixes.nameDrag)) {
+      // Just reordering the names of the periods
+      const oldPeriods = periods.map(p => { return {...p}});
+      if (sourceIndex < destinationIndex) {
+        // Dragging down the list
+        for (let i = destinationIndex-1; i >= sourceIndex; i--) {
+          periods[i].name = oldPeriods[i+1].name;
+        }
+      } else {
+        // Dragging up the list
+        for (let i = destinationIndex+1; i <= sourceIndex; i++) {
+          periods[i].name = oldPeriods[i-1].name;
+        }
+      }
+      // Update the destination name that was actually dragged
+      periods[destinationIndex].name = oldPeriods[sourceIndex].name;
+
+      // Update placeholders
+      updatePeriodPlaceholders(periods, t);
+    } else if (draggableId.startsWith(draggablePrefixes.startOfAfternoonDrag)) {
+      if (destinationIndex === 0) {
+        // Can not allow, because there would be no space for an End Of Morning Period
+        return null;
+      }
+      
+      periods.forEach(p => { 
+        p.isHalfDayMorningEnd = false;
+        p.isHalfDayAfternoonStart = false;
+      });
+      periods[destinationIndex].isHalfDayAfternoonStart = true;
+      periods[destinationIndex-1].isHalfDayMorningEnd = true;
+    } else if (draggableId.startsWith(draggablePrefixes.endOfMorningDrag)) {
+      if (destinationIndex === periods.length-1) {
+        // Can not allow, because there would be no space for a Start Of Afternoon Period
+        return null;
+      }
+      
+      periods.forEach(p => { 
+        p.isHalfDayMorningEnd = false;
+        p.isHalfDayAfternoonStart = false;
+      });
+      periods[destinationIndex].isHalfDayMorningEnd = true;
+      periods[destinationIndex+1].isHalfDayAfternoonStart = true;
+    }
 
     return periods;
   };
@@ -181,28 +221,35 @@ export const Schedule: React.FC<Props> = props => {
     setFieldValue: Function,
     errors: FormikErrors<{ periods: Period[] }>
   ) => {
+
+    // Define the Draggable index (which must be unique within a Droppable and follow the order of the Draggables rendered)
+    let draggableIndex = 1;
+
     const periodResult = periods.map((p, i) => {
       const periodClasses = [classes.period];
       if (i % 2 === 1) {
         periodClasses.push(classes.alternatingItem);
       }
 
+      // Determining valid start times for Periods
       const priorPeriodEndTime = i > 0 && periods[i-1].endTime ? periods[i-1].endTime : undefined;
       const earliestStartTime = priorPeriodEndTime && isValid(new Date(priorPeriodEndTime))
         ? addMinutes(new Date(priorPeriodEndTime), travelDuration).toISOString()
         : undefined;
-      
+
       return (
         <div key={i} className={periodClasses.join(" ")}>
-          <div className={classes.action}>
+          <div className={classes.actionDiv}>
             {periods.length > 1 && (
-              <CancelOutlined onClick={() => { 
-                const updatedPeriods = removePeriod(periods, i);
-                setFieldValue('periods', updatedPeriods);
-              }} />
+              <div className={classes.action}>
+                <CancelOutlined onClick={() => { 
+                  const updatedPeriods = removePeriod(periods, i);
+                  setFieldValue('periods', updatedPeriods);
+                }} />
+              </div>
             )}
           </div>
-          <Draggable key={i} draggableId={i.toString()} index={i}>
+          <Draggable key={`${draggablePrefixes.nameDrag}${i}`} draggableId={`${draggablePrefixes.nameDrag}${i}`} index={draggableIndex++}>
             {(provided, snapshot) => (
               <div
                 ref={provided.innerRef}
@@ -222,15 +269,26 @@ export const Schedule: React.FC<Props> = props => {
                     }}
                   />
                 </div>
-                <div className={classes.dragHandle}>
-                  {props.isStandard && <DragHandle />}
+                <div className={classes.actionDiv}>
+                  {props.isStandard && periods.length > 1 && <DragHandle />}
                 </div>
               </div>
             )}
           </Draggable>
-          <div className={classes.startOfAfternoon}>
-            <Chip className={!p.isHalfDayAfternoonStart ? classes.hidden : classes.startOfAfternoonChip} label={t("Start of afternoon")} />
-          </div>
+          <Draggable key={`${draggablePrefixes.startOfAfternoonDrag}${i}`} draggableId={`${draggablePrefixes.startOfAfternoonDrag}${i}`} index={draggableIndex++}>
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                className={classes.startOfAfternoon}
+              >
+                <div className={!p.isHalfDayAfternoonStart ? classes.hidden : ""}>
+                  <Chip className={classes.startOfAfternoonChip} label={t("Start of afternoon")} />
+                </div>
+              </div>
+            )}
+          </Draggable>
           <div className={classes.timeInput}>
             <TimeInputComponent
               label=""
@@ -259,9 +317,20 @@ export const Schedule: React.FC<Props> = props => {
             />
             {displayErrorIfPresent(errors, "endTime", i)}
           </div>
-          <div className={classes.endOfMorning}>
-            <Chip className={!p.isHalfDayMorningEnd ? classes.hidden : classes.endOfMorningChip} label={t("End of morning")} />
-          </div>
+          <Draggable key={`${draggablePrefixes.endOfMorningDrag}${i}`} draggableId={`${draggablePrefixes.endOfMorningDrag}${i}`} index={draggableIndex++}>
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                className={classes.endOfMorning}
+              >
+                <div className={!p.isHalfDayMorningEnd ? classes.hidden : ""}>
+                  <Chip className={classes.endOfMorningChip} label={t("End of morning")} />
+                </div>
+              </div>
+            )}
+          </Draggable>
           <div className={classes.duration}>
             {displayMinutesDuration(p.startTime, p.endTime, i < periods.length-1, t)}
           </div>
@@ -305,7 +374,9 @@ export const Schedule: React.FC<Props> = props => {
           <form onSubmit={handleSubmit}>
             <DragDropContext onDragEnd={(result: DropResult) => {
               const updatedPeriods = onDragEnd(result, values.periods, t);
-              setFieldValue('periods', updatedPeriods);
+              if (updatedPeriods) {
+                setFieldValue('periods', updatedPeriods);
+              }              
             }}>
               <Droppable droppableId="droppable">
                 {(provided, snapshot) => {
@@ -353,11 +424,10 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "flex-start",
     alignItems: "center"
   },
-  dragHandle: {
+  actionDiv: {
     width: theme.typography.pxToRem(50),
   },
   action: {
-    width: theme.typography.pxToRem(50),
     cursor: "pointer",
   },
   nameInput: {
