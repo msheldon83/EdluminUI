@@ -5,11 +5,7 @@ import { Typography } from "@material-ui/core";
 import { GetWorkDayScheduleById } from "ui/pages/bell-schedule/graphql/workday-schedule.gen";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
-import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
 import { makeStyles, Grid } from "@material-ui/core";
-import { minutesToHours, boolToDisplay } from "ui/components/helpers";
-import { getDisplayName } from "ui/components/enumHelpers";
 import { Redirect, useHistory } from "react-router";
 import {
   BellScheduleRoute,
@@ -25,7 +21,7 @@ import Maybe from "graphql/tsutils/Maybe";
 import { Schedule, Period } from "./components/schedule";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { WorkDayScheduleVariant, WorkDayScheduleVariantPeriod, WorkDaySchedule, WorkDaySchedulePeriod } from "graphql/server-types.gen";
-import { midnightTime, timeStampToIso } from "helpers/time";
+import { midnightTime, timeStampToIso, secondsSinceMidnight } from "helpers/time";
 
 const editableSections = {
   name: "edit-name",
@@ -114,28 +110,31 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     setStep: React.Dispatch<React.SetStateAction<number>>
   ) => {
     const standardSchedule = (workDaySchedule as WorkDaySchedule).variants!.find((v: Maybe<WorkDayScheduleVariant>) => v!.isStandard)!;
-    const periods: Array<Period> = standardSchedule.periods!.map((p: Maybe<WorkDayScheduleVariantPeriod>) => {
-      const matchingPeriod = (workDaySchedule as WorkDaySchedule).periods ? workDaySchedule.periods!.find((w: any) => w.sequence! === p!.sequence) : null;
-      
-      const startTimeString = timeStampToIso(midnightTime().setSeconds(p!.startTime));
-      const endTimeString = timeStampToIso(midnightTime().setSeconds(p!.endTime))
-      
-      return {
-        periodId: matchingPeriod?.id,
-        variantPeriodId: p?.id,
-        name: matchingPeriod ? matchingPeriod.name : "",
-        placeholder: "",
-        startTime: startTimeString,
-        endTime: endTimeString,
-        isHalfDayMorningEnd: p!.isHalfDayMorningEnd,
-        isHalfDayAfternoonStart: p!.isHalfDayAfternoonStart
-      }
-    })
+    const periods: Array<Period> = standardSchedule.periods!
+      .sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0))
+      .map((p: Maybe<WorkDayScheduleVariantPeriod>) => {
+        const matchingPeriod = (workDaySchedule as WorkDaySchedule).periods ? workDaySchedule.periods!.find((w: any) => w.sequence! === p!.sequence) : null;
+        
+        const startTimeString = timeStampToIso(midnightTime().setSeconds(p!.startTime));
+        const endTimeString = timeStampToIso(midnightTime().setSeconds(p!.endTime))
+        
+        return {
+          periodId: matchingPeriod?.id,
+          variantPeriodId: p?.id,
+          name: matchingPeriod ? matchingPeriod.name : "",
+          placeholder: "",
+          startTime: startTimeString,
+          endTime: endTimeString,
+          isHalfDayMorningEnd: p!.isHalfDayMorningEnd,
+          isHalfDayAfternoonStart: p!.isHalfDayAfternoonStart
+        }
+    });
 
     return (
       <Schedule
         isStandard={true}
         periods={periods}
+        variantId={Number(standardSchedule.id)}
         onSubmit={async (
           periods: Array<Period>,
           variantId: number | null | undefined
@@ -169,6 +168,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
             id: variantId,
             periods: periods.map(p => {
               return {
+                id: p.variantPeriodId ? Number(p.variantPeriodId) : null,
                 workDaySchedulePeriodName: p.name ? p.name : "",
                 startTime: p.startTime ? secondsSinceMidnight(p.startTime) : null,
                 endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
