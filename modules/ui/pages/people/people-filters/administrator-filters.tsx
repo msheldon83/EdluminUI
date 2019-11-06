@@ -3,8 +3,8 @@ import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useEndorsements } from "reference-data/endorsements";
 import { useLocations } from "reference-data/locations";
+import { usePositionTypes } from "reference-data/position-types";
 import { OptionType, Select } from "ui/components/form/select";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
@@ -19,7 +19,7 @@ export const AdministratorFilters: React.FC<Props> = props => {
   const params = useRouteParams(PeopleRoute);
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
-  const positionTypes = useEndorsements(params.organizationId);
+  const positionTypes = usePositionTypes(params.organizationId);
   const positionTypesOptions: OptionType[] = useMemo(
     () => positionTypes.map(p => ({ label: p.name, value: p.id })),
     [positionTypes]
