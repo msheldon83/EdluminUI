@@ -255,44 +255,50 @@ export const Schedule: React.FC<Props> = props => {
             )}
           </div>
           <Draggable key={`${draggablePrefixes.nameDrag}${i}`} draggableId={`${draggablePrefixes.nameDrag}${i}`} index={draggableIndex++}>
-            {(provided, snapshot) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                className={classes.draggableSection}
-              >
-                <div>
-                  <FormTextField
-                    placeholder={p.placeholder}
-                    value={p.name || ""}
-                    name={`periods[${i}].name`}
-                    className={classes.nameInput}
-                    variant="outlined"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue(`periods[${i}].name`, e.target.value);
-                    }}
-                  />
+            {(provided, snapshot) => {
+              const { innerRef } = provided;
+              return (
+                <div
+                  ref={innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className={classes.draggableSection}
+                >
+                  <div>
+                    <FormTextField
+                      placeholder={p.placeholder}
+                      value={p.name || ""}
+                      name={`periods[${i}].name`}
+                      className={classes.nameInput}
+                      variant="outlined"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setFieldValue(`periods[${i}].name`, e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className={classes.actionDiv}>
+                    {props.isStandard && periods.length > 1 && <DragHandle />}
+                  </div>
                 </div>
-                <div className={classes.actionDiv}>
-                  {props.isStandard && periods.length > 1 && <DragHandle />}
-                </div>
-              </div>
-            )}
+              )
+            }}
           </Draggable>
           <Draggable key={`${draggablePrefixes.startOfAfternoonDrag}${i}`} draggableId={`${draggablePrefixes.startOfAfternoonDrag}${i}`} index={draggableIndex++}>
-            {(provided, snapshot) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                className={classes.startOfAfternoon}
-              >
-                <div className={!p.isHalfDayAfternoonStart ? classes.hidden : ""}>
-                  <Chip className={classes.startOfAfternoonChip} label={t("Start of afternoon")} />
+            {(provided, snapshot) => {
+              const { innerRef } = provided;
+              return (
+                <div
+                  ref={innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className={classes.startOfAfternoon}
+                >
+                  <div className={!p.isHalfDayAfternoonStart ? classes.hidden : ""}>
+                    <Chip className={classes.startOfAfternoonChip} label={t("Start of afternoon")} />
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            }}
           </Draggable>
           <div className={classes.timeInput}>
             <TimeInputComponent
@@ -323,18 +329,21 @@ export const Schedule: React.FC<Props> = props => {
             {displayErrorIfPresent(errors, "endTime", i)}
           </div>
           <Draggable key={`${draggablePrefixes.endOfMorningDrag}${i}`} draggableId={`${draggablePrefixes.endOfMorningDrag}${i}`} index={draggableIndex++}>
-            {(provided, snapshot) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                className={classes.endOfMorning}
-              >
-                <div className={!p.isHalfDayMorningEnd ? classes.hidden : ""}>
-                  <Chip className={classes.endOfMorningChip} label={t("End of morning")} />
+            {(provided, snapshot) => {
+              const { innerRef } = provided;
+              return (
+                <div
+                  ref={innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className={classes.endOfMorning}
+                >
+                  <div className={!p.isHalfDayMorningEnd ? classes.hidden : ""}>
+                    <Chip className={classes.endOfMorningChip} label={t("End of morning")} />
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            }}
           </Draggable>
           <div className={classes.duration}>
             {displayMinutesDuration(p.startTime, p.endTime, i < periods.length-1, t)}
