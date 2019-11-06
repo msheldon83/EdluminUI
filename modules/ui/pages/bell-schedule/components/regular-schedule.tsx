@@ -23,6 +23,7 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import { TFunction } from "i18next";
+import { isNumber } from "util";
 
 type Props = {
   periods: Array<Period>;
@@ -120,6 +121,23 @@ export const RegularSchedule: React.FC<Props> = props => {
     return <FormHelperText error={true}>{error}</FormHelperText>
   }
 
+  const displayMinutesDuration = (startTime: string | undefined, endTime: string | undefined, 
+    showTravelDuration: boolean, t: TFunction) => {
+    if (!startTime || !endTime) {
+      return null;
+    }
+
+    const startTimeDate = +new Date(startTime);
+    const endTimeDate = +new Date(endTime);
+    const minutes = startTimeDate == endTimeDate ? 0 : Math.round((endTimeDate - startTimeDate) / 1000 / 60);
+    if (typeof minutes !== "number" || isNaN(minutes)) {
+      return null;
+    }
+
+    const minutesDisplay = `${minutes}${showTravelDuration ? " (+5)": ""} ${t("minutes")}`;
+    return minutesDisplay;
+  }
+
   const renderPeriods = (
     periods: Array<Period>,
     setFieldValue: Function,
@@ -168,7 +186,7 @@ export const RegularSchedule: React.FC<Props> = props => {
             />
           </div>
           <div className={classes.startOfAfternoon}>
-            <Chip className={!p.isHalfDayAfternoonStart ? classes.hidden : ""} label={t("Start of afternoon")} />
+            <Chip className={!p.isHalfDayAfternoonStart ? classes.hidden : classes.startOfAfternoonChip} label={t("Start of afternoon")} />
           </div>
           <div className={classes.timeInput}>
             <TimeInputComponent
@@ -197,10 +215,10 @@ export const RegularSchedule: React.FC<Props> = props => {
             {displayErrorIfPresent(errors, "endTime", i)}
           </div>
           <div className={classes.endOfMorning}>
-            <Chip className={!p.isHalfDayMorningEnd ? classes.hidden : ""} label={t("End of morning")} />
+            <Chip className={!p.isHalfDayMorningEnd ? classes.hidden : classes.endOfMorningChip} label={t("End of morning")} />
           </div>
-          <div>
-            {/* Add the time duration as a string */}
+          <div className={classes.duration}>
+            {displayMinutesDuration(p.startTime, p.endTime, i < periods.length-1, t)}
           </div>
         </div>
       );
@@ -301,10 +319,21 @@ const useStyles = makeStyles(theme => ({
     textAlign: "right",
     paddingRight: theme.spacing()
   },
+  startOfAfternoonChip: {
+    background: "#ECF9F3",
+    color: "#00C853"
+  },
+  endOfMorningChip: {
+    background: "#FCE7E7",
+    color: "#E53935"
+  },
   endOfMorning: {
     flexGrow: 2,
     textAlign: "left",
     paddingLeft: theme.spacing()
+  },
+  duration: {
+    width: theme.typography.pxToRem(125)
   },
   alternatingItem: {
     background: theme.customColors.lightGray,

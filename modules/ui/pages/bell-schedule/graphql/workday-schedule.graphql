@@ -8,6 +8,8 @@ query GetWorkDayScheduleById($id: ID!) {
         rowVersion
         periods {
           id
+          name
+          sequence
         }
         variants {
           id
@@ -19,6 +21,7 @@ query GetWorkDayScheduleById($id: ID!) {
             periodDuration
             isHalfDayMorningEnd
             isHalfDayAfternoonStart
+            sequence
           }
         }
         usages {

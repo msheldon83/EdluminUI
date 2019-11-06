@@ -24,7 +24,7 @@ import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import Maybe from "graphql/tsutils/Maybe";
 import { RegularSchedule, Period } from "./components/regular-schedule";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
-import { WorkDayScheduleVariant, WorkDayScheduleVariantPeriod, WorkDaySchedule } from "graphql/server-types.gen";
+import { WorkDayScheduleVariant, WorkDayScheduleVariantPeriod, WorkDaySchedule, WorkDaySchedulePeriod } from "graphql/server-types.gen";
 import { humanizeTimeStamp } from "helpers/time";
 
 const editableSections = {
@@ -115,8 +115,9 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   ) => {
     const standardSchedule = (workDaySchedule as WorkDaySchedule).variants!.find((v: Maybe<WorkDayScheduleVariant>) => v!.isStandard)!;
     const periods: Array<Period> = standardSchedule.periods!.map((p: Maybe<WorkDayScheduleVariantPeriod>) => {
+      const matchingPeriod = (workDaySchedule as WorkDaySchedule).periods ? workDaySchedule.periods!.find((w: any) => w.sequence! === p!.sequence) : null;
       return {
-        name: "",
+        name: matchingPeriod ? matchingPeriod.name : "",
         placeholder: "",
         startTime: humanizeTimeStamp(p!.startTime),
         endTime: humanizeTimeStamp(p!.endTime),
