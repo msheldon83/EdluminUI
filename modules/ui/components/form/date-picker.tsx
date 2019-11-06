@@ -32,10 +32,15 @@ export const DateInput = (props: DateInputProps) => {
 
 type DatePickerProps = {
   startDate: Date;
-  endDate: Date | null | undefined;
-  onChange: ({ startDate: Date, endDate: Date }) => void;
+  endDate: Date | null;
+  onChange: ({ startDate, endDate }: OnChangeProps) => void;
   minimumDate?: Date;
   maximumDate?: Date;
+};
+
+type OnChangeProps = {
+  startDate: Date;
+  endDate: Date | null;
 };
 
 export const DatePicker = (props: DatePickerProps) => {
@@ -49,10 +54,19 @@ export const DatePicker = (props: DatePickerProps) => {
   endDate && endDate.setHours(0, 0, 0, 0);
 
   const customDayRenderer = (
-    date: Date,
-    selectedDate: Date,
-    dayInCurrentMonth: boolean
-  ) => {
+    date: Date | null,
+    selectedDate: Date | null,
+    dayInCurrentMonth: boolean,
+    dayComponent: JSX.Element
+  ): JSX.Element => {
+    /*
+      The material-ui types say that date can be null here, but there's never a case in
+      the UI where that can be true right now
+    */
+    if (!date) {
+      return dayComponent;
+    }
+
     const dayIsBetween =
       endDate &&
       isWithinInterval(date, {
@@ -84,7 +98,15 @@ export const DatePicker = (props: DatePickerProps) => {
     );
   };
 
-  const handleDateChange = (date: Date) => {
+  const handleDateChange = (date: Date | null) => {
+    /*
+      The material-ui types say that date can be null here, but there's never a case in
+      the UI where that can be true right now
+    */
+    if (!date) {
+      return;
+    }
+
     const isAfterStartDate = isAfter(date, startDate);
     let newStartDate = isAfterStartDate ? startDate : date;
     let newEndDate = isAfterStartDate ? date : endDate;
@@ -101,7 +123,6 @@ export const DatePicker = (props: DatePickerProps) => {
     return (
       <div className={classes.calendarWrapper}>
         <Calendar
-          className={classes.calendar}
           date={startDate}
           onChange={handleDateChange}
           renderDay={customDayRenderer}
@@ -165,9 +186,6 @@ const useStyles = makeStyles(theme => ({
     "&:hover": {
       borderColor: "rgba(0, 0, 0, 0.87)",
     },
-  },
-  calendar: {
-    width: "100%",
   },
   day: {
     width: "100%",

@@ -89,7 +89,10 @@ export const EdluminTheme = createMuiTheme({
   overrides: {
     MuiOutlinedInput: {
       input: {
-        padding: `${pxToRem(14)}`,
+        boxSizing: 'border-box',
+        fontSize: baseFontSize,
+        height: pxToRem(44),
+        padding: `0 ${pxToRem(14)}`,
       },
     },
     MuiButton: {

@@ -7,7 +7,7 @@ import { DatePicker as DatePickerComponent } from "./date-picker";
 export const DatePicker = () => {
   const classes = useStyles();
   const [startDate, setStartDate] = React.useState(new Date());
-  const [endDate, setEndDate] = React.useState(null);
+  const [endDate, setEndDate] = React.useState<Date | null>(null);
 
   return (
     <div className={classes.container}>
