@@ -11,6 +11,7 @@ import { Typography, makeStyles } from "@material-ui/core";
 import {
   BellScheduleRoute,
   BellScheduleAddRoute,
+  BellScheduleViewRoute,
 } from "ui/routes/bell-schedule";
 import { AddBasicInfo } from "./components/add-basic-info";
 import { TFunction } from "i18next";
@@ -22,9 +23,6 @@ import { GetWorkDayScheduleVariantTypes } from "./graphql/org-work-day-schedule-
 
 export type ScheduleSettings = {
   isBasic: boolean;
-  basicSettings: {
-    hasVariants: boolean;
-  };
   periodSettings: {
     numberOfPeriods: number;
   };
@@ -32,9 +30,6 @@ export type ScheduleSettings = {
 
 const scheduleSettingsDefaults: ScheduleSettings = {
   isBasic: true,
-  basicSettings: {
-    hasVariants: true,
-  },
   periodSettings: {
     numberOfPeriods: 1,
   },
@@ -168,15 +163,14 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
             }
           }
 
-          // Create the Work Day Schedule
+          // Create the Bell Schedule
           const id = await create(newBellSchedule);
-          console.log(id);
-          // const viewParams = {
-          //   ...params,
-          //   positionTypeId: id!,
-          // };
-          // // Go to the Position Type View page
-          // history.push(PositionTypeViewRoute.generate(viewParams));
+          const viewParams = {
+            ...params,
+            workDayScheduleId: id!,
+          };
+          // Go to the Bell Schedule View page
+          history.push(BellScheduleViewRoute.generate(viewParams));
         }}
         onCancel={() => {
           const url = BellScheduleRoute.generate(params);

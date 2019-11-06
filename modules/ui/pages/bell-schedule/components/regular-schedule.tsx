@@ -58,11 +58,8 @@ export const RegularSchedule: React.FC<Props> = props => {
 
   const removePeriod = (periods: Array<Period>, index: number) => {
     const periodItems = Array.from(periods);
-    const [removed] = periodItems.splice(index, 1);
-
-    // Handle the renames of period placeholders
-    // Handle the moving of what is endOfMorning and startOfAfternoon
-
+    periodItems.splice(index, 1);
+    updatePeriodPlaceholders(periodItems, t);
     return periodItems;
   };
 
@@ -73,10 +70,28 @@ export const RegularSchedule: React.FC<Props> = props => {
       { placeholder, startTime: undefined, endTime: undefined },
     ];
 
-    // Handle renames of period placeholders if we've just introduced more than Morning / Afternoon
-
+    updatePeriodPlaceholders(periodItems, t);
     return periodItems;
   };
+
+  const updatePeriodPlaceholders = (periods: Array<Period>, t: TFunction) => {
+    const halfDayBreakPeriod = periods.find(p => p.isHalfDayAfternoonStart);
+
+    if (halfDayBreakPeriod && periods.length === 3) {
+      periods[0].placeholder = t("Morning");
+      periods[2].placeholder = t("Afternoon");
+    } else if (!halfDayBreakPeriod && periods.length === 2) {
+      periods[0].placeholder = t("Morning");
+      periods[1].placeholder = t("Afternoon");
+    } else {
+      let periodNumber = 1;
+      periods.forEach(p => {
+        if (!p.isHalfDayAfternoonStart) {
+          p.placeholder = `${t("Period")} ${periodNumber++}`;
+        }
+      })
+    }
+  } 
 
   const getError = (errors: any, fieldName: string, index: number) => {
     if (!errors.periods || !errors.periods[index]) {

@@ -63,16 +63,12 @@ export const AddBasicInfo: React.FC<Props> = props => {
           name: props.bellSchedule.name,
           externalId: props.bellSchedule.externalId || "",
           isBasicSchedule: props.scheduleSettings.isBasic ? 1 : 0,
-          basicHasVariants: props.scheduleSettings.basicSettings.hasVariants,
           periodNumberOfPeriods:
             props.scheduleSettings.periodSettings.numberOfPeriods,
         }}
         onSubmit={(data, meta) => {
           const scheduleSettings = {
             isBasic: data.isBasicSchedule === 1,
-            basicSettings: {
-              hasVariants: data.basicHasVariants
-            },
             periodSettings: {
               numberOfPeriods: data.periodNumberOfPeriods,
             },
@@ -142,27 +138,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   <FormHelperText className={classes.radioHelperText}>
                     {t("Simple morning, lunch and afternoon")}
                   </FormHelperText>
-                  <div className={classes.basicScheduleSubItems}>
-                    <div>
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={values.basicHasVariants}
-                            onChange={e => {
-                              setFieldValue(
-                                "basicHasVariants",
-                                e.target.checked
-                              );
-                            }}
-                            value={values.basicHasVariants}
-                            disabled={!isBasicSchedule}
-                            color="primary"
-                          />
-                        }
-                        label={t("Varies for delays and dismissals")}
-                      />
-                    </div>
-                  </div>
                   <FormControlLabel
                     value={0}
                     control={<Radio color="primary" />}
@@ -215,9 +190,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  basicScheduleSubItems: {
-    marginLeft: theme.spacing(4),
-  },
   radioHelperText: {
     marginTop: 0,
     marginLeft: theme.spacing(4),
