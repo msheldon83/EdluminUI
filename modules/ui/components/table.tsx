@@ -8,10 +8,8 @@ import {
 } from "@material-ui/core";
 import MaterialTable, { MTableToolbar, MTableBodyRow } from "material-table";
 import { MaterialTableProps } from "material-table";
-
 import { forwardRef } from "react";
 import { Icons } from "material-table";
-
 import AddBox from "@material-ui/icons/AddBox";
 import ArrowUpward from "@material-ui/icons/ArrowUpward";
 import Check from "@material-ui/icons/Check";
