@@ -152,6 +152,8 @@ export const Schedule: React.FC<Props> = props => {
         periodClasses.push(classes.alternatingItem);
       }
 
+      const priorPeriodEndTime = i > 0 && periods[i-1].endTime ? periods[i-1].endTime : undefined;
+
       return (
         <div key={i} className={periodClasses.join(" ")}>
           <div className={classes.action}>
@@ -201,6 +203,7 @@ export const Schedule: React.FC<Props> = props => {
               onChange={value => {
                 setFieldValue(`periods[${i}].startTime`, value);
               }}
+              earliestTime={priorPeriodEndTime}
             />
             {displayErrorIfPresent(errors, "startTime", i)}
           </div>
@@ -214,6 +217,7 @@ export const Schedule: React.FC<Props> = props => {
               onChange={value => {
                 setFieldValue(`periods[${i}].endTime`, value);
               }}
+              earliestTime={p.startTime}
             />
             {displayErrorIfPresent(errors, "endTime", i)}
           </div>
