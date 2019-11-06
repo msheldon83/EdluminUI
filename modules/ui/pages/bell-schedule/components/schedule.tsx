@@ -23,7 +23,7 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import { TFunction } from "i18next";
-import { isNumber } from "util";
+import { addMinutes, differenceInMinutes, isValid } from "date-fns";
 
 type Props = {
   isVariant: boolean;
@@ -40,6 +40,8 @@ export type Period = {
   isHalfDayMorningEnd?: boolean;
   isHalfDayAfternoonStart?: boolean;
 };
+
+const travelDuration = 5;
 
 export const Schedule: React.FC<Props> = props => {
   const { t } = useTranslation();
@@ -128,14 +130,19 @@ export const Schedule: React.FC<Props> = props => {
       return null;
     }
 
-    const startTimeDate = +new Date(startTime);
-    const endTimeDate = +new Date(endTime);
-    const minutes = startTimeDate == endTimeDate ? 0 : Math.round((endTimeDate - startTimeDate) / 1000 / 60);
+    const startTimeDate = new Date(startTime);
+    const endTimeDate = new Date(endTime);
+    if (!isValid(startTimeDate) || !isValid(endTimeDate)) {
+      return null;
+    }
+
+    const minutes = differenceInMinutes(endTimeDate, startTimeDate);
     if (typeof minutes !== "number" || isNaN(minutes)) {
       return null;
     }
 
-    const minutesDisplay = `${minutes}${showTravelDuration ? " (+5)": ""} ${t("minutes")}`;
+    const travelDurationString = ` (+${travelDuration}) `;
+    const minutesDisplay = `${minutes}${showTravelDuration ? travelDurationString: " "}${t("minutes")}`;
     return minutesDisplay;
   }
 
@@ -151,7 +158,10 @@ export const Schedule: React.FC<Props> = props => {
       }
 
       const priorPeriodEndTime = i > 0 && periods[i-1].endTime ? periods[i-1].endTime : undefined;
-
+      const earliestStartTime = priorPeriodEndTime && isValid(new Date(priorPeriodEndTime))
+        ? addMinutes(new Date(priorPeriodEndTime), travelDuration).toISOString()
+        : undefined;
+      
       return (
         <div key={i} className={periodClasses.join(" ")}>
           <div className={classes.action}>
@@ -194,14 +204,14 @@ export const Schedule: React.FC<Props> = props => {
           <div className={classes.timeInput}>
             <TimeInputComponent
               label=""
-              value={p.startTime || undefined}
+              value={p.startTime || earliestStartTime}
               onValidTime={time => {
                 setFieldValue(`periods[${i}].startTime`, time);
               }}
               onChange={value => {
                 setFieldValue(`periods[${i}].startTime`, value);
               }}
-              earliestTime={priorPeriodEndTime}
+              earliestTime={earliestStartTime}
             />
             {displayErrorIfPresent(errors, "startTime", i)}
           </div>

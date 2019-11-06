@@ -25,7 +25,7 @@ import Maybe from "graphql/tsutils/Maybe";
 import { Schedule, Period } from "./components/schedule";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { WorkDayScheduleVariant, WorkDayScheduleVariantPeriod, WorkDaySchedule, WorkDaySchedulePeriod } from "graphql/server-types.gen";
-import { humanizeTimeStamp, midnightTime, timeStampToIso } from "helpers/time";
+import { midnightTime, timeStampToIso } from "helpers/time";
 
 const editableSections = {
   name: "edit-name",
