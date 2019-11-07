@@ -2306,7 +2306,7 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@^16.9.4":
+"@types/react@*", "@types/react@^16.9.11":
   version "16.9.11"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.11.tgz#70e0b7ad79058a7842f25ccf2999807076ada120"
   integrity sha512-UBT4GZ3PokTXSWmdgC/GeCGEJXE5ofWyibCcecRLUVN2ZBpXQGVgQGtG2foS7CrTKFKlQVVswLvf7Js6XA/CVQ==
@@ -2325,6 +2325,13 @@
   integrity sha512-Yjye9VwMdYeXfS71ihueWRSxrruuXTwKCbzue4+5b2rjnQ//AtyM7myZ1BEhNhBQ/nL/RE7bdToUoLln2miKvg==
   dependencies:
     "@types/react" "*"
+
+"@types/sugar@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/sugar/-/sugar-2.0.2.tgz#49c8b07af4e6c86b014aa776bb437d16044d2972"
+  integrity sha1-SciwevTmyGsBSqd2u0N9FgRNKXI=
+  dependencies:
+    sugar "*"
 
 "@types/unist@^2.0.0", "@types/unist@^2.0.2":
   version "2.0.3"
@@ -4415,7 +4422,7 @@ clone@^1.0.2:
   resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
   integrity sha1-2jCcwmPfFZlMaIypAheco8fNfH4=
 
-clsx@^1.0.2:
+clsx@^1.0.2, clsx@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.0.4.tgz#0c0171f6d5cb2fe83848463c15fcc26b4df8c2ec"
   integrity sha512-1mQ557MIZTrL/140j+JVdRM6e31/OA4vTYxXgqIIZlndyfjHpyawKZia1Im05Vp9BWmImkcNrNtFYQMyFcgJDg==
@@ -13367,6 +13374,18 @@ style-loader@^0.23.1:
   dependencies:
     loader-utils "^1.1.0"
     schema-utils "^1.0.0"
+
+sugar-core@^2.0.0:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/sugar-core/-/sugar-core-2.0.6.tgz#785e0cd64aa7302ea54d47bc1213efe52c006270"
+  integrity sha512-YmLFysR3Si6RImqL1+aB6JH81EXxvXn5iXhPf2PsjfoUYEwCxFDYCQY+zC3WqviuGWzxFaSkkJvkUE05Y03L5Q==
+
+sugar@*, sugar@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/sugar/-/sugar-2.0.6.tgz#aa08e389add27109fb35718598313e0503a4fc39"
+  integrity sha512-s0P2/pjJtAD9VA44+2Gqm3NdC4v+08melA6YubOxzshu628krTbn95/M2GWMrI9rYspZMpYBIrChR46fjQ7xsQ==
+  dependencies:
+    sugar-core "^2.0.0"
 
 supports-color@6.1.0, supports-color@^6.1.0:
   version "6.1.0"

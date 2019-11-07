@@ -87,6 +87,14 @@ const breakpoints = createBreakpoints(breakpointCustomization);
 export const EdluminTheme = createMuiTheme({
   breakpoints: breakpointCustomization,
   overrides: {
+    MuiOutlinedInput: {
+      input: {
+        boxSizing: 'border-box',
+        fontSize: baseFontSize,
+        height: pxToRem(44),
+        padding: `0 ${pxToRem(14)}`,
+      },
+    },
     MuiButton: {
       contained: {
         color: themeColors.white,
@@ -169,6 +177,27 @@ export const EdluminTheme = createMuiTheme({
       iconOutlined: {
         // Override to match select with react-select positioning
         right: pxToRem(14),
+      },
+    },
+    /*
+      The overrides for the calendar aren't really documented anywhere, so the keys and values
+      can be found in this directory:
+
+      https://github.com/mui-org/material-ui-pickers/blob/3d2e99089d/lib/src/views/Calendar/Calendar.tsx
+    */
+    MuiPickersCalendar: {
+      week: {
+        "& [role='presentation']": {
+          textAlign: "center",
+          flex: 1,
+        },
+      },
+    },
+    MuiPickersCalendarHeader: {
+      dayLabel: {
+        color: themeColors.slate,
+        flex: 1,
+        width: "100%",
       },
     },
   },

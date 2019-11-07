@@ -1,14 +1,12 @@
 import * as React from "react";
-import { initial } from "lodash-es";
-import TextField from "@material-ui/core/TextField";
 import {
   isIso,
   humanizeTimeStamp,
   parseTimeFromString,
   timeStampToIso,
   isoToTimestamp,
-  midnightTime,
 } from "../../../helpers/time";
+import { Input } from "./input";
 
 type Props = {
   label: string;
@@ -41,9 +39,8 @@ export const TimeInput = (props: Props) => {
   );
 
   return (
-    <TextField
+    <Input
       label={label}
-      variant="outlined"
       value={parsedValue}
       onChange={event => onChange(event.target.value)}
       onBlur={handleBlur}
