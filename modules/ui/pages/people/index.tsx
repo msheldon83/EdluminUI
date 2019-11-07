@@ -1,13 +1,17 @@
+import { Link } from "@material-ui/core";
 import { AccountCircleOutlined } from "@material-ui/icons";
+import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { OrgUserRole } from "graphql/server-types.gen";
-import { useScreenSize, usePrevious } from "hooks";
+import { usePrevious, useScreenSize } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import { compact, isEqual } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Table } from "ui/components/table";
@@ -16,10 +20,6 @@ import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";
-import { useEffect, useMemo } from "react";
-import MailIcon from "@material-ui/icons/Mail";
-import { IconButton, Link } from "@material-ui/core";
-import { useHistory } from "react-router";
 
 type Props = {};
 

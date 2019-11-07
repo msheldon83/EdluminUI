@@ -96,6 +96,10 @@ export function App(props: {}) {
                         component={PersonViewLoader}
                         path={PersonViewRoute.path}
                       />
+                      <Route
+                        component={CreateAbsenceLoader}
+                        path={AdminCreateAbsenceRoute.path}
+                      />
                       <Route component={PeopleLoader} path={PeopleRoute.path} />
                       <Route
                         component={PositionTypeAddLoader}
@@ -124,10 +128,6 @@ export function App(props: {}) {
                       <Route
                         component={BellScheduleLoader}
                         path={BellScheduleRoute.path}
-                      />
-                      <Route
-                        component={CreateAbsenceLoader}
-                        path={AdminCreateAbsenceRoute.path}
                       />
                     </Switch>
                   </Route>
