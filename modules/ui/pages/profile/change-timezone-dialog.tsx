@@ -11,7 +11,7 @@ import { Formik } from "formik";
 import { TimeZone, UserUpdateInput, Maybe } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { GetTimezones } from "reference-data/GetTimezones.gen";
+import { GetTimezones } from "reference-data/get-timezones.gen";
 import { InformationHelperText } from "ui/components/information-helper-text";
 import { TextButton } from "ui/components/text-button";
 import { MyProfile } from "ui/pages/profile/MyProfile.gen";

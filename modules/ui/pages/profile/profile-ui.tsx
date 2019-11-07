@@ -5,7 +5,7 @@ import TextField from "@material-ui/core/TextField";
 import { useBreakpoint } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { GetTimezones } from "reference-data/GetTimezones.gen";
+import { GetTimezones } from "reference-data/get-timezones.gen";
 import { AvatarCard } from "ui/components/avatar-card";
 import { getInitials } from "ui/components/helpers";
 import { PageTitle } from "ui/components/page-title";

@@ -1875,6 +1875,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface {
   adminScopePositionTypeRules: [String]!
   adminLocations: [Location]
   adminPositionTypes: [PositionType]
+  employee: Employee
 }
 
 input OrgUserCreateInput {
@@ -1900,8 +1901,30 @@ type OrgUserMutations {
 
 type OrgUserQueries {
   byId(id: ID!): OrgUser
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [Int]): [OrgUser]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [Int]): PagedOrgUser
+  all(
+    orgId: ID
+    orgIds: [ID]
+    sortBy: [SortDetailsInput]
+    name: String
+    role: [OrgUserRole]
+    active: Boolean
+    endorsements: [Int]
+    locations: [Int]
+    positionTypes: [Int]
+  ): [OrgUser]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+    name: String
+    role: [OrgUserRole]
+    active: Boolean
+    endorsements: [Int]
+    locations: [Int]
+    positionTypes: [Int]
+  ): PagedOrgUser
 }
 
 enum OrgUserRole {
@@ -3457,7 +3480,7 @@ type WorkDaySchedule implements ModelObjectInterface & OrgObjectInterface & Doma
   externalId: String
   rowVersion: String!
   name: String!
-  description: String!
+  description: String
   workDayPatternId: Int!
   validUntil: DateTime
   expired: Boolean
@@ -3507,8 +3530,22 @@ input WorkDaySchedulePeriodInput {
 
 type WorkDayScheduleQueries {
   byId(id: ID!): WorkDaySchedule
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): [WorkDaySchedule]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): PagedWorkDaySchedule
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+    searchText: String
+  ): [WorkDaySchedule]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+    searchText: String
+  ): PagedWorkDaySchedule
 }
 
 input WorkDayScheduleUpdateInput {

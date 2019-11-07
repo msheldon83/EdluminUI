@@ -16,7 +16,9 @@ import { PeopleRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import MailIcon from "@material-ui/icons/Mail";
+import { IconButton, Link } from "@material-ui/core";
 
 type Props = {};
 
@@ -35,10 +37,9 @@ export const PeoplePage: React.FC<Props> = props => {
     r => r.orgUser?.paged?.totalCount,
     {
       variables: {
+        ...filters,
         orgId: params.organizationId,
         role,
-        active: filters.active,
-        name: filters.name,
       },
     }
   );
@@ -52,6 +53,23 @@ export const PeoplePage: React.FC<Props> = props => {
     [filters, oldFilters]
   );
 
+  let people: GetAllPeopleForOrg.Results[] = [];
+  if (allPeopleQuery.state === "DONE" || allPeopleQuery.state === "UPDATING") {
+    const qResults = compact(allPeopleQuery.data?.orgUser?.paged?.results);
+    if (qResults) people = qResults;
+  }
+  const tableData = useMemo(() => {
+    return people.map(person => ({
+      firstName: person.firstName,
+      lastName: person.lastName,
+      email: person.email,
+      employeeId: person.employee?.externalId,
+      position: person.employee?.primaryPosition?.name,
+      phone: person.employee?.phoneNumbers?.[0]?.number,
+      location: "",
+    }));
+  }, [people]);
+
   if (
     allPeopleQuery.state === "LOADING" ||
     !allPeopleQuery.data.orgUser?.paged?.results
@@ -59,10 +77,9 @@ export const PeoplePage: React.FC<Props> = props => {
     return <></>;
   }
 
-  const people = compact(allPeopleQuery.data.orgUser?.paged?.results);
   const peopleCount = pagination.totalCount;
 
-  const columns: Column<GetAllPeopleForOrg.Results>[] = [
+  const columns: Column<typeof tableData[0]>[] = [
     {
       cellStyle: {
         width: isMobile
@@ -79,6 +96,20 @@ export const PeoplePage: React.FC<Props> = props => {
       title: t("Last Name"),
       field: "lastName",
     },
+    { title: t("Primary Phone"), field: "phone" },
+    { title: t("Employee ID"), field: "externalId" },
+    { title: t("Position"), field: "position" },
+    { title: t("Location"), field: "location" },
+    {
+      title: "",
+      field: "email",
+      sorting: false,
+      render: o => (
+        <Link href={`mailto:${o.email}`} color="secondary">
+          <MailIcon />
+        </Link>
+      ),
+    },
   ];
 
   return (
@@ -91,7 +122,7 @@ export const PeoplePage: React.FC<Props> = props => {
           peopleCount === 1 ? t("Person") : t("People")
         }`}
         columns={columns}
-        data={people}
+        data={tableData}
         selection={true}
       />
       <PaginationControls pagination={pagination} />

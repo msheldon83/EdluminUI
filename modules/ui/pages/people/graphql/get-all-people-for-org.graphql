@@ -6,6 +6,7 @@ query GetAllPeopleForOrg(
   $role: [OrgUserRole]
   $active: Boolean
   $name: String
+  $endorsements: [Int]
 ) {
   orgUser {
     paged(
@@ -16,6 +17,7 @@ query GetAllPeopleForOrg(
       role: $role
       active: $active
       name: $name
+      endorsements: $endorsements
     ) {
       offset
       limit
@@ -29,6 +31,20 @@ query GetAllPeopleForOrg(
         isReplacementEmployee
         isEmployee
         isAdmin
+        email
+        employee {
+          id
+          externalId
+          phoneNumbers {
+            id
+            country
+            number
+          }
+          primaryPosition {
+            id
+            name
+          }
+        }
       }
     }
   }
