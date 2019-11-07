@@ -130,11 +130,29 @@ export const Schedule: React.FC<Props> = props => {
   const removePeriod = (periods: Array<Period>, index: number) => {
     const periodItems = Array.from(periods);
     const [removed] = periodItems.splice(index, 1);
+    
     // Preserve a half day break
-    if (periodItems[index] && (removed.isHalfDayAfternoonStart || removed.isHalfDayMorningEnd)) {
-      periodItems[index].isHalfDayAfternoonStart = removed.isHalfDayAfternoonStart;
-      periodItems[index].isHalfDayMorningEnd = removed.isHalfDayMorningEnd;
+    if (removed.isHalfDayAfternoonStart || removed.isHalfDayMorningEnd) {
+      let currentIndex = index;
+      if (currentIndex === periodItems.length) {
+        // Last period has been deleted
+        currentIndex = currentIndex-1;
+      }
+      const hasNextPeriod = periodItems[currentIndex+1] != null;
+      const hasPreviousPeriod = periodItems[currentIndex-1] != null;
+      if (removed.isHalfDayAfternoonStart) {
+        const halfDayAfternoonStartIndex = hasPreviousPeriod ? currentIndex : currentIndex+1;
+        periodItems[halfDayAfternoonStartIndex].isHalfDayAfternoonStart = true;
+        periodItems[halfDayAfternoonStartIndex].isHalfDayMorningEnd = false;
+        periodItems[halfDayAfternoonStartIndex-1].isHalfDayMorningEnd = true;
+      } else if (removed.isHalfDayMorningEnd) {
+        const halfDayMorningEndIndex = hasNextPeriod ? currentIndex : currentIndex-1;
+        periodItems[halfDayMorningEndIndex].isHalfDayMorningEnd = true;
+        periodItems[halfDayMorningEndIndex].isHalfDayAfternoonStart = false;
+        periodItems[halfDayMorningEndIndex+1].isHalfDayAfternoonStart = true;
+      }
     }
+
     updatePeriodPlaceholders(periodItems, t);
     return periodItems;
   };
