@@ -130,7 +130,7 @@ export const Schedule: React.FC<Props> = props => {
     const periodItems = Array.from(periods);
     const [removed] = periodItems.splice(index, 1);
     // Preserve a half day break
-    if (periodItems[index]) {
+    if (periodItems[index] && (removed.isHalfDayAfternoonStart || removed.isHalfDayMorningEnd)) {
       periodItems[index].isHalfDayAfternoonStart = removed.isHalfDayAfternoonStart;
       periodItems[index].isHalfDayMorningEnd = removed.isHalfDayMorningEnd;
     }
@@ -140,9 +140,13 @@ export const Schedule: React.FC<Props> = props => {
 
   const addPeriod = (periods: Array<Period>, t: TFunction) => {
     const placeholder = `${t("Period")} ${periods.length + 1}`;
+    const previousPeriod = periods[periods.length-1];
+    const defaultStartTime = previousPeriod && previousPeriod.endTime 
+      ? addMinutes(new Date(previousPeriod.endTime), travelDuration).toISOString() 
+      : undefined;
     const periodItems = [
       ...periods,
-      { placeholder, startTime: undefined, endTime: undefined },
+      { placeholder, startTime: defaultStartTime, endTime: undefined },
     ];
 
     updatePeriodPlaceholders(periodItems, t);
@@ -303,7 +307,7 @@ export const Schedule: React.FC<Props> = props => {
           <div className={classes.timeInput}>
             <TimeInputComponent
               label=""
-              value={p.startTime || earliestStartTime}
+              value={p.startTime || undefined}
               onValidTime={time => {
                 setFieldValue(`periods[${i}].startTime`, time);
               }}
@@ -320,11 +324,16 @@ export const Schedule: React.FC<Props> = props => {
               value={p.endTime || undefined}
               onValidTime={time => {
                 setFieldValue(`periods[${i}].endTime`, time);
+                const nextPeriod = periods[i+1];
+                if (nextPeriod && !nextPeriod.startTime) {
+                  // Default the next Period's start time if not currently populated
+                  setFieldValue(`periods[${i+1}].startTime`, addMinutes(new Date(time), travelDuration).toISOString());
+                }
               }}
               onChange={value => {
                 setFieldValue(`periods[${i}].endTime`, value);
               }}
-              earliestTime={p.startTime}
+              earliestTime={p.startTime || earliestStartTime}
             />
             {displayErrorIfPresent(errors, "endTime", i)}
           </div>
