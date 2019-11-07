@@ -160,8 +160,8 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           rowVersion: workDaySchedule.rowVersion,
           periods: periods.map(p => {
             return {
-              id: Number(p.periodId),
-              name: p.name
+              id: p.periodId ? Number(p.periodId) : null,
+              name: p.name || p.placeholder
             }
           }),
           standardSchedule: {
@@ -169,7 +169,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
             periods: periods.map(p => {
               return {
                 id: p.variantPeriodId ? Number(p.variantPeriodId) : null,
-                workDaySchedulePeriodName: p.name ? p.name : "",
+                workDaySchedulePeriodName: p.name || p.placeholder,
                 startTime: p.startTime ? secondsSinceMidnight(p.startTime) : null,
                 endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
                 isHalfDayMorningEnd: p.isHalfDayMorningEnd,
