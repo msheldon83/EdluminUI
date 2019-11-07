@@ -3,8 +3,6 @@ import { useTranslation } from "react-i18next";
 import { useScreenSize } from "hooks";
 import {
   makeStyles,
-  FormControlLabel,
-  Checkbox,
   Chip,
   FormHelperText,
 } from "@material-ui/core";
@@ -15,7 +13,7 @@ import { SectionHeader } from "ui/components/section-header";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { TimeInput as TimeInputComponent } from "ui/components/form/time-input";
 import { ActionButtons } from "../../../components/action-buttons";
-import { CancelOutlined, DragHandle } from "@material-ui/icons";
+import { CancelOutlined, DragHandle, Add } from "@material-ui/icons";
 import {
   DragDropContext,
   Droppable,
@@ -130,7 +128,7 @@ export const Schedule: React.FC<Props> = props => {
   };
 
   const removePeriod = (periods: Array<Period>, index: number) => {
-    const periodItems = Array.from(periods);
+    const periodItems = [...periods];
     const [removed] = periodItems.splice(index, 1);
     
     // Preserve a half day break
@@ -160,7 +158,16 @@ export const Schedule: React.FC<Props> = props => {
   };
 
   const skipPeriod = (periods: Array<Period>, index: number) => {
+    const periodItems = [...periods];
+    periodItems[index].skipped = true;
+    const sortedPeriods = periodItems.sort((a, b) => (a.skipped ? 1 : 0) - (b.skipped ? 1 : 0));
+    return sortedPeriods;
+  }
 
+  const unskipPeriod = (periods: Array<Period>, index: number) => {
+    const periodItems = [...periods];
+    periodItems[index].skipped = false;
+    return periodItems;
   }
 
   const addPeriod = (periods: Array<Period>, t: TFunction) => {
@@ -272,6 +279,9 @@ export const Schedule: React.FC<Props> = props => {
       if (i % 2 === 1) {
         periodClasses.push(classes.alternatingItem);
       }
+      if (p.skipped) {
+        periodClasses.push(classes.skippedPeriod);
+      }
 
       // Determining valid start times for Periods
       const priorPeriodEndTime = i > 0 && periods[i-1].endTime ? periods[i-1].endTime : undefined;
@@ -284,10 +294,18 @@ export const Schedule: React.FC<Props> = props => {
           <div className={classes.actionDiv}>
             {periods.length > minNumberOfPeriods && (
               <div className={classes.action}>
-                <CancelOutlined onClick={() => { 
-                  const updatedPeriods = props.isStandard ? removePeriod(periods, i) : skipPeriod(periods, i);
-                  setFieldValue('periods', updatedPeriods);
-                }} />
+                {!p.skipped && (
+                  <CancelOutlined onClick={() => { 
+                    const updatedPeriods = props.isStandard ? removePeriod(periods, i) : skipPeriod(periods, i);
+                    setFieldValue('periods', updatedPeriods);
+                  }} />
+                )}
+                {p.skipped && (
+                  <Add onClick={() => {
+                    const updatedPeriods = unskipPeriod(periods, i);
+                    setFieldValue('periods', updatedPeriods);
+                  }} />
+                )}
               </div>
             )}
           </div>
@@ -295,6 +313,7 @@ export const Schedule: React.FC<Props> = props => {
             key={`${draggablePrefixes.nameDrag}${i}`} 
             draggableId={`${draggablePrefixes.nameDrag}${i}`} 
             index={draggableIndex++}
+            isDragDisabled={p.skipped}
           >
             {(provided, snapshot) => {
               const { innerRef } = provided;
@@ -320,90 +339,97 @@ export const Schedule: React.FC<Props> = props => {
                     {!props.isStandard && p.name}
                   </div>
                   <div className={classes.actionDiv}>
-                    {periods.length > 1 && <DragHandle />}
+                    {periods.length > 1 && !p.skipped && <DragHandle />}
                   </div>
                 </div>
               )
             }}
           </Draggable>
-          <Draggable 
-            key={`${draggablePrefixes.startOfAfternoonDrag}${i}`} 
-            draggableId={`${draggablePrefixes.startOfAfternoonDrag}${i}`} 
-            index={draggableIndex++}
-          >
-            {(provided, snapshot) => {
-              const { innerRef } = provided;
-              return (
-                <div
-                  ref={innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  className={classes.startOfAfternoon}
-                >
-                  <div className={!p.isHalfDayAfternoonStart ? classes.hidden : ""}>
-                    <Chip className={classes.startOfAfternoonChip} label={t("Start of afternoon")} />
-                  </div>
-                </div>
-              )
-            }}
-          </Draggable>
-          <div className={classes.timeInput}>
-            <TimeInputComponent
-              label=""
-              value={p.startTime || undefined}
-              onValidTime={time => {
-                setFieldValue(`periods[${i}].startTime`, time);
-              }}
-              onChange={value => {
-                setFieldValue(`periods[${i}].startTime`, value);
-              }}
-              earliestTime={earliestStartTime}
-            />
-            {displayErrorIfPresent(errors, "startTime", i)}
-          </div>
-          <div className={classes.timeInput}>
-            <TimeInputComponent
-              label=""
-              value={p.endTime || undefined}
-              onValidTime={time => {
-                setFieldValue(`periods[${i}].endTime`, time);
-                const nextPeriod = periods[i+1];
-                if (nextPeriod && !nextPeriod.startTime) {
-                  // Default the next Period's start time if not currently populated
-                  setFieldValue(`periods[${i+1}].startTime`, addMinutes(new Date(time), travelDuration).toISOString());
-                }
-              }}
-              onChange={value => {
-                setFieldValue(`periods[${i}].endTime`, value);
-              }}
-              earliestTime={p.startTime || earliestStartTime}
-            />
-            {displayErrorIfPresent(errors, "endTime", i)}
-          </div>
-          <Draggable 
-            key={`${draggablePrefixes.endOfMorningDrag}${i}`} 
-            draggableId={`${draggablePrefixes.endOfMorningDrag}${i}`} 
-            index={draggableIndex++}
-          >
-            {(provided, snapshot) => {
-              const { innerRef } = provided;
-              return (
-                <div
-                  ref={innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  className={classes.endOfMorning}
-                >
-                  <div className={!p.isHalfDayMorningEnd ? classes.hidden : ""}>
-                    <Chip className={classes.endOfMorningChip} label={t("End of morning")} />
-                  </div>
-                </div>
-              )
-            }}
-          </Draggable>
-          <div className={classes.duration}>
-            {displayMinutesDuration(p.startTime, p.endTime, i < periods.length-1, t)}
-          </div>
+          {p.skipped && (
+            <div>skipped</div>
+          )}
+          {!p.skipped && (
+            <>
+              <Draggable 
+                key={`${draggablePrefixes.startOfAfternoonDrag}${i}`} 
+                draggableId={`${draggablePrefixes.startOfAfternoonDrag}${i}`} 
+                index={draggableIndex++}
+              >
+                {(provided, snapshot) => {
+                  const { innerRef } = provided;
+                  return (
+                    <div
+                      ref={innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className={classes.startOfAfternoon}
+                    >
+                      <div className={!p.isHalfDayAfternoonStart ? classes.hidden : ""}>
+                        <Chip className={classes.startOfAfternoonChip} label={t("Start of afternoon")} />
+                      </div>
+                    </div>
+                  )
+                }}
+              </Draggable>
+              <div className={classes.timeInput}>
+                <TimeInputComponent
+                  label=""
+                  value={p.startTime || undefined}
+                  onValidTime={time => {
+                    setFieldValue(`periods[${i}].startTime`, time);
+                  }}
+                  onChange={value => {
+                    setFieldValue(`periods[${i}].startTime`, value);
+                  }}
+                  earliestTime={earliestStartTime}
+                />
+                {displayErrorIfPresent(errors, "startTime", i)}
+              </div>
+              <div className={classes.timeInput}>
+                <TimeInputComponent
+                  label=""
+                  value={p.endTime || undefined}
+                  onValidTime={time => {
+                    setFieldValue(`periods[${i}].endTime`, time);
+                    const nextPeriod = periods[i+1];
+                    if (nextPeriod && !nextPeriod.startTime) {
+                      // Default the next Period's start time if not currently populated
+                      setFieldValue(`periods[${i+1}].startTime`, addMinutes(new Date(time), travelDuration).toISOString());
+                    }
+                  }}
+                  onChange={value => {
+                    setFieldValue(`periods[${i}].endTime`, value);
+                  }}
+                  earliestTime={p.startTime || earliestStartTime}
+                />
+                {displayErrorIfPresent(errors, "endTime", i)}
+              </div>
+              <Draggable 
+                key={`${draggablePrefixes.endOfMorningDrag}${i}`} 
+                draggableId={`${draggablePrefixes.endOfMorningDrag}${i}`} 
+                index={draggableIndex++}
+              >
+                {(provided, snapshot) => {
+                  const { innerRef } = provided;
+                  return (
+                    <div
+                      ref={innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className={classes.endOfMorning}
+                    >
+                      <div className={!p.isHalfDayMorningEnd ? classes.hidden : ""}>
+                        <Chip className={classes.endOfMorningChip} label={t("End of morning")} />
+                      </div>
+                    </div>
+                  )
+                }}
+              </Draggable>
+              <div className={classes.duration}>
+                {displayMinutesDuration(p.startTime, p.endTime, i < periods.length-1, t)}
+              </div>
+            </>
+          )}          
         </div>
       );
     });
@@ -536,5 +562,8 @@ const useStyles = makeStyles(theme => ({
     background: theme.customColors.lightGray,
     borderTop: `1px solid ${theme.customColors.medLightGray}`,
     borderBottom: `1px solid ${theme.customColors.medLightGray}`,
-  }
+  },
+  skippedPeriod: {
+    color: theme.customColors.gray,
+  },
 }));
