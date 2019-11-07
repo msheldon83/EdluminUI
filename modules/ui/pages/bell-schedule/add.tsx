@@ -4,7 +4,7 @@ import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
-import { WorkDayScheduleCreateInput, FeatureFlag } from "graphql/server-types.gen";
+import { WorkDayScheduleCreateInput, FeatureFlag, WorkDayScheduleVariantType } from "graphql/server-types.gen";
 import { CreateWorkdaySchedule } from "./graphql/create.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
@@ -17,9 +17,9 @@ import { AddBasicInfo } from "./components/add-basic-info";
 import { TFunction } from "i18next";
 import { Schedule, Period } from "./components/schedule";
 import { secondsSinceMidnight } from "../../../helpers/time"
-import { GetWorkDayPatterns } from "./graphql/work-day-patterns.gen";
-import { GetOrgConfigFeatureFlags } from "./graphql/org-config-feature-flags.gen";
-import { GetWorkDayScheduleVariantTypes } from "./graphql/org-work-day-schedule-variant-types.gen";
+import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
+import { useWorkDayPatterns } from "reference-data/work-day-patterns";
+import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 
 export type ScheduleSettings = {
   isBasic: boolean;
@@ -68,6 +68,10 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   const [name, setName] = React.useState<string | null>(null);
   const [scheduleSettings, setScheduleSettings] = React.useState<ScheduleSettings>(scheduleSettingsDefaults);
   const namePlaceholder = t("Eastend High School");
+  
+  const orgFeatureFlags = useOrgFeatureFlags(params.organizationId);
+  const orgWorkDayPatterns = useWorkDayPatterns(params.organizationId);
+  const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(params.organizationId);
 
   const [bellSchedule, setBellSchedule] = React.useState<
     WorkDayScheduleCreateInput
@@ -79,31 +83,9 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     standardSchedule: null,
   });
 
-  // Get the Org's Work Day Patterns (for now each org will only have one)
-  const getWorkDayPatterns = useQueryBundle(GetWorkDayPatterns, {
-    variables: { orgId: params.organizationId },
-  });
-  // Get the Org's Feature Flags to determine if they are using Half Day Absences
-  const getOrgConfigFeatureFlags = useQueryBundle(GetOrgConfigFeatureFlags, {
-    variables: { orgId: params.organizationId },
-  });
-  // Get the Org's defined Variant Types
-  const getWorkDayScheduleVariantTypes = useQueryBundle(GetWorkDayScheduleVariantTypes, {
-    variables: { orgId: params.organizationId },
-  });
-
-  if (getWorkDayPatterns.state === "LOADING" 
-    || getOrgConfigFeatureFlags.state === "LOADING"
-    || getWorkDayScheduleVariantTypes.state === "LOADING") {
-    return <></>;
-  }
-  const allWorkDayPatterns = getWorkDayPatterns?.data?.workDayPattern?.all;
-  const workDayPatternId: number = allWorkDayPatterns != null && allWorkDayPatterns.length
-  ? Number(allWorkDayPatterns[0]!.id) : 0;
-  const orgFeatureFlags = getOrgConfigFeatureFlags?.data?.organization?.byId?.config?.featureFlags;
-  const orgUsesHalfDayBreaks: boolean = orgFeatureFlags != null && orgFeatureFlags.includes(FeatureFlag.HalfDayAbsences);
-  const workDayScheduleVariantTypes = getWorkDayScheduleVariantTypes?.data?.orgRef_WorkDayScheduleVariantType?.all;
-  const standardVariantType = workDayScheduleVariantTypes != null ? workDayScheduleVariantTypes.find(v => v!.isStandard) : null;
+  const orgUsesHalfDayBreaks: boolean = orgFeatureFlags.includes(FeatureFlag.HalfDayAbsences);
+  const workDayPatternId: number = orgWorkDayPatterns.length ? Number(orgWorkDayPatterns[0]!.id) : 0;
+  const standardVariantType = orgWorkDayScheduleVariantTypes.find(v => v.isStandard);
   const standardVariantTypeId: number = standardVariantType ? Number(standardVariantType.id) : 0;
 
   const renderBasicInfoStep = (
