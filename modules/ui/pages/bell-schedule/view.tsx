@@ -117,7 +117,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
       const periods: Array<Period> = variant.periods!
         .sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0))
         .map((p: Maybe<WorkDayScheduleVariantPeriod>) => {
-          const matchingPeriod = workDaySchedule.periods ? workDaySchedule.periods!.find((w: any) => w.sequence! === p!.sequence) : null;
+          const matchingPeriod = workDaySchedule.periods ? workDaySchedule.periods.find((w: any) => w.sequence! === p!.sequence) : null;
           
           const startTimeString = timeStampToIso(midnightTime().setSeconds(p!.startTime));
           const endTimeString = timeStampToIso(midnightTime().setSeconds(p!.endTime))
