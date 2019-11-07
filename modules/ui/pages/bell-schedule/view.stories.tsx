@@ -1,5 +1,5 @@
 import * as React from "react";
-import { mockProvider } from "test-helpers/mock-provider";
+import { mockProvider, MockDefinitions } from "test-helpers/mock-provider";
 import {
   BellScheduleViewRoute,
   BellScheduleViewLoader,
@@ -25,13 +25,95 @@ export const BasicView = () => {
             externalId: "ASERAS234",
             expired: false,
             periods: [
-              { id: "1000"}, { id: "1001"}, { id: "1002" }
+              { id: "1000", name: "Morning", sequence: 1}, 
+              { id: "1001", name: "Lunch", sequence: 2}, 
+              { id: "1002", name: "Afternoon", sequence: 3 }
             ],
             variants: [
-              { id: "1000"}, { id: "1001"}, { id: "1002" }
-            ],
-            usages: [
-              { id: "1000"}, { id: "1001"}, { id: "1002" }
+              { id: "1000", isStandard: true, 
+                periods: [
+                  { 
+                    id: "1", 
+                    startTime: 28800 as any, 
+                    endTime: 43200 as any, 
+                    isHalfDayMorningEnd: true, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 1 
+                  },
+                  { 
+                    id: "2", 
+                    startTime: 43500 as any, 
+                    endTime: 46800 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: true, 
+                    sequence: 2
+                  },
+                  { 
+                    id: "3", 
+                    startTime: 47100 as any, 
+                    endTime: 61200 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 3
+                  }
+                ]
+              },
+              { id: "1002", isStandard: false, 
+                periods: [
+                  { 
+                    id: "4", 
+                    startTime: 28800 as any, 
+                    endTime: 43200 as any, 
+                    isHalfDayMorningEnd: true, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 1 
+                  },
+                  { 
+                    id: "5", 
+                    startTime: 43500 as any, 
+                    endTime: 46800 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: true, 
+                    sequence: 2
+                  },
+                  { 
+                    id: "6", 
+                    startTime: 47100 as any, 
+                    endTime: 61200 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 3
+                  }
+                ]
+              },
+              { id: "1003", isStandard: false, 
+                periods: [
+                  { 
+                    id: "7", 
+                    startTime: 28800 as any, 
+                    endTime: 43200 as any, 
+                    isHalfDayMorningEnd: true, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 1 
+                  },
+                  { 
+                    id: "8", 
+                    startTime: 43500 as any, 
+                    endTime: 46800 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: true, 
+                    sequence: 2
+                  },
+                  { 
+                    id: "9", 
+                    startTime: 47100 as any, 
+                    endTime: 61200 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 3
+                  }
+                ]
+              }
             ]
           },
         }),
@@ -61,18 +143,100 @@ export const InactiveBellSchedule = () => {
       Query: () => ({
         workDaySchedule: () => ({
           byId: {
-            id: "1000",
+            id: "1001",
             name: "Default Bell Schedule",
             externalId: "ASERAS234",
             expired: true,
             periods: [
-              { id: "1000"}, { id: "1001"}, { id: "1002" }
+              { id: "1000", name: "Morning", sequence: 1}, 
+              { id: "1001", name: "Lunch", sequence: 2}, 
+              { id: "1002", name: "Afternoon", sequence: 3 }
             ],
             variants: [
-              { id: "1000"}, { id: "1001"}, { id: "1002" }
-            ],
-            usages: [
-              { id: "1000"}, { id: "1001"}, { id: "1002" }
+              { id: "1000", isStandard: true, 
+                periods: [
+                  { 
+                    id: "1", 
+                    startTime: 28800 as any, 
+                    endTime: 43200 as any, 
+                    isHalfDayMorningEnd: true, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 1 
+                  },
+                  { 
+                    id: "2", 
+                    startTime: 43500 as any, 
+                    endTime: 46800 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: true, 
+                    sequence: 2
+                  },
+                  { 
+                    id: "3", 
+                    startTime: 47100 as any, 
+                    endTime: 61200 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 3
+                  }
+                ]
+              },
+              { id: "1002", isStandard: false, 
+                periods: [
+                  { 
+                    id: "4", 
+                    startTime: 28800 as any, 
+                    endTime: 43200 as any, 
+                    isHalfDayMorningEnd: true, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 1 
+                  },
+                  { 
+                    id: "5", 
+                    startTime: 43500 as any, 
+                    endTime: 46800 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: true, 
+                    sequence: 2
+                  },
+                  { 
+                    id: "6", 
+                    startTime: 47100 as any, 
+                    endTime: 61200 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 3
+                  }
+                ]
+              },
+              { id: "1003", isStandard: false, 
+                periods: [
+                  { 
+                    id: "7", 
+                    startTime: 28800 as any, 
+                    endTime: 43200 as any, 
+                    isHalfDayMorningEnd: true, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 1 
+                  },
+                  { 
+                    id: "8", 
+                    startTime: 43500 as any, 
+                    endTime: 46800 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: true, 
+                    sequence: 2
+                  },
+                  { 
+                    id: "9", 
+                    startTime: 47100 as any, 
+                    endTime: 61200 as any, 
+                    isHalfDayMorningEnd: false, 
+                    isHalfDayAfternoonStart: false, 
+                    sequence: 3
+                  }
+                ]
+              }
             ]
           },
         }),
