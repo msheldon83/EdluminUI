@@ -3601,6 +3601,7 @@ type WorkDayScheduleVariantPeriod implements ModelObjectInterface {
   changedUtc: DateTime!
   deletedUtc: DateTime!
   isDeleted: Boolean!
+  workDaySchedulePeriodId: Int!
   sequence: Int
   startTime: Seconds!
   endTime: Seconds!
