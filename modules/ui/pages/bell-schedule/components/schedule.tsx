@@ -215,6 +215,14 @@ export const Schedule: React.FC<Props> = props => {
       return null;
     }
 
+    // As the TimeInput is changing, the value may not be a date string yet
+    // and just a number (i.e. "10" for 10:00 am). Since we enforce "earliestTime" on
+    // the TimeInput, endTime should never be before startTime so just bail out here
+    // and wait till we have a valid date string
+    if (endTimeDate < startTimeDate) {
+      return null;
+    }
+
     const minutes = differenceInMinutes(endTimeDate, startTimeDate);
     if (typeof minutes !== "number" || isNaN(minutes)) {
       return null;
