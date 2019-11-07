@@ -21,13 +21,17 @@ export const BellSchedulePage: React.FC<{}> = props => {
   const isMobile = useScreenSize() === "mobile";
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
-  const [getWorkDaySchedules, pagination] = usePagedQueryBundle(GetAllWorkDaySchedulesWithinOrg, 
+  const [getWorkDaySchedules, pagination] = usePagedQueryBundle(
+    GetAllWorkDaySchedulesWithinOrg,
     r => r.workDaySchedule?.paged?.totalCount,
-    { 
-      variables: { orgId: params.organizationId, includeExpired}
-  });
+    {
+      variables: { orgId: params.organizationId, includeExpired },
+    }
+  );
 
-  const [deleteWorkDayScheduleMutation] = useMutationBundle(DeleteWorkDaySchedule);
+  const [deleteWorkDayScheduleMutation] = useMutationBundle(
+    DeleteWorkDaySchedule
+  );
   const deleteWorkDaySchedule = (workDayScheduleId: string) => {
     return deleteWorkDayScheduleMutation({
       variables: {
@@ -36,12 +40,12 @@ export const BellSchedulePage: React.FC<{}> = props => {
     });
   };
 
-  const deleteSelected = async (data: {id: string} | {id: string}[]) => {
+  const deleteSelected = async (data: { id: string } | { id: string }[]) => {
     if (Array.isArray(data)) {
       await Promise.all(data.map(id => deleteWorkDaySchedule(id.id)));
     } else {
       await Promise.resolve(deleteWorkDaySchedule(data.id));
-    }    
+    }
     getWorkDaySchedules.refetch();
   };
 
@@ -52,8 +56,11 @@ export const BellSchedulePage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const workDaySchedules = compact(getWorkDaySchedules?.data?.workDaySchedule?.paged?.results ?? []);
-  const workDaySchedulesCount = getWorkDaySchedules?.data?.workDaySchedule?.paged?.totalCount ?? 0;
+  const workDaySchedules = compact(
+    getWorkDaySchedules?.data?.workDaySchedule?.paged?.results ?? []
+  );
+  const workDaySchedulesCount =
+    getWorkDaySchedules?.data?.workDaySchedule?.paged?.totalCount ?? 0;
 
   const columns: Column<GetAllWorkDaySchedulesWithinOrg.Results>[] = [
     {
@@ -62,20 +69,25 @@ export const BellSchedulePage: React.FC<{}> = props => {
       defaultSort: "asc",
       searchable: true,
     },
-    { title: t("External Id"), field: "externalId", searchable: true, hidden:isMobile },
-    { 
-      title: t("In Use"), 
+    {
+      title: t("External Id"),
+      field: "externalId",
+      searchable: true,
+      hidden: isMobile,
+    },
+    {
+      title: t("In Use"),
       render: rowData => {
         const usageCount = rowData?.usages?.length ?? 0;
-        return usageCount > 0 ?  t("Yes") : t("No");
+        return usageCount > 0 ? t("Yes") : t("No");
       },
-      hidden:isMobile
+      hidden: isMobile,
     },
-    { 
-      title: t("# of Periods"), 
-      field: "periods.length", 
+    {
+      title: t("# of Periods"),
+      field: "periods.length",
       searchable: false,
-      hidden:isMobile
+      hidden: isMobile,
     },
   ];
 
@@ -87,30 +99,40 @@ export const BellSchedulePage: React.FC<{}> = props => {
         justify="space-between"
         spacing={2}
         className={classes.header}
-        >
-          <Grid item>
-            <PageTitle title={t("Bell Schedules")} />
-          </Grid>
+      >
+        <Grid item>
+          <PageTitle title={t("Bell Schedules")} />
         </Grid>
+      </Grid>
       <Table
-        title={`${workDaySchedulesCount} ${workDaySchedulesCount == 1 ? t("Bell Schedule") : t("Bell Schedules")}`}
+        title={`${workDaySchedulesCount} ${
+          workDaySchedulesCount == 1 ? t("Bell Schedule") : t("Bell Schedules")
+        }`}
         columns={columns}
         data={workDaySchedules}
         selection={!isMobile}
         options={{
           search: true,
           sorting: true,
-          selectionProps: (rowData: GetAllWorkDaySchedulesWithinOrg.Results) => ({
-            disabled: rowData?.usages?.length ? rowData?.usages?.length > 0 : false
-          })
+          selectionProps: (
+            rowData: GetAllWorkDaySchedulesWithinOrg.Results
+          ) => ({
+            disabled: rowData?.usages?.length
+              ? rowData?.usages?.length > 0
+              : false,
+          }),
         }}
         showIncludeExpired={true}
-        onIncludeExpiredChange={(checked) => { setIncludeExpired(checked);}}
-        expiredRowCheck={(rowData: GetAllWorkDaySchedulesWithinOrg.Results) => rowData.isExpired ?? false}
+        onIncludeExpiredChange={checked => {
+          setIncludeExpired(checked);
+        }}
+        expiredRowCheck={(rowData: GetAllWorkDaySchedulesWithinOrg.Results) =>
+          rowData.expired ?? false
+        }
         actions={[
           {
             tooltip: `${t("Delete selected bell schedules")}`,
-            icon: () => <DeleteOutline />, /* eslint-disable-line */ // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
+            icon: () => <DeleteOutline /> /* eslint-disable-line */, // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
             onClick: (event, data) => {
               deleteSelected(data);
             },
@@ -123,6 +145,6 @@ export const BellSchedulePage: React.FC<{}> = props => {
 
 const useStyles = makeStyles(theme => ({
   header: {
-    marginBottom: theme.spacing()
-  }
+    marginBottom: theme.spacing(),
+  },
 }));
