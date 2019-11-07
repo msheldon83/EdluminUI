@@ -43,6 +43,7 @@ export type Period = {
   endTime?: string;
   isHalfDayMorningEnd?: boolean;
   isHalfDayAfternoonStart?: boolean;
+  skipped?: boolean;
 };
 
 const travelDuration = 5;
@@ -157,6 +158,10 @@ export const Schedule: React.FC<Props> = props => {
     updatePeriodPlaceholders(periodItems, t);
     return periodItems;
   };
+
+  const skipPeriod = (periods: Array<Period>, index: number) => {
+
+  }
 
   const addPeriod = (periods: Array<Period>, t: TFunction) => {
     const placeholder = `${t("Period")} ${periods.length + 1}`;
@@ -280,7 +285,7 @@ export const Schedule: React.FC<Props> = props => {
             {periods.length > minNumberOfPeriods && (
               <div className={classes.action}>
                 <CancelOutlined onClick={() => { 
-                  const updatedPeriods = removePeriod(periods, i);
+                  const updatedPeriods = props.isStandard ? removePeriod(periods, i) : skipPeriod(periods, i);
                   setFieldValue('periods', updatedPeriods);
                 }} />
               </div>
@@ -290,7 +295,6 @@ export const Schedule: React.FC<Props> = props => {
             key={`${draggablePrefixes.nameDrag}${i}`} 
             draggableId={`${draggablePrefixes.nameDrag}${i}`} 
             index={draggableIndex++}
-            isDragDisabled={!props.isStandard}
           >
             {(provided, snapshot) => {
               const { innerRef } = provided;
@@ -316,7 +320,7 @@ export const Schedule: React.FC<Props> = props => {
                     {!props.isStandard && p.name}
                   </div>
                   <div className={classes.actionDiv}>
-                    {props.isStandard && periods.length > 1 && <DragHandle />}
+                    {periods.length > 1 && <DragHandle />}
                   </div>
                 </div>
               )
@@ -463,14 +467,14 @@ export const Schedule: React.FC<Props> = props => {
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}
               cancel={{ text: t("Cancel"), execute: props.onCancel }}
-              additionalActions={[
+              additionalActions={props.isStandard ? [
                 { text: t("Add Row"), 
                   execute: () => { 
                     const updatedPeriods = addPeriod(values.periods, t);
                     setFieldValue('periods', updatedPeriods);
                   }
                 },
-              ]}
+              ] : []}
             />
           </form>
         )}
