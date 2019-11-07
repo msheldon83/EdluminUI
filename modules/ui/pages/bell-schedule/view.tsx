@@ -184,7 +184,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
 
   return (
     <>
-      <PageTitle title={t("Bell Schedule")} withoutHeading={!isMobile} />
+      <PageTitle title={t("Bell Schedule")} withoutHeading />
       <PageHeader
         text={workDaySchedule.name}
         label={t("Name")}
