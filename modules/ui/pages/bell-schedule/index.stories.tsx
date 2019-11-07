@@ -1,13 +1,16 @@
 import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
 import { BellSchedulePage } from ".";
+import { BellScheduleRoute } from "ui/routes/bell-schedule";
+import { Route } from "react-router";
 
 export default {
-  title: "Pages/BellSchedule",
+  title: "Pages/Bell Schedule/List",
 };
 
 export const BellScheduleList = () => {
   const Provider = mockProvider({
+    initialUrl: BellScheduleRoute.generate({ organizationId: "1000" }),
     mocks: {
       Query: () => ({
         workDaySchedule: () => ({
@@ -64,10 +67,12 @@ export const BellScheduleList = () => {
 
   return (
     <Provider>
-      <BellSchedulePage />
+      <Route path={BellScheduleRoute.path}>
+        <BellSchedulePage />
+      </Route>
     </Provider>
   );
 };
 BellScheduleList.story = {
-  name: "List View",
+  name: "Basic List View",
 };
