@@ -4,17 +4,19 @@ import DateFnsUtils from "@date-io/date-fns";
 import { MuiPickersUtilsProvider, Calendar } from "@material-ui/pickers";
 import { makeStyles } from "@material-ui/core/styles";
 import createDate from "sugar/date/create";
-import parseISO from "date-fns/parseISO";
 import isValid from "date-fns/isValid";
-import isDate from "date-fns/isDate";
 import format from "date-fns/format";
-import isWithinInterval from "date-fns/isWithinInterval";
-import isAfter from "date-fns/isAfter";
-import isBefore from "date-fns/isBefore";
 import isEqual from "date-fns/isEqual";
 import addDays from "date-fns/addDays";
-import { IconButton, withStyles } from "@material-ui/core";
+import { IconButton } from "@material-ui/core";
 import { Input } from "./input";
+import {
+  isAfterDate,
+  formatDateIfPossible,
+  areDatesEqual,
+  inDateInterval,
+} from "../../../helpers/date";
+import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previous-date";
 
 type DateInputProps = {
   label: string;
@@ -25,10 +27,6 @@ type DateInputProps = {
 
 export const DateInput = (props: DateInputProps) => {
   const { label, value = "", onValidDate, onChange } = props;
-
-  // const [rawValue, setRawValue] = React.useState<
-  //   Date | string | null | undefined
-  // >(value);
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
@@ -46,23 +44,7 @@ export const DateInput = (props: DateInputProps) => {
     onChange(date);
   };
 
-  const formatDateOrNot = (date: Date | string | undefined | null) => {
-    if (!date) {
-      return "";
-    }
-
-    if (typeof date === "string") {
-      return date;
-    }
-
-    if (!isValid(date)) {
-      return date;
-    }
-
-    return format(date, "MMM d, yyyy");
-  };
-
-  const formattedValue = formatDateOrNot(value);
+  const formattedValue = formatDateIfPossible(value, "MMM d, yyyy");
 
   return (
     <Input
@@ -88,69 +70,76 @@ type onChangeType = {
 };
 
 export const DatePicker = (props: DatePickerProps) => {
-  const classes = useStyles();
-
   const { startDate, endDate, onChange } = props;
 
+  const classes = useStyles();
+
+  /*
+    The calendar component requires that there always be a valid date value, so this hook tracks
+    the last valid value (defaulting to the current date) and makes sure we can do date calculations
+    with a guarenteed value
+  */
+  const guaranteedStartDate = useGuaranteedPreviousDate(startDate);
+  const guaranteedEndDate = useGuaranteedPreviousDate(endDate);
+  let calendarDate = guaranteedStartDate;
+
   // Make sure that time plays no part in date comparisons
-  // startDate.setHours(0, 0, 0, 0);
-  // endDate can be null
-  // endDate && endDate.setHours(0, 0, 0, 0);
+  if (startDate instanceof Date) {
+    startDate.setHours(0, 0, 0, 0);
+    calendarDate = startDate;
+  }
+  // endDate can be undefined
+  if (endDate instanceof Date) {
+    endDate.setHours(0, 0, 0, 0);
+  }
 
-  // const customDayRenderer = (
-  //   date: Date | null,
-  //   selectedDate: Date | null,
-  //   dayInCurrentMonth: boolean,
-  //   dayComponent: JSX.Element
-  // ): JSX.Element => {
-  //   /*
-  //     The material-ui types say that date can be null here, but there's never a case in
-  //     the UI where that can be true right now
-  //   */
-  //   if (!date) {
-  //     return dayComponent;
-  //   }
-
-  //   const dayIsBetween =
-  //     endDate &&
-  //     isWithinInterval(date, {
-  //       start: startDate,
-  //       end: endDate,
-  //     });
-  //   const isFirstDay = isEqual(date, startDate);
-  //   const isLastDay = endDate ? isEqual(date, endDate) : isFirstDay;
-
-  //   const wrapperClassName = clsx({
-  //     [classes.highlight]: dayIsBetween,
-  //     [classes.firstHighlight]: isFirstDay,
-  //     [classes.endHighlight]: isLastDay,
-  //     [classes.dayWrapper]: true,
-  //   });
-
-  //   const dayClassName = clsx(classes.day, {
-  //     [classes.day]: true,
-  //     [classes.nonCurrentMonthDay]: !dayInCurrentMonth,
-  //     [classes.highlightNonCurrentMonthDay]: !dayInCurrentMonth && dayIsBetween,
-  //   });
-
-  //   return (
-  //     <div className={wrapperClassName}>
-  //       <IconButton className={dayClassName}>
-  //         <span> {format(date, "d")} </span>
-  //       </IconButton>
-  //     </div>
-  //   );
-  // };
-
-  const isAfterDate = (date1: Date | string, date2: Date | string) => {
-    if (typeof date2 === "string" || typeof date1 === "string") {
-      return false;
+  const customDayRenderer = (
+    day: Date | null,
+    selectedDate: Date | null,
+    dayInCurrentMonth: boolean,
+    dayComponent: JSX.Element
+  ): JSX.Element => {
+    /*
+      The material-ui types say that date can be null here, but there's never a case in
+      the UI where that can be true right now
+    */
+    if (!day) {
+      return dayComponent;
     }
 
-    return isAfter(date1, date2);
+    let start = startDate;
+
+    if (typeof start === "string") {
+      start = guaranteedStartDate;
+    }
+
+    const dayIsBetween = inDateInterval(day, { start, end: endDate });
+    const isFirstDay = isEqual(day, start);
+    const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
+
+    const wrapperClassName = clsx({
+      [classes.highlight]: dayIsBetween,
+      [classes.firstHighlight]: isFirstDay,
+      [classes.endHighlight]: isLastDay,
+      [classes.dayWrapper]: true,
+    });
+
+    const dayClassName = clsx(classes.day, {
+      [classes.day]: true,
+      [classes.nonCurrentMonthDay]: !dayInCurrentMonth,
+      [classes.highlightNonCurrentMonthDay]: !dayInCurrentMonth && dayIsBetween,
+    });
+
+    return (
+      <div className={wrapperClassName}>
+        <IconButton className={dayClassName}>
+          <span> {format(day, "d")} </span>
+        </IconButton>
+      </div>
+    );
   };
 
-  const handleEndDateInputChange = (newEndDate: Date | string = "") => {
+  const handleEndDateInputChange = (newEndDate: Date | string) => {
     /*
       The material-ui types say that date can be null here, but there's never a case in
       the UI where that can be true right now
@@ -162,7 +151,7 @@ export const DatePicker = (props: DatePickerProps) => {
     let newStartDate = startDate;
 
     // Not a valid date yet
-    if (typeof newEndDate == "string") {
+    if (typeof newEndDate === "string") {
       onChange({ startDate: newStartDate, endDate: newEndDate });
       return;
     }
@@ -180,7 +169,7 @@ export const DatePicker = (props: DatePickerProps) => {
     onChange({ startDate: newStartDate, endDate: newEndDate });
   };
 
-  const handleStartDateInputChange = (newStartDate: Date | string = "") => {
+  const handleStartDateInputChange = (newStartDate: Date | string) => {
     /*
       The material-ui types say that date can be null here, but there's never a case in
       the UI where that can be true right now
@@ -189,7 +178,7 @@ export const DatePicker = (props: DatePickerProps) => {
       return;
     }
 
-    let newEndDate = endDate || "";
+    let newEndDate = endDate;
 
     // Not a valid date yet
     if (typeof newStartDate == "string") {
@@ -197,19 +186,17 @@ export const DatePicker = (props: DatePickerProps) => {
       return;
     }
 
-    const isStartDateAfterEndDate = isAfterDate(newStartDate, newEndDate);
+    const isEndDateAfterStartDate = isAfterDate(newEndDate, newStartDate);
 
     // If the start date is after the end date, reset the end date
-    if (isStartDateAfterEndDate) {
-      newEndDate = "";
+    if (!isEndDateAfterStartDate) {
+      newEndDate = undefined;
     }
 
     onChange({ startDate: newStartDate, endDate: newEndDate });
   };
 
-  const handleDateChange = (position: "start" | "end") => (
-    date: Date | string | null = ""
-  ) => {
+  const handleCalendarDateChange = (date: Date | string | null = "") => {
     /*
       The material-ui types say that date can be null here, but there's never a case in
       the UI where that can be true right now
@@ -218,8 +205,8 @@ export const DatePicker = (props: DatePickerProps) => {
       return;
     }
 
-    let newStartDate = position === "start" ? date : startDate;
-    let newEndDate = position === "end" ? date : endDate;
+    let newStartDate = date;
+    let newEndDate = endDate;
 
     // Not a valid date yet
     if (typeof date == "string") {
@@ -227,37 +214,31 @@ export const DatePicker = (props: DatePickerProps) => {
       return;
     }
 
-    /*
-    TODO:
-      if th enew end date is after the start date, change the start date to the end
-      date and the end date to the date after the start date
-    */
+    const isAfterStartDate = isAfterDate(newStartDate, startDate);
 
-    // const isAfterStartDate = isAfterDate(newStartDate, startDate);
+    newStartDate = isAfterStartDate ? startDate : date;
+    newEndDate = isAfterStartDate ? date : endDate;
 
-    // newStartDate = isAfterStartDate ? startDate : date;
-    // newEndDate = isAfterStartDate ? date : endDate;
-
-    // if (endDate) {
-    //   newStartDate = date;
-    //   newEndDate = "";
-    // }
+    // Reset end if there is already one because the start date should always dictate the date range
+    if (endDate) {
+      newStartDate = date;
+      newEndDate = undefined;
+    }
 
     onChange({ startDate: newStartDate, endDate: newEndDate });
   };
 
   const renderCalender = () => {
-    return null;
-    // return (
-    //   <div className={classes.calendarWrapper}>
-    //     <Calendar
-    //       date={startDate}
-    //       onChange={handleDateChange}
-    //       renderDay={customDayRenderer}
-    //       allowKeyboardControl={false}
-    //     />
-    //   </div>
-    // );
+    return (
+      <div className={classes.calendarWrapper}>
+        <Calendar
+          date={calendarDate}
+          onChange={handleCalendarDateChange}
+          renderDay={customDayRenderer}
+          allowKeyboardControl={false}
+        />
+      </div>
+    );
   };
 
   const renderTextInputs = () => {
@@ -267,6 +248,10 @@ export const DatePicker = (props: DatePickerProps) => {
           <DateInput
             label="From"
             value={startDate}
+            /*
+              The handler is used for both change and valid date ranges here to make the experience
+              calculate at all the correct interaction timers
+            */
             onChange={handleStartDateInputChange}
             onValidDate={handleStartDateInputChange}
           />
@@ -288,10 +273,12 @@ export const DatePicker = (props: DatePickerProps) => {
       * shouldDisableDate - disable days (if necessary)
   */
 
-  return renderTextInputs();
-  // <MuiPickersUtilsProvider utils={DateFnsUtils}>
-  // {renderCalender()}
-  // </MuiPickersUtilsProvider>
+  return (
+    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      {renderTextInputs()}
+      {renderCalender()}
+    </MuiPickersUtilsProvider>
+  );
 };
 
 const useStyles = makeStyles(theme => ({
