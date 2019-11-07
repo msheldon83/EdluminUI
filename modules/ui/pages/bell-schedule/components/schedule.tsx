@@ -346,7 +346,7 @@ export const Schedule: React.FC<Props> = props => {
             }}
           </Draggable>
           {p.skipped && (
-            <div>skipped</div>
+            <div className={classes.skippedDiv}>{t("Skipped")}</div>
           )}
           {!p.skipped && (
             <>
@@ -513,7 +513,10 @@ const useStyles = makeStyles(theme => ({
   period: {
     display: "flex",
     justifyContent: "flex-start",
-    alignItems: "center"
+    alignItems: "center",
+    height: theme.typography.pxToRem(75),
+    paddingTop: theme.spacing(),
+    paddingBottom: theme.spacing()
   },
   draggableSection: {
     display: "flex",
@@ -525,6 +528,7 @@ const useStyles = makeStyles(theme => ({
   },
   action: {
     cursor: "pointer",
+    color: "initial"
   },
   nameInput: {
     width: theme.typography.pxToRem(200),
@@ -566,4 +570,8 @@ const useStyles = makeStyles(theme => ({
   skippedPeriod: {
     color: theme.customColors.gray,
   },
+  skippedDiv: {
+    flexGrow: 2,
+    textTransform: "uppercase"
+  }
 }));
