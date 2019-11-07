@@ -20,8 +20,9 @@ import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import Maybe from "graphql/tsutils/Maybe";
 import { Schedule, Period } from "./components/schedule";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
-import { WorkDayScheduleVariant, WorkDayScheduleVariantPeriod, WorkDaySchedule, WorkDaySchedulePeriod } from "graphql/server-types.gen";
+import { WorkDayScheduleVariant, WorkDayScheduleVariantPeriod, WorkDaySchedule, WorkDaySchedulePeriod, WorkDayScheduleVariantType } from "graphql/server-types.gen";
 import { midnightTime, timeStampToIso, secondsSinceMidnight } from "helpers/time";
+import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 
 const editableSections = {
   name: "edit-name",
@@ -36,6 +37,10 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   const params = useRouteParams(BellScheduleViewRoute);
   const [editing, setEditing] = useState<string | null>(null);
   const [enabled, setEnabled] = useState<boolean | null>(null);
+  const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(params.organizationId);
+
+  const standardVariantType = orgWorkDayScheduleVariantTypes.find(v => v.isStandard);
+  const variantTypes = orgWorkDayScheduleVariantTypes.filter(v => v.id !== standardVariantType?.id);
 
   const [deleteWorkDayScheduleMutation] = useMutationBundle(DeleteWorkDaySchedule);
   const deleteWorkDaySchedule = React.useCallback(() => {
@@ -71,7 +76,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const workDaySchedule = getWorkDaySchedule?.data?.workDaySchedule?.byId;
+  const workDaySchedule: WorkDaySchedule = getWorkDaySchedule?.data?.workDaySchedule?.byId as WorkDaySchedule;
   if (!workDaySchedule) {
     // Redirect the User back to the List page
     const listUrl = BellScheduleRoute.generate(params);
@@ -106,32 +111,58 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     });
   };
 
+  const buildPeriods = (variant: Maybe<WorkDayScheduleVariant>, workDaySchedule: WorkDaySchedule): Array<Period> => {
+    if (variant) {
+      // Build the period list from the periods under the variant
+      const periods: Array<Period> = variant.periods!
+        .sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0))
+        .map((p: Maybe<WorkDayScheduleVariantPeriod>) => {
+          const matchingPeriod = workDaySchedule.periods ? workDaySchedule.periods!.find((w: any) => w.sequence! === p!.sequence) : null;
+          
+          const startTimeString = timeStampToIso(midnightTime().setSeconds(p!.startTime));
+          const endTimeString = timeStampToIso(midnightTime().setSeconds(p!.endTime))
+          
+          return {
+            periodId: matchingPeriod?.id,
+            variantPeriodId: p?.id,
+            name: matchingPeriod ? matchingPeriod.name : "",
+            placeholder: "",
+            startTime: startTimeString,
+            endTime: endTimeString,
+            isHalfDayMorningEnd: p!.isHalfDayMorningEnd,
+            isHalfDayAfternoonStart: p!.isHalfDayAfternoonStart
+          }
+        });
+      return periods;
+    } else {
+      // Build the period list from the list of periods on the Work Day Schedule
+      const periods: Array<Period> = workDaySchedule.periods!
+        .sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0))
+        .map((p: Maybe<WorkDaySchedulePeriod>) => {
+          return {
+            periodId: p?.id,
+            name: p!.name,
+            placeholder: "",
+            startTime: undefined,
+            endTime: undefined
+          }
+        });
+      
+      // Default the startOfHalfdayAfternoon and endOfHalfdayMorning
+      
+      return periods;
+    }    
+  }
+
   const renderRegularSchedule = (
     setStep: React.Dispatch<React.SetStateAction<number>>
   ) => {
-    const standardSchedule = (workDaySchedule as WorkDaySchedule).variants!.find((v: Maybe<WorkDayScheduleVariant>) => v!.isStandard)!;
-    const periods: Array<Period> = standardSchedule.periods!
-      .sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0))
-      .map((p: Maybe<WorkDayScheduleVariantPeriod>) => {
-        const matchingPeriod = (workDaySchedule as WorkDaySchedule).periods ? workDaySchedule.periods!.find((w: any) => w.sequence! === p!.sequence) : null;
-        
-        const startTimeString = timeStampToIso(midnightTime().setSeconds(p!.startTime));
-        const endTimeString = timeStampToIso(midnightTime().setSeconds(p!.endTime))
-        
-        return {
-          periodId: matchingPeriod?.id,
-          variantPeriodId: p?.id,
-          name: matchingPeriod ? matchingPeriod.name : "",
-          placeholder: "",
-          startTime: startTimeString,
-          endTime: endTimeString,
-          isHalfDayMorningEnd: p!.isHalfDayMorningEnd,
-          isHalfDayAfternoonStart: p!.isHalfDayAfternoonStart
-        }
-    });
+    const standardSchedule = workDaySchedule.variants!.find((v: Maybe<WorkDayScheduleVariant>) => v!.isStandard)!;
+    const periods = buildPeriods(standardSchedule, workDaySchedule);
 
     return (
       <Schedule
+        name={standardVariantType?.name}
         isStandard={true}
         periods={periods}
         variantId={Number(standardSchedule.id)}
@@ -181,6 +212,56 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
       },
     });
   };
+
+  const renderVariant = (
+    setStep: React.Dispatch<React.SetStateAction<number>>,   
+    variantTypeId: string,
+    variantTypeName: string
+  ) => {
+    const existingVariant = workDaySchedule.variants!.find((v: Maybe<WorkDayScheduleVariant>) => v!.workDayScheduleVariantTypeId.toString() === variantTypeId);
+    const periods = buildPeriods(existingVariant, workDaySchedule);
+
+    return (
+      <Schedule
+        name={variantTypeName}
+        isStandard={false}
+        periods={periods}
+        variantId={existingVariant ? Number(existingVariant.id) : null}
+        onSubmit={async (
+          periods: Array<Period>,
+          variantId: number | null | undefined
+        ) => {
+          // Regular allows update of Periods so call updateWorkDaySchedule
+          // Variants only allow modifying the times and no drag and drop (and no add or remove row?)
+
+          await updateStandardSchedule(periods, variantId);          
+        }}
+        onCancel={() => {
+          const url = BellScheduleRoute.generate(params);
+          history.push(url);
+        }}
+      />
+    );
+  };
+
+  const updateVariantSchedule = async (periods: Array<Period>, variantId?: number | null | undefined) => {
+
+  }
+
+  const tabs: Array<Step> = [{
+    stepNumber: 0,
+    name: standardVariantType?.name || t("Regular"),
+    content: renderRegularSchedule,
+  }];  
+  variantTypes.forEach((v, i) => {
+    tabs.push({
+      stepNumber: i+1,
+      name: v.name || "",
+      content: (setStep: React.Dispatch<React.SetStateAction<number>>) => {
+        return renderVariant(setStep, v.id, v.name);
+      },
+    })
+  });
 
   return (
     <>
@@ -241,13 +322,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
         isSubHeader={true}
         showLabel={true}
       />
-      <Tabs steps={[{
-          stepNumber: 0,
-          name: t("Regular"),
-          content: renderRegularSchedule,
-        }]}
-        isWizard={false} 
-      />
+      <Tabs steps={tabs} isWizard={false} />
     </>
   );
 };

@@ -120,6 +120,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     const periods = buildPeriodsFromScheduleSettings(scheduleSettings, orgUsesHalfDayBreaks, t);
     return (
       <Schedule
+        name={standardVariantType?.name}
         isStandard={true}
         periods={periods}
         onSubmit={async (
@@ -184,7 +185,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     },
     {
       stepNumber: 1,
-      name: t("Regular"),
+      name: standardVariantType?.name || t("Regular"),
       content: renderRegularSchedule,
     },
     // TODO: Coming Soon (this should come from the Org's defined Variant Types)

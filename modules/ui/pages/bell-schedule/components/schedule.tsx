@@ -26,6 +26,7 @@ import { TFunction } from "i18next";
 import { addMinutes, differenceInMinutes, isValid } from "date-fns";
 
 type Props = {
+  name?: string | null | undefined;
   isStandard: boolean;
   periods: Array<Period>;
   variantId?: number | null | undefined;
@@ -285,7 +286,12 @@ export const Schedule: React.FC<Props> = props => {
               </div>
             )}
           </div>
-          <Draggable key={`${draggablePrefixes.nameDrag}${i}`} draggableId={`${draggablePrefixes.nameDrag}${i}`} index={draggableIndex++}>
+          <Draggable 
+            key={`${draggablePrefixes.nameDrag}${i}`} 
+            draggableId={`${draggablePrefixes.nameDrag}${i}`} 
+            index={draggableIndex++}
+            isDragDisabled={!props.isStandard}
+          >
             {(provided, snapshot) => {
               const { innerRef } = provided;
               return (
@@ -295,17 +301,19 @@ export const Schedule: React.FC<Props> = props => {
                   {...provided.dragHandleProps}
                   className={classes.draggableSection}
                 >
-                  <div>
-                    <FormTextField
-                      placeholder={p.placeholder}
-                      value={p.name || ""}
-                      name={`periods[${i}].name`}
-                      className={classes.nameInput}
-                      variant="outlined"
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setFieldValue(`periods[${i}].name`, e.target.value);
-                      }}
-                    />
+                  <div className={classes.nameInput}>
+                    {props.isStandard && (
+                      <FormTextField
+                        placeholder={p.placeholder}
+                        value={p.name || ""}
+                        name={`periods[${i}].name`}
+                        variant="outlined"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setFieldValue(`periods[${i}].name`, e.target.value);
+                        }}
+                      />
+                    )}
+                    {!props.isStandard && p.name}
                   </div>
                   <div className={classes.actionDiv}>
                     {props.isStandard && periods.length > 1 && <DragHandle />}
@@ -314,7 +322,11 @@ export const Schedule: React.FC<Props> = props => {
               )
             }}
           </Draggable>
-          <Draggable key={`${draggablePrefixes.startOfAfternoonDrag}${i}`} draggableId={`${draggablePrefixes.startOfAfternoonDrag}${i}`} index={draggableIndex++}>
+          <Draggable 
+            key={`${draggablePrefixes.startOfAfternoonDrag}${i}`} 
+            draggableId={`${draggablePrefixes.startOfAfternoonDrag}${i}`} 
+            index={draggableIndex++}
+          >
             {(provided, snapshot) => {
               const { innerRef } = provided;
               return (
@@ -364,7 +376,11 @@ export const Schedule: React.FC<Props> = props => {
             />
             {displayErrorIfPresent(errors, "endTime", i)}
           </div>
-          <Draggable key={`${draggablePrefixes.endOfMorningDrag}${i}`} draggableId={`${draggablePrefixes.endOfMorningDrag}${i}`} index={draggableIndex++}>
+          <Draggable 
+            key={`${draggablePrefixes.endOfMorningDrag}${i}`} 
+            draggableId={`${draggablePrefixes.endOfMorningDrag}${i}`} 
+            index={draggableIndex++}
+          >
             {(provided, snapshot) => {
               const { innerRef } = provided;
               return (
@@ -392,7 +408,7 @@ export const Schedule: React.FC<Props> = props => {
 
   return (
     <Section>
-      <SectionHeader title={t("Regular")} />
+      {props.name && <SectionHeader title={props.name} />}
       <Formik
         initialValues={{
           periods: props.periods,
