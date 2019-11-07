@@ -514,9 +514,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "flex-start",
     alignItems: "center",
-    height: theme.typography.pxToRem(75),
-    paddingTop: theme.spacing(),
-    paddingBottom: theme.spacing()
+    height: theme.typography.pxToRem(60)
   },
   draggableSection: {
     display: "flex",

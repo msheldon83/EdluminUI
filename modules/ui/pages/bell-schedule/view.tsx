@@ -112,46 +112,32 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   };
 
   const buildPeriods = (variant: Maybe<WorkDayScheduleVariant>, workDaySchedule: WorkDaySchedule): Array<Period> => {
-    if (variant) {
-      // Build the period list from the periods under the variant
-      const periods: Array<Period> = variant.periods!
-        .sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0))
-        .map((p: Maybe<WorkDayScheduleVariantPeriod>) => {
-          const matchingPeriod = workDaySchedule.periods ? workDaySchedule.periods.find((w: any) => w.sequence! === p!.sequence) : null;
-          
-          const startTimeString = timeStampToIso(midnightTime().setSeconds(p!.startTime));
-          const endTimeString = timeStampToIso(midnightTime().setSeconds(p!.endTime))
-          
-          return {
-            periodId: matchingPeriod?.id,
-            variantPeriodId: p?.id,
-            name: matchingPeriod ? matchingPeriod.name : "",
-            placeholder: "",
-            startTime: startTimeString,
-            endTime: endTimeString,
-            isHalfDayMorningEnd: p!.isHalfDayMorningEnd,
-            isHalfDayAfternoonStart: p!.isHalfDayAfternoonStart
-          }
-        });
-      return periods;
-    } else {
-      // Build the period list from the list of periods on the Work Day Schedule
-      const periods: Array<Period> = workDaySchedule.periods!
-        .sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0))
-        .map((p: Maybe<WorkDaySchedulePeriod>) => {
-          return {
-            periodId: p?.id,
-            name: p!.name,
-            placeholder: "",
-            startTime: undefined,
-            endTime: undefined
-          }
-        });
-      
-      // Default the startOfHalfdayAfternoon and endOfHalfdayMorning
-      
-      return periods;
-    }    
+    if (!workDaySchedule.periods) {
+      return [];
+    }
+
+    const periods: Array<Period> = workDaySchedule.periods
+      .sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0))
+      .map((p: Maybe<WorkDaySchedulePeriod>) => {
+        // If we have a Variant defined, look for a matching VariantPeriod to this Period
+        // TODO: should we match on sequence or assume the VariantPeriod has a PeriodId on it
+        const matchingVariantPeriod = variant && variant.periods ? variant.periods.find(vp => vp!.sequence === p!.sequence) : null;
+
+
+        return {
+          periodId: p!.id,
+          variantPeriodId: matchingVariantPeriod?.id || null,
+          name: p!.name,
+          placeholder: "",
+          startTime: matchingVariantPeriod ? timeStampToIso(midnightTime().setSeconds(matchingVariantPeriod.startTime)) : undefined,
+          endTime: matchingVariantPeriod ? timeStampToIso(midnightTime().setSeconds(matchingVariantPeriod.endTime)) : undefined,
+          isHalfDayMorningEnd: matchingVariantPeriod != null && matchingVariantPeriod.isHalfDayMorningEnd,
+          isHalfDayAfternoonStart: matchingVariantPeriod != null && matchingVariantPeriod.isHalfDayAfternoonStart,
+          skipped: matchingVariantPeriod === null
+        }
+      });
+    
+    return periods;  
   }
 
   const renderRegularSchedule = (
