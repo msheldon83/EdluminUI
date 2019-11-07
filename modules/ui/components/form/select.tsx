@@ -33,11 +33,11 @@ type Props = {
   value: SelectValueType;
   onChange: (value: SelectValueType) => void;
   /*
-    Options are passed as a prop instead of as children so that
-    support for native mode is configured automatically everywhere.
+  Options are passed as a prop instead of as children so that
+  support for native mode is configured automatically everywhere.
   */
   options: Array<OptionType>;
-  label: string;
+  label?: string;
   disabled?: boolean;
   withDropdownIndicator?: boolean;
   filterOption?: ((option: OptionType, rawInput: string) => boolean) | null;
@@ -352,7 +352,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     paper: {
       position: "absolute",
-      zIndex: 1,
+      zIndex: 20,
       marginTop: theme.spacing(1),
       left: 0,
       right: 0,

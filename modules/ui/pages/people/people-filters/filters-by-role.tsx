@@ -1,136 +1,48 @@
-import * as React from "react";
-import { useQueryParamIso } from "hooks/query-params";
+import { makeStyles } from "@material-ui/core";
 import { OrgUserRole } from "graphql/server-types.gen";
-import {
-  Grid,
-  TextField,
-  InputLabel,
-  makeStyles,
-  MenuItem,
-} from "@material-ui/core";
-import { useTranslation } from "react-i18next";
+import { useQueryParamIso } from "hooks/query-params";
+import * as React from "react";
+import { PositionTypeAndLocationFilters } from "./position-type-and-location-filters";
 import { FilterQueryParams } from "./filter-params";
+import { ReplacementEmployeeFilters } from "./replacement-employee-filters";
+import { useTranslation } from "react-i18next";
 
 type Props = {};
+
 export const FiltersByRole: React.FC<Props> = props => {
   const [filters] = useQueryParamIso(FilterQueryParams);
+  const { t } = useTranslation();
 
   switch (filters.roleFilter) {
     case OrgUserRole.Employee:
-      return <EmployeeFilters />;
+      return (
+        <PositionTypeAndLocationFilters
+          {...filters}
+          locationLabel={t("Locations")}
+          positionTypeLabel={t("Position type")}
+        />
+      );
     case OrgUserRole.ReplacementEmployee:
-      return <ReplacementEmployeeFilters />;
+      return <ReplacementEmployeeFilters {...filters} />;
     case OrgUserRole.Administrator:
-      return <AdministratorFilters />;
+      return (
+        <PositionTypeAndLocationFilters
+          {...filters}
+          locationLabel={t("Manages locations")}
+          positionTypeLabel={t("Manages position type")}
+        />
+      );
     case null:
     default:
       return <></>;
   }
 };
 
-export const EmployeeFilters: React.FC<Props> = props => {
-  const { t } = useTranslation();
-  const classes = useStyles();
-  return (
-    <>
-      <Grid item container md={3}>
-        {/* position type */}
-        <InputLabel className={classes.label}>{t("Position type")}</InputLabel>
-        <TextField
-          className={classes.textField}
-          variant="outlined"
-          name={"position-type"}
-          select
-          fullWidth
-          value=""
-        >
-          <MenuItem value={""}>{}</MenuItem>
-        </TextField>
-      </Grid>
-      <Grid item container md={3}>
-        {/* locations */}
-        <InputLabel className={classes.label}>{t("Locations")}</InputLabel>
-        <TextField
-          className={classes.textField}
-          variant="outlined"
-          name={"location"}
-          select
-          fullWidth
-          value=""
-        >
-          <MenuItem value={""}>{}</MenuItem>
-        </TextField>
-      </Grid>
-    </>
-  );
-};
-
-export const ReplacementEmployeeFilters: React.FC<Props> = props => {
-  const { t } = useTranslation();
-  const classes = useStyles();
-  return (
-    <>
-      <Grid item container md={3}>
-        <InputLabel className={classes.label}>{t("Endorsements")}</InputLabel>
-        <TextField
-          className={classes.textField}
-          variant="outlined"
-          name={"endorsements"}
-          select
-          fullWidth
-          value=""
-        >
-          <MenuItem value={""}>{}</MenuItem>
-        </TextField>
-      </Grid>
-    </>
-  );
-};
-
-export const AdministratorFilters: React.FC<Props> = props => {
-  const { t } = useTranslation();
-  const classes = useStyles();
-  return (
-    <>
-      <Grid item container md={3}>
-        <InputLabel className={classes.label}>
-          {t("Manages position type")}
-        </InputLabel>
-        <TextField
-          className={classes.textField}
-          variant="outlined"
-          name={"manages -position-type"}
-          select
-          fullWidth
-          value=""
-        >
-          <MenuItem value={""}>{}</MenuItem>
-        </TextField>
-      </Grid>
-      <Grid item container md={3}>
-        {/* locations */}
-        <InputLabel className={classes.label}>
-          {t("Manages locations")}
-        </InputLabel>
-        <TextField
-          className={classes.textField}
-          variant="outlined"
-          name={"manages-location"}
-          select
-          fullWidth
-          value=""
-        >
-          <MenuItem value={""}>{}</MenuItem>
-        </TextField>
-      </Grid>
-    </>
-  );
-};
-
-const useStyles = makeStyles(theme => ({
+export const useFilterStyles = makeStyles(theme => ({
   label: {
     // color: theme.customColors.black,
     fontWeight: 500,
+    marginBottom: theme.typography.pxToRem(16),
   },
   textField: {
     marginTop: theme.spacing(2),
