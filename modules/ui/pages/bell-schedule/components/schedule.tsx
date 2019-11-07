@@ -26,13 +26,16 @@ import { TFunction } from "i18next";
 import { addMinutes, differenceInMinutes, isValid } from "date-fns";
 
 type Props = {
-  isVariant: boolean;
+  isStandard: boolean;
   periods: Array<Period>;
-  onSubmit: (periods: Array<Period>) => void;
+  variantId?: number | null | undefined;
+  onSubmit: (periods: Array<Period>, variantId?: number | null | undefined) => void;
   onCancel: () => void;
 };
 
 export type Period = {
+  periodId?: string | null | undefined;
+  variantPeriodId?: string | null | undefined;
   name?: string;
   placeholder: string;
   startTime?: string;
@@ -42,36 +45,127 @@ export type Period = {
 };
 
 const travelDuration = 5;
+const minNumberOfPeriods = 2;
+const draggablePrefixes = {
+  nameDrag: "nameDrag-",
+  startOfAfternoonDrag: "startOfAfternoonDrag-",
+  endOfMorningDrag: "endOfMorningDrag-"
+}
 
 export const Schedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
 
-  const onDragEnd = (result: DropResult) => {
-    if (!result.destination) {
-      return;
+  const onDragEnd = (result: DropResult, periods: Array<Period>, t: TFunction): Array<Period> | null => {
+    const {destination, source, draggableId} = result;
+
+    if (!destination) {
+      return null;
+    }
+    if (destination.droppableId === source.droppableId 
+      && destination.index === source.index) {
+      return null;
     }
 
-    // TODO: For Drag and Drop functionality
-    // const periodItems = Array.from(periods);
-    // const [removed] = periodItems.splice(result.source.index, 1);
-    // periodItems.splice(result.destination.index, 0, removed);
-    // setPeriods(periodItems);
+    // Determine the appropriate Period indexes
+    const draggableItemsPerPeriod = Object.keys(draggablePrefixes).length;
+    let sourceIndex = Math.ceil(source.index / draggableItemsPerPeriod) - 1;
+    if (sourceIndex < 0) {
+      sourceIndex = 0;
+    }
+    let destinationIndex = Math.ceil(destination.index / draggableItemsPerPeriod) - 1;
+    if (destinationIndex < 0) {
+      destinationIndex = 0;
+    }
+
+    if (draggableId.startsWith(draggablePrefixes.nameDrag)) {
+      // Just reordering the names of the periods
+      const oldPeriods = periods.map(p => { return {...p}});
+      if (sourceIndex < destinationIndex) {
+        // Dragging down the list
+        for (let i = destinationIndex-1; i >= sourceIndex; i--) {
+          periods[i].name = oldPeriods[i+1].name;
+        }
+      } else {
+        // Dragging up the list
+        for (let i = destinationIndex+1; i <= sourceIndex; i++) {
+          periods[i].name = oldPeriods[i-1].name;
+        }
+      }
+      // Update the destination name that was actually dragged
+      periods[destinationIndex].name = oldPeriods[sourceIndex].name;
+
+      // Update placeholders
+      updatePeriodPlaceholders(periods, t);
+    } else if (draggableId.startsWith(draggablePrefixes.startOfAfternoonDrag)) {
+      if (destinationIndex === 0) {
+        // Can not allow, because there would be no space for an End Of Morning Period
+        return null;
+      }
+      
+      periods.forEach(p => { 
+        p.isHalfDayMorningEnd = false;
+        p.isHalfDayAfternoonStart = false;
+      });
+      periods[destinationIndex].isHalfDayAfternoonStart = true;
+      periods[destinationIndex-1].isHalfDayMorningEnd = true;
+    } else if (draggableId.startsWith(draggablePrefixes.endOfMorningDrag)) {
+      if (destinationIndex === periods.length-1) {
+        // Can not allow, because there would be no space for a Start Of Afternoon Period
+        return null;
+      }
+      
+      periods.forEach(p => { 
+        p.isHalfDayMorningEnd = false;
+        p.isHalfDayAfternoonStart = false;
+      });
+      periods[destinationIndex].isHalfDayMorningEnd = true;
+      periods[destinationIndex+1].isHalfDayAfternoonStart = true;
+    }
+
+    return periods;
   };
 
   const removePeriod = (periods: Array<Period>, index: number) => {
     const periodItems = Array.from(periods);
-    periodItems.splice(index, 1);
+    const [removed] = periodItems.splice(index, 1);
+    
+    // Preserve a half day break
+    if (removed.isHalfDayAfternoonStart || removed.isHalfDayMorningEnd) {
+      let currentIndex = index;
+      if (currentIndex === periodItems.length) {
+        // Last period has been deleted
+        currentIndex = currentIndex-1;
+      }
+      const hasNextPeriod = periodItems[currentIndex+1] != null;
+      const hasPreviousPeriod = periodItems[currentIndex-1] != null;
+      if (removed.isHalfDayAfternoonStart) {
+        const halfDayAfternoonStartIndex = hasPreviousPeriod ? currentIndex : currentIndex+1;
+        periodItems[halfDayAfternoonStartIndex].isHalfDayAfternoonStart = true;
+        periodItems[halfDayAfternoonStartIndex].isHalfDayMorningEnd = false;
+        periodItems[halfDayAfternoonStartIndex-1].isHalfDayMorningEnd = true;
+      } else if (removed.isHalfDayMorningEnd) {
+        const halfDayMorningEndIndex = hasNextPeriod ? currentIndex : currentIndex-1;
+        periodItems[halfDayMorningEndIndex].isHalfDayMorningEnd = true;
+        periodItems[halfDayMorningEndIndex].isHalfDayAfternoonStart = false;
+        periodItems[halfDayMorningEndIndex+1].isHalfDayAfternoonStart = true;
+      }
+    }
+
     updatePeriodPlaceholders(periodItems, t);
     return periodItems;
   };
 
   const addPeriod = (periods: Array<Period>, t: TFunction) => {
     const placeholder = `${t("Period")} ${periods.length + 1}`;
+    const previousPeriod = periods[periods.length-1];
+    const defaultStartTime = previousPeriod && previousPeriod.endTime 
+      ? addMinutes(new Date(previousPeriod.endTime), travelDuration).toISOString() 
+      : undefined;
     const periodItems = [
       ...periods,
-      { placeholder, startTime: undefined, endTime: undefined },
+      { placeholder, startTime: defaultStartTime, endTime: undefined },
     ];
 
     updatePeriodPlaceholders(periodItems, t);
@@ -94,6 +188,10 @@ export const Schedule: React.FC<Props> = props => {
           p.placeholder = `${t("Period")} ${periodNumber++}`;
         }
       })
+    }
+
+    if (halfDayBreakPeriod) {
+      halfDayBreakPeriod.placeholder = t("Lunch");
     }
   } 
 
@@ -136,6 +234,14 @@ export const Schedule: React.FC<Props> = props => {
       return null;
     }
 
+    // As the TimeInput is changing, the value may not be a date string yet
+    // and just a number (i.e. "10" for 10:00 am). Since we enforce "earliestTime" on
+    // the TimeInput, endTime should never be before startTime so just bail out here
+    // and wait till we have a valid date string
+    if (endTimeDate < startTimeDate) {
+      return null;
+    }
+
     const minutes = differenceInMinutes(endTimeDate, startTimeDate);
     if (typeof minutes !== "number" || isNaN(minutes)) {
       return null;
@@ -151,60 +257,84 @@ export const Schedule: React.FC<Props> = props => {
     setFieldValue: Function,
     errors: FormikErrors<{ periods: Period[] }>
   ) => {
+
+    // Define the Draggable index (which must be unique within a Droppable and follow the order of the Draggables rendered)
+    let draggableIndex = 1;
+
     const periodResult = periods.map((p, i) => {
       const periodClasses = [classes.period];
       if (i % 2 === 1) {
         periodClasses.push(classes.alternatingItem);
       }
 
+      // Determining valid start times for Periods
       const priorPeriodEndTime = i > 0 && periods[i-1].endTime ? periods[i-1].endTime : undefined;
       const earliestStartTime = priorPeriodEndTime && isValid(new Date(priorPeriodEndTime))
         ? addMinutes(new Date(priorPeriodEndTime), travelDuration).toISOString()
         : undefined;
-      
+
       return (
         <div key={i} className={periodClasses.join(" ")}>
-          <div className={classes.action}>
-            {periods.length > 1 && (
-              <CancelOutlined onClick={() => { 
-                const updatedPeriods = removePeriod(periods, i);
-                setFieldValue('periods', updatedPeriods);
-              }} />
-            )}
-          </div>
-          {/* <Draggable key={i} draggableId={i.toString()} index={i}>
-            {(provided, snapshot) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-              >
-                <span className={classes.action}>
-                  <DragHandle />
-                </span>
+          <div className={classes.actionDiv}>
+            {periods.length > minNumberOfPeriods && (
+              <div className={classes.action}>
+                <CancelOutlined onClick={() => { 
+                  const updatedPeriods = removePeriod(periods, i);
+                  setFieldValue('periods', updatedPeriods);
+                }} />
               </div>
             )}
-          </Draggable> */}
-          {/* FormTextField should move into Draggable when implementing drag and drop */}
-          <div>
-            <FormTextField
-              placeholder={p.placeholder}
-              value={p.name || ""}
-              name={`periods[${i}].name`}
-              className={classes.nameInput}
-              variant="outlined"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setFieldValue(`periods[${i}].name`, e.target.value);
-              }}
-            />
           </div>
-          <div className={classes.startOfAfternoon}>
-            <Chip className={!p.isHalfDayAfternoonStart ? classes.hidden : classes.startOfAfternoonChip} label={t("Start of afternoon")} />
-          </div>
+          <Draggable key={`${draggablePrefixes.nameDrag}${i}`} draggableId={`${draggablePrefixes.nameDrag}${i}`} index={draggableIndex++}>
+            {(provided, snapshot) => {
+              const { innerRef } = provided;
+              return (
+                <div
+                  ref={innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className={classes.draggableSection}
+                >
+                  <div>
+                    <FormTextField
+                      placeholder={p.placeholder}
+                      value={p.name || ""}
+                      name={`periods[${i}].name`}
+                      className={classes.nameInput}
+                      variant="outlined"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setFieldValue(`periods[${i}].name`, e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className={classes.actionDiv}>
+                    {props.isStandard && periods.length > 1 && <DragHandle />}
+                  </div>
+                </div>
+              )
+            }}
+          </Draggable>
+          <Draggable key={`${draggablePrefixes.startOfAfternoonDrag}${i}`} draggableId={`${draggablePrefixes.startOfAfternoonDrag}${i}`} index={draggableIndex++}>
+            {(provided, snapshot) => {
+              const { innerRef } = provided;
+              return (
+                <div
+                  ref={innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className={classes.startOfAfternoon}
+                >
+                  <div className={!p.isHalfDayAfternoonStart ? classes.hidden : ""}>
+                    <Chip className={classes.startOfAfternoonChip} label={t("Start of afternoon")} />
+                  </div>
+                </div>
+              )
+            }}
+          </Draggable>
           <div className={classes.timeInput}>
             <TimeInputComponent
               label=""
-              value={p.startTime || earliestStartTime}
+              value={p.startTime || undefined}
               onValidTime={time => {
                 setFieldValue(`periods[${i}].startTime`, time);
               }}
@@ -221,17 +351,36 @@ export const Schedule: React.FC<Props> = props => {
               value={p.endTime || undefined}
               onValidTime={time => {
                 setFieldValue(`periods[${i}].endTime`, time);
+                const nextPeriod = periods[i+1];
+                if (nextPeriod && !nextPeriod.startTime) {
+                  // Default the next Period's start time if not currently populated
+                  setFieldValue(`periods[${i+1}].startTime`, addMinutes(new Date(time), travelDuration).toISOString());
+                }
               }}
               onChange={value => {
                 setFieldValue(`periods[${i}].endTime`, value);
               }}
-              earliestTime={p.startTime}
+              earliestTime={p.startTime || earliestStartTime}
             />
             {displayErrorIfPresent(errors, "endTime", i)}
           </div>
-          <div className={classes.endOfMorning}>
-            <Chip className={!p.isHalfDayMorningEnd ? classes.hidden : classes.endOfMorningChip} label={t("End of morning")} />
-          </div>
+          <Draggable key={`${draggablePrefixes.endOfMorningDrag}${i}`} draggableId={`${draggablePrefixes.endOfMorningDrag}${i}`} index={draggableIndex++}>
+            {(provided, snapshot) => {
+              const { innerRef } = provided;
+              return (
+                <div
+                  ref={innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className={classes.endOfMorning}
+                >
+                  <div className={!p.isHalfDayMorningEnd ? classes.hidden : ""}>
+                    <Chip className={classes.endOfMorningChip} label={t("End of morning")} />
+                  </div>
+                </div>
+              )
+            }}
+          </Draggable>
           <div className={classes.duration}>
             {displayMinutesDuration(p.startTime, p.endTime, i < periods.length-1, t)}
           </div>
@@ -251,7 +400,7 @@ export const Schedule: React.FC<Props> = props => {
         enableReinitialize={true}
         onSubmit={(data, meta) => {
           console.log(data);
-          props.onSubmit(data.periods);
+          props.onSubmit(data.periods, props.variantId);
         }}
         validateOnChange={false}
         validateOnBlur={false}
@@ -273,7 +422,12 @@ export const Schedule: React.FC<Props> = props => {
           errors
         }) => (
           <form onSubmit={handleSubmit}>
-            <DragDropContext onDragEnd={onDragEnd}>
+            <DragDropContext onDragEnd={(result: DropResult) => {
+              const updatedPeriods = onDragEnd(result, values.periods, t);
+              if (updatedPeriods) {
+                setFieldValue('periods', updatedPeriods);
+              }              
+            }}>
               <Droppable droppableId="droppable">
                 {(provided, snapshot) => {
                   const { innerRef } = provided;
@@ -315,8 +469,15 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "flex-start",
     alignItems: "center"
   },
-  action: {
+  draggableSection: {
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center"
+  },
+  actionDiv: {
     width: theme.typography.pxToRem(50),
+  },
+  action: {
     cursor: "pointer",
   },
   nameInput: {
