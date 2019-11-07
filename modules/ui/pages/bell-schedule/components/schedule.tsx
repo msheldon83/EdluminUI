@@ -45,6 +45,7 @@ export type Period = {
 };
 
 const travelDuration = 5;
+const minNumberOfPeriods = 2;
 const draggablePrefixes = {
   nameDrag: "nameDrag-",
   startOfAfternoonDrag: "startOfAfternoonDrag-",
@@ -257,7 +258,7 @@ export const Schedule: React.FC<Props> = props => {
       return (
         <div key={i} className={periodClasses.join(" ")}>
           <div className={classes.actionDiv}>
-            {periods.length > 1 && (
+            {periods.length > minNumberOfPeriods && (
               <div className={classes.action}>
                 <CancelOutlined onClick={() => { 
                   const updatedPeriods = removePeriod(periods, i);
