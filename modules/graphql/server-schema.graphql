@@ -2102,6 +2102,8 @@ type OrgUserQueries {
     role: [OrgUserRole]
     active: Boolean
     endorsements: [Int]
+    locations: [Int]
+    positionTypes: [Int]
   ): [OrgUser]
   paged(
     orgId: ID
@@ -2113,6 +2115,8 @@ type OrgUserQueries {
     role: [OrgUserRole]
     active: Boolean
     endorsements: [Int]
+    locations: [Int]
+    positionTypes: [Int]
   ): PagedOrgUser
 }
 
@@ -3740,10 +3744,10 @@ type WorkDaySchedule implements ModelObjectInterface & OrgObjectInterface & Doma
   externalId: String
   rowVersion: String!
   name: String!
-  description: String!
+  description: String
   workDayPatternId: Int!
   validUntil: DateTime
-  isExpired: Boolean
+  expired: Boolean
   periods: [WorkDaySchedulePeriod]
   variants: [WorkDayScheduleVariant]
   usages: [WorkDayScheduleUsage]
@@ -3756,6 +3760,8 @@ input WorkDayScheduleCreateInput {
   externalId: String
   workDayPatternId: Int
   periods: [WorkDaySchedulePeriodInput]
+  locationIds: [Int]
+  locationGroupIds: [Int]
   standardSchedule: WorkDayScheduleVariantInput
 }
 
@@ -3797,6 +3803,7 @@ type WorkDayScheduleQueries {
     orgIds: [ID]
     includeExpired: Boolean
     sortBy: [SortDetailsInput]
+    searchText: String
   ): [WorkDaySchedule]
   paged(
     orgId: ID
@@ -3805,6 +3812,7 @@ type WorkDayScheduleQueries {
     offset: Int
     includeExpired: Boolean
     sortBy: [SortDetailsInput]
+    searchText: String
   ): PagedWorkDaySchedule
 }
 
@@ -3817,6 +3825,8 @@ input WorkDayScheduleUpdateInput {
   workDayPatternId: Int
   expired: Boolean
   periods: [WorkDaySchedulePeriodInput]
+  locationIds: [Int]
+  locationGroupIds: [Int]
   standardSchedule: WorkDayScheduleVariantInput
 }
 
@@ -3830,9 +3840,9 @@ type WorkDayScheduleUsage implements ModelObjectInterface & OrgObjectInterface {
   orgId: Int!
   organization: Organization!
   workDayScheduleId: Int!
-  workDayId: Int!
-  locationId: Int!
-  locationGroupId: Int!
+  workDayId: Int
+  locationId: Int
+  locationGroupId: Int
   workDay: WorkDay
   location: Location
   locationGroup: LocationGroup
