@@ -10,7 +10,9 @@ import isDate from "date-fns/isDate";
 import format from "date-fns/format";
 import isWithinInterval from "date-fns/isWithinInterval";
 import isAfter from "date-fns/isAfter";
+import isBefore from "date-fns/isBefore";
 import isEqual from "date-fns/isEqual";
+import addDays from "date-fns/addDays";
 import { IconButton, withStyles } from "@material-ui/core";
 import { Input } from "./input";
 
@@ -140,6 +142,71 @@ export const DatePicker = (props: DatePickerProps) => {
   //   );
   // };
 
+  const isAfterDate = (date1: Date | string, date2: Date | string) => {
+    if (typeof date2 === "string" || typeof date1 === "string") {
+      return false;
+    }
+
+    return isAfter(date1, date2);
+  };
+
+  const handleEndDateInputChange = (newEndDate: Date | string = "") => {
+    /*
+      The material-ui types say that date can be null here, but there's never a case in
+      the UI where that can be true right now
+    */
+    if (newEndDate === null) {
+      return;
+    }
+
+    let newStartDate = startDate;
+
+    // Not a valid date yet
+    if (typeof newEndDate == "string") {
+      onChange({ startDate: newStartDate, endDate: newEndDate });
+      return;
+    }
+
+    const isAfterStartDate = isAfterDate(newEndDate, newStartDate);
+
+    /*
+      If the new date isn't after the start date, the start date needs to be reset to the day
+      before
+    */
+    if (!isAfterStartDate) {
+      newStartDate = addDays(newEndDate, -1);
+    }
+
+    onChange({ startDate: newStartDate, endDate: newEndDate });
+  };
+
+  const handleStartDateInputChange = (newStartDate: Date | string = "") => {
+    /*
+      The material-ui types say that date can be null here, but there's never a case in
+      the UI where that can be true right now
+    */
+    if (newStartDate === null) {
+      return;
+    }
+
+    let newEndDate = endDate || "";
+
+    // Not a valid date yet
+    if (typeof newStartDate == "string") {
+      onChange({ startDate: newStartDate, endDate: newEndDate });
+      return;
+    }
+
+    const isStartDateAfterEndDate = isAfterDate(newStartDate, newEndDate);
+
+    // If the start date is after the end date, reset the end date
+    if (isStartDateAfterEndDate) {
+      newEndDate = "";
+    }
+
+    onChange({ startDate: newStartDate, endDate: newEndDate });
+  };
+
   const handleDateChange = (position: "start" | "end") => (
     date: Date | string | null = ""
   ) => {
@@ -159,14 +226,6 @@ export const DatePicker = (props: DatePickerProps) => {
       onChange({ startDate: newStartDate, endDate: newEndDate });
       return;
     }
-
-    const isAfterDate = (date1: Date | string, date2: Date | string) => {
-      if (typeof date2 === "string" || typeof date1 === "string") {
-        return false;
-      }
-
-      return isAfter(date1, date2);
-    };
 
     /*
     TODO:
@@ -208,16 +267,16 @@ export const DatePicker = (props: DatePickerProps) => {
           <DateInput
             label="From"
             value={startDate}
-            onChange={handleDateChange("start")}
-            onValidDate={handleDateChange("start")}
+            onChange={handleStartDateInputChange}
+            onValidDate={handleStartDateInputChange}
           />
         </div>
         <div className={classes.endDateInput}>
           <DateInput
             label="To"
             value={endDate}
-            onChange={handleDateChange("end")}
-            onValidDate={handleDateChange("end")}
+            onChange={handleEndDateInputChange}
+            onValidDate={handleEndDateInputChange}
           />
         </div>
       </div>
