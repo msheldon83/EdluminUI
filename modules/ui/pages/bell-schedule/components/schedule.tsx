@@ -28,6 +28,7 @@ type Props = {
   isStandard: boolean;
   periods: Array<Period>;
   variantId?: number | null | undefined;
+  submitLabel?: string | null | undefined;
   onSubmit: (periods: Array<Period>, variantId?: number | null | undefined) => void;
   onCancel: () => void;
 };
@@ -491,7 +492,7 @@ export const Schedule: React.FC<Props> = props => {
               </Droppable>
             </DragDropContext>
             <ActionButtons
-              submit={{ text: t("Save"), execute: submitForm }}
+              submit={{ text: props.submitLabel || t("Save"), execute: submitForm }}
               cancel={{ text: t("Cancel"), execute: props.onCancel }}
               additionalActions={props.isStandard ? [
                 { text: t("Add Row"), 

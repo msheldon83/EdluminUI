@@ -23,6 +23,7 @@ query GetWorkDayScheduleById($id: ID!) {
           isHalfDayMorningEnd
           isHalfDayAfternoonStart
           sequence
+          workDaySchedulePeriodId
         }
       }
       usages {
