@@ -1,0 +1,10 @@
+query GetOrgConfigFeatureFlags($orgId: ID!) {
+  organization {
+    byId(id: $orgId) {
+      id
+      config {
+        featureFlags
+      }
+    }
+  }
+}

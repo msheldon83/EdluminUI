@@ -1,13 +1,16 @@
 import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
 import { BellSchedulePage } from ".";
+import { BellScheduleRoute } from "ui/routes/bell-schedule";
+import { Route } from "react-router";
 
 export default {
-  title: "Pages/BellSchedule",
+  title: "Pages/Bell Schedule/List",
 };
 
 export const BellScheduleList = () => {
   const Provider = mockProvider({
+    initialUrl: BellScheduleRoute.generate({ organizationId: "1000" }),
     mocks: {
       Query: () => ({
         workDaySchedule: () => ({
@@ -18,7 +21,7 @@ export const BellScheduleList = () => {
                 id: "1000",
                 name: "Default Bell Schedule",
                 externalId: "ASERAS234",
-                isExpired: false,
+                expired: false,
                 periods: [
                   { id: "1000"}, { id: "1001"}, { id: "1002" }
                 ],
@@ -32,7 +35,7 @@ export const BellScheduleList = () => {
               {
                 id: "1001",
                 name: "Another Bell Schedule",
-                isExpired: false,
+                expired: false,
                 periods: [
                   { id: "1003"}, { id: "1004"}
                 ],
@@ -44,7 +47,7 @@ export const BellScheduleList = () => {
               {
                 id: "1002",
                 name: "An expired Bell Schedule",
-                isExpired: true,
+                expired: true,
                 periods: [
                   { id: "1005"}, { id: "1006"}, { id: "1007" }
                 ],
@@ -64,10 +67,12 @@ export const BellScheduleList = () => {
 
   return (
     <Provider>
-      <BellSchedulePage />
+      <Route path={BellScheduleRoute.path}>
+        <BellSchedulePage />
+      </Route>
     </Provider>
   );
 };
 BellScheduleList.story = {
-  name: "List View",
+  name: "Basic List View",
 };

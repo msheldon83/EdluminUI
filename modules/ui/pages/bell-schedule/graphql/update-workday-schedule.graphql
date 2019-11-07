@@ -1,0 +1,32 @@
+mutation UpdateWorkDaySchedule($workDaySchedule: WorkDayScheduleUpdateInput!) {
+  workDaySchedule {
+    update(workDaySchedule: $workDaySchedule) {
+      id
+      name
+      externalId
+      expired
+      rowVersion
+      periods {
+        id
+        name
+        sequence
+      }
+      variants {
+        id
+        isStandard
+        periods {
+          id
+          startTime
+          endTime
+          periodDuration
+          isHalfDayMorningEnd
+          isHalfDayAfternoonStart
+          sequence
+        }
+      }
+      usages {
+        id
+      }
+    }
+  }
+}

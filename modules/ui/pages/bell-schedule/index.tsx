@@ -6,9 +6,11 @@ import * as React from "react";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
+import { Link } from "react-router-dom";
+import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { Column } from "material-table";
-import { BellScheduleRoute } from "ui/routes/bell-schedule";
+import { BellScheduleRoute, BellScheduleAddRoute, BellScheduleViewRoute } from "ui/routes/bell-schedule";
 import { makeStyles, Grid, Button } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useScreenSize } from "hooks";
@@ -17,6 +19,7 @@ import DeleteOutline from "@material-ui/icons/DeleteOutline";
 export const BellSchedulePage: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const history = useHistory();
   const params = useRouteParams(BellScheduleRoute);
   const isMobile = useScreenSize() === "mobile";
   const [includeExpired, setIncludeExpired] = React.useState(false);
@@ -103,6 +106,15 @@ export const BellSchedulePage: React.FC<{}> = props => {
         <Grid item>
           <PageTitle title={t("Bell Schedules")} />
         </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            component={Link}
+            to={BellScheduleAddRoute.generate(params)}
+          >
+            {t("Add Bell Schedule")}
+          </Button>
+        </Grid>
       </Grid>
       <Table
         title={`${workDaySchedulesCount} ${
@@ -111,6 +123,14 @@ export const BellSchedulePage: React.FC<{}> = props => {
         columns={columns}
         data={workDaySchedules}
         selection={!isMobile}
+        onRowClick={(event, workDaySchedule) => {
+          if (!workDaySchedule) return;
+          const newParams = {
+            ...params,
+            workDayScheduleId: workDaySchedule.id,
+          };
+          history.push(BellScheduleViewRoute.generate(newParams));
+        }}
         options={{
           search: true,
           sorting: true,

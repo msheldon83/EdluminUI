@@ -1,0 +1,27 @@
+mutation CreateWorkdaySchedule($workdaySchedule: WorkDayScheduleCreateInput!) {
+  workDaySchedule {
+    create(workDaySchedule: $workdaySchedule) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      orgId
+      expired
+      periods {
+        id
+        name
+        description
+        sequence
+      }
+      variants {
+        id
+        isStandard
+        duration
+        startTime
+        endTime
+      }
+      workDayPatternId
+    }
+  }
+}

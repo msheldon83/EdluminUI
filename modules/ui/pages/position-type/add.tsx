@@ -146,7 +146,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
           )}
         </Typography>
       </div>
-      <Tabs steps={steps} isWizard={true}></Tabs>
+      <Tabs steps={steps} isWizard={true} showStepNumber={true}></Tabs>
     </>
   );
 };

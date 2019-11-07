@@ -4,6 +4,7 @@ import { makeStyles, Tabs, Tab, Paper } from "@material-ui/core";
 type Props = {
   steps: Array<Step>;
   isWizard?: boolean;
+  showStepNumber?: boolean;
 };
 export type Step = {
   stepNumber: number;
@@ -37,9 +38,13 @@ export const TabbedHeader: React.FC<Props> = props => {
           textColor="primary"
           onChange={handleStepChange}
         >
-          {props.steps.map((s, i) => (
-            <Tab key={i} label={`${s.stepNumber + 1}. ${s.name}`} />
-          ))}
+          {props.steps.map((s, i) => {
+            return props.showStepNumber ? (
+              <Tab key={i} label={`${s.stepNumber + 1}. ${s.name}`} />
+            ) : (
+              <Tab key={i} label={`${s.name}`} />
+            );
+          })}
         </Tabs>
       </Paper>
       {currentStep && currentStep.content(setStep)}

@@ -17,7 +17,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { NeedsReplacement, Contract, Maybe } from "graphql/server-types.gen";
-import { ActionButtons } from "./action-buttons";
+import { ActionButtons } from "../../../components/action-buttons";
 import { Select, SelectValueType } from "ui/components/form/select";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
 import { OptionTypeBase } from "react-select/src/types";
