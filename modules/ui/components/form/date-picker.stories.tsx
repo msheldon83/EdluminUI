@@ -12,6 +12,7 @@ export const DatePicker = () => {
   return (
     <div className={classes.container}>
       <DatePickerComponent
+        singleDate={boolean("Single Date", true)}
         startDate={startDate}
         endDate={endDate}
         onChange={({ startDate, endDate }) => {

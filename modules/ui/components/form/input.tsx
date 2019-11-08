@@ -1,7 +1,9 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import FormControl from "@material-ui/core/FormControl";
-import OutlinedInput, { OutlinedInputProps } from "@material-ui/core/OutlinedInput";
+import OutlinedInput, {
+  OutlinedInputProps,
+} from "@material-ui/core/OutlinedInput";
 
 type Props = Omit<OutlinedInputProps, "labelWidth"> & {
   label: string;
@@ -14,7 +16,7 @@ export const Input = (props: Props) => {
   const id = `date-input-${label}`;
 
   return (
-    <FormControl>
+    <FormControl className={classes.formControl}>
       <label className={classes.inputLabel} htmlFor={id}>
         {label}
       </label>
@@ -37,6 +39,9 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.eduBlack,
     fontSize: theme.typography.pxToRem(14),
     marginBottom: theme.spacing(0.4),
-    lineHeight: theme.typography.pxToRem(21)
+    lineHeight: theme.typography.pxToRem(21),
+  },
+  formControl: {
+    width: "100%",
   },
 }));

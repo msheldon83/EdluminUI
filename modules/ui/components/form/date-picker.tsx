@@ -18,50 +18,13 @@ import {
 } from "../../../helpers/date";
 import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previous-date";
 
-type DateInputProps = {
-  label: string;
-  value?: Date | string;
-  onChange: (date: string) => void;
-  onValidDate: (date: Date) => void;
-};
-
-export const DateInput = (props: DateInputProps) => {
-  const { label, value = "", onValidDate, onChange } = props;
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
-  };
-
-  const handleOnBlur = () => {
-    let date = createDate(value);
-
-    if (isValid(date)) {
-      onValidDate(date);
-    } else {
-      date = value;
-    }
-
-    onChange(date);
-  };
-
-  const formattedValue = formatDateIfPossible(value, "MMM d, yyyy");
-
-  return (
-    <Input
-      label={label}
-      value={formattedValue}
-      onChange={handleOnChange}
-      onBlur={handleOnBlur}
-    />
-  );
-};
-
 type DatePickerProps = {
   startDate: Date | string;
   endDate?: Date | string;
   onChange: ({ startDate, endDate }: onChangeType) => void;
   minimumDate?: Date;
   maximumDate?: Date;
+  singleDate?: boolean;
 };
 
 type onChangeType = {
@@ -70,9 +33,9 @@ type onChangeType = {
 };
 
 export const DatePicker = (props: DatePickerProps) => {
-  const { startDate, endDate, onChange } = props;
+  const { startDate, endDate, onChange, singleDate = false } = props;
 
-  const classes = useStyles();
+  const classes = useStyles(props);
 
   /*
     The calendar component requires that there always be a valid date value, so this hook tracks
@@ -242,9 +205,11 @@ export const DatePicker = (props: DatePickerProps) => {
   };
 
   const renderTextInputs = () => {
+    const startDateStyle = singleDate ? { marginRight: 0 } : {};
+
     return (
       <div className={classes.keyboardInputWrapper}>
-        <div className={classes.startDateInput}>
+        <div className={classes.startDateInput} style={startDateStyle}>
           <DateInput
             label="From"
             value={startDate}
@@ -256,14 +221,16 @@ export const DatePicker = (props: DatePickerProps) => {
             onValidDate={handleStartDateInputChange}
           />
         </div>
-        <div className={classes.endDateInput}>
-          <DateInput
-            label="To"
-            value={endDate}
-            onChange={handleEndDateInputChange}
-            onValidDate={handleEndDateInputChange}
-          />
-        </div>
+        {!singleDate && (
+          <div className={classes.endDateInput}>
+            <DateInput
+              label="To"
+              value={endDate}
+              onChange={handleEndDateInputChange}
+              onValidDate={handleEndDateInputChange}
+            />
+          </div>
+        )}
       </div>
     );
   };
@@ -293,6 +260,7 @@ const useStyles = makeStyles(theme => ({
   },
   startDateInput: {
     backgroundColor: theme.customColors.white,
+    flexGrow: 1,
     marginRight: theme.spacing(1.5 / 2),
   },
   endDateInput: {
@@ -357,3 +325,41 @@ const useStyles = makeStyles(theme => ({
     borderBottomRightRadius: theme.typography.pxToRem(4),
   },
 }));
+
+type DateInputProps = {
+  label: string;
+  value?: Date | string;
+  onChange: (date: string) => void;
+  onValidDate: (date: Date) => void;
+};
+
+export const DateInput = (props: DateInputProps) => {
+  const { label, value = "", onValidDate, onChange } = props;
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value);
+  };
+
+  const handleOnBlur = () => {
+    let date = createDate(value);
+
+    if (isValid(date)) {
+      onValidDate(date);
+    } else {
+      date = value;
+    }
+
+    onChange(date);
+  };
+
+  const formattedValue = formatDateIfPossible(value, "MMM d, yyyy");
+
+  return (
+    <Input
+      label={label}
+      value={formattedValue}
+      onChange={handleOnChange}
+      onBlur={handleOnBlur}
+    />
+  );
+};
