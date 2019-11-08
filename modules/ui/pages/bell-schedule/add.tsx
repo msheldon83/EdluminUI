@@ -60,11 +60,13 @@ const buildPeriodsFromScheduleSettings = (
       placeholder: t("Morning"),
       startTime: undefined,
       endTime: undefined,
+      skipped: false,
     });
     periods.push({
       placeholder: t("Afternoon"),
       startTime: undefined,
       endTime: undefined,
+      skipped: false,
     });
   } else {
     // Period Schedule
@@ -73,6 +75,7 @@ const buildPeriodsFromScheduleSettings = (
         placeholder: `${t("Period")} ${i + 1}`,
         startTime: undefined,
         endTime: undefined,
+        skipped: false,
       });
     }
   }
@@ -85,6 +88,7 @@ const buildPeriodsFromScheduleSettings = (
       startTime: undefined,
       endTime: undefined,
       isHalfDayAfternoonStart: true,
+      skipped: false,
     });
     periods[middleIndex - 1].isHalfDayMorningEnd = true;
   }
@@ -120,6 +124,7 @@ const buildPeriodsFromSchedule = (
       isHalfDayAfternoonStart:
         variantPeriod != null &&
         (variantPeriod?.isHalfDayAfternoonStart || false),
+      skipped: false,
     };
   });
 

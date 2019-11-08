@@ -41,7 +41,7 @@ export type Period = {
   endTime?: string;
   isHalfDayMorningEnd?: boolean;
   isHalfDayAfternoonStart?: boolean;
-  skipped?: boolean;
+  skipped: boolean;
   sequence?: number;
 };
 
@@ -243,7 +243,12 @@ export const Schedule: React.FC<Props> = props => {
         : undefined;
     const periodItems = [
       ...periods,
-      { placeholder, startTime: defaultStartTime, endTime: undefined },
+      {
+        placeholder,
+        startTime: defaultStartTime,
+        endTime: undefined,
+        skipped: false,
+      },
     ];
 
     updatePeriodPlaceholders(periodItems, t);
@@ -629,7 +634,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "flex-start",
     alignItems: "center",
-    height: theme.typography.pxToRem(60),
+    height: theme.typography.pxToRem(75),
   },
   draggableSection: {
     display: "flex",
