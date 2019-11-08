@@ -9,7 +9,7 @@ type Props = Omit<OutlinedInputProps, "labelWidth"> & {
   label: string;
 };
 
-export const Input = (props: Props) => {
+export const Input = React.forwardRef((props: Props, ref) => {
   const { label, ...inputProps } = props;
 
   const classes = useStyles();
@@ -25,11 +25,12 @@ export const Input = (props: Props) => {
         className={classes.input}
         id={id}
         labelWidth={0}
+        ref={ref}
         {...inputProps}
       />
     </FormControl>
   );
-};
+});
 
 const useStyles = makeStyles(theme => ({
   input: {
