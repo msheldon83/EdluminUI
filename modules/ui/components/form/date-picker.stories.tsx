@@ -12,6 +12,8 @@ export const DatePicker = () => {
   return (
     <div className={classes.container}>
       <DatePickerComponent
+        showCalendarOnFocus={boolean("showCalendarOnFocus", false)}
+        singleDate={boolean("singleDate", false)}
         startDate={startDate}
         endDate={endDate}
         onChange={({ startDate, endDate }) => {
@@ -23,6 +25,8 @@ export const DatePicker = () => {
           setStartDate(startDate);
           setEndDate(endDate);
         }}
+        startLabel="From"
+        endLabel="To"
       />
     </div>
   );

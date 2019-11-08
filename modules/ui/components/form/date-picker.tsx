@@ -9,6 +9,9 @@ import format from "date-fns/format";
 import isEqual from "date-fns/isEqual";
 import addDays from "date-fns/addDays";
 import { IconButton } from "@material-ui/core";
+import Paper from "@material-ui/core/Paper";
+import Popper from "@material-ui/core/Popper";
+import Fade from "@material-ui/core/Fade";
 import { Input } from "./input";
 import {
   isAfterDate,
@@ -18,50 +21,16 @@ import {
 } from "../../../helpers/date";
 import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previous-date";
 
-type DateInputProps = {
-  label: string;
-  value?: Date | string;
-  onChange: (date: string) => void;
-  onValidDate: (date: Date) => void;
-};
-
-export const DateInput = (props: DateInputProps) => {
-  const { label, value = "", onValidDate, onChange } = props;
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
-  };
-
-  const handleOnBlur = () => {
-    let date = createDate(value);
-
-    if (isValid(date)) {
-      onValidDate(date);
-    } else {
-      date = value;
-    }
-
-    onChange(date);
-  };
-
-  const formattedValue = formatDateIfPossible(value, "MMM d, yyyy");
-
-  return (
-    <Input
-      label={label}
-      value={formattedValue}
-      onChange={handleOnChange}
-      onBlur={handleOnBlur}
-    />
-  );
-};
-
 type DatePickerProps = {
   startDate: Date | string;
   endDate?: Date | string;
   onChange: ({ startDate, endDate }: onChangeType) => void;
   minimumDate?: Date;
   maximumDate?: Date;
+  singleDate?: boolean;
+  showCalendarOnFocus?: boolean;
+  startLabel: string;
+  endLabel: string;
 };
 
 type onChangeType = {
@@ -70,9 +39,17 @@ type onChangeType = {
 };
 
 export const DatePicker = (props: DatePickerProps) => {
-  const { startDate, endDate, onChange } = props;
+  const {
+    startDate,
+    endDate,
+    onChange,
+    singleDate = false,
+    showCalendarOnFocus = false,
+    startLabel,
+    endLabel,
+  } = props;
 
-  const classes = useStyles();
+  const classes = useStyles(props);
 
   /*
     The calendar component requires that there always be a valid date value, so this hook tracks
@@ -82,6 +59,20 @@ export const DatePicker = (props: DatePickerProps) => {
   const guaranteedStartDate = useGuaranteedPreviousDate(startDate);
   const guaranteedEndDate = useGuaranteedPreviousDate(endDate);
   let calendarDate = guaranteedStartDate;
+
+  const [openCalendar, setOpenCalendar] = React.useState(false);
+  const [calenderWidth, setCalenderWidth] = React.useState<string | number>(
+    "100%"
+  );
+
+  // Calculate width of input for calendar width
+  const startDateInputRef = React.useRef(document.createElement("div"));
+  React.useLayoutEffect(() => {
+    if (showCalendarOnFocus) {
+      const width = startDateInputRef.current.getBoundingClientRect().width;
+      setCalenderWidth(width);
+    }
+  }, [startDateInputRef]);
 
   // Make sure that time plays no part in date comparisons
   if (startDate instanceof Date) {
@@ -196,7 +187,7 @@ export const DatePicker = (props: DatePickerProps) => {
     onChange({ startDate: newStartDate, endDate: newEndDate });
   };
 
-  const handleCalendarDateChange = (date: Date | string | null = "") => {
+  const handleCalendarDateRangeChange = (date: Date | string | null = "") => {
     /*
       The material-ui types say that date can be null here, but there's never a case in
       the UI where that can be true right now
@@ -228,25 +219,80 @@ export const DatePicker = (props: DatePickerProps) => {
     onChange({ startDate: newStartDate, endDate: newEndDate });
   };
 
+  const handleCalendarSingleDateChange = (date: Date | string | null = "") => {
+    /*
+      The material-ui types say that date can be null here, but there's never a case in
+      the UI where that can be true right now
+    */
+    if (date === null) {
+      return;
+    }
+
+    onChange({ startDate: date });
+  };
+
+  const handleCalendarDateChange = (date: Date | string | null = "") => {
+    singleDate
+      ? handleCalendarSingleDateChange(date)
+      : handleCalendarDateRangeChange(date);
+  };
+
   const renderCalender = () => {
+    // This should look like it's floating it's a dropdown style
+    const elevation = showCalendarOnFocus ? 2 : 0;
+
+    const className = clsx({
+      [classes.calendarWrapper]: true,
+      [classes.calendarWrapperFloating]: showCalendarOnFocus,
+    });
     return (
-      <div className={classes.calendarWrapper}>
+      <Paper
+        elevation={elevation}
+        square
+        className={className}
+        style={{ width: calenderWidth }}
+      >
         <Calendar
           date={calendarDate}
           onChange={handleCalendarDateChange}
           renderDay={customDayRenderer}
           allowKeyboardControl={false}
         />
-      </div>
+      </Paper>
     );
   };
 
+  const renderPopoverCalendar = () => {
+    return (
+      <Popper
+        transition
+        anchorEl={startDateInputRef.current}
+        open={openCalendar}
+        placement="bottom-start"
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={150}>
+            {renderCalender()}
+          </Fade>
+        )}
+      </Popper>
+    );
+  };
+
+  const handleStartDateFocus = () => {
+    if (showCalendarOnFocus) {
+      setOpenCalendar(true);
+    }
+  };
+
   const renderTextInputs = () => {
+    const startDateStyle = singleDate ? { marginRight: 0 } : {};
+
     return (
       <div className={classes.keyboardInputWrapper}>
-        <div className={classes.startDateInput}>
+        <div className={classes.startDateInput} style={startDateStyle}>
           <DateInput
-            label="From"
+            label={startLabel}
             value={startDate}
             /*
               The handler is used for both change and valid date ranges here to make the experience
@@ -254,16 +300,20 @@ export const DatePicker = (props: DatePickerProps) => {
             */
             onChange={handleStartDateInputChange}
             onValidDate={handleStartDateInputChange}
+            ref={startDateInputRef}
+            onFocus={handleStartDateFocus}
           />
         </div>
-        <div className={classes.endDateInput}>
-          <DateInput
-            label="To"
-            value={endDate}
-            onChange={handleEndDateInputChange}
-            onValidDate={handleEndDateInputChange}
-          />
-        </div>
+        {!singleDate && (
+          <div className={classes.endDateInput}>
+            <DateInput
+              label={endLabel}
+              value={endDate}
+              onChange={handleEndDateInputChange}
+              onValidDate={handleEndDateInputChange}
+            />
+          </div>
+        )}
       </div>
     );
   };
@@ -275,17 +325,17 @@ export const DatePicker = (props: DatePickerProps) => {
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      {renderTextInputs()}
-      {renderCalender()}
+      <div className={classes.datePickerWrapper}>
+        {renderTextInputs()}
+        {showCalendarOnFocus ? renderPopoverCalendar() : renderCalender()}
+      </div>
     </MuiPickersUtilsProvider>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  container: {
-    padding: theme.spacing(2),
-    maxWidth: theme.typography.pxToRem(500),
-    width: "100%",
+  datePickerWrapper: {
+    position: "relative",
   },
   keyboardInputWrapper: {
     display: "flex",
@@ -293,6 +343,7 @@ const useStyles = makeStyles(theme => ({
   },
   startDateInput: {
     backgroundColor: theme.customColors.white,
+    flexGrow: 1,
     marginRight: theme.spacing(1.5 / 2),
   },
   endDateInput: {
@@ -301,15 +352,21 @@ const useStyles = makeStyles(theme => ({
   },
   calendarWrapper: {
     backgroundColor: theme.customColors.white,
-    borderRadius: theme.typography.pxToRem(4),
     border: "1px solid rgba(0, 0, 0, 0.23)",
-    padding: theme.spacing(1.5),
+    borderRadius: theme.typography.pxToRem(4),
+    minWidth: theme.typography.pxToRem(300),
     overflow: "hidden",
+    padding: theme.spacing(1.5),
     transition: "border-color 100ms linear",
+    width: "100%",
 
     "&:hover": {
       borderColor: "rgba(0, 0, 0, 0.87)",
     },
+  },
+  calendarWrapperFloating: {
+    borderWidth: 0,
+    marginTop: theme.spacing(1),
   },
   day: {
     width: "100%",
@@ -357,3 +414,55 @@ const useStyles = makeStyles(theme => ({
     borderBottomRightRadius: theme.typography.pxToRem(4),
   },
 }));
+
+// Single Date Input
+
+type DateInputProps = {
+  label: string;
+  value?: Date | string;
+  onChange: (date: string) => void;
+  onValidDate: (date: Date) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+};
+
+export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
+  const {
+    label,
+    value = "",
+    onValidDate,
+    onChange,
+    onFocus,
+    onBlur = () => {},
+  } = props;
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value);
+  };
+
+  const handleOnBlur = () => {
+    let date = createDate(value);
+
+    if (isValid(date)) {
+      onValidDate(date);
+    } else {
+      date = value;
+    }
+
+    onBlur();
+    onChange(date);
+  };
+
+  const formattedValue = formatDateIfPossible(value, "MMM d, yyyy");
+
+  return (
+    <Input
+      label={label}
+      value={formattedValue}
+      onChange={handleOnChange}
+      onBlur={handleOnBlur}
+      onFocus={onFocus}
+      ref={ref}
+    />
+  );
+});
