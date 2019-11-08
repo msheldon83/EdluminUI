@@ -15,6 +15,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { useState } from "react";
 import * as yup from "yup";
 import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
+import { UpdateWorkDayScheduleVariant } from "./graphql/update-workday-schedule-variant.gen";
 import { PageHeader } from "ui/components/page-header";
 import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import Maybe from "graphql/tsutils/Maybe";
@@ -38,6 +39,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   const [editing, setEditing] = useState<string | null>(null);
   const [enabled, setEnabled] = useState<boolean | null>(null);
   const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(params.organizationId);
+  const [ updateWorkDayScheduleVariant ] = useMutationBundle(UpdateWorkDayScheduleVariant);
 
   const standardVariantType = orgWorkDayScheduleVariantTypes.find(v => v.isStandard);
   const variantTypes = orgWorkDayScheduleVariantTypes.filter(v => v.id !== standardVariantType?.id);
@@ -120,9 +122,9 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
       .sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0))
       .map((p: Maybe<WorkDaySchedulePeriod>) => {
         // If we have a Variant defined, look for a matching VariantPeriod to this Period
-        // TODO: should we match on sequence or assume the VariantPeriod has a PeriodId on it
-        const matchingVariantPeriod = variant && variant.periods ? variant.periods.find(vp => vp!.sequence === p!.sequence) : null;
-
+        const matchingVariantPeriod = variant && variant.periods 
+          ? variant.periods.find(vp => vp!.workDaySchedulePeriodId.toString() === p!.id) 
+          : null;
 
         return {
           periodId: p!.id,
@@ -156,9 +158,6 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           periods: Array<Period>,
           variantId: number | null | undefined
         ) => {
-          // Regular allows update of Periods so call updateWorkDaySchedule
-          // Variants only allow modifying the times and no drag and drop (and no add or remove row?)
-
           await updateStandardSchedule(periods, variantId);          
         }}
         onCancel={() => {
@@ -217,10 +216,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           periods: Array<Period>,
           variantId: number | null | undefined
         ) => {
-          // Regular allows update of Periods so call updateWorkDaySchedule
-          // Variants only allow modifying the times and no drag and drop (and no add or remove row?)
-
-          await updateStandardSchedule(periods, variantId);          
+          await updateVariantSchedule(periods, variantId);          
         }}
         onCancel={() => {
           const url = BellScheduleRoute.generate(params);
@@ -231,7 +227,27 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   };
 
   const updateVariantSchedule = async (periods: Array<Period>, variantId?: number | null | undefined) => {
-
+    await updateWorkDayScheduleVariant({
+      variables: {
+        workDayScheduleVariant: {
+          workDayScheduleId: Number(workDaySchedule.id),
+          rowVersion: workDaySchedule.rowVersion,
+          scheduleVariant: {
+            id: variantId,
+            periods: periods.map(p => {
+              return {
+                id: p.variantPeriodId ? Number(p.variantPeriodId) : null,
+                workDaySchedulePeriodName: p.name || p.placeholder,
+                startTime: p.startTime ? secondsSinceMidnight(p.startTime) : null,
+                endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
+                isHalfDayMorningEnd: p.isHalfDayMorningEnd,
+                isHalfDayAfternoonStart: p.isHalfDayAfternoonStart
+              }
+            })
+          }
+        },
+      },
+    });
   }
 
   const tabs: Array<Step> = [{

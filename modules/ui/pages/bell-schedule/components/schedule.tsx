@@ -80,6 +80,11 @@ export const Schedule: React.FC<Props> = props => {
       destinationIndex = 0;
     }
 
+    if (periods[destinationIndex].skipped) {
+      // Should not be able to assign anything to a Skipper period
+      return null;
+    }
+
     if (draggableId.startsWith(draggablePrefixes.nameDrag)) {
       // Just reordering the names of the periods
       const oldPeriods = periods.map(p => { return {...p}});
@@ -112,7 +117,8 @@ export const Schedule: React.FC<Props> = props => {
       periods[destinationIndex].isHalfDayAfternoonStart = true;
       periods[destinationIndex-1].isHalfDayMorningEnd = true;
     } else if (draggableId.startsWith(draggablePrefixes.endOfMorningDrag)) {
-      if (destinationIndex === periods.length-1) {
+      const activePeriods = periods.filter(p => !p.skipped);
+      if (destinationIndex === activePeriods.length-1) {
         // Can not allow, because there would be no space for a Start Of Afternoon Period
         return null;
       }
@@ -160,8 +166,37 @@ export const Schedule: React.FC<Props> = props => {
 
   const skipPeriod = (periods: Array<Period>, index: number) => {
     const periodItems = [...periods];
-    periodItems[index].skipped = true;
+    const skippedPeriod = periodItems[index];
+    skippedPeriod.skipped = true;
+
     const sortedPeriods = periodItems.sort((a, b) => (a.skipped ? 1 : 0) - (b.skipped ? 1 : 0));
+
+    // Preserve the half day break
+    if (skippedPeriod.isHalfDayAfternoonStart) {
+      skippedPeriod.isHalfDayAfternoonStart = false;
+      const endOfMorningPeriodIndex = sortedPeriods.findIndex(p => p.isHalfDayMorningEnd);
+      const activePeriods = sortedPeriods.filter(s => !s.skipped);
+      if (endOfMorningPeriodIndex === activePeriods.length-1) {
+        sortedPeriods[endOfMorningPeriodIndex].isHalfDayAfternoonStart = true;
+        sortedPeriods[endOfMorningPeriodIndex].isHalfDayMorningEnd = false;
+        sortedPeriods[endOfMorningPeriodIndex-1].isHalfDayAfternoonStart = false;
+        sortedPeriods[endOfMorningPeriodIndex-1].isHalfDayMorningEnd = true;
+      } else {
+        sortedPeriods[endOfMorningPeriodIndex+1].isHalfDayAfternoonStart = true;
+      }      
+    } else if (skippedPeriod.isHalfDayMorningEnd) {
+      skippedPeriod.isHalfDayMorningEnd = false;
+      const startOfAfternoonPeriodIndex = sortedPeriods.findIndex(p => p.isHalfDayAfternoonStart);
+      if (startOfAfternoonPeriodIndex === 0) {
+        sortedPeriods[0].isHalfDayMorningEnd = true;
+        sortedPeriods[0].isHalfDayAfternoonStart = false;
+        sortedPeriods[1].isHalfDayMorningEnd = false;
+        sortedPeriods[1].isHalfDayAfternoonStart = true;
+      } else {
+        sortedPeriods[startOfAfternoonPeriodIndex-1].isHalfDayMorningEnd = true;
+      }      
+    }
+
     return sortedPeriods;
   }
 
@@ -295,7 +330,7 @@ export const Schedule: React.FC<Props> = props => {
           <div className={classes.actionDiv}>
             {periods.length > minNumberOfPeriods && (
               <div className={classes.action}>
-                {!p.skipped && (
+                {!p.skipped && periods.filter(pf => !pf.skipped).length > minNumberOfPeriods && (
                   <CancelOutlined onClick={() => { 
                     const updatedPeriods = props.isStandard ? removePeriod(periods, i) : skipPeriod(periods, i);
                     setFieldValue('periods', updatedPeriods);
