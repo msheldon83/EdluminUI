@@ -1,0 +1,8 @@
+query GetLocationGroups($orgId: ID!) {
+  locationGroup {
+    all(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}
