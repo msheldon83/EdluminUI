@@ -4,32 +4,13 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
+import { CreateAbsenceUI } from "./ui";
+import { useRouteParams } from "ui/routes/definition";
+import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 
 type Props = {};
 
 export const CreateAbsence: React.FC<Props> = props => {
-  const { t } = useTranslation();
-  const classes = useStyles();
-
-  return (
-    <>
-      <PageTitle title={t("Create absence")} />
-      <Section>
-        <Grid container>
-          <Grid item md={4}>
-            <Typography className={classes.subtitle}>{t("Time")}</Typography>
-          </Grid>
-          <Grid item md={8}>
-            <Typography className={classes.subtitle}>{t("Reason")}</Typography>
-          </Grid>
-        </Grid>
-      </Section>
-    </>
-  );
+  const { organizationId } = useRouteParams(AdminCreateAbsenceRoute);
+  return <CreateAbsenceUI organizationId={organizationId} />;
 };
-
-const useStyles = makeStyles(theme => ({
-  subtitle: {
-    fontSize: theme.typography.pxToRem(24),
-  },
-}));

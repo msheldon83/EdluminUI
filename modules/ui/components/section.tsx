@@ -1,11 +1,14 @@
 import * as React from "react";
 import { Paper, makeStyles } from "@material-ui/core";
 
-type Props = {};
+type Props = { className?: string };
 export const Section: React.FC<Props> = props => {
   const classes = useStyles();
   return (
-    <Paper elevation={0} className={classes.section}>
+    <Paper
+      elevation={0}
+      className={[classes.section, props.className].join(" ")}
+    >
       {props.children}
     </Paper>
   );

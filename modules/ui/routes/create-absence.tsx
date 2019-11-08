@@ -6,8 +6,7 @@ import { PeopleRoute } from "./people";
 // Admin Route
 export const AdminCreateAbsenceRoute = defineSubRoute(
   PeopleRoute,
-  "/:employeeId/absence/create",
-  ["employeeId"]
+  "absence/create"
 );
 
 // Employee Route
@@ -23,4 +22,12 @@ export const CreateAbsenceLoader = asyncComponent({
     return CreateAbsencePage;
   },
   name: "Create Absence",
+});
+
+export const EmployeeCreateAbsenceLoader = asyncComponent({
+  async resolve() {
+    return (await import("ui/pages/create-absence/employee"))
+      .EmployeeCreateAbsence;
+  },
+  name: "Employee Create Absence",
 });
