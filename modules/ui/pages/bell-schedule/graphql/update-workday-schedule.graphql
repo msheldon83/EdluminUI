@@ -26,6 +26,8 @@ mutation UpdateWorkDaySchedule($workDaySchedule: WorkDayScheduleUpdateInput!) {
       }
       usages {
         id
+        locationId
+        locationGroupId
       }
     }
   }

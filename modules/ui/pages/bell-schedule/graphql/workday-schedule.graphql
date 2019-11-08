@@ -28,6 +28,8 @@ query GetWorkDayScheduleById($id: ID!) {
       }
       usages {
         id
+        locationId
+        locationGroupId
       }
     }
   }

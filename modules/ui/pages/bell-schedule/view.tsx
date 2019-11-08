@@ -1,11 +1,10 @@
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useScreenSize } from "hooks";
-import { Typography } from "@material-ui/core";
 import { GetWorkDayScheduleById } from "ui/pages/bell-schedule/graphql/workday-schedule.gen";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
-import { makeStyles, Grid } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { Redirect, useHistory } from "react-router";
 import {
   BellScheduleRoute,
@@ -23,10 +22,9 @@ import { Schedule, Period } from "./components/schedule";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import {
   WorkDayScheduleVariant,
-  WorkDayScheduleVariantPeriod,
   WorkDaySchedule,
   WorkDaySchedulePeriod,
-  WorkDayScheduleVariantType,
+  WorkDayScheduleUsage,
 } from "graphql/server-types.gen";
 import {
   midnightTime,
@@ -34,6 +32,7 @@ import {
   secondsSinceMidnight,
 } from "helpers/time";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
+import { Assign } from "./components/assign";
 
 const editableSections = {
   name: "edit-name",
@@ -325,6 +324,54 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     await getWorkDaySchedule.refetch();
   };
 
+  const renderAssign = (
+    setStep: React.Dispatch<React.SetStateAction<number>>,
+    goToNextStep: Function
+  ) => {
+    const locationIds: Array<number> = workDaySchedule.usages
+      ? workDaySchedule.usages
+          .filter(u => u && u.locationId)
+          .map((u: Maybe<WorkDayScheduleUsage>) => u!.locationId!)
+      : [];
+    const locationGroupIds: Array<number> = workDaySchedule.usages
+      ? workDaySchedule.usages
+          .filter(u => u && u.locationGroupId)
+          .map((u: Maybe<WorkDayScheduleUsage>) => u!.locationGroupId!)
+      : [];
+
+    return (
+      <Assign
+        locationIds={locationIds}
+        locationGroupIds={locationGroupIds}
+        organizationId={params.organizationId}
+        onSubmit={updateLocationAssigments}
+        onCancel={() => {
+          const url = BellScheduleRoute.generate(params);
+          history.push(url);
+        }}
+      />
+    );
+  };
+
+  const updateLocationAssigments = async (
+    locationIds: Array<number>,
+    locationGroupIds: Array<number>
+  ) => {
+    await updateWorkDaySchedule({
+      variables: {
+        workDaySchedule: {
+          id: Number(workDaySchedule.id),
+          rowVersion: workDaySchedule.rowVersion,
+          locationIds,
+          locationGroupIds,
+        },
+      },
+    });
+
+    // Refresh the Work Day Schedule
+    await getWorkDaySchedule.refetch();
+  };
+
   const tabs: Array<Step> = [
     {
       stepNumber: 0,
@@ -340,6 +387,11 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
         return renderVariant(setStep, v.id, v.name);
       },
     });
+  });
+  tabs.push({
+    stepNumber: variantTypes.length + 1,
+    name: t("Assign"),
+    content: renderAssign,
   });
 
   return (

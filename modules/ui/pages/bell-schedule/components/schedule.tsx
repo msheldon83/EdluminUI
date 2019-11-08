@@ -556,7 +556,6 @@ export const Schedule: React.FC<Props> = props => {
         }}
         enableReinitialize={true}
         onSubmit={(data, meta) => {
-          console.log(data);
           props.onSubmit(data.periods, props.variantId);
         }}
         validateOnChange={false}
