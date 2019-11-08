@@ -159,7 +159,7 @@ export const DatePicker = (props: DatePickerProps) => {
     onChange({ startDate: newStartDate, endDate: newEndDate });
   };
 
-  const handleCalendarDateChange = (date: Date | string | null = "") => {
+  const handleCalendarDateRangeChange = (date: Date | string | null = "") => {
     /*
       The material-ui types say that date can be null here, but there's never a case in
       the UI where that can be true right now
@@ -189,6 +189,26 @@ export const DatePicker = (props: DatePickerProps) => {
     }
 
     onChange({ startDate: newStartDate, endDate: newEndDate });
+  };
+
+  const handleCalendarSingleDateChange = (date: Date | string | null = "") => {
+    /*
+      The material-ui types say that date can be null here, but there's never a case in
+      the UI where that can be true right now
+    */
+    if (date === null) {
+      return;
+    }
+
+    let newStartDate = date;
+
+    onChange({ startDate: date });
+  };
+
+  const handleCalendarDateChange = (date: Date | string | null = "") => {
+    singleDate
+      ? handleCalendarSingleDateChange(date)
+      : handleCalendarDateRangeChange(date);
   };
 
   const renderCalender = () => {
@@ -274,6 +294,7 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1.5),
     overflow: "hidden",
     transition: "border-color 100ms linear",
+    minWidth: theme.typography.pxToRem(300),
 
     "&:hover": {
       borderColor: "rgba(0, 0, 0, 0.87)",
@@ -325,6 +346,8 @@ const useStyles = makeStyles(theme => ({
     borderBottomRightRadius: theme.typography.pxToRem(4),
   },
 }));
+
+// Single Date Input
 
 type DateInputProps = {
   label: string;
