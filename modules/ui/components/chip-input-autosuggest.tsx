@@ -13,6 +13,7 @@ import {
   RenderSuggestionsContainerParams,
   SuggestionsFetchRequestedParams,
 } from "react-autosuggest";
+import { Chip } from "@material-ui/core";
 
 const renderInput = (inputProps: any) => {
   const { value, onChange, chips, ref, ...other } = inputProps;
@@ -24,6 +25,19 @@ const renderInput = (inputProps: any) => {
       value={chips}
       inputRef={ref}
       {...other}
+      chipRenderer={(
+        { value, isFocused, isDisabled, handleClick, handleDelete, className },
+        key
+      ) => (
+        <Chip
+          key={key}
+          className={className}
+          onClick={handleClick}
+          onDelete={handleDelete}
+          label={value}
+          color={"primary"}
+        />
+      )}
     />
   );
 };
