@@ -182,7 +182,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     );
 
     const sortedPeriods = periods.sort(
-      (a, b) => (a!.sequence || 0) - (b!.sequence || 0)
+      (a, b) => (a.sequence || 0) - (b.sequence || 0)
     );
 
     // Move unmatched periods (skipped) to the bottom of the list
