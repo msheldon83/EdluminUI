@@ -43,6 +43,7 @@ export type Period = {
   isHalfDayMorningEnd?: boolean;
   isHalfDayAfternoonStart?: boolean;
   skipped?: boolean;
+  sequence?: number;
 };
 
 const travelDuration = 5;

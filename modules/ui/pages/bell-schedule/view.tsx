@@ -119,7 +119,6 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     }
 
     const periods: Array<Period> = workDaySchedule.periods
-      .sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0))
       .map((p: Maybe<WorkDaySchedulePeriod>) => {
         // If we have a Variant defined, look for a matching VariantPeriod to this Period
         const matchingVariantPeriod = variant && variant.periods 
@@ -135,11 +134,22 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           endTime: matchingVariantPeriod ? timeStampToIso(midnightTime().setSeconds(matchingVariantPeriod.endTime)) : undefined,
           isHalfDayMorningEnd: matchingVariantPeriod != null && matchingVariantPeriod.isHalfDayMorningEnd,
           isHalfDayAfternoonStart: matchingVariantPeriod != null && matchingVariantPeriod.isHalfDayAfternoonStart,
-          skipped: matchingVariantPeriod === null
+          skipped: matchingVariantPeriod == null,
+          sequence: matchingVariantPeriod && matchingVariantPeriod.sequence ? matchingVariantPeriod.sequence : 0
         }
       });
     
-    return periods;  
+    const sortedPeriods = periods.sort((a, b) => (a!.sequence || 0) - (b!.sequence || 0));
+
+    // Move unmatched periods (skipped) to the bottom of the list
+    const activePeriods = sortedPeriods.filter(p => !p.skipped);
+    const skippedPeriods = sortedPeriods.filter(p => p.skipped);
+    const sortedWithSkippedPeriods = [
+      ...activePeriods,
+      ...skippedPeriods
+    ];
+    
+    return sortedWithSkippedPeriods;  
   }
 
   const renderRegularSchedule = (
@@ -234,20 +244,25 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           rowVersion: workDaySchedule.rowVersion,
           scheduleVariant: {
             id: variantId,
-            periods: periods.map(p => {
-              return {
-                id: p.variantPeriodId ? Number(p.variantPeriodId) : null,
-                workDaySchedulePeriodName: p.name || p.placeholder,
-                startTime: p.startTime ? secondsSinceMidnight(p.startTime) : null,
-                endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
-                isHalfDayMorningEnd: p.isHalfDayMorningEnd,
-                isHalfDayAfternoonStart: p.isHalfDayAfternoonStart
-              }
-            })
+            periods: periods
+              .filter(p => !p.skipped)
+              .map(p => {
+                return {
+                  id: p.variantPeriodId ? Number(p.variantPeriodId) : null,
+                  workDaySchedulePeriodName: p.name || p.placeholder,
+                  startTime: p.startTime ? secondsSinceMidnight(p.startTime) : null,
+                  endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
+                  isHalfDayMorningEnd: p.isHalfDayMorningEnd,
+                  isHalfDayAfternoonStart: p.isHalfDayAfternoonStart
+                }
+              })
           }
         },
       },
     });
+
+    // Refetch the Work Day Schedule since the mutation above only modifies the Variant
+    getWorkDaySchedule.refetch();
   }
 
   const tabs: Array<Step> = [{
