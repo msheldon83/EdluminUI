@@ -31,6 +31,7 @@ import {
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { useWorkDayPatterns } from "reference-data/work-day-patterns";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
+import { Assign } from "./components/assign";
 
 export type ScheduleSettings = {
   isBasic: boolean;
@@ -179,7 +180,16 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     periods: null,
     standardSchedule: null,
     additionalVariants: null,
+    locationIds: null,
+    locationGroupIds: null,
   });
+
+  if (
+    !orgWorkDayScheduleVariantTypes ||
+    !orgWorkDayScheduleVariantTypes.length
+  ) {
+    return <></>;
+  }
 
   const orgUsesHalfDayBreaks: boolean = orgFeatureFlags.includes(
     FeatureFlag.HalfDayAbsences
@@ -221,7 +231,6 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     isStandard: boolean,
     variantTypeId: number,
     variantTypeName: string,
-    isLastVariant: boolean,
     variantIndex: number
   ) => {
     const schedulePeriods: Array<Period> = [];
@@ -253,7 +262,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
       <Schedule
         name={variantTypeName}
         isStandard={isStandard}
-        submitLabel={isLastVariant ? t("Save") : t("Next")}
+        submitLabel={t("Next")}
         periods={schedulePeriods}
         onSubmit={async (periods: Array<Period>) => {
           let updatedBellSchedule = { ...bellSchedule };
@@ -314,20 +323,45 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
             };
           }
 
-          if (isLastVariant) {
-            // Go ahead and create the Bell Schedule
-            const id = await create(updatedBellSchedule);
-            const viewParams = {
-              ...params,
-              workDayScheduleId: id!,
-            };
-            // Go to the Bell Schedule View page
-            history.push(BellScheduleViewRoute.generate(viewParams));
-          } else {
-            // Set the Bell Schedule in state and move to the next step
-            setBellSchedule(updatedBellSchedule);
-            goToNextStep();
-          }
+          // Set the Bell Schedule in state and move to the next step
+          setBellSchedule(updatedBellSchedule);
+          goToNextStep();
+        }}
+        onCancel={() => {
+          const url = BellScheduleRoute.generate(params);
+          history.push(url);
+        }}
+      />
+    );
+  };
+
+  const renderAssign = (
+    setStep: React.Dispatch<React.SetStateAction<number>>,
+    goToNextStep: Function
+  ) => {
+    return (
+      <Assign
+        locationIds={[]}
+        locationGroupIds={[]}
+        organizationId={params.organizationId}
+        onSubmit={async (
+          locationIds: Array<number>,
+          locationGroupIds: Array<number>
+        ) => {
+          const updatedBellSchedule = {
+            ...bellSchedule,
+            locationIds,
+            locationGroupIds,
+          };
+
+          // Create the Bell Schedule
+          const id = await create(updatedBellSchedule);
+          const viewParams = {
+            ...params,
+            workDayScheduleId: id!,
+          };
+          // Go to the Bell Schedule View page
+          history.push(BellScheduleViewRoute.generate(viewParams));
         }}
         onCancel={() => {
           const url = BellScheduleRoute.generate(params);
@@ -376,7 +410,6 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
           v.isStandard,
           Number(v.id),
           v.name,
-          isLastVariant,
           i
         );
       },
@@ -385,12 +418,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   tabs.push({
     stepNumber: orgWorkDayScheduleVariantTypes.length + 1,
     name: t("Assign"),
-    content: (
-      setStep: React.Dispatch<React.SetStateAction<number>>,
-      goToNextStep: Function
-    ) => {
-      return <div>est</div>;
-    },
+    content: renderAssign,
   });
 
   return (
