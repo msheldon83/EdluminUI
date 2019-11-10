@@ -300,17 +300,19 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
             const updatedVariants = bellSchedule.additionalVariants || [];
             const variant: WorkDayScheduleVariantInput = {
               workDayScheduleVariantTypeId: variantTypeId,
-              periods: periods.map(p => {
-                return {
-                  workDaySchedulePeriodName: p.name || p.placeholder,
-                  startTime: p.startTime
-                    ? secondsSinceMidnight(p.startTime)
-                    : null,
-                  endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
-                  isHalfDayMorningEnd: p.isHalfDayMorningEnd,
-                  isHalfDayAfternoonStart: p.isHalfDayAfternoonStart,
-                };
-              }),
+              periods: periods
+                .filter(p => !p.skipped)
+                .map(p => {
+                  return {
+                    workDaySchedulePeriodName: p.name || p.placeholder,
+                    startTime: p.startTime
+                      ? secondsSinceMidnight(p.startTime)
+                      : null,
+                    endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
+                    isHalfDayMorningEnd: p.isHalfDayMorningEnd,
+                    isHalfDayAfternoonStart: p.isHalfDayAfternoonStart,
+                  };
+                }),
             };
 
             if (!updatedVariants[variantIndex]) {
