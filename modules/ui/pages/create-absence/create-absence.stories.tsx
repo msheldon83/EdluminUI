@@ -37,7 +37,11 @@ export const AsEmployee = () => {
   return (
     <Provider>
       <Route path={EmployeeCreateAbsenceRoute.path}>
-        <CreateAbsenceUI actingAsEmployeeId="123" organizationId="124" />
+        <CreateAbsenceUI
+          actingAsEmployee
+          employeeId="123"
+          organizationId="124"
+        />
       </Route>
     </Provider>
   );

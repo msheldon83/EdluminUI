@@ -12,7 +12,11 @@ import { SelectEmployee } from "./select-employee";
 import { AbsenceDetails } from "./absence-details";
 import useForm from "react-hook-form";
 
-type Props = { actingAsEmployeeId?: string; organizationId: string };
+type Props = {
+  employeeId: string;
+  actingAsEmployee?: boolean;
+  organizationId: string;
+};
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
@@ -31,13 +35,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       <Typography variant="h1">{t("Create absence")}</Typography>
       {JSON.stringify(state)}
 
-      {/* {state.step === "employee" && (
-        <SelectEmployee
-          state={state}
-          dispatch={dispatch}
-          organizationId={props.organizationId}
-        />
-      )} */}
       {state.step === "absence" && (
         <Section className={""}>
           <AbsenceDetails state={state} dispatch={dispatch} />
@@ -80,17 +77,8 @@ const useStyles = makeStyles(theme => ({
 
 const initialState = (props: Props): CreateAbsenceState => {
   const today = new Date();
-  if (props.actingAsEmployeeId) {
-    return {
-      employeeId: props.actingAsEmployeeId,
-      preselectedEmployee: true,
-      step: "absence",
-      startDate: today,
-      endDate: today,
-    };
-  }
   return {
-    preselectedEmployee: false,
+    employeeId: props.employeeId,
     step: "absence",
     startDate: today,
     endDate: today,
