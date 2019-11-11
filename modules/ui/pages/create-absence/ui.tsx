@@ -1,10 +1,12 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useQueryBundle } from "graphql/hooks";
+import { DayPart, FeatureFlag } from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
@@ -16,6 +18,7 @@ type Props = {
   actingAsEmployee?: boolean;
   organizationId: string;
 };
+
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
 
@@ -31,7 +34,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   }
 
   const classes = useStyles();
-
   const { register, handleSubmit } = useForm();
 
   const [state, dispatch] = useReducer(

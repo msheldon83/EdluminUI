@@ -1,4 +1,5 @@
 import { Reducer } from "react";
+import { DayPart } from "graphql/server-types.gen";
 
 export type CreateAbsenceState = {
   employeeId: string;
@@ -6,6 +7,7 @@ export type CreateAbsenceState = {
   step: "absence" | "substitute";
   startDate: Date;
   endDate: Date;
+  dayPart?: DayPart;
 };
 
 export type CreateAbsenceActions =
@@ -13,7 +15,8 @@ export type CreateAbsenceActions =
       action: "selectEmployee";
       employeeId: string;
     }
-  | { action: "selectDates"; startDate: Date; endDate: Date };
+  | { action: "selectDates"; startDate: Date; endDate: Date }
+  | { action: "selectAbsenceTimeType"; dayPart: DayPart };
 
 export const createAbsenceReducer: Reducer<
   CreateAbsenceState,
@@ -26,6 +29,9 @@ export const createAbsenceReducer: Reducer<
     case "selectDates": {
       const { startDate, endDate } = action;
       return { ...prev, startDate, endDate };
+    }
+    case "selectAbsenceTimeType": {
+      return { ...prev, dayPart: action.dayPart };
     }
   }
   return prev;
