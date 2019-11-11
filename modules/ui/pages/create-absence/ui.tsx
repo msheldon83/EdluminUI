@@ -6,11 +6,12 @@ import { Grid, Typography, Paper, Tab, Tabs } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { Reducer, useReducer } from "react";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
-import { usePagedQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
 import { GetEmployeesForOrg } from "./graphql/get-employees.gen";
 import { SelectEmployee } from "./select-employee";
 import { AbsenceDetails } from "./absence-details";
 import useForm from "react-hook-form";
+import { GetEmployee } from "./graphql/get-employee.gen";
 
 type Props = {
   employeeId: string;
@@ -19,6 +20,18 @@ type Props = {
 };
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
+
+  const employeeInfo = useQueryBundle(GetEmployee, {
+    variables: {
+      employeeId: props.employeeId,
+    },
+  });
+  let name = "";
+  if (employeeInfo.state === "DONE" || employeeInfo.state === "UPDATING") {
+    const emp = employeeInfo.data.employee?.byId;
+    name = `${emp?.firstName} ${emp?.lastName}`;
+  }
+
   const classes = useStyles();
 
   const { register, handleSubmit } = useForm();
@@ -32,8 +45,16 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
-      <Typography variant="h1">{t("Create absence")}</Typography>
-      {JSON.stringify(state)}
+      {props.actingAsEmployee ? (
+        <Typography variant="h1">{t("Create absence")}</Typography>
+      ) : (
+        <>
+          <Typography variant="h5">{t("Create absence")}</Typography>
+          <Typography variant="h1">{name}</Typography>
+        </>
+      )}
+
+      {/* {JSON.stringify(state)} */}
 
       {state.step === "absence" && (
         <Section className={""}>
