@@ -13,7 +13,10 @@ export default {
 };
 
 export const SelectEmployee = () => {
-  const path = AdminCreateAbsenceRoute.generate({ organizationId: "1006" });
+  const path = AdminCreateAbsenceRoute.generate({
+    organizationId: "1006",
+    employeeId: "123",
+  });
   const Provider = mockProvider({
     initialUrl: path,
   });

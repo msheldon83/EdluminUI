@@ -3,7 +3,7 @@ import { Reducer } from "react";
 export type CreateAbsenceState = {
   preselectedEmployee: boolean;
   employeeId?: string;
-  step: "employee" | "absence" | "substitute";
+  step: "absence" | "substitute";
   startDate: Date;
   endDate: Date;
 };

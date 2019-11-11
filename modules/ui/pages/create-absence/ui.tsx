@@ -10,11 +10,14 @@ import { usePagedQueryBundle } from "graphql/hooks";
 import { GetEmployeesForOrg } from "./graphql/get-employees.gen";
 import { SelectEmployee } from "./select-employee";
 import { AbsenceDetails } from "./absence-details";
+import useForm from "react-hook-form";
 
 type Props = { actingAsEmployeeId?: string; organizationId: string };
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const { register, handleSubmit } = useForm();
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -28,13 +31,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       <Typography variant="h1">{t("Create absence")}</Typography>
       {JSON.stringify(state)}
 
-      {state.step === "employee" && (
+      {/* {state.step === "employee" && (
         <SelectEmployee
           state={state}
           dispatch={dispatch}
           organizationId={props.organizationId}
         />
-      )}
+      )} */}
       {state.step === "absence" && (
         <Section className={""}>
           <AbsenceDetails state={state} dispatch={dispatch} />
@@ -88,7 +91,7 @@ const initialState = (props: Props): CreateAbsenceState => {
   }
   return {
     preselectedEmployee: false,
-    step: "employee",
+    step: "absence",
     startDate: today,
     endDate: today,
   };

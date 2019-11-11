@@ -1,36 +1,37 @@
 import * as React from "react";
-import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { usePagedQueryBundle } from "graphql/hooks";
-import { GetEmployeesForOrg } from "./graphql/get-employees.gen";
+import { GetEmployeesForOrg } from "../graphql/get-employees.gen";
 import { Table } from "ui/components/table";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { useTranslation } from "react-i18next";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
 import { useCallback } from "react";
+import { useHistory } from "react-router";
+import {
+  AdminCreateAbsenceRoute,
+  AdminSelectEmployeeForCreateAbsenceRoute,
+} from "ui/routes/create-absence";
+import { useRouteParams } from "ui/routes/definition";
 
-type Props = {
-  state: CreateAbsenceState;
-  dispatch: React.Dispatch<CreateAbsenceActions>;
-  organizationId: string;
-};
+type Props = {};
 
 type Row = {
   id: string;
   externalId?: string | null;
 };
 
-export const SelectEmployee: React.FC<Props> = ({
-  state,
-  dispatch,
-  organizationId,
-}) => {
+export const SelectEmployee: React.FC<Props> = props => {
   const { t } = useTranslation();
+
+  const { organizationId } = useRouteParams(
+    AdminSelectEmployeeForCreateAbsenceRoute
+  );
+  const history = useHistory();
   const [employees, pagination] = usePagedQueryBundle(
     GetEmployeesForOrg,
     r => r.employee?.paged?.totalCount,
     {
-      skip: state.preselectedEmployee,
       variables: { orgId: organizationId },
     }
   );
@@ -55,10 +56,15 @@ export const SelectEmployee: React.FC<Props> = ({
   const selectEmployee = useCallback(
     (_: unknown, row?: Row) => {
       if (row) {
-        dispatch({ action: "selectEmployee", employeeId: row.id });
+        history.push(
+          AdminCreateAbsenceRoute.generate({
+            organizationId,
+            employeeId: row.id,
+          })
+        );
       }
     },
-    [dispatch]
+    [history]
   );
 
   return (

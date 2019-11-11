@@ -19,8 +19,10 @@ import {
 } from "./routes/bell-schedule";
 import {
   AdminCreateAbsenceRoute,
+  AdminSelectEmployeeForCreateAbsenceRoute,
   CreateAbsenceLoader,
   EmployeeCreateAbsenceRoute,
+  SelectEmployeeForCreateAbsenceLoader,
 } from "./routes/create-absence";
 import {
   OrganizationsLoader,
@@ -99,6 +101,10 @@ export function App(props: {}) {
                       <Route
                         component={CreateAbsenceLoader}
                         path={AdminCreateAbsenceRoute.path}
+                      />
+                      <Route
+                        component={SelectEmployeeForCreateAbsenceLoader}
+                        path={AdminSelectEmployeeForCreateAbsenceRoute.path}
                       />
                       <Route component={PeopleLoader} path={PeopleRoute.path} />
                       <Route

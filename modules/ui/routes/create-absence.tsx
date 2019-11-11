@@ -1,17 +1,23 @@
 import { asyncComponent } from "ui/async-component";
-import { AppChromeRoute } from "./app-chrome";
+import { AppChromeRoute, EmployeeChromeRoute } from "./app-chrome";
 import { defineSubRoute } from "./definition";
 import { PeopleRoute } from "./people";
 
 // Admin Route
 export const AdminCreateAbsenceRoute = defineSubRoute(
   PeopleRoute,
+  "absence/create/:employeeId",
+  ["employeeId"]
+);
+
+export const AdminSelectEmployeeForCreateAbsenceRoute = defineSubRoute(
+  PeopleRoute,
   "absence/create"
 );
 
 // Employee Route
 export const EmployeeCreateAbsenceRoute = defineSubRoute(
-  AppChromeRoute,
+  EmployeeChromeRoute,
   "/absence/create"
 );
 
@@ -30,4 +36,12 @@ export const EmployeeCreateAbsenceLoader = asyncComponent({
       .EmployeeCreateAbsence;
   },
   name: "Employee Create Absence",
+});
+
+export const SelectEmployeeForCreateAbsenceLoader = asyncComponent({
+  async resolve() {
+    return (await import("ui/pages/create-absence/select-employee"))
+      .SelectEmployee;
+  },
+  name: "Select Employee for Absence",
 });
