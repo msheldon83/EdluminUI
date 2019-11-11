@@ -1,0 +1,29 @@
+query GetOrgUserById($id: ID!) {
+  orgUser {
+    byId(id: $id) {
+      id
+      firstName
+      middleName
+      lastName
+      active
+      isReplacementEmployee
+      isEmployee
+      isAdmin
+      email
+      employee {
+        id
+        rowVersion
+        externalId
+        phoneNumbers {
+          id
+          country
+          number
+        }
+        primaryPosition {
+          id
+          name
+        }
+      }
+    }
+  }
+}
