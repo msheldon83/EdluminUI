@@ -1,17 +1,15 @@
+import { Typography } from "@material-ui/core";
+import { makeStyles } from "@material-ui/styles";
+import { useQueryBundle } from "graphql/hooks";
 import * as React from "react";
+import { useReducer } from "react";
+import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
-import { Grid, Typography, Paper, Tab, Tabs } from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
-import { Reducer, useReducer } from "react";
-import { createAbsenceReducer, CreateAbsenceState } from "./state";
-import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
-import { GetEmployeesForOrg } from "./graphql/get-employees.gen";
-import { SelectEmployee } from "./select-employee";
 import { AbsenceDetails } from "./absence-details";
-import useForm from "react-hook-form";
 import { GetEmployee } from "./graphql/get-employee.gen";
+import { createAbsenceReducer, CreateAbsenceState } from "./state";
 
 type Props = {
   employeeId: string;
@@ -100,6 +98,7 @@ const initialState = (props: Props): CreateAbsenceState => {
   const today = new Date();
   return {
     employeeId: props.employeeId,
+    organizationId: props.organizationId,
     step: "absence",
     startDate: today,
     endDate: today,

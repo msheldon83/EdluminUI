@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import { DatePicker, DatePickerOnChange } from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
 import { classNames } from "react-select/src/utils";
+import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { useMemo } from "react";
 
 type Props = {
   state: CreateAbsenceState;
@@ -12,6 +14,11 @@ type Props = {
 };
 
 export const AbsenceDetails: React.FC<Props> = ({ state, dispatch }) => {
+  const absenceReasons = useAbsenceReasons(state.organizationId);
+  const absenceReasonOptions = useMemo(
+    () => absenceReasons.map(r => ({ label: r.name, value: r.id })),
+    [absenceReasons]
+  );
   const classes = useStyles();
   const onDateChange: DatePickerOnChange = React.useCallback(
     ({ startDate, endDate }) => {
@@ -39,7 +46,7 @@ export const AbsenceDetails: React.FC<Props> = ({ state, dispatch }) => {
         <Typography>{t("Select a reason")}</Typography>
         <Select
           value={null}
-          options={[]}
+          options={absenceReasonOptions}
           label={t("Reason")}
           onChange={onReasonChange}
         ></Select>

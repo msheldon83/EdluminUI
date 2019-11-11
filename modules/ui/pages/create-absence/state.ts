@@ -2,6 +2,7 @@ import { Reducer } from "react";
 
 export type CreateAbsenceState = {
   employeeId: string;
+  organizationId: string;
   step: "absence" | "substitute";
   startDate: Date;
   endDate: Date;
