@@ -76,12 +76,20 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const initialState = (props: Props): CreateAbsenceState => {
+  const today = new Date();
   if (props.actingAsEmployeeId) {
     return {
       employeeId: props.actingAsEmployeeId,
       preselectedEmployee: true,
       step: "absence",
+      startDate: today,
+      endDate: today,
     };
   }
-  return { preselectedEmployee: false, step: "employee" };
+  return {
+    preselectedEmployee: false,
+    step: "employee",
+    startDate: today,
+    endDate: today,
+  };
 };

@@ -24,7 +24,7 @@ import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previou
 type DatePickerProps = {
   startDate: Date | string;
   endDate?: Date | string;
-  onChange: ({ startDate, endDate }: onChangeType) => void;
+  onChange: DatePickerOnChange;
   minimumDate?: Date;
   maximumDate?: Date;
   singleDate?: boolean;
@@ -33,10 +33,10 @@ type DatePickerProps = {
   endLabel: string;
 };
 
-type onChangeType = {
+export type DatePickerOnChange = (dates: {
   startDate: Date | string;
   endDate?: Date | string;
-};
+}) => void;
 
 export const DatePicker = (props: DatePickerProps) => {
   const {

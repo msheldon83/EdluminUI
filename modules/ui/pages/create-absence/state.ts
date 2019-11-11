@@ -4,12 +4,16 @@ export type CreateAbsenceState = {
   preselectedEmployee: boolean;
   employeeId?: string;
   step: "employee" | "absence" | "substitute";
+  startDate: Date;
+  endDate: Date;
 };
 
-export type CreateAbsenceActions = {
-  action: "selectEmployee";
-  employeeId: string;
-};
+export type CreateAbsenceActions =
+  | {
+      action: "selectEmployee";
+      employeeId: string;
+    }
+  | { action: "selectDates"; startDate: Date; endDate: Date };
 
 export const createAbsenceReducer: Reducer<
   CreateAbsenceState,
@@ -18,6 +22,10 @@ export const createAbsenceReducer: Reducer<
   switch (action.action) {
     case "selectEmployee": {
       return { ...prev, employeeId: action.employeeId, step: "absence" };
+    }
+    case "selectDates": {
+      const { startDate, endDate } = action;
+      return { ...prev, startDate, endDate };
     }
   }
   return prev;
