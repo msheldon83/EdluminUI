@@ -9,7 +9,7 @@ export default {
   title: "Components/Navigation Side Bar",
 };
 
-const render = (path: string) => () => {
+const render = (path: string, isSystemAdmin: boolean) => () => {
   const Provider = mockProvider({
     mocks: {
       Query: () => ({
@@ -18,6 +18,7 @@ const render = (path: string) => () => {
             user: {
               id: "1234",
             },
+            isSystemAdministrator: isSystemAdmin,
           },
         }),
       }),
@@ -43,10 +44,13 @@ const render = (path: string) => () => {
   );
 };
 
-export const asEmployee = render(AppChromeRoute.generate({ role: "employee" }));
+export const asEmployee = render(AppChromeRoute.generate({ role: "employee" }), false);
 export const asSubstitute = render(
-  AppChromeRoute.generate({ role: "substitute" })
+  AppChromeRoute.generate({ role: "substitute" }), false
 );
-export const asAdmin = render(
-  AdminChromeRoute.generate({ organizationId: "some-id" })
+export const asAdminInOrg = render(
+  AdminChromeRoute.generate({ organizationId: "1000" }), true
+);
+export const asAdminNotInOrg = render(
+  AdminChromeRoute.generate({ organizationId: "organizations" }), true
 );
