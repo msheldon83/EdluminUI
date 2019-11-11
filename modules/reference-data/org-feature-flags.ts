@@ -1,6 +1,7 @@
 import { useQueryBundle } from "graphql/hooks";
 import { GetOrgConfigFeatureFlags } from "./get-org-config-feature-flags.gen";
 import { compact } from "lodash-es";
+import { useMemo } from "react";
 
 export function useOrgFeatureFlags(orgId: string) {
   const getFeatureFlags = useQueryBundle(GetOrgConfigFeatureFlags, {
@@ -8,8 +9,16 @@ export function useOrgFeatureFlags(orgId: string) {
     variables: { orgId },
   });
 
-  if (getFeatureFlags.state === "DONE" && getFeatureFlags.data.organization?.byId?.config?.featureFlags) {
-    return compact(getFeatureFlags.data.organization?.byId.config.featureFlags) ?? [];
-  }
-  return [];
+  return useMemo(() => {
+    if (
+      getFeatureFlags.state === "DONE" &&
+      getFeatureFlags.data.organization?.byId?.config?.featureFlags
+    ) {
+      return (
+        compact(getFeatureFlags.data.organization?.byId.config.featureFlags) ??
+        []
+      );
+    }
+    return [];
+  }, [getFeatureFlags]);
 }
