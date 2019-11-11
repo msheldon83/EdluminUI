@@ -1,8 +1,10 @@
 import * as React from "react";
 import { CreateAbsenceState, CreateAbsenceActions } from "./state";
-import { Grid, Typography } from "@material-ui/core";
+import { Grid, Typography, Button, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { DatePicker, DatePickerOnChange } from "ui/components/form/date-picker";
+import { Select } from "ui/components/form/select";
+import { classNames } from "react-select/src/utils";
 
 type Props = {
   state: CreateAbsenceState;
@@ -10,13 +12,15 @@ type Props = {
 };
 
 export const AbsenceDetails: React.FC<Props> = ({ state, dispatch }) => {
-  const onChange: DatePickerOnChange = React.useCallback(
+  const classes = useStyles();
+  const onDateChange: DatePickerOnChange = React.useCallback(
     ({ startDate, endDate }) => {
       console.log("dates changed", startDate, endDate);
       // dispatch({ action: "selectDates", startDate, endDate });
     },
     [dispatch]
   );
+  const onReasonChange = React.useCallback(() => {}, [dispatch]);
   const { t } = useTranslation();
   return (
     <Grid container>
@@ -25,15 +29,34 @@ export const AbsenceDetails: React.FC<Props> = ({ state, dispatch }) => {
         <DatePicker
           startDate={state.startDate}
           endDate={state.endDate}
-          onChange={onChange}
+          onChange={onDateChange}
           startLabel={t("From")}
           endLabel={t("To")}
         />
       </Grid>
       <Grid item md={8}>
         <Typography variant="h5">{t("Reason")}</Typography>
-        {/* <Select></Select> */}
+        <Typography>{t("Select a reason")}</Typography>
+        <Select
+          value={null}
+          options={[]}
+          label={t("Reason")}
+          onChange={onReasonChange}
+        ></Select>
+      </Grid>
+      <Grid item xs={12}>
+        <div className={classes.actionButtons}>
+          <Button variant="contained">{t("Create")}</Button>
+        </div>
       </Grid>
     </Grid>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  actionButtons: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+}));
