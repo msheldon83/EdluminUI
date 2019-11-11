@@ -9,6 +9,7 @@ import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { GetEmployeesForOrg } from "./graphql/get-employees.gen";
 import { SelectEmployee } from "./select-employee";
+import { AbsenceDetails } from "./absence-details";
 
 type Props = { actingAsEmployeeId?: string; organizationId: string };
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -24,26 +25,22 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
+      <Typography variant="h1">{t("Create absence")}</Typography>
       {JSON.stringify(state)}
-      <Paper square className={classes.tabs}>
-        {/* I believe the tabs are going away, but I put them here for now  */}
-        <Tabs value={state.step} indicatorColor="primary" textColor="primary">
-          {state.preselectedEmployee || (
-            <Tab label={t("Employee")} value="employee" />
-          )}
-          <Tab label={t("Absence")} value="absence" />
-          <Tab label={t("Substitute")} value="substitute" />
-        </Tabs>
-      </Paper>
-      <Section className={classes.content}>
-        {state.step === "employee" && (
-          <SelectEmployee
-            state={state}
-            dispatch={dispatch}
-            organizationId={props.organizationId}
-          />
-        )}
-        {/* <Grid container>
+
+      {state.step === "employee" && (
+        <SelectEmployee
+          state={state}
+          dispatch={dispatch}
+          organizationId={props.organizationId}
+        />
+      )}
+      {state.step === "absence" && (
+        <Section className={""}>
+          <AbsenceDetails state={state} dispatch={dispatch} />
+        </Section>
+      )}
+      {/* <Grid container>
           <Grid item md={4}>
             <Typography className={classes.subtitle}>{t("Time")}</Typography>
           </Grid>
@@ -51,7 +48,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             <Typography className={classes.subtitle}>{t("Reason")}</Typography>
           </Grid>
         </Grid> */}
-      </Section>
     </>
   );
 };
