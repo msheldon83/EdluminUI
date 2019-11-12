@@ -1,4 +1,10 @@
-import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
+import {
+  Button,
+  Grid,
+  makeStyles,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
@@ -22,6 +28,7 @@ type Props = {
 
 export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
+  const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
   const { state, setValue, values } = props;
 
@@ -56,6 +63,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
     },
     [setValue]
   );
+
+  const onNotesChange = React.useCallback(
+    async event => {
+      await setValue("notes", event.target.value);
+    },
+    [setValue]
+  );
+
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -99,10 +114,27 @@ export const AbsenceDetails: React.FC<Props> = props => {
             />
           ))}
         </RadioGroup>
+
+        <Typography variant="h6">{t("Notes for administration")}</Typography>
+        <Typography className={classes.subText}>
+          {t("Can be seen by the administrator and the employee.")}
+        </Typography>
+
+        <TextField
+          multiline
+          rows="6"
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          onChange={onNotesChange}
+          InputProps={{ classes: textFieldClasses }}
+        />
       </Grid>
+
       <Grid item md={8}>
         <Typography variant="h5">{t("Substitute Details")}</Typography>
       </Grid>
+
       <Grid item xs={12}>
         <div className={classes.actionButtons}>
           <Button type="submit" variant="contained">
@@ -127,9 +159,19 @@ const useStyles = makeStyles(theme => ({
   radioGroup: {
     paddingTop: theme.spacing(1),
     paddingLeft: theme.spacing(1),
+    paddingBottom: theme.spacing(3),
   },
   spacing: {
     paddingRight: theme.spacing(4),
+  },
+  subText: {
+    color: theme.customColors.darkGray,
+  },
+}));
+
+const useTextFieldClasses = makeStyles(theme => ({
+  multiline: {
+    padding: theme.spacing(1),
   },
 }));
 

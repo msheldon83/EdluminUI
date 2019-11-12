@@ -45,10 +45,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   } = useForm<FormData>({
     defaultValues: initialFormData(),
   });
-  register({ name: "dayPart", type: "custom" }, { required: "Required" });
-  register({ name: "absenceReason", type: "custom" }, { required: "Required" });
-  register({ name: "startDate", type: "custom" }, { required: "Required" });
-  register({ name: "endDate", type: "custom" }, { required: "Required" });
+
+  const required = t("Required");
+  register({ name: "dayPart", type: "custom" }, { required });
+  register({ name: "absenceReason", type: "custom" }, { required });
+  register({ name: "startDate", type: "custom" }, { required });
+  register({ name: "endDate", type: "custom" }, { required });
+  register({ name: "notes", type: "custom" });
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -135,6 +138,7 @@ export type FormData = {
   endDate: Date;
   absenceReason: string;
   dayPart?: DayPart;
+  notes?: string;
 };
 
 const initialFormData = (): FormData => {
