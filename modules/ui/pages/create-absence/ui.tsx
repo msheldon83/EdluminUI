@@ -2,7 +2,7 @@ import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useForm } from "forms";
 import { useQueryBundle } from "graphql/hooks";
-import { DayPart } from "graphql/server-types.gen";
+import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer } from "react";
 import { useTranslation } from "react-i18next";
@@ -28,9 +28,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     },
   });
   let name = "";
+  let needsReplacement: NeedsReplacement | null = null;
   if (employeeInfo.state === "DONE" || employeeInfo.state === "UPDATING") {
     const emp = employeeInfo.data.employee?.byId;
     name = `${emp?.firstName} ${emp?.lastName}`;
+    needsReplacement =
+      employeeInfo.data.employee?.byId?.primaryPosition?.needsReplacement ??
+      null;
   }
   const userIsAdmin = useIsAdmin();
 
@@ -80,6 +84,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
               state={state}
               setValue={setValue}
               values={getValues()}
+              isAdmin={userIsAdmin}
+              needsReplacement={needsReplacement}
             />
           </Section>
         )}
@@ -99,23 +105,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   subtitle: {
     fontSize: theme.typography.pxToRem(24),
-  },
-  tabs: {
-    borderRadius: theme.typography.pxToRem(5),
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    borderWidth: theme.typography.pxToRem(1),
-    borderColor: theme.customColors.sectionBorder,
-    borderStyle: "solid",
-    borderBottom: "0",
-    boxShadow: "initial",
-    "& button": {
-      textTransform: "uppercase",
-    },
-  },
-  content: {
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 0,
   },
   absenceDetails: {
     marginTop: theme.spacing(3),

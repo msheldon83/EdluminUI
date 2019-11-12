@@ -9,7 +9,11 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import { SetValue } from "forms";
-import { DayPart, FeatureFlag } from "graphql/server-types.gen";
+import {
+  DayPart,
+  FeatureFlag,
+  NeedsReplacement,
+} from "graphql/server-types.gen";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -24,6 +28,8 @@ type Props = {
   state: CreateAbsenceState;
   setValue: SetValue;
   values: FormData;
+  isAdmin: null | boolean;
+  needsReplacement: null | NeedsReplacement;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
