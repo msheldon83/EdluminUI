@@ -31,12 +31,15 @@ type DatePickerProps = {
   showCalendarOnFocus?: boolean;
   startLabel: string;
   endLabel: string;
+  dateFormat?: string;
 };
 
 export type DatePickerOnChange = (dates: {
   startDate: Date | string;
   endDate?: Date | string;
 }) => void;
+
+export const DEFAULT_DATE_FORMAT = "MMM d, yyyy";
 
 export const DatePicker = (props: DatePickerProps) => {
   const {
@@ -47,6 +50,7 @@ export const DatePicker = (props: DatePickerProps) => {
     showCalendarOnFocus = false,
     startLabel,
     endLabel,
+    dateFormat,
   } = props;
 
   const classes = useStyles(props);
@@ -130,62 +134,68 @@ export const DatePicker = (props: DatePickerProps) => {
     );
   };
 
-  const handleEndDateInputChange = (newEndDate: Date | string) => {
-    /*
+  const handleEndDateInputChange = React.useCallback(
+    (newEndDate: Date | string) => {
+      /*
       The material-ui types say that date can be null here, but there's never a case in
       the UI where that can be true right now
     */
-    if (newEndDate === null) {
-      return;
-    }
+      if (newEndDate === null) {
+        return;
+      }
 
-    let newStartDate = startDate;
+      let newStartDate = startDate;
 
-    // Not a valid date yet
-    if (typeof newEndDate === "string") {
-      onChange({ startDate: newStartDate, endDate: newEndDate });
-      return;
-    }
+      // Not a valid date yet
+      if (typeof newEndDate === "string") {
+        onChange({ startDate: newStartDate, endDate: newEndDate });
+        return;
+      }
 
-    const isAfterStartDate = isAfterDate(newEndDate, newStartDate);
+      const isAfterStartDate = isAfterDate(newEndDate, newStartDate);
 
-    /*
+      /*
       If the new date isn't after the start date, the start date needs to be reset to the day
       before
     */
-    if (!isAfterStartDate) {
-      newStartDate = addDays(newEndDate, -1);
-    }
+      if (!isAfterStartDate) {
+        newStartDate = addDays(newEndDate, -1);
+      }
 
-    onChange({ startDate: newStartDate, endDate: newEndDate });
-  };
+      onChange({ startDate: newStartDate, endDate: newEndDate });
+    },
+    [startDate, onChange]
+  );
 
-  const handleStartDateInputChange = (newStartDate: Date | string) => {
-    /*
+  const handleStartDateInputChange = React.useCallback(
+    (newStartDate: Date | string) => {
+      /*
       The material-ui types say that date can be null here, but there's never a case in
       the UI where that can be true right now
     */
-    if (newStartDate === null) {
-      return;
-    }
+      if (newStartDate === null) {
+        return;
+      }
 
-    let newEndDate = endDate;
+      let newEndDate = endDate;
 
-    // Not a valid date yet
-    if (typeof newStartDate == "string") {
+      // Not a valid date yet
+      if (typeof newStartDate == "string") {
+        onChange({ startDate: newStartDate, endDate: newEndDate });
+        return;
+      }
+
+      const isEndDateAfterStartDate = isAfterDate(newEndDate, newStartDate);
+
+      // If the start date is after the end date, reset the end date
+      if (!isEndDateAfterStartDate) {
+        newEndDate = undefined;
+      }
+
       onChange({ startDate: newStartDate, endDate: newEndDate });
-      return;
-    }
-
-    const isEndDateAfterStartDate = isAfterDate(newEndDate, newStartDate);
-
-    // If the start date is after the end date, reset the end date
-    if (!isEndDateAfterStartDate) {
-      newEndDate = undefined;
-    }
-
-    onChange({ startDate: newStartDate, endDate: newEndDate });
-  };
+    },
+    [endDate, onChange]
+  );
 
   const handleCalendarDateRangeChange = (date: Date | string | null = "") => {
     /*
@@ -280,14 +290,14 @@ export const DatePicker = (props: DatePickerProps) => {
     );
   };
 
-  const handleStartDateFocus = () => {
-    if (showCalendarOnFocus) {
-      setOpenCalendar(true);
-    }
-  };
-
   const renderTextInputs = React.useCallback(() => {
     const startDateStyle = singleDate ? { marginRight: 0 } : {};
+
+    const handleStartDateFocus = () => {
+      if (showCalendarOnFocus) {
+        setOpenCalendar(true);
+      }
+    };
 
     return (
       <div className={classes.keyboardInputWrapper}>
@@ -303,6 +313,7 @@ export const DatePicker = (props: DatePickerProps) => {
             onValidDate={handleStartDateInputChange}
             ref={startDateInputRef}
             onFocus={handleStartDateFocus}
+            dateFormat={dateFormat}
           />
         </div>
         {!singleDate && (
@@ -312,12 +323,26 @@ export const DatePicker = (props: DatePickerProps) => {
               value={endDate}
               onChange={handleEndDateInputChange}
               onValidDate={handleEndDateInputChange}
+              dateFormat={dateFormat}
             />
           </div>
         )}
       </div>
     );
-  }, [singleDate, startLabel, startDate, endLabel, endDate]);
+  }, [
+    singleDate,
+    startLabel,
+    startDate,
+    endLabel,
+    endDate,
+    dateFormat,
+    classes.endDateInput,
+    classes.keyboardInputWrapper,
+    classes.startDateInput,
+    handleEndDateInputChange,
+    handleStartDateInputChange,
+    showCalendarOnFocus,
+  ]);
 
   /*
     TODO:
@@ -426,6 +451,7 @@ type DateInputProps = {
   onValidDate: (date: Date) => void;
   onFocus?: () => void;
   onBlur?: () => void;
+  dateFormat?: string;
 };
 
 export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
@@ -436,6 +462,7 @@ export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
     onChange,
     onFocus,
     onBlur = () => {},
+    dateFormat = DEFAULT_DATE_FORMAT,
   } = props;
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -455,7 +482,7 @@ export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
     onChange(date);
   };
 
-  const formattedValue = formatDateIfPossible(value, "MMM d, yyyy");
+  const formattedValue = formatDateIfPossible(value, dateFormat);
 
   return (
     <Input
