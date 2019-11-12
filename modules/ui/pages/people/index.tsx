@@ -66,9 +66,9 @@ export const PeoplePage: React.FC<Props> = props => {
       firstName: person.firstName,
       lastName: person.lastName,
       email: person.email,
-      employeeId: person.employee?.externalId,
+      employeeId: person.externalId,
       position: person.employee?.primaryPosition?.name,
-      phone: person.employee?.phoneNumbers?.[0]?.number,
+      phone: person.phoneNumber,
       location: "",
     }));
   }, [people]);

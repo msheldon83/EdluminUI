@@ -1,6 +1,9 @@
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useScreenSize } from "hooks";
+import { Typography } from "@material-ui/core";
+import { Section } from "ui/components/section";
+import { SectionHeader } from "ui/components/section-header";
 import Maybe from "graphql/tsutils/Maybe";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
@@ -12,7 +15,10 @@ import * as yup from "yup";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { UpdateEmployee } from "./graphql/update-employee.gen";
 import { PageHeader } from "ui/components/page-header";
-import { PageHeaderMultiField, FieldData } from "ui/components/page-header-multifieldedit";
+import {
+  PageHeaderMultiField,
+  FieldData,
+} from "ui/components/page-header-multifieldedit";
 import { DeleteOrgUser } from "./graphql/delete-orguser.gen";
 import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
@@ -44,11 +50,12 @@ export const PersonViewPage: React.FC<{}> = props => {
   const [updateEmployee] = useMutationBundle(UpdateEmployee);
   const [updateOrgUser] = useMutationBundle(UpdateOrgUser);
   const activateDeactivateOrgUser = React.useCallback(
-    (active: boolean) => {
+    (active: boolean, rowVersion: string) => {
       return updateOrgUser({
         variables: {
           orgUser: {
             id: Number(params.orgUserId),
+            rowVersion: rowVersion,
             active: !active,
           },
         },
@@ -87,20 +94,21 @@ export const PersonViewPage: React.FC<{}> = props => {
       variables: {
         orgUser: {
           id: Number(orgUser.id),
+          rowVersion: orgUser.rowVersion,
           lastName,
-          firstName, 
-          middleName
+          firstName,
+          middleName,
         },
       },
     });
   };
 
   const updateExternalId = async (externalId?: string | null) => {
-    await updateEmployee({
+    await updateOrgUser({
       variables: {
-        employee: {
-          id: Number(employee ? employee.id : 0),
-          rowVersion: employee ? employee.rowVersion : "",
+        orgUser: {
+          id: Number(orgUser.id),
+          rowVersion: orgUser.rowVersion,
           externalId,
         },
       },
@@ -122,20 +130,20 @@ export const PersonViewPage: React.FC<{}> = props => {
         })}
         fields={[
           {
-            key: "firstName", 
-            value: orgUser.firstName, 
-            label: t("First Name")
+            key: "firstName",
+            value: orgUser.firstName,
+            label: t("First Name"),
           },
           {
-            key: "middleName", 
-            value: orgUser.middleName, 
-            label: t("Middle Name")
+            key: "middleName",
+            value: orgUser.middleName,
+            label: t("Middle Name"),
           },
           {
-            key: "lastName", 
-            value: orgUser.lastName, 
-            label: t("Last Name")
-          }
+            key: "lastName",
+            value: orgUser.lastName,
+            label: t("Last Name"),
+          },
         ]}
         onSubmit={async (value: Maybe<Array<FieldData>>) => {
           await updateName(value!);
@@ -150,9 +158,7 @@ export const PersonViewPage: React.FC<{}> = props => {
           {
             name: active ? t("Inactivate") : t("Activate"),
             onClick: async () => {
-              await activateDeactivateOrgUser(
-                !active,
-              );
+              await activateDeactivateOrgUser(!active, orgUser.rowVersion);
               setActive(!active);
             },
           },
@@ -164,28 +170,58 @@ export const PersonViewPage: React.FC<{}> = props => {
         isInactive={!active}
         inactiveDisplayText={t("This person is currently inactive.")}
         onActivate={async () => {
-          await activateDeactivateOrgUser(true);
+          await activateDeactivateOrgUser(true, orgUser.rowVersion);
           setActive(true);
         }}
       />
-      {employee && (
-        <PageHeader
-          text={employee.externalId}
-          label={t("External ID")}
-          editable={editing === null}
-          onEdit={() => setEditing(editableSections.externalId)}
-          validationSchema={yup.object().shape({
-            value: yup.string().nullable(),
-          })}
-          onSubmit={async (value: Maybe<string>) => {
-            await updateExternalId(value);
-            setEditing(null);
+      <PageHeader
+        text={orgUser.externalId}
+        label={t("External ID")}
+        editable={editing === null}
+        onEdit={() => setEditing(editableSections.externalId)}
+        validationSchema={yup.object().shape({
+          value: yup.string().nullable(),
+        })}
+        onSubmit={async (value: Maybe<string>) => {
+          await updateExternalId(value);
+          setEditing(null);
+        }}
+        onCancel={() => setEditing(null)}
+        isSubHeader={true}
+        showLabel={true}
+      />
+
+      <Section>
+        <SectionHeader
+          title={t("Information")}
+          action={{
+            text: t("Edit"),
+            visible: !editing,
+            execute: () => {
+              const editSettingsUrl = "/"; //TODO figure out the URL for editing
+              history.push(editSettingsUrl);
+            },
           }}
-          onCancel={() => setEditing(null)}
-          isSubHeader={true}
-          showLabel={true}
-        />)
-      }
+        />
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Email")}</Typography>
+            <div>{orgUser.email}</div>
+          </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Address")}</Typography>
+            <div></div>
+          </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Phone")}</Typography>
+            <div>{orgUser.phoneNumber}</div>
+          </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Date of Birth")}</Typography>
+            <div>{orgUser.dateOfBirth ?? t("Not specified")}</div>
+          </Grid>
+        </Grid>
+      </Section>
     </>
   );
 };

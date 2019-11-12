@@ -2,6 +2,8 @@ query GetOrgUserById($id: ID!) {
   orgUser {
     byId(id: $id) {
       id
+      rowVersion
+      externalId
       firstName
       middleName
       lastName
@@ -10,15 +12,11 @@ query GetOrgUserById($id: ID!) {
       isEmployee
       isAdmin
       email
+      dateOfBirth
+      phoneNumber
       employee {
         id
         rowVersion
-        externalId
-        phoneNumbers {
-          id
-          country
-          number
-        }
         primaryPosition {
           id
           name

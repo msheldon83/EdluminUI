@@ -304,6 +304,26 @@ enum AddressType {
   WORK_ADDRESS
 }
 
+type AdminScopeLocationRules {
+  _info: [ReturnMessage]
+  locationIds: [Int]
+  locationGroupIds: [Int]
+}
+
+input AdminScopeLocationRulesInput {
+  locationIds: [Int]
+  locationGroupIds: [Int]
+}
+
+type AdminScopePositionTypeRules {
+  _info: [ReturnMessage]
+  positionTypeIds: [Int]
+}
+
+input AdminScopePositionTypeRulesInput {
+  positionTypeIds: [Int]
+}
+
 type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -921,7 +941,7 @@ interface DomainObjectInterface {
   rowVersion: String!
 }
 
-type Employee implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+type Employee implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -930,15 +950,13 @@ type Employee implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
-  externalId: String
-  rowVersion: String!
+  rowVersion: String
   canFillVacancies: Boolean
   isShadowEmployee: Boolean!
   shadowEmployeeId: Int
   shadowEmployee: Employee
   primaryPositionId: Int
   primaryPosition: Position
-  dateOfBirth: Date!
   firstName: String!
   middleName: String!
   lastName: String!
@@ -946,47 +964,15 @@ type Employee implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
   endorsements: [EmployeeEndorsement]
-  addresses: [EmployeeAddress]
-  phoneNumbers: [EmployeePhone]
-}
-
-type EmployeeAddress implements ModelObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  address1: String
-  address2: String
-  city: String
-  state: StateCode
-  postalCode: String
-  country: CountryCode
-}
-
-input EmployeeAddressInput {
-  id: Int
-  addressTypeId: AddressType
-  address1: String
-  address2: String
-  city: String
-  postalCode: String
-  stateId: StateCode
-  countryId: CountryCode
 }
 
 input EmployeeCreateInput {
   orgId: Int!
   orgUserId: Int!
-  externalId: String
-  canFillVacancies: Boolean
-  dateOfBirth: Date
+  canFillVacancies: Boolean!
   shadowEmployeeId: Int
   primaryPositionId: Int
   primaryPosition: PositionCreateInput
-  addresses: [EmployeeAddressInput]
-  phoneNumbers: [EmployeePhoneInput]
 }
 
 type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
@@ -1037,25 +1023,6 @@ type EmployeeMutations {
   delete(employeeId: Int!): Boolean
 }
 
-type EmployeePhone implements ModelObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  phoneType: PhoneType
-  number: String
-  country: CountryCode
-}
-
-input EmployeePhoneInput {
-  id: Int
-  phoneTypeId: PhoneType
-  number: String!
-  countryId: CountryCode
-}
-
 type EmployeeQueries {
   byId(id: ID!): Employee
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Employee]
@@ -1071,13 +1038,9 @@ input EmployeeRejectVacancyInput {
 input EmployeeUpdateInput {
   id: Int!
   rowVersion: String!
-  externalId: String
   canFillVacancies: Boolean
-  dateOfBirth: Date
   shadowEmployeeId: Int
   primaryPositionId: Int
-  addresses: [EmployeeAddressInput]
-  phoneNumbers: [EmployeePhoneInput]
 }
 
 type EmploymentHistory {
@@ -1257,12 +1220,14 @@ enum EventType {
   LOCATION_ADDRESS_CHANGED
   LOCATION_TIME_ZONE_CHANGED
   LOCATION_VALID_UNTIL_CHANGED
-  LOCATION_DIVISION_CHANGED
+  LOCATION_CHANGED_GROUP_MEMBERSHIP
   ORGANIZATION_USER_CREATED
   ORGANIZATION_USER_UPDATED
   ORGANIZATION_USER_DELETED
   ORGANIZATION_USER_ACTIVATED
   ORGANIZATION_USER_INACTIVATED
+  ORGANIZATION_USER_ADMIN_SCOPE_POSITION_TYPE_RULES_UPDATED
+  ORGANIZATION_USER_ADMIN_SCOPE_LOCATION_RULES_UPDATED
   PERMISSION_PROFILE_CREATED
   PERMISSION_PROFILE_UPDATED
   PERMISSION_PROFILE_DELETED
@@ -1510,6 +1475,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   name: String!
   timeZoneId: TimeZone
   address: Address
+  locationGroupId: Int!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
   address1: String
@@ -1600,6 +1566,7 @@ input LocationUpdateInput {
   address: AddressInput
   timeZoneId: TimeZone
   expired: Boolean
+  locationGroupId: Int!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
 }
@@ -1939,7 +1906,7 @@ type OrgRef_WorkDayScheduleVariantTypeQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedWorkDayScheduleVariantType
 }
 
-type OrgUser implements ModelObjectInterface & OrgObjectInterface {
+type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -1948,10 +1915,20 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  externalId: String
+  rowVersion: String!
   firstName: String!
   middleName: String
   lastName: String!
   email: String!
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  state: StateCode
+  postalCode: String
+  country: CountryCode
+  phoneNumber: String
   active: Boolean!
   userId: Int
   isReplacementEmployee: Boolean!
@@ -1960,8 +1937,8 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface {
   isSuperUser: Boolean!
   permissionSets: [PermissionSet]
   permissionSetIds: [Int!]
-  adminScopeLocationRules: [String]!
-  adminScopePositionTypeRules: [String]!
+  adminScopeLocationRules: AdminScopeLocationRules
+  adminScopePositionTypeRules: AdminScopePositionTypeRules
   adminLocations: [Location]
   adminPositionTypes: [PositionType]
   employee: Employee
@@ -1971,13 +1948,22 @@ input OrgUserCreateInput {
   orgId: Int!
   email: String!
   active: Boolean
+  externalId: String
   firstName: String!
   middleName: String
   lastName: String!
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  postalCode: String
+  stateId: StateCode
+  countryId: CountryCode
+  phoneNumber: String
   isSuperUser: Boolean!
   permissionSetIds: [Int!]
-  adminScopeLocationRules: [String]
-  adminScopePositionTypeRules: [String]
+  adminScopeLocationRules: AdminScopeLocationRulesInput
+  adminScopePositionTypeRules: AdminScopePositionTypeRulesInput
   allLocationIdsInScope: Boolean
   allPositionTypeIdsInScope: Boolean
 }
@@ -2005,15 +1991,25 @@ enum OrgUserRole {
 
 input OrgUserUpdateInput {
   id: Int!
+  rowVersion: String!
   email: String
   active: Boolean
+  externalId: String
   firstName: String
   middleName: String
   lastName: String
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  postalCode: String
+  stateId: StateCode
+  countryId: CountryCode
+  phoneNumber: String
   isSuperUser: Boolean
   permissionSetIds: [Int!]
-  adminScopeLocationRules: [String]
-  adminScopePositionTypeRules: [String]
+  adminScopeLocationRules: AdminScopeLocationRulesInput
+  adminScopePositionTypeRules: AdminScopePositionTypeRulesInput
   allLocationIdsInScope: Boolean
   allPositionTypeIdsInScope: Boolean
 }

@@ -25,6 +25,8 @@ query GetAllPeopleForOrg(
       totalCount
       results {
         id
+        rowVersion
+        externalId
         firstName
         lastName
         active
@@ -32,14 +34,9 @@ query GetAllPeopleForOrg(
         isEmployee
         isAdmin
         email
+        phoneNumber
         employee {
           id
-          externalId
-          phoneNumbers {
-            id
-            country
-            number
-          }
           primaryPosition {
             id
             name
