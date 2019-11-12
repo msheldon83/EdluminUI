@@ -39,6 +39,15 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const userIsAdmin = useIsAdmin();
 
   const classes = useStyles();
+
+  const today = new Date();
+  const initialFormData: FormData = {
+    startDate: today,
+    endDate: today,
+    absenceReason: "",
+    needsReplacement: needsReplacement !== "NO",
+  };
+
   const {
     register,
     handleSubmit,
@@ -47,7 +56,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     getValues,
     errors,
   } = useForm<FormData>({
-    defaultValues: initialFormData(),
+    defaultValues: initialFormData,
   });
 
   const required = t("Required");
@@ -55,6 +64,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "startDate", type: "custom" }, { required });
   register({ name: "endDate", type: "custom" }, { required });
+  register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
 
@@ -130,13 +140,5 @@ export type FormData = {
   dayPart?: DayPart;
   notesToApprover?: string;
   notesToReplacement?: string;
-};
-
-const initialFormData = (): FormData => {
-  const today = new Date();
-  return {
-    startDate: today,
-    endDate: today,
-    absenceReason: "",
-  };
+  needsReplacement: boolean;
 };

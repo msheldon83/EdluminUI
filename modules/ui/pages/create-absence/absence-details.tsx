@@ -144,7 +144,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         />
       </Grid>
 
-      <Grid item md={8}>
+      <Grid item md={6}>
         <Typography className={classes.substituteDetailsTitle} variant="h5">
           {t("Substitute Details")}
         </Typography>
@@ -156,14 +156,28 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         <Paper>
           <div className={classes.container}>
+            <FormControlLabel
+              label={t("Requires a substitute")}
+              control={
+                <Checkbox
+                  // checked={values.needsReplacement}
+                  onChange={async e => {
+                    await setValue("needsReplacement", e.target.checked);
+                  }}
+                />
+              }
+            />
             <Typography variant="h6">{t("Notes for substitute")}</Typography>
-            <Typography className={classes.subText}>
-              {t(
-                "Can be seen by the administrator and the employeeCan be seen by the substitute, administrator and employee."
-              )}
+            <Typography
+              className={[
+                classes.subText,
+                classes.substituteDetailsSubtitle,
+              ].join(" ")}
+            >
+              {t("Can be seen by the substitute, administrator and employee.")}
             </Typography>
-
             <TextField
+              name="notesToReplacement"
               multiline
               rows="6"
               variant="outlined"
@@ -208,7 +222,8 @@ const useStyles = makeStyles(theme => ({
   subText: {
     color: theme.customColors.darkGray,
   },
-  substituteDetailsTitle: { paddingBottom: theme.spacing(1) },
+  substituteDetailsTitle: { paddingBottom: theme.typography.pxToRem(3) },
+  substituteDetailsSubtitle: { paddingBottom: theme.typography.pxToRem(1) },
   container: {
     padding: theme.spacing(2),
   },
