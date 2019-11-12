@@ -58,8 +58,25 @@ export const AbsenceDetails: React.FC<Props> = props => {
   );
   return (
     <Grid container>
-      <Grid item md={4}>
-        <Typography variant="h5">{t("Time")}</Typography>
+      <Grid item md={4} className={classes.spacing}>
+        <Typography variant="h5">{t("Absence Details")}</Typography>
+
+        <div className={classes.select}>
+          <Typography>{t("Select a reason")}</Typography>
+          <Select
+            value={{
+              value: values.absenceReason,
+              label:
+                absenceReasonOptions.find(a => a.value === values.absenceReason)
+                  ?.label || "",
+            }}
+            onChange={onReasonChange}
+            options={absenceReasonOptions}
+            isClearable={false}
+            // label={t("Reason")}
+          />
+        </div>
+
         <DatePicker
           startDate={values.startDate}
           endDate={values.endDate}
@@ -68,7 +85,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
           endLabel={t("To")}
         />
 
-        <RadioGroup onChange={onDayPartChange} aria-label="dayPart">
+        <RadioGroup
+          onChange={onDayPartChange}
+          aria-label="dayPart"
+          className={classes.radioGroup}
+        >
           {dayPartOptions.map(type => (
             <FormControlLabel
               key={type}
@@ -80,19 +101,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </RadioGroup>
       </Grid>
       <Grid item md={8}>
-        <Typography variant="h5">{t("Reason")}</Typography>
-        <Typography>{t("Select a reason")}</Typography>
-        <Select
-          value={{
-            value: values.absenceReason,
-            label:
-              absenceReasonOptions.find(a => a.value === values.absenceReason)
-                ?.label || "",
-          }}
-          onChange={onReasonChange}
-          options={absenceReasonOptions}
-          // label={t("Reason")}
-        ></Select>
+        <Typography variant="h5">{t("Substitute Details")}</Typography>
       </Grid>
       <Grid item xs={12}>
         <div className={classes.actionButtons}>
@@ -110,6 +119,17 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-end",
+  },
+  select: {
+    paddingTop: theme.typography.pxToRem(4),
+    paddingBottom: theme.spacing(1),
+  },
+  radioGroup: {
+    paddingTop: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
+  },
+  spacing: {
+    paddingRight: theme.spacing(4),
   },
 }));
 

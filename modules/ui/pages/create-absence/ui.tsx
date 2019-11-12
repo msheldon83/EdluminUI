@@ -70,7 +70,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
       <form>
         {state.step === "absence" && (
-          <Section className={""}>
+          <Section className={classes.absenceDetails}>
             <AbsenceDetails
               state={state}
               setValue={setValue}
@@ -111,6 +111,9 @@ const useStyles = makeStyles(theme => ({
   content: {
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
+  },
+  absenceDetails: {
+    marginTop: theme.spacing(3),
   },
 }));
 
