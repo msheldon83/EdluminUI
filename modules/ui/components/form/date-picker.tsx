@@ -72,7 +72,7 @@ export const DatePicker = (props: DatePickerProps) => {
       const width = startDateInputRef.current.getBoundingClientRect().width;
       setCalenderWidth(width);
     }
-  }, [startDateInputRef]);
+  }, [startDateInputRef, showCalendarOnFocus]);
 
   // Make sure that time plays no part in date comparisons
   if (startDate instanceof Date) {
@@ -245,6 +245,7 @@ export const DatePicker = (props: DatePickerProps) => {
       [classes.calendarWrapper]: true,
       [classes.calendarWrapperFloating]: showCalendarOnFocus,
     });
+
     return (
       <Paper
         elevation={elevation}
@@ -285,7 +286,7 @@ export const DatePicker = (props: DatePickerProps) => {
     }
   };
 
-  const renderTextInputs = () => {
+  const renderTextInputs = React.useCallback(() => {
     const startDateStyle = singleDate ? { marginRight: 0 } : {};
 
     return (
@@ -316,7 +317,7 @@ export const DatePicker = (props: DatePickerProps) => {
         )}
       </div>
     );
-  };
+  }, [singleDate, startLabel, startDate, endLabel, endDate]);
 
   /*
     TODO:
@@ -355,6 +356,7 @@ const useStyles = makeStyles(theme => ({
     border: "1px solid rgba(0, 0, 0, 0.23)",
     borderRadius: theme.typography.pxToRem(4),
     minWidth: theme.typography.pxToRem(300),
+    maxWidth: theme.typography.pxToRem(380),
     overflow: "hidden",
     padding: theme.spacing(1.5),
     transition: "border-color 100ms linear",
