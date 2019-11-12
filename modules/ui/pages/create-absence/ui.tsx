@@ -1,12 +1,11 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import { useForm } from "forms";
 import { useQueryBundle } from "graphql/hooks";
-import { DayPart, FeatureFlag } from "graphql/server-types.gen";
+import { DayPart } from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer } from "react";
-import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
@@ -34,7 +33,20 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   }
 
   const classes = useStyles();
-  const { register, handleSubmit } = useForm();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState,
+    getValues,
+    errors,
+  } = useForm<FormData>({
+    defaultValues: initialFormData(),
+  });
+  register({ name: "dayPart", type: "custom" }, { required: "Required" });
+  register({ name: "absenceReason", type: "custom" }, { required: "Required" });
+  register({ name: "startDate", type: "custom" }, { required: "Required" });
+  register({ name: "endDate", type: "custom" }, { required: "Required" });
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -54,13 +66,19 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         </>
       )}
 
-      {/* {JSON.stringify(state)} */}
+      {/* {JSON.stringify(getValues())} */}
 
-      {state.step === "absence" && (
-        <Section className={""}>
-          <AbsenceDetails state={state} dispatch={dispatch} />
-        </Section>
-      )}
+      <form>
+        {state.step === "absence" && (
+          <Section className={""}>
+            <AbsenceDetails
+              state={state}
+              setValue={setValue}
+              values={getValues()}
+            />
+          </Section>
+        )}
+      </form>
       {/* <Grid container>
           <Grid item md={4}>
             <Typography className={classes.subtitle}>{t("Time")}</Typography>
@@ -104,5 +122,21 @@ const initialState = (props: Props): CreateAbsenceState => {
     step: "absence",
     startDate: today,
     endDate: today,
+  };
+};
+
+export type FormData = {
+  startDate: Date;
+  endDate: Date;
+  absenceReason: string;
+  dayPart?: DayPart;
+};
+
+const initialFormData = (): FormData => {
+  const today = new Date();
+  return {
+    startDate: today,
+    endDate: today,
+    absenceReason: "",
   };
 };

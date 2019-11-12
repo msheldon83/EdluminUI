@@ -2,24 +2,29 @@ import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
+import { SetValue } from "forms";
 import { DayPart, FeatureFlag } from "graphql/server-types.gen";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { DatePicker, DatePickerOnChange } from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
-import { CreateAbsenceActions, CreateAbsenceState } from "./state";
-import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
+import { CreateAbsenceState } from "./state";
+import { FormData } from "./ui";
 
 type Props = {
   state: CreateAbsenceState;
-  dispatch: React.Dispatch<CreateAbsenceActions>;
+  setValue: SetValue;
+  values: FormData;
 };
 
-export const AbsenceDetails: React.FC<Props> = ({ state, dispatch }) => {
+export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const { state, setValue, values } = props;
+
   const absenceReasons = useAbsenceReasons(state.organizationId);
   const absenceReasonOptions = useMemo(
     () => absenceReasons.map(r => ({ label: r.name, value: r.id })),
@@ -32,41 +37,38 @@ export const AbsenceDetails: React.FC<Props> = ({ state, dispatch }) => {
   );
 
   const onDateChange: DatePickerOnChange = React.useCallback(
-    ({ startDate, endDate }) => {
-      console.log("dates changed", startDate, endDate);
-      // dispatch({ action: "selectDates", startDate, endDate });
+    async ({ startDate, endDate }) => {
+      await setValue("startDate", startDate);
+      await setValue("endDate", endDate);
     },
-    [dispatch]
+    [setValue]
   );
-  const onReasonChange = React.useCallback(() => {}, [dispatch]);
+  const onReasonChange = React.useCallback(
+    async event => {
+      await setValue("absenceReason", event.value);
+    },
+    [setValue]
+  );
 
   const onDayPartChange = React.useCallback(
-    event => {
-      dispatch({
-        action: "selectAbsenceTimeType",
-        dayPart: event.target.value,
-      });
+    async event => {
+      await setValue("dayPart", event.target.value);
     },
-    [dispatch]
+    [setValue]
   );
   return (
     <Grid container>
       <Grid item md={4}>
         <Typography variant="h5">{t("Time")}</Typography>
         <DatePicker
-          startDate={state.startDate}
-          endDate={state.endDate}
+          startDate={values.startDate}
+          endDate={values.endDate}
           onChange={onDateChange}
           startLabel={t("From")}
           endLabel={t("To")}
         />
 
-        <RadioGroup
-          aria-label="time"
-          name="time"
-          value={state.dayPart || ""} // TODO "" should not be passed into the mutation
-          onChange={onDayPartChange}
-        >
+        <RadioGroup onChange={onDayPartChange} aria-label="dayPart">
           {dayPartOptions.map(type => (
             <FormControlLabel
               key={type}
@@ -81,15 +83,22 @@ export const AbsenceDetails: React.FC<Props> = ({ state, dispatch }) => {
         <Typography variant="h5">{t("Reason")}</Typography>
         <Typography>{t("Select a reason")}</Typography>
         <Select
-          value={null}
-          options={absenceReasonOptions}
-          label={t("Reason")}
+          value={{
+            value: values.absenceReason,
+            label:
+              absenceReasonOptions.find(a => a.value === values.absenceReason)
+                ?.label || "",
+          }}
           onChange={onReasonChange}
+          options={absenceReasonOptions}
+          // label={t("Reason")}
         ></Select>
       </Grid>
       <Grid item xs={12}>
         <div className={classes.actionButtons}>
-          <Button variant="contained">{t("Create")}</Button>
+          <Button type="submit" variant="contained">
+            {t("Create")}
+          </Button>
         </div>
       </Grid>
     </Grid>

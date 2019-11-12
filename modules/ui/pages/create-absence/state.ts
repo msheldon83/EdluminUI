@@ -8,6 +8,7 @@ export type CreateAbsenceState = {
   startDate: Date;
   endDate: Date;
   dayPart?: DayPart;
+  absenceReason?: string;
 };
 
 export type CreateAbsenceActions =
