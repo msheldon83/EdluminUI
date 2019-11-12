@@ -12,7 +12,7 @@ export const AdminCreateAbsenceRoute = defineSubRoute(
 
 export const AdminSelectEmployeeForCreateAbsenceRoute = defineSubRoute(
   PeopleRoute,
-  "absence/create"
+  "create-absence"
 );
 
 // Employee Route
