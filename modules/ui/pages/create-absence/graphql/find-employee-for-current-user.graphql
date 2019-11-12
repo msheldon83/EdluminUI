@@ -1,0 +1,18 @@
+query FindEmployeeForCurrentUser {
+  userAccess {
+    me {
+      user {
+        id
+        orgUsers {
+          id
+          employee {
+            id
+            orgId
+            firstName
+            lastName
+          }
+        }
+      }
+    }
+  }
+}
