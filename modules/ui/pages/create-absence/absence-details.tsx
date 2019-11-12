@@ -4,6 +4,7 @@ import {
   makeStyles,
   TextField,
   Typography,
+  Paper,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
@@ -70,9 +71,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [setValue]
   );
 
-  const onNotesChange = React.useCallback(
+  const onNotesToApproverChange = React.useCallback(
     async event => {
-      await setValue("notes", event.target.value);
+      await setValue("notesToApprover", event.target.value);
+    },
+    [setValue]
+  );
+  const onNotesToReplacementChange = React.useCallback(
+    async event => {
+      await setValue("notesToReplacement", event.target.value);
     },
     [setValue]
   );
@@ -132,13 +139,41 @@ export const AbsenceDetails: React.FC<Props> = props => {
           variant="outlined"
           margin="normal"
           fullWidth
-          onChange={onNotesChange}
+          onChange={onNotesToApproverChange}
           InputProps={{ classes: textFieldClasses }}
         />
       </Grid>
 
       <Grid item md={8}>
-        <Typography variant="h5">{t("Substitute Details")}</Typography>
+        <Typography className={classes.substituteDetailsTitle} variant="h5">
+          {t("Substitute Details")}
+        </Typography>
+        <Typography className={classes.subText}>
+          {t(
+            "These times may not match your schedule exactly depending on district configuration."
+          )}
+        </Typography>
+
+        <Paper>
+          <div className={classes.container}>
+            <Typography variant="h6">{t("Notes for substitute")}</Typography>
+            <Typography className={classes.subText}>
+              {t(
+                "Can be seen by the administrator and the employeeCan be seen by the substitute, administrator and employee."
+              )}
+            </Typography>
+
+            <TextField
+              multiline
+              rows="6"
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              onChange={onNotesToReplacementChange}
+              InputProps={{ classes: textFieldClasses }}
+            />
+          </div>
+        </Paper>
       </Grid>
 
       <Grid item xs={12}>
@@ -172,6 +207,10 @@ const useStyles = makeStyles(theme => ({
   },
   subText: {
     color: theme.customColors.darkGray,
+  },
+  substituteDetailsTitle: { paddingBottom: theme.spacing(1) },
+  container: {
+    padding: theme.spacing(2),
   },
 }));
 
