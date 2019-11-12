@@ -1,4 +1,3 @@
-$ /Users/chrisfarber/Projects/Atomic/EDUStaff/EdLumin/EdluminUI/node_modules/.bin/prettier --parser graphql
 type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
