@@ -111,6 +111,7 @@ export const DatePicker = (props: DatePickerProps) => {
     const dayIsBetween = inDateInterval(day, { start, end: endDate });
     const isFirstDay = isEqual(day, start);
     const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
+    const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
 
     const wrapperClassName = clsx({
       [classes.highlight]: dayIsBetween,
@@ -123,11 +124,28 @@ export const DatePicker = (props: DatePickerProps) => {
       [classes.day]: true,
       [classes.nonCurrentMonthDay]: !dayInCurrentMonth,
       [classes.highlightNonCurrentMonthDay]: !dayInCurrentMonth && dayIsBetween,
+      [classes.highlight]: dayIsSelected,
     });
 
+    /*
+      The calendar component doesn't let days in months not in the current month be actionable.
+      This simulates that functionality. Here's the culprit:
+
+      https://github.com/mui-org/material-ui-pickers/blob/next/lib/src/views/Calendar/DayWrapper.tsx#L24
+    */
+    const handleDayClick = () => {
+      if (!dayInCurrentMonth) {
+        handleCalendarDateRangeChange(day);
+      }
+    };
+
     return (
-      <div className={wrapperClassName}>
-        <IconButton className={dayClassName}>
+      <div
+        className={wrapperClassName}
+        onClick={handleDayClick}
+        onKeyPress={handleDayClick}
+      >
+        <IconButton className={dayClassName} disableRipple>
           <span> {format(day, "d")} </span>
         </IconButton>
       </div>
@@ -418,6 +436,9 @@ const useStyles = makeStyles(theme => ({
   },
   nonCurrentMonthDay: {
     color: theme.palette.text.disabled,
+    "&:hover": {
+      color: "#676767",
+    },
   },
   highlightNonCurrentMonthDay: {
     color: "#676767",
@@ -425,6 +446,9 @@ const useStyles = makeStyles(theme => ({
   highlight: {
     background: theme.palette.primary.main,
     color: theme.palette.common.white,
+    "&:hover": {
+      color: theme.palette.common.white,
+    },
   },
   firstHighlight: {
     extend: "highlight",
