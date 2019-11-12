@@ -2,6 +2,9 @@ import * as React from "react";
 import { action } from "@storybook/addon-actions";
 import { text, boolean, object, date } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
+import endOfTomorrow from "date-fns/endOfTomorrow";
+import endOfYesterday from "date-fns/endOfYesterday";
+
 import {
   DatePicker as DatePickerComponent,
   DEFAULT_DATE_FORMAT,
@@ -31,6 +34,7 @@ export const DatePicker = () => {
         startLabel="From"
         endLabel="To"
         dateFormat={text("dateFormat", DEFAULT_DATE_FORMAT)}
+        disableDates={[endOfTomorrow(), endOfYesterday()]}
       />
     </div>
   );

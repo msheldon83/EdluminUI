@@ -8,6 +8,7 @@ import isValid from "date-fns/isValid";
 import format from "date-fns/format";
 import isEqual from "date-fns/isEqual";
 import addDays from "date-fns/addDays";
+import isSameDay from "date-fns/isSameDay";
 import { IconButton } from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 import Popper from "@material-ui/core/Popper";
@@ -32,6 +33,7 @@ type DatePickerProps = {
   startLabel: string;
   endLabel: string;
   dateFormat?: string;
+  disableDates?: Array<Date>;
 };
 
 export type DatePickerOnChange = (dates: {
@@ -51,6 +53,7 @@ export const DatePicker = (props: DatePickerProps) => {
     startLabel,
     endLabel,
     dateFormat,
+    disableDates = [],
   } = props;
 
   const classes = useStyles(props);
@@ -88,6 +91,17 @@ export const DatePicker = (props: DatePickerProps) => {
     endDate.setHours(0, 0, 0, 0);
   }
 
+  const isDateDisabled = React.useCallback(
+    (date: Date | null) => {
+      if (date === null) {
+        return false;
+      }
+
+      return disableDates.some(disabledDate => isSameDay(date, disabledDate));
+    },
+    [disableDates]
+  );
+
   const customDayRenderer = (
     day: Date | null,
     selectedDate: Date | null,
@@ -112,9 +126,10 @@ export const DatePicker = (props: DatePickerProps) => {
     const isFirstDay = isEqual(day, start);
     const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
     const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
+    const isDisabled = isDateDisabled(day);
 
     const wrapperClassName = clsx({
-      [classes.highlight]: dayIsBetween,
+      [classes.highlight]: dayIsBetween && !isDisabled,
       [classes.firstHighlight]: isFirstDay,
       [classes.endHighlight]: isLastDay,
       [classes.dayWrapper]: true,
@@ -122,9 +137,10 @@ export const DatePicker = (props: DatePickerProps) => {
 
     const dayClassName = clsx(classes.day, {
       [classes.day]: true,
-      [classes.nonCurrentMonthDay]: !dayInCurrentMonth,
+      [classes.nonCurrentMonthDay]: !dayInCurrentMonth || isDisabled,
       [classes.highlightNonCurrentMonthDay]: !dayInCurrentMonth && dayIsBetween,
-      [classes.highlight]: dayIsSelected,
+      [classes.highlight]: dayIsSelected && !isDisabled,
+      [classes.disabledDay]: isDisabled,
     });
 
     /*
@@ -134,7 +150,7 @@ export const DatePicker = (props: DatePickerProps) => {
       https://github.com/mui-org/material-ui-pickers/blob/next/lib/src/views/Calendar/DayWrapper.tsx#L24
     */
     const handleDayClick = () => {
-      if (!dayInCurrentMonth) {
+      if (!dayInCurrentMonth && !isDisabled) {
         handleCalendarDateRangeChange(day);
       }
     };
@@ -286,6 +302,7 @@ export const DatePicker = (props: DatePickerProps) => {
           onChange={handleCalendarDateChange}
           renderDay={customDayRenderer}
           allowKeyboardControl={false}
+          shouldDisableDate={isDateDisabled}
         />
       </Paper>
     );
@@ -442,6 +459,15 @@ const useStyles = makeStyles(theme => ({
   },
   highlightNonCurrentMonthDay: {
     color: "#676767",
+  },
+  disabledDay: {
+    backgroundColor: theme.customColors.lightGray,
+    borderRadius: 0,
+    cursor: "not-allowed",
+    "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
+      color: theme.palette.text.disabled,
+    },
   },
   highlight: {
     background: theme.palette.primary.main,
