@@ -10,6 +10,10 @@ query FindEmployeeForCurrentUser {
             orgId
             firstName
             lastName
+            primaryPosition {
+              id
+              needsReplacement
+            }
           }
         }
       }

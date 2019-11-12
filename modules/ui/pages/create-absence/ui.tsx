@@ -11,6 +11,7 @@ import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
 import { GetEmployee } from "./graphql/get-employee.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
+import { useIsAdmin } from "reference-data/is-admin";
 
 type Props = {
   employeeId: string;
@@ -31,6 +32,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     const emp = employeeInfo.data.employee?.byId;
     name = `${emp?.firstName} ${emp?.lastName}`;
   }
+  const userIsAdmin = useIsAdmin();
 
   const classes = useStyles();
   const {
