@@ -333,7 +333,7 @@ export const AssignSub: React.FC<Props> = props => {
         </Grid>
         {details.map((v, detailsIndex) => {
           return (
-            <Grid item container xs={12} alignItems="center">
+            <Grid key={detailsIndex} item container xs={12} alignItems="center">
               <Grid item xs={2}>
                 <Typography variant="h6">
                   {getDateRangeDisplayText(v.startDate, v.endDate)}
