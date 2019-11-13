@@ -1,11 +1,12 @@
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useScreenSize, useBreakpoint } from "hooks";
-import { Typography, Divider } from "@material-ui/core";
+import { Typography, Divider, Tab, Tabs } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import Maybe from "graphql/tsutils/Maybe";
 import * as React from "react";
+import ReactDom from "react-dom";
 import { PageTitle } from "ui/components/page-title";
 import { makeStyles, Grid } from "@material-ui/core";
 import { Redirect, useHistory } from "react-router";
@@ -26,6 +27,7 @@ import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { AvatarCard } from "ui/components/avatar-card";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
+import { OrgUserRole } from "graphql/server-types.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -212,7 +214,58 @@ export const PersonViewPage: React.FC<{}> = props => {
         isSubHeader={true}
         showLabel={true}
       />
-
+      <Tabs
+        value={OrgUserRole.Administrator}
+        indicatorColor="primary"
+        textColor="primary"
+        //onChange={updateRoleFilter}
+        aria-label="person-role-selector"
+      >
+        {orgUser.isAdmin && (
+          <Tab
+            label={t("Admin")}
+            value={OrgUserRole.Administrator}
+            className={classes.tab}
+          />
+        )}
+        {orgUser.isEmployee && (
+          <Tab
+            label={t("Employee")}
+            value={OrgUserRole.Employee}
+            className={classes.tab}
+          />
+        )}
+        {orgUser.isReplacementEmployee && (
+          <Tab
+            label={t("Substitute")}
+            value={OrgUserRole.ReplacementEmployee}
+            className={classes.tab}
+          />
+        )}
+        <span className={classes.selectableTab}>
+          {!orgUser.isAdmin && (
+            <Tab
+              label={t("Admin")}
+              value={OrgUserRole.Administrator}
+              className={classes.tab}
+            />
+          )}
+          {!orgUser.isEmployee && (
+            <Tab
+              label={t("Employee")}
+              value={OrgUserRole.Employee}
+              className={classes.tab}
+            />
+          )}
+          {!orgUser.isReplacementEmployee && (
+            <Tab
+              label={t("Substitute")}
+              value={OrgUserRole.ReplacementEmployee}
+              className={classes.tab}
+            />
+          )}
+        </span>
+      </Tabs>
       <Section>
         <SectionHeader
           title={t("Information")}
@@ -288,6 +341,13 @@ export const PersonViewPage: React.FC<{}> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  tab: {
+    textTransform: "uppercase",
+  },
+  selectableTab: {
+    marginLeft: "auto",
+    marginRight: -12,
+  },
   valueMissing: {
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
