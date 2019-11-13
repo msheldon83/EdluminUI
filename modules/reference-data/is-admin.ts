@@ -10,8 +10,8 @@ export const useIsAdmin = () => {
   if (orgUserQuery.state !== "DONE") {
     return null;
   }
-  return some(
-    orgUserQuery.data.userAccess?.me?.user?.orgUsers ?? [],
-    "isAdmin"
+  return (
+    orgUserQuery.data.userAccess?.me?.isSystemAdministrator ||
+    some(orgUserQuery.data.userAccess?.me?.user?.orgUsers ?? [], "isAdmin")
   );
 };
