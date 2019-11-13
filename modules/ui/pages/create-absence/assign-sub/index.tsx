@@ -9,7 +9,7 @@ import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
-import { Typography, Divider, Button, Tooltip } from "@material-ui/core";
+import { Typography, Divider, Button, Tooltip, Grid } from "@material-ui/core";
 import {
   AccountCircleOutlined,
   Star,
@@ -24,12 +24,31 @@ import { Column } from "material-table";
 import { Qualified, Available } from "graphql/server-types.gen";
 import { TFunction } from "i18next";
 import { AssignSubFilters as Filters } from "./filters";
+import format from "date-fns/format";
+import { PaginationControls } from "ui/components/pagination-controls";
 
 type Props = {
   orgId: string;
   vacancyId?: string | null | undefined;
-  isEmployee: boolean;
+  userIsAdmin: boolean;
   employeeName: string;
+  positionName: string;
+  vacancyStartDate: Date;
+  vacancyEndDate: Date;
+  vacancyDays: number;
+  vacancyDetails: VacancyDetail[];
+};
+
+type VacancyDetail = {
+  startDate: Date;
+  endDate: Date;
+  blocks: [
+    {
+      startTime: string;
+      endTime: string;
+      locationName: string;
+    }
+  ];
 };
 
 const getQualifiedIcon = (qualified: Qualified, t: TFunction) => {
@@ -98,6 +117,10 @@ const getFavoriteIcon = (
   }
 
   return null;
+};
+
+const getScheduleLettersArray = () => {
+  return new Array(26).fill(1).map((_, i) => String.fromCharCode(65 + i));
 };
 
 export const AssignSub: React.FC<Props> = props => {
@@ -191,7 +214,7 @@ export const AssignSub: React.FC<Props> = props => {
   ];
 
   // Only Admins see the Qualified and Available columns
-  if (!props.isEmployee) {
+  if (props.userIsAdmin) {
     columns.push({
       title: t("Qualified"),
       field: "qualified",
@@ -252,33 +275,117 @@ export const AssignSub: React.FC<Props> = props => {
 
   const replacementEmployeeCount = pagination.totalCount;
   const pageHeader = props.vacancyId
-    ? props.isEmployee
-      ? t("Assigning substitute")
-      : t("Assigning substitute for")
-    : props.isEmployee
-    ? t("Prearranging substitute")
-    : t("Prearranging substitute for");
+    ? props.userIsAdmin
+      ? t("Assigning substitute for")
+      : t("Assigning substitute")
+    : props.userIsAdmin
+    ? t("Prearranging substitute for")
+    : t("Prearranging substitute");
 
   const search = async (
     name: string,
-    qualified: Qualified,
-    available: Available[]
+    qualified: Qualified[],
+    available: Available[],
+    favoritesOnly: boolean
   ) => {};
+
+  const getDateRangeDisplayText = (startDate: Date, endDate: Date) => {
+    let displayText = null;
+    if (startDate.getMonth() === endDate.getMonth()) {
+      displayText = `${format(startDate, "MMMM d")}-${format(
+        endDate,
+        "d, yyyy"
+      )}`;
+    } else if (startDate.getFullYear() !== endDate.getFullYear()) {
+      displayText = `${format(startDate, "MMMM d, yyyy")} - ${format(
+        endDate,
+        "MMMM d, yyyy"
+      )}`;
+    } else {
+      displayText = `${format(startDate, "MMMM d")} - ${format(
+        endDate,
+        "MMMM d, yyyy"
+      )}`;
+    }
+    return displayText;
+  };
+
+  const renderVacancyDetails = (
+    startDate: Date,
+    endDate: Date,
+    dayLength: number,
+    positionName: string,
+    details: VacancyDetail[],
+    t: TFunction
+  ) => {
+    // Build the Vacancy Details header text
+    const dayLengthDisplayText =
+      dayLength > 1 ? `${dayLength} days` : `${dayLength} day`;
+    let headerText = getDateRangeDisplayText(startDate, endDate);
+    headerText = `${headerText} (${dayLengthDisplayText}) - ${positionName}`;
+
+    const scheduleLetters = getScheduleLettersArray();
+
+    return (
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Typography variant="h5">{headerText}</Typography>
+        </Grid>
+        {details.map((v, detailsIndex) => {
+          return (
+            <Grid item container xs={12} alignItems="center">
+              <Grid item xs={2}>
+                <Typography variant="h6">
+                  {getDateRangeDisplayText(v.startDate, v.endDate)}
+                </Typography>
+              </Grid>
+              <Grid item xs={10}>
+                {`${t("Schedule")} ${scheduleLetters[detailsIndex]}`}
+              </Grid>
+              {v.blocks.map((b, blocksIndex) => {
+                return (
+                  <>
+                    <Grid item xs={2}>
+                      {`${b.startTime} - ${b.endTime}`}
+                    </Grid>
+                    <Grid item xs={10}>
+                      {b.locationName}
+                    </Grid>
+                  </>
+                );
+              })}
+            </Grid>
+          );
+        })}
+      </Grid>
+    );
+  };
 
   return (
     <>
       <Typography variant="h5">{pageHeader}</Typography>
-      {!props.isEmployee && (
+      {props.userIsAdmin && (
         <Typography variant="h1">{props.employeeName}</Typography>
       )}
       <Section>
-        <div>Vacancy Details go here</div>
+        <div className={classes.vacancyDetails}>
+          {renderVacancyDetails(
+            props.vacancyStartDate,
+            props.vacancyEndDate,
+            props.vacancyDays,
+            props.positionName,
+            props.vacancyDetails,
+            t
+          )}
+        </div>
         <Divider />
 
-        <Filters
-          showQualifiedAndAvailable={!props.isEmployee}
-          search={search}
-        />
+        <div className={classes.filters}>
+          <Filters
+            showQualifiedAndAvailable={props.userIsAdmin}
+            search={search}
+          />
+        </div>
         <Divider />
 
         <Table
@@ -288,18 +395,23 @@ export const AssignSub: React.FC<Props> = props => {
           columns={columns}
           data={tableData}
           selection={false}
-          paging={true}
+          style={{
+            boxShadow: "initial",
+          }}
+          backgroundFillForAlternatingRows={true}
         />
+        <PaginationControls pagination={pagination} />
       </Section>
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  subtitle: {
-    fontSize: theme.typography.pxToRem(24),
+  vacancyDetails: {
+    marginBottom: theme.spacing(3),
   },
-  absenceDetails: {
+  filters: {
     marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
   },
 }));

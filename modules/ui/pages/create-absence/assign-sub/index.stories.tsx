@@ -83,9 +83,26 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
     <Provider>
       <AssignSub
         orgId={"1006"}
-        isEmployee={false}
+        userIsAdmin={true}
         vacancyId={"1"}
         employeeName={"Mary Smith"}
+        positionName={"Math teacher"}
+        vacancyStartDate={new Date("11/1/2019")}
+        vacancyEndDate={new Date("11/10/2019")}
+        vacancyDays={7}
+        vacancyDetails={[
+          {
+            startDate: new Date("11/1/2019"),
+            endDate: new Date("11/10/2019"),
+            blocks: [
+              {
+                startTime: "07:00 AM",
+                endTime: "05:00 PM",
+                locationName: "Evans Elementary School",
+              },
+            ],
+          },
+        ]}
       />
     </Provider>
   );
@@ -112,9 +129,26 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
     <Provider>
       <AssignSub
         orgId={"1006"}
-        isEmployee={true}
+        userIsAdmin={false}
         vacancyId={"1"}
         employeeName={"Mary Smith"}
+        positionName={"Math teacher"}
+        vacancyStartDate={new Date("11/1/2019")}
+        vacancyEndDate={new Date("11/10/2019")}
+        vacancyDays={7}
+        vacancyDetails={[
+          {
+            startDate: new Date("11/1/2019"),
+            endDate: new Date("11/10/2019"),
+            blocks: [
+              {
+                startTime: "07:00 AM",
+                endTime: "05:00 PM",
+                locationName: "Evans Elementary School",
+              },
+            ],
+          },
+        ]}
       />
     </Provider>
   );
@@ -141,8 +175,25 @@ export const PrearrangeSubAsAdmin = () => {
     <Provider>
       <AssignSub
         orgId={"1006"}
-        isEmployee={false}
+        userIsAdmin={true}
         employeeName={"Mary Smith"}
+        positionName={"Math teacher"}
+        vacancyStartDate={new Date("11/1/2019")}
+        vacancyEndDate={new Date("11/10/2019")}
+        vacancyDays={7}
+        vacancyDetails={[
+          {
+            startDate: new Date("11/1/2019"),
+            endDate: new Date("11/10/2019"),
+            blocks: [
+              {
+                startTime: "07:00 AM",
+                endTime: "05:00 PM",
+                locationName: "Evans Elementary School",
+              },
+            ],
+          },
+        ]}
       />
     </Provider>
   );
@@ -167,7 +218,28 @@ export const PrearrangeSubAsEmployee = () => {
   });
   return (
     <Provider>
-      <AssignSub orgId={"1006"} isEmployee={true} employeeName={"Mary Smith"} />
+      <AssignSub
+        orgId={"1006"}
+        userIsAdmin={false}
+        employeeName={"Mary Smith"}
+        positionName={"Math teacher"}
+        vacancyStartDate={new Date("11/1/2019")}
+        vacancyEndDate={new Date("11/10/2019")}
+        vacancyDays={7}
+        vacancyDetails={[
+          {
+            startDate: new Date("11/1/2019"),
+            endDate: new Date("11/10/2019"),
+            blocks: [
+              {
+                startTime: "07:00 AM",
+                endTime: "05:00 PM",
+                locationName: "Evans Elementary School",
+              },
+            ],
+          },
+        ]}
+      />
     </Provider>
   );
 };

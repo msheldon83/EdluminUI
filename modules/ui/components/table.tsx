@@ -47,6 +47,8 @@ type Props<T extends object> = {
    */
   onIncludeExpiredChange?: (checked: boolean) => void;
   expiredRowCheck?: (rowData: T) => boolean;
+  style?: React.CSSProperties;
+  backgroundFillForAlternatingRows?: boolean;
 } & Pick<MaterialTableProps<T>, "options" | "columns" | "actions">;
 
 /* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
@@ -122,6 +124,7 @@ export function Table<T extends object>(props: Props<T>) {
         pageSizeOptions: [10, 25, 50, 100],
         ...props.options,
       }}
+      style={props.style}
       actions={props.actions}
       components={{
         Row: props => {
