@@ -24,68 +24,85 @@ export const RoleTabs: React.FC<Props> = props => {
     event: React.ChangeEvent<{}>,
     newSelectedRole: OrgUserRole
   ) => {
+    switch (newSelectedRole) {
+      case OrgUserRole.Employee:
+        if (!orgUser.isEmployee) {
+          // TODO Send user to a create screen
+        }
+        break;
+      case OrgUserRole.Administrator:
+        if (!orgUser.isAdmin) {
+          // TODO Send user to a create screen
+        }
+        break;
+      case OrgUserRole.ReplacementEmployee:
+        if (!orgUser.isReplacementEmployee) {
+          // TODO Send user to a create screen
+        }
+        break;
+    }
     props.setSelectedRole(newSelectedRole);
   };
 
   return (
     <>
-    <Paper square>
-      <Tabs
-        value={props.selectedRole}
-        indicatorColor="primary"
-        textColor="primary"
-        onChange={updateRoleTab}
-        aria-label="person-role-selector"
-      >
-        {orgUser.isAdmin && (
+      <Paper square>
+        <Tabs
+          value={props.selectedRole}
+          indicatorColor="primary"
+          textColor="primary"
+          onChange={updateRoleTab}
+          aria-label="person-role-selector"
+        >
+          {orgUser.isAdmin && (
+            <Tab
+              label={t("Administrator")}
+              value={OrgUserRole.Administrator}
+              className={classes.selectableTab}
+            />
+          )}
+          {orgUser.isEmployee && (
+            <Tab
+              label={t("Employee")}
+              value={OrgUserRole.Employee}
+              className={classes.selectableTab}
+            />
+          )}
+          {orgUser.isReplacementEmployee && (
+            <Tab
+              label={t("Substitute")}
+              value={OrgUserRole.ReplacementEmployee}
+              className={classes.selectableTab}
+            />
+          )}
           <Tab
-            label={t("Administrator")}
-            value={OrgUserRole.Administrator}
-            className={classes.selectableTab}
+            label={""}
+            value={""}
+            className={classes.hiddenTab}
+            disabled={true}
           />
-        )}
-        {orgUser.isEmployee && (
-          <Tab
-            label={t("Employee")}
-            value={OrgUserRole.Employee}
-            className={classes.selectableTab}
-          />
-        )}
-        {orgUser.isReplacementEmployee && (
-          <Tab
-            label={t("Substitute")}
-            value={OrgUserRole.ReplacementEmployee}
-            className={classes.selectableTab}
-          />
-        )}
-        <Tab
-          label={""}
-          value={""}
-          className={classes.hiddenTab}
-          disabled={true}
-        />
-        {!orgUser.isAdmin && (
-          <Tab
-            label={t("Administrator")}
-            value={OrgUserRole.Administrator}
-            className={classes.selectableTab}
-          />
-        )}
-        {!orgUser.isEmployee && (
-          <Tab
-            label={t("Employee")}
-            value={OrgUserRole.Employee}
-            className={classes.selectableTab}
-          />
-        )}
-        {!orgUser.isReplacementEmployee && (
-          <Tab
-            label={t("Substitute")}
-            value={OrgUserRole.ReplacementEmployee}
-            className={classes.selectableTab}
-          />
-        )}
-      </Tabs>
+          {!orgUser.isAdmin && (
+            <Tab
+              label={t("Administrator")}
+              value={OrgUserRole.Administrator}
+              className={classes.selectableTab}
+            />
+          )}
+          {!orgUser.isEmployee && (
+            <Tab
+              label={t("Employee")}
+              value={OrgUserRole.Employee}
+              className={classes.selectableTab}
+            />
+          )}
+          {!orgUser.isReplacementEmployee && (
+            <Tab
+              label={t("Substitute")}
+              value={OrgUserRole.ReplacementEmployee}
+              className={classes.selectableTab}
+            />
+          )}
+        </Tabs>
       </Paper>
     </>
   );
