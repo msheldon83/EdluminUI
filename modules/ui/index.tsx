@@ -34,7 +34,12 @@ import {
 } from "./routes/bell-schedule";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { EdluminTheme } from "./styles/mui-theme";
-import { PeopleLoader, PeopleRoute } from "./routes/people";
+import { 
+  PeopleLoader, 
+  PeopleRoute, 
+  PersonViewLoader, 
+  PersonViewRoute 
+} from "./routes/people";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -78,7 +83,8 @@ export function App(props: {}) {
                         component={OrganizationsLoader}
                         path={OrganizationsNoOrgRoute.path}
                       />
-                      <Route component={PeopleLoader} path={PeopleRoute.path} />
+                      <Route component={PersonViewLoader} path={PersonViewRoute.path} />
+                      <Route component={PeopleLoader} path={PeopleRoute.path} />                      
                       <Route
                         component={PositionTypeAddLoader}
                         path={PositionTypeAddRoute.path}

@@ -1,0 +1,5 @@
+mutation DeleteOrgUser($orgUserId: Int!) {
+  orgUser {
+    delete(orgUserId: $orgUserId)
+  }
+}

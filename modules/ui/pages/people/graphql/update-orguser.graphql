@@ -1,0 +1,8 @@
+mutation UpdateOrgUser($orgUser: OrgUserUpdateInput!) {
+  orgUser {
+    update(orgUser: $orgUser) {
+      id
+      active
+    }
+  }
+}

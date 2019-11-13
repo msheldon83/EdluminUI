@@ -12,18 +12,20 @@ import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Table } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
-import { PeopleRoute } from "ui/routes/people";
+import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";
 import { useEffect, useMemo } from "react";
 import MailIcon from "@material-ui/icons/Mail";
 import { IconButton, Link } from "@material-ui/core";
+import { useHistory } from "react-router";
 
 type Props = {};
 
 export const PeoplePage: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const history = useHistory();
   const params = useRouteParams(PeopleRoute);
   const theme = useTheme();
   const classes = useStyles();
@@ -60,12 +62,13 @@ export const PeoplePage: React.FC<Props> = props => {
   }
   const tableData = useMemo(() => {
     return people.map(person => ({
+      id: person.id,
       firstName: person.firstName,
       lastName: person.lastName,
       email: person.email,
-      employeeId: person.employee?.externalId,
+      employeeId: person.externalId,
       position: person.employee?.primaryPosition?.name,
-      phone: person.employee?.phoneNumbers?.[0]?.number,
+      phone: person.phoneNumber,
       location: "",
     }));
   }, [people]);
@@ -124,6 +127,14 @@ export const PeoplePage: React.FC<Props> = props => {
         columns={columns}
         data={tableData}
         selection={true}
+        onRowClick={(event, orgUser) => {
+          if (!orgUser) return;
+          const newParams = {
+            ...params,
+            orgUserId: orgUser.id,
+          };
+          history.push(PersonViewRoute.generate(newParams));
+        }}
       />
       <PaginationControls pagination={pagination} />
     </>

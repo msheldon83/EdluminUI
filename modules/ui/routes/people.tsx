@@ -1,5 +1,4 @@
 import { asyncComponent } from "ui/async-component";
-import * as React from "react";
 import { AdminChromeRoute } from "./app-chrome";
 import { defineSubRoute } from "./definition";
 
@@ -14,6 +13,21 @@ export type QueryParams = {
   name: string;
   active: boolean;
 };
+
+export const PersonViewRoute = defineSubRoute(
+  PeopleRoute,
+  "/:orgUserId",
+  ["orgUserId"]
+);
+
+export const PersonViewLoader = asyncComponent({
+  resolve: async () => {
+    const PersonViewPage = (await import("ui/pages/people/view"))
+      .PersonViewPage;
+    return PersonViewPage;
+  },
+  name: "PersonViewPage",
+});
 
 export const PeopleLoader = asyncComponent({
   resolve: async () => {

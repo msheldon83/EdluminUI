@@ -27,8 +27,8 @@ input AbsenceCreateInput {
   orgId: Int!
   employeeId: Int!
   notesToApprover: String
-  notesToReplacement: String
   details: [AbsenceDetailCreateInput]
+  vacancies: [AbsenceVacancyInput]
 }
 
 type AbsenceDetail implements ModelObjectInterface & OrgObjectInterface {
@@ -78,6 +78,7 @@ type AbsenceQueries {
   byId(id: ID!): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
+  projectedVacancies(absence: AbsenceCreateInput!): [Vacancy]
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -224,8 +225,19 @@ input AbsenceUpdateInput {
   id: Int!
   rowVersion: String!
   notesToApprover: String
-  notesToReplacement: String
   details: [AbsenceDetailCreateInput]
+  vacancies: [AbsenceVacancyInput]
+}
+
+input AbsenceVacancyInput {
+  positionId: Int!
+  needsReplacement: Boolean
+  useSuppliedDetails: Boolean
+  notesToReplacement: String
+  requestedReplacementEmployeeIds: [Int]
+  prearrangedReplacementEmployeeId: Int
+  details: [VacancyDetailInput]
+  dayPortionOverrides: [DayPortionOverride]
 }
 
 type AccountingCode implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -292,6 +304,26 @@ enum AddressType {
   WORK_ADDRESS
 }
 
+type AdminScopeLocationRules {
+  _info: [ReturnMessage]
+  locationIds: [Int]
+  locationGroupIds: [Int]
+}
+
+input AdminScopeLocationRulesInput {
+  locationIds: [Int]
+  locationGroupIds: [Int]
+}
+
+type AdminScopePositionTypeRules {
+  _info: [ReturnMessage]
+  positionTypeIds: [Int]
+}
+
+input AdminScopePositionTypeRulesInput {
+  positionTypeIds: [Int]
+}
+
 type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -315,6 +347,10 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
   endTimeUtc: DateTime
 }
 
+type AssignmentMutations {
+  cancelAssignment(cancelRequest: CancelVacancyAssignmentInput!): Boolean
+}
+
 type AssignmentQueries {
   byId(id: ID!): Assignment
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Assignment]
@@ -326,6 +362,20 @@ enum AssignmentType {
   CONTRACT_ASSIGNMENT
   LONG_TERM_ASSIGNMENT
   DAILY_ASSIGNMENT
+}
+
+type BasicEmployee implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  firstName: String!
+  middleName: String!
+  lastName: String!
 }
 
 type Branding implements ModelObjectInterface {
@@ -528,6 +578,12 @@ enum CalendarDayType {
   CANCELLED_DAY
 }
 
+input CancelVacancyAssignmentInput {
+  id: Int!
+  rowVersion: String!
+  cancellationReasonId: Int!
+}
+
 type ChangedContract implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -708,6 +764,12 @@ enum CountryCode {
   CA
 }
 
+input CreateVacancyAssignmentInput {
+  orgId: Int!
+  vacancyId: Int!
+  employeeId: Int!
+}
+
 enum Culture {
   INVALID
   US_ENGLISH
@@ -847,6 +909,11 @@ enum DayPart {
   HOURLY
 }
 
+input DayPortionOverride {
+  date: DateTime
+  dayPortion: Decimal!
+}
+
 scalar Decimal
 
 enum DensityUnit {
@@ -874,7 +941,7 @@ interface DomainObjectInterface {
   rowVersion: String!
 }
 
-type Employee implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+type Employee implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -883,60 +950,29 @@ type Employee implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
-  externalId: String
-  rowVersion: String!
-  canFillVacancies: Boolean!
+  rowVersion: String
+  canFillVacancies: Boolean
   isShadowEmployee: Boolean!
   shadowEmployeeId: Int
   shadowEmployee: Employee
   primaryPositionId: Int
   primaryPosition: Position
-  dateOfBirth: Date!
+  firstName: String!
+  middleName: String
+  lastName: String!
   assignments: [Assignment]
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
   endorsements: [EmployeeEndorsement]
-  addresses: [EmployeeAddress]
-  phoneNumbers: [EmployeePhone]
-}
-
-type EmployeeAddress implements ModelObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  address1: String
-  address2: String
-  city: String
-  state: StateCode
-  postalCode: String
-  country: CountryCode
-}
-
-input EmployeeAddressInput {
-  id: Int
-  addressTypeId: AddressType
-  address1: String
-  address2: String
-  city: String
-  postalCode: String
-  stateId: StateCode
-  countryId: CountryCode
 }
 
 input EmployeeCreateInput {
   orgId: Int!
   orgUserId: Int!
-  externalId: String
   canFillVacancies: Boolean!
-  dateOfBirth: Date!
   shadowEmployeeId: Int
   primaryPositionId: Int
   primaryPosition: PositionCreateInput
-  addresses: [EmployeeAddressInput]
-  phoneNumbers: [EmployeePhoneInput]
 }
 
 type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
@@ -975,47 +1011,36 @@ input EmployeeEndorsementUpdateInput {
   expirationDate: Date
 }
 
+input EmployeeInterestInVacancyInput {
+  vacancyId: Int!
+  employeeId: Int!
+  interestRatingId: InterestRating
+}
+
 type EmployeeMutations {
   create(employee: EmployeeCreateInput!): Employee
   update(employee: EmployeeUpdateInput!): Employee
   delete(employeeId: Int!): Boolean
 }
 
-type EmployeePhone implements ModelObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  phoneType: PhoneType
-  number: String
-  country: CountryCode
-}
-
-input EmployeePhoneInput {
-  id: Int
-  phoneTypeId: PhoneType
-  number: String!
-  countryId: CountryCode
-}
-
 type EmployeeQueries {
   byId(id: ID!): Employee
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Employee]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedEmployee
+  employeeSchedule(id: ID!, fromDate: Date!, toDate: Date!): [PositionScheduleDate]
+}
+
+input EmployeeRejectVacancyInput {
+  vacancyId: Int!
+  employeeId: Int!
 }
 
 input EmployeeUpdateInput {
   id: Int!
   rowVersion: String!
-  externalId: String
-  canFillVacancies: Boolean!
-  dateOfBirth: Date!
+  canFillVacancies: Boolean
   shadowEmployeeId: Int
   primaryPositionId: Int
-  addresses: [EmployeeAddressInput]
-  phoneNumbers: [EmployeePhoneInput]
 }
 
 type EmploymentHistory {
@@ -1195,12 +1220,14 @@ enum EventType {
   LOCATION_ADDRESS_CHANGED
   LOCATION_TIME_ZONE_CHANGED
   LOCATION_VALID_UNTIL_CHANGED
-  LOCATION_DIVISION_CHANGED
+  LOCATION_CHANGED_GROUP_MEMBERSHIP
   ORGANIZATION_USER_CREATED
   ORGANIZATION_USER_UPDATED
   ORGANIZATION_USER_DELETED
   ORGANIZATION_USER_ACTIVATED
   ORGANIZATION_USER_INACTIVATED
+  ORGANIZATION_USER_ADMIN_SCOPE_POSITION_TYPE_RULES_UPDATED
+  ORGANIZATION_USER_ADMIN_SCOPE_LOCATION_RULES_UPDATED
   PERMISSION_PROFILE_CREATED
   PERMISSION_PROFILE_UPDATED
   PERMISSION_PROFILE_DELETED
@@ -1273,6 +1300,19 @@ enum EventType {
   REPLACEMENT_POOL_CONFIG_CREATED
   REPLACEMENT_POOL_CONFIG_UPDATED
   REPLACEMENT_POOL_CONFIG_DELETED
+  REPLACEMENT_POOL_CREATED
+  REPLACEMENT_POOL_UPDATED
+  REPLACEMENT_POOL_DELETED
+  EMPLOYEES_ADDED_TO_REPLACEMENT_POOL
+  EMPLOYEES_REMOVED_FROM_REPLACEMENT_POOL
+  REPLACEMENT_CRITERIA_CONFIG_CREATED
+  REPLACEMENT_CRITERIA_CONFIG_UPDATED
+  REPLACEMENT_CRITERIA_CONFIG_DELETED
+  REPLACEMENT_CRITERIA_CREATED
+  REPLACEMENT_CRITERIA_UPDATED
+  REPLACEMENT_CRITERIA_DELETED
+  REPLACEMENT_CRITERION_ADDED
+  REPLACEMENT_CRITERION_REMOVED
   EMPLOYEE_CREATED
   EMPLOYEE_UPDATED
   EMPLOYEE_DELETED
@@ -1296,6 +1336,10 @@ enum EventType {
   VACANCY_DETAIL_ADDED
   VACANCY_DETAIL_CHANGED
   VACANCY_DETAIL_REMOVED
+  VACANCY_EMPLOYEE_REQUEST_ADDED
+  VACANCY_EMPLOYEE_REQUEST_REMOVED
+  EMPLOYEE_INTERESTED_IN_VACANCY
+  EMPLOYEE_REJECTED_VACANCY
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
@@ -1369,6 +1413,12 @@ enum FillStatus {
 
 scalar Guid
 
+enum InterestRating {
+  NOT_INTERESTED
+  LOW_INTEREST
+  HIGH_INTEREST
+}
+
 type Label implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -1428,6 +1478,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   name: String!
   timeZoneId: TimeZone
   address: Address
+  locationGroupId: Int!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
   address1: String
@@ -1518,6 +1569,7 @@ input LocationUpdateInput {
   address: AddressInput
   timeZoneId: TimeZone
   expired: Boolean
+  locationGroupId: Int!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
 }
@@ -1535,6 +1587,7 @@ interface ModelObjectInterface {
 type Mutation {
   absence: AbsenceMutations
   absenceReasonBalance: AbsenceReasonBalanceMutations
+  assignment: AssignmentMutations
   branding: BrandingMutations
   calendarChange: CalendarChangeMutations
   contractedAssignment: ContractedAssignmentMutations
@@ -1552,10 +1605,13 @@ type Mutation {
   permissionSet: PermissionSetMutations
   positionSchedule: PositionScheduleMutations
   positionType: PositionTypeMutations
+  replacementCriteriaConfig: ReplacementCriteriaConfigMutations
   replacementPoolConfig: ReplacementPoolConfigMutations
+  replacementPool: ReplacementPoolMutations
   savedView: SavedViewMutations
   schoolYear: SchoolYearMutations
   user: UserMutations
+  vacancy: VacancyMutations
   workDayPattern: WorkDayPatternMutations
   workDaySchedule: WorkDayScheduleMutations
   orgRef_AbsenceReason: OrgRef_AbsenceReasonMutations
@@ -1649,6 +1705,9 @@ enum ObjectType {
   ACCOUNTING_CODE
   ABSENCE_REASON_BALANCE
   REPLACEMENT_POOL_CONFIG
+  REPLACEMENT_POOL
+  REPLACEMENT_CRITERIA_CONFIG
+  REPLACEMENT_CRITERIA
   EMPLOYEE
   ASSIGNMENT
   ABSENCE
@@ -1718,6 +1777,7 @@ input organizationConfigInput {
   maxGapMinutesForSameVacancyDetail: Int
   minAbsenceMinutes: Int
   maxAbsenceDays: Int
+  minutesToReserveVacancyForRequestedEmployee: Int
 }
 
 input OrganizationCreateInput {
@@ -1850,7 +1910,7 @@ type OrgRef_WorkDayScheduleVariantTypeQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedWorkDayScheduleVariantType
 }
 
-type OrgUser implements ModelObjectInterface & OrgObjectInterface {
+type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -1859,20 +1919,31 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  externalId: String
+  rowVersion: String!
   firstName: String!
   middleName: String
   lastName: String!
   email: String!
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  state: StateCode
+  postalCode: String
+  country: CountryCode
+  phoneNumber: String
   active: Boolean!
   userId: Int
+  loginEmail: String
   isReplacementEmployee: Boolean!
   isEmployee: Boolean!
   isAdmin: Boolean!
   isSuperUser: Boolean!
   permissionSets: [PermissionSet]
   permissionSetIds: [Int!]
-  adminScopeLocationRules: [String]!
-  adminScopePositionTypeRules: [String]!
+  adminScopeLocationRules: AdminScopeLocationRules
+  adminScopePositionTypeRules: AdminScopePositionTypeRules
   adminLocations: [Location]
   adminPositionTypes: [PositionType]
   employee: Employee
@@ -1882,13 +1953,22 @@ input OrgUserCreateInput {
   orgId: Int!
   email: String!
   active: Boolean
+  externalId: String
   firstName: String!
   middleName: String
   lastName: String!
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  postalCode: String
+  stateId: StateCode
+  countryId: CountryCode
+  phoneNumber: String
   isSuperUser: Boolean!
   permissionSetIds: [Int!]
-  adminScopeLocationRules: [String]
-  adminScopePositionTypeRules: [String]
+  adminScopeLocationRules: AdminScopeLocationRulesInput
+  adminScopePositionTypeRules: AdminScopePositionTypeRulesInput
   allLocationIdsInScope: Boolean
   allPositionTypeIdsInScope: Boolean
 }
@@ -1901,30 +1981,8 @@ type OrgUserMutations {
 
 type OrgUserQueries {
   byId(id: ID!): OrgUser
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-    name: String
-    role: [OrgUserRole]
-    active: Boolean
-    endorsements: [Int]
-    locations: [Int]
-    positionTypes: [Int]
-  ): [OrgUser]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    name: String
-    role: [OrgUserRole]
-    active: Boolean
-    endorsements: [Int]
-    locations: [Int]
-    positionTypes: [Int]
-  ): PagedOrgUser
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [Int], locations: [Int], positionTypes: [Int]): [OrgUser]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [Int], locations: [Int], positionTypes: [Int]): PagedOrgUser
 }
 
 enum OrgUserRole {
@@ -1938,15 +1996,25 @@ enum OrgUserRole {
 
 input OrgUserUpdateInput {
   id: Int!
+  rowVersion: String!
   email: String
   active: Boolean
+  externalId: String
   firstName: String
   middleName: String
   lastName: String
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  postalCode: String
+  stateId: StateCode
+  countryId: CountryCode
+  phoneNumber: String
   isSuperUser: Boolean
   permissionSetIds: [Int!]
-  adminScopeLocationRules: [String]
-  adminScopePositionTypeRules: [String]
+  adminScopeLocationRules: AdminScopeLocationRulesInput
+  adminScopePositionTypeRules: AdminScopePositionTypeRulesInput
   allLocationIdsInScope: Boolean
   allPositionTypeIdsInScope: Boolean
 }
@@ -2158,6 +2226,24 @@ type PagedPositionType {
   totalCount: Int
 }
 
+type PagedReplacementCriteriaConfig {
+  _info: [ReturnMessage]
+  results: [ReplacementCriteriaConfig]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedReplacementPool {
+  _info: [ReturnMessage]
+  results: [PagedReplacementPool]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedReplacementPoolConfig {
   _info: [ReturnMessage]
   results: [ReplacementPoolConfig]
@@ -2306,12 +2392,20 @@ enum PermissionEnum {
   PERMISSION_SET_DELETE
   ABSENCE_SAVE
   ABSENCE_DELETE
+  ABSENCE_REQUEST_REPLACEMENT
   CONTRACTED_ASSIGNMENT_SAVE
   CONTRACTED_ASSIGNMENT_DELETE
   VACANCY_ASSIGNMENT_SAVE
   VACANCY_ASSIGNMENT_DELETE
+  VACANCY_ASSIGNMENT_CANCEL
   REPLACEMENT_POOL_CONFIG_SAVE
   REPLACEMENT_POOL_CONFIG_DELETE
+  REPLACEMENT_POOL_SAVE
+  REPLACEMENT_POOL_DELETE
+  REPLACEMENT_CRITERIA_SAVE
+  REPLACEMENT_CRITERIA_DELETE
+  REPLACEMENT_CRITERIA_CONFIG_SAVE
+  REPLACEMENT_CRITERIA_CONFIG_DELETE
 }
 
 type PermissionSet implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2427,6 +2521,87 @@ input PositionScheduleCreateInput {
   positionId: Int!
   name: String!
   periods: [PositionSchedulePeriodInput]
+}
+
+type PositionScheduleDate {
+  _info: [ReturnMessage]
+  workDate: Date
+  calendarDayTypeId: CalendarDayType
+  workDayId: Int!
+  contractId: Int!
+  positionId: Int!
+  positionScheduleId: Int!
+  workScheduleVariantTypeId: Int!
+  startTimeLocal: Date!
+  endTimeLocal: Date!
+  startTimeUtc: Date!
+  endTimeUtc: Date!
+  fullWorkdayDuration: Short!
+  totalDuration: Short!
+  absenceBalanceDuration: Short!
+  absenceBalanceDayPortion: Decimal!
+  replacementDuration: Short!
+  replacementDayPortion: Decimal!
+  halfDayMorningAbsenceBalanceDayPortion: Decimal
+  halfDayAfternoonAbsenceBalanceDayPortion: Decimal
+  halfDayMorningEndLocal: Date
+  halfDayMorningEndUtc: Date
+  halfDayAfternoonStartLocal: Date
+  halfDayMorningDuration: Short
+  halfDayAfternoonDuration: Short
+  quarterDayEarlyMorningEndLocal: Date
+  quarterDayEarlyMorningEndUtc: Date
+  quarterDayLateMorningStartLocal: Date
+  quarterDayLateMorningStartUtc: Date
+  quarterDayLateMorningEndLocal: Date
+  quarterDayLateMorningEndUtc: Date
+  quarterDayEarlyAfternoonStartLocal: Date
+  quarterDayEarlyAfternoonStartUtc: Date
+  quarterDayEarlyAfternoonEndLocal: Date
+  quarterDayEarlyAfternoonEndUtc: Date
+  quarterDayLateAfternoonStartLocal: Date
+  quarterDayLateAfternoonStartUtc: Date
+  quarterDayEarlyMorningDuration: Short
+  quarterDayLateMorningDuration: Short
+  quarterDayEarlyAfternoonDuration: Short
+  quarterDayLateAfternoonDuration: Short
+  details: [PositionScheduleDateDetail]
+}
+
+type PositionScheduleDateDetail {
+  _info: [ReturnMessage]
+  sequence: Int!
+  name: String!
+  description: String!
+  locationId: Int!
+  workDayScheduleId: Int
+  workDaySchedulePeriodId: Int
+  startDate: Date
+  endDate: Date
+  startTimeLocal: Date!
+  endTimeLocal: Date!
+  nextStartTimeLocal: Date!
+  startTimeUtc: Date!
+  endTimeUtc: Date!
+  nextStartTimeUtc: Date!
+  periodDuration: Short!
+  travelDuration: Short!
+  needsReplacement: Boolean!
+  deductFromAbsenceBalance: Boolean!
+  room: String!
+  totalDuration: Short!
+  absenceBalanceDuration: Short!
+  absenceBalanceDayPortion: Decimal!
+  replacementDuration: Short!
+  replacementDayPortion: Decimal!
+  isHalfDayMorningEnd: Boolean!
+  isHalfDayAfternoonStart: Boolean!
+  isQuarterDayEarlyMorningEnd: Boolean!
+  isQuarterDayLateMorningStart: Boolean!
+  isQuarterDayLateMorningEnd: Boolean!
+  isQuarterDayEarlyAfternoonStart: Boolean!
+  isQuarterDayEarlyAfternoonEnd: Boolean!
+  isQuarterDayLateAfternoonStart: Boolean!
 }
 
 type PositionScheduleMutations {
@@ -2657,7 +2832,9 @@ type Query {
   positionSchedule: PositionScheduleQueries
   positionType: PositionTypeQueries
   referenceData: ReferenceDataQueries
+  replacementCriteriaConfig: ReplacementCriteriaConfigQueries
   replacementPoolConfig: ReplacementPoolConfigQueries
+  replacementPool: ReplacementPoolQueries
   returnMessageTest: ReturnMessageTestQueries
   savedView: SavedViewQueries
   schoolYear: SchoolYearQueries
@@ -2927,7 +3104,7 @@ type RefWeightUnit {
   description: String
 }
 
-type ReplacementPoolConfig implements ModelObjectInterface & OrgObjectInterface {
+type ReplacementCriteriaConfig implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -2936,24 +3113,105 @@ type ReplacementPoolConfig implements ModelObjectInterface & OrgObjectInterface 
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
-  name: String
+  externalId: String
+  rowVersion: String!
+  name: String!
+  requiredUntilLeadTimeMinutesRemain: Int
+  requiredUntilLeadTimePercentRemain: Int
+  requiredUntilNCandidateRemain: Int
+  includeMatchingCandidates: Boolean
+}
+
+input ReplacementCriteriaConfigCreateInput {
+  name: String!
+  requiredUntilLeadTimeMinutesRemain: Int
+  requiredUntilLeadTimePercentRemain: Int
+  requiredUntilNCandidateRemain: Int
+  includeMatchingCandidates: Boolean
+}
+
+type ReplacementCriteriaConfigMutations {
+  create(replacementCriteriaConfig: ReplacementCriteriaConfigCreateInput!): ReplacementCriteriaConfig
+  update(replacementCriteriaConfig: ReplacementCriteriaConfigUpdateInput!): ReplacementCriteriaConfig
+  delete(replacementCriteriaConfigId: Int!): Boolean
+}
+
+type ReplacementCriteriaConfigQueries {
+  byId(id: ID!): ReplacementCriteriaConfig
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ReplacementCriteriaConfig]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedReplacementCriteriaConfig
+}
+
+input ReplacementCriteriaConfigUpdateInput {
+  id: Int!
+  rowVersion: String!
+  name: String!
+  requiredUntilLeadTimeMinutesRemain: Int
+  requiredUntilLeadTimePercentRemain: Int
+  requiredUntilNCandidateRemain: Int
+  includeMatchingCandidates: Boolean
+}
+
+type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  externalId: String
+  rowVersion: String!
+  replacementPoolConfigId: Int!
+  includeAllEmployees: Boolean
+  locationGroupId: Int
+  locationId: Int
+  positionTypeId: Int
+  employeeId: Int
+  objectType: ObjectType
+  objectKey: Int!
+  numReplacements: Int
+  replacementPoolConfig: ReplacementPoolConfig
+  replacementPoolMembers: [ReplacementPoolMember]
+}
+
+input ReplacementPoolAddEmployeesInput {
+  id: Int!
+  rowVersion: String!
+  employeeIds: [Int]
+  appliesToAllEmployees: Boolean
+}
+
+type ReplacementPoolConfig implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  externalId: String
+  rowVersion: String!
+  name: String!
   description: String
   exclude: Boolean
-  maxLeadTimeMinutes: Int
-  minLeadTImeMinutes: Int
+  maxLeadTimeMinutes: Int!
+  minLeadTImeMinutes: Int!
   selectable: Boolean
-  percentLeadTime: Byte
-  rowVersion: String
+  percentLeadTime: Int
 }
 
 input ReplacementPoolConfigCreateInput {
   name: String!
+  orgId: Int!
   description: String
-  exclude: Boolean!
+  exclude: Boolean
   maxLeadTimeMinutes: Int!
   minLeadTImeMinutes: Int!
-  selectable: Boolean!
-  percentLeadTime: Byte!
+  selectable: Boolean
+  percentLeadTime: Int
 }
 
 type ReplacementPoolConfigMutations {
@@ -2971,13 +3229,85 @@ type ReplacementPoolConfigQueries {
 input ReplacementPoolConfigUpdateInput {
   id: Int!
   rowVersion: String!
-  name: String
+  name: String!
   description: String
   exclude: Boolean
-  maxLeadTimeMinutes: Int
-  minLeadTImeMinutes: Int
+  maxLeadTimeMinutes: Int!
+  minLeadTImeMinutes: Int!
   selectable: Boolean
-  percentLeadTime: Byte
+  percentLeadTime: Int
+}
+
+input ReplacementPoolCreateInput {
+  orgId: Int!
+  replacementPoolConfigId: Int!
+  employeeIds: [Int]
+  includeAllEmployees: Boolean
+  objectType: ObjectType
+  objectKey: Int!
+}
+
+type ReplacementPoolMember implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  replacementPoolId: Int!
+  employeeId: Int!
+  employee: BasicEmployee
+}
+
+type ReplacementPoolMutations {
+  create(replacementPool: ReplacementPoolCreateInput!): ReplacementPool
+  update(replacementPool: ReplacementPoolUpdateInput!): ReplacementPool
+  delete(replacementPoolId: Int!): Boolean
+  addMembers(replacementPoolMember: ReplacementPoolAddEmployeesInput!): ReplacementPool
+  removeMembers(replacementPoolMember: ReplacementPoolRemoveEmployeesInput!): ReplacementPool
+}
+
+type ReplacementPoolQueries {
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ReplacementPoolSummary]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedReplacementPool
+  byId(limit: Int, offset: Int, forUpdate: Boolean, replacementPoolId: ID!): ReplacementPool
+}
+
+input ReplacementPoolRemoveEmployeesInput {
+  id: Int!
+  rowVersion: String!
+  employeeIds: [Int]
+}
+
+type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  externalId: String
+  rowVersion: String!
+  replacementPoolConfigId: Int!
+  includeAllEmployees: Boolean
+  locationGroupId: Int
+  locationId: Int
+  positionTypeId: Int
+  employeeId: Int
+  objectType: ObjectType
+  objectKey: Int!
+  numReplacements: Int
+  replacementPoolConfig: ReplacementPoolConfig
+}
+
+input ReplacementPoolUpdateInput {
+  id: Int!
+  rowVersion: String!
+  replacementPoolConfigId: Int!
 }
 
 enum RequirementType {
@@ -3386,6 +3716,124 @@ input UserUpdateInput {
 
 scalar UShort
 
+type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  externalId: String
+  rowVersion: String!
+  positionId: Int!
+  contractId: Int!
+  absenceId: Int
+  isLongTerm: Boolean
+  notesToReplacement: String
+  startDate: Date
+  startTimeLocal: DateTime
+  endDate: Date
+  endTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
+  numDays: Int
+  totalDuration: Int!
+  fillStatus: FillStatus
+  details: [VacancyDetail]
+  requestedEmployees: [VacancyEmployeeRequest]
+  interestedEmployees: [VacancyEmployeeInterest]
+}
+
+type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  vacancyId: Int!
+  startDate: Date
+  startTimeLocal: DateTime
+  endDate: Date
+  endTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
+  actualDuration: Int
+  dayPortion: Decimal!
+  isFilled: Boolean
+  workDayScheduleId: Int
+  workDayId: Int!
+  workDay: WorkDay
+  assignmentId: Int
+  assignment: Assignment
+  locationId: Int
+  location: Location
+}
+
+input VacancyDetailInput {
+  date: DateTime
+  startTime: Seconds
+  endTime: Seconds
+  locationId: Int!
+}
+
+type VacancyEmployeeInterest implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  vacancyId: Int!
+  employeeId: Int!
+  interestRatingId: InterestRating
+  isInterested: Boolean
+  vacancyRejectionReasonId: VacancyRejectionReason
+  rejectedAtUtc: DateTime
+  isRejected: Boolean
+}
+
+type VacancyEmployeeRequest implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  vacancyId: Int!
+  employeeId: Int!
+  vacancyRejectionReasonId: VacancyRejectionReason
+  rejectedAtUtc: DateTime
+  isRejected: Boolean
+  validUntilUtc: DateTime
+  isExpired: Boolean
+  requestedByOrgUserId: Int!
+  requestedByOrgUser: OrgUser
+}
+
+type VacancyMutations {
+  requestVacancy(vacancyRequest: EmployeeInterestInVacancyInput!): VacancyEmployeeInterest
+  rejectVacancy(vacancyRejection: EmployeeRejectVacancyInput!): VacancyEmployeeInterest
+  assignVacancy(vacancyAssignment: CreateVacancyAssignmentInput!): Assignment
+}
+
+enum VacancyRejectionReason {
+  INVALID
+  NOT_SPECIFIED
+  OTHER
+  DISLIKE_POSITION
+  DISLIKE_LOCATION
+  DISLIKE_TEACHER
+}
+
 enum VolumeUnit {
   INVALID
   CUBIC_INCHES
@@ -3499,6 +3947,7 @@ input WorkDayScheduleCreateInput {
   locationIds: [Int]
   locationGroupIds: [Int]
   standardSchedule: WorkDayScheduleVariantInput
+  additionalVariants: [WorkDayScheduleVariantInput]
 }
 
 type WorkDayScheduleMutations {
@@ -3530,22 +3979,8 @@ input WorkDaySchedulePeriodInput {
 
 type WorkDayScheduleQueries {
   byId(id: ID!): WorkDaySchedule
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    searchText: String
-  ): [WorkDaySchedule]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    searchText: String
-  ): PagedWorkDaySchedule
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): [WorkDaySchedule]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): PagedWorkDaySchedule
 }
 
 input WorkDayScheduleUpdateInput {
@@ -3636,6 +4071,7 @@ type WorkDayScheduleVariantPeriod implements ModelObjectInterface {
   changedUtc: DateTime!
   deletedUtc: DateTime!
   isDeleted: Boolean!
+  workDaySchedulePeriodId: Int!
   sequence: Int
   startTime: Seconds!
   endTime: Seconds!
