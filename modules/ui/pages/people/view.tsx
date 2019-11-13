@@ -6,7 +6,6 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import Maybe from "graphql/tsutils/Maybe";
 import * as React from "react";
-import ReactDom from "react-dom";
 import { PageTitle } from "ui/components/page-title";
 import { makeStyles, Grid } from "@material-ui/core";
 import { Redirect, useHistory } from "react-router";
@@ -28,6 +27,7 @@ import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { AvatarCard } from "ui/components/avatar-card";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { OrgUserRole } from "graphql/server-types.gen";
+import { GetOrgUserLastLogin } from "./graphql/get-orguser-lastlogin.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -76,6 +76,10 @@ export const PersonViewPage: React.FC<{}> = props => {
     variables: { id: params.orgUserId },
   });
 
+  const getOrgUserLastLogin = useQueryBundle(GetOrgUserLastLogin, {
+    variables: { id: params.orgUserId },
+  });
+
   if (getOrgUser.state === "LOADING") {
     return <></>;
   }
@@ -95,6 +99,8 @@ export const PersonViewPage: React.FC<{}> = props => {
 
   const initials = getInitials(orgUser);
   const employee = orgUser.employee;
+  const lastLogin =
+    getOrgUserLastLogin?.data?.orgUser?.lastLoginById?.lastLogin;
 
   let permissions = orgUser.isSuperUser ? t("Org Admin") : "";
   if (orgUser.permissionSets!.length > 0) {
@@ -312,7 +318,7 @@ export const PersonViewPage: React.FC<{}> = props => {
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Last Login")}</Typography>
-              <Typography variant="h6">{"Nov 11, 2019 3:57 PM"}</Typography>
+              <div>{lastLogin ?? t("Not available")}</div>
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Username")}</Typography>

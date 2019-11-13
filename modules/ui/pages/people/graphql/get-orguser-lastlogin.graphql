@@ -1,0 +1,8 @@
+query GetOrgUserLastLogin($id: ID!) {
+  orgUser {
+    lastLoginById(id: $id) {
+      id
+      lastLogin
+    }
+  }
+}
