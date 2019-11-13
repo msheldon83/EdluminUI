@@ -1,4 +1,9 @@
-import { Typography } from "@material-ui/core";
+import {
+  Typography,
+  Checkbox,
+  FormControlLabel,
+  Button,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useForm } from "forms";
 import { useQueryBundle } from "graphql/hooks";
@@ -45,7 +50,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     startDate: today,
     endDate: today,
     absenceReason: "",
-    needsReplacement: needsReplacement !== "NO",
+    needsReplacement: needsReplacement !== NeedsReplacement.No,
   };
 
   const {
@@ -88,7 +93,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
       {/* {JSON.stringify(getValues())} */}
 
-      <form>
+      <form onSubmit={handleSubmit((data, e) => console.log(data))}>
         {state.step === "absence" && (
           <Section className={classes.absenceDetails}>
             <AbsenceDetails
@@ -101,14 +106,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           </Section>
         )}
       </form>
-      {/* <Grid container>
-          <Grid item md={4}>
-            <Typography className={classes.subtitle}>{t("Time")}</Typography>
-          </Grid>
-          <Grid item md={8}>
-            <Typography className={classes.subtitle}>{t("Reason")}</Typography>
-          </Grid>
-        </Grid> */}
     </>
   );
 };

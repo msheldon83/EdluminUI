@@ -7,6 +7,7 @@ import {
 } from "ui/routes/create-absence";
 import { Route } from "react-router";
 import { CreateAbsenceUI } from "./ui";
+import { NeedsReplacement } from "graphql/server-types.gen";
 
 export default {
   title: "Pages/Create Absence",
@@ -33,6 +34,100 @@ export const AsEmployee = () => {
   const path = EmployeeCreateAbsenceRoute.generate({ role: "employee" });
   const Provider = mockProvider({
     initialUrl: path,
+    mocks: {
+      Query: () => ({
+        employee: () => ({
+          byId: {
+            id: "123",
+            primaryPosition: {
+              needsReplacement: NeedsReplacement.Sometimes,
+            },
+          },
+        }),
+      }),
+    },
+  });
+  return (
+    <Provider>
+      <Route path={EmployeeCreateAbsenceRoute.path}>
+        <CreateAbsenceUI
+          actingAsEmployee
+          employeeId="123"
+          organizationId="124"
+        />
+      </Route>
+    </Provider>
+  );
+};
+
+export const AsSubNotNeededEmployee = () => {
+  const path = EmployeeCreateAbsenceRoute.generate({ role: "employee" });
+  const Provider = mockProvider({
+    initialUrl: path,
+    mocks: {
+      Query: () => ({
+        userAccess: () => ({
+          me: () => ({
+            user: () => ({
+              orgUsers: [
+                {
+                  isAdmin: false,
+                },
+              ],
+            }),
+          }),
+        }),
+        employee: () => ({
+          byId: {
+            id: "123",
+            primaryPosition: {
+              needsReplacement: NeedsReplacement.No,
+            },
+          },
+        }),
+      }),
+    },
+  });
+  return (
+    <Provider>
+      <Route path={EmployeeCreateAbsenceRoute.path}>
+        <CreateAbsenceUI
+          actingAsEmployee
+          employeeId="123"
+          organizationId="124"
+        />
+      </Route>
+    </Provider>
+  );
+};
+
+export const AsSubNeededEmployee = () => {
+  const path = EmployeeCreateAbsenceRoute.generate({ role: "employee" });
+  const Provider = mockProvider({
+    initialUrl: path,
+    mocks: {
+      Query: () => ({
+        userAccess: () => ({
+          me: () => ({
+            user: () => ({
+              orgUsers: [
+                {
+                  isAdmin: false,
+                },
+              ],
+            }),
+          }),
+        }),
+        employee: () => ({
+          byId: {
+            id: "123",
+            primaryPosition: {
+              needsReplacement: NeedsReplacement.Yes,
+            },
+          },
+        }),
+      }),
+    },
   });
   return (
     <Provider>

@@ -5,18 +5,19 @@ import {
   TextField,
   Typography,
   Paper,
+  Checkbox,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
-import { SetValue } from "forms";
+import { SetValue, Register } from "forms";
 import {
   DayPart,
   FeatureFlag,
   NeedsReplacement,
 } from "graphql/server-types.gen";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
@@ -37,7 +38,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
-  const { state, setValue, values } = props;
+  const { state, setValue, values, isAdmin, needsReplacement } = props;
+
+  const [showNotesForReplacement, setShowNotesForReplacement] = useState(
+    needsReplacement !== NeedsReplacement.No
+  );
 
   const absenceReasons = useAbsenceReasons(state.organizationId);
   const absenceReasonOptions = useMemo(
@@ -82,6 +87,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
       await setValue("notesToReplacement", event.target.value);
     },
     [setValue]
+  );
+
+  const onNeedsReplacementChange = React.useCallback(
+    async event => {
+      setShowNotesForReplacement(event.target.checked);
+      await setValue("needsReplacement", event.target.checked);
+    },
+    [setValue, setShowNotesForReplacement]
   );
 
   return (
@@ -156,36 +169,51 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         <Paper>
           <div className={classes.container}>
-            <FormControlLabel
-              label={t("Requires a substitute")}
-              control={
-                <Checkbox
-                  // checked={values.needsReplacement}
-                  onChange={async e => {
-                    await setValue("needsReplacement", e.target.checked);
-                  }}
+            {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
+              <FormControlLabel
+                label={t("Requires a substitute")}
+                control={
+                  <Checkbox
+                    checked={values.needsReplacement}
+                    onChange={onNeedsReplacementChange}
+                  />
+                }
+              />
+            ) : (
+              <Typography className={classes.substituteRequiredText}>
+                {needsReplacement === NeedsReplacement.Yes
+                  ? t("Requires a substitute")
+                  : t("No substitute required")}
+              </Typography>
+            )}
+
+            {showNotesForReplacement && (
+              <div className={classes.notesForReplacement}>
+                <Typography variant="h6">
+                  {t("Notes for substitute")}
+                </Typography>
+                <Typography
+                  className={[
+                    classes.subText,
+                    classes.substituteDetailsSubtitle,
+                  ].join(" ")}
+                >
+                  {t(
+                    "Can be seen by the substitute, administrator and employee."
+                  )}
+                </Typography>
+                <TextField
+                  name="notesToReplacement"
+                  multiline
+                  rows="6"
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  onChange={onNotesToReplacementChange}
+                  InputProps={{ classes: textFieldClasses }}
                 />
-              }
-            />
-            <Typography variant="h6">{t("Notes for substitute")}</Typography>
-            <Typography
-              className={[
-                classes.subText,
-                classes.substituteDetailsSubtitle,
-              ].join(" ")}
-            >
-              {t("Can be seen by the substitute, administrator and employee.")}
-            </Typography>
-            <TextField
-              name="notesToReplacement"
-              multiline
-              rows="6"
-              variant="outlined"
-              margin="normal"
-              fullWidth
-              onChange={onNotesToReplacementChange}
-              InputProps={{ classes: textFieldClasses }}
-            />
+              </div>
+            )}
           </div>
         </Paper>
       </Grid>
@@ -226,6 +254,12 @@ const useStyles = makeStyles(theme => ({
   substituteDetailsSubtitle: { paddingBottom: theme.typography.pxToRem(1) },
   container: {
     padding: theme.spacing(2),
+  },
+  substituteRequiredText: {
+    fontStyle: "italic",
+  },
+  notesForReplacement: {
+    paddingTop: theme.spacing(3),
   },
 }));
 
