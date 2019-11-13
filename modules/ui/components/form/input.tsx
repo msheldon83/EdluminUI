@@ -17,6 +17,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
 
   return (
     <FormControl className={classes.formControl}>
+      {/* Convert this to FormLabel */}
       <label className={classes.inputLabel} htmlFor={id}>
         {label}
       </label>
