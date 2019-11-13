@@ -1,0 +1,17 @@
+mutation UpdateWorkDayScheduleVariant($workDayScheduleVariant: WorkDayScheduleVariantModifyInput!) {
+  workDaySchedule {
+    modifyScheduleVariant(workDayScheduleVariant: $workDayScheduleVariant) {
+      id
+      isStandard
+      periods {
+        id
+        startTime
+        endTime
+        periodDuration
+        isHalfDayMorningEnd
+        isHalfDayAfternoonStart
+        sequence
+      }
+    }
+  }
+}

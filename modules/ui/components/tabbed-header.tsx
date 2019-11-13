@@ -10,7 +10,8 @@ export type Step = {
   stepNumber: number;
   name: string;
   content: (
-    setStep: React.Dispatch<React.SetStateAction<number>>
+    setStep: React.Dispatch<React.SetStateAction<number>>,
+    goToNextStep: Function
   ) => JSX.Element;
 };
 
@@ -28,6 +29,20 @@ export const TabbedHeader: React.FC<Props> = props => {
   };
 
   const currentStep = props.steps.find(s => s.stepNumber === currentStepNumber);
+
+  const goToNextStep = () => {
+    if (!currentStep) {
+      return;
+    }
+
+    const currentStepIndex = props.steps.indexOf(currentStep);
+    if (currentStepIndex + 1 >= props.steps.length) {
+      // This is the last step
+      return;
+    }
+
+    setStep(props.steps[currentStepIndex+1].stepNumber);
+  }
 
   return (
     <>
@@ -47,7 +62,7 @@ export const TabbedHeader: React.FC<Props> = props => {
           })}
         </Tabs>
       </Paper>
-      {currentStep && currentStep.content(setStep)}
+      {currentStep && currentStep.content(setStep, goToNextStep)}
     </>
   );
 };
