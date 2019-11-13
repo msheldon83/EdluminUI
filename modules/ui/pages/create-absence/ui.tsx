@@ -66,7 +66,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     initialState
   );
 
-  let name = `${props.firstName} ${props.lastName}`;
+  const name = `${props.firstName} ${props.lastName}`;
 
   return (
     <>

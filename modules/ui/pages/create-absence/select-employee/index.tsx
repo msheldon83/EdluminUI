@@ -46,12 +46,12 @@ export const SelectEmployee: React.FC<Props> = props => {
     if (name !== filters.name) {
       setPendingName(name);
     }
-  }, [filters.name]); // eslint-disable-line react/exhaustive-deps
+  }, [filters.name]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (name !== filters.name) {
       updateFilters({ name });
     }
-  }, [name]); //const userIsAdmin = useIsAdmin();
+  }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const history = useHistory();
   const [employees, pagination] = usePagedQueryBundle(
