@@ -5,9 +5,16 @@ export type Route<Params extends string> = {
   generate: (params: { [k in Params]: string }) => string;
 };
 
+export function defineRoute(path: string): Route<never>;
+
 export function defineRoute<Params extends string>(
   path: string,
   params: Params[]
+): Route<Params>;
+
+export function defineRoute<Params extends string>(
+  path: string,
+  params: Params[] = []
 ): Route<Params> {
   return {
     path: normalizePath(path),

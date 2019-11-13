@@ -1,41 +1,26 @@
-query GetAllPeopleForOrg(
+query GetEmployeesForOrg(
   $orgId: ID!
   $limit: Int
   $offset: Int
-  $sortBy: [SortDetailsInput]
-  $role: [OrgUserRole]
-  $active: Boolean
   $name: String
-  $endorsements: [Int]
 ) {
   orgUser {
     paged(
       orgId: $orgId
       limit: $limit
       offset: $offset
-      sortBy: $sortBy
-      role: $role
-      active: $active
+      role: EMPLOYEE
       name: $name
-      endorsements: $endorsements
     ) {
+      totalCount
       offset
       limit
-      hasMoreData
-      totalCount
       results {
         id
-        rowVersion
-        externalId
-        firstName
-        lastName
-        active
-        isReplacementEmployee
-        isEmployee
-        isAdmin
-        email
         externalId
         phoneNumber
+        firstName
+        lastName
         employee {
           id
           primaryPosition {

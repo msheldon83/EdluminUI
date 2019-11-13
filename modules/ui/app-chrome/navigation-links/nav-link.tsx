@@ -13,12 +13,14 @@ type Props = {
   route: string;
   onClick?: () => void;
   className?: string;
+  exact?: boolean;
 };
 
 export const NavLink: React.FC<Props> = props => {
   const classes = useStyles();
   const matches =
-    useRouteMatch({ exact: true, path: props.route }) !== null && props.route;
+    useRouteMatch({ exact: props.exact ?? false, path: props.route }) !==
+      null && props.route;
   return (
     <Link to={props.route} className={classes.link}>
       <ListItem

@@ -1,0 +1,13 @@
+query GetEmployee($employeeId: ID!) {
+  employee {
+    byId(id: $employeeId) {
+      id
+      firstName
+      lastName
+      primaryPosition {
+        id
+        needsReplacement
+      }
+    }
+  }
+}

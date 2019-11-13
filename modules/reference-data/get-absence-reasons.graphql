@@ -1,0 +1,8 @@
+query GetAbsenceReasons($orgId: ID!) {
+  orgRef_AbsenceReason {
+    all(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}

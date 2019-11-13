@@ -14,6 +14,7 @@ query GetWorkDayScheduleById($id: ID!) {
       variants {
         id
         isStandard
+        workDayScheduleVariantTypeId
         periods {
           id
           startTime
@@ -22,10 +23,13 @@ query GetWorkDayScheduleById($id: ID!) {
           isHalfDayMorningEnd
           isHalfDayAfternoonStart
           sequence
+          workDaySchedulePeriodId
         }
       }
       usages {
         id
+        locationId
+        locationGroupId
       }
     }
   }
