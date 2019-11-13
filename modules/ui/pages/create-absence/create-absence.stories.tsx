@@ -13,7 +13,7 @@ export default {
   title: "Pages/Create Absence",
 };
 
-export const SelectEmployee = () => {
+export const AsAdmin = () => {
   const path = AdminCreateAbsenceRoute.generate({
     organizationId: "1006",
     employeeId: "123",
@@ -24,7 +24,12 @@ export const SelectEmployee = () => {
   return (
     <Provider>
       <Route path={AdminCreateAbsenceRoute.path}>
-        <CreateAbsence />
+        <CreateAbsenceUI
+          employeeId="123"
+          organizationId="124"
+          userIsAdmin
+          needsReplacement={NeedsReplacement.Yes}
+        />
       </Route>
     </Provider>
   );
@@ -34,18 +39,7 @@ export const AsEmployee = () => {
   const path = EmployeeCreateAbsenceRoute.generate({ role: "employee" });
   const Provider = mockProvider({
     initialUrl: path,
-    mocks: {
-      Query: () => ({
-        employee: () => ({
-          byId: {
-            id: "123",
-            primaryPosition: {
-              needsReplacement: NeedsReplacement.Sometimes,
-            },
-          },
-        }),
-      }),
-    },
+    mocks: {},
   });
   return (
     <Provider>
@@ -54,6 +48,8 @@ export const AsEmployee = () => {
           actingAsEmployee
           employeeId="123"
           organizationId="124"
+          userIsAdmin={false}
+          needsReplacement={NeedsReplacement.Sometimes}
         />
       </Route>
     </Provider>
@@ -64,29 +60,7 @@ export const AsSubNotNeededEmployee = () => {
   const path = EmployeeCreateAbsenceRoute.generate({ role: "employee" });
   const Provider = mockProvider({
     initialUrl: path,
-    mocks: {
-      Query: () => ({
-        userAccess: () => ({
-          me: () => ({
-            user: () => ({
-              orgUsers: [
-                {
-                  isAdmin: false,
-                },
-              ],
-            }),
-          }),
-        }),
-        employee: () => ({
-          byId: {
-            id: "123",
-            primaryPosition: {
-              needsReplacement: NeedsReplacement.No,
-            },
-          },
-        }),
-      }),
-    },
+    mocks: {},
   });
   return (
     <Provider>
@@ -95,6 +69,8 @@ export const AsSubNotNeededEmployee = () => {
           actingAsEmployee
           employeeId="123"
           organizationId="124"
+          needsReplacement={NeedsReplacement.No}
+          userIsAdmin={false}
         />
       </Route>
     </Provider>
@@ -136,6 +112,8 @@ export const AsSubNeededEmployee = () => {
           actingAsEmployee
           employeeId="123"
           organizationId="124"
+          userIsAdmin={false}
+          needsReplacement={NeedsReplacement.Yes}
         />
       </Route>
     </Provider>

@@ -7,6 +7,8 @@ import {
 } from "./graphql/find-employee-for-current-user.gen";
 import { CreateAbsenceUI } from "./ui";
 import { flatMap, map, compact } from "lodash-es";
+import { useIsAdmin } from "reference-data/is-admin";
+import { NeedsReplacement } from "graphql/server-types.gen";
 
 type Props = {};
 
@@ -14,11 +16,13 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
   const potentialEmployees = useQueryBundle(FindEmployeeForCurrentUser, {
     fetchPolicy: "cache-first",
   });
+  const userIsAdmin = useIsAdmin();
   if (
-    potentialEmployees.state !== "DONE" &&
-    potentialEmployees.state !== "UPDATING"
+    (potentialEmployees.state !== "DONE" &&
+      potentialEmployees.state !== "UPDATING") ||
+    userIsAdmin === null
   ) {
-    return <LoadingStateTrigger />;
+    return <></>;
   }
 
   const employee = findEmployee(potentialEmployees);
@@ -31,6 +35,10 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
       employeeId={employee.id}
       actingAsEmployee
       organizationId={employee.orgId.toString()}
+      userIsAdmin={userIsAdmin}
+      needsReplacement={
+        employee.primaryPosition?.needsReplacement ?? NeedsReplacement.No
+      }
     />
   );
 };

@@ -31,7 +31,7 @@ type Props = {
   setValue: SetValue;
   values: FormData;
   isAdmin: null | boolean;
-  needsReplacement: null | NeedsReplacement;
+  needsReplacement: NeedsReplacement;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {

@@ -22,26 +22,14 @@ type Props = {
   employeeId: string;
   actingAsEmployee?: boolean;
   organizationId: string;
+  needsReplacement: NeedsReplacement;
+  userIsAdmin: boolean;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
 
-  const employeeInfo = useQueryBundle(GetEmployee, {
-    variables: {
-      employeeId: props.employeeId,
-    },
-  });
   let name = "";
-  let needsReplacement: NeedsReplacement | null = null;
-  if (employeeInfo.state === "DONE" || employeeInfo.state === "UPDATING") {
-    const emp = employeeInfo.data.employee?.byId;
-    name = `${emp?.firstName} ${emp?.lastName}`;
-    needsReplacement =
-      employeeInfo.data.employee?.byId?.primaryPosition?.needsReplacement ??
-      null;
-  }
-  const userIsAdmin = useIsAdmin();
 
   const classes = useStyles();
 
@@ -50,7 +38,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     startDate: today,
     endDate: today,
     absenceReason: "",
-    needsReplacement: needsReplacement !== NeedsReplacement.No,
+    needsReplacement: props.needsReplacement !== NeedsReplacement.No,
   };
 
   const {
@@ -100,8 +88,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
               state={state}
               setValue={setValue}
               values={getValues()}
-              isAdmin={userIsAdmin}
-              needsReplacement={needsReplacement}
+              isAdmin={props.userIsAdmin}
+              needsReplacement={props.needsReplacement}
             />
           </Section>
         )}
