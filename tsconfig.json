@@ -5,5 +5,11 @@
     "target": "es2018",
     "module": "commonjs",
     "noEmit": true
-  }
+  },
+  "include": [
+    "entry/**/*.ts",
+    "entry/**/*.tsx",
+    "modules/**/*.ts",
+    "modules/**/*.tsx"
+  ]
 }
