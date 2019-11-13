@@ -23,7 +23,7 @@ type Props = {
   editable?: boolean;
   onEdit?: Function;
   validationSchema?: any;
-  onSubmit?: (value: Maybe<Array<FieldData>>) => Promise<unknown>;
+  onSubmit?: (value: Array<FieldData>) => Promise<unknown>;
   onCancel?: Function;
   isSubHeader?: boolean;
   showLabel?: boolean;
@@ -140,20 +140,26 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
   return wrapper(
     <Formik
       initialValues={{ fields: props.fields || [] }}
-      onSubmit={async (data: { fields: Maybe<Array<FieldData>> }, meta) => {
+      onSubmit={async (data: { fields: Array<FieldData> }, meta) => {
         if (props.onSubmit) {
-          const valuesToSend = data.fields && data.fields.map(v => ({key: v.key, value: v.value && v.value.trim().length === 0 ? null : v.value, label: v.label}));
+          const valuesToSend =
+            data.fields &&
+            data.fields.map(v => ({
+              key: v.key,
+              value: v.value && v.value.trim().length === 0 ? null : v.value,
+              label: v.label,
+            }));
           await props.onSubmit(valuesToSend);
         }
         setEditing(false);
       }}
       validationSchema={props.validationSchema || null}
     >
-      {({ handleSubmit, submitForm, values, setFieldValue }) => (          
+      {({ handleSubmit, submitForm, values, setFieldValue }) => (
         <form onSubmit={handleSubmit}>
           <Grid container alignItems="center" spacing={2}>
             <Grid item>
-              {values.fields!.map((field: FieldData, index: number) => (
+              {values.fields.map((field: FieldData, index: number) => (
                 <FormTextField
                   key={index}
                   name={`fields[${index}].key`}

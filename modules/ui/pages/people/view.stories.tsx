@@ -1,9 +1,6 @@
 import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
-import {
-  PersonViewRoute,
-  PersonViewLoader,
-} from "ui/routes/people";
+import { PersonViewRoute, PersonViewLoader } from "ui/routes/people";
 import { Route } from "react-router-dom";
 
 export default {
@@ -21,6 +18,9 @@ const AdminView = (isActive: boolean) => {
         orgUser: () => ({
           byId: {
             id: "1000",
+            userId: 1000,
+            loginEmail: "jschmoe@school.edu",
+            rowVersion: "1234567890",
             firstName: "Joe",
             middleName: "Bill",
             lastName: "Schmoe",
@@ -28,6 +28,7 @@ const AdminView = (isActive: boolean) => {
             isReplacementEmployee: false,
             isEmployee: false,
             isAdmin: true,
+            isSuperUser: true,
             email: "jschmoe@school.edu",
             employee: null,
           },
@@ -37,10 +38,7 @@ const AdminView = (isActive: boolean) => {
   });
   return (
     <Provider>
-      <Route
-        component={PersonViewLoader}
-        path={PersonViewRoute.path}
-      />
+      <Route component={PersonViewLoader} path={PersonViewRoute.path} />
     </Provider>
   );
 };
@@ -58,6 +56,9 @@ const EmployeeView = (isActive: boolean) => {
         orgUser: () => ({
           byId: {
             id: "1000",
+            userId: 1000,
+            loginEmail: "jschmoe@school.edu",
+            rowVersion: "1234567890",
             firstName: "Joe",
             middleName: "Bill",
             lastName: "Schmoe",
@@ -65,6 +66,7 @@ const EmployeeView = (isActive: boolean) => {
             isReplacementEmployee: false,
             isEmployee: true,
             isAdmin: false,
+            isSuperUser: false,
             email: "jschmoe@school.edu",
             employee: {
               id: "1000",
@@ -78,10 +80,7 @@ const EmployeeView = (isActive: boolean) => {
   });
   return (
     <Provider>
-      <Route
-        component={PersonViewLoader}
-        path={PersonViewRoute.path}
-      />
+      <Route component={PersonViewLoader} path={PersonViewRoute.path} />
     </Provider>
   );
 };
@@ -99,6 +98,9 @@ const SubstituteView = (isActive: boolean) => {
         orgUser: () => ({
           byId: {
             id: "1000",
+            userId: 1000,
+            loginEmail: "jschmoe@school.edu",
+            rowVersion: "1234567890",
             firstName: "Joe",
             middleName: "Bill",
             lastName: "Schmoe",
@@ -106,6 +108,7 @@ const SubstituteView = (isActive: boolean) => {
             isReplacementEmployee: true,
             isEmployee: false,
             isAdmin: false,
+            isSuperUser: false,
             email: "jschmoe@school.edu",
             employee: {
               id: "1000",
@@ -119,10 +122,7 @@ const SubstituteView = (isActive: boolean) => {
   });
   return (
     <Provider>
-      <Route
-        component={PersonViewLoader}
-        path={PersonViewRoute.path}
-      />
+      <Route component={PersonViewLoader} path={PersonViewRoute.path} />
     </Provider>
   );
 };

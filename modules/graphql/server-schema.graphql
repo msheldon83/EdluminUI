@@ -958,7 +958,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   primaryPositionId: Int
   primaryPosition: Position
   firstName: String!
-  middleName: String!
+  middleName: String
   lastName: String!
   assignments: [Assignment]
   absenceReasonBalances: [AbsenceReasonBalance]
@@ -1305,6 +1305,9 @@ enum EventType {
   REPLACEMENT_POOL_DELETED
   EMPLOYEES_ADDED_TO_REPLACEMENT_POOL
   EMPLOYEES_REMOVED_FROM_REPLACEMENT_POOL
+  REPLACEMENT_CRITERIA_CONFIG_CREATED
+  REPLACEMENT_CRITERIA_CONFIG_UPDATED
+  REPLACEMENT_CRITERIA_CONFIG_DELETED
   REPLACEMENT_CRITERIA_CREATED
   REPLACEMENT_CRITERIA_UPDATED
   REPLACEMENT_CRITERIA_DELETED
@@ -1602,6 +1605,7 @@ type Mutation {
   permissionSet: PermissionSetMutations
   positionSchedule: PositionScheduleMutations
   positionType: PositionTypeMutations
+  replacementCriteriaConfig: ReplacementCriteriaConfigMutations
   replacementPoolConfig: ReplacementPoolConfigMutations
   replacementPool: ReplacementPoolMutations
   savedView: SavedViewMutations
@@ -1931,6 +1935,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   phoneNumber: String
   active: Boolean!
   userId: Int
+  loginEmail: String
   isReplacementEmployee: Boolean!
   isEmployee: Boolean!
   isAdmin: Boolean!
@@ -2221,9 +2226,18 @@ type PagedPositionType {
   totalCount: Int
 }
 
+type PagedReplacementCriteriaConfig {
+  _info: [ReturnMessage]
+  results: [ReplacementCriteriaConfig]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedReplacementPool {
   _info: [ReturnMessage]
-  results: [ReplacementPool]
+  results: [PagedReplacementPool]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -2386,10 +2400,12 @@ enum PermissionEnum {
   VACANCY_ASSIGNMENT_CANCEL
   REPLACEMENT_POOL_CONFIG_SAVE
   REPLACEMENT_POOL_CONFIG_DELETE
-  REPLACEMENT_CRITERIA_SAVE
-  REPLACEMENT_CRITERIA_DELETE
   REPLACEMENT_POOL_SAVE
   REPLACEMENT_POOL_DELETE
+  REPLACEMENT_CRITERIA_SAVE
+  REPLACEMENT_CRITERIA_DELETE
+  REPLACEMENT_CRITERIA_CONFIG_SAVE
+  REPLACEMENT_CRITERIA_CONFIG_DELETE
 }
 
 type PermissionSet implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2816,6 +2832,7 @@ type Query {
   positionSchedule: PositionScheduleQueries
   positionType: PositionTypeQueries
   referenceData: ReferenceDataQueries
+  replacementCriteriaConfig: ReplacementCriteriaConfigQueries
   replacementPoolConfig: ReplacementPoolConfigQueries
   replacementPool: ReplacementPoolQueries
   returnMessageTest: ReturnMessageTestQueries
@@ -3087,6 +3104,54 @@ type RefWeightUnit {
   description: String
 }
 
+type ReplacementCriteriaConfig implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  externalId: String
+  rowVersion: String!
+  name: String!
+  requiredUntilLeadTimeMinutesRemain: Int
+  requiredUntilLeadTimePercentRemain: Int
+  requiredUntilNCandidateRemain: Int
+  includeMatchingCandidates: Boolean
+}
+
+input ReplacementCriteriaConfigCreateInput {
+  name: String!
+  requiredUntilLeadTimeMinutesRemain: Int
+  requiredUntilLeadTimePercentRemain: Int
+  requiredUntilNCandidateRemain: Int
+  includeMatchingCandidates: Boolean
+}
+
+type ReplacementCriteriaConfigMutations {
+  create(replacementCriteriaConfig: ReplacementCriteriaConfigCreateInput!): ReplacementCriteriaConfig
+  update(replacementCriteriaConfig: ReplacementCriteriaConfigUpdateInput!): ReplacementCriteriaConfig
+  delete(replacementCriteriaConfigId: Int!): Boolean
+}
+
+type ReplacementCriteriaConfigQueries {
+  byId(id: ID!): ReplacementCriteriaConfig
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ReplacementCriteriaConfig]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedReplacementCriteriaConfig
+}
+
+input ReplacementCriteriaConfigUpdateInput {
+  id: Int!
+  rowVersion: String!
+  name: String!
+  requiredUntilLeadTimeMinutesRemain: Int
+  requiredUntilLeadTimePercentRemain: Int
+  requiredUntilNCandidateRemain: Int
+  includeMatchingCandidates: Boolean
+}
+
 type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -3106,6 +3171,7 @@ type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & Doma
   employeeId: Int
   objectType: ObjectType
   objectKey: Int!
+  numReplacements: Int
   replacementPoolConfig: ReplacementPoolConfig
   replacementPoolMembers: [ReplacementPoolMember]
 }
@@ -3204,15 +3270,38 @@ type ReplacementPoolMutations {
 }
 
 type ReplacementPoolQueries {
-  byId(id: ID!): ReplacementPool
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ReplacementPool]
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ReplacementPoolSummary]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedReplacementPool
+  byId(limit: Int, offset: Int, forUpdate: Boolean, replacementPoolId: ID!): ReplacementPool
 }
 
 input ReplacementPoolRemoveEmployeesInput {
   id: Int!
   rowVersion: String!
   employeeIds: [Int]
+}
+
+type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  externalId: String
+  rowVersion: String!
+  replacementPoolConfigId: Int!
+  includeAllEmployees: Boolean
+  locationGroupId: Int
+  locationId: Int
+  positionTypeId: Int
+  employeeId: Int
+  objectType: ObjectType
+  objectKey: Int!
+  numReplacements: Int
+  replacementPoolConfig: ReplacementPoolConfig
 }
 
 input ReplacementPoolUpdateInput {

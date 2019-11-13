@@ -1,7 +1,7 @@
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { useScreenSize } from "hooks";
-import { Typography } from "@material-ui/core";
+import { useScreenSize, useBreakpoint } from "hooks";
+import { Typography, Divider } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import Maybe from "graphql/tsutils/Maybe";
@@ -10,11 +10,13 @@ import { PageTitle } from "ui/components/page-title";
 import { makeStyles, Grid } from "@material-ui/core";
 import { Redirect, useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
+import { TextButton } from "ui/components/text-button";
 import { useState } from "react";
 import * as yup from "yup";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { UpdateEmployee } from "./graphql/update-employee.gen";
 import { PageHeader } from "ui/components/page-header";
+import { getInitials } from "ui/components/helpers";
 import {
   PageHeaderMultiField,
   FieldData,
@@ -22,6 +24,8 @@ import {
 import { DeleteOrgUser } from "./graphql/delete-orguser.gen";
 import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
+import { AvatarCard } from "ui/components/avatar-card";
+import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -33,10 +37,12 @@ export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const isMobile = useScreenSize() === "mobile";
   const history = useHistory();
+  const isSmDown = useBreakpoint("sm", "down");
   const params = useRouteParams(PersonViewRoute);
   const [editing, setEditing] = useState<string | null>(null);
   const [active, setActive] = useState<boolean | null>(null);
 
+  const [resetPassword] = useMutationBundle(ResetPassword);
   const [deleteOrgUserMutation] = useMutationBundle(DeleteOrgUser);
   const deleteOrgUser = React.useCallback(() => {
     history.push(PeopleRoute.generate(params));
@@ -79,7 +85,21 @@ export const PersonViewPage: React.FC<{}> = props => {
     return <Redirect to={listUrl} />;
   }
 
+  const onResetPassword = async () => {
+    await resetPassword({
+      variables: { resetPasswordInput: { id: Number(orgUser.userId) } },
+    });
+  };
+
+  const initials = getInitials(orgUser);
   const employee = orgUser.employee;
+
+  let permissions = orgUser.isSuperUser ? t("Org Admin") : "";
+  if (orgUser.permissionSets!.length > 0) {
+    permissions =
+      orgUser?.permissionSets?.map(p => p?.name).join(",") ??
+      t("No Permissions Defined");
+  }
 
   if (active === null) {
     setActive(orgUser.active);
@@ -119,7 +139,9 @@ export const PersonViewPage: React.FC<{}> = props => {
     <>
       <PageTitle title={t("Person")} withoutHeading={!isMobile} />
       <PageHeaderMultiField
-        text={`${orgUser.firstName} ${orgUser.lastName}`}
+        text={`${orgUser.firstName} ${
+          orgUser.middleName ? `${orgUser.middleName} ` : ""
+        }${orgUser.lastName}`}
         label={t("Name")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.name)}
@@ -145,8 +167,8 @@ export const PersonViewPage: React.FC<{}> = props => {
             label: t("Last Name"),
           },
         ]}
-        onSubmit={async (value: Maybe<Array<FieldData>>) => {
-          await updateName(value!);
+        onSubmit={async (value: Array<FieldData>) => {
+          await updateName(value);
           setEditing(null);
         }}
         onCancel={() => setEditing(null)}
@@ -204,21 +226,60 @@ export const PersonViewPage: React.FC<{}> = props => {
           }}
         />
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">{t("Email")}</Typography>
-            <div>{orgUser.email}</div>
+          <Grid container item spacing={2} xs={8}>
+            <Grid item xs={12} sm={6} lg={6}>
+              <Typography variant="h6">{t("Email")}</Typography>
+              <div>{orgUser.email}</div>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={6}>
+              <Typography variant="h6">{t("Address")}</Typography>
+              <div>
+                {!orgUser.address1
+                  ? t("Not specified")
+                  : `${orgUser.address1}\n${orgUser.address2 &&
+                      `${orgUser.address2}\n`}${orgUser.city}, ${
+                      orgUser.state
+                    } ${orgUser.postalCode}\n${orgUser.country}`}
+              </div>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={6}>
+              <Typography variant="h6">{t("Phone")}</Typography>
+              <div>{orgUser.phoneNumber ?? t("Not specified")}</div>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={6}>
+              <Typography variant="h6">{t("Date of Birth")}</Typography>
+              <div>{orgUser.dateOfBirth ?? t("Not specified")}</div>
+            </Grid>
+            <Grid item xs={12}>
+              <Divider variant="middle" />
+            </Grid>
+            <Grid item xs={12} sm={6} lg={6}>
+              <Typography variant="h6">{t("Permissions")}</Typography>
+              <div>{permissions}</div>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={6}>
+              <Typography variant="h6">{t("Last Login")}</Typography>
+              <Typography variant="h6">{"Nov 11, 2019 3:57 PM"}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={6}>
+              <Typography variant="h6">{t("Username")}</Typography>
+              <div>{orgUser.loginEmail}</div>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={6}>
+              <Typography variant="h6">{t("Password")}</Typography>
+              <TextButton onClick={() => onResetPassword()}>
+                {t("Reset Password")}
+              </TextButton>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">{t("Address")}</Typography>
-            <div></div>
-          </Grid>
-          <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">{t("Phone")}</Typography>
-            <div>{orgUser.phoneNumber}</div>
-          </Grid>
-          <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">{t("Date of Birth")}</Typography>
-            <div>{orgUser.dateOfBirth ?? t("Not specified")}</div>
+          <Grid container item spacing={2} xs={4}>
+            <Grid
+              item
+              container={isSmDown}
+              justify={isSmDown ? "center" : undefined}
+            >
+              <AvatarCard initials={initials} />
+            </Grid>
           </Grid>
         </Grid>
       </Section>

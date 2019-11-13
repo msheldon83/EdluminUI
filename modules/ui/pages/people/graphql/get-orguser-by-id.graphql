@@ -2,6 +2,8 @@ query GetOrgUserById($id: ID!) {
   orgUser {
     byId(id: $id) {
       id
+      userId
+      loginEmail
       rowVersion
       externalId
       firstName
@@ -11,9 +13,21 @@ query GetOrgUserById($id: ID!) {
       isReplacementEmployee
       isEmployee
       isAdmin
+      isSuperUser
       email
       dateOfBirth
       phoneNumber
+      address1
+      address2
+      city
+      state
+      postalCode
+      country
+      permissionSets {
+        id
+        name
+        orgUserRole
+      }
       employee {
         id
         rowVersion
