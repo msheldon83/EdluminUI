@@ -325,59 +325,13 @@ export const DatePicker = (props: DatePickerProps) => {
     );
   };
 
-  const renderTextInputs = React.useCallback(() => {
-    const startDateStyle = singleDate ? { marginRight: 0 } : {};
+  const startDateStyle = singleDate ? { marginRight: 0 } : {};
 
-    const handleStartDateFocus = () => {
-      if (showCalendarOnFocus) {
-        setOpenCalendar(true);
-      }
-    };
-
-    return (
-      <div className={classes.keyboardInputWrapper}>
-        <div className={classes.startDateInput} style={startDateStyle}>
-          <DateInput
-            label={startLabel}
-            value={startDate}
-            /*
-              The handler is used for both change and valid date ranges here to make the experience
-              calculate at all the correct interaction timers
-            */
-            onChange={handleStartDateInputChange}
-            onValidDate={handleStartDateInputChange}
-            ref={startDateInputRef}
-            onFocus={handleStartDateFocus}
-            dateFormat={dateFormat}
-          />
-        </div>
-        {!singleDate && (
-          <div className={classes.endDateInput}>
-            <DateInput
-              label={endLabel}
-              value={endDate}
-              onChange={handleEndDateInputChange}
-              onValidDate={handleEndDateInputChange}
-              dateFormat={dateFormat}
-            />
-          </div>
-        )}
-      </div>
-    );
-  }, [
-    singleDate,
-    startLabel,
-    startDate,
-    endLabel,
-    endDate,
-    dateFormat,
-    classes.endDateInput,
-    classes.keyboardInputWrapper,
-    classes.startDateInput,
-    handleEndDateInputChange,
-    handleStartDateInputChange,
-    showCalendarOnFocus,
-  ]);
+  const handleStartDateFocus = () => {
+    if (showCalendarOnFocus) {
+      setOpenCalendar(true);
+    }
+  };
 
   /*
     TODO:
@@ -387,7 +341,34 @@ export const DatePicker = (props: DatePickerProps) => {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <div className={classes.datePickerWrapper}>
-        {renderTextInputs()}
+        <div className={classes.keyboardInputWrapper}>
+          <div className={classes.startDateInput} style={startDateStyle}>
+            <DateInput
+              label={startLabel}
+              value={startDate}
+              /*
+              The handler is used for both change and valid date ranges here to make the experience
+              calculate at all the correct interaction timers
+            */
+              onChange={handleStartDateInputChange}
+              onValidDate={handleStartDateInputChange}
+              ref={startDateInputRef}
+              onFocus={handleStartDateFocus}
+              dateFormat={dateFormat}
+            />
+          </div>
+          {!singleDate && (
+            <div className={classes.endDateInput}>
+              <DateInput
+                label={endLabel}
+                value={endDate}
+                onChange={handleEndDateInputChange}
+                onValidDate={handleEndDateInputChange}
+                dateFormat={dateFormat}
+              />
+            </div>
+          )}
+        </div>
         {showCalendarOnFocus ? renderPopoverCalendar() : renderCalender()}
       </div>
     </MuiPickersUtilsProvider>
