@@ -100,8 +100,8 @@ export const Settings: React.FC<Props> = props => {
             props.positionType.minAbsenceDurationMinutes,
           defaultContractId: props.positionType.defaultContractId,
         }}
-        onSubmit={(data, meta) => {
-          props.onSubmit(
+        onSubmit={async (data, meta) => {
+          await props.onSubmit(
             data.forPermanentPositions,
             data.needsReplacement,
             data.forStaffAugmentation,
