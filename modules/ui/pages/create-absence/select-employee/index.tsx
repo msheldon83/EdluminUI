@@ -6,7 +6,7 @@ import { PaginationControls } from "ui/components/pagination-controls";
 import { useTranslation } from "react-i18next";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useHistory } from "react-router";
 import {
   AdminCreateAbsenceRoute,
@@ -14,9 +14,10 @@ import {
 } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
 import { useQueryParams } from "hooks/query-params";
-import { useDeferredState } from "hooks";
+import { useDeferredState, usePrevious } from "hooks";
 import { Section } from "ui/components/section";
-import { TextField } from "@material-ui/core";
+import { TextField, FormControlLabel, makeStyles } from "@material-ui/core";
+import { Input } from "ui/components/form/input";
 
 type Props = {};
 
@@ -31,6 +32,7 @@ type Row = {
 
 export const SelectEmployee: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const classes = useStyles();
 
   const { organizationId } = useRouteParams(
     AdminSelectEmployeeForCreateAbsenceRoute
@@ -40,6 +42,17 @@ export const SelectEmployee: React.FC<Props> = props => {
     filters.name,
     200
   );
+  useEffect(() => {
+    if (name !== filters.name) {
+      setPendingName(name);
+    }
+  }, [filters.name]); // eslint-disable-line react/exhaustive-deps
+  useEffect(() => {
+    if (name !== filters.name) {
+      updateFilters({ name });
+    }
+  }, [name]); //const userIsAdmin = useIsAdmin();
+
   const history = useHistory();
   const [employees, pagination] = usePagedQueryBundle(
     GetEmployeesForOrg,
@@ -90,11 +103,13 @@ export const SelectEmployee: React.FC<Props> = props => {
   return (
     <>
       <Section>
-        <TextField
-          label={t("Name")}
-          value={pendingName}
-          onChange={e => setPendingName(e.target.value)}
-        />
+        <div className={classes.nameFieldContainer}>
+          <Input
+            label={t("Name")}
+            value={pendingName}
+            onChange={e => setPendingName(e.target.value)}
+          />
+        </div>
       </Section>
       <Table
         title={`${pagination.totalCount} ${
@@ -108,3 +123,9 @@ export const SelectEmployee: React.FC<Props> = props => {
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  nameFieldContainer: {
+    width: theme.typography.pxToRem(262),
+  },
+}));
