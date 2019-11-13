@@ -9,7 +9,7 @@ import { TextButton } from "ui/components/text-button";
 import { AvatarCard } from "ui/components/avatar-card";
 import { useBreakpoint } from "hooks";
 import { getInitials } from "ui/components/helpers";
-import { StateCode, CountryCode } from "graphql/server-types.gen";
+import { StateCode, CountryCode, OrgUserRole } from "graphql/server-types.gen";
 
 type Props = {
   editing: string | null;
@@ -27,12 +27,13 @@ type Props = {
     loginEmail?: string | null | undefined;
     dateOfBirth?: string | null | undefined;
     permissionSets?:
-      | Array<{ name: string } | null | undefined>
+      | Array<{ name: string; orgUserRole: OrgUserRole } | null | undefined>
       | null
       | undefined;
     isSuperUser: boolean;
   };
   lastLogin: string | null | undefined;
+  selectedRole: OrgUserRole;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   onResetPassword: () => Promise<unknown>;
 };
@@ -58,8 +59,10 @@ export const Information: React.FC<Props> = props => {
   let permissions = orgUser.isSuperUser ? t("Org Admin") : "";
   if (orgUser.permissionSets!.length > 0) {
     permissions =
-      orgUser?.permissionSets?.map(p => p?.name).join(",") ??
-      t("No Permissions Defined");
+      orgUser?.permissionSets
+        ?.filter(p => p?.orgUserRole === props.selectedRole)
+        .map(p => p?.name)
+        .join(",") ?? t("No Permissions Defined");
   }
 
   return (

@@ -1,39 +1,38 @@
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { useScreenSize, useBreakpoint } from "hooks";
-import { Typography, Divider, Tab, Tabs } from "@material-ui/core";
-import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
+import { useScreenSize } from "hooks";
 import * as React from "react";
-import { PageTitle } from "ui/components/page-title";
-import { makeStyles, Grid } from "@material-ui/core";
+
 import { Redirect, useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
-import { TextButton } from "ui/components/text-button";
-import { useState } from "react";
-import { PersonViewHeader } from "./components/view-header";
-import { Information } from "./components/information";
-import { UpdateOrgUser } from "./graphql/update-orguser.gen";
-import { UpdateEmployee } from "./graphql/update-employee.gen";
+import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 
 import { FieldData } from "ui/components/page-header-multifieldedit";
+
+import { PageTitle } from "ui/components/page-title";
+import { PersonViewHeader } from "./components/view-header";
+import { RoleTabs } from "./components/role-tabs";
+import { Information } from "./components/information";
+
+import { UpdateOrgUser } from "./graphql/update-orguser.gen";
+import { UpdateEmployee } from "./graphql/update-employee.gen";
 import { DeleteOrgUser } from "./graphql/delete-orguser.gen";
 import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
-import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
-import { AvatarCard } from "ui/components/avatar-card";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
-import { OrgUserRole } from "graphql/server-types.gen";
 import { GetOrgUserLastLogin } from "./graphql/get-orguser-lastlogin.gen";
+import { OrgUserRole } from "graphql/server-types.gen";
 
 export const PersonViewPage: React.FC<{}> = props => {
-  const classes = useStyles();
   const { t } = useTranslation();
   const isMobile = useScreenSize() === "mobile";
   const history = useHistory();
 
   const params = useRouteParams(PersonViewRoute);
-  const [editing, setEditing] = useState<string | null>(null);
-  const [active, setActive] = useState<boolean | null>(null);
+  const [editing, setEditing] = React.useState<string | null>(null);
+  const [active, setActive] = React.useState<boolean | null>(null);
+  const [selectedRole, setSelectedRole] = React.useState<OrgUserRole | null>(
+    null
+  );
 
   const [resetPassword] = useMutationBundle(ResetPassword);
   const [deleteOrgUserMutation] = useMutationBundle(DeleteOrgUser);
@@ -129,6 +128,12 @@ export const PersonViewPage: React.FC<{}> = props => {
     });
   };
 
+  const defaultSelectedRole = orgUser.isAdmin
+    ? OrgUserRole.Administrator
+    : orgUser.isEmployee
+    ? OrgUserRole.Employee
+    : OrgUserRole.ReplacementEmployee;
+
   return (
     <>
       <PageTitle title={t("Person")} withoutHeading={!isMobile} />
@@ -143,79 +148,19 @@ export const PersonViewPage: React.FC<{}> = props => {
         deleteOrgUser={deleteOrgUser}
         activateDeactivateOrgUser={activateDeactivateOrgUser}
       />
-      <Tabs
-        value={OrgUserRole.Administrator}
-        indicatorColor="primary"
-        textColor="primary"
-        //onChange={updateRoleFilter}
-        aria-label="person-role-selector"
-      >
-        {orgUser.isAdmin && (
-          <Tab
-            label={t("Admin")}
-            value={OrgUserRole.Administrator}
-            className={classes.tab}
-          />
-        )}
-        {orgUser.isEmployee && (
-          <Tab
-            label={t("Employee")}
-            value={OrgUserRole.Employee}
-            className={classes.tab}
-          />
-        )}
-        {orgUser.isReplacementEmployee && (
-          <Tab
-            label={t("Substitute")}
-            value={OrgUserRole.ReplacementEmployee}
-            className={classes.tab}
-          />
-        )}
-        <span className={classes.selectableTab}>
-          {!orgUser.isAdmin && (
-            <Tab
-              label={t("Admin")}
-              value={OrgUserRole.Administrator}
-              className={classes.tab}
-            />
-          )}
-          {!orgUser.isEmployee && (
-            <Tab
-              label={t("Employee")}
-              value={OrgUserRole.Employee}
-              className={classes.tab}
-            />
-          )}
-          {!orgUser.isReplacementEmployee && (
-            <Tab
-              label={t("Substitute")}
-              value={OrgUserRole.ReplacementEmployee}
-              className={classes.tab}
-            />
-          )}
-        </span>
-      </Tabs>
+      <RoleTabs
+        orgUser={orgUser}
+        selectedRole={selectedRole ?? defaultSelectedRole}
+        setSelectedRole={setSelectedRole}
+      />
       <Information
         editing={editing}
         orgUser={orgUser}
         lastLogin={lastLogin}
         setEditing={setEditing}
         onResetPassword={onResetPassword}
+        selectedRole={selectedRole ?? defaultSelectedRole}
       />
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  tab: {
-    textTransform: "uppercase",
-  },
-  selectableTab: {
-    marginLeft: "auto",
-    marginRight: -12,
-  },
-  valueMissing: {
-    opacity: "0.6",
-    filter: "alpha(opacity = 60)",
-  },
-}));
