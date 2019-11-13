@@ -4,7 +4,6 @@ import { useScreenSize, useBreakpoint } from "hooks";
 import { Typography, Divider, Tab, Tabs } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { makeStyles, Grid } from "@material-ui/core";
@@ -13,14 +12,11 @@ import { useRouteParams } from "ui/routes/definition";
 import { TextButton } from "ui/components/text-button";
 import { useState } from "react";
 import { PersonViewHeader } from "./components/view-header";
+import { Information } from "./components/information";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { UpdateEmployee } from "./graphql/update-employee.gen";
 
-import { getInitials } from "ui/components/helpers";
-import {
-  PageHeaderMultiField,
-  FieldData,
-} from "ui/components/page-header-multifieldedit";
+import { FieldData } from "ui/components/page-header-multifieldedit";
 import { DeleteOrgUser } from "./graphql/delete-orguser.gen";
 import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
@@ -28,14 +24,13 @@ import { AvatarCard } from "ui/components/avatar-card";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { GetOrgUserLastLogin } from "./graphql/get-orguser-lastlogin.gen";
-import { formatIsoDateIfPossible } from "helpers/date";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const isMobile = useScreenSize() === "mobile";
   const history = useHistory();
-  const isSmDown = useBreakpoint("sm", "down");
+
   const params = useRouteParams(PersonViewRoute);
   const [editing, setEditing] = useState<string | null>(null);
   const [active, setActive] = useState<boolean | null>(null);
@@ -96,27 +91,9 @@ export const PersonViewPage: React.FC<{}> = props => {
     });
   };
 
-  const initials = getInitials(orgUser);
   const employee = orgUser.employee;
   const lastLogin =
     getOrgUserLastLogin?.data?.orgUser?.lastLoginById?.lastLogin;
-
-  const formattedLoginTime = formatIsoDateIfPossible(
-    lastLogin ? lastLogin : "Not Available",
-    "MMM d, yyyy h:m a"
-  );
-
-  const formattedBirthDate = formatIsoDateIfPossible(
-    orgUser.dateOfBirth ? orgUser.dateOfBirth : "Not Specified",
-    "MMM d, yyyy"
-  );
-
-  let permissions = orgUser.isSuperUser ? t("Org Admin") : "";
-  if (orgUser.permissionSets!.length > 0) {
-    permissions =
-      orgUser?.permissionSets?.map(p => p?.name).join(",") ??
-      t("No Permissions Defined");
-  }
 
   if (active === null) {
     setActive(orgUser.active);
@@ -218,76 +195,13 @@ export const PersonViewPage: React.FC<{}> = props => {
           )}
         </span>
       </Tabs>
-      <Section>
-        <SectionHeader
-          title={t("Information")}
-          action={{
-            text: t("Edit"),
-            visible: !editing,
-            execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
-              history.push(editSettingsUrl);
-            },
-          }}
-        />
-        <Grid container spacing={2}>
-          <Grid container item spacing={2} xs={8}>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Email")}</Typography>
-              <div>{orgUser.email}</div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Address")}</Typography>
-              <div>
-                {!orgUser.address1
-                  ? t("Not specified")
-                  : `${orgUser.address1}\n${orgUser.address2 &&
-                      `${orgUser.address2}\n`}${orgUser.city}, ${
-                      orgUser.state
-                    } ${orgUser.postalCode}\n${orgUser.country}`}
-              </div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Phone")}</Typography>
-              <div>{orgUser.phoneNumber ?? t("Not specified")}</div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Date of Birth")}</Typography>
-              <div>{formattedBirthDate}</div>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider variant="middle" />
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Permissions")}</Typography>
-              <div>{permissions}</div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Last Login")}</Typography>
-              <div>{formattedLoginTime}</div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Username")}</Typography>
-              <div>{orgUser.loginEmail}</div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Password")}</Typography>
-              <TextButton onClick={() => onResetPassword()}>
-                {t("Reset Password")}
-              </TextButton>
-            </Grid>
-          </Grid>
-          <Grid container item spacing={2} xs={4}>
-            <Grid
-              item
-              container={isSmDown}
-              justify={isSmDown ? "center" : undefined}
-            >
-              <AvatarCard initials={initials} />
-            </Grid>
-          </Grid>
-        </Grid>
-      </Section>
+      <Information
+        editing={editing}
+        orgUser={orgUser}
+        lastLogin={lastLogin}
+        setEditing={setEditing}
+        onResetPassword={onResetPassword}
+      />
     </>
   );
 };
