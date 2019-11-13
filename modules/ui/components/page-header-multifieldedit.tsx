@@ -141,6 +141,7 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
     <Formik
       initialValues={{ fields: props.fields || [] }}
       onSubmit={async (data: { fields: Array<FieldData> }, meta) => {
+        console.log(data);
         if (props.onSubmit) {
           const valuesToSend =
             data.fields &&
@@ -162,7 +163,7 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
               {values.fields.map((field: FieldData, index: number) => (
                 <FormTextField
                   key={index}
-                  name={`fields[${index}].key`}
+                  name={field.key}
                   label={field.label}
                   value={field.value ? field.value : ""}
                   margin={isMobile ? "normal" : "none"}
