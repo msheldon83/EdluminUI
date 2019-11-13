@@ -9,13 +9,7 @@ import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
-import {
-  IconButton,
-  Typography,
-  Divider,
-  Button,
-  Tooltip,
-} from "@material-ui/core";
+import { Typography, Divider, Button, Tooltip } from "@material-ui/core";
 import {
   AccountCircleOutlined,
   Star,
@@ -29,6 +23,7 @@ import {
 import { Column } from "material-table";
 import { Qualified, Available } from "graphql/server-types.gen";
 import { TFunction } from "i18next";
+import { AssignSubFilters as Filters } from "./filters";
 
 type Props = {
   orgId: string;
@@ -45,7 +40,7 @@ const getQualifiedIcon = (qualified: Qualified, t: TFunction) => {
           <Check />
         </Tooltip>
       );
-    // TODO: This has to be distinguished from Fully with a different icon
+    // TODO: This has to be distinguished from FULLY with a different icon
     case Qualified.Minimally:
       return (
         <Tooltip title={t("Minimally qualified")}>
@@ -98,12 +93,8 @@ const getFavoriteIcon = (
   isEmployeeFavorite: boolean,
   isLocationPositionTypeFavorite: boolean
 ) => {
-  if (isEmployeeFavorite) {
+  if (isEmployeeFavorite || isLocationPositionTypeFavorite) {
     return <Star />;
-  }
-
-  if (isLocationPositionTypeFavorite) {
-    return <StarBorder />;
   }
 
   return null;
@@ -166,6 +157,7 @@ export const AssignSub: React.FC<Props> = props => {
 
   const columns: Column<typeof tableData[0]>[] = [
     {
+      title: t("Favorite"),
       cellStyle: {
         width: isMobile
           ? theme.typography.pxToRem(40)
@@ -247,7 +239,7 @@ export const AssignSub: React.FC<Props> = props => {
     sorting: false,
     render: (data: typeof tableData[0]) => (
       <Button
-        variant="contained"
+        variant="outlined"
         disabled={!data.selectable}
         onClick={() => {
           console.log("Selecting Employee Id", data.employeeId);
@@ -267,6 +259,12 @@ export const AssignSub: React.FC<Props> = props => {
     ? t("Prearranging substitute")
     : t("Prearranging substitute for");
 
+  const search = async (
+    name: string,
+    qualified: Qualified,
+    available: Available[]
+  ) => {};
+
   return (
     <>
       <Typography variant="h5">{pageHeader}</Typography>
@@ -276,8 +274,13 @@ export const AssignSub: React.FC<Props> = props => {
       <Section>
         <div>Vacancy Details go here</div>
         <Divider />
-        <div>Filters go here</div>
+
+        <Filters
+          showQualifiedAndAvailable={!props.isEmployee}
+          search={search}
+        />
         <Divider />
+
         <Table
           title={`${replacementEmployeeCount} ${
             replacementEmployeeCount === 1 ? t("substitute") : t("substitutes")

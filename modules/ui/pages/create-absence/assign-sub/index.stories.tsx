@@ -1,6 +1,6 @@
 import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
-import { AssignSub } from "./assign-sub";
+import { AssignSub } from "./index";
 import { Qualified, Available } from "graphql/server-types.gen";
 
 export default {
