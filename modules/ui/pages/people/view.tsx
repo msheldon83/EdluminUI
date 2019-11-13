@@ -4,7 +4,7 @@ import { useScreenSize, useBreakpoint } from "hooks";
 import { Typography, Divider, Tab, Tabs } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import Maybe from "graphql/tsutils/Maybe";
+
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { makeStyles, Grid } from "@material-ui/core";
@@ -12,10 +12,10 @@ import { Redirect, useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { TextButton } from "ui/components/text-button";
 import { useState } from "react";
-import * as yup from "yup";
+import { PersonViewHeader } from "./components/view-header";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { UpdateEmployee } from "./graphql/update-employee.gen";
-import { PageHeader } from "ui/components/page-header";
+
 import { getInitials } from "ui/components/helpers";
 import {
   PageHeaderMultiField,
@@ -28,11 +28,7 @@ import { AvatarCard } from "ui/components/avatar-card";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { GetOrgUserLastLogin } from "./graphql/get-orguser-lastlogin.gen";
-
-const editableSections = {
-  name: "edit-name",
-  externalId: "edit-external-id",
-};
+import { formatIsoDateIfPossible } from "helpers/date";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -80,7 +76,10 @@ export const PersonViewPage: React.FC<{}> = props => {
     variables: { id: params.orgUserId },
   });
 
-  if (getOrgUser.state === "LOADING") {
+  if (
+    getOrgUser.state === "LOADING" ||
+    getOrgUserLastLogin.state === "LOADING"
+  ) {
     return <></>;
   }
 
@@ -101,6 +100,16 @@ export const PersonViewPage: React.FC<{}> = props => {
   const employee = orgUser.employee;
   const lastLogin =
     getOrgUserLastLogin?.data?.orgUser?.lastLoginById?.lastLogin;
+
+  const formattedLoginTime = formatIsoDateIfPossible(
+    lastLogin ? lastLogin : "Not Available",
+    "MMM d, yyyy h:m a"
+  );
+
+  const formattedBirthDate = formatIsoDateIfPossible(
+    orgUser.dateOfBirth ? orgUser.dateOfBirth : "Not Specified",
+    "MMM d, yyyy"
+  );
 
   let permissions = orgUser.isSuperUser ? t("Org Admin") : "";
   if (orgUser.permissionSets!.length > 0) {
@@ -146,79 +155,16 @@ export const PersonViewPage: React.FC<{}> = props => {
   return (
     <>
       <PageTitle title={t("Person")} withoutHeading={!isMobile} />
-      <PageHeaderMultiField
-        text={`${orgUser.firstName} ${
-          orgUser.middleName ? `${orgUser.middleName} ` : ""
-        }${orgUser.lastName}`}
-        label={t("Name")}
-        editable={editing === null}
-        onEdit={() => setEditing(editableSections.name)}
-        validationSchema={yup.object().shape({
-          firstName: yup.string().required(t("First name is required")),
-          middleName: yup.string().nullable(),
-          lastName: yup.string().required(t("Last name is required")),
-        })}
-        fields={[
-          {
-            key: "firstName",
-            value: orgUser.firstName,
-            label: t("First Name"),
-          },
-          {
-            key: "middleName",
-            value: orgUser.middleName,
-            label: t("Middle Name"),
-          },
-          {
-            key: "lastName",
-            value: orgUser.lastName,
-            label: t("Last Name"),
-          },
-        ]}
-        onSubmit={async (value: Array<FieldData>) => {
-          await updateName(value);
-          setEditing(null);
-        }}
-        onCancel={() => setEditing(null)}
-        actions={[
-          {
-            name: t("Change History"),
-            onClick: () => {},
-          },
-          {
-            name: active ? t("Inactivate") : t("Activate"),
-            onClick: async () => {
-              await activateDeactivateOrgUser(!active, orgUser.rowVersion);
-              setActive(!active);
-            },
-          },
-          {
-            name: t("Delete"),
-            onClick: deleteOrgUser,
-          },
-        ]}
-        isInactive={!active}
-        inactiveDisplayText={t("This person is currently inactive.")}
-        onActivate={async () => {
-          await activateDeactivateOrgUser(true, orgUser.rowVersion);
-          setActive(true);
-        }}
-      />
-      <PageHeader
-        text={orgUser.externalId}
-        label={t("External ID")}
-        editable={editing === null}
-        onEdit={() => setEditing(editableSections.externalId)}
-        validationSchema={yup.object().shape({
-          value: yup.string().nullable(),
-        })}
-        onSubmit={async (value: Maybe<string>) => {
-          await updateExternalId(value);
-          setEditing(null);
-        }}
-        onCancel={() => setEditing(null)}
-        isSubHeader={true}
-        showLabel={true}
+      <PersonViewHeader
+        orgUser={orgUser}
+        editing={editing}
+        active={active}
+        setEditing={setEditing}
+        setActive={setActive}
+        updateName={updateName}
+        updateExternalId={updateExternalId}
+        deleteOrgUser={deleteOrgUser}
+        activateDeactivateOrgUser={activateDeactivateOrgUser}
       />
       <Tabs
         value={OrgUserRole.Administrator}
@@ -307,7 +253,7 @@ export const PersonViewPage: React.FC<{}> = props => {
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Date of Birth")}</Typography>
-              <div>{orgUser.dateOfBirth ?? t("Not specified")}</div>
+              <div>{formattedBirthDate}</div>
             </Grid>
             <Grid item xs={12}>
               <Divider variant="middle" />
@@ -318,7 +264,7 @@ export const PersonViewPage: React.FC<{}> = props => {
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Last Login")}</Typography>
-              <div>{lastLogin ?? t("Not available")}</div>
+              <div>{formattedLoginTime}</div>
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Username")}</Typography>
