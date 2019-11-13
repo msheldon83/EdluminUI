@@ -109,13 +109,43 @@ export const Settings: React.FC<Props> = props => {
             data.defaultContractId
           );
         }}
-        validationSchema={yup.object().shape({
-          minAbsenceDurationMinutes: yup
-            .number()
-            .required(t("Minimum Absence Duration is required")),
-        })}
+        validationSchema={yup
+          .object()
+          .shape({
+            minAbsenceDurationMinutes: yup
+              .number()
+              .required(t("Minimum Absence Duration is required")),
+          })
+          .test({
+            name: "forStaffAugmentationCheck",
+            test: value => {
+              if (value.forStaffAugmentation || value.forPermanentPositions) {
+                return true;
+              }
+
+              return new yup.ValidationError(
+                "Error",
+                null,
+                "forStaffAugmentation"
+              );
+            },
+          })
+          .test({
+            name: "forPermanentPositionsCheck",
+            test: value => {
+              if (value.forStaffAugmentation || value.forPermanentPositions) {
+                return true;
+              }
+
+              return new yup.ValidationError(
+                "Error",
+                null,
+                "forPermanentPositions"
+              );
+            },
+          })}
       >
-        {({ values, handleSubmit, submitForm, setFieldValue }) => (
+        {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
             <Typography variant="h6">
               {t("How will you use this position?")}
@@ -129,6 +159,11 @@ export const Settings: React.FC<Props> = props => {
                   }}
                   value={values.forPermanentPositions}
                   color="primary"
+                  className={
+                    errors && errors.forPermanentPositions
+                      ? classes.checkboxError
+                      : ""
+                  }
                 />
               }
               label={t("Use for employees")}
@@ -192,6 +227,11 @@ export const Settings: React.FC<Props> = props => {
                   }}
                   value={values.forStaffAugmentation}
                   color="primary"
+                  className={
+                    errors && errors.forStaffAugmentation
+                      ? classes.checkboxError
+                      : ""
+                  }
                 />
               }
               label={t("Use for vacancies")}
@@ -201,6 +241,13 @@ export const Settings: React.FC<Props> = props => {
                 "Will you need to request a substitute without an employee being absent?"
               )}
             </FormHelperText>
+            {errors &&
+              errors.forPermanentPositions &&
+              errors.forStaffAugmentation && (
+                <FormHelperText error={true} className={classes.appliesToError}>
+                  {t("Please specify how you will use this position")}
+                </FormHelperText>
+              )}
             <div
               className={[
                 classes.contractSection,
@@ -303,5 +350,12 @@ const useStyles = makeStyles(theme => ({
   },
   minAbsenceDurationLabel: {
     marginTop: theme.spacing(2),
+  },
+  checkboxError: {
+    color: theme.palette.error.main,
+  },
+  appliesToError: {
+    marginTop: theme.spacing(2),
+    fontSize: theme.typography.pxToRem(14),
   },
 }));
