@@ -6,7 +6,6 @@ import { Option, ActionMenu } from "./action-menu";
 import { Formik } from "formik";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { useScreenSize } from "hooks";
-import Maybe from "graphql/tsutils/Maybe";
 import { TextButton } from "./text-button";
 
 export type FieldData = {
@@ -141,7 +140,6 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
     <Formik
       initialValues={{ fields: props.fields || [] }}
       onSubmit={async (data: { fields: Array<FieldData> }, meta) => {
-        console.log(data);
         if (props.onSubmit) {
           const valuesToSend =
             data.fields &&
@@ -154,7 +152,8 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
         }
         setEditing(false);
       }}
-      validationSchema={props.validationSchema || null}
+      // TODO figure out why validation isn't working
+      //validationSchema={props.validationSchema || null}
     >
       {({ handleSubmit, submitForm, values, setFieldValue }) => (
         <form onSubmit={handleSubmit}>

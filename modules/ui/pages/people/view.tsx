@@ -147,7 +147,7 @@ export const PersonViewPage: React.FC<{}> = props => {
         onEdit={() => setEditing(editableSections.name)}
         validationSchema={yup.object().shape({
           firstName: yup.string().required(t("First name is required")),
-          middleName: yup.string(),
+          middleName: yup.string().nullable(),
           lastName: yup.string().required(t("Last name is required")),
         })}
         fields={[
