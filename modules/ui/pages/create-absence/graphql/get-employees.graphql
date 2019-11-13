@@ -1,11 +1,22 @@
 query GetEmployeesForOrg($orgId: ID!, $limit: Int, $offset: Int) {
-  employee {
-    paged(orgId: $orgId, limit: $limit, offset: $offset) {
+  orgUser {
+    paged(orgId: $orgId, limit: $limit, offset: $offset, role: EMPLOYEE) {
       totalCount
       offset
       limit
       results {
         id
+        externalId
+        phoneNumber
+        firstName
+        lastName
+        employee {
+          id
+          primaryPosition {
+            id
+            name
+          }
+        }
       }
     }
   }

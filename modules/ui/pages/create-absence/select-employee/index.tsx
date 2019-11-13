@@ -18,6 +18,10 @@ type Props = {};
 
 type Row = {
   id: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
+  position?: string;
   externalId?: string | null;
 };
 
@@ -30,7 +34,7 @@ export const SelectEmployee: React.FC<Props> = props => {
   const history = useHistory();
   const [employees, pagination] = usePagedQueryBundle(
     GetEmployeesForOrg,
-    r => r.employee?.paged?.totalCount,
+    r => r.orgUser?.paged?.totalCount,
     {
       variables: { orgId: organizationId },
     }
@@ -38,19 +42,26 @@ export const SelectEmployee: React.FC<Props> = props => {
 
   let results: GetEmployeesForOrg.Results[] | null = null;
   if (employees.state === "DONE" || employees.state === "UPDATING") {
-    results = compact(employees.data.employee?.paged?.results ?? []);
+    results = compact(employees.data.orgUser?.paged?.results ?? []);
   }
 
   const tableData: Row[] = React.useMemo(() => {
-    return (results || []).map(employee => ({
-      id: employee.id,
-      externalId: "TODO", // this was broken by changes to the schema
+    return (results || []).map(orgUser => ({
+      id: orgUser.id,
+      externalId: orgUser.externalId,
+      firstName: orgUser.firstName,
+      lastName: orgUser.lastName,
+      phone: orgUser.phoneNumber,
+      position: orgUser.employee?.primaryPosition?.name,
     }));
   }, [results]);
 
   const columns: Column<typeof tableData[0]>[] = [
+    { title: t("First name"), field: "firstName" },
+    { title: t("Last name"), field: "lastName" },
+    { title: t("Primary phone"), field: "phone" },
     { title: t("Employee ID"), field: "employeeId" },
-    { title: "id", field: "id" },
+    { title: t("Position"), field: "position" },
   ];
 
   const selectEmployee = useCallback(
