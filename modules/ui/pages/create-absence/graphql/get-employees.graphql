@@ -6,12 +6,6 @@ query GetEmployeesForOrg($orgId: ID!, $limit: Int, $offset: Int) {
       limit
       results {
         id
-        externalId
-        phoneNumbers {
-          id
-          phoneType
-          number
-        }
       }
     }
   }

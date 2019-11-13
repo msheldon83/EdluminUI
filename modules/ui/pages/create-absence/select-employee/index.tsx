@@ -44,7 +44,7 @@ export const SelectEmployee: React.FC<Props> = props => {
   const tableData: Row[] = React.useMemo(() => {
     return (results || []).map(employee => ({
       id: employee.id,
-      externalId: employee.externalId,
+      externalId: "TODO", // this was broken by changes to the schema
     }));
   }, [results]);
 

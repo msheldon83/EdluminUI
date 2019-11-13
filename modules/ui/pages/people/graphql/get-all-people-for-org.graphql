@@ -34,6 +34,7 @@ query GetAllPeopleForOrg(
         isEmployee
         isAdmin
         email
+        externalId
         phoneNumber
         employee {
           id
