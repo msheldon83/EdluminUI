@@ -9,7 +9,13 @@ import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
-import { IconButton, Typography, Divider, Button } from "@material-ui/core";
+import {
+  IconButton,
+  Typography,
+  Divider,
+  Button,
+  Tooltip,
+} from "@material-ui/core";
 import {
   AccountCircleOutlined,
   Star,
@@ -22,6 +28,7 @@ import {
 } from "@material-ui/icons";
 import { Column } from "material-table";
 import { Qualified, Available } from "graphql/server-types.gen";
+import { TFunction } from "i18next";
 
 type Props = {
   orgId: string;
@@ -30,25 +37,37 @@ type Props = {
   employeeName: string;
 };
 
-const getQualifiedIcon = (qualified: Qualified) => {
+const getQualifiedIcon = (qualified: Qualified, t: TFunction) => {
   switch (qualified) {
     case Qualified.Fully:
-      return <Check />;
+      return (
+        <Tooltip title={t("Fully qualified")}>
+          <Check />
+        </Tooltip>
+      );
     // TODO: This has to be distinguished from Fully with a different icon
     case Qualified.Minimally:
-      return <Check />;
+      return (
+        <Tooltip title={t("Minimally qualified")}>
+          <Check />
+        </Tooltip>
+      );
     case Qualified.NotQualified:
       return <Cancel />;
   }
 };
 
-const getAvailableIcon = (available: Available) => {
+const getAvailableIcon = (available: Available, t: TFunction) => {
   switch (available) {
     case Available.Yes:
       return <Check />;
     // TODO: This has to be distinguished from YES with a different icon
     case Available.MinorConflict:
-      return <Check />;
+      return (
+        <Tooltip title={t("Minor conflict")}>
+          <Check />
+        </Tooltip>
+      );
     case Available.No:
       return <Cancel />;
   }
@@ -56,7 +75,8 @@ const getAvailableIcon = (available: Available) => {
 
 const getVisibleIcon = (
   visible: boolean,
-  visibleOn?: Date | null | undefined
+  visibleOn?: Date | null | undefined,
+  t: TFunction
 ) => {
   if (visible) {
     return <Visibility />;
@@ -67,7 +87,26 @@ const getVisibleIcon = (
   }
 
   // TODO: Add a tooltip to show when this will be visible to the Sub
-  return <AccessTime />;
+  return (
+    <Tooltip title={`${t("Visible on")} ${visibleOn}`}>
+      <AccessTime />
+    </Tooltip>
+  );
+};
+
+const getFavoriteIcon = (
+  isEmployeeFavorite: boolean,
+  isLocationPositionTypeFavorite: boolean
+) => {
+  if (isEmployeeFavorite) {
+    return <Star />;
+  }
+
+  if (isLocationPositionTypeFavorite) {
+    return <StarBorder />;
+  }
+
+  return null;
 };
 
 export const AssignSub: React.FC<Props> = props => {
@@ -108,6 +147,9 @@ export const AssignSub: React.FC<Props> = props => {
       available: r.available,
       visible: r.visible,
       visibleOn: r.visibleOnLocal,
+      isEmployeeFavorite: r.isEmployeeFavorite,
+      isLocationPositionTypeFavorite: r.isLocationPositionTypeFavorite,
+      // TODO: Figure out the logic for whether or not this Sub can be assigned
       selectable: true,
     }));
   }, [replacementEmployees]);
@@ -129,7 +171,11 @@ export const AssignSub: React.FC<Props> = props => {
           ? theme.typography.pxToRem(40)
           : theme.typography.pxToRem(70),
       },
-      render: () => <Star />, // eslint-disable-line
+      render: (data: typeof tableData[0]) =>
+        getFavoriteIcon(
+          data.isEmployeeFavorite,
+          data.isLocationPositionTypeFavorite
+        ),
       sorting: false,
     },
     {
@@ -150,10 +196,15 @@ export const AssignSub: React.FC<Props> = props => {
       field: "lastName",
     },
     { title: t("Primary phone"), field: "primaryPhone" },
-    {
+  ];
+
+  // Only Admins see the Qualified and Available columns
+  if (!props.isEmployee) {
+    columns.push({
       title: t("Qualified"),
       field: "qualified",
-      render: (data: typeof tableData[0]) => getQualifiedIcon(data.qualified),
+      render: (data: typeof tableData[0]) =>
+        getQualifiedIcon(data.qualified, t),
       cellStyle: {
         textAlign: "center",
       },
@@ -161,24 +212,12 @@ export const AssignSub: React.FC<Props> = props => {
         textAlign: "center",
       },
       sorting: false,
-    },
-    {
+    });
+    columns.push({
       title: t("Available"),
       field: "available",
-      render: (data: typeof tableData[0]) => getAvailableIcon(data.available),
-      cellStyle: {
-        textAlign: "center",
-      },
-      headerStyle: {
-        textAlign: "center",
-      },
-      sorting: false,
-    },
-    {
-      title: t("Visible"),
-      field: "visible",
       render: (data: typeof tableData[0]) =>
-        getVisibleIcon(data.visible, data.visibleOn),
+        getAvailableIcon(data.available, t),
       cellStyle: {
         textAlign: "center",
       },
@@ -186,24 +225,38 @@ export const AssignSub: React.FC<Props> = props => {
         textAlign: "center",
       },
       sorting: false,
+    });
+  }
+
+  columns.push({
+    title: t("Visible"),
+    field: "visible",
+    render: (data: typeof tableData[0]) =>
+      getVisibleIcon(data.visible, data.visibleOn, t),
+    cellStyle: {
+      textAlign: "center",
     },
-    {
-      title: "",
-      field: "actions",
-      sorting: false,
-      render: (data: typeof tableData[0]) => (
-        <Button
-          variant="contained"
-          disabled={!data.selectable}
-          onClick={() => {
-            console.log("Selecting Employee Id", data.employeeId);
-          }}
-        >
-          {t("Select")}
-        </Button>
-      ),
+    headerStyle: {
+      textAlign: "center",
     },
-  ];
+    sorting: false,
+  });
+  columns.push({
+    title: "",
+    field: "actions",
+    sorting: false,
+    render: (data: typeof tableData[0]) => (
+      <Button
+        variant="contained"
+        disabled={!data.selectable}
+        onClick={() => {
+          console.log("Selecting Employee Id", data.employeeId);
+        }}
+      >
+        {props.vacancyId ? t("Assign") : t("Select")}
+      </Button>
+    ),
+  });
 
   const replacementEmployeeCount = pagination.totalCount;
   const pageHeader = props.vacancyId

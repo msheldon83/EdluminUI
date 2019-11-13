@@ -3227,6 +3227,8 @@ type ReplacementEmployeeAvailability {
   visible: Boolean!
   visibleOnLocal: DateTime
   visibleOnUtc: DateTime
+  isEmployeeFavorite: Boolean!
+  isLocationPositionTypeFavorite: Boolean!
 }
 
 type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
