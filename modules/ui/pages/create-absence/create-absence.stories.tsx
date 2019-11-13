@@ -25,6 +25,8 @@ export const AsAdmin = () => {
     <Provider>
       <Route path={AdminCreateAbsenceRoute.path}>
         <CreateAbsenceUI
+          firstName="Jane"
+          lastName="Doe"
           employeeId="123"
           organizationId="124"
           userIsAdmin
@@ -46,6 +48,8 @@ export const AsEmployee = () => {
       <Route path={EmployeeCreateAbsenceRoute.path}>
         <CreateAbsenceUI
           actingAsEmployee
+          firstName="Jane"
+          lastName="Doe"
           employeeId="123"
           organizationId="124"
           userIsAdmin={false}
@@ -66,6 +70,8 @@ export const AsSubNotNeededEmployee = () => {
     <Provider>
       <Route path={EmployeeCreateAbsenceRoute.path}>
         <CreateAbsenceUI
+          firstName="Jane"
+          lastName="Doe"
           actingAsEmployee
           employeeId="123"
           organizationId="124"
@@ -109,6 +115,8 @@ export const AsSubNeededEmployee = () => {
     <Provider>
       <Route path={EmployeeCreateAbsenceRoute.path}>
         <CreateAbsenceUI
+          firstName="Jane"
+          lastName="Doe"
           actingAsEmployee
           employeeId="123"
           organizationId="124"

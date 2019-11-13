@@ -19,11 +19,17 @@ export const CreateAbsence: React.FC<Props> = props => {
     },
   });
   const userIsAdmin = useIsAdmin();
-  if (employeeInfo.state !== "DONE" || userIsAdmin === null) {
+  if (
+    employeeInfo.state !== "DONE" ||
+    userIsAdmin === null ||
+    !employeeInfo.data.employee?.byId
+  ) {
     return <></>;
   }
   return (
     <CreateAbsenceUI
+      firstName={employeeInfo.data.employee?.byId?.firstName}
+      lastName={employeeInfo.data.employee?.byId?.lastName}
       organizationId={organizationId}
       employeeId={employeeId}
       userIsAdmin={userIsAdmin}

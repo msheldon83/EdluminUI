@@ -19,6 +19,8 @@ import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { useIsAdmin } from "reference-data/is-admin";
 
 type Props = {
+  firstName: string;
+  lastName: string;
   employeeId: string;
   actingAsEmployee?: boolean;
   organizationId: string;
@@ -28,9 +30,6 @@ type Props = {
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
-
-  let name = "";
-
   const classes = useStyles();
 
   const today = new Date();
@@ -66,6 +65,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     props,
     initialState
   );
+
+  let name = `${props.firstName} ${props.lastName}`;
 
   return (
     <>

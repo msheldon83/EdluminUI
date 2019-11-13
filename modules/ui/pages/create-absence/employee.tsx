@@ -32,6 +32,8 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
 
   return (
     <CreateAbsenceUI
+      firstName={employee.firstName}
+      lastName={employee.lastName}
       employeeId={employee.id}
       actingAsEmployee
       organizationId={employee.orgId.toString()}
