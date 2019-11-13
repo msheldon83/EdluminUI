@@ -23,7 +23,7 @@ type Props = {
 
 export const HomeNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return <NavLink title={t("Home")} icon={<HomeIcon />} {...props} />;
+  return <NavLink exact title={t("Home")} icon={<HomeIcon />} {...props} />;
 };
 
 export const AbsenceNavLink: React.FC<Props> = props => {
