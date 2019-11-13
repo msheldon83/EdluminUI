@@ -14,6 +14,7 @@ const InfoSnackbarButton = () => {
 
   return (
     <Button
+      variant="contained"
       onClick={() =>
         openSnackbar({
           message: text("message", "Info Snackbar"),

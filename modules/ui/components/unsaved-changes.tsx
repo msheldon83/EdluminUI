@@ -4,6 +4,7 @@ import { TransitionProps } from "@material-ui/core/transitions";
 
 type Props = {
   open: boolean;
+  // Parent element this will be contained in
   anchorElement?: null | Element | ((element: Element) => Element);
   message: React.ReactNode;
   onSave: () => void;
