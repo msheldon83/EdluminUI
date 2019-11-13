@@ -21,6 +21,7 @@ import {
   AdminCreateAbsenceRoute,
   AdminSelectEmployeeForCreateAbsenceRoute,
   CreateAbsenceLoader,
+  EmployeeCreateAbsenceLoader,
   EmployeeCreateAbsenceRoute,
   SelectEmployeeForCreateAbsenceLoader,
 } from "./routes/create-absence";
@@ -77,7 +78,7 @@ export function App(props: {}) {
 
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
                     <Route
-                      component={CreateAbsenceLoader}
+                      component={EmployeeCreateAbsenceLoader}
                       path={EmployeeCreateAbsenceRoute.path}
                     />
                   </Switch>
