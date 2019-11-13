@@ -125,8 +125,6 @@ const initialState = (props: Props): CreateAbsenceState => {
     employeeId: props.employeeId,
     organizationId: props.organizationId,
     step: "absence",
-    startDate: today,
-    endDate: today,
   };
 };
 
