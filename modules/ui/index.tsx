@@ -96,16 +96,16 @@ export function App(props: {}) {
                         path={OrganizationsNoOrgRoute.path}
                       />
                       <Route
-                        component={PersonViewLoader}
-                        path={PersonViewRoute.path}
-                      />
-                      <Route
                         component={CreateAbsenceLoader}
                         path={AdminCreateAbsenceRoute.path}
                       />
                       <Route
                         component={SelectEmployeeForCreateAbsenceLoader}
                         path={AdminSelectEmployeeForCreateAbsenceRoute.path}
+                      />
+                      <Route
+                        component={PersonViewLoader}
+                        path={PersonViewRoute.path}
                       />
                       <Route component={PeopleLoader} path={PeopleRoute.path} />
                       <Route
