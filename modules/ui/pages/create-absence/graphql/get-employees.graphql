@@ -1,6 +1,17 @@
-query GetEmployeesForOrg($orgId: ID!, $limit: Int, $offset: Int) {
+query GetEmployeesForOrg(
+  $orgId: ID!
+  $limit: Int
+  $offset: Int
+  $name: String
+) {
   orgUser {
-    paged(orgId: $orgId, limit: $limit, offset: $offset, role: EMPLOYEE) {
+    paged(
+      orgId: $orgId
+      limit: $limit
+      offset: $offset
+      role: EMPLOYEE
+      name: $name
+    ) {
       totalCount
       offset
       limit

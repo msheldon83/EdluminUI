@@ -13,6 +13,10 @@ import {
   AdminSelectEmployeeForCreateAbsenceRoute,
 } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
+import { useQueryParams } from "hooks/query-params";
+import { useDeferredState } from "hooks";
+import { Section } from "ui/components/section";
+import { TextField } from "@material-ui/core";
 
 type Props = {};
 
@@ -31,12 +35,17 @@ export const SelectEmployee: React.FC<Props> = props => {
   const { organizationId } = useRouteParams(
     AdminSelectEmployeeForCreateAbsenceRoute
   );
+  const [filters, updateFilters] = useQueryParams({ name: "" });
+  const [name, pendingName, setPendingName] = useDeferredState(
+    filters.name,
+    200
+  );
   const history = useHistory();
   const [employees, pagination] = usePagedQueryBundle(
     GetEmployeesForOrg,
     r => r.orgUser?.paged?.totalCount,
     {
-      variables: { orgId: organizationId },
+      variables: { orgId: organizationId, name },
     }
   );
 
@@ -80,6 +89,13 @@ export const SelectEmployee: React.FC<Props> = props => {
 
   return (
     <>
+      <Section>
+        <TextField
+          label={t("Name")}
+          value={pendingName}
+          onChange={e => setPendingName(e.target.value)}
+        />
+      </Section>
       <Table
         title={`${pagination.totalCount} ${
           pagination.totalCount === 1 ? t("Person") : t("People")
