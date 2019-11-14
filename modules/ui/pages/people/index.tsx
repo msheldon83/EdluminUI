@@ -91,6 +91,8 @@ export const PeoplePage: React.FC<Props> = props => {
       phone: person.phoneNumber,
       location: "",
       endorsements: "",
+      managesLocations: "",
+      managesPositionTypes: "",
     }));
   }, [people]);
 
@@ -139,12 +141,12 @@ export const PeoplePage: React.FC<Props> = props => {
     },
     {
       title: t("Manages position type"),
-      field: "positionType",
+      field: "managesPositionTypes",
       hidden: filters.roleFilter != OrgUserRole.Employee,
     },
     {
       title: t("Manages location"),
-      field: "location",
+      field: "managesLocations",
       hidden: filters.roleFilter != OrgUserRole.Administrator,
     },
     {
