@@ -8,6 +8,7 @@ interface CustomColors {
   grayWhite: string;
   black: string;
   lightBlue: string;
+  mediumBlue: string;
   blue: string;
   darkBlue: string;
   gray: string;

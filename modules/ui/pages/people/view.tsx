@@ -14,6 +14,9 @@ import { PersonViewHeader } from "./components/view-header";
 import { RoleTabs } from "./components/role-tabs";
 import { Information } from "./components/information";
 import { AccessControl } from "./components/access-control";
+import { Position } from "./components/position";
+import { SubstitutePreferences } from "./components/substitute-preferences";
+import { ReplacementCriteria } from "./components/replacement-criteria";
 
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { UpdateEmployee } from "./graphql/update-employee.gen";
@@ -178,7 +181,26 @@ export const PersonViewPage: React.FC<{}> = props => {
             allPositionTypeIdsInScope={orgUser?.allPositionTypeIdsInScope}
             isSuperUser={orgUser?.isSuperUser}
           />
-        )}
+        )
+      }
+      {orgUser.isEmployee &&
+        (selectedRole ?? defaultSelectedRole) === OrgUserRole.Employee && (
+          <>
+            <Position
+              editing={editing}
+              setEditing={setEditing}
+            />
+            <SubstitutePreferences
+              editing={editing}
+              setEditing={setEditing}
+            />
+            <ReplacementCriteria
+              editing={editing}
+              setEditing={setEditing}
+            />
+          </>
+        )
+      }
     </>
   );
 };
