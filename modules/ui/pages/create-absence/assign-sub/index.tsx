@@ -39,6 +39,7 @@ import { TFunction } from "i18next";
 import { AssignSubFilters as Filters } from "./filters";
 import format from "date-fns/format";
 import { PaginationControls } from "ui/components/pagination-controls";
+import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 
 type Props = {
   orgId: string;
@@ -163,8 +164,18 @@ export const AssignSub: React.FC<Props> = props => {
         details: v.details!.map(d => {
           return {
             date: d?.startTimeLocal,
-            startTime: 1,
-            endTime: 2,
+            startTime:
+              d && d.startTimeLocal
+                ? secondsSinceMidnight(
+                    parseTimeFromString(format(d.startTimeLocal, "h:mm a"))
+                  )
+                : 0,
+            endTime:
+              d && d.endTimeLocal
+                ? secondsSinceMidnight(
+                    parseTimeFromString(format(d.endTimeLocal, "h:mm a"))
+                  )
+                : 0,
             locationId: d?.locationId ?? 0,
           };
         }),
