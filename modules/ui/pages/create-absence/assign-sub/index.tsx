@@ -153,10 +153,6 @@ export const AssignSub: React.FC<Props> = props => {
   });
 
   const buildVacancyInput = (): AbsenceVacancyInput[] | null => {
-    if (props.vacancyId) {
-      return null;
-    }
-
     const vacanciesInput = props.vacancies.map(v => {
       return {
         positionId: v.positionId,
