@@ -93,12 +93,43 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
         vacancyDetails={[
           {
             startDate: new Date("11/1/2019"),
+            endDate: new Date("11/5/2019"),
+            blocks: [
+              {
+                startTime: "7:00 AM",
+                endTime: "9:00 AM",
+                locationName: "Evans Elementary School",
+              },
+              {
+                startTime: "9:00 AM",
+                endTime: "12:00 PM",
+                locationName: "Brook Elementary School",
+              },
+              {
+                startTime: "1:00 PM",
+                endTime: "5:00 PM",
+                locationName: "Haven Elementary School",
+              },
+            ],
+          },
+          {
+            startDate: new Date("11/6/2019"),
             endDate: new Date("11/10/2019"),
             blocks: [
               {
-                startTime: "07:00 AM",
-                endTime: "05:00 PM",
+                startTime: "7:00 AM",
+                endTime: "9:00 AM",
                 locationName: "Evans Elementary School",
+              },
+              {
+                startTime: "9:00 AM",
+                endTime: "12:00 PM",
+                locationName: "Brook Elementary School",
+              },
+              {
+                startTime: "1:00 PM",
+                endTime: "5:00 PM",
+                locationName: "Haven Elementary School",
               },
             ],
           },

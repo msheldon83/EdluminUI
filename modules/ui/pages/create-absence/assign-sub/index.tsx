@@ -9,7 +9,15 @@ import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
 import { Table } from "ui/components/table";
 import { PageTitle } from "ui/components/page-title";
-import { Typography, Divider, Button, Tooltip, Grid } from "@material-ui/core";
+import {
+  Typography,
+  Divider,
+  Button,
+  Tooltip,
+  Grid,
+  Collapse,
+  Link,
+} from "@material-ui/core";
 import {
   AccountCircleOutlined,
   Star,
@@ -42,13 +50,11 @@ type Props = {
 type VacancyDetail = {
   startDate: Date;
   endDate: Date;
-  blocks: [
-    {
-      startTime: string;
-      endTime: string;
-      locationName: string;
-    }
-  ];
+  blocks: {
+    startTime: string;
+    endTime: string;
+    locationName: string;
+  }[];
 };
 
 const getQualifiedIcon = (qualified: Qualified, t: TFunction) => {
@@ -128,6 +134,26 @@ export const AssignSub: React.FC<Props> = props => {
   const classes = useStyles();
   const theme = useTheme();
   const isMobile = useScreenSize() === "mobile";
+  const [vacancyDetailsExpanded, setVacancyDetailsExpanded] = React.useState(
+    false
+  );
+
+  // Vacancy Details collapse configuration
+  const collapsedVacancyDetailsHeight = 150;
+  const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
+    number | null
+  >(null);
+  const vacancyDetailsRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (
+      vacancyDetailsRef &&
+      vacancyDetailsRef.current &&
+      vacancyDetailsRef.current.clientHeight != vacancyDetailsHeight
+    ) {
+      setVacancyDetailsHeight(vacancyDetailsRef.current.clientHeight);
+    }
+  });
 
   const [
     getReplacementEmployeesForVacancyQuery,
@@ -282,6 +308,7 @@ export const AssignSub: React.FC<Props> = props => {
     ? t("Prearranging substitute for")
     : t("Prearranging substitute");
 
+  //TODO: Support this
   const search = async (
     name: string,
     qualified: Qualified[],
@@ -310,54 +337,83 @@ export const AssignSub: React.FC<Props> = props => {
     return displayText;
   };
 
-  const renderVacancyDetails = (
-    startDate: Date,
-    endDate: Date,
-    dayLength: number,
-    positionName: string,
-    details: VacancyDetail[],
-    t: TFunction
-  ) => {
+  const renderVacancyDetails = () => {
     // Build the Vacancy Details header text
     const dayLengthDisplayText =
-      dayLength > 1 ? `${dayLength} days` : `${dayLength} day`;
-    let headerText = getDateRangeDisplayText(startDate, endDate);
-    headerText = `${headerText} (${dayLengthDisplayText}) - ${positionName}`;
+      props.vacancyDays > 1
+        ? `${props.vacancyDays} days`
+        : `${props.vacancyDays} day`;
+    let headerText = getDateRangeDisplayText(
+      props.vacancyStartDate,
+      props.vacancyEndDate
+    );
+    headerText = `${headerText} (${dayLengthDisplayText}) - ${props.positionName}`;
 
     const scheduleLetters = getScheduleLettersArray();
+    const showViewAllDetails =
+      vacancyDetailsHeight &&
+      vacancyDetailsHeight > collapsedVacancyDetailsHeight;
 
     return (
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Typography variant="h5">{headerText}</Typography>
-        </Grid>
-        {details.map((v, detailsIndex) => {
-          return (
-            <Grid key={detailsIndex} item container xs={12} alignItems="center">
-              <Grid item xs={2}>
-                <Typography variant="h6">
-                  {getDateRangeDisplayText(v.startDate, v.endDate)}
-                </Typography>
-              </Grid>
-              <Grid item xs={10}>
-                {`${t("Schedule")} ${scheduleLetters[detailsIndex]}`}
-              </Grid>
-              {v.blocks.map((b, blocksIndex) => {
-                return (
-                  <>
-                    <Grid item xs={2}>
-                      {`${b.startTime} - ${b.endTime}`}
-                    </Grid>
-                    <Grid item xs={10}>
-                      {b.locationName}
-                    </Grid>
-                  </>
-                );
-              })}
+      <div>
+        <Collapse
+          in={vacancyDetailsExpanded}
+          collapsedHeight={theme.typography.pxToRem(
+            vacancyDetailsHeight
+              ? Math.min(vacancyDetailsHeight, collapsedVacancyDetailsHeight)
+              : collapsedVacancyDetailsHeight
+          )}
+        >
+          <Grid container spacing={2} ref={vacancyDetailsRef}>
+            <Grid item xs={12}>
+              <Typography variant="h5">{headerText}</Typography>
             </Grid>
-          );
-        })}
-      </Grid>
+            {props.vacancyDetails.map((v, detailsIndex) => {
+              return (
+                <Grid
+                  key={detailsIndex}
+                  item
+                  container
+                  xs={12}
+                  alignItems="center"
+                >
+                  <Grid item xs={2}>
+                    <Typography variant="h6">
+                      {getDateRangeDisplayText(v.startDate, v.endDate)}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={10} className={classes.scheduleText}>
+                    {`${t("Schedule")} ${scheduleLetters[detailsIndex]}`}
+                  </Grid>
+                  {v.blocks.map((b, blocksIndex) => {
+                    return (
+                      <>
+                        <Grid item xs={2} className={classes.vacancyBlockItem}>
+                          {`${b.startTime} - ${b.endTime}`}
+                        </Grid>
+                        <Grid item xs={10} className={classes.vacancyBlockItem}>
+                          {b.locationName}
+                        </Grid>
+                      </>
+                    );
+                  })}
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Collapse>
+        {showViewAllDetails && (
+          <div className={classes.viewAllDetails}>
+            <Link
+              onClick={() => setVacancyDetailsExpanded(!vacancyDetailsExpanded)}
+            >
+              {vacancyDetailsExpanded
+                ? t("Hide details")
+                : t("View all details")}
+            </Link>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -368,16 +424,7 @@ export const AssignSub: React.FC<Props> = props => {
         <Typography variant="h1">{props.employeeName}</Typography>
       )}
       <Section>
-        <div className={classes.vacancyDetails}>
-          {renderVacancyDetails(
-            props.vacancyStartDate,
-            props.vacancyEndDate,
-            props.vacancyDays,
-            props.positionName,
-            props.vacancyDetails,
-            t
-          )}
-        </div>
+        <div className={classes.vacancyDetails}>{renderVacancyDetails()}</div>
         <Divider />
 
         <div className={classes.filters}>
@@ -409,6 +456,16 @@ export const AssignSub: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   vacancyDetails: {
     marginBottom: theme.spacing(3),
+  },
+  vacancyBlockItem: {
+    marginTop: theme.spacing(0.5),
+  },
+  viewAllDetails: {
+    cursor: "pointer",
+    marginTop: theme.spacing(),
+  },
+  scheduleText: {
+    color: "#9E9E9E",
   },
   filters: {
     marginTop: theme.spacing(3),

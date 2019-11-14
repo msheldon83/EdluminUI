@@ -189,9 +189,6 @@ export const AssignSubFilters: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  tab: {
-    textTransform: "uppercase",
-  },
   label: {
     // color: theme.customColors.black,
     fontWeight: 500,
