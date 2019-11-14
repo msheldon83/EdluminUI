@@ -11,6 +11,13 @@ const history = createBrowserHistory();
 export const ActiveInactiveFilterStory = () => {
   const classes = useStyles();
 
+  // This is the only way to see the query params because storybook uses an iframe
+  React.useEffect(() => {
+    history.listen(location => {
+      action("Query Param Changed")(location.search);
+    });
+  }, []);
+
   return (
     <Router history={history}>
       <div className={classes.container}>

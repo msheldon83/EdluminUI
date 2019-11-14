@@ -5,7 +5,6 @@ import {
   Grid,
   InputLabel,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import { useTranslation } from "react-i18next";
 import { useQueryParamIso } from "../../hooks/query-params";
 import { FilterQueryParams } from "../pages/people/people-filters/filter-params";
@@ -18,11 +17,13 @@ export const ActiveInactiveFilter = (props: Props) => {
   const { onChange } = props;
 
   const { t } = useTranslation();
-  const classes = useStyles();
-
+  console.log(FilterQueryParams);
   const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
 
-  React.useEffect(() => onChange(isoFilters.active), [isoFilters.active]);
+  React.useEffect(() => onChange(isoFilters.active), [
+    isoFilters.active,
+    onChange,
+  ]);
 
   const updateActiveFilter = React.useCallback(
     (a: boolean) => () => {
@@ -35,42 +36,28 @@ export const ActiveInactiveFilter = (props: Props) => {
 
       updateIsoFilters({ active });
     },
-    [updateIsoFilters, isoFilters, onChange]
+    [updateIsoFilters, isoFilters]
   );
 
   return (
     <>
-      <InputLabel className={classes.label}>{t("Status")}</InputLabel>
+      <InputLabel>{t("Status")}</InputLabel>
       <Grid item container>
         <FormControlLabel
-          control={
-            <Checkbox
-              checked={
-                isoFilters.active === true || isoFilters.active === undefined
-              }
-              onChange={updateActiveFilter(true)}
-            />
+          checked={
+            isoFilters.active === true || isoFilters.active === undefined
           }
+          control={<Checkbox onChange={updateActiveFilter(true)} />}
           label={t("Active")}
         />
         <FormControlLabel
-          control={
-            <Checkbox
-              checked={
-                isoFilters.active === false || isoFilters.active === undefined
-              }
-              onChange={updateActiveFilter(false)}
-            />
+          checked={
+            isoFilters.active === false || isoFilters.active === undefined
           }
+          control={<Checkbox onChange={updateActiveFilter(false)} />}
           label={t("Inactive")}
         />
       </Grid>
     </>
   );
 };
-
-const useStyles = makeStyles({
-  label: {
-    fontWeight: 500,
-  },
-});
