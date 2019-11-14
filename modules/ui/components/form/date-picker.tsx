@@ -2,6 +2,7 @@ import * as React from "react";
 import clsx from "clsx";
 import DateFnsUtils from "@date-io/date-fns";
 import { MuiPickersUtilsProvider, Calendar } from "@material-ui/pickers";
+import { CalendarProps } from "@material-ui/pickers/views/Calendar/Calendar";
 import { makeStyles } from "@material-ui/core/styles";
 import createDate from "sugar/date/create";
 import isValid from "date-fns/isValid";
@@ -34,6 +35,7 @@ type DatePickerProps = {
   endLabel: string;
   dateFormat?: string;
   disableDates?: Array<Date>;
+  onMonthChange?: CalendarProps["onMonthChange"];
 };
 
 export type DatePickerOnChange = (dates: {
@@ -303,6 +305,7 @@ export const DatePicker = (props: DatePickerProps) => {
           renderDay={customDayRenderer}
           allowKeyboardControl={false}
           shouldDisableDate={isDateDisabled}
+          onMonthChange={props.onMonthChange}
         />
       </Paper>
     );

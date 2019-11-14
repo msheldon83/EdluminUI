@@ -11,6 +11,7 @@ import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { GetEmployeeContractSchedule } from "./graphql/get-contract-schedule.gen";
+import { format } from "date-fns";
 
 type Props = {
   firstName: string;
@@ -121,6 +122,7 @@ const initialState = (props: Props): CreateAbsenceState => ({
   employeeId: props.employeeId,
   organizationId: props.organizationId,
   step: "absence",
+  viewingCalendarMonth: format(new Date(), "%yyyy-%m-%d"),
 });
 
 export type FormData = {

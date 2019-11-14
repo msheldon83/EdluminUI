@@ -124,6 +124,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           onChange={onDateChange}
           startLabel={t("From")}
           endLabel={t("To")}
+          onMonthChange={wat => console.log("wat", wat?.getMonth())}
         />
 
         <RadioGroup
