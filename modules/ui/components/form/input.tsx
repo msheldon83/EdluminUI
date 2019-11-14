@@ -13,7 +13,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
   const { label, ...inputProps } = props;
 
   const classes = useStyles();
-  const id = `date-input-${label}`;
+  const id = `custom-input-${label}`;
 
   return (
     <FormControl className={classes.formControl}>
