@@ -1,7 +1,10 @@
 import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
 import { AssignSub } from "./index";
-import { Qualified, Available } from "graphql/server-types.gen";
+import {
+  VacancyQualification,
+  VacancyAvailability,
+} from "graphql/server-types.gen";
 
 export default {
   title: "Pages/Create Absence/Assign Sub",
@@ -15,8 +18,8 @@ const dummyReplacementEmployees = [
       lastName: "Skywalker",
     },
     visible: true,
-    qualified: Qualified.Fully,
-    available: Available.Yes,
+    qualified: VacancyQualification.Fully,
+    available: VacancyAvailability.Yes,
     visibleOnUtc: "1/1/2019" as any,
     visibleOnLocal: "1/1/2019" as any,
     isEmployeeFavorite: true,
@@ -29,8 +32,8 @@ const dummyReplacementEmployees = [
       lastName: "Skywalker",
     },
     visible: false,
-    qualified: Qualified.NotQualified,
-    available: Available.Yes,
+    qualified: VacancyQualification.NotQualified,
+    available: VacancyAvailability.Yes,
     visibleOnUtc: null as any,
     visibleOnLocal: null as any,
     isEmployeeFavorite: true,
@@ -43,8 +46,8 @@ const dummyReplacementEmployees = [
       lastName: "Kenobi",
     },
     visible: false,
-    qualified: Qualified.Fully,
-    available: Available.No,
+    qualified: VacancyQualification.Fully,
+    available: VacancyAvailability.No,
     visibleOnUtc: "1/1/2021" as any,
     visibleOnLocal: "1/1/2021" as any,
     isEmployeeFavorite: false,
@@ -57,8 +60,8 @@ const dummyReplacementEmployees = [
       lastName: "Jinn",
     },
     visible: false,
-    qualified: Qualified.Minimally,
-    available: Available.MinorConflict,
+    qualified: VacancyQualification.Minimally,
+    available: VacancyAvailability.MinorConflict,
     visibleOnUtc: "1/1/2021" as any,
     visibleOnLocal: "1/1/2021" as any,
     isEmployeeFavorite: false,

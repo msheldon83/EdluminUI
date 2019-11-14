@@ -29,7 +29,10 @@ import {
   AccessTime,
 } from "@material-ui/icons";
 import { Column } from "material-table";
-import { Qualified, Available } from "graphql/server-types.gen";
+import {
+  VacancyQualification,
+  VacancyAvailability,
+} from "graphql/server-types.gen";
 import { TFunction } from "i18next";
 import { AssignSubFilters as Filters } from "./filters";
 import format from "date-fns/format";
@@ -57,38 +60,38 @@ type VacancyDetail = {
   }[];
 };
 
-const getQualifiedIcon = (qualified: Qualified, t: TFunction) => {
+const getQualifiedIcon = (qualified: VacancyQualification, t: TFunction) => {
   switch (qualified) {
-    case Qualified.Fully:
+    case VacancyQualification.Fully:
       return (
         <Tooltip title={t("Fully qualified")}>
           <Check />
         </Tooltip>
       );
     // TODO: This has to be distinguished from FULLY with a different icon
-    case Qualified.Minimally:
+    case VacancyQualification.Minimally:
       return (
         <Tooltip title={t("Minimally qualified")}>
           <Check />
         </Tooltip>
       );
-    case Qualified.NotQualified:
+    case VacancyQualification.NotQualified:
       return <Cancel />;
   }
 };
 
-const getAvailableIcon = (available: Available, t: TFunction) => {
+const getAvailableIcon = (available: VacancyAvailability, t: TFunction) => {
   switch (available) {
-    case Available.Yes:
+    case VacancyAvailability.Yes:
       return <Check />;
     // TODO: This has to be distinguished from YES with a different icon
-    case Available.MinorConflict:
+    case VacancyAvailability.MinorConflict:
       return (
         <Tooltip title={t("Minor conflict")}>
           <Check />
         </Tooltip>
       );
-    case Available.No:
+    case VacancyAvailability.No:
       return <Cancel />;
   }
 };
@@ -186,7 +189,7 @@ export const AssignSub: React.FC<Props> = props => {
       qualified: r.qualified,
       available: r.available,
       visible: r.visible,
-      visibleOn: r.visibleOnLocal,
+      visibleOn: r.visibleAtLocal,
       isEmployeeFavorite: r.isEmployeeFavorite,
       isLocationPositionTypeFavorite: r.isLocationPositionTypeFavorite,
       // TODO: Figure out the logic for whether or not this Sub can be assigned
@@ -315,8 +318,8 @@ export const AssignSub: React.FC<Props> = props => {
   //TODO: Support this
   const search = async (
     name: string,
-    qualified: Qualified[],
-    available: Available[],
+    qualified: VacancyQualification[],
+    available: VacancyAvailability[],
     favoritesOnly: boolean
   ) => {};
 

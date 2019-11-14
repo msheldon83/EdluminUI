@@ -6,7 +6,10 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Select, SelectValueType } from "ui/components/form/select";
-import { Qualified, Available } from "graphql/server-types.gen";
+import {
+  VacancyQualification,
+  VacancyAvailability,
+} from "graphql/server-types.gen";
 import { TFunction } from "i18next";
 import { OptionTypeBase } from "react-select";
 
@@ -14,8 +17,8 @@ type Props = {
   showQualifiedAndAvailable: boolean;
   search: (
     name: string,
-    qualified: Qualified[],
-    available: Available[],
+    qualified: VacancyQualification[],
+    available: VacancyAvailability[],
     favoritesOnly: boolean
   ) => Promise<void>;
 };
@@ -37,8 +40,8 @@ export const AssignSubFilters: React.FC<Props> = props => {
   ];
 
   const [qualifiedAndAvailableSearch, setSearch] = React.useState<{
-    qualified?: Qualified[];
-    available?: Available[];
+    qualified?: VacancyQualification[];
+    available?: VacancyAvailability[];
     favoritesOnly: boolean;
   }>({
     qualified: qualifiedOptionsMap.find(q => q.isDefault)?.search,
@@ -214,25 +217,25 @@ class AvailableOptions {
     this.includeConflictsFilters = includeConflictsFilters;
   }
 
-  buildAvailableOptionsMap(): OptionsMap<Available>[] {
+  buildAvailableOptionsMap(): OptionsMap<VacancyAvailability>[] {
     if (this.includeConflictsFilters) {
       return [
         {
           label: this.t("Yes (w/o conflicts)"),
           optionValue: "1",
-          search: [Available.Yes],
+          search: [VacancyAvailability.Yes],
           isDefault: false,
         },
         {
           label: this.t("Yes (incl. conflicts)"),
           optionValue: "2",
-          search: [Available.Yes, Available.MinorConflict],
+          search: [VacancyAvailability.Yes, VacancyAvailability.MinorConflict],
           isDefault: true,
         },
         {
           label: this.t("No"),
           optionValue: "3",
-          search: [Available.No],
+          search: [VacancyAvailability.No],
           isDefault: false,
         },
       ];
@@ -242,13 +245,13 @@ class AvailableOptions {
       {
         label: this.t("Yes"),
         optionValue: "1",
-        search: [Available.Yes],
+        search: [VacancyAvailability.Yes],
         isDefault: true,
       },
       {
         label: this.t("No"),
         optionValue: "2",
-        search: [Available.No],
+        search: [VacancyAvailability.No],
         isDefault: false,
       },
     ];
@@ -269,24 +272,28 @@ class QualifiedOptions {
     this.t = t;
   }
 
-  buildQualifiedOptionsMap(): OptionsMap<Qualified>[] {
+  buildQualifiedOptionsMap(): OptionsMap<VacancyQualification>[] {
     return [
       {
         label: this.t("Highly"),
         optionValue: "1",
-        search: [Qualified.Fully],
+        search: [VacancyQualification.Fully],
         isDefault: false,
       },
       {
         label: this.t("At least minimally"),
         optionValue: "2",
-        search: [Qualified.Fully, Qualified.Minimally],
+        search: [VacancyQualification.Fully, VacancyQualification.Minimally],
         isDefault: true,
       },
       {
         label: this.t("Show All"),
         optionValue: "3",
-        search: [Qualified.Fully, Qualified.Minimally, Qualified.NotQualified],
+        search: [
+          VacancyQualification.Fully,
+          VacancyQualification.Minimally,
+          VacancyQualification.NotQualified,
+        ],
         isDefault: false,
       },
     ];

@@ -79,7 +79,7 @@ type AbsenceQueries {
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
   projectedVacancies(absence: AbsenceCreateInput!): [Vacancy]
-  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancies: [AbsenceVacancyInput], name: String): PagedReplacementEmployeeAvailability
+  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancies: [AbsenceVacancyInput], name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean): PagedReplacementEmployeeAvailability
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -366,12 +366,6 @@ enum AssignmentType {
   CONTRACT_ASSIGNMENT
   LONG_TERM_ASSIGNMENT
   DAILY_ASSIGNMENT
-}
-
-enum Available {
-  YES
-  MINOR_CONFLICT
-  NO
 }
 
 type BasicEmployee implements ModelObjectInterface & OrgObjectInterface {
@@ -2837,12 +2831,6 @@ input PositionTypeUpdateInput {
   expired: Boolean
 }
 
-enum Qualified {
-  FULLY
-  MINIMALLY
-  NOT_QUALIFIED
-}
-
 type Query {
   absence: AbsenceQueries
   assignment: AssignmentQueries
@@ -3218,15 +3206,58 @@ input ReplacementCriteriaConfigUpdateInput {
   includeMatchingCandidates: Boolean
 }
 
+input ReplacementCriteriaCreateInput {
+  orgId: Int!
+  replacementCriteriaConfigId: Int!
+  endorsementIds: [Int]
+  objectType: ObjectType
+  objectKey: Int!
+}
+
+type ReplacementCriteriaMutations {
+  create(replacementCriteria: ReplacementCriteriaCreateInput!): ReplacementCriteria
+  update(replacementCriteria: ReplacementCriteriaUpdateInput!): ReplacementCriteria
+  delete(replacementCriteriaId: Int!): Boolean
+  addEndorsements(replacementCriteriaEndorsements: ReplacementCriteriaAddEndorsementsInput!): ReplacementCriteria
+  removeEndorsements(replacementCriteriaEndorsements: ReplacementCriteriaRemoveEndorsementsInput!): ReplacementCriteria
+}
+
+input ReplacementCriteriaRemoveEndorsementsInput {
+  id: Int!
+  rowVersion: String!
+  endorsementIds: [Int]
+}
+
+input ReplacementCriteriaUpdateInput {
+  id: Int!
+  rowVersion: String!
+  replacementCriteriaConfigId: Int!
+}
+
+type ReplacementCriterion implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  replacementCriteriaId: Int!
+  endorsementId: Int!
+}
+
 type ReplacementEmployeeAvailability {
   _info: [ReturnMessage]
   employee: Employee!
   vacancyId: Int
-  qualified: Qualified!
-  available: Available!
+  qualified: VacancyQualification!
+  qualifiedAtLocal: DateTime
+  qualifiedAtUtc: DateTime
+  available: VacancyAvailability!
   visible: Boolean!
-  visibleOnLocal: DateTime
-  visibleOnUtc: DateTime
+  visibleAtLocal: DateTime
+  visibleAtUtc: DateTime
   isEmployeeFavorite: Boolean!
   isLocationPositionTypeFavorite: Boolean!
 }
