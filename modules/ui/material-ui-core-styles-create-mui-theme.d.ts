@@ -18,6 +18,8 @@ interface CustomColors {
   lighterGray: string;
   lightBlueGray: string;
 
+  blueHover: string;
+
   sectionBorder: string;
 
   eduBlue: string;

@@ -46,7 +46,11 @@ const DialogTrigger = (props: any) => {
     });
   };
 
-  return <Button onClick={handleClick}>Open Dialog</Button>;
+  return (
+    <Button variant="contained" onClick={handleClick}>
+      Open Dialog
+    </Button>
+  );
 };
 
 export const Dialog = () => {

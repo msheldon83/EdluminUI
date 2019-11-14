@@ -37,6 +37,8 @@ const themeColors: Theme["customColors"] = {
   darkBlueGray: "#4B506D",
   blue: "#2196F3",
 
+  blueHover: "#0053CB",
+
   sectionBorder: "#e5e5e5",
   marigold: "#FFB946",
 
@@ -89,7 +91,7 @@ export const EdluminTheme = createMuiTheme({
   overrides: {
     MuiOutlinedInput: {
       input: {
-        boxSizing: 'border-box',
+        boxSizing: "border-box",
         fontSize: baseFontSize,
         height: pxToRem(44),
         padding: `0 ${pxToRem(14)}`,
@@ -100,15 +102,27 @@ export const EdluminTheme = createMuiTheme({
         color: themeColors.white,
         backgroundColor: themeColors.blue,
         textTransform: "uppercase",
+        "&:hover": {
+          backgroundColor: themeColors.blueHover,
+        },
       },
 
       outlined: {
+        backgroundColor: themeColors.white,
         color: themeColors.edluminSlate,
         textTransform: "uppercase",
         borderColor: themeColors.edluminLightSlate,
         borderWidth: pxToRem(1),
+        transition: ` background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+            box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1),
+            border 250ms cubic-bezier(0.4, 0, 0.2, 1),
+            color 250ms cubic-bezier(0.4, 0, 0.2, 1)`,
         "&$disabled": {
           borderWidth: pxToRem(1),
+        },
+        "&:hover": {
+          backgroundColor: themeColors.edluminLightSlate,
+          color: themeColors.white,
         },
       },
       root: {
