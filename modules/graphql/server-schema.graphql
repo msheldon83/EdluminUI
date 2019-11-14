@@ -2170,6 +2170,12 @@ input OrgUserCreateInput {
   allPositionTypeIdsInScope: Boolean
 }
 
+type OrgUserLastLogin {
+  _info: [ReturnMessage]
+  id: Int!
+  lastLogin: DateTime
+}
+
 type OrgUserMutations {
   create(orgUser: OrgUserCreateInput!): OrgUser
   update(orgUser: OrgUserUpdateInput!): OrgUser
@@ -2180,6 +2186,7 @@ type OrgUserQueries {
   byId(id: ID!): OrgUser
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [Int], locations: [Int], positionTypes: [Int]): [OrgUser]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [Int], locations: [Int], positionTypes: [Int]): PagedOrgUser
+  lastLoginById(id: ID!): OrgUserLastLogin
 }
 
 enum OrgUserRole {
