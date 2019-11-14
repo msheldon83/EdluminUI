@@ -211,6 +211,10 @@ export const AssignSub: React.FC<Props> = props => {
         width: isMobile
           ? theme.typography.pxToRem(40)
           : theme.typography.pxToRem(70),
+        textAlign: "center",
+      },
+      headerStyle: {
+        textAlign: "center",
       },
       render: (data: typeof tableData[0]) =>
         getFavoriteIcon(
