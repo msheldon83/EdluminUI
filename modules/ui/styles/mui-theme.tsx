@@ -34,6 +34,7 @@ const themeColors: Theme["customColors"] = {
   white: "#ffffff",
   grayWhite: "#f7f7f7",
   lightBlue: "#E3F2FD",
+  mediumBlue: "#90CAF9",
   darkBlueGray: "#4B506D",
   blue: "#2196F3",
 

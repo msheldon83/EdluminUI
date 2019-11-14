@@ -13,6 +13,7 @@ import { PageTitle } from "ui/components/page-title";
 import { PersonViewHeader } from "./components/view-header";
 import { RoleTabs } from "./components/role-tabs";
 import { Information } from "./components/information";
+import { AccessControl } from "./components/access-control";
 
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { UpdateEmployee } from "./graphql/update-employee.gen";
@@ -161,6 +162,23 @@ export const PersonViewPage: React.FC<{}> = props => {
         onResetPassword={onResetPassword}
         selectedRole={selectedRole ?? defaultSelectedRole}
       />
+      {orgUser.isAdmin &&
+        (selectedRole ?? defaultSelectedRole) === OrgUserRole.Administrator && (
+          <AccessControl
+            editing={editing}
+            setEditing={setEditing}
+            locations={orgUser?.adminScopeLocationRules?.locations ?? []}
+            locationGroups={
+              orgUser?.adminScopeLocationRules?.locationGroups ?? []
+            }
+            positionTypes={
+              orgUser?.adminScopePositionTypeRules?.positionTypes ?? []
+            }
+            allLocationIdsInScope={orgUser?.allLocationIdsInScope}
+            allPositionTypeIdsInScope={orgUser?.allPositionTypeIdsInScope}
+            isSuperUser={orgUser?.isSuperUser}
+          />
+        )}
     </>
   );
 };

@@ -88,12 +88,16 @@ export const Information: React.FC<Props> = props => {
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Address")}</Typography>
               <div>
-                {!orgUser.address1
-                  ? t("Not specified")
-                  : `${orgUser.address1}\n${orgUser.address2 &&
-                      `${orgUser.address2}\n`}${orgUser.city}, ${
-                      orgUser.state
-                    } ${orgUser.postalCode}\n${orgUser.country}`}
+                {!orgUser.address1 ? (
+                  t("Not specified")
+                ) : (
+                  <>
+                    <div>{orgUser.address1}</div>
+                    <div>{orgUser.address2 && `${orgUser.address2}`}</div>
+                    <div>{`${orgUser.city}, ${orgUser.state} ${orgUser.postalCode}`}</div>
+                    <div>{orgUser.country}</div>
+                  </>
+                )}
               </div>
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
