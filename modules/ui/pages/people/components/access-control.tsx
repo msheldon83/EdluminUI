@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Typography, Grid } from "@material-ui/core";
+import { Typography, Grid, makeStyles } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
@@ -20,6 +20,7 @@ type Props = {
 export const AccessControl: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
+  const classes = useStyles();
 
   return (
     <>
@@ -52,7 +53,7 @@ export const AccessControl: React.FC<Props> = props => {
                         <Chip
                           key={location.name}
                           label={location.name}
-                          color={"primary"}
+                          className={classes.locationChip}
                         />
                       )
                   )}
@@ -63,7 +64,7 @@ export const AccessControl: React.FC<Props> = props => {
                         <Chip
                           key={locationGroup.name}
                           label={locationGroup.name}
-                          color={"primary"}
+                          className={classes.locationGroupChip}
                         />
                       )
                   )}
@@ -82,7 +83,7 @@ export const AccessControl: React.FC<Props> = props => {
                         <Chip
                           key={positionType.name}
                           label={positionType.name}
-                          color={"primary"}
+                          className={classes.positionTypeChip}
                         />
                       )
                   )}
@@ -94,3 +95,18 @@ export const AccessControl: React.FC<Props> = props => {
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  locationChip: {
+    background: theme.customColors.mediumBlue,
+    color: theme.customColors.white,
+  },
+  locationGroupChip: {
+    background: theme.customColors.blue,
+    color: theme.customColors.white,
+  },
+  positionTypeChip: {
+    background: theme.customColors.blue,
+    color: theme.customColors.white,
+  },
+}));
