@@ -36,6 +36,24 @@ query GetOrgUserById($id: ID!) {
           name
         }
       }
+      allLocationIdsInScope
+      allPositionTypeIdsInScope
+      adminScopeLocationRules {
+        locations {
+          id
+          name
+        }
+        locationGroups {
+          id
+          name
+        }
+      }
+      adminScopePositionTypeRules {
+        positionTypes {
+          id
+          name
+        }
+      }
     }
   }
 }
