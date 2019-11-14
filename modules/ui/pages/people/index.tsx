@@ -19,7 +19,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
-import { FilterQueryParams } from "./people-filters/filter-params";
+import { FilterQueryParams, FilterRole } from "./people-filters/filter-params";
 
 type Props = {};
 
@@ -55,6 +55,21 @@ export const PeoplePage: React.FC<Props> = props => {
     [filters, oldFilters]
   );
 
+  const listRoles = (isAdmin: boolean, isEmployee: boolean, isSub: boolean) => {
+    let roles = [];
+    if (isAdmin) {
+      roles.push(t("Administrator"));
+    }
+    if (isEmployee) {
+      roles.push(t("Employee"));
+    }
+    if (isSub) {
+      roles.push(t("Substitute"));
+    }
+
+    return roles.join(",");
+  };
+
   let people: GetAllPeopleForOrg.Results[] = [];
   if (allPeopleQuery.state === "DONE" || allPeopleQuery.state === "UPDATING") {
     const qResults = compact(allPeopleQuery.data?.orgUser?.paged?.results);
@@ -67,9 +82,15 @@ export const PeoplePage: React.FC<Props> = props => {
       lastName: person.lastName,
       email: person.email,
       employeeId: person.externalId,
-      position: person.employee?.primaryPosition?.name,
+      roles: listRoles(
+        person.isAdmin,
+        person.isEmployee,
+        person.isReplacementEmployee
+      ),
+      positionType: person.employee?.primaryPosition?.name,
       phone: person.phoneNumber,
       location: "",
+      endorsements: "",
     }));
   }, [people]);
 
@@ -100,9 +121,37 @@ export const PeoplePage: React.FC<Props> = props => {
       field: "lastName",
     },
     { title: t("Primary Phone"), field: "phone" },
-    { title: t("Employee ID"), field: "externalId" },
-    { title: t("Position"), field: "position" },
-    { title: t("Location"), field: "location" },
+    { title: t("External ID"), field: "externalId" },
+    {
+      title: t("Role"),
+      field: "roles",
+      hidden: filters.roleFilter != null,
+    },
+    {
+      title: t("Position type"),
+      field: "positionType",
+      hidden: filters.roleFilter != OrgUserRole.Employee,
+    },
+    {
+      title: t("Location"),
+      field: "location",
+      hidden: filters.roleFilter != OrgUserRole.Employee,
+    },
+    {
+      title: t("Manages position type"),
+      field: "positionType",
+      hidden: filters.roleFilter != OrgUserRole.Employee,
+    },
+    {
+      title: t("Manages location"),
+      field: "location",
+      hidden: filters.roleFilter != OrgUserRole.Administrator,
+    },
+    {
+      title: t("Endorsements"),
+      field: "endorsements",
+      hidden: filters.roleFilter != OrgUserRole.Administrator,
+    },
     {
       title: "",
       field: "email",
