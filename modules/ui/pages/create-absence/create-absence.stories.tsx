@@ -7,7 +7,7 @@ import {
 } from "ui/routes/create-absence";
 import { Route } from "react-router";
 import { CreateAbsenceUI } from "./ui";
-import { NeedsReplacement } from "graphql/server-types.gen";
+import { NeedsReplacement, CalendarDayType } from "graphql/server-types.gen";
 
 export default {
   title: "Pages/Create Absence",

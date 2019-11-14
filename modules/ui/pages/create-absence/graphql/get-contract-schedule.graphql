@@ -1,0 +1,8 @@
+query GetEmployeeContractSchedule($id: ID!, $fromDate: Date!, $toDate: Date!) {
+  employee {
+    employeeContractSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+      id
+      calendarDayTypeId
+    }
+  }
+}
