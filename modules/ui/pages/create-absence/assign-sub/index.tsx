@@ -40,6 +40,7 @@ import { AssignSubFilters as Filters } from "./filters";
 import format from "date-fns/format";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
+import { VacancyDetails } from "../vacancy-details";
 
 type Props = {
   orgId: string;
@@ -122,10 +123,6 @@ const getFavoriteIcon = (
   return null;
 };
 
-const getScheduleLettersArray = () => {
-  return new Array(26).fill(1).map((_, i) => String.fromCharCode(65 + i));
-};
-
 export const AssignSub: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
@@ -140,7 +137,7 @@ export const AssignSub: React.FC<Props> = props => {
   const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
     number | null
   >(null);
-  const vacancyDetailsRef = React.useRef<HTMLInputElement>(null);
+  const vacancyDetailsRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (
@@ -350,51 +347,7 @@ export const AssignSub: React.FC<Props> = props => {
     favoritesOnly: boolean
   ) => {};
 
-  const getDateRangeDisplayText = (startDate: Date, endDate: Date) => {
-    let displayText = null;
-    if (startDate.getMonth() === endDate.getMonth()) {
-      displayText = `${format(startDate, "MMMM d")}-${format(
-        endDate,
-        "d, yyyy"
-      )}`;
-    } else if (startDate.getFullYear() !== endDate.getFullYear()) {
-      displayText = `${format(startDate, "MMMM d, yyyy")} - ${format(
-        endDate,
-        "MMMM d, yyyy"
-      )}`;
-    } else {
-      displayText = `${format(startDate, "MMMM d")} - ${format(
-        endDate,
-        "MMMM d, yyyy"
-      )}`;
-    }
-    return displayText;
-  };
-
   const renderVacancyDetails = () => {
-    const sortedVacancies = props.vacancies
-      .slice()
-      .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
-    const firstVacancy = sortedVacancies[0];
-    const lastVacancy = sortedVacancies[sortedVacancies.length - 1];
-    const totalVacancyDays = sortedVacancies.reduce((total, v) => {
-      return v.numDays ? total + v.numDays : total;
-    }, 0);
-
-    // Build the Vacancy Details header text
-    const dayLengthDisplayText =
-      totalVacancyDays > 1
-        ? `${totalVacancyDays} days`
-        : `${totalVacancyDays} day`;
-    let headerText = getDateRangeDisplayText(
-      firstVacancy.startTimeLocal,
-      lastVacancy.endTimeLocal
-    );
-    headerText = props.positionName
-      ? `${headerText} (${dayLengthDisplayText}) - ${props.positionName}`
-      : `${headerText} (${dayLengthDisplayText})`;
-
-    const scheduleLetters = getScheduleLettersArray();
     const showViewAllDetails =
       vacancyDetailsHeight &&
       vacancyDetailsHeight > collapsedVacancyDetailsHeight;
@@ -409,58 +362,12 @@ export const AssignSub: React.FC<Props> = props => {
               : collapsedVacancyDetailsHeight
           )}
         >
-          <Grid container spacing={2} ref={vacancyDetailsRef}>
-            <Grid item xs={12}>
-              <Typography variant="h5">{headerText}</Typography>
-            </Grid>
-            {sortedVacancies.map((v, detailsIndex) => {
-              return (
-                <Grid
-                  key={detailsIndex}
-                  item
-                  container
-                  xs={12}
-                  alignItems="center"
-                >
-                  <Grid item xs={2}>
-                    <Typography variant="h6">
-                      {getDateRangeDisplayText(
-                        v.startTimeLocal,
-                        v.endTimeLocal
-                      )}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={10} className={classes.scheduleText}>
-                    {`${t("Schedule")} ${scheduleLetters[detailsIndex]}`}
-                  </Grid>
-                  {v.details &&
-                    v.details.map((b, blocksIndex) => {
-                      return (
-                        <Fragment key={blocksIndex}>
-                          <Grid
-                            item
-                            xs={2}
-                            className={classes.vacancyBlockItem}
-                          >
-                            {`${format(b!.startTimeLocal, "h:mm a")} - ${format(
-                              b!.endTimeLocal,
-                              "h:mm a"
-                            )}`}
-                          </Grid>
-                          <Grid
-                            item
-                            xs={10}
-                            className={classes.vacancyBlockItem}
-                          >
-                            {b!.location ? b!.location.name : b!.locationId}
-                          </Grid>
-                        </Fragment>
-                      );
-                    })}
-                </Grid>
-              );
-            })}
-          </Grid>
+          <VacancyDetails
+            vacancies={props.vacancies}
+            positionName={props.positionName}
+            gridRef={vacancyDetailsRef}
+            showHeader
+          />
         </Collapse>
         {showViewAllDetails && (
           <div className={classes.viewAllDetails}>
@@ -522,15 +429,9 @@ const useStyles = makeStyles(theme => ({
   vacancyDetails: {
     marginBottom: theme.spacing(3),
   },
-  vacancyBlockItem: {
-    marginTop: theme.spacing(0.5),
-  },
   viewAllDetails: {
     cursor: "pointer",
     marginTop: theme.spacing(),
-  },
-  scheduleText: {
-    color: "#9E9E9E",
   },
   filters: {
     marginTop: theme.spacing(3),

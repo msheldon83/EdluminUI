@@ -97,3 +97,31 @@ export const getDaysInDateRange = (startDate: Date, endDate: Date): Date[] => {
   const days = differenceInDays(endDate, startDate);
   return [...Array(days + 1).keys()].map(i => addDays(startDate, i));
 };
+
+export const getDateRangeDisplayText = (
+  startDate: Date | null,
+  endDate: Date | null
+) => {
+  if (!startDate || !endDate) {
+    return null;
+  }
+
+  let displayText = null;
+  if (startDate.getMonth() === endDate.getMonth()) {
+    displayText = `${format(startDate, "MMMM d")}-${format(
+      endDate,
+      "d, yyyy"
+    )}`;
+  } else if (startDate.getFullYear() !== endDate.getFullYear()) {
+    displayText = `${format(startDate, "MMMM d, yyyy")} - ${format(
+      endDate,
+      "MMMM d, yyyy"
+    )}`;
+  } else {
+    displayText = `${format(startDate, "MMMM d")} - ${format(
+      endDate,
+      "MMMM d, yyyy"
+    )}`;
+  }
+  return displayText;
+};

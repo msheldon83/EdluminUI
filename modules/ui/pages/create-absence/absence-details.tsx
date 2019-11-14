@@ -16,6 +16,7 @@ import {
   FeatureFlag,
   NeedsReplacement,
   AbsenceCreateInput,
+  Vacancy,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useMemo, useState, useEffect } from "react";
@@ -35,6 +36,7 @@ import { useQueryBundle } from "graphql/hooks";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { getDaysInDateRange } from "helpers/date";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
+import { VacancyDetails } from "./vacancy-details";
 
 type Props = {
   state: CreateAbsenceState;
@@ -52,7 +54,7 @@ const buildAbsenceCreateInput = (
 ): AbsenceCreateInput => {
   // TODO: these should come from the Employee's schedule
   const startTime = "08:00 AM";
-  const endTime = "05:00 PM";
+  const endTime = "12:00 PM";
 
   const allDays = getDaysInDateRange(
     values.startDate ?? new Date(),
@@ -89,16 +91,26 @@ export const AbsenceDetails: React.FC<Props> = props => {
       ),
     },
   });
+  const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
+  getProjectedVacancies.state === "UPDATING"
+    ? []
+    : getProjectedVacancies.data?.absence?.projectedVacancies ?? []) as Pick<
+    Vacancy,
+    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
+  >[];
 
   useEffect(() => {
     // Go get projected vacancies
     console.log("Changing form", formValues);
+    console.log(getProjectedVacancies.state);
 
     if (
       formValues.startDate &&
       formValues.endDate &&
       formValues.dayPart &&
-      formValues.absenceReason
+      formValues.absenceReason &&
+      getProjectedVacancies.state !== "LOADING" &&
+      getProjectedVacancies.state !== "UPDATING"
     ) {
       getProjectedVacancies.refetch();
     }
@@ -268,6 +280,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
                   ? t("Requires a substitute")
                   : t("No substitute required")}
               </Typography>
+            )}
+
+            {values.needsReplacement && (
+              <VacancyDetails vacancies={projectedVacancies} />
             )}
 
             {showNotesForReplacement && (
