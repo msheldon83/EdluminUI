@@ -4,6 +4,7 @@ query GetEmployee($employeeId: ID!) {
       id
       firstName
       lastName
+      primaryPositionId
       primaryPosition {
         id
         name

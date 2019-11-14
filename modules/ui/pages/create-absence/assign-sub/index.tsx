@@ -32,6 +32,8 @@ import { Column } from "material-table";
 import {
   VacancyQualification,
   VacancyAvailability,
+  AbsenceVacancyInput,
+  Vacancy,
 } from "graphql/server-types.gen";
 import { TFunction } from "i18next";
 import { AssignSubFilters as Filters } from "./filters";
@@ -41,23 +43,14 @@ import { PaginationControls } from "ui/components/pagination-controls";
 type Props = {
   orgId: string;
   vacancyId?: string | null | undefined;
+  vacancies: Pick<
+    Vacancy,
+    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
+  >[];
   userIsAdmin: boolean;
   employeeName: string;
-  positionName?: string | undefined;
-  vacancyStartDate: Date;
-  vacancyEndDate: Date;
-  vacancyDays: number;
-  vacancyDetails: VacancyDetail[];
-};
-
-type VacancyDetail = {
-  startDate: Date;
-  endDate: Date;
-  blocks: {
-    startTime: string;
-    endTime: string;
-    locationName: string;
-  }[];
+  positionId?: number | null | undefined;
+  positionName?: string | null | undefined;
 };
 
 const getQualifiedIcon = (qualified: VacancyQualification, t: TFunction) => {
@@ -158,6 +151,29 @@ export const AssignSub: React.FC<Props> = props => {
     }
   });
 
+  const buildVacancyInput = (): AbsenceVacancyInput[] | null => {
+    if (props.vacancyId) {
+      return null;
+    }
+
+    const vacanciesInput = props.vacancies.map(v => {
+      return {
+        positionId: v.positionId,
+        needsReplacement: true,
+        details: v.details!.map(d => {
+          return {
+            date: d?.startTimeLocal,
+            startTime: 1,
+            endTime: 2,
+            locationId: d?.locationId ?? 0,
+          };
+        }),
+      };
+    });
+
+    return vacanciesInput;
+  };
+
   const [
     getReplacementEmployeesForVacancyQuery,
     pagination,
@@ -165,7 +181,11 @@ export const AssignSub: React.FC<Props> = props => {
     GetReplacementEmployeesForVacancy,
     r => r.absence?.replacementEmployeesForVacancy?.totalCount,
     {
-      variables: { orgId: props.orgId, vacancyId: props.vacancyId },
+      variables: {
+        orgId: props.orgId,
+        vacancyId: props.vacancyId,
+        vacancies: buildVacancyInput(),
+      },
     }
   );
 
@@ -345,16 +365,27 @@ export const AssignSub: React.FC<Props> = props => {
   };
 
   const renderVacancyDetails = () => {
+    const sortedVacancies = props.vacancies
+      .slice()
+      .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
+    const firstVacancy = sortedVacancies[0];
+    const lastVacancy = sortedVacancies[sortedVacancies.length - 1];
+    const totalVacancyDays = sortedVacancies.reduce((total, v) => {
+      return v.numDays ? total + v.numDays : total;
+    }, 0);
+
     // Build the Vacancy Details header text
     const dayLengthDisplayText =
-      props.vacancyDays > 1
-        ? `${props.vacancyDays} days`
-        : `${props.vacancyDays} day`;
+      totalVacancyDays > 1
+        ? `${totalVacancyDays} days`
+        : `${totalVacancyDays} day`;
     let headerText = getDateRangeDisplayText(
-      props.vacancyStartDate,
-      props.vacancyEndDate
+      firstVacancy.startTimeLocal,
+      lastVacancy.endTimeLocal
     );
-    headerText = props.positionName ? `${headerText} (${dayLengthDisplayText}) - ${props.positionName}` : `${headerText} (${dayLengthDisplayText})`;
+    headerText = props.positionName
+      ? `${headerText} (${dayLengthDisplayText}) - ${props.positionName}`
+      : `${headerText} (${dayLengthDisplayText})`;
 
     const scheduleLetters = getScheduleLettersArray();
     const showViewAllDetails =
@@ -375,7 +406,7 @@ export const AssignSub: React.FC<Props> = props => {
             <Grid item xs={12}>
               <Typography variant="h5">{headerText}</Typography>
             </Grid>
-            {props.vacancyDetails.map((v, detailsIndex) => {
+            {sortedVacancies.map((v, detailsIndex) => {
               return (
                 <Grid
                   key={detailsIndex}
@@ -386,24 +417,39 @@ export const AssignSub: React.FC<Props> = props => {
                 >
                   <Grid item xs={2}>
                     <Typography variant="h6">
-                      {getDateRangeDisplayText(v.startDate, v.endDate)}
+                      {getDateRangeDisplayText(
+                        v.startTimeLocal,
+                        v.endTimeLocal
+                      )}
                     </Typography>
                   </Grid>
                   <Grid item xs={10} className={classes.scheduleText}>
                     {`${t("Schedule")} ${scheduleLetters[detailsIndex]}`}
                   </Grid>
-                  {v.blocks.map((b, blocksIndex) => {
-                    return (
-                      <Fragment key={blocksIndex}>
-                        <Grid item xs={2} className={classes.vacancyBlockItem}>
-                          {`${b.startTime} - ${b.endTime}`}
-                        </Grid>
-                        <Grid item xs={10} className={classes.vacancyBlockItem}>
-                          {b.locationName}
-                        </Grid>
-                      </Fragment>
-                    );
-                  })}
+                  {v.details &&
+                    v.details.map((b, blocksIndex) => {
+                      return (
+                        <Fragment key={blocksIndex}>
+                          <Grid
+                            item
+                            xs={2}
+                            className={classes.vacancyBlockItem}
+                          >
+                            {`${format(b!.startTimeLocal, "h:mm a")} - ${format(
+                              b!.endTimeLocal,
+                              "h:mm a"
+                            )}`}
+                          </Grid>
+                          <Grid
+                            item
+                            xs={10}
+                            className={classes.vacancyBlockItem}
+                          >
+                            {b!.location ? b!.location.name : b!.locationId}
+                          </Grid>
+                        </Fragment>
+                      );
+                    })}
                 </Grid>
               );
             })}
@@ -426,10 +472,12 @@ export const AssignSub: React.FC<Props> = props => {
 
   return (
     <>
-      <Typography variant="h5">{pageHeader}</Typography>
-      {props.userIsAdmin && (
-        <Typography variant="h1">{props.employeeName}</Typography>
-      )}
+      <div className={classes.header}>
+        <Typography variant="h5">{pageHeader}</Typography>
+        {props.userIsAdmin && (
+          <Typography variant="h1">{props.employeeName}</Typography>
+        )}
+      </div>
       <Section>
         <div className={classes.vacancyDetails}>{renderVacancyDetails()}</div>
         <Divider />
@@ -461,6 +509,9 @@ export const AssignSub: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  header: {
+    marginBottom: theme.spacing(2),
+  },
   vacancyDetails: {
     marginBottom: theme.spacing(3),
   },

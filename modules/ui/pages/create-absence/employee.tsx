@@ -41,6 +41,7 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
       needsReplacement={
         employee.primaryPosition?.needsReplacement ?? NeedsReplacement.No
       }
+      positionId={employee.primaryPositionId}
       positionName={employee.primaryPosition?.name}
     />
   );

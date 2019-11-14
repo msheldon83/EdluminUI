@@ -4,7 +4,10 @@ import { AssignSub } from "./index";
 import {
   VacancyQualification,
   VacancyAvailability,
+  NeedsReplacement,
+  VacancyDetail,
 } from "graphql/server-types.gen";
+import Maybe from "graphql/tsutils/Maybe";
 
 export default {
   title: "Pages/Create Absence/Assign Sub",
@@ -19,9 +22,11 @@ const dummyReplacementEmployees = [
     },
     visible: true,
     qualified: VacancyQualification.Fully,
+    qualifiedAtUtc: "1/1/2019" as any,
+    qualifiedAtLocal: "1/1/2019" as any,
     available: VacancyAvailability.Yes,
-    visibleOnUtc: "1/1/2019" as any,
-    visibleOnLocal: "1/1/2019" as any,
+    visibleAtUtc: "1/1/2019" as any,
+    visibleAtLocal: "1/1/2019" as any,
     isEmployeeFavorite: true,
     isLocationPositionTypeFavorite: false,
   },
@@ -33,9 +38,11 @@ const dummyReplacementEmployees = [
     },
     visible: false,
     qualified: VacancyQualification.NotQualified,
+    qualifiedAtUtc: "1/1/2019" as any,
+    qualifiedAtLocal: "1/1/2019" as any,
     available: VacancyAvailability.Yes,
-    visibleOnUtc: null as any,
-    visibleOnLocal: null as any,
+    visibleAtUtc: null as any,
+    visibleAtLocal: null as any,
     isEmployeeFavorite: true,
     isLocationPositionTypeFavorite: false,
   },
@@ -47,9 +54,11 @@ const dummyReplacementEmployees = [
     },
     visible: false,
     qualified: VacancyQualification.Fully,
+    qualifiedAtUtc: "1/1/2019" as any,
+    qualifiedAtLocal: "1/1/2019" as any,
     available: VacancyAvailability.No,
-    visibleOnUtc: "1/1/2021" as any,
-    visibleOnLocal: "1/1/2021" as any,
+    visibleAtUtc: "1/1/2021" as any,
+    visibleAtLocal: "1/1/2021" as any,
     isEmployeeFavorite: false,
     isLocationPositionTypeFavorite: true,
   },
@@ -61,9 +70,11 @@ const dummyReplacementEmployees = [
     },
     visible: false,
     qualified: VacancyQualification.Minimally,
+    qualifiedAtUtc: "1/1/2019" as any,
+    qualifiedAtLocal: "1/1/2019" as any,
     available: VacancyAvailability.MinorConflict,
-    visibleOnUtc: "1/1/2021" as any,
-    visibleOnLocal: "1/1/2021" as any,
+    visibleAtUtc: "1/1/2021" as any,
+    visibleAtLocal: "1/1/2021" as any,
     isEmployeeFavorite: false,
     isLocationPositionTypeFavorite: false,
   },
@@ -89,52 +100,144 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
         userIsAdmin={true}
         vacancyId={"1"}
         employeeName={"Mary Smith"}
+        positionId={1}
         positionName={"Math teacher"}
-        vacancyStartDate={new Date("11/1/2019")}
-        vacancyEndDate={new Date("11/10/2019")}
-        vacancyDays={7}
-        vacancyDetails={[
+        vacancies={[
           {
-            startDate: new Date("11/1/2019"),
-            endDate: new Date("11/5/2019"),
-            blocks: [
+            startTimeLocal: new Date("11/1/2019 08:00 AM"),
+            endTimeLocal: new Date("11/3/2019 05:00 PM"),
+            numDays: 3,
+            positionId: 1,
+            details: [
               {
-                startTime: "7:00 AM",
-                endTime: "9:00 AM",
-                locationName: "Evans Elementary School",
+                startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                endTimeLocal: new Date("11/1/2019 09:00 AM"),
+                locationId: 1,
+                location: {
+                  name: "Evans Elementary School",
+                },
               },
               {
-                startTime: "9:00 AM",
-                endTime: "12:00 PM",
-                locationName: "Brook Elementary School",
+                startTimeLocal: new Date("11/1/2019 09:00 AM"),
+                endTimeLocal: new Date("11/1/2019 12:00 PM"),
+                locationId: 2,
+                location: {
+                  name: "Brook Elementary School",
+                },
               },
               {
-                startTime: "1:00 PM",
-                endTime: "5:00 PM",
-                locationName: "Haven Elementary School",
+                startTimeLocal: new Date("11/1/2019 01:00 PM"),
+                endTimeLocal: new Date("11/1/2019 05:00 PM"),
+                locationId: 3,
+                location: {
+                  name: "Haven Elementary School",
+                },
               },
-            ],
+              {
+                startTimeLocal: new Date("11/2/2019 07:00 AM"),
+                endTimeLocal: new Date("11/2/2019 09:00 AM"),
+                locationId: 1,
+                location: {
+                  name: "Evans Elementary School",
+                },
+              },
+              {
+                startTimeLocal: new Date("11/2/2019 09:00 AM"),
+                endTimeLocal: new Date("11/2/2019 12:00 PM"),
+                locationId: 2,
+                location: {
+                  name: "Brook Elementary School",
+                },
+              },
+              {
+                startTimeLocal: new Date("11/2/2019 01:00 PM"),
+                endTimeLocal: new Date("11/2/2019 05:00 PM"),
+                locationId: 3,
+                location: {
+                  name: "Haven Elementary School",
+                },
+              },
+              {
+                startTimeLocal: new Date("11/3/2019 07:00 AM"),
+                endTimeLocal: new Date("11/3/2019 09:00 AM"),
+                locationId: 1,
+                location: {
+                  name: "Evans Elementary School",
+                },
+              },
+              {
+                startTimeLocal: new Date("11/3/2019 09:00 AM"),
+                endTimeLocal: new Date("11/3/2019 12:00 PM"),
+                locationId: 2,
+                location: {
+                  name: "Brook Elementary School",
+                },
+              },
+              {
+                startTimeLocal: new Date("11/3/2019 01:00 PM"),
+                endTimeLocal: new Date("11/3/2019 05:00 PM"),
+                locationId: 3,
+                location: {
+                  name: "Haven Elementary School",
+                },
+              },
+            ] as Maybe<VacancyDetail[]>,
           },
           {
-            startDate: new Date("11/6/2019"),
-            endDate: new Date("11/10/2019"),
-            blocks: [
+            startTimeLocal: new Date("11/6/2019 08:00 AM"),
+            endTimeLocal: new Date("11/7/2019 05:00 PM"),
+            numDays: 2,
+            positionId: 1,
+            details: [
               {
-                startTime: "7:00 AM",
-                endTime: "9:00 AM",
-                locationName: "Evans Elementary School",
+                startTimeLocal: new Date("11/6/2019 07:00 AM"),
+                endTimeLocal: new Date("11/6/2019 09:00 AM"),
+                locationId: 1,
+                location: {
+                  name: "Evans Elementary School",
+                },
               },
               {
-                startTime: "9:00 AM",
-                endTime: "12:00 PM",
-                locationName: "Brook Elementary School",
+                startTimeLocal: new Date("11/6/2019 09:00 AM"),
+                endTimeLocal: new Date("11/6/2019 12:00 PM"),
+                locationId: 2,
+                location: {
+                  name: "Brook Elementary School",
+                },
               },
               {
-                startTime: "1:00 PM",
-                endTime: "5:00 PM",
-                locationName: "Haven Elementary School",
+                startTimeLocal: new Date("11/6/2019 01:00 PM"),
+                endTimeLocal: new Date("11/6/2019 05:00 PM"),
+                locationId: 3,
+                location: {
+                  name: "Haven Elementary School",
+                },
               },
-            ],
+              {
+                startTimeLocal: new Date("11/7/2019 07:00 AM"),
+                endTimeLocal: new Date("11/7/2019 09:00 AM"),
+                locationId: 1,
+                location: {
+                  name: "Evans Elementary School",
+                },
+              },
+              {
+                startTimeLocal: new Date("11/7/2019 09:00 AM"),
+                endTimeLocal: new Date("11/7/2019 12:00 PM"),
+                locationId: 2,
+                location: {
+                  name: "Brook Elementary School",
+                },
+              },
+              {
+                startTimeLocal: new Date("11/7/2019 01:00 PM"),
+                endTimeLocal: new Date("11/7/2019 05:00 PM"),
+                locationId: 3,
+                location: {
+                  name: "Haven Elementary School",
+                },
+              },
+            ] as Maybe<VacancyDetail[]>,
           },
         ]}
       />
@@ -166,21 +269,24 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
         userIsAdmin={false}
         vacancyId={"1"}
         employeeName={"Mary Smith"}
+        positionId={1}
         positionName={"Math teacher"}
-        vacancyStartDate={new Date("11/1/2019")}
-        vacancyEndDate={new Date("11/10/2019")}
-        vacancyDays={7}
-        vacancyDetails={[
+        vacancies={[
           {
-            startDate: new Date("11/1/2019"),
-            endDate: new Date("11/10/2019"),
-            blocks: [
+            startTimeLocal: new Date("11/1/2019 08:00 AM"),
+            endTimeLocal: new Date("11/10/2019 05:00 PM"),
+            numDays: 7,
+            positionId: 1,
+            details: [
               {
-                startTime: "07:00 AM",
-                endTime: "05:00 PM",
-                locationName: "Evans Elementary School",
+                startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                endTimeLocal: new Date("11/1/2019 05:00 PM"),
+                locationId: 1,
+                location: {
+                  name: "Evans Elementary School",
+                },
               },
-            ],
+            ] as Maybe<VacancyDetail[]>,
           },
         ]}
       />
@@ -211,21 +317,24 @@ export const PrearrangeSubAsAdmin = () => {
         orgId={"1006"}
         userIsAdmin={true}
         employeeName={"Mary Smith"}
+        positionId={1}
         positionName={"Math teacher"}
-        vacancyStartDate={new Date("11/1/2019")}
-        vacancyEndDate={new Date("11/10/2019")}
-        vacancyDays={7}
-        vacancyDetails={[
+        vacancies={[
           {
-            startDate: new Date("11/1/2019"),
-            endDate: new Date("11/10/2019"),
-            blocks: [
+            startTimeLocal: new Date("11/1/2019 08:00 AM"),
+            endTimeLocal: new Date("11/10/2019 05:00 PM"),
+            numDays: 7,
+            positionId: 1,
+            details: [
               {
-                startTime: "07:00 AM",
-                endTime: "05:00 PM",
-                locationName: "Evans Elementary School",
+                startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                endTimeLocal: new Date("11/1/2019 05:00 PM"),
+                locationId: 1,
+                location: {
+                  name: "Evans Elementary School",
+                },
               },
-            ],
+            ] as Maybe<VacancyDetail[]>,
           },
         ]}
       />
@@ -256,21 +365,24 @@ export const PrearrangeSubAsEmployee = () => {
         orgId={"1006"}
         userIsAdmin={false}
         employeeName={"Mary Smith"}
+        positionId={1}
         positionName={"Math teacher"}
-        vacancyStartDate={new Date("11/1/2019")}
-        vacancyEndDate={new Date("11/10/2019")}
-        vacancyDays={7}
-        vacancyDetails={[
+        vacancies={[
           {
-            startDate: new Date("11/1/2019"),
-            endDate: new Date("11/10/2019"),
-            blocks: [
+            startTimeLocal: new Date("11/1/2019 08:00 AM"),
+            endTimeLocal: new Date("11/10/2019 05:00 PM"),
+            numDays: 7,
+            positionId: 1,
+            details: [
               {
-                startTime: "07:00 AM",
-                endTime: "05:00 PM",
-                locationName: "Evans Elementary School",
+                startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                endTimeLocal: new Date("11/1/2019 05:00 PM"),
+                locationId: 1,
+                location: {
+                  name: "Evans Elementary School",
+                },
               },
-            ],
+            ] as Maybe<VacancyDetail[]>,
           },
         ]}
       />
