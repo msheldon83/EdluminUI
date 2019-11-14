@@ -23,7 +23,11 @@ import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { DatePicker, DatePickerOnChange } from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
-import { CreateAbsenceState } from "./state";
+import {
+  createAbsenceReducer,
+  CreateAbsenceState,
+  CreateAbsenceActions,
+} from "./state";
 import { FormData } from "./ui";
 
 type Props = {
@@ -32,6 +36,7 @@ type Props = {
   values: FormData;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
+  showAssignSub: () => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -214,6 +219,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 />
               </div>
             )}
+
+            <div>
+              {values.needsReplacement && (
+                <Button variant="outlined" onClick={props.showAssignSub}>
+                  {t("Pre-arrange")}
+                </Button>
+              )}
+            </div>
           </div>
         </Paper>
       </Grid>

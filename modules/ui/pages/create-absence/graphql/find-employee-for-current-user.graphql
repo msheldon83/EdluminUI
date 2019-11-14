@@ -12,6 +12,7 @@ query FindEmployeeForCurrentUser {
             lastName
             primaryPosition {
               id
+              name
               needsReplacement
             }
           }

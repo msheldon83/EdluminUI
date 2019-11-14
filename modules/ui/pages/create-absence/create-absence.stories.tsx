@@ -31,6 +31,7 @@ export const AsAdmin = () => {
           organizationId="124"
           userIsAdmin
           needsReplacement={NeedsReplacement.Yes}
+          positionName="Math Teacher"
         />
       </Route>
     </Provider>
@@ -54,6 +55,7 @@ export const AsEmployee = () => {
           organizationId="124"
           userIsAdmin={false}
           needsReplacement={NeedsReplacement.Sometimes}
+          positionName="Math Teacher"
         />
       </Route>
     </Provider>
@@ -77,6 +79,7 @@ export const AsSubNotNeededEmployee = () => {
           organizationId="124"
           needsReplacement={NeedsReplacement.No}
           userIsAdmin={false}
+          positionName="Math Teacher"
         />
       </Route>
     </Provider>
@@ -122,6 +125,7 @@ export const AsSubNeededEmployee = () => {
           organizationId="124"
           userIsAdmin={false}
           needsReplacement={NeedsReplacement.Yes}
+          positionName="Math Teacher"
         />
       </Route>
     </Provider>

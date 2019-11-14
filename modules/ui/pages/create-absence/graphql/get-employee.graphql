@@ -6,6 +6,7 @@ query GetEmployee($employeeId: ID!) {
       lastName
       primaryPosition {
         id
+        name
         needsReplacement
       }
     }

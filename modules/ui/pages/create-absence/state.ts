@@ -4,12 +4,12 @@ import { DayPart } from "graphql/server-types.gen";
 export type CreateAbsenceState = {
   employeeId: string;
   organizationId: string;
-  step: "absence" | "substitute";
+  step: "absence" | "assignSub";
 };
 
 export type CreateAbsenceActions = {
   action: "switchStep";
-  step: "absence" | "substitute";
+  step: "absence" | "assignSub";
 };
 
 export const createAbsenceReducer: Reducer<

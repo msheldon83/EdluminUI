@@ -17,6 +17,7 @@ import { AbsenceDetails } from "./absence-details";
 import { GetEmployee } from "./graphql/get-employee.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { useIsAdmin } from "reference-data/is-admin";
+import { AssignSub } from "./assign-sub/index";
 
 type Props = {
   firstName: string;
@@ -26,6 +27,7 @@ type Props = {
   organizationId: string;
   needsReplacement: NeedsReplacement;
   userIsAdmin: boolean;
+  positionName?: string | undefined;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -91,8 +93,41 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
               values={getValues()}
               isAdmin={props.userIsAdmin}
               needsReplacement={props.needsReplacement}
+              showAssignSub={() => {
+                dispatch({
+                  action: "switchStep",
+                  step: "assignSub",
+                });
+              }}
             />
           </Section>
+        )}
+        {state.step === "assignSub" && (
+          <AssignSub
+            orgId={props.organizationId}
+            userIsAdmin={props.userIsAdmin}
+            employeeName={name}
+            positionName={props.positionName}
+            // TODO: This should be coming from the query to get Projected Vacancies
+            // but hardcoding so we can see some data until that call is in place
+            vacancyId={"1"}
+            vacancyStartDate={new Date("11/1/2019")}
+            vacancyEndDate={new Date("11/10/2019")}
+            vacancyDays={7}
+            vacancyDetails={[
+              {
+                startDate: new Date("11/1/2019"),
+                endDate: new Date("11/10/2019"),
+                blocks: [
+                  {
+                    startTime: "07:00 AM",
+                    endTime: "05:00 PM",
+                    locationName: "Evans Elementary School",
+                  },
+                ],
+              },
+            ]}
+          />
         )}
       </form>
     </>

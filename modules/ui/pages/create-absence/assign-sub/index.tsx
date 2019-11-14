@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { makeStyles, useTheme } from "@material-ui/styles";
@@ -43,7 +43,7 @@ type Props = {
   vacancyId?: string | null | undefined;
   userIsAdmin: boolean;
   employeeName: string;
-  positionName: string;
+  positionName?: string | undefined;
   vacancyStartDate: Date;
   vacancyEndDate: Date;
   vacancyDays: number;
@@ -354,7 +354,7 @@ export const AssignSub: React.FC<Props> = props => {
       props.vacancyStartDate,
       props.vacancyEndDate
     );
-    headerText = `${headerText} (${dayLengthDisplayText}) - ${props.positionName}`;
+    headerText = props.positionName ? `${headerText} (${dayLengthDisplayText}) - ${props.positionName}` : `${headerText} (${dayLengthDisplayText})`;
 
     const scheduleLetters = getScheduleLettersArray();
     const showViewAllDetails =
@@ -394,14 +394,14 @@ export const AssignSub: React.FC<Props> = props => {
                   </Grid>
                   {v.blocks.map((b, blocksIndex) => {
                     return (
-                      <>
+                      <Fragment key={blocksIndex}>
                         <Grid item xs={2} className={classes.vacancyBlockItem}>
                           {`${b.startTime} - ${b.endTime}`}
                         </Grid>
                         <Grid item xs={10} className={classes.vacancyBlockItem}>
                           {b.locationName}
                         </Grid>
-                      </>
+                      </Fragment>
                     );
                   })}
                 </Grid>
