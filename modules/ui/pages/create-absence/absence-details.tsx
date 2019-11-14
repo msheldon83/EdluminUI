@@ -15,9 +15,10 @@ import {
   DayPart,
   FeatureFlag,
   NeedsReplacement,
+  AbsenceCreateInput,
 } from "graphql/server-types.gen";
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
@@ -29,6 +30,11 @@ import {
   CreateAbsenceActions,
 } from "./state";
 import { FormData } from "./ui";
+import { isDate, isValid } from "date-fns";
+import { useQueryBundle } from "graphql/hooks";
+import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
+import { getDaysInDateRange } from "helpers/date";
+import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 
 type Props = {
   state: CreateAbsenceState;
@@ -39,11 +45,64 @@ type Props = {
   showAssignSub: () => void;
 };
 
+const buildAbsenceCreateInput = (
+  values: Partial<FormData>,
+  orgId: number,
+  employeeId: number
+): AbsenceCreateInput => {
+  // TODO: these should come from the Employee's schedule
+  const startTime = "08:00 AM";
+  const endTime = "05:00 PM";
+
+  const allDays = getDaysInDateRange(
+    values.startDate ?? new Date(),
+    values.endDate ?? new Date()
+  );
+
+  return {
+    orgId,
+    employeeId,
+    details: allDays.map(d => {
+      return {
+        date: d,
+        startTime: secondsSinceMidnight(parseTimeFromString(startTime)),
+        endTime: secondsSinceMidnight(parseTimeFromString(endTime)),
+        dayPartId: values.dayPart ?? DayPart.FullDay,
+      };
+    }),
+  };
+};
+
 export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
   const { state, setValue, values, isAdmin, needsReplacement } = props;
+  const [formValues, setFormValues] = useState<Partial<FormData>>(values);
+
+  const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
+    variables: {
+      absence: buildAbsenceCreateInput(
+        formValues,
+        Number(state.organizationId),
+        Number(state.employeeId)
+      ),
+    },
+  });
+
+  useEffect(() => {
+    // Go get projected vacancies
+    console.log("Changing form", formValues);
+
+    if (
+      formValues.startDate &&
+      formValues.endDate &&
+      formValues.dayPart &&
+      formValues.absenceReason
+    ) {
+      getProjectedVacancies.refetch();
+    }
+  }, [formValues, getProjectedVacancies]);
 
   const [showNotesForReplacement, setShowNotesForReplacement] = useState(
     needsReplacement !== NeedsReplacement.No
@@ -64,21 +123,40 @@ export const AbsenceDetails: React.FC<Props> = props => {
     async ({ startDate, endDate }) => {
       await setValue("startDate", startDate);
       await setValue("endDate", endDate);
+      setFormValues({
+        ...formValues,
+        startDate:
+          startDate && isDate(startDate) && isValid(startDate)
+            ? new Date(startDate)
+            : undefined,
+        endDate:
+          endDate && isDate(endDate) && isValid(endDate)
+            ? new Date(endDate)
+            : undefined,
+      });
     },
-    [setValue]
+    [setValue, formValues, setFormValues]
   );
   const onReasonChange = React.useCallback(
     async event => {
       await setValue("absenceReason", event.value);
+      setFormValues({
+        ...formValues,
+        absenceReason: event.value,
+      });
     },
-    [setValue]
+    [setValue, formValues, setFormValues]
   );
 
   const onDayPartChange = React.useCallback(
     async event => {
+      setFormValues({
+        ...formValues,
+        dayPart: event.target.value,
+      });
       await setValue("dayPart", event.target.value);
     },
-    [setValue]
+    [setValue, formValues, setFormValues]
   );
 
   const onNotesToApproverChange = React.useCallback(

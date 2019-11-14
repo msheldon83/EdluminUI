@@ -4,6 +4,7 @@ import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import isWithinInterval from "date-fns/isWithinInterval";
 import isEqual from "date-fns/isEqual";
+import { differenceInDays, addDays } from "date-fns";
 
 export type PolymorphicDate = Date | string | undefined;
 
@@ -90,4 +91,9 @@ export const inDateInterval = (
   }
 
   return isWithinInterval(day, { start, end });
+};
+
+export const getDaysInDateRange = (startDate: Date, endDate: Date): Date[] => {
+  const days = differenceInDays(endDate, startDate);
+  return [...Array(days + 1).keys()].map(i => addDays(startDate, i));
 };
