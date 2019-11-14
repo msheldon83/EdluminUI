@@ -2510,6 +2510,7 @@ type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
   hoursPerFullWorkDay: Decimal
+  schedules: [PositionSchedule]
 }
 
 input PositionCreateInput {

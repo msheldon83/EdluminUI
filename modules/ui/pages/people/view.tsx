@@ -181,26 +181,33 @@ export const PersonViewPage: React.FC<{}> = props => {
             allPositionTypeIdsInScope={orgUser?.allPositionTypeIdsInScope}
             isSuperUser={orgUser?.isSuperUser}
           />
-        )
-      }
+        )}
       {orgUser.isEmployee &&
         (selectedRole ?? defaultSelectedRole) === OrgUserRole.Employee && (
           <>
             <Position
               editing={editing}
               setEditing={setEditing}
+              positionName={orgUser?.employee?.primaryPosition?.name}
+              needsReplacement={
+                orgUser?.employee?.primaryPosition?.needsReplacement
+              }
+              hoursPerFullWorkDay={
+                orgUser?.employee?.primaryPosition?.hoursPerFullWorkDay
+              }
+              contractName={
+                orgUser?.employee?.primaryPosition?.currentContract?.name
+              }
+              scheduleNames={
+                orgUser?.employee?.primaryPosition?.schedules?.map(
+                  s => s?.name
+                ) ?? []
+              }
             />
-            <SubstitutePreferences
-              editing={editing}
-              setEditing={setEditing}
-            />
-            <ReplacementCriteria
-              editing={editing}
-              setEditing={setEditing}
-            />
+            <SubstitutePreferences editing={editing} setEditing={setEditing} />
+            <ReplacementCriteria editing={editing} setEditing={setEditing} />
           </>
-        )
-      }
+        )}
     </>
   );
 };

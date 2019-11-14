@@ -34,6 +34,16 @@ query GetOrgUserById($id: ID!) {
         primaryPosition {
           id
           name
+          hoursPerFullWorkDay
+          needsReplacement
+          currentContract {
+            id
+            name
+          }
+          schedules {
+            id
+            name
+          }
         }
       }
       allLocationIdsInScope

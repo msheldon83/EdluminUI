@@ -4,10 +4,17 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
+import { NeedsReplacement } from "graphql/server-types.gen";
+import Maybe from "graphql/tsutils/Maybe";
 
 type Props = {
   editing: string | null;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
+  positionName: string | null | undefined;
+  needsReplacement: Maybe<NeedsReplacement>;
+  hoursPerFullWorkDay: number | null | undefined;
+  contractName: string | null | undefined;
+  scheduleNames: Array<string | undefined>;
 };
 
 export const Position: React.FC<Props> = props => {
@@ -32,7 +39,7 @@ export const Position: React.FC<Props> = props => {
           <Grid container item spacing={2} xs={8}>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Position")}</Typography>
-              <div></div>
+              <div>{props.positionName ?? t("Not available")}</div>
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Location")}</Typography>
@@ -40,19 +47,23 @@ export const Position: React.FC<Props> = props => {
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Needs replacement")}</Typography>
-              <div></div>
+              <div>{props.needsReplacement ?? t("Not available")}</div>
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Schedule")}</Typography>
-              <div></div>
+              <div>
+                {(props.scheduleNames.length > 0 &&
+                  props.scheduleNames.join(",")) ??
+                  t("Not available")}
+              </div>
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Contract")}</Typography>
-              <div></div>
+              <div>{props.contractName ?? t("Not available")}</div>
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Hours in full day")}</Typography>
-              <div></div>
+              <div>{props.hoursPerFullWorkDay ?? t("Not available")}</div>
             </Grid>
           </Grid>
         </Grid>
