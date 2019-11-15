@@ -1,14 +1,13 @@
 import { useQueryBundle } from "graphql/hooks";
+import { NeedsReplacement } from "graphql/server-types.gen";
+import { compact, map } from "lodash-es";
 import * as React from "react";
-import { LoadingStateTrigger } from "ui/components/loading-state/loading-state-trigger";
+import { useIsAdmin } from "reference-data/is-admin";
 import {
   FindEmployeeForCurrentUser,
   FindEmployeeForCurrentUserQueryResult,
 } from "./graphql/find-employee-for-current-user.gen";
 import { CreateAbsenceUI } from "./ui";
-import { flatMap, map, compact } from "lodash-es";
-import { useIsAdmin } from "reference-data/is-admin";
-import { NeedsReplacement } from "graphql/server-types.gen";
 
 type Props = {};
 
@@ -41,8 +40,8 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
       needsReplacement={
         employee.primaryPosition?.needsReplacement ?? NeedsReplacement.No
       }
-      positionId={employee.primaryPositionId}
       positionName={employee.primaryPosition?.name}
+      positionId={employee.primaryPosition?.id}
     />
   );
 };

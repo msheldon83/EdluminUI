@@ -1,17 +1,21 @@
 import {
   Button,
+  Checkbox,
   Grid,
   makeStyles,
+  Paper,
   TextField,
   Typography,
-  Paper,
-  Checkbox,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
-import { SetValue, Register } from "forms";
+import { addMonths, endOfMonth, format, parseISO, startOfDay } from "date-fns";
+import { eachDayOfInterval } from "date-fns/esm";
+import { SetValue } from "forms";
+import { HookQueryResult, useQueryBundle } from "graphql/hooks";
 import {
+  CalendarDayType,
   DayPart,
   FeatureFlag,
   NeedsReplacement,
@@ -22,18 +26,24 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
-import { DatePicker, DatePickerOnChange } from "ui/components/form/date-picker";
+import {
+  DatePicker,
+  DatePickerOnChange,
+  DatePickerOnMonthChange,
+} from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
 import {
-  createAbsenceReducer,
-  CreateAbsenceState,
-  CreateAbsenceActions,
-} from "./state";
+  GetEmployeeContractSchedule,
+  GetEmployeeContractScheduleQuery,
+  GetEmployeeContractScheduleQueryVariables,
+} from "./graphql/get-contract-schedule.gen";
+import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
 import { VacancyDetails } from "./vacancy-details";
 
 type Props = {
   state: CreateAbsenceState;
+  dispatch: React.Dispatch<CreateAbsenceActions>;
   setValue: SetValue;
   values: FormData;
   isAdmin: null | boolean;
@@ -49,7 +59,29 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
-  const { state, setValue, values, isAdmin, needsReplacement } = props;
+  const {
+    state,
+    setValue,
+    values,
+    isAdmin,
+    needsReplacement,
+    dispatch,
+  } = props;
+
+  const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
+    variables: {
+      id: state.employeeId,
+      fromDate: format(addMonths(state.viewingCalendarMonth, -1), "yyyy-M-d"),
+      toDate: format(
+        endOfMonth(addMonths(state.viewingCalendarMonth, 2)),
+        "yyyy-M-d"
+      ),
+    },
+  });
+
+  const disabledDates = useMemo(() => computeDisabledDates(contractSchedule), [
+    contractSchedule,
+  ]);
 
   const [showNotesForReplacement, setShowNotesForReplacement] = useState(
     needsReplacement !== NeedsReplacement.No
@@ -108,6 +140,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [setValue, setShowNotesForReplacement]
   );
 
+  const onMonthChange: DatePickerOnMonthChange = React.useCallback(
+    date => {
+      dispatch({ action: "switchMonth", month: date });
+    },
+    [dispatch]
+  );
+
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -135,6 +174,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
           onChange={onDateChange}
           startLabel={t("From")}
           endLabel={t("To")}
+          onMonthChange={onMonthChange}
+          disableDates={disabledDates}
         />
 
         <RadioGroup
@@ -346,4 +387,39 @@ const featureFlagsToDayPartOptions = (
     }
   });
   return dayPartOptions;
+};
+
+const computeDisabledDates = (
+  queryResult: HookQueryResult<
+    GetEmployeeContractScheduleQuery,
+    GetEmployeeContractScheduleQueryVariables
+  >
+) => {
+  if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {
+    return [];
+  }
+  const dates = new Set<Date>();
+  queryResult.data.employee?.employeeContractSchedule?.forEach(contractDate => {
+    switch (contractDate?.calendarDayTypeId) {
+      case CalendarDayType.CancelledDay:
+      case CalendarDayType.Invalid:
+      case CalendarDayType.NonWorkDay: {
+        const theDate = startOfDay(parseISO(contractDate.date));
+        dates.add(theDate);
+      }
+    }
+  });
+  queryResult.data.employee?.employeeAbsenceSchedule?.forEach(absence => {
+    const startDate = absence?.startDate;
+    const endDate = absence?.endDate;
+    if (startDate && endDate) {
+      eachDayOfInterval({
+        start: parseISO(startDate),
+        end: parseISO(endDate),
+      }).forEach(day => {
+        dates.add(startOfDay(day));
+      });
+    }
+  });
+  return [...dates];
 };

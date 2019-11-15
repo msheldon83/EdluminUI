@@ -11,6 +11,7 @@ import {
   NeedsReplacement,
   VacancyAvailability,
   VacancyQualification,
+  CalendarDayType
 } from "graphql/server-types.gen";
 
 export default {
@@ -78,6 +79,10 @@ export const AsAdmin = () => {
             results: basicReplacementEmployees,
           },
         }),
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
+        }),
       }),
     },
   });
@@ -111,6 +116,10 @@ export const AsEmployee = () => {
             totalCount: basicReplacementEmployees.length,
             results: basicReplacementEmployees,
           },
+        }),
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
         }),
       }),
     },
@@ -146,6 +155,10 @@ export const AsSubNotNeededEmployee = () => {
             totalCount: basicReplacementEmployees.length,
             results: basicReplacementEmployees,
           },
+        }),
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
         }),
       }),
     },
@@ -187,6 +200,8 @@ export const AsSubNeededEmployee = () => {
           }),
         }),
         employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
           byId: {
             id: "123",
             primaryPosition: {
