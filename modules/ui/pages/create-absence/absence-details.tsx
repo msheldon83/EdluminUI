@@ -66,7 +66,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
       id: state.employeeId,
       fromDate: format(addMonths(state.viewingCalendarMonth, -1), "yyyy-M-d"),
       toDate: format(
-        endOfMonth(addMonths(state.viewingCalendarMonth, 1)),
+        endOfMonth(addMonths(state.viewingCalendarMonth, 2)),
         "yyyy-M-d"
       ),
     },
