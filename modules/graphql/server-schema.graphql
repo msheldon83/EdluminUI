@@ -235,6 +235,7 @@ input AbsenceVacancyInput {
   needsReplacement: Boolean
   useSuppliedDetails: Boolean
   notesToReplacement: String
+  externalId: String
   requestedReplacementEmployeeIds: [Int]
   prearrangedReplacementEmployeeId: Int
   details: [VacancyDetailInput]
@@ -3931,7 +3932,7 @@ type VacancyEmployeeRequest implements ModelObjectInterface & OrgObjectInterface
   isRejected: Boolean
   validUntilUtc: DateTime
   isExpired: Boolean
-  requestedByOrgUserId: Int!
+  requestedByOrgUserId: Int
   requestedByOrgUser: OrgUser
 }
 
