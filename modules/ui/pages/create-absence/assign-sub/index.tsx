@@ -21,12 +21,15 @@ import {
 import {
   AccountCircleOutlined,
   Star,
-  StarBorder,
   Check,
-  Cancel,
+  Info,
+  Close,
   Visibility,
   VisibilityOff,
   AccessTime,
+  SignalCellular1Bar,
+  SignalCellular3Bar,
+  SignalCellular4Bar,
 } from "@material-ui/icons";
 import { Column } from "material-table";
 import {
@@ -59,69 +62,80 @@ type Props = {
   positionName?: string;
 };
 
-const getQualifiedIcon = (qualified: VacancyQualification, t: TFunction) => {
+const getQualifiedIcon = (
+  qualified: VacancyQualification,
+  t: TFunction,
+  classes: any
+) => {
   switch (qualified) {
     case VacancyQualification.Fully:
-      return (
-        <Tooltip title={t("Fully qualified")}>
-          <Check />
-        </Tooltip>
-      );
+      return <SignalCellular4Bar className={classes.icon} />;
     // TODO: This has to be distinguished from FULLY with a different icon
     case VacancyQualification.Minimally:
       return (
         <Tooltip title={t("Minimally qualified")}>
-          <Check />
+          <SignalCellular3Bar className={classes.icon} />
         </Tooltip>
       );
     case VacancyQualification.NotQualified:
-      return <Cancel />;
+      return <SignalCellular1Bar className={classes.icon} />;
   }
 };
 
-const getAvailableIcon = (available: VacancyAvailability, t: TFunction) => {
+const getAvailableIcon = (
+  available: VacancyAvailability,
+  t: TFunction,
+  classes: any
+) => {
   switch (available) {
     case VacancyAvailability.Yes:
-      return <Check />;
-    // TODO: This has to be distinguished from YES with a different icon
+      return <Check className={classes.available} />;
     case VacancyAvailability.MinorConflict:
       return (
         <Tooltip title={t("Minor conflict")}>
-          <Check />
+          <div>
+            <Check className={classes.available} />
+            <Info className={classes.icon} />
+          </div>
         </Tooltip>
       );
     case VacancyAvailability.No:
-      return <Cancel />;
+      return <Close className={classes.notAvailable} />;
   }
 };
 
 const getVisibleIcon = (
   visible: boolean,
   visibleOn?: Date | null | undefined,
-  t: TFunction
+  t: TFunction,
+  classes: any
 ) => {
   if (visible) {
-    return <Visibility />;
+    return <Visibility className={classes.icon} />;
   }
 
   if (!visibleOn) {
-    return <VisibilityOff />;
+    return <VisibilityOff className={classes.icon} />;
   }
 
   // TODO: Add a tooltip to show when this will be visible to the Sub
   return (
     <Tooltip title={`${t("Visible on")} ${visibleOn}`}>
-      <AccessTime />
+      <div>
+        <VisibilityOff className={classes.icon} />
+        <AccessTime className={classes.icon} />
+      </div>
     </Tooltip>
   );
 };
 
 const getFavoriteIcon = (
   isEmployeeFavorite: boolean,
-  isLocationPositionTypeFavorite: boolean
+  isLocationPositionTypeFavorite: boolean,
+  classes: any
 ) => {
   if (isEmployeeFavorite || isLocationPositionTypeFavorite) {
-    return <Star />;
+    return <Star className={classes.icon} />;
   }
 
   return null;
@@ -262,7 +276,8 @@ export const AssignSub: React.FC<Props> = props => {
       render: (data: typeof tableData[0]) =>
         getFavoriteIcon(
           data.isEmployeeFavorite,
-          data.isLocationPositionTypeFavorite
+          data.isLocationPositionTypeFavorite,
+          classes
         ),
       sorting: false,
     },
@@ -292,7 +307,7 @@ export const AssignSub: React.FC<Props> = props => {
       title: t("Qualified"),
       field: "qualified",
       render: (data: typeof tableData[0]) =>
-        getQualifiedIcon(data.qualified, t),
+        getQualifiedIcon(data.qualified, t, classes),
       cellStyle: {
         textAlign: "center",
       },
@@ -305,7 +320,7 @@ export const AssignSub: React.FC<Props> = props => {
       title: t("Available"),
       field: "available",
       render: (data: typeof tableData[0]) =>
-        getAvailableIcon(data.available, t),
+        getAvailableIcon(data.available, t, classes),
       cellStyle: {
         textAlign: "center",
       },
@@ -320,7 +335,7 @@ export const AssignSub: React.FC<Props> = props => {
     title: t("Visible"),
     field: "visible",
     render: (data: typeof tableData[0]) =>
-      getVisibleIcon(data.visible, data.visibleOn, t),
+      getVisibleIcon(data.visible, data.visibleOn, t, classes),
     cellStyle: {
       textAlign: "center",
     },
@@ -341,7 +356,7 @@ export const AssignSub: React.FC<Props> = props => {
           console.log("Selecting Employee Id", data.employeeId);
         }}
       >
-        {props.vacancyId ? t("Assign") : t("Select")}
+        {t("Select")}
       </Button>
     ),
   });
@@ -444,5 +459,14 @@ const useStyles = makeStyles(theme => ({
   filters: {
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
+  },
+  available: {
+    color: theme.customColors.grass,
+  },
+  notAvailable: {
+    color: theme.customColors.tomato,
+  },
+  icon: {
+    color: theme.customColors.gray,
   },
 }));
