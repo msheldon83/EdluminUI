@@ -7,11 +7,60 @@ import {
 } from "ui/routes/create-absence";
 import { Route } from "react-router";
 import { CreateAbsenceUI } from "./ui";
-import { NeedsReplacement } from "graphql/server-types.gen";
+import {
+  NeedsReplacement,
+  VacancyAvailability,
+  VacancyQualification,
+} from "graphql/server-types.gen";
 
 export default {
   title: "Pages/Create Absence",
 };
+
+const basicProjectedVacancies = [
+  {
+    endTimeLocal: "2019-11-18T12:00:00" as any,
+    numDays: 2,
+    positionId: 1057,
+    startTimeLocal: "2019-11-15T08:30:00" as any,
+    details: [
+      {
+        endTimeLocal: "2019-11-15T12:00:00" as any,
+        location: {
+          name: "Haven Elementary School",
+        },
+        locationId: 1013,
+        startTimeLocal: "2019-11-15T08:30:00" as any,
+      },
+      {
+        endTimeLocal: "2019-11-18T12:00:00" as any,
+        location: {
+          name: "Haven Elementary School",
+        },
+        locationId: 1013,
+        startTimeLocal: "2019-11-18T08:30:00" as any,
+      },
+    ],
+  },
+];
+const basicReplacementEmployees = [
+  {
+    employee: {
+      id: "1",
+      firstName: "Luke",
+      lastName: "Skywalker",
+    },
+    visible: true,
+    qualified: VacancyQualification.Fully,
+    qualifiedAtUtc: "1/1/2019" as any,
+    qualifiedAtLocal: "1/1/2019" as any,
+    available: VacancyAvailability.Yes,
+    visibleAtUtc: "1/1/2019" as any,
+    visibleAtLocal: "1/1/2019" as any,
+    isEmployeeFavorite: true,
+    isLocationPositionTypeFavorite: false,
+  },
+];
 
 export const AsAdmin = () => {
   const path = AdminCreateAbsenceRoute.generate({
@@ -20,6 +69,17 @@ export const AsAdmin = () => {
   });
   const Provider = mockProvider({
     initialUrl: path,
+    mocks: {
+      Query: () => ({
+        absence: () => ({
+          projectedVacancies: basicProjectedVacancies,
+          replacementEmployeesForVacancy: {
+            totalCount: basicReplacementEmployees.length,
+            results: basicReplacementEmployees,
+          },
+        }),
+      }),
+    },
   });
   return (
     <Provider>
@@ -43,7 +103,17 @@ export const AsEmployee = () => {
   const path = EmployeeCreateAbsenceRoute.generate({ role: "employee" });
   const Provider = mockProvider({
     initialUrl: path,
-    mocks: {},
+    mocks: {
+      Query: () => ({
+        absence: () => ({
+          projectedVacancies: basicProjectedVacancies,
+          replacementEmployeesForVacancy: {
+            totalCount: basicReplacementEmployees.length,
+            results: basicReplacementEmployees,
+          },
+        }),
+      }),
+    },
   });
   return (
     <Provider>
@@ -68,7 +138,17 @@ export const AsSubNotNeededEmployee = () => {
   const path = EmployeeCreateAbsenceRoute.generate({ role: "employee" });
   const Provider = mockProvider({
     initialUrl: path,
-    mocks: {},
+    mocks: {
+      Query: () => ({
+        absence: () => ({
+          projectedVacancies: basicProjectedVacancies,
+          replacementEmployeesForVacancy: {
+            totalCount: basicReplacementEmployees.length,
+            results: basicReplacementEmployees,
+          },
+        }),
+      }),
+    },
   });
   return (
     <Provider>
@@ -112,6 +192,13 @@ export const AsSubNeededEmployee = () => {
             primaryPosition: {
               needsReplacement: NeedsReplacement.Yes,
             },
+          },
+        }),
+        absence: () => ({
+          projectedVacancies: basicProjectedVacancies,
+          replacementEmployeesForVacancy: {
+            totalCount: basicReplacementEmployees.length,
+            results: basicReplacementEmployees,
           },
         }),
       }),

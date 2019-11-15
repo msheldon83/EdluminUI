@@ -14,6 +14,7 @@ type Props = {
   >[];
   positionName?: string | null | undefined;
   showHeader?: boolean;
+  equalWidthDetails?: boolean;
   gridRef?: React.RefObject<HTMLDivElement>;
 };
 
@@ -73,12 +74,16 @@ export const VacancyDetails: React.FC<Props> = props => {
 
         return (
           <Grid key={detailsIndex} item container xs={12} alignItems="center">
-            <Grid item xs={6}>
+            <Grid item xs={props.equalWidthDetails ? 6 : 2}>
               <Typography variant="h6">
                 {getDateRangeDisplayText(startDateLocal, endDateLocal)}
               </Typography>
             </Grid>
-            <Grid item xs={6} className={classes.scheduleText}>
+            <Grid
+              item
+              xs={props.equalWidthDetails ? 6 : 10}
+              className={classes.scheduleText}
+            >
               {`${t("Schedule")} ${scheduleLetters[detailsIndex]}`}
             </Grid>
             {Object.entries(groupedDetails).map(([key, value], groupIndex) => {
@@ -99,13 +104,21 @@ export const VacancyDetails: React.FC<Props> = props => {
 
               return (
                 <Fragment key={groupIndex}>
-                  <Grid item xs={6} className={classes.vacancyBlockItem}>
+                  <Grid
+                    item
+                    xs={props.equalWidthDetails ? 6 : 2}
+                    className={classes.vacancyBlockItem}
+                  >
                     {`${format(detailStartTimeLocal, "h:mm a")} - ${format(
                       detailEndTimeLocal,
                       "h:mm a"
                     )}`}
                   </Grid>
-                  <Grid item xs={6} className={classes.vacancyBlockItem}>
+                  <Grid
+                    item
+                    xs={props.equalWidthDetails ? 6 : 10}
+                    className={classes.vacancyBlockItem}
+                  >
                     {firstDetail.location
                       ? firstDetail.location.name
                       : firstDetail.locationId}

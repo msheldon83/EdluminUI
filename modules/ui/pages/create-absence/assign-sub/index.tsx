@@ -139,16 +139,12 @@ export const AssignSub: React.FC<Props> = props => {
     number | null
   >(null);
   const vacancyDetailsRef = React.useRef<HTMLDivElement>(null);
-
+  const currentClientHeight = vacancyDetailsRef?.current?.clientHeight;
   useEffect(() => {
-    if (
-      vacancyDetailsRef &&
-      vacancyDetailsRef.current &&
-      vacancyDetailsRef.current.clientHeight != vacancyDetailsHeight
-    ) {
-      setVacancyDetailsHeight(vacancyDetailsRef.current.clientHeight);
+    if (currentClientHeight && currentClientHeight != vacancyDetailsHeight) {
+      setVacancyDetailsHeight(currentClientHeight);
     }
-  });
+  }, [currentClientHeight, vacancyDetailsHeight]);
 
   const buildVacancyInput = (): AbsenceVacancyInput[] | null => {
     const vacanciesInput = props.vacancies.map(v => {

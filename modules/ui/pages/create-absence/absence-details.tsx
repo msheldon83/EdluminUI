@@ -199,7 +199,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
             )}
 
             {values.needsReplacement && (
-              <VacancyDetails vacancies={props.projectedVacancies} />
+              <VacancyDetails
+                vacancies={props.projectedVacancies}
+                equalWidthDetails
+              />
             )}
 
             {showNotesForReplacement && (
