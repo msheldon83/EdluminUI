@@ -1,12 +1,7 @@
-import {
-  Typography,
-  Checkbox,
-  FormControlLabel,
-  Button,
-} from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import { startOfMonth } from "date-fns";
 import { useForm } from "forms";
-import { useQueryBundle } from "graphql/hooks";
 import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer } from "react";
@@ -14,9 +9,7 @@ import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
-import { GetEmployee } from "./graphql/get-employee.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
-import { useIsAdmin } from "reference-data/is-admin";
 
 type Props = {
   firstName: string;
@@ -26,12 +19,18 @@ type Props = {
   organizationId: string;
   needsReplacement: NeedsReplacement;
   userIsAdmin: boolean;
+  positionId?: string;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
+  const [state, dispatch] = useReducer(
+    createAbsenceReducer,
+    props,
+    initialState
+  );
   const today = new Date();
   const initialFormData: FormData = {
     startDate: today,
@@ -60,12 +59,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
 
-  const [state, dispatch] = useReducer(
-    createAbsenceReducer,
-    props,
-    initialState
-  );
-
   const name = `${props.firstName} ${props.lastName}`;
 
   return (
@@ -87,6 +80,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           <Section className={classes.absenceDetails}>
             <AbsenceDetails
               state={state}
+              dispatch={dispatch}
               setValue={setValue}
               values={getValues()}
               isAdmin={props.userIsAdmin}
@@ -108,14 +102,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const initialState = (props: Props): CreateAbsenceState => {
-  const today = new Date();
-  return {
-    employeeId: props.employeeId,
-    organizationId: props.organizationId,
-    step: "absence",
-  };
-};
+const initialState = (props: Props): CreateAbsenceState => ({
+  employeeId: props.employeeId,
+  organizationId: props.organizationId,
+  step: "absence",
+  viewingCalendarMonth: startOfMonth(new Date()),
+});
 
 export type FormData = {
   startDate: Date;

@@ -1,11 +1,11 @@
 import { useQueryBundle } from "graphql/hooks";
+import { NeedsReplacement } from "graphql/server-types.gen";
 import * as React from "react";
+import { useIsAdmin } from "reference-data/is-admin";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
 import { GetEmployee } from "./graphql/get-employee.gen";
 import { CreateAbsenceUI } from "./ui";
-import { useIsAdmin } from "reference-data/is-admin";
-import { NeedsReplacement } from "graphql/server-types.gen";
 
 type Props = {};
 
@@ -37,6 +37,7 @@ export const CreateAbsence: React.FC<Props> = props => {
         employeeInfo.data.employee?.byId?.primaryPosition?.needsReplacement ??
         NeedsReplacement.No
       }
+      positionId={employeeInfo.data.employee.byId.primaryPosition?.id}
     />
   );
 };

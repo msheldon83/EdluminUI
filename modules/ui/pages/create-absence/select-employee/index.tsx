@@ -1,23 +1,23 @@
-import * as React from "react";
+import { makeStyles } from "@material-ui/core";
 import { usePagedQueryBundle } from "graphql/hooks";
-import { GetEmployeesForOrg } from "../graphql/get-employees.gen";
-import { Table } from "ui/components/table";
-import { PaginationControls } from "ui/components/pagination-controls";
-import { useTranslation } from "react-i18next";
+import { useDeferredState } from "hooks";
+import { useQueryParams } from "hooks/query-params";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
+import * as React from "react";
 import { useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
+import { Input } from "ui/components/form/input";
+import { PaginationControls } from "ui/components/pagination-controls";
+import { Section } from "ui/components/section";
+import { Table } from "ui/components/table";
 import {
   AdminCreateAbsenceRoute,
   AdminSelectEmployeeForCreateAbsenceRoute,
 } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
-import { useQueryParams } from "hooks/query-params";
-import { useDeferredState, usePrevious } from "hooks";
-import { Section } from "ui/components/section";
-import { TextField, FormControlLabel, makeStyles } from "@material-ui/core";
-import { Input } from "ui/components/form/input";
+import { GetEmployeesForOrg } from "../graphql/get-employees.gen";
 
 type Props = {};
 
@@ -97,7 +97,7 @@ export const SelectEmployee: React.FC<Props> = props => {
         );
       }
     },
-    [history]
+    [history, organizationId]
   );
 
   return (
