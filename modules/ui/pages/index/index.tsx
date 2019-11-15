@@ -1,23 +1,65 @@
 import * as React from "react";
 import { Redirect } from "react-router-dom";
-import { GetUserAccess } from "ui/pages/index/UserAccess.gen";
+import { QueryOrgUserRoles } from "ui/app-chrome/role-switcher/QueryOrgUserRoles.gen";
 import { useQueryBundle } from "graphql/hooks";
+import { some } from "lodash-es";
+import { SubHomeRoute } from "ui/routes/sub-home";
+import { OrganizationsNoOrgRoute } from "ui/routes/organizations";
+import { AdminHomeRoute } from "ui/routes/admin-home";
+import { EmployeeHomeRoute } from "ui/routes/employee-home";
 
 export const IndexPage: React.FunctionComponent = props => {
-  const getUserAccess = useQueryBundle(GetUserAccess);
+  const orgUserQuery = useQueryBundle(QueryOrgUserRoles, {
+    fetchPolicy: "cache-and-network",
+  });
 
-  if (getUserAccess.state === "LOADING") {
+  if (orgUserQuery.state === "LOADING") {
     return <></>;
   }
 
-  const userAccess = getUserAccess.data.userAccess?.me;
+  const userAccess = orgUserQuery?.data?.userAccess?.me ?? {
+    isSystemAdministrator: false,
+    user: null,
+  };
 
+  const orgUsers = userAccess?.user?.orgUsers ?? [
+    {
+      id: "never",
+      isAdmin: false,
+      isEmployee: false,
+      isReplacementEmployee: false,
+      orgId: "0",
+    },
+  ];
+
+  const roles = {
+    isAdmin: some(orgUsers, "isAdmin"),
+    isEmployee: some(orgUsers, "isEmployee"),
+    isReplacementEmployee: some(orgUsers, "isReplacementEmployee"),
+    isSystemAdministrator: userAccess.isSystemAdministrator,
+    multiOrgs: orgUsers.length > 1,
+  };
+
+  // Send the user to the Organization switcher if they are a sys admin or admin in multiple orgs
+  // If an admin in one org, send them to that org page
+  // If they are an employee send them to the employee page
+  // Otherwise, they must be a sub
+  // If a combination of roles, they will go to admin first, then employee, then sub
   return (
     <>
-      {userAccess?.isSystemAdministrator && (
-        <Redirect to="/admin/organizations" />
+      {roles.isSystemAdministrator || (roles.isAdmin && roles.multiOrgs) ? (
+        <Redirect to={OrganizationsNoOrgRoute.generate({ role: "admin" })} />
+      ) : roles.isAdmin && !roles.multiOrgs ? (
+        <Redirect
+          to={AdminHomeRoute.generate({
+            organizationId: String(orgUsers[0]?.orgId),
+          })}
+        />
+      ) : roles.isEmployee ? (
+        <Redirect to={EmployeeHomeRoute.generate({ role: "employee" })} />
+      ) : (
+        <Redirect to={SubHomeRoute.generate({ role: "subsittute" })} />
       )}
-      //TODO handle other roles
     </>
   );
 };
