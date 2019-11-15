@@ -25,7 +25,7 @@ import { useIsAdmin } from "reference-data/is-admin";
 import { AssignSub } from "./assign-sub/index";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
-import { format } from "date-fns";
+import { format, isValid, isDate } from "date-fns";
 import { getDaysInDateRange } from "helpers/date";
 
 type Props = {
@@ -40,7 +40,7 @@ type Props = {
   positionName?: string | null | undefined;
 };
 
-const buildAbsenceCreateInput = (
+const buildInputForProjectedVacancies = (
   values: Partial<FormData>,
   orgId: number,
   employeeId: number
@@ -49,10 +49,29 @@ const buildAbsenceCreateInput = (
   const startTime = "08:00 AM";
   const endTime = "12:00 PM";
 
-  const allDays = getDaysInDateRange(
-    values.startDate ?? new Date(),
-    values.endDate ?? new Date()
-  );
+  if (!values.startDate || !values.endDate) {
+    return null;
+  }
+
+  const startDate =
+    typeof values.startDate === "string"
+      ? new Date(values.startDate)
+      : values.startDate;
+  const endDate =
+    typeof values.endDate === "string"
+      ? new Date(values.endDate)
+      : values.endDate;
+
+  if (
+    !isDate(startDate) ||
+    !isValid(startDate) ||
+    !isDate(endDate) ||
+    !isValid(endDate)
+  ) {
+    return null;
+  }
+
+  const allDays = getDaysInDateRange(startDate, endDate);
 
   if (!allDays.length) {
     return null;
@@ -111,20 +130,16 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   );
 
   const formValues = getValues();
+  const projectedVacanciesInput = buildInputForProjectedVacancies(
+    formValues,
+    Number(props.organizationId),
+    Number(props.employeeId)
+  );
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
-      absence: buildAbsenceCreateInput(
-        formValues,
-        Number(props.organizationId),
-        Number(props.employeeId)
-      ),
+      absence: projectedVacanciesInput,
     },
-    skip:
-      buildAbsenceCreateInput(
-        formValues,
-        Number(props.organizationId),
-        Number(props.employeeId)
-      ) === null,
+    skip: projectedVacanciesInput === null,
   });
 
   const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
