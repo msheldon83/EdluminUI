@@ -21,6 +21,7 @@ import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { format, isValid, isDate } from "date-fns";
 import { getDaysInDateRange } from "helpers/date";
+import { useHistory } from "react-router";
 
 type Props = {
   firstName: string;
@@ -88,6 +89,7 @@ const buildInputForProjectedVacancies = (
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const history = useHistory();
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -144,6 +146,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   >[];
 
   const name = `${props.firstName} ${props.lastName}`;
+
+  const params = new URLSearchParams(history.location.search);
+  if (!params.has("action") && state.step !== "absence") {
+    dispatch({
+      action: "switchStep",
+      step: "absence",
+    });
+  }
 
   return (
     <>

@@ -40,6 +40,7 @@ import {
 import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
 import { VacancyDetails } from "./vacancy-details";
+import { useHistory } from "react-router";
 
 type Props = {
   state: CreateAbsenceState;
@@ -58,6 +59,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
+  const history = useHistory();
   const {
     state,
     setValue,
@@ -275,6 +277,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 <Button
                   variant="outlined"
                   onClick={() => {
+                    history.push({
+                      ...history.location,
+                      search: "?action=assign",
+                    });
                     props.dispatch({
                       action: "switchStep",
                       step: "assignSub",
