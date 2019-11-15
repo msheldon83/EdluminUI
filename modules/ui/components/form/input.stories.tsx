@@ -9,7 +9,7 @@ export const InputStory = () => {
 
   return (
     <div className={classes.container}>
-      <Input label="Custom Input" />
+      <Input label={text("label", "Custom Input")} />
     </div>
   );
 };

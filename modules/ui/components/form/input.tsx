@@ -4,6 +4,7 @@ import FormControl from "@material-ui/core/FormControl";
 import OutlinedInput, {
   OutlinedInputProps,
 } from "@material-ui/core/OutlinedInput";
+import { TextField } from "./text-field";
 
 type Props = Omit<OutlinedInputProps, "labelWidth"> & {
   label: string;
@@ -28,6 +29,15 @@ export const Input = React.forwardRef((props: Props, ref) => {
         labelWidth={0}
         ref={ref}
         {...inputProps}
+      />
+      <TextField
+        variant="outlined"
+        // ref={ref}
+        // labelWidth={0}
+        className={classes.input}
+        id={id}
+        name={id}
+        // {...inputProps}
       />
     </FormControl>
   );
