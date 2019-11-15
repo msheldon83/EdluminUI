@@ -35,8 +35,6 @@ export const SubHome: React.FC<Props> = props => {
       <Section>
         <SectionHeader title={t("Available jobs")} />
         <Filters />
-        <Divider variant="middle" />
-        <Grid container>{"Avaialable jobs goes here"}</Grid>
       </Section>
     </>
   );
