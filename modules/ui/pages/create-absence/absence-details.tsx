@@ -21,13 +21,19 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
-import { DatePicker, DatePickerOnChange } from "ui/components/form/date-picker";
+import {
+  DatePicker,
+  DatePickerOnChange,
+  DatePickerOnMonthChange,
+} from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
-import { CreateAbsenceState } from "./state";
+import { CreateAbsenceState, CreateAbsenceActions } from "./state";
 import { FormData } from "./ui";
+import { format } from "date-fns";
 
 type Props = {
   state: CreateAbsenceState;
+  dispatch: React.Dispatch<CreateAbsenceActions>;
   setValue: SetValue;
   values: FormData;
   isAdmin: null | boolean;
@@ -38,7 +44,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
-  const { state, setValue, values, isAdmin, needsReplacement } = props;
+  const {
+    state,
+    setValue,
+    values,
+    isAdmin,
+    needsReplacement,
+    dispatch,
+  } = props;
 
   const [showNotesForReplacement, setShowNotesForReplacement] = useState(
     needsReplacement !== NeedsReplacement.No
@@ -97,6 +110,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [setValue, setShowNotesForReplacement]
   );
 
+  const onMonthChange: DatePickerOnMonthChange = React.useCallback(
+    date => {
+      dispatch({ action: "switchMonth", month: date });
+    },
+    [dispatch]
+  );
+
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -124,7 +144,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           onChange={onDateChange}
           startLabel={t("From")}
           endLabel={t("To")}
-          onMonthChange={wat => console.log("wat", wat?.getMonth())}
+          onMonthChange={onMonthChange}
         />
 
         <RadioGroup

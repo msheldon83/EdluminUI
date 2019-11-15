@@ -11,7 +11,7 @@ import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { GetEmployeeContractSchedule } from "./graphql/get-contract-schedule.gen";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth } from "date-fns";
 
 type Props = {
   firstName: string;
@@ -27,9 +27,12 @@ type Props = {
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [date, setDate] = useState(new Date());
-  const [toDate, setToDate] = useState(new Date(`2020-10-31`));
 
+  const [state, dispatch] = useReducer(
+    createAbsenceReducer,
+    props,
+    initialState
+  );
   const today = new Date();
   const initialFormData: FormData = {
     startDate: today,
@@ -38,12 +41,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     needsReplacement: props.needsReplacement !== NeedsReplacement.No,
   };
 
-  console.log(props.employeeId, date);
   const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
     variables: {
       id: props.employeeId,
-      fromDate: date,
-      toDate: toDate, // new Date(`2019-12-31`),
+      fromDate: format(state.viewingCalendarMonth, "yyyy-M-d"),
+      toDate: format(endOfMonth(state.viewingCalendarMonth), "yyyy-M-d"),
     },
   });
 
@@ -70,12 +72,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
 
-  const [state, dispatch] = useReducer(
-    createAbsenceReducer,
-    props,
-    initialState
-  );
-
   const name = `${props.firstName} ${props.lastName}`;
 
   return (
@@ -97,6 +93,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           <Section className={classes.absenceDetails}>
             <AbsenceDetails
               state={state}
+              dispatch={dispatch}
               setValue={setValue}
               values={getValues()}
               isAdmin={props.userIsAdmin}
@@ -122,7 +119,7 @@ const initialState = (props: Props): CreateAbsenceState => ({
   employeeId: props.employeeId,
   organizationId: props.organizationId,
   step: "absence",
-  viewingCalendarMonth: format(new Date(), "%yyyy-%m-%d"),
+  viewingCalendarMonth: startOfMonth(new Date()),
 });
 
 export type FormData = {

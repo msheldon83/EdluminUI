@@ -23,6 +23,8 @@ import {
 } from "../../../helpers/date";
 import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previous-date";
 
+export type DatePickerOnMonthChange = CalendarProps["onMonthChange"];
+
 type DatePickerProps = {
   startDate: Date | string;
   endDate?: Date | string;
@@ -35,7 +37,7 @@ type DatePickerProps = {
   endLabel: string;
   dateFormat?: string;
   disableDates?: Array<Date>;
-  onMonthChange?: CalendarProps["onMonthChange"];
+  onMonthChange?: DatePickerOnMonthChange;
 };
 
 export type DatePickerOnChange = (dates: {

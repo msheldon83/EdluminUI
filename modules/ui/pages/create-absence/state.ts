@@ -5,7 +5,7 @@ export type CreateAbsenceState = {
   employeeId: string;
   organizationId: string;
   step: "absence" | "substitute";
-  viewingCalendarMonth: string;
+  viewingCalendarMonth: Date;
 };
 
 export type CreateAbsenceActions =
@@ -13,7 +13,7 @@ export type CreateAbsenceActions =
       action: "switchStep";
       step: "absence" | "substitute";
     }
-  | { action: "switchMonth"; month: string };
+  | { action: "switchMonth"; month: Date };
 
 export const createAbsenceReducer: Reducer<
   CreateAbsenceState,
@@ -24,7 +24,7 @@ export const createAbsenceReducer: Reducer<
       return { ...prev, step: action.step };
     }
     case "switchMonth": {
-      return { ...prev, month: action.month };
+      return { ...prev, viewingCalendarMonth: action.month };
     }
   }
 };
