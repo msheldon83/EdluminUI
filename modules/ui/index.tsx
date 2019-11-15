@@ -47,6 +47,14 @@ import {
   PositionTypeViewRoute,
 } from "./routes/position-type";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
+import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
+import {
+  SubPreferencesLoader,
+  SubPreferencesRoute,
+} from "./routes/sub-preferences";
+import { SubScheduleLoader, SubScheduleRoute } from "./routes/sub-schedule";
+import { AdminHomeLoader, AdminHomeRoute } from "./routes/admin-home";
+import { EmployeeHomeLoader, EmployeeHomeRoute } from "./routes/employee-home";
 import { EdluminTheme } from "./styles/mui-theme";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -80,6 +88,19 @@ export function App(props: {}) {
                     <Route
                       component={EmployeeCreateAbsenceLoader}
                       path={EmployeeCreateAbsenceRoute.path}
+                    />
+                    <Route
+                      component={SubScheduleLoader}
+                      path={SubScheduleRoute.path}
+                    />
+                    <Route
+                      component={SubPreferencesLoader}
+                      path={SubPreferencesRoute.path}
+                    />
+                    <Route component={SubHomeLoader} path={SubHomeRoute.path} />
+                    <Route
+                      component={EmployeeHomeLoader}
+                      path={EmployeeHomeRoute.path}
                     />
                   </Switch>
 
@@ -135,6 +156,10 @@ export function App(props: {}) {
                       <Route
                         component={BellScheduleLoader}
                         path={BellScheduleRoute.path}
+                      />
+                      <Route
+                        component={AdminHomeLoader}
+                        path={AdminHomeRoute.path}
                       />
                     </Switch>
                   </Route>

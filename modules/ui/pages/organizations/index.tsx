@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { makeStyles, IconButton, Button } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
 import PlayForWork from "@material-ui/icons/PlayForWork";
-import { AdminChromeRoute } from "ui/routes/app-chrome";
+import { AdminHomeRoute } from "ui/routes/admin-home";
 import { compact } from "lodash-es";
 import { useScreenSize } from "hooks";
 import { Column } from "material-table";
@@ -33,23 +33,23 @@ export const OrganizationsPage: React.FC<Props> = props => {
         const switchOrg = () => {
           return (
             <div className={classes.switchAlign}>
-              { isMobile ?
+              {isMobile ? (
                 <IconButton
                   component={Link}
-                  to={AdminChromeRoute.generate({
-                    organizationId: rowData.id.toString()
+                  to={AdminHomeRoute.generate({
+                    organizationId: rowData.id.toString(),
                   })}
                 >
                   <PlayForWork />
                 </IconButton>
-                :
+              ) : (
                 <>
                   <Button
                     variant="contained"
                     className={classes.switchButton}
                     component={Link}
-                    to={AdminChromeRoute.generate({
-                      organizationId: rowData.id.toString()
+                    to={AdminHomeRoute.generate({
+                      organizationId: rowData.id.toString(),
                     })}
                   >
                     {t("Select")}
@@ -57,15 +57,15 @@ export const OrganizationsPage: React.FC<Props> = props => {
                   <IconButton
                     className={classes.switchColor}
                     component={Link}
-                    to={AdminChromeRoute.generate({
-                      organizationId: rowData.id.toString()
+                    to={AdminHomeRoute.generate({
+                      organizationId: rowData.id.toString(),
                     })}
                     target={"_blank"}
                   >
                     <LaunchIcon />
                   </IconButton>
                 </>
-              }
+              )}
             </div>
           );
         };
@@ -78,12 +78,14 @@ export const OrganizationsPage: React.FC<Props> = props => {
     fetchPolicy: "cache-and-network",
   });
 
-  const [getOrganizations, pagination] = usePagedQueryBundle(AllOrganizations, 
+  const [getOrganizations, pagination] = usePagedQueryBundle(
+    AllOrganizations,
     r => r.organization?.paged?.totalCount,
     {
       variables: {},
       fetchPolicy: "cache-and-network",
-  });
+    }
+  );
 
   const isSystemAdministrator =
     getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING"
@@ -127,7 +129,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
         data={organizations}
         selection={!isMobile}
         options={{
-          showTitle: !isMobile
+          showTitle: !isMobile,
         }}
       />
       <PaginationControls pagination={pagination} />
