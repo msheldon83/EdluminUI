@@ -15,6 +15,7 @@ import {
   DayPart,
   FeatureFlag,
   NeedsReplacement,
+  CalendarDayType,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useMemo, useState } from "react";
@@ -29,7 +30,23 @@ import {
 import { Select } from "ui/components/form/select";
 import { CreateAbsenceState, CreateAbsenceActions } from "./state";
 import { FormData } from "./ui";
-import { format } from "date-fns";
+import {
+  format,
+  endOfMonth,
+  addDays,
+  addDays,
+  parse,
+  parseISO,
+  startOfDay,
+  addMonths,
+} from "date-fns";
+import { useQueryBundle, HookQueryResult } from "graphql/hooks";
+import {
+  GetEmployeeContractSchedule,
+  GetEmployeeContractScheduleQuery,
+  GetEmployeeContractScheduleQueryVariables,
+} from "./graphql/get-contract-schedule.gen";
+import { eachDayOfInterval } from "date-fns/esm";
 
 type Props = {
   state: CreateAbsenceState;
@@ -52,6 +69,21 @@ export const AbsenceDetails: React.FC<Props> = props => {
     needsReplacement,
     dispatch,
   } = props;
+
+  const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
+    variables: {
+      id: state.employeeId,
+      fromDate: format(addMonths(state.viewingCalendarMonth, -1), "yyyy-M-d"),
+      toDate: format(
+        endOfMonth(addMonths(state.viewingCalendarMonth, 1)),
+        "yyyy-M-d"
+      ),
+    },
+  });
+
+  const disabledDates = useMemo(() => computeDisabledDates(contractSchedule), [
+    contractSchedule,
+  ]);
 
   const [showNotesForReplacement, setShowNotesForReplacement] = useState(
     needsReplacement !== NeedsReplacement.No
@@ -145,6 +177,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           startLabel={t("From")}
           endLabel={t("To")}
           onMonthChange={onMonthChange}
+          disableDates={disabledDates}
         />
 
         <RadioGroup
@@ -341,4 +374,39 @@ const featureFlagsToDayPartOptions = (
     }
   });
   return dayPartOptions;
+};
+
+const computeDisabledDates = (
+  queryResult: HookQueryResult<
+    GetEmployeeContractScheduleQuery,
+    GetEmployeeContractScheduleQueryVariables
+  >
+) => {
+  if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {
+    return [];
+  }
+  const dates = new Set<Date>();
+  queryResult.data.employee?.employeeContractSchedule?.forEach(contractDate => {
+    switch (contractDate?.calendarDayTypeId) {
+      case CalendarDayType.CancelledDay:
+      case CalendarDayType.Invalid:
+      case CalendarDayType.NonWorkDay: {
+        const theDate = startOfDay(parseISO(contractDate.date));
+        dates.add(theDate);
+      }
+    }
+  });
+  queryResult.data.employee?.employeeAbsenceSchedule?.forEach(absence => {
+    const startDate = absence?.startDate;
+    const endDate = absence?.endDate;
+    if (startDate && endDate) {
+      eachDayOfInterval({
+        start: parseISO(startDate),
+        end: parseISO(endDate),
+      }).forEach(day => {
+        dates.add(startOfDay(day));
+      });
+    }
+  });
+  return [...dates];
 };

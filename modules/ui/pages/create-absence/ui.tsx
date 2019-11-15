@@ -1,17 +1,15 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import { startOfMonth } from "date-fns";
 import { useForm } from "forms";
-import { useQueryBundle } from "graphql/hooks";
 import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
 import * as React from "react";
-import { useReducer, useState } from "react";
+import { useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
-import { GetEmployeeContractSchedule } from "./graphql/get-contract-schedule.gen";
-import { format, startOfMonth, endOfMonth } from "date-fns";
 
 type Props = {
   firstName: string;
@@ -40,17 +38,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     absenceReason: "",
     needsReplacement: props.needsReplacement !== NeedsReplacement.No,
   };
-
-  const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
-    variables: {
-      id: props.employeeId,
-      fromDate: format(state.viewingCalendarMonth, "yyyy-M-d"),
-      toDate: format(endOfMonth(state.viewingCalendarMonth), "yyyy-M-d"),
-    },
-  });
-
-  contractSchedule.state === "DONE" &&
-    console.log(contractSchedule.data.employee?.employeeContractSchedule);
 
   const {
     register,

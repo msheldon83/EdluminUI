@@ -20,6 +20,14 @@ export const AsAdmin = () => {
   });
   const Provider = mockProvider({
     initialUrl: path,
+    mocks: {
+      Query: () => ({
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
+        }),
+      }),
+    },
   });
   return (
     <Provider>
@@ -41,7 +49,14 @@ export const AsEmployee = () => {
   const path = EmployeeCreateAbsenceRoute.generate({ role: "employee" });
   const Provider = mockProvider({
     initialUrl: path,
-    mocks: {},
+    mocks: {
+      Query: () => ({
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
+        }),
+      }),
+    },
   });
   return (
     <Provider>
@@ -64,7 +79,14 @@ export const AsSubNotNeededEmployee = () => {
   const path = EmployeeCreateAbsenceRoute.generate({ role: "employee" });
   const Provider = mockProvider({
     initialUrl: path,
-    mocks: {},
+    mocks: {
+      Query: () => ({
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
+        }),
+      }),
+    },
   });
   return (
     <Provider>
@@ -101,6 +123,8 @@ export const AsSubNeededEmployee = () => {
           }),
         }),
         employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
           byId: {
             id: "123",
             primaryPosition: {
