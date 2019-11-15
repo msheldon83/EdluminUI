@@ -71,7 +71,10 @@ export const PeoplePage: React.FC<Props> = props => {
     return roles.join(",");
   };
 
-  const determineLocationsManaged = (allLocationIdsInScope: boolean, adminLocations: Maybe<Array<Maybe<{name: string}>>>) => {
+  const determineLocationsManaged = (
+    allLocationIdsInScope: boolean,
+    adminLocations: Maybe<Array<Maybe<{ name: string }>>>
+  ) => {
     if (allLocationIdsInScope) {
       return "All";
     }
@@ -86,7 +89,10 @@ export const PeoplePage: React.FC<Props> = props => {
     }
   };
 
-  const determinePositionTypesManaged = (allPositionTypeIdsInScope: boolean, adminPositionTypes: Maybe<Array<Maybe<{name: string}>>>) => {
+  const determinePositionTypesManaged = (
+    allPositionTypeIdsInScope: boolean,
+    adminPositionTypes: Maybe<Array<Maybe<{ name: string }>>>
+  ) => {
     if (allPositionTypeIdsInScope) {
       return "All";
     }
@@ -101,7 +107,9 @@ export const PeoplePage: React.FC<Props> = props => {
     }
   };
 
-  const determineEndorsements = (endorsements: Maybe<Array<Maybe<{endorsement: Maybe<{name: string}>}>>>) => {
+  const determineEndorsements = (
+    endorsements: Maybe<Array<Maybe<{ endorsement: Maybe<{ name: string }> }>>>
+  ) => {
     if (endorsements) {
       if (endorsements.length > 1) {
         return "Multiple";
@@ -134,8 +142,14 @@ export const PeoplePage: React.FC<Props> = props => {
       phone: person.phoneNumber,
       location: "",
       endorsements: determineEndorsements(person.employee?.endorsements ?? []),
-      managesLocations: determineLocationsManaged(person.allLocationIdsInScope, person.adminLocations),
-      managesPositionTypes: determinePositionTypesManaged(person.allPositionTypeIdsInScope, person.adminPositionTypes),
+      managesLocations: determineLocationsManaged(
+        person.allLocationIdsInScope,
+        person.adminLocations
+      ),
+      managesPositionTypes: determinePositionTypesManaged(
+        person.allPositionTypeIdsInScope,
+        person.adminPositionTypes
+      ),
     }));
   }, [people]);
 
@@ -146,7 +160,6 @@ export const PeoplePage: React.FC<Props> = props => {
     return <></>;
   }
 
-  console.log(allPeopleQuery.data.orgUser?.paged?.results);
   const peopleCount = pagination.totalCount;
 
   const columns: Column<typeof tableData[0]>[] = [
@@ -174,27 +187,27 @@ export const PeoplePage: React.FC<Props> = props => {
       hidden: filters.roleFilter != null,
     },
     {
-      title: t("Position type"),  // Show popper for multiple
+      title: t("Position type"), // Show popper for multiple
       field: "positionType",
       hidden: filters.roleFilter != OrgUserRole.Employee,
     },
     {
-      title: t("Location"),  // Show popper for multiple
+      title: t("Location"), // Show popper for multiple
       field: "location",
       hidden: filters.roleFilter != OrgUserRole.Employee,
     },
     {
-      title: t("Manages position type"),  // Show popper for multiple
+      title: t("Manages position type"), // Show popper for multiple
       field: "managesPositionTypes",
       hidden: filters.roleFilter != OrgUserRole.Administrator,
     },
     {
-      title: t("Manages location"),  // Show popper for multiple
+      title: t("Manages location"), // Show popper for multiple
       field: "managesLocations",
       hidden: filters.roleFilter != OrgUserRole.Administrator,
     },
     {
-      title: t("Endorsements"),  // Show popper for multiple
+      title: t("Endorsements"), // Show popper for multiple
       field: "endorsements",
       hidden: filters.roleFilter != OrgUserRole.ReplacementEmployee,
     },
