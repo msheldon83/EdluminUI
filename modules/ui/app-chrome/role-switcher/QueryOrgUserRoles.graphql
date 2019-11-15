@@ -8,7 +8,8 @@ query QueryOrgUserRoles{
             id
             isAdmin
             isEmployee
-            isReplacementEmployee                
+            isReplacementEmployee
+            orgId
           }
         }
       }
