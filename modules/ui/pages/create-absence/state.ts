@@ -1,5 +1,4 @@
 import { Reducer } from "react";
-import { DayPart } from "graphql/server-types.gen";
 
 export type CreateAbsenceState = {
   employeeId: string;

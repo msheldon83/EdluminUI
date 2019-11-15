@@ -1,21 +1,24 @@
 import {
   Button,
+  Checkbox,
   Grid,
   makeStyles,
+  Paper,
   TextField,
   Typography,
-  Paper,
-  Checkbox,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
-import { SetValue, Register } from "forms";
+import { addMonths, endOfMonth, format, parseISO, startOfDay } from "date-fns";
+import { eachDayOfInterval } from "date-fns/esm";
+import { SetValue } from "forms";
+import { HookQueryResult, useQueryBundle } from "graphql/hooks";
 import {
+  CalendarDayType,
   DayPart,
   FeatureFlag,
   NeedsReplacement,
-  CalendarDayType,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useMemo, useState } from "react";
@@ -28,25 +31,13 @@ import {
   DatePickerOnMonthChange,
 } from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
-import { CreateAbsenceState, CreateAbsenceActions } from "./state";
-import { FormData } from "./ui";
-import {
-  format,
-  endOfMonth,
-  addDays,
-  addDays,
-  parse,
-  parseISO,
-  startOfDay,
-  addMonths,
-} from "date-fns";
-import { useQueryBundle, HookQueryResult } from "graphql/hooks";
 import {
   GetEmployeeContractSchedule,
   GetEmployeeContractScheduleQuery,
   GetEmployeeContractScheduleQueryVariables,
 } from "./graphql/get-contract-schedule.gen";
-import { eachDayOfInterval } from "date-fns/esm";
+import { CreateAbsenceActions, CreateAbsenceState } from "./state";
+import { FormData } from "./ui";
 
 type Props = {
   state: CreateAbsenceState;
