@@ -11,13 +11,15 @@ import { FilterQueryParams } from "../pages/people/people-filters/filter-params"
 
 type Props = {
   onChange: (active: boolean | undefined) => void;
+  label: string;
+  activeLabel: string;
+  inactiveLabel: string;
 };
 
 export const ActiveInactiveFilter = (props: Props) => {
-  const { onChange } = props;
+  const { onChange, label, activeLabel, inactiveLabel } = props;
 
   const { t } = useTranslation();
-  console.log(FilterQueryParams);
   const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
 
   React.useEffect(() => onChange(isoFilters.active), [
@@ -41,21 +43,21 @@ export const ActiveInactiveFilter = (props: Props) => {
 
   return (
     <>
-      <InputLabel>{t("Status")}</InputLabel>
+      <InputLabel>{t(label)}</InputLabel>
       <Grid item container>
         <FormControlLabel
           checked={
             isoFilters.active === true || isoFilters.active === undefined
           }
           control={<Checkbox onChange={updateActiveFilter(true)} />}
-          label={t("Active")}
+          label={t(activeLabel)}
         />
         <FormControlLabel
           checked={
             isoFilters.active === false || isoFilters.active === undefined
           }
           control={<Checkbox onChange={updateActiveFilter(false)} />}
-          label={t("Inactive")}
+          label={t(inactiveLabel)}
         />
       </Grid>
     </>

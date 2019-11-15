@@ -1,7 +1,6 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { action } from "@storybook/addon-actions";
-import { text, boolean, object, date } from "@storybook/addon-knobs";
 import { createBrowserHistory } from "history";
 import { Router } from "react-router-dom";
 import { ActiveInactiveFilter } from "./active-inactive-filter";
@@ -21,7 +20,12 @@ export const ActiveInactiveFilterStory = () => {
   return (
     <Router history={history}>
       <div className={classes.container}>
-        <ActiveInactiveFilter onChange={action("onChange")} />
+        <ActiveInactiveFilter
+          onChange={action("onChange")}
+          label="Status"
+          activeLabel="Active"
+          inactiveLabel="inactive"
+        />
       </div>
     </Router>
   );
