@@ -36,7 +36,10 @@ import {
   Vacancy,
 } from "graphql/server-types.gen";
 import { TFunction } from "i18next";
-import { AssignSubFilters as Filters } from "./filters";
+import {
+  AssignSubFilters as Filters,
+  ReplacementEmployeeFilters,
+} from "./filters";
 import format from "date-fns/format";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
@@ -124,6 +127,43 @@ const getFavoriteIcon = (
   return null;
 };
 
+const buildVacancyInput = (
+  vacancies: Pick<
+    Vacancy,
+    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
+  >[]
+): AbsenceVacancyInput[] | null => {
+  const vacanciesInput = vacancies.map(v => {
+    return {
+      positionId: v.positionId,
+      needsReplacement: true,
+      details: v.details!.map(d => {
+        const startTimeLocal =
+          d && d.startTimeLocal ? convertStringToDate(d.startTimeLocal) : null;
+        const endTimeLocal =
+          d && d.endTimeLocal ? convertStringToDate(d.endTimeLocal) : null;
+
+        return {
+          date: d?.startTimeLocal,
+          startTime: startTimeLocal
+            ? secondsSinceMidnight(
+                parseTimeFromString(format(startTimeLocal, "h:mm a"))
+              )
+            : 0,
+          endTime: endTimeLocal
+            ? secondsSinceMidnight(
+                parseTimeFromString(format(endTimeLocal, "h:mm a"))
+              )
+            : 0,
+          locationId: d?.locationId ?? 0,
+        };
+      }),
+    };
+  });
+
+  return vacanciesInput;
+};
+
 export const AssignSub: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
@@ -132,6 +172,9 @@ export const AssignSub: React.FC<Props> = props => {
   const [vacancyDetailsExpanded, setVacancyDetailsExpanded] = React.useState(
     false
   );
+  const [searchFilter, updateSearch] = React.useState<
+    ReplacementEmployeeFilters
+  >();
 
   // Vacancy Details collapse configuration
   const collapsedVacancyDetailsHeight = 150;
@@ -146,40 +189,6 @@ export const AssignSub: React.FC<Props> = props => {
     }
   }, [currentClientHeight, vacancyDetailsHeight]);
 
-  const buildVacancyInput = (): AbsenceVacancyInput[] | null => {
-    const vacanciesInput = props.vacancies.map(v => {
-      return {
-        positionId: v.positionId,
-        needsReplacement: true,
-        details: v.details!.map(d => {
-          const startTimeLocal =
-            d && d.startTimeLocal
-              ? convertStringToDate(d.startTimeLocal)
-              : null;
-          const endTimeLocal =
-            d && d.endTimeLocal ? convertStringToDate(d.endTimeLocal) : null;
-
-          return {
-            date: d?.startTimeLocal,
-            startTime: startTimeLocal
-              ? secondsSinceMidnight(
-                  parseTimeFromString(format(startTimeLocal, "h:mm a"))
-                )
-              : 0,
-            endTime: endTimeLocal
-              ? secondsSinceMidnight(
-                  parseTimeFromString(format(endTimeLocal, "h:mm a"))
-                )
-              : 0,
-            locationId: d?.locationId ?? 0,
-          };
-        }),
-      };
-    });
-
-    return vacanciesInput;
-  };
-
   const [
     getReplacementEmployeesForVacancyQuery,
     pagination,
@@ -190,10 +199,23 @@ export const AssignSub: React.FC<Props> = props => {
       variables: {
         orgId: props.orgId,
         vacancyId: props.vacancyId,
-        vacancies: buildVacancyInput(),
+        vacancies: buildVacancyInput(props.vacancies),
+        name: searchFilter?.name,
+        qualified: searchFilter?.name ? undefined : searchFilter?.qualified,
+        available: searchFilter?.name ? undefined : searchFilter?.available,
+        favoritesOnly: searchFilter?.name
+          ? undefined
+          : searchFilter?.favoritesOnly,
       },
+      skip: searchFilter === undefined,
     }
   );
+
+  useEffect(() => {
+    if (searchFilter) {
+      getReplacementEmployeesForVacancyQuery.refetch();
+    }
+  }, [searchFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   let replacementEmployees: GetReplacementEmployeesForVacancy.Results[] = [];
   if (
@@ -222,14 +244,6 @@ export const AssignSub: React.FC<Props> = props => {
       selectable: true,
     }));
   }, [replacementEmployees]);
-
-  if (
-    getReplacementEmployeesForVacancyQuery.state === "LOADING" ||
-    !getReplacementEmployeesForVacancyQuery.data.absence
-      ?.replacementEmployeesForVacancy?.results
-  ) {
-    return <></>;
-  }
 
   //TODO: Custom sort handling for Star column, Qualified, Available, Visible
 
@@ -332,22 +346,9 @@ export const AssignSub: React.FC<Props> = props => {
     ),
   });
 
-  const replacementEmployeeCount = pagination.totalCount;
-  const pageHeader = props.vacancyId
-    ? props.userIsAdmin
-      ? t("Assigning substitute for")
-      : t("Assigning substitute")
-    : props.userIsAdmin
-    ? t("Prearranging substitute for")
-    : t("Prearranging substitute");
-
-  //TODO: Support this
-  const search = async (
-    name: string,
-    qualified: VacancyQualification[],
-    available: VacancyAvailability[],
-    favoritesOnly: boolean
-  ) => {};
+  const setSearch = (filters: ReplacementEmployeeFilters) => {
+    updateSearch(filters);
+  };
 
   const renderVacancyDetails = () => {
     const showViewAllDetails =
@@ -386,6 +387,11 @@ export const AssignSub: React.FC<Props> = props => {
     );
   };
 
+  const replacementEmployeeCount = pagination.totalCount;
+  const pageHeader = props.vacancyId
+    ? t("Assign Substitute")
+    : `${t("Create Absence")}: ${t("Prearranging Substitute")}`;
+
   return (
     <>
       <div className={classes.header}>
@@ -401,7 +407,7 @@ export const AssignSub: React.FC<Props> = props => {
         <div className={classes.filters}>
           <Filters
             showQualifiedAndAvailable={props.userIsAdmin}
-            search={search}
+            setSearch={setSearch}
           />
         </div>
         <Divider />

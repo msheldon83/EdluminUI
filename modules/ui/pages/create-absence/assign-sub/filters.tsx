@@ -15,18 +15,19 @@ import { OptionTypeBase } from "react-select";
 
 type Props = {
   showQualifiedAndAvailable: boolean;
-  search: (
-    name: string,
-    qualified: VacancyQualification[],
-    available: VacancyAvailability[],
-    favoritesOnly: boolean
-  ) => Promise<void>;
+  setSearch: (filters: ReplacementEmployeeFilters) => void;
+};
+
+export type ReplacementEmployeeFilters = {
+  name?: string;
+  qualified?: VacancyQualification[];
+  available?: VacancyAvailability[];
+  favoritesOnly: boolean;
 };
 
 export const AssignSubFilters: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [name, setName] = React.useState("");
 
   const qualifiedOptionsHandler = new QualifiedOptions(t);
   const qualifiedOptionsMap = qualifiedOptionsHandler.buildQualifiedOptionsMap();
@@ -39,19 +40,34 @@ export const AssignSubFilters: React.FC<Props> = props => {
     { value: "false", label: t("Everyone") },
   ];
 
-  const [qualifiedAndAvailableSearch, setSearch] = React.useState<{
-    qualified?: VacancyQualification[];
-    available?: VacancyAvailability[];
-    favoritesOnly: boolean;
-  }>({
+  const [searchFilter, updateSearch] = React.useState<
+    ReplacementEmployeeFilters
+  >({
     qualified: qualifiedOptionsMap.find(q => q.isDefault)?.search,
     available: availableOptionsMap.find(a => a.isDefault)?.search,
     favoritesOnly: false,
   });
+  const [name, pendingName, setPendingName] = useDeferredState(
+    searchFilter.name,
+    200
+  );
+  useEffect(() => {
+    if (name !== searchFilter.name) {
+      setPendingName(name);
+    }
+  }, [searchFilter.name]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (name !== searchFilter.name) {
+      updateSearch({
+        ...searchFilter,
+        name: name,
+      });
+    }
+  }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const nameSearchInProgress = () => {
-    return !!name.length;
-  };
+  useEffect(() => {
+    props.setSearch(searchFilter);
+  }, [searchFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Grid container spacing={2}>
@@ -61,12 +77,12 @@ export const AssignSubFilters: React.FC<Props> = props => {
           className={classes.textField}
           variant="outlined"
           name={"name"}
-          value={name}
+          value={pendingName ?? ""}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             if (!event.target.value || !event.target.value.length) {
-              setName("");
+              setPendingName(undefined);
             } else {
-              setName(event.target.value);
+              setPendingName(event.target.value);
             }
           }}
           placeholder={t("Search for first or last name")}
@@ -80,12 +96,12 @@ export const AssignSubFilters: React.FC<Props> = props => {
             <Select
               value={qualifiedOptions.find((o: any) => {
                 const optionsMap = qualifiedOptionsMap.find(
-                  m => m.search === qualifiedAndAvailableSearch.qualified
+                  m => m.search === searchFilter.qualified
                 );
                 return o.value === optionsMap?.optionValue;
               })}
               label=""
-              disabled={nameSearchInProgress()}
+              disabled={!!searchFilter?.name}
               options={qualifiedOptions}
               isClearable={false}
               onChange={(e: SelectValueType) => {
@@ -107,10 +123,10 @@ export const AssignSubFilters: React.FC<Props> = props => {
                 }
 
                 const updatedSearchOptions = {
-                  ...qualifiedAndAvailableSearch,
+                  ...searchFilter,
                   qualified: optionsMap.search,
                 };
-                setSearch(updatedSearchOptions);
+                updateSearch(updatedSearchOptions);
               }}
             />
           </Grid>
@@ -119,12 +135,12 @@ export const AssignSubFilters: React.FC<Props> = props => {
             <Select
               value={availableOptions.find((o: any) => {
                 const optionsMap = availableOptionsMap.find(
-                  m => m.search === qualifiedAndAvailableSearch.available
+                  m => m.search === searchFilter.available
                 );
                 return o.value === optionsMap?.optionValue;
               })}
               label=""
-              disabled={nameSearchInProgress()}
+              disabled={!!searchFilter?.name}
               options={availableOptions}
               isClearable={false}
               onChange={(e: SelectValueType) => {
@@ -146,10 +162,10 @@ export const AssignSubFilters: React.FC<Props> = props => {
                 }
 
                 const updatedSearchOptions = {
-                  ...qualifiedAndAvailableSearch,
+                  ...searchFilter,
                   available: optionsMap.search,
                 };
-                setSearch(updatedSearchOptions);
+                updateSearch(updatedSearchOptions);
               }}
             />
           </Grid>
@@ -160,13 +176,11 @@ export const AssignSubFilters: React.FC<Props> = props => {
         <Select
           value={showOptions.find(
             (s: any) =>
-              (qualifiedAndAvailableSearch.favoritesOnly &&
-                s.value === "true") ||
-              (!qualifiedAndAvailableSearch.favoritesOnly &&
-                s.value === "false")
+              (searchFilter.favoritesOnly && s.value === "true") ||
+              (!searchFilter.favoritesOnly && s.value === "false")
           )}
           label=""
-          disabled={nameSearchInProgress()}
+          disabled={!!searchFilter?.name}
           options={showOptions}
           isClearable={false}
           onChange={(e: SelectValueType) => {
@@ -180,10 +194,10 @@ export const AssignSubFilters: React.FC<Props> = props => {
             }
 
             const updatedSearchOptions = {
-              ...qualifiedAndAvailableSearch,
+              ...searchFilter,
               favoritesOnly: selectedValue === "true",
             };
-            setSearch(updatedSearchOptions);
+            updateSearch(updatedSearchOptions);
           }}
         />
       </Grid>
