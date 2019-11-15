@@ -95,6 +95,10 @@ export const inDateInterval = (
 
 export const getDaysInDateRange = (startDate: Date, endDate: Date): Date[] => {
   const days = differenceInDays(endDate, startDate);
+  if (isNaN(days) || days < 0) {
+    return [];
+  }
+
   return [...Array(days + 1).keys()].map(i => addDays(startDate, i));
 };
 

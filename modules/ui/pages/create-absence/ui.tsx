@@ -10,9 +10,8 @@ import { useQueryBundle } from "graphql/hooks";
 import {
   DayPart,
   NeedsReplacement,
-  VacancyDetail,
-  Maybe,
   Vacancy,
+  AbsenceCreateInput,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer } from "react";
@@ -24,6 +23,10 @@ import { GetEmployee } from "./graphql/get-employee.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { useIsAdmin } from "reference-data/is-admin";
 import { AssignSub } from "./assign-sub/index";
+import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
+import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
+import { format } from "date-fns";
+import { getDaysInDateRange } from "helpers/date";
 
 type Props = {
   firstName: string;
@@ -37,15 +40,41 @@ type Props = {
   positionName?: string | null | undefined;
 };
 
+const buildAbsenceCreateInput = (
+  values: Partial<FormData>,
+  orgId: number,
+  employeeId: number
+): AbsenceCreateInput | null => {
+  // TODO: these should come from the Employee's schedule
+  const startTime = "08:00 AM";
+  const endTime = "12:00 PM";
+
+  const allDays = getDaysInDateRange(
+    values.startDate ?? new Date(),
+    values.endDate ?? new Date()
+  );
+
+  if (!allDays.length) {
+    return null;
+  }
+
+  return {
+    orgId,
+    employeeId,
+    details: allDays.map(d => {
+      return {
+        date: format(d, "P"),
+        startTime: secondsSinceMidnight(parseTimeFromString(startTime)),
+        endTime: secondsSinceMidnight(parseTimeFromString(endTime)),
+        dayPartId: values.dayPart ?? DayPart.FullDay,
+      };
+    }),
+  };
+};
+
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [projectedVacancies, setProjectedVacancies] = React.useState<
-    Pick<
-      Vacancy,
-      "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-    >[]
-  >([]);
 
   const today = new Date();
   const initialFormData: FormData = {
@@ -81,6 +110,31 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     initialState
   );
 
+  const formValues = getValues();
+  const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
+    variables: {
+      absence: buildAbsenceCreateInput(
+        formValues,
+        Number(props.organizationId),
+        Number(props.employeeId)
+      ),
+    },
+    skip:
+      buildAbsenceCreateInput(
+        formValues,
+        Number(props.organizationId),
+        Number(props.employeeId)
+      ) === null,
+  });
+
+  const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
+  getProjectedVacancies.state === "UPDATING"
+    ? []
+    : getProjectedVacancies.data?.absence?.projectedVacancies ?? []) as Pick<
+    Vacancy,
+    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
+  >[];
+
   const name = `${props.firstName} ${props.lastName}`;
 
   return (
@@ -113,7 +167,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                     step: "assignSub",
                   });
                 }}
-                setProjectedVacancies={setProjectedVacancies}
+                projectedVacancies={projectedVacancies}
               />
             </Section>
           </>
@@ -159,4 +213,5 @@ export type FormData = {
   notesToApprover?: string;
   notesToReplacement?: string;
   needsReplacement: boolean;
+  replacementEmployeeId?: number;
 };
