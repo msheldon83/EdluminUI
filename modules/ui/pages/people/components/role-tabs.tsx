@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Tab, Tabs, makeStyles, Paper } from "@material-ui/core";
-import { Section } from "ui/components/section";
 import { useTranslation } from "react-i18next";
 import { OrgUserRole } from "graphql/server-types.gen";
 
