@@ -108,6 +108,7 @@ export function Table<T extends object>(props: Props<T>) {
   const showIncludeExpiredSetting = props.showIncludeExpired;
   const onIncludeExpiredChangeFunc = props.onIncludeExpiredChange;
   const expiredRowCheckFunc = props.expiredRowCheck;
+  const styleAlternatingRows = props.backgroundFillForAlternatingRows;
 
   return (
     <MaterialTable
@@ -131,6 +132,13 @@ export function Table<T extends object>(props: Props<T>) {
           if (expiredRowCheckFunc && expiredRowCheckFunc(props.data)) {
             return <MTableBodyRow className={classes.inactiveRow} {...props} />;
           }
+
+          if (styleAlternatingRows && props.index % 2 === 1) {
+            return (
+              <MTableBodyRow className={classes.alternatingRow} {...props} />
+            );
+          }
+
           return <MTableBodyRow {...props} />;
         },
         Toolbar: props => (
@@ -175,5 +183,10 @@ const useStyles = makeStyles(theme => ({
   },
   inactiveRow: {
     color: theme.customColors.gray,
+  },
+  alternatingRow: {
+    background: theme.customColors.lightGray,
+    borderTop: `1px solid ${theme.customColors.medLightGray}`,
+    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
 }));
