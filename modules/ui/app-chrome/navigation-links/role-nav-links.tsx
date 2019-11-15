@@ -1,32 +1,33 @@
 import * as React from "react";
+import { Route, Switch } from "react-router";
+import { AdminHomeRoute } from "ui/routes/admin-home";
 import {
-  HomeNavLink,
-  OrganizationsNavLink,
-  AbsenceNavLink,
-  MyScheduleNavLink,
-  PTOBalancesNavLink,
-  SubPreferencesNavLink,
-  SecurityNavLink,
-  AnalyticsAndReportsNavLink,
-  SchoolsNavLink,
-  CalendarNavLink,
-  PeopleNavLink,
-  ConfigurationNavLink,
-} from "./custom-nav-links";
-import { useRouteParams, defineSubRoute } from "ui/routes/definition";
-import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
-import {
-  OrganizationsRoute,
-  OrganizationsNoOrgRoute,
-} from "ui/routes/organizations";
-import { Switch, Route } from "react-router";
-import { useIsSystemAdminOrAdminInMultipleOrgs } from "../hooks";
+  AdminChromeRoute,
+  AdminRootChromeRoute,
+  AppChromeRoute,
+} from "ui/routes/app-chrome";
+import { defineSubRoute, useRouteParams } from "ui/routes/definition";
+import { EmployeeHomeRoute } from "ui/routes/employee-home";
+import { OrganizationsRoute } from "ui/routes/organizations";
 import { PeopleRoute } from "ui/routes/people";
 import { SubHomeRoute } from "ui/routes/sub-home";
 import { SubPreferencesRoute } from "ui/routes/sub-preferences";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
-import { EmployeeHomeRoute } from "ui/routes/employee-home";
-import { AdminHomeRoute } from "ui/routes/admin-home";
+import { useIsSystemAdminOrAdminInMultipleOrgs } from "../hooks";
+import {
+  AbsenceNavLink,
+  AnalyticsAndReportsNavLink,
+  CalendarNavLink,
+  ConfigurationNavLink,
+  HomeNavLink,
+  MyScheduleNavLink,
+  OrganizationsNavLink,
+  PeopleNavLink,
+  PTOBalancesNavLink,
+  SchoolsNavLink,
+  SecurityNavLink,
+  SubPreferencesNavLink,
+} from "./custom-nav-links";
 
 type Props = {
   onClick?: () => void;
@@ -140,7 +141,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           route={
             inOrg
               ? OrganizationsRoute.generate(params)
-              : OrganizationsNoOrgRoute.generate({ role: "admin" })
+              : AdminRootChromeRoute.generate({})
           }
         />
       )}

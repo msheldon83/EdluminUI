@@ -1,22 +1,23 @@
-import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
-import { useTranslation } from "react-i18next";
-import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
-import * as React from "react";
-import { useMemo } from "react";
-import { Table } from "ui/components/table";
-import { PageTitle } from "ui/components/page-title";
-import { GetOrgsForUser } from "ui/pages/organizations/GetOrgsForUser.gen";
-import { Link } from "react-router-dom";
-import { makeStyles, IconButton, Button } from "@material-ui/core";
+import { Button, IconButton, makeStyles } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
 import PlayForWork from "@material-ui/icons/PlayForWork";
-import { AdminHomeRoute } from "ui/routes/admin-home";
-import { compact } from "lodash-es";
+import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
 import { useScreenSize } from "hooks";
+import { compact } from "lodash-es";
 import { Column } from "material-table";
+import * as React from "react";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, Redirect } from "react-router-dom";
+import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
+import { Table } from "ui/components/table";
+import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
+import { GetOrgsForUser } from "ui/pages/organizations/GetOrgsForUser.gen";
+import { AdminHomeRoute } from "ui/routes/admin-home";
 
-type Props = {};
+type Props = { redirectIfOneOrg?: boolean };
+
 export const OrganizationsPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
@@ -118,6 +119,14 @@ export const OrganizationsPage: React.FC<Props> = props => {
       getOrganizations?.data?.organization?.paged?.results ?? []
     );
     organizationsCount = pagination.totalCount;
+  }
+
+  if (organizationsCount === 1 && props.redirectIfOneOrg) {
+    return (
+      <Redirect
+        to={AdminHomeRoute.generate({ organizationId: organizations[0].id })}
+      />
+    );
   }
 
   return (

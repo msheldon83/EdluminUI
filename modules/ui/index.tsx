@@ -8,7 +8,11 @@ import { IfAuthenticated } from "./components/auth/if-authenticated";
 import { RedirectToLogin } from "./components/auth/redirect-to-login";
 import { LoginPageRouteLoader } from "./pages/login/loader";
 import { IndexLoader } from "./routes";
-import { AdminChromeRoute, AppChromeRoute } from "./routes/app-chrome";
+import {
+  AdminChromeRoute,
+  AppChromeRoute,
+  AdminRootChromeRoute,
+} from "./routes/app-chrome";
 import {
   BellScheduleAddLoader,
   BellScheduleAddRoute,
@@ -27,7 +31,6 @@ import {
 } from "./routes/create-absence";
 import {
   OrganizationsLoader,
-  OrganizationsNoOrgRoute,
   OrganizationsRoute,
 } from "./routes/organizations";
 import {
@@ -104,17 +107,16 @@ export function App(props: {}) {
                     />
                   </Switch>
 
-                  <Route path={AdminChromeRoute.path}>
+                  <Route path={AdminRootChromeRoute.path}>
                     {/* Admin routes go here*/}
                     <Switch>
                       {/*We will need to figure out how to prevent non admin users from accessing this route */}
+                      <Route exact path={AdminRootChromeRoute.path}>
+                        <OrganizationsLoader redirectIfOneOrg />
+                      </Route>
                       <Route
                         component={OrganizationsLoader}
                         path={OrganizationsRoute.path}
-                      />
-                      <Route
-                        component={OrganizationsLoader}
-                        path={OrganizationsNoOrgRoute.path}
                       />
                       <Route
                         component={CreateAbsenceLoader}
