@@ -20,6 +20,7 @@ import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams, FilterRole } from "./people-filters/filter-params";
+import Maybe from "graphql/tsutils/Maybe";
 
 type Props = {};
 
@@ -56,7 +57,7 @@ export const PeoplePage: React.FC<Props> = props => {
   );
 
   const listRoles = (isAdmin: boolean, isEmployee: boolean, isSub: boolean) => {
-    let roles = [];
+    const roles = [];
     if (isAdmin) {
       roles.push(t("Administrator"));
     }
@@ -68,6 +69,48 @@ export const PeoplePage: React.FC<Props> = props => {
     }
 
     return roles.join(",");
+  };
+
+  const determineLocationsManaged = (allLocationIdsInScope: boolean, adminLocations: Maybe<Array<Maybe<{name: string}>>>) => {
+    if (allLocationIdsInScope) {
+      return "All";
+    }
+    if (adminLocations) {
+      if (adminLocations.length > 1) {
+        return "Multiple";
+      } else {
+        return adminLocations[0]?.name;
+      }
+    } else {
+      return "None";
+    }
+  };
+
+  const determinePositionTypesManaged = (allPositionTypeIdsInScope: boolean, adminPositionTypes: Maybe<Array<Maybe<{name: string}>>>) => {
+    if (allPositionTypeIdsInScope) {
+      return "All";
+    }
+    if (adminPositionTypes) {
+      if (adminPositionTypes.length > 1) {
+        return "Multiple";
+      } else {
+        return adminPositionTypes[0]?.name;
+      }
+    } else {
+      return "None";
+    }
+  };
+
+  const determineEndorsements = (endorsements: Maybe<Array<Maybe<{endorsement: Maybe<{name: string}>}>>>) => {
+    if (endorsements) {
+      if (endorsements.length > 1) {
+        return "Multiple";
+      } else {
+        return endorsements[0]?.endorsement?.name;
+      }
+    } else {
+      return "None";
+    }
   };
 
   let people: GetAllPeopleForOrg.Results[] = [];
@@ -90,9 +133,9 @@ export const PeoplePage: React.FC<Props> = props => {
       positionType: person.employee?.primaryPosition?.name,
       phone: person.phoneNumber,
       location: "",
-      endorsements: "",
-      managesLocations: "",
-      managesPositionTypes: "",
+      endorsements: determineEndorsements(person.employee?.endorsements ?? []),
+      managesLocations: determineLocationsManaged(person.allLocationIdsInScope, person.adminLocations),
+      managesPositionTypes: determinePositionTypesManaged(person.allPositionTypeIdsInScope, person.adminPositionTypes),
     }));
   }, [people]);
 
@@ -103,6 +146,7 @@ export const PeoplePage: React.FC<Props> = props => {
     return <></>;
   }
 
+  console.log(allPeopleQuery.data.orgUser?.paged?.results);
   const peopleCount = pagination.totalCount;
 
   const columns: Column<typeof tableData[0]>[] = [
@@ -130,29 +174,29 @@ export const PeoplePage: React.FC<Props> = props => {
       hidden: filters.roleFilter != null,
     },
     {
-      title: t("Position type"),
+      title: t("Position type"),  // Show popper for multiple
       field: "positionType",
       hidden: filters.roleFilter != OrgUserRole.Employee,
     },
     {
-      title: t("Location"),
+      title: t("Location"),  // Show popper for multiple
       field: "location",
       hidden: filters.roleFilter != OrgUserRole.Employee,
     },
     {
-      title: t("Manages position type"),
+      title: t("Manages position type"),  // Show popper for multiple
       field: "managesPositionTypes",
-      hidden: filters.roleFilter != OrgUserRole.Employee,
+      hidden: filters.roleFilter != OrgUserRole.Administrator,
     },
     {
-      title: t("Manages location"),
+      title: t("Manages location"),  // Show popper for multiple
       field: "managesLocations",
       hidden: filters.roleFilter != OrgUserRole.Administrator,
     },
     {
-      title: t("Endorsements"),
+      title: t("Endorsements"),  // Show popper for multiple
       field: "endorsements",
-      hidden: filters.roleFilter != OrgUserRole.Administrator,
+      hidden: filters.roleFilter != OrgUserRole.ReplacementEmployee,
     },
     {
       title: "",

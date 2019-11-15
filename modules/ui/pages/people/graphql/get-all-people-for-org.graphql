@@ -36,11 +36,28 @@ query GetAllPeopleForOrg(
         email
         externalId
         phoneNumber
+        allLocationIdsInScope
+        allPositionTypeIdsInScope
+        adminLocations {
+          id
+          name
+        }
+        adminPositionTypes {
+          id
+          name
+        }
         employee {
           id
           primaryPosition {
             id
             name
+          }
+          endorsements {
+            id
+            endorsement {
+              id
+              name
+            }
           }
         }
       }
