@@ -1,0 +1,33 @@
+query GetReplacementEmployeesForVacancy(
+  $orgId: ID!
+  $vacancyId: ID
+  $vacancies: [AbsenceVacancyInput]
+  $limit: Int
+  $offset: Int
+) {
+  absence {
+    replacementEmployeesForVacancy(
+      orgId: $orgId
+      vacancyId: $vacancyId
+      vacancies: $vacancies
+      limit: $limit
+      offset: $offset
+    ) {
+      totalCount
+      offset
+      limit
+      results {
+        employee {
+          id
+          firstName
+          lastName
+        }
+        visible
+        visibleOnUtc
+        visibleOnLocal
+        qualified
+        available
+      }
+    }
+  }
+}
