@@ -12,6 +12,7 @@ import {
   NeedsReplacement,
   VacancyDetail,
   Maybe,
+  Vacancy,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer } from "react";
@@ -39,6 +40,12 @@ type Props = {
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const [projectedVacancies, setProjectedVacancies] = React.useState<
+    Pick<
+      Vacancy,
+      "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
+    >[]
+  >([]);
 
   const today = new Date();
   const initialFormData: FormData = {
@@ -106,6 +113,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                     step: "assignSub",
                   });
                 }}
+                setProjectedVacancies={setProjectedVacancies}
               />
             </Section>
           </>
@@ -117,26 +125,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             employeeName={name}
             positionId={props.positionId}
             positionName={props.positionName}
-            // TODO: This should be coming from the query to get Projected Vacancies
-            // but hardcoding so we can see some data until that call is in place
-            vacancies={[
-              {
-                startTimeLocal: new Date("11/1/2019 08:00 AM"),
-                endTimeLocal: new Date("11/10/2019 05:00 PM"),
-                numDays: 7,
-                positionId: 1,
-                details: [
-                  {
-                    startTimeLocal: new Date("11/1/2019 07:00 AM"),
-                    endTimeLocal: new Date("11/1/2019 05:00 PM"),
-                    locationId: 1,
-                    location: {
-                      name: "Evans Elementary School",
-                    },
-                  },
-                ] as Maybe<VacancyDetail[]>,
-              },
-            ]}
+            vacancies={projectedVacancies}
           />
         )}
       </form>

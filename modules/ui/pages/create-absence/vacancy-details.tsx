@@ -2,9 +2,10 @@ import * as React from "react";
 import { Vacancy } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { Grid, makeStyles, Typography } from "@material-ui/core";
-import { getDateRangeDisplayText } from "helpers/date";
+import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
 import { Fragment } from "react";
-import { format, isValid, isDate } from "date-fns";
+import { format } from "date-fns";
+import { groupBy } from "lodash-es";
 
 type Props = {
   vacancies: Pick<
@@ -20,14 +21,6 @@ const getScheduleLettersArray = () => {
   return new Array(26).fill(1).map((_, i) => String.fromCharCode(65 + i));
 };
 
-const convertStringToDate = (dateString: string): Date | null => {
-  if (dateString && isDate(dateString) && isValid(dateString)) {
-    return new Date(dateString);
-  }
-
-  return null;
-};
-
 export const VacancyDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
@@ -35,8 +28,6 @@ export const VacancyDetails: React.FC<Props> = props => {
   if (!props.vacancies || !props.vacancies.length) {
     return <></>;
   }
-
-  console.log(props.vacancies);
 
   const sortedVacancies = props.vacancies
     .slice()
@@ -70,38 +61,58 @@ export const VacancyDetails: React.FC<Props> = props => {
         </Grid>
       )}
       {sortedVacancies.map((v, detailsIndex) => {
+        const groupedDetails = groupBy(v.details, d => {
+          return d!.startTimeLocal && d!.endTimeLocal && d!.locationId;
+        });
+
+        const startDateLocal = convertStringToDate(v.startTimeLocal);
+        const endDateLocal = convertStringToDate(v.endTimeLocal);
+        if (!startDateLocal || !endDateLocal) {
+          return;
+        }
+
         return (
           <Grid key={detailsIndex} item container xs={12} alignItems="center">
-            <Grid item xs={2}>
+            <Grid item xs={6}>
               <Typography variant="h6">
-                {getDateRangeDisplayText(
-                  convertStringToDate(v.startTimeLocal),
-                  convertStringToDate(v.endTimeLocal)
-                )}
+                {getDateRangeDisplayText(startDateLocal, endDateLocal)}
               </Typography>
             </Grid>
-            <Grid item xs={10} className={classes.scheduleText}>
+            <Grid item xs={6} className={classes.scheduleText}>
               {`${t("Schedule")} ${scheduleLetters[detailsIndex]}`}
             </Grid>
-            {v.details &&
-              v.details.map((b, blocksIndex) => {
-                return (
-                  <Fragment key={blocksIndex}>
-                    <Grid item xs={2} className={classes.vacancyBlockItem}>
-                      {`${format(
-                        convertStringToDate(b!.startTimeLocal) ?? new Date(),
-                        "h:mm a"
-                      )} - ${format(
-                        convertStringToDate(b!.endTimeLocal) ?? new Date(),
-                        "h:mm a"
-                      )}`}
-                    </Grid>
-                    <Grid item xs={10} className={classes.vacancyBlockItem}>
-                      {b!.location ? b!.location.name : b!.locationId}
-                    </Grid>
-                  </Fragment>
-                );
-              })}
+            {Object.entries(groupedDetails).map(([key, value], groupIndex) => {
+              const firstDetail = value[0];
+              if (!firstDetail) {
+                return;
+              }
+
+              const detailStartTimeLocal = convertStringToDate(
+                firstDetail.startTimeLocal
+              );
+              const detailEndTimeLocal = convertStringToDate(
+                firstDetail.endTimeLocal
+              );
+              if (!detailStartTimeLocal || !detailEndTimeLocal) {
+                return;
+              }
+
+              return (
+                <Fragment key={groupIndex}>
+                  <Grid item xs={6} className={classes.vacancyBlockItem}>
+                    {`${format(detailStartTimeLocal, "h:mm a")} - ${format(
+                      detailEndTimeLocal,
+                      "h:mm a"
+                    )}`}
+                  </Grid>
+                  <Grid item xs={6} className={classes.vacancyBlockItem}>
+                    {firstDetail.location
+                      ? firstDetail.location.name
+                      : firstDetail.locationId}
+                  </Grid>
+                </Fragment>
+              );
+            })}
           </Grid>
         );
       })}

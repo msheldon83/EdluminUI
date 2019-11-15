@@ -41,6 +41,7 @@ import format from "date-fns/format";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { VacancyDetails } from "../vacancy-details";
+import { convertStringToDate } from "helpers/date";
 
 type Props = {
   orgId: string;
@@ -155,20 +156,25 @@ export const AssignSub: React.FC<Props> = props => {
         positionId: v.positionId,
         needsReplacement: true,
         details: v.details!.map(d => {
+          const startTimeLocal =
+            d && d.startTimeLocal
+              ? convertStringToDate(d.startTimeLocal)
+              : null;
+          const endTimeLocal =
+            d && d.endTimeLocal ? convertStringToDate(d.endTimeLocal) : null;
+
           return {
             date: d?.startTimeLocal,
-            startTime:
-              d && d.startTimeLocal
-                ? secondsSinceMidnight(
-                    parseTimeFromString(format(d.startTimeLocal, "h:mm a"))
-                  )
-                : 0,
-            endTime:
-              d && d.endTimeLocal
-                ? secondsSinceMidnight(
-                    parseTimeFromString(format(d.endTimeLocal, "h:mm a"))
-                  )
-                : 0,
+            startTime: startTimeLocal
+              ? secondsSinceMidnight(
+                  parseTimeFromString(format(startTimeLocal, "h:mm a"))
+                )
+              : 0,
+            endTime: endTimeLocal
+              ? secondsSinceMidnight(
+                  parseTimeFromString(format(endTimeLocal, "h:mm a"))
+                )
+              : 0,
             locationId: d?.locationId ?? 0,
           };
         }),

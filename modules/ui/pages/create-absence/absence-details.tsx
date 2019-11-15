@@ -31,7 +31,7 @@ import {
   CreateAbsenceActions,
 } from "./state";
 import { FormData } from "./ui";
-import { isDate, isValid } from "date-fns";
+import { isDate, isValid, format } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { getDaysInDateRange } from "helpers/date";
@@ -45,6 +45,14 @@ type Props = {
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
   showAssignSub: () => void;
+  setProjectedVacancies: React.Dispatch<
+    React.SetStateAction<
+      Pick<
+        Vacancy,
+        "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
+      >[]
+    >
+  >;
 };
 
 const buildAbsenceCreateInput = (
@@ -66,7 +74,7 @@ const buildAbsenceCreateInput = (
     employeeId,
     details: allDays.map(d => {
       return {
-        date: d,
+        date: format(d, "P"),
         startTime: secondsSinceMidnight(parseTimeFromString(startTime)),
         endTime: secondsSinceMidnight(parseTimeFromString(endTime)),
         dayPartId: values.dayPart ?? DayPart.FullDay,
@@ -98,7 +106,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
     Vacancy,
     "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
   >[];
+  if (projectedVacancies.length) {
+    props.setProjectedVacancies(projectedVacancies);
+  }
 
+  const projectedVacanciesQuery = {
+    state: getProjectedVacancies.state,
+    refetch: getProjectedVacancies.refetch,
+  };
   useEffect(() => {
     // Go get projected vacancies
     console.log("Changing form", formValues);
@@ -108,13 +123,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
       formValues.startDate &&
       formValues.endDate &&
       formValues.dayPart &&
-      formValues.absenceReason &&
-      getProjectedVacancies.state !== "LOADING" &&
-      getProjectedVacancies.state !== "UPDATING"
+      projectedVacanciesQuery.state !== "LOADING" &&
+      projectedVacanciesQuery.state !== "UPDATING"
     ) {
-      getProjectedVacancies.refetch();
+      projectedVacanciesQuery.refetch();
     }
-  }, [formValues, getProjectedVacancies]);
+  }, [formValues, projectedVacanciesQuery]);
 
   const [showNotesForReplacement, setShowNotesForReplacement] = useState(
     needsReplacement !== NeedsReplacement.No
@@ -152,12 +166,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onReasonChange = React.useCallback(
     async event => {
       await setValue("absenceReason", event.value);
-      setFormValues({
-        ...formValues,
-        absenceReason: event.value,
-      });
     },
-    [setValue, formValues, setFormValues]
+    [setValue]
   );
 
   const onDayPartChange = React.useCallback(
