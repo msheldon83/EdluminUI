@@ -48,8 +48,7 @@ type Props = {
   values: FormData;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
-  showAssignSub: () => void;
-  projectedVacancies: Pick<
+  vacancies: Pick<
     Vacancy,
     "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
   >[];
@@ -240,10 +239,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             )}
 
             {values.needsReplacement && (
-              <VacancyDetails
-                vacancies={props.projectedVacancies}
-                equalWidthDetails
-              />
+              <VacancyDetails vacancies={props.vacancies} equalWidthDetails />
             )}
 
             {showNotesForReplacement && (
@@ -276,7 +272,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
             <div>
               {values.needsReplacement && (
-                <Button variant="outlined" onClick={props.showAssignSub}>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    props.dispatch({
+                      action: "switchStep",
+                      step: "assignSub",
+                    });
+                  }}
+                >
                   {t("Pre-arrange")}
                 </Button>
               )}

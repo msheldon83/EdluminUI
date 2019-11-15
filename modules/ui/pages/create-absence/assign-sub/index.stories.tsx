@@ -100,7 +100,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
         userIsAdmin={true}
         vacancyId={"1"}
         employeeName={"Mary Smith"}
-        positionId={1}
+        positionId={"1"}
         positionName={"Math teacher"}
         vacancies={[
           {
@@ -269,7 +269,7 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
         userIsAdmin={false}
         vacancyId={"1"}
         employeeName={"Mary Smith"}
-        positionId={1}
+        positionId={"1"}
         positionName={"Math teacher"}
         vacancies={[
           {
@@ -317,7 +317,7 @@ export const PrearrangeSubAsAdmin = () => {
         orgId={"1006"}
         userIsAdmin={true}
         employeeName={"Mary Smith"}
-        positionId={1}
+        positionId={"1"}
         positionName={"Math teacher"}
         vacancies={[
           {
@@ -365,7 +365,7 @@ export const PrearrangeSubAsEmployee = () => {
         orgId={"1006"}
         userIsAdmin={false}
         employeeName={"Mary Smith"}
-        positionId={1}
+        positionId={"1"}
         positionName={"Math teacher"}
         vacancies={[
           {

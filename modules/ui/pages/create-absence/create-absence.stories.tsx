@@ -11,7 +11,7 @@ import {
   NeedsReplacement,
   VacancyAvailability,
   VacancyQualification,
-  CalendarDayType
+  CalendarDayType,
 } from "graphql/server-types.gen";
 
 export default {
@@ -97,7 +97,7 @@ export const AsAdmin = () => {
           userIsAdmin
           needsReplacement={NeedsReplacement.Yes}
           positionName="Math Teacher"
-          positionId={1}
+          positionId={"1"}
         />
       </Route>
     </Provider>
@@ -136,7 +136,7 @@ export const AsEmployee = () => {
           userIsAdmin={false}
           needsReplacement={NeedsReplacement.Sometimes}
           positionName="Math Teacher"
-          positionId={1}
+          positionId={"1"}
         />
       </Route>
     </Provider>
@@ -175,7 +175,7 @@ export const AsSubNotNeededEmployee = () => {
           needsReplacement={NeedsReplacement.No}
           userIsAdmin={false}
           positionName="Math Teacher"
-          positionId={1}
+          positionId={"1"}
         />
       </Route>
     </Provider>
@@ -231,7 +231,7 @@ export const AsSubNeededEmployee = () => {
           userIsAdmin={false}
           needsReplacement={NeedsReplacement.Yes}
           positionName="Math Teacher"
-          positionId={1}
+          positionId={"1"}
         />
       </Route>
     </Provider>

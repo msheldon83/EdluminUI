@@ -52,8 +52,8 @@ type Props = {
   >[];
   userIsAdmin: boolean;
   employeeName: string;
-  positionId?: number | null | undefined;
-  positionName?: string | null | undefined;
+  positionId?: string;
+  positionName?: string;
 };
 
 const getQualifiedIcon = (qualified: VacancyQualification, t: TFunction) => {

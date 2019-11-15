@@ -31,7 +31,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   userIsAdmin: boolean;
   positionId?: string;
-  positionName?: string | null | undefined;
+  positionName?: string;
 };
 
 const buildInputForProjectedVacancies = (
@@ -170,7 +170,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 values={getValues()}
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
-                projectedVacancies={projectedVacancies}
+                vacancies={projectedVacancies}
               />
             </Section>
           </>
