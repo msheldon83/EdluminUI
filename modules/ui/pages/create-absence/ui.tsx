@@ -93,8 +93,23 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const history = useHistory();
-  const [createAbsence] = useMutationBundle(CreateAbsence);
   const { openSnackbar } = useSnackbar();
+  const [createAbsence] = useMutationBundle(CreateAbsence, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -189,25 +204,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
     console.log("Absence", absence);
 
-    try {
-      const result = await createAbsence({
-        variables: {
-          absence: absence,
-        },
-      });
-    } catch (e) {
-      console.log(e.extensions);
-    }
-
-    // console.log(result);
-
-    // if (result.errors) {
-    //   openSnackbar({
-    //     message: result.errors.map(e => e.extensions?.data?.text),
-    //     status: "error",
-    //   });
-    //   return undefined;
-    // }
+    const result = await createAbsence({
+      variables: {
+        absence: absence,
+      },
+    });
 
     return result?.data?.absence?.create?.id;
   };
