@@ -2,12 +2,13 @@ import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { startOfMonth } from "date-fns";
 import { useForm } from "forms";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import {
   DayPart,
   NeedsReplacement,
   Vacancy,
   AbsenceCreateInput,
+  AbsenceDetailCreateInput,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer } from "react";
@@ -22,6 +23,8 @@ import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { format, isValid, isDate } from "date-fns";
 import { getDaysInDateRange } from "helpers/date";
 import { useHistory } from "react-router";
+import { CreateAbsence } from "./graphql/create.gen";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {
   firstName: string;
@@ -90,6 +93,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const history = useHistory();
+  const [createAbsence] = useMutationBundle(CreateAbsence);
+  const { openSnackbar } = useSnackbar();
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -155,6 +160,58 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     });
   }
 
+  const create = async (dates: Date[]) => {
+    const formValues = getValues();
+    const positionId = props.positionId ? Number(props.positionId) : 0;
+    const absence: AbsenceCreateInput = {
+      orgId: Number(state.organizationId),
+      employeeId: Number(state.employeeId),
+      notesToApprover: formValues.notesToApprover,
+      details: dates.map(d => {
+        return {
+          date: d,
+          dayPartId: formValues.dayPart,
+          //HOURLY
+          //startTime:
+          //endTime:
+          reasons: [{ absenceReasonId: Number(formValues.absenceReason) }],
+        };
+      }),
+      vacancies: [
+        {
+          positionId: positionId,
+          needsReplacement: formValues.needsReplacement,
+          notesToReplacement: formValues.notesToReplacement,
+          //prearrangedReplacementEmployeeId
+        },
+      ],
+    };
+
+    console.log("Absence", absence);
+
+    try {
+      const result = await createAbsence({
+        variables: {
+          absence: absence,
+        },
+      });
+    } catch (e) {
+      console.log(e.extensions);
+    }
+
+    // console.log(result);
+
+    // if (result.errors) {
+    //   openSnackbar({
+    //     message: result.errors.map(e => e.extensions?.data?.text),
+    //     status: "error",
+    //   });
+    //   return undefined;
+    // }
+
+    return result?.data?.absence?.create?.id;
+  };
+
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
@@ -181,6 +238,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
+                create={create}
               />
             </Section>
           </>

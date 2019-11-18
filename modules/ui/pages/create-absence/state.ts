@@ -5,6 +5,7 @@ export type CreateAbsenceState = {
   organizationId: string;
   step: "absence" | "assignSub";
   viewingCalendarMonth: Date;
+  //replacementEmployeeId: string;
 };
 
 export type CreateAbsenceActions =
