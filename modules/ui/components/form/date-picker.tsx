@@ -280,6 +280,9 @@ export const DatePicker = (props: DatePickerProps) => {
   };
 
   const handleCalendarDateChange = (date: Date | string | null = "") => {
+    // A slight delay _feels_ better
+    setTimeout(() => setOpenCalendar(false), 10);
+
     singleDate
       ? handleCalendarSingleDateChange(date)
       : handleCalendarDateRangeChange(date);
@@ -302,7 +305,7 @@ export const DatePicker = (props: DatePickerProps) => {
         style={{ width: calendarWidth }}
       >
         <Calendar
-          date={calendarDate}
+          date={guaranteedStartDate}
           onChange={handleCalendarDateChange}
           renderDay={customDayRenderer}
           allowKeyboardControl={false}
