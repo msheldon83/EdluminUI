@@ -32,7 +32,7 @@ export const SchoolFilter: React.FC<Props> = props => {
   );
   return (
     <>
-      <Grid item md={3}>
+      <Grid item xs={12} sm={6} md={3} lg={3}>
         <InputLabel className={classes.label}>{props.locationLabel}</InputLabel>
         <Select
           onChange={onChangeLocations}

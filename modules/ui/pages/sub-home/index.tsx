@@ -18,6 +18,7 @@ export const SubHome: React.FC<Props> = props => {
   const theme = useTheme();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
+  const [showFilters, setShowFilters] = React.useState(!isMobile);
 
   return (
     <>
@@ -33,8 +34,17 @@ export const SubHome: React.FC<Props> = props => {
         </Grid>
       </Section>
       <Section>
-        <SectionHeader title={t("Available jobs")} />
-        <Filters />
+        <SectionHeader
+          title={t("Available jobs")}
+          action={{
+            text: t("Filter List"),
+            visible: isMobile,
+            execute: () => {
+              setShowFilters(!showFilters);
+            },
+          }}
+        />
+        {showFilters && <Filters />}
       </Section>
     </>
   );
