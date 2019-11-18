@@ -3,10 +3,10 @@ import { compact } from "lodash-es";
 import { GetLocations } from "./get-locations.gen";
 import { useMemo } from "react";
 
-export function useLocations(orgId: string) {
+export function useLocations(orgId?: string, orgIds?: Array<string>) {
   const locations = useQueryBundle(GetLocations, {
     fetchPolicy: "cache-first",
-    variables: { orgId },
+    variables: { orgId, orgIds },
   });
 
   return useMemo(() => {

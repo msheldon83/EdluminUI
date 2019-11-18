@@ -1,6 +1,6 @@
-query GetLocations($orgId: ID!) {
+query GetLocations($orgId: ID, $orgIds: [ID]) {
   location {
-    all(orgId: $orgId) {
+    all(orgId: $orgId, orgIds: $orgIds) {
       id
       name
     }
