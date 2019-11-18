@@ -3,7 +3,7 @@ import { compact } from "lodash-es";
 import { GetPositionTypes } from "./get-position-types.gen";
 import { useMemo } from "react";
 
-export function usePositionTypes(orgId: string) {
+export function usePositionTypes(orgId?: string) {
   const positionTypes = useQueryBundle(GetPositionTypes, {
     fetchPolicy: "cache-first",
     variables: { orgId },
