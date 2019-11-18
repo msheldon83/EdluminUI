@@ -9,6 +9,7 @@ import { Grid } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { Filters } from "./filters/index";
+import { AvailableJob } from "./components/available-job";
 
 type Props = {};
 
@@ -45,6 +46,9 @@ export const SubHome: React.FC<Props> = props => {
           }}
         />
         {showFilters && <Filters />}
+        <Grid container spacing={2}>
+          <Divider variant="middle" />
+        </Grid>
       </Section>
     </>
   );
