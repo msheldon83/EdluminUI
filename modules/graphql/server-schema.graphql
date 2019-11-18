@@ -72,6 +72,7 @@ type AbsenceMutations {
   create(absence: AbsenceCreateInput!): Absence
   update(absence: AbsenceUpdateInput!): Absence
   delete(absenceId: Int!): Boolean
+  createWithoutSave(absence: AbsenceCreateInput!): Absence
 }
 
 type AbsenceQueries {
@@ -965,6 +966,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   firstName: String!
   middleName: String
   lastName: String!
+  phoneNumber: String
   assignments: [Assignment]
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
@@ -1769,6 +1771,9 @@ type organizationConfig {
   maxGapMinutesForSameVacancyDetail: Int!
   minAbsenceMinutes: Int!
   maxAbsenceDays: Int!
+  requestedSubCutoffMinutes: Int!
+  minRequestedEmployeeHoldMinutes: Int!
+  maxRequestedEmployeeHoldMinutes: Int!
 }
 
 input organizationConfigInput {
@@ -1786,7 +1791,9 @@ input organizationConfigInput {
   maxGapMinutesForSameVacancyDetail: Int
   minAbsenceMinutes: Int
   maxAbsenceDays: Int
-  minutesToReserveVacancyForRequestedEmployee: Int
+  requestedSubCutoffMinutes: Int
+  minRequestedEmployeeHoldMinutes: Int
+  maxRequestedEmployeeHoldMinutes: Int
 }
 
 input OrganizationCreateInput {
