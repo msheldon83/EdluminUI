@@ -149,7 +149,7 @@ module.exports = {
 
     ...(process.env.ANALYZE
       ? [
-          new (require("webpack-bundle-analyzer")).BundleAnalyzerPlugin({
+          new (require("webpack-bundle-analyzer").BundleAnalyzerPlugin)({
             analyzerMode: "static",
           }),
         ]
@@ -188,6 +188,7 @@ module.exports = {
       },
       loaders.clientSideTypeScript,
       loaders.graphql,
+      loaders.svgLoader,
     ].concat(loaders.allImagesAndFontsArray),
   },
   devServer: {
