@@ -17,7 +17,6 @@ export const TimeFilter: React.FC<Props> = props => {
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
   const times = [
-    { id: "all", name: t("All") },
     { id: "full", name: t("Full Day") },
     { id: "partial", name: t("Partial Day") },
     { id: "multi", name: t("Multi-day") },
