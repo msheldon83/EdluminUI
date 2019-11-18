@@ -19,7 +19,8 @@ import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
-import { FilterQueryParams } from "./people-filters/filter-params";
+import { FilterQueryParams, FilterRole } from "./people-filters/filter-params";
+import Maybe from "graphql/tsutils/Maybe";
 
 type Props = {};
 
@@ -55,6 +56,71 @@ export const PeoplePage: React.FC<Props> = props => {
     [filters, oldFilters]
   );
 
+  const listRoles = (isAdmin: boolean, isEmployee: boolean, isSub: boolean) => {
+    const roles = [];
+    if (isAdmin) {
+      roles.push(t("Administrator"));
+    }
+    if (isEmployee) {
+      roles.push(t("Employee"));
+    }
+    if (isSub) {
+      roles.push(t("Substitute"));
+    }
+
+    return roles.join(",");
+  };
+
+  const determineLocationsManaged = (
+    allLocationIdsInScope: boolean,
+    adminLocations: Maybe<Array<Maybe<{ name: string }>>>
+  ) => {
+    if (allLocationIdsInScope) {
+      return "All";
+    }
+    if (adminLocations) {
+      if (adminLocations.length > 1) {
+        return "Multiple";
+      } else {
+        return adminLocations[0]?.name;
+      }
+    } else {
+      return "None";
+    }
+  };
+
+  const determinePositionTypesManaged = (
+    allPositionTypeIdsInScope: boolean,
+    adminPositionTypes: Maybe<Array<Maybe<{ name: string }>>>
+  ) => {
+    if (allPositionTypeIdsInScope) {
+      return "All";
+    }
+    if (adminPositionTypes) {
+      if (adminPositionTypes.length > 1) {
+        return "Multiple";
+      } else {
+        return adminPositionTypes[0]?.name;
+      }
+    } else {
+      return "None";
+    }
+  };
+
+  const determineEndorsements = (
+    endorsements: Maybe<Array<Maybe<{ endorsement: Maybe<{ name: string }> }>>>
+  ) => {
+    if (endorsements) {
+      if (endorsements.length > 1) {
+        return "Multiple";
+      } else {
+        return endorsements[0]?.endorsement?.name;
+      }
+    } else {
+      return "None";
+    }
+  };
+
   let people: GetAllPeopleForOrg.Results[] = [];
   if (allPeopleQuery.state === "DONE" || allPeopleQuery.state === "UPDATING") {
     const qResults = compact(allPeopleQuery.data?.orgUser?.paged?.results);
@@ -67,9 +133,23 @@ export const PeoplePage: React.FC<Props> = props => {
       lastName: person.lastName,
       email: person.email,
       employeeId: person.externalId,
-      position: person.employee?.primaryPosition?.name,
+      roles: listRoles(
+        person.isAdmin,
+        person.isEmployee,
+        person.isReplacementEmployee
+      ),
+      positionType: person.employee?.primaryPosition?.name,
       phone: person.phoneNumber,
       location: "",
+      endorsements: determineEndorsements(person.employee?.endorsements ?? []),
+      managesLocations: determineLocationsManaged(
+        person.allLocationIdsInScope,
+        person.adminLocations
+      ),
+      managesPositionTypes: determinePositionTypesManaged(
+        person.allPositionTypeIdsInScope,
+        person.adminPositionTypes
+      ),
     }));
   }, [people]);
 
@@ -100,9 +180,37 @@ export const PeoplePage: React.FC<Props> = props => {
       field: "lastName",
     },
     { title: t("Primary Phone"), field: "phone" },
-    { title: t("Employee ID"), field: "externalId" },
-    { title: t("Position"), field: "position" },
-    { title: t("Location"), field: "location" },
+    { title: t("External ID"), field: "externalId" },
+    {
+      title: t("Role"),
+      field: "roles",
+      hidden: filters.roleFilter != null,
+    },
+    {
+      title: t("Position type"), // Show popper for multiple
+      field: "positionType",
+      hidden: filters.roleFilter != OrgUserRole.Employee,
+    },
+    {
+      title: t("Location"), // Show popper for multiple
+      field: "location",
+      hidden: filters.roleFilter != OrgUserRole.Employee,
+    },
+    {
+      title: t("Manages position type"), // Show popper for multiple
+      field: "managesPositionTypes",
+      hidden: filters.roleFilter != OrgUserRole.Administrator,
+    },
+    {
+      title: t("Manages location"), // Show popper for multiple
+      field: "managesLocations",
+      hidden: filters.roleFilter != OrgUserRole.Administrator,
+    },
+    {
+      title: t("Endorsements"), // Show popper for multiple
+      field: "endorsements",
+      hidden: filters.roleFilter != OrgUserRole.ReplacementEmployee,
+    },
     {
       title: "",
       field: "email",

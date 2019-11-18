@@ -1,4 +1,4 @@
-query GetPositionTypes($orgId: ID!) {
+query GetPositionTypes($orgId: ID) {
   positionType {
     all(orgId: $orgId) {
       id
