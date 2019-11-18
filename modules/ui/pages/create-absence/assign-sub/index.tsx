@@ -237,8 +237,7 @@ export const AssignSub: React.FC<Props> = props => {
       visibleOn: r.visibleAtLocal,
       isEmployeeFavorite: r.isEmployeeFavorite,
       isLocationPositionTypeFavorite: r.isLocationPositionTypeFavorite,
-      // TODO: Figure out the logic for whether or not this Sub can be assigned
-      selectable: true,
+      selectable: r.isSelectable,
     }));
   }, [replacementEmployees]);
 

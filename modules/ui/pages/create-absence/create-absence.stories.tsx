@@ -61,6 +61,7 @@ const basicReplacementEmployees = [
     visibleAtLocal: "1/1/2019" as any,
     isEmployeeFavorite: true,
     isLocationPositionTypeFavorite: false,
+    isSelectable: true,
   },
 ];
 

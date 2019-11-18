@@ -30,6 +30,7 @@ const dummyReplacementEmployees = [
     visibleAtLocal: "1/1/2019" as any,
     isEmployeeFavorite: true,
     isLocationPositionTypeFavorite: false,
+    isSelectable: true,
   },
   {
     employee: {
@@ -47,6 +48,7 @@ const dummyReplacementEmployees = [
     visibleAtLocal: null as any,
     isEmployeeFavorite: true,
     isLocationPositionTypeFavorite: false,
+    isSelectable: true,
   },
   {
     employee: {
@@ -64,6 +66,7 @@ const dummyReplacementEmployees = [
     visibleAtLocal: "1/1/2021" as any,
     isEmployeeFavorite: false,
     isLocationPositionTypeFavorite: true,
+    isSelectable: true,
   },
   {
     employee: {
@@ -81,6 +84,7 @@ const dummyReplacementEmployees = [
     visibleAtLocal: "1/1/2021" as any,
     isEmployeeFavorite: false,
     isLocationPositionTypeFavorite: false,
+    isSelectable: false,
   },
 ];
 
