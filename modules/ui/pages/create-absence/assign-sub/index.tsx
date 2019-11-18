@@ -25,7 +25,7 @@ import {
 import format from "date-fns/format";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
-import { VacancyDetails } from "../vacancy-details";
+import { VacancyDetails } from "../absence-details/vacancy-details";
 import { convertStringToDate } from "helpers/date";
 import { getAssignSubColumns } from "./columns";
 

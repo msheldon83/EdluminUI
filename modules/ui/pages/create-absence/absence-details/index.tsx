@@ -37,11 +37,11 @@ import {
   GetEmployeeContractSchedule,
   GetEmployeeContractScheduleQuery,
   GetEmployeeContractScheduleQueryVariables,
-} from "./graphql/get-contract-schedule.gen";
-import { CreateAbsenceActions, CreateAbsenceState } from "./state";
-import { FormData } from "./ui";
-import { VacancyDetails } from "./vacancy-details";
-import { useHistory } from "react-router";
+} from "../graphql/get-contract-schedule.gen";
+import { CreateAbsenceActions, CreateAbsenceState } from "../state";
+import { FormData } from "../ui";
+import { SubstituteRequiredDetails } from "./substitute-required-details";
+import { Step } from "../step-params";
 
 type Props = {
   state: CreateAbsenceState;
@@ -54,13 +54,13 @@ type Props = {
     Vacancy,
     "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
   >[];
+  setStep: (S: Step) => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
-  const history = useHistory();
   const {
     state,
     setValue,
@@ -85,7 +85,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     contractSchedule,
   ]);
 
-  const [showNotesForReplacement, setShowNotesForReplacement] = useState(
+  const [replacementRequired, setReplacementRequired] = useState(
     needsReplacement !== NeedsReplacement.No
   );
 
@@ -127,19 +127,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     },
     [setValue]
   );
-  const onNotesToReplacementChange = React.useCallback(
-    async event => {
-      await setValue("notesToReplacement", event.target.value);
-    },
-    [setValue]
-  );
 
   const onNeedsReplacementChange = React.useCallback(
     async event => {
-      setShowNotesForReplacement(event.target.checked);
+      setReplacementRequired(event.target.checked);
       await setValue("needsReplacement", event.target.checked);
     },
-    [setValue, setShowNotesForReplacement]
+    [setValue, setReplacementRequired]
   );
 
   const onMonthChange: DatePickerOnMonthChange = React.useCallback(
@@ -148,11 +142,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     },
     [dispatch]
   );
-
-  const removePrearrangedReplacementEmployee = async () => {
-    await setValue("replacementEmployeeId", undefined);
-    await setValue("replacementEmployeeName", undefined);
-  };
 
   return (
     <Grid container>
@@ -171,7 +160,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
             onChange={onReasonChange}
             options={absenceReasonOptions}
             isClearable={false}
-            // label={t("Reason")}
           />
         </div>
 
@@ -246,71 +234,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
               </Typography>
             )}
 
-            {values.needsReplacement && (
-              <VacancyDetails vacancies={props.vacancies} equalWidthDetails />
+            {replacementRequired && (
+              <SubstituteRequiredDetails
+                setValue={setValue}
+                vacancies={props.vacancies}
+                setStep={props.setStep}
+                replacementEmployeeName={values.replacementEmployeeName}
+                replacementEmployeeId={values.replacementEmployeeId}
+              />
             )}
-
-            {showNotesForReplacement && (
-              <div className={classes.notesForReplacement}>
-                <Typography variant="h6">
-                  {t("Notes for substitute")}
-                </Typography>
-                <Typography
-                  className={[
-                    classes.subText,
-                    classes.substituteDetailsSubtitle,
-                  ].join(" ")}
-                >
-                  {t(
-                    "Can be seen by the substitute, administrator and employee."
-                  )}
-                </Typography>
-                <TextField
-                  name="notesToReplacement"
-                  multiline
-                  rows="6"
-                  variant="outlined"
-                  margin="normal"
-                  fullWidth
-                  onChange={onNotesToReplacementChange}
-                  InputProps={{ classes: textFieldClasses }}
-                />
-              </div>
-            )}
-
-            {values.replacementEmployeeId && (
-              <div className={classes.preArrangedChip}>
-                <Chip
-                  label={`${t("Pre-arranged")}: ${
-                    values.replacementEmployeeName
-                  }`}
-                  color={"primary"}
-                  onDelete={async () => {
-                    await removePrearrangedReplacementEmployee();
-                  }}
-                />
-              </div>
-            )}
-
-            <div>
-              {values.needsReplacement && (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    history.push({
-                      ...history.location,
-                      search: "?action=assign",
-                    });
-                    props.dispatch({
-                      action: "switchStep",
-                      step: "assignSub",
-                    });
-                  }}
-                >
-                  {t("Pre-arrange")}
-                </Button>
-              )}
-            </div>
           </div>
         </Paper>
       </Grid>

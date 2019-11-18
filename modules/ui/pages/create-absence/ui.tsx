@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { startOfMonth, eachDayOfInterval } from "date-fns";
 import { useForm } from "forms";
@@ -16,7 +16,6 @@ import { useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
-import { AbsenceDetails } from "./absence-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { AssignSub } from "./assign-sub/index";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
@@ -27,6 +26,10 @@ import { useHistory } from "react-router";
 import { CreateAbsence } from "./graphql/create.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { Confirmation } from "./confirmation";
+import { EditVacancies } from "./edit-vacancies";
+import { AbsenceDetails } from "./absence-details";
+import { useQueryParamIso } from "hooks/query-params";
+import { StepParams } from "./step-params";
 
 type Props = {
   firstName: string;
@@ -40,67 +43,9 @@ type Props = {
   positionName?: string;
 };
 
-const buildInputForProjectedVacancies = (
-  values: Partial<FormData>,
-  orgId: number,
-  employeeId: number
-): AbsenceCreateInput | null => {
-  // TODO: these should come from the Employee's schedule
-  const startTime = "08:00 AM";
-  const endTime = "12:00 PM";
-
-  if (
-    !values.startDate ||
-    !values.endDate ||
-    !values.absenceReason ||
-    !values.dayPart
-  ) {
-    return null;
-  }
-
-  const startDate =
-    typeof values.startDate === "string"
-      ? new Date(values.startDate)
-      : values.startDate;
-  const endDate =
-    typeof values.endDate === "string"
-      ? new Date(values.endDate)
-      : values.endDate;
-
-  if (
-    !isDate(startDate) ||
-    !isValid(startDate) ||
-    !isDate(endDate) ||
-    !isValid(endDate)
-  ) {
-    return null;
-  }
-
-  const allDays = getDaysInDateRange(startDate, endDate);
-
-  if (!allDays.length) {
-    return null;
-  }
-
-  return {
-    orgId,
-    employeeId,
-    details: allDays.map(d => {
-      return {
-        date: format(d, "P"),
-        startTime: secondsSinceMidnight(parseTimeFromString(startTime)),
-        endTime: secondsSinceMidnight(parseTimeFromString(endTime)),
-        dayPartId: values.dayPart ?? DayPart.FullDay,
-        reasons: [{ absenceReasonId: Number(values.absenceReason) }],
-      };
-    }),
-  };
-};
-
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const [absence, setAbsence] = useState<
     Pick<
@@ -124,6 +69,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       });
     },
   });
+
+  const [step, setStep] = useQueryParamIso(StepParams);
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -183,13 +130,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const name = `${props.firstName} ${props.lastName}`;
 
-  const params = new URLSearchParams(history.location.search);
-  if (!params.has("action") && state.step !== "absence") {
-    dispatch({
-      action: "switchStep",
-      step: "absence",
-    });
-  }
+  // const params = new URLSearchParams(history.location.search);
+  // if (!params.has("action") && step !== "absence") {
+  //   dispatch({
+  //     action: "switchStep",
+  //     step: "absence",
+  //   });
+  // }
 
   const selectReplacementEmployee = async (
     replacementEmployeeId: number,
@@ -197,15 +144,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   ) => {
     await setValue("replacementEmployeeId", replacementEmployeeId);
     await setValue("replacementEmployeeName", name);
-
-    history.push({
-      ...history.location,
-      search: "",
-    });
-    dispatch({
-      action: "switchStep",
-      step: "absence",
-    });
+    setStep("absence");
   };
 
   const create = async (formValues: FormData) => {
@@ -280,18 +219,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           const absence = await create(data);
           if (absence) {
             setAbsence(absence);
-            history.push({
-              ...history.location,
-              search: "?action=success",
-            });
-            dispatch({
-              action: "switchStep",
-              step: "confirmation",
-            });
+            setStep("confirmation");
           }
         })}
       >
-        {state.step === "absence" && (
+        {step === "absence" && (
           <>
             {props.actingAsEmployee ? (
               <Typography variant="h1">{t("Create absence")}</Typography>
@@ -310,11 +242,12 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
+                setStep={setStep}
               />
             </Section>
           </>
         )}
-        {state.step === "assignSub" && (
+        {step === "preAssignSub" && (
           <AssignSub
             orgId={props.organizationId}
             userIsAdmin={props.userIsAdmin}
@@ -325,17 +258,27 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             selectReplacementEmployee={selectReplacementEmployee}
           />
         )}
-        {state.step === "confirmation" && (
+        {step === "confirmation" && (
           <Confirmation
             orgId={props.organizationId}
             absence={absence}
-            dispatch={dispatch}
             vacancies={projectedVacancies}
+            setStep={setStep}
             needsReplacement={true}
             notesToSubstitute={formValues.notesToReplacement}
             preAssignedReplacementEmployeeName={
               formValues.replacementEmployeeName
             }
+          />
+        )}
+        {step === "edit" && (
+          <EditVacancies
+          // orgId={props.organizationId}
+          // userIsAdmin={props.userIsAdmin}
+          // employeeName={name}
+          // positionId={props.positionId}
+          // positionName={props.positionName}
+          // vacancies={projectedVacancies}
           />
         )}
       </form>
@@ -355,7 +298,6 @@ const useStyles = makeStyles(theme => ({
 const initialState = (props: Props): CreateAbsenceState => ({
   employeeId: props.employeeId,
   organizationId: props.organizationId,
-  step: "absence",
   viewingCalendarMonth: startOfMonth(new Date()),
 });
 
@@ -369,4 +311,61 @@ export type FormData = {
   needsReplacement: boolean;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
+};
+
+const buildInputForProjectedVacancies = (
+  values: Partial<FormData>,
+  orgId: number,
+  employeeId: number
+): AbsenceCreateInput | null => {
+  // TODO: these should come from the Employee's schedule
+  const startTime = "08:00 AM";
+  const endTime = "12:00 PM";
+
+  if (
+    !values.startDate ||
+    !values.endDate ||
+    !values.absenceReason ||
+    !values.dayPart
+  ) {
+    return null;
+  }
+
+  const startDate =
+    typeof values.startDate === "string"
+      ? new Date(values.startDate)
+      : values.startDate;
+  const endDate =
+    typeof values.endDate === "string"
+      ? new Date(values.endDate)
+      : values.endDate;
+
+  if (
+    !isDate(startDate) ||
+    !isValid(startDate) ||
+    !isDate(endDate) ||
+    !isValid(endDate)
+  ) {
+    return null;
+  }
+
+  const allDays = getDaysInDateRange(startDate, endDate);
+
+  if (!allDays.length) {
+    return null;
+  }
+
+  return {
+    orgId,
+    employeeId,
+    details: allDays.map(d => {
+      return {
+        date: format(d, "P"),
+        startTime: secondsSinceMidnight(parseTimeFromString(startTime)),
+        endTime: secondsSinceMidnight(parseTimeFromString(endTime)),
+        dayPartId: values.dayPart ?? DayPart.FullDay,
+        reasons: [{ absenceReasonId: Number(values.absenceReason) }],
+      };
+    }),
+  };
 };

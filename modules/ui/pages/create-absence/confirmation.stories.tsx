@@ -207,7 +207,7 @@ export const AsAdminWithAllInformation = () => {
         needsReplacement={true}
         notesToSubstitute={notesToSubstitute}
         preAssignedReplacementEmployeeName={"Luke Skywalker"}
-        dispatch={() => {}}
+        setStep={() => {}}
       />
     </Provider>
   );
@@ -249,7 +249,7 @@ export const AsAdminWithMinimumInformation = () => {
           ] as Maybe<AbsenceDetail[]>,
         }}
         needsReplacement={false}
-        dispatch={() => {}}
+        setStep={() => {}}
       />
     </Provider>
   );

@@ -11,10 +11,10 @@ import {
 } from "@material-ui/core";
 import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
-import { CreateAbsenceActions } from "./state";
 import { Section } from "ui/components/section";
-import { VacancyDetails } from "./vacancy-details";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { VacancyDetails } from "./absence-details/vacancy-details";
+import { Step } from "./step-params";
 
 type Props = {
   orgId: string;
@@ -28,10 +28,10 @@ type Props = {
     Vacancy,
     "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
   >[];
-  dispatch: React.Dispatch<CreateAbsenceActions>;
   needsReplacement: boolean;
   notesToSubstitute?: string;
   preAssignedReplacementEmployeeName?: string;
+  setStep: (s: Step) => void;
 };
 
 export const Confirmation: React.FC<Props> = props => {
@@ -42,10 +42,8 @@ export const Confirmation: React.FC<Props> = props => {
 
   if (!props.absence) {
     // Redirect the User back to the Absence Details step
-    props.dispatch({
-      action: "switchStep",
-      step: "absence",
-    });
+    props.setStep("absence");
+
     return null;
   }
 
