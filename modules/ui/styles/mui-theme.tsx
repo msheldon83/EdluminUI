@@ -183,6 +183,14 @@ export const EdluminTheme = createMuiTheme({
         color: themeColors.black,
       },
     },
+    MuiFormLabel: {
+      root: {
+        fontWeight: "normal",
+        color: themeColors.eduBlack,
+        fontSize: pxToRem(14),
+        lineHeight: pxToRem(21),
+      },
+    },
     MuiRadio: {
       colorPrimary: {
         color: themeColors.blue,

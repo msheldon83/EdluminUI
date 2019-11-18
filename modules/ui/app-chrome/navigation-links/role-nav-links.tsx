@@ -15,10 +15,18 @@ import {
 } from "./custom-nav-links";
 import { useRouteParams, defineSubRoute } from "ui/routes/definition";
 import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
-import { OrganizationsRoute, OrganizationsNoOrgRoute } from "ui/routes/organizations";
+import {
+  OrganizationsRoute,
+  OrganizationsNoOrgRoute,
+} from "ui/routes/organizations";
 import { Switch, Route } from "react-router";
 import { useIsSystemAdminOrAdminInMultipleOrgs } from "../hooks";
 import { PeopleRoute } from "ui/routes/people";
+import { SubHomeRoute } from "ui/routes/sub-home";
+import { SubPreferencesRoute } from "ui/routes/sub-preferences";
+import { SubScheduleRoute } from "ui/routes/sub-schedule";
+import { EmployeeHomeRoute } from "ui/routes/employee-home";
+import { AdminHomeRoute } from "ui/routes/admin-home";
 
 type Props = {
   onClick?: () => void;
@@ -49,7 +57,7 @@ export const EmployeeNavLinks: React.FC<Props> = props => {
     <>
       <HomeNavLink
         onClick={props.onClick}
-        route={AppChromeRoute.generate(params)}
+        route={EmployeeHomeRoute.generate(params)}
       />
       <MyScheduleNavLink onClick={props.onClick} route={tbd.generate(params)} />
       <PTOBalancesNavLink
@@ -70,12 +78,15 @@ export const SubstituteNavLinks: React.FC<Props> = props => {
     <>
       <HomeNavLink
         onClick={props.onClick}
-        route={AppChromeRoute.generate(params)}
+        route={SubHomeRoute.generate(params)}
       />
-      <MyScheduleNavLink onClick={props.onClick} route={tbd.generate(params)} />
+      <MyScheduleNavLink
+        onClick={props.onClick}
+        route={SubPreferencesRoute.generate(params)}
+      />
       <SubPreferencesNavLink
         onClick={props.onClick}
-        route={tbd.generate(params)}
+        route={SubScheduleRoute.generate(params)}
       />
     </>
   );
@@ -91,7 +102,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
         <>
           <HomeNavLink
             onClick={props.onClick}
-            route={AdminChromeRoute.generate(params)}
+            route={AdminHomeRoute.generate(params)}
           />
           <AbsenceNavLink
             onClick={props.onClick}
@@ -126,7 +137,11 @@ export const AdminNavLinks: React.FC<Props> = props => {
       {showOrgs && (
         <OrganizationsNavLink
           onClick={props.onClick}
-          route={inOrg ? OrganizationsRoute.generate(params) : OrganizationsNoOrgRoute.generate({role: "admin"}) }
+          route={
+            inOrg
+              ? OrganizationsRoute.generate(params)
+              : OrganizationsNoOrgRoute.generate({ role: "admin" })
+          }
         />
       )}
     </>
