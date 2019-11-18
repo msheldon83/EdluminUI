@@ -2,11 +2,8 @@ import { Grid, InputLabel } from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { useLocations } from "reference-data/locations";
 import { OptionType, Select } from "ui/components/form/select";
-import { useRouteParams } from "ui/routes/definition";
-import { SubHomeRoute } from "ui/routes/sub-home";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
 import { useStyles } from "./index";
 
@@ -14,11 +11,10 @@ type Props = {
   locationLabel: string;
 } & SubHomeQueryFilters;
 
+// TODO We might need to convert this to a search box if we think the list of schools will be too large
 export const SchoolFilter: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(SubHomeRoute);
-  const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
+  const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
   const locations = useLocations();
   const locationOptions: OptionType[] = useMemo(

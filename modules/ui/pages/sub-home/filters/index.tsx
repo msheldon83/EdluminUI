@@ -17,7 +17,7 @@ export const Filters: React.FC<Props> = props => {
   const [filters] = useQueryParamIso(FilterQueryParams);
 
   return (
-    <Grid container justify="space-between">
+    <Grid container justify="space-between" spacing={2}>
       <SchoolFilter {...filters} locationLabel={t("Schools")} />
       <DistrictFilter {...filters} orgLabel={t("Districts")} />
       <PositionTypeFilter {...filters} positionTypeLabel={t("Position type")} />

@@ -3,10 +3,7 @@ import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocations } from "reference-data/locations";
 import { OptionType, Select } from "ui/components/form/select";
-import { useRouteParams } from "ui/routes/definition";
-import { SubHomeRoute } from "ui/routes/sub-home";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
 import { useStyles } from "./index";
 
@@ -17,18 +14,22 @@ type Props = {
 export const TimeFilter: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(SubHomeRoute);
-  const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
+  const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
-  const times = [{ id: "1000", name: "All" }];
+  const times = [
+    { id: "all", name: t("All") },
+    { id: "full", name: t("Full Day") },
+    { id: "partial", name: t("Partial Day") },
+    { id: "multi", name: t("Multi-day") },
+  ];
   const timeOptions: OptionType[] = useMemo(
     () => times.map(t => ({ label: t.name, value: t.id })),
     [times]
   );
   const onChangeTimes = useCallback(
     (value /* OptionType[] */) => {
-      const ids: number[] = value
-        ? value.map((v: OptionType) => Number(v.value))
+      const ids: string[] = value
+        ? value.map((v: OptionType) => String(v.value))
         : [];
       updateFilters({ times: ids });
     },
@@ -42,7 +43,7 @@ export const TimeFilter: React.FC<Props> = props => {
           onChange={onChangeTimes}
           options={timeOptions}
           value={timeOptions.filter(
-            e => e.value && props.times.includes(Number(e.value))
+            e => e.value && props.times.includes(String(e.value))
           )}
           multi
         />

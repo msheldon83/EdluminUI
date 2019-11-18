@@ -1,5 +1,4 @@
 import { Isomorphism } from "@atomic-object/lenses";
-import { DayPart } from "graphql/server-types.gen";
 
 export const FilterQueryParamDefaults: SubHomeFilters = {
   orgs: "",
@@ -25,7 +24,7 @@ export type SubHomeQueryFilters = {
   orgs: number[];
   locations: number[];
   positionTypes: number[];
-  times: DayPart[];
+  times: string[];
 };
 
 export const FilterParams: Isomorphism<
@@ -51,7 +50,7 @@ const to = (o: SubHomeFilters): SubHomeQueryFilters => {
     positionTypes: stringToNumberArray(o.positionTypes),
     locations: stringToNumberArray(o.locations),
     orgs: stringToNumberArray(o.orgs),
-    times: o.times,
+    times: o.times.split(","),
   };
 };
 
@@ -64,5 +63,6 @@ const from = (o: SubHomeQueryFilters) => {
     orgs: o.orgs.join(","),
     locations: o.locations.join(","),
     positionTypes: o.positionTypes.join(","),
+    times: o.times.join(","),
   };
 };

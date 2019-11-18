@@ -2,11 +2,8 @@ import { Grid, InputLabel } from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { usePositionTypes } from "reference-data/position-types";
 import { OptionType, Select } from "ui/components/form/select";
-import { useRouteParams } from "ui/routes/definition";
-import { SubHomeRoute } from "ui/routes/sub-home";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
 import { useStyles } from "./index";
 
@@ -15,10 +12,8 @@ type Props = {
 } & SubHomeQueryFilters;
 
 export const PositionTypeFilter: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(SubHomeRoute);
-  const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
+  const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
   const positionTypes = usePositionTypes();
   const positionTypeOptions: OptionType[] = useMemo(
