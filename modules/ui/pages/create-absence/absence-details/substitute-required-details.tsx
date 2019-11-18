@@ -80,20 +80,13 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
       )}
 
       <div>
-        <>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              setStep("preAssignSub");
-            }}
-          >
-            {t("Pre-arrange")}
-          </Button>
+        <Button variant="outlined" onClick={() => setStep("preAssignSub")}>
+          {t("Pre-arrange")}
+        </Button>
 
-          <Button variant="outlined" onClick={() => setStep("edit")}>
-            {t("Edit")}
-          </Button>
-        </>
+        <Button variant="outlined" onClick={() => setStep("edit")}>
+          {t("Edit")}
+        </Button>
       </div>
     </>
   );
