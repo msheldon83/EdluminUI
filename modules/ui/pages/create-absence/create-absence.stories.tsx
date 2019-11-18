@@ -50,6 +50,7 @@ const basicReplacementEmployees = [
       id: "1",
       firstName: "Luke",
       lastName: "Skywalker",
+      phoneNumber: "3452346789",
     },
     visible: true,
     qualified: VacancyQualification.Fully,

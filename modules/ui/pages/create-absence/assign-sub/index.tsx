@@ -22,14 +22,9 @@ import {
   AccountCircleOutlined,
   Star,
   Check,
-  Info,
   Close,
   Visibility,
   VisibilityOff,
-  AccessTime,
-  SignalCellular1Bar,
-  SignalCellular3Bar,
-  SignalCellular4Bar,
 } from "@material-ui/icons";
 import { Column } from "material-table";
 import {
@@ -235,7 +230,7 @@ export const AssignSub: React.FC<Props> = props => {
       employeeId: r.employee.id,
       firstName: r.employee.firstName,
       lastName: r.employee.lastName,
-      primaryPhone: "123-134-3456",
+      primaryPhone: r.employee.phoneNumber,
       qualified: r.qualified,
       available: r.available,
       visible: r.visible,

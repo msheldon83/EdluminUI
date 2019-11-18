@@ -29,6 +29,7 @@ query GetReplacementEmployeesForVacancy(
           id
           firstName
           lastName
+          phoneNumber
         }
         visible
         visibleAtUtc
