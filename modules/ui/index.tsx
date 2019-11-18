@@ -2,17 +2,14 @@ import { CssBaseline } from "@material-ui/core";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { useAuth0 } from "auth/auth0";
 import * as React from "react";
-import { Route, Switch } from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 import { AppChrome } from "./app-chrome";
 import { IfAuthenticated } from "./components/auth/if-authenticated";
 import { RedirectToLogin } from "./components/auth/redirect-to-login";
 import { LoginPageRouteLoader } from "./pages/login/loader";
 import { IndexLoader } from "./routes";
-import {
-  AdminChromeRoute,
-  AppChromeRoute,
-  AdminRootChromeRoute,
-} from "./routes/app-chrome";
+import { AdminHomeLoader, AdminHomeRoute } from "./routes/admin-home";
+import { AdminRootChromeRoute, AppChromeRoute } from "./routes/app-chrome";
 import {
   BellScheduleAddLoader,
   BellScheduleAddRoute,
@@ -29,6 +26,7 @@ import {
   EmployeeCreateAbsenceRoute,
   SelectEmployeeForCreateAbsenceLoader,
 } from "./routes/create-absence";
+import { EmployeeHomeLoader, EmployeeHomeRoute } from "./routes/employee-home";
 import {
   OrganizationsLoader,
   OrganizationsRoute,
@@ -56,8 +54,6 @@ import {
   SubPreferencesRoute,
 } from "./routes/sub-preferences";
 import { SubScheduleLoader, SubScheduleRoute } from "./routes/sub-schedule";
-import { AdminHomeLoader, AdminHomeRoute } from "./routes/admin-home";
-import { EmployeeHomeLoader, EmployeeHomeRoute } from "./routes/employee-home";
 import { EdluminTheme } from "./styles/mui-theme";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -159,10 +155,17 @@ export function App(props: {}) {
                         component={BellScheduleLoader}
                         path={BellScheduleRoute.path}
                       />
+
                       <Route
                         component={AdminHomeLoader}
                         path={AdminHomeRoute.path}
+                        exact
                       />
+                      {/* This route handles unknown or underspecified routes and takes the
+                          admin to their organization (or a switcher) */}
+                      <Route path={AdminRootChromeRoute.path}>
+                        <Redirect to={AdminRootChromeRoute.generate({})} />
+                      </Route>
                     </Switch>
                   </Route>
                 </AppChrome>
