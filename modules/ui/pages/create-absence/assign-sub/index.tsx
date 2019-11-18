@@ -13,27 +13,11 @@ import {
   Typography,
   Divider,
   Button,
-  Tooltip,
   Grid,
   Collapse,
   Link,
 } from "@material-ui/core";
-import {
-  AccountCircleOutlined,
-  Star,
-  Check,
-  Close,
-  Visibility,
-  VisibilityOff,
-} from "@material-ui/icons";
-import { Column } from "material-table";
-import {
-  VacancyQualification,
-  VacancyAvailability,
-  AbsenceVacancyInput,
-  Vacancy,
-} from "graphql/server-types.gen";
-import { TFunction } from "i18next";
+import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
 import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
@@ -43,6 +27,7 @@ import { PaginationControls } from "ui/components/pagination-controls";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { VacancyDetails } from "../vacancy-details";
 import { convertStringToDate } from "helpers/date";
+import { getAssignSubColumns } from "./columns";
 
 type Props = {
   orgId: string;
@@ -55,73 +40,6 @@ type Props = {
   employeeName: string;
   positionId?: string;
   positionName?: string;
-};
-
-const getQualifiedIcon = (
-  qualified: VacancyQualification,
-  t: TFunction,
-  classes: any
-) => {
-  switch (qualified) {
-    case VacancyQualification.Fully:
-      return <img src={require("ui/icons/qualified-3.svg")} />;
-    case VacancyQualification.Minimally:
-      return <img src={require("ui/icons/qualified-1.svg")} />;
-    case VacancyQualification.NotQualified:
-      return <img src={require("ui/icons/not-qualified.svg")} />;
-  }
-};
-
-const getAvailableIcon = (
-  available: VacancyAvailability,
-  t: TFunction,
-  classes: any
-) => {
-  switch (available) {
-    case VacancyAvailability.Yes:
-      return <Check className={classes.available} />;
-    case VacancyAvailability.MinorConflict:
-      return (
-        <Tooltip title={t("Minor conflict")}>
-          <img src={require("ui/icons/check-info.svg")} />
-        </Tooltip>
-      );
-    case VacancyAvailability.No:
-      return <Close className={classes.notAvailable} />;
-  }
-};
-
-const getVisibleIcon = (
-  visible: boolean,
-  visibleOn?: Date | null | undefined,
-  t: TFunction,
-  classes: any
-) => {
-  if (visible) {
-    return <Visibility className={classes.icon} />;
-  }
-
-  if (!visibleOn) {
-    return <VisibilityOff className={classes.icon} />;
-  }
-
-  return (
-    <Tooltip title={`${t("Visible on")} ${visibleOn}`}>
-      <img src={require("ui/icons/visibility_time.svg")} />
-    </Tooltip>
-  );
-};
-
-const getFavoriteIcon = (
-  isEmployeeFavorite: boolean,
-  isLocationPositionTypeFavorite: boolean,
-  classes: any
-) => {
-  if (isEmployeeFavorite || isLocationPositionTypeFavorite) {
-    return <Star className={classes.icon} />;
-  }
-
-  return null;
 };
 
 const buildVacancyInput = (
@@ -241,109 +159,6 @@ export const AssignSub: React.FC<Props> = props => {
     }));
   }, [replacementEmployees]);
 
-  //TODO: Custom sort handling for Star column, Qualified, Available, Visible
-
-  const columns: Column<typeof tableData[0]>[] = [
-    {
-      title: t("Favorite"),
-      cellStyle: {
-        width: isMobile
-          ? theme.typography.pxToRem(40)
-          : theme.typography.pxToRem(70),
-        textAlign: "center",
-      },
-      headerStyle: {
-        textAlign: "center",
-      },
-      render: (data: typeof tableData[0]) =>
-        getFavoriteIcon(
-          data.isEmployeeFavorite,
-          data.isLocationPositionTypeFavorite,
-          classes
-        ),
-      sorting: false,
-    },
-    {
-      cellStyle: {
-        width: isMobile
-          ? theme.typography.pxToRem(40)
-          : theme.typography.pxToRem(70),
-      },
-      render: () => <AccountCircleOutlined />, // eslint-disable-line
-      sorting: false,
-    },
-    {
-      title: t("First name"),
-      field: "firstName",
-    },
-    {
-      title: t("Last name"),
-      field: "lastName",
-    },
-    { title: t("Primary phone"), field: "primaryPhone" },
-  ];
-
-  // Only Admins see the Qualified and Available columns
-  if (props.userIsAdmin) {
-    columns.push({
-      title: t("Qualified"),
-      field: "qualified",
-      render: (data: typeof tableData[0]) =>
-        getQualifiedIcon(data.qualified, t, classes),
-      cellStyle: {
-        textAlign: "center",
-      },
-      headerStyle: {
-        textAlign: "center",
-      },
-      sorting: false,
-    });
-    columns.push({
-      title: t("Available"),
-      field: "available",
-      render: (data: typeof tableData[0]) =>
-        getAvailableIcon(data.available, t, classes),
-      cellStyle: {
-        textAlign: "center",
-      },
-      headerStyle: {
-        textAlign: "center",
-      },
-      sorting: false,
-    });
-  }
-
-  columns.push({
-    title: t("Visible"),
-    field: "visible",
-    render: (data: typeof tableData[0]) =>
-      getVisibleIcon(data.visible, data.visibleOn, t, classes),
-    cellStyle: {
-      textAlign: "center",
-    },
-    headerStyle: {
-      textAlign: "center",
-    },
-    sorting: false,
-  });
-  columns.push({
-    title: "",
-    field: "actions",
-    sorting: false,
-    render: (data: typeof tableData[0]) => (
-      <Button
-        variant="outlined"
-        disabled={!data.selectable}
-        className={classes.selectButton}
-        onClick={() => {
-          console.log("Selecting Employee Id", data.employeeId);
-        }}
-      >
-        {t("Select")}
-      </Button>
-    ),
-  });
-
   const setSearch = (filters: ReplacementEmployeeFilters) => {
     updateSearch(filters);
   };
@@ -389,6 +204,19 @@ export const AssignSub: React.FC<Props> = props => {
   const pageHeader = props.vacancyId
     ? t("Assign Substitute")
     : `${t("Create Absence")}: ${t("Prearranging Substitute")}`;
+
+  const columns = useMemo(
+    () =>
+      getAssignSubColumns(
+        tableData,
+        props.userIsAdmin,
+        isMobile,
+        theme,
+        classes,
+        t
+      ),
+    []
+  );
 
   return (
     <>
@@ -442,15 +270,6 @@ const useStyles = makeStyles(theme => ({
   filters: {
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
-  },
-  available: {
-    color: theme.customColors.grass,
-  },
-  notAvailable: {
-    color: theme.customColors.tomato,
-  },
-  icon: {
-    color: "#9E9E9E",
   },
   selectButton: {
     color: theme.customColors.blue,
