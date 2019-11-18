@@ -14,6 +14,7 @@ import { IconButton } from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 import Popper from "@material-ui/core/Popper";
 import Fade from "@material-ui/core/Fade";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { Input } from "./input";
 import {
   isAfterDate,
@@ -68,11 +69,10 @@ export const DatePicker = (props: DatePickerProps) => {
     with a guarenteed value
   */
   const guaranteedStartDate = useGuaranteedPreviousDate(startDate);
-  const guaranteedEndDate = useGuaranteedPreviousDate(endDate);
-  let calendarDate = guaranteedStartDate;
+  let calendarDate = useGuaranteedPreviousDate(endDate);
 
   const [openCalendar, setOpenCalendar] = React.useState(false);
-  const [calenderWidth, setCalenderWidth] = React.useState<string | number>(
+  const [calendarWidth, setCalendarWidth] = React.useState<string | number>(
     "100%"
   );
 
@@ -81,7 +81,7 @@ export const DatePicker = (props: DatePickerProps) => {
   React.useLayoutEffect(() => {
     if (showCalendarOnFocus) {
       const width = startDateInputRef.current.getBoundingClientRect().width;
-      setCalenderWidth(width);
+      setCalendarWidth(width);
     }
   }, [startDateInputRef, showCalendarOnFocus]);
 
@@ -285,7 +285,7 @@ export const DatePicker = (props: DatePickerProps) => {
       : handleCalendarDateRangeChange(date);
   };
 
-  const renderCalender = () => {
+  const renderCalendar = () => {
     // This should look like it's floating it's a dropdown style
     const elevation = showCalendarOnFocus ? 2 : 0;
 
@@ -299,7 +299,7 @@ export const DatePicker = (props: DatePickerProps) => {
         elevation={elevation}
         square
         className={className}
-        style={{ width: calenderWidth }}
+        style={{ width: calendarWidth }}
       >
         <Calendar
           date={calendarDate}
@@ -323,7 +323,14 @@ export const DatePicker = (props: DatePickerProps) => {
       >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={150}>
-            {renderCalender()}
+            <div>
+              <ClickAwayListener
+                mouseEvent="onMouseDown"
+                onClickAway={() => setOpenCalendar(false)}
+              >
+                {renderCalendar()}
+              </ClickAwayListener>
+            </div>
           </Fade>
         )}
       </Popper>
@@ -337,11 +344,6 @@ export const DatePicker = (props: DatePickerProps) => {
       setOpenCalendar(true);
     }
   };
-
-  /*
-    TODO:
-      * shouldDisableDate - disable days (if necessary)
-  */
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -374,7 +376,7 @@ export const DatePicker = (props: DatePickerProps) => {
             </div>
           )}
         </div>
-        {showCalendarOnFocus ? renderPopoverCalendar() : renderCalender()}
+        {showCalendarOnFocus ? renderPopoverCalendar() : renderCalendar()}
       </div>
     </MuiPickersUtilsProvider>
   );
