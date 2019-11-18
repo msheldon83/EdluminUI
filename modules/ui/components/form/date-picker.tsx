@@ -21,6 +21,7 @@ import {
   formatDateIfPossible,
   areDatesEqual,
   inDateInterval,
+  PolymorphicDateType,
 } from "../../../helpers/date";
 import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previous-date";
 
@@ -75,6 +76,7 @@ export const DatePicker = (props: DatePickerProps) => {
   const [calendarWidth, setCalendarWidth] = React.useState<string | number>(
     "100%"
   );
+  const [dateHover, setDateHover] = React.useState<PolymorphicDateType>();
 
   // Calculate width of input for calendar width
   const startDateInputRef = React.useRef(document.createElement("div"));
@@ -132,11 +134,24 @@ export const DatePicker = (props: DatePickerProps) => {
     const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
     const isDisabled = isDateDisabled(day);
 
+    /*
+      Used to highlight a date that is between the start date and the date that has the
+      mouse over it
+    */
+    const dayIsBetweenHoverFocus =
+      dateHover !== null &&
+      isAfterDate(dateHover, start) &&
+      inDateInterval(day, { start, end: dateHover });
+    const dayIsHoverFocus =
+      dayIsBetweenHoverFocus && areDatesEqual(dateHover, day);
+
     const wrapperClassName = clsx({
       [classes.highlight]: dayIsBetween && !isDisabled,
       [classes.firstHighlight]: isFirstDay,
       [classes.endHighlight]: isLastDay,
       [classes.dayWrapper]: true,
+      [classes.dateHoverFocus]: dayIsHoverFocus,
+      [classes.dateHoverBetween]: dayIsBetweenHoverFocus,
     });
 
     const dayClassName = clsx(classes.day, {
@@ -164,6 +179,8 @@ export const DatePicker = (props: DatePickerProps) => {
         className={wrapperClassName}
         onClick={handleDayClick}
         onKeyPress={handleDayClick}
+        onMouseEnter={() => setDateHover(day)}
+        onMouseLeave={() => setDateHover(undefined)}
       >
         <IconButton className={dayClassName} disableRipple>
           <span> {format(day, "d")} </span>
@@ -440,7 +457,6 @@ const useStyles = makeStyles(theme => ({
     left: "2px",
     right: "2px",
     border: `1px solid ${theme.palette.secondary.main}`,
-    borderRadius: "50%",
   },
   nonCurrentMonthDay: {
     color: theme.palette.text.disabled,
@@ -468,14 +484,27 @@ const useStyles = makeStyles(theme => ({
     },
   },
   firstHighlight: {
-    extend: "highlight",
     background: theme.palette.primary.main,
     color: theme.palette.common.white,
     borderTopLeftRadius: theme.typography.pxToRem(4),
     borderBottomLeftRadius: theme.typography.pxToRem(4),
   },
   endHighlight: {
-    extend: "highlight",
+    background: theme.palette.primary.main,
+    color: theme.palette.common.white,
+    borderTopRightRadius: theme.typography.pxToRem(4),
+    borderBottomRightRadius: theme.typography.pxToRem(4),
+  },
+  dateHoverBetween: {
+    background: theme.palette.primary.main,
+    color: theme.palette.common.white,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+    "&:hover": {
+      color: theme.palette.common.white,
+    },
+  },
+  dateHoverFocus: {
     background: theme.palette.primary.main,
     color: theme.palette.common.white,
     borderTopRightRadius: theme.typography.pxToRem(4),
