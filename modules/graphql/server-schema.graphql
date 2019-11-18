@@ -72,7 +72,6 @@ type AbsenceMutations {
   create(absence: AbsenceCreateInput!): Absence
   update(absence: AbsenceUpdateInput!): Absence
   delete(absenceId: Int!): Boolean
-  createWithoutSave(absence: AbsenceCreateInput!): Absence
 }
 
 type AbsenceQueries {
@@ -81,6 +80,7 @@ type AbsenceQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
   projectedVacancies(absence: AbsenceCreateInput!): [Vacancy]
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancies: [AbsenceVacancyInput], name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean): PagedReplacementEmployeeAvailability
+  projectedAbsence(absence: AbsenceCreateInput!): Absence
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -3268,6 +3268,7 @@ type ReplacementEmployeeAvailability {
   visibleAtUtc: DateTime
   isEmployeeFavorite: Boolean!
   isLocationPositionTypeFavorite: Boolean!
+  isSelectable: Boolean!
 }
 
 type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
