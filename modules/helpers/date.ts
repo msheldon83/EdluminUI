@@ -4,6 +4,7 @@ import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import isWithinInterval from "date-fns/isWithinInterval";
 import isEqual from "date-fns/isEqual";
+import { differenceInDays, addDays, isDate } from "date-fns";
 
 export type PolymorphicDate = Date | string | undefined;
 
@@ -90,4 +91,57 @@ export const inDateInterval = (
   }
 
   return isWithinInterval(day, { start, end });
+};
+
+export const getDaysInDateRange = (startDate: Date, endDate: Date): Date[] => {
+  const days = differenceInDays(endDate, startDate);
+  if (isNaN(days) || days < 0) {
+    return [];
+  }
+
+  return [...Array(days + 1).keys()].map(i => addDays(startDate, i));
+};
+
+export const getDateRangeDisplayText = (
+  startDate: Date | null,
+  endDate: Date | null
+): string | null => {
+  if (!startDate || !endDate) {
+    return null;
+  }
+
+  // Same date
+  if (
+    startDate.getDay() === endDate.getDay() &&
+    startDate.getMonth() === endDate.getMonth() &&
+    startDate.getFullYear() === endDate.getFullYear()
+  ) {
+    return format(startDate, "MMMM d, yyyy");
+  }
+
+  // Same Month
+  if (startDate.getMonth() === endDate.getMonth()) {
+    return `${format(startDate, "MMMM d")}-${format(endDate, "d, yyyy")}`;
+  }
+
+  // Different years
+  if (startDate.getFullYear() !== endDate.getFullYear()) {
+    return `${format(startDate, "MMMM d, yyyy")} - ${format(
+      endDate,
+      "MMMM d, yyyy"
+    )}`;
+  }
+
+  // Default case
+  return `${format(startDate, "MMMM d")} - ${format(endDate, "MMMM d, yyyy")}`;
+};
+
+export const convertStringToDate = (dateString: string): Date | null => {
+  const convertedDate = new Date(dateString);
+
+  if (convertedDate && isDate(convertedDate) && isValid(convertedDate)) {
+    return convertedDate;
+  }
+
+  return null;
 };

@@ -47,6 +47,8 @@ type Props<T extends object> = {
    */
   onIncludeExpiredChange?: (checked: boolean) => void;
   expiredRowCheck?: (rowData: T) => boolean;
+  style?: React.CSSProperties;
+  backgroundFillForAlternatingRows?: boolean;
 } & Pick<MaterialTableProps<T>, "options" | "columns" | "actions">;
 
 /* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
@@ -106,6 +108,7 @@ export function Table<T extends object>(props: Props<T>) {
   const showIncludeExpiredSetting = props.showIncludeExpired;
   const onIncludeExpiredChangeFunc = props.onIncludeExpiredChange;
   const expiredRowCheckFunc = props.expiredRowCheck;
+  const styleAlternatingRows = props.backgroundFillForAlternatingRows;
 
   return (
     <MaterialTable
@@ -122,12 +125,20 @@ export function Table<T extends object>(props: Props<T>) {
         pageSizeOptions: [10, 25, 50, 100],
         ...props.options,
       }}
+      style={props.style}
       actions={props.actions}
       components={{
         Row: props => {
           if (expiredRowCheckFunc && expiredRowCheckFunc(props.data)) {
             return <MTableBodyRow className={classes.inactiveRow} {...props} />;
           }
+
+          if (styleAlternatingRows && props.index % 2 === 1) {
+            return (
+              <MTableBodyRow className={classes.alternatingRow} {...props} />
+            );
+          }
+
           return <MTableBodyRow {...props} />;
         },
         Toolbar: props => (
@@ -172,5 +183,10 @@ const useStyles = makeStyles(theme => ({
   },
   inactiveRow: {
     color: theme.customColors.gray,
+  },
+  alternatingRow: {
+    background: theme.customColors.lightGray,
+    borderTop: `1px solid ${theme.customColors.medLightGray}`,
+    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
 }));

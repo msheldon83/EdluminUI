@@ -2,7 +2,13 @@ import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { startOfMonth } from "date-fns";
 import { useForm } from "forms";
-import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
+import { useQueryBundle } from "graphql/hooks";
+import {
+  DayPart,
+  NeedsReplacement,
+  Vacancy,
+  AbsenceCreateInput,
+} from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +16,12 @@ import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
+import { AssignSub } from "./assign-sub/index";
+import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
+import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
+import { format, isValid, isDate } from "date-fns";
+import { getDaysInDateRange } from "helpers/date";
+import { useHistory } from "react-router";
 
 type Props = {
   firstName: string;
@@ -20,11 +32,64 @@ type Props = {
   needsReplacement: NeedsReplacement;
   userIsAdmin: boolean;
   positionId?: string;
+  positionName?: string;
+};
+
+const buildInputForProjectedVacancies = (
+  values: Partial<FormData>,
+  orgId: number,
+  employeeId: number
+): AbsenceCreateInput | null => {
+  // TODO: these should come from the Employee's schedule
+  const startTime = "08:00 AM";
+  const endTime = "12:00 PM";
+
+  if (!values.startDate || !values.endDate) {
+    return null;
+  }
+
+  const startDate =
+    typeof values.startDate === "string"
+      ? new Date(values.startDate)
+      : values.startDate;
+  const endDate =
+    typeof values.endDate === "string"
+      ? new Date(values.endDate)
+      : values.endDate;
+
+  if (
+    !isDate(startDate) ||
+    !isValid(startDate) ||
+    !isDate(endDate) ||
+    !isValid(endDate)
+  ) {
+    return null;
+  }
+
+  const allDays = getDaysInDateRange(startDate, endDate);
+
+  if (!allDays.length) {
+    return null;
+  }
+
+  return {
+    orgId,
+    employeeId,
+    details: allDays.map(d => {
+      return {
+        date: format(d, "P"),
+        startTime: secondsSinceMidnight(parseTimeFromString(startTime)),
+        endTime: secondsSinceMidnight(parseTimeFromString(endTime)),
+        dayPartId: values.dayPart ?? DayPart.FullDay,
+      };
+    }),
+  };
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const history = useHistory();
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -59,34 +124,76 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
 
+  const formValues = getValues();
+  const projectedVacanciesInput = buildInputForProjectedVacancies(
+    formValues,
+    Number(props.organizationId),
+    Number(props.employeeId)
+  );
+  const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
+    variables: {
+      absence: projectedVacanciesInput,
+    },
+    skip: projectedVacanciesInput === null,
+  });
+
+  const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
+  getProjectedVacancies.state === "UPDATING"
+    ? []
+    : getProjectedVacancies.data?.absence?.projectedVacancies ?? []) as Pick<
+    Vacancy,
+    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
+  >[];
+
   const name = `${props.firstName} ${props.lastName}`;
+
+  const params = new URLSearchParams(history.location.search);
+  if (!params.has("action") && state.step !== "absence") {
+    dispatch({
+      action: "switchStep",
+      step: "absence",
+    });
+  }
 
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
-      {props.actingAsEmployee ? (
-        <Typography variant="h1">{t("Create absence")}</Typography>
-      ) : (
-        <>
-          <Typography variant="h5">{t("Create absence")}</Typography>
-          <Typography variant="h1">{name}</Typography>
-        </>
-      )}
 
       {/* {JSON.stringify(getValues())} */}
 
       <form onSubmit={handleSubmit((data, e) => console.log(data))}>
         {state.step === "absence" && (
-          <Section className={classes.absenceDetails}>
-            <AbsenceDetails
-              state={state}
-              dispatch={dispatch}
-              setValue={setValue}
-              values={getValues()}
-              isAdmin={props.userIsAdmin}
-              needsReplacement={props.needsReplacement}
-            />
-          </Section>
+          <>
+            {props.actingAsEmployee ? (
+              <Typography variant="h1">{t("Create absence")}</Typography>
+            ) : (
+              <>
+                <Typography variant="h5">{t("Create absence")}</Typography>
+                <Typography variant="h1">{name}</Typography>
+              </>
+            )}
+            <Section className={classes.absenceDetails}>
+              <AbsenceDetails
+                state={state}
+                dispatch={dispatch}
+                setValue={setValue}
+                values={getValues()}
+                isAdmin={props.userIsAdmin}
+                needsReplacement={props.needsReplacement}
+                vacancies={projectedVacancies}
+              />
+            </Section>
+          </>
+        )}
+        {state.step === "assignSub" && (
+          <AssignSub
+            orgId={props.organizationId}
+            userIsAdmin={props.userIsAdmin}
+            employeeName={name}
+            positionId={props.positionId}
+            positionName={props.positionName}
+            vacancies={projectedVacancies}
+          />
         )}
       </form>
     </>
@@ -117,4 +224,5 @@ export type FormData = {
   notesToApprover?: string;
   notesToReplacement?: string;
   needsReplacement: boolean;
+  replacementEmployeeId?: number;
 };
