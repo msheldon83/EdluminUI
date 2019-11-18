@@ -31,7 +31,6 @@ import {
   SignalCellular3Bar,
   SignalCellular4Bar,
 } from "@material-ui/icons";
-import CheckInfoIcon from "./check-info.svg";
 import { Column } from "material-table";
 import {
   VacancyQualification,
@@ -70,15 +69,11 @@ const getQualifiedIcon = (
 ) => {
   switch (qualified) {
     case VacancyQualification.Fully:
-      return <SignalCellular4Bar className={classes.icon} />;
+      return <img src={require("ui/icons/qualified-3.svg")} />;
     case VacancyQualification.Minimally:
-      return (
-        <Tooltip title={t("Minimally qualified")}>
-          <SignalCellular3Bar className={classes.icon} />
-        </Tooltip>
-      );
+      return <img src={require("ui/icons/qualified-1.svg")} />;
     case VacancyQualification.NotQualified:
-      return <Close className={classes.icon} />;
+      return <img src={require("ui/icons/not-qualified.svg")} />;
   }
 };
 
@@ -93,10 +88,7 @@ const getAvailableIcon = (
     case VacancyAvailability.MinorConflict:
       return (
         <Tooltip title={t("Minor conflict")}>
-          <div>
-            <Check className={classes.available} />
-            <Info className={classes.icon} />
-          </div>
+          <img src={require("ui/icons/check-info.svg")} />
         </Tooltip>
       );
     case VacancyAvailability.No:
@@ -118,13 +110,9 @@ const getVisibleIcon = (
     return <VisibilityOff className={classes.icon} />;
   }
 
-  // TODO: Add a tooltip to show when this will be visible to the Sub
   return (
     <Tooltip title={`${t("Visible on")} ${visibleOn}`}>
-      <div>
-        <VisibilityOff className={classes.icon} />
-        <AccessTime className={classes.icon} />
-      </div>
+      <img src={require("ui/icons/visibility_time.svg")} />
     </Tooltip>
   );
 };
@@ -352,6 +340,7 @@ export const AssignSub: React.FC<Props> = props => {
       <Button
         variant="outlined"
         disabled={!data.selectable}
+        className={classes.selectButton}
         onClick={() => {
           console.log("Selecting Employee Id", data.employeeId);
         }}
@@ -467,6 +456,9 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.tomato,
   },
   icon: {
-    color: theme.customColors.gray,
+    color: "#9E9E9E",
+  },
+  selectButton: {
+    color: theme.customColors.blue,
   },
 }));
