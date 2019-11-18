@@ -3,7 +3,6 @@ import { makeStyles, Select, MenuItem } from "@material-ui/core";
 import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { AppChromeRoute } from "ui/routes/app-chrome";
-import { useScreenSize } from "hooks/index";
 import { useHistory } from "react-router";
 import { useCallback } from "react";
 
@@ -13,19 +12,12 @@ type Props = {
   expanded: boolean;
 };
 
-type RoleProps = {
-  title: string;
-  route: string;
-  onClick: string;
-};
-
 export const RoleSwitcherUI: React.FC<Props> = props => {
   const classes = useStyles();
   const selectClasses = useSelectStyles();
   const selectMenuClasses = useSelectMenuStyles();
 
   const history = useHistory();
-  const isMobile = useScreenSize() === "mobile";
   const icon = props.expanded ? ArrowDropDownIcon : AccountBoxIcon;
 
   const onChange = useCallback(
@@ -46,7 +38,6 @@ export const RoleSwitcherUI: React.FC<Props> = props => {
     <Select
       disableUnderline={true}
       IconComponent={icon}
-      native={isMobile}
       className={[classes.select, classes.font].join(" ")}
       value={props.selectedRole}
       onChange={onChange}
