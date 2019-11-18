@@ -31,6 +31,7 @@ import {
   SignalCellular3Bar,
   SignalCellular4Bar,
 } from "@material-ui/icons";
+import CheckInfoIcon from "./check-info.svg";
 import { Column } from "material-table";
 import {
   VacancyQualification,
@@ -70,7 +71,6 @@ const getQualifiedIcon = (
   switch (qualified) {
     case VacancyQualification.Fully:
       return <SignalCellular4Bar className={classes.icon} />;
-    // TODO: This has to be distinguished from FULLY with a different icon
     case VacancyQualification.Minimally:
       return (
         <Tooltip title={t("Minimally qualified")}>
@@ -78,7 +78,7 @@ const getQualifiedIcon = (
         </Tooltip>
       );
     case VacancyQualification.NotQualified:
-      return <SignalCellular1Bar className={classes.icon} />;
+      return <Close className={classes.icon} />;
   }
 };
 
