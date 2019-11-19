@@ -7,10 +7,6 @@ export const OrganizationsRoute = defineSubRoute(
   AdminChromeRoute,
   "/organizations"
 );
-export const OrganizationsNoOrgRoute = defineSubRoute(
-  AppChromeRoute,
-  "/organizations"
-);
 
 export const OrganizationsLoader = asyncComponent({
   resolve: async () => {

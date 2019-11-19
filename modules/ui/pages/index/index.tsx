@@ -1,12 +1,12 @@
+import { useQueryBundle } from "graphql/hooks";
+import { some } from "lodash-es";
 import * as React from "react";
 import { Redirect } from "react-router-dom";
 import { QueryOrgUserRoles } from "ui/app-chrome/role-switcher/QueryOrgUserRoles.gen";
-import { useQueryBundle } from "graphql/hooks";
-import { some } from "lodash-es";
-import { SubHomeRoute } from "ui/routes/sub-home";
-import { OrganizationsNoOrgRoute } from "ui/routes/organizations";
 import { AdminHomeRoute } from "ui/routes/admin-home";
+import { AdminRootChromeRoute } from "ui/routes/app-chrome";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
+import { SubHomeRoute } from "ui/routes/sub-home";
 
 export const IndexPage: React.FunctionComponent = props => {
   const orgUserQuery = useQueryBundle(QueryOrgUserRoles, {
@@ -48,7 +48,7 @@ export const IndexPage: React.FunctionComponent = props => {
   return (
     <>
       {roles.isSystemAdministrator || (roles.isAdmin && roles.multiOrgs) ? (
-        <Redirect to={OrganizationsNoOrgRoute.generate({ role: "admin" })} />
+        <Redirect to={AdminRootChromeRoute.generate({})} />
       ) : roles.isAdmin && !roles.multiOrgs ? (
         <Redirect
           to={AdminHomeRoute.generate({
