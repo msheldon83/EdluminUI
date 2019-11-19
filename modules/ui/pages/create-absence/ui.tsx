@@ -183,14 +183,22 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       employeeId: Number(state.employeeId),
       notesToApprover: formValues.notesToApprover,
       details: dates.map(d => {
-        return {
-          date: d,
+        let detail: AbsenceDetailCreateInput = {
+          date: format(d, "P"),
           dayPartId: formValues.dayPart,
-          //HOURLY
-          //startTime:
-          //endTime:
           reasons: [{ absenceReasonId: Number(formValues.absenceReason) }],
         };
+
+        if (formValues.dayPart === DayPart.Hourly) {
+          //TODO: provide a way to specify start and end time in the UI when Hourly
+          detail = {
+            ...detail,
+            startTime: "",
+            endTime: "",
+          };
+        }
+
+        return detail;
       }),
       vacancies: [
         {
