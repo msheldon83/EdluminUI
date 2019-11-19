@@ -143,6 +143,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
+  register({ name: "replacementEmployeeId", type: "custom" });
+  register({ name: "replacementEmployeeName", type: "custom" });
 
   const formValues = getValues();
   const projectedVacanciesInput = buildInputForProjectedVacancies(
@@ -175,6 +177,23 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     });
   }
 
+  const selectReplacementEmployee = async (
+    replacementEmployeeId: number,
+    name: string
+  ) => {
+    await setValue("replacementEmployeeId", replacementEmployeeId);
+    await setValue("replacementEmployeeName", name);
+
+    history.push({
+      ...history.location,
+      search: "",
+    });
+    dispatch({
+      action: "switchStep",
+      step: "absence",
+    });
+  };
+
   const create = async (dates: Date[]) => {
     const formValues = getValues();
     const positionId = props.positionId ? Number(props.positionId) : 0;
@@ -205,7 +224,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           positionId: positionId,
           needsReplacement: formValues.needsReplacement,
           notesToReplacement: formValues.notesToReplacement,
-          //prearrangedReplacementEmployeeId
+          prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
         },
       ],
     };
@@ -260,6 +279,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             positionId={props.positionId}
             positionName={props.positionName}
             vacancies={projectedVacancies}
+            selectReplacementEmployee={selectReplacementEmployee}
           />
         )}
       </form>
@@ -292,4 +312,5 @@ export type FormData = {
   notesToReplacement?: string;
   needsReplacement: boolean;
   replacementEmployeeId?: number;
+  replacementEmployeeName?: string;
 };

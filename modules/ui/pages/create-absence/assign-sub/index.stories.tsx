@@ -110,6 +110,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
+        selectReplacementEmployee={() => Promise.resolve()}
         vacancies={[
           {
             startTimeLocal: new Date("11/1/2019 08:00 AM"),
@@ -279,6 +280,7 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
+        selectReplacementEmployee={() => Promise.resolve()}
         vacancies={[
           {
             startTimeLocal: new Date("11/1/2019 08:00 AM"),
@@ -327,6 +329,7 @@ export const PrearrangeSubAsAdmin = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
+        selectReplacementEmployee={() => Promise.resolve()}
         vacancies={[
           {
             startTimeLocal: new Date("11/1/2019 08:00 AM"),
@@ -375,6 +378,7 @@ export const PrearrangeSubAsEmployee = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
+        selectReplacementEmployee={() => Promise.resolve()}
         vacancies={[
           {
             startTimeLocal: new Date("11/1/2019 08:00 AM"),
