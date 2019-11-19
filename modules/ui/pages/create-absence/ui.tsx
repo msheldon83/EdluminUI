@@ -272,7 +272,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       <form
         onSubmit={handleSubmit(async (data, e) => {
           const absence = await create(data);
-          console.log(absence);
           if (absence) {
             setAbsence(absence);
             history.push({
