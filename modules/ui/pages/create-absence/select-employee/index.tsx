@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import { usePagedQueryBundle } from "graphql/hooks";
-import { useDeferredState } from "hooks";
+import { useDeferredState, useIsMobile } from "hooks";
 import { useQueryParams } from "hooks/query-params";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
@@ -33,6 +33,7 @@ type Row = {
 export const SelectEmployee: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const isMobile = useIsMobile();
 
   const { organizationId } = useRouteParams(
     AdminSelectEmployeeForCreateAbsenceRoute

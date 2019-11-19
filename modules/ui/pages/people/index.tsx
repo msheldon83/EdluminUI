@@ -4,7 +4,8 @@ import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { OrgUserRole } from "graphql/server-types.gen";
-import { usePrevious, useScreenSize } from "hooks";
+import Maybe from "graphql/tsutils/Maybe";
+import { useIsMobile, usePrevious } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import { compact, isEqual } from "lodash-es";
 import { Column } from "material-table";
@@ -19,8 +20,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
-import { FilterQueryParams, FilterRole } from "./people-filters/filter-params";
-import Maybe from "graphql/tsutils/Maybe";
+import { FilterQueryParams } from "./people-filters/filter-params";
 
 type Props = {};
 
@@ -30,7 +30,7 @@ export const PeoplePage: React.FC<Props> = props => {
   const params = useRouteParams(PeopleRoute);
   const theme = useTheme();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
 
   const [filters] = useQueryParamIso(FilterQueryParams);
   const role: OrgUserRole[] = compact([filters.roleFilter]);

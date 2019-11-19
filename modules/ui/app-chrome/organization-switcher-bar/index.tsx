@@ -1,19 +1,19 @@
 import { useQueryBundle } from "graphql/hooks";
-import { useScreenSize } from "hooks";
+import { useIsMobile } from "hooks";
 import * as React from "react";
+import { useHistory } from "react-router";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
 import { OrganizationsRoute } from "ui/routes/organizations";
+import { useIsSystemAdminOrAdminInMultipleOrgs } from "../hooks";
+import { GetOrganizationName } from "./GetOrganizationName.gen";
 import { MobileOrganizationSwitcherBarUI } from "./mobile-organizations-switcher-bar-ui";
 import { OrganizationSwitcherBarUI } from "./organizations-switcher-bar-ui";
-import { GetOrganizationName } from "./GetOrganizationName.gen";
-import { useHistory } from "react-router";
-import { useIsSystemAdminOrAdminInMultipleOrgs } from "../hooks";
 
 type Props = { contentClassName?: string };
 
 export const OrganizationSwitcherBar: React.FC<Props> = props => {
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const params = useRouteParams(AdminChromeRoute);
   const history = useHistory();
   let show = useIsSystemAdminOrAdminInMultipleOrgs();
@@ -33,9 +33,9 @@ export const OrganizationSwitcherBar: React.FC<Props> = props => {
   if (
     !show ||
     currentOrg.state === "LOADING" ||
-      !currentOrg.data.organization ||
-      !currentOrg.data.organization.byId ||
-      !currentOrg.data.organization.byId.name
+    !currentOrg.data.organization ||
+    !currentOrg.data.organization.byId ||
+    !currentOrg.data.organization.byId.name
   ) {
     return <></>;
   }
