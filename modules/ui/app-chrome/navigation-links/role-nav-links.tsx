@@ -130,7 +130,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           />
           <ConfigurationNavLink
             onClick={props.onClick}
-            route={adminTbd.generate(params)}
+            route={ConfigurationRoute.generate(params)}
           />
           <SecurityNavLink
             onClick={props.onClick}

@@ -19,6 +19,7 @@ import {
   DayPart,
   FeatureFlag,
   NeedsReplacement,
+  Vacancy,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useMemo, useState } from "react";
@@ -38,6 +39,8 @@ import {
 } from "./graphql/get-contract-schedule.gen";
 import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
+import { VacancyDetails } from "./vacancy-details";
+import { useHistory } from "react-router";
 
 type Props = {
   state: CreateAbsenceState;
@@ -46,12 +49,17 @@ type Props = {
   values: FormData;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
+  vacancies: Pick<
+    Vacancy,
+    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
+  >[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
+  const history = useHistory();
   const {
     state,
     setValue,
@@ -232,6 +240,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
               </Typography>
             )}
 
+            {values.needsReplacement && (
+              <VacancyDetails vacancies={props.vacancies} equalWidthDetails />
+            )}
+
             {showNotesForReplacement && (
               <div className={classes.notesForReplacement}>
                 <Typography variant="h6">
@@ -259,6 +271,26 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 />
               </div>
             )}
+
+            <div>
+              {values.needsReplacement && (
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    history.push({
+                      ...history.location,
+                      search: "?action=assign",
+                    });
+                    props.dispatch({
+                      action: "switchStep",
+                      step: "assignSub",
+                    });
+                  }}
+                >
+                  {t("Pre-arrange")}
+                </Button>
+              )}
+            </div>
           </div>
         </Paper>
       </Grid>

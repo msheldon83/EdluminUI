@@ -36,12 +36,12 @@ export const midnightTime = (): Date => {
   return startTime;
 };
 
-export const secondsSinceMidnight = (time: string): number => {
+export const secondsSinceMidnight = (time: string | number): number => {
   const currentTime = +new Date(time);
   const midnight = +midnightTime();
   const seconds = (currentTime - midnight) / 1000;
   return seconds;
-}
+};
 
 /*
   This algorithm is a bunch of ideas I found from libraries and aroudn the internet

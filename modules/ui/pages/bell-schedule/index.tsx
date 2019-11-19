@@ -10,7 +10,11 @@ import { Link } from "react-router-dom";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { Column } from "material-table";
-import { BellScheduleRoute, BellScheduleAddRoute, BellScheduleViewRoute } from "ui/routes/bell-schedule";
+import {
+  BellScheduleRoute,
+  BellScheduleAddRoute,
+  BellScheduleViewRoute,
+} from "ui/routes/bell-schedule";
 import { makeStyles, Grid, Button } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useScreenSize } from "hooks";
@@ -49,7 +53,7 @@ export const BellSchedulePage: React.FC<{}> = props => {
     } else {
       await Promise.resolve(deleteWorkDaySchedule(data.id));
     }
-    getWorkDaySchedules.refetch();
+    await getWorkDaySchedules.refetch();
   };
 
   if (
@@ -153,8 +157,8 @@ export const BellSchedulePage: React.FC<{}> = props => {
           {
             tooltip: `${t("Delete selected bell schedules")}`,
             icon: () => <DeleteOutline /> /* eslint-disable-line */, // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
-            onClick: (event, data) => {
-              deleteSelected(data);
+            onClick: async (event, data) => {
+              await deleteSelected(data);
             },
           },
         ]}

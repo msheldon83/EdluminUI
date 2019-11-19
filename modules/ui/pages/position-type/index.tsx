@@ -45,7 +45,7 @@ export const PositionTypePage: React.FC<{}> = props => {
     } else {
       await Promise.resolve(deletePositionType(data.id));
     }
-    getPositionTypes.refetch();
+    await getPositionTypes.refetch();
   };
 
   const columns: Column<GetAllPositionTypesWithinOrg.All>[] = [
@@ -141,8 +141,8 @@ export const PositionTypePage: React.FC<{}> = props => {
           {
             tooltip: `${t("Delete selected position types")}`,
             icon: () => <DeleteOutline /> /* eslint-disable-line */, // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
-            onClick: (event, data) => {
-              deleteSelected(data);
+            onClick: async (event, data) => {
+              await deleteSelected(data);
             },
           },
         ]}

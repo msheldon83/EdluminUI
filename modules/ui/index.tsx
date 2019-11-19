@@ -47,6 +47,7 @@ import {
   PositionTypeViewLoader,
   PositionTypeViewRoute,
 } from "./routes/position-type";
+import { ConfigurationRoute, ConfigurationLoader } from "./routes/org-config";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
 import {
@@ -127,6 +128,10 @@ export function App(props: {}) {
                         path={PersonViewRoute.path}
                       />
                       <Route component={PeopleLoader} path={PeopleRoute.path} />
+                      <Route
+                        component={ConfigurationLoader}
+                        path={ConfigurationRoute.path}
+                      />
                       <Route
                         component={PositionTypeAddLoader}
                         path={PositionTypeAddRoute.path}

@@ -7,11 +7,63 @@ import {
 } from "ui/routes/create-absence";
 import { Route } from "react-router";
 import { CreateAbsenceUI } from "./ui";
-import { NeedsReplacement, CalendarDayType } from "graphql/server-types.gen";
+import {
+  NeedsReplacement,
+  VacancyAvailability,
+  VacancyQualification,
+  CalendarDayType,
+} from "graphql/server-types.gen";
 
 export default {
   title: "Pages/Create Absence",
 };
+
+const basicProjectedVacancies = [
+  {
+    endTimeLocal: "2019-11-18T12:00:00" as any,
+    numDays: 2,
+    positionId: 1057,
+    startTimeLocal: "2019-11-15T08:30:00" as any,
+    details: [
+      {
+        endTimeLocal: "2019-11-15T12:00:00" as any,
+        location: {
+          name: "Haven Elementary School",
+        },
+        locationId: 1013,
+        startTimeLocal: "2019-11-15T08:30:00" as any,
+      },
+      {
+        endTimeLocal: "2019-11-18T12:00:00" as any,
+        location: {
+          name: "Haven Elementary School",
+        },
+        locationId: 1013,
+        startTimeLocal: "2019-11-18T08:30:00" as any,
+      },
+    ],
+  },
+];
+const basicReplacementEmployees = [
+  {
+    employee: {
+      id: "1",
+      firstName: "Luke",
+      lastName: "Skywalker",
+      phoneNumber: "3452346789",
+    },
+    visible: true,
+    qualified: VacancyQualification.Fully,
+    qualifiedAtUtc: "1/1/2019" as any,
+    qualifiedAtLocal: "1/1/2019" as any,
+    available: VacancyAvailability.Yes,
+    visibleAtUtc: "1/1/2019" as any,
+    visibleAtLocal: "1/1/2019" as any,
+    isEmployeeFavorite: true,
+    isLocationPositionTypeFavorite: false,
+    isSelectable: true,
+  },
+];
 
 export const AsAdmin = () => {
   const path = AdminCreateAbsenceRoute.generate({
@@ -22,6 +74,13 @@ export const AsAdmin = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        absence: () => ({
+          projectedVacancies: basicProjectedVacancies,
+          replacementEmployeesForVacancy: {
+            totalCount: basicReplacementEmployees.length,
+            results: basicReplacementEmployees,
+          },
+        }),
         employee: () => ({
           employeeContractSchedule: () => [],
           employeeAbsenceSchedule: () => [],
@@ -39,6 +98,8 @@ export const AsAdmin = () => {
           organizationId="124"
           userIsAdmin
           needsReplacement={NeedsReplacement.Yes}
+          positionName="Math Teacher"
+          positionId={"1"}
         />
       </Route>
     </Provider>
@@ -51,6 +112,13 @@ export const AsEmployee = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        absence: () => ({
+          projectedVacancies: basicProjectedVacancies,
+          replacementEmployeesForVacancy: {
+            totalCount: basicReplacementEmployees.length,
+            results: basicReplacementEmployees,
+          },
+        }),
         employee: () => ({
           employeeContractSchedule: () => [],
           employeeAbsenceSchedule: () => [],
@@ -69,6 +137,8 @@ export const AsEmployee = () => {
           organizationId="124"
           userIsAdmin={false}
           needsReplacement={NeedsReplacement.Sometimes}
+          positionName="Math Teacher"
+          positionId={"1"}
         />
       </Route>
     </Provider>
@@ -81,6 +151,13 @@ export const AsSubNotNeededEmployee = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        absence: () => ({
+          projectedVacancies: basicProjectedVacancies,
+          replacementEmployeesForVacancy: {
+            totalCount: basicReplacementEmployees.length,
+            results: basicReplacementEmployees,
+          },
+        }),
         employee: () => ({
           employeeContractSchedule: () => [],
           employeeAbsenceSchedule: () => [],
@@ -99,6 +176,8 @@ export const AsSubNotNeededEmployee = () => {
           organizationId="124"
           needsReplacement={NeedsReplacement.No}
           userIsAdmin={false}
+          positionName="Math Teacher"
+          positionId={"1"}
         />
       </Route>
     </Provider>
@@ -132,6 +211,13 @@ export const AsSubNeededEmployee = () => {
             },
           },
         }),
+        absence: () => ({
+          projectedVacancies: basicProjectedVacancies,
+          replacementEmployeesForVacancy: {
+            totalCount: basicReplacementEmployees.length,
+            results: basicReplacementEmployees,
+          },
+        }),
       }),
     },
   });
@@ -146,6 +232,8 @@ export const AsSubNeededEmployee = () => {
           organizationId="124"
           userIsAdmin={false}
           needsReplacement={NeedsReplacement.Yes}
+          positionName="Math Teacher"
+          positionId={"1"}
         />
       </Route>
     </Provider>

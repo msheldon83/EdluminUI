@@ -80,6 +80,7 @@ type AbsenceQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
   projectedVacancies(absence: AbsenceCreateInput!): [Vacancy]
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancies: [AbsenceVacancyInput], name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean): PagedReplacementEmployeeAvailability
+  projectedAbsence(absence: AbsenceCreateInput!): Absence
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -235,6 +236,7 @@ input AbsenceVacancyInput {
   needsReplacement: Boolean
   useSuppliedDetails: Boolean
   notesToReplacement: String
+  externalId: String
   requestedReplacementEmployeeIds: [Int]
   prearrangedReplacementEmployeeId: Int
   details: [VacancyDetailInput]
@@ -964,6 +966,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   firstName: String!
   middleName: String
   lastName: String!
+  phoneNumber: String
   assignments: [Assignment]
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
@@ -1768,6 +1771,9 @@ type organizationConfig {
   maxGapMinutesForSameVacancyDetail: Int!
   minAbsenceMinutes: Int!
   maxAbsenceDays: Int!
+  requestedSubCutoffMinutes: Int!
+  minRequestedEmployeeHoldMinutes: Int!
+  maxRequestedEmployeeHoldMinutes: Int!
 }
 
 input organizationConfigInput {
@@ -1785,7 +1791,9 @@ input organizationConfigInput {
   maxGapMinutesForSameVacancyDetail: Int
   minAbsenceMinutes: Int
   maxAbsenceDays: Int
-  minutesToReserveVacancyForRequestedEmployee: Int
+  requestedSubCutoffMinutes: Int
+  minRequestedEmployeeHoldMinutes: Int
+  maxRequestedEmployeeHoldMinutes: Int
 }
 
 input OrganizationCreateInput {
@@ -3260,6 +3268,7 @@ type ReplacementEmployeeAvailability {
   visibleAtUtc: DateTime
   isEmployeeFavorite: Boolean!
   isLocationPositionTypeFavorite: Boolean!
+  isSelectable: Boolean!
 }
 
 type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -3931,7 +3940,7 @@ type VacancyEmployeeRequest implements ModelObjectInterface & OrgObjectInterface
   isRejected: Boolean
   validUntilUtc: DateTime
   isExpired: Boolean
-  requestedByOrgUserId: Int!
+  requestedByOrgUserId: Int
   requestedByOrgUser: OrgUser
 }
 
