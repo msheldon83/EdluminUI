@@ -1,15 +1,15 @@
+import { Grid, Button, Typography, Divider } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
-import { Divider } from "@material-ui/core";
 import { useScreenSize } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import { Grid } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { Filters } from "./filters/index";
 import { AvailableJob } from "./components/available-job";
+import { FilterList } from "@material-ui/icons";
 
 type Props = {};
 
@@ -35,16 +35,25 @@ export const SubHome: React.FC<Props> = props => {
         </Grid>
       </Section>
       <Section>
-        <SectionHeader
-          title={t("Available jobs")}
-          action={{
-            text: t("Filter List"),
-            visible: isMobile,
-            execute: () => {
-              setShowFilters(!showFilters);
-            },
-          }}
-        />
+        <Grid
+          container
+          className={classes.header}
+          justify="space-between"
+          alignItems="center"
+        >
+          <Grid item>
+            <Typography variant="h5">{t("Available Jobs")}</Typography>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="outlined"
+              startIcon={<FilterList />}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {t("Filters")}
+            </Button>
+          </Grid>
+        </Grid>
         {showFilters && <Filters />}
         <Grid container spacing={2}>
           <Divider variant="middle" />
@@ -57,6 +66,9 @@ export const SubHome: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   filters: {
     marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  header: {
     marginBottom: theme.spacing(2),
   },
 }));
