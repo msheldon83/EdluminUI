@@ -21,6 +21,8 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   totalDuration: Int!
   totalDayPortion: Decimal!
   details: [AbsenceDetail]
+  employee: BasicEmployee
+  vacancies: [Vacancy]
 }
 
 input AbsenceCreateInput {
@@ -382,6 +384,7 @@ type BasicEmployee implements ModelObjectInterface & OrgObjectInterface {
   firstName: String!
   middleName: String!
   lastName: String!
+  phoneNumber: String!
 }
 
 type Branding implements ModelObjectInterface {
@@ -2558,6 +2561,14 @@ input PositionScheduleCreateInput {
   periods: [PositionSchedulePeriodInput]
 }
 
+input PositionScheduleCreateSimpleInputTypeDef {
+  orgId: Int!
+  positionId: Int!
+  locationId: Int!
+  workScheduleId: Int!
+  periods: [PositionSchedulePeriodSimpleInput]
+}
+
 type PositionScheduleDate {
   _info: [ReturnMessage]
   workDate: Date
@@ -2645,6 +2656,7 @@ type PositionScheduleMutations {
   delete(positionScheduleId: Int!): Boolean
   modifyScheduleVariant(positionScheduleVariant: PositionScheduleVariantModifyInput!): PositionScheduleVariant
   deleteScheduleVariant(positionScheduleVariant: PositionScheduleVariantDeleteInput!): Boolean
+  createSimple(positionSchedule: PositionScheduleCreateSimpleInputTypeDef!): PositionSchedule
 }
 
 type PositionSchedulePeriod implements ModelObjectInterface & OrgObjectInterface {
@@ -2677,6 +2689,14 @@ input PositionSchedulePeriodInput {
   locationId: Int
   workDayScheduleId: Int
   workDaySchedulePeriodId: Int
+  needsReplacement: Boolean
+  deductFromAbsenceBalance: Boolean
+}
+
+input PositionSchedulePeriodSimpleInput {
+  workDaySchedulePeriodId: Int!
+  name: String
+  room: String
   needsReplacement: Boolean
   deductFromAbsenceBalance: Boolean
 }
@@ -3859,6 +3879,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   endTimeUtc: DateTime
   numDays: Int
   totalDuration: Int!
+  totalDayPortion: Decimal!
   fillStatus: FillStatus
   details: [VacancyDetail]
   requestedEmployees: [VacancyEmployeeRequest]

@@ -9,7 +9,6 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
         id
         actualDuration
         dayPartId
-        dayPartId
         startDate
         startTimeLocal
         endDate
@@ -31,6 +30,21 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
       numDays
       totalDayPortion
       totalDuration
+      vacancies {
+        id
+        notesToReplacement
+        details {
+          startDate
+          startTimeLocal
+          endDate
+          endTimeLocal
+          isFilled
+          locationId
+          location {
+            name
+          }
+        }
+      }
     }
   }
 }
