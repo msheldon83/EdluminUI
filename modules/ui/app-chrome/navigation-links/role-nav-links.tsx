@@ -48,6 +48,9 @@ export const AutoSwitchingNavLinks: React.FC<Props> = props => {
       <Route path={AdminChromeRoute.path}>
         <AdminNavLinks {...props} />
       </Route>
+      <Route path={AdminRootChromeRoute.path}>
+        <AdminNavLinks {...props} />
+      </Route>
     </Switch>
   );
 };
