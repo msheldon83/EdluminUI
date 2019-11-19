@@ -32,10 +32,10 @@ export const OrganizationSwitcherBar: React.FC<Props> = props => {
 
   if (
     !show ||
-    (currentOrg.state === "LOADING" ||
+    currentOrg.state === "LOADING" ||
       !currentOrg.data.organization ||
       !currentOrg.data.organization.byId ||
-      !currentOrg.data.organization.byId.name)
+      !currentOrg.data.organization.byId.name
   ) {
     return <></>;
   }
