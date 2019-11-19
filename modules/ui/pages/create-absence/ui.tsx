@@ -322,13 +322,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         )}
         {state.step === "confirmation" && (
           <Confirmation
-            absenceId={absence?.id}
+            orgId={props.organizationId}
+            absence={absence}
             dispatch={dispatch}
-            totalNumberOfDays={absence?.numDays || 0}
             vacancies={projectedVacancies}
             needsReplacement={true}
-            notesToApprover={formValues.notesToApprover}
-            absenceReasonId={formValues.absenceReason}
             notesToSubstitute={formValues.notesToReplacement}
             preAssignedReplacementEmployeeName={
               formValues.replacementEmployeeName

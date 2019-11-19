@@ -62,15 +62,24 @@ export const Confirmation: React.FC<Props> = props => {
         })`
       : "";
 
-    return props.absence.details.map(d => {
+    return props.absence.details.map((d, i) => {
+      /* TODO: Currently we are assuming that there is only 1 Absence Reason in
+          use per Absence Detail. As we build in support for my complicated
+          Absences, we will have to revisit this.
+      */
       const matchingAbsenceReason = absenceReasons.find(
-        (a: AbsenceReason) =>
+        (a: Pick<AbsenceReason, "id" | "name">) =>
+          d &&
           d.reasonUsages &&
           d.reasonUsages[0] &&
           a.id === d.reasonUsages[0].absenceReasonId.toString()
       );
       if (matchingAbsenceReason) {
-        return <div>{`${matchingAbsenceReason.name}${numberOfDaysText}`}</div>;
+        return (
+          <div
+            key={i}
+          >{`${matchingAbsenceReason.name}${numberOfDaysText}`}</div>
+        );
       }
     });
   };
