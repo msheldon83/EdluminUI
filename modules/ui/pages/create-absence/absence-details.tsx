@@ -50,10 +50,7 @@ type Props = {
   values: FormData;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+  vacancies: Vacancy[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {

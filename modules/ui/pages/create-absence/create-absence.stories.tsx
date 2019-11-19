@@ -12,6 +12,7 @@ import {
   VacancyAvailability,
   VacancyQualification,
   CalendarDayType,
+  Vacancy,
 } from "graphql/server-types.gen";
 
 export default {
@@ -20,30 +21,36 @@ export default {
 
 const basicProjectedVacancies = [
   {
-    endTimeLocal: "2019-11-18T12:00:00" as any,
+    startDate: "2019-11-15",
+    startTimeLocal: "2019-11-15T08:30:00",
+    endDate: "2019-11-18",
+    endTimeLocal: "2019-11-18T12:00:00",
     numDays: 2,
     positionId: 1057,
-    startTimeLocal: "2019-11-15T08:30:00" as any,
     details: [
       {
-        endTimeLocal: "2019-11-15T12:00:00" as any,
+        startDate: "2019-11-15",
+        startTimeLocal: "2019-11-15T08:30:00",
+        endDate: "2019-11-15",
+        endTimeLocal: "2019-11-15T12:00:00",
         location: {
           name: "Haven Elementary School",
         },
         locationId: 1013,
-        startTimeLocal: "2019-11-15T08:30:00" as any,
       },
       {
-        endTimeLocal: "2019-11-18T12:00:00" as any,
+        startDate: "2019-11-18",
+        startTimeLocal: "2019-11-18T08:30:00",
+        endDate: "2019-11-18",
+        endTimeLocal: "2019-11-18T12:00:00",
         location: {
           name: "Haven Elementary School",
         },
         locationId: 1013,
-        startTimeLocal: "2019-11-18T08:30:00" as any,
       },
     ],
   },
-];
+] as Vacancy[];
 const basicReplacementEmployees = [
   {
     employee: {

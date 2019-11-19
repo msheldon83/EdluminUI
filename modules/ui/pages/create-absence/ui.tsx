@@ -165,10 +165,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
   getProjectedVacancies.state === "UPDATING"
     ? []
-    : getProjectedVacancies.data?.absence?.projectedVacancies ?? []) as Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+    : getProjectedVacancies.data?.absence?.projectedVacancies ??
+      []) as Vacancy[];
 
   const name = `${props.firstName} ${props.lastName}`;
 

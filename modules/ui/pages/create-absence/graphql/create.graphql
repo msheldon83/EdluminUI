@@ -38,6 +38,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
         endTimeLocal
         numDays
         notesToReplacement
+        positionId
         details {
           startDate
           startTimeLocal

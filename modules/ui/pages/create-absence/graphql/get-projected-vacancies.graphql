@@ -1,12 +1,16 @@
 query GetProjectedVacancies($absence: AbsenceCreateInput!) {
   absence {
     projectedVacancies(absence: $absence) {
+      startDate
       startTimeLocal
+      endDate
       endTimeLocal
       numDays
       positionId
       details {
+        startDate
         startTimeLocal
+        endDate
         endTimeLocal
         locationId
         location {

@@ -246,44 +246,29 @@ export const AsAdminWithAllInformation = () => {
   );
 };
 
-// export const AsAdminWithMinimumInformation = () => {
-//   const path = AdminCreateAbsenceRoute.generate({
-//     organizationId: "1006",
-//     employeeId: "123",
-//   });
-//   const Provider = mockProvider({
-//     initialUrl: path,
-//     mocks: {
-//       Query: () => ({
-//         orgRef_AbsenceReason: () => ({
-//           all: () => allAbsenceReasons,
-//         }),
-//       }),
-//     },
-//   });
+export const AsAdminWithMinimumInformation = () => {
+  const path = AdminCreateAbsenceRoute.generate({
+    organizationId: "1006",
+    employeeId: "123",
+  });
+  const Provider = mockProvider({
+    initialUrl: path,
+    mocks: {
+      Query: () => ({
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
+        }),
+      }),
+    },
+  });
 
-//   return (
-//     <Provider>
-//       <Confirmation
-//         orgId={"1000"}
-//         absence={{
-//           id: "123456789",
-//           numDays: 10,
-//           employeeId: 1125,
-//           notesToApprover: null,
-//           details: [
-//             {
-//               reasonUsages: [
-//                 {
-//                   absenceReasonId: "2",
-//                 } as any,
-//               ] as Maybe<AbsenceReasonUsage[]>,
-//             },
-//           ] as Maybe<AbsenceDetail[]>,
-//         }}
-//         needsReplacement={false}
-//         dispatch={() => {}}
-//       />
-//     </Provider>
-//   );
-// };
+  return (
+    <Provider>
+      <Confirmation
+        orgId={"1000"}
+        absence={getAbsence("2", false)}
+        dispatch={() => {}}
+      />
+    </Provider>
+  );
+};

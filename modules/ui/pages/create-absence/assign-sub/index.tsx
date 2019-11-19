@@ -32,10 +32,7 @@ import { getAssignSubColumns } from "./columns";
 type Props = {
   orgId: string;
   vacancyId?: string | null | undefined;
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+  vacancies: Vacancy[];
   userIsAdmin: boolean;
   employeeName: string;
   positionId?: string;
@@ -47,10 +44,7 @@ type Props = {
 };
 
 const buildVacancyInput = (
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[]
+  vacancies: Vacancy[]
 ): AbsenceVacancyInput[] | null => {
   const vacanciesInput = vacancies.map(v => {
     return {
