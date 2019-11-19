@@ -40,7 +40,7 @@ import {
 } from "./graphql/get-contract-schedule.gen";
 import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
-import { VacancyDetails } from "./vacancy-details";
+import { VacancyDetails } from "../../components/absence/vacancy-details";
 import { useHistory } from "react-router";
 
 type Props = {

@@ -32,6 +32,11 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
       totalDuration
       vacancies {
         id
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        numDays
         notesToReplacement
         details {
           startDate
@@ -42,6 +47,9 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
           locationId
           location {
             name
+          }
+          assignment {
+            employeeId
           }
         }
       }

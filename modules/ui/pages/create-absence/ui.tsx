@@ -96,12 +96,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
-  const [absence, setAbsence] = useState<
-    Pick<
-      Absence,
-      "id" | "employeeId" | "numDays" | "notesToApprover" | "details"
-    >
-  >();
+  const [absence, setAbsence] = useState<Absence>();
   const [createAbsence] = useMutationBundle(CreateAbsence, {
     onError: error => {
       openSnackbar({
@@ -257,10 +252,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       },
     });
 
-    return result?.data?.absence?.create as Pick<
-      Absence,
-      "id" | "employeeId" | "numDays" | "notesToApprover" | "details"
-    >;
+    return result?.data?.absence?.create as Absence;
   };
 
   return (
@@ -324,12 +316,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             orgId={props.organizationId}
             absence={absence}
             dispatch={dispatch}
-            vacancies={projectedVacancies}
-            needsReplacement={true}
-            notesToSubstitute={formValues.notesToReplacement}
-            preAssignedReplacementEmployeeName={
-              formValues.replacementEmployeeName
-            }
           />
         )}
       </form>
