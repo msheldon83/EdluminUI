@@ -85,10 +85,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     contractSchedule,
   ]);
 
-  const [replacementRequired, setReplacementRequired] = useState(
-    needsReplacement !== NeedsReplacement.No
-  );
-
   const absenceReasons = useAbsenceReasons(state.organizationId);
   const absenceReasonOptions = useMemo(
     () => absenceReasons.map(r => ({ label: r.name, value: r.id })),
@@ -129,11 +125,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
   );
 
   const onNeedsReplacementChange = React.useCallback(
-    async event => {
-      setReplacementRequired(event.target.checked);
-      await setValue("needsReplacement", event.target.checked);
+    event => {
+      dispatch({ action: "setNeedsReplacement", to: event.target.checked });
     },
-    [setValue, setReplacementRequired]
+    [dispatch]
   );
 
   const onMonthChange: DatePickerOnMonthChange = React.useCallback(
@@ -221,7 +216,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 label={t("Requires a substitute")}
                 control={
                   <Checkbox
-                    checked={values.needsReplacement}
+                    checked={state.needsReplacement}
                     onChange={onNeedsReplacementChange}
                   />
                 }
@@ -234,7 +229,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
               </Typography>
             )}
 
-            {replacementRequired && (
+            {state.needsReplacement && (
               <SubstituteRequiredDetails
                 setValue={setValue}
                 vacancies={props.vacancies}

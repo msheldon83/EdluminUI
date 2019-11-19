@@ -12,7 +12,6 @@ export const StepParamDefaults: StepParam = {
 
 export const StepParamIso: Isomorphism<StepParam, Step> = {
   to(k) {
-    console.log("to (k)", k);
     switch (k.step) {
       case "absence":
       case "preAssignSub":
@@ -24,7 +23,6 @@ export const StepParamIso: Isomorphism<StepParam, Step> = {
     }
   },
   from(s) {
-    console.log("from (s)", s);
     return { step: s };
   },
 };

@@ -82,7 +82,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     startDate: today,
     endDate: today,
     absenceReason: "",
-    needsReplacement: props.needsReplacement !== NeedsReplacement.No,
   };
 
   const {
@@ -299,6 +298,7 @@ const initialState = (props: Props): CreateAbsenceState => ({
   employeeId: props.employeeId,
   organizationId: props.organizationId,
   viewingCalendarMonth: startOfMonth(new Date()),
+  needsReplacement: props.needsReplacement !== NeedsReplacement.No,
 });
 
 export type FormData = {
@@ -308,7 +308,6 @@ export type FormData = {
   dayPart?: DayPart;
   notesToApprover?: string;
   notesToReplacement?: string;
-  needsReplacement: boolean;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
 };

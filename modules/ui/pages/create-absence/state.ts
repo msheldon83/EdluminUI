@@ -4,9 +4,12 @@ export type CreateAbsenceState = {
   employeeId: string;
   organizationId: string;
   viewingCalendarMonth: Date;
+  needsReplacement: boolean;
 };
 
-export type CreateAbsenceActions = { action: "switchMonth"; month: Date };
+export type CreateAbsenceActions =
+  | { action: "switchMonth"; month: Date }
+  | { action: "setNeedsReplacement"; to: boolean };
 
 export const createAbsenceReducer: Reducer<
   CreateAbsenceState,
@@ -15,6 +18,9 @@ export const createAbsenceReducer: Reducer<
   switch (action.action) {
     case "switchMonth": {
       return { ...prev, viewingCalendarMonth: action.month };
+    }
+    case "setNeedsReplacement": {
+      return { ...prev, needsReplacement: action.to };
     }
   }
 };
