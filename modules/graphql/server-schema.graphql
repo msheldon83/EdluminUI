@@ -10,7 +10,7 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   externalId: String
   rowVersion: String!
   employeeId: Int!
-  notesToApprover: String!
+  notesToApprover: String
   startDate: Date
   startTimeLocal: DateTime
   endDate: Date
@@ -50,7 +50,7 @@ type AbsenceDetail implements ModelObjectInterface & OrgObjectInterface {
   actualDuration: Int
   dayPartId: DayPart
   dayPortion: Decimal!
-  description: String!
+  description: String
   reasonUsages: [AbsenceReasonUsage]
 }
 
