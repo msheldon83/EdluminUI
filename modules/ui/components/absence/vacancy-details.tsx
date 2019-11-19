@@ -60,10 +60,10 @@ export const VacancyDetails: React.FC<Props> = props => {
           <Typography variant="h5">{headerText}</Typography>
         </Grid>
       )}
-      {sortedVacancies.map((v, detailsIndex) => {
+      {sortedVacancies.map(v => {
         if (v.details && v.details.length) {
           const groupedDetails = getDetailsGrouping(v.details);
-          return groupedDetails.map(g => {
+          return groupedDetails.map((g, detailsIndex) => {
             return (
               <Grid
                 key={detailsIndex}
