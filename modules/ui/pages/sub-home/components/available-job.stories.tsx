@@ -6,35 +6,30 @@ export default {
   title: "Components/AvailableJob",
 };
 
-const testVacancy = {
-  id: "1",
-  vacancyDetail: [
-    {
-      locationName: "Frank's school",
-      startTimeLocal: "2019-11-20",
-      endTimeLocal: "2019-11-20",
-      dayPortion: 1,
-    },
-  ],
-  orgName: "Frank's District",
-  positionTypeName: "Kindergarten Teacher",
-  employeeName: "Pam Thomas",
-  startDate: "2019-11-20",
-  endDate: "2019-11-20",
-  notesToReplacement: "No notes",
-};
-
-export const AvailableJobStory = () => {
+export const AvailableJobSingleStory = () => {
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <AvailableJob vacancy={testVacancy} />
+      <AvailableJob vacancy={simpleVacancy} shadeRow={false} />
     </div>
   );
 };
 
-AvailableJobStory.story = {
-  name: "Available Job",
+export const AvailableJobMultipleStory = () => {
+  const classes = useStyles();
+  return (
+    <div className={classes.container}>
+      <AvailableJob vacancy={complexVacancy} shadeRow={false} />
+    </div>
+  );
+};
+
+AvailableJobSingleStory.story = {
+  name: "Single Day/Location Job",
+};
+
+AvailableJobMultipleStory.story = {
+  name: "Multi Day Job",
 };
 
 const useStyles = makeStyles(theme => ({
@@ -43,3 +38,48 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
   },
 }));
+
+const simpleVacancy = {
+  id: "1",
+  vacancyDetails: [
+    {
+      locationName: "Frank's school",
+      startTimeLocal: "2019-11-20T08:00",
+      endTimeLocal: "2019-11-20T15:00",
+      dayPortion: 1,
+    },
+  ],
+  orgName: "Frank's District",
+  positionTypeName: "Kindergarten Teacher",
+  employeeName: "Pam Thomas",
+  startTimeLocal: "2019-11-20T08:00",
+  endTimeLocal: "2019-11-20T15:00",
+  notesToReplacement: null,
+  dayPortion: 1,
+};
+
+const complexVacancy = {
+  id: "1",
+  vacancyDetails: [
+    {
+      locationName: "Frank's school",
+      startTimeLocal: "2019-11-20T08:00",
+      endTimeLocal: "2019-11-20T15:00",
+      dayPortion: 1,
+    },
+    {
+      locationName: "Frank's Second school",
+      startTimeLocal: "2019-11-21T08:00",
+      endTimeLocal: "2019-11-21T15:00",
+      dayPortion: 1,
+    },
+  ],
+  orgName: "Frank's District",
+  positionTypeName: "Kindergarten Teacher",
+  employeeName: "Pam Thomas",
+  startTimeLocal: "2019-11-20T08:00",
+  endTimeLocal: "2019-11-21T15:00",
+  notesToReplacement:
+    "These are notes for the subsitutute.  Please watch the class closely.",
+  dayPortion: 2,
+};
