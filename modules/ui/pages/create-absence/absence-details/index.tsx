@@ -20,10 +20,9 @@ import {
   DayPart,
   FeatureFlag,
   NeedsReplacement,
-  Vacancy,
 } from "graphql/server-types.gen";
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
@@ -39,9 +38,9 @@ import {
   GetEmployeeContractScheduleQueryVariables,
 } from "../graphql/get-contract-schedule.gen";
 import { CreateAbsenceActions, CreateAbsenceState } from "../state";
-import { FormData } from "../ui";
-import { SubstituteRequiredDetails } from "./substitute-required-details";
 import { Step } from "../step-params";
+import { FormData, VacancyDisplayData } from "../ui";
+import { SubstituteRequiredDetails } from "./substitute-required-details";
 
 type Props = {
   state: CreateAbsenceState;
@@ -50,10 +49,7 @@ type Props = {
   values: FormData;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+  vacancies: VacancyDisplayData;
   setStep: (S: Step) => void;
 };
 

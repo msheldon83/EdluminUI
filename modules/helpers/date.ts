@@ -1,5 +1,6 @@
 import isAfter from "date-fns/isAfter";
 import isValid from "date-fns/isValid";
+import formatDistance from "date-fns/formatDistance";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import isWithinInterval from "date-fns/isWithinInterval";
@@ -151,3 +152,20 @@ export const convertStringToDate = (dateString: string): Date | null => {
 
   return null;
 };
+
+// export const getDurationOfDateRange = (
+//   startDate: Date | null,
+//   endDate: Date | null
+// ): string | null => {
+//   if (!startDate || !endDate) {
+//     return null;
+//   }
+
+//   const days = differenceInDays(endDate, startDate);
+//   // if (isNaN(days) || days < 0) {
+//   //   return [];
+//   // }
+
+//   return days === 1 ? "1 day" : `${days} days`;
+//   // return formatDistance(startDate, endDate);
+// };

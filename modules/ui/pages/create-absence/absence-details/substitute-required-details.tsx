@@ -6,20 +6,17 @@ import {
   Chip,
 } from "@material-ui/core";
 import { SetValue } from "forms";
-import { Vacancy } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { VacancyDetails } from "./vacancy-details";
+import { VacancyDetails } from "../vacancy-details";
 import { Step } from "../step-params";
+import { VacancyDisplayData } from "../ui";
 
 type Props = {
   setValue: SetValue;
   replacementEmployeeName?: string;
   replacementEmployeeId?: number;
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+  vacancies: VacancyDisplayData;
   setStep: (S: Step) => void;
 };
 

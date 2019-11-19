@@ -8,16 +8,8 @@ import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graph
 import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
 import { Table } from "ui/components/table";
-import { PageTitle } from "ui/components/page-title";
-import {
-  Typography,
-  Divider,
-  Button,
-  Grid,
-  Collapse,
-  Link,
-} from "@material-ui/core";
-import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
+import { Typography, Divider, Collapse, Link } from "@material-ui/core";
+import { AbsenceVacancyInput } from "graphql/server-types.gen";
 import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
@@ -25,17 +17,15 @@ import {
 import format from "date-fns/format";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
-import { VacancyDetails } from "../absence-details/vacancy-details";
+import { VacancyDetails } from "../vacancy-details";
 import { convertStringToDate } from "helpers/date";
 import { getAssignSubColumns } from "./columns";
+import { VacancyDisplayData } from "../ui";
 
 type Props = {
   orgId: string;
   vacancyId?: string | null | undefined;
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+  vacancies: VacancyDisplayData;
   userIsAdmin: boolean;
   employeeName: string;
   positionId?: string;
@@ -47,10 +37,7 @@ type Props = {
 };
 
 const buildVacancyInput = (
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[]
+  vacancies: VacancyDisplayData
 ): AbsenceVacancyInput[] | null => {
   const vacanciesInput = vacancies.map(v => {
     return {

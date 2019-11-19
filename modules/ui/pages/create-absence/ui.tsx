@@ -1,35 +1,44 @@
-import { Typography, Button } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { startOfMonth, eachDayOfInterval } from "date-fns";
-import { useForm } from "forms";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import {
+  eachDayOfInterval,
+  format,
+  isDate,
+  isValid,
+  startOfMonth,
+} from "date-fns";
+import { useForm } from "forms";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import {
+  Absence,
+  AbsenceCreateInput,
+  AbsenceDetailCreateInput,
   DayPart,
   NeedsReplacement,
   Vacancy,
-  AbsenceCreateInput,
-  AbsenceDetailCreateInput,
-  Absence,
 } from "graphql/server-types.gen";
+import { getDaysInDateRange } from "helpers/date";
+import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
+import { useQueryParamIso } from "hooks/query-params";
+import { useSnackbar } from "hooks/use-snackbar";
 import * as React from "react";
 import { useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
-import { createAbsenceReducer, CreateAbsenceState } from "./state";
+import { AbsenceDetails } from "./absence-details";
 import { AssignSub } from "./assign-sub/index";
-import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
-import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
-import { format, isValid, isDate } from "date-fns";
-import { getDaysInDateRange } from "helpers/date";
-import { useHistory } from "react-router";
-import { CreateAbsence } from "./graphql/create.gen";
-import { useSnackbar } from "hooks/use-snackbar";
 import { Confirmation } from "./confirmation";
 import { EditVacancies } from "./edit-vacancies";
-import { AbsenceDetails } from "./absence-details";
-import { useQueryParamIso } from "hooks/query-params";
+import { CreateAbsence } from "./graphql/create.gen";
+import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
+import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
+
+export type VacancyDisplayData = Pick<
+  Vacancy,
+  "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
+>[];
 
 type Props = {
   firstName: string;
@@ -122,10 +131,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
   getProjectedVacancies.state === "UPDATING"
     ? []
-    : getProjectedVacancies.data?.absence?.projectedVacancies ?? []) as Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+    : getProjectedVacancies.data?.absence?.projectedVacancies ??
+      []) as VacancyDisplayData;
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -178,7 +185,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     };
 
     // Populate the Vacancies on the Absence if needed
-    if (formValues.needsReplacement) {
+    if (state.needsReplacement) {
       absence = {
         ...absence,
         /* TODO: When we support multi Position Employees we'll need to account for the following:
@@ -187,7 +194,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         vacancies: [
           {
             positionId: positionId,
-            needsReplacement: formValues.needsReplacement,
+            needsReplacement: state.needsReplacement,
             notesToReplacement: formValues.notesToReplacement,
             prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
           },
@@ -272,12 +279,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         )}
         {step === "edit" && (
           <EditVacancies
-          // orgId={props.organizationId}
-          // userIsAdmin={props.userIsAdmin}
-          // employeeName={name}
-          // positionId={props.positionId}
-          // positionName={props.positionName}
-          // vacancies={projectedVacancies}
+            actingAsEmployee={props.actingAsEmployee}
+            employeeName={name}
+            positionName={props.positionName}
+            setStep={setStep}
+            vacancies={projectedVacancies}
           />
         )}
       </form>

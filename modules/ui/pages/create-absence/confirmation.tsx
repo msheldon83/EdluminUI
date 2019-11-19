@@ -13,8 +13,9 @@ import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { VacancyDetails } from "./absence-details/vacancy-details";
 import { Step } from "./step-params";
+import { VacancyDisplayData } from "./ui";
+import { VacancyDetails } from "./vacancy-details";
 
 type Props = {
   orgId: string;
@@ -24,10 +25,7 @@ type Props = {
         "id" | "employeeId" | "numDays" | "notesToApprover" | "details"
       >
     | undefined;
-  vacancies?: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+  vacancies?: VacancyDisplayData;
   needsReplacement: boolean;
   notesToSubstitute?: string;
   preAssignedReplacementEmployeeName?: string;
