@@ -27,6 +27,7 @@ import { SubPreferencesRoute } from "ui/routes/sub-preferences";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { AdminHomeRoute } from "ui/routes/admin-home";
+import { ConfigurationRoute } from "ui/routes/org-config";
 
 type Props = {
   onClick?: () => void;
@@ -126,7 +127,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           />
           <ConfigurationNavLink
             onClick={props.onClick}
-            route={adminTbd.generate(params)}
+            route={ConfigurationRoute.generate(params)}
           />
           <SecurityNavLink
             onClick={props.onClick}
