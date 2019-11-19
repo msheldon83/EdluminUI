@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Vacancy } from "graphql/server-types.gen";
+import { Absence, Vacancy, AbsenceReason } from "graphql/server-types.gen";
 import {
   Grid,
   makeStyles,
@@ -14,18 +14,22 @@ import { useTranslation } from "react-i18next";
 import { CreateAbsenceActions } from "./state";
 import { Section } from "ui/components/section";
 import { VacancyDetails } from "./vacancy-details";
+import { useAbsenceReasons } from "reference-data/absence-reasons";
 
 type Props = {
-  absenceId: string | undefined;
-  totalNumberOfDays: number;
-  dispatch: React.Dispatch<CreateAbsenceActions>;
+  orgId: string;
+  absence:
+    | Pick<
+        Absence,
+        "id" | "employeeId" | "numDays" | "notesToApprover" | "details"
+      >
+    | undefined;
   vacancies?: Pick<
     Vacancy,
     "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
   >[];
+  dispatch: React.Dispatch<CreateAbsenceActions>;
   needsReplacement: boolean;
-  absenceReasonName: string;
-  notesToApprover?: string;
   notesToSubstitute?: string;
   preAssignedReplacementEmployeeName?: string;
 };
@@ -34,14 +38,42 @@ export const Confirmation: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
+  const absenceReasons = useAbsenceReasons(props.orgId);
 
-  if (!props.absenceId) {
+  if (!props.absence) {
     // Redirect the User back to the Absence Details step
     props.dispatch({
       action: "switchStep",
       step: "absence",
     });
+    return null;
   }
+
+  const getAbsenceReasonListDisplay = (
+    totalNumberOfDays: number | null | undefined
+  ) => {
+    if (!props.absence || !props.absence.details) {
+      return null;
+    }
+
+    const numberOfDaysText = totalNumberOfDays
+      ? `  (${totalNumberOfDays} ${
+          totalNumberOfDays === 1 ? t("day") : t("days")
+        })`
+      : "";
+
+    return props.absence.details.map(d => {
+      const matchingAbsenceReason = absenceReasons.find(
+        (a: AbsenceReason) =>
+          d.reasonUsages &&
+          d.reasonUsages[0] &&
+          a.id === d.reasonUsages[0].absenceReasonId.toString()
+      );
+      if (matchingAbsenceReason) {
+        return <div>{`${matchingAbsenceReason.name}${numberOfDaysText}`}</div>;
+      }
+    });
+  };
 
   const hasVacancies = props.vacancies && props.vacancies.length;
 
@@ -54,7 +86,7 @@ export const Confirmation: React.FC<Props> = props => {
               {t("Your absence has been saved. We'll take it from here.")}
             </div>
             <Typography variant="h1" className={classes.confirmationText}>
-              {`${t("Confirmation #")} ${props.absenceId}`}
+              {`${t("Confirmation #")} ${props.absence.id}`}
             </Typography>
           </div>
         </Grid>
@@ -108,15 +140,11 @@ export const Confirmation: React.FC<Props> = props => {
         )}
         <Grid item xs={hasVacancies ? 7 : 12}>
           <Typography variant={"h6"}>{t("Reason")}:</Typography>
-          <div>
-            {`${props.absenceReasonName} (${props.totalNumberOfDays} ${
-              props.totalNumberOfDays === 1 ? t("day") : t("days")
-            })`}
-          </div>
+          {getAbsenceReasonListDisplay(props.absence.numDays)}
           <div className={classes.notesToApproverSection}>
             <Typography variant={"h6"}>{t("Notes")}:</Typography>
             <div>
-              {props.notesToApprover || (
+              {props.absence.notesToApprover || (
                 <span className={classes.valueMissing}>
                   {t("No Notes Specified")}
                 </span>

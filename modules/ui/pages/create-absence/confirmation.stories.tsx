@@ -2,7 +2,12 @@ import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { Confirmation } from "./confirmation";
-import { VacancyDetail, Maybe } from "graphql/server-types.gen";
+import {
+  VacancyDetail,
+  Maybe,
+  AbsenceDetail,
+  AbsenceReasonUsage,
+} from "graphql/server-types.gen";
 
 export default {
   title: "Pages/Create Absence/Confirmation",
@@ -147,6 +152,17 @@ const vacancies = [
   },
 ];
 
+const allAbsenceReasons = [
+  {
+    id: "1",
+    name: "Vacation",
+  },
+  {
+    id: "2",
+    name: "Illness",
+  },
+];
+
 const notesToApprover =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore";
 const notesToSubstitute =
@@ -159,18 +175,36 @@ export const AsAdminWithAllInformation = () => {
   });
   const Provider = mockProvider({
     initialUrl: path,
-    mocks: {},
+    mocks: {
+      Query: () => ({
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
+        }),
+      }),
+    },
   });
 
   return (
     <Provider>
       <Confirmation
-        absenceId={"123456789"}
-        totalNumberOfDays={10}
+        orgId={"1000"}
+        absence={{
+          id: "123456789",
+          numDays: 10,
+          employeeId: 1125,
+          notesToApprover: notesToApprover,
+          details: [
+            {
+              reasonUsages: [
+                {
+                  absenceReasonId: "1",
+                } as any,
+              ] as Maybe<AbsenceReasonUsage[]>,
+            },
+          ] as Maybe<AbsenceDetail[]>,
+        }}
         vacancies={vacancies}
         needsReplacement={true}
-        notesToApprover={notesToApprover}
-        absenceReasonName={"Illness"}
         notesToSubstitute={notesToSubstitute}
         preAssignedReplacementEmployeeName={"Luke Skywalker"}
         dispatch={() => {}}
@@ -186,16 +220,35 @@ export const AsAdminWithMinimumInformation = () => {
   });
   const Provider = mockProvider({
     initialUrl: path,
-    mocks: {},
+    mocks: {
+      Query: () => ({
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
+        }),
+      }),
+    },
   });
 
   return (
     <Provider>
       <Confirmation
-        absenceId={"123456789"}
-        totalNumberOfDays={10}
+        orgId={"1000"}
+        absence={{
+          id: "123456789",
+          numDays: 10,
+          employeeId: 1125,
+          notesToApprover: null,
+          details: [
+            {
+              reasonUsages: [
+                {
+                  absenceReasonId: "2",
+                } as any,
+              ] as Maybe<AbsenceReasonUsage[]>,
+            },
+          ] as Maybe<AbsenceDetail[]>,
+        }}
         needsReplacement={false}
-        absenceReasonName={"Illness"}
         dispatch={() => {}}
       />
     </Provider>

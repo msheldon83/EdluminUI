@@ -9,6 +9,7 @@ import {
   Vacancy,
   AbsenceCreateInput,
   AbsenceDetailCreateInput,
+  Absence,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer, useState } from "react";
@@ -95,7 +96,12 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
-  const [absenceId, setAbsenceId] = useState<string | undefined>(undefined);
+  const [absence, setAbsence] = useState<
+    Pick<
+      Absence,
+      "id" | "employeeId" | "numDays" | "notesToApprover" | "details"
+    >
+  >();
   const [createAbsence] = useMutationBundle(CreateAbsence, {
     onError: error => {
       openSnackbar({
@@ -251,7 +257,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       },
     });
 
-    return result?.data?.absence?.create?.id;
+    return result?.data?.absence?.create as Pick<
+      Absence,
+      "id" | "employeeId" | "numDays" | "notesToApprover" | "details"
+    >;
   };
 
   return (
@@ -262,10 +271,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
       <form
         onSubmit={handleSubmit(async (data, e) => {
-          const absenceId = await create(data);
-          console.log(absenceId);
-          if (absenceId) {
-            setAbsenceId(absenceId);
+          const absence = await create(data);
+          console.log(absence);
+          if (absence) {
+            setAbsence(absence);
             history.push({
               ...history.location,
               search: "?action=success",
@@ -312,7 +321,19 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           />
         )}
         {state.step === "confirmation" && (
-          <Confirmation absenceId={absenceId} dispatch={dispatch} />
+          <Confirmation
+            absenceId={absence?.id}
+            dispatch={dispatch}
+            totalNumberOfDays={absence?.numDays || 0}
+            vacancies={projectedVacancies}
+            needsReplacement={true}
+            notesToApprover={formValues.notesToApprover}
+            absenceReasonId={formValues.absenceReason}
+            notesToSubstitute={formValues.notesToReplacement}
+            preAssignedReplacementEmployeeName={
+              formValues.replacementEmployeeName
+            }
+          />
         )}
       </form>
     </>
