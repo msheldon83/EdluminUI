@@ -4,14 +4,20 @@ import FormControl from "@material-ui/core/FormControl";
 import OutlinedInput, {
   OutlinedInputProps,
 } from "@material-ui/core/OutlinedInput";
-import { TextField } from "./text-field";
 
 type Props = Omit<OutlinedInputProps, "labelWidth"> & {
   label: string;
+  InputComponent?: React.ElementType;
+  inputComponentProps?: Record<string, any>;
 };
 
 export const Input = React.forwardRef((props: Props, ref) => {
-  const { label, ...inputProps } = props;
+  const {
+    label,
+    InputComponent,
+    inputComponentProps = {},
+    ...restOfInputProps
+  } = props;
 
   const classes = useStyles();
   const id = `custom-input-${label}`;
@@ -22,23 +28,23 @@ export const Input = React.forwardRef((props: Props, ref) => {
       <label className={classes.inputLabel} htmlFor={id}>
         {label}
       </label>
-      <OutlinedInput
-        fullWidth
-        className={classes.input}
-        id={id}
-        labelWidth={0}
-        ref={ref}
-        {...inputProps}
-      />
-      <TextField
-        variant="outlined"
-        // ref={ref}
-        // labelWidth={0}
-        className={classes.input}
-        id={id}
-        name={id}
-        // {...inputProps}
-      />
+
+      {InputComponent ? (
+        <InputComponent
+          ref={ref}
+          {...restOfInputProps}
+          {...inputComponentProps}
+        />
+      ) : (
+        <OutlinedInput
+          fullWidth
+          className={classes.input}
+          id={id}
+          labelWidth={0}
+          ref={ref}
+          {...restOfInputProps}
+        />
+      )}
     </FormControl>
   );
 });
