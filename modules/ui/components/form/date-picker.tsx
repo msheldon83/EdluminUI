@@ -38,7 +38,6 @@ type DatePickerProps = {
   dateFormat?: string;
   disableDates?: Array<Date>;
   onMonthChange?: DatePickerOnMonthChange;
-  disabled?: boolean;
 };
 
 export type DatePickerOnChange = (dates: {
@@ -59,7 +58,6 @@ export const DatePicker = (props: DatePickerProps) => {
     endLabel,
     dateFormat,
     disableDates = [],
-    disabled,
   } = props;
 
   const classes = useStyles(props);
@@ -348,36 +346,34 @@ export const DatePicker = (props: DatePickerProps) => {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <div className={classes.datePickerWrapper}>
-        {!disabled && (
-          <div className={classes.keyboardInputWrapper}>
-            <div className={classes.startDateInput} style={startDateStyle}>
-              <DateInput
-                label={startLabel}
-                value={startDate}
-                /*
+        <div className={classes.keyboardInputWrapper}>
+          <div className={classes.startDateInput} style={startDateStyle}>
+            <DateInput
+              label={startLabel}
+              value={startDate}
+              /*
               The handler is used for both change and valid date ranges here to make the experience
               calculate at all the correct interaction timers
             */
-                onChange={handleStartDateInputChange}
-                onValidDate={handleStartDateInputChange}
-                ref={startDateInputRef}
-                onFocus={handleStartDateFocus}
+              onChange={handleStartDateInputChange}
+              onValidDate={handleStartDateInputChange}
+              ref={startDateInputRef}
+              onFocus={handleStartDateFocus}
+              dateFormat={dateFormat}
+            />
+          </div>
+          {!singleDate && (
+            <div className={classes.endDateInput}>
+              <DateInput
+                label={endLabel}
+                value={endDate}
+                onChange={handleEndDateInputChange}
+                onValidDate={handleEndDateInputChange}
                 dateFormat={dateFormat}
               />
             </div>
-            {!singleDate && (
-              <div className={classes.endDateInput}>
-                <DateInput
-                  label={endLabel}
-                  value={endDate}
-                  onChange={handleEndDateInputChange}
-                  onValidDate={handleEndDateInputChange}
-                  dateFormat={dateFormat}
-                />
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
         {showCalendarOnFocus ? renderPopoverCalendar() : renderCalender()}
       </div>
     </MuiPickersUtilsProvider>
