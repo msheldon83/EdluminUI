@@ -28,6 +28,7 @@ import {
   SecurityNavLink,
   SubPreferencesNavLink,
 } from "./custom-nav-links";
+import { ConfigurationRoute } from "ui/routes/org-config";
 
 type Props = {
   onClick?: () => void;
