@@ -3,15 +3,14 @@ import { Reducer } from "react";
 export type CreateAbsenceState = {
   employeeId: string;
   organizationId: string;
-  step: "absence" | "assignSub";
+  step: "absence" | "assignSub" | "confirmation";
   viewingCalendarMonth: Date;
-  //replacementEmployeeId: string;
 };
 
 export type CreateAbsenceActions =
   | {
       action: "switchStep";
-      step: "absence" | "assignSub";
+      step: "absence" | "assignSub" | "confirmation";
     }
   | { action: "switchMonth"; month: Date };
 

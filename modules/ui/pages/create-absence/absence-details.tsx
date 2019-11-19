@@ -54,7 +54,6 @@ type Props = {
     Vacancy,
     "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
   >[];
-  create: (dates: Date[]) => Promise<string | undefined>;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -318,18 +317,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
       <Grid item xs={12}>
         <div className={classes.actionButtons}>
-          <Button
-            type="submit"
-            variant="contained"
-            onClick={async () => {
-              const validDates = getValidDates(
-                values.startDate,
-                values.endDate,
-                disabledDates
-              );
-              const absenceId = await props.create(validDates);
-            }}
-          >
+          <Button type="submit" variant="contained">
             {t("Create")}
           </Button>
         </div>
@@ -468,17 +456,4 @@ const computeDisabledDates = (
     }
   });
   return [...dates];
-};
-
-const getValidDates = (
-  startDate: Date,
-  endDate: Date,
-  disabledDates: Date[]
-) => {
-  const allDates = eachDayOfInterval({
-    start: startDate,
-    end: endDate,
-  });
-  const validDates = allDates.filter(x => !disabledDates.includes(x));
-  return validDates;
 };

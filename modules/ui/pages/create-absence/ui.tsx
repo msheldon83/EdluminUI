@@ -1,6 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { startOfMonth } from "date-fns";
+import { startOfMonth, eachDayOfInterval } from "date-fns";
 import { useForm } from "forms";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import {
@@ -11,7 +11,7 @@ import {
   AbsenceDetailCreateInput,
 } from "graphql/server-types.gen";
 import * as React from "react";
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -25,6 +25,7 @@ import { getDaysInDateRange } from "helpers/date";
 import { useHistory } from "react-router";
 import { CreateAbsence } from "./graphql/create.gen";
 import { useSnackbar } from "hooks/use-snackbar";
+import { Confirmation } from "./confirmation";
 
 type Props = {
   firstName: string;
@@ -94,6 +95,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
+  const [absenceId, setAbsenceId] = useState<string | undefined>(undefined);
   const [createAbsence] = useMutationBundle(CreateAbsence, {
     onError: error => {
       openSnackbar({
@@ -194,10 +196,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     });
   };
 
-  const create = async (dates: Date[]) => {
-    const formValues = getValues();
+  const create = async (formValues: FormData) => {
     const positionId = props.positionId ? Number(props.positionId) : 0;
-    const absence: AbsenceCreateInput = {
+    const dates = eachDayOfInterval({
+      start: formValues.startDate,
+      end: formValues.endDate,
+    });
+
+    let absence: AbsenceCreateInput = {
       orgId: Number(state.organizationId),
       employeeId: Number(state.employeeId),
       notesToApprover: formValues.notesToApprover,
@@ -219,17 +225,25 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
         return detail;
       }),
-      vacancies: [
-        {
-          positionId: positionId,
-          needsReplacement: formValues.needsReplacement,
-          notesToReplacement: formValues.notesToReplacement,
-          prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
-        },
-      ],
     };
 
-    console.log("Absence", absence);
+    // Populate the Vacancies on the Absence if needed
+    if (formValues.needsReplacement) {
+      absence = {
+        ...absence,
+        /* TODO: When we support multi Position Employees we'll need to account for the following:
+            When creating an Absence, there must be 1 Vacancy created here per Position Id.
+        */
+        vacancies: [
+          {
+            positionId: positionId,
+            needsReplacement: formValues.needsReplacement,
+            notesToReplacement: formValues.notesToReplacement,
+            prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
+          },
+        ],
+      };
+    }
 
     const result = await createAbsence({
       variables: {
@@ -246,7 +260,23 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
       {/* {JSON.stringify(getValues())} */}
 
-      <form onSubmit={handleSubmit((data, e) => console.log(data))}>
+      <form
+        onSubmit={handleSubmit(async (data, e) => {
+          const absenceId = await create(data);
+          console.log(absenceId);
+          if (absenceId) {
+            setAbsenceId(absenceId);
+            history.push({
+              ...history.location,
+              search: "?action=success",
+            });
+            dispatch({
+              action: "switchStep",
+              step: "confirmation",
+            });
+          }
+        })}
+      >
         {state.step === "absence" && (
           <>
             {props.actingAsEmployee ? (
@@ -266,7 +296,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
-                create={create}
               />
             </Section>
           </>
@@ -281,6 +310,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             vacancies={projectedVacancies}
             selectReplacementEmployee={selectReplacementEmployee}
           />
+        )}
+        {state.step === "confirmation" && (
+          <Confirmation absenceId={absenceId} dispatch={dispatch} />
         )}
       </form>
     </>
