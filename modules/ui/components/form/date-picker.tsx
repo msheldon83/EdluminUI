@@ -33,13 +33,12 @@ type DatePickerProps = {
   onChange: DatePickerOnChange;
   minimumDate?: Date;
   maximumDate?: Date;
-  singleDate?: boolean;
-  showCalendarOnFocus?: boolean;
   startLabel: string;
-  endLabel: string;
+  endLabel?: string;
   dateFormat?: string;
   disableDates?: Array<Date>;
   onMonthChange?: DatePickerOnMonthChange;
+  variant?: "single" | "single-hidden" | "range" | "extended-range";
 };
 
 export type DatePickerOnChange = (dates: {
@@ -54,12 +53,11 @@ export const DatePicker = (props: DatePickerProps) => {
     startDate,
     endDate,
     onChange,
-    singleDate = false,
-    showCalendarOnFocus = false,
     startLabel,
     endLabel,
     dateFormat,
     disableDates = [],
+    variant = "range",
   } = props;
 
   const classes = useStyles(props);
@@ -77,6 +75,17 @@ export const DatePicker = (props: DatePickerProps) => {
     "100%"
   );
   const [dateHover, setDateHover] = React.useState<PolymorphicDateType>();
+
+  let shouldShowRange = true;
+  switch (variant) {
+    case "single":
+    case "single-hidden": {
+      shouldShowRange = false;
+      break;
+    }
+  }
+
+  const showCalendarOnFocus = variant === "single-hidden";
 
   // Calculate width of input for calendar width
   const startDateInputRef = React.useRef(document.createElement("div"));
@@ -136,12 +145,17 @@ export const DatePicker = (props: DatePickerProps) => {
 
     /*
       Used to highlight a date that is between the start date and the date that has the
-      mouse over it
+      mouse over it.
+
+      If there is an end date, the highlight between start and end date shouldn't
+      happen.
     */
     const dayIsBetweenHoverFocus =
       dateHover !== null &&
       isAfterDate(dateHover, start) &&
-      inDateInterval(day, { start, end: dateHover });
+      inDateInterval(day, { start, end: dateHover }) &&
+      !endDate &&
+      shouldShowRange;
     const dayIsHoverFocus =
       dayIsBetweenHoverFocus && areDatesEqual(dateHover, day);
 
@@ -300,9 +314,16 @@ export const DatePicker = (props: DatePickerProps) => {
     // A slight delay _feels_ better
     setTimeout(() => setOpenCalendar(false), 10);
 
-    singleDate
-      ? handleCalendarSingleDateChange(date)
-      : handleCalendarDateRangeChange(date);
+    switch (variant) {
+      case "single": {
+        handleCalendarSingleDateChange(date);
+        break;
+      }
+      case "range": {
+        handleCalendarDateRangeChange(date);
+        break;
+      }
+    }
   };
 
   const renderCalendar = () => {
@@ -357,7 +378,38 @@ export const DatePicker = (props: DatePickerProps) => {
     );
   };
 
-  const startDateStyle = singleDate ? { marginRight: 0 } : {};
+  const renderEndDate = () => {
+    switch (variant) {
+      case "single":
+      case "single-hidden": {
+        return;
+      }
+      default: {
+        return (
+          <div className={classes.endDateInput}>
+            <DateInput
+              label={endLabel || "(End Label Missing)"}
+              value={endDate}
+              onChange={handleEndDateInputChange}
+              onValidDate={handleEndDateInputChange}
+              dateFormat={dateFormat}
+            />
+          </div>
+        );
+      }
+    }
+  };
+
+  const startDateStyle = () => {
+    switch (variant) {
+      case "single": {
+        return { marginRight: 0 };
+      }
+      default: {
+        return {};
+      }
+    }
+  };
 
   const handleStartDateFocus = () => {
     if (showCalendarOnFocus) {
@@ -369,7 +421,7 @@ export const DatePicker = (props: DatePickerProps) => {
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <div className={classes.datePickerWrapper}>
         <div className={classes.keyboardInputWrapper}>
-          <div className={classes.startDateInput} style={startDateStyle}>
+          <div className={classes.startDateInput} style={startDateStyle()}>
             <DateInput
               label={startLabel}
               value={startDate}
@@ -384,17 +436,7 @@ export const DatePicker = (props: DatePickerProps) => {
               dateFormat={dateFormat}
             />
           </div>
-          {!singleDate && (
-            <div className={classes.endDateInput}>
-              <DateInput
-                label={endLabel}
-                value={endDate}
-                onChange={handleEndDateInputChange}
-                onValidDate={handleEndDateInputChange}
-                dateFormat={dateFormat}
-              />
-            </div>
-          )}
+          {renderEndDate()}
         </div>
         {showCalendarOnFocus ? renderPopoverCalendar() : renderCalendar()}
       </div>
