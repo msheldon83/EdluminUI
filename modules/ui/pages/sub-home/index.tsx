@@ -97,7 +97,6 @@ export const SubHome: React.FC<Props> = props => {
             vacancies.map((vacancy, index) => (
               <AvailableJob
                 vacancy={vacancy}
-                shadeRow={false}
                 shadeRow={index % 2 != 0}
                 key={index}
               />
