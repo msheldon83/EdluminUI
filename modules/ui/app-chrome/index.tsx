@@ -130,6 +130,7 @@ const useStyles = makeStyles(theme => ({
     flexDirection: "row",
   },
   navWidthExpanded: {
+    flexShrink: 0,
     width: theme.typography.pxToRem(258),
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
@@ -137,6 +138,7 @@ const useStyles = makeStyles(theme => ({
     }),
   },
   navWidthCompact: {
+    flexShrink: 0,
     width: theme.spacing(7) + 1,
     [theme.breakpoints.up("sm")]: {
       width: theme.spacing(9) + 1,
