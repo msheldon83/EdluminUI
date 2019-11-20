@@ -1,13 +1,5 @@
 import * as React from "react";
-import {
-  Grid,
-  makeStyles,
-  Typography,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Chip,
-} from "@material-ui/core";
+import { Grid, makeStyles, Typography, Button } from "@material-ui/core";
 import {
   Absence,
   Vacancy,
@@ -25,11 +17,13 @@ import { Calendar } from "../form/calendar";
 import { format, isAfter, isWithinInterval } from "date-fns";
 import { groupBy, differenceWith, uniqWith } from "lodash-es";
 import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
-import { dayPartToLabel } from "./helpers";
+import { dayPartToLabel, getReplacementEmployeeForVacancy } from "./helpers";
+import { AssignedSub } from "./assigned-sub";
 
 type Props = {
   orgId: string;
   absence: Absence | undefined;
+  isConfirmation?: boolean;
 };
 
 export const View: React.FC<Props> = props => {
@@ -48,6 +42,10 @@ export const View: React.FC<Props> = props => {
     absence.vacancies && absence.vacancies[0]
       ? absence.vacancies[0].notesToReplacement
       : undefined;
+
+  const replacementEmployeeInformation = getReplacementEmployeeForVacancy(
+    absence
+  );
 
   return (
     <div>
@@ -99,6 +97,16 @@ export const View: React.FC<Props> = props => {
                     {t("Requires a substitute")}
                   </Typography>
                 </div>
+                {replacementEmployeeInformation && (
+                  <AssignedSub
+                    employeeId={replacementEmployeeInformation.employeeId}
+                    employeeName={`${replacementEmployeeInformation.firstName} ${replacementEmployeeInformation.lastName}`}
+                    subText={
+                      props.isConfirmation ? t("pre-arranged") : t("assigned")
+                    }
+                    //onRemove={removePrearrangedReplacementEmployee}
+                  />
+                )}
                 <VacancyDetails
                   vacancies={
                     absence.vacancies as Pick<

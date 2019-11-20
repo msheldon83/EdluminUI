@@ -1,4 +1,4 @@
-import { DayPart } from "graphql/server-types.gen";
+import { DayPart, Absence } from "graphql/server-types.gen";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -21,4 +21,32 @@ export const dayPartToLabel = (dayPart: DayPart): string => {
     default:
       return "Other";
   }
+};
+
+export type ReplacementEmployeeForVacancy = {
+  employeeId: number;
+  firstName: string;
+  lastName: string;
+};
+
+export const getReplacementEmployeeForVacancy = (
+  absence: Absence
+): ReplacementEmployeeForVacancy | null => {
+  const hasReplacementEmployee =
+    absence.vacancies &&
+    absence.vacancies[0] &&
+    absence.vacancies[0].details &&
+    absence.vacancies[0].details[0] &&
+    absence.vacancies[0].details[0]?.assignment?.employeeId;
+
+  if (!hasReplacementEmployee) {
+    return null;
+  }
+
+  const assignment = absence.vacancies![0]!.details![0]!.assignment!;
+  return {
+    employeeId: assignment.employeeId,
+    firstName: assignment.employee?.firstName || "",
+    lastName: assignment.employee?.lastName || "",
+  };
 };
