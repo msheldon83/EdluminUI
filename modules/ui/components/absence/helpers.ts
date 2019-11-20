@@ -27,11 +27,17 @@ export type ReplacementEmployeeForVacancy = {
   employeeId: number;
   firstName: string;
   lastName: string;
+  assignmentId: string;
+  assignmentRowVersion: string;
 };
 
 export const getReplacementEmployeeForVacancy = (
-  absence: Absence
+  absence: Absence | undefined
 ): ReplacementEmployeeForVacancy | null => {
+  if (!absence) {
+    return null;
+  }
+
   const hasReplacementEmployee =
     absence.vacancies &&
     absence.vacancies[0] &&
@@ -48,5 +54,7 @@ export const getReplacementEmployeeForVacancy = (
     employeeId: assignment.employeeId,
     firstName: assignment.employee?.firstName || "",
     lastName: assignment.employee?.lastName || "",
+    assignmentId: assignment.id,
+    assignmentRowVersion: assignment.rowVersion,
   };
 };

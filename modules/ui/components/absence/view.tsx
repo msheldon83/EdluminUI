@@ -6,6 +6,7 @@ import {
   AbsenceReason,
   DayPart,
   AbsenceDetail,
+  Assignment,
   Maybe,
 } from "graphql/server-types.gen";
 import { useScreenSize } from "hooks";
@@ -17,8 +18,16 @@ import { Calendar } from "../form/calendar";
 import { format, isAfter, isWithinInterval } from "date-fns";
 import { groupBy, differenceWith, uniqWith } from "lodash-es";
 import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
-import { dayPartToLabel, getReplacementEmployeeForVacancy } from "./helpers";
+import {
+  dayPartToLabel,
+  getReplacementEmployeeForVacancy,
+  ReplacementEmployeeForVacancy,
+} from "./helpers";
 import { AssignedSub } from "./assigned-sub";
+import { useState } from "react";
+import { useSnackbar } from "hooks/use-snackbar";
+import { useMutationBundle } from "graphql/hooks";
+import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 
 type Props = {
   orgId: string;
@@ -31,22 +40,58 @@ export const View: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
+  const { openSnackbar } = useSnackbar();
   const absenceReasons = useAbsenceReasons(props.orgId);
+
   const absence = props.absence;
+  const [
+    replacementEmployeeInformation,
+    setReplacementEmployeeInformation,
+  ] = useState<ReplacementEmployeeForVacancy | null>(
+    getReplacementEmployeeForVacancy(absence)
+  );
+
+  const [cancelAssignment] = useMutationBundle(CancelAssignment, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
 
   if (!absence) {
     return null;
   }
+
+  const removeSub = async (
+    employeeId: number,
+    assignmentId?: string,
+    assignmentRowVersion?: string
+  ) => {
+    const result = await cancelAssignment({
+      variables: {
+        cancelRequest: {
+          id: Number(assignmentId) ?? "",
+          rowVersion: assignmentRowVersion ?? "",
+        },
+      },
+    });
+  };
 
   const hasVacancies = absence.vacancies && absence.vacancies.length;
   const notesToReplacement =
     absence.vacancies && absence.vacancies[0]
       ? absence.vacancies[0].notesToReplacement
       : undefined;
-
-  const replacementEmployeeInformation = getReplacementEmployeeForVacancy(
-    absence
-  );
 
   return (
     <div>
@@ -106,7 +151,14 @@ export const View: React.FC<Props> = props => {
                     subText={
                       props.isConfirmation ? t("pre-arranged") : t("assigned")
                     }
-                    //onRemove={removePrearrangedReplacementEmployee}
+                    assignmentId={replacementEmployeeInformation.assignmentId}
+                    assignmentRowVersion={
+                      replacementEmployeeInformation.assignmentRowVersion
+                    }
+                    onRemove={async (...props) => {
+                      await removeSub(...props);
+                      setReplacementEmployeeInformation(null);
+                    }}
                   />
                 )}
                 <VacancyDetails

@@ -7,7 +7,13 @@ type Props = {
   employeeId: number;
   employeeName: string;
   subText?: string;
-  onRemove?: (employeeId: number) => Promise<void>;
+  assignmentId?: string;
+  assignmentRowVersion?: string;
+  onRemove?: (
+    employeeId: number,
+    assignmentId?: string,
+    assignmentRowVersion?: string
+  ) => Promise<void>;
 };
 
 export const AssignedSub: React.FC<Props> = props => {
@@ -29,7 +35,13 @@ export const AssignedSub: React.FC<Props> = props => {
         {props.onRemove && (
           <Button
             className={classes.removeButton}
-            onClick={async () => await props.onRemove!(props.employeeId)}
+            onClick={async () =>
+              await props.onRemove!(
+                props.employeeId,
+                props.assignmentId,
+                props.assignmentRowVersion
+              )
+            }
           >
             {t("Remove")}
           </Button>

@@ -40,6 +40,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
         notesToReplacement
         positionId
         details {
+          id
           startDate
           startTimeLocal
           endDate
@@ -47,9 +48,12 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
           isFilled
           locationId
           location {
+            id
             name
           }
           assignment {
+            id
+            rowVersion
             employeeId
             employee {
               firstName
