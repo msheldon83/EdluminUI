@@ -14,7 +14,6 @@ import isSameDay from "date-fns/isSameDay";
 import format from "date-fns/format";
 import {
   isAfterDate,
-  formatDateIfPossible,
   areDatesEqual,
   inDateInterval,
   PolymorphicDateType,
@@ -23,7 +22,7 @@ import {
 type Props = {
   elevated?: boolean;
   startDate: Date;
-  endDate?: Date;
+  endDate?: Date | string;
   onChange?: CalendarProps["onChange"];
   onMonthChange?: CalendarProps["onMonthChange"];
   disableDates?: Array<Date>;
@@ -75,89 +74,102 @@ export const Calendar = (props: Props) => {
   // This should look like it's floating it's a dropdown style
   const elevation = elevated ? 2 : 0;
 
-  const customDayRenderer = (
-    day: Date | null,
-    selectedDate: Date | null,
-    dayInCurrentMonth: boolean,
-    dayComponent: JSX.Element
-  ): JSX.Element => {
-    /*
+  const customDayRenderer = React.useCallback(
+    (
+      day: Date | null,
+      selectedDate: Date | null,
+      dayInCurrentMonth: boolean,
+      dayComponent: JSX.Element
+    ): JSX.Element => {
+      /*
       The material-ui types say that date can be null here, but there's never a case in
       the UI where that can be true right now
     */
-    if (!day) {
-      return dayComponent;
-    }
+      if (!day) {
+        return dayComponent;
+      }
 
-    const dayIsBetween =
-      inDateInterval(day, {
-        start: startDate,
-        end: endDate,
-      }) && range;
-    const isFirstDay = isEqual(day, startDate);
-    const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
-    const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
-    const isDayDisabled = isDateDisabled(day);
+      const dayIsBetween =
+        inDateInterval(day, {
+          start: startDate,
+          end: endDate,
+        }) && range;
+      const isFirstDay = isEqual(day, startDate);
+      const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
+      const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
+      const isDayDisabled = isDateDisabled(day);
 
-    /*
+      /*
       Used to highlight a date that is between the start date and the date that has the
       mouse over it.
 
       If there is an end date, the highlight between start and end date shouldn't
       happen.
     */
-    const dayIsBetweenHoverFocus =
-      dateHover !== null &&
-      isAfterDate(dateHover, startDate) &&
-      inDateInterval(day, { start: startDate, end: dateHover }) &&
-      !endDate &&
-      range;
-    const dayIsHoverFocus =
-      dayIsBetweenHoverFocus && areDatesEqual(dateHover, day);
+      const dayIsBetweenHoverFocus =
+        dateHover !== null &&
+        isAfterDate(dateHover, startDate) &&
+        inDateInterval(day, { start: startDate, end: dateHover }) &&
+        !endDate &&
+        range;
+      const dayIsHoverFocus =
+        dayIsBetweenHoverFocus && areDatesEqual(dateHover, day);
 
-    const wrapperClassName = clsx({
-      [classes.highlight]: dayIsBetween && !isDayDisabled,
-      [classes.firstHighlight]: isFirstDay,
-      [classes.endHighlight]: isLastDay,
-      [classes.dayWrapper]: true,
-      [classes.dateHoverFocus]: dayIsHoverFocus,
-      [classes.dateHoverBetween]: dayIsBetweenHoverFocus,
-    });
+      const wrapperClassName = clsx({
+        [classes.highlight]: dayIsBetween && !isDayDisabled,
+        [classes.firstHighlight]: isFirstDay,
+        [classes.endHighlight]: isLastDay,
+        [classes.dayWrapper]: true,
+        [classes.dateHoverFocus]: dayIsHoverFocus,
+        [classes.dateHoverBetween]: dayIsBetweenHoverFocus,
+      });
 
-    const dayClassName = clsx(classes.day, {
-      [classes.day]: true,
-      [classes.nonCurrentMonthDay]: !dayInCurrentMonth || isDayDisabled,
-      [classes.highlightNonCurrentMonthDay]: !dayInCurrentMonth && dayIsBetween,
-      [classes.highlight]: dayIsSelected && !isDayDisabled,
-      [classes.disabledDay]: isDayDisabled,
-    });
+      const dayClassName = clsx(classes.day, {
+        [classes.day]: true,
+        [classes.nonCurrentMonthDay]: !dayInCurrentMonth || isDayDisabled,
+        [classes.highlightNonCurrentMonthDay]:
+          !dayInCurrentMonth && dayIsBetween,
+        [classes.highlight]: dayIsSelected && !isDayDisabled,
+        [classes.disabledDay]: isDayDisabled,
+      });
 
-    /*
+      /*
       The calendar component doesn't let days in months not in the current month be actionable.
       This simulates that functionality. Here's the culprit:
 
       https://github.com/mui-org/material-ui-pickers/blob/next/lib/src/views/Calendar/DayWrapper.tsx#L24
     */
-    const handleDayClick = () => {
-      if (!dayInCurrentMonth && !isDayDisabled && !disabled) {
-        onChange(day);
-      }
-    };
+      const handleDayClick = () => {
+        if (!dayInCurrentMonth && !isDayDisabled && !disabled) {
+          onChange(day);
+        }
+      };
 
-    return (
-      <div
-        className={wrapperClassName}
-        onClick={handleDayClick}
-        onKeyPress={handleDayClick}
-        onMouseEnter={() => setDateHover(day)}
-        onMouseLeave={() => setDateHover(undefined)}
-      >
-        <IconButton className={dayClassName} disableRipple>
-          <span> {format(day, "d")} </span>
-        </IconButton>
-      </div>
-    );
-  };
+      return (
+        <div
+          className={wrapperClassName}
+          onClick={handleDayClick}
+          onKeyPress={handleDayClick}
+          onMouseEnter={() => setDateHover(day)}
+          onMouseLeave={() => setDateHover(undefined)}
+        >
+          <IconButton className={dayClassName} disableRipple>
+            <span> {format(day, "d")} </span>
+          </IconButton>
+        </div>
+      );
+    },
+    [
+      classes,
+      dateHover,
+      disabled,
+      endDate,
+      isDateDisabled,
+      onChange,
+      range,
+      startDate,
+    ]
+  );
 
   const className = clsx({
     [classes.calendarWrapper]: true,
