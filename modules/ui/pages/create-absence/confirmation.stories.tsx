@@ -239,7 +239,7 @@ const getAbsence = (
   } as Absence;
 
   if (!complexAbsence) {
-    const firstDetail = absence!.details![0];
+    const firstDetail = absence.details![0];
     absence = {
       ...absence,
       startDate: firstDetail!.startDate,
