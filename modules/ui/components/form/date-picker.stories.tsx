@@ -158,6 +158,7 @@ export const CalendarStory = () => {
         startDate={customDate("startDate", new Date())}
         endDate={customDate("endDateDate")}
         range={boolean("range", false)}
+        disabled={boolean("disabled", false)}
       />
     </div>
   );

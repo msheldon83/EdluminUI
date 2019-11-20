@@ -28,6 +28,7 @@ type Props = {
   onMonthChange?: CalendarProps["onMonthChange"];
   disableDates?: Array<Date>;
   range?: boolean;
+  disabled?: boolean;
 };
 
 export const Calendar = (props: Props) => {
@@ -38,6 +39,7 @@ export const Calendar = (props: Props) => {
     onMonthChange = () => {},
     disableDates = [],
     range = false,
+    disabled = false,
   } = props;
   let { endDate } = props;
 
@@ -95,7 +97,7 @@ export const Calendar = (props: Props) => {
     const isFirstDay = isEqual(day, startDate);
     const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
     const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
-    const isDisabled = isDateDisabled(day);
+    const isDayDisabled = isDateDisabled(day);
 
     /*
       Used to highlight a date that is between the start date and the date that has the
@@ -114,7 +116,7 @@ export const Calendar = (props: Props) => {
       dayIsBetweenHoverFocus && areDatesEqual(dateHover, day);
 
     const wrapperClassName = clsx({
-      [classes.highlight]: dayIsBetween && !isDisabled,
+      [classes.highlight]: dayIsBetween && !isDayDisabled,
       [classes.firstHighlight]: isFirstDay,
       [classes.endHighlight]: isLastDay,
       [classes.dayWrapper]: true,
@@ -124,10 +126,10 @@ export const Calendar = (props: Props) => {
 
     const dayClassName = clsx(classes.day, {
       [classes.day]: true,
-      [classes.nonCurrentMonthDay]: !dayInCurrentMonth || isDisabled,
+      [classes.nonCurrentMonthDay]: !dayInCurrentMonth || isDayDisabled,
       [classes.highlightNonCurrentMonthDay]: !dayInCurrentMonth && dayIsBetween,
-      [classes.highlight]: dayIsSelected && !isDisabled,
-      [classes.disabledDay]: isDisabled,
+      [classes.highlight]: dayIsSelected && !isDayDisabled,
+      [classes.disabledDay]: isDayDisabled,
     });
 
     /*
@@ -137,7 +139,7 @@ export const Calendar = (props: Props) => {
       https://github.com/mui-org/material-ui-pickers/blob/next/lib/src/views/Calendar/DayWrapper.tsx#L24
     */
     const handleDayClick = () => {
-      if (!dayInCurrentMonth && !isDisabled) {
+      if (!dayInCurrentMonth && !isDayDisabled && !disabled) {
         onChange(day);
       }
     };
@@ -169,10 +171,13 @@ export const Calendar = (props: Props) => {
           date={startDate}
           onChange={onChange}
           renderDay={customDayRenderer}
+          disablePast={disabled}
+          disableFuture={disabled}
           allowKeyboardControl={false}
           shouldDisableDate={isDateDisabled}
           onMonthChange={onMonthChange}
         />
+        {disabled && <div className={classes.disableCalendar} />}
       </Paper>
     </MuiPickersUtilsProvider>
   );
@@ -190,12 +195,20 @@ const useStyles = makeStyles(theme => ({
     maxWidth: theme.typography.pxToRem(380),
     overflow: "hidden",
     padding: theme.spacing(1.5),
+    position: "relative",
     transition: "border-color 100ms linear",
     width: "100%",
 
     "&:hover": {
       borderColor: "rgba(0, 0, 0, 0.87)",
     },
+  },
+  disableCalendar: {
+    left: 0,
+    position: "absolute",
+    top: 0,
+    width: "100%",
+    height: "100%",
   },
   calendarWrapperFloating: {
     borderWidth: 0,
