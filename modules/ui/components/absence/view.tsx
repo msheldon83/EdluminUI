@@ -113,16 +113,6 @@ export const View: React.FC<Props> = props => {
                 }
                 equalWidthDetails
               />
-              {/* {props.preAssignedReplacementEmployeeName && (
-            <div className={classes.preArrangedChip}>
-              <Chip
-                label={`${t("Pre-arranged")}: ${
-                  props.preAssignedReplacementEmployeeName
-                }`}
-                color={"primary"}
-              />
-            </div>
-          )} */}
               <div className={classes.notesForSubSection}>
                 <Typography variant={"h6"}>
                   {t("Notes for substitute")}
