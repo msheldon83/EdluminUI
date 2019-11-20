@@ -1,10 +1,11 @@
 import * as React from "react";
 import { action } from "@storybook/addon-actions";
-import { text } from "@storybook/addon-knobs";
+import { text, boolean, date } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
 import endOfTomorrow from "date-fns/endOfTomorrow";
 import endOfYesterday from "date-fns/endOfYesterday";
 import { DatePicker, DEFAULT_DATE_FORMAT } from "./date-picker";
+import { Calendar } from "./calendar";
 
 export default {
   title: "Forms/Date Picker",
@@ -139,6 +140,31 @@ export const SingleHiddenDateStory = () => {
 
 SingleHiddenDateStory.story = {
   name: "Show Calendar on Focus",
+};
+
+const customDate = (name: string, defaultValue?: Date): Date => {
+  const value = date(name, defaultValue);
+
+  const d = new Date(value);
+  return new Date(d);
+};
+
+export const CalendarStory = () => {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.container}>
+      <Calendar
+        startDate={customDate("startDate", new Date())}
+        endDate={customDate("endDateDate")}
+        range={boolean("range", false)}
+      />
+    </div>
+  );
+};
+
+CalendarStory.story = {
+  name: "Calendar",
 };
 
 const useStyles = makeStyles(theme => ({
