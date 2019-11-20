@@ -5,7 +5,7 @@ import {
   Maybe,
   VacancyDetail,
 } from "graphql/server-types.gen";
-import { groupBy, differenceWith, uniqWith } from "lodash";
+import { groupBy, differenceWith, uniqWith } from "lodash-es";
 import { isAfter, isWithinInterval, format } from "date-fns";
 import { convertStringToDate } from "helpers/date";
 
