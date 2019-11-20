@@ -46,7 +46,6 @@ export const AvailableJob: React.FC<Props> = props => {
   );
 
   const vacancy = props.vacancy;
-  console.log(vacancy);
 
   const startDate = parseISO(vacancy.startDate);
   const endDate = parseISO(vacancy.endDate);
@@ -80,11 +79,11 @@ export const AvailableJob: React.FC<Props> = props => {
 
   const parseDayPortion = (dayPortion: number) => {
     if (dayPortion === 0.5) {
-      return "Half Day";
+      return t("Half Day");
     } else if (dayPortion === 1) {
-      return "Full Day";
+      return t("Full Day");
     } else if (dayPortion > 1) {
-      return "Full Days";
+      return t("Full Days");
     } else {
       return "";
     }
