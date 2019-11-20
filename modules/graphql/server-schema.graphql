@@ -1521,6 +1521,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   locationGroupId: Int!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
+  phoneNumber: String
   address1: String
   address2: String
   city: String
@@ -1540,6 +1541,7 @@ input LocationCreateInput {
   locationGroupId: Int!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
+  phoneNumber: String
 }
 
 type LocationGroup implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -1612,6 +1614,7 @@ input LocationUpdateInput {
   locationGroupId: Int!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
+  phoneNumber: String
 }
 
 scalar Milliseconds
