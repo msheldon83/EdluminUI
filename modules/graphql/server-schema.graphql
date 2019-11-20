@@ -777,6 +777,9 @@ input CreateVacancyAssignmentInput {
   orgId: Int!
   vacancyId: Int!
   employeeId: Int!
+  isLongTerm: Boolean
+  appliesToAllVacancyDetails: Boolean
+  vacancyDetailIds: [Int]
 }
 
 enum Culture {
@@ -1044,8 +1047,9 @@ type EmployeeQueries {
 }
 
 input EmployeeRejectVacancyInput {
-  vacancyId: Int!
+  vacancyId: ID
   employeeId: Int!
+  vacancyRejectionReasonId: VacancyRejectionReason
 }
 
 input EmployeeUpdateInput {
