@@ -1,0 +1,36 @@
+mutation CreateAbsence($absence: AbsenceCreateInput!) {
+  absence {
+    create(absence: $absence) {
+      id
+      rowVersion
+      createdUtc
+      changedUtc
+      details {
+        id
+        actualDuration
+        dayPartId
+        dayPartId
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        reasonUsages {
+          id
+          absenceReasonId
+          absenceReasonTrackingTypeId
+          amount
+          sequence
+        }
+      }
+      employeeId
+      startDate
+      startTimeLocal
+      endDate
+      endTimeLocal
+      notesToApprover
+      numDays
+      totalDayPortion
+      totalDuration
+    }
+  }
+}

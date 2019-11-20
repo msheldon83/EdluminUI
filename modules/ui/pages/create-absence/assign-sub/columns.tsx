@@ -12,6 +12,10 @@ import { AccountCircleOutlined } from "@material-ui/icons";
 export const getAssignSubColumns = (
   tableData: any[],
   isAdmin: boolean,
+  selectReplacementEmployee: (
+    replacementEmployeeId: number,
+    name: string
+  ) => Promise<void>,
   isMobile: boolean,
   theme: Theme,
   classes: any,
@@ -116,8 +120,11 @@ export const getAssignSubColumns = (
         variant="outlined"
         disabled={!data.selectable}
         className={classes.selectButton}
-        onClick={() => {
-          console.log("Selecting Employee Id", data.employeeId);
+        onClick={async () => {
+          await selectReplacementEmployee(
+            data.employeeId,
+            `${data.firstName} ${data.lastName}`
+          );
         }}
       >
         {t("Select")}
