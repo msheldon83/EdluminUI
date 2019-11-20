@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, makeStyles, Typography, Button } from "@material-ui/core";
+import { Grid, makeStyles, Typography, Button, Paper } from "@material-ui/core";
 import {
   Absence,
   Vacancy,
@@ -138,12 +138,7 @@ export const View: React.FC<Props> = props => {
               <Typography variant="h5">{t("Substitute Details")}</Typography>
             </Grid>
             <Grid item xs={12}>
-              <Section className={classes.vacancyDetailsSection}>
-                <div className={classes.requiresSubSection}>
-                  <Typography variant="h6">
-                    {t("Requires a substitute")}
-                  </Typography>
-                </div>
+              <Paper className={classes.substituteDetailsSection}>
                 {replacementEmployeeInformation && (
                   <AssignedSub
                     employeeId={replacementEmployeeInformation.employeeId}
@@ -161,37 +156,51 @@ export const View: React.FC<Props> = props => {
                     }}
                   />
                 )}
-                <VacancyDetails
-                  vacancies={
-                    absence.vacancies as Pick<
-                      Vacancy,
-                      | "startTimeLocal"
-                      | "endTimeLocal"
-                      | "numDays"
-                      | "positionId"
-                      | "details"
-                    >[]
-                  }
-                  equalWidthDetails
-                />
-                <div className={classes.notesForSubSection}>
-                  <Typography variant={"h6"}>
-                    {t("Notes for substitute")}
-                  </Typography>
-                  <Typography className={classes.subText}>
-                    {t(
-                      "Can be seen by the substitute, administrator and employee."
-                    )}
-                  </Typography>
-                  <div className={classes.notesForSub}>
-                    {notesToReplacement || (
-                      <span className={classes.valueMissing}>
-                        {t("No Notes Specified")}
-                      </span>
-                    )}
+                <div className={classes.vacancyDetails}>
+                  <div className={classes.requiresSubSection}>
+                    <Typography variant="h6">
+                      {t("Requires a substitute")}
+                    </Typography>
                   </div>
+                  <VacancyDetails
+                    vacancies={
+                      absence.vacancies as Pick<
+                        Vacancy,
+                        | "startTimeLocal"
+                        | "endTimeLocal"
+                        | "numDays"
+                        | "positionId"
+                        | "details"
+                      >[]
+                    }
+                    equalWidthDetails
+                  />
+                  <div className={classes.notesForSubSection}>
+                    <Typography variant={"h6"}>
+                      {t("Notes for substitute")}
+                    </Typography>
+                    <Typography className={classes.subText}>
+                      {t(
+                        "Can be seen by the substitute, administrator and employee."
+                      )}
+                    </Typography>
+                    <div className={classes.notesForSub}>
+                      {notesToReplacement || (
+                        <span className={classes.valueMissing}>
+                          {t("No Notes Specified")}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {props.isConfirmation && (
+                    <div className={classes.edit}>
+                      <Button variant="outlined" onClick={() => {}}>
+                        {t("Edit")}
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              </Section>
+              </Paper>
             </Grid>
           </Grid>
         )}
@@ -204,9 +213,14 @@ const useStyles = makeStyles(theme => ({
   absenceDetailsSection: {
     marginTop: theme.spacing(),
   },
-  vacancyDetailsSection: {
+  substituteDetailsSection: {
     marginTop: theme.spacing(2),
-    padding: theme.spacing(2),
+  },
+  vacancyDetails: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
   },
   absenceReasonDetails: {
     fontWeight: "bold",
@@ -236,6 +250,9 @@ const useStyles = makeStyles(theme => ({
   },
   subText: {
     color: theme.customColors.darkGray,
+  },
+  edit: {
+    marginTop: theme.spacing(4),
   },
   valueMissing: {
     fontWeight: "normal",

@@ -277,6 +277,8 @@ const disabledDates = [
   new Date("2019-11-30 00:00"),
   new Date("2019-11-5 00:00"),
   new Date("2019-11-15 00:00"),
+  new Date("2019-11-23 00:00"),
+  new Date("2019-11-24 00:00"),
 ];
 
 export const AsAdminWithAllInformation = () => {

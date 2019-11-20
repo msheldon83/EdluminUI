@@ -35,6 +35,7 @@ export const AssignedSub: React.FC<Props> = props => {
         {props.onRemove && (
           <Button
             className={classes.removeButton}
+            variant="outlined"
             onClick={async () =>
               await props.onRemove!(
                 props.employeeId,
@@ -54,11 +55,11 @@ export const AssignedSub: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
-    padding: theme.spacing(),
+    padding: theme.spacing(2),
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
-    backgroundColor: theme.customColors.lightBlue,
+    backgroundColor: "#ECF9F3",
     marginTop: theme.spacing(),
     marginBottom: theme.spacing(),
   },

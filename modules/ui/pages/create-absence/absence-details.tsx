@@ -207,6 +207,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </Typography>
 
         <Paper>
+          {values.replacementEmployeeId && (
+            <AssignedSub
+              employeeId={values.replacementEmployeeId}
+              employeeName={values.replacementEmployeeName || ""}
+              subText={t("pre-arranged")}
+              onRemove={removePrearrangedReplacementEmployee}
+            />
+          )}
           <div className={classes.container}>
             {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
               <FormControlLabel
@@ -215,6 +223,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                   <Checkbox
                     checked={values.needsReplacement}
                     onChange={onNeedsReplacementChange}
+                    color="primary"
                   />
                 }
               />
@@ -224,15 +233,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
                   ? t("Requires a substitute")
                   : t("No substitute required")}
               </Typography>
-            )}
-
-            {values.replacementEmployeeId && (
-              <AssignedSub
-                employeeId={values.replacementEmployeeId}
-                employeeName={values.replacementEmployeeName || ""}
-                subText={t("pre-arranged")}
-                onRemove={removePrearrangedReplacementEmployee}
-              />
             )}
 
             {values.needsReplacement && (

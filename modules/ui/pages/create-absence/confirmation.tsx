@@ -49,12 +49,12 @@ export const Confirmation: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={12} container justify="flex-end" spacing={2}>
           <Grid item>
-            <Button variant="outlined" color="primary" onClick={() => {}}>
+            <Button variant="outlined" onClick={() => {}}>
               {t("Create New")}
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="outlined" color="primary" onClick={() => {}}>
+            <Button variant="outlined" onClick={() => {}}>
               {t("Back to List")}
             </Button>
           </Grid>
