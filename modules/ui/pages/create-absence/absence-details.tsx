@@ -42,6 +42,7 @@ import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
 import { VacancyDetails } from "../../components/absence/vacancy-details";
 import { useHistory } from "react-router";
+import { dayPartToLabel } from "ui/components/absence/helpers";
 
 type Props = {
   state: CreateAbsenceState;
@@ -366,29 +367,6 @@ const useTextFieldClasses = makeStyles(theme => ({
     padding: theme.spacing(1),
   },
 }));
-
-const dayPartToLabel = (dayPart: DayPart): string => {
-  switch (dayPart) {
-    case DayPart.FullDay:
-      return "Full Day";
-    case DayPart.HalfDayMorning:
-      return "Half Day AM";
-    case DayPart.HalfDayAfternoon:
-      return "Half Day PM";
-    case DayPart.Hourly:
-      return "Hourly";
-    case DayPart.QuarterDayEarlyMorning:
-      return "Quarter Day Early Morning";
-    case DayPart.QuarterDayLateMorning:
-      return "Quarter Day Late Morning";
-    case DayPart.QuarterDayEarlyAfternoon:
-      return "Quarter Day Early Afternoon";
-    case DayPart.QuarterDayLateAfternoon:
-      return "Quarter Day Late Afternoon";
-    default:
-      return "Other";
-  }
-};
 
 const featureFlagsToDayPartOptions = (
   featureFlags: FeatureFlag[]

@@ -8,13 +8,24 @@ import {
   FormControlLabel,
   Chip,
 } from "@material-ui/core";
-import { Absence, Vacancy, AbsenceReason } from "graphql/server-types.gen";
+import {
+  Absence,
+  Vacancy,
+  AbsenceReason,
+  DayPart,
+  AbsenceDetail,
+  Maybe,
+} from "graphql/server-types.gen";
 import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { VacancyDetails } from "./vacancy-details";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { DatePicker } from "../form/date-picker";
+import { format, isAfter, isWithinInterval } from "date-fns";
+import { groupBy, differenceWith, difference, uniqWith } from "lodash-es";
+import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
+import { dayPartToLabel } from "./helpers";
 
 type Props = {
   orgId: string;
@@ -32,41 +43,6 @@ export const View: React.FC<Props> = props => {
     return null;
   }
 
-  const getAbsenceReasonListDisplay = (
-    totalNumberOfDays: number | null | undefined
-  ) => {
-    if (!props.absence || !props.absence.details) {
-      return null;
-    }
-
-    const numberOfDaysText = totalNumberOfDays
-      ? `  (${totalNumberOfDays} ${
-          totalNumberOfDays === 1 ? t("day") : t("days")
-        })`
-      : "";
-
-    return props.absence.details.map((d, i) => {
-      /* TODO: Currently we are assuming that there is only 1 Absence Reason in
-          use per Absence Detail. As we build in support for my complicated
-          Absences, we will have to revisit this.
-      */
-      const matchingAbsenceReason = absenceReasons.find(
-        (a: Pick<AbsenceReason, "id" | "name">) =>
-          d &&
-          d.reasonUsages &&
-          d.reasonUsages[0] &&
-          a.id === d.reasonUsages[0].absenceReasonId.toString()
-      );
-      if (matchingAbsenceReason) {
-        return (
-          <div
-            key={i}
-          >{`${matchingAbsenceReason.name}${numberOfDaysText}`}</div>
-        );
-      }
-    });
-  };
-
   const hasVacancies = absence.vacancies && absence.vacancies.length;
   const notesToReplacement =
     absence.vacancies && absence.vacancies[0]
@@ -79,25 +55,30 @@ export const View: React.FC<Props> = props => {
         <Grid item xs={12}>
           <Typography variant="h5">{t("Absence Details")}</Typography>
         </Grid>
-        <Grid item xs={12}>
-          <DatePicker
-            startDate={new Date(`${absence.startDate} 00:00`)}
-            endDate={new Date(`${absence.endDate} 00:00`)}
-            onChange={() => {}}
-            startLabel=""
-            endLabel=""
-            disabled={true}
-          />
-          {/* <Typography variant={"h6"}>{t("Reason")}:</Typography>
-          {getAbsenceReasonListDisplay(absence.numDays)} */}
+        <Grid item xs={12} className={classes.absenceDetailsSection}>
+          <div>
+            {getAbsenceReasonListDisplay(absence, absenceReasons, classes)}
+          </div>
+
+          <div className={classes.dates}>
+            <DatePicker
+              startDate={new Date(`${absence.startDate} 00:00`)}
+              endDate={new Date(`${absence.endDate} 00:00`)}
+              onChange={() => {}}
+              startLabel=""
+              endLabel=""
+              disabled={true}
+            />
+          </div>
+
           <div className={classes.notesToApproverSection}>
             <Typography variant={"h6"}>
-              {t("Notes for administrator")}:
+              {t("Notes for administrator")}
             </Typography>
             <Typography className={classes.subText}>
               {t("Can be seen by the administrator and the employee.")}
             </Typography>
-            <div>
+            <div className={classes.notesForApprover}>
               {absence.notesToApprover || (
                 <span className={classes.valueMissing}>
                   {t("No Notes Specified")}
@@ -144,11 +125,11 @@ export const View: React.FC<Props> = props => {
           )} */}
               <div className={classes.notesForSubSection}>
                 <Typography variant={"h6"}>
-                  {t("Notes for substitute")}:
+                  {t("Notes for substitute")}
                 </Typography>
                 <Typography className={classes.subText}>
                   {t(
-                    "Can be seen by the administrator and the employee as well as the assigned substitute."
+                    "Can be seen by the substitute, administrator and employee."
                   )}
                 </Typography>
                 <div className={classes.notesForSub}>
@@ -168,24 +149,27 @@ export const View: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  confirmationBanner: {
-    textAlign: "center",
-    color: theme.customColors.white,
-    backgroundColor: "#099E47",
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
-  },
-  confirmationText: {
-    marginTop: theme.spacing(2),
+  absenceDetailsSection: {
+    marginTop: theme.spacing(),
   },
   vacancyDetailsSection: {
+    marginTop: theme.spacing(),
     padding: theme.spacing(2),
+  },
+  absenceReasonDetails: {
+    fontWeight: "bold",
+  },
+  dates: {
+    marginTop: theme.spacing(2),
   },
   notesToApproverSection: {
     marginTop: theme.spacing(2),
   },
+  notesForApprover: {
+    marginTop: theme.spacing(),
+    paddingRight: theme.spacing(6),
+  },
   requiresSubSection: {
-    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
   preArrangedChip: {
@@ -207,3 +191,196 @@ const useStyles = makeStyles(theme => ({
     filter: "alpha(opacity = 60)",
   },
 }));
+
+type DetailsGroup = {
+  startDate: Date;
+  endDate?: Date;
+  detailItems: DetailsItemByDate[];
+  simpleDetailItems?: DetailsItem[];
+  absenceReasonId?: number;
+};
+
+type DetailsItem = {
+  dayPart: DayPart;
+  startTime: string;
+  endTime: string;
+  absenceReasonId: number;
+};
+
+type DetailsItemByDate = DetailsItem & { date: Date };
+
+/* TODO: Currently we are assuming that there is only 1 Absence Reason in
+    use per Absence Detail. As we build in support for more complicated
+    Absences, we will have to revisit this.
+*/
+
+const getAbsenceReasonListDisplay = (
+  absence: Absence,
+  absenceReasons: Pick<AbsenceReason, "id" | "name">[],
+  classes: any
+) => {
+  const detailsGrouping = getDetailsGrouping(absence);
+  if (detailsGrouping === null || !detailsGrouping.length) {
+    return null;
+  }
+
+  return detailsGrouping.map((d, groupIndex) => {
+    const matchingAbsenceReason = absenceReasons.find(
+      a => a.id === d.absenceReasonId?.toString()
+    );
+
+    return (
+      <div key={groupIndex}>
+        <div className={classes.absenceReasonDetails}>
+          {matchingAbsenceReason?.name}
+        </div>
+        <Typography variant="h6">
+          {getDateRangeDisplayText(d.startDate, d.endDate ?? new Date())}
+        </Typography>
+        {d.simpleDetailItems &&
+          d.simpleDetailItems.map((di, detailIndex) => {
+            return (
+              <div key={detailIndex} className={classes.absenceReasonDetails}>
+                {`${dayPartToLabel(di.dayPart)} (${di.startTime} - ${
+                  di.endTime
+                })`}
+              </div>
+            );
+          })}
+      </div>
+    );
+  });
+};
+
+const getDetailsGrouping = (absence: Absence) => {
+  if (!absence.details) {
+    return null;
+  }
+
+  // Put the details in order by start date and time
+  const sortedAbsenceDetails = absence.details
+    .slice()
+    .sort((a, b) => a!.startTimeLocal - b!.startTimeLocal);
+
+  // Group all of the details that are on the same day together
+  const detailsGroupedByStartDate = groupBy(sortedAbsenceDetails, d => {
+    return d!.startDate;
+  });
+
+  const detailsGroupings: DetailsGroup[] = [];
+  Object.entries(detailsGroupedByStartDate).forEach(([key, value]) => {
+    const keyAsDate = new Date(`${key} 00:00`);
+    // Look for a potential matching group to add to
+    const potentialGroup = detailsGroupings.find(g => {
+      if (!g.endDate) {
+        return isAfter(keyAsDate, g.startDate);
+      }
+
+      return isWithinInterval(keyAsDate, {
+        start: g.startDate,
+        end: g.endDate,
+      });
+    });
+
+    // Determine if we're going to add to the Group we found or not
+    let addToGroup = false;
+    if (potentialGroup) {
+      const valuesAsDetailItems = convertAbsenceDetailsToDetailsItem(
+        keyAsDate,
+        value
+      );
+      const differences = differenceWith(
+        valuesAsDetailItems,
+        potentialGroup.detailItems,
+        (a, b) => {
+          return (
+            a.startTime === b.startTime &&
+            a.endTime === b.endTime &&
+            a.absenceReasonId === b.absenceReasonId
+          );
+        }
+      );
+      addToGroup = !differences.length;
+    }
+
+    if (potentialGroup && addToGroup) {
+      potentialGroup.detailItems.push(
+        ...convertAbsenceDetailsToDetailsItem(keyAsDate, value)
+      );
+    } else {
+      if (potentialGroup) {
+        // Set the endDate of the previous Group
+        potentialGroup.endDate =
+          potentialGroup.detailItems[
+            potentialGroup.detailItems.length - 1
+          ].date;
+      }
+
+      // Add a new grouping item
+      detailsGroupings.push({
+        startDate: new Date(`${key} 00:00`),
+        detailItems: convertAbsenceDetailsToDetailsItem(keyAsDate, value),
+      });
+    }
+  });
+
+  if (detailsGroupings && detailsGroupings.length) {
+    // Set the endDate on the last item
+    const lastItem = detailsGroupings[detailsGroupings.length - 1];
+    lastItem.endDate =
+      lastItem.detailItems[lastItem.detailItems.length - 1].date;
+  }
+
+  // Populate the simple detail items on the groups
+  detailsGroupings.forEach(g => {
+    g.absenceReasonId = g.detailItems[0].absenceReasonId;
+    g.simpleDetailItems = uniqWith(
+      g.detailItems.map(di => {
+        return {
+          dayPart: di.dayPart,
+          startTime: di.startTime,
+          endTime: di.endTime,
+          absenceReasonId: di.absenceReasonId,
+        };
+      }),
+      (a, b) => {
+        return (
+          a.startTime === b.startTime &&
+          a.endTime === b.endTime &&
+          a.absenceReasonId === b.absenceReasonId &&
+          a.dayPart === b.dayPart
+        );
+      }
+    );
+  });
+
+  return detailsGroupings;
+};
+
+const convertAbsenceDetailsToDetailsItem = (
+  date: Date,
+  details: Maybe<AbsenceDetail>[]
+): DetailsItemByDate[] => {
+  const detailItems = details.map(d => {
+    const startTime = convertStringToDate(d!.startTimeLocal);
+    const endTime = convertStringToDate(d!.endTimeLocal);
+    if (!startTime || !endTime) {
+      return;
+    }
+
+    return {
+      date: date,
+      dayPart: d!.dayPartId,
+      startTime: format(startTime, "h:mm a"),
+      endTime: format(endTime, "h:mm a"),
+      absenceReasonId:
+        d!.reasonUsages && d!.reasonUsages[0]
+          ? d!.reasonUsages[0].absenceReasonId
+          : undefined,
+    };
+  });
+  const populatedItems = detailItems.filter(
+    d => d !== undefined && d.absenceReasonId !== undefined
+  ) as DetailsItemByDate[];
+  return populatedItems;
+};

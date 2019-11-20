@@ -164,7 +164,7 @@ const getDetailsGrouping = (
         return isAfter(keyAsDate, g.startDate);
       }
 
-      return isWithinInterval(new Date(`${key} 00:00`), {
+      return isWithinInterval(keyAsDate, {
         start: g.startDate,
         end: g.endDate,
       });
