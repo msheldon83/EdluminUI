@@ -7,11 +7,17 @@ export default {
   title: "Components/AvailableJob",
 };
 
+const onDismiss = async (orgId: string, vacancyId: string) => {};
+
 export const AvailableJobSingleStory = () => {
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <AvailableJob vacancy={simpleVacancy} shadeRow={false} />
+      <AvailableJob
+        vacancy={simpleVacancy}
+        shadeRow={false}
+        onDismiss={onDismiss}
+      />
     </div>
   );
 };
@@ -20,7 +26,11 @@ export const AvailableJobMultipleStory = () => {
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <AvailableJob vacancy={complexVacancy} shadeRow={false} />
+      <AvailableJob
+        vacancy={complexVacancy}
+        shadeRow={false}
+        onDismiss={onDismiss}
+      />
     </div>
   );
 };

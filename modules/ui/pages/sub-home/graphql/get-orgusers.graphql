@@ -1,0 +1,13 @@
+query QueryOrgUsers {
+  userAccess {
+    me {
+      user {
+        id
+        orgUsers {
+          id
+          orgId
+        }
+      }
+    }
+  }
+}
