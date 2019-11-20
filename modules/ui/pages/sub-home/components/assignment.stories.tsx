@@ -1,7 +1,7 @@
 import * as React from "react";
 import { AssignmentCard } from "./assignment";
 import { makeStyles } from "@material-ui/core/styles";
-import { Assignment } from "graphql/server-types.gen";
+import { VacancyDetail } from "graphql/server-types.gen";
 
 export default {
   title: "Components/Assignment",
@@ -11,7 +11,7 @@ export const AssignmentStory = () => {
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <AssignmentCard assignment={simpleAssignment} shadeRow={false} />
+      <AssignmentCard vacancyDetail={simpleAssignment} shadeRow={false} />
     </div>
   );
 };
@@ -31,4 +31,31 @@ const simpleAssignment = ({
   id: "123456789",
   startTimeLocal: "2019-11-20T08:00",
   endTimeLocal: "2019-11-20T15:00",
-} as unknown) as Pick<Assignment, "id" | "startTimeLocal" | "endTimeLocal">;
+  assignment: {
+    id: "123456789",
+    startTimeLocal: "2019-11-20T08:00",
+    endTimeLocal: "2019-11-20T15:00",
+  },
+  location: {
+    name: "Frank's school",
+    address1: "77 Victoria Chase",
+    city: "Pottstown",
+    stateName: "PA",
+    postalCode: "19465",
+    phoneNumber: "6105551234",
+  },
+  vacancy: {
+    forEmployeeLastName: "Schmoe",
+    forEmployeeFirstName: "Joe",
+    positionName: "Kindergarten",
+    notesToReplacement: "These are notes for the substitute.",
+  },
+} as unknown) as Pick<
+  VacancyDetail,
+  | "id"
+  | "startTimeLocal"
+  | "endTimeLocal"
+  | "assignment"
+  | "location"
+  | "vacancy"
+>;
