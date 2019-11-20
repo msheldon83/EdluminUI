@@ -40,6 +40,10 @@ type Props = {
   employeeName: string;
   positionId?: string;
   positionName?: string;
+  selectReplacementEmployee: (
+    replacementEmployeeId: number,
+    name: string
+  ) => Promise<void>;
 };
 
 const buildVacancyInput = (
@@ -210,6 +214,7 @@ export const AssignSub: React.FC<Props> = props => {
       getAssignSubColumns(
         tableData,
         props.userIsAdmin,
+        props.selectReplacementEmployee,
         isMobile,
         theme,
         classes,

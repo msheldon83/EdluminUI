@@ -1,16 +1,18 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { startOfMonth } from "date-fns";
+import { startOfMonth, eachDayOfInterval } from "date-fns";
 import { useForm } from "forms";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import {
   DayPart,
   NeedsReplacement,
   Vacancy,
   AbsenceCreateInput,
+  AbsenceDetailCreateInput,
+  Absence,
 } from "graphql/server-types.gen";
 import * as React from "react";
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -22,6 +24,9 @@ import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { format, isValid, isDate } from "date-fns";
 import { getDaysInDateRange } from "helpers/date";
 import { useHistory } from "react-router";
+import { CreateAbsence } from "./graphql/create.gen";
+import { useSnackbar } from "hooks/use-snackbar";
+import { Confirmation } from "./confirmation";
 
 type Props = {
   firstName: string;
@@ -90,6 +95,29 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const history = useHistory();
+  const { openSnackbar } = useSnackbar();
+  const [absence, setAbsence] = useState<
+    Pick<
+      Absence,
+      "id" | "employeeId" | "numDays" | "notesToApprover" | "details"
+    >
+  >();
+  const [createAbsence] = useMutationBundle(CreateAbsence, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -123,6 +151,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
+  register({ name: "replacementEmployeeId", type: "custom" });
+  register({ name: "replacementEmployeeName", type: "custom" });
 
   const formValues = getValues();
   const projectedVacanciesInput = buildInputForProjectedVacancies(
@@ -155,13 +185,106 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     });
   }
 
+  const selectReplacementEmployee = async (
+    replacementEmployeeId: number,
+    name: string
+  ) => {
+    await setValue("replacementEmployeeId", replacementEmployeeId);
+    await setValue("replacementEmployeeName", name);
+
+    history.push({
+      ...history.location,
+      search: "",
+    });
+    dispatch({
+      action: "switchStep",
+      step: "absence",
+    });
+  };
+
+  const create = async (formValues: FormData) => {
+    const positionId = props.positionId ? Number(props.positionId) : 0;
+    const dates = eachDayOfInterval({
+      start: formValues.startDate,
+      end: formValues.endDate,
+    });
+
+    let absence: AbsenceCreateInput = {
+      orgId: Number(state.organizationId),
+      employeeId: Number(state.employeeId),
+      notesToApprover: formValues.notesToApprover,
+      details: dates.map(d => {
+        let detail: AbsenceDetailCreateInput = {
+          date: format(d, "P"),
+          dayPartId: formValues.dayPart,
+          reasons: [{ absenceReasonId: Number(formValues.absenceReason) }],
+        };
+
+        if (formValues.dayPart === DayPart.Hourly) {
+          //TODO: provide a way to specify start and end time in the UI when Hourly
+          detail = {
+            ...detail,
+            startTime: "",
+            endTime: "",
+          };
+        }
+
+        return detail;
+      }),
+    };
+
+    // Populate the Vacancies on the Absence if needed
+    if (formValues.needsReplacement) {
+      absence = {
+        ...absence,
+        /* TODO: When we support multi Position Employees we'll need to account for the following:
+            When creating an Absence, there must be 1 Vacancy created here per Position Id.
+        */
+        vacancies: [
+          {
+            positionId: positionId,
+            needsReplacement: formValues.needsReplacement,
+            notesToReplacement: formValues.notesToReplacement,
+            prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
+          },
+        ],
+      };
+    }
+
+    const result = await createAbsence({
+      variables: {
+        absence: absence,
+      },
+    });
+
+    return result?.data?.absence?.create as Pick<
+      Absence,
+      "id" | "employeeId" | "numDays" | "notesToApprover" | "details"
+    >;
+  };
+
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
 
       {/* {JSON.stringify(getValues())} */}
 
-      <form onSubmit={handleSubmit((data, e) => console.log(data))}>
+      <form
+        onSubmit={handleSubmit(async (data, e) => {
+          const absence = await create(data);
+          if (absence) {
+            setAbsence(absence);
+            history.push({
+              ...history.location,
+              search: "?action=success",
+            });
+            dispatch({
+              action: "switchStep",
+              step: "confirmation",
+            });
+          }
+        })}
+      >
         {state.step === "absence" && (
           <>
             {props.actingAsEmployee ? (
@@ -193,6 +316,20 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             positionId={props.positionId}
             positionName={props.positionName}
             vacancies={projectedVacancies}
+            selectReplacementEmployee={selectReplacementEmployee}
+          />
+        )}
+        {state.step === "confirmation" && (
+          <Confirmation
+            orgId={props.organizationId}
+            absence={absence}
+            dispatch={dispatch}
+            vacancies={projectedVacancies}
+            needsReplacement={true}
+            notesToSubstitute={formValues.notesToReplacement}
+            preAssignedReplacementEmployeeName={
+              formValues.replacementEmployeeName
+            }
           />
         )}
       </form>
@@ -225,4 +362,5 @@ export type FormData = {
   notesToReplacement?: string;
   needsReplacement: boolean;
   replacementEmployeeId?: number;
+  replacementEmployeeName?: string;
 };
