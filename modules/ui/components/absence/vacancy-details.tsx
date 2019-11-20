@@ -4,9 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
 import { Fragment } from "react";
-import { format, isAfter } from "date-fns";
+import { format, isAfter, isWithinInterval } from "date-fns";
 import { groupBy, differenceWith, difference, uniqWith } from "lodash-es";
-import { isWithinInterval } from "date-fns/esm";
 
 type Props = {
   vacancies: Pick<
