@@ -2317,6 +2317,15 @@ type PagedUser {
   totalCount: Int
 }
 
+type PagedVacancy {
+  _info: [ReturnMessage]
+  results: [Vacancy]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedWorkDayPattern {
   _info: [ReturnMessage]
   results: [WorkDayPattern]
@@ -2896,6 +2905,7 @@ type Query {
   search: SearchQueries
   userAccess: UserAccessQueries
   user: UserQueries
+  vacancy: VacancyQueries
   workDayPattern: WorkDayPatternQueries
   workDaySchedule: WorkDayScheduleQueries
 }
@@ -3884,6 +3894,8 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   details: [VacancyDetail]
   requestedEmployees: [VacancyEmployeeRequest]
   interestedEmployees: [VacancyEmployeeInterest]
+  position: Position
+  absence: Absence
 }
 
 enum VacancyAvailability {
@@ -3975,6 +3987,12 @@ enum VacancyQualification {
   FULLY
   MINIMALLY
   NOT_QUALIFIED
+}
+
+type VacancyQueries {
+  byId(id: ID!): Vacancy
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
 }
 
 enum VacancyRejectionReason {

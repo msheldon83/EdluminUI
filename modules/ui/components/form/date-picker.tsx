@@ -1,27 +1,21 @@
 import * as React from "react";
-import clsx from "clsx";
-import DateFnsUtils from "@date-io/date-fns";
-import { MuiPickersUtilsProvider, Calendar } from "@material-ui/pickers";
 import { CalendarProps } from "@material-ui/pickers/views/Calendar/Calendar";
 import { makeStyles } from "@material-ui/core/styles";
 import createDate from "sugar/date/create";
 import isValid from "date-fns/isValid";
-import format from "date-fns/format";
-import isEqual from "date-fns/isEqual";
 import addDays from "date-fns/addDays";
 import isSameDay from "date-fns/isSameDay";
-import { IconButton } from "@material-ui/core";
-import Paper from "@material-ui/core/Paper";
 import Popper from "@material-ui/core/Popper";
 import Fade from "@material-ui/core/Fade";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { Input } from "./input";
 import {
   isAfterDate,
   formatDateIfPossible,
-  areDatesEqual,
-  inDateInterval,
+  PolymorphicDateType,
 } from "../../../helpers/date";
 import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previous-date";
+import { Calendar } from "./calendar";
 
 export type DatePickerOnMonthChange = CalendarProps["onMonthChange"];
 
@@ -31,13 +25,12 @@ type DatePickerProps = {
   onChange: DatePickerOnChange;
   minimumDate?: Date;
   maximumDate?: Date;
-  singleDate?: boolean;
-  showCalendarOnFocus?: boolean;
   startLabel: string;
-  endLabel: string;
+  endLabel?: string;
   dateFormat?: string;
   disableDates?: Array<Date>;
   onMonthChange?: DatePickerOnMonthChange;
+  variant?: "single" | "single-hidden" | "range" | "extended-range";
 };
 
 export type DatePickerOnChange = (dates: {
@@ -52,12 +45,11 @@ export const DatePicker = (props: DatePickerProps) => {
     startDate,
     endDate,
     onChange,
-    singleDate = false,
-    showCalendarOnFocus = false,
     startLabel,
     endLabel,
     dateFormat,
     disableDates = [],
+    variant = "range",
   } = props;
 
   const classes = useStyles(props);
@@ -68,109 +60,41 @@ export const DatePicker = (props: DatePickerProps) => {
     with a guarenteed value
   */
   const guaranteedStartDate = useGuaranteedPreviousDate(startDate);
-  const guaranteedEndDate = useGuaranteedPreviousDate(endDate);
-  let calendarDate = guaranteedStartDate;
 
   const [openCalendar, setOpenCalendar] = React.useState(false);
-  const [calenderWidth, setCalenderWidth] = React.useState<string | number>(
+  const [calendarWidth, setCalendarWidth] = React.useState<string | number>(
     "100%"
   );
+
+  let shouldShowRange = true;
+  switch (variant) {
+    case "single":
+    case "single-hidden": {
+      shouldShowRange = false;
+      break;
+    }
+  }
+
+  const showCalendarOnFocus = variant === "single-hidden";
 
   // Calculate width of input for calendar width
   const startDateInputRef = React.useRef(document.createElement("div"));
   React.useLayoutEffect(() => {
     if (showCalendarOnFocus) {
       const width = startDateInputRef.current.getBoundingClientRect().width;
-      setCalenderWidth(width);
+      setCalendarWidth(width);
     }
   }, [startDateInputRef, showCalendarOnFocus]);
 
   // Make sure that time plays no part in date comparisons
   if (startDate instanceof Date) {
     startDate.setHours(0, 0, 0, 0);
-    calendarDate = startDate;
+    // calendarDate = startDate;
   }
   // endDate can be undefined
   if (endDate instanceof Date) {
     endDate.setHours(0, 0, 0, 0);
   }
-
-  const isDateDisabled = React.useCallback(
-    (date: Date | null) => {
-      if (date === null) {
-        return false;
-      }
-
-      return disableDates.some(disabledDate => isSameDay(date, disabledDate));
-    },
-    [disableDates]
-  );
-
-  const customDayRenderer = (
-    day: Date | null,
-    selectedDate: Date | null,
-    dayInCurrentMonth: boolean,
-    dayComponent: JSX.Element
-  ): JSX.Element => {
-    /*
-      The material-ui types say that date can be null here, but there's never a case in
-      the UI where that can be true right now
-    */
-    if (!day) {
-      return dayComponent;
-    }
-
-    let start = startDate;
-
-    if (typeof start === "string") {
-      start = guaranteedStartDate;
-    }
-
-    const dayIsBetween = inDateInterval(day, { start, end: endDate });
-    const isFirstDay = isEqual(day, start);
-    const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
-    const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
-    const isDisabled = isDateDisabled(day);
-
-    const wrapperClassName = clsx({
-      [classes.highlight]: dayIsBetween && !isDisabled,
-      [classes.firstHighlight]: isFirstDay,
-      [classes.endHighlight]: isLastDay,
-      [classes.dayWrapper]: true,
-    });
-
-    const dayClassName = clsx(classes.day, {
-      [classes.day]: true,
-      [classes.nonCurrentMonthDay]: !dayInCurrentMonth || isDisabled,
-      [classes.highlightNonCurrentMonthDay]: !dayInCurrentMonth && dayIsBetween,
-      [classes.highlight]: dayIsSelected && !isDisabled,
-      [classes.disabledDay]: isDisabled,
-    });
-
-    /*
-      The calendar component doesn't let days in months not in the current month be actionable.
-      This simulates that functionality. Here's the culprit:
-
-      https://github.com/mui-org/material-ui-pickers/blob/next/lib/src/views/Calendar/DayWrapper.tsx#L24
-    */
-    const handleDayClick = () => {
-      if (!dayInCurrentMonth && !isDisabled) {
-        handleCalendarDateRangeChange(day);
-      }
-    };
-
-    return (
-      <div
-        className={wrapperClassName}
-        onClick={handleDayClick}
-        onKeyPress={handleDayClick}
-      >
-        <IconButton className={dayClassName} disableRipple>
-          <span> {format(day, "d")} </span>
-        </IconButton>
-      </div>
-    );
-  };
 
   const handleEndDateInputChange = React.useCallback(
     (newEndDate: Date | string) => {
@@ -235,83 +159,102 @@ export const DatePicker = (props: DatePickerProps) => {
     [endDate, onChange]
   );
 
-  const handleCalendarDateRangeChange = (date: Date | string | null = "") => {
-    /*
+  const handleCalendarDateRangeChange = React.useCallback(
+    (date: Date | string | null = "") => {
+      /*
       The material-ui types say that date can be null here, but there's never a case in
       the UI where that can be true right now
     */
-    if (date === null) {
-      return;
-    }
+      if (date === null) {
+        return;
+      }
 
-    let newStartDate = date;
-    let newEndDate = endDate;
+      let newStartDate = date;
+      let newEndDate = endDate;
 
-    // Not a valid date yet
-    if (typeof date == "string") {
+      // Not a valid date yet
+      if (typeof date == "string") {
+        onChange({ startDate: newStartDate, endDate: newEndDate });
+        return;
+      }
+
+      const isAfterStartDate = isAfterDate(newStartDate, startDate);
+
+      newStartDate = isAfterStartDate ? startDate : date;
+      newEndDate = isAfterStartDate ? date : endDate;
+
+      // Reset end if there is already one because the start date should always dictate the date range
+      if (endDate) {
+        newStartDate = date;
+        newEndDate = undefined;
+      }
+      console.log("newStartDate", newStartDate);
       onChange({ startDate: newStartDate, endDate: newEndDate });
-      return;
-    }
+    },
+    [endDate, startDate, onChange]
+  );
 
-    const isAfterStartDate = isAfterDate(newStartDate, startDate);
-
-    newStartDate = isAfterStartDate ? startDate : date;
-    newEndDate = isAfterStartDate ? date : endDate;
-
-    // Reset end if there is already one because the start date should always dictate the date range
-    if (endDate) {
-      newStartDate = date;
-      newEndDate = undefined;
-    }
-
-    onChange({ startDate: newStartDate, endDate: newEndDate });
-  };
-
-  const handleCalendarSingleDateChange = (date: Date | string | null = "") => {
-    /*
+  const handleCalendarSingleDateChange = React.useCallback(
+    (date: Date | string | null = "") => {
+      /*
       The material-ui types say that date can be null here, but there's never a case in
       the UI where that can be true right now
     */
-    if (date === null) {
-      return;
-    }
+      if (date === null) {
+        return;
+      }
 
-    onChange({ startDate: date });
-  };
+      onChange({ startDate: date });
+    },
+    [onChange]
+  );
 
-  const handleCalendarDateChange = (date: Date | string | null = "") => {
-    singleDate
-      ? handleCalendarSingleDateChange(date)
-      : handleCalendarDateRangeChange(date);
-  };
+  const handleCalendarDateChange = React.useCallback(
+    (date: Date | string | null = "") => {
+      // A slight delay _feels_ better
+      setTimeout(() => setOpenCalendar(false), 10);
 
-  const renderCalender = () => {
-    // This should look like it's floating it's a dropdown style
-    const elevation = showCalendarOnFocus ? 2 : 0;
+      switch (variant) {
+        case "single": {
+          handleCalendarSingleDateChange(date);
+          break;
+        }
+        case "range": {
+          handleCalendarDateRangeChange(date);
+          break;
+        }
+      }
+    },
+    [handleCalendarDateRangeChange, handleCalendarSingleDateChange, variant]
+  );
 
-    const className = clsx({
-      [classes.calendarWrapper]: true,
-      [classes.calendarWrapperFloating]: showCalendarOnFocus,
-    });
+  const renderCalendar = React.useCallback(() => {
+    const start = startDate instanceof Date ? startDate : guaranteedStartDate;
 
     return (
-      <Paper
-        elevation={elevation}
-        square
-        className={className}
-        style={{ width: calenderWidth }}
-      >
+      <div style={{ width: calendarWidth }}>
         <Calendar
-          date={calendarDate}
+          startDate={start}
+          endDate={endDate}
           onChange={handleCalendarDateChange}
-          renderDay={customDayRenderer}
-          allowKeyboardControl={false}
-          shouldDisableDate={isDateDisabled}
           onMonthChange={props.onMonthChange}
+          disableDates={disableDates}
+          range={shouldShowRange}
+          elevated={showCalendarOnFocus}
         />
-      </Paper>
+      </div>
     );
-  };
+  }, [
+    disableDates,
+    startDate,
+    endDate,
+    guaranteedStartDate,
+    handleCalendarDateChange,
+    props.onMonthChange,
+    shouldShowRange,
+    calendarWidth,
+    showCalendarOnFocus,
+  ]);
 
   const renderPopoverCalendar = () => {
     return (
@@ -323,14 +266,52 @@ export const DatePicker = (props: DatePickerProps) => {
       >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={150}>
-            {renderCalender()}
+            <div>
+              <ClickAwayListener
+                mouseEvent="onMouseDown"
+                onClickAway={() => setOpenCalendar(false)}
+              >
+                {renderCalendar()}
+              </ClickAwayListener>
+            </div>
           </Fade>
         )}
       </Popper>
     );
   };
 
-  const startDateStyle = singleDate ? { marginRight: 0 } : {};
+  const renderEndDate = () => {
+    switch (variant) {
+      case "single":
+      case "single-hidden": {
+        return;
+      }
+      default: {
+        return (
+          <div className={classes.endDateInput}>
+            <DateInput
+              label={endLabel || "(End Label Missing)"}
+              value={endDate}
+              onChange={handleEndDateInputChange}
+              onValidDate={handleEndDateInputChange}
+              dateFormat={dateFormat}
+            />
+          </div>
+        );
+      }
+    }
+  };
+
+  const startDateStyle = () => {
+    switch (variant) {
+      case "single": {
+        return { marginRight: 0 };
+      }
+      default: {
+        return {};
+      }
+    }
+  };
 
   const handleStartDateFocus = () => {
     if (showCalendarOnFocus) {
@@ -338,45 +319,28 @@ export const DatePicker = (props: DatePickerProps) => {
     }
   };
 
-  /*
-    TODO:
-      * shouldDisableDate - disable days (if necessary)
-  */
-
   return (
-    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <div className={classes.datePickerWrapper}>
-        <div className={classes.keyboardInputWrapper}>
-          <div className={classes.startDateInput} style={startDateStyle}>
-            <DateInput
-              label={startLabel}
-              value={startDate}
-              /*
+    <div className={classes.datePickerWrapper}>
+      <div className={classes.keyboardInputWrapper}>
+        <div className={classes.startDateInput} style={startDateStyle()}>
+          <DateInput
+            label={startLabel}
+            value={startDate}
+            /*
               The handler is used for both change and valid date ranges here to make the experience
               calculate at all the correct interaction timers
             */
-              onChange={handleStartDateInputChange}
-              onValidDate={handleStartDateInputChange}
-              ref={startDateInputRef}
-              onFocus={handleStartDateFocus}
-              dateFormat={dateFormat}
-            />
-          </div>
-          {!singleDate && (
-            <div className={classes.endDateInput}>
-              <DateInput
-                label={endLabel}
-                value={endDate}
-                onChange={handleEndDateInputChange}
-                onValidDate={handleEndDateInputChange}
-                dateFormat={dateFormat}
-              />
-            </div>
-          )}
+            onChange={handleStartDateInputChange}
+            onValidDate={handleStartDateInputChange}
+            ref={startDateInputRef}
+            onFocus={handleStartDateFocus}
+            dateFormat={dateFormat}
+          />
         </div>
-        {showCalendarOnFocus ? renderPopoverCalendar() : renderCalender()}
+        {renderEndDate()}
       </div>
-    </MuiPickersUtilsProvider>
+      {showCalendarOnFocus ? renderPopoverCalendar() : renderCalendar()}
+    </div>
   );
 };
 
@@ -396,85 +360,6 @@ const useStyles = makeStyles(theme => ({
   endDateInput: {
     backgroundColor: theme.customColors.white,
     marginLeft: theme.spacing(1.5 / 2),
-  },
-  calendarWrapper: {
-    backgroundColor: theme.customColors.white,
-    border: "1px solid rgba(0, 0, 0, 0.23)",
-    borderRadius: theme.typography.pxToRem(4),
-    minWidth: theme.typography.pxToRem(300),
-    maxWidth: theme.typography.pxToRem(380),
-    overflow: "hidden",
-    padding: theme.spacing(1.5),
-    transition: "border-color 100ms linear",
-    width: "100%",
-
-    "&:hover": {
-      borderColor: "rgba(0, 0, 0, 0.87)",
-    },
-  },
-  calendarWrapperFloating: {
-    borderWidth: 0,
-    marginTop: theme.spacing(1),
-  },
-  day: {
-    width: "100%",
-    height: "100%",
-    flex: "1 0 auto",
-    fontSize: theme.typography.caption.fontSize,
-    margin: 0,
-    color: "inherit",
-    borderRadius: theme.typography.pxToRem(4),
-  },
-  dayWrapper: {
-    margin: `${theme.typography.pxToRem(2)} 0`,
-  },
-  customDayHighlight: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: "2px",
-    right: "2px",
-    border: `1px solid ${theme.palette.secondary.main}`,
-    borderRadius: "50%",
-  },
-  nonCurrentMonthDay: {
-    color: theme.palette.text.disabled,
-    "&:hover": {
-      color: "#676767",
-    },
-  },
-  highlightNonCurrentMonthDay: {
-    color: "#676767",
-  },
-  disabledDay: {
-    backgroundColor: theme.customColors.lightGray,
-    borderRadius: 0,
-    cursor: "not-allowed",
-    "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
-      color: theme.palette.text.disabled,
-    },
-  },
-  highlight: {
-    background: theme.palette.primary.main,
-    color: theme.palette.common.white,
-    "&:hover": {
-      color: theme.palette.common.white,
-    },
-  },
-  firstHighlight: {
-    extend: "highlight",
-    background: theme.palette.primary.main,
-    color: theme.palette.common.white,
-    borderTopLeftRadius: theme.typography.pxToRem(4),
-    borderBottomLeftRadius: theme.typography.pxToRem(4),
-  },
-  endHighlight: {
-    extend: "highlight",
-    background: theme.palette.primary.main,
-    color: theme.palette.common.white,
-    borderTopRightRadius: theme.typography.pxToRem(4),
-    borderBottomRightRadius: theme.typography.pxToRem(4),
   },
 }));
 

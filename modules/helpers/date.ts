@@ -6,9 +6,12 @@ import isWithinInterval from "date-fns/isWithinInterval";
 import isEqual from "date-fns/isEqual";
 import { differenceInDays, addDays, isDate } from "date-fns";
 
-export type PolymorphicDate = Date | string | undefined;
+export type PolymorphicDateType = Date | string | undefined;
 
-export const isAfterDate = (date1: PolymorphicDate, date2: PolymorphicDate) => {
+export const isAfterDate = (
+  date1: PolymorphicDateType,
+  date2: PolymorphicDateType
+) => {
   // These statements look like this to make TypeScript happy :/
   if (typeof date1 === "undefined") {
     return false;
@@ -42,7 +45,7 @@ export const formatIsoDateIfPossible = (
 };
 
 export const formatDateIfPossible = (
-  date: PolymorphicDate,
+  date: PolymorphicDateType,
   formatDefinition: string
 ) => {
   if (!date) {
@@ -60,7 +63,10 @@ export const formatDateIfPossible = (
   return format(date, formatDefinition);
 };
 
-export const areDatesEqual = (start: PolymorphicDate, end: PolymorphicDate) => {
+export const areDatesEqual = (
+  start: PolymorphicDateType,
+  end: PolymorphicDateType
+) => {
   // These statements look like this to make TypeScript happy :/
   if (typeof start === "undefined" || typeof end === "undefined") {
     return false;
@@ -75,7 +81,7 @@ export const areDatesEqual = (start: PolymorphicDate, end: PolymorphicDate) => {
 
 export const inDateInterval = (
   day: Date | undefined,
-  { start, end }: { start: PolymorphicDate; end: PolymorphicDate }
+  { start, end }: { start: PolymorphicDateType; end: PolymorphicDateType }
 ): boolean => {
   // These statements look like this to make TypeScript happy :/
   if (
