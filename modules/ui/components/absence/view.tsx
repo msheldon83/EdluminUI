@@ -23,7 +23,7 @@ import { VacancyDetails } from "./vacancy-details";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { DatePicker } from "../form/date-picker";
 import { format, isAfter, isWithinInterval } from "date-fns";
-import { groupBy, differenceWith, difference, uniqWith } from "lodash-es";
+import { groupBy, differenceWith, uniqWith } from "lodash-es";
 import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
 import { dayPartToLabel } from "./helpers";
 
@@ -50,91 +50,93 @@ export const View: React.FC<Props> = props => {
       : undefined;
 
   return (
-    <Grid container>
-      <Grid item xs={hasVacancies ? 5 : 12} container>
-        <Grid item xs={12}>
-          <Typography variant="h5">{t("Absence Details")}</Typography>
-        </Grid>
-        <Grid item xs={12} className={classes.absenceDetailsSection}>
-          <div>
-            {getAbsenceReasonListDisplay(absence, absenceReasons, classes)}
-          </div>
-
-          <div className={classes.dates}>
-            <DatePicker
-              startDate={new Date(`${absence.startDate} 00:00`)}
-              endDate={new Date(`${absence.endDate} 00:00`)}
-              onChange={() => {}}
-              startLabel=""
-              endLabel=""
-              disabled={true}
-            />
-          </div>
-
-          <div className={classes.notesToApproverSection}>
-            <Typography variant={"h6"}>
-              {t("Notes for administrator")}
-            </Typography>
-            <Typography className={classes.subText}>
-              {t("Can be seen by the administrator and the employee.")}
-            </Typography>
-            <div className={classes.notesForApprover}>
-              {absence.notesToApprover || (
-                <span className={classes.valueMissing}>
-                  {t("No Notes Specified")}
-                </span>
-              )}
+    <div>
+      <Grid container alignItems="flex-start">
+        <Grid item xs={hasVacancies ? 5 : 12} container>
+          <Grid item xs={12}>
+            <Typography variant="h5">{t("Absence Details")}</Typography>
+          </Grid>
+          <Grid item xs={12} className={classes.absenceDetailsSection}>
+            <div>
+              {getAbsenceReasonListDisplay(absence, absenceReasons, classes)}
             </div>
-          </div>
-        </Grid>
-      </Grid>
-      {hasVacancies && (
-        <Grid item xs={7} container>
-          <Grid item xs={12}>
-            <Typography variant="h5">{t("Substitute Details")}</Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Section className={classes.vacancyDetailsSection}>
-              <div className={classes.requiresSubSection}>
-                <Typography variant="h6">
-                  {t("Requires a substitute")}
-                </Typography>
-              </div>
-              <VacancyDetails
-                vacancies={
-                  absence.vacancies as Pick<
-                    Vacancy,
-                    | "startTimeLocal"
-                    | "endTimeLocal"
-                    | "numDays"
-                    | "positionId"
-                    | "details"
-                  >[]
-                }
-                equalWidthDetails
+
+            <div className={classes.dates}>
+              <DatePicker
+                startDate={new Date(`${absence.startDate} 00:00`)}
+                endDate={new Date(`${absence.endDate} 00:00`)}
+                onChange={() => {}}
+                startLabel=""
+                endLabel=""
+                disabled={true}
               />
-              <div className={classes.notesForSubSection}>
-                <Typography variant={"h6"}>
-                  {t("Notes for substitute")}
-                </Typography>
-                <Typography className={classes.subText}>
-                  {t(
-                    "Can be seen by the substitute, administrator and employee."
-                  )}
-                </Typography>
-                <div className={classes.notesForSub}>
-                  {notesToReplacement || (
-                    <span className={classes.valueMissing}>
-                      {t("No Notes Specified")}
-                    </span>
-                  )}
-                </div>
+            </div>
+
+            <div className={classes.notesToApproverSection}>
+              <Typography variant={"h6"}>
+                {t("Notes for administrator")}
+              </Typography>
+              <Typography className={classes.subText}>
+                {t("Can be seen by the administrator and the employee.")}
+              </Typography>
+              <div className={classes.notesForApprover}>
+                {absence.notesToApprover || (
+                  <span className={classes.valueMissing}>
+                    {t("No Notes Specified")}
+                  </span>
+                )}
               </div>
-            </Section>
+            </div>
           </Grid>
         </Grid>
-      )}
-    </Grid>
+        {hasVacancies && (
+          <Grid item xs={7} container>
+            <Grid item xs={12}>
+              <Typography variant="h5">{t("Substitute Details")}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Section className={classes.vacancyDetailsSection}>
+                <div className={classes.requiresSubSection}>
+                  <Typography variant="h6">
+                    {t("Requires a substitute")}
+                  </Typography>
+                </div>
+                <VacancyDetails
+                  vacancies={
+                    absence.vacancies as Pick<
+                      Vacancy,
+                      | "startTimeLocal"
+                      | "endTimeLocal"
+                      | "numDays"
+                      | "positionId"
+                      | "details"
+                    >[]
+                  }
+                  equalWidthDetails
+                />
+                <div className={classes.notesForSubSection}>
+                  <Typography variant={"h6"}>
+                    {t("Notes for substitute")}
+                  </Typography>
+                  <Typography className={classes.subText}>
+                    {t(
+                      "Can be seen by the substitute, administrator and employee."
+                    )}
+                  </Typography>
+                  <div className={classes.notesForSub}>
+                    {notesToReplacement || (
+                      <span className={classes.valueMissing}>
+                        {t("No Notes Specified")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Section>
+            </Grid>
+          </Grid>
+        )}
+      </Grid>
+    </div>
   );
 };
 
@@ -143,7 +145,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(),
   },
   vacancyDetailsSection: {
-    marginTop: theme.spacing(),
+    marginTop: theme.spacing(2),
     padding: theme.spacing(2),
   },
   absenceReasonDetails: {

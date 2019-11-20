@@ -5,7 +5,7 @@ import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
 import { Fragment } from "react";
 import { format, isAfter, isWithinInterval } from "date-fns";
-import { groupBy, differenceWith, difference, uniqWith } from "lodash-es";
+import { groupBy, differenceWith, uniqWith } from "lodash-es";
 
 type Props = {
   vacancies: Pick<
