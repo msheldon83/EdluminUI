@@ -32,6 +32,8 @@ export const Input = React.forwardRef((props: Props, ref) => {
       {InputComponent ? (
         <InputComponent
           ref={ref}
+          id={id}
+          name={id}
           {...restOfInputProps}
           {...inputComponentProps}
         />
@@ -40,6 +42,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
           fullWidth
           className={classes.input}
           id={id}
+          name={id}
           labelWidth={0}
           ref={ref}
           {...restOfInputProps}
@@ -54,6 +57,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.customColors.white,
   },
   inputLabel: {
+    cursor: "pointer",
     color: theme.customColors.eduBlack,
     fontSize: theme.typography.pxToRem(14),
     marginBottom: theme.spacing(0.4),
