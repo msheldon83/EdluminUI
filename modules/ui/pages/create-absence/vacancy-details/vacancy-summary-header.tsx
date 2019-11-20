@@ -1,11 +1,11 @@
 import * as React from "react";
 import { Typography } from "@material-ui/core";
-import { VacancyDisplayData } from "../ui";
+import { VacancyData } from "../ui";
 import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
 
 type Props = {
   positionName?: string | null;
-  vacancies: VacancyDisplayData;
+  vacancies: VacancyData[];
 };
 
 export const VacancySummaryHeader: React.FC<Props> = props => {
@@ -13,15 +13,12 @@ export const VacancySummaryHeader: React.FC<Props> = props => {
     .slice()
     .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
 
-  console.log("props", props.vacancies);
-  console.log(sortedVacancies);
   const firstVacancy = sortedVacancies[0];
   const lastVacancy = sortedVacancies[sortedVacancies.length - 1];
   const totalVacancyDays = sortedVacancies.reduce((total, v) => {
     return v.numDays ? total + v.numDays : total;
   }, 0);
 
-  // Build the Vacancy Details header text
   const dayLengthDisplayText =
     totalVacancyDays > 1
       ? `${totalVacancyDays} days`

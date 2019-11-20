@@ -20,12 +20,12 @@ import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { VacancyDetails } from "../vacancy-details";
 import { convertStringToDate } from "helpers/date";
 import { getAssignSubColumns } from "./columns";
-import { VacancyDisplayData } from "../ui";
+import { VacancyData } from "../ui";
 
 type Props = {
   orgId: string;
   vacancyId?: string | null | undefined;
-  vacancies: VacancyDisplayData;
+  vacancies: VacancyData[];
   userIsAdmin: boolean;
   employeeName: string;
   positionId?: string;
@@ -37,7 +37,7 @@ type Props = {
 };
 
 const buildVacancyInput = (
-  vacancies: VacancyDisplayData
+  vacancies: VacancyData[]
 ): AbsenceVacancyInput[] | null => {
   const vacanciesInput = vacancies.map(v => {
     return {

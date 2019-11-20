@@ -1,13 +1,13 @@
-import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { Divider, Grid, makeStyles, Typography } from "@material-ui/core";
+import { Location, VacancyDetail } from "graphql/server-types.gen";
 import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
-import { groupBy, compact } from "lodash-es";
+import { compact, groupBy } from "lodash-es";
 import * as React from "react";
 import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { VacancyData } from "../ui";
-import { VacancyDetailRow } from "./vacancy-row";
+import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import { VacancySummaryHeader } from "./vacancy-summary-header";
-import { VacancyDetail, Vacancy } from "graphql/server-types.gen";
 
 type Props = {
   vacancies: VacancyData[];
@@ -15,17 +15,12 @@ type Props = {
   showHeader?: boolean;
   equalWidthDetails?: boolean;
   gridRef?: React.RefObject<HTMLDivElement>;
+  locationOptions: Location[];
 };
 
-const getScheduleLettersArray = () => {
-  return new Array(26).fill(1).map((_, i) => String.fromCharCode(65 + i));
-};
-
-export const VacancyDetails: React.FC<Props> = props => {
+export const EditableVacancyDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-
-  const scheduleLetters = React.useMemo(() => getScheduleLettersArray(), []);
 
   if (!props.vacancies || !props.vacancies.length) {
     return <></>;
@@ -43,6 +38,7 @@ export const VacancyDetails: React.FC<Props> = props => {
             positionName={props.positionName}
             vacancies={props.vacancies}
           />
+          <Divider className={classes.divider} />
         </Grid>
       )}
 
@@ -59,24 +55,18 @@ export const VacancyDetails: React.FC<Props> = props => {
 
         return (
           <Grid key={detailsIndex} item container xs={12} alignItems="center">
-            <Grid item xs={props.equalWidthDetails ? 6 : 2}>
+            <Grid item xs={12}>
               <Typography variant="h6">
                 {getDateRangeDisplayText(startDateLocal, endDateLocal)}
               </Typography>
             </Grid>
-            <Grid
-              item
-              xs={props.equalWidthDetails ? 6 : 10}
-              className={classes.scheduleText}
-            >
-              {`${t("Schedule")} ${scheduleLetters[detailsIndex]}`}
-            </Grid>
 
             {Object.entries(groupedDetails).map(([key, value], groupIndex) => (
               <Fragment key={groupIndex}>
-                <VacancyDetailRow
+                <EditableVacancyDetailRow
                   vacancyDetails={value}
                   equalWidthDetails={props.equalWidthDetails}
+                  locationOptions={props.locationOptions}
                 />
               </Fragment>
             ))}
@@ -88,6 +78,9 @@ export const VacancyDetails: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  divider: {
+    marginTop: theme.spacing(3),
+  },
   scheduleText: {
     color: "#9E9E9E",
   },

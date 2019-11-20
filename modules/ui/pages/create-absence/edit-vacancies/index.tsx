@@ -1,18 +1,14 @@
 import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
+import { Location } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
-import { VacancyDisplayData } from "../ui";
-import { VacancySummaryHeader } from "../vacancy-details/vacancy-summary-header";
 import { Step } from "../step-params";
-import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
-import { Fragment } from "react";
-import { format } from "date-fns";
-import { groupBy } from "lodash-es";
-import { VacancyDetailRow } from "../vacancy-details/vacancy-row";
+import { VacancyData } from "../ui";
+import { EditableVacancyDetails } from "../vacancy-details/editable-vacancy-details";
 
 type Props = {
-  vacancies: VacancyDisplayData;
+  vacancies: VacancyData[];
   actingAsEmployee?: boolean;
   positionName?: string;
   employeeName: string;
@@ -23,9 +19,6 @@ export const EditVacancies: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const sortedVacancies = props.vacancies
-    .slice()
-    .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
   return (
     <>
       <Typography variant={props.actingAsEmployee ? "h1" : "h5"}>
@@ -36,55 +29,16 @@ export const EditVacancies: React.FC<Props> = props => {
       )}
 
       <Section className={classes.vacancyDetails}>
-        <Grid container>
-          <Grid item>
-            <VacancySummaryHeader
-              positionName={props.positionName}
-              vacancies={props.vacancies}
-            />
-          </Grid>
-        </Grid>
-
-        {sortedVacancies.map((v, detailsIndex) => {
-          const groupedDetails = groupBy(v.details, d => {
-            return d!.startTimeLocal && d!.endTimeLocal && d!.locationId;
-          });
-
-          const startDateLocal = convertStringToDate(v.startTimeLocal);
-          const endDateLocal = convertStringToDate(v.endTimeLocal);
-          if (!startDateLocal || !endDateLocal) {
-            return;
-          }
-
-          const scheduleLetters = ["a"];
-          return (
-            <Grid key={detailsIndex} item container xs={12} alignItems="center">
-              <Grid
-                item
-                // xs={props.equalWidthDetails ? 6 : 2}
-              >
-                <Typography variant="h6">
-                  {getDateRangeDisplayText(startDateLocal, endDateLocal)}
-                </Typography>
-              </Grid>
-              <Grid
-                item
-                // xs={props.equalWidthDetails ? 6 : 10}
-                // className={classes.scheduleText}
-              >
-                {`${t("Schedule")} ${scheduleLetters[detailsIndex]}`}
-              </Grid>
-              {Object.entries(groupedDetails).map(
-                ([key, value], groupIndex) => (
-                  <Fragment key={groupIndex}>
-                    <VacancyDetailRow vacancyDetails={value} />
-                  </Fragment>
-                )
-              )}
-            </Grid>
-          );
-        })}
-
+        <EditableVacancyDetails
+          vacancies={props.vacancies}
+          showHeader
+          positionName={props.positionName}
+          locationOptions={[
+            { id: "10", name: "Elementary school abc" } as Location,
+            { id: "11", name: "Middle school" } as Location,
+            { id: "12", name: "High school" } as Location,
+          ]}
+        />
         <Grid container justify="flex-end">
           <Grid item>
             <Button onClick={() => props.setStep("absence")} variant="outlined">
@@ -102,6 +56,9 @@ export const EditVacancies: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   vacancyDetails: {
+    marginTop: theme.spacing(3),
+  },
+  divider: {
     marginTop: theme.spacing(3),
   },
 }));

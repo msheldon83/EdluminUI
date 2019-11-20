@@ -39,7 +39,7 @@ import {
 } from "../graphql/get-contract-schedule.gen";
 import { CreateAbsenceActions, CreateAbsenceState } from "../state";
 import { Step } from "../step-params";
-import { FormData, VacancyDisplayData } from "../ui";
+import { FormData, VacancyData } from "../ui";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
 
 type Props = {
@@ -49,7 +49,7 @@ type Props = {
   values: FormData;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
-  vacancies: VacancyDisplayData;
+  vacancies: VacancyData[];
   setStep: (S: Step) => void;
 };
 

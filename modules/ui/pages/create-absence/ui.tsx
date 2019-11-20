@@ -35,10 +35,10 @@ import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 
-export type VacancyDisplayData = Pick<
+export type VacancyData = Pick<
   Vacancy,
   "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
->[];
+>;
 
 type Props = {
   firstName: string;
@@ -132,7 +132,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   getProjectedVacancies.state === "UPDATING"
     ? []
     : getProjectedVacancies.data?.absence?.projectedVacancies ??
-      []) as VacancyDisplayData;
+      []) as VacancyData[];
 
   const name = `${props.firstName} ${props.lastName}`;
 

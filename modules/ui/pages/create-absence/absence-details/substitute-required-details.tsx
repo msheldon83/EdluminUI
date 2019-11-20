@@ -10,13 +10,13 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { VacancyDetails } from "../vacancy-details";
 import { Step } from "../step-params";
-import { VacancyDisplayData } from "../ui";
+import { VacancyData } from "../ui";
 
 type Props = {
   setValue: SetValue;
   replacementEmployeeName?: string;
   replacementEmployeeId?: number;
-  vacancies: VacancyDisplayData;
+  vacancies: VacancyData[];
   setStep: (S: Step) => void;
 };
 
