@@ -238,7 +238,7 @@ export const DatePicker = (props: DatePickerProps) => {
           endDate={endDate}
           onChange={handleCalendarDateChange}
           onMonthChange={props.onMonthChange}
-          disableDates={disableDates}
+          disabledDates={disableDates}
           range={shouldShowRange}
           elevated={showCalendarOnFocus}
         />
