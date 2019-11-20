@@ -51,6 +51,10 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
           }
           assignment {
             employeeId
+            employee {
+              firstName
+              lastName
+            }
           }
         }
       }
