@@ -141,6 +141,13 @@ const simpleVacancies = [
         location: {
           name: "Evans Elementary School",
         },
+        assignment: {
+          employeeId: 1,
+          employee: {
+            firstName: "Luke",
+            lastName: "Skywalker",
+          },
+        },
       },
     ] as Maybe<VacancyDetail[]>,
   },
