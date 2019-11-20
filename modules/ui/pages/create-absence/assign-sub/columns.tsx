@@ -25,7 +25,7 @@ export const getAssignSubColumns = (
 
   const columns: Column<typeof tableData[0]>[] = [
     {
-      title: t("Favorite"),
+      title: isMobile ? "" : t("Favorite"),
       cellStyle: {
         width: isMobile
           ? theme.typography.pxToRem(40)
@@ -45,15 +45,7 @@ export const getAssignSubColumns = (
       },
       sorting: false,
     },
-    {
-      cellStyle: {
-        width: isMobile
-          ? theme.typography.pxToRem(40)
-          : theme.typography.pxToRem(70),
-      },
-      render: () => <AccountCircleOutlined />, // eslint-disable-line
-      sorting: false,
-    },
+
     {
       title: t("First name"),
       field: "firstName",
@@ -62,11 +54,13 @@ export const getAssignSubColumns = (
       title: t("Last name"),
       field: "lastName",
     },
-    { title: t("Primary phone"), field: "primaryPhone" },
   ];
+  if (!isMobile) {
+    columns.push({ title: t("Primary phone"), field: "primaryPhone" });
+  }
 
   // Only Admins see the Qualified and Available columns
-  if (isAdmin) {
+  if (isAdmin && !isMobile) {
     columns.push({
       title: t("Qualified"),
       field: "qualified",
@@ -97,20 +91,25 @@ export const getAssignSubColumns = (
     });
   }
 
-  columns.push({
-    title: t("Visible"),
-    field: "visible",
-    render: (data: typeof tableData[0]) => {
-      return <VisibleIcon visible={data.visible} visibleOn={data.visibleOn} />;
-    },
-    cellStyle: {
-      textAlign: "center",
-    },
-    headerStyle: {
-      textAlign: "center",
-    },
-    sorting: false,
-  });
+  if (!isMobile) {
+    columns.push({
+      title: t("Visible"),
+      field: "visible",
+      render: (data: typeof tableData[0]) => {
+        return (
+          <VisibleIcon visible={data.visible} visibleOn={data.visibleOn} />
+        );
+      },
+      cellStyle: {
+        textAlign: "center",
+      },
+      headerStyle: {
+        textAlign: "center",
+      },
+      sorting: false,
+    });
+  }
+
   columns.push({
     title: "",
     field: "actions",

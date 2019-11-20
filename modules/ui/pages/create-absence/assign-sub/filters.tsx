@@ -1,8 +1,16 @@
 import * as React from "react";
 import { Grid, makeStyles, TextField } from "@material-ui/core";
 import { useDeferredState } from "hooks";
+import {
+  Grid,
+  InputLabel,
+  makeStyles,
+  TextField,
+  Button,
+} from "@material-ui/core";
+import { useDeferredState, useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Select, SelectValueType } from "ui/components/form/select";
@@ -13,6 +21,8 @@ import {
 } from "graphql/server-types.gen";
 import { TFunction } from "i18next";
 import { OptionTypeBase } from "react-select";
+import FilterListIcon from "@material-ui/icons/FilterList";
+import { not } from "helpers";
 
 type Props = {
   showQualifiedAndAvailable: boolean;
@@ -70,77 +80,141 @@ export const AssignSubFilters: React.FC<Props> = props => {
     props.setSearch(searchFilter);
   }, [searchFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const [filtersExpandedOnMobile, setFiltersExpandedOnMobile] = useState(false);
+  const isMobile = useIsMobile();
+  const toggleFilters = React.useCallback(
+    () => setFiltersExpandedOnMobile(not),
+    [setFiltersExpandedOnMobile]
+  );
+
   return (
     <Grid container spacing={2}>
-      <Grid item xs={3}>
-        <Input
-          label={t("Name")}
-          name={"name"}
-          value={pendingName ?? ""}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            if (!event.target.value || !event.target.value.length) {
-              setPendingName(undefined);
-            } else {
-              setPendingName(event.target.value);
-            }
-          }}
-          placeholder={t("Search for first or last name")}
-          fullWidth
-        />
-      </Grid>
-      {props.showQualifiedAndAvailable && (
+      {isMobile && (
+        <Grid item xs={12} container justify="flex-end">
+          <Grid item>
+            <Button variant="outlined" color="primary" onClick={toggleFilters}>
+              <FilterListIcon /> {t("Filter List")}
+            </Button>
+          </Grid>
+        </Grid>
+      )}
+      {(!isMobile || filtersExpandedOnMobile) && (
         <>
-          <Grid item xs={2}>
-            <InputLabel className={classes.label}>{t("Qualified")}</InputLabel>
-            <Select
-              value={qualifiedOptions.find((o: any) => {
-                const optionsMap = qualifiedOptionsMap.find(
-                  m => m.search === searchFilter.qualified
-                );
-                return o.value === optionsMap?.optionValue;
-              })}
-              label={"" /* TODO: needs fixin in the Select component */}
-              disabled={!!searchFilter?.name}
-              options={qualifiedOptions}
-              isClearable={false}
-              onChange={(e: SelectValueType) => {
-                let selectedValue: string | null = null;
-                if (e) {
-                  if (Array.isArray(e)) {
-                    selectedValue = (e as Array<OptionTypeBase>)[0].value;
-                  } else {
-                    selectedValue = (e as OptionTypeBase).value;
-                  }
+          <Grid item xs={12} md={3}>
+            <InputLabel className={classes.label}>{t("Name")}</InputLabel>
+            <TextField
+              className={classes.textField}
+              variant="outlined"
+              name={"name"}
+              value={pendingName ?? ""}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                if (!event.target.value || !event.target.value.length) {
+                  setPendingName(undefined);
+                } else {
+                  setPendingName(event.target.value);
                 }
-
-                // Get the appropriate array from the qualifiedOptionsMap
-                const optionsMap = qualifiedOptionsMap.find(
-                  m => m.optionValue === selectedValue
-                );
-                if (!optionsMap) {
-                  return;
-                }
-
-                const updatedSearchOptions = {
-                  ...searchFilter,
-                  qualified: optionsMap.search,
-                };
-                updateSearch(updatedSearchOptions);
               }}
+              placeholder={t("Search for first or last name")}
+              fullWidth
             />
           </Grid>
-          <Grid item xs={2}>
-            <InputLabel className={classes.label}>{t("Available")}</InputLabel>
+          {props.showQualifiedAndAvailable && (
+            <>
+              <Grid item xs={12} md={2}>
+                <InputLabel className={classes.label}>
+                  {t("Qualified")}
+                </InputLabel>
+                <Select
+                  value={qualifiedOptions.find((o: any) => {
+                    const optionsMap = qualifiedOptionsMap.find(
+                      m => m.search === searchFilter.qualified
+                    );
+                    return o.value === optionsMap?.optionValue;
+                  })}
+                  label=""
+                  disabled={!!searchFilter?.name}
+                  options={qualifiedOptions}
+                  isClearable={false}
+                  onChange={(e: SelectValueType) => {
+                    let selectedValue: string | null = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+
+                    // Get the appropriate array from the qualifiedOptionsMap
+                    const optionsMap = qualifiedOptionsMap.find(
+                      m => m.optionValue === selectedValue
+                    );
+                    if (!optionsMap) {
+                      return;
+                    }
+
+                    const updatedSearchOptions = {
+                      ...searchFilter,
+                      qualified: optionsMap.search,
+                    };
+                    updateSearch(updatedSearchOptions);
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <InputLabel className={classes.label}>
+                  {t("Available")}
+                </InputLabel>
+                <Select
+                  value={availableOptions.find((o: any) => {
+                    const optionsMap = availableOptionsMap.find(
+                      m => m.search === searchFilter.available
+                    );
+                    return o.value === optionsMap?.optionValue;
+                  })}
+                  label=""
+                  disabled={!!searchFilter?.name}
+                  options={availableOptions}
+                  isClearable={false}
+                  onChange={(e: SelectValueType) => {
+                    let selectedValue: string | null = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+
+                    // Get the appropriate array from the availableOptionsMap
+                    const optionsMap = availableOptionsMap.find(
+                      m => m.optionValue === selectedValue
+                    );
+                    if (!optionsMap) {
+                      return;
+                    }
+
+                    const updatedSearchOptions = {
+                      ...searchFilter,
+                      available: optionsMap.search,
+                    };
+                    updateSearch(updatedSearchOptions);
+                  }}
+                />
+              </Grid>
+            </>
+          )}
+          <Grid item xs={12} md={2}>
+            <InputLabel className={classes.label}>{t("Show")}</InputLabel>
             <Select
-              value={availableOptions.find((o: any) => {
-                const optionsMap = availableOptionsMap.find(
-                  m => m.search === searchFilter.available
-                );
-                return o.value === optionsMap?.optionValue;
-              })}
+              value={showOptions.find(
+                (s: any) =>
+                  (searchFilter.favoritesOnly && s.value === "true") ||
+                  (!searchFilter.favoritesOnly && s.value === "false")
+              )}
               label=""
               disabled={!!searchFilter?.name}
-              options={availableOptions}
+              options={showOptions}
               isClearable={false}
               onChange={(e: SelectValueType) => {
                 let selectedValue: string | null = null;
@@ -152,17 +226,9 @@ export const AssignSubFilters: React.FC<Props> = props => {
                   }
                 }
 
-                // Get the appropriate array from the availableOptionsMap
-                const optionsMap = availableOptionsMap.find(
-                  m => m.optionValue === selectedValue
-                );
-                if (!optionsMap) {
-                  return;
-                }
-
                 const updatedSearchOptions = {
                   ...searchFilter,
-                  available: optionsMap.search,
+                  favoritesOnly: selectedValue === "true",
                 };
                 updateSearch(updatedSearchOptions);
               }}
@@ -170,36 +236,6 @@ export const AssignSubFilters: React.FC<Props> = props => {
           </Grid>
         </>
       )}
-      <Grid item xs={2}>
-        <InputLabel className={classes.label}>{t("Show")}</InputLabel>
-        <Select
-          value={showOptions.find(
-            (s: any) =>
-              (searchFilter.favoritesOnly && s.value === "true") ||
-              (!searchFilter.favoritesOnly && s.value === "false")
-          )}
-          label=""
-          disabled={!!searchFilter?.name}
-          options={showOptions}
-          isClearable={false}
-          onChange={(e: SelectValueType) => {
-            let selectedValue: string | null = null;
-            if (e) {
-              if (Array.isArray(e)) {
-                selectedValue = (e as Array<OptionTypeBase>)[0].value;
-              } else {
-                selectedValue = (e as OptionTypeBase).value;
-              }
-            }
-
-            const updatedSearchOptions = {
-              ...searchFilter,
-              favoritesOnly: selectedValue === "true",
-            };
-            updateSearch(updatedSearchOptions);
-          }}
-        />
-      </Grid>
     </Grid>
   );
 };

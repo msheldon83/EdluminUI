@@ -206,7 +206,15 @@ export const AssignSub: React.FC<Props> = props => {
         classes,
         t
       ),
-    []
+    [
+      isMobile,
+      props.userIsAdmin,
+      props.selectReplacementEmployee,
+      theme,
+      classes,
+      t,
+      tableData,
+    ]
   );
 
   return (
