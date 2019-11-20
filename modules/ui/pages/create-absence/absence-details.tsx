@@ -6,6 +6,7 @@ import {
   Paper,
   TextField,
   Typography,
+  Chip,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
@@ -148,6 +149,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [dispatch]
   );
 
+  const removePrearrangedReplacementEmployee = async () => {
+    await setValue("replacementEmployeeId", undefined);
+    await setValue("replacementEmployeeName", undefined);
+  };
+
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -272,6 +278,20 @@ export const AbsenceDetails: React.FC<Props> = props => {
               </div>
             )}
 
+            {values.replacementEmployeeId && (
+              <div className={classes.preArrangedChip}>
+                <Chip
+                  label={`${t("Pre-arranged")}: ${
+                    values.replacementEmployeeName
+                  }`}
+                  color={"primary"}
+                  onDelete={async () => {
+                    await removePrearrangedReplacementEmployee();
+                  }}
+                />
+              </div>
+            )}
+
             <div>
               {values.needsReplacement && (
                 <Button
@@ -337,6 +357,10 @@ const useStyles = makeStyles(theme => ({
   },
   notesForReplacement: {
     paddingTop: theme.spacing(3),
+  },
+  preArrangedChip: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
 }));
 

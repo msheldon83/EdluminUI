@@ -17,6 +17,7 @@ import { ErrorBoundary } from "ui/components/error-boundary";
 import { OrganizationSwitcherBar } from "./organization-switcher-bar";
 import { Route } from "react-router";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
+import { SnackbarProvider } from "hooks/use-snackbar";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -45,14 +46,16 @@ export const AppChrome: React.FunctionComponent = props => {
           <MobileTopBar expandDrawer={expand} />
           <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
           <div>
-            <div />
-            <div className={classes.contentView}>
-              <ErrorBoundary>
-                <LoadingStateIndicatorFullScreen>
-                  {props.children}
-                </LoadingStateIndicatorFullScreen>
-              </ErrorBoundary>
-            </div>
+            <SnackbarProvider>
+              <div />
+              <div className={classes.contentView}>
+                <ErrorBoundary>
+                  <LoadingStateIndicatorFullScreen>
+                    {props.children}
+                  </LoadingStateIndicatorFullScreen>
+                </ErrorBoundary>
+              </div>
+            </SnackbarProvider>
           </div>
           <Route path={AdminChromeRoute.path}>
             <OrganizationSwitcherBar />
@@ -77,32 +80,34 @@ export const AppChrome: React.FunctionComponent = props => {
             collapse={collapse}
           />
           <div className={`${classes.container}`}>
-            <div
-              className={`${
-                expanded ? classes.navWidthExpanded : classes.navWidthCompact
-              }`}
-            >
-              <div className={classes.fabContainer}>
-                <Fab
-                  onClick={toggleExpand}
-                  size="small"
-                  className={classes.fab}
-                >
-                  {expanded ? (
-                    <ChevronLeftIcon className={classes.white} />
-                  ) : (
-                    <ChevronRightIcon className={classes.white} />
-                  )}
-                </Fab>
+            <SnackbarProvider>
+              <div
+                className={`${
+                  expanded ? classes.navWidthExpanded : classes.navWidthCompact
+                }`}
+              >
+                <div className={classes.fabContainer}>
+                  <Fab
+                    onClick={toggleExpand}
+                    size="small"
+                    className={classes.fab}
+                  >
+                    {expanded ? (
+                      <ChevronLeftIcon className={classes.white} />
+                    ) : (
+                      <ChevronRightIcon className={classes.white} />
+                    )}
+                  </Fab>
+                </div>
               </div>
-            </div>
-            <div className={`${classes.contentView}`}>
-              <ErrorBoundary>
-                <LoadingStateIndicatorFullScreen>
-                  {props.children}
-                </LoadingStateIndicatorFullScreen>
-              </ErrorBoundary>
-            </div>
+              <div className={`${classes.contentView}`}>
+                <ErrorBoundary>
+                  <LoadingStateIndicatorFullScreen>
+                    {props.children}
+                  </LoadingStateIndicatorFullScreen>
+                </ErrorBoundary>
+              </div>
+            </SnackbarProvider>
           </div>
           <Route path={AdminChromeRoute.path}>
             <OrganizationSwitcherBar

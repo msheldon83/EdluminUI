@@ -3,7 +3,11 @@ import { mockProvider } from "test-helpers/mock-provider";
 import { Auth0Context } from "auth/auth0";
 import { NavigationSideBar } from "../navigation";
 import { Route } from "react-router-dom";
-import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
+import {
+  AppChromeRoute,
+  AdminChromeRoute,
+  AdminRootChromeRoute,
+} from "ui/routes/app-chrome";
 
 export default {
   title: "Components/Navigation Side Bar",
@@ -44,13 +48,16 @@ const render = (path: string, isSystemAdmin: boolean) => () => {
   );
 };
 
-export const asEmployee = render(AppChromeRoute.generate({ role: "employee" }), false);
+export const asEmployee = render(
+  AppChromeRoute.generate({ role: "employee" }),
+  false
+);
 export const asSubstitute = render(
-  AppChromeRoute.generate({ role: "substitute" }), false
+  AppChromeRoute.generate({ role: "substitute" }),
+  false
 );
 export const asAdminInOrg = render(
-  AdminChromeRoute.generate({ organizationId: "1000" }), true
+  AdminChromeRoute.generate({ organizationId: "1000" }),
+  true
 );
-export const asAdminNotInOrg = render(
-  AdminChromeRoute.generate({ organizationId: "organizations" }), true
-);
+export const asAdminNotInOrg = render(AdminRootChromeRoute.generate({}), true);
