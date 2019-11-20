@@ -1,0 +1,7 @@
+mutation DismissVacancy($vacancyRejection: EmployeeRejectVacancyInput!) {
+  vacancy {
+    rejectVacancy(vacancyRejection: $vacancyRejection) {
+      id
+    }
+  }
+}

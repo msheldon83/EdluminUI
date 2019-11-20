@@ -33,7 +33,7 @@ type Props = {
     | "details"
   >;
   onAccept?: () => void;
-  onDismiss?: () => void;
+  onDismiss: (orgId: string, vacancyId: string) => Promise<void>;
   shadeRow: boolean;
 };
 
@@ -154,7 +154,15 @@ export const AvailableJob: React.FC<Props> = props => {
           )}
         </Grid>
         <Grid item xs={1}>
-          {<Button onClick={props.onDismiss}>{t("Dismiss")}</Button>}
+          {
+            <Button
+              onClick={() =>
+                props.onDismiss(vacancy.organization.id, vacancy.id)
+              }
+            >
+              {t("Dismiss")}
+            </Button>
+          }
         </Grid>
         <Grid item xs={1}>
           {expanded || vacancy.details!.length === 1 ? (
