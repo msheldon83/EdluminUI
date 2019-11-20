@@ -14,12 +14,14 @@ import { IconButton } from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 import Popper from "@material-ui/core/Popper";
 import Fade from "@material-ui/core/Fade";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { Input } from "./input";
 import {
   isAfterDate,
   formatDateIfPossible,
   areDatesEqual,
   inDateInterval,
+  PolymorphicDateType,
 } from "../../../helpers/date";
 import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previous-date";
 
@@ -31,13 +33,12 @@ type DatePickerProps = {
   onChange: DatePickerOnChange;
   minimumDate?: Date;
   maximumDate?: Date;
-  singleDate?: boolean;
-  showCalendarOnFocus?: boolean;
   startLabel: string;
-  endLabel: string;
+  endLabel?: string;
   dateFormat?: string;
   disableDates?: Array<Date>;
   onMonthChange?: DatePickerOnMonthChange;
+  variant?: "single" | "single-hidden" | "range" | "extended-range";
 };
 
 export type DatePickerOnChange = (dates: {
@@ -52,12 +53,11 @@ export const DatePicker = (props: DatePickerProps) => {
     startDate,
     endDate,
     onChange,
-    singleDate = false,
-    showCalendarOnFocus = false,
     startLabel,
     endLabel,
     dateFormat,
     disableDates = [],
+    variant = "range",
   } = props;
 
   const classes = useStyles(props);
@@ -68,20 +68,31 @@ export const DatePicker = (props: DatePickerProps) => {
     with a guarenteed value
   */
   const guaranteedStartDate = useGuaranteedPreviousDate(startDate);
-  const guaranteedEndDate = useGuaranteedPreviousDate(endDate);
-  let calendarDate = guaranteedStartDate;
+  let calendarDate = useGuaranteedPreviousDate(endDate);
 
   const [openCalendar, setOpenCalendar] = React.useState(false);
-  const [calenderWidth, setCalenderWidth] = React.useState<string | number>(
+  const [calendarWidth, setCalendarWidth] = React.useState<string | number>(
     "100%"
   );
+  const [dateHover, setDateHover] = React.useState<PolymorphicDateType>();
+
+  let shouldShowRange = true;
+  switch (variant) {
+    case "single":
+    case "single-hidden": {
+      shouldShowRange = false;
+      break;
+    }
+  }
+
+  const showCalendarOnFocus = variant === "single-hidden";
 
   // Calculate width of input for calendar width
   const startDateInputRef = React.useRef(document.createElement("div"));
   React.useLayoutEffect(() => {
     if (showCalendarOnFocus) {
       const width = startDateInputRef.current.getBoundingClientRect().width;
-      setCalenderWidth(width);
+      setCalendarWidth(width);
     }
   }, [startDateInputRef, showCalendarOnFocus]);
 
@@ -132,11 +143,29 @@ export const DatePicker = (props: DatePickerProps) => {
     const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
     const isDisabled = isDateDisabled(day);
 
+    /*
+      Used to highlight a date that is between the start date and the date that has the
+      mouse over it.
+
+      If there is an end date, the highlight between start and end date shouldn't
+      happen.
+    */
+    const dayIsBetweenHoverFocus =
+      dateHover !== null &&
+      isAfterDate(dateHover, start) &&
+      inDateInterval(day, { start, end: dateHover }) &&
+      !endDate &&
+      shouldShowRange;
+    const dayIsHoverFocus =
+      dayIsBetweenHoverFocus && areDatesEqual(dateHover, day);
+
     const wrapperClassName = clsx({
       [classes.highlight]: dayIsBetween && !isDisabled,
       [classes.firstHighlight]: isFirstDay,
       [classes.endHighlight]: isLastDay,
       [classes.dayWrapper]: true,
+      [classes.dateHoverFocus]: dayIsHoverFocus,
+      [classes.dateHoverBetween]: dayIsBetweenHoverFocus,
     });
 
     const dayClassName = clsx(classes.day, {
@@ -164,6 +193,8 @@ export const DatePicker = (props: DatePickerProps) => {
         className={wrapperClassName}
         onClick={handleDayClick}
         onKeyPress={handleDayClick}
+        onMouseEnter={() => setDateHover(day)}
+        onMouseLeave={() => setDateHover(undefined)}
       >
         <IconButton className={dayClassName} disableRipple>
           <span> {format(day, "d")} </span>
@@ -280,12 +311,22 @@ export const DatePicker = (props: DatePickerProps) => {
   };
 
   const handleCalendarDateChange = (date: Date | string | null = "") => {
-    singleDate
-      ? handleCalendarSingleDateChange(date)
-      : handleCalendarDateRangeChange(date);
+    // A slight delay _feels_ better
+    setTimeout(() => setOpenCalendar(false), 10);
+
+    switch (variant) {
+      case "single": {
+        handleCalendarSingleDateChange(date);
+        break;
+      }
+      case "range": {
+        handleCalendarDateRangeChange(date);
+        break;
+      }
+    }
   };
 
-  const renderCalender = () => {
+  const renderCalendar = () => {
     // This should look like it's floating it's a dropdown style
     const elevation = showCalendarOnFocus ? 2 : 0;
 
@@ -299,10 +340,10 @@ export const DatePicker = (props: DatePickerProps) => {
         elevation={elevation}
         square
         className={className}
-        style={{ width: calenderWidth }}
+        style={{ width: calendarWidth }}
       >
         <Calendar
-          date={calendarDate}
+          date={guaranteedStartDate}
           onChange={handleCalendarDateChange}
           renderDay={customDayRenderer}
           allowKeyboardControl={false}
@@ -323,14 +364,52 @@ export const DatePicker = (props: DatePickerProps) => {
       >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={150}>
-            {renderCalender()}
+            <div>
+              <ClickAwayListener
+                mouseEvent="onMouseDown"
+                onClickAway={() => setOpenCalendar(false)}
+              >
+                {renderCalendar()}
+              </ClickAwayListener>
+            </div>
           </Fade>
         )}
       </Popper>
     );
   };
 
-  const startDateStyle = singleDate ? { marginRight: 0 } : {};
+  const renderEndDate = () => {
+    switch (variant) {
+      case "single":
+      case "single-hidden": {
+        return;
+      }
+      default: {
+        return (
+          <div className={classes.endDateInput}>
+            <DateInput
+              label={endLabel || "(End Label Missing)"}
+              value={endDate}
+              onChange={handleEndDateInputChange}
+              onValidDate={handleEndDateInputChange}
+              dateFormat={dateFormat}
+            />
+          </div>
+        );
+      }
+    }
+  };
+
+  const startDateStyle = () => {
+    switch (variant) {
+      case "single": {
+        return { marginRight: 0 };
+      }
+      default: {
+        return {};
+      }
+    }
+  };
 
   const handleStartDateFocus = () => {
     if (showCalendarOnFocus) {
@@ -338,16 +417,11 @@ export const DatePicker = (props: DatePickerProps) => {
     }
   };
 
-  /*
-    TODO:
-      * shouldDisableDate - disable days (if necessary)
-  */
-
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <div className={classes.datePickerWrapper}>
         <div className={classes.keyboardInputWrapper}>
-          <div className={classes.startDateInput} style={startDateStyle}>
+          <div className={classes.startDateInput} style={startDateStyle()}>
             <DateInput
               label={startLabel}
               value={startDate}
@@ -362,19 +436,9 @@ export const DatePicker = (props: DatePickerProps) => {
               dateFormat={dateFormat}
             />
           </div>
-          {!singleDate && (
-            <div className={classes.endDateInput}>
-              <DateInput
-                label={endLabel}
-                value={endDate}
-                onChange={handleEndDateInputChange}
-                onValidDate={handleEndDateInputChange}
-                dateFormat={dateFormat}
-              />
-            </div>
-          )}
+          {renderEndDate()}
         </div>
-        {showCalendarOnFocus ? renderPopoverCalendar() : renderCalender()}
+        {showCalendarOnFocus ? renderPopoverCalendar() : renderCalendar()}
       </div>
     </MuiPickersUtilsProvider>
   );
@@ -435,7 +499,6 @@ const useStyles = makeStyles(theme => ({
     left: "2px",
     right: "2px",
     border: `1px solid ${theme.palette.secondary.main}`,
-    borderRadius: "50%",
   },
   nonCurrentMonthDay: {
     color: theme.palette.text.disabled,
@@ -463,14 +526,27 @@ const useStyles = makeStyles(theme => ({
     },
   },
   firstHighlight: {
-    extend: "highlight",
     background: theme.palette.primary.main,
     color: theme.palette.common.white,
     borderTopLeftRadius: theme.typography.pxToRem(4),
     borderBottomLeftRadius: theme.typography.pxToRem(4),
   },
   endHighlight: {
-    extend: "highlight",
+    background: theme.palette.primary.main,
+    color: theme.palette.common.white,
+    borderTopRightRadius: theme.typography.pxToRem(4),
+    borderBottomRightRadius: theme.typography.pxToRem(4),
+  },
+  dateHoverBetween: {
+    background: theme.palette.primary.main,
+    color: theme.palette.common.white,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+    "&:hover": {
+      color: theme.palette.common.white,
+    },
+  },
+  dateHoverFocus: {
     background: theme.palette.primary.main,
     color: theme.palette.common.white,
     borderTopRightRadius: theme.typography.pxToRem(4),
