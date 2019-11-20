@@ -66,7 +66,6 @@ export const View: React.FC<Props> = props => {
                 startDate={new Date(`${absence.startDate} 00:00`)}
                 endDate={new Date(`${absence.endDate} 00:00`)}
                 range={true}
-                disabled={true}
               />
             </div>
 
