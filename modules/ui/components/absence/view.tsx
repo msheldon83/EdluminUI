@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { VacancyDetails } from "./vacancy-details";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { DatePicker } from "../form/date-picker";
+import { Calendar } from "../form/calendar";
 import { format, isAfter, isWithinInterval } from "date-fns";
 import { groupBy, differenceWith, uniqWith } from "lodash-es";
 import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
@@ -62,12 +62,10 @@ export const View: React.FC<Props> = props => {
             </div>
 
             <div className={classes.dates}>
-              <DatePicker
+              <Calendar
                 startDate={new Date(`${absence.startDate} 00:00`)}
                 endDate={new Date(`${absence.endDate} 00:00`)}
-                onChange={() => {}}
-                startLabel=""
-                endLabel=""
+                range={true}
                 disabled={true}
               />
             </div>
