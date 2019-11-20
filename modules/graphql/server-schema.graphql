@@ -353,6 +353,7 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
   endTimeLocal: DateTime
   startTimeUtc: DateTime
   endTimeUtc: DateTime
+  employee: BasicEmployee
 }
 
 type AssignmentMutations {
