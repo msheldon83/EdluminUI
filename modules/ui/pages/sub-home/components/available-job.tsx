@@ -157,7 +157,7 @@ export const AvailableJob: React.FC<Props> = props => {
           {
             <Button
               onClick={() =>
-                props.onDismiss(vacancy.organization!.id, vacancy.id)
+                props.onDismiss(vacancy.organization.id, vacancy.id)
               }
             >
               {t("Dismiss")}
