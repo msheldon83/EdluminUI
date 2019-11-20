@@ -8,9 +8,11 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { Filters } from "./filters/index";
 import { AvailableJob } from "./components/available-job";
+import { AssignmentCard } from "./components/assignment";
 import { FilterList } from "@material-ui/icons";
 import { useQueryBundle } from "graphql/hooks";
 import { GetAllVacancies } from "./graphql/get-all-vacancies.gen";
+import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
 import { Vacancy } from "graphql/server-types.gen";
 
 type Props = {};

@@ -1,6 +1,5 @@
 import {
   Grid,
-  Button,
   Typography,
   IconButton,
   makeStyles,
@@ -14,7 +13,6 @@ import isTomorrow from "date-fns/isTomorrow";
 import isToday from "date-fns/isTomorrow";
 import format from "date-fns/format";
 import { useTranslation } from "react-i18next";
-import { AvailableJobDetail } from "./available-job-detail";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { VacancyDetail } from "graphql/server-types.gen";
 import { Section } from "ui/components/section";
