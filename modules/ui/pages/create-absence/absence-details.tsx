@@ -43,6 +43,8 @@ import { FormData } from "./ui";
 import { VacancyDetails } from "../../components/absence/vacancy-details";
 import { useHistory } from "react-router";
 import { dayPartToLabel } from "ui/components/absence/helpers";
+import { TextButton } from "ui/components/text-button";
+import { AccountCircleOutlined } from "@material-ui/icons";
 
 type Props = {
   state: CreateAbsenceState;
@@ -244,6 +246,32 @@ export const AbsenceDetails: React.FC<Props> = props => {
               </Typography>
             )}
 
+            {values.replacementEmployeeId && (
+              <div className={classes.preArranged}>
+                <div className={classes.preArrangedSubDetails}>
+                  <AccountCircleOutlined fontSize="large" />
+                  <div className={classes.preArrangedSubName}>
+                    <Typography variant="h6">
+                      {values.replacementEmployeeName}
+                    </Typography>
+                    <div className={classes.preArrangedSubText}>
+                      {t("pre-arranged")}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <Button
+                    className={classes.removeSubButton}
+                    onClick={async () => {
+                      await removePrearrangedReplacementEmployee();
+                    }}
+                  >
+                    {t("Remove")}
+                  </Button>
+                </div>
+              </div>
+            )}
+
             {values.needsReplacement && (
               <VacancyDetails vacancies={props.vacancies} equalWidthDetails />
             )}
@@ -276,22 +304,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
               </div>
             )}
 
-            {values.replacementEmployeeId && (
-              <div className={classes.preArrangedChip}>
-                <Chip
-                  label={`${t("Pre-arranged")}: ${
-                    values.replacementEmployeeName
-                  }`}
-                  color={"primary"}
-                  onDelete={async () => {
-                    await removePrearrangedReplacementEmployee();
-                  }}
-                />
-              </div>
-            )}
-
             <div>
-              {values.needsReplacement && (
+              {values.needsReplacement && !values.replacementEmployeeId && (
                 <Button
                   variant="outlined"
                   onClick={() => {
@@ -356,9 +370,28 @@ const useStyles = makeStyles(theme => ({
   notesForReplacement: {
     paddingTop: theme.spacing(3),
   },
-  preArrangedChip: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+  preArranged: {
+    display: "flex",
+    padding: theme.spacing(),
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    backgroundColor: theme.customColors.lightBlue,
+    marginTop: theme.spacing(),
+    marginBottom: theme.spacing(),
+  },
+  preArrangedSubDetails: {
+    display: "flex",
+    alignItems: "center",
+  },
+  preArrangedSubName: {
+    marginLeft: theme.spacing(2),
+  },
+  preArrangedSubText: {
+    fontSize: theme.typography.pxToRem(12),
+  },
+  removeSubButton: {
+    textDecoration: "uppercase",
   },
 }));
 
