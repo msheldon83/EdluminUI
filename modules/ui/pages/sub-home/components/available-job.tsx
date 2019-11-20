@@ -1,6 +1,5 @@
 import {
   Grid,
-  InputLabel,
   Button,
   Typography,
   IconButton,
@@ -16,24 +15,23 @@ import format from "date-fns/format";
 import { useTranslation } from "react-i18next";
 import { AvailableJobDetail } from "./available-job-detail";
 import { formatIsoDateIfPossible } from "helpers/date";
+import { Vacancy } from "graphql/server-types.gen";
 
 type Props = {
-  vacancy: {
-    id: string;
-    vacancyDetails: {
-      locationName: string;
-      startTimeLocal: string | null;
-      endTimeLocal: string | null;
-      dayPortion: number;
-    }[];
-    orgName: string;
-    positionTypeName: string;
-    employeeName: string | null;
-    startTimeLocal: string;
-    endTimeLocal: string;
-    notesToReplacement: string | null;
-    dayPortion: number;
-  };
+  vacancy: Pick<
+    Vacancy,
+    | "id"
+    | "organization"
+    | "position"
+    | "absence"
+    | "startTimeLocal"
+    | "endTimeLocal"
+    | "startDate"
+    | "endDate"
+    | "notesToReplacement"
+    | "totalDayPortion"
+    | "details"
+  >;
   onAccept?: () => void;
   onDismiss?: () => void;
   shadeRow: boolean;
@@ -48,9 +46,10 @@ export const AvailableJob: React.FC<Props> = props => {
   );
 
   const vacancy = props.vacancy;
+  console.log(vacancy);
 
-  const startDate = parseISO(vacancy.startTimeLocal);
-  const endDate = parseISO(vacancy.endTimeLocal);
+  const startDate = parseISO(vacancy.startDate);
+  const endDate = parseISO(vacancy.endDate);
   let vacancyDates = format(startDate, "MMM d");
   let vacancyDaysOfWeek = format(startDate, "EEEE");
   if (!isEqual(startDate, endDate)) {
@@ -66,7 +65,7 @@ export const AvailableJob: React.FC<Props> = props => {
   }
 
   const locationNames = [
-    ...new Set(vacancy.vacancyDetails.map(d => d.locationName)),
+    ...new Set(vacancy.details!.map(d => d!.location!.name)),
   ];
   const locationNameText =
     locationNames.length > 1
@@ -95,7 +94,8 @@ export const AvailableJob: React.FC<Props> = props => {
     <>
       <Grid
         container
-        justify={"flex-start"}
+        justify="space-between"
+        alignItems="center"
         spacing={2}
         className={props.shadeRow ? classes.shadedRow : undefined}
       >
@@ -107,22 +107,22 @@ export const AvailableJob: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={3}>
           <Typography className={classes.locationText}>
-            {locationNameText}
+            {locationNameText ?? t("Unknown")}
           </Typography>
           <Typography className={classes.lightText}>
-            {vacancy.orgName}
+            {vacancy.organization.name}
           </Typography>
         </Grid>
         <Grid item xs={3}>
-          <Typography variant="h6">{vacancy.positionTypeName}</Typography>
-          <Typography
-            className={classes.lightText}
-          >{`for ${vacancy.employeeName}`}</Typography>
+          <Typography variant="h6">{vacancy.position!.name}</Typography>
+          <Typography className={classes.lightText}>{`for ${
+            vacancy.absence!.employee!.firstName
+          } ${vacancy.absence!.employee!.lastName}`}</Typography>
         </Grid>
         <Grid item xs={2}>
           <Typography variant="h6">{`${Math.round(
-            vacancy.dayPortion
-          )} ${parseDayPortion(vacancy.dayPortion)}`}</Typography>
+            vacancy.totalDayPortion
+          )} ${parseDayPortion(vacancy.totalDayPortion)}`}</Typography>
           <Typography className={classes.lightText}>{`${formatIsoDateIfPossible(
             vacancy.startTimeLocal,
             "h:mm aaa"
@@ -158,7 +158,7 @@ export const AvailableJob: React.FC<Props> = props => {
           {<Button onClick={props.onDismiss}>{t("Dismiss")}</Button>}
         </Grid>
         <Grid item xs={1}>
-          {expanded || vacancy.vacancyDetails.length === 1 ? (
+          {expanded || vacancy.details!.length === 1 ? (
             <Button variant="outlined" onClick={props.onAccept}>
               {t("Accept")}
             </Button>
@@ -170,25 +170,16 @@ export const AvailableJob: React.FC<Props> = props => {
         </Grid>
         {expanded && (
           <>
-            {vacancy.vacancyDetails.map(
-              (
-                detail: {
-                  locationName: string;
-                  startTimeLocal: string | null;
-                  endTimeLocal: string | null;
-                  dayPortion: number;
-                },
-                index
-              ) => (
-                <AvailableJobDetail
-                  locationName={detail.locationName}
-                  dayPortion={parseDayPortion(detail.dayPortion)}
-                  startTimeLocal={detail.startTimeLocal ?? ""}
-                  endTimeLocal={detail.endTimeLocal ?? ""}
-                  shadeRow={index % 2 != 0}
-                />
-              )
-            )}
+            {vacancy.details!.map((detail, index) => (
+              <AvailableJobDetail
+                locationName={detail!.location!.name}
+                dayPortion={parseDayPortion(detail!.dayPortion)}
+                startTimeLocal={detail!.startTimeLocal ?? ""}
+                endTimeLocal={detail!.endTimeLocal ?? ""}
+                shadeRow={index % 2 != 0}
+                key={index}
+              />
+            ))}
             <Grid container justify={"flex-end"}>
               <Grid item>
                 <Button onClick={() => setExpanded(!expanded)}>

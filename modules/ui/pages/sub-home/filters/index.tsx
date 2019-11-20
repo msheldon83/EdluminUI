@@ -12,10 +12,17 @@ type Props = { className?: string };
 
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const classes = useStyles();
   const [filters] = useQueryParamIso(FilterQueryParams);
 
   return (
-    <Grid container alignItems="center" justify="flex-start" spacing={2}>
+    <Grid
+      container
+      alignItems="center"
+      justify="flex-start"
+      spacing={2}
+      className={classes.filters}
+    >
       <SchoolFilter {...filters} locationLabel={t("Schools")} />
       <DistrictFilter {...filters} orgLabel={t("Districts")} />
       <PositionTypeFilter {...filters} positionTypeLabel={t("Position type")} />
@@ -35,5 +42,9 @@ export const useStyles = makeStyles(theme => ({
   },
   textField: {
     marginTop: theme.spacing(2),
+  },
+  filters: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
 }));
