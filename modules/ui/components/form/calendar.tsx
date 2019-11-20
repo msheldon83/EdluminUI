@@ -25,9 +25,11 @@ type Props = {
   endDate?: Date | string;
   onChange?: CalendarProps["onChange"];
   onMonthChange?: CalendarProps["onMonthChange"];
-  disableDates?: Array<Date>;
+  disabledDates?: Array<Date>;
   range?: boolean;
-  disabled?: boolean;
+  disableDays?: boolean;
+  disablePast?: boolean;
+  disableFuture?: boolean;
 };
 
 export const Calendar = (props: Props) => {
@@ -36,9 +38,11 @@ export const Calendar = (props: Props) => {
     elevated = false,
     onChange = () => {},
     onMonthChange = () => {},
-    disableDates = [],
+    disabledDates = [],
     range = false,
-    disabled = false,
+    disableDays = false,
+    disablePast = false,
+    disableFuture = false,
   } = props;
   let { endDate } = props;
 
@@ -66,9 +70,9 @@ export const Calendar = (props: Props) => {
         return false;
       }
 
-      return disableDates.some(disabledDate => isSameDay(date, disabledDate));
+      return disabledDates.some(disabledDate => isSameDay(date, disabledDate));
     },
-    [disableDates]
+    [disabledDates]
   );
 
   // This should look like it's floating it's a dropdown style
@@ -140,7 +144,7 @@ export const Calendar = (props: Props) => {
       https://github.com/mui-org/material-ui-pickers/blob/next/lib/src/views/Calendar/DayWrapper.tsx#L24
     */
       const handleDayClick = () => {
-        if (!dayInCurrentMonth && !isDayDisabled && !disabled) {
+        if (!dayInCurrentMonth && !isDayDisabled && !disableDays) {
           onChange(day);
         }
       };
@@ -162,7 +166,7 @@ export const Calendar = (props: Props) => {
     [
       classes,
       dateHover,
-      disabled,
+      disableDays,
       endDate,
       isDateDisabled,
       onChange,
@@ -183,13 +187,17 @@ export const Calendar = (props: Props) => {
           date={startDate}
           onChange={onChange}
           renderDay={customDayRenderer}
-          disablePast={disabled}
-          disableFuture={disabled}
+          disablePast={disablePast}
+          disableFuture={disableFuture}
           allowKeyboardControl={false}
           shouldDisableDate={isDateDisabled}
           onMonthChange={onMonthChange}
         />
-        {disabled && <div className={classes.disableCalendar} />}
+        {/*
+          There is no easy to to disable day events, so this overlays the days and disables
+          pointer events
+        */}
+        {disableDays && <div className={classes.disableCalendar} />}
       </Paper>
     </MuiPickersUtilsProvider>
   );
