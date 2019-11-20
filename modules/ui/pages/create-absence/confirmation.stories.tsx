@@ -263,6 +263,15 @@ const getAbsence = (
   return absence;
 };
 
+const disabledDates = [
+  new Date("2019-11-2 00:00"),
+  new Date("2019-11-9 00:00"),
+  new Date("2019-11-16 00:00"),
+  new Date("2019-11-30 00:00"),
+  new Date("2019-11-5 00:00"),
+  new Date("2019-11-15 00:00"),
+];
+
 export const AsAdminWithAllInformation = () => {
   const path = AdminCreateAbsenceRoute.generate({
     organizationId: "1006",
@@ -285,7 +294,7 @@ export const AsAdminWithAllInformation = () => {
         orgId={"1000"}
         absence={getAbsence("1", true, true)}
         dispatch={() => {}}
-        disabledDates={[new Date("2019-11-2")]}
+        disabledDates={disabledDates}
       />
     </Provider>
   );
@@ -313,7 +322,7 @@ export const AsAdminWithSimpleAbsence = () => {
         orgId={"1000"}
         absence={getAbsence("1", true, false)}
         dispatch={() => {}}
-        disabledDates={[new Date("2019-11-2")]}
+        disabledDates={disabledDates}
       />
     </Provider>
   );
@@ -341,7 +350,7 @@ export const AsAdminWithMinimumInformation = () => {
         orgId={"1000"}
         absence={getAbsence("2", false, false)}
         dispatch={() => {}}
-        disabledDates={[new Date("2019-11-2")]}
+        disabledDates={disabledDates}
       />
     </Provider>
   );
