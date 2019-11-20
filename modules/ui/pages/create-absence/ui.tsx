@@ -1,8 +1,19 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { startOfMonth, eachDayOfInterval } from "date-fns";
+import {
+  addMonths,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  parseISO,
+  startOfDay,
+} from "date-fns";
 import { useForm } from "forms";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import {
+  useQueryBundle,
+  useMutationBundle,
+  HookQueryResult,
+} from "graphql/hooks";
 import {
   DayPart,
   NeedsReplacement,
@@ -10,9 +21,10 @@ import {
   AbsenceCreateInput,
   AbsenceDetailCreateInput,
   Absence,
+  CalendarDayType,
 } from "graphql/server-types.gen";
 import * as React from "react";
-import { useReducer, useState } from "react";
+import { useReducer, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -27,6 +39,11 @@ import { useHistory } from "react-router";
 import { CreateAbsence } from "./graphql/create.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { Confirmation } from "./confirmation";
+import {
+  GetEmployeeContractSchedule,
+  GetEmployeeContractScheduleQuery,
+  GetEmployeeContractScheduleQueryVariables,
+} from "./graphql/get-contract-schedule.gen";
 
 type Props = {
   firstName: string;
@@ -150,6 +167,22 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "replacementEmployeeName", type: "custom" });
 
   const formValues = getValues();
+
+  const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
+    variables: {
+      id: state.employeeId,
+      fromDate: format(addMonths(state.viewingCalendarMonth, -1), "yyyy-M-d"),
+      toDate: format(
+        endOfMonth(addMonths(state.viewingCalendarMonth, 2)),
+        "yyyy-M-d"
+      ),
+    },
+  });
+
+  const disabledDates = useMemo(() => computeDisabledDates(contractSchedule), [
+    contractSchedule,
+  ]);
+
   const projectedVacanciesInput = buildInputForProjectedVacancies(
     formValues,
     Number(props.organizationId),
@@ -294,6 +327,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
+                disabledDates={disabledDates}
               />
             </Section>
           </>
@@ -314,6 +348,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             orgId={props.organizationId}
             absence={absence}
             dispatch={dispatch}
+            disabledDates={disabledDates}
           />
         )}
       </form>
@@ -347,4 +382,39 @@ export type FormData = {
   needsReplacement: boolean;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
+};
+
+const computeDisabledDates = (
+  queryResult: HookQueryResult<
+    GetEmployeeContractScheduleQuery,
+    GetEmployeeContractScheduleQueryVariables
+  >
+) => {
+  if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {
+    return [];
+  }
+  const dates = new Set<Date>();
+  queryResult.data.employee?.employeeContractSchedule?.forEach(contractDate => {
+    switch (contractDate?.calendarDayTypeId) {
+      case CalendarDayType.CancelledDay:
+      case CalendarDayType.Invalid:
+      case CalendarDayType.NonWorkDay: {
+        const theDate = startOfDay(parseISO(contractDate.date));
+        dates.add(theDate);
+      }
+    }
+  });
+  queryResult.data.employee?.employeeAbsenceSchedule?.forEach(absence => {
+    const startDate = absence?.startDate;
+    const endDate = absence?.endDate;
+    if (startDate && endDate) {
+      eachDayOfInterval({
+        start: parseISO(startDate),
+        end: parseISO(endDate),
+      }).forEach(day => {
+        dates.add(startOfDay(day));
+      });
+    }
+  });
+  return [...dates];
 };

@@ -33,18 +33,11 @@ import {
   DatePickerOnMonthChange,
 } from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
-import {
-  GetEmployeeContractSchedule,
-  GetEmployeeContractScheduleQuery,
-  GetEmployeeContractScheduleQueryVariables,
-} from "./graphql/get-contract-schedule.gen";
 import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
 import { VacancyDetails } from "../../components/absence/vacancy-details";
 import { useHistory } from "react-router";
 import { dayPartToLabel } from "ui/components/absence/helpers";
-import { TextButton } from "ui/components/text-button";
-import { AccountCircleOutlined } from "@material-ui/icons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 
 type Props = {
@@ -55,6 +48,7 @@ type Props = {
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
   vacancies: Vacancy[];
+  disabledDates: Date[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -70,21 +64,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     needsReplacement,
     dispatch,
   } = props;
-
-  const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
-    variables: {
-      id: state.employeeId,
-      fromDate: format(addMonths(state.viewingCalendarMonth, -1), "yyyy-M-d"),
-      toDate: format(
-        endOfMonth(addMonths(state.viewingCalendarMonth, 2)),
-        "yyyy-M-d"
-      ),
-    },
-  });
-
-  const disabledDates = useMemo(() => computeDisabledDates(contractSchedule), [
-    contractSchedule,
-  ]);
 
   const [showNotesForReplacement, setShowNotesForReplacement] = useState(
     needsReplacement !== NeedsReplacement.No
@@ -183,7 +162,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           startLabel={t("From")}
           endLabel={t("To")}
           onMonthChange={onMonthChange}
-          disableDates={disabledDates}
+          disableDates={props.disabledDates}
         />
 
         <RadioGroup
@@ -390,39 +369,4 @@ const featureFlagsToDayPartOptions = (
     }
   });
   return dayPartOptions;
-};
-
-const computeDisabledDates = (
-  queryResult: HookQueryResult<
-    GetEmployeeContractScheduleQuery,
-    GetEmployeeContractScheduleQueryVariables
-  >
-) => {
-  if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {
-    return [];
-  }
-  const dates = new Set<Date>();
-  queryResult.data.employee?.employeeContractSchedule?.forEach(contractDate => {
-    switch (contractDate?.calendarDayTypeId) {
-      case CalendarDayType.CancelledDay:
-      case CalendarDayType.Invalid:
-      case CalendarDayType.NonWorkDay: {
-        const theDate = startOfDay(parseISO(contractDate.date));
-        dates.add(theDate);
-      }
-    }
-  });
-  queryResult.data.employee?.employeeAbsenceSchedule?.forEach(absence => {
-    const startDate = absence?.startDate;
-    const endDate = absence?.endDate;
-    if (startDate && endDate) {
-      eachDayOfInterval({
-        start: parseISO(startDate),
-        end: parseISO(endDate),
-      }).forEach(day => {
-        dates.add(startOfDay(day));
-      });
-    }
-  });
-  return [...dates];
 };

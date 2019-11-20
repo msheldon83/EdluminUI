@@ -10,6 +10,7 @@ type Props = {
   orgId: string;
   absence: Absence | undefined;
   dispatch: React.Dispatch<CreateAbsenceActions>;
+  disabledDates: Date[];
 };
 
 export const Confirmation: React.FC<Props> = props => {
@@ -43,6 +44,7 @@ export const Confirmation: React.FC<Props> = props => {
             orgId={props.orgId}
             absence={props.absence}
             isConfirmation={true}
+            disabledDates={props.disabledDates}
           />
         </Grid>
         <Grid item xs={12} container justify="flex-end" spacing={2}>

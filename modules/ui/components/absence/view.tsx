@@ -24,6 +24,7 @@ type Props = {
   orgId: string;
   absence: Absence | undefined;
   isConfirmation?: boolean;
+  disabledDates: Date[];
 };
 
 export const View: React.FC<Props> = props => {
@@ -65,6 +66,7 @@ export const View: React.FC<Props> = props => {
                 endDate={new Date(`${absence.endDate} 00:00`)}
                 range={true}
                 disableDays={true}
+                disabledDates={props.disabledDates}
               />
             </div>
 

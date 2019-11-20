@@ -285,6 +285,7 @@ export const AsAdminWithAllInformation = () => {
         orgId={"1000"}
         absence={getAbsence("1", true, true)}
         dispatch={() => {}}
+        disabledDates={[new Date("2019-11-2")]}
       />
     </Provider>
   );
@@ -312,6 +313,7 @@ export const AsAdminWithSimpleAbsence = () => {
         orgId={"1000"}
         absence={getAbsence("1", true, false)}
         dispatch={() => {}}
+        disabledDates={[new Date("2019-11-2")]}
       />
     </Provider>
   );
@@ -339,6 +341,7 @@ export const AsAdminWithMinimumInformation = () => {
         orgId={"1000"}
         absence={getAbsence("2", false, false)}
         dispatch={() => {}}
+        disabledDates={[new Date("2019-11-2")]}
       />
     </Provider>
   );
