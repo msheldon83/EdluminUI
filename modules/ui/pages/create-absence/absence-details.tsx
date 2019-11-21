@@ -48,12 +48,14 @@ import { useHistory } from "react-router";
 import { dayPartToLabel } from "ui/components/absence/helpers";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { TimeInput } from "ui/components/form/time-input";
+import { FieldError } from "react-hook-form/dist/types";
 
 type Props = {
   state: CreateAbsenceState;
   dispatch: React.Dispatch<CreateAbsenceActions>;
   setValue: SetValue;
   values: FormData;
+  errors: Partial<Record<string, FieldError>>;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
   vacancies: Vacancy[];
@@ -72,6 +74,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     isAdmin,
     needsReplacement,
     dispatch,
+    errors,
   } = props;
 
   const [hourlyStartTime, setHourlyStartTime] = useState<string | undefined>();

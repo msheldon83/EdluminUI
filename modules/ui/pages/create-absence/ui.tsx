@@ -107,6 +107,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     defaultValues: initialFormData,
   });
 
+  const formValues = getValues();
+
   const required = t("Required");
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
@@ -117,10 +119,24 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "notesToReplacement", type: "custom" });
   register({ name: "replacementEmployeeId", type: "custom" });
   register({ name: "replacementEmployeeName", type: "custom" });
-  register({ name: "hourlyStartTime", type: "custom" });
-  register({ name: "hourlyEndTime", type: "custom" });
-
-  const formValues = getValues();
+  register(
+    { name: "hourlyStartTime", type: "custom" },
+    {
+      validate: value =>
+        formValues.dayPart !== DayPart.Hourly ||
+        value ||
+        t("Start time is required"),
+    }
+  );
+  register(
+    { name: "hourlyEndTime", type: "custom" },
+    {
+      validate: value =>
+        formValues.dayPart !== DayPart.Hourly ||
+        value ||
+        t("End time is required"),
+    }
+  );
 
   const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
     variables: {
@@ -262,6 +278,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 dispatch={dispatch}
                 setValue={setValue}
                 values={getValues()}
+                errors={errors}
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
