@@ -57,57 +57,6 @@ type Props = {
   positionName?: string;
 };
 
-const buildInputForProjectedVacancies = (
-  values: Partial<FormData>,
-  orgId: number,
-  employeeId: number
-): AbsenceCreateInput | null => {
-  // TODO: these should come from the Employee's schedule
-  const startTime = "08:00 AM";
-  const endTime = "12:00 PM";
-
-  if (!values.startDate || !values.endDate) {
-    return null;
-  }
-
-  const startDate =
-    typeof values.startDate === "string"
-      ? new Date(values.startDate)
-      : values.startDate;
-  const endDate =
-    typeof values.endDate === "string"
-      ? new Date(values.endDate)
-      : values.endDate;
-
-  if (
-    !isDate(startDate) ||
-    !isValid(startDate) ||
-    !isDate(endDate) ||
-    !isValid(endDate)
-  ) {
-    return null;
-  }
-
-  const allDays = getDaysInDateRange(startDate, endDate);
-
-  if (!allDays.length) {
-    return null;
-  }
-
-  return {
-    orgId,
-    employeeId,
-    details: allDays.map(d => {
-      return {
-        date: format(d, "P"),
-        startTime: secondsSinceMidnight(parseTimeFromString(startTime)),
-        endTime: secondsSinceMidnight(parseTimeFromString(endTime)),
-        dayPartId: values.dayPart ?? DayPart.FullDay,
-      };
-    }),
-  };
-};
-
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
@@ -183,16 +132,24 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     contractSchedule,
   ]);
 
-  const projectedVacanciesInput = buildInputForProjectedVacancies(
+  const projectedVacanciesInput = buildAbsenceCreateInput(
     formValues,
-    Number(props.organizationId),
-    Number(props.employeeId)
+    Number(state.organizationId),
+    Number(state.employeeId),
+    Number(props.positionId),
+    false
   );
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
       absence: projectedVacanciesInput,
     },
     skip: projectedVacanciesInput === null,
+    onError: error => {
+      // This shouldn't prevent the User from continuing on
+      // with Absence Create. Any major issues will be caught
+      // and reported back to them when calling the Create mutation.
+      console.error("Error trying to get projected vacancies", error);
+    },
   });
 
   const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
@@ -229,57 +186,20 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   };
 
   const create = async (formValues: FormData) => {
-    const positionId = props.positionId ? Number(props.positionId) : 0;
-    const dates = eachDayOfInterval({
-      start: formValues.startDate,
-      end: formValues.endDate,
-    });
-
-    let absence: AbsenceCreateInput = {
-      orgId: Number(state.organizationId),
-      employeeId: Number(state.employeeId),
-      notesToApprover: formValues.notesToApprover,
-      details: dates.map(d => {
-        let detail: AbsenceDetailCreateInput = {
-          date: format(d, "P"),
-          dayPartId: formValues.dayPart,
-          reasons: [{ absenceReasonId: Number(formValues.absenceReason) }],
-        };
-
-        if (formValues.dayPart === DayPart.Hourly) {
-          //TODO: provide a way to specify start and end time in the UI when Hourly
-          detail = {
-            ...detail,
-            startTime: "",
-            endTime: "",
-          };
-        }
-
-        return detail;
-      }),
-    };
-
-    // Populate the Vacancies on the Absence if needed
-    if (formValues.needsReplacement) {
-      absence = {
-        ...absence,
-        /* TODO: When we support multi Position Employees we'll need to account for the following:
-            When creating an Absence, there must be 1 Vacancy created here per Position Id.
-        */
-        vacancies: [
-          {
-            positionId: positionId,
-            needsReplacement: formValues.needsReplacement,
-            notesToReplacement: formValues.notesToReplacement,
-            prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
-          },
-        ],
-      };
+    const absenceCreateInput = buildAbsenceCreateInput(
+      formValues,
+      Number(state.organizationId),
+      Number(state.employeeId),
+      Number(props.positionId),
+      true
+    );
+    if (!absence) {
+      return null;
     }
 
     const result = await createAbsence({
       variables: {
-        absence: absence,
+        absence: absenceCreateInput!,
       },
     });
 
@@ -417,4 +337,92 @@ const computeDisabledDates = (
     }
   });
   return [...dates];
+};
+
+const buildAbsenceCreateInput = (
+  formValues: FormData,
+  organizationId: number,
+  employeeId: number,
+  positionId: number,
+  includeVacanciesIfNeedsReplacement: boolean
+) => {
+  if (
+    !formValues.startDate ||
+    !formValues.endDate ||
+    !formValues.absenceReason ||
+    !formValues.dayPart
+  ) {
+    return null;
+  }
+
+  const startDate =
+    typeof formValues.startDate === "string"
+      ? new Date(formValues.startDate)
+      : formValues.startDate;
+  const endDate =
+    typeof formValues.endDate === "string"
+      ? new Date(formValues.endDate)
+      : formValues.endDate;
+
+  if (
+    !isDate(startDate) ||
+    !isValid(startDate) ||
+    !isDate(endDate) ||
+    !isValid(endDate)
+  ) {
+    return null;
+  }
+
+  const dates = eachDayOfInterval({
+    start: formValues.startDate,
+    end: formValues.endDate,
+  });
+
+  if (!dates.length) {
+    return null;
+  }
+
+  let absence: AbsenceCreateInput = {
+    orgId: organizationId,
+    employeeId: employeeId,
+    notesToApprover: formValues.notesToApprover,
+    details: dates.map(d => {
+      let detail: AbsenceDetailCreateInput = {
+        date: format(d, "P"),
+        dayPartId: formValues.dayPart,
+        reasons: [{ absenceReasonId: Number(formValues.absenceReason) }],
+      };
+
+      if (formValues.dayPart === DayPart.Hourly) {
+        //TODO: provide a way to specify start and end time in the UI when Hourly
+        detail = {
+          ...detail,
+          startTime: "",
+          endTime: "",
+        };
+      }
+
+      return detail;
+    }),
+  };
+
+  // Populate the Vacancies on the Absence if needed
+  if (formValues.needsReplacement && includeVacanciesIfNeedsReplacement) {
+    absence = {
+      ...absence,
+      /* TODO: When we support multi Position Employees we'll need to account for the following:
+            When creating an Absence, there must be 1 Vacancy created here per Position Id.
+        */
+      vacancies: [
+        {
+          positionId: positionId,
+          needsReplacement: formValues.needsReplacement,
+          notesToReplacement: formValues.notesToReplacement,
+          prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
+        },
+      ],
+    };
+  }
+
+  return absence;
 };
