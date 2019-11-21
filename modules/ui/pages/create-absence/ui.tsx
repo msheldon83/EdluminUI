@@ -306,6 +306,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             absence={absence}
             dispatch={dispatch}
             disabledDates={disabledDates}
+            isAdmin={props.userIsAdmin}
           />
         )}
       </form>
