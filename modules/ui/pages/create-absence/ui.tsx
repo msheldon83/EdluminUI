@@ -200,7 +200,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       disabledDates,
       true
     );
-    if (!absence) {
+    if (!absenceCreateInput) {
       return null;
     }
 
