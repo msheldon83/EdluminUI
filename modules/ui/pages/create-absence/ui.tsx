@@ -111,7 +111,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "startDate", type: "custom" }, { required });
-  register({ name: "endDate", type: "custom" }, { required });
+  register({ name: "endDate", type: "custom" });
   register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
