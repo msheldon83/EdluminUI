@@ -125,6 +125,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [featureFlags]
   );
 
+  useEffect(() => {
+    if (!values.dayPart && dayPartOptions && dayPartOptions[0]) {
+      // Default the Day Part selection to the first one
+      setValue("dayPart", dayPartOptions[0]);
+    }
+  }, [dayPartOptions]);
+
   const onDateChange: DatePickerOnChange = React.useCallback(
     async ({ startDate, endDate }) => {
       await setValue("startDate", startDate);
