@@ -14,7 +14,6 @@ import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { Step } from "./step-params";
-import { VacancyDisplayData } from "./ui";
 import { VacancyDetails } from "./vacancy-details";
 
 type Props = {
@@ -25,7 +24,7 @@ type Props = {
         "id" | "employeeId" | "numDays" | "notesToApprover" | "details"
       >
     | undefined;
-  vacancies?: VacancyDisplayData;
+  vacancies?: Vacancy[];
   needsReplacement: boolean;
   notesToSubstitute?: string;
   preAssignedReplacementEmployeeName?: string;

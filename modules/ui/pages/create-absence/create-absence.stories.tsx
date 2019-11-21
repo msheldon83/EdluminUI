@@ -13,37 +13,39 @@ import {
   VacancyQualification,
   CalendarDayType,
 } from "graphql/server-types.gen";
+import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 
 export default {
   title: "Pages/Create Absence",
 };
 
-const basicProjectedVacancies = [
+const basicProjectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
   {
-    endTimeLocal: "2019-11-18T12:00:00" as any,
-    numDays: 2,
     positionId: 1057,
     startTimeLocal: "2019-11-15T08:30:00" as any,
+    endTimeLocal: "2019-11-18T12:00:00" as any,
+    numDays: 2,
     details: [
       {
+        startTimeLocal: "2019-11-15T08:30:00" as any,
         endTimeLocal: "2019-11-15T12:00:00" as any,
+        locationId: 1013,
         location: {
           name: "Haven Elementary School",
         },
-        locationId: 1013,
-        startTimeLocal: "2019-11-15T08:30:00" as any,
       },
       {
+        startTimeLocal: "2019-11-18T08:30:00" as any,
         endTimeLocal: "2019-11-18T12:00:00" as any,
+        locationId: 1013,
         location: {
           name: "Haven Elementary School",
         },
-        locationId: 1013,
-        startTimeLocal: "2019-11-18T08:30:00" as any,
       },
     ],
   },
 ];
+
 const basicReplacementEmployees = [
   {
     employee: {
@@ -70,12 +72,14 @@ export const AsAdmin = () => {
     organizationId: "1006",
     employeeId: "123",
   });
+
   const Provider = mockProvider({
     initialUrl: path,
+    logMissingMocks: true,
     mocks: {
       Query: () => ({
         absence: () => ({
-          projectedVacancies: basicProjectedVacancies,
+          // projectedVacancies: basicProjectedVacancies,
           replacementEmployeesForVacancy: {
             totalCount: basicReplacementEmployees.length,
             results: basicReplacementEmployees,
@@ -95,11 +99,11 @@ export const AsAdmin = () => {
           firstName="Jane"
           lastName="Doe"
           employeeId="123"
-          organizationId="124"
+          organizationId="1006"
           userIsAdmin
           needsReplacement={NeedsReplacement.Yes}
           positionName="Math Teacher"
-          positionId={"1"}
+          positionId="1057"
         />
       </Route>
     </Provider>
@@ -134,7 +138,7 @@ export const AsEmployee = () => {
           firstName="Jane"
           lastName="Doe"
           employeeId="123"
-          organizationId="124"
+          organizationId="1006"
           userIsAdmin={false}
           needsReplacement={NeedsReplacement.Sometimes}
           positionName="Math Teacher"
@@ -173,7 +177,7 @@ export const AsSubNotNeededEmployee = () => {
           lastName="Doe"
           actingAsEmployee
           employeeId="123"
-          organizationId="124"
+          organizationId="1006"
           needsReplacement={NeedsReplacement.No}
           userIsAdmin={false}
           positionName="Math Teacher"

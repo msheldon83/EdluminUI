@@ -4,13 +4,12 @@ import { groupBy, compact } from "lodash-es";
 import * as React from "react";
 import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
-import { VacancyData } from "../ui";
 import { VacancyDetailRow } from "./vacancy-row";
 import { VacancySummaryHeader } from "./vacancy-summary-header";
 import { VacancyDetail, Vacancy } from "graphql/server-types.gen";
 
 type Props = {
-  vacancies: VacancyData[];
+  vacancies: Vacancy[];
   positionName?: string | null | undefined;
   showHeader?: boolean;
   equalWidthDetails?: boolean;
@@ -46,7 +45,7 @@ export const VacancyDetails: React.FC<Props> = props => {
         </Grid>
       )}
 
-      {sortedVacancies.map((v: VacancyData, detailsIndex) => {
+      {sortedVacancies.map((v: Vacancy, detailsIndex) => {
         const groupedDetails = groupBy<VacancyDetail>(compact(v.details), d => {
           return d.startTimeLocal && d.endTimeLocal && d.locationId;
         });

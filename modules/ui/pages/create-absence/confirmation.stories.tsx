@@ -7,6 +7,7 @@ import {
   Maybe,
   AbsenceDetail,
   AbsenceReasonUsage,
+  Vacancy,
 } from "graphql/server-types.gen";
 
 export default {
@@ -203,7 +204,7 @@ export const AsAdminWithAllInformation = () => {
             },
           ] as Maybe<AbsenceDetail[]>,
         }}
-        vacancies={vacancies}
+        vacancies={vacancies as Vacancy[]}
         needsReplacement={true}
         notesToSubstitute={notesToSubstitute}
         preAssignedReplacementEmployeeName={"Luke Skywalker"}

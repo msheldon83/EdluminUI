@@ -1,11 +1,11 @@
 import * as React from "react";
 import { Typography } from "@material-ui/core";
-import { VacancyData } from "../ui";
 import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
+import { Vacancy } from "graphql/server-types.gen";
 
 type Props = {
   positionName?: string | null;
-  vacancies: VacancyData[];
+  vacancies: Vacancy[];
 };
 
 export const VacancySummaryHeader: React.FC<Props> = props => {

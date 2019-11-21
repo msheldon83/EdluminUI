@@ -6,6 +6,7 @@ import {
   VacancyAvailability,
   NeedsReplacement,
   VacancyDetail,
+  Vacancy,
 } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
 
@@ -110,145 +111,148 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        selectReplacementEmployee={() => Promise.resolve()}
-        vacancies={[
-          {
-            startTimeLocal: new Date("11/1/2019 08:00 AM"),
-            endTimeLocal: new Date("11/3/2019 05:00 PM"),
-            numDays: 3,
-            positionId: 1,
-            details: [
-              {
-                startTimeLocal: new Date("11/1/2019 07:00 AM"),
-                endTimeLocal: new Date("11/1/2019 09:00 AM"),
-                locationId: 1,
-                location: {
-                  name: "Evans Elementary School",
+        setStep={() => {}}
+        setValue={() => {}}
+        vacancies={
+          [
+            {
+              startTimeLocal: new Date("11/1/2019 08:00 AM"),
+              endTimeLocal: new Date("11/3/2019 05:00 PM"),
+              numDays: 3,
+              positionId: 1,
+              details: [
+                {
+                  startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                  endTimeLocal: new Date("11/1/2019 09:00 AM"),
+                  locationId: 1,
+                  location: {
+                    name: "Evans Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/1/2019 09:00 AM"),
-                endTimeLocal: new Date("11/1/2019 12:00 PM"),
-                locationId: 2,
-                location: {
-                  name: "Brook Elementary School",
+                {
+                  startTimeLocal: new Date("11/1/2019 09:00 AM"),
+                  endTimeLocal: new Date("11/1/2019 12:00 PM"),
+                  locationId: 2,
+                  location: {
+                    name: "Brook Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/1/2019 01:00 PM"),
-                endTimeLocal: new Date("11/1/2019 05:00 PM"),
-                locationId: 3,
-                location: {
-                  name: "Haven Elementary School",
+                {
+                  startTimeLocal: new Date("11/1/2019 01:00 PM"),
+                  endTimeLocal: new Date("11/1/2019 05:00 PM"),
+                  locationId: 3,
+                  location: {
+                    name: "Haven Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/2/2019 07:00 AM"),
-                endTimeLocal: new Date("11/2/2019 09:00 AM"),
-                locationId: 1,
-                location: {
-                  name: "Evans Elementary School",
+                {
+                  startTimeLocal: new Date("11/2/2019 07:00 AM"),
+                  endTimeLocal: new Date("11/2/2019 09:00 AM"),
+                  locationId: 1,
+                  location: {
+                    name: "Evans Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/2/2019 09:00 AM"),
-                endTimeLocal: new Date("11/2/2019 12:00 PM"),
-                locationId: 2,
-                location: {
-                  name: "Brook Elementary School",
+                {
+                  startTimeLocal: new Date("11/2/2019 09:00 AM"),
+                  endTimeLocal: new Date("11/2/2019 12:00 PM"),
+                  locationId: 2,
+                  location: {
+                    name: "Brook Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/2/2019 01:00 PM"),
-                endTimeLocal: new Date("11/2/2019 05:00 PM"),
-                locationId: 3,
-                location: {
-                  name: "Haven Elementary School",
+                {
+                  startTimeLocal: new Date("11/2/2019 01:00 PM"),
+                  endTimeLocal: new Date("11/2/2019 05:00 PM"),
+                  locationId: 3,
+                  location: {
+                    name: "Haven Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/3/2019 07:00 AM"),
-                endTimeLocal: new Date("11/3/2019 09:00 AM"),
-                locationId: 1,
-                location: {
-                  name: "Evans Elementary School",
+                {
+                  startTimeLocal: new Date("11/3/2019 07:00 AM"),
+                  endTimeLocal: new Date("11/3/2019 09:00 AM"),
+                  locationId: 1,
+                  location: {
+                    name: "Evans Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/3/2019 09:00 AM"),
-                endTimeLocal: new Date("11/3/2019 12:00 PM"),
-                locationId: 2,
-                location: {
-                  name: "Brook Elementary School",
+                {
+                  startTimeLocal: new Date("11/3/2019 09:00 AM"),
+                  endTimeLocal: new Date("11/3/2019 12:00 PM"),
+                  locationId: 2,
+                  location: {
+                    name: "Brook Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/3/2019 01:00 PM"),
-                endTimeLocal: new Date("11/3/2019 05:00 PM"),
-                locationId: 3,
-                location: {
-                  name: "Haven Elementary School",
+                {
+                  startTimeLocal: new Date("11/3/2019 01:00 PM"),
+                  endTimeLocal: new Date("11/3/2019 05:00 PM"),
+                  locationId: 3,
+                  location: {
+                    name: "Haven Elementary School",
+                  },
                 },
-              },
-            ] as Maybe<VacancyDetail[]>,
-          },
-          {
-            startTimeLocal: new Date("11/6/2019 08:00 AM"),
-            endTimeLocal: new Date("11/7/2019 05:00 PM"),
-            numDays: 2,
-            positionId: 1,
-            details: [
-              {
-                startTimeLocal: new Date("11/6/2019 07:00 AM"),
-                endTimeLocal: new Date("11/6/2019 09:00 AM"),
-                locationId: 1,
-                location: {
-                  name: "Evans Elementary School",
+              ] as Maybe<VacancyDetail[]>,
+            },
+            {
+              startTimeLocal: new Date("11/6/2019 08:00 AM"),
+              endTimeLocal: new Date("11/7/2019 05:00 PM"),
+              numDays: 2,
+              positionId: 1,
+              details: [
+                {
+                  startTimeLocal: new Date("11/6/2019 07:00 AM"),
+                  endTimeLocal: new Date("11/6/2019 09:00 AM"),
+                  locationId: 1,
+                  location: {
+                    name: "Evans Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/6/2019 09:00 AM"),
-                endTimeLocal: new Date("11/6/2019 12:00 PM"),
-                locationId: 2,
-                location: {
-                  name: "Brook Elementary School",
+                {
+                  startTimeLocal: new Date("11/6/2019 09:00 AM"),
+                  endTimeLocal: new Date("11/6/2019 12:00 PM"),
+                  locationId: 2,
+                  location: {
+                    name: "Brook Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/6/2019 01:00 PM"),
-                endTimeLocal: new Date("11/6/2019 05:00 PM"),
-                locationId: 3,
-                location: {
-                  name: "Haven Elementary School",
+                {
+                  startTimeLocal: new Date("11/6/2019 01:00 PM"),
+                  endTimeLocal: new Date("11/6/2019 05:00 PM"),
+                  locationId: 3,
+                  location: {
+                    name: "Haven Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/7/2019 07:00 AM"),
-                endTimeLocal: new Date("11/7/2019 09:00 AM"),
-                locationId: 1,
-                location: {
-                  name: "Evans Elementary School",
+                {
+                  startTimeLocal: new Date("11/7/2019 07:00 AM"),
+                  endTimeLocal: new Date("11/7/2019 09:00 AM"),
+                  locationId: 1,
+                  location: {
+                    name: "Evans Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/7/2019 09:00 AM"),
-                endTimeLocal: new Date("11/7/2019 12:00 PM"),
-                locationId: 2,
-                location: {
-                  name: "Brook Elementary School",
+                {
+                  startTimeLocal: new Date("11/7/2019 09:00 AM"),
+                  endTimeLocal: new Date("11/7/2019 12:00 PM"),
+                  locationId: 2,
+                  location: {
+                    name: "Brook Elementary School",
+                  },
                 },
-              },
-              {
-                startTimeLocal: new Date("11/7/2019 01:00 PM"),
-                endTimeLocal: new Date("11/7/2019 05:00 PM"),
-                locationId: 3,
-                location: {
-                  name: "Haven Elementary School",
+                {
+                  startTimeLocal: new Date("11/7/2019 01:00 PM"),
+                  endTimeLocal: new Date("11/7/2019 05:00 PM"),
+                  locationId: 3,
+                  location: {
+                    name: "Haven Elementary School",
+                  },
                 },
-              },
-            ] as Maybe<VacancyDetail[]>,
-          },
-        ]}
+              ] as Maybe<VacancyDetail[]>,
+            },
+          ] as Vacancy[]
+        }
       />
     </Provider>
   );
@@ -280,25 +284,28 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        selectReplacementEmployee={() => Promise.resolve()}
-        vacancies={[
-          {
-            startTimeLocal: new Date("11/1/2019 08:00 AM"),
-            endTimeLocal: new Date("11/10/2019 05:00 PM"),
-            numDays: 7,
-            positionId: 1,
-            details: [
-              {
-                startTimeLocal: new Date("11/1/2019 07:00 AM"),
-                endTimeLocal: new Date("11/1/2019 05:00 PM"),
-                locationId: 1,
-                location: {
-                  name: "Evans Elementary School",
+        setStep={() => {}}
+        setValue={() => {}}
+        vacancies={
+          [
+            {
+              startTimeLocal: new Date("11/1/2019 08:00 AM"),
+              endTimeLocal: new Date("11/10/2019 05:00 PM"),
+              numDays: 7,
+              positionId: 1,
+              details: [
+                {
+                  startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                  endTimeLocal: new Date("11/1/2019 05:00 PM"),
+                  locationId: 1,
+                  location: {
+                    name: "Evans Elementary School",
+                  },
                 },
-              },
-            ] as Maybe<VacancyDetail[]>,
-          },
-        ]}
+              ] as Maybe<VacancyDetail>[],
+            },
+          ] as Vacancy[]
+        }
       />
     </Provider>
   );
@@ -329,25 +336,28 @@ export const PrearrangeSubAsAdmin = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        selectReplacementEmployee={() => Promise.resolve()}
-        vacancies={[
-          {
-            startTimeLocal: new Date("11/1/2019 08:00 AM"),
-            endTimeLocal: new Date("11/10/2019 05:00 PM"),
-            numDays: 7,
-            positionId: 1,
-            details: [
-              {
-                startTimeLocal: new Date("11/1/2019 07:00 AM"),
-                endTimeLocal: new Date("11/1/2019 05:00 PM"),
-                locationId: 1,
-                location: {
-                  name: "Evans Elementary School",
+        setStep={() => {}}
+        setValue={() => {}}
+        vacancies={
+          [
+            {
+              startTimeLocal: new Date("11/1/2019 08:00 AM"),
+              endTimeLocal: new Date("11/10/2019 05:00 PM"),
+              numDays: 7,
+              positionId: 1,
+              details: [
+                {
+                  startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                  endTimeLocal: new Date("11/1/2019 05:00 PM"),
+                  locationId: 1,
+                  location: {
+                    name: "Evans Elementary School",
+                  },
                 },
-              },
-            ] as Maybe<VacancyDetail[]>,
-          },
-        ]}
+              ] as Maybe<VacancyDetail[]>,
+            },
+          ] as Vacancy[]
+        }
       />
     </Provider>
   );
@@ -378,25 +388,28 @@ export const PrearrangeSubAsEmployee = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        selectReplacementEmployee={() => Promise.resolve()}
-        vacancies={[
-          {
-            startTimeLocal: new Date("11/1/2019 08:00 AM"),
-            endTimeLocal: new Date("11/10/2019 05:00 PM"),
-            numDays: 7,
-            positionId: 1,
-            details: [
-              {
-                startTimeLocal: new Date("11/1/2019 07:00 AM"),
-                endTimeLocal: new Date("11/1/2019 05:00 PM"),
-                locationId: 1,
-                location: {
-                  name: "Evans Elementary School",
+        setStep={() => {}}
+        setValue={() => {}}
+        vacancies={
+          [
+            {
+              startTimeLocal: new Date("11/1/2019 08:00 AM"),
+              endTimeLocal: new Date("11/10/2019 05:00 PM"),
+              numDays: 7,
+              positionId: 1,
+              details: [
+                {
+                  startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                  endTimeLocal: new Date("11/1/2019 05:00 PM"),
+                  locationId: 1,
+                  location: {
+                    name: "Evans Elementary School",
+                  },
                 },
-              },
-            ] as Maybe<VacancyDetail[]>,
-          },
-        ]}
+              ] as Maybe<VacancyDetail[]>,
+            },
+          ] as Vacancy[]
+        }
       />
     </Provider>
   );

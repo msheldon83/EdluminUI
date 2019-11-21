@@ -44,6 +44,7 @@ type Props = {
   isClearable?: boolean;
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: (event: React.FocusEvent) => void;
+  name?: string;
 };
 
 export interface OptionType {
@@ -110,6 +111,7 @@ export const NativeSelect: React.FC<Props> = props => {
         {props.label}
       </InputLabel>
       <MuiSelect
+        name={props.name}
         className={classes.nativeInput}
         native
         onChange={handleChange}
@@ -162,6 +164,7 @@ export const StyledSelect: React.FC<Props> = props => {
 
   return (
     <ReactSelect
+      name={props.name}
       classes={classes}
       styles={selectStyles}
       inputId="react-select-single"

@@ -11,14 +11,23 @@ import { Input } from "./input";
 type Props = {
   label: string;
   value?: string;
+  name?: string;
   onChange: (value: string) => void;
   onValidTime: (value: string) => void;
   earliestTime?: string;
+  ref?: React.Ref<any>;
 };
 
-export const TimeInput = (props: Props) => {
+export const TimeInput = React.forwardRef((props: Props, ref) => {
   //2019-11-04T06:00:00.000Z/
-  const { earliestTime, onValidTime, label, value = "", onChange } = props;
+  const {
+    earliestTime,
+    onValidTime,
+    label,
+    value = "",
+    onChange,
+    name,
+  } = props;
 
   const parsedValue = isIso(value)
     ? humanizeTimeStamp(isoToTimestamp(value))
@@ -41,9 +50,11 @@ export const TimeInput = (props: Props) => {
   return (
     <Input
       label={label}
+      name={name}
       value={parsedValue}
       onChange={event => onChange(event.target.value)}
       onBlur={handleBlur}
+      ref={ref}
     />
   );
-};
+});

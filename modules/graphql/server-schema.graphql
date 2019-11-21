@@ -374,11 +374,12 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
   endTimeLocal: DateTime
   startTimeUtc: DateTime
   endTimeUtc: DateTime
+  cancelledAtUtc: DateTime
   employee: BasicEmployee
 }
 
 type AssignmentMutations {
-  cancelAssignment(cancelRequest: CancelVacancyAssignmentInput!): Boolean
+  cancelAssignment(cancelRequest: CancelVacancyAssignmentInput!): Assignment
 }
 
 type AssignmentQueries {
@@ -413,6 +414,26 @@ type BasicEmployee implements ModelObjectInterface & OrgObjectInterface {
   middleName: String!
   lastName: String!
   phoneNumber: String!
+}
+
+type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  externalId: String
+  rowVersion: String!
+  positionId: Int!
+  contractId: Int!
+  absenceId: Int
+  notesToReplacement: String
+  positionName: String!
+  forEmployeeFirstName: String
+  forEmployeeLastName: String
 }
 
 type Branding implements ModelObjectInterface {
@@ -624,7 +645,7 @@ enum CalendarDayType {
 input CancelVacancyAssignmentInput {
   id: Int!
   rowVersion: String!
-  cancellationReasonId: Int!
+  cancellationReasonId: Int
 }
 
 type ChangedContract implements ModelObjectInterface & OrgObjectInterface {
@@ -1126,6 +1147,13 @@ type EmployeeQueries {
   ): [ContractDate]
   employeeAbsenceSchedule(id: ID!, fromDate: Date!, toDate: Date!): [Absence]
   employeeVacancySchedule(id: ID!, fromDate: Date!, toDate: Date!): [Vacancy]
+  employeeAssignmentSchedule(
+    id: ID!
+    fromDate: DateTime!
+    toDate: Date!
+    limit: Int
+    includeCompletedToday: Boolean
+  ): [VacancyDetail]
 }
 
 input EmployeeRejectVacancyInput {
@@ -1580,6 +1608,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   locationGroupId: Int!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
+  phoneNumber: String
   address1: String
   address2: String
   city: String
@@ -1599,6 +1628,7 @@ input LocationCreateInput {
   locationGroupId: Int!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
+  phoneNumber: String
 }
 
 type LocationGroup implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -1689,6 +1719,7 @@ input LocationUpdateInput {
   locationGroupId: Int!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
+  phoneNumber: String
 }
 
 scalar Milliseconds
@@ -4271,6 +4302,7 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   assignment: Assignment
   locationId: Int
   location: Location
+  vacancy: BasicVacancy
 }
 
 input VacancyDetailInput {

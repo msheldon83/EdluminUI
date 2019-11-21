@@ -16,6 +16,7 @@ import {
   DayPart,
   NeedsReplacement,
   Vacancy,
+  AbsenceVacancyInput,
 } from "graphql/server-types.gen";
 import { getDaysInDateRange } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
@@ -34,11 +35,6 @@ import { CreateAbsence } from "./graphql/create.gen";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-
-export type VacancyData = Pick<
-  Vacancy,
-  "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
->;
 
 type Props = {
   firstName: string;
@@ -87,7 +83,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     initialState
   );
   const today = new Date();
-  const initialFormData: FormData = {
+  const initialFormData: CreateAbsenceFormData = {
     startDate: today,
     endDate: today,
     absenceReason: "",
@@ -100,7 +96,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     formState,
     getValues,
     errors,
-  } = useForm<FormData>({
+  } = useForm<CreateAbsenceFormData>({
     defaultValues: initialFormData,
   });
 
@@ -132,28 +128,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   getProjectedVacancies.state === "UPDATING"
     ? []
     : getProjectedVacancies.data?.absence?.projectedVacancies ??
-      []) as VacancyData[];
+      []) as Vacancy[];
 
   const name = `${props.firstName} ${props.lastName}`;
 
-  // const params = new URLSearchParams(history.location.search);
-  // if (!params.has("action") && step !== "absence") {
-  //   dispatch({
-  //     action: "switchStep",
-  //     step: "absence",
-  //   });
-  // }
-
-  const selectReplacementEmployee = async (
-    replacementEmployeeId: number,
-    name: string
-  ) => {
-    await setValue("replacementEmployeeId", replacementEmployeeId);
-    await setValue("replacementEmployeeName", name);
-    setStep("absence");
-  };
-
-  const create = async (formValues: FormData) => {
+  const create = async (formValues: CreateAbsenceFormData) => {
     const positionId = props.positionId ? Number(props.positionId) : 0;
     const dates = eachDayOfInterval({
       start: formValues.startDate,
@@ -164,6 +143,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       orgId: Number(state.organizationId),
       employeeId: Number(state.employeeId),
       notesToApprover: formValues.notesToApprover,
+      vacancies: [], // TODO get from state
       details: dates.map(d => {
         let detail: AbsenceDetailCreateInput = {
           date: format(d, "P"),
@@ -214,6 +194,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     >;
   };
 
+  const logData = React.useCallback(
+    () => handleSubmit((data, e) => console.log(data)),
+    [handleSubmit]
+  );
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
@@ -244,7 +228,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 state={state}
                 dispatch={dispatch}
                 setValue={setValue}
-                values={getValues()}
+                values={formValues}
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
@@ -261,7 +245,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             positionId={props.positionId}
             positionName={props.positionName}
             vacancies={projectedVacancies}
-            selectReplacementEmployee={selectReplacementEmployee}
+            setStep={setStep}
+            setValue={setValue}
           />
         )}
         {step === "confirmation" && (
@@ -284,6 +269,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             positionName={props.positionName}
             setStep={setStep}
             vacancies={projectedVacancies}
+            setValue={setValue}
+            register={register}
+            handleSubmit={logData}
+            values={formValues}
           />
         )}
       </form>
@@ -307,7 +296,7 @@ const initialState = (props: Props): CreateAbsenceState => ({
   needsReplacement: props.needsReplacement !== NeedsReplacement.No,
 });
 
-export type FormData = {
+export type CreateAbsenceFormData = {
   startDate: Date;
   endDate: Date;
   absenceReason: string;
@@ -316,10 +305,11 @@ export type FormData = {
   notesToReplacement?: string;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
+  vacancies?: AbsenceVacancyInput[];
 };
 
 const buildInputForProjectedVacancies = (
-  values: Partial<FormData>,
+  values: Partial<CreateAbsenceFormData>,
   orgId: number,
   employeeId: number
 ): AbsenceCreateInput | null => {

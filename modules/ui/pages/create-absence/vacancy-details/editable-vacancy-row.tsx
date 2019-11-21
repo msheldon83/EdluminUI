@@ -1,15 +1,20 @@
 import { Grid, makeStyles } from "@material-ui/core";
-import { format } from "date-fns";
-import { VacancyDetail, Maybe, Location } from "graphql/server-types.gen";
+import { Register, SetValue } from "forms";
+import { Location, Maybe, VacancyDetail } from "graphql/server-types.gen";
 import { convertStringToDate } from "helpers/date";
 import * as React from "react";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
+import { CreateAbsenceFormData } from "../ui";
 
 type Props = {
   vacancyDetails: Maybe<VacancyDetail>[];
   equalWidthDetails?: boolean;
   locationOptions: Location[];
+  setValue: SetValue;
+  groupIndex: number;
+  register: Register;
+  values: CreateAbsenceFormData;
 };
 
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
@@ -19,78 +24,91 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     label: loc.name,
   }));
 
-  const firstDetail = props.vacancyDetails[0];
+  const firstDetail =
+    props.values.vacancies &&
+    props.values.vacancies[0] &&
+    props.values.vacancies[0].details &&
+    props.values.vacancies[0].details[0];
+
   if (!firstDetail) {
     return <></>;
   }
-
   const detailStartTimeLocal = convertStringToDate(
-    firstDetail.startTimeLocal
+    firstDetail.startTime
   )?.toISOString();
   const detailEndTimeLocal = convertStringToDate(
-    firstDetail.endTimeLocal
+    firstDetail.endTime
   )?.toISOString();
   if (!detailStartTimeLocal || !detailEndTimeLocal) {
     return <></>;
   }
 
+  const fieldNamePrefix = `vacancies[${props.groupIndex}].details`;
+  props.register({ name: `${fieldNamePrefix}.locationId`, type: "custom" });
+
   return (
     <>
-      <Grid
-        item
-        xs={props.equalWidthDetails ? 6 : 2}
-        className={classes.vacancyBlockItem}
-      >
-        {/* {`${format(detailStartTimeLocal, "h:mm a")} - ${format(
-          detailEndTimeLocal,
-          "h:mm a"
-        )}`} */}
-
-        <TimeInput
-          label=""
-          value={detailStartTimeLocal}
-          onValidTime={time => {
-            console.log(time);
-          }}
-          onChange={value => {
-            console.log(value);
-          }}
-          earliestTime={detailStartTimeLocal}
-        />
-        <TimeInput
-          label=""
-          value={detailEndTimeLocal}
-          onValidTime={time => {
-            console.log(time);
-          }}
-          onChange={value => {
-            console.log(value);
-          }}
-          earliestTime={detailEndTimeLocal}
-        />
+      <Grid item className={classes.vacancyBlockItem}>
+        <Grid item>
+          <TimeInput
+            label=""
+            name={`${fieldNamePrefix}.startTime`}
+            value={detailStartTimeLocal}
+            onValidTime={async value => {
+              await props.setValue(`${fieldNamePrefix}.startTime`, value);
+              console.log(value);
+            }}
+            onChange={async value => {
+              await props.setValue(`${fieldNamePrefix}.startTime`, value);
+              console.log(value);
+            }}
+            earliestTime={detailStartTimeLocal}
+            ref={props.register}
+          />
+        </Grid>
+        <Grid item>
+          <TimeInput
+            label=""
+            name={`${fieldNamePrefix}.endTime`}
+            value={detailEndTimeLocal}
+            onValidTime={async value => {
+              await props.setValue(`${fieldNamePrefix}.endTime`, value);
+              console.log(value);
+            }}
+            onChange={async value => {
+              await props.setValue(`${fieldNamePrefix}.endTime`, value);
+              console.log(value);
+            }}
+            earliestTime={detailEndTimeLocal}
+            ref={props.register}
+          />
+        </Grid>
       </Grid>
-      <Grid
-        item
-        xs={props.equalWidthDetails ? 6 : 10}
-        className={classes.vacancyBlockItem}
-      >
+
+      <Grid item xs={3} className={classes.vacancyBlockItem}>
         <Select
+          name={`${fieldNamePrefix}.locationId`}
           options={locationMenuOptions}
-          onChange={val => console.log(val)}
-          value={
-            locationMenuOptions.find(
-              op =>
-                Number(op.value) ===
-                (firstDetail.locationId || firstDetail.location?.id)
-            ) || null
-          }
+          onChange={async (event: any) => {
+            console.log(`${fieldNamePrefix}.locationId`, event.value);
+            await props.setValue(`${fieldNamePrefix}.locationId`, event.value);
+          }}
+          value={{
+            value: firstDetail.locationId,
+            label:
+              locationMenuOptions.find(
+                op => Number(op.value) === firstDetail.locationId
+              )?.label || "",
+          }}
         />
       </Grid>
     </>
   );
 };
+
 const useStyles = makeStyles(theme => ({
   vacancyBlockItem: {
     marginTop: theme.spacing(0.5),
+    marginRight: theme.spacing(2),
   },
 }));

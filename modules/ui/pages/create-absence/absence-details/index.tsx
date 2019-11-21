@@ -20,6 +20,7 @@ import {
   DayPart,
   FeatureFlag,
   NeedsReplacement,
+  Vacancy,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useMemo } from "react";
@@ -39,17 +40,17 @@ import {
 } from "../graphql/get-contract-schedule.gen";
 import { CreateAbsenceActions, CreateAbsenceState } from "../state";
 import { Step } from "../step-params";
-import { FormData, VacancyData } from "../ui";
+import { CreateAbsenceFormData } from "../ui";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
 
 type Props = {
   state: CreateAbsenceState;
   dispatch: React.Dispatch<CreateAbsenceActions>;
   setValue: SetValue;
-  values: FormData;
+  values: CreateAbsenceFormData;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
-  vacancies: VacancyData[];
+  vacancies: Vacancy[];
   setStep: (S: Step) => void;
 };
 

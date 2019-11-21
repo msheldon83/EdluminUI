@@ -9,7 +9,7 @@ import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
 import { Table } from "ui/components/table";
 import { Typography, Divider, Collapse, Link } from "@material-ui/core";
-import { AbsenceVacancyInput } from "graphql/server-types.gen";
+import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
 import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
@@ -20,24 +20,23 @@ import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { VacancyDetails } from "../vacancy-details";
 import { convertStringToDate } from "helpers/date";
 import { getAssignSubColumns } from "./columns";
-import { VacancyData } from "../ui";
+import { SetValue } from "forms";
+import { Step } from "../step-params";
 
 type Props = {
   orgId: string;
   vacancyId?: string | null | undefined;
-  vacancies: VacancyData[];
+  vacancies: Vacancy[];
   userIsAdmin: boolean;
   employeeName: string;
   positionId?: string;
   positionName?: string;
-  selectReplacementEmployee: (
-    replacementEmployeeId: number,
-    name: string
-  ) => Promise<void>;
+  setStep: (s: Step) => void;
+  setValue: SetValue;
 };
 
 const buildVacancyInput = (
-  vacancies: VacancyData[]
+  vacancies: Vacancy[]
 ): AbsenceVacancyInput[] | null => {
   const vacanciesInput = vacancies.map(v => {
     return {
@@ -150,6 +149,15 @@ export const AssignSub: React.FC<Props> = props => {
     }));
   }, [replacementEmployees]);
 
+  const selectReplacementEmployee = async (
+    replacementEmployeeId: number,
+    name: string
+  ) => {
+    await props.setValue("replacementEmployeeId", replacementEmployeeId);
+    await props.setValue("replacementEmployeeName", name);
+    props.setStep("absence");
+  };
+
   const setSearch = (filters: ReplacementEmployeeFilters) => {
     updateSearch(filters);
   };
@@ -201,7 +209,7 @@ export const AssignSub: React.FC<Props> = props => {
       getAssignSubColumns(
         tableData,
         props.userIsAdmin,
-        props.selectReplacementEmployee,
+        selectReplacementEmployee,
         isMobile,
         theme,
         classes,

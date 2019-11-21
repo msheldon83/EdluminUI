@@ -5,17 +5,22 @@ import { compact, groupBy } from "lodash-es";
 import * as React from "react";
 import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
-import { VacancyData } from "../ui";
+import { CreateAbsenceFormData } from "../ui";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import { VacancySummaryHeader } from "./vacancy-summary-header";
+import { Register, SetValue } from "forms";
+import { Vacancy } from "graphql/server-types.gen";
 
 type Props = {
-  vacancies: VacancyData[];
+  vacancies: Vacancy[];
   positionName?: string | null | undefined;
   showHeader?: boolean;
   equalWidthDetails?: boolean;
   gridRef?: React.RefObject<HTMLDivElement>;
   locationOptions: Location[];
+  setValue: SetValue;
+  register: Register;
+  values: CreateAbsenceFormData;
 };
 
 export const EditableVacancyDetails: React.FC<Props> = props => {
@@ -42,7 +47,7 @@ export const EditableVacancyDetails: React.FC<Props> = props => {
         </Grid>
       )}
 
-      {sortedVacancies.map((v: VacancyData, detailsIndex) => {
+      {sortedVacancies.map((v: Vacancy, detailsIndex) => {
         const groupedDetails = groupBy<VacancyDetail>(compact(v.details), d => {
           return d.startTimeLocal && d.endTimeLocal && d.locationId;
         });
@@ -65,8 +70,12 @@ export const EditableVacancyDetails: React.FC<Props> = props => {
               <Fragment key={groupIndex}>
                 <EditableVacancyDetailRow
                   vacancyDetails={value}
+                  groupIndex={groupIndex}
                   equalWidthDetails={props.equalWidthDetails}
                   locationOptions={props.locationOptions}
+                  setValue={props.setValue}
+                  register={props.register}
+                  values={props.values}
                 />
               </Fragment>
             ))}

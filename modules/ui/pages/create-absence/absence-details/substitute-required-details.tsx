@@ -10,13 +10,13 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { VacancyDetails } from "../vacancy-details";
 import { Step } from "../step-params";
-import { VacancyData } from "../ui";
+import { Vacancy } from "graphql/server-types.gen";
 
 type Props = {
   setValue: SetValue;
   replacementEmployeeName?: string;
   replacementEmployeeId?: number;
-  vacancies: VacancyData[];
+  vacancies: Vacancy[];
   setStep: (S: Step) => void;
 };
 
