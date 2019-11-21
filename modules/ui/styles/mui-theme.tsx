@@ -110,9 +110,9 @@ export const EdluminTheme = createMuiTheme({
 
       outlined: {
         backgroundColor: themeColors.white,
-        color: themeColors.edluminSlate,
+        color: themeColors.blue,
         textTransform: "uppercase",
-        borderColor: themeColors.edluminLightSlate,
+        borderColor: themeColors.sectionBorder,
         borderWidth: pxToRem(1),
         transition: ` background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
             box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1),

@@ -33,15 +33,12 @@ import {
   DatePickerOnMonthChange,
 } from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
-import {
-  GetEmployeeContractSchedule,
-  GetEmployeeContractScheduleQuery,
-  GetEmployeeContractScheduleQueryVariables,
-} from "./graphql/get-contract-schedule.gen";
 import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
-import { VacancyDetails } from "./vacancy-details";
+import { VacancyDetails } from "../../components/absence/vacancy-details";
 import { useHistory } from "react-router";
+import { dayPartToLabel } from "ui/components/absence/helpers";
+import { AssignedSub } from "ui/components/absence/assigned-sub";
 
 type Props = {
   state: CreateAbsenceState;
@@ -50,10 +47,8 @@ type Props = {
   values: FormData;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+  vacancies: Vacancy[];
+  disabledDates: Date[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -69,21 +64,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     needsReplacement,
     dispatch,
   } = props;
-
-  const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
-    variables: {
-      id: state.employeeId,
-      fromDate: format(addMonths(state.viewingCalendarMonth, -1), "yyyy-M-d"),
-      toDate: format(
-        endOfMonth(addMonths(state.viewingCalendarMonth, 2)),
-        "yyyy-M-d"
-      ),
-    },
-  });
-
-  const disabledDates = useMemo(() => computeDisabledDates(contractSchedule), [
-    contractSchedule,
-  ]);
 
   const [showNotesForReplacement, setShowNotesForReplacement] = useState(
     needsReplacement !== NeedsReplacement.No
@@ -182,7 +162,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           startLabel={t("From")}
           endLabel={t("To")}
           onMonthChange={onMonthChange}
-          disableDates={disabledDates}
+          disableDates={props.disabledDates}
         />
 
         <RadioGroup
@@ -227,6 +207,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </Typography>
 
         <Paper>
+          {values.replacementEmployeeId && (
+            <AssignedSub
+              employeeId={values.replacementEmployeeId}
+              employeeName={values.replacementEmployeeName || ""}
+              subText={t("pre-arranged")}
+              onRemove={removePrearrangedReplacementEmployee}
+            />
+          )}
           <div className={classes.container}>
             {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
               <FormControlLabel
@@ -235,6 +223,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                   <Checkbox
                     checked={values.needsReplacement}
                     onChange={onNeedsReplacementChange}
+                    color="primary"
                   />
                 }
               />
@@ -278,22 +267,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
               </div>
             )}
 
-            {values.replacementEmployeeId && (
-              <div className={classes.preArrangedChip}>
-                <Chip
-                  label={`${t("Pre-arranged")}: ${
-                    values.replacementEmployeeName
-                  }`}
-                  color={"primary"}
-                  onDelete={async () => {
-                    await removePrearrangedReplacementEmployee();
-                  }}
-                />
-              </div>
-            )}
-
             <div>
-              {values.needsReplacement && (
+              {values.needsReplacement && !values.replacementEmployeeId && (
                 <Button
                   variant="outlined"
                   onClick={() => {
@@ -358,10 +333,6 @@ const useStyles = makeStyles(theme => ({
   notesForReplacement: {
     paddingTop: theme.spacing(3),
   },
-  preArrangedChip: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
 }));
 
 const useTextFieldClasses = makeStyles(theme => ({
@@ -369,29 +340,6 @@ const useTextFieldClasses = makeStyles(theme => ({
     padding: theme.spacing(1),
   },
 }));
-
-const dayPartToLabel = (dayPart: DayPart): string => {
-  switch (dayPart) {
-    case DayPart.FullDay:
-      return "Full Day";
-    case DayPart.HalfDayMorning:
-      return "Half Day AM";
-    case DayPart.HalfDayAfternoon:
-      return "Half Day PM";
-    case DayPart.Hourly:
-      return "Hourly";
-    case DayPart.QuarterDayEarlyMorning:
-      return "Quarter Day Early Morning";
-    case DayPart.QuarterDayLateMorning:
-      return "Quarter Day Late Morning";
-    case DayPart.QuarterDayEarlyAfternoon:
-      return "Quarter Day Early Afternoon";
-    case DayPart.QuarterDayLateAfternoon:
-      return "Quarter Day Late Afternoon";
-    default:
-      return "Other";
-  }
-};
 
 const featureFlagsToDayPartOptions = (
   featureFlags: FeatureFlag[]
@@ -421,39 +369,4 @@ const featureFlagsToDayPartOptions = (
     }
   });
   return dayPartOptions;
-};
-
-const computeDisabledDates = (
-  queryResult: HookQueryResult<
-    GetEmployeeContractScheduleQuery,
-    GetEmployeeContractScheduleQueryVariables
-  >
-) => {
-  if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {
-    return [];
-  }
-  const dates = new Set<Date>();
-  queryResult.data.employee?.employeeContractSchedule?.forEach(contractDate => {
-    switch (contractDate?.calendarDayTypeId) {
-      case CalendarDayType.CancelledDay:
-      case CalendarDayType.Invalid:
-      case CalendarDayType.NonWorkDay: {
-        const theDate = startOfDay(parseISO(contractDate.date));
-        dates.add(theDate);
-      }
-    }
-  });
-  queryResult.data.employee?.employeeAbsenceSchedule?.forEach(absence => {
-    const startDate = absence?.startDate;
-    const endDate = absence?.endDate;
-    if (startDate && endDate) {
-      eachDayOfInterval({
-        start: parseISO(startDate),
-        end: parseISO(endDate),
-      }).forEach(day => {
-        dates.add(startOfDay(day));
-      });
-    }
-  });
-  return [...dates];
 };

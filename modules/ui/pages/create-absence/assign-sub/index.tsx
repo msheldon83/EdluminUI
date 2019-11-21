@@ -25,17 +25,14 @@ import {
 import format from "date-fns/format";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
-import { VacancyDetails } from "../vacancy-details";
+import { VacancyDetails } from "../../../components/absence/vacancy-details";
 import { convertStringToDate } from "helpers/date";
 import { getAssignSubColumns } from "./columns";
 
 type Props = {
   orgId: string;
   vacancyId?: string | null | undefined;
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+  vacancies: Vacancy[];
   userIsAdmin: boolean;
   employeeName: string;
   positionId?: string;
@@ -47,10 +44,7 @@ type Props = {
 };
 
 const buildVacancyInput = (
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[]
+  vacancies: Vacancy[]
 ): AbsenceVacancyInput[] | null => {
   const vacanciesInput = vacancies.map(v => {
     return {
