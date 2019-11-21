@@ -2,6 +2,7 @@ import * as React from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import FormControl from "@material-ui/core/FormControl";
+import FormHelperText from "@material-ui/core/FormHelperText";
 import OutlinedInput, {
   OutlinedInputProps,
 } from "@material-ui/core/OutlinedInput";
@@ -11,6 +12,8 @@ type Props = Omit<OutlinedInputProps, "labelWidth"> & {
   withSpacing?: boolean;
   InputComponent?: React.ElementType;
   inputComponentProps?: Record<string, any>;
+  inputStatus?: "warning" | "error" | "success" | undefined | null;
+  validationMessage?: string | undefined;
 };
 
 export const Input = React.forwardRef((props: Props, ref) => {
@@ -20,6 +23,8 @@ export const Input = React.forwardRef((props: Props, ref) => {
     inputComponentProps = {},
     className = "",
     withSpacing = false,
+    inputStatus,
+    validationMessage,
     ...restOfInputProps
   } = props;
 
@@ -37,8 +42,10 @@ export const Input = React.forwardRef((props: Props, ref) => {
     [classes.disabled]: restOfInputProps.disabled,
   });
 
+  const isError = !!(props.inputStatus && props.inputStatus === "error");
+
   return (
-    <FormControl className={classNames}>
+    <FormControl className={classNames} error={isError}>
       <InputLabel htmlFor={id}>{label}</InputLabel>
       {InputComponent ? (
         <InputComponent
@@ -58,6 +65,11 @@ export const Input = React.forwardRef((props: Props, ref) => {
           ref={ref}
           {...restOfInputProps}
         />
+      )}
+      {props.inputStatus && props.validationMessage && (
+        <FormHelperText error={isError}>
+          {props.validationMessage}
+        </FormHelperText>
       )}
     </FormControl>
   );
