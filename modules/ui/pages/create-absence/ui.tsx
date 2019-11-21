@@ -7,6 +7,7 @@ import {
   eachDayOfInterval,
   parseISO,
   startOfDay,
+  isEqual,
 } from "date-fns";
 import { useForm } from "forms";
 import {
@@ -44,6 +45,7 @@ import {
   GetEmployeeContractScheduleQuery,
   GetEmployeeContractScheduleQueryVariables,
 } from "./graphql/get-contract-schedule.gen";
+import { differenceWith } from "lodash-es";
 
 type Props = {
   firstName: string;
@@ -137,6 +139,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     Number(state.organizationId),
     Number(state.employeeId),
     Number(props.positionId),
+    disabledDates,
     false
   );
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
@@ -191,6 +194,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       Number(state.organizationId),
       Number(state.employeeId),
       Number(props.positionId),
+      disabledDates,
       true
     );
     if (!absence) {
@@ -344,6 +348,7 @@ const buildAbsenceCreateInput = (
   organizationId: number,
   employeeId: number,
   positionId: number,
+  disabledDates: Date[],
   includeVacanciesIfNeedsReplacement: boolean
 ) => {
   if (
@@ -373,10 +378,13 @@ const buildAbsenceCreateInput = (
     return null;
   }
 
-  const dates = eachDayOfInterval({
+  let dates = eachDayOfInterval({
     start: formValues.startDate,
     end: formValues.endDate,
   });
+
+  // Filter out disabled dates
+  dates = differenceWith(dates, disabledDates, (a, b) => isEqual(a, b));
 
   if (!dates.length) {
     return null;
