@@ -359,6 +359,7 @@ const useStyles = makeStyles(theme => ({
   },
   endDateInput: {
     backgroundColor: theme.customColors.white,
+    flexGrow: 1,
     marginLeft: theme.spacing(1.5 / 2),
   },
 }));
