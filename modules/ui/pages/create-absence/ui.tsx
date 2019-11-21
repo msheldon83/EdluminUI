@@ -206,7 +206,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
     const result = await createAbsence({
       variables: {
-        absence: absenceCreateInput!,
+        absence: absenceCreateInput,
       },
     });
 
