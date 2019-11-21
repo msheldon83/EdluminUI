@@ -1,11 +1,12 @@
 import * as React from "react";
-import { Grid, InputLabel, makeStyles, TextField } from "@material-ui/core";
+import { Grid, makeStyles, TextField } from "@material-ui/core";
 import { useDeferredState } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Select, SelectValueType } from "ui/components/form/select";
+import { InputLabel, Input } from "ui/components/form/input";
 import {
   VacancyQualification,
   VacancyAvailability,
@@ -72,10 +73,8 @@ export const AssignSubFilters: React.FC<Props> = props => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={3}>
-        <InputLabel className={classes.label}>{t("Name")}</InputLabel>
-        <TextField
-          className={classes.textField}
-          variant="outlined"
+        <Input
+          label={t("Name")}
           name={"name"}
           value={pendingName ?? ""}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,7 +99,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
                 );
                 return o.value === optionsMap?.optionValue;
               })}
-              label=""
+              label={/* TODO: needs fixin in the Select component */}
               disabled={!!searchFilter?.name}
               options={qualifiedOptions}
               isClearable={false}

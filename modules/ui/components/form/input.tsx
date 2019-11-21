@@ -24,11 +24,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
 
   return (
     <FormControl className={classes.formControl}>
-      {/* Convert this to FormLabel */}
-      <label className={classes.inputLabel} htmlFor={id}>
-        {label}
-      </label>
-
+      <InputLabel htmlFor={id}>{label}</InputLabel>
       {InputComponent ? (
         <InputComponent
           ref={ref}
@@ -51,6 +47,24 @@ export const Input = React.forwardRef((props: Props, ref) => {
     </FormControl>
   );
 });
+
+type InputLabelProps = {
+  htmlFor: string;
+  children: string;
+};
+
+export const InputLabel = (props: InputLabelProps) => {
+  const { children, htmlFor } = props;
+
+  const classes = useStyles();
+
+  /* Convert this to FormLabel */
+  return (
+    <label className={classes.inputLabel} htmlFor={htmlFor}>
+      {children}
+    </label>
+  );
+};
 
 const useStyles = makeStyles(theme => ({
   input: {
