@@ -35,7 +35,7 @@ import { AssignSub } from "./assign-sub/index";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { format, isValid, isDate } from "date-fns";
-import { getDaysInDateRange, isAfterDate } from "helpers/date";
+import { isAfterDate } from "helpers/date";
 import { useHistory } from "react-router";
 import { CreateAbsence } from "./graphql/create.gen";
 import { useSnackbar } from "hooks/use-snackbar";
