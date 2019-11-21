@@ -103,6 +103,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     formState,
     getValues,
     errors,
+    triggerValidation,
   } = useForm<FormData>({
     defaultValues: initialFormData,
   });
@@ -279,6 +280,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 setValue={setValue}
                 values={getValues()}
                 errors={errors}
+                triggerValidation={triggerValidation}
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}

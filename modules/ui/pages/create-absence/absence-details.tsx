@@ -48,7 +48,7 @@ import { useHistory } from "react-router";
 import { dayPartToLabel } from "ui/components/absence/helpers";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { TimeInput } from "ui/components/form/time-input";
-import { FieldError } from "react-hook-form/dist/types";
+import { FieldError, ValidationPayload } from "react-hook-form/dist/types";
 
 type Props = {
   state: CreateAbsenceState;
@@ -56,6 +56,13 @@ type Props = {
   setValue: SetValue;
   values: FormData;
   errors: Partial<Record<string, FieldError>>;
+  triggerValidation: (
+    payload?:
+      | ValidationPayload<string, unknown>
+      | ValidationPayload<string, unknown>[]
+      | undefined,
+    shouldRender?: any
+  ) => Promise<boolean>;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
   vacancies: Vacancy[];
@@ -75,6 +82,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     needsReplacement,
     dispatch,
     errors,
+    triggerValidation,
   } = props;
 
   const [hourlyStartTime, setHourlyStartTime] = useState<string | undefined>();
@@ -142,8 +150,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onReasonChange = React.useCallback(
     async event => {
       await setValue("absenceReason", event.value);
+      await triggerValidation({ name: "absenceReason" });
     },
-    [setValue]
+    [setValue, triggerValidation]
   );
 
   const onDayPartChange = React.useCallback(
