@@ -51,6 +51,7 @@ const basicProjectedVacancies = [
     ],
   },
 ] as Vacancy[];
+
 const basicReplacementEmployees = [
   {
     employee: {
@@ -72,6 +73,17 @@ const basicReplacementEmployees = [
   },
 ];
 
+const allAbsenceReasons = [
+  {
+    id: "1",
+    name: "Vacation",
+  },
+  {
+    id: "2",
+    name: "Illness",
+  },
+];
+
 export const AsAdmin = () => {
   const path = AdminCreateAbsenceRoute.generate({
     organizationId: "1006",
@@ -81,6 +93,9 @@ export const AsAdmin = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
+        }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,
           replacementEmployeesForVacancy: {
@@ -119,6 +134,9 @@ export const AsEmployee = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
+        }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,
           replacementEmployeesForVacancy: {
@@ -158,6 +176,9 @@ export const AsSubNotNeededEmployee = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
+        }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,
           replacementEmployeesForVacancy: {
@@ -217,6 +238,9 @@ export const AsSubNeededEmployee = () => {
               needsReplacement: NeedsReplacement.Yes,
             },
           },
+        }),
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
         }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,
