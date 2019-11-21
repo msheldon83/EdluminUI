@@ -35,7 +35,7 @@ import { AssignSub } from "./assign-sub/index";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { format, isValid, isDate } from "date-fns";
-import { getDaysInDateRange } from "helpers/date";
+import { getDaysInDateRange, isAfterDate } from "helpers/date";
 import { useHistory } from "react-router";
 import { CreateAbsence } from "./graphql/create.gen";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -353,7 +353,6 @@ const buildAbsenceCreateInput = (
 ) => {
   if (
     !formValues.startDate ||
-    !formValues.endDate ||
     !formValues.absenceReason ||
     !formValues.dayPart
   ) {
@@ -364,10 +363,16 @@ const buildAbsenceCreateInput = (
     typeof formValues.startDate === "string"
       ? new Date(formValues.startDate)
       : formValues.startDate;
-  const endDate =
+  let endDate =
     typeof formValues.endDate === "string"
       ? new Date(formValues.endDate)
       : formValues.endDate;
+
+  // If we don't have an end date, set it to the start date
+  // Assuming a single day absence as of this point
+  if (!endDate) {
+    endDate = startDate;
+  }
 
   if (
     !isDate(startDate) ||
@@ -378,9 +383,14 @@ const buildAbsenceCreateInput = (
     return null;
   }
 
+  // Ensure the end date is after the start date or they are equal
+  if (!isEqual(startDate, endDate) && !isAfterDate(endDate, startDate)) {
+    return null;
+  }
+
   let dates = eachDayOfInterval({
-    start: formValues.startDate,
-    end: formValues.endDate,
+    start: startDate,
+    end: endDate,
   });
 
   // Filter out disabled dates
