@@ -8,6 +8,7 @@ import {
   parseISO,
   startOfDay,
   isEqual,
+  isBefore,
 } from "date-fns";
 import { useForm } from "forms";
 import {
@@ -116,6 +117,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "notesToReplacement", type: "custom" });
   register({ name: "replacementEmployeeId", type: "custom" });
   register({ name: "replacementEmployeeName", type: "custom" });
+  register({ name: "hourlyStartTime", type: "custom" });
+  register({ name: "hourlyEndTime", type: "custom" });
 
   const formValues = getValues();
 
@@ -301,6 +304,8 @@ export type FormData = {
   endDate: Date;
   absenceReason: string;
   dayPart?: DayPart;
+  hourlyStartTime?: Date;
+  hourlyEndTime?: Date;
   notesToApprover?: string;
   notesToReplacement?: string;
   needsReplacement: boolean;
@@ -400,6 +405,16 @@ const buildAbsenceCreateInput = (
     return null;
   }
 
+  // Must have a start and end time if Hourly
+  if (
+    formValues.dayPart === DayPart.Hourly &&
+    (!formValues.hourlyStartTime ||
+      !formValues.hourlyEndTime ||
+      isBefore(formValues.hourlyEndTime, formValues.hourlyStartTime))
+  ) {
+    return null;
+  }
+
   let absence: AbsenceCreateInput = {
     orgId: organizationId,
     employeeId: employeeId,
@@ -415,8 +430,12 @@ const buildAbsenceCreateInput = (
         //TODO: provide a way to specify start and end time in the UI when Hourly
         detail = {
           ...detail,
-          startTime: "",
-          endTime: "",
+          startTime: secondsSinceMidnight(
+            parseTimeFromString(format(formValues.hourlyStartTime!, "h:mm a"))
+          ),
+          endTime: secondsSinceMidnight(
+            parseTimeFromString(format(formValues.hourlyEndTime!, "h:mm a"))
+          ),
         };
       }
 
