@@ -14,11 +14,21 @@ type Props = {
   onChange: (value: string) => void;
   onValidTime: (value: string) => void;
   earliestTime?: string;
+  inputStatus?: "warning" | "error" | "success" | undefined | null;
+  validationMessage?: string | undefined;
 };
 
 export const TimeInput = (props: Props) => {
   //2019-11-04T06:00:00.000Z/
-  const { earliestTime, onValidTime, label, value = "", onChange } = props;
+  const {
+    earliestTime,
+    onValidTime,
+    label,
+    value = "",
+    onChange,
+    inputStatus,
+    validationMessage,
+  } = props;
 
   const parsedValue = isIso(value)
     ? humanizeTimeStamp(isoToTimestamp(value))
@@ -44,6 +54,8 @@ export const TimeInput = (props: Props) => {
       value={parsedValue}
       onChange={event => onChange(event.target.value)}
       onBlur={handleBlur}
+      inputStatus={inputStatus}
+      validationMessage={validationMessage}
     />
   );
 };
