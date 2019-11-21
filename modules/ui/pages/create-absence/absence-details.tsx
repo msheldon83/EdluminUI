@@ -198,6 +198,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
             onChange={onReasonChange}
             options={absenceReasonOptions}
             isClearable={false}
+            inputStatus={errors.absenceReason ? "error" : undefined}
+            validationMessage={errors.absenceReason?.message}
             // label={t("Reason")}
           />
         </div>
