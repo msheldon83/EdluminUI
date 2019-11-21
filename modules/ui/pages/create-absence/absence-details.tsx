@@ -11,7 +11,15 @@ import {
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
-import { addMonths, endOfMonth, format, parseISO, startOfDay } from "date-fns";
+import {
+  addMonths,
+  endOfMonth,
+  format,
+  parseISO,
+  startOfDay,
+  isValid,
+  isAfter,
+} from "date-fns";
 import { eachDayOfInterval } from "date-fns/esm";
 import { SetValue } from "forms";
 import { HookQueryResult, useQueryBundle } from "graphql/hooks";
@@ -23,7 +31,7 @@ import {
   Vacancy,
 } from "graphql/server-types.gen";
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
@@ -39,6 +47,7 @@ import { VacancyDetails } from "../../components/absence/vacancy-details";
 import { useHistory } from "react-router";
 import { dayPartToLabel } from "ui/components/absence/helpers";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
+import { TimeInput } from "ui/components/form/time-input";
 
 type Props = {
   state: CreateAbsenceState;
@@ -64,6 +73,39 @@ export const AbsenceDetails: React.FC<Props> = props => {
     needsReplacement,
     dispatch,
   } = props;
+
+  const [hourlyStartTime, setHourlyStartTime] = useState<string | undefined>();
+  const [hourlyEndTime, setHourlyEndTime] = useState<string | undefined>();
+
+  useEffect(() => {
+    const parsedStartTimeDate = parseISO(hourlyStartTime ?? "");
+    const startTimeDate = isValid(parsedStartTimeDate)
+      ? parsedStartTimeDate
+      : undefined;
+    onHourlyStartTimeChange(startTimeDate);
+  }, [hourlyStartTime]);
+
+  const onHourlyStartTimeChange = React.useCallback(
+    async (startTime?: Date | undefined) => {
+      await setValue("hourlyStartTime", startTime);
+    },
+    [setValue]
+  );
+
+  useEffect(() => {
+    const parsedEndTimeDate = parseISO(hourlyEndTime ?? "");
+    const endTimeDate = isValid(parsedEndTimeDate)
+      ? parsedEndTimeDate
+      : undefined;
+    onHourlyEndTimeChange(endTimeDate);
+  }, [hourlyEndTime]);
+
+  const onHourlyEndTimeChange = React.useCallback(
+    async (endTime?: Date | undefined) => {
+      await setValue("hourlyEndTime", endTime);
+    },
+    [setValue]
+  );
 
   const [showNotesForReplacement, setShowNotesForReplacement] = useState(
     needsReplacement !== NeedsReplacement.No
@@ -134,6 +176,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
     await setValue("replacementEmployeeName", undefined);
   };
 
+  const hasVacancies = !!(props.vacancies && props.vacancies.length);
+
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -179,21 +223,44 @@ export const AbsenceDetails: React.FC<Props> = props => {
             />
           ))}
         </RadioGroup>
+        {values.dayPart === DayPart.Hourly && (
+          <div className={classes.hourlyTimes}>
+            <div className={classes.time}>
+              <TimeInput
+                label=""
+                value={hourlyStartTime}
+                onValidTime={time => setHourlyStartTime(time)}
+                onChange={value => setHourlyStartTime(value)}
+              />
+            </div>
+            <div className={classes.time}>
+              <TimeInput
+                label=""
+                value={hourlyEndTime}
+                onValidTime={time => setHourlyEndTime(time)}
+                onChange={value => setHourlyEndTime(value)}
+                earliestTime={hourlyStartTime}
+              />
+            </div>
+          </div>
+        )}
 
-        <Typography variant="h6">{t("Notes for administration")}</Typography>
-        <Typography className={classes.subText}>
-          {t("Can be seen by the administrator and the employee.")}
-        </Typography>
+        <div className={classes.notesForApprover}>
+          <Typography variant="h6">{t("Notes for administration")}</Typography>
+          <Typography className={classes.subText}>
+            {t("Can be seen by the administrator and the employee.")}
+          </Typography>
 
-        <TextField
-          multiline
-          rows="6"
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          onChange={onNotesToApproverChange}
-          InputProps={{ classes: textFieldClasses }}
-        />
+          <TextField
+            multiline
+            rows="6"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            onChange={onNotesToApproverChange}
+            InputProps={{ classes: textFieldClasses }}
+          />
+        </div>
       </Grid>
 
       <Grid item md={6}>
@@ -268,23 +335,25 @@ export const AbsenceDetails: React.FC<Props> = props => {
             )}
 
             <div>
-              {values.needsReplacement && !values.replacementEmployeeId && (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    history.push({
-                      ...history.location,
-                      search: "?action=assign",
-                    });
-                    props.dispatch({
-                      action: "switchStep",
-                      step: "assignSub",
-                    });
-                  }}
-                >
-                  {t("Pre-arrange")}
-                </Button>
-              )}
+              {values.needsReplacement &&
+                !values.replacementEmployeeId &&
+                hasVacancies && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      history.push({
+                        ...history.location,
+                        search: "?action=assign",
+                      });
+                      props.dispatch({
+                        action: "switchStep",
+                        step: "assignSub",
+                      });
+                    }}
+                  >
+                    {t("Pre-arrange")}
+                  </Button>
+                )}
             </div>
           </div>
         </Paper>
@@ -314,7 +383,6 @@ const useStyles = makeStyles(theme => ({
   radioGroup: {
     paddingTop: theme.spacing(1),
     paddingLeft: theme.spacing(1),
-    paddingBottom: theme.spacing(3),
   },
   spacing: {
     paddingRight: theme.spacing(4),
@@ -329,6 +397,17 @@ const useStyles = makeStyles(theme => ({
   },
   substituteRequiredText: {
     fontStyle: "italic",
+  },
+  hourlyTimes: {
+    paddingLeft: theme.spacing(4),
+    display: "flex",
+  },
+  time: {
+    width: "40%",
+    paddingLeft: theme.spacing(),
+  },
+  notesForApprover: {
+    paddingTop: theme.spacing(3),
   },
   notesForReplacement: {
     paddingTop: theme.spacing(3),
