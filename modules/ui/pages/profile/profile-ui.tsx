@@ -1,6 +1,13 @@
 import { MutationFunction } from "@apollo/react-common";
 import { Maybe } from "graphql/server-types.gen";
-import { Button, Grid, Hidden, makeStyles, MenuItem } from "@material-ui/core";
+import {
+  Button,
+  Grid,
+  Hidden,
+  makeStyles,
+  MenuItem,
+  Box,
+} from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import { useBreakpoint } from "hooks";
 import * as React from "react";
@@ -19,6 +26,7 @@ import { ChangeLoginEmailDialog } from "./change-email-dialog";
 import { ChangeTimezoneDialog } from "./change-timezone-dialog";
 import { Formik } from "formik";
 import { TextField as FormTextField } from "ui/components/form/text-field";
+import { Input } from "ui/components/form/input";
 import * as yup from "yup";
 
 type Props = {
@@ -154,34 +162,41 @@ export const ProfileUI: React.FC<Props> = props => {
                   <Grid container direction="column">
                     <Grid container item>
                       <Grid item md={6} xs={12}>
-                        <FormTextField
+                        <Input
                           label={t("First Name")}
-                          name="firstName"
-                          margin={isSmDown ? "normal" : "none"}
-                          variant="outlined"
-                          fullWidth
+                          withSpacing
+                          InputComponent={FormTextField}
+                          inputComponentProps={{
+                            name: "firstName",
+                            margin: isSmDown ? "normal" : "none",
+                            fullWidth: true,
+                          }}
                         />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <FormTextField
-                          className={isSmDown ? "" : classes.spacing}
+                        <Input
                           label={t("Last Name")}
-                          name="lastName"
-                          margin={isSmDown ? "normal" : "none"}
-                          variant="outlined"
-                          fullWidth
+                          className={isSmDown ? "" : classes.spacing}
+                          InputComponent={FormTextField}
+                          inputComponentProps={{
+                            name: "lastName",
+                            margin: isSmDown ? "normal" : "none",
+                            fullWidth: true,
+                          }}
                         />
                       </Grid>
                     </Grid>
 
                     <Grid item container>
                       <Grid item md={6} xs={12}>
-                        <FormTextField
+                        <Input
                           label={t("Mobile Phone")}
-                          name="phone"
-                          margin="normal"
-                          variant="outlined"
-                          fullWidth
+                          withSpacing
+                          InputComponent={FormTextField}
+                          inputComponentProps={{
+                            name: "phone",
+                            fullWidth: true,
+                          }}
                         />
                       </Grid>
                     </Grid>
@@ -198,17 +213,15 @@ export const ProfileUI: React.FC<Props> = props => {
                       </Grid>
                     </Hidden>
 
-                    <Grid item container alignItems="baseline">
+                    <Grid item container alignItems="center">
                       <div
                         className={classes.field}
                         onClick={() => setChangeEmailIsOpen(true)}
                       >
-                        <TextField
+                        <Input
                           label={t("Email")}
                           value={props.user.loginEmail}
-                          className={classes.filled}
-                          margin="normal"
-                          variant="outlined"
+                          withSpacing
                           fullWidth
                           disabled
                         />

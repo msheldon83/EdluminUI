@@ -1,4 +1,5 @@
 import * as React from "react";
+import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import FormControl from "@material-ui/core/FormControl";
 import OutlinedInput, {
@@ -7,6 +8,7 @@ import OutlinedInput, {
 
 type Props = Omit<OutlinedInputProps, "labelWidth"> & {
   label: string;
+  withSpacing?: boolean;
   InputComponent?: React.ElementType;
   inputComponentProps?: Record<string, any>;
 };
@@ -16,14 +18,27 @@ export const Input = React.forwardRef((props: Props, ref) => {
     label,
     InputComponent,
     inputComponentProps = {},
+    className = "",
+    withSpacing = false,
     ...restOfInputProps
   } = props;
 
   const classes = useStyles();
   const id = `custom-input-${label}`;
 
+  const classNames = clsx({
+    [classes.formControl]: true,
+    [className]: true,
+    [classes.withSpacing]: withSpacing,
+  });
+
+  const inputClassNames = clsx({
+    [classes.input]: true,
+    [classes.disabled]: restOfInputProps.disabled,
+  });
+
   return (
-    <FormControl className={classes.formControl}>
+    <FormControl className={classNames}>
       <InputLabel htmlFor={id}>{label}</InputLabel>
       {InputComponent ? (
         <InputComponent
@@ -36,7 +51,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
       ) : (
         <OutlinedInput
           fullWidth
-          className={classes.input}
+          className={inputClassNames}
           id={id}
           name={id}
           labelWidth={0}
@@ -71,7 +86,6 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.customColors.white,
   },
   inputLabel: {
-    cursor: "pointer",
     color: theme.customColors.eduBlack,
     fontSize: theme.typography.pxToRem(14),
     marginBottom: theme.spacing(0.4),
@@ -79,5 +93,11 @@ const useStyles = makeStyles(theme => ({
   },
   formControl: {
     width: "100%",
+  },
+  withSpacing: {
+    paddingBottom: theme.spacing(1.5),
+  },
+  disabled: {
+    backgroundColor: theme.customColors.grayWhite,
   },
 }));
