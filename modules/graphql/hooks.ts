@@ -90,7 +90,7 @@ export function useQueryBundle<Result, Vars>(
       ourResult.error &&
       ourResult.error.networkError &&
       (ourResult.error.networkError as any).statusCode === 403;
-    if (!isUnauthorized) {
+    if (!isUnauthorized && !options?.onError) {
       throw new Error(`Query failed: ${rawResult.error}`);
     }
   }
