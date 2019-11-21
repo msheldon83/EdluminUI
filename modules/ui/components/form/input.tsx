@@ -64,18 +64,24 @@ export const Input = React.forwardRef((props: Props, ref) => {
 });
 
 type InputLabelProps = {
-  htmlFor: string;
   children: string;
+  htmlFor?: string;
+  className?: string;
 };
 
 export const InputLabel = (props: InputLabelProps) => {
-  const { children, htmlFor } = props;
+  const { children, htmlFor, className = "" } = props;
 
   const classes = useStyles();
 
+  const classNames = clsx({
+    [classes.inputLabel]: true,
+    [className]: true,
+  });
+
   /* Convert this to FormLabel */
   return (
-    <label className={classes.inputLabel} htmlFor={htmlFor}>
+    <label className={classNames} htmlFor={htmlFor}>
       {children}
     </label>
   );

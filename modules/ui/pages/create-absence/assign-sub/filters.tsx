@@ -99,7 +99,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
                 );
                 return o.value === optionsMap?.optionValue;
               })}
-              label={/* TODO: needs fixin in the Select component */}
+              label={"" /* TODO: needs fixin in the Select component */}
               disabled={!!searchFilter?.name}
               options={qualifiedOptions}
               isClearable={false}
