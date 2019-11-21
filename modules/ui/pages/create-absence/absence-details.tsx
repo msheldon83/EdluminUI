@@ -134,6 +134,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
     await setValue("replacementEmployeeName", undefined);
   };
 
+  const hasVacancies = !!(props.vacancies && props.vacancies.length);
+
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -268,23 +270,25 @@ export const AbsenceDetails: React.FC<Props> = props => {
             )}
 
             <div>
-              {values.needsReplacement && !values.replacementEmployeeId && (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    history.push({
-                      ...history.location,
-                      search: "?action=assign",
-                    });
-                    props.dispatch({
-                      action: "switchStep",
-                      step: "assignSub",
-                    });
-                  }}
-                >
-                  {t("Pre-arrange")}
-                </Button>
-              )}
+              {values.needsReplacement &&
+                !values.replacementEmployeeId &&
+                hasVacancies && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      history.push({
+                        ...history.location,
+                        search: "?action=assign",
+                      });
+                      props.dispatch({
+                        action: "switchStep",
+                        step: "assignSub",
+                      });
+                    }}
+                  >
+                    {t("Pre-arrange")}
+                  </Button>
+                )}
             </div>
           </div>
         </Paper>
