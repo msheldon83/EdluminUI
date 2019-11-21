@@ -22,6 +22,7 @@ import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
 import { addDays, format } from "date-fns";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
 import { SubHomeRoute } from "ui/routes/sub-home";
+import { Calendar } from "ui/components/form/calendar";
 
 type Props = {};
 
@@ -161,7 +162,13 @@ export const SubHome: React.FC<Props> = props => {
           {!isMobile && 
             <Grid item xs={12} sm={6} lg={6}>
               <Section>
-                {"Calendar will go here"}
+                <Calendar
+                  startDate={fromDate}
+                  endDate={toDate}
+                  range={true}
+                  disablePast={true}
+                  disableFuture={true}
+                />
               </Section>
             </Grid>
           }
