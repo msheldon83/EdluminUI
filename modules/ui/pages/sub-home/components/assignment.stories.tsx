@@ -45,9 +45,15 @@ const simpleAssignment = ({
     phoneNumber: "6105551234",
   },
   vacancy: {
-    forEmployeeLastName: "Schmoe",
-    forEmployeeFirstName: "Joe",
-    positionName: "Kindergarten",
+    absence: {
+      employee: {
+        firstName: "Schmoe",
+        lastName: "Joe",
+      },
+    },
+    position: {
+      name: "Kindergarten",
+    },
     notesToReplacement: "These are notes for the substitute.",
   },
 } as unknown) as Pick<

@@ -404,9 +404,8 @@ type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainO
   contractId: Int!
   absenceId: Int
   notesToReplacement: String
-  positionName: String!
-  forEmployeeFirstName: String
-  forEmployeeLastName: String
+  position: Position
+  absence: Absence
 }
 
 type Branding implements ModelObjectInterface {

@@ -33,9 +33,15 @@ query GetUpcomingAssignments(
         phoneNumber
       }
       vacancy {
-        forEmployeeLastName
-        forEmployeeFirstName
-        positionName
+        position {
+          name
+        }
+        absence {
+          employee {
+            firstName
+            lastName
+          }
+        }
         notesToReplacement
       }
     }

@@ -85,7 +85,7 @@ export const AssignmentCard: React.FC<Props> = props => {
           container
           justify="space-between"
           alignItems="center"
-          spacing={2}
+          spacing={1}
           className={props.shadeRow ? classes.shadedRow : undefined}
         >
           <Grid item xs={6}>
@@ -95,9 +95,9 @@ export const AssignmentCard: React.FC<Props> = props => {
               {vacancyDetail.location!.name}
             </Typography>
             <Typography className={classes.lightText}>{`${
-              vacancyDetail.vacancy!.positionName
-            } for ${vacancyDetail.vacancy!.forEmployeeFirstName} ${
-              vacancyDetail.vacancy!.forEmployeeLastName
+              vacancyDetail.vacancy!.position!.name
+            } for ${vacancyDetail.vacancy!.absence!.employee!.firstName} ${
+              vacancyDetail.vacancy!.absence!.employee!.firstName
             }`}</Typography>
             <Typography
               className={classes.lightText}

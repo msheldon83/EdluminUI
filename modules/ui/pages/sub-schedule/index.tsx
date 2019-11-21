@@ -1,29 +1,23 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { useScreenSize } from "hooks";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
-import { PageTitle } from "ui/components/page-title";
+import { useQueryBundle } from "graphql/hooks";
+import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
+import { ScheduleUI } from "ui/pages/sub-schedule/ui";
 
 type Props = {};
 
 export const SubSchedule: React.FC<Props> = props => {
-  const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
-  const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
+  const getOrgUsers = useQueryBundle(QueryOrgUsers, {
+    fetchPolicy: "cache-first",
+  });
+
+  const userId =
+    getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
+      ? undefined
+      : getOrgUsers.data?.userAccess?.me?.user?.id;
 
   return (
     <>
-      <PageTitle title={t("My Schedule")} />
+      <ScheduleUI userId={userId} />
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}));
