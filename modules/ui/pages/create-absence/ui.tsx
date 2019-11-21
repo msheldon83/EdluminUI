@@ -49,7 +49,12 @@ const buildInputForProjectedVacancies = (
   const startTime = "08:00 AM";
   const endTime = "12:00 PM";
 
-  if (!values.startDate || !values.endDate) {
+  if (
+    !values.startDate ||
+    !values.endDate ||
+    !values.absenceReason ||
+    !values.dayPart
+  ) {
     return null;
   }
 
@@ -86,6 +91,7 @@ const buildInputForProjectedVacancies = (
         startTime: secondsSinceMidnight(parseTimeFromString(startTime)),
         endTime: secondsSinceMidnight(parseTimeFromString(endTime)),
         dayPartId: values.dayPart ?? DayPart.FullDay,
+        reasons: [{ absenceReasonId: Number(values.absenceReason) }],
       };
     }),
   };
