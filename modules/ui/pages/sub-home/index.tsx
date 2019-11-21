@@ -58,7 +58,6 @@ export const SubHome: React.FC<Props> = props => {
       id: String(userId),
       fromDate,
       toDate,
-      limit: 3,
       includeCompletedToday: false,
     },
     skip: !userId,
@@ -76,7 +75,12 @@ export const SubHome: React.FC<Props> = props => {
     | "assignment"
     | "location"
     | "vacancy"
+    | "startDate"
+    | "endDate"
   >[];
+
+  const uniqueWorkingDays = assignments.map(a => a.startDate).filter((date, i, self) => self.findIndex(d => d.getTime() === date.getTime()) === i);
+  console.log(uniqueWorkingDays);
 
   const getVacancies = useQueryBundle(GetAllVacancies, {
     variables: {},

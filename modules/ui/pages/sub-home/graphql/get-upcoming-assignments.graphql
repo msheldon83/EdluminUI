@@ -14,6 +14,8 @@ query GetUpcomingAssignments(
       includeCompletedToday: $includeCompletedToday
     ) {
       id
+      startDate
+      endDate
       startTimeLocal
       endTimeLocal
       assignment {
