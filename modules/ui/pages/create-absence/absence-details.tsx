@@ -214,11 +214,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
           aria-label="dayPart"
           className={classes.radioGroup}
         >
-          {dayPartOptions.map(type => (
+          {dayPartOptions.map((type, i) => (
             <FormControlLabel
               key={type}
               value={type}
-              control={<Radio />}
+              control={<Radio checked={type === values.dayPart} />}
               label={t(dayPartToLabel(type))}
             />
           ))}
