@@ -108,7 +108,7 @@ const complexVacancy = ({
   startDate: "2019-11-20",
   endDate: "2019-11-21",
   notesToReplacement: "These are notes for the substitute.",
-  dayPortion: 2,
+  totalDayPortion: 2,
 } as unknown) as Pick<
   Vacancy,
   | "id"
