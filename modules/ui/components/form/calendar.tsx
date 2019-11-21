@@ -94,10 +94,12 @@ export const Calendar = (props: Props) => {
       }
 
       const dayIsBetween =
+        isAfterDate(endDate, startDate) &&
         inDateInterval(day, {
           start: startDate,
           end: endDate,
-        }) && range;
+        }) &&
+        range;
       const isFirstDay = isEqual(day, startDate);
       const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
       const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
