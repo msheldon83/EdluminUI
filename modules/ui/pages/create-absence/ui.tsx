@@ -137,13 +137,24 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     contractSchedule,
   ]);
 
-  const projectedVacanciesInput = buildAbsenceCreateInput(
-    formValues,
-    Number(state.organizationId),
-    Number(state.employeeId),
-    Number(props.positionId),
-    disabledDates,
-    false
+  const projectedVacanciesInput = useMemo(
+    () =>
+      buildAbsenceCreateInput(
+        formValues,
+        Number(state.organizationId),
+        Number(state.employeeId),
+        Number(props.positionId),
+        disabledDates,
+        false
+      ),
+    [
+      formValues.startDate,
+      formValues.endDate,
+      formValues.absenceReason,
+      formValues.dayPart,
+      formValues.hourlyStartTime,
+      formValues.hourlyEndTime,
+    ]
   );
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
