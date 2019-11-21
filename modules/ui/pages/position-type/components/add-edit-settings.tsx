@@ -21,6 +21,7 @@ import { ActionButtons } from "../../../components/action-buttons";
 import { Select, SelectValueType } from "ui/components/form/select";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
 import { OptionTypeBase } from "react-select/src/types";
+import { Input } from "ui/components/form/input";
 
 type Props = {
   orgId: string;
@@ -300,17 +301,20 @@ export const Settings: React.FC<Props> = props => {
                 )}
               </FormHelperText>
               <div className={classes.minAbsenceDurationLabel}>
-                {t("Minimum absence duration")}
+                <Input
+                  label={t("Minimum absence duration")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "minAbsenceDurationMinutes",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    helperText: t(
+                      "The shortest time that an employee with this position can be absent."
+                    ),
+                    fullWidth: true,
+                  }}
+                />
               </div>
-              <FormTextField
-                name="minAbsenceDurationMinutes"
-                margin={isMobile ? "normal" : "none"}
-                variant="outlined"
-                helperText={t(
-                  "The shortest time that an employee with this position can be absent."
-                )}
-                fullWidth
-              />
             </div>
             <ActionButtons
               submit={{ text: props.submitText, execute: submitForm }}
