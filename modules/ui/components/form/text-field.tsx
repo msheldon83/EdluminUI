@@ -22,6 +22,7 @@ export const TextField: React.FunctionComponent<TextFieldProps> = props => {
       error={showError}
       helperText={showError && error}
       disabled={disabled}
+      variant="outlined"
       {...props}
     />
   );

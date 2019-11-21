@@ -8,6 +8,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionButtons } from "../../../components/action-buttons";
+import { Input } from "ui/components/form/input";
 
 type Props = {
   positionType: {
@@ -47,27 +48,33 @@ export const AddBasicInfo: React.FC<Props> = props => {
           <form onSubmit={handleSubmit}>
             <Grid container spacing={isMobile ? 2 : 8}>
               <Grid item xs={12} sm={6} lg={6}>
-                <Typography variant="h6">{t("Position type name")}</Typography>
-                <FormTextField
-                  placeholder={`E.g ${props.namePlaceholder}`}
-                  name="name"
-                  margin={isMobile ? "normal" : "none"}
-                  variant="outlined"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    handleChange(e);
-                    props.onNameChange(e.currentTarget.value);
+                <Input
+                  label={t("Position type name")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    placeholder: `E.g ${props.namePlaceholder}`,
+                    name: "name",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                      handleChange(e);
+                      props.onNameChange(e.currentTarget.value);
+                    },
+                    fullWidth: true,
                   }}
-                  fullWidth
                 />
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
-                <Typography variant="h6">{t("External ID")}</Typography>
-                <FormTextField
-                  name="externalId"
-                  margin={isMobile ? "normal" : "none"}
-                  variant="outlined"
-                  helperText={t("Usually used for data integrations")}
-                  fullWidth
+                <Input
+                  label={t("External ID")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "externalId",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    helperText: t("Usually used for data integrations"),
+                    fullWidth: true,
+                  }}
                 />
               </Grid>
             </Grid>
