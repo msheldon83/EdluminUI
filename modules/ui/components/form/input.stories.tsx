@@ -1,6 +1,6 @@
 import * as React from "react";
 import { action } from "@storybook/addon-actions";
-import { text, boolean, object, date } from "@storybook/addon-knobs";
+import { text, boolean, object, date, select } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
 import { Input } from "./input";
 
@@ -9,7 +9,15 @@ export const InputStory = () => {
 
   return (
     <div className={classes.container}>
-      <Input label={text("label", "Custom Input")} />
+      <Input
+        label={text("label", "Custom Input")}
+        inputStatus={select(
+          "InputStatus",
+          { undefined: null, error: "error" },
+          null
+        )}
+        validationMessage={text("ValidationMessage", "")}
+      />
     </div>
   );
 };
