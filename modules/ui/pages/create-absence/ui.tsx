@@ -46,7 +46,8 @@ import {
   GetEmployeeContractScheduleQuery,
   GetEmployeeContractScheduleQueryVariables,
 } from "./graphql/get-contract-schedule.gen";
-import { differenceWith } from "lodash-es";
+import { differenceWith, flatMap, compact } from "lodash-es";
+import { GetProjectedAbsenceUsage } from "./graphql/get-projected-absence-usage.gen";
 
 type Props = {
   firstName: string;
@@ -173,11 +174,12 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       formValues.hourlyEndTime,
     ]
   );
-  const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
+  const getProjectedVacancies = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
-      absence: projectedVacanciesInput,
+      absence: projectedVacanciesInput!,
     },
     skip: projectedVacanciesInput === null,
+    // fetchPolicy: "no-cache",
     onError: error => {
       // This shouldn't prevent the User from continuing on
       // with Absence Create. Any major issues will be caught
@@ -189,8 +191,33 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
   getProjectedVacancies.state === "UPDATING"
     ? []
-    : getProjectedVacancies.data?.absence?.projectedVacancies ??
+    : getProjectedVacancies.data?.absence?.projectedAbsence?.vacancies ??
       []) as Vacancy[];
+
+  const absenceUsages = useMemo(() => {
+    /*
+      cf 2019-11-21
+      Given that we can't select multiple absence reasons via the UI, I'm
+      not attempting to implement this calculation in a way that could handle
+      multiple absence reasons or differing units.
+    */
+    if (getProjectedVacancies.state !== "DONE") return null;
+
+    const usages = compact(
+      flatMap(
+        getProjectedVacancies.data.absence?.projectedAbsence?.details,
+        d => d?.reasonUsages?.map(ru => ru)
+      )
+    );
+
+    if (usages.length < 1) return null;
+
+    return {
+      absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId!,
+      amount: usages.reduce((m, v) => m + v.amount, 0),
+    };
+  }, [getProjectedVacancies]);
+  console.log("got some data", absenceUsages);
 
   const name = `${props.firstName} ${props.lastName}`;
 
