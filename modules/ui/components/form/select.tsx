@@ -17,6 +17,7 @@ import Paper from "@material-ui/core/Paper";
 import CancelIcon from "@material-ui/icons/Cancel";
 import MuiSelect from "@material-ui/core/Select";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import FormHelperText from "@material-ui/core/FormHelperText";
 
 // Types from react-select
 import { ValueType } from "react-select/src/types";
@@ -44,6 +45,8 @@ type Props = {
   isClearable?: boolean;
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: (event: React.FocusEvent) => void;
+  inputStatus?: "warning" | "error" | "success" | undefined | null;
+  validationMessage?: string | undefined;
 };
 
 export interface OptionType {
@@ -104,8 +107,10 @@ export const NativeSelect: React.FC<Props> = props => {
     props.onChange({ label, value });
   };
 
+  const isError = !!(props.inputStatus && props.inputStatus === "error");
+
   return (
-    <FormControl variant="outlined" style={{ width: "100%" }}>
+    <FormControl variant="outlined" style={{ width: "100%" }} error={isError}>
       <InputLabel ref={inputLabel} htmlFor={props.label}>
         {props.label}
       </InputLabel>
@@ -130,6 +135,11 @@ export const NativeSelect: React.FC<Props> = props => {
           );
         })}
       </MuiSelect>
+      {props.inputStatus && props.validationMessage && (
+        <FormHelperText error={isError}>
+          {props.validationMessage}
+        </FormHelperText>
+      )}
     </FormControl>
   );
 };
@@ -200,6 +210,8 @@ export const StyledSelect: React.FC<Props> = props => {
       isClearable={props.isClearable}
       isDisabled={props.disabled}
       filterOption={props.filterOption}
+      inputStatus={props.inputStatus}
+      validationMessage={props.validationMessage}
     />
   );
 };
@@ -229,24 +241,32 @@ function Control(props: ControlProps<OptionType>) {
     children,
     innerProps,
     innerRef,
-    selectProps: { classes, TextFieldProps },
+    selectProps: { classes, TextFieldProps, inputStatus, validationMessage },
   } = props;
 
+  const isError = !!(inputStatus && inputStatus === "error");
+
   return (
-    <TextField
-      fullWidth
-      variant="outlined"
-      InputProps={{
-        inputComponent,
-        inputProps: {
-          className: classes.input,
-          ref: innerRef,
-          children,
-          ...innerProps,
-        },
-      }}
-      {...TextFieldProps}
-    />
+    <>
+      <TextField
+        fullWidth
+        variant="outlined"
+        error={isError}
+        InputProps={{
+          inputComponent,
+          inputProps: {
+            className: classes.input,
+            ref: innerRef,
+            children,
+            ...innerProps,
+          },
+        }}
+        {...TextFieldProps}
+      />
+      {inputStatus && validationMessage && (
+        <FormHelperText error={isError}>{validationMessage}</FormHelperText>
+      )}
+    </>
   );
 }
 
