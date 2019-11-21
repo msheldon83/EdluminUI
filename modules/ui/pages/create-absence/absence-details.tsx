@@ -99,6 +99,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onHourlyStartTimeChange = React.useCallback(
     async (startTime?: Date | undefined) => {
       await setValue("hourlyStartTime", startTime);
+      await triggerValidation({ name: "hourlyStartTime" });
     },
     [setValue]
   );
@@ -114,8 +115,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onHourlyEndTimeChange = React.useCallback(
     async (endTime?: Date | undefined) => {
       await setValue("hourlyEndTime", endTime);
+      await triggerValidation({ name: "hourlyEndTime" });
     },
-    [setValue]
+    [setValue, triggerValidation]
   );
 
   const [showNotesForReplacement, setShowNotesForReplacement] = useState(
@@ -252,6 +254,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 value={hourlyStartTime}
                 onValidTime={time => setHourlyStartTime(time)}
                 onChange={value => setHourlyStartTime(value)}
+                inputStatus={errors.hourlyStartTime ? "error" : undefined}
+                validationMessage={errors.hourlyStartTime?.message}
               />
             </div>
             <div className={classes.time}>
@@ -261,6 +265,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 onValidTime={time => setHourlyEndTime(time)}
                 onChange={value => setHourlyEndTime(value)}
                 earliestTime={hourlyStartTime}
+                inputStatus={errors.hourlyEndTime ? "error" : undefined}
+                validationMessage={errors.hourlyEndTime?.message}
               />
             </div>
           </div>
