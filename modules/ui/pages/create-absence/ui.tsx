@@ -24,6 +24,7 @@ import {
   AbsenceDetailCreateInput,
   Absence,
   CalendarDayType,
+  AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer, useState, useMemo } from "react";
@@ -194,7 +195,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     : getProjectedVacancies.data?.absence?.projectedAbsence?.vacancies ??
       []) as Vacancy[];
 
-  const absenceUsages = useMemo(() => {
+  const absenceUsageText = useMemo(() => {
     /*
       cf 2019-11-21
       Given that we can't select multiple absence reasons via the UI, I'm
@@ -212,12 +213,19 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
     if (usages.length < 1) return null;
 
-    return {
-      absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId!,
-      amount: usages.reduce((m, v) => m + v.amount, 0),
-    };
+    const type = usages[0].absenceReasonTrackingTypeId!;
+    const amount = usages.reduce((m, v) => m + v.amount, 0);
+    const unitText = {
+      [AbsenceReasonTrackingTypeId.Invalid]: null,
+      [AbsenceReasonTrackingTypeId.Daily]: ["day", "days"],
+      [AbsenceReasonTrackingTypeId.Hourly]: ["hour", "hours"],
+    }[type];
+    if (!unitText) return null;
+    return `${t("Uses")} ${amount} ${t(unitText[Number(amount !== 1)])} ${t(
+      "of your balance"
+    )}`;
   }, [getProjectedVacancies]);
-  console.log("got some data", absenceUsages);
+  console.log("got some data", absenceUsageText);
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -312,6 +320,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
                 disabledDates={disabledDates}
+                balanceUsageText={absenceUsageText || undefined}
               />
             </Section>
           </>

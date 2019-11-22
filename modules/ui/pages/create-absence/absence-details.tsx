@@ -6,48 +6,37 @@ import {
   Paper,
   TextField,
   Typography,
-  Chip,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
+import InfoIcon from "@material-ui/icons/Info";
+import { isValid, parseISO } from "date-fns";
+import { Errors, SetValue, TriggerValidation } from "forms";
 import {
-  addMonths,
-  endOfMonth,
-  format,
-  parseISO,
-  startOfDay,
-  isValid,
-  isAfter,
-} from "date-fns";
-import { eachDayOfInterval } from "date-fns/esm";
-import { SetValue, Errors, TriggerValidation } from "forms";
-import { HookQueryResult, useQueryBundle } from "graphql/hooks";
-import {
-  CalendarDayType,
   DayPart,
   FeatureFlag,
   NeedsReplacement,
   Vacancy,
 } from "graphql/server-types.gen";
 import * as React from "react";
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
+import { AssignedSub } from "ui/components/absence/assigned-sub";
+import { dayPartToLabel } from "ui/components/absence/helpers";
 import {
   DatePicker,
   DatePickerOnChange,
   DatePickerOnMonthChange,
 } from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
+import { TimeInput } from "ui/components/form/time-input";
+import { VacancyDetails } from "../../components/absence/vacancy-details";
 import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
-import { VacancyDetails } from "../../components/absence/vacancy-details";
-import { useHistory } from "react-router";
-import { dayPartToLabel } from "ui/components/absence/helpers";
-import { AssignedSub } from "ui/components/absence/assigned-sub";
-import { TimeInput } from "ui/components/form/time-input";
 
 type Props = {
   state: CreateAbsenceState;
@@ -60,6 +49,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   vacancies: Vacancy[];
   disabledDates: Date[];
+  balanceUsageText?: string;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -224,6 +214,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
           onMonthChange={onMonthChange}
           disableDates={props.disabledDates}
         />
+
+        {props.balanceUsageText && (
+          <div className={classes.usageTextContainer}>
+            <InfoIcon color="primary" />
+            <Typography className={classes.usageText}>
+              {props.balanceUsageText}
+            </Typography>
+          </div>
+        )}
 
         <RadioGroup
           onChange={onDayPartChange}
@@ -431,6 +430,15 @@ const useStyles = makeStyles(theme => ({
   },
   notesForReplacement: {
     paddingTop: theme.spacing(3),
+  },
+  usageTextContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    margin: `${theme.spacing(2)}px 0`,
+  },
+  usageText: {
+    marginLeft: theme.spacing(1),
   },
 }));
 
