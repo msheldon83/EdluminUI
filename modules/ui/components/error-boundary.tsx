@@ -1,11 +1,16 @@
 import * as React from "react";
+import { Button } from "@material-ui/core";
+import { withRouter, RouteComponentProps } from "react-router";
 
 type ErrorState = {
   hasError: boolean;
 };
 
-export class ErrorBoundary extends React.Component<object, ErrorState> {
-  constructor(props: object) {
+class InnerErrorBoundary extends React.Component<
+  RouteComponentProps<{}>,
+  ErrorState
+> {
+  constructor(props: RouteComponentProps<{}>) {
     super(props);
     this.state = { hasError: false };
   }
@@ -20,11 +25,30 @@ export class ErrorBoundary extends React.Component<object, ErrorState> {
     console.error(error, errorInfo);
   };
 
+  dismiss = () => {
+    this.setState({ hasError: false });
+  };
+
+  componentDidUpdate(prevProps: RouteComponentProps<{}>) {
+    if (prevProps.location !== this.props.location) {
+      this.setState({ hasError: false });
+    }
+  }
+
   render() {
     if (this.state.hasError) {
-      return <h1>There was an error loading your data</h1>;
+      return (
+        <>
+          <h1>An error has occurred.</h1>
+          <Button variant="contained" color="primary" onClick={this.dismiss}>
+            Dismiss
+          </Button>
+        </>
+      );
     }
 
     return this.props.children;
   }
 }
+
+export const ErrorBoundary = withRouter(InnerErrorBoundary);

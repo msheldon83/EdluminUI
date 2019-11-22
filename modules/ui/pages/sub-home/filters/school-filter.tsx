@@ -26,7 +26,7 @@ export const SchoolFilter: React.FC<Props> = props => {
       const ids: number[] = value
         ? value.map((v: OptionType) => Number(v.value))
         : [];
-      updateFilters({ locations: ids });
+      updateFilters({ locationIds: ids });
     },
     [updateFilters]
   );
@@ -38,7 +38,7 @@ export const SchoolFilter: React.FC<Props> = props => {
           onChange={onChangeLocations}
           options={locationOptions}
           value={locationOptions.filter(
-            e => e.value && props.locations.includes(Number(e.value))
+            e => e.value && props.locationIds.includes(Number(e.value))
           )}
           multi
         />

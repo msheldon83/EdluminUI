@@ -6,6 +6,7 @@ import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useRouteParams } from "ui/routes/definition";
+import { Button } from "@material-ui/core";
 
 type Props = {};
 
@@ -17,9 +18,26 @@ export const AdminHome: React.FC<Props> = props => {
   const isMobile = useScreenSize() === "mobile";
   const params = useRouteParams(AdminHomeRoute);
 
+  const [triggerError, setTriggerError] = React.useState(false);
+
+  if (triggerError) {
+    throw Error("error!");
+  }
+
   return (
     <>
       <PageTitle title={`${params.organizationId} ${t("Home")}`} />
+      {__DEV__ && (
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => {
+            setTriggerError(true);
+          }}
+        >
+          Trigger Error
+        </Button>
+      )}
     </>
   );
 };

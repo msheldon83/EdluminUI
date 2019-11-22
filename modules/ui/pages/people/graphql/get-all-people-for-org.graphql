@@ -7,6 +7,8 @@ query GetAllPeopleForOrg(
   $active: Boolean
   $name: String
   $endorsements: [Int]
+  $positionTypes: [Int]
+  $locations: [Int]
 ) {
   orgUser {
     paged(
@@ -18,6 +20,8 @@ query GetAllPeopleForOrg(
       active: $active
       name: $name
       endorsements: $endorsements
+      positionTypes: $positionTypes
+      locations: $locations
     ) {
       offset
       limit
@@ -48,6 +52,10 @@ query GetAllPeopleForOrg(
         }
         employee {
           id
+          locations {
+            id
+            name
+          }
           primaryPosition {
             id
             name
