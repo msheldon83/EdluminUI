@@ -8,13 +8,19 @@ import { Section } from "ui/components/section";
 import { Filters } from "./filters/index";
 import { AvailableJob } from "./components/available-job";
 import { FilterList } from "@material-ui/icons";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import {
+  useQueryBundle,
+  useMutationBundle,
+  usePagedQueryBundle,
+} from "graphql/hooks";
 import { useRouteParams } from "ui/routes/definition";
-import { GetAllVacancies } from "./graphql/get-all-vacancies.gen";
+import { useQueryParamIso } from "hooks/query-params";
+import { SubJobSearch } from "./graphql/sub-job-search.gen";
 import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
 import { Vacancy, OrgUser } from "graphql/server-types.gen";
 import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
 import { SubHomeRoute } from "ui/routes/sub-home";
+import { FilterQueryParams } from "./filters/filter-params";
 import { ScheduleUI } from "ui/pages/sub-schedule/ui";
 
 type Props = {};
@@ -28,6 +34,7 @@ export const SubHome: React.FC<Props> = props => {
   const isMobile = useScreenSize() === "mobile";
   const [showFilters, setShowFilters] = React.useState(!isMobile);
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy);
+  const [filters] = useQueryParamIso(FilterQueryParams);
 
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
     fetchPolicy: "cache-first",
@@ -45,14 +52,22 @@ export const SubHome: React.FC<Props> = props => {
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
 
-  const getVacancies = useQueryBundle(GetAllVacancies, {
-    variables: {},
-  });
+  const [getVacancies, pagination] = usePagedQueryBundle(
+    SubJobSearch,
+    r => r.vacancy?.userJobSearch?.totalCount,
+    {
+      variables: { 
+        ...filters,
+        id: String(userId),        
+      },
+      skip: !userId,
+    }
+  );
 
   const vacancies = (getVacancies.state === "LOADING" ||
   getVacancies.state === "UPDATING"
     ? []
-    : getVacancies.data?.vacancy?.all ?? []) as Pick<
+    : getVacancies.data?.vacancy?.userJobSearch?.results ?? []) as Pick<
     Vacancy,
     | "id"
     | "organization"

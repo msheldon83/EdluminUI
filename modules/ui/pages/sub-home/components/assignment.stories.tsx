@@ -47,8 +47,8 @@ const simpleAssignment = ({
   vacancy: {
     absence: {
       employee: {
-        firstName: "Schmoe",
-        lastName: "Joe",
+        firstName: "Joe",
+        lastName: "Schmoe",
       },
     },
     position: {
