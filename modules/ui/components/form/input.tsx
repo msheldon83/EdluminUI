@@ -12,7 +12,7 @@ type Props = Omit<OutlinedInputProps, "labelWidth"> & {
   withSpacing?: boolean;
   InputComponent?: React.ElementType;
   inputComponentProps?: Record<string, any>;
-  inputStatus?: "warning" | "error" | "success" | undefined | null;
+  inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
 };
 
@@ -23,7 +23,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
     inputComponentProps = {},
     className = "",
     withSpacing = false,
-    inputStatus,
+    inputStatus = "default",
     validationMessage,
     ...restOfInputProps
   } = props;
@@ -31,7 +31,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
   const classes = useStyles();
   const id = `custom-input-${label}`;
 
-  const isError = !!(props.inputStatus && props.inputStatus === "error");
+  const isError = inputStatus === "error";
 
   const classNames = clsx({
     [classes.formControl]: true,
@@ -68,7 +68,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
           {...restOfInputProps}
         />
       )}
-      {props.inputStatus && props.validationMessage && (
+      {props.validationMessage && (
         <FormHelperText error={isError}>
           {props.validationMessage}
         </FormHelperText>
