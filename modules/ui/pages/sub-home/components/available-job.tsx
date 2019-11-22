@@ -38,18 +38,6 @@ type Props = {
   shadeRow: boolean;
 };
 
-export const parseDayPortion = (dayPortion: number) => {
-  if (dayPortion < 0.5) {
-    return "Partial Day(Hourly)";
-  } else if (dayPortion === 0.5) {
-    return "Half Day";
-  } else if (dayPortion > 0.5 && dayPortion < 2) {
-    return "Full Day";
-  } else {
-    return "Full Days";
-  }
-};
-
 export const AvailableJob: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
@@ -89,6 +77,18 @@ export const AvailableJob: React.FC<Props> = props => {
   };
   const notesOpen = Boolean(notesAnchor);
   const notesId = notesOpen ? "notes-popper" : undefined;
+
+  const parseDayPortion = (dayPortion: number) => {
+    if (dayPortion < 0.5) {
+      return t("Partial Day(Hourly)");
+    } else if (dayPortion === 0.5) {
+      return t("Half Day");
+    } else if (dayPortion > 0.5 && dayPortion < 2) {
+      return t("Full Day");
+    } else {
+      return t("Full Days");
+    }
+  };
 
   return (
     <>
@@ -185,6 +185,7 @@ export const AvailableJob: React.FC<Props> = props => {
               <AvailableJobDetail
                 locationName={detail!.location!.name}
                 dayPortion={detail!.dayPortion}
+                dayPortionLabel={parseDayPortion(detail!.dayPortion)}
                 startTimeLocal={detail!.startTimeLocal ?? ""}
                 endTimeLocal={detail!.endTimeLocal ?? ""}
                 shadeRow={index % 2 != 0}
