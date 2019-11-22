@@ -85,7 +85,7 @@ export const View: React.FC<Props> = props => {
 
   return (
     <div>
-      <Grid container alignItems="flex-start">
+      <Grid container alignItems="flex-start" spacing={4}>
         <Grid item xs={hasVacancies ? 5 : 12} container>
           <Grid item xs={12}>
             <Typography variant="h5">{t("Absence Details")}</Typography>
