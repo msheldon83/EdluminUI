@@ -87,11 +87,11 @@ export const SubstituteNavLinks: React.FC<Props> = props => {
       />
       <MyScheduleNavLink
         onClick={props.onClick}
-        route={SubPreferencesRoute.generate(params)}
+        route={SubScheduleRoute.generate(params)}
       />
       <SubPreferencesNavLink
         onClick={props.onClick}
-        route={SubScheduleRoute.generate(params)}
+        route={SubPreferencesRoute.generate(params)}
       />
     </>
   );
