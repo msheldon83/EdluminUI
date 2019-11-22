@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { AvailableJobDetail } from "./available-job-detail";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { Vacancy } from "graphql/server-types.gen";
+import { DayIcon } from "./day-icon";
 
 type Props = {
   vacancy: Pick<
@@ -35,6 +36,18 @@ type Props = {
   onAccept?: () => void;
   onDismiss: (orgId: string, vacancyId: string) => Promise<void>;
   shadeRow: boolean;
+};
+
+export const parseDayPortion = (dayPortion: number) => {
+  if (dayPortion < 0.5) {
+    return "Partial Day(Hourly)";
+  } else if (dayPortion === 0.5) {
+    return "Half Day";
+  } else if (dayPortion > 0.5 && dayPortion < 2) {
+    return "Full Day";
+  } else {
+    return "Full Days";
+  }
 };
 
 export const AvailableJob: React.FC<Props> = props => {
@@ -77,18 +90,6 @@ export const AvailableJob: React.FC<Props> = props => {
   const notesOpen = Boolean(notesAnchor);
   const notesId = notesOpen ? "notes-popper" : undefined;
 
-  const parseDayPortion = (dayPortion: number) => {
-    if (dayPortion === 0.5) {
-      return t("Half Day");
-    } else if (dayPortion === 1) {
-      return t("Full Day");
-    } else if (dayPortion > 1) {
-      return t("Full Days");
-    } else {
-      return "";
-    }
-  };
-
   return (
     <>
       <Grid
@@ -112,16 +113,19 @@ export const AvailableJob: React.FC<Props> = props => {
             {vacancy.organization.name}
           </Typography>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={2}>
           <Typography variant="h6">{vacancy.position!.name}</Typography>
           <Typography className={classes.lightText}>{`for ${
             vacancy.absence!.employee!.firstName
           } ${vacancy.absence!.employee!.lastName}`}</Typography>
         </Grid>
+        <Grid item container xs={1} justify={"flex-end"}>
+          <DayIcon dayPortion={vacancy.totalDayPortion} />
+        </Grid>
         <Grid item xs={2}>
-          <Typography variant="h6">{`${Math.round(
-            vacancy.totalDayPortion
-          )} ${parseDayPortion(vacancy.totalDayPortion)}`}</Typography>
+          <Typography variant="h6">{`${Math.round(vacancy.totalDayPortion)} ${t(
+            parseDayPortion(vacancy.totalDayPortion)
+          )}`}</Typography>
           <Typography className={classes.lightText}>{`${formatIsoDateIfPossible(
             vacancy.startTimeLocal,
             "h:mm aaa"
@@ -180,7 +184,7 @@ export const AvailableJob: React.FC<Props> = props => {
             {vacancy.details!.map((detail, index) => (
               <AvailableJobDetail
                 locationName={detail!.location!.name}
-                dayPortion={parseDayPortion(detail!.dayPortion)}
+                dayPortion={detail!.dayPortion}
                 startTimeLocal={detail!.startTimeLocal ?? ""}
                 endTimeLocal={detail!.endTimeLocal ?? ""}
                 shadeRow={index % 2 != 0}
