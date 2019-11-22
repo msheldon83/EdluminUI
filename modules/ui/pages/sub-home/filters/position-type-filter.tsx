@@ -25,7 +25,7 @@ export const PositionTypeFilter: React.FC<Props> = props => {
       const ids: number[] = value
         ? value.map((v: OptionType) => Number(v.value))
         : [];
-      updateFilters({ positionTypes: ids });
+      updateFilters({ positionTypeIds: ids });
     },
     [updateFilters]
   );
@@ -39,7 +39,7 @@ export const PositionTypeFilter: React.FC<Props> = props => {
           onChange={onChangePositionTypes}
           options={positionTypeOptions}
           value={positionTypeOptions.filter(
-            e => e.value && props.positionTypes.includes(Number(e.value))
+            e => e.value && props.positionTypeIds.includes(Number(e.value))
           )}
           multi
         />
