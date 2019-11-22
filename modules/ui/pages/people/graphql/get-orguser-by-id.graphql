@@ -31,6 +31,10 @@ query GetOrgUserById($id: ID!) {
       employee {
         id
         rowVersion
+        locations {
+          id
+          name
+        }
         primaryPosition {
           id
           name
