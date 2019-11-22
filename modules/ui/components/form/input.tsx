@@ -44,8 +44,6 @@ export const Input = React.forwardRef((props: Props, ref) => {
     [classes.disabled]: restOfInputProps.disabled,
   });
 
-  const isError = !!(props.inputStatus && props.inputStatus === "error");
-
   return (
     <FormControl className={classNames} error={isError}>
       <InputLabel htmlFor={id} error={isError}>
