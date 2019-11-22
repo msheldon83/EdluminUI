@@ -1,6 +1,6 @@
 import * as React from "react";
 import { action } from "@storybook/addon-actions";
-import { text, boolean, object } from "@storybook/addon-knobs";
+import { text, boolean, object, select } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
 import { Select as CustomSelect, SelectValueType } from "./select";
 
@@ -30,6 +30,12 @@ export const Select = () => {
           multi={boolean("Multiple", false)}
           native={boolean("Native", false)}
           disabled={boolean("Disabled", false)}
+          inputStatus={select(
+            "InputStatus",
+            { undefined: null, error: "error" },
+            null
+          )}
+          validationMessage={text("ValidationMessage", "")}
         />
       </div>
     </div>
