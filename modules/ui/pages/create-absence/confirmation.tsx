@@ -7,7 +7,7 @@ import { Section } from "ui/components/section";
 import { View as AbsenceView } from "ui/components/absence/view";
 import { useRouteParams } from "ui/routes/definition";
 import {
-  AdminCreateAbsenceRoute,
+  AdminSelectEmployeeForCreateAbsenceRoute,
   EmployeeCreateAbsenceRoute,
 } from "ui/routes/create-absence";
 import { Link } from "react-router-dom";
@@ -24,7 +24,9 @@ export const Confirmation: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const params = useRouteParams(
-    props.isAdmin ? AdminCreateAbsenceRoute : EmployeeCreateAbsenceRoute
+    props.isAdmin
+      ? AdminSelectEmployeeForCreateAbsenceRoute
+      : EmployeeCreateAbsenceRoute
   );
 
   if (!props.absence) {
@@ -64,7 +66,7 @@ export const Confirmation: React.FC<Props> = props => {
               component={Link}
               to={
                 props.isAdmin
-                  ? AdminCreateAbsenceRoute.generate(params)
+                  ? AdminSelectEmployeeForCreateAbsenceRoute.generate(params)
                   : EmployeeCreateAbsenceRoute.generate(params)
               }
             >
