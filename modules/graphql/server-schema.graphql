@@ -4027,8 +4027,8 @@ type VacancyQueries {
   byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
-  employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
-  userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
+  employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
+  userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [Int], locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
 }
 
 enum VacancyRejectionReason {

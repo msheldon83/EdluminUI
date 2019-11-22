@@ -12,9 +12,14 @@ import { Filters } from "./filters/index";
 import { AvailableJob } from "./components/available-job";
 import { AssignmentCard } from "./components/assignment";
 import { FilterList } from "@material-ui/icons";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import {
+  useQueryBundle,
+  useMutationBundle,
+  usePagedQueryBundle,
+} from "graphql/hooks";
 import { useRouteParams } from "ui/routes/definition";
-import { GetAllVacancies } from "./graphql/get-all-vacancies.gen";
+import { useQueryParamIso } from "hooks/query-params";
+import { SubJobSearch } from "./graphql/sub-job-search.gen";
 import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
 import { Vacancy, OrgUser, VacancyDetail } from "graphql/server-types.gen";
 import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
@@ -22,6 +27,7 @@ import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
 import { addDays, format } from "date-fns";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
 import { SubHomeRoute } from "ui/routes/sub-home";
+import { FilterQueryParams } from "./filters/filter-params";
 
 type Props = {};
 
@@ -34,6 +40,7 @@ export const SubHome: React.FC<Props> = props => {
   const isMobile = useScreenSize() === "mobile";
   const [showFilters, setShowFilters] = React.useState(!isMobile);
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy);
+  const [filters] = useQueryParamIso(FilterQueryParams);
 
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
     fetchPolicy: "cache-first",
@@ -46,8 +53,10 @@ export const SubHome: React.FC<Props> = props => {
     OrgUser,
     "id" | "orgId"
   >[];
-  const userId = (getOrgUsers.state === "LOADING" ||
-  getOrgUsers.state === "UPDATING" ? undefined : getOrgUsers.data?.userAccess?.me?.user?.id)
+  const userId =
+    getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
+      ? undefined
+      : getOrgUsers.data?.userAccess?.me?.user?.id;
 
   const fromDate = useMemo(() => new Date(), [orgUsers]);
   const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
@@ -77,14 +86,22 @@ export const SubHome: React.FC<Props> = props => {
     | "vacancy"
   >[];
 
-  const getVacancies = useQueryBundle(GetAllVacancies, {
-    variables: {},
-  });
+  const [getVacancies, pagination] = usePagedQueryBundle(
+    SubJobSearch,
+    r => r.vacancy?.userJobSearch?.totalCount,
+    {
+      variables: { 
+        ...filters,
+        id: String(userId),        
+      },
+      skip: !userId,
+    }
+  );
 
   const vacancies = (getVacancies.state === "LOADING" ||
   getVacancies.state === "UPDATING"
     ? []
-    : getVacancies.data?.vacancy?.all ?? []) as Pick<
+    : getVacancies.data?.vacancy?.userJobSearch?.results ?? []) as Pick<
     Vacancy,
     | "id"
     | "organization"
@@ -121,51 +138,56 @@ export const SubHome: React.FC<Props> = props => {
     return employeeId;
   };
 
-  const upcomingWorkTitle = isMobile ? t("Upcoming work") : `${t("Upcoming assignments for")} ${format(fromDate, "MMM d")} - ${format(toDate, "MMM d")}`;
+  const upcomingWorkTitle = isMobile
+    ? t("Upcoming work")
+    : `${t("Upcoming assignments for")} ${format(fromDate, "MMM d")} - ${format(
+        toDate,
+        "MMM d"
+      )}`;
 
   return (
     <>
-      <Grid container className={classes.upcomingWork} spacing={2} alignItems="stretch">
+      <Grid
+        container
+        className={classes.upcomingWork}
+        spacing={2}
+        alignItems="stretch"
+      >
         <SectionHeader title={upcomingWorkTitle} />
-          <Grid item xs={12} sm={6} lg={6}>
-            {getUpcomingAssignments.state === "LOADING" ? (
-              <Section>
-                <Typography variant="h5">
-                  {t("Loading Upcoming Assignments")}
-                </Typography>
-              </Section>
-            ) : assignments.length === 0 ? (
-              <Section>
+        <Grid item xs={12} sm={6} lg={6}>
+          {getUpcomingAssignments.state === "LOADING" ? (
+            <Section>
+              <Typography variant="h5">
+                {t("Loading Upcoming Assignments")}
+              </Typography>
+            </Section>
+          ) : assignments.length === 0 ? (
+            <Section>
               <Grid item>
                 <Typography variant="h5">
                   {t("No Assignments scheduled")}
                 </Typography>
               </Grid>
-              </Section>
-            ) : (
-              assignments.map((assignment, index) => (
-                <AssignmentCard
-                  vacancyDetail={assignment}
-                  shadeRow={false}
-                  key={index}
-                />
-              ))
-            )}
-            <Button
-              component={Link}
-              to={SubScheduleRoute.generate(params)}
-            >
-              {t("View All")}
-            </Button>
-          </Grid>
-          {!isMobile && 
-            <Grid item xs={12} sm={6} lg={6}>
-              <Section>
-                {"Calendar will go here"}
-              </Section>
-            </Grid>
-          }
+            </Section>
+          ) : (
+            assignments.map((assignment, index) => (
+              <AssignmentCard
+                vacancyDetail={assignment}
+                shadeRow={false}
+                key={index}
+              />
+            ))
+          )}
+          <Button component={Link} to={SubScheduleRoute.generate(params)}>
+            {t("View All")}
+          </Button>
         </Grid>
+        {!isMobile && (
+          <Grid item xs={12} sm={6} lg={6}>
+            <Section>{"Calendar will go here"}</Section>
+          </Grid>
+        )}
+      </Grid>
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Section>
@@ -231,7 +253,6 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
   },
   upcomingWork: {
-    backgroundColor: "transparent"
+    backgroundColor: "transparent",
   },
-
 }));
