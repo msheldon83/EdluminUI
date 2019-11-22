@@ -33,7 +33,7 @@ import { isAfterDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
 import { useSnackbar } from "hooks/use-snackbar";
-import { differenceWith } from "lodash-es";
+import { differenceWith, compact } from "lodash-es";
 import * as React from "react";
 import { useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -70,6 +70,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
   const [absence, setAbsence] = useState<Absence>();
+
+  const [vacanciesInput, setVacanciesInput] = useState<AbsenceVacancyInput[]>();
+
   const [createAbsence] = useMutationBundle(CreateAbsence, {
     onError: error => {
       openSnackbar({
@@ -99,6 +102,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     startDate: today,
     endDate: today,
     absenceReason: "",
+    // vacancies: vacanciesInput,
   };
 
   const {
@@ -171,23 +175,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       []) as Vacancy[];
 
   const name = `${props.firstName} ${props.lastName}`;
-
-  // const selectReplacementEmployee = async (
-  //   replacementEmployeeId: number,
-  //   name: string
-  // ) => {
-  //   await setValue("replacementEmployeeId", replacementEmployeeId);
-  //   await setValue("replacementEmployeeName", name);
-
-  //   history.push({
-  //     ...history.location,
-  //     search: "",
-  //   });
-  //   dispatch({
-  //     action: "switchStep",
-  //     step: "absence",
-  //   });
-  // };
 
   const create = async (formValues: CreateAbsenceFormData) => {
     const absenceCreateInput = buildAbsenceCreateInput(
@@ -276,20 +263,17 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             disabledDates={disabledDates}
           />
         )}
-        {step === "edit" && (
-          <EditVacancies
-            actingAsEmployee={props.actingAsEmployee}
-            employeeName={name}
-            positionName={props.positionName}
-            setStep={setStep}
-            vacancies={projectedVacancies}
-            setValue={setValue}
-            register={register}
-            handleSubmit={logData}
-            values={formValues}
-          />
-        )}
       </form>
+      {step === "edit" && (
+        <EditVacancies
+          actingAsEmployee={props.actingAsEmployee}
+          employeeName={name}
+          positionName={props.positionName}
+          setStep={setStep}
+          vacancies={projectedVacancies}
+          handleSubmit={logData}
+        />
+      )}
     </>
   );
 };
@@ -321,7 +305,7 @@ export type CreateAbsenceFormData = {
   notesToReplacement?: string;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
-  vacancies?: AbsenceVacancyInput[];
+  // vacancies?: AbsenceVacancyInput[];
 };
 
 const computeDisabledDates = (

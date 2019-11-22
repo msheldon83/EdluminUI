@@ -8,9 +8,9 @@ import {
 import { SetValue } from "forms";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { VacancyDetails } from "../vacancy-details";
 import { Step } from "../step-params";
 import { Vacancy } from "graphql/server-types.gen";
+import { VacancyDetails } from "ui/components/absence/vacancy-details";
 
 type Props = {
   setValue: SetValue;
@@ -26,6 +26,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const { setValue, vacancies, setStep } = props;
+  const hasVacancies = !!(props.vacancies && props.vacancies.length);
 
   const onNotesToReplacementChange = React.useCallback(
     async event => {
@@ -76,15 +77,17 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
         </div>
       )}
 
-      <div>
-        <Button variant="outlined" onClick={() => setStep("preAssignSub")}>
-          {t("Pre-arrange")}
-        </Button>
+      {hasVacancies && (
+        <div>
+          <Button variant="outlined" onClick={() => setStep("preAssignSub")}>
+            {t("Pre-arrange")}
+          </Button>
 
-        <Button variant="outlined" onClick={() => setStep("edit")}>
-          {t("Edit")}
-        </Button>
-      </div>
+          <Button variant="outlined" onClick={() => setStep("edit")}>
+            {t("Edit")}
+          </Button>
+        </div>
+      )}
     </>
   );
 };

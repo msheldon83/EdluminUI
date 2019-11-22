@@ -6,12 +6,10 @@ import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
 import { Fragment } from "react";
 import { getVacancyDetailsGrouping } from "./helpers";
 import { TFunction } from "i18next";
+import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
 
 type Props = {
-  vacancies: Pick<
-    Vacancy,
-    "startTimeLocal" | "endTimeLocal" | "numDays" | "positionId" | "details"
-  >[];
+  vacancies: Vacancy[];
   positionName?: string | null | undefined;
   showHeader?: boolean;
   equalWidthDetails?: boolean;
@@ -29,30 +27,15 @@ export const VacancyDetails: React.FC<Props> = props => {
   const sortedVacancies = props.vacancies
     .slice()
     .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
-  const firstVacancy = sortedVacancies[0];
-  const lastVacancy = sortedVacancies[sortedVacancies.length - 1];
-  const totalVacancyDays = sortedVacancies.reduce((total, v) => {
-    return v.numDays ? total + v.numDays : total;
-  }, 0);
-
-  // Build the Vacancy Details header text
-  const dayLengthDisplayText =
-    totalVacancyDays > 1
-      ? `${totalVacancyDays} days`
-      : `${totalVacancyDays} day`;
-  let headerText = getDateRangeDisplayText(
-    convertStringToDate(firstVacancy.startTimeLocal),
-    convertStringToDate(lastVacancy.endTimeLocal)
-  );
-  headerText = props.positionName
-    ? `${headerText} (${dayLengthDisplayText}) - ${props.positionName}`
-    : `${headerText} (${dayLengthDisplayText})`;
 
   return (
     <Grid container spacing={2} ref={props.gridRef || null}>
       {props.showHeader && (
         <Grid item xs={12}>
-          <Typography variant="h5">{headerText}</Typography>
+          <VacancySummaryHeader
+            positionName={props.positionName}
+            vacancies={props.vacancies}
+          />
         </Grid>
       )}
       {sortedVacancies.map(v => {

@@ -6,6 +6,8 @@ import * as React from "react";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
 import { CreateAbsenceFormData } from "../ui";
+import { EditVacancyFormData } from ".";
+import { compact } from "lodash-es";
 
 type Props = {
   vacancyDetails: Maybe<VacancyDetail>[];
@@ -13,8 +15,8 @@ type Props = {
   locationOptions: Location[];
   setValue: SetValue;
   groupIndex: number;
+  values: EditVacancyFormData;
   register: Register;
-  values: CreateAbsenceFormData;
 };
 
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
@@ -24,11 +26,13 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     label: loc.name,
   }));
 
-  const firstDetail =
-    props.values.vacancies &&
-    props.values.vacancies[0] &&
-    props.values.vacancies[0].details &&
-    props.values.vacancies[0].details[0];
+  // const firstDetail = props.vacancyDetails && props.vacancyDetails[0];
+  const f =
+    props.values.vacancies[props.groupIndex] &&
+    props.values.vacancies[props.groupIndex].details &&
+    compact(props.values.vacancies[props.groupIndex].details);
+
+  const firstDetail = f && f[0];
 
   if (!firstDetail) {
     return <></>;
@@ -40,11 +44,23 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     firstDetail.endTime
   )?.toISOString();
   if (!detailStartTimeLocal || !detailEndTimeLocal) {
+    console.log("INVALID", detailEndTimeLocal, detailStartTimeLocal);
     return <></>;
   }
 
-  const fieldNamePrefix = `vacancies[${props.groupIndex}].details`;
-  props.register({ name: `${fieldNamePrefix}.locationId`, type: "custom" });
+  const fieldNamePrefix = `vacancies[${props.groupIndex}].details[0]`;
+  props.register(
+    { name: `${fieldNamePrefix}.locationId`, type: "custom" },
+    { required: "Required" }
+  );
+  props.register(
+    { name: `${fieldNamePrefix}.startTime`, type: "custom" },
+    { required: "Required" }
+  );
+  props.register(
+    { name: `${fieldNamePrefix}.endTime`, type: "custom" },
+    { required: "Required" }
+  );
 
   return (
     <>
@@ -55,15 +71,15 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             name={`${fieldNamePrefix}.startTime`}
             value={detailStartTimeLocal}
             onValidTime={async value => {
+              console.log("startTime", value);
               await props.setValue(`${fieldNamePrefix}.startTime`, value);
-              console.log(value);
             }}
             onChange={async value => {
               await props.setValue(`${fieldNamePrefix}.startTime`, value);
               console.log(value);
             }}
             earliestTime={detailStartTimeLocal}
-            ref={props.register}
+            // ref={props.register}
           />
         </Grid>
         <Grid item>
@@ -80,7 +96,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
               console.log(value);
             }}
             earliestTime={detailEndTimeLocal}
-            ref={props.register}
+            // ref={props.register}
           />
         </Grid>
       </Grid>
@@ -94,7 +110,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             await props.setValue(`${fieldNamePrefix}.locationId`, event.value);
           }}
           value={{
-            value: firstDetail.locationId,
+            value: firstDetail.locationId || undefined,
             label:
               locationMenuOptions.find(
                 op => Number(op.value) === firstDetail.locationId

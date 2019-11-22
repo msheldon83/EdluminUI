@@ -3,15 +3,17 @@ import {
   Location,
   VacancyDetailInput,
   Vacancy,
+  AbsenceVacancyInput,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Step } from "../step-params";
 import { CreateAbsenceFormData } from "../ui";
-import { EditableVacancyDetails } from "../vacancy-details/editable-vacancy-details";
+import { EditableVacancyDetails } from "./editable-vacancy-details";
 import { SetValue, Register } from "forms";
 import { flatMap, compact } from "lodash-es";
+import { useForm } from "forms";
 
 type Props = {
   vacancies: Vacancy[];
@@ -19,37 +21,51 @@ type Props = {
   positionName?: string;
   employeeName: string;
   setStep: (S: Step) => void;
-  setValue: SetValue;
+  // setValue: SetValue;
   handleSubmit: () => void;
-  register: Register;
-  values: CreateAbsenceFormData;
+};
+
+export type EditVacancyFormData = {
+  vacancies: AbsenceVacancyInput[];
 };
 
 export const EditVacancies: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const initialFormData: VacancyDetailInput[] = flatMap(
-    props.vacancies.map((vacancy: Vacancy) => {
-      return compact(
-        vacancy.details &&
-          vacancy.details.map(d => {
-            const i: VacancyDetailInput | null =
-              d && d.locationId
-                ? {
-                    startTime: d.startTimeLocal,
-                    endTime: d.endTimeLocal,
-                    locationId: d.locationId,
-                  }
-                : null;
-            return i;
-          })
-      );
-    })
-  );
+  const inputs: AbsenceVacancyInput[] = props.vacancies.map(v => ({
+    positionId: v.positionId,
+    details: compact(
+      v.details?.map(d => {
+        if (!d || !d.locationId) {
+          return null;
+        } else {
+          return {
+            locationId: d.locationId,
+            date: d?.startDate,
+            startTime: d?.startTimeLocal,
+            endTime: d?.endTimeLocal,
+          };
+        }
+      })
+    ),
+  }));
 
+  const initialFormData: EditVacancyFormData = { vacancies: inputs };
+  console.log("initial form data edit", initialFormData);
+
+  const {
+    register: registerEditForm,
+    handleSubmit,
+    setValue,
+    formState,
+    getValues,
+    errors,
+  } = useForm<EditVacancyFormData>({ defaultValues: initialFormData });
+  const formValues = getValues({ nest: true });
+  console.log("updated", formValues);
   return (
-    <>
+    <form onSubmit={handleSubmit((data, e) => console.log(data))}>
       <Typography variant={props.actingAsEmployee ? "h1" : "h5"}>
         {`${t("Create Absence")}: ${t("Editing Substitute Details")}`}
       </Typography>
@@ -62,13 +78,14 @@ export const EditVacancies: React.FC<Props> = props => {
           vacancies={props.vacancies}
           showHeader
           positionName={props.positionName}
-          values={props.values}
-          setValue={props.setValue}
-          register={props.register}
+          values={formValues}
+          register={registerEditForm}
+          setValue={setValue}
           locationOptions={[
             { id: "10", name: "Elementary school abc" } as Location,
             { id: "11", name: "Middle school" } as Location,
             { id: "12", name: "High school" } as Location,
+            { id: "1013", name: "School" } as Location,
           ]}
         />
         <Grid container justify="flex-end">
@@ -84,7 +101,7 @@ export const EditVacancies: React.FC<Props> = props => {
           </Grid>
         </Grid>
       </Section>
-    </>
+    </form>
   );
 };
 

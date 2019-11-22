@@ -152,19 +152,12 @@ export const View: React.FC<Props> = props => {
                       {t("Requires a substitute")}
                     </Typography>
                   </div>
-                  <VacancyDetails
-                    vacancies={
-                      absence.vacancies as Pick<
-                        Vacancy,
-                        | "startTimeLocal"
-                        | "endTimeLocal"
-                        | "numDays"
-                        | "positionId"
-                        | "details"
-                      >[]
-                    }
-                    equalWidthDetails
-                  />
+                  {absence.vacancies && (
+                    <VacancyDetails
+                      vacancies={absence.vacancies as Vacancy[]}
+                      equalWidthDetails
+                    />
+                  )}
                   <div className={classes.notesForSubSection}>
                     <Typography variant={"h6"}>
                       {t("Notes for substitute")}

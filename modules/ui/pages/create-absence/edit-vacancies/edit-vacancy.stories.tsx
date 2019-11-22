@@ -78,14 +78,6 @@ export const AsAdmin = () => {
           positionName="Math Teacher"
           handleSubmit={() => {}}
           setStep={() => {}}
-          setValue={() => {}}
-          register={(): any => {}}
-          values={{
-            vacancies: formVacancyValues,
-            absenceReason: "Legal",
-            startDate: new Date("2020-01-01"),
-            endDate: new Date("2020-01-02"),
-          }}
         />
       </Route>
     </Provider>

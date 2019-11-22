@@ -54,7 +54,7 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
       value={parsedValue}
       onChange={event => onChange(event.target.value)}
       onBlur={handleBlur}
-      ref={ref}
+      inputRef={ref}
     />
   );
 });

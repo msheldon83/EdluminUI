@@ -7,9 +7,10 @@ import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { CreateAbsenceFormData } from "../ui";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
-import { VacancySummaryHeader } from "./vacancy-summary-header";
+import { VacancySummaryHeader } from "../../../components/absence/vacancy-summary-header";
 import { Register, SetValue } from "forms";
 import { Vacancy } from "graphql/server-types.gen";
+import { EditVacancyFormData } from ".";
 
 type Props = {
   vacancies: Vacancy[];
@@ -20,7 +21,7 @@ type Props = {
   locationOptions: Location[];
   setValue: SetValue;
   register: Register;
-  values: CreateAbsenceFormData;
+  values: EditVacancyFormData;
 };
 
 export const EditableVacancyDetails: React.FC<Props> = props => {
@@ -66,19 +67,21 @@ export const EditableVacancyDetails: React.FC<Props> = props => {
               </Typography>
             </Grid>
 
-            {Object.entries(groupedDetails).map(([key, value], groupIndex) => (
-              <Fragment key={groupIndex}>
-                <EditableVacancyDetailRow
-                  vacancyDetails={value}
-                  groupIndex={groupIndex}
-                  equalWidthDetails={props.equalWidthDetails}
-                  locationOptions={props.locationOptions}
-                  setValue={props.setValue}
-                  register={props.register}
-                  values={props.values}
-                />
-              </Fragment>
-            ))}
+            {Object.entries(groupedDetails).map(
+              ([key, details], groupIndex) => (
+                <Fragment key={groupIndex}>
+                  <EditableVacancyDetailRow
+                    vacancyDetails={details}
+                    setValue={props.setValue}
+                    values={props.values}
+                    groupIndex={groupIndex}
+                    equalWidthDetails={props.equalWidthDetails}
+                    locationOptions={props.locationOptions}
+                    register={props.register}
+                  />
+                </Fragment>
+              )
+            )}
           </Grid>
         );
       })}

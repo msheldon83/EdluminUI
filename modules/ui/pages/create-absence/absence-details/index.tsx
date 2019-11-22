@@ -153,8 +153,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     await setValue("replacementEmployeeName", undefined);
   };
 
-  const hasVacancies = !!(props.vacancies && props.vacancies.length);
-
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
