@@ -121,6 +121,20 @@ export const PeoplePage: React.FC<Props> = props => {
     }
   };
 
+  const determineLocations = (
+    locations: Maybe<Array<Maybe<{ name: string }>>>
+  ) => {
+    if (locations) {
+      if (locations.length > 1) {
+        return "Multiple";
+      } else {
+        return locations[0]?.name;
+      }
+    } else {
+      return "None";
+    }
+  };
+
   let people: GetAllPeopleForOrg.Results[] = [];
   if (allPeopleQuery.state === "DONE" || allPeopleQuery.state === "UPDATING") {
     const qResults = compact(allPeopleQuery.data?.orgUser?.paged?.results);
@@ -140,7 +154,7 @@ export const PeoplePage: React.FC<Props> = props => {
       ),
       positionType: person.employee?.primaryPosition?.name,
       phone: person.phoneNumber,
-      location: "",
+      location: determineLocations(person.employee?.locations ?? []),
       endorsements: determineEndorsements(person.employee?.endorsements ?? []),
       managesLocations: determineLocationsManaged(
         person.allLocationIdsInScope,

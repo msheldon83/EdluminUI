@@ -12,7 +12,7 @@ type Props = Omit<OutlinedInputProps, "labelWidth"> & {
   withSpacing?: boolean;
   InputComponent?: React.ElementType;
   inputComponentProps?: Record<string, any>;
-  inputStatus?: "warning" | "error" | "success" | undefined | null;
+  inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
 };
 
@@ -23,13 +23,15 @@ export const Input = React.forwardRef((props: Props, ref) => {
     inputComponentProps = {},
     className = "",
     withSpacing = false,
-    inputStatus,
+    inputStatus = "default",
     validationMessage,
     ...restOfInputProps
   } = props;
 
   const classes = useStyles();
   const id = `custom-input-${label}`;
+
+  const isError = inputStatus === "error";
 
   const classNames = clsx({
     [classes.formControl]: true,
@@ -42,11 +44,11 @@ export const Input = React.forwardRef((props: Props, ref) => {
     [classes.disabled]: restOfInputProps.disabled,
   });
 
-  const isError = !!(props.inputStatus && props.inputStatus === "error");
-
   return (
     <FormControl className={classNames} error={isError}>
-      <InputLabel htmlFor={id}>{label}</InputLabel>
+      <InputLabel htmlFor={id} error={isError}>
+        {label}
+      </InputLabel>
       {InputComponent ? (
         <InputComponent
           ref={ref}
@@ -66,7 +68,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
           {...restOfInputProps}
         />
       )}
-      {props.inputStatus && props.validationMessage && (
+      {props.validationMessage && (
         <FormHelperText error={isError}>
           {props.validationMessage}
         </FormHelperText>
@@ -79,16 +81,18 @@ type InputLabelProps = {
   children: string;
   htmlFor?: string;
   className?: string;
+  error?: boolean;
 };
 
 export const InputLabel = (props: InputLabelProps) => {
-  const { children, htmlFor, className = "" } = props;
+  const { children, htmlFor, error, className = "" } = props;
 
   const classes = useStyles();
 
   const classNames = clsx({
     [classes.inputLabel]: true,
     [className]: true,
+    [classes.error]: error,
   });
 
   /* Convert this to FormLabel */
@@ -117,5 +121,8 @@ const useStyles = makeStyles(theme => ({
   },
   disabled: {
     backgroundColor: theme.customColors.grayWhite,
+  },
+  error: {
+    color: theme.palette.error.main,
   },
 }));

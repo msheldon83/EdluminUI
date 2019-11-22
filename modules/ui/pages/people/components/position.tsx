@@ -15,6 +15,7 @@ type Props = {
   hoursPerFullWorkDay: number | null | undefined;
   contractName: string | null | undefined;
   scheduleNames: Array<string | undefined>;
+  locationNames: Array<string | undefined>;
 };
 
 export const Position: React.FC<Props> = props => {
@@ -43,7 +44,11 @@ export const Position: React.FC<Props> = props => {
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Location")}</Typography>
-              <div></div>
+              <div>
+                {(props.locationNames.length > 0 &&
+                  props.locationNames.join(",")) ??
+                  t("Not available")}
+              </div>
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Needs replacement")}</Typography>

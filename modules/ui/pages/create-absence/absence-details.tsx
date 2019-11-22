@@ -21,7 +21,7 @@ import {
   isAfter,
 } from "date-fns";
 import { eachDayOfInterval } from "date-fns/esm";
-import { SetValue } from "forms";
+import { SetValue, Errors, TriggerValidation } from "forms";
 import { HookQueryResult, useQueryBundle } from "graphql/hooks";
 import {
   CalendarDayType,
@@ -48,7 +48,6 @@ import { useHistory } from "react-router";
 import { dayPartToLabel } from "ui/components/absence/helpers";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { TimeInput } from "ui/components/form/time-input";
-import { FieldError, ValidationPayload } from "react-hook-form/dist/types";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { usePayCodes } from "reference-data/pay-codes";
 
@@ -57,14 +56,8 @@ type Props = {
   dispatch: React.Dispatch<CreateAbsenceActions>;
   setValue: SetValue;
   values: FormData;
-  errors: Partial<Record<string, FieldError>>;
-  triggerValidation: (
-    payload?:
-      | ValidationPayload<string, unknown>
-      | ValidationPayload<string, unknown>[]
-      | undefined,
-    shouldRender?: any
-  ) => Promise<boolean>;
+  errors: Errors;
+  triggerValidation: TriggerValidation;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
   vacancies: Vacancy[];

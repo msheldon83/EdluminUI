@@ -14,7 +14,7 @@ type Props = {
   onChange: (value: string) => void;
   onValidTime: (value: string) => void;
   earliestTime?: string;
-  inputStatus?: "warning" | "error" | "success" | undefined | null;
+  inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
 };
 
@@ -26,7 +26,7 @@ export const TimeInput = (props: Props) => {
     label,
     value = "",
     onChange,
-    inputStatus,
+    inputStatus = "default",
     validationMessage,
   } = props;
 

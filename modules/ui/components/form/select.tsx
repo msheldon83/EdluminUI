@@ -45,7 +45,7 @@ type Props = {
   isClearable?: boolean;
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: (event: React.FocusEvent) => void;
-  inputStatus?: "warning" | "error" | "success" | undefined | null;
+  inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
 };
 
@@ -107,7 +107,8 @@ export const NativeSelect: React.FC<Props> = props => {
     props.onChange({ label, value });
   };
 
-  const isError = !!(props.inputStatus && props.inputStatus === "error");
+  const { inputStatus = "default" } = props;
+  const isError = inputStatus === "error";
 
   return (
     <FormControl variant="outlined" style={{ width: "100%" }} error={isError}>
@@ -135,7 +136,7 @@ export const NativeSelect: React.FC<Props> = props => {
           );
         })}
       </MuiSelect>
-      {props.inputStatus && props.validationMessage && (
+      {props.validationMessage && (
         <FormHelperText error={isError}>
           {props.validationMessage}
         </FormHelperText>
@@ -241,10 +242,15 @@ function Control(props: ControlProps<OptionType>) {
     children,
     innerProps,
     innerRef,
-    selectProps: { classes, TextFieldProps, inputStatus, validationMessage },
+    selectProps: {
+      classes,
+      TextFieldProps,
+      inputStatus = "default",
+      validationMessage,
+    },
   } = props;
 
-  const isError = !!(inputStatus && inputStatus === "error");
+  const isError = inputStatus === "error";
 
   return (
     <>
@@ -263,7 +269,7 @@ function Control(props: ControlProps<OptionType>) {
         }}
         {...TextFieldProps}
       />
-      {inputStatus && validationMessage && (
+      {validationMessage && (
         <FormHelperText error={isError}>{validationMessage}</FormHelperText>
       )}
     </>
