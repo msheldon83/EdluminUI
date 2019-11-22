@@ -2,6 +2,7 @@ import * as React from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import FormControl from "@material-ui/core/FormControl";
+import FormHelperText from "@material-ui/core/FormHelperText";
 import OutlinedInput, {
   OutlinedInputProps,
 } from "@material-ui/core/OutlinedInput";
@@ -11,6 +12,8 @@ type Props = Omit<OutlinedInputProps, "labelWidth"> & {
   withSpacing?: boolean;
   InputComponent?: React.ElementType;
   inputComponentProps?: Record<string, any>;
+  inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
+  validationMessage?: string | undefined;
 };
 
 export const Input = React.forwardRef((props: Props, ref) => {
@@ -20,11 +23,15 @@ export const Input = React.forwardRef((props: Props, ref) => {
     inputComponentProps = {},
     className = "",
     withSpacing = false,
+    inputStatus = "default",
+    validationMessage,
     ...restOfInputProps
   } = props;
 
   const classes = useStyles();
   const id = `custom-input-${label}`;
+
+  const isError = inputStatus === "error";
 
   const classNames = clsx({
     [classes.formControl]: true,
@@ -38,8 +45,10 @@ export const Input = React.forwardRef((props: Props, ref) => {
   });
 
   return (
-    <FormControl className={classNames}>
-      <InputLabel htmlFor={id}>{label}</InputLabel>
+    <FormControl className={classNames} error={isError}>
+      <InputLabel htmlFor={id} error={isError}>
+        {label}
+      </InputLabel>
       {InputComponent ? (
         <InputComponent
           ref={ref}
@@ -59,6 +68,11 @@ export const Input = React.forwardRef((props: Props, ref) => {
           {...restOfInputProps}
         />
       )}
+      {props.validationMessage && (
+        <FormHelperText error={isError}>
+          {props.validationMessage}
+        </FormHelperText>
+      )}
     </FormControl>
   );
 });
@@ -67,16 +81,18 @@ type InputLabelProps = {
   children: string;
   htmlFor?: string;
   className?: string;
+  error?: boolean;
 };
 
 export const InputLabel = (props: InputLabelProps) => {
-  const { children, htmlFor, className = "" } = props;
+  const { children, htmlFor, error, className = "" } = props;
 
   const classes = useStyles();
 
   const classNames = clsx({
     [classes.inputLabel]: true,
     [className]: true,
+    [classes.error]: error,
   });
 
   /* Convert this to FormLabel */
@@ -105,5 +121,8 @@ const useStyles = makeStyles(theme => ({
   },
   disabled: {
     backgroundColor: theme.customColors.grayWhite,
+  },
+  error: {
+    color: theme.palette.error.main,
   },
 }));
