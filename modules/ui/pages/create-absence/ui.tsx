@@ -138,6 +138,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         t("End time is required"),
     }
   );
+  register({ name: "accountingCode", type: "custom" });
+  register({ name: "payCode", type: "custom" });
 
   const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
     variables: {
@@ -342,6 +344,8 @@ export type FormData = {
   needsReplacement: boolean;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
+  accountingCode?: string;
+  payCode?: string;
 };
 
 const computeDisabledDates = (

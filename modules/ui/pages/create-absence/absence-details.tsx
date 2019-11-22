@@ -49,6 +49,8 @@ import { dayPartToLabel } from "ui/components/absence/helpers";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { TimeInput } from "ui/components/form/time-input";
 import { FieldError, ValidationPayload } from "react-hook-form/dist/types";
+import { useAccountingCodes } from "reference-data/accounting-codes";
+import { usePayCodes } from "reference-data/pay-codes";
 
 type Props = {
   state: CreateAbsenceState;
@@ -142,6 +144,17 @@ export const AbsenceDetails: React.FC<Props> = props => {
     }
   }, [dayPartOptions]);
 
+  const accountingCodes = useAccountingCodes(state.organizationId);
+  const accountingCodeOptions = useMemo(
+    () => accountingCodes.map(c => ({ label: c.name, value: c.id })),
+    [accountingCodes]
+  );
+  const payCodes = usePayCodes(state.organizationId);
+  const payCodeOptions = useMemo(
+    () => payCodes.map(c => ({ label: c.name, value: c.id })),
+    [payCodes]
+  );
+
   const onDateChange: DatePickerOnChange = React.useCallback(
     async ({ startDate, endDate }) => {
       await setValue("startDate", startDate);
@@ -196,6 +209,22 @@ export const AbsenceDetails: React.FC<Props> = props => {
     await setValue("replacementEmployeeId", undefined);
     await setValue("replacementEmployeeName", undefined);
   };
+
+  const onAccountingCodeChange = React.useCallback(
+    async event => {
+      await setValue("accountingCode", event?.value);
+      await triggerValidation({ name: "accountingCode" });
+    },
+    [setValue, triggerValidation]
+  );
+
+  const onPayCodeChange = React.useCallback(
+    async event => {
+      await setValue("payCode", event?.value);
+      await triggerValidation({ name: "payCode" });
+    },
+    [setValue, triggerValidation]
+  );
 
   const hasVacancies = !!(props.vacancies && props.vacancies.length);
 
@@ -331,6 +360,48 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
             {values.needsReplacement && (
               <VacancyDetails vacancies={props.vacancies} equalWidthDetails />
+            )}
+
+            {values.needsReplacement && isAdmin && (
+              <>
+                {!!(accountingCodeOptions && accountingCodeOptions.length) && (
+                  <div className={classes.select}>
+                    <Typography>{t("Accounting code")}</Typography>
+                    <Select
+                      value={{
+                        value: values.accountingCode,
+                        label:
+                          accountingCodeOptions.find(
+                            a => a.value === values.accountingCode
+                          )?.label || "",
+                      }}
+                      onChange={onAccountingCodeChange}
+                      options={accountingCodeOptions}
+                      isClearable={true}
+                      inputStatus={errors.accountingCode ? "error" : undefined}
+                      validationMessage={errors.accountingCode?.message}
+                    />
+                  </div>
+                )}
+                {!!(payCodeOptions && payCodeOptions.length) && (
+                  <div className={classes.select}>
+                    <Typography>{t("Pay code")}</Typography>
+                    <Select
+                      value={{
+                        value: values.payCode,
+                        label:
+                          payCodeOptions.find(a => a.value === values.payCode)
+                            ?.label || "",
+                      }}
+                      onChange={onPayCodeChange}
+                      options={payCodeOptions}
+                      isClearable={true}
+                      inputStatus={errors.payCode ? "error" : undefined}
+                      validationMessage={errors.payCode?.message}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
             {showNotesForReplacement && (
