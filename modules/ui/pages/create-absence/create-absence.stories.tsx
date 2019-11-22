@@ -1,50 +1,54 @@
+import {
+  NeedsReplacement,
+  Vacancy,
+  VacancyAvailability,
+  VacancyQualification,
+} from "graphql/server-types.gen";
 import * as React from "react";
+import { Route } from "react-router";
 import { mockProvider } from "test-helpers/mock-provider";
-import { CreateAbsence } from ".";
 import {
   AdminCreateAbsenceRoute,
   EmployeeCreateAbsenceRoute,
 } from "ui/routes/create-absence";
-import { Route } from "react-router";
 import { CreateAbsenceUI } from "./ui";
-import {
-  NeedsReplacement,
-  VacancyAvailability,
-  VacancyQualification,
-  CalendarDayType,
-} from "graphql/server-types.gen";
-import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 
 export default {
   title: "Pages/Create Absence",
 };
 
-const basicProjectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
+const basicProjectedVacancies = [
   {
-    positionId: 1057,
-    startTimeLocal: "2019-11-15T08:30:00" as any,
-    endTimeLocal: "2019-11-18T12:00:00" as any,
+    startDate: "2019-11-15",
+    startTimeLocal: "2019-11-15T08:30:00",
+    endDate: "2019-11-18",
+    endTimeLocal: "2019-11-18T12:00:00",
     numDays: 2,
+    positionId: 1057,
     details: [
       {
-        startTimeLocal: "2019-11-15T08:30:00" as any,
-        endTimeLocal: "2019-11-15T12:00:00" as any,
-        locationId: 1013,
+        startDate: "2019-11-15",
+        startTimeLocal: "2019-11-15T08:30:00",
+        endDate: "2019-11-15",
+        endTimeLocal: "2019-11-15T12:00:00",
         location: {
           name: "Haven Elementary School",
         },
+        locationId: 1013,
       },
       {
-        startTimeLocal: "2019-11-18T08:30:00" as any,
-        endTimeLocal: "2019-11-18T12:00:00" as any,
-        locationId: 1013,
+        startDate: "2019-11-18",
+        startTimeLocal: "2019-11-18T08:30:00",
+        endDate: "2019-11-18",
+        endTimeLocal: "2019-11-18T12:00:00",
         location: {
           name: "Haven Elementary School",
         },
+        locationId: 1013,
       },
     ],
   },
-];
+] as Vacancy[];
 
 const basicReplacementEmployees = [
   {
@@ -67,6 +71,17 @@ const basicReplacementEmployees = [
   },
 ];
 
+const allAbsenceReasons = [
+  {
+    id: "1",
+    name: "Vacation",
+  },
+  {
+    id: "2",
+    name: "Illness",
+  },
+];
+
 export const AsAdmin = () => {
   const path = AdminCreateAbsenceRoute.generate({
     organizationId: "1006",
@@ -78,8 +93,11 @@ export const AsAdmin = () => {
     logMissingMocks: true,
     mocks: {
       Query: () => ({
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
+        }),
         absence: () => ({
-          // projectedVacancies: basicProjectedVacancies,
+          projectedVacancies: basicProjectedVacancies,
           replacementEmployeesForVacancy: {
             totalCount: basicReplacementEmployees.length,
             results: basicReplacementEmployees,
@@ -116,6 +134,9 @@ export const AsEmployee = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
+        }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,
           replacementEmployeesForVacancy: {
@@ -155,6 +176,9 @@ export const AsSubNotNeededEmployee = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
+        }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,
           replacementEmployeesForVacancy: {
@@ -214,6 +238,9 @@ export const AsSubNeededEmployee = () => {
               needsReplacement: NeedsReplacement.Yes,
             },
           },
+        }),
+        orgRef_AbsenceReason: () => ({
+          all: () => allAbsenceReasons,
         }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,

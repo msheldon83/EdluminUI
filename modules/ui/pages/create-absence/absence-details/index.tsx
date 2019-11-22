@@ -6,38 +6,32 @@ import {
   Paper,
   TextField,
   Typography,
-  Chip,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
-import { addMonths, endOfMonth, format, parseISO, startOfDay } from "date-fns";
-import { eachDayOfInterval } from "date-fns/esm";
+import { isValid, parseISO } from "date-fns";
 import { SetValue } from "forms";
-import { HookQueryResult, useQueryBundle } from "graphql/hooks";
 import {
-  CalendarDayType,
   DayPart,
   FeatureFlag,
   NeedsReplacement,
   Vacancy,
 } from "graphql/server-types.gen";
 import * as React from "react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
+import { AssignedSub } from "ui/components/absence/assigned-sub";
+import { dayPartToLabel } from "ui/components/absence/helpers";
 import {
   DatePicker,
   DatePickerOnChange,
   DatePickerOnMonthChange,
 } from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
-import {
-  GetEmployeeContractSchedule,
-  GetEmployeeContractScheduleQuery,
-  GetEmployeeContractScheduleQueryVariables,
-} from "../graphql/get-contract-schedule.gen";
+import { TimeInput } from "ui/components/form/time-input";
 import { CreateAbsenceActions, CreateAbsenceState } from "../state";
 import { Step } from "../step-params";
 import { CreateAbsenceFormData } from "../ui";
@@ -52,6 +46,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   vacancies: Vacancy[];
   setStep: (S: Step) => void;
+  disabledDates: Date[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -67,20 +62,38 @@ export const AbsenceDetails: React.FC<Props> = props => {
     dispatch,
   } = props;
 
-  const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
-    variables: {
-      id: state.employeeId,
-      fromDate: format(addMonths(state.viewingCalendarMonth, -1), "yyyy-M-d"),
-      toDate: format(
-        endOfMonth(addMonths(state.viewingCalendarMonth, 2)),
-        "yyyy-M-d"
-      ),
-    },
-  });
+  const [hourlyStartTime, setHourlyStartTime] = useState<string | undefined>();
+  const [hourlyEndTime, setHourlyEndTime] = useState<string | undefined>();
 
-  const disabledDates = useMemo(() => computeDisabledDates(contractSchedule), [
-    contractSchedule,
-  ]);
+  useEffect(() => {
+    const parsedStartTimeDate = parseISO(hourlyStartTime ?? "");
+    const startTimeDate = isValid(parsedStartTimeDate)
+      ? parsedStartTimeDate
+      : undefined;
+    onHourlyStartTimeChange(startTimeDate);
+  }, [hourlyStartTime]);
+
+  const onHourlyStartTimeChange = React.useCallback(
+    async (startTime?: Date | undefined) => {
+      await setValue("hourlyStartTime", startTime);
+    },
+    [setValue]
+  );
+
+  useEffect(() => {
+    const parsedEndTimeDate = parseISO(hourlyEndTime ?? "");
+    const endTimeDate = isValid(parsedEndTimeDate)
+      ? parsedEndTimeDate
+      : undefined;
+    onHourlyEndTimeChange(endTimeDate);
+  }, [hourlyEndTime]);
+
+  const onHourlyEndTimeChange = React.useCallback(
+    async (endTime?: Date | undefined) => {
+      await setValue("hourlyEndTime", endTime);
+    },
+    [setValue]
+  );
 
   const absenceReasons = useAbsenceReasons(state.organizationId);
   const absenceReasonOptions = useMemo(
@@ -135,6 +148,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [dispatch]
   );
 
+  const removePrearrangedReplacementEmployee = async () => {
+    await setValue("replacementEmployeeId", undefined);
+    await setValue("replacementEmployeeName", undefined);
+  };
+
+  const hasVacancies = !!(props.vacancies && props.vacancies.length);
+
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -162,7 +182,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           startLabel={t("From")}
           endLabel={t("To")}
           onMonthChange={onMonthChange}
-          disableDates={disabledDates}
+          disableDates={props.disabledDates}
         />
 
         <RadioGroup
@@ -179,21 +199,44 @@ export const AbsenceDetails: React.FC<Props> = props => {
             />
           ))}
         </RadioGroup>
+        {values.dayPart === DayPart.Hourly && (
+          <div className={classes.hourlyTimes}>
+            <div className={classes.time}>
+              <TimeInput
+                label=""
+                value={hourlyStartTime}
+                onValidTime={time => setHourlyStartTime(time)}
+                onChange={value => setHourlyStartTime(value)}
+              />
+            </div>
+            <div className={classes.time}>
+              <TimeInput
+                label=""
+                value={hourlyEndTime}
+                onValidTime={time => setHourlyEndTime(time)}
+                onChange={value => setHourlyEndTime(value)}
+                earliestTime={hourlyStartTime}
+              />
+            </div>
+          </div>
+        )}
 
-        <Typography variant="h6">{t("Notes for administration")}</Typography>
-        <Typography className={classes.subText}>
-          {t("Can be seen by the administrator and the employee.")}
-        </Typography>
+        <div className={classes.notesForApprover}>
+          <Typography variant="h6">{t("Notes for administration")}</Typography>
+          <Typography className={classes.subText}>
+            {t("Can be seen by the administrator and the employee.")}
+          </Typography>
 
-        <TextField
-          multiline
-          rows="6"
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          onChange={onNotesToApproverChange}
-          InputProps={{ classes: textFieldClasses }}
-        />
+          <TextField
+            multiline
+            rows="6"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            onChange={onNotesToApproverChange}
+            InputProps={{ classes: textFieldClasses }}
+          />
+        </div>
       </Grid>
 
       <Grid item md={6}>
@@ -207,6 +250,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </Typography>
 
         <Paper>
+          {values.replacementEmployeeId && (
+            <AssignedSub
+              employeeId={values.replacementEmployeeId}
+              employeeName={values.replacementEmployeeName || ""}
+              subText={t("pre-arranged")}
+              onRemove={removePrearrangedReplacementEmployee}
+            />
+          )}
           <div className={classes.container}>
             {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
               <FormControlLabel
@@ -215,6 +266,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                   <Checkbox
                     checked={state.needsReplacement}
                     onChange={onNeedsReplacementChange}
+                    color="primary"
                   />
                 }
               />
@@ -263,7 +315,6 @@ const useStyles = makeStyles(theme => ({
   radioGroup: {
     paddingTop: theme.spacing(1),
     paddingLeft: theme.spacing(1),
-    paddingBottom: theme.spacing(3),
   },
   spacing: {
     paddingRight: theme.spacing(4),
@@ -279,12 +330,19 @@ const useStyles = makeStyles(theme => ({
   substituteRequiredText: {
     fontStyle: "italic",
   },
-  notesForReplacement: {
+  hourlyTimes: {
+    paddingLeft: theme.spacing(4),
+    display: "flex",
+  },
+  time: {
+    width: "40%",
+    paddingLeft: theme.spacing(),
+  },
+  notesForApprover: {
     paddingTop: theme.spacing(3),
   },
-  preArrangedChip: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+  notesForReplacement: {
+    paddingTop: theme.spacing(3),
   },
 }));
 
@@ -293,29 +351,6 @@ const useTextFieldClasses = makeStyles(theme => ({
     padding: theme.spacing(1),
   },
 }));
-
-const dayPartToLabel = (dayPart: DayPart): string => {
-  switch (dayPart) {
-    case DayPart.FullDay:
-      return "Full Day";
-    case DayPart.HalfDayMorning:
-      return "Half Day AM";
-    case DayPart.HalfDayAfternoon:
-      return "Half Day PM";
-    case DayPart.Hourly:
-      return "Hourly";
-    case DayPart.QuarterDayEarlyMorning:
-      return "Quarter Day Early Morning";
-    case DayPart.QuarterDayLateMorning:
-      return "Quarter Day Late Morning";
-    case DayPart.QuarterDayEarlyAfternoon:
-      return "Quarter Day Early Afternoon";
-    case DayPart.QuarterDayLateAfternoon:
-      return "Quarter Day Late Afternoon";
-    default:
-      return "Other";
-  }
-};
 
 const featureFlagsToDayPartOptions = (
   featureFlags: FeatureFlag[]
@@ -345,39 +380,4 @@ const featureFlagsToDayPartOptions = (
     }
   });
   return dayPartOptions;
-};
-
-const computeDisabledDates = (
-  queryResult: HookQueryResult<
-    GetEmployeeContractScheduleQuery,
-    GetEmployeeContractScheduleQueryVariables
-  >
-) => {
-  if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {
-    return [];
-  }
-  const dates = new Set<Date>();
-  queryResult.data.employee?.employeeContractSchedule?.forEach(contractDate => {
-    switch (contractDate?.calendarDayTypeId) {
-      case CalendarDayType.CancelledDay:
-      case CalendarDayType.Invalid:
-      case CalendarDayType.NonWorkDay: {
-        const theDate = startOfDay(parseISO(contractDate.date));
-        dates.add(theDate);
-      }
-    }
-  });
-  queryResult.data.employee?.employeeAbsenceSchedule?.forEach(absence => {
-    const startDate = absence?.startDate;
-    const endDate = absence?.endDate;
-    if (startDate && endDate) {
-      eachDayOfInterval({
-        start: parseISO(startDate),
-        end: parseISO(endDate),
-      }).forEach(day => {
-        dates.add(startOfDay(day));
-      });
-    }
-  });
-  return [...dates];
 };

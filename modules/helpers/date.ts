@@ -100,15 +100,6 @@ export const inDateInterval = (
   return isWithinInterval(day, { start, end });
 };
 
-export const getDaysInDateRange = (startDate: Date, endDate: Date): Date[] => {
-  const days = differenceInDays(endDate, startDate);
-  if (isNaN(days) || days < 0) {
-    return [];
-  }
-
-  return [...Array(days + 1).keys()].map(i => addDays(startDate, i));
-};
-
 export const getDateRangeDisplayText = (
   startDate: Date | null,
   endDate: Date | null
@@ -152,20 +143,3 @@ export const convertStringToDate = (dateString: string): Date | null => {
 
   return null;
 };
-
-// export const getDurationOfDateRange = (
-//   startDate: Date | null,
-//   endDate: Date | null
-// ): string | null => {
-//   if (!startDate || !endDate) {
-//     return null;
-//   }
-
-//   const days = differenceInDays(endDate, startDate);
-//   // if (isNaN(days) || days < 0) {
-//   //   return [];
-//   // }
-
-//   return days === 1 ? "1 day" : `${days} days`;
-//   // return formatDistance(startDate, endDate);
-// };

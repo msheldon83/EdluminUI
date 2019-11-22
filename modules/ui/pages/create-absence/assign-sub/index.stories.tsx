@@ -4,9 +4,8 @@ import { AssignSub } from "./index";
 import {
   VacancyQualification,
   VacancyAvailability,
-  NeedsReplacement,
-  VacancyDetail,
   Vacancy,
+  VacancyDetail,
 } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
 
@@ -116,13 +115,17 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
         vacancies={
           [
             {
+              startDate: "2019-11-1",
               startTimeLocal: new Date("11/1/2019 08:00 AM"),
+              endDate: "2019-11-3",
               endTimeLocal: new Date("11/3/2019 05:00 PM"),
               numDays: 3,
               positionId: 1,
               details: [
                 {
+                  startDate: "2019-11-1",
                   startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                  endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 09:00 AM"),
                   locationId: 1,
                   location: {
@@ -130,7 +133,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-1",
                   startTimeLocal: new Date("11/1/2019 09:00 AM"),
+                  endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 12:00 PM"),
                   locationId: 2,
                   location: {
@@ -138,7 +143,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-1",
                   startTimeLocal: new Date("11/1/2019 01:00 PM"),
+                  endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 05:00 PM"),
                   locationId: 3,
                   location: {
@@ -146,7 +153,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-2",
                   startTimeLocal: new Date("11/2/2019 07:00 AM"),
+                  endDate: "2019-11-2",
                   endTimeLocal: new Date("11/2/2019 09:00 AM"),
                   locationId: 1,
                   location: {
@@ -154,7 +163,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-2",
                   startTimeLocal: new Date("11/2/2019 09:00 AM"),
+                  endDate: "2019-11-2",
                   endTimeLocal: new Date("11/2/2019 12:00 PM"),
                   locationId: 2,
                   location: {
@@ -162,7 +173,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-2",
                   startTimeLocal: new Date("11/2/2019 01:00 PM"),
+                  endDate: "2019-11-2",
                   endTimeLocal: new Date("11/2/2019 05:00 PM"),
                   locationId: 3,
                   location: {
@@ -170,7 +183,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-3",
                   startTimeLocal: new Date("11/3/2019 07:00 AM"),
+                  endDate: "2019-11-3",
                   endTimeLocal: new Date("11/3/2019 09:00 AM"),
                   locationId: 1,
                   location: {
@@ -178,7 +193,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-3",
                   startTimeLocal: new Date("11/3/2019 09:00 AM"),
+                  endDate: "2019-11-3",
                   endTimeLocal: new Date("11/3/2019 12:00 PM"),
                   locationId: 2,
                   location: {
@@ -186,7 +203,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-3",
                   startTimeLocal: new Date("11/3/2019 01:00 PM"),
+                  endDate: "2019-11-3",
                   endTimeLocal: new Date("11/3/2019 05:00 PM"),
                   locationId: 3,
                   location: {
@@ -196,13 +215,17 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
               ] as Maybe<VacancyDetail[]>,
             },
             {
+              startDate: "2019-11-6",
               startTimeLocal: new Date("11/6/2019 08:00 AM"),
+              endDate: "2019-11-7",
               endTimeLocal: new Date("11/7/2019 05:00 PM"),
               numDays: 2,
               positionId: 1,
               details: [
                 {
+                  startDate: "2019-11-6",
                   startTimeLocal: new Date("11/6/2019 07:00 AM"),
+                  endDate: "2019-11-6",
                   endTimeLocal: new Date("11/6/2019 09:00 AM"),
                   locationId: 1,
                   location: {
@@ -210,7 +233,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-6",
                   startTimeLocal: new Date("11/6/2019 09:00 AM"),
+                  endDate: "2019-11-6",
                   endTimeLocal: new Date("11/6/2019 12:00 PM"),
                   locationId: 2,
                   location: {
@@ -218,7 +243,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-6",
                   startTimeLocal: new Date("11/6/2019 01:00 PM"),
+                  endDate: "2019-11-6",
                   endTimeLocal: new Date("11/6/2019 05:00 PM"),
                   locationId: 3,
                   location: {
@@ -226,7 +253,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-7",
                   startTimeLocal: new Date("11/7/2019 07:00 AM"),
+                  endDate: "2019-11-7",
                   endTimeLocal: new Date("11/7/2019 09:00 AM"),
                   locationId: 1,
                   location: {
@@ -234,7 +263,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-7",
                   startTimeLocal: new Date("11/7/2019 09:00 AM"),
+                  endDate: "2019-11-7",
                   endTimeLocal: new Date("11/7/2019 12:00 PM"),
                   locationId: 2,
                   location: {
@@ -242,7 +273,9 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   },
                 },
                 {
+                  startDate: "2019-11-7",
                   startTimeLocal: new Date("11/7/2019 01:00 PM"),
+                  endDate: "2019-11-7",
                   endTimeLocal: new Date("11/7/2019 05:00 PM"),
                   locationId: 3,
                   location: {
@@ -289,13 +322,17 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
         vacancies={
           [
             {
+              startDate: "2019-11-1",
               startTimeLocal: new Date("11/1/2019 08:00 AM"),
+              endDate: "2019-11-10",
               endTimeLocal: new Date("11/10/2019 05:00 PM"),
               numDays: 7,
               positionId: 1,
               details: [
                 {
+                  startDate: "2019-11-1",
                   startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                  endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 05:00 PM"),
                   locationId: 1,
                   location: {
@@ -341,13 +378,17 @@ export const PrearrangeSubAsAdmin = () => {
         vacancies={
           [
             {
+              startDate: "2019-11-1",
               startTimeLocal: new Date("11/1/2019 08:00 AM"),
+              endDate: "2019-11-10",
               endTimeLocal: new Date("11/10/2019 05:00 PM"),
               numDays: 7,
               positionId: 1,
               details: [
                 {
+                  startDate: "2019-11-1",
                   startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                  endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 05:00 PM"),
                   locationId: 1,
                   location: {
@@ -393,13 +434,17 @@ export const PrearrangeSubAsEmployee = () => {
         vacancies={
           [
             {
+              startDate: "2019-11-1",
               startTimeLocal: new Date("11/1/2019 08:00 AM"),
+              endDate: "2019-11-10",
               endTimeLocal: new Date("11/10/2019 05:00 PM"),
               numDays: 7,
               positionId: 1,
               details: [
                 {
+                  startDate: "2019-11-1",
                   startTimeLocal: new Date("11/1/2019 07:00 AM"),
+                  endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 05:00 PM"),
                   locationId: 1,
                   location: {
