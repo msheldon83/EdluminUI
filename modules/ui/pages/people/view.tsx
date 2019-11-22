@@ -203,6 +203,9 @@ export const PersonViewPage: React.FC<{}> = props => {
                   s => s?.name
                 ) ?? []
               }
+              locationNames={
+                orgUser?.employee?.locations?.map(s => s?.name) ?? []
+              }
             />
             <SubstitutePreferences editing={editing} setEditing={setEditing} />
             <ReplacementCriteria editing={editing} setEditing={setEditing} />

@@ -404,9 +404,8 @@ type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainO
   contractId: Int!
   absenceId: Int
   notesToReplacement: String
-  positionName: String!
-  forEmployeeFirstName: String
-  forEmployeeLastName: String
+  position: Position
+  absence: Absence
 }
 
 type Branding implements ModelObjectInterface {
@@ -999,6 +998,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
   endorsements: [EmployeeEndorsement]
+  locations: [Location]
 }
 
 input EmployeeCreateInput {
@@ -1312,6 +1312,8 @@ enum EventType {
   POSITION_SCHEDULE_VARIANT_CREATED
   POSITION_SCHEDULE_VARIANT_UPDATED
   POSITION_SCHEDULE_VARIANT_DELETED
+  POSITION_CHANGED_OBJECT_SCOPE
+  POSITION_CHANGED_POSITION_TYPE
   CALENDAR_CHANGE_CREATED
   CALENDAR_CHANGE_UPDATED
   CALENDAR_CHANGE_DELETED
@@ -1356,6 +1358,7 @@ enum EventType {
   EMPLOYEE_CREATED
   EMPLOYEE_UPDATED
   EMPLOYEE_DELETED
+  EMPLOYEE_CHANGED_OBJECT_SCOPE
   CONTRACTED_ASSIGNMENT_CREATED
   CONTRACTED_ASSIGNMENT_UPDATED
   CONTRACTED_ASSIGNMENT_ENDED
@@ -4024,6 +4027,8 @@ type VacancyQueries {
   byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
+  employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
+  userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
 }
 
 enum VacancyRejectionReason {
