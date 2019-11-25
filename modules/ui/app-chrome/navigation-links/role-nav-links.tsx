@@ -29,6 +29,7 @@ import {
   SubPreferencesNavLink,
 } from "./custom-nav-links";
 import { ConfigurationRoute } from "ui/routes/org-config";
+import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 
 type Props = {
   onClick?: () => void;
@@ -109,9 +110,10 @@ export const AdminNavLinks: React.FC<Props> = props => {
             onClick={props.onClick}
             route={AdminHomeRoute.generate(params)}
           />
+          {/* TODO: For now we'll go directly to Absence Create */}
           <AbsenceNavLink
             onClick={props.onClick}
-            route={adminTbd.generate(params)}
+            route={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
           />
           <AnalyticsAndReportsNavLink
             onClick={props.onClick}
