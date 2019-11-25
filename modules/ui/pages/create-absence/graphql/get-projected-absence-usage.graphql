@@ -1,31 +1,11 @@
 query GetProjectedAbsenceUsage($absence: AbsenceCreateInput!) {
   absence {
     projectedAbsence(absence: $absence) {
-      startDate
-      endDate
       details {
         reasonUsages {
           sequence
           amount
           absenceReasonTrackingTypeId
-        }
-      }
-      vacancies {
-        startDate
-        startTimeLocal
-        endDate
-        endTimeLocal
-        numDays
-        positionId
-        details {
-          startDate
-          startTimeLocal
-          endDate
-          endTimeLocal
-          locationId
-          location {
-            name
-          }
         }
       }
     }

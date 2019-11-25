@@ -175,7 +175,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       formValues.hourlyEndTime,
     ]
   );
-  const getProjectedVacancies = useQueryBundle(GetProjectedAbsenceUsage, {
+  const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
+    variables: {
+      absence: projectedVacanciesInput!,
+    },
+    skip: projectedVacanciesInput === null,
+    onError: () => {},
+  });
+  const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
       absence: projectedVacanciesInput!,
     },
@@ -191,7 +198,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
   getProjectedVacancies.state === "UPDATING"
     ? []
-    : getProjectedVacancies.data?.absence?.projectedAbsence?.vacancies ??
+    : getProjectedVacancies.data?.absence?.projectedVacancies ??
       []) as Vacancy[];
 
   const absenceUsageText = useMemo(() => {
@@ -201,11 +208,17 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       not attempting to implement this calculation in a way that could handle
       multiple absence reasons or differing units.
     */
-    if (getProjectedVacancies.state !== "DONE") return null;
+    if (
+      !(
+        getProjectedAbsenceUsage.state === "DONE" ||
+        getProjectedAbsenceUsage.state === "UPDATING"
+      )
+    )
+      return null;
 
     const usages = compact(
       flatMap(
-        getProjectedVacancies.data.absence?.projectedAbsence?.details,
+        getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
         d => d?.reasonUsages?.map(ru => ru)
       )
     );
