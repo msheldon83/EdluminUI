@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { VacancyDetail } from "graphql/server-types.gen";
 import { Section } from "ui/components/section";
-import { useScreenSize } from "hooks";
+import { useIsMobile } from "hooks";
 
 type Props = {
   vacancyDetail: Pick<
@@ -34,7 +34,7 @@ type Props = {
 export const AssignmentCard: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile;
 
   const [notesAnchor, setNotesAnchor] = React.useState<null | HTMLElement>(
     null
@@ -85,7 +85,7 @@ export const AssignmentCard: React.FC<Props> = props => {
           container
           justify="space-between"
           alignItems="center"
-          spacing={2}
+          spacing={1}
           className={props.shadeRow ? classes.shadedRow : undefined}
         >
           <Grid item xs={6}>

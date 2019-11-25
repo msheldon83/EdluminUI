@@ -18,6 +18,11 @@ export const AvailableJobSingleStory = () => {
         shadeRow={false}
         onDismiss={onDismiss}
       />
+      <AvailableJob
+        vacancy={halfDayAM}
+        shadeRow={false}
+        onDismiss={onDismiss}
+      />
     </div>
   );
 };
@@ -109,6 +114,40 @@ const complexVacancy = ({
   endDate: "2019-11-21",
   notesToReplacement: "These are notes for the substitute.",
   totalDayPortion: 2,
+} as unknown) as Pick<
+  Vacancy,
+  | "id"
+  | "organization"
+  | "position"
+  | "absence"
+  | "startTimeLocal"
+  | "endTimeLocal"
+  | "startDate"
+  | "endDate"
+  | "notesToReplacement"
+  | "totalDayPortion"
+  | "details"
+>;
+
+const halfDayAM = ({
+  id: "1",
+  details: [
+    {
+      location: { name: "Frank's school" },
+      startTimeLocal: "2019-11-20T08:00",
+      endTimeLocal: "2019-11-20T11:00",
+      dayPortion: 0.5,
+    },
+  ],
+  organization: { name: "Frank's District" },
+  position: { name: "Kindergarten Teacher" },
+  absence: { employee: { firstName: "Pam", lastName: "Thomas" } },
+  startTimeLocal: "2019-11-20T08:00",
+  endTimeLocal: "2019-11-20T11:00",
+  startDate: "2019-11-20",
+  endDate: "2019-11-20",
+  notesToReplacement: null,
+  totalDayPortion: 0.5,
 } as unknown) as Pick<
   Vacancy,
   | "id"
