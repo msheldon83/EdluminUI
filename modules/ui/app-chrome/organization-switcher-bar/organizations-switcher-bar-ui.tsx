@@ -22,10 +22,10 @@ export const OrganizationSwitcherBarUI: React.FC<Props> = props => {
   const toolbarClasses = useToolbarClasses();
 
   return (
-    <AppBar position="fixed" className={classes.bottomBar}>
+    <AppBar position="sticky" className={classes.bottomBar}>
       <Toolbar classes={toolbarClasses}>
         <div className={props.contentClassName}>
-          <Grid container alignItems="center">
+          <Grid container alignItems="center" justify="space-between">
             <Typography className={classes.text}>
               {t("You are working in")}&nbsp;
             </Typography>

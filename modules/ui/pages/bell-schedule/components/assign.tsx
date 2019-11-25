@@ -1,14 +1,14 @@
+import { Grid, makeStyles } from "@material-ui/core";
+import { Location, LocationGroup } from "graphql/server-types.gen";
+import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useScreenSize } from "hooks";
-import { makeStyles, Grid } from "@material-ui/core";
+import { useLocationGroups } from "reference-data/location-groups";
+import { useLocations } from "reference-data/locations";
+import { ActionButtons } from "ui/components/action-buttons";
+import { ChipInputAutoSuggest } from "ui/components/chip-input-autosuggest";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { useLocations } from "reference-data/locations";
-import { useLocationGroups } from "reference-data/location-groups";
-import { ChipInputAutoSuggest } from "ui/components/chip-input-autosuggest";
-import { Location, LocationGroup } from "graphql/server-types.gen";
-import { ActionButtons } from "ui/components/action-buttons";
 
 type Props = {
   locationIds: Array<number>;
@@ -25,7 +25,7 @@ type Props = {
 export const Assign: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const [locationIds, setLocationIds] = React.useState<Array<number>>(
     props.locationIds
   );

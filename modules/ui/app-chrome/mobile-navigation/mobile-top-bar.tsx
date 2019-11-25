@@ -18,7 +18,7 @@ export const MobileTopBar: React.FC<Props> = props => {
   const pageTitleContext = usePageTitleContext();
   return (
     <>
-      <AppBar position="fixed">
+      <AppBar position="sticky">
         <LoadingStateIndicator />
         <Toolbar classes={mobileToolbarClasses}>
           <IconButton
@@ -35,7 +35,6 @@ export const MobileTopBar: React.FC<Props> = props => {
           )}
         </Toolbar>
       </AppBar>
-      <Toolbar>{/* This is here to make space for the app bar */}</Toolbar>
     </>
   );
 };

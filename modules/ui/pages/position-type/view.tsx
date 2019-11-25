@@ -1,28 +1,27 @@
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useTranslation } from "react-i18next";
-import { useScreenSize } from "hooks";
-import { Typography } from "@material-ui/core";
-import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
+import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import Maybe from "graphql/tsutils/Maybe";
+import { useIsMobile } from "hooks";
 import * as React from "react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Redirect, useHistory } from "react-router";
+import { getDisplayName } from "ui/components/enumHelpers";
+import { boolToDisplay, minutesToHours } from "ui/components/helpers";
+import { PageHeader } from "ui/components/page-header";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { makeStyles, Grid } from "@material-ui/core";
-import { minutesToHours, boolToDisplay } from "ui/components/helpers";
-import { getDisplayName } from "ui/components/enumHelpers";
-import { Redirect, useHistory } from "react-router";
+import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
+import { useRouteParams } from "ui/routes/definition";
 import {
+  PositionTypeEditSettingsRoute,
   PositionTypeRoute,
   PositionTypeViewRoute,
-  PositionTypeEditSettingsRoute,
 } from "ui/routes/position-type";
-import { useRouteParams } from "ui/routes/definition";
-import { useState } from "react";
 import * as yup from "yup";
-import { UpdatePositionType } from "./graphql/update-position-type.gen";
-import { PageHeader } from "ui/components/page-header";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
-import Maybe from "graphql/tsutils/Maybe";
+import { UpdatePositionType } from "./graphql/update-position-type.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -32,7 +31,7 @@ const editableSections = {
 export const PositionTypeViewPage: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const history = useHistory();
   const params = useRouteParams(PositionTypeViewRoute);
   const [editing, setEditing] = useState<string | null>(null);

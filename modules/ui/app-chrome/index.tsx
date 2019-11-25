@@ -43,23 +43,25 @@ export const AppChrome: React.FunctionComponent = props => {
     return (
       <LoadingStateProvider>
         <PageTitleProvider>
-          <MobileTopBar expandDrawer={expand} />
-          <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
-          <div>
-            <SnackbarProvider>
-              <div />
-              <div className={classes.contentView}>
-                <ErrorBoundary>
-                  <LoadingStateIndicatorFullScreen>
-                    {props.children}
-                  </LoadingStateIndicatorFullScreen>
-                </ErrorBoundary>
-              </div>
-            </SnackbarProvider>
+          <div className={classes.outer}>
+            <MobileTopBar expandDrawer={expand} />
+            <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
+            <div className={classes.mainContent}>
+              <SnackbarProvider>
+                <div />
+                <div className={classes.contentView}>
+                  <ErrorBoundary>
+                    <LoadingStateIndicatorFullScreen>
+                      {props.children}
+                    </LoadingStateIndicatorFullScreen>
+                  </ErrorBoundary>
+                </div>
+              </SnackbarProvider>
+            </div>
+            <Route path={AdminChromeRoute.path}>
+              <OrganizationSwitcherBar />
+            </Route>
           </div>
-          <Route path={AdminChromeRoute.path}>
-            <OrganizationSwitcherBar />
-          </Route>
         </PageTitleProvider>
       </LoadingStateProvider>
     );
@@ -67,57 +69,61 @@ export const AppChrome: React.FunctionComponent = props => {
     return (
       <LoadingStateProvider>
         <PageTitleProvider>
-          <TopBar
-            contentClassName={
-              expanded
-                ? classes.leftPaddingExpanded
-                : classes.leftPaddingCompact
-            }
-          />
-          <NavigationSideBar
-            expanded={expanded}
-            expand={expand}
-            collapse={collapse}
-          />
-          <div className={`${classes.container}`}>
-            <SnackbarProvider>
-              <div
-                className={`${
-                  expanded ? classes.navWidthExpanded : classes.navWidthCompact
-                }`}
-              >
-                <div className={classes.fabContainer}>
-                  <Fab
-                    onClick={toggleExpand}
-                    size="small"
-                    className={classes.fab}
-                  >
-                    {expanded ? (
-                      <ChevronLeftIcon className={classes.white} />
-                    ) : (
-                      <ChevronRightIcon className={classes.white} />
-                    )}
-                  </Fab>
-                </div>
-              </div>
-              <div className={`${classes.contentView}`}>
-                <ErrorBoundary>
-                  <LoadingStateIndicatorFullScreen>
-                    {props.children}
-                  </LoadingStateIndicatorFullScreen>
-                </ErrorBoundary>
-              </div>
-            </SnackbarProvider>
-          </div>
-          <Route path={AdminChromeRoute.path}>
-            <OrganizationSwitcherBar
+          <div className={classes.outer}>
+            <TopBar
               contentClassName={
                 expanded
                   ? classes.leftPaddingExpanded
                   : classes.leftPaddingCompact
               }
             />
-          </Route>
+            <NavigationSideBar
+              expanded={expanded}
+              expand={expand}
+              collapse={collapse}
+            />
+            <div className={`${classes.container}`}>
+              <SnackbarProvider>
+                <div
+                  className={`${
+                    expanded
+                      ? classes.navWidthExpanded
+                      : classes.navWidthCompact
+                  }`}
+                >
+                  <div className={classes.fabContainer}>
+                    <Fab
+                      onClick={toggleExpand}
+                      size="small"
+                      className={classes.fab}
+                    >
+                      {expanded ? (
+                        <ChevronLeftIcon className={classes.white} />
+                      ) : (
+                        <ChevronRightIcon className={classes.white} />
+                      )}
+                    </Fab>
+                  </div>
+                </div>
+                <div className={`${classes.contentView}`}>
+                  <ErrorBoundary>
+                    <LoadingStateIndicatorFullScreen>
+                      {props.children}
+                    </LoadingStateIndicatorFullScreen>
+                  </ErrorBoundary>
+                </div>
+              </SnackbarProvider>
+            </div>
+            <Route path={AdminChromeRoute.path}>
+              <OrganizationSwitcherBar
+                contentClassName={
+                  expanded
+                    ? classes.leftPaddingExpanded
+                    : classes.leftPaddingCompact
+                }
+              />
+            </Route>
+          </div>
         </PageTitleProvider>
       </LoadingStateProvider>
     );
@@ -125,9 +131,19 @@ export const AppChrome: React.FunctionComponent = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  outer: {
+    display: "flex",
+    maxWidth: "100%",
+    flexDirection: "column",
+    minHeight: "100%",
+    flexGrow: 1,
+  },
+  mainContent: { flexGrow: 1 },
   container: {
     display: "flex",
     flexDirection: "row",
+    alignItems: "stretch",
+    flexGrow: 1,
   },
   navWidthExpanded: {
     flexShrink: 0,
@@ -152,7 +168,8 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     padding: theme.spacing(4),
     [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(2),
+      padding: theme.spacing(0),
+      paddingTop: theme.spacing(2),
     },
   },
   name: {

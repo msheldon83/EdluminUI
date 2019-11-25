@@ -1,12 +1,12 @@
+import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { Check, Clear, Edit } from "@material-ui/icons";
+import { Formik } from "formik";
+import Maybe from "graphql/tsutils/Maybe";
+import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles, Grid, Typography } from "@material-ui/core";
-import { Edit, Clear, Check } from "@material-ui/icons";
-import { Option, ActionMenu } from "./action-menu";
-import { Formik } from "formik";
 import { TextField as FormTextField } from "ui/components/form/text-field";
-import { useScreenSize } from "hooks";
-import Maybe from "graphql/tsutils/Maybe";
+import { ActionMenu, Option } from "./action-menu";
 import { TextButton } from "./text-button";
 
 type Props = {
@@ -28,7 +28,7 @@ type Props = {
 export const PageHeader: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const [editing, setEditing] = React.useState(false);
 
   const wrapper = (child: JSX.Element) => {

@@ -1,25 +1,23 @@
+import {
+  FormControlLabel,
+  FormHelperText,
+  Grid,
+  makeStyles,
+  Radio,
+  RadioGroup,
+} from "@material-ui/core";
+import { Formik } from "formik";
+import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useScreenSize } from "hooks";
-import {
-  makeStyles,
-  Grid,
-  Typography,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  Checkbox,
-  FormHelperText,
-} from "@material-ui/core";
-import * as yup from "yup";
-import { Formik } from "formik";
+import { OptionTypeBase } from "react-select/src/types";
+import { Input } from "ui/components/form/input";
+import { Select, SelectValueType } from "ui/components/form/select";
+import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { TextField as FormTextField } from "ui/components/form/text-field";
+import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
-import { SelectValueType, Select } from "ui/components/form/select";
-import { Input } from "ui/components/form/input";
-import { OptionTypeBase } from "react-select/src/types";
 import { ScheduleSettings } from "../add";
 
 type Props = {
@@ -49,7 +47,7 @@ const buildPeriodOptions = () => {
 export const AddBasicInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const [isBasicSchedule, setIsBasicSchedule] = React.useState(
     props.scheduleSettings.isBasic
   );

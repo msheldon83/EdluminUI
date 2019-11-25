@@ -24,6 +24,7 @@ import {
   AbsenceDetailCreateInput,
   Absence,
   CalendarDayType,
+  AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useReducer, useState, useMemo } from "react";
@@ -46,7 +47,8 @@ import {
   GetEmployeeContractScheduleQuery,
   GetEmployeeContractScheduleQueryVariables,
 } from "./graphql/get-contract-schedule.gen";
-import { differenceWith } from "lodash-es";
+import { differenceWith, flatMap, compact } from "lodash-es";
+import { GetProjectedAbsenceUsage } from "./graphql/get-projected-absence-usage.gen";
 
 type Props = {
   firstName: string;
@@ -177,14 +179,21 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   );
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
-      absence: projectedVacanciesInput,
+      absence: projectedVacanciesInput!,
     },
     skip: projectedVacanciesInput === null,
+    onError: () => {},
+  });
+  const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
+    variables: {
+      absence: projectedVacanciesInput!,
+    },
+    skip: projectedVacanciesInput === null,
+    // fetchPolicy: "no-cache",
     onError: error => {
       // This shouldn't prevent the User from continuing on
       // with Absence Create. Any major issues will be caught
       // and reported back to them when calling the Create mutation.
-      console.error("Error trying to get projected vacancies", error);
     },
   });
 
@@ -193,6 +202,43 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     ? []
     : getProjectedVacancies.data?.absence?.projectedVacancies ??
       []) as Vacancy[];
+
+  const absenceUsageText = useMemo(() => {
+    /*
+      cf 2019-11-21
+      Given that we can't select multiple absence reasons via the UI, I'm
+      not attempting to implement this calculation in a way that could handle
+      multiple absence reasons or differing units.
+    */
+    if (
+      !(
+        getProjectedAbsenceUsage.state === "DONE" ||
+        getProjectedAbsenceUsage.state === "UPDATING"
+      )
+    )
+      return null;
+
+    const usages = compact(
+      flatMap(
+        getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
+        d => d?.reasonUsages?.map(ru => ru)
+      )
+    );
+
+    if (usages.length < 1) return null;
+
+    const type = usages[0].absenceReasonTrackingTypeId!;
+    const amount = usages.reduce((m, v) => m + v.amount, 0);
+    const unitText = {
+      [AbsenceReasonTrackingTypeId.Invalid]: null,
+      [AbsenceReasonTrackingTypeId.Daily]: ["day", "days"],
+      [AbsenceReasonTrackingTypeId.Hourly]: ["hour", "hours"],
+    }[type];
+    if (!unitText) return null;
+    return `${t("Uses")} ${amount} ${t(unitText[Number(amount !== 1)])} ${t(
+      "of your balance"
+    )}`;
+  }, [getProjectedVacancies]);
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -287,6 +333,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
                 disabledDates={disabledDates}
+                balanceUsageText={absenceUsageText || undefined}
               />
             </Section>
           </>

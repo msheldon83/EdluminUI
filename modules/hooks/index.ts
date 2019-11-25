@@ -27,6 +27,8 @@ export const useScreenSize = (): ScreenSize => {
   return "medium";
 };
 
+export const useIsMobile = () => useScreenSize() === "mobile";
+
 export const useDeferredState = <T>(
   initialT: T,
   delay: number

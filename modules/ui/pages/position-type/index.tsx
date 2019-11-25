@@ -1,30 +1,30 @@
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useTranslation } from "react-i18next";
-import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/graphql/position-types.gen";
-import * as React from "react";
-import { Table } from "ui/components/table";
-import { PageTitle } from "ui/components/page-title";
-import {
-  PositionTypeViewRoute,
-  PositionTypeRoute,
-  PositionTypeAddRoute,
-} from "ui/routes/position-type";
-import { useHistory } from "react-router";
-import { useRouteParams } from "ui/routes/definition";
-import { Link } from "react-router-dom";
-import { makeStyles, Grid, Button } from "@material-ui/core";
-import { compact } from "lodash-es";
-import { useScreenSize } from "hooks";
-import { Column } from "material-table";
-import { DeletePostionType } from "./graphql/DeletePositionType.gen";
+import { Button, Grid, makeStyles } from "@material-ui/core";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useIsMobile } from "hooks";
+import { compact } from "lodash-es";
+import { Column } from "material-table";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
+import { PageTitle } from "ui/components/page-title";
+import { Table } from "ui/components/table";
+import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/graphql/position-types.gen";
+import { useRouteParams } from "ui/routes/definition";
+import {
+  PositionTypeAddRoute,
+  PositionTypeRoute,
+  PositionTypeViewRoute,
+} from "ui/routes/position-type";
+import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 
 export const PositionTypePage: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PositionTypeRoute);
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
