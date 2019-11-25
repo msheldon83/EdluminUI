@@ -5,6 +5,7 @@ import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { GetProjectedVacancies } from "../graphql/get-projected-vacancies.gen";
 import { EditVacancies } from ".";
 import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
+import { VacancyDetail } from "../types";
 
 export default {
   title: "Pages/Create Absence/Edit Absence",
@@ -74,7 +75,7 @@ export const AsAdmin = () => {
       <Route path={AdminCreateAbsenceRoute.path}>
         <EditVacancies
           employeeName="Jane Doe"
-          vacancies={projectedVacancies as Vacancy[]}
+          details={projectedVacancies as VacancyDetail[]}
           positionName="Math Teacher"
           onChangedVacancies={() => {}}
           onCancel={() => {}}

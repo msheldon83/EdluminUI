@@ -7,9 +7,10 @@ import { getVacancyDetailsGrouping } from "ui/components/absence/helpers";
 import { EditVacancyFormData } from ".";
 import { VacancySummaryHeader } from "../../../components/absence/vacancy-summary-header";
 import { EditableVacancyDetailGroup } from "./editable-vacancy-details-group";
+import { GetProjectedVacancies } from "../graphql/get-projected-vacancies.gen";
 
 type Props = {
-  vacancies: Vacancy[];
+  projectedVacancies: GetProjectedVacancies.ProjectedVacancies[];
   positionName?: string | null | undefined;
   showHeader?: boolean;
   equalWidthDetails?: boolean;
@@ -22,11 +23,11 @@ type Props = {
 
 export const EditableVacancyDetails: React.FC<Props> = props => {
   const classes = useStyles();
-  if (!props.vacancies || !props.vacancies.length) {
+  if (!props.projectedVacancies || !props.projectedVacancies.length) {
     return <></>;
   }
 
-  const sortedVacancies = props.vacancies
+  const sortedVacancies = props.projectedVacancies
     .slice()
     .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
 
@@ -36,7 +37,7 @@ export const EditableVacancyDetails: React.FC<Props> = props => {
         <Grid item xs={12}>
           <VacancySummaryHeader
             positionName={props.positionName}
-            vacancies={props.vacancies}
+            vacancies={props.projectedVacancies}
           />
           <Divider className={classes.divider} />
         </Grid>

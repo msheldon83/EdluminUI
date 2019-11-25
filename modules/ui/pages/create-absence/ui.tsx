@@ -36,14 +36,14 @@ import { useQueryParamIso } from "hooks/query-params";
 import { useSnackbar } from "hooks/use-snackbar";
 import { differenceWith, compact, flatMap } from "lodash-es";
 import * as React from "react";
-import { useMemo, useReducer, useState } from "react";
+import { useMemo, useReducer, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
 import { AssignSub } from "./assign-sub/index";
 import { Confirmation } from "./confirmation";
-import { EditVacancies, EditVacancyFormData } from "./edit-vacancies";
+import { EditVacancies } from "./edit-vacancies";
 import { CreateAbsence } from "./graphql/create.gen";
 import {
   GetEmployeeContractSchedule,
@@ -53,6 +53,7 @@ import {
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
+import { VacancyDetail } from "./types";
 
 type Props = {
   firstName: string;
@@ -72,7 +73,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const [absence, setAbsence] = useState<Absence>();
 
-  const [vacanciesInput, setVacanciesInput] = useState<AbsenceVacancyInput[]>();
+  const [vacanciesInput, setVacanciesInput] = useState<VacancyDetail[]>([]);
 
   const [createAbsence] = useMutationBundle(CreateAbsence, {
     onError: error => {
@@ -147,7 +148,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   ]);
   // debugger;
   const projectedVacanciesInput = buildAbsenceCreateInput(
-    { ...formValues, vacancies: vacanciesInput },
+    formValues,
     Number(state.organizationId),
     Number(state.employeeId),
     Number(props.positionId),
@@ -168,11 +169,48 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     },
   });
 
-  const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
-  getProjectedVacancies.state === "UPDATING"
-    ? []
-    : getProjectedVacancies.data?.absence?.projectedVacancies ??
-      []) as Vacancy[];
+  const projectedVacancyDetails: VacancyDetail[] = useMemo(() => {
+    console.log("recomputing projectedVacancyDetails");
+    /* cf 2019-11-25
+       we don't currently support having multiple AbsenceVacancyInputs on this page.
+       as such, this projection can't handle that case
+     */
+    if (
+      !(
+        getProjectedVacancies.state === "DONE" ||
+        getProjectedVacancies.state === "UPDATING"
+      )
+    ) {
+      return [];
+    }
+    const vacancies = getProjectedVacancies.data.absence?.projectedVacancies;
+    if (!vacancies || vacancies.length < 1) {
+      return [];
+    }
+    return (vacancies[0]?.details ?? [])
+      .map(d => ({
+        date: d?.startDate,
+        locationId: d?.locationId,
+        startTime: d?.startTimeLocal,
+        endTime: d?.endTimeLocal,
+      }))
+      .filter(
+        (detail): detail is VacancyDetail =>
+          detail.locationId && detail.date && detail.startTime && detail.endTime
+      );
+  }, [getProjectedVacancies.state]);
+
+  useEffect(() => {
+    setVacanciesInput(projectedVacancyDetails);
+  }, [projectedVacancyDetails]);
+
+  const projectedVacancies =
+    getProjectedVacancies.state === "LOADING" ||
+    getProjectedVacancies.state === "UPDATING"
+      ? []
+      : (compact(
+          getProjectedVacancies.data?.absence?.projectedVacancies ?? []
+        ) as Vacancy[]);
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -200,9 +238,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   };
 
   const onChangedVacancies = React.useCallback(
-    (data: EditVacancyFormData) => {
-      console.log("update vacancy input");
-      setVacanciesInput(data.vacancies);
+    (vacancyDetails: VacancyDetail[]) => {
+      console.log("update vacancy input", vacancyDetails);
+      setVacanciesInput(vacancyDetails);
       setStep("absence");
     },
     [setVacanciesInput, setStep]
@@ -276,7 +314,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           employeeName={name}
           positionName={props.positionName}
           onCancel={onCancel}
-          vacancies={projectedVacancies}
+          details={projectedVacancyDetails}
           onChangedVacancies={onChangedVacancies}
         />
       )}
@@ -445,7 +483,7 @@ const buildAbsenceCreateInput = (
     }),
   };
 
-  if (formValues.vacancies) debugger;
+  /* if (formValues.vacancies) debugger; */
   // Populate the Vacancies on the Absence if needed
   if (state.needsReplacement && includeVacanciesIfNeedsReplacement) {
     const vacancyDetails: VacancyDetailInput[] = compact(

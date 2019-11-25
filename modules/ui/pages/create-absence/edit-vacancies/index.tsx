@@ -1,56 +1,32 @@
 import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
-import {
-  Location,
-  VacancyDetailInput,
-  Vacancy,
-  AbsenceVacancyInput,
-} from "graphql/server-types.gen";
+import { useForm } from "forms";
+import { AbsenceVacancyInput, Location } from "graphql/server-types.gen";
+import { compact } from "lodash-es";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
-import { Step } from "../step-params";
-import { CreateAbsenceFormData } from "../ui";
+import { GetProjectedVacancies } from "../graphql/get-projected-vacancies.gen";
 import { EditableVacancyDetails } from "./editable-vacancy-details";
-import { SetValue, Register } from "forms";
-import { flatMap, compact } from "lodash-es";
-import { useForm } from "forms";
+import { VacancyDetail } from "../types";
 
 type Props = {
-  vacancies: Vacancy[];
+  details: VacancyDetail[];
   actingAsEmployee?: boolean;
   positionName?: string;
   employeeName: string;
   onCancel: () => void;
-  onChangedVacancies: (data: EditVacancyFormData) => void;
+  onChangedVacancies: (data: VacancyDetail[]) => void;
 };
 
-export type EditVacancyFormData = {
-  vacancies: AbsenceVacancyInput[];
+type EditVacancyFormData = {
+  details: VacancyDetail[];
 };
 
 export const EditVacancies: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const inputs: AbsenceVacancyInput[] = props.vacancies.map(v => ({
-    positionId: v.positionId,
-    details: compact(
-      v.details?.map(d => {
-        if (!d || !d.locationId) {
-          return null;
-        } else {
-          return {
-            locationId: d.locationId,
-            date: d?.startDate,
-            startTime: d?.startTimeLocal,
-            endTime: d?.endTimeLocal,
-          };
-        }
-      })
-    ),
-  }));
-
-  const initialFormData: EditVacancyFormData = { vacancies: inputs };
+  const initialFormData: EditVacancyFormData = { details: props.details };
   console.log("initial form data edit", initialFormData);
 
   const {
@@ -67,8 +43,8 @@ export const EditVacancies: React.FC<Props> = props => {
   return (
     <form
       onSubmit={handleSubmit((data, e) => {
-        console.log(data);
-        props.onChangedVacancies(data);
+        console.log("vacancy form submit", data);
+        props.onChangedVacancies(props.details);
       })}
     >
       <Typography variant={props.actingAsEmployee ? "h1" : "h5"}>
@@ -80,7 +56,7 @@ export const EditVacancies: React.FC<Props> = props => {
 
       <Section className={classes.vacancyDetails}>
         <EditableVacancyDetails
-          vacancies={props.vacancies}
+          projectedVacancies={props.details}
           showHeader
           positionName={props.positionName}
           values={formValues}
