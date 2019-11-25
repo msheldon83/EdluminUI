@@ -76,8 +76,8 @@ export const AsAdmin = () => {
           employeeName="Jane Doe"
           vacancies={projectedVacancies as Vacancy[]}
           positionName="Math Teacher"
-          handleSubmit={() => {}}
-          setStep={() => {}}
+          onChangedVacancies={() => {}}
+          onCancel={() => {}}
         />
       </Route>
     </Provider>

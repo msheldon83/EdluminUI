@@ -28,12 +28,13 @@ import {
   DayPart,
   NeedsReplacement,
   Vacancy,
+  VacancyDetailInput,
 } from "graphql/server-types.gen";
 import { isAfterDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
 import { useSnackbar } from "hooks/use-snackbar";
-import { differenceWith, compact } from "lodash-es";
+import { differenceWith, compact, flatMap } from "lodash-es";
 import * as React from "react";
 import { useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -42,7 +43,7 @@ import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
 import { AssignSub } from "./assign-sub/index";
 import { Confirmation } from "./confirmation";
-import { EditVacancies } from "./edit-vacancies";
+import { EditVacancies, EditVacancyFormData } from "./edit-vacancies";
 import { CreateAbsence } from "./graphql/create.gen";
 import {
   GetEmployeeContractSchedule,
@@ -102,7 +103,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     startDate: today,
     endDate: today,
     absenceReason: "",
-    // vacancies: vacanciesInput,
   };
 
   const {
@@ -145,9 +145,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const disabledDates = useMemo(() => computeDisabledDates(contractSchedule), [
     contractSchedule,
   ]);
-
+  // debugger;
   const projectedVacanciesInput = buildAbsenceCreateInput(
-    formValues,
+    { ...formValues, vacancies: vacanciesInput },
     Number(state.organizationId),
     Number(state.employeeId),
     Number(props.positionId),
@@ -199,10 +199,16 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     return result?.data?.absence?.create as Absence;
   };
 
-  const logData = React.useCallback(
-    () => handleSubmit((data, e) => console.log(data)),
-    [handleSubmit]
+  const onChangedVacancies = React.useCallback(
+    (data: EditVacancyFormData) => {
+      console.log("update vacancy input");
+      setVacanciesInput(data.vacancies);
+      setStep("absence");
+    },
+    [setVacanciesInput, setStep]
   );
+  const onCancel = React.useCallback(() => setStep("absence"), [setStep]);
+
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
@@ -269,9 +275,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           actingAsEmployee={props.actingAsEmployee}
           employeeName={name}
           positionName={props.positionName}
-          setStep={setStep}
+          onCancel={onCancel}
           vacancies={projectedVacancies}
-          handleSubmit={logData}
+          onChangedVacancies={onChangedVacancies}
         />
       )}
     </>
@@ -305,7 +311,7 @@ export type CreateAbsenceFormData = {
   notesToReplacement?: string;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
-  // vacancies?: AbsenceVacancyInput[];
+  vacancies?: AbsenceVacancyInput[];
 };
 
 const computeDisabledDates = (
@@ -439,8 +445,13 @@ const buildAbsenceCreateInput = (
     }),
   };
 
+  if (formValues.vacancies) debugger;
   // Populate the Vacancies on the Absence if needed
   if (state.needsReplacement && includeVacanciesIfNeedsReplacement) {
+    const vacancyDetails: VacancyDetailInput[] = compact(
+      flatMap(formValues.vacancies?.map(v => v.details || null))
+    );
+
     absence = {
       ...absence,
       /* TODO: When we support multi Position Employees we'll need to account for the following:
@@ -452,6 +463,7 @@ const buildAbsenceCreateInput = (
           needsReplacement: state.needsReplacement,
           notesToReplacement: formValues.notesToReplacement,
           prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
+          details: vacancyDetails,
         },
       ],
     };

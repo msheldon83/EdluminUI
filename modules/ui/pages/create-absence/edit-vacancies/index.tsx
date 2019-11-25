@@ -20,9 +20,8 @@ type Props = {
   actingAsEmployee?: boolean;
   positionName?: string;
   employeeName: string;
-  setStep: (S: Step) => void;
-  // setValue: SetValue;
-  handleSubmit: () => void;
+  onCancel: () => void;
+  onChangedVacancies: (data: EditVacancyFormData) => void;
 };
 
 export type EditVacancyFormData = {
@@ -64,8 +63,14 @@ export const EditVacancies: React.FC<Props> = props => {
   } = useForm<EditVacancyFormData>({ defaultValues: initialFormData });
   const formValues = getValues({ nest: true });
   console.log("updated", formValues);
+
   return (
-    <form onSubmit={handleSubmit((data, e) => console.log(data))}>
+    <form
+      onSubmit={handleSubmit((data, e) => {
+        console.log(data);
+        props.onChangedVacancies(data);
+      })}
+    >
       <Typography variant={props.actingAsEmployee ? "h1" : "h5"}>
         {`${t("Create Absence")}: ${t("Editing Substitute Details")}`}
       </Typography>
@@ -90,12 +95,12 @@ export const EditVacancies: React.FC<Props> = props => {
         />
         <Grid container justify="flex-end">
           <Grid item>
-            <Button onClick={() => props.setStep("absence")} variant="outlined">
+            <Button onClick={props.onCancel} variant="outlined">
               {t("Cancel")}
             </Button>
           </Grid>
           <Grid item>
-            <Button onClick={() => props.handleSubmit()} variant="contained">
+            <Button type={"submit"} variant="contained">
               {t("Save")}
             </Button>
           </Grid>
