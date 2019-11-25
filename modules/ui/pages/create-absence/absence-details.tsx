@@ -37,11 +37,6 @@ import { TimeInput } from "ui/components/form/time-input";
 import { VacancyDetails } from "../../components/absence/vacancy-details";
 import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
-import { VacancyDetails } from "../../components/absence/vacancy-details";
-import { useHistory } from "react-router";
-import { dayPartToLabel } from "ui/components/absence/helpers";
-import { AssignedSub } from "ui/components/absence/assigned-sub";
-import { TimeInput } from "ui/components/form/time-input";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { usePayCodes } from "reference-data/pay-codes";
 
