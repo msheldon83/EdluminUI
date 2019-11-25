@@ -5,17 +5,29 @@ import { useTranslation } from "react-i18next";
 import { CreateAbsenceActions } from "./state";
 import { Section } from "ui/components/section";
 import { View as AbsenceView } from "ui/components/absence/view";
+import { useRouteParams } from "ui/routes/definition";
+import {
+  AdminSelectEmployeeForCreateAbsenceRoute,
+  EmployeeCreateAbsenceRoute,
+} from "ui/routes/create-absence";
+import { Link } from "react-router-dom";
 
 type Props = {
   orgId: string;
   absence: Absence | undefined;
   dispatch: React.Dispatch<CreateAbsenceActions>;
   disabledDates: Date[];
+  isAdmin: boolean;
 };
 
 export const Confirmation: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const params = useRouteParams(
+    props.isAdmin
+      ? AdminSelectEmployeeForCreateAbsenceRoute
+      : EmployeeCreateAbsenceRoute
+  );
 
   if (!props.absence) {
     // Redirect the User back to the Absence Details step
@@ -49,7 +61,15 @@ export const Confirmation: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={12} container justify="flex-end" spacing={2}>
           <Grid item>
-            <Button variant="outlined" onClick={() => {}}>
+            <Button
+              variant="outlined"
+              component={Link}
+              to={
+                props.isAdmin
+                  ? AdminSelectEmployeeForCreateAbsenceRoute.generate(params)
+                  : EmployeeCreateAbsenceRoute.generate(params)
+              }
+            >
               {t("Create New")}
             </Button>
           </Grid>

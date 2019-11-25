@@ -103,24 +103,41 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     formState,
     getValues,
     errors,
+    triggerValidation,
   } = useForm<FormData>({
     defaultValues: initialFormData,
   });
+
+  const formValues = getValues();
 
   const required = t("Required");
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "startDate", type: "custom" }, { required });
-  register({ name: "endDate", type: "custom" }, { required });
+  register({ name: "endDate", type: "custom" });
   register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
   register({ name: "replacementEmployeeId", type: "custom" });
   register({ name: "replacementEmployeeName", type: "custom" });
-  register({ name: "hourlyStartTime", type: "custom" });
-  register({ name: "hourlyEndTime", type: "custom" });
-
-  const formValues = getValues();
+  register(
+    { name: "hourlyStartTime", type: "custom" },
+    {
+      validate: value =>
+        formValues.dayPart !== DayPart.Hourly ||
+        value ||
+        t("Start time is required"),
+    }
+  );
+  register(
+    { name: "hourlyEndTime", type: "custom" },
+    {
+      validate: value =>
+        formValues.dayPart !== DayPart.Hourly ||
+        value ||
+        t("End time is required"),
+    }
+  );
 
   const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
     variables: {
@@ -137,13 +154,24 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     contractSchedule,
   ]);
 
-  const projectedVacanciesInput = buildAbsenceCreateInput(
-    formValues,
-    Number(state.organizationId),
-    Number(state.employeeId),
-    Number(props.positionId),
-    disabledDates,
-    false
+  const projectedVacanciesInput = useMemo(
+    () =>
+      buildAbsenceCreateInput(
+        formValues,
+        Number(state.organizationId),
+        Number(state.employeeId),
+        Number(props.positionId),
+        disabledDates,
+        false
+      ),
+    [
+      formValues.startDate,
+      formValues.endDate,
+      formValues.absenceReason,
+      formValues.dayPart,
+      formValues.hourlyStartTime,
+      formValues.hourlyEndTime,
+    ]
   );
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
@@ -251,6 +279,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 dispatch={dispatch}
                 setValue={setValue}
                 values={getValues()}
+                errors={errors}
+                triggerValidation={triggerValidation}
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
@@ -276,6 +306,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             absence={absence}
             dispatch={dispatch}
             disabledDates={disabledDates}
+            isAdmin={props.userIsAdmin}
           />
         )}
       </form>

@@ -304,6 +304,7 @@ export const AsAdminWithAllInformation = () => {
         absence={getAbsence("1", true, true)}
         dispatch={() => {}}
         disabledDates={disabledDates}
+        isAdmin={true}
       />
     </Provider>
   );
@@ -332,6 +333,7 @@ export const AsAdminWithSimpleAbsence = () => {
         absence={getAbsence("1", true, false)}
         dispatch={() => {}}
         disabledDates={disabledDates}
+        isAdmin={true}
       />
     </Provider>
   );
@@ -360,6 +362,7 @@ export const AsAdminWithMinimumInformation = () => {
         absence={getAbsence("2", false, false)}
         dispatch={() => {}}
         disabledDates={disabledDates}
+        isAdmin={true}
       />
     </Provider>
   );

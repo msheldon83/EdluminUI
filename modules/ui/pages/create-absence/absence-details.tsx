@@ -21,7 +21,7 @@ import {
   isAfter,
 } from "date-fns";
 import { eachDayOfInterval } from "date-fns/esm";
-import { SetValue } from "forms";
+import { SetValue, Errors, TriggerValidation } from "forms";
 import { HookQueryResult, useQueryBundle } from "graphql/hooks";
 import {
   CalendarDayType,
@@ -54,6 +54,8 @@ type Props = {
   dispatch: React.Dispatch<CreateAbsenceActions>;
   setValue: SetValue;
   values: FormData;
+  errors: Errors;
+  triggerValidation: TriggerValidation;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
   vacancies: Vacancy[];
@@ -72,6 +74,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
     isAdmin,
     needsReplacement,
     dispatch,
+    errors,
+    triggerValidation,
   } = props;
 
   const [hourlyStartTime, setHourlyStartTime] = useState<string | undefined>();
@@ -88,6 +92,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onHourlyStartTimeChange = React.useCallback(
     async (startTime?: Date | undefined) => {
       await setValue("hourlyStartTime", startTime);
+      await triggerValidation({ name: "hourlyStartTime" });
     },
     [setValue]
   );
@@ -103,8 +108,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onHourlyEndTimeChange = React.useCallback(
     async (endTime?: Date | undefined) => {
       await setValue("hourlyEndTime", endTime);
+      await triggerValidation({ name: "hourlyEndTime" });
     },
-    [setValue]
+    [setValue, triggerValidation]
   );
 
   const [showNotesForReplacement, setShowNotesForReplacement] = useState(
@@ -122,6 +128,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [featureFlags]
   );
 
+  useEffect(() => {
+    if (!values.dayPart && dayPartOptions && dayPartOptions[0]) {
+      // Default the Day Part selection to the first one
+      setValue("dayPart", dayPartOptions[0]);
+    }
+  }, [dayPartOptions]);
+
   const onDateChange: DatePickerOnChange = React.useCallback(
     async ({ startDate, endDate }) => {
       await setValue("startDate", startDate);
@@ -132,8 +145,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onReasonChange = React.useCallback(
     async event => {
       await setValue("absenceReason", event.value);
+      await triggerValidation({ name: "absenceReason" });
     },
-    [setValue]
+    [setValue, triggerValidation]
   );
 
   const onDayPartChange = React.useCallback(
@@ -195,6 +209,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
             onChange={onReasonChange}
             options={absenceReasonOptions}
             isClearable={false}
+            inputStatus={errors.absenceReason ? "error" : undefined}
+            validationMessage={errors.absenceReason?.message}
             // label={t("Reason")}
           />
         </div>
@@ -214,11 +230,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
           aria-label="dayPart"
           className={classes.radioGroup}
         >
-          {dayPartOptions.map(type => (
+          {dayPartOptions.map((type, i) => (
             <FormControlLabel
               key={type}
               value={type}
-              control={<Radio />}
+              control={<Radio checked={type === values.dayPart} />}
               label={t(dayPartToLabel(type))}
             />
           ))}
@@ -231,6 +247,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 value={hourlyStartTime}
                 onValidTime={time => setHourlyStartTime(time)}
                 onChange={value => setHourlyStartTime(value)}
+                inputStatus={errors.hourlyStartTime ? "error" : undefined}
+                validationMessage={errors.hourlyStartTime?.message}
               />
             </div>
             <div className={classes.time}>
@@ -240,6 +258,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 onValidTime={time => setHourlyEndTime(time)}
                 onChange={value => setHourlyEndTime(value)}
                 earliestTime={hourlyStartTime}
+                inputStatus={errors.hourlyEndTime ? "error" : undefined}
+                validationMessage={errors.hourlyEndTime?.message}
               />
             </div>
           </div>
