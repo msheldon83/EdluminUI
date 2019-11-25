@@ -110,6 +110,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
             onClick={props.onClick}
             route={AdminHomeRoute.generate(params)}
           />
+          {/* TODO: For now we'll go directly to Absence Create */}
           <AbsenceNavLink
             onClick={props.onClick}
             route={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
