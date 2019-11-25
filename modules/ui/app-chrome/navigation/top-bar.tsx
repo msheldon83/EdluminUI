@@ -25,7 +25,7 @@ export const TopBar: React.FC<Props> = props => {
 
   return (
     <>
-      <AppBar position="fixed">
+      <AppBar position="sticky">
         <LoadingStateIndicator />
         <div className={props.contentClassName}>
           <Toolbar classes={mobileToolbarClasses}>
@@ -62,7 +62,6 @@ export const TopBar: React.FC<Props> = props => {
           </Toolbar>
         </div>
       </AppBar>
-      <Toolbar>{/* This is here to make space for the app bar */}</Toolbar>
     </>
   );
 };

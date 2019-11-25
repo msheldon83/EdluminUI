@@ -1,12 +1,12 @@
+import { Grid, Typography } from "@material-ui/core";
+import { Formik } from "formik";
+import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useScreenSize } from "hooks";
-import { Grid, Typography } from "@material-ui/core";
-import * as yup from "yup";
-import { Formik } from "formik";
+import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { TextField as FormTextField } from "ui/components/form/text-field";
+import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { Input } from "ui/components/form/input";
 
@@ -23,7 +23,7 @@ type Props = {
 
 export const AddBasicInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
 
   return (
     <Section>

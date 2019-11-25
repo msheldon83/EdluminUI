@@ -1,27 +1,27 @@
-import * as React from "react";
-import { useQueryBundle } from "graphql/hooks";
-import { useTranslation } from "react-i18next";
-import { useScreenSize } from "hooks";
 import {
-  makeStyles,
   Checkbox,
-  Radio,
   FormControlLabel,
   FormHelperText,
+  makeStyles,
+  Radio,
   RadioGroup,
   Typography,
 } from "@material-ui/core";
-import * as yup from "yup";
 import { Formik } from "formik";
-import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
-import { TextField as FormTextField } from "ui/components/form/text-field";
-import { NeedsReplacement, Contract, Maybe } from "graphql/server-types.gen";
-import { ActionButtons } from "../../../components/action-buttons";
-import { Select, SelectValueType } from "ui/components/form/select";
-import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
+import { useQueryBundle } from "graphql/hooks";
+import { Contract, NeedsReplacement } from "graphql/server-types.gen";
+import { useIsMobile } from "hooks";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
 import { Input } from "ui/components/form/input";
+import { Select, SelectValueType } from "ui/components/form/select";
+import { TextField as FormTextField } from "ui/components/form/text-field";
+import { Section } from "ui/components/section";
+import { SectionHeader } from "ui/components/section-header";
+import * as yup from "yup";
+import { ActionButtons } from "../../../components/action-buttons";
+import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
 
 type Props = {
   orgId: string;
@@ -73,7 +73,7 @@ const buildContractOptions = (
 export const Settings: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
 
   const getAllActiveContracts = useQueryBundle(GetAllActiveContracts, {
     variables: { orgId: props.orgId },

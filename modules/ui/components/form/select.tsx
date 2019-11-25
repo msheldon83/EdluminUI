@@ -1,32 +1,31 @@
-import * as React from "react";
-import ReactSelect from "react-select";
+import Chip from "@material-ui/core/Chip";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import Paper from "@material-ui/core/Paper";
+import MuiSelect from "@material-ui/core/Select";
 import {
-  makeStyles,
-  emphasize,
-  Theme,
   createStyles,
+  emphasize,
+  makeStyles,
+  Theme,
   useTheme,
 } from "@material-ui/core/styles";
-import MenuItem from "@material-ui/core/MenuItem";
-import InputLabel from "@material-ui/core/InputLabel";
-import FormControl from "@material-ui/core/FormControl";
-import Typography from "@material-ui/core/Typography";
-import Chip from "@material-ui/core/Chip";
 import TextField, { BaseTextFieldProps } from "@material-ui/core/TextField";
-import Paper from "@material-ui/core/Paper";
-import CancelIcon from "@material-ui/icons/Cancel";
-import MuiSelect from "@material-ui/core/Select";
+import Typography from "@material-ui/core/Typography";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import FormHelperText from "@material-ui/core/FormHelperText";
-
 // Types from react-select
 import { ValueType } from "react-select/src/types";
+import CancelIcon from "@material-ui/icons/Cancel";
+import { useIsMobile } from "hooks";
+import * as React from "react";
+import ReactSelect from "react-select";
+import { ValueContainerProps } from "react-select/src/components/containers";
 import { ControlProps } from "react-select/src/components/Control";
 import { MenuProps, NoticeProps } from "react-select/src/components/Menu";
-import { ValueContainerProps } from "react-select/src/components/containers";
-import { OptionProps } from "react-select/src/components/Option";
 import { MultiValueProps } from "react-select/src/components/MultiValue";
-import { useScreenSize } from "hooks";
+import { OptionProps } from "react-select/src/components/Option";
 
 type Props = {
   native?: boolean;
@@ -62,7 +61,7 @@ type InputComponentProps = Pick<BaseTextFieldProps, "inputRef"> &
 export const Select: React.FC<Props> = props => {
   const theme = useTheme();
 
-  const isSmallScreen = useScreenSize() === "mobile";
+  const isSmallScreen = useIsMobile();
   // The multi-select doesn't really translate to using the native dropdown on smaller screens.
   const forceNative = !props.multi && isSmallScreen;
 

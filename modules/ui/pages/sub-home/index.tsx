@@ -1,9 +1,18 @@
 import { Grid, Button, Typography, Divider } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
-import { useScreenSize } from "hooks";
+import { addDays, format } from "date-fns";
+import {
+  useMutationBundle,
+  usePagedQueryBundle,
+  useQueryBundle,
+} from "graphql/hooks";
+import { OrgUser, Vacancy, VacancyDetail } from "graphql/server-types.gen";
+import { useIsMobile } from "hooks";
+import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 import { Section } from "ui/components/section";
 import { Filters } from "./filters/index";
 import { AvailableJob } from "./components/available-job";
@@ -14,8 +23,12 @@ import {
   usePagedQueryBundle,
 } from "graphql/hooks";
 import { useRouteParams } from "ui/routes/definition";
-import { useQueryParamIso } from "hooks/query-params";
-import { SubJobSearch } from "./graphql/sub-job-search.gen";
+import { SubHomeRoute } from "ui/routes/sub-home";
+import { SubScheduleRoute } from "ui/routes/sub-schedule";
+import { AssignmentCard } from "./components/assignment";
+import { AvailableJob } from "./components/available-job";
+import { FilterQueryParams } from "./filters/filter-params";
+import { Filters } from "./filters/index";
 import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
 import { Vacancy, OrgUser } from "graphql/server-types.gen";
 import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
@@ -31,7 +44,7 @@ export const SubHome: React.FC<Props> = props => {
   const theme = useTheme();
   const classes = useStyles();
   const params = useRouteParams(SubHomeRoute);
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const [showFilters, setShowFilters] = React.useState(!isMobile);
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy);
   const [filters] = useQueryParamIso(FilterQueryParams);
@@ -56,9 +69,9 @@ export const SubHome: React.FC<Props> = props => {
     SubJobSearch,
     r => r.vacancy?.userJobSearch?.totalCount,
     {
-      variables: { 
+      variables: {
         ...filters,
-        id: String(userId),        
+        id: String(userId),
       },
       skip: !userId,
     }

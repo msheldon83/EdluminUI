@@ -1,31 +1,30 @@
-import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useTranslation } from "react-i18next";
-import { GetAllWorkDaySchedulesWithinOrg } from "./graphql/workday-schedules.gen";
-import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
-import * as React from "react";
-import { Table } from "ui/components/table";
-import { PageTitle } from "ui/components/page-title";
-import { PaginationControls } from "ui/components/pagination-controls";
-import { Link } from "react-router-dom";
-import { useHistory } from "react-router";
-import { useRouteParams } from "ui/routes/definition";
+import { Button, Grid, makeStyles } from "@material-ui/core";
+import DeleteOutline from "@material-ui/icons/DeleteOutline";
+import { useMutationBundle, usePagedQueryBundle } from "graphql/hooks";
+import { useIsMobile } from "hooks";
+import { compact } from "lodash-es";
 import { Column } from "material-table";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
+import { PageTitle } from "ui/components/page-title";
+import { Table } from "ui/components/table";
 import {
-  BellScheduleRoute,
   BellScheduleAddRoute,
+  BellScheduleRoute,
   BellScheduleViewRoute,
 } from "ui/routes/bell-schedule";
-import { makeStyles, Grid, Button } from "@material-ui/core";
-import { compact } from "lodash-es";
-import { useScreenSize } from "hooks";
-import DeleteOutline from "@material-ui/icons/DeleteOutline";
+import { useRouteParams } from "ui/routes/definition";
+import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
+import { GetAllWorkDaySchedulesWithinOrg } from "./graphql/workday-schedules.gen";
 
 export const BellSchedulePage: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(BellScheduleRoute);
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
   const [getWorkDaySchedules, pagination] = usePagedQueryBundle(
