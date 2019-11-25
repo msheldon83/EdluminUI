@@ -185,7 +185,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       // This shouldn't prevent the User from continuing on
       // with Absence Create. Any major issues will be caught
       // and reported back to them when calling the Create mutation.
-      console.error("Error trying to get projected vacancies", error);
     },
   });
 
@@ -225,7 +224,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       "of your balance"
     )}`;
   }, [getProjectedVacancies]);
-  console.log("got some data", absenceUsageText);
 
   const name = `${props.firstName} ${props.lastName}`;
 
