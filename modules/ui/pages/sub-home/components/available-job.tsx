@@ -32,7 +32,7 @@ type Props = {
     | "totalDayPortion"
     | "details"
   >;
-  onAccept?: () => void;
+  onAccept: (orgId: string, vacancyId: string) => Promise<void>;
   onDismiss: (orgId: string, vacancyId: string) => Promise<void>;
   shadeRow: boolean;
 };
@@ -166,7 +166,12 @@ export const AvailableJob: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={1}>
           {expanded || vacancy.details!.length === 1 ? (
-            <Button variant="outlined" onClick={props.onAccept}>
+            <Button 
+              variant="outlined" 
+              onClick={() => 
+                props.onAccept(vacancy.organization.id, vacancy.id)
+              }
+            >
               {t("Accept")}
             </Button>
           ) : (
