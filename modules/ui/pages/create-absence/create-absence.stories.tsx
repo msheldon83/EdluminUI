@@ -96,6 +96,12 @@ export const AsAdmin = () => {
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
         }),
+        orgRef_AccountingCode: () => ({
+          all: () => [],
+        }),
+        orgRef_PayCode: () => ({
+          all: () => [],
+        }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,
           replacementEmployeesForVacancy: {
@@ -136,6 +142,12 @@ export const AsEmployee = () => {
       Query: () => ({
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
+        }),
+        orgRef_AccountingCode: () => ({
+          all: () => [],
+        }),
+        orgRef_PayCode: () => ({
+          all: () => [],
         }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,
@@ -178,6 +190,12 @@ export const AsSubNotNeededEmployee = () => {
       Query: () => ({
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
+        }),
+        orgRef_AccountingCode: () => ({
+          all: () => [],
+        }),
+        orgRef_PayCode: () => ({
+          all: () => [],
         }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,
@@ -241,6 +259,12 @@ export const AsSubNeededEmployee = () => {
         }),
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
+        }),
+        orgRef_AccountingCode: () => ({
+          all: () => [],
+        }),
+        orgRef_PayCode: () => ({
+          all: () => [],
         }),
         absence: () => ({
           projectedVacancies: basicProjectedVacancies,
