@@ -210,6 +210,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
   );
 
   const hasVacancies = !!(props.vacancies && props.vacancies.length);
+  const hasAccountingCodeOptions = !!(
+    accountingCodeOptions && accountingCodeOptions.length
+  );
+  const hasPayCodeOptions = !!(payCodeOptions && payCodeOptions.length);
 
   return (
     <Grid container>
@@ -354,47 +358,51 @@ export const AbsenceDetails: React.FC<Props> = props => {
               <VacancyDetails vacancies={props.vacancies} equalWidthDetails />
             )}
 
-            {values.needsReplacement && isAdmin && (
-              <>
-                {!!(accountingCodeOptions && accountingCodeOptions.length) && (
-                  <div className={classes.select}>
-                    <Typography>{t("Accounting code")}</Typography>
-                    <Select
-                      value={{
-                        value: values.accountingCode,
-                        label:
-                          accountingCodeOptions.find(
-                            a => a.value === values.accountingCode
-                          )?.label || "",
-                      }}
-                      onChange={onAccountingCodeChange}
-                      options={accountingCodeOptions}
-                      isClearable={true}
-                      inputStatus={errors.accountingCode ? "error" : undefined}
-                      validationMessage={errors.accountingCode?.message}
-                    />
-                  </div>
-                )}
-                {!!(payCodeOptions && payCodeOptions.length) && (
-                  <div className={classes.select}>
-                    <Typography>{t("Pay code")}</Typography>
-                    <Select
-                      value={{
-                        value: values.payCode,
-                        label:
-                          payCodeOptions.find(a => a.value === values.payCode)
-                            ?.label || "",
-                      }}
-                      onChange={onPayCodeChange}
-                      options={payCodeOptions}
-                      isClearable={true}
-                      inputStatus={errors.payCode ? "error" : undefined}
-                      validationMessage={errors.payCode?.message}
-                    />
-                  </div>
-                )}
-              </>
-            )}
+            {values.needsReplacement &&
+              isAdmin &&
+              (hasAccountingCodeOptions || hasPayCodeOptions) && (
+                <Grid item container spacing={4} className={classes.aubCodes}>
+                  {hasAccountingCodeOptions && (
+                    <Grid item xs={hasPayCodeOptions ? 6 : 12}>
+                      <Typography>{t("Accounting code")}</Typography>
+                      <Select
+                        value={{
+                          value: values.accountingCode,
+                          label:
+                            accountingCodeOptions.find(
+                              a => a.value === values.accountingCode
+                            )?.label || "",
+                        }}
+                        onChange={onAccountingCodeChange}
+                        options={accountingCodeOptions}
+                        isClearable={!!values.accountingCode}
+                        inputStatus={
+                          errors.accountingCode ? "error" : undefined
+                        }
+                        validationMessage={errors.accountingCode?.message}
+                      />
+                    </Grid>
+                  )}
+                  {hasPayCodeOptions && (
+                    <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
+                      <Typography>{t("Pay code")}</Typography>
+                      <Select
+                        value={{
+                          value: values.payCode,
+                          label:
+                            payCodeOptions.find(a => a.value === values.payCode)
+                              ?.label || "",
+                        }}
+                        onChange={onPayCodeChange}
+                        options={payCodeOptions}
+                        isClearable={!!values.payCode}
+                        inputStatus={errors.payCode ? "error" : undefined}
+                        validationMessage={errors.payCode?.message}
+                      />
+                    </Grid>
+                  )}
+                </Grid>
+              )}
 
             {showNotesForReplacement && (
               <div className={classes.notesForReplacement}>
@@ -501,6 +509,9 @@ const useStyles = makeStyles(theme => ({
   },
   notesForReplacement: {
     paddingTop: theme.spacing(3),
+  },
+  aubCodes: {
+    paddingTop: theme.spacing(2),
   },
   usageTextContainer: {
     display: "flex",
