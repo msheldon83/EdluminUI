@@ -537,11 +537,17 @@ const buildAbsenceCreateInput = (
           needsReplacement: formValues.needsReplacement,
           notesToReplacement: formValues.notesToReplacement,
           prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
-          accountingCodeAllocations: formValues.accountingCode ? [ {
-            accountingCodeId: formValues.accountingCode,
-            allocation: 1.0
-          }] : undefined,
-          payCodeId: formValues.payCodeId ?? undefined
+          accountingCodeAllocations: formValues.accountingCode
+            ? [
+                {
+                  accountingCodeId: Number(formValues.accountingCode),
+                  allocation: 1.0,
+                },
+              ]
+            : undefined,
+          payCodeId: formValues.payCode
+            ? Number(formValues.payCode)
+            : undefined,
         },
       ],
     };
