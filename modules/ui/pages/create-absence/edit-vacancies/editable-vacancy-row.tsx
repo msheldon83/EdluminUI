@@ -1,20 +1,19 @@
 import { Grid, makeStyles } from "@material-ui/core";
 import { Register, SetValue } from "forms";
-import { Location, Maybe, VacancyDetail } from "graphql/server-types.gen";
-import { convertStringToDate } from "helpers/date";
+import { Location } from "graphql/server-types.gen";
 import * as React from "react";
+import { useState } from "react";
+import { VacancyDetailsItem } from "ui/components/absence/helpers";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
-import { CreateAbsenceFormData } from "../ui";
 import { EditVacancyFormData } from ".";
-import { compact } from "lodash-es";
 
 type Props = {
-  vacancyDetails: Maybe<VacancyDetail>[];
+  details: VacancyDetailsItem;
   equalWidthDetails?: boolean;
   locationOptions: Location[];
   setValue: SetValue;
-  groupIndex: number;
+  detailIndex: number;
   values: EditVacancyFormData;
   register: Register;
 };
@@ -25,30 +24,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     value: loc.id,
     label: loc.name,
   }));
-
-  // const firstDetail = props.vacancyDetails && props.vacancyDetails[0];
-  const f =
-    props.values.vacancies[props.groupIndex] &&
-    props.values.vacancies[props.groupIndex].details &&
-    compact(props.values.vacancies[props.groupIndex].details);
-
-  const firstDetail = f && f[0];
-
-  if (!firstDetail) {
-    return <></>;
-  }
-  const detailStartTimeLocal = convertStringToDate(
-    firstDetail.startTime
-  )?.toISOString();
-  const detailEndTimeLocal = convertStringToDate(
-    firstDetail.endTime
-  )?.toISOString();
-  if (!detailStartTimeLocal || !detailEndTimeLocal) {
-    console.log("INVALID", detailEndTimeLocal, detailStartTimeLocal);
-    return <></>;
-  }
-
-  const fieldNamePrefix = `vacancies[${props.groupIndex}].details[0]`;
+  const fieldNamePrefix = `vacancies[${props.detailIndex}].details[0]`;
   props.register(
     { name: `${fieldNamePrefix}.locationId`, type: "custom" },
     { required: "Required" }
@@ -62,6 +38,9 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     { required: "Required" }
   );
 
+  const [startTime, setStartTime] = useState(props.details.startTime);
+  const [endTime, setEndTime] = useState(props.details.endTime);
+
   return (
     <>
       <Grid item className={classes.vacancyBlockItem}>
@@ -69,34 +48,30 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           <TimeInput
             label=""
             name={`${fieldNamePrefix}.startTime`}
-            value={detailStartTimeLocal}
+            value={startTime}
             onValidTime={async value => {
-              console.log("startTime", value);
+              setStartTime(value);
               await props.setValue(`${fieldNamePrefix}.startTime`, value);
             }}
             onChange={async value => {
-              await props.setValue(`${fieldNamePrefix}.startTime`, value);
-              console.log(value);
+              setStartTime(value);
             }}
-            earliestTime={detailStartTimeLocal}
-            // ref={props.register}
+            earliestTime={startTime}
           />
         </Grid>
         <Grid item>
           <TimeInput
             label=""
             name={`${fieldNamePrefix}.endTime`}
-            value={detailEndTimeLocal}
+            value={endTime}
             onValidTime={async value => {
+              setEndTime(value);
               await props.setValue(`${fieldNamePrefix}.endTime`, value);
-              console.log(value);
             }}
             onChange={async value => {
-              await props.setValue(`${fieldNamePrefix}.endTime`, value);
-              console.log(value);
+              setEndTime(value);
             }}
-            earliestTime={detailEndTimeLocal}
-            // ref={props.register}
+            earliestTime={endTime}
           />
         </Grid>
       </Grid>
@@ -110,10 +85,10 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             await props.setValue(`${fieldNamePrefix}.locationId`, event.value);
           }}
           value={{
-            value: firstDetail.locationId || undefined,
+            value: props.details.locationId || undefined,
             label:
               locationMenuOptions.find(
-                op => Number(op.value) === firstDetail.locationId
+                op => Number(op.value) === props.details.locationId
               )?.label || "",
           }}
         />

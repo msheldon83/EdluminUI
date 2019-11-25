@@ -1,16 +1,12 @@
-import { Divider, Grid, makeStyles, Typography } from "@material-ui/core";
-import { Location, VacancyDetail } from "graphql/server-types.gen";
-import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
-import { compact, groupBy } from "lodash-es";
+import { Divider, Grid, makeStyles } from "@material-ui/core";
+import { Register, SetValue } from "forms";
+import { Location, Vacancy } from "graphql/server-types.gen";
 import * as React from "react";
 import { Fragment } from "react";
-import { useTranslation } from "react-i18next";
-import { CreateAbsenceFormData } from "../ui";
-import { EditableVacancyDetailRow } from "./editable-vacancy-row";
-import { VacancySummaryHeader } from "../../../components/absence/vacancy-summary-header";
-import { Register, SetValue } from "forms";
-import { Vacancy } from "graphql/server-types.gen";
+import { getVacancyDetailsGrouping } from "ui/components/absence/helpers";
 import { EditVacancyFormData } from ".";
+import { VacancySummaryHeader } from "../../../components/absence/vacancy-summary-header";
+import { EditableVacancyDetailGroup } from "./editable-vacancy-details-group";
 
 type Props = {
   vacancies: Vacancy[];
@@ -26,8 +22,6 @@ type Props = {
 
 export const EditableVacancyDetails: React.FC<Props> = props => {
   const classes = useStyles();
-  const { t } = useTranslation();
-
   if (!props.vacancies || !props.vacancies.length) {
     return <></>;
   }
@@ -47,43 +41,22 @@ export const EditableVacancyDetails: React.FC<Props> = props => {
           <Divider className={classes.divider} />
         </Grid>
       )}
-
-      {sortedVacancies.map((v: Vacancy, detailsIndex) => {
-        const groupedDetails = groupBy<VacancyDetail>(compact(v.details), d => {
-          return d.startTimeLocal && d.endTimeLocal && d.locationId;
-        });
-
-        const startDateLocal = convertStringToDate(v.startTimeLocal);
-        const endDateLocal = convertStringToDate(v.endTimeLocal);
-        if (!startDateLocal || !endDateLocal) {
-          return;
+      {sortedVacancies.map(v => {
+        if (v.details && v.details.length) {
+          const groupedDetails = getVacancyDetailsGrouping(v.details);
+          if (groupedDetails === null || !groupedDetails.length) {
+            return <></>;
+          }
+          return groupedDetails.map((details, detailsIndex) => (
+            <Fragment key={detailsIndex}>
+              <EditableVacancyDetailGroup
+                {...props}
+                detailsIndex={detailsIndex}
+                detailGroup={details}
+              />
+            </Fragment>
+          ));
         }
-
-        return (
-          <Grid key={detailsIndex} item container xs={12} alignItems="center">
-            <Grid item xs={12}>
-              <Typography variant="h6">
-                {getDateRangeDisplayText(startDateLocal, endDateLocal)}
-              </Typography>
-            </Grid>
-
-            {Object.entries(groupedDetails).map(
-              ([key, details], groupIndex) => (
-                <Fragment key={groupIndex}>
-                  <EditableVacancyDetailRow
-                    vacancyDetails={details}
-                    setValue={props.setValue}
-                    values={props.values}
-                    groupIndex={groupIndex}
-                    equalWidthDetails={props.equalWidthDetails}
-                    locationOptions={props.locationOptions}
-                    register={props.register}
-                  />
-                </Fragment>
-              )
-            )}
-          </Grid>
-        );
       })}
     </Grid>
   );
