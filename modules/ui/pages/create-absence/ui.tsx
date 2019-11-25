@@ -509,7 +509,6 @@ const buildAbsenceCreateInput = (
       };
 
       if (formValues.dayPart === DayPart.Hourly) {
-        //TODO: provide a way to specify start and end time in the UI when Hourly
         detail = {
           ...detail,
           startTime: secondsSinceMidnight(
@@ -538,6 +537,11 @@ const buildAbsenceCreateInput = (
           needsReplacement: formValues.needsReplacement,
           notesToReplacement: formValues.notesToReplacement,
           prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
+          accountingCodeAllocations: formValues.accountingCode ? [ {
+            accountingCodeId: formValues.accountingCode,
+            allocation: 1.0
+          }] : undefined,
+          payCodeId: formValues.payCodeId ?? undefined
         },
       ],
     };
