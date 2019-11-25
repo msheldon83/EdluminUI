@@ -154,7 +154,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     Number(props.positionId),
     disabledDates,
     false,
-    state
+    state,
+    vacanciesInput
   );
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
@@ -222,7 +223,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       Number(props.positionId),
       disabledDates,
       true,
-      state
+      state,
+      vacanciesInput
     );
     if (!absenceCreateInput) {
       return null;
@@ -394,7 +396,8 @@ const buildAbsenceCreateInput = (
   positionId: number,
   disabledDates: Date[],
   includeVacanciesIfNeedsReplacement: boolean,
-  state: CreateAbsenceState
+  state: CreateAbsenceState,
+  vacancyDetails?: VacancyDetail[]
 ) => {
   if (
     !formValues.startDate ||
@@ -486,10 +489,6 @@ const buildAbsenceCreateInput = (
   /* if (formValues.vacancies) debugger; */
   // Populate the Vacancies on the Absence if needed
   if (state.needsReplacement && includeVacanciesIfNeedsReplacement) {
-    const vacancyDetails: VacancyDetailInput[] = compact(
-      flatMap(formValues.vacancies?.map(v => v.details || null))
-    );
-
     absence = {
       ...absence,
       /* TODO: When we support multi Position Employees we'll need to account for the following:

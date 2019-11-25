@@ -6,25 +6,24 @@ import { useState } from "react";
 import { VacancyDetailsItem } from "ui/components/absence/helpers";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
-import { EditVacancyFormData } from ".";
+import { VacancyDetail } from "../types";
 
 type Props = {
-  details: VacancyDetailsItem;
-  equalWidthDetails?: boolean;
   locationOptions: Location[];
   setValue: SetValue;
-  detailIndex: number;
-  values: VacancyDetailInput | null;
+  keyPrefix: string;
+  values: VacancyDetail;
   register: Register;
 };
 
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
+  console.log("values?", props.values);
   const classes = useStyles();
   const locationMenuOptions = props.locationOptions.map(loc => ({
     value: loc.id,
     label: loc.name,
   }));
-  const fieldNamePrefix = `vacancies[${props.detailIndex}].details[0]`;
+  const fieldNamePrefix = props.keyPrefix;
   props.register(
     { name: `${fieldNamePrefix}.locationId`, type: "custom" },
     { required: "Required" }
@@ -38,12 +37,12 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     { required: "Required" }
   );
 
-  const [startTime, setStartTime] = useState(props.details.startTime);
-  const [endTime, setEndTime] = useState(props.details.endTime);
+  const [startTime, setStartTime] = useState(props.values.startTime);
+  const [endTime, setEndTime] = useState(props.values.endTime);
 
   return (
-    <>
-      <Grid item className={classes.vacancyBlockItem}>
+    <Grid container>
+      <Grid item container md={} className={classes.vacancyBlockItem}>
         <Grid item>
           <TimeInput
             label=""
@@ -96,7 +95,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           }}
         />
       </Grid>
-    </>
+    </Grid>
   );
 };
 

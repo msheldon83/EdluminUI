@@ -1,4 +1,10 @@
-import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
+import {
+  Button,
+  Grid,
+  makeStyles,
+  Typography,
+  Divider,
+} from "@material-ui/core";
 import { useForm } from "forms";
 import { AbsenceVacancyInput, Location } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
@@ -8,6 +14,7 @@ import { Section } from "ui/components/section";
 import { GetProjectedVacancies } from "../graphql/get-projected-vacancies.gen";
 import { EditableVacancyDetails } from "./editable-vacancy-details";
 import { VacancyDetail } from "../types";
+import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 
 type Props = {
   details: VacancyDetail[];
@@ -38,7 +45,7 @@ export const EditVacancies: React.FC<Props> = props => {
     errors,
   } = useForm<EditVacancyFormData>({ defaultValues: initialFormData });
   const formValues = getValues({ nest: true });
-  console.log("updated", formValues);
+  console.log("formValues", formValues);
 
   return (
     <form
@@ -55,20 +62,26 @@ export const EditVacancies: React.FC<Props> = props => {
       )}
 
       <Section className={classes.vacancyDetails}>
-        <EditableVacancyDetails
-          projectedVacancies={props.details}
-          showHeader
-          positionName={props.positionName}
-          values={formValues}
-          register={registerEditForm}
-          setValue={setValue}
-          locationOptions={[
-            { id: "10", name: "Elementary school abc" } as Location,
-            { id: "11", name: "Middle school" } as Location,
-            { id: "12", name: "High school" } as Location,
-            { id: "1013", name: "School" } as Location,
-          ]}
-        />
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            this is the header
+          </Grid>
+          <Divider className={classes.divider} />
+        </Grid>
+
+        {formValues.details.map((d, i) => (
+          <Grid key={i} item xs={12}>
+            <EditableVacancyDetailRow
+              locationOptions={[]}
+              setValue={setValue}
+              keyPrefix={`details[${i}]`}
+              values={d}
+              register={registerEditForm}
+            />
+            {i},{d.date},{d.startTime},{d.endTime},{d.locationId}
+          </Grid>
+        ))}
+
         <Grid container justify="flex-end">
           <Grid item>
             <Button onClick={props.onCancel} variant="outlined">
