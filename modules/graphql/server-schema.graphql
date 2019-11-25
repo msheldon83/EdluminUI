@@ -243,6 +243,8 @@ input AbsenceVacancyInput {
   prearrangedReplacementEmployeeId: Int
   details: [VacancyDetailInput]
   dayPortionOverrides: [DayPortionOverride]
+  accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
+  payCodeId: Int
 }
 
 type AccountingCode implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -3963,7 +3965,31 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   assignment: Assignment
   locationId: Int
   location: Location
+  accountingCodeAllocations: [VacancyDetailAccountingCode]
+  payCodeId: Int
+  payCode: PayCode
   vacancy: BasicVacancy
+}
+
+type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  vacancyId: Int!
+  vacancyDetailId: Int!
+  accountingCodeId: Int!
+  accountingCode: AccountingCode
+  allocation: Decimal!
+}
+
+input VacancyDetailAccountingCodeInput {
+  accountingCodeId: Int!
+  allocation: Decimal!
 }
 
 input VacancyDetailInput {
@@ -4027,7 +4053,10 @@ type VacancyQueries {
   byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
+  wasEmployeeAssignedToJob(id: ID!, vacancyId: ID!): VacancyWasAssignedResult
+  employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
+  userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [Int], locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
 }
 
@@ -4038,6 +4067,17 @@ enum VacancyRejectionReason {
   DISLIKE_POSITION
   DISLIKE_LOCATION
   DISLIKE_TEACHER
+}
+
+type VacancyWasAssignedResult {
+  _info: [ReturnMessage]
+  vacancyId: Int!
+  employeeId: Int!
+  returnCode: Int!
+  description: String!
+  employeeWasAssigned: Boolean!
+  assignmentId: Int
+  assignment: Assignment
 }
 
 enum VolumeUnit {
