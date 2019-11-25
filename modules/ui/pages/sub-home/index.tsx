@@ -1,5 +1,4 @@
-import { Button, Divider, Grid, Typography } from "@material-ui/core";
-import { FilterList } from "@material-ui/icons";
+import { Grid, Button, Typography, Divider } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { addDays, format } from "date-fns";
 import {
@@ -7,29 +6,32 @@ import {
   usePagedQueryBundle,
   useQueryBundle,
 } from "graphql/hooks";
-import { OrgUser, Vacancy, VacancyDetail } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
+
 import { useRouteParams } from "ui/routes/definition";
 import { SubHomeRoute } from "ui/routes/sub-home";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
+
 import { AssignmentCard } from "./components/assignment";
 import { AvailableJob } from "./components/available-job";
-import { FilterQueryParams } from "./filters/filter-params";
-import { Filters } from "./filters/index";
+import { ScheduleUI } from "ui/pages/sub-schedule/ui";
+
 import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
+import { Vacancy, OrgUser } from "graphql/server-types.gen";
 import { RequestVacancy } from "./graphql/request-vacancy.gen";
 import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
-import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
 import { SubJobSearch } from "./graphql/sub-job-search.gen";
 import { RequestAbsenceDialog } from "./components/request-dialog";
+
+import { FilterQueryParams } from "./filters/filter-params";
+import { Filters } from "./filters/index";
+import { FilterList } from "@material-ui/icons";
 
 type Props = {};
 
@@ -63,34 +65,6 @@ export const SubHome: React.FC<Props> = props => {
     getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
-
-  const fromDate = useMemo(() => new Date(), [orgUsers]);
-  const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
-
-  const getUpcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
-    variables: {
-      id: String(userId),
-      fromDate,
-      toDate,
-      limit: 3,
-      includeCompletedToday: false,
-    },
-    skip: !userId,
-  });
-
-  const assignments = (getUpcomingAssignments.state === "LOADING" ||
-  getUpcomingAssignments.state === "UPDATING"
-    ? []
-    : getUpcomingAssignments.data?.employee?.employeeAssignmentSchedule ??
-      []) as Pick<
-    VacancyDetail,
-    | "id"
-    | "startTimeLocal"
-    | "endTimeLocal"
-    | "assignment"
-    | "location"
-    | "vacancy"
-  >[];
 
   const [getVacancies, pagination] = usePagedQueryBundle(
     SubJobSearch,
@@ -144,13 +118,6 @@ export const SubHome: React.FC<Props> = props => {
     return employeeId;
   };
 
-  const upcomingWorkTitle = isMobile
-    ? t("Upcoming work")
-    : `${t("Upcoming assignments for")} ${format(fromDate, "MMM d")} - ${format(
-        toDate,
-        "MMM d"
-      )}`;
-
   const onCloseRequestAbsenceDialog = React.useCallback(
     () => setRequestAbsenceIsOpen(false),
     [setRequestAbsenceIsOpen]
@@ -177,47 +144,7 @@ export const SubHome: React.FC<Props> = props => {
 
   return (
     <>
-      <Grid
-        container
-        className={classes.upcomingWork}
-        spacing={2}
-        alignItems="stretch"
-      >
-        <SectionHeader title={upcomingWorkTitle} />
-        <Grid item xs={12} sm={6} lg={6}>
-          {getUpcomingAssignments.state === "LOADING" ? (
-            <Section>
-              <Typography variant="h5">
-                {t("Loading Upcoming Assignments")}
-              </Typography>
-            </Section>
-          ) : assignments.length === 0 ? (
-            <Section>
-              <Grid item>
-                <Typography variant="h5">
-                  {t("No Assignments scheduled")}
-                </Typography>
-              </Grid>
-            </Section>
-          ) : (
-            assignments.map((assignment, index) => (
-              <AssignmentCard
-                vacancyDetail={assignment}
-                shadeRow={false}
-                key={index}
-              />
-            ))
-          )}
-          <Button component={Link} to={SubScheduleRoute.generate(params)}>
-            {t("View All")}
-          </Button>
-        </Grid>
-        {!isMobile && (
-          <Grid item xs={12} sm={6} lg={6}>
-            <Section>{"Calendar will go here"}</Section>
-          </Grid>
-        )}
-      </Grid>
+      <ScheduleUI userId={userId} itemsToShow={3} />
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Section>
