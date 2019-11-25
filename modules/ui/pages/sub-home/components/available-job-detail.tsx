@@ -38,7 +38,10 @@ export const AvailableJobDetail: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={3}></Grid>
         <Grid item xs={1}>
-          <DayIcon dayPortion={props.dayPortion} />
+          <DayIcon
+            dayPortion={props.dayPortion}
+            startTime={props.startTimeLocal}
+          />
         </Grid>
         <Grid item xs={2}>
           <Typography className={classes.lightText}>

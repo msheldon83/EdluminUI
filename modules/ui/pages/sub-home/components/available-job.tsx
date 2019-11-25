@@ -120,7 +120,10 @@ export const AvailableJob: React.FC<Props> = props => {
           } ${vacancy.absence!.employee!.lastName}`}</Typography>
         </Grid>
         <Grid item container xs={1} justify={"flex-end"}>
-          <DayIcon dayPortion={vacancy.totalDayPortion} />
+          <DayIcon
+            dayPortion={vacancy.totalDayPortion}
+            startTime={vacancy.startTimeLocal}
+          />
         </Grid>
         <Grid item xs={2}>
           <Typography variant="h6">{`${Math.round(vacancy.totalDayPortion)} ${t(
