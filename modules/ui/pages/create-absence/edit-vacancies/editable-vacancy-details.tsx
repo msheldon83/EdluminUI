@@ -53,6 +53,7 @@ export const EditableVacancyDetails: React.FC<Props> = props => {
                 {...props}
                 detailsIndex={detailsIndex}
                 detailGroup={details}
+                values={props.values.vacancies[detailsIndex]}
               />
             </Fragment>
           ));
@@ -65,11 +66,5 @@ export const EditableVacancyDetails: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   divider: {
     marginTop: theme.spacing(3),
-  },
-  scheduleText: {
-    color: "#9E9E9E",
-  },
-  vacancyBlockItem: {
-    marginTop: theme.spacing(0.5),
   },
 }));

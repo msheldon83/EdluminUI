@@ -1,6 +1,6 @@
 import { Grid, Typography } from "@material-ui/core";
 import { Register, SetValue } from "forms";
-import { Location } from "graphql/server-types.gen";
+import { Location, AbsenceVacancyInput } from "graphql/server-types.gen";
 import { getDateRangeDisplayText } from "helpers/date";
 import * as React from "react";
 import { Fragment } from "react";
@@ -14,7 +14,7 @@ type Props = {
   locationOptions: Location[];
   setValue: SetValue;
   detailsIndex: number;
-  values: EditVacancyFormData;
+  values: AbsenceVacancyInput;
   register: Register;
 };
 
@@ -36,6 +36,7 @@ export const EditableVacancyDetailGroup: React.FC<Props> = props => {
             {...props}
             detailIndex={i}
             details={detailItem}
+            values={props.values.details ? props.values.details[i] : null}
           />
         </Fragment>
       ))}

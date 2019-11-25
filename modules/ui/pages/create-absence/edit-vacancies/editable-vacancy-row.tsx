@@ -1,6 +1,6 @@
 import { Grid, makeStyles } from "@material-ui/core";
 import { Register, SetValue } from "forms";
-import { Location } from "graphql/server-types.gen";
+import { Location, VacancyDetailInput } from "graphql/server-types.gen";
 import * as React from "react";
 import { useState } from "react";
 import { VacancyDetailsItem } from "ui/components/absence/helpers";
@@ -14,7 +14,7 @@ type Props = {
   locationOptions: Location[];
   setValue: SetValue;
   detailIndex: number;
-  values: EditVacancyFormData;
+  values: VacancyDetailInput | null;
   register: Register;
 };
 
@@ -79,16 +79,19 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
       <Grid item xs={3} className={classes.vacancyBlockItem}>
         <Select
           name={`${fieldNamePrefix}.locationId`}
+          isClearable={false}
           options={locationMenuOptions}
           onChange={async (event: any) => {
-            console.log(`${fieldNamePrefix}.locationId`, event.value);
-            await props.setValue(`${fieldNamePrefix}.locationId`, event.value);
+            await props.setValue(
+              `${fieldNamePrefix}.locationId`,
+              Number(event.value)
+            );
           }}
           value={{
-            value: props.details.locationId || undefined,
+            value: Number(props.values?.locationId) || undefined,
             label:
               locationMenuOptions.find(
-                op => Number(op.value) === props.details.locationId
+                op => Number(op.value) === props.values?.locationId
               )?.label || "",
           }}
         />
