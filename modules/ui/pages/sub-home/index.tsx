@@ -6,7 +6,6 @@ import {
   usePagedQueryBundle,
   useQueryBundle,
 } from "graphql/hooks";
-import { OrgUser, Vacancy, VacancyDetail } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
@@ -14,27 +13,23 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { Section } from "ui/components/section";
-import { Filters } from "./filters/index";
-import { AvailableJob } from "./components/available-job";
-import { FilterList } from "@material-ui/icons";
-import {
-  useQueryBundle,
-  useMutationBundle,
-  usePagedQueryBundle,
-} from "graphql/hooks";
+
 import { useRouteParams } from "ui/routes/definition";
 import { SubHomeRoute } from "ui/routes/sub-home";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
+
 import { AssignmentCard } from "./components/assignment";
 import { AvailableJob } from "./components/available-job";
-import { FilterQueryParams } from "./filters/filter-params";
-import { Filters } from "./filters/index";
+import { ScheduleUI } from "ui/pages/sub-schedule/ui";
+
 import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
 import { Vacancy, OrgUser } from "graphql/server-types.gen";
 import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
-import { SubHomeRoute } from "ui/routes/sub-home";
+import { SubJobSearch } from "./graphql/sub-job-search.gen";
+
 import { FilterQueryParams } from "./filters/filter-params";
-import { ScheduleUI } from "ui/pages/sub-schedule/ui";
+import { Filters } from "./filters/index";
+import { FilterList } from "@material-ui/icons";
 
 type Props = {};
 
