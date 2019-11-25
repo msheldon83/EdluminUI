@@ -38,7 +38,6 @@ query GetAllPeopleForOrg(
         isEmployee
         isAdmin
         email
-        externalId
         phoneNumber
         allLocationIdsInScope
         allPositionTypeIdsInScope
