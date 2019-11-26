@@ -83,6 +83,7 @@ type AbsenceQueries {
   projectedVacancies(absence: AbsenceCreateInput!): [Vacancy]
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancies: [AbsenceVacancyInput], name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean): PagedReplacementEmployeeAvailability
   projectedAbsence(absence: AbsenceCreateInput!): Absence
+  dailyReport(orgId: ID!, date: Date!, locationIds: [Int], positionTypeIds: [Int]): DailyReport
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -204,10 +205,11 @@ type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
   organization: Organization!
   absenceId: Int!
   absenceDetailId: Int!
-  absenceReasonId: Int!
   sequence: Byte!
   amount: Decimal!
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+  absenceReasonId: Int!
+  absenceReason: AbsenceReason
 }
 
 input AbsenceReasonUsageInput {
@@ -243,6 +245,8 @@ input AbsenceVacancyInput {
   prearrangedReplacementEmployeeId: Int
   details: [VacancyDetailInput]
   dayPortionOverrides: [DayPortionOverride]
+  accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
+  payCodeId: Int
 }
 
 type AccountingCode implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -384,9 +388,9 @@ type BasicEmployee implements ModelObjectInterface & OrgObjectInterface {
   orgId: Int!
   organization: Organization!
   firstName: String!
-  middleName: String!
+  middleName: String
   lastName: String!
-  phoneNumber: String!
+  phoneNumber: String
 }
 
 type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -907,6 +911,16 @@ enum CustomFieldVisibility {
   HIDE
 }
 
+type DailyReport {
+  _info: [ReturnMessage]
+  unfilledAbsences: [Absence]!
+  unfilledVacancies: [Vacancy]!
+  filledAbsences: [Absence]!
+  filledVacancies: [Vacancy]!
+  noSubRequiredAbsences: [Absence]!
+  totalCount: Int!
+}
+
 scalar Date
 
 enum DateRangeType {
@@ -1047,7 +1061,7 @@ input EmployeeEndorsementUpdateInput {
 }
 
 input EmployeeInterestInVacancyInput {
-  vacancyId: Int!
+  vacancyId: ID
   employeeId: Int!
   interestRatingId: InterestRating
 }
@@ -3963,7 +3977,31 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   assignment: Assignment
   locationId: Int
   location: Location
+  accountingCodeAllocations: [VacancyDetailAccountingCode]
+  payCodeId: Int
+  payCode: PayCode
   vacancy: BasicVacancy
+}
+
+type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  vacancyId: Int!
+  vacancyDetailId: Int!
+  accountingCodeId: Int!
+  accountingCode: AccountingCode
+  allocation: Decimal!
+}
+
+input VacancyDetailAccountingCodeInput {
+  accountingCodeId: Int!
+  allocation: Decimal!
 }
 
 input VacancyDetailInput {
@@ -4027,7 +4065,10 @@ type VacancyQueries {
   byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
+  wasEmployeeAssignedToJob(id: ID!, vacancyId: ID!): VacancyWasAssignedResult
+  employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
+  userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [Int], locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
 }
 
@@ -4038,6 +4079,17 @@ enum VacancyRejectionReason {
   DISLIKE_POSITION
   DISLIKE_LOCATION
   DISLIKE_TEACHER
+}
+
+type VacancyWasAssignedResult {
+  _info: [ReturnMessage]
+  vacancyId: Int!
+  employeeId: Int!
+  returnCode: Int!
+  description: String!
+  employeeWasAssigned: Boolean!
+  assignmentId: Int
+  assignment: Assignment
 }
 
 enum VolumeUnit {
