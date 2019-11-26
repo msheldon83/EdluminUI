@@ -2,6 +2,7 @@ import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { Register, SetValue } from "forms";
 import { Location } from "graphql/server-types.gen";
 import { convertStringToDate, formatDateIfPossible } from "helpers/date";
+import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import * as React from "react";
 import { useState } from "react";
 import { Select } from "ui/components/form/select";
@@ -25,6 +26,13 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     label: loc.name,
   }));
   const fieldNamePrefix = props.keyPrefix;
+  /* ML 2019-11-26 Even though date is not editable, it is
+        included in the form data, and must be registered
+        */
+  props.register(
+    { name: `${fieldNamePrefix}.date`, type: "custom" },
+    { required: "Required" }
+  );
   props.register(
     { name: `${fieldNamePrefix}.locationId`, type: "custom" },
     { required: "Required" }

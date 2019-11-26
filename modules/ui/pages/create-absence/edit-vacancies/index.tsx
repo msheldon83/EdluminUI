@@ -47,7 +47,7 @@ export const EditVacancies: React.FC<Props> = props => {
     <form
       onSubmit={handleSubmit((data, e) => {
         console.log("vacancy form submit", data);
-        props.onChangedVacancies(props.details);
+        props.onChangedVacancies(data.details);
       })}
     >
       <Typography variant={props.actingAsEmployee ? "h1" : "h5"}>

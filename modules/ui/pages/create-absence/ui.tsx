@@ -32,6 +32,7 @@ import {
 } from "graphql/server-types.gen";
 import { isAfterDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
+import { convertStringToDate } from "helpers/date";
 import { useQueryParamIso } from "hooks/query-params";
 import { useSnackbar } from "hooks/use-snackbar";
 import { differenceWith, compact, flatMap } from "lodash-es";
@@ -146,14 +147,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const disabledDates = useMemo(() => computeDisabledDates(contractSchedule), [
     contractSchedule,
   ]);
-  // debugger;
+
   const projectedVacanciesInput = buildAbsenceCreateInput(
     formValues,
     Number(state.organizationId),
     Number(state.employeeId),
     Number(props.positionId),
     disabledDates,
-    false,
+    true,
     state,
     vacanciesInput
   );
@@ -241,9 +242,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const onChangedVacancies = React.useCallback(
     (vacancyDetails: VacancyDetail[]) => {
-      console.log("update vacancy input", vacancyDetails);
-      setVacanciesInput(vacancyDetails);
+      console.log("changedVacancies -- update vacancy input", vacancyDetails);
       setStep("absence");
+      setVacanciesInput(vacancyDetails);
     },
     [setVacanciesInput, setStep]
   );
@@ -486,7 +487,24 @@ const buildAbsenceCreateInput = (
     }),
   };
 
-  /* if (formValues.vacancies) debugger; */
+  const vDetails =
+    vacancyDetails?.map(v => {
+      console.log("startTime", v.startTime);
+      console.log("endTime", v.endTime);
+      return {
+        ...v,
+        startTime: secondsSinceMidnight(
+          parseTimeFromString(
+            format(convertStringToDate(v.startTime)!, "h:mm a")
+          )
+        ),
+        endTime: secondsSinceMidnight(
+          parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
+        ),
+      };
+    }) || undefined;
+  console.log("vDetails", vDetails);
+
   // Populate the Vacancies on the Absence if needed
   if (state.needsReplacement && includeVacanciesIfNeedsReplacement) {
     absence = {
@@ -497,10 +515,11 @@ const buildAbsenceCreateInput = (
       vacancies: [
         {
           positionId: positionId,
+          useSuppliedDetails: true,
           needsReplacement: state.needsReplacement,
           notesToReplacement: formValues.notesToReplacement,
           prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
-          details: vacancyDetails,
+          details: vDetails,
         },
       ],
     };
