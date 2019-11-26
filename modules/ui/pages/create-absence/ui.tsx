@@ -172,11 +172,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   });
 
   const projectedVacancyDetails: VacancyDetail[] = useMemo(() => {
-    console.log("recomputing projectedVacancyDetails");
     /* cf 2019-11-25
-       we don't currently support having multiple AbsenceVacancyInputs on this page.
-       as such, this projection can't handle that case
-     */
+    we don't currently support having multiple AbsenceVacancyInputs on this page.
+    as such, this projection can't handle that case
+    */
     if (
       !(
         getProjectedVacancies.state === "DONE" ||
@@ -319,7 +318,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           onCancel={onCancel}
           details={projectedVacancyDetails}
           onChangedVacancies={onChangedVacancies}
-          // locationOptions={locationOptions}
           employeeId={props.employeeId}
         />
       )}
@@ -490,21 +488,16 @@ const buildAbsenceCreateInput = (
   };
 
   const vDetails =
-    vacancyDetails?.map(v => {
-      console.log("startTime", v.startTime);
-      console.log("endTime", v.endTime);
-      return {
-        ...v,
-        startTime: secondsSinceMidnight(
-          parseTimeFromString(
-            format(convertStringToDate(v.startTime)!, "h:mm a")
-          )
-        ),
-        endTime: secondsSinceMidnight(
-          parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
-        ),
-      };
-    }) || undefined;
+    vacancyDetails?.map(v => ({
+      ...v,
+      startTime: secondsSinceMidnight(
+        parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
+      ),
+      endTime: secondsSinceMidnight(
+        parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
+      ),
+    })) || undefined;
+
   console.log("vDetails", vDetails);
 
   // Populate the Vacancies on the Absence if needed

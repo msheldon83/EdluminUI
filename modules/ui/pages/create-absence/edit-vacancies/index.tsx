@@ -14,6 +14,8 @@ import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import { useQueryBundle } from "graphql/hooks";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
 import { compact } from "lodash-es";
+import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
+import { useState } from "react";
 
 type Props = {
   details: VacancyDetail[];
@@ -23,7 +25,6 @@ type Props = {
   onCancel: () => void;
   onChangedVacancies: (data: VacancyDetail[]) => void;
   employeeId: string;
-  // locationOptions: Location[];
 };
 
 type EditVacancyFormData = {
@@ -45,8 +46,9 @@ export const EditVacancies: React.FC<Props> = props => {
     getValues,
     errors,
   } = useForm<EditVacancyFormData>({ defaultValues: initialFormData });
+
   const formValues = getValues({ nest: true });
-  console.log("formValues", formValues);
+  console.log("formValues details", formValues.details);
 
   const locationQuery = useQueryBundle(GetLocationsForEmployee, {
     variables: { id: props.employeeId },
@@ -55,7 +57,20 @@ export const EditVacancies: React.FC<Props> = props => {
     (locationQuery.state !== "LOADING" &&
       compact(locationQuery.data.employee?.byId?.locations)) ||
     [];
-  console.log(locationOptions);
+
+  // const addRow = React.useCallback(
+  //   (detailsToCopy: VacancyDetail, index: number) => {
+  //     console.log("add at", index, "this object", detailsToCopy);
+  //     const updated = formValues.details.splice(index, 0, detailsToCopy);
+  //   },
+  //   [formValues.details]
+  // );
+  // const onRemoveRow = React.useCallback(
+  //   (index: number) => {
+  //     formValues.details.splice(index, 1);
+  //   },
+  //   [formValues.details]
+  // );
 
   return (
     <form
@@ -74,7 +89,15 @@ export const EditVacancies: React.FC<Props> = props => {
       <Section className={classes.vacancyDetails}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            this is the header
+            <Typography variant="h5">
+              {getDateRangeDisplayText(
+                convertStringToDate(props.details[0].date),
+                convertStringToDate(
+                  props.details[props.details.length - 1].date
+                )
+              )}
+              {props.positionName && ` - ${props.positionName}`}
+            </Typography>
             <Divider className={classes.divider} />
           </Grid>
         </Grid>
@@ -88,6 +111,9 @@ export const EditVacancies: React.FC<Props> = props => {
               values={d}
               register={registerEditForm}
               className={i % 2 == 1 ? classes.shadedRow : undefined}
+              // onRemoveRow={() => onRemoveRow(i)}
+              // onAddRow={() => addRow(d, i + 1)}
+              showRemoveButton={formValues.details.length > 1}
             />
             {/* {i},{d.date},{d.startTime},{d.endTime},{d.locationId} */}
           </Grid>
