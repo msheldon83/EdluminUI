@@ -11,21 +11,18 @@ export default {
   title: "Pages/Create Absence/Edit Absence",
 };
 
-const formVacancyValues: AbsenceVacancyInput[] = [
+const formVacancyValues: VacancyDetail[] = [
   {
-    positionId: 1057,
-    details: [
-      {
-        startTime: "2019-11-15T08:30:00" as any,
-        endTime: "2019-11-15T12:00:00" as any,
-        locationId: 1013,
-      },
-      {
-        startTime: "2019-11-18T08:30:00" as any,
-        endTime: "2019-11-18T12:00:00" as any,
-        locationId: 1013,
-      },
-    ],
+    date: "2019-11-15",
+    startTime: "2019-11-15T08:30:00" as any,
+    endTime: "2019-11-15T12:00:00" as any,
+    locationId: 1013,
+  },
+  {
+    date: "2019-11-18" as any,
+    startTime: "2019-11-18T08:30:00" as any,
+    endTime: "2019-11-18T12:00:00" as any,
+    locationId: 1013,
   },
 ];
 
@@ -75,7 +72,7 @@ export const AsAdmin = () => {
       <Route path={AdminCreateAbsenceRoute.path}>
         <EditVacancies
           employeeName="Jane Doe"
-          details={projectedVacancies as VacancyDetail[]}
+          details={formVacancyValues}
           positionName="Math Teacher"
           onChangedVacancies={() => {}}
           onCancel={() => {}}

@@ -1,5 +1,5 @@
 export type VacancyDetail = {
-  date: Date;
+  date: string;
   startTime: string;
   endTime: string;
   locationId: number;

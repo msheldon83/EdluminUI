@@ -1,9 +1,9 @@
-import { Grid, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { Register, SetValue } from "forms";
-import { Location, VacancyDetailInput } from "graphql/server-types.gen";
+import { Location } from "graphql/server-types.gen";
+import { convertStringToDate, formatDateIfPossible } from "helpers/date";
 import * as React from "react";
 import { useState } from "react";
-import { VacancyDetailsItem } from "ui/components/absence/helpers";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
 import { VacancyDetail } from "../types";
@@ -14,6 +14,7 @@ type Props = {
   keyPrefix: string;
   values: VacancyDetail;
   register: Register;
+  className?: string;
 };
 
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
@@ -37,13 +38,26 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     { required: "Required" }
   );
 
-  const [startTime, setStartTime] = useState(props.values.startTime);
-  const [endTime, setEndTime] = useState(props.values.endTime);
+  const [startTime, setStartTime] = useState(
+    convertStringToDate(props.values.startTime)?.toISOString()
+  );
+  const [endTime, setEndTime] = useState(
+    convertStringToDate(props.values.endTime)?.toISOString()
+  );
+  const date = convertStringToDate(props.values.date);
 
   return (
-    <Grid container>
-      <Grid item container md={} className={classes.vacancyBlockItem}>
-        <Grid item>
+    <Grid
+      container
+      className={[classes.rowContainer, props.className].join(" ")}
+    >
+      <Grid item container>
+        <Typography variant="h6">
+          {date && formatDateIfPossible(date, "MMMM d, yyyy")}
+        </Typography>
+      </Grid>
+      <Grid item container md={3} className={classes.vacancyBlockItem}>
+        <Grid item xs={4} className={classes.timeInput}>
           <TimeInput
             label=""
             name={`${fieldNamePrefix}.startTime`}
@@ -52,13 +66,11 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
               setStartTime(value);
               await props.setValue(`${fieldNamePrefix}.startTime`, value);
             }}
-            onChange={async value => {
-              setStartTime(value);
-            }}
+            onChange={value => setStartTime(value)}
             earliestTime={startTime}
           />
         </Grid>
-        <Grid item>
+        <Grid item xs={4} className={classes.timeInput}>
           <TimeInput
             label=""
             name={`${fieldNamePrefix}.endTime`}
@@ -67,9 +79,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
               setEndTime(value);
               await props.setValue(`${fieldNamePrefix}.endTime`, value);
             }}
-            onChange={async value => {
-              setEndTime(value);
-            }}
+            onChange={value => setEndTime(value)}
             earliestTime={endTime}
           />
         </Grid>
@@ -103,5 +113,11 @@ const useStyles = makeStyles(theme => ({
   vacancyBlockItem: {
     marginTop: theme.spacing(0.5),
     marginRight: theme.spacing(2),
+  },
+  rowContainer: {
+    padding: theme.spacing(2),
+  },
+  timeInput: {
+    marginRight: theme.spacing(1),
   },
 }));

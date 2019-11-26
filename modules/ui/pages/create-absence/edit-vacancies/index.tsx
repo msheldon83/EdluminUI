@@ -1,18 +1,14 @@
 import {
   Button,
+  Divider,
   Grid,
   makeStyles,
   Typography,
-  Divider,
 } from "@material-ui/core";
 import { useForm } from "forms";
-import { AbsenceVacancyInput, Location } from "graphql/server-types.gen";
-import { compact } from "lodash-es";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
-import { GetProjectedVacancies } from "../graphql/get-projected-vacancies.gen";
-import { EditableVacancyDetails } from "./editable-vacancy-details";
 import { VacancyDetail } from "../types";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 
@@ -65,20 +61,21 @@ export const EditVacancies: React.FC<Props> = props => {
         <Grid container spacing={2}>
           <Grid item xs={12}>
             this is the header
+            <Divider className={classes.divider} />
           </Grid>
-          <Divider className={classes.divider} />
         </Grid>
 
         {formValues.details.map((d, i) => (
-          <Grid key={i} item xs={12}>
+          <Grid key={i} container className={classes.rowSpacing}>
             <EditableVacancyDetailRow
               locationOptions={[]}
               setValue={setValue}
               keyPrefix={`details[${i}]`}
               values={d}
               register={registerEditForm}
+              className={i % 2 == 1 ? classes.shadedRow : undefined}
             />
-            {i},{d.date},{d.startTime},{d.endTime},{d.locationId}
+            {/* {i},{d.date},{d.startTime},{d.endTime},{d.locationId} */}
           </Grid>
         ))}
 
@@ -105,5 +102,11 @@ const useStyles = makeStyles(theme => ({
   },
   divider: {
     marginTop: theme.spacing(3),
+  },
+  shadedRow: {
+    backgroundColor: theme.customColors.lightGray,
+  },
+  rowSpacing: {
+    marginBottom: theme.spacing(2),
   },
 }));
