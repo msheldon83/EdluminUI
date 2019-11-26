@@ -133,7 +133,7 @@ export const getDateRangeDisplayText = (
   return `${format(startDate, "MMMM d")} - ${format(endDate, "MMMM d, yyyy")}`;
 };
 
-export const convertStringToDate = (dateString: string): Date | null => {
+export const convertStringToDate = (dateString: string | Date): Date | null => {
   const convertedDate = new Date(dateString);
 
   if (convertedDate && isDate(convertedDate) && isValid(convertedDate)) {

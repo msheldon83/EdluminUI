@@ -1,50 +1,23 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
+import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
+import { DailyReport } from "ui/components/reports/daily-report/daily-report";
 
 type Props = {};
 
 export const AdminHome: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
-  const classes = useStyles();
-  const isMobile = useIsMobile();
   const params = useRouteParams(AdminHomeRoute);
-
-  const [triggerError, setTriggerError] = React.useState(false);
-
-  if (triggerError) {
-    throw Error("error!");
-  }
 
   return (
     <>
       <PageTitle title={`${params.organizationId} ${t("Home")}`} />
-      {__DEV__ && (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            setTriggerError(true);
-          }}
-        >
-          Trigger Error
-        </Button>
-      )}
+      <DailyReport orgId={params.organizationId} />
     </>
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}));
+const useStyles = makeStyles(theme => ({}));
