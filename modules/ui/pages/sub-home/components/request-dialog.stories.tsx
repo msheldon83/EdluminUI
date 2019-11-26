@@ -46,7 +46,7 @@ export const NotAssigned = () => {
         vacancy: () => ({
           wasEmployeeAssignedToJob: () => ({
             assignmentId: null,
-            description: "Some Desctription",
+            description: "Employee was not assigned.",
             employeeId: 1000,
             employeeWasAssigned: false,
             returnCode: -1,

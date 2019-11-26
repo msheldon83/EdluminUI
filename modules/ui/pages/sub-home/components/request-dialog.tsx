@@ -6,6 +6,10 @@ import {
   makeStyles,
   LinearProgress,
   Button,
+  IconButton,
+  Typography,
+  Grid,
+  Box,
 } from "@material-ui/core";
 import * as React from "react";
 import { useState, useEffect } from "react";
@@ -14,7 +18,7 @@ import { TextButton } from "ui/components/text-button";
 import { useQueryBundle } from "graphql/hooks";
 import { WasEmployeeAssignedToJob } from "../graphql/was-employee-assigned.gen";
 import { VacancyWasAssignedResult } from "graphql/server-types.gen";
-import { CheckCircle } from "@material-ui/icons";
+import { CheckCircle, Close } from "@material-ui/icons";
 
 type Props = {
   open: boolean;
@@ -81,48 +85,95 @@ export const RequestAbsenceDialog: React.FC<Props> = props => {
 
   return (
     <Dialog open={props.open} onClose={props.onClose}>
-      {(wasEmployeeAssignedToJob.state === "LOADING" ||
-        wasEmployeeAssignedToJob.state === "UPDATING") && (
-        <>
-          <DialogTitle>{waitingTitle}</DialogTitle>
-          <DialogTitle>{waitingSubTitle}</DialogTitle>
-          <LinearProgress />
-        </>
-      )}
-      {wasEmployeeAssigned &&
-        wasEmployeeAssigned.employeeWasAssigned &&
-        wasEmployeeAssigned.returnCode === 0 && (
-          <>
-            <DialogTitle>{t("It's all yours!")}</DialogTitle>
-            <DialogTitle>{`${t("Confirmation")} #C${
-              wasEmployeeAssigned.assignmentId
-            }`}</DialogTitle>
-            <CheckCircle />
-          </>
-        )}
-      {(wasEmployeeAssigned &&
-        !wasEmployeeAssigned.employeeWasAssigned &&
-        wasEmployeeAssigned.returnCode === -1) ||
-        (wasEmployeeAssigned.returnCode === -2 && (
-          <>
-            <DialogTitle>
-              {t("We're sorry, this assignment is no longer available")}
-            </DialogTitle>
-            <Button variant="outlined" onClick={props.onClose}>
-              {t("Return to search")}
-            </Button>
-          </>
-        ))}
-      <DialogActions>
-        <TextButton onClick={props.onClose}>{t("Close")}</TextButton>
-      </DialogActions>
+      <Box height={300} width={510}>
+        <div style={{ padding: 20 }}>
+          <Grid
+            container
+            direction="column"
+            justify="center"
+            alignItems="center"
+            spacing={2}
+          >
+            <Grid container item justify="flex-end">
+              <IconButton onClick={props.onClose}>
+                <Close />
+              </IconButton>
+            </Grid>
+            {wasEmployeeAssigned.returnCode === 0 ? (
+              <>
+                <Grid item>
+                  <Typography className={classes.subTitle}>
+                    {t("It's all yours!")}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5">{`${t("Confirmation")} #C${
+                    wasEmployeeAssigned.assignmentId
+                  }`}</Typography>
+                </Grid>
+                <Grid item>
+                  <CheckCircle className={classes.checkIcon} />
+                </Grid>
+              </>
+            ) : wasEmployeeAssigned.returnCode === -1 ? (
+              <>
+                <Grid item>
+                  <Typography variant="h5">
+                    {t("We're sorry, this assignment")}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5">
+                    {t("is no longer available")}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Button variant="contained" onClick={props.onClose}>
+                    {t("Return to search")}
+                  </Button>
+                </Grid>
+              </>
+            ) : wasEmployeeAssigned.returnCode === -2 ||
+              wasEmployeeAssigned.returnCode === -3 ||
+              wasEmployeeAssigned.returnCode === -4 ? (
+              <>
+                <Grid item>
+                  <Typography variant="h5">
+                    {wasEmployeeAssigned.description}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Button variant="contained" onClick={props.onClose}>
+                    {t("Return to search")}
+                  </Button>
+                </Grid>
+              </>
+            ) : (
+              <>
+                <Grid item>
+                  <Typography variant="h5">{waitingTitle}</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography className={classes.subTitle}>
+                    {waitingSubTitle}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <LinearProgress className={classes.progress} />
+                </Grid>
+              </>
+            )}
+          </Grid>
+        </div>
+      </Box>
     </Dialog>
   );
 };
 
 export const useStyles = makeStyles(theme => ({
-  root: {
-    width: 500,
+  dialog: {
+    maxWidth: 400,
+    maxHeight: 230,
   },
   typography: {
     padding: theme.spacing(2),
@@ -132,18 +183,17 @@ export const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
     backgroundColor: theme.palette.background.paper,
   },
-
-  lightText: {
+  subTitle: {
     fontSize: theme.typography.fontSize,
   },
-  locationText: {
-    fontSize: theme.typography.fontSize + 4,
+  checkIcon: {
+    color: "#099E47",
+    fontSize: "3em",
   },
-  boldText: {
-    fontSize: theme.typography.fontSize,
-    fontWeight: "bold",
-  },
-  shadedRow: {
-    background: theme.customColors.lightGray,
+  progress: {
+    width: 300,
+    "& > * + *": {
+      marginTop: theme.spacing(2),
+    },
   },
 }));
