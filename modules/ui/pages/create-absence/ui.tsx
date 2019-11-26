@@ -319,6 +319,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           onCancel={onCancel}
           details={projectedVacancyDetails}
           onChangedVacancies={onChangedVacancies}
+          // locationOptions={locationOptions}
+          employeeId={props.employeeId}
         />
       )}
     </>

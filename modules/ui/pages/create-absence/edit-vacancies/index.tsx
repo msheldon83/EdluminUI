@@ -11,6 +11,9 @@ import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { VacancyDetail } from "../types";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
+import { useQueryBundle } from "graphql/hooks";
+import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
+import { compact } from "lodash-es";
 
 type Props = {
   details: VacancyDetail[];
@@ -19,6 +22,8 @@ type Props = {
   employeeName: string;
   onCancel: () => void;
   onChangedVacancies: (data: VacancyDetail[]) => void;
+  employeeId: string;
+  // locationOptions: Location[];
 };
 
 type EditVacancyFormData = {
@@ -42,6 +47,15 @@ export const EditVacancies: React.FC<Props> = props => {
   } = useForm<EditVacancyFormData>({ defaultValues: initialFormData });
   const formValues = getValues({ nest: true });
   console.log("formValues", formValues);
+
+  const locationQuery = useQueryBundle(GetLocationsForEmployee, {
+    variables: { id: props.employeeId },
+  });
+  const locationOptions: GetLocationsForEmployee.Locations[] =
+    (locationQuery.state !== "LOADING" &&
+      compact(locationQuery.data.employee?.byId?.locations)) ||
+    [];
+  console.log(locationOptions);
 
   return (
     <form
@@ -68,7 +82,7 @@ export const EditVacancies: React.FC<Props> = props => {
         {formValues.details.map((d, i) => (
           <Grid key={i} container className={classes.rowSpacing}>
             <EditableVacancyDetailRow
-              locationOptions={[]}
+              locationOptions={locationOptions}
               setValue={setValue}
               keyPrefix={`details[${i}]`}
               values={d}

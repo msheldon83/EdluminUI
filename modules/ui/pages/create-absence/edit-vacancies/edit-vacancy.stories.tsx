@@ -73,6 +73,7 @@ export const AsAdmin = () => {
         <EditVacancies
           employeeName="Jane Doe"
           details={formVacancyValues}
+          employeeId="103"
           positionName="Math Teacher"
           onChangedVacancies={() => {}}
           onCancel={() => {}}

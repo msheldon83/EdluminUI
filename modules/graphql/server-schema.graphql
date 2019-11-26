@@ -100,6 +100,12 @@ type AbsenceQueries {
     favoritesOnly: Boolean
   ): PagedReplacementEmployeeAvailability
   projectedAbsence(absence: AbsenceCreateInput!): Absence
+  dailyReport(
+    orgId: ID!
+    date: Date!
+    locationIds: [Int]
+    positionTypeIds: [Int]
+  ): DailyReport
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -225,10 +231,11 @@ type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
   organization: Organization!
   absenceId: Int!
   absenceDetailId: Int!
-  absenceReasonId: Int!
   sequence: Byte!
   amount: Decimal!
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+  absenceReasonId: Int!
+  absenceReason: AbsenceReason
 }
 
 input AbsenceReasonUsageInput {
@@ -264,6 +271,8 @@ input AbsenceVacancyInput {
   prearrangedReplacementEmployeeId: Int
   details: [VacancyDetailInput]
   dayPortionOverrides: [DayPortionOverride]
+  accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
+  payCodeId: Int
 }
 
 type AccountingCode implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -411,9 +420,9 @@ type BasicEmployee implements ModelObjectInterface & OrgObjectInterface {
   orgId: Int!
   organization: Organization!
   firstName: String!
-  middleName: String!
+  middleName: String
   lastName: String!
-  phoneNumber: String!
+  phoneNumber: String
 }
 
 type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -431,9 +440,8 @@ type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainO
   contractId: Int!
   absenceId: Int
   notesToReplacement: String
-  positionName: String!
-  forEmployeeFirstName: String
-  forEmployeeLastName: String
+  position: Position
+  absence: Absence
 }
 
 type Branding implements ModelObjectInterface {
@@ -971,6 +979,16 @@ enum CustomFieldVisibility {
   HIDE
 }
 
+type DailyReport {
+  _info: [ReturnMessage]
+  unfilledAbsences: [Absence]!
+  unfilledVacancies: [Vacancy]!
+  filledAbsences: [Absence]!
+  filledVacancies: [Vacancy]!
+  noSubRequiredAbsences: [Absence]!
+  totalCount: Int!
+}
+
 scalar Date
 
 enum DateRangeType {
@@ -1062,6 +1080,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
   endorsements: [EmployeeEndorsement]
+  locations: [Location]
 }
 
 input EmployeeCreateInput {
@@ -1114,7 +1133,7 @@ input EmployeeEndorsementUpdateInput {
 }
 
 input EmployeeInterestInVacancyInput {
-  vacancyId: Int!
+  vacancyId: ID
   employeeId: Int!
   interestRatingId: InterestRating
 }
@@ -1399,6 +1418,8 @@ enum EventType {
   POSITION_SCHEDULE_VARIANT_CREATED
   POSITION_SCHEDULE_VARIANT_UPDATED
   POSITION_SCHEDULE_VARIANT_DELETED
+  POSITION_CHANGED_OBJECT_SCOPE
+  POSITION_CHANGED_POSITION_TYPE
   CALENDAR_CHANGE_CREATED
   CALENDAR_CHANGE_UPDATED
   CALENDAR_CHANGE_DELETED
@@ -1443,6 +1464,7 @@ enum EventType {
   EMPLOYEE_CREATED
   EMPLOYEE_UPDATED
   EMPLOYEE_DELETED
+  EMPLOYEE_CHANGED_OBJECT_SCOPE
   CONTRACTED_ASSIGNMENT_CREATED
   CONTRACTED_ASSIGNMENT_UPDATED
   CONTRACTED_ASSIGNMENT_ENDED
@@ -4302,7 +4324,31 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   assignment: Assignment
   locationId: Int
   location: Location
+  accountingCodeAllocations: [VacancyDetailAccountingCode]
+  payCodeId: Int
+  payCode: PayCode
   vacancy: BasicVacancy
+}
+
+type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  vacancyId: Int!
+  vacancyDetailId: Int!
+  accountingCodeId: Int!
+  accountingCode: AccountingCode
+  allocation: Decimal!
+}
+
+input VacancyDetailAccountingCodeInput {
+  accountingCodeId: Int!
+  allocation: Decimal!
 }
 
 input VacancyDetailInput {
@@ -4376,6 +4422,26 @@ type VacancyQueries {
     offset: Int
     sortBy: [SortDetailsInput]
   ): PagedVacancy
+  wasEmployeeAssignedToJob(id: ID!, vacancyId: ID!): VacancyWasAssignedResult
+  employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
+  employeeJobSearch(
+    id: ID!
+    availableJobsOnly: Boolean
+    locationIds: [Int]
+    positionTypeIds: [Int]
+    limit: Int
+    offset: Int
+  ): PagedVacancy
+  userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
+  userJobSearch(
+    id: ID!
+    availableJobsOnly: Boolean
+    orgIds: [Int]
+    locationIds: [Int]
+    positionTypeIds: [Int]
+    limit: Int
+    offset: Int
+  ): PagedVacancy
 }
 
 enum VacancyRejectionReason {
@@ -4385,6 +4451,17 @@ enum VacancyRejectionReason {
   DISLIKE_POSITION
   DISLIKE_LOCATION
   DISLIKE_TEACHER
+}
+
+type VacancyWasAssignedResult {
+  _info: [ReturnMessage]
+  vacancyId: Int!
+  employeeId: Int!
+  returnCode: Int!
+  description: String!
+  employeeWasAssigned: Boolean!
+  assignmentId: Int
+  assignment: Assignment
 }
 
 enum VolumeUnit {

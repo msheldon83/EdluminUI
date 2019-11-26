@@ -8,9 +8,10 @@ import { useState } from "react";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
 import { VacancyDetail } from "../types";
+import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
 
 type Props = {
-  locationOptions: Location[];
+  locationOptions: GetLocationsForEmployee.Locations[];
   setValue: SetValue;
   keyPrefix: string;
   values: VacancyDetail;
