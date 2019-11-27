@@ -4,18 +4,25 @@ import { PageTitle } from "ui/components/page-title";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid, { GridSpacing } from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
 import { Link } from "react-router-dom";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
+import { GeneralSettingsRoute } from "ui/routes/general-settings";
+import { BellScheduleVariantsRoute } from "ui/routes/bell-schedule-variants";
+import { CalendarEventReasonsRoute } from "ui/routes/calendar-event-reasons";
 import { BellScheduleRoute } from "ui/routes/bell-schedule";
+import { ReplacementAttributeRoute } from "ui/routes/replacement-attribute";
+import { AbsenceReasonRoute } from "ui/routes/absence-reason";
 import { PositionTypeRoute } from "ui/routes/position-type";
+import { VacancyReasonRoute } from "ui/routes/vacancy-reason";
+import { AbsenceVacancyRulesRoute } from "ui/routes/absence-vacancy-rules";
+import { SubstituteSettingsRoute } from "ui/routes/substitute-settings";
+import { AccountingCodeRoute } from "ui/routes/accounting-code";
+import { PayCodeRoute } from "ui/routes/pay-code";
+import { ContractsRoute } from "ui/routes/contracts";
 import { Typography } from "@material-ui/core";
-import { isAbsolute } from "path";
 
 //Create Routes for Pages
-
 export const OrgConfigPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(AdminChromeRoute);
@@ -32,7 +39,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/general.svg")}
         />
       ),
-      route: BellScheduleRoute, // Route Needed
+      route: GeneralSettingsRoute,
     },
   ];
 
@@ -46,7 +53,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/bell-schedule-variants.svg")}
         />
       ),
-      route: BellScheduleRoute, // Route Needed
+      route: BellScheduleVariantsRoute,
     },
     {
       name: t("Bell Schedules"),
@@ -66,7 +73,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/calendar-event-reasons.svg")}
         />
       ),
-      route: BellScheduleRoute, // Route Needed
+      route: CalendarEventReasonsRoute,
     },
   ];
 
@@ -80,7 +87,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/replacement-attribute.svg")}
         />
       ),
-      route: BellScheduleRoute, // Route Needed
+      route: ReplacementAttributeRoute,
     },
     {
       name: t("Absence Reasons"),
@@ -90,7 +97,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/absence-reasons.svg")}
         />
       ),
-      route: PositionTypeRoute, // Route Needed
+      route: AbsenceReasonRoute,
     },
     {
       name: t("Vacancy Reasons"),
@@ -100,7 +107,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/vacancy-reasons.svg")}
         />
       ),
-      route: PositionTypeRoute, // Route Needed
+      route: VacancyReasonRoute,
     },
     {
       name: t("Absence & Vacancy Rules"),
@@ -110,7 +117,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/absence-rules.svg")}
         />
       ),
-      route: PositionTypeRoute, // Route Needed
+      route: AbsenceVacancyRulesRoute,
     },
     {
       name: t("Substitute Settings"),
@@ -120,7 +127,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/substitute-settings.svg")}
         />
       ),
-      route: PositionTypeRoute, // Route Needed
+      route: SubstituteSettingsRoute,
     },
   ];
 
@@ -134,7 +141,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/accounting-codes.svg")}
         />
       ),
-      route: BellScheduleRoute, // Route Needed
+      route: AccountingCodeRoute,
     },
     {
       name: t("Pay Codes"),
@@ -144,7 +151,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/pay-codes.svg")}
         />
       ),
-      route: PositionTypeRoute, // Route Needed
+      route: PayCodeRoute,
     },
     {
       name: t("Position Types"),
@@ -164,14 +171,14 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/contracts.svg")}
         />
       ),
-      route: PositionTypeRoute, // Route Needed
+      route: ContractsRoute,
     },
   ];
 
   return (
     <>
       <PageTitle title={t("Settings")} />
-      <Typography className={classes.header} variant="h3">
+      <Typography className={classes.header} variant="h4">
         General
       </Typography>
       <Grid container className={(classes.root, classes.padding)} spacing={3}>
@@ -197,7 +204,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
         </Grid>
       </Grid>
 
-      <Typography className={classes.header} variant="h3">
+      <Typography className={classes.header} variant="h4">
         Schedule
       </Typography>
       <Grid container className={(classes.root, classes.padding)} spacing={3}>
@@ -223,7 +230,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
         </Grid>
       </Grid>
 
-      <Typography className={classes.header} variant="h3">
+      <Typography className={classes.header} variant="h4">
         Absence & Vacancy
       </Typography>
       <Grid container className={(classes.root, classes.padding)} spacing={3}>
@@ -249,7 +256,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
         </Grid>
       </Grid>
 
-      <Typography className={classes.header} variant="h3">
+      <Typography className={classes.header} variant="h4">
         Finance & Administration
       </Typography>
       <Grid container className={(classes.root, classes.padding)} spacing={3}>
@@ -296,7 +303,7 @@ const useStyles = makeStyles(theme => ({
   paper: {
     height: 140,
     width: 140,
-    fontSize: theme.typography.pxToRem(12),
+    fontSize: theme.typography.pxToRem(14),
     fontWeight: 500,
     position: "relative",
     "&:hover": {

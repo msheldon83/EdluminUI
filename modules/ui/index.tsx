@@ -55,6 +55,45 @@ import {
   SubPreferencesRoute,
 } from "./routes/sub-preferences";
 import { SubScheduleLoader, SubScheduleRoute } from "./routes/sub-schedule";
+import {
+  GeneralSettingsLoader,
+  GeneralSettingsRoute,
+} from "./routes/general-settings";
+import {
+  BellScheduleVariantsLoader,
+  BellScheduleVariantsRoute,
+} from "./routes/bell-schedule-variants";
+import {
+  CalendarEventReasonsLoader,
+  CalendarEventReasonsRoute,
+} from "./routes/calendar-event-reasons";
+import {
+  ReplacementAttributeLoader,
+  ReplacementAttributeRoute,
+} from "./routes/replacement-attribute";
+import {
+  AbsenceReasonLoader,
+  AbsenceReasonRoute,
+} from "./routes/absence-reason";
+import {
+  VacancyReasonLoader,
+  VacancyReasonRoute,
+} from "./routes/vacancy-reason";
+import {
+  AbsenceVacancyRulesLoader,
+  AbsenceVacancyRulesRoute,
+} from "./routes/absence-vacancy-rules";
+import {
+  SubstituteSettingsLoader,
+  SubstituteSettingsRoute,
+} from "./routes/substitute-settings";
+import {
+  AccountingCodeLoader,
+  AccountingCodeRoute,
+} from "./routes/accounting-code";
+import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
+
+import { ContractsLoader, ContractsRoute } from "./routes/contracts";
 import { EdluminTheme } from "./styles/mui-theme";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -160,12 +199,56 @@ export function App(props: {}) {
                         component={BellScheduleLoader}
                         path={BellScheduleRoute.path}
                       />
-
+                      <Route
+                        component={BellScheduleVariantsLoader}
+                        path={BellScheduleVariantsRoute.path}
+                      />
                       <Route
                         component={AdminHomeLoader}
                         path={AdminHomeRoute.path}
                         exact
                       />
+                      <Route
+                        component={GeneralSettingsLoader}
+                        path={GeneralSettingsRoute.path}
+                      />
+                      <Route
+                        component={CalendarEventReasonsLoader}
+                        path={CalendarEventReasonsRoute.path}
+                      />
+                      <Route
+                        component={ReplacementAttributeLoader}
+                        path={ReplacementAttributeRoute.path}
+                      />
+                      <Route
+                        component={AbsenceReasonLoader}
+                        path={AbsenceReasonRoute.path}
+                      />
+                      <Route
+                        component={VacancyReasonLoader}
+                        path={VacancyReasonRoute.path}
+                      />
+                      <Route
+                        component={AbsenceVacancyRulesLoader}
+                        path={AbsenceVacancyRulesRoute.path}
+                      />
+                      <Route
+                        component={SubstituteSettingsLoader}
+                        path={SubstituteSettingsRoute.path}
+                      />
+                      <Route
+                        component={AccountingCodeLoader}
+                        path={AccountingCodeRoute.path}
+                      />
+                      <Route
+                        component={PayCodeLoader}
+                        path={PayCodeRoute.path}
+                      />
+                      <Route
+                        component={ContractsLoader}
+                        path={ContractsRoute.path}
+                      />
+
                       {/* This route handles unknown or underspecified routes and takes the
                           admin to their organization (or a switcher) */}
                       <Route path={AdminRootChromeRoute.path}>
