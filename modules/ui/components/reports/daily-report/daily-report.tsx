@@ -12,6 +12,9 @@ import {
   FormControlLabel,
   Checkbox,
   Link,
+  Card,
+  CardContent,
+  LinearProgress,
 } from "@material-ui/core";
 import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
@@ -34,16 +37,26 @@ import { SectionHeader } from "ui/components/section-header";
 import { TFunction } from "i18next";
 import clsx from "clsx";
 
+type CardType =
+  | "unfilled"
+  | "filled"
+  | "noSubRequired"
+  | "total"
+  | "awaitingVerification";
+
 type Props = {
   orgId: string;
+  header: string;
+  showFilters?: boolean;
+  cards: CardType[];
 };
 
 export const DailyReport: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
-  const [showFilters, setShowFilters] = useState(!isMobile);
   const [filters] = useQueryParamIso(FilterQueryParams);
+  const [selectedCard, setSelectedCard] = useState<CardType | undefined>();
 
   const getDailyReport = useQueryBundle(GetDailyReport, {
     variables: {
@@ -70,13 +83,26 @@ export const DailyReport: React.FC<Props> = props => {
   }
 
   const totalCount = dailyReportDetails?.totalCount ?? 0;
+  //const
 
   return (
     <Section>
-      <SectionHeader title={t("Filter absences")} />
-      <Filters orgId={props.orgId} />
-      <Divider />
-      {/* CARDS */}
+      <SectionHeader title={props.header} />
+      {props.showFilters && (
+        <>
+          <Filters orgId={props.orgId} />
+          <Divider />
+        </>
+      )}
+      <Grid container spacing={4} className={classes.cardContainer}>
+        {props.cards.map((c, i) => {
+          return (
+            <Grid item key={i} className={classes.card}>
+              {displayCard(c, details, classes, t)}
+            </Grid>
+          );
+        })}
+      </Grid>
       {getSectionDisplay(unfilled, t("Unfilled"), "unfilled", classes, t)}
       {getSectionDisplay(filled, t("Filled"), "filled", classes, t)}
       {getSectionDisplay(
@@ -90,7 +116,162 @@ export const DailyReport: React.FC<Props> = props => {
   );
 };
 
+type CardData = {
+  count: number;
+  total: number;
+  label: string;
+  countClass: string;
+  barClass: string;
+  unfilledBarClass: string;
+};
+
+// Move the colors into classes
+const displayCard = (
+  cardType: CardType,
+  details: Detail[],
+  classes: any,
+  t: TFunction
+) => {
+  let data: CardData | undefined = undefined;
+  switch (cardType) {
+    case "unfilled": {
+      data = {
+        count: details.filter(x => x.state === "unfilled").length,
+        total: details.length,
+        label: t("Unfilled"),
+        countClass: classes.unfilledCount,
+        barClass: classes.unfilledCardBar,
+        unfilledBarClass: classes.unfilledCardBarUnfilled,
+      };
+      break;
+    }
+    case "filled": {
+      data = {
+        count: details.filter(x => x.state === "filled").length,
+        total: details.length,
+        label: t("Filled"),
+        countClass: classes.filledCount,
+        barClass: classes.filledCardBar,
+        unfilledBarClass: classes.filledCardBarUnfilled,
+      };
+      break;
+    }
+    case "noSubRequired": {
+      data = {
+        count: details.filter(x => x.state === "noSubRequired").length,
+        total: details.length,
+        label: t("No sub required"),
+        countClass: classes.noSubRequiredCount,
+        barClass: classes.noSubRequiredCardBar,
+        unfilledBarClass: classes.noSubRequiredCardBarUnfilled,
+      };
+      break;
+    }
+    case "total": {
+      data = {
+        count: details.length,
+        total: details.length,
+        label: t("Total"),
+        countClass: classes.totalCount,
+        barClass: classes.totalCardBar,
+        unfilledBarClass: classes.totalCardBarUnfilled,
+      };
+      break;
+    }
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  const percentValue = (data.count / data.total) * 100;
+  return (
+    <Card>
+      <CardContent
+        classes={{
+          root: classes.cardPadding,
+        }}
+      >
+        <div className={classes.cardContent}>
+          <Typography variant="h5" className={data.countClass}>
+            {data.count}
+          </Typography>
+          <Typography
+            variant="h6"
+            className={classes.cardSubText}
+          >{`${data.label} (${percentValue}%)`}</Typography>
+        </div>
+        <LinearProgress
+          variant="determinate"
+          value={percentValue}
+          className={classes.cardPercentage}
+          classes={{
+            colorPrimary: data.unfilledBarClass,
+            barColorPrimary: data.barClass,
+          }}
+        />
+      </CardContent>
+    </Card>
+  );
+};
+
 const useStyles = makeStyles(theme => ({
+  cardContainer: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  card: {
+    flexGrow: 1,
+  },
+  cardPadding: {
+    padding: "0 !important",
+  },
+  cardContent: {
+    padding: theme.spacing(2),
+  },
+  cardSubText: {
+    color: theme.customColors.edluminSubText,
+  },
+  cardPercentage: {
+    height: theme.typography.pxToRem(8),
+  },
+  unfilledCount: {
+    color: "rgba(198, 40, 40, 1)",
+  },
+  unfilledCardBar: {
+    backgroundColor: "rgba(198, 40, 40, 1)",
+  },
+  unfilledCardBarUnfilled: {
+    backgroundColor: "rgba(198, 40, 40, 0.1)",
+  },
+  filledCount: {
+    color: "rgba(9, 158, 71, 1)",
+  },
+  filledCardBar: {
+    backgroundColor: "rgba(9, 158, 71, 1)",
+  },
+  filledCardBarUnfilled: {
+    backgroundColor: "rgba(9, 158, 71, 0.1)",
+  },
+  noSubRequiredCount: {
+    color: "rgba(111, 111, 111, 1)",
+  },
+  noSubRequiredCardBar: {
+    backgroundColor: "rgba(111, 111, 111, 1)",
+  },
+  noSubRequiredCardBarUnfilled: {
+    backgroundColor: "rgba(111, 111, 111, 0.1)",
+  },
+  totalCount: {
+    color: "rgba(33, 150, 243, 1)",
+  },
+  totalCardBar: {
+    backgroundColor: "rgba(33, 150, 243, 1)",
+  },
+  totalCardBarUnfilled: {
+    backgroundColor: "rgba(33, 150, 243, 0.1)",
+  },
+
   detailGroup: {
     marginTop: theme.spacing(2),
   },
@@ -115,7 +296,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
   },
   detailSubText: {
-    color: "#9E9E9E",
+    color: theme.customColors.edluminSubText,
   },
   detailActionsSection: {
     textAlign: "right",

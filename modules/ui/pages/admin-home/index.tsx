@@ -13,10 +13,12 @@ export const AdminHome: React.FC<Props> = props => {
   const params = useRouteParams(AdminHomeRoute);
 
   return (
-    <>
-      <PageTitle title={`${params.organizationId} ${t("Home")}`} />
-      <DailyReport orgId={params.organizationId} />
-    </>
+    <DailyReport
+      orgId={params.organizationId}
+      header={t("Filter absences")}
+      showFilters={true}
+      cards={["unfilled", "filled", "noSubRequired", "total"]}
+    />
   );
 };
 
