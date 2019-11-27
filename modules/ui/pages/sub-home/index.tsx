@@ -126,16 +126,14 @@ export const SubHome: React.FC<Props> = props => {
   const onAcceptVacancy = async (orgId: string, vacancyId: string) => {
     const employeeId = determineEmployeeId(orgId);
     if (employeeId != 0) {
-      await Promise.resolve(
-        requestVacancyMutation({
-          variables: {
-            vacancyRequest: {
-              vacancyId: vacancyId,
-              employeeId: Number(employeeId),
-            },
+      await requestVacancyMutation({
+        variables: {
+          vacancyRequest: {
+            vacancyId: vacancyId,
+            employeeId: Number(employeeId),
           },
-        })
-      );
+        },
+      });
     }
     setEmployeeId(employeeId.toString());
     setVacancyId(vacancyId);
