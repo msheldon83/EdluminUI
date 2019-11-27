@@ -51,9 +51,16 @@ export const DailyReport: React.FC<Props> = props => {
   const [filters] = useQueryParamIso(FilterQueryParams);
   const [selectedCard, setSelectedCard] = useState<CardType | undefined>();
 
+  const serverQueryFilters = useMemo(() => filters, [
+    filters.date,
+    filters.locationIds,
+    filters.positionTypeIds,
+  ]);
   const getDailyReport = useQueryBundle(GetDailyReport, {
     variables: {
-      ...filters,
+      date: serverQueryFilters.date,
+      locationIds: serverQueryFilters.locationIds,
+      positionTypeIds: serverQueryFilters.positionTypeIds,
       orgId: props.orgId,
     },
   });
@@ -76,7 +83,12 @@ export const DailyReport: React.FC<Props> = props => {
   let details: Detail[] = [];
 
   if (dailyReportDetails) {
-    details = MapDailyReportDetails(dailyReportDetails, new Date(filters.date));
+    details = MapDailyReportDetails(
+      dailyReportDetails,
+      new Date(filters.date),
+      filters.showAbsences,
+      filters.showVacancies
+    );
   }
 
   const totalCount = dailyReportDetails?.totalCount ?? 0;

@@ -10,6 +10,8 @@ import { useTranslation } from "react-i18next";
 import { Detail, CardType } from "./helpers";
 import { round, uniqWith } from "lodash-es";
 import clsx from "clsx";
+import { useState } from "react";
+import { TFunction } from "i18next";
 
 type Props = {
   cardType: CardType;
@@ -20,6 +22,7 @@ type Props = {
 };
 
 type CardData = {
+  type: CardType;
   count: number;
   total: number;
   label: string;
@@ -31,55 +34,15 @@ type CardData = {
 export const GroupCard: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const [percentage, setPercentage] = useState<number>(100);
 
-  let data: CardData | undefined = undefined;
-  switch (props.cardType) {
-    case "unfilled": {
-      data = {
-        count: props.details.filter(x => x.state === "unfilled").length,
-        total: props.details.length,
-        label: t("Unfilled"),
-        countClass: classes.unfilledCount,
-        barClass: classes.unfilledCardBar,
-        unfilledBarClass: classes.unfilledCardBarUnfilled,
-      };
-      break;
-    }
-    case "filled": {
-      data = {
-        count: props.details.filter(x => x.state === "filled").length,
-        total: props.details.length,
-        label: t("Filled"),
-        countClass: classes.filledCount,
-        barClass: classes.filledCardBar,
-        unfilledBarClass: classes.filledCardBarUnfilled,
-      };
-      break;
-    }
-    case "noSubRequired": {
-      data = {
-        count: props.details.filter(x => x.state === "noSubRequired").length,
-        total: props.details.length,
-        label: t("No sub required"),
-        countClass: classes.noSubRequiredCount,
-        barClass: classes.noSubRequiredCardBar,
-        unfilledBarClass: classes.noSubRequiredCardBarUnfilled,
-      };
-      break;
-    }
-    case "total": {
-      data = {
-        count: props.details.length,
-        total: props.totalContractedEmployeeCount ?? 0,
-        label: t("Total"),
-        countClass: classes.totalCount,
-        barClass: classes.totalCardBar,
-        unfilledBarClass: classes.totalCardBarUnfilled,
-      };
-      break;
-    }
-  }
-
+  const data = getCardData(
+    props.cardType,
+    props.details,
+    props.totalContractedEmployeeCount ?? 0,
+    classes,
+    t
+  );
   if (!data) {
     return null;
   }
@@ -98,8 +61,14 @@ export const GroupCard: React.FC<Props> = props => {
       employeeOnlyAbsences,
       (a, b) => a.employee!.id === b.employee!.id
     );
-    percentValue = round((uniqueEmployees.length / data.total) * 100, 2);
-    percentLabel = `${data.label} (${percentValue}% ${t("absent")})`;
+    /* For Total, we want the progess bar to show the percentage of 
+        Contracted Employees who ARE NOT absent, but we want the label
+        to show the percentage of those who ARE absent.
+    */
+    percentValue = 100 - round((uniqueEmployees.length / data.total) * 100, 2);
+    percentLabel = `${data.label} (${Math.abs(percentValue - 100)}% ${t(
+      "absent"
+    )})`;
   }
 
   return (
@@ -127,7 +96,7 @@ export const GroupCard: React.FC<Props> = props => {
           </div>
           <LinearProgress
             variant="determinate"
-            value={percentValue}
+            value={isNaN(percentValue) ? 0 : percentValue}
             className={classes.cardPercentage}
             classes={{
               colorPrimary: data.unfilledBarClass,
@@ -201,3 +170,65 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "rgba(33, 150, 243, 0.1)",
   },
 }));
+
+const getCardData = (
+  cardType: CardType,
+  details: Detail[],
+  totalContractedEmployeeCount: number,
+  classes: any,
+  t: TFunction
+): CardData | undefined => {
+  let data: CardData | undefined = undefined;
+  switch (cardType) {
+    case "unfilled": {
+      data = {
+        type: "unfilled",
+        count: details.filter(x => x.state === "unfilled").length,
+        total: details.length,
+        label: t("Unfilled"),
+        countClass: classes.unfilledCount,
+        barClass: classes.unfilledCardBar,
+        unfilledBarClass: classes.unfilledCardBarUnfilled,
+      };
+      break;
+    }
+    case "filled": {
+      data = {
+        type: "filled",
+        count: details.filter(x => x.state === "filled").length,
+        total: details.length,
+        label: t("Filled"),
+        countClass: classes.filledCount,
+        barClass: classes.filledCardBar,
+        unfilledBarClass: classes.filledCardBarUnfilled,
+      };
+      break;
+    }
+    case "noSubRequired": {
+      data = {
+        type: "noSubRequired",
+        count: details.filter(x => x.state === "noSubRequired").length,
+        total: details.length,
+        label: t("No sub required"),
+        countClass: classes.noSubRequiredCount,
+        barClass: classes.noSubRequiredCardBar,
+        unfilledBarClass: classes.noSubRequiredCardBarUnfilled,
+      };
+      break;
+    }
+    case "total": {
+      data = {
+        type: "total",
+        count: details.length,
+        total: totalContractedEmployeeCount,
+        label: t("Total"),
+        countClass: classes.totalCount,
+        barClass: classes.totalCardBar,
+        unfilledBarClass: classes.totalCardBarUnfilled,
+      };
+      break;
+    }
+  }
+
+  return data;
+};

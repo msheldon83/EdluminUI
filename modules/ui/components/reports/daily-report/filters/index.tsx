@@ -1,4 +1,11 @@
-import { Grid, makeStyles, Paper } from "@material-ui/core";
+import {
+  Grid,
+  makeStyles,
+  Paper,
+  InputLabel,
+  FormControlLabel,
+  Checkbox,
+} from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -15,7 +22,7 @@ type Props = {
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [filters] = useQueryParamIso(FilterQueryParams);
+  const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
 
   return (
     <Grid
@@ -36,6 +43,35 @@ export const Filters: React.FC<Props> = props => {
         orgId={props.orgId}
         positionTypeLabel={t("Position type")}
       />
+      <Grid item container md={2}>
+        <InputLabel>{t("Show")}</InputLabel>
+        <Grid item container>
+          <FormControlLabel
+            control={
+              <Checkbox
+                color="primary"
+                checked={filters.showAbsences === true}
+                onChange={e =>
+                  updateFilters({ showAbsences: e.target.checked })
+                }
+              />
+            }
+            label={t("Absences")}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                color="primary"
+                checked={filters.showVacancies === true}
+                onChange={e =>
+                  updateFilters({ showVacancies: e.target.checked })
+                }
+              />
+            }
+            label={t("Vacancies")}
+          />
+        </Grid>
+      </Grid>
     </Grid>
   );
 };

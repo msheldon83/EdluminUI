@@ -48,7 +48,9 @@ export type Detail = {
 
 export const MapDailyReportDetails = (
   dailyReport: DailyReportType,
-  date: Date
+  date: Date,
+  showAbsences: boolean,
+  showVacancies: boolean
 ): Detail[] => {
   const details: Detail[] = [];
 
@@ -302,7 +304,14 @@ export const MapDailyReportDetails = (
   // Filter the list by only details that match the Date we are looking for
   const detailsForDate = details.filter(x => isEqual(x.date, date));
 
-  return detailsForDate;
+  // Filter the list by any client side filtering selections
+  const filteredDetails = detailsForDate.filter(
+    x =>
+      (showAbsences && x.type === "absence") ||
+      (showVacancies && x.type === "vacancy")
+  );
+
+  return filteredDetails;
 };
 
 const getRangeDisplayText = (startDate: string, endDate: string): string => {
