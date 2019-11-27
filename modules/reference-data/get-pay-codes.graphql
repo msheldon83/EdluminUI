@@ -1,0 +1,8 @@
+query GetPayCodes($orgId: ID!) {
+  orgRef_PayCode {
+    all(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}

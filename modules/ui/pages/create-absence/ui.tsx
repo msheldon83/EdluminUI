@@ -140,6 +140,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         t("End time is required"),
     }
   );
+  register({ name: "accountingCode", type: "custom" });
+  register({ name: "payCode", type: "custom" });
 
   const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
     variables: {
@@ -389,6 +391,8 @@ export type FormData = {
   needsReplacement: boolean;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
+  accountingCode?: string;
+  payCode?: string;
 };
 
 const computeDisabledDates = (
@@ -505,7 +509,6 @@ const buildAbsenceCreateInput = (
       };
 
       if (formValues.dayPart === DayPart.Hourly) {
-        //TODO: provide a way to specify start and end time in the UI when Hourly
         detail = {
           ...detail,
           startTime: secondsSinceMidnight(
@@ -534,6 +537,17 @@ const buildAbsenceCreateInput = (
           needsReplacement: formValues.needsReplacement,
           notesToReplacement: formValues.notesToReplacement,
           prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
+          accountingCodeAllocations: formValues.accountingCode
+            ? [
+                {
+                  accountingCodeId: Number(formValues.accountingCode),
+                  allocation: 1.0,
+                },
+              ]
+            : undefined,
+          payCodeId: formValues.payCode
+            ? Number(formValues.payCode)
+            : undefined,
         },
       ],
     };
