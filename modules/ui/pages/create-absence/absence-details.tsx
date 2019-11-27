@@ -34,6 +34,7 @@ import {
 } from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
+import { Input } from "ui/components/form/input";
 import { VacancyDetails } from "../../components/absence/vacancy-details";
 import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
@@ -302,15 +303,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
           <Typography className={classes.subText}>
             {t("Can be seen by the administrator and the employee.")}
           </Typography>
-
-          <TextField
+          <Input
             multiline
             rows="6"
-            variant="outlined"
-            margin="normal"
-            fullWidth
             onChange={onNotesToApproverChange}
-            InputProps={{ classes: textFieldClasses }}
+            classes={textFieldClasses}
           />
         </div>
       </Grid>
@@ -419,15 +416,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
                     "Can be seen by the substitute, administrator and employee."
                   )}
                 </Typography>
-                <TextField
+                <Input
                   name="notesToReplacement"
                   multiline
                   rows="6"
-                  variant="outlined"
-                  margin="normal"
-                  fullWidth
                   onChange={onNotesToReplacementChange}
-                  InputProps={{ classes: textFieldClasses }}
+                  classes={textFieldClasses}
                 />
               </div>
             )}
