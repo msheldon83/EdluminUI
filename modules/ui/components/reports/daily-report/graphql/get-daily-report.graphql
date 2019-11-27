@@ -16,8 +16,7 @@ query GetDailyReport(
         id
         startDate
         endDate
-        createdUtc
-        changedUtc
+        createdLocal
         employee {
           id
           firstName
@@ -67,6 +66,9 @@ query GetDailyReport(
       }
       filledVacancies {
         id
+        startDate
+        endDate
+        createdLocal
         position {
           id
           name
@@ -96,8 +98,7 @@ query GetDailyReport(
         id
         startDate
         endDate
-        createdUtc
-        changedUtc
+        createdLocal
         employee {
           id
           firstName
@@ -147,6 +148,9 @@ query GetDailyReport(
       }
       unfilledVacancies {
         id
+        startDate
+        endDate
+        createdLocal
         position {
           id
           name
@@ -176,8 +180,7 @@ query GetDailyReport(
         id
         startDate
         endDate
-        createdUtc
-        changedUtc
+        createdLocal
         employee {
           id
           firstName

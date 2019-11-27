@@ -84,7 +84,7 @@ export const MapDailyReportDetails = (
         startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
-          a.createdUtc,
+          a.createdLocal,
           "MMM d h:mm a"
         ),
         substitute:
@@ -138,7 +138,7 @@ export const MapDailyReportDetails = (
         startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
-          v.createdUtc,
+          v.createdLocal,
           "MMM d h:mm a"
         ),
         substitute:
@@ -199,7 +199,7 @@ export const MapDailyReportDetails = (
         startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
-          a.createdUtc,
+          a.createdLocal,
           "MMM d h:mm a"
         ),
         position:
@@ -241,7 +241,7 @@ export const MapDailyReportDetails = (
         startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
-          v.createdUtc,
+          v.createdLocal,
           "MMM d h:mm a"
         ),
         position: v.position
@@ -290,7 +290,7 @@ export const MapDailyReportDetails = (
           startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
           endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
           created: GetDateInYesterdayTodayTomorrowFormat(
-            a.createdUtc,
+            a.createdLocal,
             "MMM d h:mm a"
           ),
         } as Detail;
