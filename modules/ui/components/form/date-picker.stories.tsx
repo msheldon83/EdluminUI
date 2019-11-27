@@ -6,6 +6,7 @@ import endOfTomorrow from "date-fns/endOfTomorrow";
 import endOfYesterday from "date-fns/endOfYesterday";
 import { DatePicker, DEFAULT_DATE_FORMAT } from "./date-picker";
 import { Calendar } from "./calendar";
+import { FiveWeekCalendar } from "./five-week-calendar";
 
 export default {
   title: "Forms/Date Picker",
@@ -170,10 +171,28 @@ CalendarStory.story = {
   name: "Calendar",
 };
 
+export const FiveWeekCalendarStory = () => {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.container}>
+      <FiveWeekCalendar
+        disableWeekends={boolean("disableWeekends", true)}
+        startDate={customDate("startDate", new Date())}
+        selectedDates={[new Date()]}
+      />
+    </div>
+  );
+};
+
+FiveWeekCalendarStory.story = {
+  name: "Five Week Calendar",
+};
+
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(2),
-    maxWidth: theme.typography.pxToRem(366),
+    maxWidth: theme.typography.pxToRem(575),
     width: "100%",
   },
 }));
