@@ -34,6 +34,7 @@ export type Detail = {
     name: string;
     phone: string;
   };
+  assignmentId?: string;
   position?: {
     id: string;
     name: string;
@@ -92,6 +93,7 @@ export const MapDailyReportDetails = (
                 phone: matchingVacancyDetail.assignment.employee.phoneNumber,
               }
             : undefined,
+        assignmentId: matchingVacancyDetail?.assignment?.id,
         position:
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
@@ -140,6 +142,7 @@ export const MapDailyReportDetails = (
                 phone: vacancyDetail.assignment.employee.phoneNumber,
               }
             : undefined,
+        assignmentId: vacancyDetail?.assignment?.id,
         position: v.position
           ? {
               id: v.position.id,

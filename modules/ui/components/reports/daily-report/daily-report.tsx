@@ -332,6 +332,11 @@ const getSectionDisplay = (
                   </Grid>
                   <Grid item xs={1}>
                     <div>{d.type === "absence" ? `#${d.id}` : `#V${d.id}`}</div>
+                    {d.assignmentId && (
+                      <div
+                        className={classes.detailSubText}
+                      >{`#C${d.assignmentId}`}</div>
+                    )}
                   </Grid>
                   <Grid item xs={1} className={classes.detailActionsSection}>
                     <MoreVert className={classes.action} />
