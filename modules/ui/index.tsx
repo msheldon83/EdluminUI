@@ -47,6 +47,7 @@ import {
   PositionTypeViewLoader,
   PositionTypeViewRoute,
 } from "./routes/position-type";
+import { VerifyRoute, VerifyLoader } from "./routes/verify";
 import { ConfigurationRoute, ConfigurationLoader } from "./routes/org-config";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
@@ -160,6 +161,7 @@ export function App(props: {}) {
                         component={BellScheduleLoader}
                         path={BellScheduleRoute.path}
                       />
+                      <Route component={VerifyLoader} path={VerifyRoute.path} />
 
                       <Route
                         component={AdminHomeLoader}
