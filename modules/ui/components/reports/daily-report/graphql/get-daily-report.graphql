@@ -39,6 +39,10 @@ query GetDailyReport(
         }
         vacancies {
           id
+          position {
+            id
+            name
+          }
           details {
             id
             startDate
@@ -63,6 +67,10 @@ query GetDailyReport(
       }
       filledVacancies {
         id
+        position {
+          id
+          name
+        }
         details {
           id
           startDate
@@ -111,6 +119,10 @@ query GetDailyReport(
         }
         vacancies {
           id
+          position {
+            id
+            name
+          }
           details {
             id
             startDate
@@ -135,6 +147,10 @@ query GetDailyReport(
       }
       unfilledVacancies {
         id
+        position {
+          id
+          name
+        }
         details {
           id
           startDate

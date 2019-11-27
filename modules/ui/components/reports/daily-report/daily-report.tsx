@@ -2,9 +2,6 @@ import * as React from "react";
 import {
   Grid,
   makeStyles,
-  Typography,
-  Button,
-  Paper,
   Divider,
   ExpansionPanel,
   ExpansionPanelSummary,
@@ -12,9 +9,7 @@ import {
   FormControlLabel,
   Checkbox,
   Link,
-  Card,
-  CardContent,
-  LinearProgress,
+  Button,
 } from "@material-ui/core";
 import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
@@ -26,23 +21,19 @@ import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
 import { FilterList, ExpandMore, MoreVert } from "@material-ui/icons";
 import { Section } from "ui/components/section";
-import {
-  DailyReport as DailyReportType,
-  AbsenceDetail,
-  VacancyDetail,
-} from "graphql/server-types.gen";
-import { format, isEqual, parseISO } from "date-fns";
-import { flatMap } from "lodash-es";
+import { DailyReport as DailyReportType } from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
-import { TFunction } from "i18next";
 import clsx from "clsx";
-
-type CardType =
-  | "unfilled"
-  | "filled"
-  | "noSubRequired"
-  | "total"
-  | "awaitingVerification";
+import {
+  Detail,
+  MapDailyReportDetails,
+  GetUnfilled,
+  GetFilled,
+  GetNoSubRequired,
+  CardType,
+} from "./helpers";
+import { GroupCard } from "./group-card";
+import { TFunction } from "i18next";
 
 type Props = {
   orgId: string;
@@ -71,19 +62,12 @@ export const DailyReport: React.FC<Props> = props => {
     : getDailyReport.data?.absence?.dailyReport) as DailyReportType;
 
   let details: Detail[] = [];
-  let unfilled: Detail[] = [];
-  let filled: Detail[] = [];
-  let noSubRequired: Detail[] = [];
 
   if (dailyReportDetails) {
-    details = mapDailyReportDetails(dailyReportDetails, new Date(filters.date));
-    unfilled = getUnfilled(details);
-    filled = getFilled(details);
-    noSubRequired = getNoSubRequired(details);
+    details = MapDailyReportDetails(dailyReportDetails, new Date(filters.date));
   }
 
   const totalCount = dailyReportDetails?.totalCount ?? 0;
-  //const
 
   return (
     <Section>
@@ -98,120 +82,21 @@ export const DailyReport: React.FC<Props> = props => {
         {props.cards.map((c, i) => {
           return (
             <Grid item key={i} className={classes.card}>
-              {displayCard(c, details, classes, t)}
+              <GroupCard
+                cardType={c}
+                details={details}
+                onClick={(c: CardType) => {
+                  setSelectedCard(c === "total" ? undefined : c);
+                }}
+              />
             </Grid>
           );
         })}
       </Grid>
-      {getSectionDisplay(unfilled, t("Unfilled"), "unfilled", classes, t)}
-      {getSectionDisplay(filled, t("Filled"), "filled", classes, t)}
-      {getSectionDisplay(
-        noSubRequired,
-        t("No sub required"),
-        "noSubRequired",
-        classes,
-        t
+      {displaySections(details, selectedCard, classes, t, () =>
+        setSelectedCard(undefined)
       )}
     </Section>
-  );
-};
-
-type CardData = {
-  count: number;
-  total: number;
-  label: string;
-  countClass: string;
-  barClass: string;
-  unfilledBarClass: string;
-};
-
-// Move the colors into classes
-const displayCard = (
-  cardType: CardType,
-  details: Detail[],
-  classes: any,
-  t: TFunction
-) => {
-  let data: CardData | undefined = undefined;
-  switch (cardType) {
-    case "unfilled": {
-      data = {
-        count: details.filter(x => x.state === "unfilled").length,
-        total: details.length,
-        label: t("Unfilled"),
-        countClass: classes.unfilledCount,
-        barClass: classes.unfilledCardBar,
-        unfilledBarClass: classes.unfilledCardBarUnfilled,
-      };
-      break;
-    }
-    case "filled": {
-      data = {
-        count: details.filter(x => x.state === "filled").length,
-        total: details.length,
-        label: t("Filled"),
-        countClass: classes.filledCount,
-        barClass: classes.filledCardBar,
-        unfilledBarClass: classes.filledCardBarUnfilled,
-      };
-      break;
-    }
-    case "noSubRequired": {
-      data = {
-        count: details.filter(x => x.state === "noSubRequired").length,
-        total: details.length,
-        label: t("No sub required"),
-        countClass: classes.noSubRequiredCount,
-        barClass: classes.noSubRequiredCardBar,
-        unfilledBarClass: classes.noSubRequiredCardBarUnfilled,
-      };
-      break;
-    }
-    case "total": {
-      data = {
-        count: details.length,
-        total: details.length,
-        label: t("Total"),
-        countClass: classes.totalCount,
-        barClass: classes.totalCardBar,
-        unfilledBarClass: classes.totalCardBarUnfilled,
-      };
-      break;
-    }
-  }
-
-  if (!data) {
-    return null;
-  }
-
-  const percentValue = (data.count / data.total) * 100;
-  return (
-    <Card>
-      <CardContent
-        classes={{
-          root: classes.cardPadding,
-        }}
-      >
-        <div className={classes.cardContent}>
-          <Typography variant="h5" className={data.countClass}>
-            {data.count}
-          </Typography>
-          <Typography
-            variant="h6"
-            className={classes.cardSubText}
-          >{`${data.label} (${percentValue}%)`}</Typography>
-        </div>
-        <LinearProgress
-          variant="determinate"
-          value={percentValue}
-          className={classes.cardPercentage}
-          classes={{
-            colorPrimary: data.unfilledBarClass,
-            barColorPrimary: data.barClass,
-          }}
-        />
-      </CardContent>
-    </Card>
   );
 };
 
@@ -223,55 +108,6 @@ const useStyles = makeStyles(theme => ({
   card: {
     flexGrow: 1,
   },
-  cardPadding: {
-    padding: "0 !important",
-  },
-  cardContent: {
-    padding: theme.spacing(2),
-  },
-  cardSubText: {
-    color: theme.customColors.edluminSubText,
-  },
-  cardPercentage: {
-    height: theme.typography.pxToRem(8),
-  },
-  unfilledCount: {
-    color: "rgba(198, 40, 40, 1)",
-  },
-  unfilledCardBar: {
-    backgroundColor: "rgba(198, 40, 40, 1)",
-  },
-  unfilledCardBarUnfilled: {
-    backgroundColor: "rgba(198, 40, 40, 0.1)",
-  },
-  filledCount: {
-    color: "rgba(9, 158, 71, 1)",
-  },
-  filledCardBar: {
-    backgroundColor: "rgba(9, 158, 71, 1)",
-  },
-  filledCardBarUnfilled: {
-    backgroundColor: "rgba(9, 158, 71, 0.1)",
-  },
-  noSubRequiredCount: {
-    color: "rgba(111, 111, 111, 1)",
-  },
-  noSubRequiredCardBar: {
-    backgroundColor: "rgba(111, 111, 111, 1)",
-  },
-  noSubRequiredCardBarUnfilled: {
-    backgroundColor: "rgba(111, 111, 111, 0.1)",
-  },
-  totalCount: {
-    color: "rgba(33, 150, 243, 1)",
-  },
-  totalCardBar: {
-    backgroundColor: "rgba(33, 150, 243, 1)",
-  },
-  totalCardBarUnfilled: {
-    backgroundColor: "rgba(33, 150, 243, 0.1)",
-  },
-
   detailGroup: {
     marginTop: theme.spacing(2),
   },
@@ -313,283 +149,94 @@ const useStyles = makeStyles(theme => ({
   subDetailHeader: {
     width: "100%",
   },
-
-  absenceDetailsSection: {
-    marginTop: theme.spacing(),
-  },
-  substituteDetailsSection: {
-    marginTop: theme.spacing(2),
-  },
-  vacancyDetails: {
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    paddingLeft: theme.spacing(4),
-    paddingRight: theme.spacing(4),
-  },
-  absenceReasonDetails: {
-    fontWeight: "bold",
-  },
-  dates: {
-    marginTop: theme.spacing(2),
-  },
-  notesToApproverSection: {
-    marginTop: theme.spacing(2),
-  },
-  notesForApprover: {
-    marginTop: theme.spacing(),
-    paddingRight: theme.spacing(6),
-  },
-  requiresSubSection: {
-    marginBottom: theme.spacing(2),
-  },
-  preArrangedChip: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  notesForSubSection: {
-    marginTop: theme.spacing(4),
-  },
-  notesForSub: {
-    marginTop: theme.spacing(),
-  },
-  subText: {
-    color: theme.customColors.darkGray,
-  },
-  edit: {
-    marginTop: theme.spacing(4),
-  },
-  valueMissing: {
-    fontWeight: "normal",
-    opacity: "0.6",
-    filter: "alpha(opacity = 60)",
-  },
 }));
 
-type Detail = {
-  id: string;
-  state: "unfilled" | "filled" | "noSubRequired";
-  type: "absence" | "vacancy";
-  employee?: {
-    id: string;
-    name: string;
-  };
-  absenceReason?: string;
-  date: Date;
-  dateRange: string;
-  startTime: string;
-  endTime: string;
-  created: Date;
-  substitute?: {
-    id: string;
-    name: string;
-    phone: string;
-  };
-  position?: {
-    id: string;
-    name: string;
-  };
-};
-
-const mapDailyReportDetails = (
-  dailyReport: DailyReportType,
-  date: Date
-): Detail[] => {
-  const details: Detail[] = [];
-
-  // Filled Absences
-  const filledAbsencesDetails = flatMap(dailyReport.filledAbsences, a => {
-    if (!a || !a.details) {
-      return [];
-    }
-
-    return a.details.map(d => {
-      const absenceDetail = d as AbsenceDetail;
-      return {
-        id: a.id,
-        state: "filled",
-        type: "absence",
-        employee: a.employee
-          ? {
-              id: a.employee.id,
-              name: `${a.employee.firstName} ${a.employee.lastName}`,
-            }
-          : undefined,
-        absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
-        date: parseISO(absenceDetail.startDate),
-        dateRange: getRangeDisplayText(
-          absenceDetail.startDate,
-          absenceDetail.endDate
-        ),
-        startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
-        endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
-        created: a.createdUtc,
-      } as Detail;
-    });
-  });
-  // Add in getting the Sub for the appropriate Absence Detail > Vacancy Detail match
-  details.push(...filledAbsencesDetails);
-
-  // Filled Vacancies
-  const filledVacancyDetails = flatMap(dailyReport.filledVacancies, v => {
-    if (!v || !v.details) {
-      return [];
-    }
-
-    return v.details.map(d => {
-      const vacancyDetail = d as VacancyDetail;
-      return {
-        id: v.id,
-        state: "filled",
-        type: "vacancy",
-        date: parseISO(vacancyDetail.startDate),
-        dateRange: getRangeDisplayText(
-          vacancyDetail.startDate,
-          vacancyDetail.endDate
-        ),
-        startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
-        endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
-        created: v.createdUtc,
-        substitute:
-          vacancyDetail.assignment && vacancyDetail.assignment.employee
-            ? {
-                id: vacancyDetail.assignment.employee.id,
-                name: `${vacancyDetail.assignment.employee.firstName} ${vacancyDetail.assignment.employee.lastName}`,
-                phone: vacancyDetail.assignment.employee.phoneNumber,
-              }
-            : undefined,
-      } as Detail;
-    });
-  });
-  details.push(...filledVacancyDetails);
-
-  // Unfilled Absences
-  const unfilledAbsencesDetails = flatMap(dailyReport.unfilledAbsences, a => {
-    if (!a || !a.details) {
-      return [];
-    }
-
-    return a.details.map(d => {
-      const absenceDetail = d as AbsenceDetail;
-      return {
-        id: a.id,
-        state: "unfilled",
-        type: "absence",
-        employee: a.employee
-          ? {
-              id: a.employee.id,
-              name: `${a.employee.firstName} ${a.employee.lastName}`,
-            }
-          : undefined,
-        absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
-        date: parseISO(absenceDetail.startDate),
-        dateRange: getRangeDisplayText(
-          absenceDetail.startDate,
-          absenceDetail.endDate
-        ),
-        startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
-        endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
-        created: a.createdUtc,
-      } as Detail;
-    });
-  });
-  details.push(...unfilledAbsencesDetails);
-
-  // Unfilled Vacancies
-  const unfilledVacancyDetails = flatMap(dailyReport.filledVacancies, v => {
-    if (!v || !v.details) {
-      return [];
-    }
-
-    return v.details.map(d => {
-      const vacancyDetail = d as VacancyDetail;
-      return {
-        id: v.id,
-        state: "unfilled",
-        type: "vacancy",
-        date: parseISO(vacancyDetail.startDate),
-        dateRange: getRangeDisplayText(
-          vacancyDetail.startDate,
-          vacancyDetail.endDate
-        ),
-        startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
-        endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
-        created: v.createdUtc,
-      } as Detail;
-    });
-  });
-  details.push(...unfilledVacancyDetails);
-
-  // No Sub Required Absences
-  const noSubRequiredAbsencesDetails = flatMap(
-    dailyReport.noSubRequiredAbsences,
-    a => {
-      if (!a || !a.details) {
-        return [];
-      }
-
-      return a.details.map(d => {
-        const absenceDetail = d as AbsenceDetail;
-        return {
-          id: a.id,
-          state: "noSubRequired",
-          type: "absence",
-          employee: a.employee
-            ? {
-                id: a.employee.id,
-                name: `${a.employee.firstName} ${a.employee.lastName}`,
-              }
-            : undefined,
-          absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
-          date: parseISO(absenceDetail.startDate),
-          dateRange: getRangeDisplayText(
-            absenceDetail.startDate,
-            absenceDetail.endDate
-          ),
-          startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
-          endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
-          created: a.createdUtc,
-        } as Detail;
-      });
-    }
-  );
-  details.push(...noSubRequiredAbsencesDetails);
-
-  // Filter the list by only details that match the Date we are looking for
-  const detailsForDate = details.filter(x => isEqual(x.date, date));
-
-  return detailsForDate;
-};
-
-const getRangeDisplayText = (startDate: string, endDate: string): string => {
-  const startDateAsDate = parseISO(startDate);
-  const endDateAsDate = parseISO(endDate);
-
-  if (
-    startDateAsDate.getDay() === endDateAsDate.getDay() &&
-    startDateAsDate.getMonth() === endDateAsDate.getMonth()
-  ) {
-    return format(startDateAsDate, "MMM d");
-  } else {
-    return `${format(startDateAsDate, "MMM d")} - ${format(
-      endDateAsDate,
-      "MMM d"
-    )}`;
+const displaySections = (
+  details: Detail[],
+  selectedCard?: CardType | undefined,
+  classes: any,
+  t: TFunction,
+  clearSelection: () => void
+) => {
+  if (selectedCard === "unfilled") {
+    return (
+      <div>
+        <div>
+          {t("Showing only Unfilled absences.")}{" "}
+          <Link className={classes.action} onClick={clearSelection}>
+            {t("Show all")}
+          </Link>
+        </div>
+        {getSectionDisplay(
+          GetUnfilled(details),
+          t("Unfilled"),
+          "unfilled",
+          classes,
+          t
+        )}
+      </div>
+    );
   }
-};
 
-const getUnfilled = (details: Detail[]): Detail[] => {
-  const unfilled = details.filter(x => x.state === "unfilled");
-  return unfilled;
-};
+  if (selectedCard === "filled") {
+    return (
+      <div>
+        <div>
+          {t("Showing only Filled absences.")}{" "}
+          <Link className={classes.action} onClick={clearSelection}>
+            {t("Show all")}
+          </Link>
+        </div>
+        {getSectionDisplay(
+          GetFilled(details),
+          t("Filled"),
+          "filled",
+          classes,
+          t
+        )}
+      </div>
+    );
+  }
 
-const getFilled = (details: Detail[]): Detail[] => {
-  const filled = details.filter(x => x.state === "filled");
-  return filled;
-};
+  if (selectedCard === "noSubRequired") {
+    return (
+      <div>
+        <div>
+          {t("Showing only No sub required absences.")}{" "}
+          <Link className={classes.action} onClick={clearSelection}>
+            {t("Show all")}
+          </Link>
+        </div>
+        {getSectionDisplay(
+          GetNoSubRequired(details),
+          t("No sub required"),
+          "noSubRequired",
+          classes,
+          t
+        )}
+      </div>
+    );
+  }
 
-const getNoSubRequired = (details: Detail[]): Detail[] => {
-  const noSubRequired = details.filter(x => x.state === "noSubRequired");
-  return noSubRequired;
+  return (
+    <div>
+      {getSectionDisplay(
+        GetUnfilled(details),
+        t("Unfilled"),
+        "unfilled",
+        classes,
+        t
+      )}
+      {getSectionDisplay(GetFilled(details), t("Filled"), "filled", classes, t)}
+      {getSectionDisplay(
+        GetNoSubRequired(details),
+        t("No sub required"),
+        "noSubRequired",
+        classes,
+        t
+      )}
+    </div>
+  );
 };
 
 const getSectionDisplay = (
@@ -641,14 +288,20 @@ const getSectionDisplay = (
                     [classes.detail]: true,
                   })}
                 >
-                  <Grid item xs={2}>
+                  <Grid item xs={3}>
                     <div className={classes.employeeSection}>
                       <Checkbox color="primary" />
                       <div>
-                        <div>{d.employee?.name}</div>
-                        <div className={classes.detailSubText}>
-                          ** POSITION **
-                        </div>
+                        {d.type === "absence" ? (
+                          <>
+                            <div>{d.employee?.name}</div>
+                            <div className={classes.detailSubText}>
+                              {d.position?.name}
+                            </div>
+                          </>
+                        ) : (
+                          <div>{d.position?.name}</div>
+                        )}
                       </div>
                     </div>
                   </Grid>
@@ -657,15 +310,15 @@ const getSectionDisplay = (
                     <div className={classes.detailSubText}>{d.dateRange}</div>
                   </Grid>
                   <Grid item xs={2}>
-                    <div>** LOCATION **</div>
+                    <div>{d.location?.name}</div>
                     <div
                       className={classes.detailSubText}
                     >{`${d.startTime} - ${d.endTime}`}</div>
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={1}>
                     <div>{d.created}</div>
                   </Grid>
-                  <Grid item xs={1}>
+                  <Grid item xs={2}>
                     {d.substitute ? (
                       <>
                         <div>{d.substitute.name}</div>
@@ -677,8 +330,8 @@ const getSectionDisplay = (
                       <Link className={classes.action}>{t("Assign")}</Link>
                     )}
                   </Grid>
-                  <Grid item xs={2}>
-                    <div>{`#${d.id}`}</div>
+                  <Grid item xs={1}>
+                    <div>{d.type === "absence" ? `#${d.id}` : `#V${d.id}`}</div>
                   </Grid>
                   <Grid item xs={1} className={classes.detailActionsSection}>
                     <MoreVert className={classes.action} />
