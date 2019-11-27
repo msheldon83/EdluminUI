@@ -177,7 +177,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
 
   return (
     <>
-      <PageTitle title={t("Settings")} />
+      <PageTitle title={t("Configuration")} />
       <Typography className={classes.header} variant="h4">
         General
       </Typography>
