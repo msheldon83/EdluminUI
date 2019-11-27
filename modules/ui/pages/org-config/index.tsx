@@ -179,106 +179,98 @@ export const OrgConfigPage: React.FC<{}> = props => {
     <>
       <PageTitle title={t("Configuration")} />
       <Typography className={classes.header} variant="h4">
-        General
+        {t("General")}
       </Typography>
       <Grid container className={(classes.root, classes.padding)} spacing={3}>
-        <Grid item xs={12}>
-          <Grid container spacing={3}>
-            {configGeneralRoutes.map((r, i) => {
-              return (
-                <Link
-                  key={i}
-                  to={r.route.generate(params)}
-                  className={classes.textDecoration}
-                >
-                  <Grid className={classes.paddingRight}>
-                    <Paper className={classes.paper}>
-                      {r.icon}
-                      <div className={classes.paperTextBlock}>{r.name}</div>
-                    </Paper>
-                  </Grid>
-                </Link>
-              );
-            })}
-          </Grid>
+        <Grid container spacing={3} item xs={12}>
+          {configGeneralRoutes.map((r, i) => {
+            return (
+              <Link
+                key={i}
+                to={r.route.generate(params)}
+                className={classes.textDecoration}
+              >
+                <Grid className={classes.paddingRight}>
+                  <Paper className={classes.paper}>
+                    {r.icon}
+                    <div className={classes.paperTextBlock}>{t(r.name)}</div>
+                  </Paper>
+                </Grid>
+              </Link>
+            );
+          })}
         </Grid>
       </Grid>
 
       <Typography className={classes.header} variant="h4">
-        Schedule
+        {t("Schedule")}
       </Typography>
       <Grid container className={(classes.root, classes.padding)} spacing={3}>
-        <Grid item xs={12}>
-          <Grid container spacing={3}>
-            {configScheduleRoutes.map((r, i) => {
-              return (
-                <Link
-                  key={i}
-                  to={r.route.generate(params)}
-                  className={classes.textDecoration}
-                >
-                  <Grid className={classes.paddingRight}>
-                    <Paper className={classes.paper}>
-                      {r.icon}
-                      <div className={classes.paperTextBlock}>{r.name}</div>
-                    </Paper>
-                  </Grid>
-                </Link>
-              );
-            })}
-          </Grid>
+        <Grid container spacing={3} item xs={12}>
+          {configScheduleRoutes.map((r, i) => {
+            return (
+              <Link
+                key={i}
+                to={r.route.generate(params)}
+                className={classes.textDecoration}
+              >
+                <Grid className={classes.paddingRight}>
+                  <Paper className={classes.paper}>
+                    {r.icon}
+                    <div className={classes.paperTextBlock}>{t(r.name)}</div>
+                  </Paper>
+                </Grid>
+              </Link>
+            );
+          })}
         </Grid>
       </Grid>
 
       <Typography className={classes.header} variant="h4">
-        Absence & Vacancy
+        {t("Absence & Vacancy")}
       </Typography>
       <Grid container className={(classes.root, classes.padding)} spacing={3}>
-        <Grid item xs={12}>
-          <Grid container spacing={3}>
-            {configAbsenceVacancyRoutes.map((r, i) => {
-              return (
-                <Link
-                  key={i}
-                  to={r.route.generate(params)}
-                  className={classes.textDecoration}
-                >
-                  <Grid className={classes.paddingRight}>
-                    <Paper className={classes.paper}>
-                      {r.icon}
-                      <div className={classes.paperTextBlock}>{r.name}</div>
-                    </Paper>
-                  </Grid>
-                </Link>
-              );
-            })}
-          </Grid>
+        <Grid container spacing={3} item xs={12}>
+          {configAbsenceVacancyRoutes.map((r, i) => {
+            return (
+              <Link
+                key={i}
+                to={r.route.generate(params)}
+                className={classes.textDecoration}
+              >
+                <Grid className={classes.paddingRight}>
+                  <Paper className={classes.paper}>
+                    {r.icon}
+                    <div className={classes.paperTextBlock}>{t(r.name)}</div>
+                  </Paper>
+                </Grid>
+              </Link>
+            );
+          })}
         </Grid>
       </Grid>
 
       <Typography className={classes.header} variant="h4">
-        Finance & Administration
+        {t("Finance & Administration")}
       </Typography>
       <Grid container className={(classes.root, classes.padding)} spacing={3}>
-        <Grid item xs={12}>
-          <Grid container spacing={3}>
-            {configFinanceAdminRoutes.map((r, i) => {
-              return (
-                <Link
-                  key={i}
-                  to={r.route.generate(params)}
-                  className={classes.textDecoration}
-                >
-                  <Grid className={classes.paddingRight}>
-                    <Paper className={classes.paper}>
-                      {r.icon}
-                      <div className={classes.paperTextBlock}>{r.name}</div>
-                    </Paper>
-                  </Grid>
-                </Link>
-              );
-            })}
-          </Grid>
+        <Grid container spacing={3} item xs={12}>
+          {configFinanceAdminRoutes.map((r, i) => {
+            return (
+              <Link
+                key={i}
+                to={r.route.generate(params)}
+                className={classes.textDecoration}
+              >
+                <Grid className={classes.paddingRight}>
+                  <Paper className={classes.paper}>
+                    {r.icon}
+                    <div className={classes.paperTextBlock}>{t(r.name)}</div>
+                  </Paper>
+                </Grid>
+              </Link>
+            );
+          })}
         </Grid>
       </Grid>
     </>
