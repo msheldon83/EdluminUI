@@ -13,13 +13,14 @@ import {
 } from "@material-ui/core";
 import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQueryParamIso } from "hooks/query-params";
 import { useQueryBundle } from "graphql/hooks";
 import { GetDailyReport } from "./graphql/get-daily-report.gen";
+import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
-import { FilterList, ExpandMore, MoreVert } from "@material-ui/icons";
+import { FilterList, ExpandMore } from "@material-ui/icons";
 import { Section } from "ui/components/section";
 import { DailyReport as DailyReportType } from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
@@ -57,6 +58,16 @@ export const DailyReport: React.FC<Props> = props => {
     },
   });
 
+  const getTotalContractedEmployeeCount = useQueryBundle(
+    GetTotalContractedEmployeeCount,
+    {
+      variables: {
+        orgId: props.orgId,
+        contractedOn: filters.date,
+      },
+    }
+  );
+
   const dailyReportDetails = (getDailyReport.state === "LOADING" ||
   getDailyReport.state === "UPDATING"
     ? undefined
@@ -69,6 +80,20 @@ export const DailyReport: React.FC<Props> = props => {
   }
 
   const totalCount = dailyReportDetails?.totalCount ?? 0;
+  const totalContractedEmployeeCount = useMemo(() => {
+    if (
+      !(
+        getTotalContractedEmployeeCount.state === "DONE" ||
+        getTotalContractedEmployeeCount.state === "UPDATING"
+      )
+    ) {
+      return null;
+    }
+
+    return Number(
+      getTotalContractedEmployeeCount.data?.employee?.paged?.totalCount
+    );
+  }, [getTotalContractedEmployeeCount]);
 
   return (
     <Section>
@@ -86,6 +111,7 @@ export const DailyReport: React.FC<Props> = props => {
               <GroupCard
                 cardType={c}
                 details={details}
+                totalContractedEmployeeCount={totalContractedEmployeeCount}
                 onClick={(c: CardType) => {
                   setSelectedCard(c === "total" ? undefined : c);
                 }}

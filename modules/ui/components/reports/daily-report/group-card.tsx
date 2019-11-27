@@ -8,10 +8,12 @@ import {
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { Detail, CardType } from "./helpers";
+import { round, uniqWith } from "lodash-es";
 
 type Props = {
   cardType: CardType;
   details: Detail[];
+  totalContractedEmployeeCount: number | null;
   onClick: (c: CardType) => void;
 };
 
@@ -66,7 +68,7 @@ export const GroupCard: React.FC<Props> = props => {
     case "total": {
       data = {
         count: props.details.length,
-        total: props.details.length,
+        total: props.totalContractedEmployeeCount ?? 0,
         label: t("Total"),
         countClass: classes.totalCount,
         barClass: classes.totalCardBar,
@@ -80,7 +82,20 @@ export const GroupCard: React.FC<Props> = props => {
     return null;
   }
 
-  const percentValue = (data.count / data.total) * 100;
+  let percentValue = round((data.count / data.total) * 100, 2);
+  let percentLabel = percentValue
+    ? `${data.label} (${percentValue}%)`
+    : data.label;
+  if (props.cardType === "total") {
+    const employeeOnlyAbsences = props.details.filter(x => x.employee);
+    const uniqueEmployees = uniqWith(
+      employeeOnlyAbsences,
+      (a, b) => a.employee!.id === b.employee!.id
+    );
+    percentValue = round((uniqueEmployees.length / data.total) * 100, 2);
+    percentLabel = `${data.label} (${percentValue}% ${t("absent")})`;
+  }
+
   return (
     <div onClick={() => props.onClick(props.cardType)}>
       <Card
@@ -98,7 +113,7 @@ export const GroupCard: React.FC<Props> = props => {
               {data.count}
             </Typography>
             <Typography variant="h6" className={classes.cardSubText}>
-              {percentValue ? `${data.label} (${percentValue}%)` : data.label}
+              {percentLabel}
             </Typography>
           </div>
           <LinearProgress
