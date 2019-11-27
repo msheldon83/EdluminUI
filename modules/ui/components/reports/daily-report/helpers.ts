@@ -7,6 +7,7 @@ import {
   Maybe,
 } from "graphql/server-types.gen";
 import { flatMap } from "lodash-es";
+import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
 
 export type CardType =
   | "unfilled"
@@ -28,7 +29,7 @@ export type Detail = {
   dateRange: string;
   startTime: string;
   endTime: string;
-  created: Date;
+  created: string;
   substitute?: {
     id: string;
     name: string;
@@ -82,7 +83,10 @@ export const MapDailyReportDetails = (
         ),
         startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
-        created: a.createdUtc,
+        created: GetDateInYesterdayTodayTomorrowFormat(
+          a.createdUtc,
+          "MMM d h:mm a"
+        ),
         substitute:
           matchingVacancyDetail &&
           matchingVacancyDetail.assignment &&
@@ -133,7 +137,10 @@ export const MapDailyReportDetails = (
         ),
         startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
-        created: v.createdUtc,
+        created: GetDateInYesterdayTodayTomorrowFormat(
+          v.createdUtc,
+          "MMM d h:mm a"
+        ),
         substitute:
           vacancyDetail.assignment && vacancyDetail.assignment.employee
             ? {
@@ -191,7 +198,10 @@ export const MapDailyReportDetails = (
         ),
         startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
-        created: a.createdUtc,
+        created: GetDateInYesterdayTodayTomorrowFormat(
+          a.createdUtc,
+          "MMM d h:mm a"
+        ),
         position:
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
@@ -230,7 +240,10 @@ export const MapDailyReportDetails = (
         ),
         startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
-        created: v.createdUtc,
+        created: GetDateInYesterdayTodayTomorrowFormat(
+          v.createdUtc,
+          "MMM d h:mm a"
+        ),
         position: v.position
           ? {
               id: v.position.id,
@@ -276,7 +289,10 @@ export const MapDailyReportDetails = (
           ),
           startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
           endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
-          created: a.createdUtc,
+          created: GetDateInYesterdayTodayTomorrowFormat(
+            a.createdUtc,
+            "MMM d h:mm a"
+          ),
         } as Detail;
       });
     }
@@ -334,4 +350,13 @@ export const GetFilled = (details: Detail[]): Detail[] => {
 export const GetNoSubRequired = (details: Detail[]): Detail[] => {
   const noSubRequired = details.filter(x => x.state === "noSubRequired");
   return noSubRequired;
+};
+
+export const GetDateInYesterdayTodayTomorrowFormat = (
+  date: Date | string,
+  baseFormat: string
+): string => {
+  const dateInput = typeof date === "string" ? parseISO(date) : date;
+  const dateFormat = GetYesterdayTodayTomorrowFormat(dateInput, baseFormat);
+  return format(dateInput, dateFormat);
 };

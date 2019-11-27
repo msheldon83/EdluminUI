@@ -3,8 +3,9 @@ import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { FilterQueryParams, DailyReportQueryFilters } from "./filter-params";
 import { useStyles } from "./index";
-import { DatePicker, DatePickerOnChange } from "ui/components/form/date-picker";
-import { format, parseISO } from "date-fns";
+import { DatePicker } from "ui/components/form/date-picker";
+import { format, parseISO, isValid } from "date-fns";
+import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
 
 type Props = {
   dateLabel: string;
@@ -13,19 +14,9 @@ type Props = {
 export const DateFilter: React.FC<Props> = props => {
   const classes = useStyles();
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
-  const [date, setDate] = React.useState(props.date);
-
-  const onDateChange: DatePickerOnChange = React.useCallback(
-    async ({ startDate }) => {
-      const startDateAsDate =
-        typeof startDate === "string" ? parseISO(startDate) : startDate;
-      if (startDateAsDate) {
-        const dateString = format(startDateAsDate, "P");
-        updateFilters({ date: dateString });
-        setDate(dateString);
-      }
-    },
-    [updateFilters]
+  const dateFilterAsDate = new Date(props.date);
+  const [date, setDate] = React.useState<Date>(
+    isValid(dateFilterAsDate) ? dateFilterAsDate : new Date()
   );
 
   return (
@@ -34,8 +25,19 @@ export const DateFilter: React.FC<Props> = props => {
         <DatePicker
           variant="single-hidden"
           startDate={date}
-          onChange={onDateChange}
+          endDate={date}
+          onChange={({ startDate }) => {
+            const startDateAsDate =
+              typeof startDate === "string" ? parseISO(startDate) : startDate;
+
+            if (startDateAsDate) {
+              const dateString = format(startDateAsDate, "P");
+              updateFilters({ date: dateString });
+              setDate(startDateAsDate);
+            }
+          }}
           startLabel={props.dateLabel}
+          dateFormat={GetYesterdayTodayTomorrowFormat(date, "MMMM d")}
         />
       </Grid>
     </>
