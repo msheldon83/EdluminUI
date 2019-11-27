@@ -32,6 +32,10 @@ export const AbsenceNavLink: React.FC<Props> = props => {
     <NavLink
       title={t("Absences & Vacancies")}
       icon={<SwapCallsIcon />}
+      subNavItems={[
+        { title: t("Daily Report"), route: "1" },
+        { title: t("Verify"), route: "2" },
+      ]}
       {...props}
     />
   );
@@ -51,7 +55,15 @@ export const AnalyticsAndReportsNavLink: React.FC<Props> = props => {
 export const SchoolsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <NavLink title={t("Schools")} icon={<LocationCityIcon />} {...props} />
+    <NavLink
+      title={t("Schools")}
+      icon={<LocationCityIcon />}
+      subNavItems={[
+        { title: t("Schools"), route: "3" },
+        { title: t("School Groups"), route: "4" },
+      ]}
+      {...props}
+    />
   );
 };
 
@@ -62,7 +74,17 @@ export const PeopleNavLink: React.FC<Props> = props => {
 
 export const CalendarNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return <NavLink title={t("Calendars")} icon={<DateRangeIcon />} {...props} />;
+  return (
+    <NavLink
+      title={t("Calendars")}
+      icon={<DateRangeIcon />}
+      subNavItems={[
+        { title: t("This Year"), route: "5" },
+        { title: t("Past Years"), route: "6" },
+      ]}
+      {...props}
+    />
+  );
 };
 
 export const ConfigurationNavLink: React.FC<Props> = props => {
@@ -74,7 +96,19 @@ export const ConfigurationNavLink: React.FC<Props> = props => {
 
 export const SecurityNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return <NavLink title={t("Security")} icon={<LockIcon />} {...props} />;
+  return (
+    <NavLink
+      title={t("Security")}
+      icon={<LockIcon />}
+      subNavItems={[
+        { title: t("Users"), route: "7" },
+        { title: t("Permission Sets"), route: "8" },
+        { title: t("Partners"), route: "9" },
+        { title: t("Managed Organizations"), route: "10" },
+      ]}
+      {...props}
+    />
+  );
 };
 
 export const MyScheduleNavLink: React.FC<Props> = props => {
