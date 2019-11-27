@@ -24,8 +24,10 @@ import { ScheduleUI } from "ui/pages/sub-schedule/ui";
 
 import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
 import { Vacancy, OrgUser } from "graphql/server-types.gen";
+import { RequestVacancy } from "./graphql/request-vacancy.gen";
 import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
 import { SubJobSearch } from "./graphql/sub-job-search.gen";
+import { RequestAbsenceDialog } from "./components/request-dialog";
 
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
@@ -41,7 +43,11 @@ export const SubHome: React.FC<Props> = props => {
   const params = useRouteParams(SubHomeRoute);
   const isMobile = useIsMobile();
   const [showFilters, setShowFilters] = React.useState(!isMobile);
+  const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
+  const [employeeId, setEmployeeId] = React.useState<string | null>(null);
+  const [vacancyId, setVacancyId] = React.useState<string | null>(null);
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy);
+  const [requestVacancyMutation] = useMutationBundle(RequestVacancy);
   const [filters] = useQueryParamIso(FilterQueryParams);
 
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
@@ -112,6 +118,28 @@ export const SubHome: React.FC<Props> = props => {
     return employeeId;
   };
 
+  const onCloseRequestAbsenceDialog = React.useCallback(
+    () => setRequestAbsenceIsOpen(false),
+    [setRequestAbsenceIsOpen]
+  );
+
+  const onAcceptVacancy = async (orgId: string, vacancyId: string) => {
+    const employeeId = determineEmployeeId(orgId);
+    if (employeeId != 0) {
+      await requestVacancyMutation({
+        variables: {
+          vacancyRequest: {
+            vacancyId: vacancyId,
+            employeeId: Number(employeeId),
+          },
+        },
+      });
+    }
+    setEmployeeId(employeeId.toString());
+    setVacancyId(vacancyId);
+    setRequestAbsenceIsOpen(true);
+  };
+
   return (
     <>
       <ScheduleUI userId={userId} itemsToShow={3} />
@@ -126,7 +154,9 @@ export const SubHome: React.FC<Props> = props => {
               spacing={2}
             >
               <Grid item>
-                <Typography variant="h5">{t("Available Jobs")}</Typography>
+                <Typography variant="h5">
+                  {t("Available Assignments")}
+                </Typography>
               </Grid>
               {isMobile && (
                 <Grid item>
@@ -160,6 +190,7 @@ export const SubHome: React.FC<Props> = props => {
                     shadeRow={index % 2 != 0}
                     onDismiss={onDismissVacancy}
                     key={index}
+                    onAccept={onAcceptVacancy}
                   />
                 ))
               )}
@@ -167,6 +198,13 @@ export const SubHome: React.FC<Props> = props => {
           </Section>
         </Grid>
       </Grid>
+
+      <RequestAbsenceDialog
+        open={requestAbsenceIsOpen}
+        onClose={onCloseRequestAbsenceDialog}
+        employeeId={employeeId}
+        vacancyId={vacancyId}
+      />
     </>
   );
 };

@@ -34,7 +34,7 @@ type Props = {
 export const AssignmentCard: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isMobile = useIsMobile;
+  const isMobile = useIsMobile();
 
   const [notesAnchor, setNotesAnchor] = React.useState<null | HTMLElement>(
     null
