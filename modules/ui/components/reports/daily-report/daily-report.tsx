@@ -34,6 +34,7 @@ import {
 } from "./helpers";
 import { GroupCard } from "./group-card";
 import { TFunction } from "i18next";
+import { ActionMenu } from "ui/components/action-menu";
 
 type Props = {
   orgId: string;
@@ -339,7 +340,24 @@ const getSectionDisplay = (
                     )}
                   </Grid>
                   <Grid item xs={1} className={classes.detailActionsSection}>
-                    <MoreVert className={classes.action} />
+                    <ActionMenu
+                      options={[
+                        {
+                          name: t("Edit"),
+                          onClick: () => {},
+                        },
+                        {
+                          name: d.substitute
+                            ? t("Remove Sub")
+                            : t("Assign Sub"),
+                          onClick: () => {},
+                        },
+                        {
+                          name: t("Delete"),
+                          onClick: () => {},
+                        },
+                      ]}
+                    />
                   </Grid>
                 </Grid>
               );
