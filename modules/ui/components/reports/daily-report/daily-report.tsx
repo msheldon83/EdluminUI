@@ -115,6 +115,7 @@ export const DailyReport: React.FC<Props> = props => {
                 onClick={(c: CardType) => {
                   setSelectedCard(c === "total" ? undefined : c);
                 }}
+                activeCard={selectedCard}
               />
             </Grid>
           );

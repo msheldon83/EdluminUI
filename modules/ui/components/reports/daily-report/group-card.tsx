@@ -9,12 +9,14 @@ import {
 import { useTranslation } from "react-i18next";
 import { Detail, CardType } from "./helpers";
 import { round, uniqWith } from "lodash-es";
+import clsx from "clsx";
 
 type Props = {
   cardType: CardType;
   details: Detail[];
   totalContractedEmployeeCount: number | null;
   onClick: (c: CardType) => void;
+  activeCard?: CardType | undefined;
 };
 
 type CardData = {
@@ -82,6 +84,10 @@ export const GroupCard: React.FC<Props> = props => {
     return null;
   }
 
+  const isActiveCard = props.activeCard
+    ? props.cardType === props.activeCard
+    : true;
+
   let percentValue = round((data.count / data.total) * 100, 2);
   let percentLabel = percentValue
     ? `${data.label} (${percentValue}%)`
@@ -100,7 +106,10 @@ export const GroupCard: React.FC<Props> = props => {
     <div onClick={() => props.onClick(props.cardType)}>
       <Card
         classes={{
-          root: classes.cardRoot,
+          root: clsx({
+            [classes.cardRoot]: true,
+            [classes.inactiveCard]: !isActiveCard,
+          }),
         }}
       >
         <CardContent
@@ -137,7 +146,11 @@ const useStyles = makeStyles(theme => ({
     "&:hover": {
       boxShadow:
         "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24)",
+      opacity: 1,
     },
+  },
+  inactiveCard: {
+    opacity: 0.5,
   },
   cardContentRoot: {
     padding: "0 !important",
