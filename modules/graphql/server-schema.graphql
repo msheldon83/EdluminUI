@@ -1125,8 +1125,8 @@ type EmployeeMutations {
 
 type EmployeeQueries {
   byId(id: ID!): Employee
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], contractedEmployeesOnly: Boolean): [Employee]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], contractedEmployeesOnly: Boolean): PagedEmployee
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], contractedOn: DateTime): [Employee]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], contractedOn: DateTime): PagedEmployee
   employeePositionSchedule(id: ID!, fromDate: Date!, toDate: Date!): [PositionScheduleDate]
   employeeContractSchedule(id: ID!, fromDate: Date!, toDate: Date!): [ContractDate]
   employeeAbsenceSchedule(id: ID!, fromDate: Date!, toDate: Date!): [Absence]
