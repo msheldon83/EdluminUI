@@ -43,9 +43,9 @@ export const Filters: React.FC<Props> = props => {
         orgId={props.orgId}
         positionTypeLabel={t("Position type")}
       />
-      <Grid item container md={2}>
-        <InputLabel>{t("Show")}</InputLabel>
-        <Grid item container>
+      <Grid item container md={3}>
+        <Grid item xs={6}>
+          <InputLabel>{t("Show")}</InputLabel>
           <FormControlLabel
             control={
               <Checkbox
@@ -69,6 +69,33 @@ export const Filters: React.FC<Props> = props => {
               />
             }
             label={t("Vacancies")}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <InputLabel>{t("Group by")}</InputLabel>
+          <FormControlLabel
+            control={
+              <Checkbox
+                color="primary"
+                checked={filters.groupByFillStatus === true}
+                onChange={e =>
+                  updateFilters({ groupByFillStatus: e.target.checked })
+                }
+              />
+            }
+            label={t("Fill status")}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                color="primary"
+                checked={filters.groupByPositionType === true}
+                onChange={e =>
+                  updateFilters({ groupByPositionType: e.target.checked })
+                }
+              />
+            }
+            label={t("Position type")}
           />
         </Grid>
       </Grid>

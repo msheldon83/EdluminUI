@@ -8,6 +8,8 @@ export const FilterQueryParamDefaults: DailyReportFilters = {
   positionTypeIds: "",
   showAbsences: "true",
   showVacancies: "true",
+  groupByFillStatus: "true",
+  groupByPositionType: "true",
 };
 
 export type DailyReportFilters = {
@@ -16,11 +18,19 @@ export type DailyReportFilters = {
   positionTypeIds: string;
   showAbsences: string;
   showVacancies: string;
+  groupByFillStatus: string;
+  groupByPositionType: string;
 };
 
 type DailyReportFilterQueryParams = Omit<
   DailyReportFilters,
-  "date" | "locationIds" | "positionTypeIds" | "showAbsences" | "showVacancies"
+  | "date"
+  | "locationIds"
+  | "positionTypeIds"
+  | "showAbsences"
+  | "showVacancies"
+  | "groupByFillStatus"
+  | "groupByPositionType"
 > &
   DailyReportQueryFilters;
 
@@ -30,6 +40,8 @@ export type DailyReportQueryFilters = {
   positionTypeIds: number[];
   showAbsences: boolean;
   showVacancies: boolean;
+  groupByFillStatus: boolean;
+  groupByPositionType: boolean;
 };
 
 export const FilterParams: Isomorphism<
@@ -44,6 +56,8 @@ export const FilterParams: Isomorphism<
     ...from(s),
     showAbsences: boolToString(s.showAbsences),
     showVacancies: boolToString(s.showVacancies),
+    groupByFillStatus: boolToString(s.groupByFillStatus),
+    groupByPositionType: boolToString(s.groupByPositionType),
   }),
 };
 
@@ -81,6 +95,8 @@ const to = (o: DailyReportFilters): DailyReportQueryFilters => {
     locationIds: stringToNumberArray(o.locationIds),
     showAbsences: stringToBool(o.showAbsences, true),
     showVacancies: stringToBool(o.showVacancies, true),
+    groupByFillStatus: stringToBool(o.groupByFillStatus, true),
+    groupByPositionType: stringToBool(o.groupByPositionType, true),
   };
 };
 
@@ -95,5 +111,7 @@ const from = (o: DailyReportQueryFilters) => {
     positionTypeIds: o.positionTypeIds.join(","),
     showAbsences: o.showAbsences,
     showVacancies: o.showVacancies,
+    groupByFillStatus: o.groupByFillStatus,
+    groupByPositionType: o.groupByPositionType,
   };
 };
