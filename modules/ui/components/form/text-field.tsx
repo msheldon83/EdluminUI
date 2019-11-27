@@ -3,6 +3,7 @@ import MUITextField from "@material-ui/core/TextField";
 import { TextFieldProps as MUITextFieldProps } from "@material-ui/core/TextField";
 import * as React from "react";
 import makeStyles from "@material-ui/core/styles/makeStyles";
+import { Input } from "ui/components/form/input";
 
 export type TextFieldProps = FieldAttributes<MUITextFieldProps>;
 
@@ -17,6 +18,7 @@ export const TextField: React.FunctionComponent<TextFieldProps> = props => {
 
   return (
     <Field
+      component={Input}
       as={MUITextField}
       className={classes.alignCenter}
       error={showError}

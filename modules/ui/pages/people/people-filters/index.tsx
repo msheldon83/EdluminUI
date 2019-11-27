@@ -22,6 +22,8 @@ import {
   RoleSpecificFilters,
 } from "./filter-params";
 import { FiltersByRole } from "./filters-by-role";
+import { Input } from "ui/components/form/input";
+import { ActiveInactiveFilter } from "ui/components/active-inactive-filter";
 
 type Props = { className?: string };
 
@@ -80,19 +82,6 @@ export const PeopleFilters: React.FC<Props> = props => {
     [setPendingName]
   );
 
-  const updateActiveFilter = React.useCallback(
-    (a: boolean) => () => {
-      let active: boolean | undefined = a;
-      if (isoFilters.active === undefined) {
-        active = !a;
-      } else if (isoFilters.active === a || isoFilters.active !== undefined) {
-        active = undefined;
-      }
-      return updateIsoFilters({ active });
-    },
-    [updateIsoFilters, isoFilters]
-  );
-
   return (
     <Paper square className={props.className}>
       <Tabs
@@ -123,48 +112,22 @@ export const PeopleFilters: React.FC<Props> = props => {
       <Section>
         <Grid container justify="space-between">
           <Grid item container md={3}>
-            <InputLabel className={classes.label}>{t("Name")}</InputLabel>
-            <TextField
-              className={classes.textField}
-              variant="outlined"
-              name={"name"}
+            <Input
+              label={t("Name")}
               value={pendingName}
               onChange={updateNameFilter}
               placeholder={t("Search for first or last name")}
-              fullWidth
             />
           </Grid>
 
           <FiltersByRole />
 
           <Grid item container md={2}>
-            <InputLabel className={classes.label}>{t("Status")}</InputLabel>
-            <Grid item container>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={
-                      isoFilters.active === true ||
-                      isoFilters.active === undefined
-                    }
-                    onChange={updateActiveFilter(true)}
-                  />
-                }
-                label={t("Active")}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={
-                      isoFilters.active === false ||
-                      isoFilters.active === undefined
-                    }
-                    onChange={updateActiveFilter(false)}
-                  />
-                }
-                label={t("Inactive")}
-              />
-            </Grid>
+            <ActiveInactiveFilter
+              label="Status"
+              activeLabel="Active"
+              inactiveLabel="Inactive"
+            />
           </Grid>
         </Grid>
       </Section>

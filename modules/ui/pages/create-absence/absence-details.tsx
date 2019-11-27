@@ -34,9 +34,12 @@ import {
 } from "ui/components/form/date-picker";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
+import { Input } from "ui/components/form/input";
 import { VacancyDetails } from "../../components/absence/vacancy-details";
 import { CreateAbsenceActions, CreateAbsenceState } from "./state";
 import { FormData } from "./ui";
+import { useAccountingCodes } from "reference-data/accounting-codes";
+import { usePayCodes } from "reference-data/pay-codes";
 
 type Props = {
   state: CreateAbsenceState;
@@ -125,6 +128,17 @@ export const AbsenceDetails: React.FC<Props> = props => {
     }
   }, [dayPartOptions]);
 
+  const accountingCodes = useAccountingCodes(state.organizationId);
+  const accountingCodeOptions = useMemo(
+    () => accountingCodes.map(c => ({ label: c.name, value: c.id })),
+    [accountingCodes]
+  );
+  const payCodes = usePayCodes(state.organizationId);
+  const payCodeOptions = useMemo(
+    () => payCodes.map(c => ({ label: c.name, value: c.id })),
+    [payCodes]
+  );
+
   const onDateChange: DatePickerOnChange = React.useCallback(
     async ({ startDate, endDate }) => {
       await setValue("startDate", startDate);
@@ -180,7 +194,27 @@ export const AbsenceDetails: React.FC<Props> = props => {
     await setValue("replacementEmployeeName", undefined);
   };
 
+  const onAccountingCodeChange = React.useCallback(
+    async event => {
+      await setValue("accountingCode", event?.value);
+      await triggerValidation({ name: "accountingCode" });
+    },
+    [setValue, triggerValidation]
+  );
+
+  const onPayCodeChange = React.useCallback(
+    async event => {
+      await setValue("payCode", event?.value);
+      await triggerValidation({ name: "payCode" });
+    },
+    [setValue, triggerValidation]
+  );
+
   const hasVacancies = !!(props.vacancies && props.vacancies.length);
+  const hasAccountingCodeOptions = !!(
+    accountingCodeOptions && accountingCodeOptions.length
+  );
+  const hasPayCodeOptions = !!(payCodeOptions && payCodeOptions.length);
 
   return (
     <Grid container>
@@ -269,15 +303,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
           <Typography className={classes.subText}>
             {t("Can be seen by the administrator and the employee.")}
           </Typography>
-
-          <TextField
+          <Input
             multiline
             rows="6"
-            variant="outlined"
-            margin="normal"
-            fullWidth
             onChange={onNotesToApproverChange}
-            InputProps={{ classes: textFieldClasses }}
+            classes={textFieldClasses}
           />
         </div>
       </Grid>
@@ -325,6 +355,52 @@ export const AbsenceDetails: React.FC<Props> = props => {
               <VacancyDetails vacancies={props.vacancies} equalWidthDetails />
             )}
 
+            {values.needsReplacement &&
+              isAdmin &&
+              (hasAccountingCodeOptions || hasPayCodeOptions) && (
+                <Grid item container spacing={4} className={classes.aubCodes}>
+                  {hasAccountingCodeOptions && (
+                    <Grid item xs={hasPayCodeOptions ? 6 : 12}>
+                      <Typography>{t("Accounting code")}</Typography>
+                      <Select
+                        value={{
+                          value: values.accountingCode,
+                          label:
+                            accountingCodeOptions.find(
+                              a => a.value === values.accountingCode
+                            )?.label || "",
+                        }}
+                        onChange={onAccountingCodeChange}
+                        options={accountingCodeOptions}
+                        isClearable={!!values.accountingCode}
+                        inputStatus={
+                          errors.accountingCode ? "error" : undefined
+                        }
+                        validationMessage={errors.accountingCode?.message}
+                      />
+                    </Grid>
+                  )}
+                  {hasPayCodeOptions && (
+                    <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
+                      <Typography>{t("Pay code")}</Typography>
+                      <Select
+                        value={{
+                          value: values.payCode,
+                          label:
+                            payCodeOptions.find(a => a.value === values.payCode)
+                              ?.label || "",
+                        }}
+                        onChange={onPayCodeChange}
+                        options={payCodeOptions}
+                        isClearable={!!values.payCode}
+                        inputStatus={errors.payCode ? "error" : undefined}
+                        validationMessage={errors.payCode?.message}
+                      />
+                    </Grid>
+                  )}
+                </Grid>
+              )}
+
             {showNotesForReplacement && (
               <div className={classes.notesForReplacement}>
                 <Typography variant="h6">
@@ -340,15 +416,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
                     "Can be seen by the substitute, administrator and employee."
                   )}
                 </Typography>
-                <TextField
+                <Input
                   name="notesToReplacement"
                   multiline
                   rows="6"
-                  variant="outlined"
-                  margin="normal"
-                  fullWidth
                   onChange={onNotesToReplacementChange}
-                  InputProps={{ classes: textFieldClasses }}
+                  classes={textFieldClasses}
                 />
               </div>
             )}
@@ -430,6 +503,9 @@ const useStyles = makeStyles(theme => ({
   },
   notesForReplacement: {
     paddingTop: theme.spacing(3),
+  },
+  aubCodes: {
+    paddingTop: theme.spacing(2),
   },
   usageTextContainer: {
     display: "flex",

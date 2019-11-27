@@ -10,18 +10,19 @@ import { useQueryParamIso } from "../../hooks/query-params";
 import { FilterQueryParams } from "../pages/people/people-filters/filter-params";
 
 type Props = {
-  onChange: (active: boolean | undefined) => void;
+  onChange?: (active: boolean | undefined) => void;
   label: string;
   activeLabel: string;
   inactiveLabel: string;
 };
 
 export const ActiveInactiveFilter = (props: Props) => {
-  const { onChange, label, activeLabel, inactiveLabel } = props;
+  const { onChange = () => {}, label, activeLabel, inactiveLabel } = props;
 
   const { t } = useTranslation();
   const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
 
+  // TODO: this was causing an infinite loop. We may not need this
   React.useEffect(() => onChange(isoFilters.active), [
     isoFilters.active,
     onChange,
@@ -44,7 +45,7 @@ export const ActiveInactiveFilter = (props: Props) => {
   return (
     <>
       <InputLabel>{t(label)}</InputLabel>
-      <Grid item container>
+      <Grid item>
         <FormControlLabel
           checked={
             isoFilters.active === true || isoFilters.active === undefined

@@ -57,6 +57,7 @@ export const Confirmation: React.FC<Props> = props => {
             absence={props.absence}
             isConfirmation={true}
             disabledDates={props.disabledDates}
+            isAdmin={props.isAdmin}
           />
         </Grid>
         <Grid item xs={12} container justify="flex-end" spacing={2}>
@@ -75,7 +76,7 @@ export const Confirmation: React.FC<Props> = props => {
           </Grid>
           <Grid item>
             <Button variant="outlined" onClick={() => {}}>
-              {t("Back to List")}
+              {props.isAdmin ? t("Back to List") : t("Back to Home")}
             </Button>
           </Grid>
         </Grid>
