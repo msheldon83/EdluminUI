@@ -314,6 +314,7 @@ const useStyles = makeStyles(theme => ({
     position: "absolute",
     textAlign: "center",
     width: "100%",
+    bottom: theme.spacing(2),
   },
   header: {
     marginBottom: theme.spacing(2),
