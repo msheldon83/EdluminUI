@@ -230,6 +230,9 @@ const displaySections = (
             g.details = g.details.filter(d => d.state === selectedCard);
           }
         });
+        if (g.details) {
+          g.details = g.details.filter(d => d.state === selectedCard);
+        }
       } else if (g.details) {
         g.details = g.details.filter(d => d.state === selectedCard);
       }
@@ -261,6 +264,10 @@ const displaySections = (
         </div>
       )}
       {groupedDetails.map((g, i) => {
+        if (selectedCard && !!!(g.details && g.details.length)) {
+          return null;
+        }
+
         return (
           <div key={`group-${i}`} className={classes.detailGroup}>
             {getSectionDisplay(g, classes, t)}
