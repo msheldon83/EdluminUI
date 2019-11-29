@@ -6,8 +6,9 @@ import {
   Vacancy,
   Maybe,
 } from "graphql/server-types.gen";
-import { flatMap } from "lodash-es";
+import { flatMap, groupBy } from "lodash-es";
 import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
+import { TFunction } from "i18next";
 
 export type CardType =
   | "unfilled"
@@ -15,6 +16,17 @@ export type CardType =
   | "noSubRequired"
   | "total"
   | "awaitingVerification";
+
+export type DailyReportDetails = {
+  groups: DetailGroup[];
+  allDetails: Detail[];
+};
+
+export type DetailGroup = {
+  label: string;
+  subGroups?: DetailGroup[];
+  details?: Detail[];
+};
 
 export type Detail = {
   id: string;
@@ -50,8 +62,11 @@ export const MapDailyReportDetails = (
   dailyReport: DailyReportType,
   date: Date,
   showAbsences: boolean,
-  showVacancies: boolean
-): Detail[] => {
+  showVacancies: boolean,
+  groupByFillStatus: boolean,
+  groupByPositionType: boolean,
+  t: TFunction
+): DailyReportDetails => {
   const details: Detail[] = [];
 
   // Filled Absences
@@ -311,7 +326,65 @@ export const MapDailyReportDetails = (
       (showVacancies && x.type === "vacancy")
   );
 
-  return filteredDetails;
+  // Group the results based on the group by selection
+  const groups: DetailGroup[] = [];
+  if (groupByFillStatus) {
+    const unfilledGroup = {
+      label: t("Unfilled"),
+      details: filteredDetails.filter(x => x.state === "unfilled"),
+    };
+    const filledGroup = {
+      label: t("Filled"),
+      details: filteredDetails.filter(x => x.state === "filled"),
+    };
+    const noSubRequiredGroup = {
+      label: t("No sub required"),
+      details: filteredDetails.filter(x => x.state === "noSubRequired"),
+    };
+    groups.push(...[unfilledGroup, filledGroup, noSubRequiredGroup]);
+
+    if (groupByPositionType) {
+      groups.forEach(g => {
+        const detailsGroupedByPositionType = groupBy(
+          g.details,
+          d => d.position?.name
+        );
+        Object.entries(detailsGroupedByPositionType).forEach(([key, value]) => {
+          if (g.subGroups) {
+            g.subGroups.push({
+              label: key,
+              details: value,
+            });
+          } else {
+            g.subGroups = [
+              {
+                label: key,
+                details: value,
+              },
+            ];
+          }
+        });
+      });
+    }
+  } else if (groupByPositionType) {
+    // Only grouping by the Position Type and not the fill status
+    const detailsGroupedByPositionType = groupBy(
+      filteredDetails,
+      d => d.position?.name
+    );
+    Object.entries(detailsGroupedByPositionType).forEach(([key, value]) => {
+      groups.push({
+        label: key,
+        details: value,
+      });
+    });
+  }
+
+  // Return an object that gives all of the groups as well as the raw details data
+  return {
+    groups,
+    allDetails: filteredDetails,
+  };
 };
 
 const getRangeDisplayText = (startDate: string, endDate: string): string => {

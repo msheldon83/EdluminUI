@@ -9,7 +9,6 @@ import {
   FormControlLabel,
   Checkbox,
   Link,
-  Button,
 } from "@material-ui/core";
 import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
@@ -32,6 +31,8 @@ import {
   GetFilled,
   GetNoSubRequired,
   CardType,
+  DailyReportDetails,
+  DetailGroup,
 } from "./helpers";
 import { GroupCard } from "./group-card";
 import { TFunction } from "i18next";
@@ -80,15 +81,21 @@ export const DailyReport: React.FC<Props> = props => {
     ? undefined
     : getDailyReport.data?.absence?.dailyReport) as DailyReportType;
 
-  let details: Detail[] = [];
+  let allDetails: Detail[] = [];
+  let groupedDetails: DetailGroup[] = [];
 
   if (dailyReportDetails) {
-    details = MapDailyReportDetails(
+    const mappedDetails = MapDailyReportDetails(
       dailyReportDetails,
       new Date(filters.date),
       filters.showAbsences,
-      filters.showVacancies
+      filters.showVacancies,
+      filters.groupByFillStatus,
+      filters.groupByPositionType,
+      t
     );
+    allDetails = mappedDetails.allDetails;
+    groupedDetails = mappedDetails.groups;
   }
 
   const totalCount = dailyReportDetails?.totalCount ?? 0;
@@ -122,7 +129,7 @@ export const DailyReport: React.FC<Props> = props => {
             <Grid item key={i} className={classes.card}>
               <GroupCard
                 cardType={c}
-                details={details}
+                details={allDetails}
                 totalContractedEmployeeCount={totalContractedEmployeeCount}
                 onClick={(c: CardType) => {
                   setSelectedCard(c === "total" ? undefined : c);
@@ -133,7 +140,7 @@ export const DailyReport: React.FC<Props> = props => {
           );
         })}
       </Grid>
-      {displaySections(details, selectedCard, classes, t, () =>
+      {displaySections(groupedDetails, selectedCard, classes, t, () =>
         setSelectedCard(undefined)
       )}
     </Section>
@@ -159,8 +166,17 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.primary.main,
     fontWeight: "bold",
   },
+  subGroupSummaryText: {
+    fontWeight: "bold",
+  },
+  subGroupExpanded: {
+    border: "0 !important",
+    margin: "0 !important",
+    borderTop: `1px solid ${theme.customColors.medLightGray}`,
+  },
   details: {
     padding: 0,
+    display: "block",
   },
   detail: {
     paddingLeft: theme.spacing(4),
@@ -185,117 +201,85 @@ const useStyles = makeStyles(theme => ({
     borderTop: `1px solid ${theme.customColors.medLightGray}`,
     borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
-
   subDetailHeader: {
     width: "100%",
   },
 }));
 
 const displaySections = (
-  details: Detail[],
+  groupedDetails: DetailGroup[],
   selectedCard?: CardType | undefined,
   classes: any,
   t: TFunction,
   clearSelection: () => void
 ) => {
-  if (selectedCard === "unfilled") {
-    return (
-      <div>
-        <div>
-          {t("Showing only Unfilled absences.")}{" "}
-          <Link className={classes.action} onClick={clearSelection}>
-            {t("Show all")}
-          </Link>
-        </div>
-        {getSectionDisplay(
-          GetUnfilled(details),
-          t("Unfilled"),
-          "unfilled",
-          classes,
-          t
-        )}
-      </div>
-    );
+  // If there is a selected card, go through each group and filter all of their data to match
+  if (selectedCard) {
+    groupedDetails.forEach(g => {
+      if (g.subGroups) {
+        g.subGroups.forEach(s => {
+          if (g.details) {
+            g.details = g.details.filter(d => d.state === selectedCard);
+          }
+        });
+      } else if (g.details) {
+        g.details = g.details.filter(d => d.state === selectedCard);
+      }
+    });
   }
 
-  if (selectedCard === "filled") {
-    return (
-      <div>
-        <div>
-          {t("Showing only Filled absences.")}{" "}
-          <Link className={classes.action} onClick={clearSelection}>
-            {t("Show all")}
-          </Link>
-        </div>
-        {getSectionDisplay(
-          GetFilled(details),
-          t("Filled"),
-          "filled",
-          classes,
-          t
-        )}
-      </div>
-    );
+  let selectedCardDisplayText = "";
+  switch (selectedCard) {
+    case "unfilled":
+      selectedCardDisplayText = t("Showing only Unfilled absences.");
+      break;
+    case "filled":
+      selectedCardDisplayText = t("Showing only Filled absences.");
+      break;
+    case "noSubRequired":
+      selectedCardDisplayText = t("Showing only No sub required absences.");
+      break;
   }
 
-  if (selectedCard === "noSubRequired") {
-    return (
-      <div>
-        <div>
-          {t("Showing only No sub required absences.")}{" "}
-          <Link className={classes.action} onClick={clearSelection}>
-            {t("Show all")}
-          </Link>
-        </div>
-        {getSectionDisplay(
-          GetNoSubRequired(details),
-          t("No sub required"),
-          "noSubRequired",
-          classes,
-          t
-        )}
-      </div>
-    );
-  }
-
+  // Build a display section for each group
   return (
     <div>
-      {getSectionDisplay(
-        GetUnfilled(details),
-        t("Unfilled"),
-        "unfilled",
-        classes,
-        t
+      {selectedCard && (
+        <div>
+          {selectedCardDisplayText}{" "}
+          <Link className={classes.action} onClick={clearSelection}>
+            {t("Show all")}
+          </Link>
+        </div>
       )}
-      {getSectionDisplay(GetFilled(details), t("Filled"), "filled", classes, t)}
-      {getSectionDisplay(
-        GetNoSubRequired(details),
-        t("No sub required"),
-        "noSubRequired",
-        classes,
-        t
-      )}
+      {groupedDetails.map((g, i) => {
+        return (
+          <div key={`group-${i}`} className={classes.detailGroup}>
+            {getSectionDisplay(g, "unfilled", classes, t)}
+          </div>
+        );
+      })}
     </div>
   );
 };
 
 const getSectionDisplay = (
-  details: Detail[],
-  labelText: string,
+  detailGroup: DetailGroup,
   panelId: string,
   classes: any,
   t: TFunction
 ) => {
-  const headerText = `${labelText} (${details.length})`;
-  const hasDetails = !!details.length;
+  let headerText = `${detailGroup.label}`;
+  if (!detailGroup.subGroups && detailGroup.details) {
+    headerText = `${headerText} (${detailGroup.details.length})`;
+  }
+  const hasSubGroups = !!detailGroup.subGroups;
+  const hasDetails = !!(detailGroup.details && detailGroup.details.length);
 
   return (
-    <ExpansionPanel
-      className={classes.detailGroup}
-      defaultExpanded={hasDetails}
-    >
+    <ExpansionPanel defaultExpanded={hasDetails}>
       <ExpansionPanelSummary
-        expandIcon={<ExpandMore />}
+        expandIcon={hasDetails ? <ExpandMore /> : undefined}
         aria-label="Expand"
         aria-controls={`${panelId}-content`}
         id={panelId}
@@ -311,99 +295,144 @@ const getSectionDisplay = (
           }}
         />
       </ExpansionPanelSummary>
-      {hasDetails && (
-        <ExpansionPanelDetails className={classes.details}>
-          <Grid container alignItems="flex-start">
-            {details.map((d, i) => {
-              const showAlternatingBackground = i % 2 === 1;
+      <ExpansionPanelDetails className={classes.details}>
+        {hasSubGroups &&
+          detailGroup.subGroups!.map((s, i) => {
+            const subGroupHasDetails = !!(s.details && s.details.length);
+            let subHeaderText = `${s.label}`;
+            if (subGroupHasDetails) {
+              subHeaderText = `${subHeaderText} (${s.details!.length})`;
+            }
 
-              return (
-                <Grid
-                  item
-                  xs={12}
-                  container
-                  key={`${panelId}-${i}`}
-                  className={clsx({
-                    [classes.alternatingRow]: showAlternatingBackground,
-                    [classes.detail]: true,
-                  })}
+            return (
+              <ExpansionPanel
+                className={classes.subDetailHeader}
+                defaultExpanded={subGroupHasDetails}
+                key={`subGroup-${i}`}
+                classes={{
+                  expanded: classes.subGroupExpanded,
+                }}
+              >
+                <ExpansionPanelSummary
+                  expandIcon={<ExpandMore />}
+                  aria-label="Expand"
+                  aria-controls="additional-actions1-content"
+                  id={`additional-actions1-header-${i}`}
+                  className={classes.summary}
                 >
-                  <Grid item xs={3}>
-                    <div className={classes.employeeSection}>
-                      <Checkbox color="primary" />
-                      <div>
-                        {d.type === "absence" ? (
-                          <>
-                            <div>{d.employee?.name}</div>
-                            <div className={classes.detailSubText}>
-                              {d.position?.name}
-                            </div>
-                          </>
-                        ) : (
-                          <div>{d.position?.name}</div>
-                        )}
-                      </div>
-                    </div>
+                  <FormControlLabel
+                    onClick={event => event.stopPropagation()}
+                    onFocus={event => event.stopPropagation()}
+                    control={<Checkbox color="primary" />}
+                    label={subHeaderText}
+                    classes={{
+                      label: classes.subGroupSummaryText,
+                    }}
+                  />
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails className={classes.details}>
+                  <Grid container alignItems="flex-start">
+                    {getDetailsDisplay(s.details ?? [], panelId, classes, t)}
                   </Grid>
-                  <Grid item xs={2}>
-                    <div>{d.absenceReason}</div>
-                    <div className={classes.detailSubText}>{d.dateRange}</div>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <div>{d.location?.name}</div>
-                    <div
-                      className={classes.detailSubText}
-                    >{`${d.startTime} - ${d.endTime}`}</div>
-                  </Grid>
-                  <Grid item xs={1}>
-                    <div>{d.created}</div>
-                  </Grid>
-                  <Grid item xs={2}>
-                    {d.substitute ? (
-                      <>
-                        <div>{d.substitute.name}</div>
-                        <div className={classes.detailSubText}>
-                          {d.substitute.phone}
-                        </div>
-                      </>
-                    ) : (
-                      <Link className={classes.action}>{t("Assign")}</Link>
-                    )}
-                  </Grid>
-                  <Grid item xs={1}>
-                    <div>{d.type === "absence" ? `#${d.id}` : `#V${d.id}`}</div>
-                    {d.assignmentId && (
-                      <div
-                        className={classes.detailSubText}
-                      >{`#C${d.assignmentId}`}</div>
-                    )}
-                  </Grid>
-                  <Grid item xs={1} className={classes.detailActionsSection}>
-                    <ActionMenu
-                      options={[
-                        {
-                          name: t("Edit"),
-                          onClick: () => {},
-                        },
-                        {
-                          name: d.substitute
-                            ? t("Remove Sub")
-                            : t("Assign Sub"),
-                          onClick: () => {},
-                        },
-                        {
-                          name: t("Delete"),
-                          onClick: () => {},
-                        },
-                      ]}
-                    />
-                  </Grid>
-                </Grid>
-              );
-            })}
+                </ExpansionPanelDetails>
+              </ExpansionPanel>
+            );
+          })}
+        {!hasSubGroups && (
+          <Grid container alignItems="flex-start">
+            {getDetailsDisplay(detailGroup.details ?? [], panelId, classes, t)}
           </Grid>
-        </ExpansionPanelDetails>
-      )}
+        )}
+      </ExpansionPanelDetails>
     </ExpansionPanel>
   );
+};
+
+const getDetailsDisplay = (
+  details: Detail[],
+  panelId: string,
+  classes: any,
+  t: TFunction
+) => {
+  return details.map((d, i) => {
+    const showAlternatingBackground = i % 2 === 1;
+
+    return (
+      <Grid
+        item
+        xs={12}
+        container
+        key={`${panelId}-${i}`}
+        className={clsx({
+          [classes.alternatingRow]: showAlternatingBackground,
+          [classes.detail]: true,
+        })}
+      >
+        <Grid item xs={3}>
+          <div className={classes.employeeSection}>
+            <Checkbox color="primary" />
+            <div>
+              {d.type === "absence" ? (
+                <>
+                  <div>{d.employee?.name}</div>
+                  <div className={classes.detailSubText}>
+                    {d.position?.name}
+                  </div>
+                </>
+              ) : (
+                <div>{d.position?.name}</div>
+              )}
+            </div>
+          </div>
+        </Grid>
+        <Grid item xs={2}>
+          <div>{d.absenceReason}</div>
+          <div className={classes.detailSubText}>{d.dateRange}</div>
+        </Grid>
+        <Grid item xs={2}>
+          <div>{d.location?.name}</div>
+          <div
+            className={classes.detailSubText}
+          >{`${d.startTime} - ${d.endTime}`}</div>
+        </Grid>
+        <Grid item xs={1}>
+          <div>{d.created}</div>
+        </Grid>
+        <Grid item xs={2}>
+          {d.substitute ? (
+            <>
+              <div>{d.substitute.name}</div>
+              <div className={classes.detailSubText}>{d.substitute.phone}</div>
+            </>
+          ) : (
+            <Link className={classes.action}>{t("Assign")}</Link>
+          )}
+        </Grid>
+        <Grid item xs={1}>
+          <div>{d.type === "absence" ? `#${d.id}` : `#V${d.id}`}</div>
+          {d.assignmentId && (
+            <div className={classes.detailSubText}>{`#C${d.assignmentId}`}</div>
+          )}
+        </Grid>
+        <Grid item xs={1} className={classes.detailActionsSection}>
+          <ActionMenu
+            options={[
+              {
+                name: t("Edit"),
+                onClick: () => {},
+              },
+              {
+                name: d.substitute ? t("Remove Sub") : t("Assign Sub"),
+                onClick: () => {},
+              },
+              {
+                name: t("Delete"),
+                onClick: () => {},
+              },
+            ]}
+          />
+        </Grid>
+      </Grid>
+    );
+  });
 };
