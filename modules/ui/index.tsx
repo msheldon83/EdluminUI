@@ -95,6 +95,7 @@ import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
 
 import { ContractsLoader, ContractsRoute } from "./routes/contracts";
 import { EdluminTheme } from "./styles/mui-theme";
+import { DailyReportLoader, DailyReportRoute } from "./routes/daily-report";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -247,6 +248,11 @@ export function App(props: {}) {
                       <Route
                         component={ContractsLoader}
                         path={ContractsRoute.path}
+                      />
+
+                      <Route
+                        component={DailyReportLoader}
+                        path={DailyReportRoute.path}
                       />
 
                       {/* This route handles unknown or underspecified routes and takes the
