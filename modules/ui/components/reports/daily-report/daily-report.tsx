@@ -264,7 +264,8 @@ const displaySections = (
         </div>
       )}
       {groupedDetails.map((g, i) => {
-        if (selectedCard && !!!(g.details && g.details.length)) {
+        const hasDetails = !!(g.details && g.details.length);
+        if (selectedCard && !hasDetails) {
           return null;
         }
 
