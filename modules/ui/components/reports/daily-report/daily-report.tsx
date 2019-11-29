@@ -170,9 +170,9 @@ const useStyles = makeStyles(theme => ({
     fontWeight: "bold",
   },
   subGroupExpanded: {
-    border: "0 !important",
+    borderTop: "0 !important",
     margin: "0 !important",
-    borderTop: `1px solid ${theme.customColors.medLightGray}`,
+    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
   details: {
     padding: 0,
@@ -186,6 +186,14 @@ const useStyles = makeStyles(theme => ({
   },
   employeeSection: {
     display: "flex",
+  },
+  detailHeader: {
+    color: theme.customColors.edluminSubText,
+    background: theme.customColors.lightGray,
+    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
+  },
+  detailEmployeeHeader: {
+    paddingLeft: theme.spacing(5),
   },
   detailSubText: {
     color: theme.customColors.edluminSubText,
@@ -255,7 +263,7 @@ const displaySections = (
       {groupedDetails.map((g, i) => {
         return (
           <div key={`group-${i}`} className={classes.detailGroup}>
-            {getSectionDisplay(g, "unfilled", classes, t)}
+            {getSectionDisplay(g, classes, t)}
           </div>
         );
       })}
@@ -265,7 +273,6 @@ const displaySections = (
 
 const getSectionDisplay = (
   detailGroup: DetailGroup,
-  panelId: string,
   classes: any,
   t: TFunction
 ) => {
@@ -275,6 +282,7 @@ const getSectionDisplay = (
   }
   const hasSubGroups = !!detailGroup.subGroups;
   const hasDetails = !!(detailGroup.details && detailGroup.details.length);
+  const panelId = detailGroup.label;
 
   return (
     <ExpansionPanel defaultExpanded={hasDetails}>
@@ -303,6 +311,7 @@ const getSectionDisplay = (
             if (subGroupHasDetails) {
               subHeaderText = `${subHeaderText} (${s.details!.length})`;
             }
+            const subGroupPanelId = `${panelId}-subGroup-${i}`;
 
             return (
               <ExpansionPanel
@@ -316,8 +325,8 @@ const getSectionDisplay = (
                 <ExpansionPanelSummary
                   expandIcon={<ExpandMore />}
                   aria-label="Expand"
-                  aria-controls="additional-actions1-content"
-                  id={`additional-actions1-header-${i}`}
+                  aria-controls={`${subGroupPanelId}-content`}
+                  id={subGroupPanelId}
                   className={classes.summary}
                 >
                   <FormControlLabel
@@ -332,7 +341,12 @@ const getSectionDisplay = (
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails className={classes.details}>
                   <Grid container alignItems="flex-start">
-                    {getDetailsDisplay(s.details ?? [], panelId, classes, t)}
+                    {getDetailsDisplay(
+                      s.details ?? [],
+                      subGroupPanelId,
+                      classes,
+                      t
+                    )}
                   </Grid>
                 </ExpansionPanelDetails>
               </ExpansionPanel>
@@ -354,7 +368,7 @@ const getDetailsDisplay = (
   classes: any,
   t: TFunction
 ) => {
-  return details.map((d, i) => {
+  const detailsDisplay = details.map((d, i) => {
     const showAlternatingBackground = i % 2 === 1;
 
     return (
@@ -435,4 +449,39 @@ const getDetailsDisplay = (
       </Grid>
     );
   });
+
+  // Include a Header above all of the details
+  return (
+    <>
+      <Grid
+        item
+        xs={12}
+        container
+        className={clsx({
+          [classes.detail]: true,
+          [classes.detailHeader]: true,
+        })}
+      >
+        <Grid item xs={3} className={classes.detailEmployeeHeader}>
+          {t("Employee")}
+        </Grid>
+        <Grid item xs={2}>
+          {t("Reason")}
+        </Grid>
+        <Grid item xs={2}>
+          {t("Location")}
+        </Grid>
+        <Grid item xs={1}>
+          {t("Created")}
+        </Grid>
+        <Grid item xs={2}>
+          {t("Substitute")}
+        </Grid>
+        <Grid item xs={1}>
+          {t("Conf#")}
+        </Grid>
+      </Grid>
+      {detailsDisplay}
+    </>
+  );
 };
