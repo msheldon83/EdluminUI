@@ -4128,6 +4128,9 @@ type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInte
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   vacancyId: Int!
   vacancyDetailId: Int!
   accountingCodeId: Int!
