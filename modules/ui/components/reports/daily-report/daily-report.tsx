@@ -420,12 +420,16 @@ const getDetailsDisplay = (
           <div>{d.created}</div>
         </Grid>
         <Grid item xs={2}>
-          {d.substitute ? (
+          {d.state === "noSubRequired" && (
+            <div className={classes.detailSubText}>{t("Not required")}</div>
+          )}
+          {d.state !== "noSubRequired" && d.substitute && (
             <>
               <div>{d.substitute.name}</div>
               <div className={classes.detailSubText}>{d.substitute.phone}</div>
             </>
-          ) : (
+          )}
+          {d.state !== "noSubRequired" && !d.substitute && (
             <Link className={classes.action}>{t("Assign")}</Link>
           )}
         </Grid>

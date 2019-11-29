@@ -181,6 +181,16 @@ query GetDailyReport(
         startDate
         endDate
         createdLocal
+        locationIds
+        locations {
+          id
+          name
+        }
+        positionTypeIds
+        positionTypes {
+          id
+          name
+        }
         employee {
           id
           firstName

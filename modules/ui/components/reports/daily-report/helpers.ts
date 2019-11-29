@@ -49,11 +49,11 @@ export type Detail = {
   };
   assignmentId?: string;
   position?: {
-    id: string;
+    id?: string;
     name: string;
   };
   location?: {
-    id: string;
+    id?: string;
     name: string;
   };
 };
@@ -286,8 +286,39 @@ export const MapDailyReportDetails = (
         return [];
       }
 
+      // Determine the Position Type
+      let positionType: { id?: string; name: string } | undefined = undefined;
+      if (a.positionTypes) {
+        if (a.positionTypes.length === 1) {
+          positionType = {
+            id: a.positionTypes[0]!.id,
+            name: a.positionTypes[0]!.name,
+          };
+        } else if (a.positionTypes.length > 1) {
+          positionType = {
+            name: `(${t("Multiple")})`,
+          };
+        }
+      }
+
+      // Determine the Location
+      let location: { id?: string; name: string } | undefined = undefined;
+      if (a.locations) {
+        if (a.locations.length === 1) {
+          location = {
+            id: a.locations[0]!.id,
+            name: a.locations[0]!.name,
+          };
+        } else if (a.locations.length > 1) {
+          location = {
+            name: `(${t("Multiple")})`,
+          };
+        }
+      }
+
       return a.details.map(d => {
         const absenceDetail = d as AbsenceDetail;
+
         return {
           id: a.id,
           state: "noSubRequired",
@@ -310,6 +341,8 @@ export const MapDailyReportDetails = (
             a.createdLocal,
             "MMM d h:mm a"
           ),
+          position: positionType,
+          location: location,
         } as Detail;
       });
     }

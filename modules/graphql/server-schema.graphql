@@ -26,6 +26,10 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   details: [AbsenceDetail]
   employee: BasicEmployee
   vacancies: [Vacancy]
+  locationIds: [Int]
+  locations: [Location]
+  positionTypeIds: [Int]
+  positionTypes: [PositionType]
 }
 
 input AbsenceCreateInput {
