@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { VacancyDetail } from "graphql/server-types.gen";
 
 export default {
-  title: "Components/Assignment",
+  title: "Pages/Sub Home/Assignment",
 };
 
 export const AssignmentStory = () => {

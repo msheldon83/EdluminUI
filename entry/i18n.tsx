@@ -15,7 +15,7 @@ i18n
   .init({
     resources,
     lng: "en",
-
+    nsSeparator: false, // char to split namespace from key
     keySeparator: false, // we do not use keys in form messages.welcome
 
     interpolation: {

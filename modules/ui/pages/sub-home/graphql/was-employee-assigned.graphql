@@ -1,0 +1,18 @@
+query WasEmployeeAssignedToJob(
+  $id: ID!
+  $vacancyId: ID!
+) {
+  vacancy {
+    wasEmployeeAssignedToJob(
+      id: $id
+      vacancyId: $vacancyId
+    ) {
+      assignmentId
+      description
+      employeeId
+      employeeWasAssigned
+      returnCode
+      vacancyId
+    }
+  }
+}
