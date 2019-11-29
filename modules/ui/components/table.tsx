@@ -1,4 +1,5 @@
 import * as React from "react";
+import clsx from "clsx";
 import {
   makeStyles,
   FormControlLabel,
@@ -6,7 +7,12 @@ import {
   Grid,
   Typography,
 } from "@material-ui/core";
-import MaterialTable, { MTableToolbar, MTableBodyRow } from "material-table";
+import MaterialTable, {
+  MTableBodyRow,
+  MTableCell,
+  MTableActions,
+} from "material-table";
+import { useTheme } from "@material-ui/core/styles";
 import { MaterialTableProps } from "material-table";
 import { forwardRef } from "react";
 import { Icons } from "material-table";
@@ -80,6 +86,7 @@ const tableIcons: Icons = {
 
 export function Table<T extends object>(props: Props<T>) {
   const classes = useStyles();
+  const theme = useTheme();
   const { t } = useTranslation();
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
@@ -109,7 +116,6 @@ export function Table<T extends object>(props: Props<T>) {
   const onIncludeExpiredChangeFunc = props.onIncludeExpiredChange;
   const expiredRowCheckFunc = props.expiredRowCheck;
   const styleAlternatingRows = props.backgroundFillForAlternatingRows;
-
   return (
     <MaterialTable
       icons={tableIcons}
@@ -123,27 +129,35 @@ export function Table<T extends object>(props: Props<T>) {
         paging: props.paging,
         pageSize: 10,
         pageSizeOptions: [10, 25, 50, 100],
+        headerStyle: {
+          color: theme.customColors.darkGray,
+          fontSize: theme.typography.pxToRem(15),
+          fontWeight: 600,
+          letterSpacing: theme.typography.pxToRem(0.25),
+          lineHeight: theme.typography.pxToRem(24),
+        },
+        rowStyle: {
+          color: theme.customColors.darkGray,
+        },
         ...props.options,
       }}
       style={props.style}
       actions={props.actions}
       components={{
+        Container: props => <div className={classes.container} {...props} />,
         Row: props => {
-          if (expiredRowCheckFunc && expiredRowCheckFunc(props.data)) {
-            return <MTableBodyRow className={classes.inactiveRow} {...props} />;
-          }
+          const classNames = clsx({
+            [classes.inactiveRow]:
+              expiredRowCheckFunc && expiredRowCheckFunc(props.data),
+            [classes.tableRow]: true,
+          });
 
-          if (styleAlternatingRows && props.index % 2 === 1) {
-            return (
-              <MTableBodyRow className={classes.alternatingRow} {...props} />
-            );
-          }
-
-          return <MTableBodyRow {...props} />;
+          return <MTableBodyRow className={classNames} {...props} />;
         },
+        Cell: props => <MTableCell {...props} className={classes.cell} />,
         Toolbar: props => (
           <>
-            <MTableToolbar {...props} />
+            <div className={classes.tableTitle}>{props.title}</div>
             {showIncludeExpiredSetting && (
               <Grid container justify="flex-end">
                 <Grid item>
@@ -178,15 +192,30 @@ export function Table<T extends object>(props: Props<T>) {
 }
 
 const useStyles = makeStyles(theme => ({
+  container: {
+    backgroundColor: theme.customColors.white,
+  },
+  tableTitle: {
+    fontSize: theme.typography.pxToRem(24),
+    lineHeight: theme.typography.pxToRem(36),
+    paddingBottom: theme.spacing(1),
+  },
   action: {
     cursor: "pointer",
   },
   inactiveRow: {
     color: theme.customColors.gray,
   },
-  alternatingRow: {
-    background: theme.customColors.lightGray,
-    borderTop: `1px solid ${theme.customColors.medLightGray}`,
-    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
+  tableRow: {
+    borderTop: `1px solid ${theme.customColors.sectionBorder}`,
+
+    "&:nth-child(even)": {
+      background: theme.customColors.lightGray,
+    },
+  },
+  cell: {
+    borderBottom: 0,
+    paddingBottom: theme.spacing(1.7),
+    paddingTop: theme.spacing(1.7),
   },
 }));

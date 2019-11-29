@@ -166,7 +166,8 @@ const useStyles = makeStyles(theme => ({
   },
   contentView: {
     flexGrow: 1,
-    padding: theme.spacing(4),
+    padding: theme.spacing(3),
+    paddingBottom: theme.spacing(4),
     [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(0),
       paddingTop: theme.spacing(2),

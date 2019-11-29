@@ -152,9 +152,7 @@ export const PeoplePage: React.FC<Props> = props => {
       adminPositionTypes: person.adminPositionTypes,
       allPositionTypeIdsInScope: person.allPositionTypeIdsInScope,
     }));
-  }, [people]);
-
-console.log(tableData);
+  }, [people, listRoles]);
 
   if (
     allPeopleQuery.state === "LOADING" ||
@@ -168,6 +166,7 @@ console.log(tableData);
   const columns: Column<typeof tableData[0]>[] = [
     {
       cellStyle: {
+        paddingRight: 0,
         width: isMobile
           ? theme.typography.pxToRem(40)
           : theme.typography.pxToRem(70),
@@ -350,33 +349,39 @@ console.log(tableData);
   return (
     <>
       <PageTitle title={t("People")} />
-
-      <PeopleFilters className={classes.filters} />
-      <Table
-        title={`${peopleCount} ${
-          peopleCount === 1 ? t("Person") : t("People")
-        }`}
-        columns={columns}
-        data={tableData}
-        selection={true}
-        onRowClick={(event, orgUser) => {
-          if (!orgUser) return;
-          const newParams = {
-            ...params,
-            orgUserId: orgUser.id,
-          };
-          history.push(PersonViewRoute.generate(newParams));
-        }}
-      />
-      <PaginationControls pagination={pagination} />
+      <PeopleFilters />
+      <div className={classes.tableContainer}>
+        <Table
+          title={`${peopleCount} ${
+            peopleCount === 1 ? t("person") : t("people")
+          }`}
+          columns={columns}
+          data={tableData}
+          selection={true}
+          onRowClick={(event, orgUser) => {
+            if (!orgUser) return;
+            const newParams = {
+              ...params,
+              orgUserId: orgUser.id,
+            };
+            history.push(PersonViewRoute.generate(newParams));
+          }}
+        />
+        <PaginationControls pagination={pagination} />
+      </div>
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+  tableContainer: {
+    backgroundColor: theme.customColors.white,
+    border: `1px solid ${theme.customColors.sectionBorder}`,
+    borderTopWidth: 0,
+    borderRadius: `0 0 ${theme.typography.pxToRem(
+      5
+    )} ${theme.typography.pxToRem(5)}`,
+    padding: theme.spacing(3),
   },
   paper: {
     border: "1px solid",

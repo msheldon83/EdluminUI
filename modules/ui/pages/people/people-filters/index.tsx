@@ -4,10 +4,8 @@ import {
   Grid,
   InputLabel,
   makeStyles,
-  Paper,
   Tab,
   Tabs,
-  TextField,
 } from "@material-ui/core";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { useDeferredState } from "hooks";
@@ -15,7 +13,6 @@ import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Section } from "ui/components/section";
 import {
   FilterQueryParams,
   FilterRole,
@@ -83,8 +80,9 @@ export const PeopleFilters: React.FC<Props> = props => {
   );
 
   return (
-    <Paper square className={props.className}>
+    <div className={`${props.className} ${classes.tabsContainer}`}>
       <Tabs
+        className={classes.tabs}
         value={isoFilters.roleFilter === null ? "" : isoFilters.roleFilter}
         indicatorColor="primary"
         textColor="primary"
@@ -109,7 +107,7 @@ export const PeopleFilters: React.FC<Props> = props => {
         />
       </Tabs>
 
-      <Section>
+      <div className={classes.filterSection}>
         <Grid container justify="space-between">
           <Grid item container md={3}>
             <Input
@@ -130,20 +128,37 @@ export const PeopleFilters: React.FC<Props> = props => {
             />
           </Grid>
         </Grid>
-      </Section>
-    </Paper>
+      </div>
+    </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  tabsContainer: {
+    backgroundColor: theme.customColors.white,
+    border: `1px solid ${theme.customColors.sectionBorder}`,
+    borderRadius: `${theme.typography.pxToRem(5)} ${theme.typography.pxToRem(
+      5
+    )} 0 0`,
+  },
+  tabs: {
+    borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
+  },
   tab: {
+    color: theme.customColors.darkGray,
+    fontSize: theme.typography.pxToRem(13),
+    fontWeight: 600,
+    letterSpacing: theme.typography.pxToRem(1.25),
+    lineHeight: theme.typography.pxToRem(16),
+    minWidth: theme.typography.pxToRem(130),
     textTransform: "uppercase",
+  },
+  filterSection: {
+    backgroundColor: theme.customColors.white,
+    padding: theme.spacing(3),
   },
   label: {
     // color: theme.customColors.black,
     fontWeight: 500,
-  },
-  textField: {
-    marginTop: theme.spacing(2),
   },
 }));
