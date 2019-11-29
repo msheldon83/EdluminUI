@@ -50,7 +50,7 @@ export const Filters: React.FC<Props> = props => {
             control={
               <Checkbox
                 color="primary"
-                checked={filters.showAbsences === true}
+                checked={filters.showAbsences}
                 onChange={e =>
                   updateFilters({ showAbsences: e.target.checked })
                 }
@@ -62,7 +62,7 @@ export const Filters: React.FC<Props> = props => {
             control={
               <Checkbox
                 color="primary"
-                checked={filters.showVacancies === true}
+                checked={filters.showVacancies}
                 onChange={e =>
                   updateFilters({ showVacancies: e.target.checked })
                 }
@@ -77,10 +77,15 @@ export const Filters: React.FC<Props> = props => {
             control={
               <Checkbox
                 color="primary"
-                checked={filters.groupByFillStatus === true}
-                onChange={e =>
-                  updateFilters({ groupByFillStatus: e.target.checked })
-                }
+                checked={filters.groupByFillStatus}
+                onChange={e => {
+                  let isChecked = e.target.checked;
+                  if (!isChecked && !filters.groupByPositionType) {
+                    isChecked = true;
+                  }
+
+                  updateFilters({ groupByFillStatus: isChecked });
+                }}
               />
             }
             label={t("Fill status")}
@@ -89,10 +94,18 @@ export const Filters: React.FC<Props> = props => {
             control={
               <Checkbox
                 color="primary"
-                checked={filters.groupByPositionType === true}
-                onChange={e =>
-                  updateFilters({ groupByPositionType: e.target.checked })
-                }
+                checked={filters.groupByPositionType}
+                onChange={e => {
+                  const isChecked = e.target.checked;
+                  if (!isChecked && !filters.groupByFillStatus) {
+                    updateFilters({
+                      groupByFillStatus: true,
+                      groupByPositionType: isChecked,
+                    });
+                  } else {
+                    updateFilters({ groupByPositionType: isChecked });
+                  }
+                }}
               />
             }
             label={t("Position type")}
