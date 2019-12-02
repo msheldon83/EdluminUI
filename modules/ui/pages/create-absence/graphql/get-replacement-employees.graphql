@@ -32,9 +32,11 @@ query GetReplacementEmployeesForVacancy(
         isVisible
         visibleAtUtc
         visibleAtLocal
+        levelQualified
         isQualified
         qualifiedAtUtc
         qualifiedAtLocal
+        levelAvailable
         isAvailable
         isFavoriteEmployee
         isFavoritePositionType
