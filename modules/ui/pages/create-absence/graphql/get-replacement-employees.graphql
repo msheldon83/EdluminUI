@@ -1,7 +1,7 @@
 query GetReplacementEmployeesForVacancy(
   $orgId: ID!
   $vacancyId: ID
-  $vacancies: [AbsenceVacancyInput]
+  $vacancy: AbsenceVacancyInput
   $name: String
   $qualified: [VacancyQualification]
   $available: [VacancyAvailability]
@@ -13,7 +13,7 @@ query GetReplacementEmployeesForVacancy(
     replacementEmployeesForVacancy(
       orgId: $orgId
       vacancyId: $vacancyId
-      vacancies: $vacancies
+      vacancy: $vacancy
       name: $name
       qualified: $qualified
       available: $available
@@ -25,21 +25,19 @@ query GetReplacementEmployeesForVacancy(
       offset
       limit
       results {
-        employee {
-          id
-          firstName
-          lastName
-          phoneNumber
-        }
-        visible
+        employeeId
+        firstName
+        lastName
+        phoneNumber
+        isVisible
         visibleAtUtc
         visibleAtLocal
-        qualified
+        isQualified
         qualifiedAtUtc
         qualifiedAtLocal
-        available
-        isEmployeeFavorite
-        isLocationPositionTypeFavorite
+        isAvailable
+        isFavoriteEmployee
+        isFavoritePositionType
         isSelectable
       }
     }
