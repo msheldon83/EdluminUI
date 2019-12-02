@@ -367,6 +367,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 setStep={setStep}
                 disabledDates={disabledDates}
                 balanceUsageText={absenceUsageText || undefined}
+                setVacanciesInput={setVacanciesInput}
               />
             </Section>
           </>

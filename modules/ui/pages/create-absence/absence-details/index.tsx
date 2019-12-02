@@ -51,6 +51,9 @@ type Props = {
   setStep: (S: Step) => void;
   disabledDates: Date[];
   balanceUsageText?: string;
+  setVacanciesInput: React.Dispatch<
+    React.SetStateAction<VacancyDetail[] | undefined>
+  >;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -125,8 +128,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
     async ({ startDate, endDate }) => {
       await setValue("startDate", startDate);
       await setValue("endDate", endDate);
+      /* Clear vacancy input */ props.setVacanciesInput(undefined);
     },
-    [setValue]
+    [setValue, props.setVacanciesInput]
   );
   const onReasonChange = React.useCallback(
     async event => {
@@ -138,9 +142,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
   const onDayPartChange = React.useCallback(
     async event => {
+      /* Clear vacancy input */ props.setVacanciesInput(undefined);
       await setValue("dayPart", event.target.value);
     },
-    [setValue]
+    [setValue, props.setVacanciesInput]
   );
 
   const onNotesToApproverChange = React.useCallback(
