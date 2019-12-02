@@ -9,35 +9,33 @@ import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
 
 type Props = {
   dateLabel: string;
+  setDate: (date: Date) => void;
 } & DailyReportQueryFilters;
 
 export const DateFilter: React.FC<Props> = props => {
   const classes = useStyles();
-  const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
   const dateFilterAsDate = new Date(props.date);
-  const [date, setDate] = React.useState<Date>(
-    isValid(dateFilterAsDate) ? dateFilterAsDate : new Date()
-  );
 
   return (
     <>
       <Grid item xs={12} sm={6} md={3} lg={3}>
         <DatePicker
           variant="single-hidden"
-          startDate={date}
-          endDate={date}
+          startDate={dateFilterAsDate}
+          endDate={dateFilterAsDate}
           onChange={({ startDate }) => {
             const startDateAsDate =
               typeof startDate === "string" ? parseISO(startDate) : startDate;
 
             if (startDateAsDate) {
-              const dateString = format(startDateAsDate, "P");
-              updateFilters({ date: dateString });
-              setDate(startDateAsDate);
+              props.setDate(startDateAsDate);
             }
           }}
           startLabel={props.dateLabel}
-          dateFormat={GetYesterdayTodayTomorrowFormat(date, "MMMM d")}
+          dateFormat={GetYesterdayTodayTomorrowFormat(
+            dateFilterAsDate,
+            "MMMM d"
+          )}
         />
       </Grid>
     </>

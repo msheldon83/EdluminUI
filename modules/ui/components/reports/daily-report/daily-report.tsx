@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQueryParamIso } from "hooks/query-params";
 import { useQueryBundle } from "graphql/hooks";
 import { GetDailyReport } from "./graphql/get-daily-report.gen";
@@ -27,9 +27,6 @@ import clsx from "clsx";
 import {
   Detail,
   MapDailyReportDetails,
-  GetUnfilled,
-  GetFilled,
-  GetNoSubRequired,
   CardType,
   DailyReportDetails,
   DetailGroup,
@@ -37,9 +34,12 @@ import {
 import { GroupCard } from "./group-card";
 import { TFunction } from "i18next";
 import { ActionMenu } from "ui/components/action-menu";
+import { format } from "date-fns";
 
 type Props = {
   orgId: string;
+  date: Date;
+  setDate: (date: Date) => void;
   header: string;
   showFilters?: boolean;
   cards: CardType[];
@@ -49,8 +49,15 @@ export const DailyReport: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
-  const [filters] = useQueryParamIso(FilterQueryParams);
+  const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const [selectedCard, setSelectedCard] = useState<CardType | undefined>();
+
+  useEffect(() => {
+    const dateString = format(props.date, "P");
+    if (dateString !== filters.date) {
+      updateFilters({ date: dateString });
+    }
+  }, [props.date]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const serverQueryFilters = useMemo(() => filters, [
     filters.date,
@@ -119,7 +126,7 @@ export const DailyReport: React.FC<Props> = props => {
       <SectionHeader title={props.header} />
       {props.showFilters && (
         <>
-          <Filters orgId={props.orgId} />
+          <Filters orgId={props.orgId} setDate={props.setDate} />
           <Divider />
         </>
       )}

@@ -17,6 +17,7 @@ import { DateFilter } from "./date-filter";
 type Props = {
   orgId: string;
   className?: string;
+  setDate: (date: Date) => void;
 };
 
 export const Filters: React.FC<Props> = props => {
@@ -32,7 +33,7 @@ export const Filters: React.FC<Props> = props => {
       spacing={2}
       className={classes.filters}
     >
-      <DateFilter {...filters} dateLabel={t("Date")} />
+      <DateFilter {...filters} dateLabel={t("Date")} setDate={props.setDate} />
       <SchoolFilter
         {...filters}
         orgId={props.orgId}
