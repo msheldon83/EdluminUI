@@ -43,7 +43,7 @@ export const AbsenceNavLink: React.FC<Props> = props => {
   const paramsVerify = useRouteParams(AbsenceVacancyVerifyRoute);
   return (
     <NavLink
-      title={t("Absences & Vacancies")}
+      title={t("Absence & Vacancy")}
       icon={<SwapCallsIcon />}
       subNavItems={[
         {
