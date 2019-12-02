@@ -1,7 +1,7 @@
 import { Collapse, Divider, Link, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
-import { usePagedQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
 import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
@@ -37,36 +37,33 @@ type Props = {
 
 const buildVacancyInput = (
   vacancies: Vacancy[]
-): AbsenceVacancyInput[] | null => {
-  const vacanciesInput = vacancies.map(v => {
-    return {
-      positionId: v.positionId,
-      needsReplacement: true,
-      details: v.details!.map(d => {
-        const startTimeLocal =
-          d && d.startTimeLocal ? convertStringToDate(d.startTimeLocal) : null;
-        const endTimeLocal =
-          d && d.endTimeLocal ? convertStringToDate(d.endTimeLocal) : null;
+): AbsenceVacancyInput | null => {
+  const vacancy = vacancies[0];
+  return {
+    positionId: vacancy.positionId,
+    needsReplacement: true,
+    details: vacancy.details!.map(d => {
+      const startTimeLocal =
+        d && d.startTimeLocal ? convertStringToDate(d.startTimeLocal) : null;
+      const endTimeLocal =
+        d && d.endTimeLocal ? convertStringToDate(d.endTimeLocal) : null;
 
-        return {
-          date: d?.startTimeLocal,
-          startTime: startTimeLocal
-            ? secondsSinceMidnight(
-                parseTimeFromString(format(startTimeLocal, "h:mm a"))
-              )
-            : 0,
-          endTime: endTimeLocal
-            ? secondsSinceMidnight(
-                parseTimeFromString(format(endTimeLocal, "h:mm a"))
-              )
-            : 0,
-          locationId: d?.locationId ?? 0,
-        };
-      }),
-    };
-  });
-
-  return vacanciesInput;
+      return {
+        date: d?.startTimeLocal,
+        startTime: startTimeLocal
+          ? secondsSinceMidnight(
+              parseTimeFromString(format(startTimeLocal, "h:mm a"))
+            )
+          : 0,
+        endTime: endTimeLocal
+          ? secondsSinceMidnight(
+              parseTimeFromString(format(endTimeLocal, "h:mm a"))
+            )
+          : 0,
+        locationId: d?.locationId ?? 0,
+      };
+    }),
+  };
 };
 
 export const AssignSub: React.FC<Props> = props => {
@@ -94,23 +91,25 @@ export const AssignSub: React.FC<Props> = props => {
     }
   }, [currentClientHeight, vacancyDetailsHeight]);
 
-  const [
-    getReplacementEmployeesForVacancyQuery,
-    pagination,
-  ] = usePagedQueryBundle(
+  {
+    /* As of 12/2/2019, we are not going to page this data.
+  We will reintroduce pagining in the future. */
+  }
+  const getReplacementEmployeesForVacancyQuery = useQueryBundle(
     GetReplacementEmployeesForVacancy,
-    r => r.absence?.replacementEmployeesForVacancy?.totalCount,
     {
       variables: {
         orgId: props.orgId,
         vacancyId: props.vacancyId,
-        vacancies: buildVacancyInput(props.vacancies),
+        vacancy: buildVacancyInput(props.vacancies),
         name: searchFilter?.name,
         qualified: searchFilter?.name ? undefined : searchFilter?.qualified,
         available: searchFilter?.name ? undefined : searchFilter?.available,
         favoritesOnly: searchFilter?.name
           ? undefined
           : searchFilter?.favoritesOnly,
+        limit: null,
+        offset: null,
       },
       skip: searchFilter === undefined,
     }
@@ -135,16 +134,16 @@ export const AssignSub: React.FC<Props> = props => {
   }
   const tableData = useMemo(() => {
     return replacementEmployees.map(r => ({
-      employeeId: r.employee.id,
-      firstName: r.employee.firstName,
-      lastName: r.employee.lastName,
-      primaryPhone: r.employee.phoneNumber,
-      qualified: r.qualified,
-      available: r.available,
-      visible: r.visible,
+      employeeId: r.employeeId,
+      firstName: r.firstName,
+      lastName: r.lastName,
+      primaryPhone: r.phoneNumber,
+      qualified: r.isQualified,
+      available: r.isAvailable,
+      visible: r.isVisible,
       visibleOn: r.visibleAtLocal,
-      isEmployeeFavorite: r.isEmployeeFavorite,
-      isLocationPositionTypeFavorite: r.isLocationPositionTypeFavorite,
+      isEmployeeFavorite: r.isFavoriteEmployee,
+      isLocationPositionTypeFavorite: r.isFavoritePositionType,
       selectable: r.isSelectable,
     }));
   }, [replacementEmployees]);
@@ -190,7 +189,7 @@ export const AssignSub: React.FC<Props> = props => {
     );
   };
 
-  const replacementEmployeeCount = pagination.totalCount;
+  const replacementEmployeeCount = replacementEmployees.length;
   const pageHeader = props.vacancyId
     ? t("Assign Substitute")
     : `${t("Create Absence")}: ${t("Prearranging Substitute")}`;
@@ -249,7 +248,9 @@ export const AssignSub: React.FC<Props> = props => {
           }}
           backgroundFillForAlternatingRows={true}
         />
-        <PaginationControls pagination={pagination} />
+        {/* As of 12/2/2019, we are not going to page this data.
+          We will reintroduce pagining in the future.
+        <PaginationControls pagination={pagination} /> */}
       </Section>
     </>
   );
