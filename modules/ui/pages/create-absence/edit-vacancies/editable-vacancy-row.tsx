@@ -1,30 +1,23 @@
 import {
   Grid,
+  IconButton,
+  Link,
   makeStyles,
   Typography,
-  Link,
-  IconButton,
 } from "@material-ui/core";
-import { Register, SetValue } from "forms";
-import { Location } from "graphql/server-types.gen";
+import { HighlightOff } from "@material-ui/icons";
 import { convertStringToDate, formatDateIfPossible } from "helpers/date";
 import * as React from "react";
-import { useState } from "react";
-import { Select } from "ui/components/form/select";
-import { TimeInput } from "ui/components/form/time-input";
-import { VacancyDetail } from "../types";
-import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
 import { useTranslation } from "react-i18next";
-import { HighlightOff } from "@material-ui/icons";
-import { Field } from "formik";
+import { FormikSelect } from "ui/components/form/formik-select";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
+import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
+import { VacancyDetail } from "../types";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
-  // setValue: SetValue;
   keyPrefix: string;
   values: VacancyDetail;
-  // register: Register;
   className?: string;
   showRemoveButton: boolean;
   onRemoveRow: () => void;
@@ -32,7 +25,6 @@ type Props = {
 };
 
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
-  console.log("values?", props.values);
   const classes = useStyles();
   const { t } = useTranslation();
   const locationMenuOptions = props.locationOptions.map(loc => ({
@@ -71,23 +63,10 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
         </Grid>
 
         <Grid item xs={3} className={classes.vacancyBlockItem}>
-          <Select
+          <FormikSelect
             name={`${fieldNamePrefix}.locationId`}
             isClearable={false}
             options={locationMenuOptions}
-            onChange={async (event: any) => {
-              // await props.setValue(
-              //   `${fieldNamePrefix}.locationId`,
-              //   Number(event.value)
-              // );
-            }}
-            value={{
-              value: Number(props.values?.locationId) || undefined,
-              label:
-                locationMenuOptions.find(
-                  op => Number(op.value) === props.values?.locationId
-                )?.label || "",
-            }}
           />
         </Grid>
         {props.showRemoveButton && (

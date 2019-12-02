@@ -27,7 +27,7 @@ import { MenuProps, NoticeProps } from "react-select/src/components/Menu";
 import { MultiValueProps } from "react-select/src/components/MultiValue";
 import { OptionProps } from "react-select/src/components/Option";
 
-type Props = {
+export type Props = {
   native?: boolean;
   multi?: boolean;
   value: SelectValueType;

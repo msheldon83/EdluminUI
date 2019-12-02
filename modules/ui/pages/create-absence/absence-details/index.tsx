@@ -37,6 +37,7 @@ import { CreateAbsenceActions, CreateAbsenceState } from "../state";
 import { Step } from "../step-params";
 import { CreateAbsenceFormData } from "../ui";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
+import { VacancyDetail } from "../types";
 
 type Props = {
   state: CreateAbsenceState;

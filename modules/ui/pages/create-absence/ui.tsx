@@ -36,7 +36,7 @@ import { useQueryParamIso } from "hooks/query-params";
 import { useSnackbar } from "hooks/use-snackbar";
 import { compact, differenceWith, flatMap } from "lodash-es";
 import * as React from "react";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -320,7 +320,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const onChangedVacancies = React.useCallback(
     (vacancyDetails: VacancyDetail[]) => {
-      console.log("changedVacancies -- update vacancy input", vacancyDetails);
       setStep("absence");
       setVacanciesInput(vacancyDetails);
     },
@@ -574,7 +573,8 @@ const buildAbsenceCreateInput = (
 
   const vDetails =
     vacancyDetails?.map(v => ({
-      ...v,
+      date: v.date,
+      locationId: Number(v.locationId),
       startTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
       ),
