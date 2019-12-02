@@ -5,7 +5,14 @@ import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import isWithinInterval from "date-fns/isWithinInterval";
 import isEqual from "date-fns/isEqual";
-import { differenceInDays, addDays, isDate } from "date-fns";
+import {
+  differenceInDays,
+  addDays,
+  isDate,
+  isYesterday,
+  isToday,
+  isTomorrow,
+} from "date-fns";
 
 export type PolymorphicDateType = Date | string | undefined;
 
@@ -134,7 +141,7 @@ export const getDateRangeDisplayText = (
   return `${format(startDate, "MMMM d")} - ${format(endDate, "MMMM d, yyyy")}`;
 };
 
-export const convertStringToDate = (dateString: string): Date | null => {
+export const convertStringToDate = (dateString: string | Date): Date | null => {
   const convertedDate = new Date(dateString);
 
   if (convertedDate && isDate(convertedDate) && isValid(convertedDate)) {
@@ -142,4 +149,20 @@ export const convertStringToDate = (dateString: string): Date | null => {
   }
 
   return null;
+};
+
+export const GetYesterdayTodayTomorrowFormat = (
+  date: Date | string,
+  baseFormat: string
+): string => {
+  const dateInput = typeof date === "string" ? parseISO(date) : date;
+  let dateFormat = baseFormat;
+  if (isYesterday(dateInput)) {
+    dateFormat = `'Yesterday,' ${baseFormat}`;
+  } else if (isToday(dateInput)) {
+    dateFormat = `'Today,' ${baseFormat}`;
+  } else if (isTomorrow(dateInput)) {
+    dateFormat = `'Tomorrow,' ${baseFormat}`;
+  }
+  return dateFormat;
 };

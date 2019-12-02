@@ -376,6 +376,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             orgId={props.organizationId}
             userIsAdmin={props.userIsAdmin}
             employeeName={name}
+            employeeId={state.employeeId}
             positionId={props.positionId}
             positionName={props.positionName}
             vacancies={projectedVacancies}
@@ -481,7 +482,7 @@ const buildAbsenceCreateInput = (
   employeeId: number,
   positionId: number,
   disabledDates: Date[],
-  includeVacanciesIfNeedsReplacement: boolean,
+  includeVacancies: boolean,
   state: CreateAbsenceState,
   vacancyDetails?: VacancyDetail[]
 ) => {
@@ -583,7 +584,7 @@ const buildAbsenceCreateInput = (
     })) || undefined;
 
   // Populate the Vacancies on the Absence if needed
-  if (state.needsReplacement && includeVacanciesIfNeedsReplacement) {
+  if (includeVacancies) {
     absence = {
       ...absence,
       /* TODO: When we support multi Position Employees we'll need to account for the following:

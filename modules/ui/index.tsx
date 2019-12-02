@@ -47,6 +47,7 @@ import {
   PositionTypeViewLoader,
   PositionTypeViewRoute,
 } from "./routes/position-type";
+import { VerifyRoute, VerifyLoader } from "./routes/verify";
 import { ConfigurationRoute, ConfigurationLoader } from "./routes/org-config";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
@@ -95,6 +96,7 @@ import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
 
 import { ContractsLoader, ContractsRoute } from "./routes/contracts";
 import { EdluminTheme } from "./styles/mui-theme";
+import { DailyReportLoader, DailyReportRoute } from "./routes/daily-report";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -199,6 +201,8 @@ export function App(props: {}) {
                         component={BellScheduleLoader}
                         path={BellScheduleRoute.path}
                       />
+                      <Route component={VerifyLoader} path={VerifyRoute.path} />
+
                       <Route
                         component={BellScheduleVariantsLoader}
                         path={BellScheduleVariantsRoute.path}
@@ -247,6 +251,11 @@ export function App(props: {}) {
                       <Route
                         component={ContractsLoader}
                         path={ContractsRoute.path}
+                      />
+
+                      <Route
+                        component={DailyReportLoader}
+                        path={DailyReportRoute.path}
                       />
 
                       {/* This route handles unknown or underspecified routes and takes the

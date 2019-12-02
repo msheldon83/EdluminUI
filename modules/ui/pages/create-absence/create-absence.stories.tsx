@@ -52,21 +52,19 @@ const basicProjectedVacancies = [
 
 const basicReplacementEmployees = [
   {
-    employee: {
-      id: "1",
-      firstName: "Luke",
-      lastName: "Skywalker",
-      phoneNumber: "3452346789",
-    },
-    visible: true,
-    qualified: VacancyQualification.Fully,
+    employeeId: 1,
+    firstName: "Luke",
+    lastName: "Skywalker",
+    phoneNumber: "3452346789",
+    isVisible: true,
+    levelQualified: VacancyQualification.Fully,
     qualifiedAtUtc: "1/1/2019" as any,
     qualifiedAtLocal: "1/1/2019" as any,
-    available: VacancyAvailability.Yes,
+    levelAvailable: VacancyAvailability.Yes,
     visibleAtUtc: "1/1/2019" as any,
     visibleAtLocal: "1/1/2019" as any,
-    isEmployeeFavorite: true,
-    isLocationPositionTypeFavorite: false,
+    isFavoriteEmployee: true,
+    isFavoritePositionType: false,
     isSelectable: true,
   },
 ];

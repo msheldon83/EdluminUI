@@ -7,6 +7,9 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   employeeId: Int!
@@ -23,6 +26,10 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   details: [AbsenceDetail]
   employee: BasicEmployee
   vacancies: [Vacancy]
+  locationIds: [Int]
+  locations: [Location]
+  positionTypeIds: [Int]
+  positionTypes: [PositionType]
 }
 
 input AbsenceCreateInput {
@@ -42,6 +49,9 @@ type AbsenceDetail implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   absenceId: Int!
   startDate: Date
   startTimeLocal: DateTime
@@ -93,12 +103,13 @@ type AbsenceQueries {
     offset: Int
     sortBy: [SortDetailsInput]
     vacancyId: ID
-    vacancies: [AbsenceVacancyInput]
+    vacancy: AbsenceVacancyInput
+    absentEmployeeId: ID
     name: String
     qualified: [VacancyQualification]
     available: [VacancyAvailability]
     favoritesOnly: Boolean
-  ): PagedReplacementEmployeeAvailability
+  ): PagedVacancySubSearchQueryResult
   projectedAbsence(absence: AbsenceCreateInput!): Absence
   dailyReport(
     orgId: ID!
@@ -117,6 +128,9 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -229,6 +243,9 @@ type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   absenceId: Int!
   absenceDetailId: Int!
   sequence: Byte!
@@ -284,6 +301,9 @@ type AccountingCode implements ModelObjectInterface & OrgObjectInterface & Domai
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -371,6 +391,9 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   assignmentTypeId: AssignmentType
@@ -419,6 +442,9 @@ type BasicEmployee implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   firstName: String!
   middleName: String
   lastName: String!
@@ -434,6 +460,9 @@ type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainO
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   positionId: Int!
@@ -547,6 +576,9 @@ type CalendarChange implements ModelObjectInterface & OrgObjectInterface & Domai
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   startDate: Date!
@@ -599,6 +631,9 @@ type CalendarChangeReason implements ModelObjectInterface & OrgObjectInterface &
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -665,6 +700,9 @@ type ChangedContract implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   calendarChangeId: Int!
   contractId: Int!
   contract: Contract
@@ -691,6 +729,9 @@ type Contract implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -717,6 +758,9 @@ type ContractDate implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   contractScheduleId: Int!
   contractId: Int!
   contract: Contract
@@ -788,6 +832,9 @@ type ContractSchedule implements ModelObjectInterface & OrgObjectInterface & Dom
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   contractId: Int!
@@ -883,6 +930,9 @@ type CustomField implements ModelObjectInterface & OrgObjectInterface & DomainOb
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   stringId: String!
@@ -1065,6 +1115,9 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   rowVersion: String
   canFillVacancies: Boolean
   isShadowEmployee: Boolean!
@@ -1101,6 +1154,9 @@ type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   employeeId: Int!
   endorsementDate: Date
   expirationDate: Date
@@ -1146,13 +1202,19 @@ type EmployeeMutations {
 
 type EmployeeQueries {
   byId(id: ID!): Employee
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Employee]
+  all(
+    orgId: ID
+    orgIds: [ID]
+    sortBy: [SortDetailsInput]
+    contractedOn: DateTime
+  ): [Employee]
   paged(
     orgId: ID
     orgIds: [ID]
     limit: Int
     offset: Int
     sortBy: [SortDetailsInput]
+    contractedOn: DateTime
   ): PagedEmployee
   employeePositionSchedule(
     id: ID!
@@ -1202,6 +1264,9 @@ type EndEmploymentReason implements ModelObjectInterface & OrgObjectInterface & 
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -1235,6 +1300,9 @@ type Endorsement implements ModelObjectInterface & OrgObjectInterface & DomainOb
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -1577,6 +1645,9 @@ type Label implements ModelObjectInterface & OrgObjectInterface & DomainObjectIn
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -1622,6 +1693,9 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -1662,6 +1736,9 @@ type LocationGroup implements ModelObjectInterface & OrgObjectInterface & Domain
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -1906,6 +1983,9 @@ type Organization implements ModelObjectInterface & OrgObjectInterface & DomainO
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -1939,6 +2019,7 @@ type organizationConfig {
   requestedSubCutoffMinutes: Int!
   minRequestedEmployeeHoldMinutes: Int!
   maxRequestedEmployeeHoldMinutes: Int!
+  minorConflictThresholdMinutes: Int!
 }
 
 input organizationConfigInput {
@@ -1959,6 +2040,7 @@ input organizationConfigInput {
   requestedSubCutoffMinutes: Int
   minRequestedEmployeeHoldMinutes: Int
   maxRequestedEmployeeHoldMinutes: Int
+  minorConflictThresholdMinutes: Int
 }
 
 input OrganizationCreateInput {
@@ -2001,6 +2083,9 @@ input OrganizationUpdateInput {
 interface OrgObjectInterface {
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
 }
 
 type OrgRef_AbsenceReasonMutations {
@@ -2208,6 +2293,9 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   firstName: String!
@@ -2555,15 +2643,6 @@ type PagedReplacementCriteriaConfig {
   totalCount: Int
 }
 
-type PagedReplacementEmployeeAvailability {
-  _info: [ReturnMessage]
-  results: [ReplacementEmployeeAvailability]
-  offset: Int!
-  limit: Int!
-  hasMoreData: Boolean!
-  totalCount: Int
-}
-
 type PagedReplacementPool {
   _info: [ReturnMessage]
   results: [PagedReplacementPool]
@@ -2618,6 +2697,15 @@ type PagedVacancy {
   totalCount: Int
 }
 
+type PagedVacancySubSearchQueryResult {
+  _info: [ReturnMessage]
+  results: [VacancySubSearchQueryResult]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedWorkDayPattern {
   _info: [ReturnMessage]
   results: [WorkDayPattern]
@@ -2664,6 +2752,9 @@ type PayCode implements ModelObjectInterface & OrgObjectInterface & DomainObject
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -2755,6 +2846,9 @@ type PermissionSet implements ModelObjectInterface & OrgObjectInterface & Domain
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -2815,6 +2909,9 @@ type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -2854,6 +2951,9 @@ type PositionSchedule implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   name: String!
   positionId: Int!
   rowVersion: String
@@ -2981,6 +3081,9 @@ type PositionSchedulePeriod implements ModelObjectInterface & OrgObjectInterface
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   positionId: Int!
   positionScheduleId: Int!
   sequence: Int
@@ -3042,6 +3145,9 @@ type PositionScheduleVariant implements ModelObjectInterface & OrgObjectInterfac
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   positionScheduleId: Int!
   workDayScheduleVariantTypeId: Int!
   isStandard: Boolean!
@@ -3091,6 +3197,9 @@ type PositionScheduleVariantPeriod implements ModelObjectInterface & OrgObjectIn
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   sequence: Int
   startTime: Seconds!
   endTime: Seconds!
@@ -3129,6 +3238,9 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -3500,6 +3612,9 @@ type ReplacementCriteria implements ModelObjectInterface & OrgObjectInterface & 
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   replacementCriteriaConfigId: Int!
@@ -3526,6 +3641,9 @@ type ReplacementCriteriaConfig implements ModelObjectInterface & OrgObjectInterf
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -3625,24 +3743,11 @@ type ReplacementCriterion implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   replacementCriteriaId: Int!
   endorsementId: Int!
-}
-
-type ReplacementEmployeeAvailability {
-  _info: [ReturnMessage]
-  employee: Employee!
-  vacancyId: Int
-  qualified: VacancyQualification!
-  qualifiedAtLocal: DateTime
-  qualifiedAtUtc: DateTime
-  available: VacancyAvailability!
-  visible: Boolean!
-  visibleAtLocal: DateTime
-  visibleAtUtc: DateTime
-  isEmployeeFavorite: Boolean!
-  isLocationPositionTypeFavorite: Boolean!
-  isSelectable: Boolean!
 }
 
 type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -3654,6 +3759,9 @@ type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & Doma
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   replacementPoolConfigId: Int!
@@ -3685,6 +3793,9 @@ type ReplacementPoolConfig implements ModelObjectInterface & OrgObjectInterface 
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -3763,6 +3874,9 @@ type ReplacementPoolMember implements ModelObjectInterface & OrgObjectInterface 
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   replacementPoolId: Int!
   employeeId: Int!
   employee: BasicEmployee
@@ -3816,6 +3930,9 @@ type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   replacementPoolConfigId: Int!
@@ -3871,6 +3988,9 @@ type SavedView implements ModelObjectInterface & OrgObjectInterface & DomainObje
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -3974,6 +4094,9 @@ type SchoolYear implements ModelObjectInterface & OrgObjectInterface & DomainObj
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -4268,6 +4391,9 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   positionId: Int!
@@ -4307,6 +4433,9 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   vacancyId: Int!
   startDate: Date
   startTimeLocal: DateTime
@@ -4339,6 +4468,9 @@ type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInte
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   vacancyId: Int!
   vacancyDetailId: Int!
   accountingCodeId: Int!
@@ -4367,6 +4499,9 @@ type VacancyEmployeeInterest implements ModelObjectInterface & OrgObjectInterfac
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   vacancyId: Int!
   employeeId: Int!
   interestRatingId: InterestRating
@@ -4385,6 +4520,9 @@ type VacancyEmployeeRequest implements ModelObjectInterface & OrgObjectInterface
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   vacancyId: Int!
   employeeId: Int!
   vacancyRejectionReasonId: VacancyRejectionReason
@@ -4453,6 +4591,50 @@ enum VacancyRejectionReason {
   DISLIKE_TEACHER
 }
 
+type VacancySubSearchQueryResult {
+  _info: [ReturnMessage]
+  isAvailableToSubWhenSearching: Boolean!
+  isSelectable: Boolean!
+  employeeId: Int!
+  firstName: String!
+  middleName: String!
+  lastName: String!
+  phoneNumber: String!
+  levelQualified: VacancyQualification!
+  levelAvailable: VacancyAvailability!
+  vacancyId: Int
+  vacancyCreatedUtc: Date!
+  vacancyStartTimeUtc: Date!
+  totalLeadTimeMinutes: Int!
+  minutesLeadTimeLeft: Int!
+  percentLeadTimeLeft: Int!
+  isRejected: Boolean!
+  isAvailable: Boolean!
+  otherJobConflict: Boolean!
+  otherOrgJobConflict: Boolean!
+  unavailableToWork: Boolean!
+  minutesOverlapForJobConflict: Int!
+  minutesOverlapForUnavailable: Int!
+  isMinorJobConflict: Boolean!
+  isQualified: Boolean!
+  excludedAttribute: Boolean!
+  missingAttribute: Boolean!
+  qualifiedAtMinutesLeft: Int!
+  qualifiedAtPercentLeft: Int!
+  qualifiedAtLocal: DateTime
+  qualifiedAtUtc: DateTime
+  isVisible: Boolean!
+  excludedSub: Boolean!
+  notYetVisible: Boolean!
+  notIncluded: Boolean!
+  visibleAtMinutesLeft: Int!
+  visibleAtPercentLeft: Int!
+  visibleAtLocal: DateTime
+  visibleAtUtc: DateTime
+  isFavoriteEmployee: Boolean!
+  isFavoritePositionType: Boolean!
+}
+
 type VacancyWasAssignedResult {
   _info: [ReturnMessage]
   vacancyId: Int!
@@ -4507,6 +4689,9 @@ type WorkDayPattern implements ModelObjectInterface & OrgObjectInterface & Domai
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -4567,6 +4752,9 @@ type WorkDaySchedule implements ModelObjectInterface & OrgObjectInterface & Doma
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!
@@ -4666,6 +4854,9 @@ type WorkDayScheduleUsage implements ModelObjectInterface & OrgObjectInterface {
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   workDayScheduleId: Int!
   workDayId: Int
   locationId: Int
@@ -4684,6 +4875,9 @@ type WorkDayScheduleVariant implements ModelObjectInterface & OrgObjectInterface
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   workDayScheduleId: Int!
   workDayScheduleVariantTypeId: Int!
   isStandard: Boolean!
@@ -4773,6 +4967,9 @@ type WorkDayScheduleVariantType implements ModelObjectInterface & OrgObjectInter
   isDeleted: Boolean!
   orgId: Int!
   organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
   externalId: String
   rowVersion: String!
   name: String!

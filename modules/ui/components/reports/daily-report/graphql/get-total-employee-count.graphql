@@ -1,0 +1,7 @@
+query GetTotalContractedEmployeeCount($orgId: ID, $contractedOn: DateTime) {
+  employee {
+    paged(orgId: $orgId, contractedOn: $contractedOn) {
+      totalCount
+    }
+  }
+}
