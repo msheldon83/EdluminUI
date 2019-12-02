@@ -16,17 +16,19 @@ import { VacancyDetail } from "../types";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
 import { useTranslation } from "react-i18next";
 import { HighlightOff } from "@material-ui/icons";
+import { Field } from "formik";
+import { FormikTimeInput } from "ui/components/form/formik-time-input";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
-  setValue: SetValue;
+  // setValue: SetValue;
   keyPrefix: string;
   values: VacancyDetail;
-  register: Register;
+  // register: Register;
   className?: string;
   showRemoveButton: boolean;
-  // onRemoveRow: () => void;
-  // onAddRow: () => void;
+  onRemoveRow: () => void;
+  onAddRow: () => void;
 };
 
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
@@ -38,32 +40,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     label: loc.name,
   }));
   const fieldNamePrefix = props.keyPrefix;
-  /* Even though date is not editable, it is
-     included in the form data, and must be registered
-     */
-  props.register(
-    { name: `${fieldNamePrefix}.date`, type: "custom" },
-    { required: "Required" }
-  );
-  props.register(
-    { name: `${fieldNamePrefix}.locationId`, type: "custom" },
-    { required: "Required" }
-  );
-  props.register(
-    { name: `${fieldNamePrefix}.startTime`, type: "custom" },
-    { required: "Required" }
-  );
-  props.register(
-    { name: `${fieldNamePrefix}.endTime`, type: "custom" },
-    { required: "Required" }
-  );
 
-  const [startTime, setStartTime] = useState(
-    convertStringToDate(props.values.startTime)?.toISOString()
-  );
-  const [endTime, setEndTime] = useState(
-    convertStringToDate(props.values.endTime)?.toISOString()
-  );
   const date = convertStringToDate(props.values.date);
 
   return (
@@ -80,29 +57,15 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
       <Grid item container alignItems="center">
         <Grid item container md={3} className={classes.vacancyBlockItem}>
           <Grid item xs={4} className={classes.timeInput}>
-            <TimeInput
-              label=""
+            <FormikTimeInput
               name={`${fieldNamePrefix}.startTime`}
-              value={startTime}
-              onValidTime={async value => {
-                setStartTime(value);
-                await props.setValue(`${fieldNamePrefix}.startTime`, value);
-              }}
-              onChange={value => setStartTime(value)}
-              earliestTime={startTime}
+              earliestTime={props.values.startTime}
             />
           </Grid>
           <Grid item xs={4} className={classes.timeInput}>
-            <TimeInput
-              label=""
+            <FormikTimeInput
               name={`${fieldNamePrefix}.endTime`}
-              value={endTime}
-              onValidTime={async value => {
-                setEndTime(value);
-                await props.setValue(`${fieldNamePrefix}.endTime`, value);
-              }}
-              onChange={value => setEndTime(value)}
-              earliestTime={endTime}
+              earliestTime={props.values.endTime}
             />
           </Grid>
         </Grid>
@@ -113,10 +76,10 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             isClearable={false}
             options={locationMenuOptions}
             onChange={async (event: any) => {
-              await props.setValue(
-                `${fieldNamePrefix}.locationId`,
-                Number(event.value)
-              );
+              // await props.setValue(
+              //   `${fieldNamePrefix}.locationId`,
+              //   Number(event.value)
+              // );
             }}
             value={{
               value: Number(props.values?.locationId) || undefined,
@@ -127,18 +90,18 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             }}
           />
         </Grid>
-        {/* {props.showRemoveButton && (
+        {props.showRemoveButton && (
           <Grid item>
             <IconButton onClick={props.onRemoveRow}>
               <HighlightOff />
             </IconButton>
           </Grid>
-        )} */}
+        )}
       </Grid>
 
-      {/* <Grid item container>
+      <Grid item container>
         <Link onClick={props.onAddRow}>{t("Add row")}</Link>
-      </Grid> */}
+      </Grid>
     </Grid>
   );
 };
