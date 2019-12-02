@@ -437,7 +437,7 @@ const buildAbsenceCreateInput = (
   employeeId: number,
   positionId: number,
   disabledDates: Date[],
-  includeVacanciesIfNeedsReplacement: boolean
+  includeVacancies: boolean
 ) => {
   if (
     !formValues.startDate ||
@@ -526,7 +526,7 @@ const buildAbsenceCreateInput = (
   };
 
   // Populate the Vacancies on the Absence if needed
-  if (formValues.needsReplacement && includeVacanciesIfNeedsReplacement) {
+  if (includeVacancies) {
     absence = {
       ...absence,
       /* TODO: When we support multi Position Employees we'll need to account for the following:

@@ -45,6 +45,7 @@ const themeColors: Theme["customColors"] = {
 
   edluminSlate: "#2B3648",
   edluminLightSlate: "#56657F",
+  edluminSubText: "#9E9E9E",
 
   /* colors below are historical */
   black: "#262c36",

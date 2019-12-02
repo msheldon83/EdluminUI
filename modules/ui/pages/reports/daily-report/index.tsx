@@ -1,20 +1,25 @@
 import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { AdminHomeRoute } from "ui/routes/admin-home";
+import { DailyReportRoute } from "ui/routes/daily-report";
 import { useRouteParams } from "ui/routes/definition";
 import { DailyReport } from "ui/components/reports/daily-report/daily-report";
-import { startOfToday } from "date-fns";
-import { Grid } from "@material-ui/core";
+import { Grid, Button } from "@material-ui/core";
 import { DateStepperHeader } from "ui/components/date-stepper-header";
+import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
+import { Link } from "react-router-dom";
+import { startOfToday } from "date-fns";
 
 type Props = {};
 
-export const AdminHome: React.FC<Props> = props => {
+export const DailyReportPage: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const params = useRouteParams(AdminHomeRoute);
+  const params = useRouteParams(DailyReportRoute);
   const [date, setDate] = React.useState(startOfToday());
+  const createAbsenceRouteParams = useRouteParams(
+    AdminSelectEmployeeForCreateAbsenceRoute
+  );
 
   return (
     <>
@@ -27,16 +32,26 @@ export const AdminHome: React.FC<Props> = props => {
         <Grid item>
           <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
         </Grid>
-        <Grid item>{/* Action buttons go here */}</Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            component={Link}
+            to={AdminSelectEmployeeForCreateAbsenceRoute.generate(
+              createAbsenceRouteParams
+            )}
+          >
+            {t("Create Absence")}
+          </Button>
+        </Grid>
       </Grid>
 
       <DailyReport
         orgId={params.organizationId}
         date={date}
         setDate={setDate}
-        header={t("Good morning")}
-        showFilters={false}
-        cards={["unfilled", "total"]}
+        header={t("Filter absences")}
+        showFilters={true}
+        cards={["unfilled", "filled", "noSubRequired", "total"]}
       />
     </>
   );
