@@ -78,7 +78,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "flex-end",
     alignItems: "center",
     marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(1),
   },
   label: {
     marginRight: theme.spacing(2),

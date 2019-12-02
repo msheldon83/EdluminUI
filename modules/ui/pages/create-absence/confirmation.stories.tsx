@@ -11,9 +11,25 @@ import {
   DayPart,
   Vacancy,
 } from "graphql/server-types.gen";
+import { Route } from "react-router";
 
 export default {
   title: "Pages/Create Absence/Confirmation",
+};
+
+const exampleAccountingCodeAndPayCode = {
+  accountingCodeAllocations: [
+    {
+      accountingCode: {
+        id: "1005",
+        name: "Cash",
+      },
+    },
+  ],
+  payCode: {
+    id: "1002",
+    name: "Double Pay",
+  },
 };
 
 const complexVacancies = [
@@ -36,6 +52,7 @@ const complexVacancies = [
         location: {
           name: "Evans Elementary School",
         },
+        ...exampleAccountingCodeAndPayCode,
       },
       {
         startDate: "2019-11-19",
@@ -46,6 +63,7 @@ const complexVacancies = [
         location: {
           name: "Brook Elementary School",
         },
+        ...exampleAccountingCodeAndPayCode,
       },
       {
         startDate: "2019-11-20",
@@ -56,6 +74,7 @@ const complexVacancies = [
         location: {
           name: "Evans Elementary School",
         },
+        ...exampleAccountingCodeAndPayCode,
       },
       {
         startDate: "2019-11-20",
@@ -66,6 +85,7 @@ const complexVacancies = [
         location: {
           name: "Brook Elementary School",
         },
+        ...exampleAccountingCodeAndPayCode,
       },
       {
         startDate: "2019-11-21",
@@ -76,6 +96,7 @@ const complexVacancies = [
         location: {
           name: "Evans Elementary School",
         },
+        ...exampleAccountingCodeAndPayCode,
       },
       {
         startDate: "2019-11-21",
@@ -86,6 +107,7 @@ const complexVacancies = [
         location: {
           name: "Brook Elementary School",
         },
+        ...exampleAccountingCodeAndPayCode,
       },
       {
         startDate: "2019-11-22",
@@ -96,6 +118,7 @@ const complexVacancies = [
         location: {
           name: "Haven Elementary School",
         },
+        ...exampleAccountingCodeAndPayCode,
       },
       {
         startDate: "2019-11-25",
@@ -106,6 +129,7 @@ const complexVacancies = [
         location: {
           name: "Evans Elementary School",
         },
+        ...exampleAccountingCodeAndPayCode,
       },
       {
         startDate: "2019-11-25",
@@ -116,6 +140,7 @@ const complexVacancies = [
         location: {
           name: "Brook Elementary School",
         },
+        ...exampleAccountingCodeAndPayCode,
       },
     ] as Maybe<VacancyDetail[]>,
   },
@@ -304,6 +329,7 @@ export const AsAdminWithAllInformation = () => {
         absence={getAbsence("1", true, true)}
         disabledDates={disabledDates}
         setStep={() => {}}
+        isAdmin={true}
       />
     </Provider>
   );
@@ -332,6 +358,7 @@ export const AsAdminWithSimpleAbsence = () => {
         absence={getAbsence("1", true, false)}
         setStep={() => {}}
         disabledDates={disabledDates}
+        isAdmin={true}
       />
     </Provider>
   );
@@ -360,6 +387,7 @@ export const AsAdminWithMinimumInformation = () => {
         absence={getAbsence("2", false, false)}
         disabledDates={disabledDates}
         setStep={() => {}}
+        isAdmin={true}
       />
     </Provider>
   );

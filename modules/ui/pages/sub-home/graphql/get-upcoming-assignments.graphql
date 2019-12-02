@@ -1,0 +1,49 @@
+query GetUpcomingAssignments(
+  $id: ID!
+  $fromDate: DateTime!
+  $toDate: Date!
+  $limit: Int
+  $includeCompletedToday: Boolean
+) {
+  employee {
+    employeeAssignmentSchedule(
+      id: $id
+      fromDate: $fromDate
+      toDate: $toDate
+      limit: $limit
+      includeCompletedToday: $includeCompletedToday
+    ) {
+      id
+      startDate
+      endDate
+      startTimeLocal
+      endTimeLocal
+      assignment {
+        id
+        startTimeLocal
+        endTimeLocal
+      }
+      location {
+        id
+        name
+        address1
+        city
+        stateName
+        postalCode
+        phoneNumber
+      }
+      vacancy {
+        absence {
+          employee {
+            firstName
+            lastName
+          }
+        }
+        position {
+          name
+        }
+        notesToReplacement
+      }
+    }
+  }
+}

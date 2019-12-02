@@ -23,21 +23,20 @@ import {
   Absence,
   AbsenceCreateInput,
   AbsenceDetailCreateInput,
+  AbsenceReasonTrackingTypeId,
   AbsenceVacancyInput,
   CalendarDayType,
   DayPart,
   NeedsReplacement,
   Vacancy,
-  VacancyDetailInput,
 } from "graphql/server-types.gen";
-import { isAfterDate } from "helpers/date";
+import { convertStringToDate, isAfterDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
-import { convertStringToDate } from "helpers/date";
 import { useQueryParamIso } from "hooks/query-params";
 import { useSnackbar } from "hooks/use-snackbar";
-import { differenceWith, compact, flatMap } from "lodash-es";
+import { compact, differenceWith, flatMap } from "lodash-es";
 import * as React from "react";
-import { useMemo, useReducer, useState, useEffect } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -51,6 +50,7 @@ import {
   GetEmployeeContractScheduleQuery,
   GetEmployeeContractScheduleQueryVariables,
 } from "./graphql/get-contract-schedule.gen";
+import { GetProjectedAbsenceUsage } from "./graphql/get-projected-absence-usage.gen";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
@@ -114,24 +114,43 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     formState,
     getValues,
     errors,
+    triggerValidation,
   } = useForm<CreateAbsenceFormData>({
     defaultValues: initialFormData,
   });
+
+  const formValues = getValues();
 
   const required = t("Required");
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "startDate", type: "custom" }, { required });
-  register({ name: "endDate", type: "custom" }, { required });
+  register({ name: "endDate", type: "custom" });
   register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
   register({ name: "replacementEmployeeId", type: "custom" });
   register({ name: "replacementEmployeeName", type: "custom" });
-  register({ name: "hourlyStartTime", type: "custom" });
-  register({ name: "hourlyEndTime", type: "custom" });
-
-  const formValues = getValues();
+  register(
+    { name: "hourlyStartTime", type: "custom" },
+    {
+      validate: value =>
+        formValues.dayPart !== DayPart.Hourly ||
+        value ||
+        t("Start time is required"),
+    }
+  );
+  register(
+    { name: "hourlyEndTime", type: "custom" },
+    {
+      validate: value =>
+        formValues.dayPart !== DayPart.Hourly ||
+        value ||
+        t("End time is required"),
+    }
+  );
+  register({ name: "accountingCode", type: "custom" });
+  register({ name: "payCode", type: "custom" });
 
   const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
     variables: {
@@ -148,26 +167,46 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     contractSchedule,
   ]);
 
-  const projectedVacanciesInput = buildAbsenceCreateInput(
-    formValues,
-    Number(state.organizationId),
-    Number(state.employeeId),
-    Number(props.positionId),
-    disabledDates,
-    true,
-    state,
-    vacanciesInput
+  const projectedVacanciesInput = useMemo(
+    () =>
+      buildAbsenceCreateInput(
+        formValues,
+        Number(state.organizationId),
+        Number(state.employeeId),
+        Number(props.positionId),
+        disabledDates,
+        false, //true?
+
+        state,
+        vacanciesInput
+      ),
+    [
+      formValues.startDate,
+      formValues.endDate,
+      formValues.absenceReason,
+      formValues.dayPart,
+      formValues.hourlyStartTime,
+      formValues.hourlyEndTime,
+    ]
   );
+
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
-      absence: projectedVacanciesInput,
+      absence: projectedVacanciesInput!,
     },
     skip: projectedVacanciesInput === null,
+    onError: () => {},
+  });
+  const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
+    variables: {
+      absence: projectedVacanciesInput!,
+    },
+    skip: projectedVacanciesInput === null,
+    // fetchPolicy: "no-cache",
     onError: error => {
       // This shouldn't prevent the User from continuing on
       // with Absence Create. Any major issues will be caught
       // and reported back to them when calling the Create mutation.
-      console.error("Error trying to get projected vacancies", error);
     },
   });
 
@@ -212,6 +251,43 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       : (compact(
           getProjectedVacancies.data?.absence?.projectedVacancies ?? []
         ) as Vacancy[]);
+
+  const absenceUsageText = useMemo(() => {
+    /*
+      cf 2019-11-21
+      Given that we can't select multiple absence reasons via the UI, I'm
+      not attempting to implement this calculation in a way that could handle
+      multiple absence reasons or differing units.
+    */
+    if (
+      !(
+        getProjectedAbsenceUsage.state === "DONE" ||
+        getProjectedAbsenceUsage.state === "UPDATING"
+      )
+    )
+      return null;
+
+    const usages = compact(
+      flatMap(
+        getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
+        d => d?.reasonUsages?.map(ru => ru)
+      )
+    );
+
+    if (usages.length < 1) return null;
+
+    const type = usages[0].absenceReasonTrackingTypeId!;
+    const amount = usages.reduce((m, v) => m + v.amount, 0);
+    const unitText = {
+      [AbsenceReasonTrackingTypeId.Invalid]: null,
+      [AbsenceReasonTrackingTypeId.Daily]: ["day", "days"],
+      [AbsenceReasonTrackingTypeId.Hourly]: ["hour", "hours"],
+    }[type];
+    if (!unitText) return null;
+    return `${t("Uses")} ${amount} ${t(unitText[Number(amount !== 1)])} ${t(
+      "of your balance"
+    )}`;
+  }, [getProjectedVacancies]);
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -280,11 +356,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 dispatch={dispatch}
                 setValue={setValue}
                 values={formValues}
+                errors={errors}
+                triggerValidation={triggerValidation}
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
                 setStep={setStep}
                 disabledDates={disabledDates}
+                balanceUsageText={absenceUsageText || undefined}
               />
             </Section>
           </>
@@ -307,6 +386,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             absence={absence}
             setStep={setStep}
             disabledDates={disabledDates}
+            isAdmin={props.userIsAdmin}
           />
         )}
       </form>
@@ -353,6 +433,8 @@ export type CreateAbsenceFormData = {
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
   vacancies?: AbsenceVacancyInput[];
+  accountingCode?: string;
+  payCode?: string;
 };
 
 const computeDisabledDates = (
@@ -471,7 +553,6 @@ const buildAbsenceCreateInput = (
       };
 
       if (formValues.dayPart === DayPart.Hourly) {
-        //TODO: provide a way to specify start and end time in the UI when Hourly
         detail = {
           ...detail,
           startTime: secondsSinceMidnight(
@@ -515,6 +596,17 @@ const buildAbsenceCreateInput = (
           notesToReplacement: formValues.notesToReplacement,
           prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
           details: vDetails,
+          accountingCodeAllocations: formValues.accountingCode
+            ? [
+                {
+                  accountingCodeId: Number(formValues.accountingCode),
+                  allocation: 1.0,
+                },
+              ]
+            : undefined,
+          payCodeId: formValues.payCode
+            ? Number(formValues.payCode)
+            : undefined,
         },
       ],
     };

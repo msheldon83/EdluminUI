@@ -2,7 +2,7 @@ import { Button, IconButton, makeStyles } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
 import PlayForWork from "@material-ui/icons/PlayForWork";
 import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
-import { useScreenSize } from "hooks";
+import { useIsMobile } from "hooks";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
@@ -21,7 +21,7 @@ type Props = { redirectIfOneOrg?: boolean };
 export const OrganizationsPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
 
   const columns: Column<GetOrgsForUser.Organization>[] = [
     { title: t("Id"), field: "id" },

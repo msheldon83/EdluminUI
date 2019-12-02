@@ -60,6 +60,19 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
               lastName
             }
           }
+          accountingCodeAllocations {
+            accountingCodeId
+            accountingCode {
+              id
+              name
+            }
+            allocation
+          }
+          payCodeId
+          payCode {
+            id
+            name
+          }
         }
       }
     }

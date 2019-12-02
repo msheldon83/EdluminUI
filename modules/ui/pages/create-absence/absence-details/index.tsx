@@ -4,14 +4,14 @@ import {
   Grid,
   makeStyles,
   Paper,
-  TextField,
   Typography,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
+import InfoIcon from "@material-ui/icons/Info";
 import { isValid, parseISO } from "date-fns";
-import { SetValue } from "forms";
+import { Errors, SetValue, TriggerValidation } from "forms";
 import {
   DayPart,
   FeatureFlag,
@@ -30,6 +30,7 @@ import {
   DatePickerOnChange,
   DatePickerOnMonthChange,
 } from "ui/components/form/date-picker";
+import { Input } from "ui/components/form/input";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
 import { CreateAbsenceActions, CreateAbsenceState } from "../state";
@@ -42,11 +43,14 @@ type Props = {
   dispatch: React.Dispatch<CreateAbsenceActions>;
   setValue: SetValue;
   values: CreateAbsenceFormData;
+  errors: Errors;
+  triggerValidation: TriggerValidation;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
   vacancies: Vacancy[];
   setStep: (S: Step) => void;
   disabledDates: Date[];
+  balanceUsageText?: string;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -60,6 +64,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
     isAdmin,
     needsReplacement,
     dispatch,
+    errors,
+    triggerValidation,
   } = props;
 
   const [hourlyStartTime, setHourlyStartTime] = useState<string | undefined>();
@@ -76,6 +82,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onHourlyStartTimeChange = React.useCallback(
     async (startTime?: Date | undefined) => {
       await setValue("hourlyStartTime", startTime);
+      await triggerValidation({ name: "hourlyStartTime" });
     },
     [setValue]
   );
@@ -91,8 +98,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onHourlyEndTimeChange = React.useCallback(
     async (endTime?: Date | undefined) => {
       await setValue("hourlyEndTime", endTime);
+      await triggerValidation({ name: "hourlyEndTime" });
     },
-    [setValue]
+    [setValue, triggerValidation]
   );
 
   const absenceReasons = useAbsenceReasons(state.organizationId);
@@ -106,6 +114,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [featureFlags]
   );
 
+  useEffect(() => {
+    if (!values.dayPart && dayPartOptions && dayPartOptions[0]) {
+      // Default the Day Part selection to the first one
+      setValue("dayPart", dayPartOptions[0]);
+    }
+  }, [dayPartOptions]);
+
   const onDateChange: DatePickerOnChange = React.useCallback(
     async ({ startDate, endDate }) => {
       await setValue("startDate", startDate);
@@ -116,8 +131,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onReasonChange = React.useCallback(
     async event => {
       await setValue("absenceReason", event.value);
+      await triggerValidation({ name: "absenceReason" });
     },
-    [setValue]
+    [setValue, triggerValidation]
   );
 
   const onDayPartChange = React.useCallback(
@@ -170,6 +186,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
             onChange={onReasonChange}
             options={absenceReasonOptions}
             isClearable={false}
+            inputStatus={errors.absenceReason ? "error" : undefined}
+            validationMessage={errors.absenceReason?.message}
+            // label={t("Reason")}
           />
         </div>
 
@@ -183,16 +202,25 @@ export const AbsenceDetails: React.FC<Props> = props => {
           disableDates={props.disabledDates}
         />
 
+        {props.balanceUsageText && (
+          <div className={classes.usageTextContainer}>
+            <InfoIcon color="primary" />
+            <Typography className={classes.usageText}>
+              {props.balanceUsageText}
+            </Typography>
+          </div>
+        )}
+
         <RadioGroup
           onChange={onDayPartChange}
           aria-label="dayPart"
           className={classes.radioGroup}
         >
-          {dayPartOptions.map(type => (
+          {dayPartOptions.map((type, i) => (
             <FormControlLabel
               key={type}
               value={type}
-              control={<Radio />}
+              control={<Radio checked={type === values.dayPart} />}
               label={t(dayPartToLabel(type))}
             />
           ))}
@@ -205,6 +233,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 value={hourlyStartTime}
                 onValidTime={time => setHourlyStartTime(time)}
                 onChange={value => setHourlyStartTime(value)}
+                inputStatus={errors.hourlyStartTime ? "error" : undefined}
+                validationMessage={errors.hourlyStartTime?.message}
               />
             </div>
             <div className={classes.time}>
@@ -214,6 +244,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 onValidTime={time => setHourlyEndTime(time)}
                 onChange={value => setHourlyEndTime(value)}
                 earliestTime={hourlyStartTime}
+                inputStatus={errors.hourlyEndTime ? "error" : undefined}
+                validationMessage={errors.hourlyEndTime?.message}
               />
             </div>
           </div>
@@ -224,15 +256,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
           <Typography className={classes.subText}>
             {t("Can be seen by the administrator and the employee.")}
           </Typography>
-
-          <TextField
+          <Input
             multiline
             rows="6"
-            variant="outlined"
-            margin="normal"
-            fullWidth
             onChange={onNotesToApproverChange}
-            InputProps={{ classes: textFieldClasses }}
+            classes={textFieldClasses}
           />
         </div>
       </Grid>
@@ -283,6 +311,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 setStep={props.setStep}
                 replacementEmployeeName={values.replacementEmployeeName}
                 replacementEmployeeId={values.replacementEmployeeId}
+                organizationId={state.organizationId}
+                triggerValidation={triggerValidation}
+                values={values}
+                errors={errors}
+                isAdmin={!!isAdmin}
               />
             )}
           </div>
@@ -339,8 +372,14 @@ const useStyles = makeStyles(theme => ({
   notesForApprover: {
     paddingTop: theme.spacing(3),
   },
-  notesForReplacement: {
-    paddingTop: theme.spacing(3),
+  usageTextContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    margin: `${theme.spacing(2)}px 0`,
+  },
+  usageText: {
+    marginLeft: theme.spacing(1),
   },
 }));
 

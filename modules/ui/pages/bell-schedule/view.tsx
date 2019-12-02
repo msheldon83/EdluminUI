@@ -1,38 +1,38 @@
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useTranslation } from "react-i18next";
-import { useScreenSize } from "hooks";
-import { GetWorkDayScheduleById } from "ui/pages/bell-schedule/graphql/workday-schedule.gen";
-import * as React from "react";
-import { PageTitle } from "ui/components/page-title";
 import { makeStyles } from "@material-ui/core";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import {
+  WorkDaySchedule,
+  WorkDaySchedulePeriod,
+  WorkDayScheduleUsage,
+  WorkDayScheduleVariant,
+} from "graphql/server-types.gen";
+import Maybe from "graphql/tsutils/Maybe";
+import {
+  midnightTime,
+  secondsSinceMidnight,
+  timeStampToIso,
+} from "helpers/time";
+import { useIsMobile } from "hooks";
+import * as React from "react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Redirect, useHistory } from "react-router";
+import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
+import { PageHeader } from "ui/components/page-header";
+import { PageTitle } from "ui/components/page-title";
+import { Step, TabbedHeader as Tabs } from "ui/components/tabbed-header";
+import { GetWorkDayScheduleById } from "ui/pages/bell-schedule/graphql/workday-schedule.gen";
 import {
   BellScheduleRoute,
   BellScheduleViewRoute,
 } from "ui/routes/bell-schedule";
 import { useRouteParams } from "ui/routes/definition";
-import { useState } from "react";
 import * as yup from "yup";
-import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
-import { UpdateWorkDayScheduleVariant } from "./graphql/update-workday-schedule-variant.gen";
-import { PageHeader } from "ui/components/page-header";
-import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
-import Maybe from "graphql/tsutils/Maybe";
-import { Schedule, Period } from "./components/schedule";
-import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
-import {
-  WorkDayScheduleVariant,
-  WorkDaySchedule,
-  WorkDaySchedulePeriod,
-  WorkDayScheduleUsage,
-} from "graphql/server-types.gen";
-import {
-  midnightTime,
-  timeStampToIso,
-  secondsSinceMidnight,
-} from "helpers/time";
-import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 import { Assign } from "./components/assign";
+import { Period, Schedule } from "./components/schedule";
+import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
+import { UpdateWorkDayScheduleVariant } from "./graphql/update-workday-schedule-variant.gen";
+import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -42,7 +42,7 @@ const editableSections = {
 export const BellScheduleViewPage: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const history = useHistory();
   const params = useRouteParams(BellScheduleViewRoute);
   const [editing, setEditing] = useState<string | null>(null);

@@ -1,29 +1,29 @@
 import { Isomorphism } from "@atomic-object/lenses";
 
 export const FilterQueryParamDefaults: SubHomeFilters = {
-  orgs: "",
-  positionTypes: "",
-  locations: "",
+  orgIds: "",
+  positionTypeIds: "",
+  locationIds: "",
   times: "",
 };
 
 export type SubHomeFilters = {
-  orgs: string;
-  positionTypes: string;
-  locations: string;
+  orgIds: string;
+  positionTypeIds: string;
+  locationIds: string;
   times: string;
 };
 
 type SubHomeFilterQueryParams = Omit<
   SubHomeFilters,
-  "orgs" | "positionTypes" | "locations" | "times"
+  "orgIds" | "positionTypeIds" | "locationIds" | "times"
 > &
   SubHomeQueryFilters;
 
 export type SubHomeQueryFilters = {
-  orgs: number[];
-  locations: number[];
-  positionTypes: number[];
+  orgIds: number[];
+  locationIds: number[];
+  positionTypeIds: number[];
   times: string[];
 };
 
@@ -47,9 +47,9 @@ export const FilterQueryParams = {
 
 const to = (o: SubHomeFilters): SubHomeQueryFilters => {
   return {
-    positionTypes: stringToNumberArray(o.positionTypes),
-    locations: stringToNumberArray(o.locations),
-    orgs: stringToNumberArray(o.orgs),
+    positionTypeIds: stringToNumberArray(o.positionTypeIds),
+    locationIds: stringToNumberArray(o.locationIds),
+    orgIds: stringToNumberArray(o.orgIds),
     times: o.times.split(","),
   };
 };
@@ -60,9 +60,9 @@ const stringToNumberArray = (s: string): number[] => {
 
 const from = (o: SubHomeQueryFilters) => {
   return {
-    orgs: o.orgs.join(","),
-    locations: o.locations.join(","),
-    positionTypes: o.positionTypes.join(","),
+    orgIds: o.orgIds.join(","),
+    locationIds: o.locationIds.join(","),
+    positionTypeIds: o.positionTypeIds.join(","),
     times: o.times.join(","),
   };
 };

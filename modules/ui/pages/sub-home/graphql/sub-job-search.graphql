@@ -1,0 +1,59 @@
+query SubJobSearch(
+  $id: ID!
+  $orgIds: [Int]
+  $locationIds: [Int]
+  $positionTypeIds: [Int]
+  $limit: Int
+  $offset: Int
+) {
+  vacancy {
+    userJobSearch(
+      id: $id
+      orgIds: $orgIds
+      locationIds: $locationIds
+      positionTypeIds: $positionTypeIds
+      limit: $limit
+      offset: $offset
+    ) {
+      offset
+      limit
+      hasMoreData
+      totalCount
+      results {
+        id
+        organization {
+          id
+          name
+        }
+        position {
+          id
+          name
+        }
+        absence {
+          id
+          employee {
+            id
+            firstName
+            lastName
+          }
+        }
+        startTimeLocal
+        endTimeLocal
+        startDate
+        endDate
+        notesToReplacement
+        totalDayPortion
+        details {
+          id
+          location {
+            id
+            name
+          }
+          startTimeLocal
+          endTimeLocal
+          dayPortion
+        }
+      }
+    }
+  }
+}

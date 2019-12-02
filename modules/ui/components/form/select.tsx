@@ -1,31 +1,31 @@
-import * as React from "react";
-import ReactSelect from "react-select";
+import Chip from "@material-ui/core/Chip";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import Paper from "@material-ui/core/Paper";
+import MuiSelect from "@material-ui/core/Select";
 import {
-  makeStyles,
-  emphasize,
-  Theme,
   createStyles,
+  emphasize,
+  makeStyles,
+  Theme,
   useTheme,
 } from "@material-ui/core/styles";
-import MenuItem from "@material-ui/core/MenuItem";
-import InputLabel from "@material-ui/core/InputLabel";
-import FormControl from "@material-ui/core/FormControl";
-import Typography from "@material-ui/core/Typography";
-import Chip from "@material-ui/core/Chip";
 import TextField, { BaseTextFieldProps } from "@material-ui/core/TextField";
-import Paper from "@material-ui/core/Paper";
-import CancelIcon from "@material-ui/icons/Cancel";
-import MuiSelect from "@material-ui/core/Select";
+import Typography from "@material-ui/core/Typography";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
-
+import FormHelperText from "@material-ui/core/FormHelperText";
 // Types from react-select
 import { ValueType } from "react-select/src/types";
+import CancelIcon from "@material-ui/icons/Cancel";
+import { useIsMobile } from "hooks";
+import * as React from "react";
+import ReactSelect from "react-select";
+import { ValueContainerProps } from "react-select/src/components/containers";
 import { ControlProps } from "react-select/src/components/Control";
 import { MenuProps, NoticeProps } from "react-select/src/components/Menu";
-import { ValueContainerProps } from "react-select/src/components/containers";
-import { OptionProps } from "react-select/src/components/Option";
 import { MultiValueProps } from "react-select/src/components/MultiValue";
-import { useScreenSize } from "hooks";
+import { OptionProps } from "react-select/src/components/Option";
 
 type Props = {
   native?: boolean;
@@ -45,6 +45,8 @@ type Props = {
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: (event: React.FocusEvent) => void;
   name?: string;
+  inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
+  validationMessage?: string | undefined;
 };
 
 export interface OptionType {
@@ -60,7 +62,7 @@ type InputComponentProps = Pick<BaseTextFieldProps, "inputRef"> &
 export const Select: React.FC<Props> = props => {
   const theme = useTheme();
 
-  const isSmallScreen = useScreenSize() === "mobile";
+  const isSmallScreen = useIsMobile();
   // The multi-select doesn't really translate to using the native dropdown on smaller screens.
   const forceNative = !props.multi && isSmallScreen;
 
@@ -105,8 +107,11 @@ export const NativeSelect: React.FC<Props> = props => {
     props.onChange({ label, value });
   };
 
+  const { inputStatus = "default" } = props;
+  const isError = inputStatus === "error";
+
   return (
-    <FormControl variant="outlined" style={{ width: "100%" }}>
+    <FormControl variant="outlined" style={{ width: "100%" }} error={isError}>
       <InputLabel ref={inputLabel} htmlFor={props.label}>
         {props.label}
       </InputLabel>
@@ -132,6 +137,11 @@ export const NativeSelect: React.FC<Props> = props => {
           );
         })}
       </MuiSelect>
+      {props.validationMessage && (
+        <FormHelperText error={isError}>
+          {props.validationMessage}
+        </FormHelperText>
+      )}
     </FormControl>
   );
 };
@@ -203,6 +213,8 @@ export const StyledSelect: React.FC<Props> = props => {
       isClearable={props.isClearable}
       isDisabled={props.disabled}
       filterOption={props.filterOption}
+      inputStatus={props.inputStatus}
+      validationMessage={props.validationMessage}
     />
   );
 };
@@ -232,24 +244,37 @@ function Control(props: ControlProps<OptionType>) {
     children,
     innerProps,
     innerRef,
-    selectProps: { classes, TextFieldProps },
+    selectProps: {
+      classes,
+      TextFieldProps,
+      inputStatus = "default",
+      validationMessage,
+    },
   } = props;
 
+  const isError = inputStatus === "error";
+
   return (
-    <TextField
-      fullWidth
-      variant="outlined"
-      InputProps={{
-        inputComponent,
-        inputProps: {
-          className: classes.input,
-          ref: innerRef,
-          children,
-          ...innerProps,
-        },
-      }}
-      {...TextFieldProps}
-    />
+    <>
+      <TextField
+        fullWidth
+        variant="outlined"
+        error={isError}
+        InputProps={{
+          inputComponent,
+          inputProps: {
+            className: classes.input,
+            ref: innerRef,
+            children,
+            ...innerProps,
+          },
+        }}
+        {...TextFieldProps}
+      />
+      {validationMessage && (
+        <FormHelperText error={isError}>{validationMessage}</FormHelperText>
+      )}
+    </>
   );
 }
 

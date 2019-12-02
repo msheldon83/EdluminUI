@@ -1,11 +1,11 @@
 import { makeStyles } from "@material-ui/core";
 import { usePagedQueryBundle } from "graphql/hooks";
-import { useDeferredState } from "hooks";
+import { useDeferredState, useIsMobile } from "hooks";
 import { useQueryParams } from "hooks/query-params";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Input } from "ui/components/form/input";
@@ -33,6 +33,7 @@ type Row = {
 export const SelectEmployee: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const isMobile = useIsMobile();
 
   const { organizationId } = useRouteParams(
     AdminSelectEmployeeForCreateAbsenceRoute
@@ -78,13 +79,17 @@ export const SelectEmployee: React.FC<Props> = props => {
     }));
   }, [results]);
 
-  const columns: Column<typeof tableData[0]>[] = [
-    { title: t("First name"), field: "firstName" },
-    { title: t("Last name"), field: "lastName" },
-    { title: t("Primary phone"), field: "phone" },
-    { title: t("Employee ID"), field: "employeeId" },
-    { title: t("Position"), field: "position" },
-  ];
+  const columns: Column<typeof tableData[0]>[] = useMemo(
+    () =>
+      [
+        { title: t("First name"), field: "firstName" },
+        { title: t("Last name"), field: "lastName" },
+        { title: t("Primary phone"), field: "phone", hideOnMobile: true },
+        { title: t("Employee ID"), field: "employeeId", hideOnMobile: true },
+        { title: t("Position"), field: "position" },
+      ].filter(c => !isMobile || !c.hideOnMobile),
+    [isMobile, t]
+  );
 
   const selectEmployee = useCallback(
     (_: unknown, row?: Row) => {

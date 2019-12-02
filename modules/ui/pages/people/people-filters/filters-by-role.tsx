@@ -40,9 +40,10 @@ export const FiltersByRole: React.FC<Props> = props => {
 
 export const useFilterStyles = makeStyles(theme => ({
   label: {
-    // color: theme.customColors.black,
-    fontWeight: 500,
-    marginBottom: theme.typography.pxToRem(16),
+    color: theme.customColors.eduBlack,
+    fontSize: theme.typography.pxToRem(14),
+    marginBottom: theme.spacing(0.4),
+    lineHeight: theme.typography.pxToRem(21),
   },
   textField: {
     marginTop: theme.spacing(2),

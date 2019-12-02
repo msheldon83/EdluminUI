@@ -1,0 +1,8 @@
+query GetAccountingCodes($orgId: ID!) {
+  orgRef_AccountingCode {
+    all(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}

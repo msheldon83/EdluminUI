@@ -1,6 +1,12 @@
 import * as React from "react";
 import { Grid, makeStyles, Typography, Button, Paper } from "@material-ui/core";
-import { Absence, Vacancy, AbsenceReason } from "graphql/server-types.gen";
+import {
+  Absence,
+  Vacancy,
+  AbsenceReason,
+  AccountingCode,
+  PayCode,
+} from "graphql/server-types.gen";
 import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
 import { VacancyDetails } from "./vacancy-details";
@@ -24,6 +30,7 @@ type Props = {
   absence: Absence | undefined;
   isConfirmation?: boolean;
   disabledDates: Date[];
+  isAdmin: boolean;
 };
 
 export const View: React.FC<Props> = props => {
@@ -82,10 +89,12 @@ export const View: React.FC<Props> = props => {
     absence.vacancies && absence.vacancies[0]
       ? absence.vacancies[0].notesToReplacement
       : undefined;
+  const payCode = getPayCode(absence);
+  const accountingCode = getAccountingCode(absence);
 
   return (
     <div>
-      <Grid container alignItems="flex-start">
+      <Grid container alignItems="flex-start" spacing={4}>
         <Grid item xs={hasVacancies ? 5 : 12} container>
           <Grid item xs={12}>
             <Typography variant="h5">{t("Absence Details")}</Typography>
@@ -153,10 +162,34 @@ export const View: React.FC<Props> = props => {
                     </Typography>
                   </div>
                   {absence.vacancies && (
-                    <VacancyDetails
-                      vacancies={absence.vacancies as Vacancy[]}
-                      equalWidthDetails
-                    />
+                    <>
+                      <VacancyDetails
+                        vacancies={absence.vacancies as Vacancy[]}
+                        equalWidthDetails
+                      />
+                      <>
+                        {props.isAdmin && (accountingCode || payCode) && (
+                          <Grid item container className={classes.subCodes}>
+                            {accountingCode && (
+                              <Grid item xs={payCode ? 6 : 12}>
+                                <Typography variant={"h6"}>
+                                  {t("Accounting code")}
+                                </Typography>
+                                {accountingCode.name}
+                              </Grid>
+                            )}
+                            {payCode && (
+                              <Grid item xs={accountingCode ? 6 : 12}>
+                                <Typography variant={"h6"}>
+                                  {t("Pay code")}
+                                </Typography>
+                                {payCode.name}
+                              </Grid>
+                            )}
+                          </Grid>
+                        )}
+                      </>
+                    </>
                   )}
                   <div className={classes.notesForSubSection}>
                     <Typography variant={"h6"}>
@@ -221,9 +254,8 @@ const useStyles = makeStyles(theme => ({
   requiresSubSection: {
     marginBottom: theme.spacing(2),
   },
-  preArrangedChip: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+  subCodes: {
+    marginTop: theme.spacing(4),
   },
   notesForSubSection: {
     marginTop: theme.spacing(4),
@@ -284,4 +316,59 @@ const getAbsenceReasonListDisplay = (
       </div>
     );
   });
+};
+
+/* TODO: Currently we only allow you to specify a single Pay Code on the Absence screen
+    that applies to all Vacancy Details. When we allow a User to specify different Pay Codes
+    per Vacancy Detail, we will have to revisit this.
+*/
+const getPayCode = (
+  absence: Absence
+): Pick<PayCode, "id" | "name"> | undefined | null => {
+  const hasVacancyDetail =
+    absence.vacancies &&
+    absence.vacancies[0] &&
+    absence.vacancies[0].details &&
+    absence.vacancies[0].details[0];
+  if (!hasVacancyDetail) {
+    return undefined;
+  }
+
+  const firstVacancyDetail = absence.vacancies![0]!.details![0];
+  if (!firstVacancyDetail) {
+    return undefined;
+  }
+
+  return firstVacancyDetail.payCode;
+};
+
+/* TODO: Currently we only allow you to specify a single Accounting Code on the Absence screen
+    that applies to all Vacancy Details. When we allow a User to specify different Accounting Codes
+    (and allocations) per Vacancy Detail, we will have to revisit this.
+*/
+const getAccountingCode = (
+  absence: Absence
+): Pick<AccountingCode, "id" | "name"> | undefined | null => {
+  const hasVacancyDetail =
+    absence.vacancies &&
+    absence.vacancies[0] &&
+    absence.vacancies[0].details &&
+    absence.vacancies[0].details[0];
+  if (!hasVacancyDetail) {
+    return undefined;
+  }
+
+  const firstVacancyDetail = absence.vacancies![0]!.details![0];
+  if (!firstVacancyDetail) {
+    return undefined;
+  }
+
+  if (
+    !firstVacancyDetail.accountingCodeAllocations ||
+    !firstVacancyDetail.accountingCodeAllocations[0]
+  ) {
+    return undefined;
+  }
+
+  return firstVacancyDetail.accountingCodeAllocations[0].accountingCode;
 };

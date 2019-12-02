@@ -16,6 +16,8 @@ type Props = {
   onValidTime: (value: string) => void;
   earliestTime?: string;
   ref?: React.Ref<any>;
+  inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
+  validationMessage?: string | undefined;
 };
 
 export const TimeInput = React.forwardRef((props: Props, ref) => {
@@ -27,6 +29,8 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
     value = "",
     onChange,
     name,
+    inputStatus = "default",
+    validationMessage,
   } = props;
 
   const parsedValue = isIso(value)
@@ -55,6 +59,8 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
       onChange={event => onChange(event.target.value)}
       onBlur={handleBlur}
       inputRef={ref}
+      inputStatus={inputStatus}
+      validationMessage={validationMessage}
     />
   );
 });

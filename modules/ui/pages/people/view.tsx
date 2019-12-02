@@ -1,34 +1,30 @@
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useTranslation } from "react-i18next";
-import { useScreenSize } from "hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { OrgUserRole } from "graphql/server-types.gen";
+import { useIsMobile } from "hooks";
 import * as React from "react";
-
+import { useTranslation } from "react-i18next";
 import { Redirect, useHistory } from "react-router";
+import { FieldData } from "ui/components/page-header-multifieldedit";
+import { PageTitle } from "ui/components/page-title";
+import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
-
-import { FieldData } from "ui/components/page-header-multifieldedit";
-
-import { PageTitle } from "ui/components/page-title";
-import { PersonViewHeader } from "./components/view-header";
-import { RoleTabs } from "./components/role-tabs";
-import { Information } from "./components/information";
 import { AccessControl } from "./components/access-control";
+import { Information } from "./components/information";
 import { Position } from "./components/position";
-import { SubstitutePreferences } from "./components/substitute-preferences";
 import { ReplacementCriteria } from "./components/replacement-criteria";
-
-import { UpdateOrgUser } from "./graphql/update-orguser.gen";
-import { UpdateEmployee } from "./graphql/update-employee.gen";
+import { RoleTabs } from "./components/role-tabs";
+import { SubstitutePreferences } from "./components/substitute-preferences";
+import { PersonViewHeader } from "./components/view-header";
 import { DeleteOrgUser } from "./graphql/delete-orguser.gen";
 import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
-import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { GetOrgUserLastLogin } from "./graphql/get-orguser-lastlogin.gen";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { UpdateEmployee } from "./graphql/update-employee.gen";
+import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const history = useHistory();
 
   const params = useRouteParams(PersonViewRoute);
@@ -202,6 +198,9 @@ export const PersonViewPage: React.FC<{}> = props => {
                 orgUser?.employee?.primaryPosition?.schedules?.map(
                   s => s?.name
                 ) ?? []
+              }
+              locationNames={
+                orgUser?.employee?.locations?.map(s => s?.name) ?? []
               }
             />
             <SubstitutePreferences editing={editing} setEditing={setEditing} />

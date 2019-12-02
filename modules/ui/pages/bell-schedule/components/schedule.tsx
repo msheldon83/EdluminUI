@@ -1,23 +1,23 @@
+import { Chip, FormHelperText, makeStyles } from "@material-ui/core";
+import { Add, CancelOutlined, DragHandle } from "@material-ui/icons";
+import { addMinutes, differenceInMinutes, isValid } from "date-fns";
+import { Formik, FormikErrors } from "formik";
+import { useIsMobile } from "hooks";
+import { TFunction } from "i18next";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useScreenSize } from "hooks";
-import { makeStyles, Chip, FormHelperText } from "@material-ui/core";
-import * as yup from "yup";
-import { Formik, FormikHelpers, FormikErrors } from "formik";
-import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
-import { TextField as FormTextField } from "ui/components/form/text-field";
-import { TimeInput as TimeInputComponent } from "ui/components/form/time-input";
-import { ActionButtons } from "../../../components/action-buttons";
-import { CancelOutlined, DragHandle, Add } from "@material-ui/icons";
 import {
   DragDropContext,
-  Droppable,
   Draggable,
+  Droppable,
   DropResult,
 } from "react-beautiful-dnd";
-import { TFunction } from "i18next";
-import { addMinutes, differenceInMinutes, isValid } from "date-fns";
+import { useTranslation } from "react-i18next";
+import { TextField as FormTextField } from "ui/components/form/text-field";
+import { TimeInput as TimeInputComponent } from "ui/components/form/time-input";
+import { Section } from "ui/components/section";
+import { SectionHeader } from "ui/components/section-header";
+import * as yup from "yup";
+import { ActionButtons } from "../../../components/action-buttons";
 
 type Props = {
   name?: string | null | undefined;
@@ -56,7 +56,7 @@ const draggablePrefixes = {
 export const Schedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
 
   const onDragEnd = (
     result: DropResult,

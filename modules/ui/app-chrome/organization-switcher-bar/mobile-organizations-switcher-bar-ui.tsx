@@ -20,7 +20,7 @@ export const MobileOrganizationSwitcherBarUI: React.FC<Props> = props => {
   const toolbarClasses = useToolbarClasses();
 
   return (
-    <AppBar position="fixed" className={classes.bottomBar}>
+    <AppBar position="sticky" className={classes.bottomBar}>
       <Toolbar classes={toolbarClasses}>
         <Grid container alignItems="center" justify="space-between">
           <Grid item>

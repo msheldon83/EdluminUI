@@ -1,27 +1,27 @@
-import * as React from "react";
-import { useEffect, useMemo, Fragment } from "react";
-import { useTranslation } from "react-i18next";
-import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
+import { Collapse, Divider, Link, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
-import { useScreenSize } from "hooks";
-import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
-import { Section } from "ui/components/section";
-import { compact } from "lodash-es";
-import { Table } from "ui/components/table";
-import { Typography, Divider, Collapse, Link } from "@material-ui/core";
+import format from "date-fns/format";
+import { SetValue } from "forms";
+import { usePagedQueryBundle } from "graphql/hooks";
 import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
+import { convertStringToDate } from "helpers/date";
+import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
+import { useIsMobile } from "hooks";
+import { compact } from "lodash-es";
+import * as React from "react";
+import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { PaginationControls } from "ui/components/pagination-controls";
+import { Section } from "ui/components/section";
+import { Table } from "ui/components/table";
+import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
+import { VacancyDetails } from "../../../components/absence/vacancy-details";
+import { Step } from "../step-params";
+import { getAssignSubColumns } from "./columns";
 import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
 } from "./filters";
-import format from "date-fns/format";
-import { PaginationControls } from "ui/components/pagination-controls";
-import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
-import { VacancyDetails } from "../../../components/absence/vacancy-details";
-import { convertStringToDate } from "helpers/date";
-import { getAssignSubColumns } from "./columns";
-import { SetValue } from "forms";
-import { Step } from "../step-params";
 
 type Props = {
   orgId: string;
@@ -73,7 +73,7 @@ export const AssignSub: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const theme = useTheme();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const [vacancyDetailsExpanded, setVacancyDetailsExpanded] = React.useState(
     false
   );
@@ -215,7 +215,15 @@ export const AssignSub: React.FC<Props> = props => {
         classes,
         t
       ),
-    []
+    [
+      isMobile,
+      props.userIsAdmin,
+      selectReplacementEmployee,
+      theme,
+      classes,
+      t,
+      tableData,
+    ]
   );
 
   return (

@@ -25,7 +25,7 @@ export const DistrictFilter: React.FC<Props> = props => {
       const ids: number[] = value
         ? value.map((v: OptionType) => Number(v.value))
         : [];
-      updateFilters({ orgs: ids });
+      updateFilters({ orgIds: ids });
     },
     [updateFilters]
   );
@@ -38,7 +38,7 @@ export const DistrictFilter: React.FC<Props> = props => {
             onChange={onChangeOrganizations}
             options={organizationOptions}
             value={organizationOptions.filter(
-              e => e.value && props.orgs.includes(Number(e.value))
+              e => e.value && props.orgIds.includes(Number(e.value))
             )}
             multi
           />

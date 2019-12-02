@@ -1,19 +1,37 @@
 import { Grid, Button, Typography, Divider } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
-import { useScreenSize } from "hooks";
+import { addDays, format } from "date-fns";
+import {
+  useMutationBundle,
+  usePagedQueryBundle,
+  useQueryBundle,
+} from "graphql/hooks";
+import { useIsMobile } from "hooks";
+import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
-import { Filters } from "./filters/index";
+
+import { useRouteParams } from "ui/routes/definition";
+import { SubHomeRoute } from "ui/routes/sub-home";
+import { SubScheduleRoute } from "ui/routes/sub-schedule";
+
+import { AssignmentCard } from "./components/assignment";
 import { AvailableJob } from "./components/available-job";
-import { FilterList } from "@material-ui/icons";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetAllVacancies } from "./graphql/get-all-vacancies.gen";
+import { ScheduleUI } from "ui/pages/sub-schedule/ui";
+
 import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
 import { Vacancy, OrgUser } from "graphql/server-types.gen";
+import { RequestVacancy } from "./graphql/request-vacancy.gen";
 import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
+import { SubJobSearch } from "./graphql/sub-job-search.gen";
+import { RequestAbsenceDialog } from "./components/request-dialog";
+
+import { FilterQueryParams } from "./filters/filter-params";
+import { Filters } from "./filters/index";
+import { FilterList } from "@material-ui/icons";
 
 type Props = {};
 
@@ -22,19 +40,48 @@ export const SubHome: React.FC<Props> = props => {
   const history = useHistory();
   const theme = useTheme();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
+  const params = useRouteParams(SubHomeRoute);
+  const isMobile = useIsMobile();
   const [showFilters, setShowFilters] = React.useState(!isMobile);
+  const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
+  const [employeeId, setEmployeeId] = React.useState<string | null>(null);
+  const [vacancyId, setVacancyId] = React.useState<string | null>(null);
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy);
-  const getOrgUsers = useQueryBundle(QueryOrgUsers);
+  const [requestVacancyMutation] = useMutationBundle(RequestVacancy);
+  const [filters] = useQueryParamIso(FilterQueryParams);
 
-  const getVacancies = useQueryBundle(GetAllVacancies, {
-    variables: {},
+  const getOrgUsers = useQueryBundle(QueryOrgUsers, {
+    fetchPolicy: "cache-first",
   });
+
+  const orgUsers = (getOrgUsers.state === "LOADING" ||
+  getOrgUsers.state === "UPDATING"
+    ? []
+    : getOrgUsers.data?.userAccess?.me?.user?.orgUsers ?? []) as Pick<
+    OrgUser,
+    "id" | "orgId"
+  >[];
+  const userId =
+    getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
+      ? undefined
+      : getOrgUsers.data?.userAccess?.me?.user?.id;
+
+  const [getVacancies, pagination] = usePagedQueryBundle(
+    SubJobSearch,
+    r => r.vacancy?.userJobSearch?.totalCount,
+    {
+      variables: {
+        ...filters,
+        id: String(userId),
+      },
+      skip: !userId,
+    }
+  );
 
   const vacancies = (getVacancies.state === "LOADING" ||
   getVacancies.state === "UPDATING"
     ? []
-    : getVacancies.data?.vacancy?.all ?? []) as Pick<
+    : getVacancies.data?.vacancy?.userJobSearch?.results ?? []) as Pick<
     Vacancy,
     | "id"
     | "organization"
@@ -47,14 +94,6 @@ export const SubHome: React.FC<Props> = props => {
     | "notesToReplacement"
     | "totalDayPortion"
     | "details"
-  >[];
-
-  const orgUsers = (getOrgUsers.state === "LOADING" ||
-  getOrgUsers.state === "UPDATING"
-    ? []
-    : getOrgUsers.data?.userAccess?.me?.user?.orgUsers ?? []) as Pick<
-    OrgUser,
-    "id" | "orgId"
   >[];
 
   const onDismissVacancy = async (orgId: string, vacancyId: string) => {
@@ -79,66 +118,93 @@ export const SubHome: React.FC<Props> = props => {
     return employeeId;
   };
 
+  const onCloseRequestAbsenceDialog = React.useCallback(
+    () => setRequestAbsenceIsOpen(false),
+    [setRequestAbsenceIsOpen]
+  );
+
+  const onAcceptVacancy = async (orgId: string, vacancyId: string) => {
+    const employeeId = determineEmployeeId(orgId);
+    if (employeeId != 0) {
+      await requestVacancyMutation({
+        variables: {
+          vacancyRequest: {
+            vacancyId: vacancyId,
+            employeeId: Number(employeeId),
+          },
+        },
+      });
+    }
+    setEmployeeId(employeeId.toString());
+    setVacancyId(vacancyId);
+    setRequestAbsenceIsOpen(true);
+  };
+
   return (
     <>
-      <Section>
-        <SectionHeader title={t("Upcoming work")} />
-        <Grid container>
-          <Grid item xs={12} sm={6} lg={6}>
-            {"Schedule goes here"}
-          </Grid>
-          <Grid item xs={12} sm={6} lg={6}>
-            {"Calendar goes here"}
-          </Grid>
+      <ScheduleUI userId={userId} itemsToShow={3} />
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Section>
+            <Grid
+              container
+              className={classes.header}
+              justify="space-between"
+              alignItems="center"
+              spacing={2}
+            >
+              <Grid item>
+                <Typography variant="h5">
+                  {t("Available Assignments")}
+                </Typography>
+              </Grid>
+              {isMobile && (
+                <Grid item>
+                  <Button
+                    variant="outlined"
+                    startIcon={<FilterList />}
+                    onClick={() => setShowFilters(!showFilters)}
+                  >
+                    {t("Filters")}
+                  </Button>
+                </Grid>
+              )}
+            </Grid>
+            {showFilters && <Filters />}
+            <div>
+              <Divider className={classes.header} />
+              {getVacancies.state === "LOADING" ? (
+                <Grid item>
+                  <Typography variant="h5">
+                    {t("Loading Available Jobs")}
+                  </Typography>
+                </Grid>
+              ) : vacancies.length === 0 ? (
+                <Grid item>
+                  <Typography variant="h5">{t("No Jobs Available")}</Typography>
+                </Grid>
+              ) : (
+                vacancies.map((vacancy, index) => (
+                  <AvailableJob
+                    vacancy={vacancy}
+                    shadeRow={index % 2 != 0}
+                    onDismiss={onDismissVacancy}
+                    key={index}
+                    onAccept={onAcceptVacancy}
+                  />
+                ))
+              )}
+            </div>
+          </Section>
         </Grid>
-      </Section>
-      <Section>
-        <Grid
-          container
-          className={classes.header}
-          justify="space-between"
-          alignItems="center"
-        >
-          <Grid item>
-            <Typography variant="h5">{t("Available Jobs")}</Typography>
-          </Grid>
-          {isMobile && (
-            <Grid item>
-              <Button
-                variant="outlined"
-                startIcon={<FilterList />}
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                {t("Filters")}
-              </Button>
-            </Grid>
-          )}
-        </Grid>
-        {showFilters && <Filters />}
-        <div>
-          <Divider className={classes.header} />
-          {getVacancies.state === "LOADING" ? (
-            <Grid item>
-              <Typography variant="h5">
-                {t("Loading Available Jobs")}
-              </Typography>
-            </Grid>
-          ) : vacancies.length === 0 ? (
-            <Grid item>
-              <Typography variant="h5">{t("No Jobs Available")}</Typography>
-            </Grid>
-          ) : (
-            vacancies.map((vacancy, index) => (
-              <AvailableJob
-                vacancy={vacancy}
-                shadeRow={index % 2 != 0}
-                onDismiss={onDismissVacancy}
-                key={index}
-              />
-            ))
-          )}
-        </div>
-      </Section>
+      </Grid>
+
+      <RequestAbsenceDialog
+        open={requestAbsenceIsOpen}
+        onClose={onCloseRequestAbsenceDialog}
+        employeeId={employeeId}
+        vacancyId={vacancyId}
+      />
     </>
   );
 };
@@ -150,5 +216,8 @@ const useStyles = makeStyles(theme => ({
   },
   header: {
     marginBottom: theme.spacing(2),
+  },
+  upcomingWork: {
+    backgroundColor: "transparent",
   },
 }));

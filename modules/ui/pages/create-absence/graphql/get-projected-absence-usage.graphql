@@ -1,0 +1,13 @@
+query GetProjectedAbsenceUsage($absence: AbsenceCreateInput!) {
+  absence {
+    projectedAbsence(absence: $absence) {
+      details {
+        reasonUsages {
+          sequence
+          amount
+          absenceReasonTrackingTypeId
+        }
+      }
+    }
+  }
+}
