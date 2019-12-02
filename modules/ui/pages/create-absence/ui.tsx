@@ -74,7 +74,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const [absence, setAbsence] = useState<Absence>();
 
-  const [vacanciesInput, setVacanciesInput] = useState<VacancyDetail[]>([]);
+  const [vacanciesInput, setVacanciesInput] = useState<VacancyDetail[]>();
 
   const [createAbsence] = useMutationBundle(CreateAbsence, {
     onError: error => {
@@ -175,8 +175,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         Number(state.employeeId),
         Number(props.positionId),
         disabledDates,
-        false, //true?
-
+        vacanciesInput !== undefined,
         state,
         vacanciesInput
       ),
@@ -187,6 +186,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       formValues.dayPart,
       formValues.hourlyStartTime,
       formValues.hourlyEndTime,
+      vacanciesInput,
+      state,
+      props.positionId,
+      disabledDates,
     ]
   );
 
@@ -197,6 +200,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     skip: projectedVacanciesInput === null,
     onError: () => {},
   });
+
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
       absence: projectedVacanciesInput!,
@@ -240,9 +244,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       );
   }, [getProjectedVacancies.state]);
 
-  useEffect(() => {
-    setVacanciesInput(projectedVacancyDetails);
-  }, [projectedVacancyDetails]);
+  const theVacancyDetails: VacancyDetail[] =
+    vacanciesInput || projectedVacancyDetails;
 
   const projectedVacancies =
     getProjectedVacancies.state === "LOADING" ||
@@ -300,7 +303,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       disabledDates,
       true,
       state,
-      vacanciesInput
+      theVacancyDetails
     );
     if (!absenceCreateInput) {
       return null;
@@ -578,8 +581,6 @@ const buildAbsenceCreateInput = (
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
     })) || undefined;
-
-  console.log("vDetails", vDetails);
 
   // Populate the Vacancies on the Absence if needed
   if (state.needsReplacement && includeVacanciesIfNeedsReplacement) {
