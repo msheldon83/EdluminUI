@@ -75,7 +75,7 @@ import {
 import {
   AbsenceReasonLoader,
   AbsenceReasonRoute,
-} from "./routes/absence-reason";
+} from "./routes/absence/reason";
 import {
   VacancyReasonLoader,
   VacancyReasonRoute,

@@ -12,7 +12,7 @@ import { BellScheduleVariantsRoute } from "ui/routes/bell-schedule-variants";
 import { CalendarEventReasonsRoute } from "ui/routes/calendar-event-reasons";
 import { BellScheduleRoute } from "ui/routes/bell-schedule";
 import { ReplacementAttributeRoute } from "ui/routes/replacement-attribute";
-import { AbsenceReasonRoute } from "ui/routes/absence-reason";
+import { AbsenceReasonRoute } from "ui/routes/absence/reason";
 import { PositionTypeRoute } from "ui/routes/position-type";
 import { VacancyReasonRoute } from "ui/routes/vacancy-reason";
 import { AbsenceVacancyRulesRoute } from "ui/routes/absence-vacancy-rules";
