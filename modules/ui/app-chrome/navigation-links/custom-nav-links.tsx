@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { NavLink } from "./nav-link";
 import { useRouteParams } from "ui/routes/definition";
 import { AbsenceVacancyDailyReportRoute } from "ui/routes/absence-vacancy-daily-report";
-import { AbsenceVacancyVerifyRoute } from "ui/routes/absence-vacancy-verify";
+import { VerifyRoute } from "ui/routes/verify";
 import { SchoolsRoute } from "ui/routes/schools";
 import { SchoolGroupsRoute } from "ui/routes/school-groups";
 import { CalendarThisYearRoute } from "ui/routes/calendar-this-year";
@@ -40,7 +40,7 @@ export const HomeNavLink: React.FC<Props> = props => {
 export const AbsenceNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   const paramsDailyReport = useRouteParams(AbsenceVacancyDailyReportRoute);
-  const paramsVerify = useRouteParams(AbsenceVacancyVerifyRoute);
+  const paramsVerify = useRouteParams(VerifyRoute);
   return (
     <NavLink
       title={t("Absence & Vacancy")}
@@ -52,7 +52,7 @@ export const AbsenceNavLink: React.FC<Props> = props => {
         },
         {
           title: t("Verify"),
-          route: AbsenceVacancyVerifyRoute.generate(paramsVerify),
+          route: VerifyRoute.generate(paramsVerify),
         },
       ]}
       {...props}
@@ -73,7 +73,7 @@ export const AnalyticsAndReportsNavLink: React.FC<Props> = props => {
 
 export const SchoolsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const paramsSchools = useRouteParams(AbsenceVacancyVerifyRoute);
+  const paramsSchools = useRouteParams(SchoolsRoute);
   const paramsGroups = useRouteParams(SchoolGroupsRoute);
   return (
     <NavLink

@@ -97,10 +97,6 @@ import {
   AbsenceVacancyDailyReportRoute,
   AbsenceVacancyDailyReportLoader,
 } from "./routes/absence-vacancy-daily-report";
-import {
-  AbsenceVacancyVerifyRoute,
-  AbsenceVacancyVerifyLoader,
-} from "./routes/absence-vacancy-verify";
 import { SchoolsRoute, SchoolsLoader } from "./routes/schools";
 import { SchoolGroupsRoute, SchoolGroupsLoader } from "./routes/school-groups";
 import {
@@ -289,10 +285,6 @@ export function App(props: {}) {
                       <Route
                         component={AbsenceVacancyDailyReportLoader}
                         path={AbsenceVacancyDailyReportRoute.path}
-                      />
-                      <Route
-                        component={AbsenceVacancyVerifyLoader}
-                        path={AbsenceVacancyVerifyRoute.path}
                       />
                       <Route
                         component={SchoolsLoader}
