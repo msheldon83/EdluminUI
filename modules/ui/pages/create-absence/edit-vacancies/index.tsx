@@ -93,7 +93,10 @@ export const EditVacancies: React.FC<Props> = props => {
                       className={i % 2 == 1 ? classes.shadedRow : undefined}
                       onAddRow={() => arrayHelpers.insert(i + 1, d)}
                       onRemoveRow={() => arrayHelpers.remove(i)}
-                      showRemoveButton={values.details.length > 1}
+                      showRemoveButton={mulitpleDetailsForDate(
+                        values.details,
+                        d
+                      )}
                     />
                   </Grid>
                 ))
@@ -133,3 +136,7 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
   },
 }));
+
+const mulitpleDetailsForDate = (details: VacancyDetail[], d: VacancyDetail) => {
+  return details.filter(detail => detail.date === d.date).length > 1;
+};
