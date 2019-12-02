@@ -50,7 +50,7 @@ const buildVacancyInput = (
         d && d.endTimeLocal ? convertStringToDate(d.endTimeLocal) : null;
 
       return {
-        date: d?.startTimeLocal,
+        date: startTimeLocal ? format(startTimeLocal, "P") : null,
         startTime: startTimeLocal
           ? secondsSinceMidnight(
               parseTimeFromString(format(startTimeLocal, "h:mm a"))
