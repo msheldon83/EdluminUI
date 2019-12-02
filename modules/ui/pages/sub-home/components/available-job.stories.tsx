@@ -4,10 +4,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Vacancy } from "graphql/server-types.gen";
 
 export default {
-  title: "Components/AvailableJob",
+  title: "Pages/Sub Home/AvailableJob",
 };
 
 const onDismiss = async (orgId: string, vacancyId: string) => {};
+const onAccept = async (orgId: string, vacancyId: string) => {};
 
 export const AvailableJobSingleStory = () => {
   const classes = useStyles();
@@ -17,11 +18,13 @@ export const AvailableJobSingleStory = () => {
         vacancy={simpleVacancy}
         shadeRow={false}
         onDismiss={onDismiss}
+        onAccept={onAccept}
       />
       <AvailableJob
         vacancy={halfDayAM}
         shadeRow={false}
         onDismiss={onDismiss}
+        onAccept={onAccept}
       />
     </div>
   );
@@ -35,6 +38,7 @@ export const AvailableJobMultipleStory = () => {
         vacancy={complexVacancy}
         shadeRow={false}
         onDismiss={onDismiss}
+        onAccept={onAccept}
       />
     </div>
   );

@@ -1049,7 +1049,7 @@ input EmployeeEndorsementUpdateInput {
 }
 
 input EmployeeInterestInVacancyInput {
-  vacancyId: Int!
+  vacancyId: ID
   employeeId: Int!
   interestRatingId: InterestRating
 }

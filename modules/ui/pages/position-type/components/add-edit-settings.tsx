@@ -309,7 +309,7 @@ export const Settings: React.FC<Props> = props => {
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
                     helperText: t(
-                      "The shortest time that an employee with this position can be absent."
+                      "The shortest time (in hh:mm) that an employee with this position can be absent."
                     ),
                     fullWidth: true,
                   }}

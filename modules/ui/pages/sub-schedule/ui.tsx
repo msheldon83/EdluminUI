@@ -16,7 +16,7 @@ import { GetUpcomingAssignments } from "ui/pages/sub-home/graphql/get-upcoming-a
 import { addDays, format, isEqual, parseISO } from "date-fns";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
 import { SubHomeRoute } from "ui/routes/sub-home";
-import { Calendar } from "ui/components/form/calendar";
+import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
 
 type Props = {
   userId: string | null | undefined;
@@ -116,12 +116,10 @@ export const ScheduleUI: React.FC<Props> = props => {
         {!isMobile && (
           <Grid item xs={12} sm={6} lg={6}>
             <Section>
-              <Calendar
+              <FiveWeekCalendar
                 startDate={fromDate}
-                endDate={fromDate}
-                disablePast={true}
-                disableFuture={true}
-                disabledDates={uniqueWorkingDays}
+                disableWeekends={true}
+                selectedDates={uniqueWorkingDays}
               />
             </Section>
           </Grid>
