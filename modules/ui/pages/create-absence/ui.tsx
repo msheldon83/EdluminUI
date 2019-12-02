@@ -343,6 +343,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             orgId={props.organizationId}
             userIsAdmin={props.userIsAdmin}
             employeeName={name}
+            employeeId={state.employeeId}
             positionId={props.positionId}
             positionName={props.positionName}
             vacancies={projectedVacancies}
