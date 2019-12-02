@@ -27,8 +27,9 @@ type Props = {
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+
   const locationMenuOptions = props.locationOptions.map(loc => ({
-    value: loc.id,
+    value: Number(loc.id),
     label: loc.name,
   }));
   const fieldNamePrefix = props.keyPrefix;

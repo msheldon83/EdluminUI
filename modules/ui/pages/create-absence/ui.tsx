@@ -573,8 +573,7 @@ const buildAbsenceCreateInput = (
 
   const vDetails =
     vacancyDetails?.map(v => ({
-      date: v.date,
-      locationId: Number(v.locationId),
+      ...v,
       startTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
       ),

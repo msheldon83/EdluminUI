@@ -35,7 +35,10 @@ export const EditVacancies: React.FC<Props> = props => {
   const classes = useStyles();
 
   const initialFormData: EditVacancyFormData = {
-    details: props.details,
+    details: props.details.map(d => ({
+      ...d,
+      locationId: Number(d.locationId),
+    })),
   };
 
   const locationQuery = useQueryBundle(GetLocationsForEmployee, {
