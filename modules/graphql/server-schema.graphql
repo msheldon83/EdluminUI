@@ -91,7 +91,7 @@ type AbsenceQueries {
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
   projectedVacancies(absence: AbsenceCreateInput!): [Vacancy]
-  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancy: AbsenceVacancyInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean): PagedVacancySubSearchQueryResult
+  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancy: AbsenceVacancyInput, absentEmployeeId: ID, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean): PagedVacancySubSearchQueryResult
   projectedAbsence(absence: AbsenceCreateInput!): Absence
   dailyReport(orgId: ID!, date: Date!, locationIds: [Int], positionTypeIds: [Int]): DailyReport
 }
