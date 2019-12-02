@@ -92,6 +92,41 @@ import {
   AccountingCodeRoute,
 } from "./routes/accounting-code";
 import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
+import {
+  AbsenceVacancyDailyReportRoute,
+  AbsenceVacancyDailyReportLoader,
+} from "./routes/absence-vacancy-daily-report";
+import {
+  AbsenceVacancyVerifyRoute,
+  AbsenceVacancyVerifyLoader,
+} from "./routes/absence-vacancy-verify";
+import { SchoolsRoute, SchoolsLoader } from "./routes/schools";
+import { SchoolGroupsRoute, SchoolGroupsLoader } from "./routes/school-groups";
+import {
+  CalendarThisYearRoute,
+  CalendarThisYearLoader,
+} from "./routes/calendar-this-year";
+import {
+  CalendarPastYearsRoute,
+  CalendarPastYearsLoader,
+} from "./routes/calendar-past-years";
+import {
+  SecurityUsersLoader,
+  SecurityUsersRoute,
+} from "./routes/security-users";
+
+import {
+  SecurityPermissionSetsLoader,
+  SecurityPermissionSetsRoute,
+} from "./routes/security-permission-sets";
+import {
+  SecurityPartnersLoader,
+  SecurityPartnersRoute,
+} from "./routes/security-partners";
+import {
+  SecurityManagedOrganizationsLoader,
+  SecurityManagedOrganizationsRoute,
+} from "./routes//security-managed-organizations";
 
 import { ContractsLoader, ContractsRoute } from "./routes/contracts";
 import { EdluminTheme } from "./styles/mui-theme";
@@ -248,7 +283,46 @@ export function App(props: {}) {
                         component={ContractsLoader}
                         path={ContractsRoute.path}
                       />
-
+                      <Route
+                        component={AbsenceVacancyDailyReportLoader}
+                        path={AbsenceVacancyDailyReportRoute.path}
+                      />
+                      <Route
+                        component={AbsenceVacancyVerifyLoader}
+                        path={AbsenceVacancyVerifyRoute.path}
+                      />
+                      <Route
+                        component={SchoolsLoader}
+                        path={SchoolsRoute.path}
+                      />
+                      <Route
+                        component={SchoolGroupsLoader}
+                        path={SchoolGroupsRoute.path}
+                      />
+                      <Route
+                        component={CalendarThisYearLoader}
+                        path={CalendarThisYearRoute.path}
+                      />
+                      <Route
+                        component={CalendarPastYearsLoader}
+                        path={CalendarPastYearsRoute.path}
+                      />
+                      <Route
+                        component={SecurityUsersLoader}
+                        path={SecurityUsersRoute.path}
+                      />
+                      <Route
+                        component={SecurityPermissionSetsLoader}
+                        path={SecurityPermissionSetsRoute.path}
+                      />
+                      <Route
+                        component={SecurityPartnersLoader}
+                        path={SecurityPartnersRoute.path}
+                      />
+                      <Route
+                        component={SecurityManagedOrganizationsLoader}
+                        path={SecurityManagedOrganizationsRoute.path}
+                      />
                       {/* This route handles unknown or underspecified routes and takes the
                           admin to their organization (or a switcher) */}
                       <Route path={AdminRootChromeRoute.path}>
