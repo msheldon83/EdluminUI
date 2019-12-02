@@ -27,6 +27,7 @@ type Props = {
   vacancies: Vacancy[];
   userIsAdmin: boolean;
   employeeName: string;
+  employeeId?: string;
   positionId?: string;
   positionName?: string;
   selectReplacementEmployee: (
@@ -102,6 +103,7 @@ export const AssignSub: React.FC<Props> = props => {
         orgId: props.orgId,
         vacancyId: props.vacancyId,
         vacancy: buildVacancyInput(props.vacancies),
+        absentEmployeeId: props.employeeId ?? undefined,
         name: searchFilter?.name,
         qualified: searchFilter?.name ? undefined : searchFilter?.qualified,
         available: searchFilter?.name ? undefined : searchFilter?.available,
