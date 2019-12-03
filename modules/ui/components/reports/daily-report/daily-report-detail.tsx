@@ -16,6 +16,19 @@ export const DailyReportDetail: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
+  const isChecked = !!props.selectedDetails.find(
+    d => d.detailId === props.detail.detailId && d.type === props.detail.type
+  );
+  const existingUnfilledSelection = !!props.selectedDetails.find(
+    d => d.state === "unfilled"
+  );
+  const hideCheckbox =
+    props.detail.isMultiDay ||
+    props.detail.state === "noSubRequired" ||
+    (!isChecked &&
+      existingUnfilledSelection &&
+      props.detail.state === "unfilled");
+
   return (
     <Grid
       item
@@ -28,8 +41,12 @@ export const DailyReportDetail: React.FC<Props> = props => {
           <Checkbox
             color="primary"
             className={clsx({
-              [classes.hidden]: props.detail.isMultiDay,
+              [classes.hidden]: hideCheckbox,
             })}
+            checked={isChecked}
+            onChange={e => {
+              props.updateSelectedDetails(props.detail, e.target.checked);
+            }}
           />
           <div>
             {props.detail.type === "absence" ? (

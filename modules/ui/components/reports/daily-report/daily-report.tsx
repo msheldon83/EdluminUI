@@ -1,5 +1,12 @@
 import * as React from "react";
-import { Grid, makeStyles, Divider, Link, Button } from "@material-ui/core";
+import {
+  Grid,
+  makeStyles,
+  Divider,
+  Link,
+  Button,
+  Tooltip,
+} from "@material-ui/core";
 import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect } from "react";
@@ -42,12 +49,18 @@ export const DailyReport: React.FC<Props> = props => {
   const [selectedCard, setSelectedCard] = useState<CardType | undefined>();
   const [selectedRows, setSelectedRows] = useState<Detail[]>([]);
 
+  // Keep date in filters in sync with date passed in from DateStepperHeader
   useEffect(() => {
     const dateString = format(props.date, "P");
     if (dateString !== filters.date) {
       updateFilters({ date: dateString });
     }
   }, [props.date]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Clear out all selected rows if the filters change or a card is selected
+  useEffect(() => {
+    setSelectedRows([]);
+  }, [filters, selectedCard]);
 
   const serverQueryFilters = useMemo(() => filters, [
     filters.date,
@@ -111,7 +124,16 @@ export const DailyReport: React.FC<Props> = props => {
     );
   }, [getTotalContractedEmployeeCount]);
 
-  const updateSelectedDetails = (detail: Detail, add: boolean) => {};
+  const updateSelectedDetails = (detail: Detail, add: boolean) => {
+    if (add) {
+      setSelectedRows([...selectedRows, detail]);
+    } else {
+      const filteredRows = selectedRows.filter(
+        r => !(r.detailId === detail.detailId && r.type === detail.type)
+      );
+      setSelectedRows(filteredRows);
+    }
+  };
 
   return (
     <Section>
@@ -219,9 +241,7 @@ const displaySections = (
           </Link>
         </div>
       )}
-      {selectedRows.length > 1 && (
-        <Button variant="outlined">{t("Swap subs")}</Button>
-      )}
+      {displaySwabSubsAction(selectedRows, t)}
       {groupedDetails.map((g, i) => {
         const hasDetails = !!(g.details && g.details.length);
         if (selectedCard && !hasDetails) {
@@ -239,5 +259,36 @@ const displaySections = (
         );
       })}
     </div>
+  );
+};
+
+const displaySwabSubsAction = (selectedRows: Detail[], t: TFunction) => {
+  if (selectedRows.length < 2) {
+    return;
+  }
+
+  const button = (
+    <Button
+      variant="outlined"
+      color="primary"
+      disabled={selectedRows.length > 2}
+    >
+      {t("Swap subs")}
+    </Button>
+  );
+
+  if (selectedRows.length === 2) {
+    return button;
+  }
+
+  // Button is wrapped in a span, because in this case the button will be disabled and Tooltip
+  // needs its first descendant to be an active element
+  return (
+    <Tooltip
+      title={t("Substitutes can only be swapped between 2 Absences")}
+      placement="right"
+    >
+      <span>{button}</span>
+    </Tooltip>
   );
 };

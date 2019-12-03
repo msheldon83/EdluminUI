@@ -30,6 +30,7 @@ export type DetailGroup = {
 
 export type Detail = {
   id: string;
+  detailId: string;
   state: "unfilled" | "filled" | "noSubRequired";
   type: "absence" | "vacancy";
   absenceRowVersion?: string;
@@ -87,6 +88,7 @@ export const MapDailyReportDetails = (
 
       return {
         id: a.id,
+        detailId: absenceDetail.id,
         state: "filled",
         type: "absence",
         absenceRowVersion: a.rowVersion,
@@ -150,6 +152,7 @@ export const MapDailyReportDetails = (
       const vacancyDetail = d as VacancyDetail;
       return {
         id: v.id,
+        detailId: vacancyDetail.id,
         state: "filled",
         type: "vacancy",
         vacancyRowVersion: v.rowVersion,
@@ -206,6 +209,7 @@ export const MapDailyReportDetails = (
 
       return {
         id: a.id,
+        detailId: absenceDetail.id,
         state: "unfilled",
         type: "absence",
         absenceRowVersion: a.rowVersion,
@@ -257,6 +261,7 @@ export const MapDailyReportDetails = (
       const vacancyDetail = d as VacancyDetail;
       return {
         id: v.id,
+        detailId: vacancyDetail.id,
         state: "unfilled",
         type: "vacancy",
         vacancyRowVersion: v.rowVersion,
@@ -332,6 +337,7 @@ export const MapDailyReportDetails = (
 
         return {
           id: a.id,
+          detailId: absenceDetail.id,
           state: "noSubRequired",
           type: "absence",
           absenceRowVersion: a.rowVersion,
