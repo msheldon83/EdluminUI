@@ -54,7 +54,7 @@ export const VacancyDetails: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   scheduleText: {
-    color: "#9E9E9E",
+    color: theme.customColors.edluminSubText,
   },
   vacancyBlockItem: {
     marginTop: theme.spacing(0.5),

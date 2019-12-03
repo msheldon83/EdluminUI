@@ -55,7 +55,12 @@ import {
   SubPreferencesLoader,
   SubPreferencesRoute,
 } from "./routes/sub-preferences";
-import { SubScheduleLoader, SubScheduleRoute } from "./routes/sub-schedule";
+import {
+  SubScheduleLoader,
+  SubScheduleRoute,
+  SubScheduleCalendarViewRoute,
+  SubScheduleListViewRoute,
+} from "./routes/sub-schedule";
 import {
   GeneralSettingsLoader,
   GeneralSettingsRoute,
@@ -159,10 +164,17 @@ export function App(props: {}) {
                       component={EmployeeCreateAbsenceLoader}
                       path={EmployeeCreateAbsenceRoute.path}
                     />
-                    <Route
-                      component={SubScheduleLoader}
-                      path={SubScheduleRoute.path}
-                    />
+
+                    <Route path={SubScheduleCalendarViewRoute.path}>
+                      <SubScheduleLoader view="calendar" />
+                    </Route>
+                    <Route path={SubScheduleListViewRoute.path}>
+                      <SubScheduleLoader view="list" />
+                    </Route>
+                    <Route path={SubScheduleRoute.path}>
+                      <SubScheduleLoader view="list" />
+                    </Route>
+
                     <Route
                       component={SubPreferencesLoader}
                       path={SubPreferencesRoute.path}

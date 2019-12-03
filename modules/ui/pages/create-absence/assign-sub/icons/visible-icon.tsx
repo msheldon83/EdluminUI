@@ -29,6 +29,6 @@ export const VisibleIcon: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   icon: {
-    color: "#9E9E9E",
+    color: theme.customColors.edluminSubText,
   },
 }));
