@@ -14,6 +14,17 @@ import TimelineIcon from "@material-ui/icons/Timeline";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "./nav-link";
+import { useRouteParams } from "ui/routes/definition";
+import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
+import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
+import { SchoolsRoute } from "ui/routes/schools";
+import { SchoolGroupsRoute } from "ui/routes/school-groups";
+import { CalendarThisYearRoute } from "ui/routes/calendar/this-year";
+import { CalendarPastYearsRoute } from "ui/routes/calendar/past-years";
+import { SecurityUsersRoute } from "ui/routes/security/users";
+import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
+import { SecurityPartnersRoute } from "ui/routes/security/partners";
+import { SecurityManagedOrganizationsRoute } from "ui/routes/security/managed-organizations";
 
 type Props = {
   className?: string;
@@ -28,10 +39,22 @@ export const HomeNavLink: React.FC<Props> = props => {
 
 export const AbsenceNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const paramsDailyReport = useRouteParams(DailyReportRoute);
+  const paramsVerify = useRouteParams(VerifyRoute);
   return (
     <NavLink
-      title={t("Absences & Vacancies")}
+      title={t("Absence & Vacancy")}
       icon={<SwapCallsIcon />}
+      subNavItems={[
+        {
+          title: t("Daily Report"),
+          route: DailyReportRoute.generate(paramsDailyReport),
+        },
+        {
+          title: t("Verify"),
+          route: VerifyRoute.generate(paramsVerify),
+        },
+      ]}
       {...props}
     />
   );
@@ -50,8 +73,21 @@ export const AnalyticsAndReportsNavLink: React.FC<Props> = props => {
 
 export const SchoolsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const paramsSchools = useRouteParams(SchoolsRoute);
+  const paramsGroups = useRouteParams(SchoolGroupsRoute);
   return (
-    <NavLink title={t("Schools")} icon={<LocationCityIcon />} {...props} />
+    <NavLink
+      title={t("Schools")}
+      icon={<LocationCityIcon />}
+      subNavItems={[
+        { title: t("Schools"), route: SchoolsRoute.generate(paramsSchools) },
+        {
+          title: t("School Groups"),
+          route: SchoolGroupsRoute.generate(paramsGroups),
+        },
+      ]}
+      {...props}
+    />
   );
 };
 
@@ -62,7 +98,25 @@ export const PeopleNavLink: React.FC<Props> = props => {
 
 export const CalendarNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return <NavLink title={t("Calendars")} icon={<DateRangeIcon />} {...props} />;
+  const paramsThisYear = useRouteParams(CalendarThisYearRoute);
+  const paramsPastYears = useRouteParams(CalendarPastYearsRoute);
+  return (
+    <NavLink
+      title={t("Calendars")}
+      icon={<DateRangeIcon />}
+      subNavItems={[
+        {
+          title: t("This Year"),
+          route: CalendarThisYearRoute.generate(paramsThisYear),
+        },
+        {
+          title: t("Past Years"),
+          route: CalendarPastYearsRoute.generate(paramsPastYears),
+        },
+      ]}
+      {...props}
+    />
+  );
 };
 
 export const ConfigurationNavLink: React.FC<Props> = props => {
@@ -74,7 +128,43 @@ export const ConfigurationNavLink: React.FC<Props> = props => {
 
 export const SecurityNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return <NavLink title={t("Security")} icon={<LockIcon />} {...props} />;
+  const paramsSecurityUsers = useRouteParams(SecurityUsersRoute);
+  const paramsSecurityPermissionSets = useRouteParams(
+    SecurityPermissionSetsRoute
+  );
+  const paramsSecurityPartners = useRouteParams(SecurityPartnersRoute);
+  const paramsSecurityManagedOrganizations = useRouteParams(
+    SecurityManagedOrganizationsRoute
+  );
+  return (
+    <NavLink
+      title={t("Security")}
+      icon={<LockIcon />}
+      subNavItems={[
+        {
+          title: t("Users"),
+          route: SecurityUsersRoute.generate(paramsSecurityUsers),
+        },
+        {
+          title: t("Permission Sets"),
+          route: SecurityPermissionSetsRoute.generate(
+            paramsSecurityPermissionSets
+          ),
+        },
+        {
+          title: t("Partners"),
+          route: SecurityPartnersRoute.generate(paramsSecurityPartners),
+        },
+        {
+          title: t("Managed Organizations"),
+          route: SecurityManagedOrganizationsRoute.generate(
+            paramsSecurityManagedOrganizations
+          ),
+        },
+      ]}
+      {...props}
+    />
+  );
 };
 
 export const MyScheduleNavLink: React.FC<Props> = props => {
