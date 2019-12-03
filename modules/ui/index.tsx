@@ -67,7 +67,7 @@ import {
 import {
   CalendarEventReasonsLoader,
   CalendarEventReasonsRoute,
-} from "./routes/calendar-event-reasons";
+} from "./routes/calendar/event-reasons";
 import {
   ReplacementAttributeLoader,
   ReplacementAttributeRoute,
@@ -83,7 +83,7 @@ import {
 import {
   AbsenceVacancyRulesLoader,
   AbsenceVacancyRulesRoute,
-} from "./routes/absence-vacancy-rules";
+} from "./routes/absence-vacancy/rules";
 import {
   SubstituteSettingsLoader,
   SubstituteSettingsRoute,
@@ -96,34 +96,34 @@ import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
 import {
   AbsenceVacancyDailyReportRoute,
   AbsenceVacancyDailyReportLoader,
-} from "./routes/absence-vacancy-daily-report";
+} from "./routes/absence-vacancy/daily-report";
 import { SchoolsRoute, SchoolsLoader } from "./routes/schools";
 import { SchoolGroupsRoute, SchoolGroupsLoader } from "./routes/school-groups";
 import {
   CalendarThisYearRoute,
   CalendarThisYearLoader,
-} from "./routes/calendar-this-year";
+} from "./routes/calendar/this-year";
 import {
   CalendarPastYearsRoute,
   CalendarPastYearsLoader,
-} from "./routes/calendar-past-years";
+} from "./routes/calendar/past-years";
 import {
   SecurityUsersLoader,
   SecurityUsersRoute,
-} from "./routes/security-users";
+} from "./routes/security/users";
 
 import {
   SecurityPermissionSetsLoader,
   SecurityPermissionSetsRoute,
-} from "./routes/security-permission-sets";
+} from "./routes/security/permission-sets";
 import {
   SecurityPartnersLoader,
   SecurityPartnersRoute,
-} from "./routes/security-partners";
+} from "./routes/security/partners";
 import {
   SecurityManagedOrganizationsLoader,
   SecurityManagedOrganizationsRoute,
-} from "./routes//security-managed-organizations";
+} from "./routes/security/managed-organizations";
 
 import { ContractsLoader, ContractsRoute } from "./routes/contracts";
 import { EdluminTheme } from "./styles/mui-theme";

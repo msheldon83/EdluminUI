@@ -1,10 +1,10 @@
 import { asyncComponent } from "ui/async-component";
-import { AdminChromeRoute } from "./app-chrome";
-import { defineSubRoute } from "./definition";
+import { AdminChromeRoute } from "../app-chrome";
+import { defineSubRoute } from "../definition";
 
 export const CalendarThisYearRoute = defineSubRoute(
   AdminChromeRoute,
-  "/calendar-this-year"
+  "/calendar/this-year"
 );
 
 export const CalendarThisYearLoader = asyncComponent({

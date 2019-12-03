@@ -1,10 +1,10 @@
 import { asyncComponent } from "ui/async-component";
-import { AdminChromeRoute } from "./app-chrome";
-import { defineSubRoute } from "./definition";
+import { AdminChromeRoute } from "../app-chrome";
+import { defineSubRoute } from "../definition";
 
 export const SecurityPermissionSetsRoute = defineSubRoute(
   AdminChromeRoute,
-  "/security-permission-sets"
+  "/security/permission-sets"
 );
 
 export const SecurityPermissionSetsLoader = asyncComponent({

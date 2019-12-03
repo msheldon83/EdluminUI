@@ -1,10 +1,10 @@
 import { asyncComponent } from "ui/async-component";
-import { AdminChromeRoute } from "./app-chrome";
-import { defineSubRoute } from "./definition";
+import { AdminChromeRoute } from "../app-chrome";
+import { defineSubRoute } from "../definition";
 
 export const AbsenceVacancyDailyReportRoute = defineSubRoute(
   AdminChromeRoute,
-  "/absence-vacancy-daily-report"
+  "/absence-vacancy/daily-report"
 );
 
 export const AbsenceVacancyDailyReportLoader = asyncComponent({

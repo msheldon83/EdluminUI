@@ -15,16 +15,16 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "./nav-link";
 import { useRouteParams } from "ui/routes/definition";
-import { AbsenceVacancyDailyReportRoute } from "ui/routes/absence-vacancy-daily-report";
+import { AbsenceVacancyDailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { VerifyRoute } from "ui/routes/verify";
 import { SchoolsRoute } from "ui/routes/schools";
 import { SchoolGroupsRoute } from "ui/routes/school-groups";
-import { CalendarThisYearRoute } from "ui/routes/calendar-this-year";
-import { CalendarPastYearsRoute } from "ui/routes/calendar-past-years";
-import { SecurityUsersRoute } from "ui/routes/security-users";
-import { SecurityPermissionSetsRoute } from "ui/routes/security-permission-sets";
-import { SecurityPartnersRoute } from "ui/routes/security-partners";
-import { SecurityManagedOrganizationsRoute } from "ui/routes/security-managed-organizations";
+import { CalendarThisYearRoute } from "ui/routes/calendar/this-year";
+import { CalendarPastYearsRoute } from "ui/routes/calendar/past-years";
+import { SecurityUsersRoute } from "ui/routes/security/users";
+import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
+import { SecurityPartnersRoute } from "ui/routes/security/partners";
+import { SecurityManagedOrganizationsRoute } from "ui/routes/security/managed-organizations";
 
 type Props = {
   className?: string;

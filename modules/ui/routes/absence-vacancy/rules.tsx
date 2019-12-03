@@ -1,10 +1,10 @@
 import { asyncComponent } from "ui/async-component";
-import { AdminChromeRoute } from "./app-chrome";
-import { defineSubRoute } from "./definition";
+import { AdminChromeRoute } from "../app-chrome";
+import { defineSubRoute } from "../definition";
 
 export const AbsenceVacancyRulesRoute = defineSubRoute(
   AdminChromeRoute,
-  "/absence-vacancy-rules"
+  "/absence-vacancy/rules"
 );
 
 export const AbsenceVacancyRulesLoader = asyncComponent({

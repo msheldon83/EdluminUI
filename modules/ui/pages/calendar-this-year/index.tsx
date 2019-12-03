@@ -4,7 +4,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import { CalendarThisYearRoute } from "ui/routes/calendar-this-year";
+import { CalendarThisYearRoute } from "ui/routes/calendar/this-year";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
 
