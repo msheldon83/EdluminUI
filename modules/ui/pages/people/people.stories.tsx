@@ -1,4 +1,5 @@
 import * as React from "react";
+import { makeStyles } from "@material-ui/styles";
 import { mockProvider } from "test-helpers/mock-provider";
 import { PeoplePage } from ".";
 import { PeopleRoute } from "ui/routes/people";
@@ -9,6 +10,7 @@ export default {
 };
 
 export const PeopleList = () => {
+  const classes = useStyles();
   const Provider = mockProvider({
     initialUrl: PeopleRoute.generate({ organizationId: "1000" }),
     mocks: {
@@ -143,7 +145,9 @@ export const PeopleList = () => {
   return (
     <Provider>
       <Route path={PeopleRoute.path}>
-        <PeoplePage />
+        <div className={classes.container}>
+          <PeoplePage />
+        </div>
       </Route>
     </Provider>
   );
@@ -151,3 +155,9 @@ export const PeopleList = () => {
 PeopleList.story = {
   name: "List View",
 };
+
+const useStyles = makeStyles(theme => ({
+  container: {
+    padding: "24px",
+  },
+}));
