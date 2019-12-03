@@ -19,7 +19,6 @@ import { Filters } from "./filters/index";
 import { Section } from "ui/components/section";
 import { DailyReport as DailyReportType } from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
-import clsx from "clsx";
 import {
   Detail,
   MapDailyReportDetails,
@@ -32,6 +31,7 @@ import { TFunction } from "i18next";
 import { format } from "date-fns";
 import { DailyReportSection } from "./daily-report-section";
 import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
+import { useDialog, RenderFunctionsType } from "hooks/use-dialog";
 
 type Props = {
   orgId: string;
@@ -46,25 +46,56 @@ export const DailyReport: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
+  const { openDialog } = useDialog();
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const [selectedCard, setSelectedCard] = useState<CardType | undefined>();
   const [selectedRows, setSelectedRows] = useState<Detail[]>([]);
 
   const [swapVacancyAssignments] = useMutationBundle(SwapVacancyAssignments, {
     onError: error => {
-      console.log(error.graphQLErrors);
-      // openSnackbar({
-      //   message: error.graphQLErrors.map((e, i) => {
-      //     const errorMessage =
-      //       e.extensions?.data?.text ?? e.extensions?.data?.code;
-      //     if (!errorMessage) {
-      //       return null;
-      //     }
-      //     return <div key={i}>{errorMessage}</div>;
-      //   }),
-      //   dismissable: true,
-      //   status: "error",
-      // });
+      const warnings = error.graphQLErrors.filter(
+        e => e.extensions?.data?.severity === "Warn"
+      );
+      const warningsOnly = warnings.length === error.graphQLErrors.length;
+
+      openDialog({
+        title: t("There was an issue swapping substitutes"),
+        renderContent() {
+          return error.graphQLErrors.map((e, i) => {
+            const errorMessage =
+              e.extensions?.data?.text ?? e.extensions?.data?.code;
+            if (!errorMessage) {
+              return null;
+            }
+            return <div key={i}>{errorMessage}</div>;
+          });
+        },
+        renderActions({ closeDialog }: RenderFunctionsType) {
+          return (
+            <>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => closeDialog()}
+              >
+                {warningsOnly ? t("Cancel") : t("Okay")}
+              </Button>
+              {warningsOnly && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={async () => {
+                    closeDialog();
+                    await swapSubs(true);
+                  }}
+                >
+                  {t("Ignore & Continue")}
+                </Button>
+              )}
+            </>
+          );
+        },
+      });
     },
   });
 
@@ -154,7 +185,7 @@ export const DailyReport: React.FC<Props> = props => {
     }
   };
 
-  const swapSubs = async () => {
+  const swapSubs = async (ignoreWarnings?: boolean) => {
     if (selectedRows.length !== 2) {
       return;
     }
@@ -173,6 +204,7 @@ export const DailyReport: React.FC<Props> = props => {
             ? Number(secondDetail.vacancyId)
             : 0,
           secondVacancyRowVersion: secondDetail.vacancyRowVersion ?? "",
+          ignoreWarnings: ignoreWarnings ?? false,
         },
       },
     });
@@ -247,7 +279,7 @@ const displaySections = (
   clearSelectedCard: () => void,
   selectedRows: Detail[],
   updateSelectedDetails: (detail: Detail, add: boolean) => void,
-  swapSubs: () => Promise<void>
+  swapSubs: (ignoreWarnings?: boolean) => Promise<void>
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -314,7 +346,7 @@ const displaySections = (
 
 const displaySwabSubsAction = (
   selectedRows: Detail[],
-  swapSubs: () => Promise<void>,
+  swapSubs: (ignoreWarnings?: boolean) => Promise<void>,
   t: TFunction
 ) => {
   if (selectedRows.length < 2) {
@@ -326,7 +358,7 @@ const displaySwabSubsAction = (
       variant="outlined"
       color="primary"
       disabled={selectedRows.length > 2}
-      onClick={swapSubs}
+      onClick={async () => await swapSubs(false)}
     >
       {t("Swap subs")}
     </Button>
