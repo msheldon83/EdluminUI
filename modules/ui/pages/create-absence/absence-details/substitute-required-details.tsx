@@ -20,8 +20,6 @@ import { CreateAbsenceFormData } from "../ui";
 
 type Props = {
   setValue: SetValue;
-  replacementEmployeeName?: string;
-  replacementEmployeeId?: number;
   vacancies: Vacancy[];
   setStep: (S: Step) => void;
   triggerValidation: TriggerValidation;
@@ -71,11 +69,6 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     [setValue]
   );
 
-  const removePrearrangedReplacementEmployee = async () => {
-    await setValue("replacementEmployeeId", undefined);
-    await setValue("replacementEmployeeName", undefined);
-  };
-
   const onAccountingCodeChange = React.useCallback(
     async event => {
       await setValue("accountingCode", event?.value);
@@ -97,7 +90,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
       <VacancyDetails vacancies={vacancies} equalWidthDetails />
 
       {isAdmin && (hasAccountingCodeOptions || hasPayCodeOptions) && (
-        <Grid item container spacing={4} className={classes.aubCodes}>
+        <Grid item container spacing={4} className={classes.subCodes}>
           {hasAccountingCodeOptions && (
             <Grid item xs={hasPayCodeOptions ? 6 : 12}>
               <Typography>{t("Accounting code")}</Typography>
@@ -159,21 +152,13 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
         />
       </div>
 
-      {props.replacementEmployeeId && props.replacementEmployeeName && (
-        <div className={classes.preArrangedChip}>
-          <Chip
-            label={`${t("Pre-arranged")}: ${props.replacementEmployeeName}`}
-            color={"primary"}
-            onDelete={async () => {
-              await removePrearrangedReplacementEmployee();
-            }}
-          />
-        </div>
-      )}
-
       {hasVacancies && (
         <div>
-          <Button variant="outlined" onClick={() => setStep("preAssignSub")}>
+          <Button
+            variant="outlined"
+            className={classes.preArrangeButton}
+            onClick={() => setStep("preAssignSub")}
+          >
             {t("Pre-arrange")}
           </Button>
 
@@ -197,12 +182,11 @@ const useStyles = makeStyles(theme => ({
   notesForReplacement: {
     paddingTop: theme.spacing(3),
   },
-  preArrangedChip: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  aubCodes: {
+  subCodes: {
     paddingTop: theme.spacing(2),
+  },
+  preArrangeButton: {
+    marginRight: theme.spacing(2),
   },
 }));
 
