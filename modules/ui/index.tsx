@@ -47,7 +47,7 @@ import {
   PositionTypeViewLoader,
   PositionTypeViewRoute,
 } from "./routes/position-type";
-import { VerifyRoute, VerifyLoader } from "./routes/verify";
+import { VerifyRoute, VerifyLoader } from "./routes/absence-vacancy/verify";
 import { ConfigurationRoute, ConfigurationLoader } from "./routes/org-config";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
@@ -67,7 +67,7 @@ import {
 import {
   CalendarEventReasonsLoader,
   CalendarEventReasonsRoute,
-} from "./routes/calendar-event-reasons";
+} from "./routes/calendar/event-reasons";
 import {
   ReplacementAttributeLoader,
   ReplacementAttributeRoute,
@@ -75,7 +75,7 @@ import {
 import {
   AbsenceReasonLoader,
   AbsenceReasonRoute,
-} from "./routes/absence-reason";
+} from "./routes/absence/reason";
 import {
   VacancyReasonLoader,
   VacancyReasonRoute,
@@ -83,7 +83,7 @@ import {
 import {
   AbsenceVacancyRulesLoader,
   AbsenceVacancyRulesRoute,
-} from "./routes/absence-vacancy-rules";
+} from "./routes/absence-vacancy/rules";
 import {
   SubstituteSettingsLoader,
   SubstituteSettingsRoute,
@@ -93,13 +93,42 @@ import {
   AccountingCodeRoute,
 } from "./routes/accounting-code";
 import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
+import { SchoolsRoute, SchoolsLoader } from "./routes/schools";
+import { SchoolGroupsRoute, SchoolGroupsLoader } from "./routes/school-groups";
+import {
+  CalendarThisYearRoute,
+  CalendarThisYearLoader,
+} from "./routes/calendar/this-year";
+import {
+  CalendarPastYearsRoute,
+  CalendarPastYearsLoader,
+} from "./routes/calendar/past-years";
+import {
+  SecurityUsersLoader,
+  SecurityUsersRoute,
+} from "./routes/security/users";
+
+import {
+  SecurityPermissionSetsLoader,
+  SecurityPermissionSetsRoute,
+} from "./routes/security/permission-sets";
+import {
+  SecurityPartnersLoader,
+  SecurityPartnersRoute,
+} from "./routes/security/partners";
+import {
+  SecurityManagedOrganizationsLoader,
+  SecurityManagedOrganizationsRoute,
+} from "./routes/security/managed-organizations";
 
 import { ContractsLoader, ContractsRoute } from "./routes/contracts";
 import { EdluminTheme } from "./styles/mui-theme";
-import { DailyReportLoader, DailyReportRoute } from "./routes/daily-report";
+import {
+  DailyReportLoader,
+  DailyReportRoute,
+} from "./routes/absence-vacancy/daily-report";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
-
 export function App(props: {}) {
   const classes = useStyles();
   const auth0 = useAuth0();
@@ -251,6 +280,38 @@ export function App(props: {}) {
                       <Route
                         component={ContractsLoader}
                         path={ContractsRoute.path}
+                      />
+                      <Route
+                        component={SchoolsLoader}
+                        path={SchoolsRoute.path}
+                      />
+                      <Route
+                        component={SchoolGroupsLoader}
+                        path={SchoolGroupsRoute.path}
+                      />
+                      <Route
+                        component={CalendarThisYearLoader}
+                        path={CalendarThisYearRoute.path}
+                      />
+                      <Route
+                        component={CalendarPastYearsLoader}
+                        path={CalendarPastYearsRoute.path}
+                      />
+                      <Route
+                        component={SecurityUsersLoader}
+                        path={SecurityUsersRoute.path}
+                      />
+                      <Route
+                        component={SecurityPermissionSetsLoader}
+                        path={SecurityPermissionSetsRoute.path}
+                      />
+                      <Route
+                        component={SecurityPartnersLoader}
+                        path={SecurityPartnersRoute.path}
+                      />
+                      <Route
+                        component={SecurityManagedOrganizationsLoader}
+                        path={SecurityManagedOrganizationsRoute.path}
                       />
 
                       <Route

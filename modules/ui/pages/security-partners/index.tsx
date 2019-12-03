@@ -4,19 +4,19 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import { AbsenceVacancyRulesRoute } from "ui/routes/absence-vacancy/rules";
+import { SecurityPartnersRoute } from "ui/routes/security/partners";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
 
 type Props = {};
 
-export const AbsenceVacancyRules: React.FC<Props> = props => {
+export const SecurityPartners: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
-  const params = useRouteParams(AbsenceVacancyRulesRoute);
+  const params = useRouteParams(SecurityPartnersRoute);
 
   const [triggerError, setTriggerError] = React.useState(false);
 
@@ -26,9 +26,7 @@ export const AbsenceVacancyRules: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle
-        title={`${params.organizationId} ${t("Absence & Vacancy Rules")}`}
-      />
+      <PageTitle title={`${params.organizationId} ${t("Security Partners")}`} />
       {__DEV__ && (
         <Button
           variant="contained"

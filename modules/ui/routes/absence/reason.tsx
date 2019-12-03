@@ -1,11 +1,8 @@
 import { asyncComponent } from "ui/async-component";
-import { AdminChromeRoute } from "./app-chrome";
-import { defineSubRoute } from "./definition";
+import { AdminChromeRoute } from "./../app-chrome";
+import { defineSubRoute } from "./../definition";
 
-export const AbsenceReasonRoute = defineSubRoute(
-  AdminChromeRoute,
-  "/absence-reason"
-);
+export const AbsenceReasonRoute = defineSubRoute(AdminChromeRoute, "/reason");
 
 export const AbsenceReasonLoader = asyncComponent({
   resolve: async () => {

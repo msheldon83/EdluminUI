@@ -30,6 +30,7 @@ import {
 } from "./custom-nav-links";
 import { ConfigurationRoute } from "ui/routes/org-config";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
+import { SchoolsRoute } from "ui/routes/schools";
 
 type Props = {
   onClick?: () => void;
@@ -121,7 +122,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           />
           <SchoolsNavLink
             onClick={props.onClick}
-            route={adminTbd.generate(params)}
+            route={SchoolsRoute.generate(params)}
           />
           <PeopleNavLink
             onClick={props.onClick}
