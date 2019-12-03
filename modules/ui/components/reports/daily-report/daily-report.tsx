@@ -175,6 +175,7 @@ const useStyles = makeStyles(theme => ({
   },
   subGroupSummaryText: {
     fontWeight: "bold",
+    paddingLeft: theme.spacing(2)
   },
   subGroupExpanded: {
     borderTop: "0 !important",
@@ -308,15 +309,9 @@ const getSectionDisplay = (
         id={panelId}
         className={classes.summary}
       >
-        <FormControlLabel
-          onClick={event => event.stopPropagation()}
-          onFocus={event => event.stopPropagation()}
-          control={<Checkbox color="primary" />}
-          label={headerText}
-          classes={{
-            label: classes.summaryText,
-          }}
-        />
+        <div className={classes.summaryText}>
+          {headerText}
+        </div>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.details}>
         {hasSubGroups &&
@@ -344,15 +339,9 @@ const getSectionDisplay = (
                   id={subGroupPanelId}
                   className={classes.summary}
                 >
-                  <FormControlLabel
-                    onClick={event => event.stopPropagation()}
-                    onFocus={event => event.stopPropagation()}
-                    control={<Checkbox color="primary" />}
-                    label={subHeaderText}
-                    classes={{
-                      label: classes.subGroupSummaryText,
-                    }}
-                  />
+                  <div className={classes.subGroupSummaryText}>
+                    {subHeaderText}
+                  </div>
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails className={classes.details}>
                   <Grid container alignItems="flex-start">
