@@ -14,32 +14,39 @@ export const NavigationSideBar: React.FC<Props> = props => {
   const classes = useStyles();
 
   return (
-    <Drawer
-      onClose={props.collapse}
-      open={props.expanded}
-      variant={"permanent"}
-      className={props.expanded ? classes.drawerOpen : classes.drawerClose}
-      classes={{
-        paper: `${classes.drawer} ${
-          props.expanded ? classes.drawerOpen : classes.drawerClose
-        }`,
-      }}
-    >
-      <EdluminLogo
-        titleClassName={classes.spacing}
-        className={classes.margin}
-      />
+    <div className={classes.sidebar}>
+      <Drawer
+        onClose={props.collapse}
+        open={props.expanded}
+        variant={"permanent"}
+        className={props.expanded ? classes.drawerOpen : classes.drawerClose}
+        classes={{
+          paper: `${classes.drawer} ${
+            props.expanded ? classes.drawerOpen : classes.drawerClose
+          }`,
+        }}
+      >
+        <EdluminLogo
+          titleClassName={classes.spacing}
+          className={classes.margin}
+        />
 
-      <RoleSwitcher expanded={props.expanded} />
-      <Divider className={classes.divider} />
-      <List className={classes.list}>
-        <AutoSwitchingNavLinks />
-      </List>
-    </Drawer>
+        <RoleSwitcher expanded={props.expanded} />
+        <Divider className={classes.divider} />
+        <List className={classes.list}>
+          <AutoSwitchingNavLinks />
+        </List>
+      </Drawer>
+    </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  sidebar: {
+    "@media print": {
+      display: "none",
+    },
+  },
   drawer: {
     background: theme.customColors.edluminSlate,
     flexShrink: 0,

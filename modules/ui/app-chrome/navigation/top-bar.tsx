@@ -73,6 +73,9 @@ const useStyles = makeStyles(theme => ({
   },
   appBar: {
     borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
+    "@media print": {
+      display: "none",
+    },
   },
 }));
 

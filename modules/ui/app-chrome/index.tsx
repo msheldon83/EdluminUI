@@ -157,6 +157,9 @@ const useStyles = makeStyles(theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
     }),
+    "@media print": {
+      display: "none",
+    },
   },
   navWidthCompact: {
     flexShrink: 0,
@@ -168,6 +171,9 @@ const useStyles = makeStyles(theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
     }),
+    "@media print": {
+      display: "none",
+    },
   },
   contentView: {
     flexGrow: 1,

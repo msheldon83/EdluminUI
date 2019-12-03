@@ -32,7 +32,7 @@ export const DailyReportPage: React.FC<Props> = props => {
         <Grid item>
           <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
         </Grid>
-        <Grid item>
+        <Grid item className={classes.action}>
           <Button
             variant="contained"
             component={Link}
@@ -60,5 +60,10 @@ export const DailyReportPage: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(3),
+  },
+  action: {
+    "@media print": {
+      display: "none",
+    },
   },
 }));
