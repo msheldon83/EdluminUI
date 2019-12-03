@@ -113,6 +113,7 @@ export const GroupCard: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   cardRoot: {
     cursor: "pointer",
+    width: theme.typography.pxToRem(250),
     "&:hover": {
       boxShadow:
         "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24)",

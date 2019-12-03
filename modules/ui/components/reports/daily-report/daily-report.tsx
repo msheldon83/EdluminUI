@@ -34,6 +34,7 @@ import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
 import { useDialog, RenderFunctionsType } from "hooks/use-dialog";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import { useSnackbar } from "hooks/use-snackbar";
+import { Print } from "@material-ui/icons";
 
 type Props = {
   orgId: string;
@@ -261,10 +262,15 @@ export const DailyReport: React.FC<Props> = props => {
           <Divider />
         </>
       )}
-      <Grid container spacing={4} className={classes.cardContainer}>
+      <Grid
+        container
+        spacing={4}
+        justify="flex-start"
+        className={classes.cardContainer}
+      >
         {props.cards.map((c, i) => {
           return (
-            <Grid item key={i} className={classes.card}>
+            <Grid item key={i}>
               <GroupCard
                 cardType={c}
                 details={allDetails}
@@ -298,14 +304,17 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
-  card: {
-    flexGrow: 1,
-  },
   detailGroup: {
     marginTop: theme.spacing(2),
   },
   action: {
     cursor: "pointer",
+  },
+  print: {
+    color: "#9E9E9E",
+    "@media print": {
+      display: "none",
+    },
   },
 }));
 
@@ -357,15 +366,25 @@ const displaySections = (
   // Build a display section for each group
   return (
     <div>
-      {selectedCard && (
-        <div>
-          {selectedCardDisplayText}{" "}
-          <Link className={classes.action} onClick={clearSelectedCard}>
-            {t("Show all")}
-          </Link>
-        </div>
-      )}
-      {displaySwabSubsAction(selectedRows, swapSubs, t)}
+      <Grid container justify="space-between" alignItems="center">
+        {selectedCard && (
+          <Grid item>
+            {selectedCardDisplayText}{" "}
+            <Link className={classes.action} onClick={clearSelectedCard}>
+              {t("Show all")}
+            </Link>
+          </Grid>
+        )}
+        <Grid item>{displaySwabSubsAction(selectedRows, swapSubs, t)}</Grid>
+        <Grid item>
+          {!!groupedDetails.length && (
+            <Print
+              className={[classes.action, classes.print].join(" ")}
+              onClick={window.print}
+            />
+          )}
+        </Grid>
+      </Grid>
       {groupedDetails.map((g, i) => {
         const hasDetails = !!(g.details && g.details.length);
         if (selectedCard && !hasDetails) {
