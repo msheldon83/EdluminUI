@@ -50,15 +50,12 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
       <Grid item container alignItems="center">
         <Grid item container md={3} className={classes.vacancyBlockItem}>
           <Grid item xs={4} className={classes.timeInput}>
-            <FormikTimeInput
-              name={`${fieldNamePrefix}.startTime`}
-              earliestTime={props.values.startTime}
-            />
+            <FormikTimeInput name={`${fieldNamePrefix}.startTime`} />
           </Grid>
           <Grid item xs={4} className={classes.timeInput}>
             <FormikTimeInput
               name={`${fieldNamePrefix}.endTime`}
-              earliestTime={props.values.endTime}
+              earliestTime={props.values.startTime}
             />
           </Grid>
         </Grid>

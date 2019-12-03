@@ -8,7 +8,7 @@ import {
 } from "../../../helpers/time";
 import { Input } from "./input";
 
-type Props = {
+export type Props = {
   label: string;
   value?: string;
   name?: string;

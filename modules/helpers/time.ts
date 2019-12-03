@@ -66,7 +66,9 @@ export const parseTimeFromString = (
   const earliestTimesamp = earliestTime
     ? parseTimeFromString(humanizeTimeStamp(isoToTimestamp(earliestTime)))
     : midnightTime().getTime();
-  const earliestHour = new Date(earliestTimesamp).getHours();
+  const earliest = new Date(earliestTimesamp);
+  const earliestHour = earliest.getHours();
+  const earliestMinutes = earliest.getMinutes();
 
   // Parse for hour and minute
   switch (num.length) {
@@ -110,7 +112,7 @@ export const parseTimeFromString = (
 
   const date = new Date();
   date.setHours(hour);
-  date.setMinutes(minute);
+  date.setMinutes(Math.max(minute, earliestMinutes));
   date.setSeconds(0);
   date.setMilliseconds(0);
 
