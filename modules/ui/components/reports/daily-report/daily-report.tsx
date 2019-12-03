@@ -175,7 +175,7 @@ const useStyles = makeStyles(theme => ({
   },
   subGroupSummaryText: {
     fontWeight: "bold",
-    paddingLeft: theme.spacing(2)
+    paddingLeft: theme.spacing(2),
   },
   subGroupExpanded: {
     borderTop: "0 !important",
@@ -219,6 +219,9 @@ const useStyles = makeStyles(theme => ({
   },
   subDetailHeader: {
     width: "100%",
+  },
+  hidden: {
+    visibility: "hidden",
   },
 }));
 
@@ -309,9 +312,7 @@ const getSectionDisplay = (
         id={panelId}
         className={classes.summary}
       >
-        <div className={classes.summaryText}>
-          {headerText}
-        </div>
+        <div className={classes.summaryText}>{headerText}</div>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.details}>
         {hasSubGroups &&
@@ -388,7 +389,12 @@ const getDetailsDisplay = (
       >
         <Grid item xs={3}>
           <div className={classes.employeeSection}>
-            <Checkbox color="primary" />
+            <Checkbox
+              color="primary"
+              className={clsx({
+                [classes.hidden]: d.isMultiDay,
+              })}
+            />
             <div>
               {d.type === "absence" ? (
                 <>
