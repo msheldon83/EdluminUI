@@ -7,7 +7,7 @@ import { useState, useMemo, useEffect } from "react";
 import { DateTabs } from "./components/tabs";
 import { useQueryBundle } from "graphql/hooks";
 import { useRouteParams } from "ui/routes/definition";
-import { VerifyRoute } from "ui/routes/verify";
+import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 import { GetAssignmentCount } from "./graphql/get-assignment-count.gen";
 import { GetVacancyDetails } from "./graphql/get-vacancydetails.gen";
 import { isToday, addDays, isWeekend, format, isEqual } from "date-fns";
@@ -43,8 +43,11 @@ export const VerifyUI: React.FC<Props> = props => {
     date: Date;
     dateLabel: string;
     count: number;
-  }[] = useMemo(() => [], []);
+  }[] = useMemo(() => [], [assignmentCounts]);
 
+  // Determines what tabs are shown and the count of unverified assignments on each tab
+  // We show today and each day of the last week unless weekends have 0
+  // Older then shows a count of all unverified going back to the start of the school year
   useEffect(() => {
     let date = today;
     let totalCount = assignmentCounts
