@@ -129,7 +129,6 @@ import {
 } from "./routes/absence-vacancy/daily-report";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
-
 export function App(props: {}) {
   const classes = useStyles();
   const auth0 = useAuth0();
