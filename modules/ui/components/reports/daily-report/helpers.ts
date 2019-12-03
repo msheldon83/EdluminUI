@@ -35,6 +35,7 @@ export type Detail = {
   type: "absence" | "vacancy";
   absenceRowVersion?: string;
   vacancyRowVersion?: string;
+  vacancyId?: string;
   employee?: {
     id: string;
     name: string;
@@ -92,6 +93,8 @@ export const MapDailyReportDetails = (
         state: "filled",
         type: "absence",
         absenceRowVersion: a.rowVersion,
+        vacancyRowVersion: matchingVacancyDetail?.vacancyRowVersion,
+        vacancyId: matchingVacancyDetail?.vacancyId,
         employee: a.employee
           ? {
               id: a.employee.id,
@@ -156,6 +159,7 @@ export const MapDailyReportDetails = (
         state: "filled",
         type: "vacancy",
         vacancyRowVersion: v.rowVersion,
+        vacancyId: v.id,
         date: parseISO(vacancyDetail.startDate),
         dateRange: getRangeDisplayText(
           vacancyDetail.startDate,
@@ -213,6 +217,8 @@ export const MapDailyReportDetails = (
         state: "unfilled",
         type: "absence",
         absenceRowVersion: a.rowVersion,
+        vacancyRowVersion: matchingVacancyDetail?.vacancyRowVersion,
+        vacancyId: matchingVacancyDetail?.vacancyId,
         employee: a.employee
           ? {
               id: a.employee.id,
@@ -265,6 +271,7 @@ export const MapDailyReportDetails = (
         state: "unfilled",
         type: "vacancy",
         vacancyRowVersion: v.rowVersion,
+        vacancyId: v.id,
         date: parseISO(vacancyDetail.startDate),
         dateRange: getRangeDisplayText(
           vacancyDetail.startDate,
@@ -456,19 +463,32 @@ const getRangeDisplayText = (startDate: string, endDate: string): string => {
   }
 };
 
+type VacancyDetailWithVacancyInfo = VacancyDetail & {
+  vacancyId: string;
+  vacancyRowVersion: string;
+};
+
 const getMatchingVacancyDetail = (
   absenceDetail: AbsenceDetail,
   vacancies: Maybe<Vacancy>[] | null | undefined
-): VacancyDetail | null | undefined => {
+): VacancyDetailWithVacancyInfo | null | undefined => {
   if (!vacancies) {
     return undefined;
   }
 
-  const allVacancyDetails = flatMap(vacancies, v => v!.details);
+  const allVacancyDetails = flatMap(vacancies, v =>
+    v!.details!.map(d => {
+      return {
+        ...(d as VacancyDetail),
+        vacancyRowVersion: v!.rowVersion,
+        vacancyId: v!.id,
+      };
+    })
+  );
   const matchingVacancyDetail = allVacancyDetails.find(
     d => d && isEqual(parseISO(d.startDate), parseISO(absenceDetail.startDate))
   );
-  return matchingVacancyDetail;
+  return matchingVacancyDetail as VacancyDetailWithVacancyInfo;
 };
 
 export const GetUnfilled = (details: Detail[]): Detail[] => {

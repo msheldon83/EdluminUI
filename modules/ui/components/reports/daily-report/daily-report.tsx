@@ -11,7 +11,7 @@ import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect } from "react";
 import { useQueryParamIso } from "hooks/query-params";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetDailyReport } from "./graphql/get-daily-report.gen";
 import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
 import { FilterQueryParams } from "./filters/filter-params";
@@ -31,6 +31,7 @@ import { GroupCard } from "./group-card";
 import { TFunction } from "i18next";
 import { format } from "date-fns";
 import { DailyReportSection } from "./daily-report-section";
+import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
 
 type Props = {
   orgId: string;
@@ -48,6 +49,24 @@ export const DailyReport: React.FC<Props> = props => {
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const [selectedCard, setSelectedCard] = useState<CardType | undefined>();
   const [selectedRows, setSelectedRows] = useState<Detail[]>([]);
+
+  const [swapVacancyAssignments] = useMutationBundle(SwapVacancyAssignments, {
+    onError: error => {
+      console.log(error.graphQLErrors);
+      // openSnackbar({
+      //   message: error.graphQLErrors.map((e, i) => {
+      //     const errorMessage =
+      //       e.extensions?.data?.text ?? e.extensions?.data?.code;
+      //     if (!errorMessage) {
+      //       return null;
+      //     }
+      //     return <div key={i}>{errorMessage}</div>;
+      //   }),
+      //   dismissable: true,
+      //   status: "error",
+      // });
+    },
+  });
 
   // Keep date in filters in sync with date passed in from DateStepperHeader
   useEffect(() => {
@@ -135,6 +154,35 @@ export const DailyReport: React.FC<Props> = props => {
     }
   };
 
+  const swapSubs = async () => {
+    if (selectedRows.length !== 2) {
+      return;
+    }
+
+    const firstDetail = selectedRows[0];
+    const secondDetail = selectedRows[1];
+
+    const result = await swapVacancyAssignments({
+      variables: {
+        swapDetails: {
+          firstVacancyId: firstDetail.vacancyId
+            ? Number(firstDetail.vacancyId)
+            : 0,
+          firstVacancyRowVersion: firstDetail.vacancyRowVersion ?? "",
+          secondVacancyId: secondDetail.vacancyId
+            ? Number(secondDetail.vacancyId)
+            : 0,
+          secondVacancyRowVersion: secondDetail.vacancyRowVersion ?? "",
+        },
+      },
+    });
+
+    if (result) {
+      await getDailyReport.refetch();
+      setSelectedRows([]);
+    }
+  };
+
   return (
     <Section>
       <SectionHeader title={props.header} />
@@ -168,7 +216,8 @@ export const DailyReport: React.FC<Props> = props => {
         t,
         () => setSelectedCard(undefined),
         selectedRows,
-        updateSelectedDetails
+        updateSelectedDetails,
+        swapSubs
       )}
     </Section>
   );
@@ -197,7 +246,8 @@ const displaySections = (
   t: TFunction,
   clearSelectedCard: () => void,
   selectedRows: Detail[],
-  updateSelectedDetails: (detail: Detail, add: boolean) => void
+  updateSelectedDetails: (detail: Detail, add: boolean) => void,
+  swapSubs: () => Promise<void>
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -241,7 +291,7 @@ const displaySections = (
           </Link>
         </div>
       )}
-      {displaySwabSubsAction(selectedRows, t)}
+      {displaySwabSubsAction(selectedRows, swapSubs, t)}
       {groupedDetails.map((g, i) => {
         const hasDetails = !!(g.details && g.details.length);
         if (selectedCard && !hasDetails) {
@@ -262,7 +312,11 @@ const displaySections = (
   );
 };
 
-const displaySwabSubsAction = (selectedRows: Detail[], t: TFunction) => {
+const displaySwabSubsAction = (
+  selectedRows: Detail[],
+  swapSubs: () => Promise<void>,
+  t: TFunction
+) => {
   if (selectedRows.length < 2) {
     return;
   }
@@ -272,6 +326,7 @@ const displaySwabSubsAction = (selectedRows: Detail[], t: TFunction) => {
       variant="outlined"
       color="primary"
       disabled={selectedRows.length > 2}
+      onClick={swapSubs}
     >
       {t("Swap subs")}
     </Button>
