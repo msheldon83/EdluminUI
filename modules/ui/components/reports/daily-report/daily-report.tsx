@@ -32,6 +32,8 @@ import { format } from "date-fns";
 import { DailyReportSection } from "./daily-report-section";
 import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
 import { useDialog, RenderFunctionsType } from "hooks/use-dialog";
+import { CancelAssignment } from "./graphql/cancel-assignment.gen";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {
   orgId: string;
@@ -47,57 +49,10 @@ export const DailyReport: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
   const { openDialog } = useDialog();
+  const { openSnackbar } = useSnackbar();
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const [selectedCard, setSelectedCard] = useState<CardType | undefined>();
   const [selectedRows, setSelectedRows] = useState<Detail[]>([]);
-
-  const [swapVacancyAssignments] = useMutationBundle(SwapVacancyAssignments, {
-    onError: error => {
-      const warnings = error.graphQLErrors.filter(
-        e => e.extensions?.data?.severity === "Warn"
-      );
-      const warningsOnly = warnings.length === error.graphQLErrors.length;
-
-      openDialog({
-        title: t("There was an issue swapping substitutes"),
-        renderContent() {
-          return error.graphQLErrors.map((e, i) => {
-            const errorMessage =
-              e.extensions?.data?.text ?? e.extensions?.data?.code;
-            if (!errorMessage) {
-              return null;
-            }
-            return <div key={i}>{errorMessage}</div>;
-          });
-        },
-        renderActions({ closeDialog }: RenderFunctionsType) {
-          return (
-            <>
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() => closeDialog()}
-              >
-                {warningsOnly ? t("Cancel") : t("Okay")}
-              </Button>
-              {warningsOnly && (
-                <Button
-                  size="small"
-                  variant="contained"
-                  onClick={async () => {
-                    closeDialog();
-                    await swapSubs(true);
-                  }}
-                >
-                  {t("Ignore & Continue")}
-                </Button>
-              )}
-            </>
-          );
-        },
-      });
-    },
-  });
 
   // Keep date in filters in sync with date passed in from DateStepperHeader
   useEffect(() => {
@@ -185,6 +140,54 @@ export const DailyReport: React.FC<Props> = props => {
     }
   };
 
+  const [swapVacancyAssignments] = useMutationBundle(SwapVacancyAssignments, {
+    onError: error => {
+      const warnings = error.graphQLErrors.filter(
+        e => e.extensions?.data?.severity === "Warn"
+      );
+      const warningsOnly = warnings.length === error.graphQLErrors.length;
+
+      openDialog({
+        title: t("There was an issue swapping substitutes"),
+        renderContent() {
+          return error.graphQLErrors.map((e, i) => {
+            const errorMessage =
+              e.extensions?.data?.text ?? e.extensions?.data?.code;
+            if (!errorMessage) {
+              return null;
+            }
+            return <div key={i}>{errorMessage}</div>;
+          });
+        },
+        renderActions({ closeDialog }: RenderFunctionsType) {
+          return (
+            <>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => closeDialog()}
+              >
+                {warningsOnly ? t("Cancel") : t("Okay")}
+              </Button>
+              {warningsOnly && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={async () => {
+                    closeDialog();
+                    await swapSubs(true);
+                  }}
+                >
+                  {t("Ignore & Continue")}
+                </Button>
+              )}
+            </>
+          );
+        },
+      });
+    },
+  });
+
   const swapSubs = async (ignoreWarnings?: boolean) => {
     if (selectedRows.length !== 2) {
       return;
@@ -212,6 +215,40 @@ export const DailyReport: React.FC<Props> = props => {
     if (result) {
       await getDailyReport.refetch();
       setSelectedRows([]);
+    }
+  };
+
+  const [cancelAssignment] = useMutationBundle(CancelAssignment, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
+
+  const removeSub = async (
+    assignmentId?: string,
+    assignmentRowVersion?: string
+  ) => {
+    const result = await cancelAssignment({
+      variables: {
+        cancelRequest: {
+          id: Number(assignmentId) ?? "",
+          rowVersion: assignmentRowVersion ?? "",
+        },
+      },
+    });
+    if (result) {
+      await getDailyReport.refetch();
     }
   };
 
@@ -249,7 +286,8 @@ export const DailyReport: React.FC<Props> = props => {
         () => setSelectedCard(undefined),
         selectedRows,
         updateSelectedDetails,
-        swapSubs
+        swapSubs,
+        removeSub
       )}
     </Section>
   );
@@ -279,7 +317,11 @@ const displaySections = (
   clearSelectedCard: () => void,
   selectedRows: Detail[],
   updateSelectedDetails: (detail: Detail, add: boolean) => void,
-  swapSubs: (ignoreWarnings?: boolean) => Promise<void>
+  swapSubs: (ignoreWarnings?: boolean) => Promise<void>,
+  removeSub: (
+    assignmentId?: string,
+    assignmentRowVersion?: string
+  ) => Promise<void>
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -336,6 +378,7 @@ const displaySections = (
               group={g}
               selectedDetails={selectedRows}
               updateSelectedDetails={updateSelectedDetails}
+              removeSub={removeSub}
             />
           </div>
         );

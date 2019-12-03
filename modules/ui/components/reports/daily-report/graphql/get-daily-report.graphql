@@ -56,6 +56,7 @@ query GetDailyReport(
             }
             assignment {
               id
+              rowVersion
               employee {
                 id
                 firstName
@@ -88,6 +89,7 @@ query GetDailyReport(
           }
           assignment {
             id
+            rowVersion
             employee {
               id
               firstName
@@ -141,6 +143,7 @@ query GetDailyReport(
             }
             assignment {
               id
+              rowVersion
               employee {
                 id
                 firstName
@@ -173,6 +176,7 @@ query GetDailyReport(
           }
           assignment {
             id
+            rowVersion
             employee {
               id
               firstName

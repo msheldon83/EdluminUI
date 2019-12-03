@@ -16,6 +16,10 @@ type Props = {
   group: DetailGroup;
   selectedDetails: Detail[];
   updateSelectedDetails: (detail: Detail, add: boolean) => void;
+  removeSub: (
+    assignmentId?: string,
+    assignmentRowVersion?: string
+  ) => Promise<void>;
 };
 
 export const DailyReportSection: React.FC<Props> = props => {
@@ -80,7 +84,8 @@ export const DailyReportSection: React.FC<Props> = props => {
                       classes,
                       t,
                       props.selectedDetails,
-                      props.updateSelectedDetails
+                      props.updateSelectedDetails,
+                      props.removeSub
                     )}
                   </Grid>
                 </ExpansionPanelDetails>
@@ -95,7 +100,8 @@ export const DailyReportSection: React.FC<Props> = props => {
               classes,
               t,
               props.selectedDetails,
-              props.updateSelectedDetails
+              props.updateSelectedDetails,
+              props.removeSub
             )}
           </Grid>
         )}
@@ -156,7 +162,11 @@ const getDetailsDisplay = (
   classes: any,
   t: TFunction,
   selectedDetails: Detail[],
-  updateSelectedDetails: (detail: Detail, add: boolean) => void
+  updateSelectedDetails: (detail: Detail, add: boolean) => void,
+  removeSub: (
+    assignmentId?: string,
+    assignmentRowVersion?: string
+  ) => Promise<void>
 ) => {
   if (details.length === 0) {
     return;
@@ -169,6 +179,7 @@ const getDetailsDisplay = (
         className={i % 2 == 1 ? classes.shadedRow : undefined}
         selectedDetails={selectedDetails}
         updateSelectedDetails={updateSelectedDetails}
+        removeSub={removeSub}
         key={`${panelId}-${i}`}
       />
     );

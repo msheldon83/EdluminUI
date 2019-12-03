@@ -10,6 +10,10 @@ type Props = {
   className?: string;
   selectedDetails: Detail[];
   updateSelectedDetails: (detail: Detail, add: boolean) => void;
+  removeSub: (
+    assignmentId?: string,
+    assignmentRowVersion?: string
+  ) => Promise<void>;
 };
 
 export const DailyReportDetail: React.FC<Props> = props => {
@@ -108,11 +112,22 @@ export const DailyReportDetail: React.FC<Props> = props => {
           options={[
             {
               name: t("Edit"),
-              onClick: () => {},
+              onClick: () => {
+                /* TODO: Redirect to Absence Edit screen */
+              },
             },
             {
               name: props.detail.substitute ? t("Remove Sub") : t("Assign Sub"),
-              onClick: () => {},
+              onClick: async () => {
+                if (props.detail.substitute) {
+                  await props.removeSub(
+                    props.detail.assignmentId,
+                    props.detail.assignmentRowVersion
+                  );
+                } else {
+                  /* TODO: Redirect to Absence Edit screen */
+                }
+              },
             },
           ]}
         />
