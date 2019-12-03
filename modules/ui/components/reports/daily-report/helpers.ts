@@ -32,6 +32,8 @@ export type Detail = {
   id: string;
   state: "unfilled" | "filled" | "noSubRequired";
   type: "absence" | "vacancy";
+  absenceRowVersion?: string;
+  vacancyRowVersion?: string;
   employee?: {
     id: string;
     name: string;
@@ -42,6 +44,7 @@ export type Detail = {
   startTime: string;
   endTime: string;
   created: string;
+  isMultiDay: boolean;
   substitute?: {
     id: string;
     name: string;
@@ -86,6 +89,7 @@ export const MapDailyReportDetails = (
         id: a.id,
         state: "filled",
         type: "absence",
+        absenceRowVersion: a.rowVersion,
         employee: a.employee
           ? {
               id: a.employee.id,
@@ -104,6 +108,7 @@ export const MapDailyReportDetails = (
           a.createdLocal,
           "MMM d h:mm a"
         ),
+        isMultiDay: a.details && a.details.length > 1,
         substitute:
           matchingVacancyDetail &&
           matchingVacancyDetail.assignment &&
@@ -147,6 +152,7 @@ export const MapDailyReportDetails = (
         id: v.id,
         state: "filled",
         type: "vacancy",
+        vacancyRowVersion: v.rowVersion,
         date: parseISO(vacancyDetail.startDate),
         dateRange: getRangeDisplayText(
           vacancyDetail.startDate,
@@ -158,6 +164,7 @@ export const MapDailyReportDetails = (
           v.createdLocal,
           "MMM d h:mm a"
         ),
+        isMultiDay: v.details && v.details.length > 1,
         substitute:
           vacancyDetail.assignment && vacancyDetail.assignment.employee
             ? {
@@ -201,6 +208,7 @@ export const MapDailyReportDetails = (
         id: a.id,
         state: "unfilled",
         type: "absence",
+        absenceRowVersion: a.rowVersion,
         employee: a.employee
           ? {
               id: a.employee.id,
@@ -219,6 +227,7 @@ export const MapDailyReportDetails = (
           a.createdLocal,
           "MMM d h:mm a"
         ),
+        isMultiDay: a.details && a.details.length > 1,
         position:
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
@@ -250,6 +259,7 @@ export const MapDailyReportDetails = (
         id: v.id,
         state: "unfilled",
         type: "vacancy",
+        vacancyRowVersion: v.rowVersion,
         date: parseISO(vacancyDetail.startDate),
         dateRange: getRangeDisplayText(
           vacancyDetail.startDate,
@@ -261,6 +271,7 @@ export const MapDailyReportDetails = (
           v.createdLocal,
           "MMM d h:mm a"
         ),
+        isMultiDay: v.details && v.details.length > 1,
         position: v.position
           ? {
               id: v.position.id,
@@ -323,6 +334,7 @@ export const MapDailyReportDetails = (
           id: a.id,
           state: "noSubRequired",
           type: "absence",
+          absenceRowVersion: a.rowVersion,
           employee: a.employee
             ? {
                 id: a.employee.id,
@@ -341,6 +353,7 @@ export const MapDailyReportDetails = (
             a.createdLocal,
             "MMM d h:mm a"
           ),
+          isMultiDay: a.details && a.details.length > 1,
           position: positionType,
           location: location,
         } as Detail;
