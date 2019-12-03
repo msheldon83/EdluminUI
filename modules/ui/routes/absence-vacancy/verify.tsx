@@ -1,8 +1,11 @@
 import { asyncComponent } from "ui/async-component";
-import { AdminChromeRoute } from "./app-chrome";
-import { defineSubRoute } from "./definition";
+import { AdminChromeRoute } from "../app-chrome";
+import { defineSubRoute } from "../definition";
 
-export const VerifyRoute = defineSubRoute(AdminChromeRoute, "/verify");
+export const VerifyRoute = defineSubRoute(
+  AdminChromeRoute,
+  "/absence-vacancy/verify"
+);
 
 export const VerifyLoader = asyncComponent({
   resolve: async () => {

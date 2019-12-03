@@ -1,7 +1,8 @@
 import { Collapse, Divider, Link, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
-import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
+import { SetValue } from "forms";
+import { useQueryBundle } from "graphql/hooks";
 import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
@@ -10,16 +11,16 @@ import { compact } from "lodash-es";
 import * as React from "react";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { PaginationControls } from "ui/components/pagination-controls";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
+import { VacancyDetails } from "../../../components/absence/vacancy-details";
+import { Step } from "../step-params";
 import { getAssignSubColumns } from "./columns";
 import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
 } from "./filters";
-import { VacancyDetails } from "ui/components/absence/vacancy-details";
 
 type Props = {
   orgId: string;
@@ -30,10 +31,8 @@ type Props = {
   employeeId?: string;
   positionId?: string;
   positionName?: string;
-  selectReplacementEmployee: (
-    replacementEmployeeId: number,
-    name: string
-  ) => Promise<void>;
+  setStep: (s: Step) => void;
+  setValue: SetValue;
 };
 
 const buildVacancyInput = (
@@ -150,6 +149,15 @@ export const AssignSub: React.FC<Props> = props => {
     }));
   }, [replacementEmployees]);
 
+  const selectReplacementEmployee = async (
+    replacementEmployeeId: number,
+    name: string
+  ) => {
+    await props.setValue("replacementEmployeeId", replacementEmployeeId);
+    await props.setValue("replacementEmployeeName", name);
+    props.setStep("absence");
+  };
+
   const setSearch = (filters: ReplacementEmployeeFilters) => {
     updateSearch(filters);
   };
@@ -201,7 +209,7 @@ export const AssignSub: React.FC<Props> = props => {
       getAssignSubColumns(
         tableData,
         props.userIsAdmin,
-        props.selectReplacementEmployee,
+        selectReplacementEmployee,
         isMobile,
         theme,
         classes,
@@ -210,7 +218,7 @@ export const AssignSub: React.FC<Props> = props => {
     [
       isMobile,
       props.userIsAdmin,
-      props.selectReplacementEmployee,
+      selectReplacementEmployee,
       theme,
       classes,
       t,

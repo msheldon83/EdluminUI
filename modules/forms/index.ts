@@ -3,6 +3,7 @@ import { ValidationPayload, FieldError } from "react-hook-form/dist/types";
 
 export type Register = ReturnType<typeof ReactHookForm>["register"];
 export type SetValue = ReturnType<typeof ReactHookForm>["setValue"];
+export type HandleSubmit = ReturnType<typeof ReactHookForm>["handleSubmit"];
 export type Errors = Partial<Record<string, FieldError>>;
 export type TriggerValidation = (
   payload?:

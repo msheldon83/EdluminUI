@@ -43,24 +43,28 @@ export const ActiveInactiveFilter = (props: Props) => {
   );
 
   return (
-    <>
+    <div>
       <InputLabel>{t(label)}</InputLabel>
-      <Grid item>
+      <div>
         <FormControlLabel
           checked={
             isoFilters.active === true || isoFilters.active === undefined
           }
-          control={<Checkbox onChange={updateActiveFilter(true)} />}
+          control={
+            <Checkbox onChange={updateActiveFilter(true)} color="primary" />
+          }
           label={t(activeLabel)}
         />
         <FormControlLabel
           checked={
             isoFilters.active === false || isoFilters.active === undefined
           }
-          control={<Checkbox onChange={updateActiveFilter(false)} />}
+          control={
+            <Checkbox onChange={updateActiveFilter(false)} color="primary" />
+          }
           label={t(inactiveLabel)}
         />
-      </Grid>
-    </>
+      </div>
+    </div>
   );
 };

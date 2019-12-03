@@ -215,11 +215,13 @@ export const DatePicker = (props: DatePickerProps) => {
       setTimeout(() => setOpenCalendar(false), 10);
 
       switch (variant) {
-        case "single": {
+        case "single":
+        case "single-hidden": {
           handleCalendarSingleDateChange(date);
           break;
         }
-        case "range": {
+        case "range":
+        case "extended-range": {
           handleCalendarDateRangeChange(date);
           break;
         }

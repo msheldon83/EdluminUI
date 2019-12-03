@@ -161,38 +161,35 @@ export const View: React.FC<Props> = props => {
                       {t("Requires a substitute")}
                     </Typography>
                   </div>
-                  <VacancyDetails
-                    vacancies={
-                      absence.vacancies as Pick<
-                        Vacancy,
-                        | "startTimeLocal"
-                        | "endTimeLocal"
-                        | "numDays"
-                        | "positionId"
-                        | "details"
-                      >[]
-                    }
-                    equalWidthDetails
-                  />
-                  {props.isAdmin && (accountingCode || payCode) && (
-                    <Grid item container className={classes.subCodes}>
-                      {accountingCode && (
-                        <Grid item xs={payCode ? 6 : 12}>
-                          <Typography variant={"h6"}>
-                            {t("Accounting code")}
-                          </Typography>
-                          {accountingCode.name}
-                        </Grid>
-                      )}
-                      {payCode && (
-                        <Grid item xs={accountingCode ? 6 : 12}>
-                          <Typography variant={"h6"}>
-                            {t("Pay code")}
-                          </Typography>
-                          {payCode.name}
-                        </Grid>
-                      )}
-                    </Grid>
+                  {absence.vacancies && (
+                    <>
+                      <VacancyDetails
+                        vacancies={absence.vacancies as Vacancy[]}
+                        equalWidthDetails
+                      />
+                      <>
+                        {props.isAdmin && (accountingCode || payCode) && (
+                          <Grid item container className={classes.subCodes}>
+                            {accountingCode && (
+                              <Grid item xs={payCode ? 6 : 12}>
+                                <Typography variant={"h6"}>
+                                  {t("Accounting code")}
+                                </Typography>
+                                {accountingCode.name}
+                              </Grid>
+                            )}
+                            {payCode && (
+                              <Grid item xs={accountingCode ? 6 : 12}>
+                                <Typography variant={"h6"}>
+                                  {t("Pay code")}
+                                </Typography>
+                                {payCode.name}
+                              </Grid>
+                            )}
+                          </Grid>
+                        )}
+                      </>
+                    </>
                   )}
                   <div className={classes.notesForSubSection}>
                     <Typography variant={"h6"}>

@@ -1,0 +1,216 @@
+query GetDailyReport(
+  $orgId: ID!
+  $date: Date!
+  $locationIds: [Int]
+  $positionTypeIds: [Int]
+) {
+  absence {
+    dailyReport(
+      orgId: $orgId
+      date: $date
+      locationIds: $locationIds
+      positionTypeIds: $positionTypeIds
+    ) {
+      totalCount
+      filledAbsences {
+        id
+        startDate
+        endDate
+        createdLocal
+        employee {
+          id
+          firstName
+          lastName
+        }
+        details {
+          id
+          startDate
+          startTimeLocal
+          endDate
+          endTimeLocal
+          reasonUsages {
+            id
+            absenceReason {
+              id
+              name
+            }
+          }
+        }
+        vacancies {
+          id
+          position {
+            id
+            name
+          }
+          details {
+            id
+            startDate
+            startTimeLocal
+            endDate
+            endTimeLocal
+            location {
+              id
+              name
+            }
+            assignment {
+              id
+              employee {
+                id
+                firstName
+                lastName
+                phoneNumber
+              }
+            }
+          }
+        }
+      }
+      filledVacancies {
+        id
+        startDate
+        endDate
+        createdLocal
+        position {
+          id
+          name
+        }
+        details {
+          id
+          startDate
+          startTimeLocal
+          endDate
+          endTimeLocal
+          location {
+            id
+            name
+          }
+          assignment {
+            id
+            employee {
+              id
+              firstName
+              lastName
+              phoneNumber
+            }
+          }
+        }
+      }
+      unfilledAbsences {
+        id
+        startDate
+        endDate
+        createdLocal
+        employee {
+          id
+          firstName
+          lastName
+        }
+        details {
+          id
+          startDate
+          startTimeLocal
+          endDate
+          endTimeLocal
+          reasonUsages {
+            id
+            absenceReason {
+              id
+              name
+            }
+          }
+        }
+        vacancies {
+          id
+          position {
+            id
+            name
+          }
+          details {
+            id
+            startDate
+            startTimeLocal
+            endDate
+            endTimeLocal
+            location {
+              id
+              name
+            }
+            assignment {
+              id
+              employee {
+                id
+                firstName
+                lastName
+                phoneNumber
+              }
+            }
+          }
+        }
+      }
+      unfilledVacancies {
+        id
+        startDate
+        endDate
+        createdLocal
+        position {
+          id
+          name
+        }
+        details {
+          id
+          startDate
+          startTimeLocal
+          endDate
+          endTimeLocal
+          location {
+            id
+            name
+          }
+          assignment {
+            id
+            employee {
+              id
+              firstName
+              lastName
+              phoneNumber
+            }
+          }
+        }
+      }
+      noSubRequiredAbsences {
+        id
+        startDate
+        endDate
+        createdLocal
+        locationIds
+        locations {
+          id
+          name
+        }
+        positionTypeIds
+        positionTypes {
+          id
+          name
+        }
+        employee {
+          id
+          firstName
+          lastName
+        }
+        details {
+          id
+          startDate
+          startTimeLocal
+          endDate
+          endTimeLocal
+          reasonUsages {
+            id
+            absenceReason {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}

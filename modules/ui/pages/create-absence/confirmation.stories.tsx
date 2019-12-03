@@ -324,15 +324,13 @@ export const AsAdminWithAllInformation = () => {
 
   return (
     <Provider>
-      <Route path={AdminCreateAbsenceRoute.path}>
-        <Confirmation
-          orgId={"1000"}
-          absence={getAbsence("1", true, true)}
-          dispatch={() => {}}
-          disabledDates={disabledDates}
-          isAdmin={true}
-        />
-      </Route>
+      <Confirmation
+        orgId={"1000"}
+        absence={getAbsence("1", true, true)}
+        disabledDates={disabledDates}
+        setStep={() => {}}
+        isAdmin={true}
+      />
     </Provider>
   );
 };
@@ -355,15 +353,13 @@ export const AsAdminWithSimpleAbsence = () => {
 
   return (
     <Provider>
-      <Route path={AdminCreateAbsenceRoute.path}>
-        <Confirmation
-          orgId={"1000"}
-          absence={getAbsence("1", true, false)}
-          dispatch={() => {}}
-          disabledDates={disabledDates}
-          isAdmin={true}
-        />
-      </Route>
+      <Confirmation
+        orgId={"1000"}
+        absence={getAbsence("1", true, false)}
+        setStep={() => {}}
+        disabledDates={disabledDates}
+        isAdmin={true}
+      />
     </Provider>
   );
 };
@@ -386,15 +382,13 @@ export const AsAdminWithMinimumInformation = () => {
 
   return (
     <Provider>
-      <Route path={AdminCreateAbsenceRoute.path}>
-        <Confirmation
-          orgId={"1000"}
-          absence={getAbsence("2", false, false)}
-          dispatch={() => {}}
-          disabledDates={disabledDates}
-          isAdmin={true}
-        />
-      </Route>
+      <Confirmation
+        orgId={"1000"}
+        absence={getAbsence("2", false, false)}
+        disabledDates={disabledDates}
+        setStep={() => {}}
+        isAdmin={true}
+      />
     </Provider>
   );
 };

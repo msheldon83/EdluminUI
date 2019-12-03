@@ -27,7 +27,7 @@ import { MenuProps, NoticeProps } from "react-select/src/components/Menu";
 import { MultiValueProps } from "react-select/src/components/MultiValue";
 import { OptionProps } from "react-select/src/components/Option";
 
-type Props = {
+export type Props = {
   native?: boolean;
   multi?: boolean;
   value: SelectValueType;
@@ -44,6 +44,7 @@ type Props = {
   isClearable?: boolean;
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: (event: React.FocusEvent) => void;
+  name?: string;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
 };
@@ -115,6 +116,7 @@ export const NativeSelect: React.FC<Props> = props => {
         {props.label}
       </InputLabel>
       <MuiSelect
+        name={props.name}
         className={classes.nativeInput}
         native
         onChange={handleChange}
@@ -172,6 +174,7 @@ export const StyledSelect: React.FC<Props> = props => {
 
   return (
     <ReactSelect
+      name={props.name}
       classes={classes}
       styles={selectStyles}
       inputId="react-select-single"

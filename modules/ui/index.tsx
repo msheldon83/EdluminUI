@@ -47,7 +47,7 @@ import {
   PositionTypeViewLoader,
   PositionTypeViewRoute,
 } from "./routes/position-type";
-import { VerifyRoute, VerifyLoader } from "./routes/verify";
+import { VerifyRoute, VerifyLoader } from "./routes/absence-vacancy/verify";
 import { ConfigurationRoute, ConfigurationLoader } from "./routes/org-config";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
@@ -93,10 +93,6 @@ import {
   AccountingCodeRoute,
 } from "./routes/accounting-code";
 import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
-import {
-  AbsenceVacancyDailyReportRoute,
-  AbsenceVacancyDailyReportLoader,
-} from "./routes/absence-vacancy/daily-report";
 import { SchoolsRoute, SchoolsLoader } from "./routes/schools";
 import { SchoolGroupsRoute, SchoolGroupsLoader } from "./routes/school-groups";
 import {
@@ -127,6 +123,10 @@ import {
 
 import { ContractsLoader, ContractsRoute } from "./routes/contracts";
 import { EdluminTheme } from "./styles/mui-theme";
+import {
+  DailyReportLoader,
+  DailyReportRoute,
+} from "./routes/absence-vacancy/daily-report";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -283,10 +283,6 @@ export function App(props: {}) {
                         path={ContractsRoute.path}
                       />
                       <Route
-                        component={AbsenceVacancyDailyReportLoader}
-                        path={AbsenceVacancyDailyReportRoute.path}
-                      />
-                      <Route
                         component={SchoolsLoader}
                         path={SchoolsRoute.path}
                       />
@@ -318,6 +314,12 @@ export function App(props: {}) {
                         component={SecurityManagedOrganizationsLoader}
                         path={SecurityManagedOrganizationsRoute.path}
                       />
+
+                      <Route
+                        component={DailyReportLoader}
+                        path={DailyReportRoute.path}
+                      />
+
                       {/* This route handles unknown or underspecified routes and takes the
                           admin to their organization (or a switcher) */}
                       <Route path={AdminRootChromeRoute.path}>

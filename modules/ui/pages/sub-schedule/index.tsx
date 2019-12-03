@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
-import { ScheduleUI } from "ui/pages/sub-schedule/ui";
 
 type Props = {};
 
@@ -15,9 +14,5 @@ export const SubSchedule: React.FC<Props> = props => {
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
 
-  return (
-    <>
-      <ScheduleUI userId={userId} />
-    </>
-  );
+  return <></>;
 };
