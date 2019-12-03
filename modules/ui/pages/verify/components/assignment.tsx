@@ -27,8 +27,7 @@ export const Assignment: React.FC<Props> = props => {
 
   const vacancyDetailStartTime = parseISO(vacancyDetail.startTimeLocal);
   const vacancyDetailEndTime = parseISO(vacancyDetail.endTimeLocal);
-  const assignmentStartTime = parseISO(vacancyDetail.assignment!.startTimeLocal);
-  const assignmentEndTime = parseISO(vacancyDetail.assignment!.endTimeLocal);
+  // TODO Parse start and end time from the Absence Detail
 
   const parseDayPortion = (dayPortion: number) => {
     if (dayPortion < 0.5) {
@@ -69,13 +68,13 @@ export const Assignment: React.FC<Props> = props => {
           <Typography className={classes.lightText}>
             {`${parseDayPortion(vacancyDetail.dayPortion)} (${format(vacancyDetailStartTime, "h:mmaaa")}-${format(vacancyDetailEndTime, "h:mmaaa")})`}
           </Typography>
-          <Typography variant="h6">{`${format(assignmentStartTime, "h:mm aaa")} - ${format(assignmentEndTime, "h:mm aaa")}`}</Typography>
+          <Typography variant="h6">{`${format(vacancyDetailStartTime, "h:mm aaa")} - ${format(vacancyDetailEndTime, "h:mm aaa")}`}</Typography>
         </Grid>
         <Grid item xs={2}>
           <Typography className={classes.lightText}>
             {vacancyDetail.vacancy!.position!.name}
           </Typography>
-          <Typography variant="h6">{`Pay: ${vacancyDetail.payCode!.name}`}</Typography>
+          <Typography variant="h6">{`Pay: ${vacancyDetail.payCode?.name}`}</Typography>
         </Grid>
         <Grid item xs={2}>
           <Typography className={classes.lightText}>
