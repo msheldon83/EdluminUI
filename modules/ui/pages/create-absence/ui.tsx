@@ -45,16 +45,12 @@ import { AssignSub } from "./assign-sub/index";
 import { Confirmation } from "./confirmation";
 import { EditVacancies } from "./edit-vacancies";
 import { CreateAbsence } from "./graphql/create.gen";
-import {
-  GetEmployeeContractSchedule,
-  GetEmployeeContractScheduleQuery,
-  GetEmployeeContractScheduleQueryVariables,
-} from "./graphql/get-contract-schedule.gen";
 import { GetProjectedAbsenceUsage } from "./graphql/get-projected-absence-usage.gen";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { VacancyDetail } from "./types";
+import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 
 type Props = {
   firstName: string;
@@ -111,7 +107,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     register,
     handleSubmit,
     setValue,
-    formState,
     getValues,
     errors,
     triggerValidation,
@@ -152,20 +147,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "accountingCode", type: "custom" });
   register({ name: "payCode", type: "custom" });
 
-  const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
-    variables: {
-      id: state.employeeId,
-      fromDate: format(addMonths(state.viewingCalendarMonth, -1), "yyyy-M-d"),
-      toDate: format(
-        endOfMonth(addMonths(state.viewingCalendarMonth, 2)),
-        "yyyy-M-d"
-      ),
-    },
-  });
-
-  const disabledDates = useMemo(() => computeDisabledDates(contractSchedule), [
-    contractSchedule,
-  ]);
+  const disabledDates = useEmployeeDisabledDates(
+    state.employeeId,
+    state.viewingCalendarMonth
+  );
 
   const projectedVacanciesInput = useMemo(
     () =>
@@ -207,7 +192,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     },
     skip: projectedVacanciesInput === null,
     // fetchPolicy: "no-cache",
-    onError: error => {
+    onError: () => {
       // This shouldn't prevent the User from continuing on
       // with Absence Create. Any major issues will be caught
       // and reported back to them when calling the Create mutation.
@@ -334,7 +319,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       {/* {JSON.stringify(getValues())} */}
 
       <form
-        onSubmit={handleSubmit(async (data, e) => {
+        onSubmit={handleSubmit(async data => {
           const absence = await create(data);
           if (absence) {
             setAbsence(absence);
@@ -439,41 +424,6 @@ export type CreateAbsenceFormData = {
   vacancies?: AbsenceVacancyInput[];
   accountingCode?: string;
   payCode?: string;
-};
-
-const computeDisabledDates = (
-  queryResult: HookQueryResult<
-    GetEmployeeContractScheduleQuery,
-    GetEmployeeContractScheduleQueryVariables
-  >
-) => {
-  if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {
-    return [];
-  }
-  const dates = new Set<Date>();
-  queryResult.data.employee?.employeeContractSchedule?.forEach(contractDate => {
-    switch (contractDate?.calendarDayTypeId) {
-      case CalendarDayType.CancelledDay:
-      case CalendarDayType.Invalid:
-      case CalendarDayType.NonWorkDay: {
-        const theDate = startOfDay(parseISO(contractDate.date));
-        dates.add(theDate);
-      }
-    }
-  });
-  queryResult.data.employee?.employeeAbsenceSchedule?.forEach(absence => {
-    const startDate = absence?.startDate;
-    const endDate = absence?.endDate;
-    if (startDate && endDate) {
-      eachDayOfInterval({
-        start: parseISO(startDate),
-        end: parseISO(endDate),
-      }).forEach(day => {
-        dates.add(startOfDay(day));
-      });
-    }
-  });
-  return [...dates];
 };
 
 const buildAbsenceCreateInput = (

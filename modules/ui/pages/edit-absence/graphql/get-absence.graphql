@@ -1,0 +1,59 @@
+query GetAbsence($id: ID!) {
+  absence {
+    byId(id: $id) {
+      id
+      details {
+	reasonUsages {
+	  id
+	  amount
+	  sequence
+	  absenceReasonId
+	}
+      }
+      employeeId
+      organization {
+	id
+      }
+      startDate
+      endDate
+      numDays
+      totalDuration
+      totalDayPortion
+      employee {
+	id
+	firstName
+	lastName
+      }
+      vacancies {
+	id
+	startDate
+	endDate
+	position {
+	  id
+	  positionTypeId
+	  name
+	  needsReplacement
+	}
+	details {
+	  id
+	  startDate
+	  endDate
+	  dayPortion
+	  locationId
+	  payCodeId
+	  assignmentId
+	  accountingCodeAllocations {
+	    id
+	    accountingCode {
+	      id
+	      name
+	      description
+	      externalId
+	    }
+	    allocation
+	  }
+	}
+      }
+    }
+  }
+}
