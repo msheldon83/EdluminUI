@@ -1,19 +1,17 @@
+import {
+  NeedsReplacement,
+  Vacancy,
+  VacancyAvailability,
+  VacancyQualification,
+} from "graphql/server-types.gen";
 import * as React from "react";
+import { Route } from "react-router";
 import { mockProvider } from "test-helpers/mock-provider";
-import { CreateAbsence } from ".";
 import {
   AdminCreateAbsenceRoute,
   EmployeeCreateAbsenceRoute,
 } from "ui/routes/create-absence";
-import { Route } from "react-router";
 import { CreateAbsenceUI } from "./ui";
-import {
-  NeedsReplacement,
-  VacancyAvailability,
-  VacancyQualification,
-  CalendarDayType,
-  Vacancy,
-} from "graphql/server-types.gen";
 
 export default {
   title: "Pages/Create Absence",
@@ -87,8 +85,10 @@ export const AsAdmin = () => {
     organizationId: "1006",
     employeeId: "123",
   });
+
   const Provider = mockProvider({
     initialUrl: path,
+    logMissingMocks: true,
     mocks: {
       Query: () => ({
         orgRef_AbsenceReason: () => ({
@@ -121,11 +121,11 @@ export const AsAdmin = () => {
           firstName="Jane"
           lastName="Doe"
           employeeId="123"
-          organizationId="124"
+          organizationId="1006"
           userIsAdmin
           needsReplacement={NeedsReplacement.Yes}
           positionName="Math Teacher"
-          positionId={"1"}
+          positionId="1057"
         />
       </Route>
     </Provider>
@@ -169,7 +169,7 @@ export const AsEmployee = () => {
           firstName="Jane"
           lastName="Doe"
           employeeId="123"
-          organizationId="124"
+          organizationId="1006"
           userIsAdmin={false}
           needsReplacement={NeedsReplacement.Sometimes}
           positionName="Math Teacher"
@@ -217,7 +217,7 @@ export const AsSubNotNeededEmployee = () => {
           lastName="Doe"
           actingAsEmployee
           employeeId="123"
-          organizationId="124"
+          organizationId="1006"
           needsReplacement={NeedsReplacement.No}
           userIsAdmin={false}
           positionName="Math Teacher"

@@ -34,6 +34,13 @@ export type QueryIso<K extends string, T> = {
   iso: Isomorphism<Record<K, string>, T>;
 };
 
+function merge<T>(t: T, nT: Partial<T>): T {
+  if (typeof t === "object") {
+    return { ...t, ...nT };
+  }
+  return nT as T;
+}
+
 export const useQueryParamIso = <K extends string, T>(
   queryIso: QueryIso<K, T>
 ): [T, (newT: Partial<T>) => void] => {
@@ -41,7 +48,7 @@ export const useQueryParamIso = <K extends string, T>(
   const [raw, rawSet] = useQueryParams(defaults);
   const t = useMemo(() => iso.to(raw), [raw, iso]);
   const update = useCallback(
-    (nT: Partial<T>) => rawSet(iso.from({ ...t, ...nT })),
+    (nT: Partial<T>) => rawSet(iso.from(merge(t, nT))),
     [rawSet, iso, t]
   );
   return [t, update];

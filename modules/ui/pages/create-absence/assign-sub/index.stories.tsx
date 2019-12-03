@@ -110,7 +110,8 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        selectReplacementEmployee={() => Promise.resolve()}
+        setStep={() => {}}
+        setValue={() => {}}
         vacancies={
           [
             {
@@ -316,7 +317,8 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        selectReplacementEmployee={() => Promise.resolve()}
+        setStep={() => {}}
+        setValue={() => {}}
         vacancies={
           [
             {
@@ -337,7 +339,7 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
                     name: "Evans Elementary School",
                   },
                 },
-              ] as Maybe<VacancyDetail[]>,
+              ] as Maybe<VacancyDetail>[],
             },
           ] as Vacancy[]
         }
@@ -371,7 +373,8 @@ export const PrearrangeSubAsAdmin = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        selectReplacementEmployee={() => Promise.resolve()}
+        setStep={() => {}}
+        setValue={() => {}}
         vacancies={
           [
             {
@@ -426,7 +429,8 @@ export const PrearrangeSubAsEmployee = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        selectReplacementEmployee={() => Promise.resolve()}
+        setStep={() => {}}
+        setValue={() => {}}
         vacancies={
           [
             {

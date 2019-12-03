@@ -1,0 +1,11 @@
+query GetLocationsForEmployee($id: ID!) {
+  employee {
+    byId(id: $id) {
+      id
+      locations {
+        id
+        name
+      }
+    }
+  }
+}
