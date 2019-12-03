@@ -25,7 +25,7 @@ export const TopBar: React.FC<Props> = props => {
 
   return (
     <>
-      <AppBar position="sticky">
+      <AppBar position="sticky" elevation={0} className={classes.appBar}>
         <LoadingStateIndicator />
         <div className={props.contentClassName}>
           <Toolbar classes={mobileToolbarClasses}>
@@ -70,6 +70,9 @@ const useStyles = makeStyles(theme => ({
   avatar: {
     backgroundColor: theme.customColors.eduBlue,
     color: theme.customColors.white,
+  },
+  appBar: {
+    borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
   },
 }));
 

@@ -2,53 +2,59 @@ import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import {
   addMonths,
-  startOfMonth,
-  endOfMonth,
   eachDayOfInterval,
+  endOfMonth,
+  format,
+  isBefore,
+  isDate,
+  isEqual,
+  isValid,
   parseISO,
   startOfDay,
-  isEqual,
-  isBefore,
+  startOfMonth,
 } from "date-fns";
 import { useForm } from "forms";
 import {
-  useQueryBundle,
-  useMutationBundle,
   HookQueryResult,
+  useMutationBundle,
+  useQueryBundle,
 } from "graphql/hooks";
 import {
+  Absence,
+  AbsenceCreateInput,
+  AbsenceDetailCreateInput,
+  AbsenceReasonTrackingTypeId,
+  AbsenceVacancyInput,
+  CalendarDayType,
   DayPart,
   NeedsReplacement,
   Vacancy,
-  AbsenceCreateInput,
-  AbsenceDetailCreateInput,
-  Absence,
-  CalendarDayType,
-  AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
+import { convertStringToDate, isAfterDate } from "helpers/date";
+import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
+import { useQueryParamIso } from "hooks/query-params";
+import { useSnackbar } from "hooks/use-snackbar";
+import { compact, differenceWith, flatMap } from "lodash-es";
 import * as React from "react";
-import { useReducer, useState, useMemo } from "react";
+import { useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { AbsenceDetails } from "./absence-details";
-import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { AssignSub } from "./assign-sub/index";
-import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
-import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
-import { format, isValid, isDate } from "date-fns";
-import { isAfterDate } from "helpers/date";
-import { useHistory } from "react-router";
-import { CreateAbsence } from "./graphql/create.gen";
-import { useSnackbar } from "hooks/use-snackbar";
 import { Confirmation } from "./confirmation";
+import { EditVacancies } from "./edit-vacancies";
+import { CreateAbsence } from "./graphql/create.gen";
 import {
   GetEmployeeContractSchedule,
   GetEmployeeContractScheduleQuery,
   GetEmployeeContractScheduleQueryVariables,
 } from "./graphql/get-contract-schedule.gen";
-import { differenceWith, flatMap, compact } from "lodash-es";
 import { GetProjectedAbsenceUsage } from "./graphql/get-projected-absence-usage.gen";
+import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
+import { createAbsenceReducer, CreateAbsenceState } from "./state";
+import { StepParams } from "./step-params";
+import { VacancyDetail } from "./types";
 
 type Props = {
   firstName: string;
@@ -65,9 +71,11 @@ type Props = {
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const [absence, setAbsence] = useState<Absence>();
+
+  const [vacanciesInput, setVacanciesInput] = useState<VacancyDetail[]>();
+
   const [createAbsence] = useMutationBundle(CreateAbsence, {
     onError: error => {
       openSnackbar({
@@ -85,17 +93,18 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     },
   });
 
+  const [step, setStep] = useQueryParamIso(StepParams);
+
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
     props,
     initialState
   );
   const today = new Date();
-  const initialFormData: FormData = {
+  const initialFormData: CreateAbsenceFormData = {
     startDate: today,
     endDate: today,
     absenceReason: "",
-    needsReplacement: props.needsReplacement !== NeedsReplacement.No,
   };
 
   const {
@@ -106,7 +115,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     getValues,
     errors,
     triggerValidation,
-  } = useForm<FormData>({
+  } = useForm<CreateAbsenceFormData>({
     defaultValues: initialFormData,
   });
 
@@ -166,7 +175,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         Number(state.employeeId),
         Number(props.positionId),
         disabledDates,
-        false
+        vacanciesInput !== undefined,
+        state,
+        vacanciesInput
       ),
     [
       formValues.startDate,
@@ -175,8 +186,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       formValues.dayPart,
       formValues.hourlyStartTime,
       formValues.hourlyEndTime,
+      vacanciesInput,
+      state,
+      props.positionId,
+      disabledDates,
     ]
   );
+
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
       absence: projectedVacanciesInput!,
@@ -184,6 +200,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     skip: projectedVacanciesInput === null,
     onError: () => {},
   });
+
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
       absence: projectedVacanciesInput!,
@@ -197,11 +214,46 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     },
   });
 
-  const projectedVacancies = (getProjectedVacancies.state === "LOADING" ||
-  getProjectedVacancies.state === "UPDATING"
-    ? []
-    : getProjectedVacancies.data?.absence?.projectedVacancies ??
-      []) as Vacancy[];
+  const projectedVacancyDetails: VacancyDetail[] = useMemo(() => {
+    /* cf 2019-11-25
+    we don't currently support having multiple AbsenceVacancyInputs on this page.
+    as such, this projection can't handle that case
+    */
+    if (
+      !(
+        getProjectedVacancies.state === "DONE" ||
+        getProjectedVacancies.state === "UPDATING"
+      )
+    ) {
+      return [];
+    }
+    const vacancies = getProjectedVacancies.data.absence?.projectedVacancies;
+    if (!vacancies || vacancies.length < 1) {
+      return [];
+    }
+    return (vacancies[0]?.details ?? [])
+      .map(d => ({
+        date: d?.startDate,
+        locationId: d?.locationId,
+        startTime: d?.startTimeLocal,
+        endTime: d?.endTimeLocal,
+      }))
+      .filter(
+        (detail): detail is VacancyDetail =>
+          detail.locationId && detail.date && detail.startTime && detail.endTime
+      );
+  }, [getProjectedVacancies.state]);
+
+  const theVacancyDetails: VacancyDetail[] =
+    vacanciesInput || projectedVacancyDetails;
+
+  const projectedVacancies =
+    getProjectedVacancies.state === "LOADING" ||
+    getProjectedVacancies.state === "UPDATING"
+      ? []
+      : (compact(
+          getProjectedVacancies.data?.absence?.projectedVacancies ?? []
+        ) as Vacancy[]);
 
   const absenceUsageText = useMemo(() => {
     /*
@@ -242,39 +294,16 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const name = `${props.firstName} ${props.lastName}`;
 
-  const params = new URLSearchParams(history.location.search);
-  if (!params.has("action") && state.step !== "absence") {
-    dispatch({
-      action: "switchStep",
-      step: "absence",
-    });
-  }
-
-  const selectReplacementEmployee = async (
-    replacementEmployeeId: number,
-    name: string
-  ) => {
-    await setValue("replacementEmployeeId", replacementEmployeeId);
-    await setValue("replacementEmployeeName", name);
-
-    history.push({
-      ...history.location,
-      search: "",
-    });
-    dispatch({
-      action: "switchStep",
-      step: "absence",
-    });
-  };
-
-  const create = async (formValues: FormData) => {
+  const create = async (formValues: CreateAbsenceFormData) => {
     const absenceCreateInput = buildAbsenceCreateInput(
       formValues,
       Number(state.organizationId),
       Number(state.employeeId),
       Number(props.positionId),
       disabledDates,
-      true
+      true,
+      state,
+      theVacancyDetails
     );
     if (!absenceCreateInput) {
       return null;
@@ -289,6 +318,15 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     return result?.data?.absence?.create as Absence;
   };
 
+  const onChangedVacancies = React.useCallback(
+    (vacancyDetails: VacancyDetail[]) => {
+      setStep("absence");
+      setVacanciesInput(vacancyDetails);
+    },
+    [setVacanciesInput, setStep]
+  );
+  const onCancel = React.useCallback(() => setStep("absence"), [setStep]);
+
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
@@ -300,18 +338,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           const absence = await create(data);
           if (absence) {
             setAbsence(absence);
-            history.push({
-              ...history.location,
-              search: "?action=success",
-            });
-            dispatch({
-              action: "switchStep",
-              step: "confirmation",
-            });
+            setStep("confirmation");
           }
         })}
       >
-        {state.step === "absence" && (
+        {step === "absence" && (
           <>
             {props.actingAsEmployee ? (
               <Typography variant="h1">{t("Create absence")}</Typography>
@@ -326,19 +357,21 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 state={state}
                 dispatch={dispatch}
                 setValue={setValue}
-                values={getValues()}
+                values={formValues}
                 errors={errors}
                 triggerValidation={triggerValidation}
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
+                setStep={setStep}
                 disabledDates={disabledDates}
                 balanceUsageText={absenceUsageText || undefined}
+                setVacanciesInput={setVacanciesInput}
               />
             </Section>
           </>
         )}
-        {state.step === "assignSub" && (
+        {step === "preAssignSub" && (
           <AssignSub
             orgId={props.organizationId}
             userIsAdmin={props.userIsAdmin}
@@ -347,19 +380,31 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             positionId={props.positionId}
             positionName={props.positionName}
             vacancies={projectedVacancies}
-            selectReplacementEmployee={selectReplacementEmployee}
+            setStep={setStep}
+            setValue={setValue}
           />
         )}
-        {state.step === "confirmation" && (
+        {step === "confirmation" && (
           <Confirmation
             orgId={props.organizationId}
             absence={absence}
-            dispatch={dispatch}
+            setStep={setStep}
             disabledDates={disabledDates}
             isAdmin={props.userIsAdmin}
           />
         )}
       </form>
+      {step === "edit" && (
+        <EditVacancies
+          actingAsEmployee={props.actingAsEmployee}
+          employeeName={name}
+          positionName={props.positionName}
+          onCancel={onCancel}
+          details={projectedVacancyDetails}
+          onChangedVacancies={onChangedVacancies}
+          employeeId={props.employeeId}
+        />
+      )}
     </>
   );
 };
@@ -376,11 +421,11 @@ const useStyles = makeStyles(theme => ({
 const initialState = (props: Props): CreateAbsenceState => ({
   employeeId: props.employeeId,
   organizationId: props.organizationId,
-  step: "absence",
   viewingCalendarMonth: startOfMonth(new Date()),
+  needsReplacement: props.needsReplacement !== NeedsReplacement.No,
 });
 
-export type FormData = {
+export type CreateAbsenceFormData = {
   startDate: Date;
   endDate: Date;
   absenceReason: string;
@@ -389,9 +434,9 @@ export type FormData = {
   hourlyEndTime?: Date;
   notesToApprover?: string;
   notesToReplacement?: string;
-  needsReplacement: boolean;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
+  vacancies?: AbsenceVacancyInput[];
   accountingCode?: string;
   payCode?: string;
 };
@@ -432,12 +477,14 @@ const computeDisabledDates = (
 };
 
 const buildAbsenceCreateInput = (
-  formValues: FormData,
+  formValues: CreateAbsenceFormData,
   organizationId: number,
   employeeId: number,
   positionId: number,
   disabledDates: Date[],
-  includeVacancies: boolean
+  includeVacancies: boolean,
+  state: CreateAbsenceState,
+  vacancyDetails?: VacancyDetail[]
 ) => {
   if (
     !formValues.startDate ||
@@ -525,6 +572,17 @@ const buildAbsenceCreateInput = (
     }),
   };
 
+  const vDetails =
+    vacancyDetails?.map(v => ({
+      ...v,
+      startTime: secondsSinceMidnight(
+        parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
+      ),
+      endTime: secondsSinceMidnight(
+        parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
+      ),
+    })) || undefined;
+
   // Populate the Vacancies on the Absence if needed
   if (includeVacancies) {
     absence = {
@@ -535,9 +593,11 @@ const buildAbsenceCreateInput = (
       vacancies: [
         {
           positionId: positionId,
-          needsReplacement: formValues.needsReplacement,
+          useSuppliedDetails: true,
+          needsReplacement: state.needsReplacement,
           notesToReplacement: formValues.notesToReplacement,
           prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
+          details: vDetails,
           accountingCodeAllocations: formValues.accountingCode
             ? [
                 {

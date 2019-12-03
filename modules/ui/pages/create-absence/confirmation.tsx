@@ -1,21 +1,21 @@
-import * as React from "react";
+import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
 import { Absence } from "graphql/server-types.gen";
-import { Grid, makeStyles, Typography, Button } from "@material-ui/core";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { CreateAbsenceActions } from "./state";
-import { Section } from "ui/components/section";
+import { Link } from "react-router-dom";
 import { View as AbsenceView } from "ui/components/absence/view";
-import { useRouteParams } from "ui/routes/definition";
+import { Section } from "ui/components/section";
 import {
   AdminSelectEmployeeForCreateAbsenceRoute,
   EmployeeCreateAbsenceRoute,
 } from "ui/routes/create-absence";
-import { Link } from "react-router-dom";
+import { useRouteParams } from "ui/routes/definition";
+import { Step } from "./step-params";
 
 type Props = {
   orgId: string;
   absence: Absence | undefined;
-  dispatch: React.Dispatch<CreateAbsenceActions>;
+  setStep: (s: Step) => void;
   disabledDates: Date[];
   isAdmin: boolean;
 };
@@ -31,10 +31,8 @@ export const Confirmation: React.FC<Props> = props => {
 
   if (!props.absence) {
     // Redirect the User back to the Absence Details step
-    props.dispatch({
-      action: "switchStep",
-      step: "absence",
-    });
+    props.setStep("absence");
+
     return null;
   }
 

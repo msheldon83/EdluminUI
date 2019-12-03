@@ -172,7 +172,7 @@ export const EdluminTheme = createMuiTheme({
     },
     MuiTableCell: {
       root: {
-        borderBottom: `${pxToRem(1)} solid ${themeColors.gray}`,
+        borderBottom: 0,
       },
     },
     MuiTooltip: {

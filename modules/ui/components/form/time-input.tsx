@@ -8,17 +8,19 @@ import {
 } from "../../../helpers/time";
 import { Input } from "./input";
 
-type Props = {
+export type Props = {
   label: string;
   value?: string;
+  name?: string;
   onChange: (value: string) => void;
   onValidTime: (value: string) => void;
   earliestTime?: string;
+  ref?: React.Ref<any>;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
 };
 
-export const TimeInput = (props: Props) => {
+export const TimeInput = React.forwardRef((props: Props, ref) => {
   //2019-11-04T06:00:00.000Z/
   const {
     earliestTime,
@@ -26,6 +28,7 @@ export const TimeInput = (props: Props) => {
     label,
     value = "",
     onChange,
+    name,
     inputStatus = "default",
     validationMessage,
   } = props;
@@ -51,11 +54,13 @@ export const TimeInput = (props: Props) => {
   return (
     <Input
       label={label}
+      name={name}
       value={parsedValue}
       onChange={event => onChange(event.target.value)}
       onBlur={handleBlur}
+      inputRef={ref}
       inputStatus={inputStatus}
       validationMessage={validationMessage}
     />
   );
-};
+});

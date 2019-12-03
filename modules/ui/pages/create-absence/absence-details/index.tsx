@@ -4,7 +4,6 @@ import {
   Grid,
   makeStyles,
   Paper,
-  TextField,
   Typography,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -22,7 +21,6 @@ import {
 import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
@@ -32,34 +30,37 @@ import {
   DatePickerOnChange,
   DatePickerOnMonthChange,
 } from "ui/components/form/date-picker";
+import { Input } from "ui/components/form/input";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
-import { Input } from "ui/components/form/input";
-import { VacancyDetails } from "../../components/absence/vacancy-details";
-import { CreateAbsenceActions, CreateAbsenceState } from "./state";
-import { FormData } from "./ui";
-import { useAccountingCodes } from "reference-data/accounting-codes";
-import { usePayCodes } from "reference-data/pay-codes";
+import { CreateAbsenceActions, CreateAbsenceState } from "../state";
+import { Step } from "../step-params";
+import { CreateAbsenceFormData } from "../ui";
+import { SubstituteRequiredDetails } from "./substitute-required-details";
+import { VacancyDetail } from "../types";
 
 type Props = {
   state: CreateAbsenceState;
   dispatch: React.Dispatch<CreateAbsenceActions>;
   setValue: SetValue;
-  values: FormData;
+  values: CreateAbsenceFormData;
   errors: Errors;
   triggerValidation: TriggerValidation;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
   vacancies: Vacancy[];
+  setStep: (S: Step) => void;
   disabledDates: Date[];
   balanceUsageText?: string;
+  setVacanciesInput: React.Dispatch<
+    React.SetStateAction<VacancyDetail[] | undefined>
+  >;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
-  const history = useHistory();
   const {
     state,
     setValue,
@@ -106,10 +107,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [setValue, triggerValidation]
   );
 
-  const [showNotesForReplacement, setShowNotesForReplacement] = useState(
-    needsReplacement !== NeedsReplacement.No
-  );
-
   const absenceReasons = useAbsenceReasons(state.organizationId);
   const absenceReasonOptions = useMemo(
     () => absenceReasons.map(r => ({ label: r.name, value: r.id })),
@@ -128,23 +125,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     }
   }, [dayPartOptions]);
 
-  const accountingCodes = useAccountingCodes(state.organizationId);
-  const accountingCodeOptions = useMemo(
-    () => accountingCodes.map(c => ({ label: c.name, value: c.id })),
-    [accountingCodes]
-  );
-  const payCodes = usePayCodes(state.organizationId);
-  const payCodeOptions = useMemo(
-    () => payCodes.map(c => ({ label: c.name, value: c.id })),
-    [payCodes]
-  );
-
   const onDateChange: DatePickerOnChange = React.useCallback(
     async ({ startDate, endDate }) => {
       await setValue("startDate", startDate);
       await setValue("endDate", endDate);
+      /* Clear vacancy input */ props.setVacanciesInput(undefined);
     },
-    [setValue]
+    [setValue, props.setVacanciesInput]
   );
   const onReasonChange = React.useCallback(
     async event => {
@@ -156,9 +143,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
   const onDayPartChange = React.useCallback(
     async event => {
+      /* Clear vacancy input */ props.setVacanciesInput(undefined);
       await setValue("dayPart", event.target.value);
     },
-    [setValue]
+    [setValue, props.setVacanciesInput]
   );
 
   const onNotesToApproverChange = React.useCallback(
@@ -167,19 +155,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
     },
     [setValue]
   );
-  const onNotesToReplacementChange = React.useCallback(
-    async event => {
-      await setValue("notesToReplacement", event.target.value);
-    },
-    [setValue]
-  );
 
   const onNeedsReplacementChange = React.useCallback(
-    async event => {
-      setShowNotesForReplacement(event.target.checked);
-      await setValue("needsReplacement", event.target.checked);
+    event => {
+      dispatch({ action: "setNeedsReplacement", to: event.target.checked });
     },
-    [setValue, setShowNotesForReplacement]
+    [dispatch]
   );
 
   const onMonthChange: DatePickerOnMonthChange = React.useCallback(
@@ -193,28 +174,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     await setValue("replacementEmployeeId", undefined);
     await setValue("replacementEmployeeName", undefined);
   };
-
-  const onAccountingCodeChange = React.useCallback(
-    async event => {
-      await setValue("accountingCode", event?.value);
-      await triggerValidation({ name: "accountingCode" });
-    },
-    [setValue, triggerValidation]
-  );
-
-  const onPayCodeChange = React.useCallback(
-    async event => {
-      await setValue("payCode", event?.value);
-      await triggerValidation({ name: "payCode" });
-    },
-    [setValue, triggerValidation]
-  );
-
-  const hasVacancies = !!(props.vacancies && props.vacancies.length);
-  const hasAccountingCodeOptions = !!(
-    accountingCodeOptions && accountingCodeOptions.length
-  );
-  const hasPayCodeOptions = !!(payCodeOptions && payCodeOptions.length);
 
   return (
     <Grid container>
@@ -337,7 +296,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 label={t("Requires a substitute")}
                 control={
                   <Checkbox
-                    checked={values.needsReplacement}
+                    checked={state.needsReplacement}
                     onChange={onNeedsReplacementChange}
                     color="primary"
                   />
@@ -351,102 +310,20 @@ export const AbsenceDetails: React.FC<Props> = props => {
               </Typography>
             )}
 
-            {values.needsReplacement && (
-              <VacancyDetails vacancies={props.vacancies} equalWidthDetails />
+            {state.needsReplacement && (
+              <SubstituteRequiredDetails
+                setValue={setValue}
+                vacancies={props.vacancies}
+                setStep={props.setStep}
+                replacementEmployeeName={values.replacementEmployeeName}
+                replacementEmployeeId={values.replacementEmployeeId}
+                organizationId={state.organizationId}
+                triggerValidation={triggerValidation}
+                values={values}
+                errors={errors}
+                isAdmin={!!isAdmin}
+              />
             )}
-
-            {values.needsReplacement &&
-              isAdmin &&
-              (hasAccountingCodeOptions || hasPayCodeOptions) && (
-                <Grid item container spacing={4} className={classes.aubCodes}>
-                  {hasAccountingCodeOptions && (
-                    <Grid item xs={hasPayCodeOptions ? 6 : 12}>
-                      <Typography>{t("Accounting code")}</Typography>
-                      <Select
-                        value={{
-                          value: values.accountingCode,
-                          label:
-                            accountingCodeOptions.find(
-                              a => a.value === values.accountingCode
-                            )?.label || "",
-                        }}
-                        onChange={onAccountingCodeChange}
-                        options={accountingCodeOptions}
-                        isClearable={!!values.accountingCode}
-                        inputStatus={
-                          errors.accountingCode ? "error" : undefined
-                        }
-                        validationMessage={errors.accountingCode?.message}
-                      />
-                    </Grid>
-                  )}
-                  {hasPayCodeOptions && (
-                    <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
-                      <Typography>{t("Pay code")}</Typography>
-                      <Select
-                        value={{
-                          value: values.payCode,
-                          label:
-                            payCodeOptions.find(a => a.value === values.payCode)
-                              ?.label || "",
-                        }}
-                        onChange={onPayCodeChange}
-                        options={payCodeOptions}
-                        isClearable={!!values.payCode}
-                        inputStatus={errors.payCode ? "error" : undefined}
-                        validationMessage={errors.payCode?.message}
-                      />
-                    </Grid>
-                  )}
-                </Grid>
-              )}
-
-            {showNotesForReplacement && (
-              <div className={classes.notesForReplacement}>
-                <Typography variant="h6">
-                  {t("Notes for substitute")}
-                </Typography>
-                <Typography
-                  className={[
-                    classes.subText,
-                    classes.substituteDetailsSubtitle,
-                  ].join(" ")}
-                >
-                  {t(
-                    "Can be seen by the substitute, administrator and employee."
-                  )}
-                </Typography>
-                <Input
-                  name="notesToReplacement"
-                  multiline
-                  rows="6"
-                  onChange={onNotesToReplacementChange}
-                  classes={textFieldClasses}
-                />
-              </div>
-            )}
-
-            <div>
-              {values.needsReplacement &&
-                !values.replacementEmployeeId &&
-                hasVacancies && (
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      history.push({
-                        ...history.location,
-                        search: "?action=assign",
-                      });
-                      props.dispatch({
-                        action: "switchStep",
-                        step: "assignSub",
-                      });
-                    }}
-                  >
-                    {t("Pre-arrange")}
-                  </Button>
-                )}
-            </div>
           </div>
         </Paper>
       </Grid>
@@ -500,12 +377,6 @@ const useStyles = makeStyles(theme => ({
   },
   notesForApprover: {
     paddingTop: theme.spacing(3),
-  },
-  notesForReplacement: {
-    paddingTop: theme.spacing(3),
-  },
-  aubCodes: {
-    paddingTop: theme.spacing(2),
   },
   usageTextContainer: {
     display: "flex",

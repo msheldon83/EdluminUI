@@ -33,8 +33,8 @@ export const PageTitle: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   header: {
-    marginBottom: theme.spacing(2),
-    fontSize: theme.typography.pxToRem(34),
-    fontWeight: 500,
+    letterSpacing: theme.typography.pxToRem(-1.5),
+    lineHeight: theme.typography.pxToRem(64),
+    marginBottom: theme.spacing(3),
   },
 }));
