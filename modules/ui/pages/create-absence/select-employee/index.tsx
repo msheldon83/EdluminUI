@@ -8,6 +8,8 @@ import * as React from "react";
 import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
+import Typography from "@material-ui/core/Typography";
+import { PageTitle } from "ui/components/page-title";
 import { Input } from "ui/components/form/input";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Section } from "ui/components/section";
@@ -107,6 +109,8 @@ export const SelectEmployee: React.FC<Props> = props => {
 
   return (
     <>
+      <Typography variant="h5">{t("Select an employee")}</Typography>
+      <PageTitle title={t("Create absence")} />
       <Section>
         <div className={classes.nameFieldContainer}>
           <Input

@@ -18,7 +18,6 @@ export const TextField: React.FunctionComponent<TextFieldProps> = props => {
 
   return (
     <Field
-      component={Input}
       as={MUITextField}
       className={classes.alignCenter}
       error={showError}
