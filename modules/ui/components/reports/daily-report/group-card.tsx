@@ -16,11 +16,12 @@ import { TFunction } from "i18next";
 type Props = {
   cardType: CardType;
   details: Detail[];
-  totalContractedEmployeeCount: number | null;
-  totalAwaitingVerificationCount?: number;
+  countOverride?: number;
+  totalOverride?: number;
   onClick: (c: CardType) => void;
   activeCard?: CardType | undefined;
   showPercentInLabel?: boolean;
+  showFractionCount?: boolean;
 };
 
 type CardData = {
@@ -40,8 +41,8 @@ export const GroupCard: React.FC<Props> = props => {
   const data = getCardData(
     props.cardType,
     props.details,
-    props.totalContractedEmployeeCount ?? 0,
-    props.totalAwaitingVerificationCount ?? 0,
+    props.countOverride,
+    props.totalOverride,
     classes,
     t
   );
@@ -92,7 +93,9 @@ export const GroupCard: React.FC<Props> = props => {
         >
           <div className={classes.cardContent}>
             <Typography variant="h5" className={data.countClass}>
-              {data.count}
+              {props.showFractionCount && data.count !== data.total
+                ? `${data.count}/${data.total}`
+                : data.count}
             </Typography>
             <Typography variant="h6" className={classes.cardSubText}>
               {props.showPercentInLabel ? percentLabel : data.label}
@@ -190,8 +193,8 @@ const useStyles = makeStyles(theme => ({
 const getCardData = (
   cardType: CardType,
   details: Detail[],
-  totalContractedEmployeeCount: number,
-  totalAwaitingVerificationCount: number,
+  countOverride?: number,
+  totalOverride?: number,
   classes: any,
   t: TFunction
 ): CardData | undefined => {
@@ -200,8 +203,12 @@ const getCardData = (
     case "unfilled": {
       data = {
         type: "unfilled",
-        count: details.filter(x => x.state === "unfilled").length,
-        total: details.length,
+        count:
+          countOverride ?? details.filter(x => x.state === "unfilled").length,
+        total:
+          totalOverride ??
+          details.filter(x => x.state === "unfilled" || x.state === "filled")
+            .length,
         label: t("Unfilled"),
         countClass: classes.unfilledCount,
         barClass: classes.unfilledCardBar,
@@ -212,8 +219,12 @@ const getCardData = (
     case "filled": {
       data = {
         type: "filled",
-        count: details.filter(x => x.state === "filled").length,
-        total: details.length,
+        count:
+          countOverride ?? details.filter(x => x.state === "filled").length,
+        total:
+          totalOverride ??
+          details.filter(x => x.state === "unfilled" || x.state === "filled")
+            .length,
         label: t("Filled"),
         countClass: classes.filledCount,
         barClass: classes.filledCardBar,
@@ -224,8 +235,10 @@ const getCardData = (
     case "noSubRequired": {
       data = {
         type: "noSubRequired",
-        count: details.filter(x => x.state === "noSubRequired").length,
-        total: details.length,
+        count:
+          countOverride ??
+          details.filter(x => x.state === "noSubRequired").length,
+        total: totalOverride ?? details.length,
         label: t("No sub required"),
         countClass: classes.noSubRequiredCount,
         barClass: classes.noSubRequiredCardBar,
@@ -236,8 +249,8 @@ const getCardData = (
     case "total": {
       data = {
         type: "total",
-        count: details.length,
-        total: totalContractedEmployeeCount,
+        count: countOverride ?? details.length,
+        total: totalOverride ?? 0,
         label: t("Total"),
         countClass: classes.totalCount,
         barClass: classes.totalCardBar,
@@ -248,8 +261,8 @@ const getCardData = (
     case "awaitingVerification": {
       data = {
         type: "awaitingVerification",
-        count: totalAwaitingVerificationCount,
-        total: totalAwaitingVerificationCount,
+        count: countOverride ?? 0,
+        total: totalOverride ?? 0,
         label: t("Awaiting verification"),
         countClass: classes.awaitingVerificationCount,
         barClass: classes.awaitingVerificationCardBar,

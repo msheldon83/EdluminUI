@@ -52,6 +52,7 @@ type Props = {
   showFilters?: boolean;
   cards: CardType[];
   selectedCard?: CardType;
+  isHomePage?: boolean;
 };
 
 export const DailyReport: React.FC<Props> = props => {
@@ -106,7 +107,7 @@ export const DailyReport: React.FC<Props> = props => {
       });
       props.setDate(startOfToday());
     }
-  }, [selectedCard, props.date]);
+  }, [selectedCard, props.date]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const serverQueryFilters = useMemo(() => filters, [
     filters.date,
@@ -338,18 +339,29 @@ export const DailyReport: React.FC<Props> = props => {
           className={classes.cardContainer}
         >
           {props.cards.map((c, i) => {
+            let countOverride = undefined;
+            let totalOverride = undefined;
+
+            if (c === "total") {
+              totalOverride = totalContractedEmployeeCount ?? 0;
+            } else if (c === "awaitingVerification") {
+              countOverride = awaitingVerificationCount ?? 0;
+              totalOverride = awaitingVerificationCount ?? 0;
+            }
+
             return (
               <Grid item key={i}>
                 <GroupCard
                   cardType={c}
                   details={allDetails}
-                  totalContractedEmployeeCount={totalContractedEmployeeCount}
-                  totalAwaitingVerificationCount={awaitingVerificationCount}
+                  countOverride={countOverride}
+                  totalOverride={totalOverride}
                   onClick={(c: CardType) => {
                     setSelectedCard(c === "total" ? undefined : c);
                   }}
                   activeCard={selectedCard}
                   showPercentInLabel={c !== "awaitingVerification"}
+                  showFractionCount={props.isHomePage && c === "unfilled"}
                 />
               </Grid>
             );

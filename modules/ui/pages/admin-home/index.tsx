@@ -90,6 +90,7 @@ export const AdminHome: React.FC<Props> = props => {
         showFilters={false}
         cards={["unfilled", "total", "awaitingVerification"]}
         selectedCard={selectedCard}
+        isHomePage={true}
       />
     </>
   );
