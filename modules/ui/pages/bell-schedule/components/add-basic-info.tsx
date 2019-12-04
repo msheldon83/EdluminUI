@@ -117,9 +117,11 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
                     fullWidth: true,
-                    tesT: "test",
                   }}
                 />
+                <FormHelperText className={classes.formHelperText}>
+                  {t("Usually used for data integrations")}
+                </FormHelperText>
               </Grid>
               <Grid item xs={12}>
                 <RadioGroup
@@ -199,6 +201,10 @@ const useStyles = makeStyles(theme => ({
   radioHelperText: {
     marginTop: 0,
     marginLeft: theme.spacing(4),
+  },
+  formHelperText: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
   },
   periodScheduleSubItems: {
     marginTop: theme.spacing(),

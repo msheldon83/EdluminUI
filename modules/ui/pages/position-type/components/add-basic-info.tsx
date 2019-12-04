@@ -1,4 +1,4 @@
-import { Grid, Typography } from "@material-ui/core";
+import { Grid, makeStyles, FormHelperText } from "@material-ui/core";
 import { Formik } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import * as yup from "yup";
+import * as Yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { Input } from "ui/components/form/input";
 
@@ -22,29 +22,38 @@ type Props = {
 };
 
 export const AddBasicInfo: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
+  const classes = useStyles();
+
+  const initialValues = {
+    name: props.positionType.name,
+    externalId: props.positionType.externalId || "",
+  };
+
+  const validateBasicDetails = React.useMemo(
+    () =>
+      Yup.object().shape({
+        name: Yup.string()
+          .nullable()
+          .required(t("Name is required")),
+        externalId: Yup.string().nullable(),
+      }),
+    [t]
+  );
 
   return (
     <Section>
       <SectionHeader title={t("Basic info")} />
       <Formik
-        initialValues={{
-          name: props.positionType.name,
-          externalId: props.positionType.externalId || "",
-        }}
-        onSubmit={(data, meta) => {
+        initialValues={initialValues}
+        validationSchema={validateBasicDetails}
+        onSubmit={async (data: any) => {
+          console.log(data);
           props.onSubmit(data.name, data.externalId);
         }}
-        validationSchema={yup.object().shape({
-          name: yup
-            .string()
-            .nullable()
-            .required(t("Name is required")),
-          externalId: yup.string().nullable(),
-        })}
       >
-        {({ handleSubmit, handleChange, values, submitForm }) => (
+        {({ handleSubmit, handleChange, submitForm, values }) => (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={isMobile ? 2 : 8}>
               <Grid item xs={12} sm={6} lg={6}>
@@ -72,10 +81,12 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     name: "externalId",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
-                    helperText: t("Usually used for data integrations"),
                     fullWidth: true,
                   }}
                 />
+                <FormHelperText className={classes.formHelperText}>
+                  {t("Usually used for data integrations")}
+                </FormHelperText>
               </Grid>
             </Grid>
             <ActionButtons
@@ -88,3 +99,10 @@ export const AddBasicInfo: React.FC<Props> = props => {
     </Section>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  formHelperText: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(2),
+  },
+}));
