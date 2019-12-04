@@ -49,7 +49,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
         initialValues={initialValues}
         validationSchema={validateBasicDetails}
         onSubmit={async (data: any) => {
-          console.log(data);
           props.onSubmit(data.name, data.externalId);
         }}
       >
