@@ -8,51 +8,57 @@ import format from "date-fns/format";
 import isWeekend from "date-fns/isWeekend";
 import startOfWeek from "date-fns/startOfWeek";
 import isSameDay from "date-fns/isSameDay";
+import getDaysInMonth from "date-fns/getDaysInMonth";
+import lastDayOfMonth from "date-fns/lastDayOfMonth";
+import startOfMonth from "date-fns/startOfMonth";
+import getDay from "date-fns/getDay";
 
-type FiveWeekCalendarProps = {
-  disableWeekends?: boolean;
+type SingleMonthCalendarProps = {
+  month: Date;
   disabledDates?: Array<Date>;
   selectedDates?: Array<Date>;
-  startDate?: Date;
 };
 
-export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
-  const {
-    selectedDates = [],
-    disabledDates = [],
-    disableWeekends = false,
-    startDate = new Date(),
-  } = props;
+export const SingleMonthCalendar = (props: SingleMonthCalendarProps) => {
+  const { selectedDates = [], month, disabledDates = [] } = props;
 
   const classes = useStyles();
 
-  const startingSunday = startOfWeek(startDate);
-  const endDate = addDays(startingSunday, 34);
-  const daysList = eachDayOfInterval({ start: startingSunday, end: endDate });
-  const firstDay = format(startingSunday, "LLL d");
-  const lastDay = format(daysList[daysList.length - 1], "LLL d");
+  const firstDay = startOfMonth(month);
+  const lastDay = lastDayOfMonth(month);
+  const firstDayOfMonthNumber = getDay(firstDay);
+  const daysList = eachDayOfInterval({ start: firstDay, end: lastDay });
+  const monthTitle = format(month, "MMMM yyyy");
 
-  const renderDates = () =>
-    daysList.map(date => {
+  const renderDates = () => {
+    return daysList.map((date, index) => {
       const day = format(date, "d");
       const formattedDate = format(date, "yyyy-MM-dd");
 
-      const isDisabled =
-        (disableWeekends && isWeekend(date)) ||
-        disabledDates.find(disabledDate => isSameDay(disabledDate, date));
+      const isDisabled = disabledDates.find(disabledDate =>
+        isSameDay(disabledDate, date)
+      );
       const isSelected = selectedDates.find(selectedDate =>
         isSameDay(selectedDate, date)
       );
 
-      const classNames = clsx({
+      const itemStyle =
+        index === 0 ? { gridColumn: firstDayOfMonthNumber + 1 } : {};
+
+      const buttonClassNames = clsx({
         [classes.dayButton]: true,
         [classes.daySelected]: isSelected,
         [classes.dayDisabled]: isDisabled,
       });
 
       return (
-        <li className={classes.date} role="gridcell" key={formattedDate}>
-          <Button className={classNames} disableFocusRipple disableRipple>
+        <li
+          className={classes.date}
+          style={itemStyle}
+          role="gridcell"
+          key={formattedDate}
+        >
+          <Button className={buttonClassNames} disableFocusRipple disableRipple>
             <time className={classes.dayButtonTime} dateTime={formattedDate}>
               {day}
             </time>
@@ -60,6 +66,7 @@ export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
         </li>
       );
     });
+  };
 
   const renderDayOfWeek = (day: string) => (
     <li role="gridcell" key={day} className={classes.dayOfWeek}>
@@ -70,8 +77,8 @@ export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
   return (
     <section className={classes.calendar}>
       <header className={classes.header}>
-        <span role="heading" className={classes.dayRange}>
-          {firstDay} - {lastDay}
+        <span role="heading" className={classes.calendarTitle}>
+          {monthTitle}
         </span>
       </header>
       <ul role="grid" className={classes.dates}>
@@ -110,9 +117,10 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     display: "flex",
     justifyContent: "center",
-    paddingBottom: theme.spacing(3),
+    paddingBottom: theme.spacing(5),
+    paddingTop: theme.spacing(1),
   },
-  dayRange: {
+  calendarTitle: {
     fontSize: theme.typography.pxToRem(14),
     lineHeight: 1,
     letterSpacing: theme.typography.pxToRem(0.1),
