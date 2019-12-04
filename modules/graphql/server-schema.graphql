@@ -4218,6 +4218,7 @@ type VacancyQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
   getAssignmentsForVerify(locationIds: [Int], fromDate: Date, toDate: Date, limit: Int, orgId: ID!, includeVerified: Boolean): [VacancyDetail]
   getCountOfAssignmentsForVerify(locationIds: [Int], fromDate: Date, toDate: Date, orgId: ID!, includeVerified: Boolean): [VacancyDetailCount]
+  getTotalCountOfAssignmentsToVerifyForCurrentSchoolYear(orgId: ID!): Int
   wasEmployeeAssignedToJob(id: ID!, vacancyId: ID!): VacancyWasAssignedResult
   employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
