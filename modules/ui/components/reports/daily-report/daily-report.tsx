@@ -340,7 +340,9 @@ export const DailyReport: React.FC<Props> = props => {
         selectedRows,
         updateSelectedDetails,
         swapSubs,
-        removeSub
+        removeSub,
+        props.date,
+        props.setDate
       )}
     </Section>
   );
@@ -409,7 +411,9 @@ const displaySections = (
   removeSub: (
     assignmentId?: string,
     assignmentRowVersion?: string
-  ) => Promise<void>
+  ) => Promise<void>,
+  date: Date,
+  setDate: (date: Date) => void
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -476,6 +480,8 @@ const displaySections = (
             showVerified={false}
             locationsFilter={[]}
             showLinkToVerify={true}
+            date={date}
+            setDate={setDate}
           />
         </div>
       ) : (

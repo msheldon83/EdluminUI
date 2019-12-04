@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { Link } from "react-router-dom";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 import { useRouteParams } from "ui/routes/definition";
+import { format } from "date-fns";
 
 type Props = {
   selectedDateTab: Date;
@@ -20,9 +21,9 @@ export const DateTabs: React.FC<Props> = props => {
 
   const updateDateTab = (
     event: React.ChangeEvent<{}>,
-    newSelectedDate: Date
+    newSelectedDate: string
   ) => {
-    props.setSelectedDateTab(newSelectedDate);
+    props.setSelectedDateTab(new Date(newSelectedDate));
   };
 
   return (
@@ -34,7 +35,7 @@ export const DateTabs: React.FC<Props> = props => {
     >
       <Grid item>
         <Tabs
-          value={props.selectedDateTab}
+          value={format(props.selectedDateTab, "P")}
           indicatorColor="primary"
           textColor="primary"
           onChange={updateDateTab}
@@ -58,7 +59,7 @@ export const DateTabs: React.FC<Props> = props => {
                     </div>
                   </div>
                 }
-                value={dateOption.date}
+                value={format(dateOption.date, "P")}
                 className={classes.tab}
               />
             );

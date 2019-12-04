@@ -10,7 +10,14 @@ import { useRouteParams } from "ui/routes/definition";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 import { GetAssignmentCount } from "./graphql/get-assignment-count.gen";
 import { GetVacancyDetails } from "./graphql/get-vacancydetails.gen";
-import { isToday, addDays, isWeekend, format, isEqual } from "date-fns";
+import {
+  isToday,
+  addDays,
+  isWeekend,
+  format,
+  isEqual,
+  startOfToday,
+} from "date-fns";
 import { VacancyDetailCount, VacancyDetail } from "graphql/server-types.gen";
 import { Assignment } from "./components/assignment";
 
@@ -18,6 +25,8 @@ type Props = {
   showVerified: boolean;
   locationsFilter: number[];
   showLinkToVerify?: boolean;
+  date?: Date;
+  setDate?: (date: Date) => void;
 };
 
 export const VerifyUI: React.FC<Props> = props => {
@@ -25,8 +34,14 @@ export const VerifyUI: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(VerifyRoute);
 
-  const today = useMemo(() => new Date(), []);
+  const today = useMemo(() => startOfToday(), []);
+  /* Because this UI can stand alone or show up on the Admin homepage, we need
+    to account for only controlling the selectedDate within here as well
+    as the scenario where the selected date is provided to us through props.
+    To handle that make sure to use "selectedDateToUse" when trying 
+    to retrieve the currently selected date */
   const [selectedDateTab, setSelectedDateTab] = useState<Date>(today);
+  const selectedDateToUse = props.date ? props.date : selectedDateTab;
 
   const getAssignmentCounts = useQueryBundle(GetAssignmentCount, {
     variables: {
@@ -45,6 +60,14 @@ export const VerifyUI: React.FC<Props> = props => {
     dateLabel: string;
     count: number;
   }[] = useMemo(() => [], [assignmentCounts]);
+
+  // If the date is controlled outside this component, track local state change
+  // and call the provided setDate function in props
+  useEffect(() => {
+    if (props.setDate) {
+      props.setDate(selectedDateTab);
+    }
+  }, [selectedDateTab]);
 
   // Determines what tabs are shown and the count of unverified assignments on each tab
   // We show today and each day of the last week unless weekends have 0
@@ -93,10 +116,10 @@ export const VerifyUI: React.FC<Props> = props => {
       orgId: params.organizationId,
       includeVerified: props.showVerified,
       locationIds: props.locationsFilter,
-      fromDate: isEqual(selectedDateTab, addDays(today, -8))
+      fromDate: isEqual(selectedDateToUse, addDays(today, -8))
         ? null
-        : selectedDateTab,
-      toDate: selectedDateTab,
+        : selectedDateToUse,
+      toDate: selectedDateToUse,
     },
   });
 
@@ -119,7 +142,7 @@ export const VerifyUI: React.FC<Props> = props => {
   return (
     <>
       <DateTabs
-        selectedDateTab={selectedDateTab}
+        selectedDateTab={selectedDateToUse}
         setSelectedDateTab={setSelectedDateTab}
         dateTabOptions={dateTabOptions}
         showLinkToVerify={props.showLinkToVerify}
