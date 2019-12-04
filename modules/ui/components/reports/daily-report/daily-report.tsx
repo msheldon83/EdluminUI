@@ -14,7 +14,7 @@ import { useQueryParamIso } from "hooks/query-params";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetDailyReport } from "./graphql/get-daily-report.gen";
 import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
-import { GetAwaitingVerificationCounts } from "./graphql/get-awaiting-verification-counts.gen";
+import { GetTotalAwaitingVerificationCountForSchoolYear } from "./graphql/get-total-awaiting-verification-count-school-year.gen";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
 import { Section } from "ui/components/section";
@@ -106,13 +106,11 @@ export const DailyReport: React.FC<Props> = props => {
       },
     }
   );
-  const getAwaitingVerificationCounts = useQueryBundle(
-    GetAwaitingVerificationCounts,
+  const getTotalAwaitingVerificationCount = useQueryBundle(
+    GetTotalAwaitingVerificationCountForSchoolYear,
     {
       variables: {
         orgId: props.orgId,
-        fromDate: filters.date,
-        toDate: filters.date,
       },
       skip: !props.cards.includes("awaitingVerification"),
     }
@@ -158,28 +156,22 @@ export const DailyReport: React.FC<Props> = props => {
   const awaitingVerificationCount = useMemo(() => {
     if (
       !(
-        getAwaitingVerificationCounts.state === "DONE" ||
-        getAwaitingVerificationCounts.state === "UPDATING"
+        getTotalAwaitingVerificationCount.state === "DONE" ||
+        getTotalAwaitingVerificationCount.state === "UPDATING"
       )
     ) {
       return undefined;
     }
 
-    const verifyCountsByDate = getAwaitingVerificationCounts.data?.vacancy
-      ?.getCountOfAssignmentsForVerify as VacancyDetailCount[];
-    if (!verifyCountsByDate) {
+    const totalCount =
+      getTotalAwaitingVerificationCount.data?.vacancy
+        ?.getTotalCountOfAssignmentsToVerifyForCurrentSchoolYear;
+    if (!totalCount) {
       return 0;
     }
 
-    const totalCount: number = verifyCountsByDate.reduce(
-      (total: number, v: VacancyDetailCount) => {
-        return total + v.count;
-      },
-      0
-    );
-
-    return totalCount;
-  }, [getAwaitingVerificationCounts]);
+    return Number(totalCount);
+  }, [getTotalAwaitingVerificationCount]);
 
   const updateSelectedDetails = (detail: Detail, add: boolean) => {
     if (add) {
