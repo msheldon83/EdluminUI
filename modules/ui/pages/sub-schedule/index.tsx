@@ -14,6 +14,11 @@ import {
 } from "ui/routes/sub-schedule";
 import { CalendarView } from "./calendar-view";
 import { ScheduleViewToggle } from "./schedule-view-toggle";
+import { GetUpcomingAssignments } from "../sub-home/graphql/get-upcoming-assignments.gen";
+import { addDays } from "date-fns";
+import { useMemo } from "react";
+import { AssignmentRow } from "./assignment-row";
+import { DayPart } from "graphql/server-types.gen";
 
 type Props = {
   view: "list" | "calendar";
@@ -31,6 +36,31 @@ export const SubSchedule: React.FC<Props> = props => {
     getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
+
+  const fromDate = useMemo(() => new Date(), []);
+  const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
+
+  const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
+    variables: {
+      id: String(userId),
+      fromDate,
+      toDate,
+      includeCompletedToday: false,
+    },
+    skip: !userId,
+  });
+
+  if (upcomingAssignments.state !== "DONE") {
+    return <></>;
+  }
+
+  const data = upcomingAssignments.data.employee?.employeeAssignmentSchedule;
+  console.log(
+    "userId",
+    userId,
+    "jobs",
+    upcomingAssignments.data.employee?.employeeAssignmentSchedule
+  );
 
   return (
     <>
@@ -58,8 +88,23 @@ export const SubSchedule: React.FC<Props> = props => {
         {/* <Divider /> */}
       </Section>
       <Section>
+        ALL
+        {/* {data?.map((a, i) => (
+          <AssignmentRow
+            key={a?.id || i}
+            confirmationNumber={a?.assignment?.id.toString() || i.toString()}
+            startTime={a?.startTimeLocal}
+            endTime={a?.endTimeLocal}
+            employeeName={`${a?.vacancy?.absence?.employee?.firstName} ${a?.vacancy?.absence?.employee?.lastName}`}
+            dates={`${a?.startDate}` || "n/a"}
+            locationName={a?.location?.name || "n/a"}
+            positionName={a?.vacancy?.position?.name || "n/a"}
+            totalDayPart={DayPart.FullDay}
+            onCancel={() => console.log("cancel")}
+          />
+        ))} */}
         {/* Either list or calendar view */}
-        {props.view === "calendar" && <CalendarView />}
+        {props.view === "calendar" && <CalendarView userId={userId} />}
         {props.view === "list" && <div>LIST</div>}
       </Section>
     </>

@@ -33,13 +33,17 @@ query GetUpcomingAssignments(
         phoneNumber
       }
       vacancy {
+        id
         absence {
+          id
           employee {
+            id
             firstName
             lastName
           }
         }
         position {
+          id
           name
         }
         notesToReplacement
