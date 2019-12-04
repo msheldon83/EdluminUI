@@ -9,9 +9,16 @@ import { format, isEqual } from "date-fns";
 
 type Props = {
   selectedDateTab: Date;
-  dateTabOptions: { date: Date; dateLabel: string; count: number }[];
+  dateTabOptions: DateTabOption[];
   setSelectedDateTab: React.Dispatch<React.SetStateAction<Date>>;
   showLinkToVerify?: boolean;
+};
+
+export type DateTabOption = {
+  date: Date;
+  dateLabel: string;
+  count: number;
+  onClick?: () => void;
 };
 
 export const DateTabs: React.FC<Props> = props => {
@@ -61,6 +68,9 @@ export const DateTabs: React.FC<Props> = props => {
                 }
                 value={format(dateOption.date, "P")}
                 className={classes.tab}
+                onClick={
+                  dateOption.onClick ? () => dateOption.onClick!() : undefined
+                }
               />
             );
           })}

@@ -40,6 +40,9 @@ import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { Print } from "@material-ui/icons";
 import { VerifyUI } from "ui/pages/verify/ui";
+import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
+import { useRouteParams } from "ui/routes/definition";
+import { useHistory } from "react-router";
 
 type Props = {
   orgId: string;
@@ -55,6 +58,7 @@ export const DailyReport: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
+  const history = useHistory();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
@@ -62,6 +66,7 @@ export const DailyReport: React.FC<Props> = props => {
     props.selectedCard
   );
   const [selectedRows, setSelectedRows] = useState<Detail[]>([]);
+  const verifyRouteParams = useRouteParams(VerifyRoute);
 
   // Keep date in filters in sync with date passed in from DateStepperHeader
   useEffect(() => {
@@ -342,7 +347,11 @@ export const DailyReport: React.FC<Props> = props => {
         swapSubs,
         removeSub,
         props.date,
-        props.setDate
+        props.setDate,
+        () => {
+          const url = VerifyRoute.generate(verifyRouteParams);
+          history.push(url);
+        }
       )}
     </Section>
   );
@@ -413,7 +422,8 @@ const displaySections = (
     assignmentRowVersion?: string
   ) => Promise<void>,
   date: Date,
-  setDate: (date: Date) => void
+  setDate: (date: Date) => void,
+  verifyOlderAction: () => void
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -482,6 +492,7 @@ const displaySections = (
             showLinkToVerify={true}
             date={date}
             setDate={setDate}
+            olderAction={verifyOlderAction}
           />
         </div>
       ) : (

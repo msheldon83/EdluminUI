@@ -4,7 +4,7 @@ import { Section } from "ui/components/section";
 import { makeStyles } from "@material-ui/styles";
 import { Typography } from "@material-ui/core";
 import { useState, useMemo, useEffect } from "react";
-import { DateTabs } from "./components/tabs";
+import { DateTabs, DateTabOption } from "./components/tabs";
 import { useQueryBundle } from "graphql/hooks";
 import { useRouteParams } from "ui/routes/definition";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
@@ -27,6 +27,7 @@ type Props = {
   showLinkToVerify?: boolean;
   date?: Date;
   setDate?: (date: Date) => void;
+  olderAction?: () => void;
 };
 
 export const VerifyUI: React.FC<Props> = props => {
@@ -55,11 +56,7 @@ export const VerifyUI: React.FC<Props> = props => {
     : getAssignmentCounts.data?.vacancy?.getCountOfAssignmentsForVerify ??
       []) as VacancyDetailCount[];
 
-  const dateTabOptions: {
-    date: Date;
-    dateLabel: string;
-    count: number;
-  }[] = useMemo(() => [], [assignmentCounts]);
+  const dateTabOptions: DateTabOption[] = useMemo(() => [], [assignmentCounts]);
 
   // If the date is controlled outside this component, track local state change
   // and call the provided setDate function in props
@@ -85,6 +82,7 @@ export const VerifyUI: React.FC<Props> = props => {
           date: date,
           dateLabel: t("Older"),
           count: totalCount,
+          onClick: props.olderAction,
         });
       } else {
         const dateToFind = format(date, "YYY-MM-dd");
