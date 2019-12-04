@@ -4,6 +4,7 @@ import { text, boolean, date } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
 import endOfTomorrow from "date-fns/endOfTomorrow";
 import endOfYesterday from "date-fns/endOfYesterday";
+import addDays from "date-fns/addDays";
 import { DatePicker, DEFAULT_DATE_FORMAT } from "./date-picker";
 import { Calendar } from "./calendar";
 import { FiveWeekCalendar } from "./five-week-calendar";
@@ -173,13 +174,14 @@ CalendarStory.story = {
 
 export const FiveWeekCalendarStory = () => {
   const classes = useStyles();
+  const today = new Date();
 
   return (
     <div className={classes.container}>
       <FiveWeekCalendar
         disableWeekends={boolean("disableWeekends", true)}
         startDate={customDate("startDate", new Date())}
-        selectedDates={[new Date()]}
+        selectedDates={[today, addDays(today, 1), addDays(today, 2)]}
       />
     </div>
   );
