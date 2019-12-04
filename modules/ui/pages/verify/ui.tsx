@@ -41,7 +41,9 @@ export const VerifyUI: React.FC<Props> = props => {
     as the scenario where the selected date is provided to us through props.
     To handle that make sure to use "selectedDateToUse" when trying 
     to retrieve the currently selected date */
-  const [selectedDateTab, setSelectedDateTab] = useState<Date>(today);
+  const [selectedDateTab, setSelectedDateTab] = useState<Date>(
+    props.date ?? today
+  );
   let selectedDateToUse = props.date ? props.date : selectedDateTab;
 
   const getAssignmentCounts = useQueryBundle(GetAssignmentCount, {
