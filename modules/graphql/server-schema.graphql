@@ -4446,6 +4446,8 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   actualDuration: Int
   dayPortion: Decimal!
   isFilled: Boolean
+  verifiedAtLocal: DateTime
+  verifiedAtUtc: DateTime
   workDayScheduleId: Int
   workDayId: Int!
   workDay: WorkDay
@@ -4481,6 +4483,11 @@ type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInte
 input VacancyDetailAccountingCodeInput {
   accountingCodeId: Int!
   allocation: Decimal!
+}
+
+type VacancyDetailCount {
+  date: Date
+  count: Int!
 }
 
 input VacancyDetailInput {
@@ -4553,13 +4560,9 @@ enum VacancyQualification {
 type VacancyQueries {
   byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedVacancy
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
+  getAssignmentsForVerify(locationIds: [Int], fromDate: Date, toDate: Date, limit: Int, orgId: ID!, includeVerified: Boolean): [VacancyDetail]
+  getCountOfAssignmentsForVerify(locationIds: [Int], fromDate: Date, toDate: Date, orgId: ID!, includeVerified: Boolean): [VacancyDetailCount]
   wasEmployeeAssignedToJob(id: ID!, vacancyId: ID!): VacancyWasAssignedResult
   employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   employeeJobSearch(
@@ -4597,9 +4600,9 @@ type VacancySubSearchQueryResult {
   isSelectable: Boolean!
   employeeId: Int!
   firstName: String!
-  middleName: String!
+  middleName: String
   lastName: String!
-  phoneNumber: String!
+  phoneNumber: String
   levelQualified: VacancyQualification!
   levelAvailable: VacancyAvailability!
   vacancyId: Int
