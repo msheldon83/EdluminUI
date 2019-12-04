@@ -17,8 +17,10 @@ type Props = {
   cardType: CardType;
   details: Detail[];
   totalContractedEmployeeCount: number | null;
+  totalAwaitingVerificationCount?: number;
   onClick: (c: CardType) => void;
   activeCard?: CardType | undefined;
+  showPercentInLabel?: boolean;
 };
 
 type CardData = {
@@ -34,12 +36,12 @@ type CardData = {
 export const GroupCard: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [percentage, setPercentage] = useState<number>(100);
 
   const data = getCardData(
     props.cardType,
     props.details,
     props.totalContractedEmployeeCount ?? 0,
+    props.totalAwaitingVerificationCount ?? 0,
     classes,
     t
   );
@@ -79,6 +81,7 @@ export const GroupCard: React.FC<Props> = props => {
           root: clsx({
             [classes.cardRoot]: true,
             [classes.inactiveCard]: !isActiveCard,
+            [classes.cardSelection]: !isActiveCard || !props.activeCard,
           }),
         }}
       >
@@ -92,7 +95,7 @@ export const GroupCard: React.FC<Props> = props => {
               {data.count}
             </Typography>
             <Typography variant="h6" className={classes.cardSubText}>
-              {percentLabel}
+              {props.showPercentInLabel ? percentLabel : data.label}
             </Typography>
           </div>
           <LinearProgress
@@ -112,8 +115,10 @@ export const GroupCard: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   cardRoot: {
-    cursor: "pointer",
     width: theme.typography.pxToRem(250),
+  },
+  cardSelection: {
+    cursor: "pointer",
     "&:hover": {
       boxShadow:
         "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24)",
@@ -171,12 +176,22 @@ const useStyles = makeStyles(theme => ({
   totalCardBarUnfilled: {
     backgroundColor: "rgba(33, 150, 243, 0.1)",
   },
+  awaitingVerificationCount: {
+    color: theme.customColors.eduBlack,
+  },
+  awaitingVerificationCardBar: {
+    backgroundColor: "#E5E5E5",
+  },
+  awaitingVerificationCardBarUnfilled: {
+    backgroundColor: "#E5E5E5",
+  },
 }));
 
 const getCardData = (
   cardType: CardType,
   details: Detail[],
   totalContractedEmployeeCount: number,
+  totalAwaitingVerificationCount: number,
   classes: any,
   t: TFunction
 ): CardData | undefined => {
@@ -229,6 +244,17 @@ const getCardData = (
         unfilledBarClass: classes.totalCardBarUnfilled,
       };
       break;
+    }
+    case "awaitingVerification": {
+      data = {
+        type: "awaitingVerification",
+        count: totalAwaitingVerificationCount,
+        total: totalAwaitingVerificationCount,
+        label: t("Awaiting verification"),
+        countClass: classes.awaitingVerificationCount,
+        barClass: classes.awaitingVerificationCardBar,
+        unfilledBarClass: classes.awaitingVerificationCardBarUnfilled,
+      };
     }
   }
 

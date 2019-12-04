@@ -1,0 +1,16 @@
+query GetAwaitingVerificationCounts(
+  $orgId: ID!
+  $fromDate: Date
+  $toDate: Date
+) {
+  vacancy {
+    getCountOfAssignmentsForVerify(
+      orgId: $orgId
+      fromDate: $fromDate
+      toDate: $toDate
+    ) {
+      date
+      count
+    }
+  }
+}

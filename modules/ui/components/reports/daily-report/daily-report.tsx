@@ -14,10 +14,14 @@ import { useQueryParamIso } from "hooks/query-params";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetDailyReport } from "./graphql/get-daily-report.gen";
 import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
+import { GetAwaitingVerificationCounts } from "./graphql/get-awaiting-verification-counts.gen";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
 import { Section } from "ui/components/section";
-import { DailyReport as DailyReportType } from "graphql/server-types.gen";
+import {
+  DailyReport as DailyReportType,
+  VacancyDetailCount,
+} from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
 import {
   Detail,
@@ -43,6 +47,7 @@ type Props = {
   header: string;
   showFilters?: boolean;
   cards: CardType[];
+  selectedCard?: CardType;
 };
 
 export const DailyReport: React.FC<Props> = props => {
@@ -52,7 +57,9 @@ export const DailyReport: React.FC<Props> = props => {
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
-  const [selectedCard, setSelectedCard] = useState<CardType | undefined>();
+  const [selectedCard, setSelectedCard] = useState<CardType | undefined>(
+    props.selectedCard
+  );
   const [selectedRows, setSelectedRows] = useState<Detail[]>([]);
 
   // Keep date in filters in sync with date passed in from DateStepperHeader
@@ -67,6 +74,13 @@ export const DailyReport: React.FC<Props> = props => {
   useEffect(() => {
     setSelectedRows([]);
   }, [filters, selectedCard]);
+
+  // Make sure we change the selected card if the prop has changed
+  useEffect(() => {
+    if (selectedCard !== props.selectedCard) {
+      setSelectedCard(props.selectedCard);
+    }
+  }, [props.selectedCard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const serverQueryFilters = useMemo(() => filters, [
     filters.date,
@@ -89,6 +103,17 @@ export const DailyReport: React.FC<Props> = props => {
         orgId: props.orgId,
         contractedOn: filters.date,
       },
+    }
+  );
+  const getAwaitingVerificationCounts = useQueryBundle(
+    GetAwaitingVerificationCounts,
+    {
+      variables: {
+        orgId: props.orgId,
+        fromDate: filters.date,
+        toDate: filters.date,
+      },
+      skip: !props.cards.includes("awaitingVerification"),
     }
   );
 
@@ -129,6 +154,31 @@ export const DailyReport: React.FC<Props> = props => {
       getTotalContractedEmployeeCount.data?.employee?.paged?.totalCount
     );
   }, [getTotalContractedEmployeeCount]);
+  const awaitingVerificationCount = useMemo(() => {
+    if (
+      !(
+        getAwaitingVerificationCounts.state === "DONE" ||
+        getAwaitingVerificationCounts.state === "UPDATING"
+      )
+    ) {
+      return undefined;
+    }
+
+    const verifyCountsByDate = getAwaitingVerificationCounts.data?.vacancy
+      ?.getCountOfAssignmentsForVerify as VacancyDetailCount[];
+    if (!verifyCountsByDate) {
+      return 0;
+    }
+
+    const totalCount: number = verifyCountsByDate.reduce(
+      (total: number, v: VacancyDetailCount) => {
+        return total + v.count;
+      },
+      0
+    );
+
+    return totalCount;
+  }, [getAwaitingVerificationCounts]);
 
   const updateSelectedDetails = (detail: Detail, add: boolean) => {
     if (add) {
@@ -275,10 +325,12 @@ export const DailyReport: React.FC<Props> = props => {
                 cardType={c}
                 details={allDetails}
                 totalContractedEmployeeCount={totalContractedEmployeeCount}
+                totalAwaitingVerificationCount={awaitingVerificationCount}
                 onClick={(c: CardType) => {
                   setSelectedCard(c === "total" ? undefined : c);
                 }}
                 activeCard={selectedCard}
+                showPercentInLabel={c !== "awaitingVerification"}
               />
             </Grid>
           );
@@ -372,6 +424,9 @@ const displaySections = (
     case "noSubRequired":
       selectedCardDisplayText = t("Showing only No sub required absences.");
       break;
+    case "awaitingVerification":
+      selectedCardDisplayText = t("Showing only Awaiting verification.");
+      break;
   }
 
   // Build a display section for each group
@@ -388,31 +443,33 @@ const displaySections = (
         )}
         <Grid item>{displaySwabSubsAction(selectedRows, swapSubs, t)}</Grid>
         <Grid item>
-          {!!groupedDetails.length && (
-            <Print
-              className={[classes.action, classes.print].join(" ")}
-              onClick={window.print}
-            />
-          )}
+          <Print
+            className={[classes.action, classes.print].join(" ")}
+            onClick={window.print}
+          />
         </Grid>
       </Grid>
-      {groupedDetails.map((g, i) => {
-        const hasDetails = !!(g.details && g.details.length);
-        if (selectedCard && !hasDetails) {
-          return null;
-        }
+      {selectedCard === "awaitingVerification" ? (
+        <div>Verify component goes here</div>
+      ) : (
+        groupedDetails.map((g, i) => {
+          const hasDetails = !!(g.details && g.details.length);
+          if (selectedCard && !hasDetails) {
+            return null;
+          }
 
-        return (
-          <div key={`group-${i}`} className={classes.detailGroup}>
-            <DailyReportSection
-              group={g}
-              selectedDetails={selectedRows}
-              updateSelectedDetails={updateSelectedDetails}
-              removeSub={removeSub}
-            />
-          </div>
-        );
-      })}
+          return (
+            <div key={`group-${i}`} className={classes.detailGroup}>
+              <DailyReportSection
+                group={g}
+                selectedDetails={selectedRows}
+                updateSelectedDetails={updateSelectedDetails}
+                removeSub={removeSub}
+              />
+            </div>
+          );
+        })
+      )}
     </div>
   );
 };
