@@ -33,6 +33,30 @@ export const DailyReportDetail: React.FC<Props> = props => {
       existingUnfilledSelection &&
       props.detail.state === "unfilled");
 
+  const rowActions = [
+    {
+      name: t("Edit"),
+      onClick: () => {
+        /* TODO: Redirect to Absence Edit screen */
+      },
+    },
+  ];
+  if (props.detail.state !== "noSubRequired") {
+    rowActions.push({
+      name: props.detail.substitute ? t("Remove Sub") : t("Assign Sub"),
+      onClick: async () => {
+        if (props.detail.substitute) {
+          await props.removeSub(
+            props.detail.assignmentId,
+            props.detail.assignmentRowVersion
+          );
+        } else {
+          /* TODO: Redirect to Absence Edit screen */
+        }
+      },
+    });
+  }
+
   return (
     <Grid item xs={12} container className={props.className}>
       <Grid item xs={3} zeroMinWidth>
@@ -104,29 +128,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
         )}
       </Grid>
       <Grid item xs={1} className={classes.detailActionsSection}>
-        <ActionMenu
-          options={[
-            {
-              name: t("Edit"),
-              onClick: () => {
-                /* TODO: Redirect to Absence Edit screen */
-              },
-            },
-            {
-              name: props.detail.substitute ? t("Remove Sub") : t("Assign Sub"),
-              onClick: async () => {
-                if (props.detail.substitute) {
-                  await props.removeSub(
-                    props.detail.assignmentId,
-                    props.detail.assignmentRowVersion
-                  );
-                } else {
-                  /* TODO: Redirect to Absence Edit screen */
-                }
-              },
-            },
-          ]}
-        />
+        <ActionMenu options={rowActions} />
       </Grid>
     </Grid>
   );
