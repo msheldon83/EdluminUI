@@ -24,7 +24,6 @@ type Props = {
 export const AddBasicInfo: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
-  const classes = useStyles();
 
   const initialValues = {
     name: props.positionType.name,
@@ -80,12 +79,10 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     name: "externalId",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
+                    helperText: t("Usually used for data integrations"),
                     fullWidth: true,
                   }}
                 />
-                <FormHelperText className={classes.formHelperText}>
-                  {t("Usually used for data integrations")}
-                </FormHelperText>
               </Grid>
             </Grid>
             <ActionButtons
@@ -98,10 +95,3 @@ export const AddBasicInfo: React.FC<Props> = props => {
     </Section>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  formHelperText: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(2),
-  },
-}));
