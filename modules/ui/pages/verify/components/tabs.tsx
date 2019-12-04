@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { Link } from "react-router-dom";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 import { useRouteParams } from "ui/routes/definition";
-import { format } from "date-fns";
+import { format, isEqual } from "date-fns";
 
 type Props = {
   selectedDateTab: Date;
@@ -42,7 +42,7 @@ export const DateTabs: React.FC<Props> = props => {
           aria-label="date-selector"
         >
           {props.dateTabOptions.map((dateOption, index: number) => {
-            const isActiveTab = props.selectedDateTab === dateOption.date;
+            const isActiveTab = isEqual(props.selectedDateTab, dateOption.date);
             return (
               <Tab
                 key={index}
