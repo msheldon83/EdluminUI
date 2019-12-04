@@ -315,8 +315,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 setValue={setValue}
                 vacancies={props.vacancies}
                 setStep={props.setStep}
-                replacementEmployeeName={values.replacementEmployeeName}
-                replacementEmployeeId={values.replacementEmployeeId}
                 organizationId={state.organizationId}
                 triggerValidation={triggerValidation}
                 values={values}

@@ -3,27 +3,22 @@ import {
   Grid,
   makeStyles,
   Divider,
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
-  FormControlLabel,
-  Checkbox,
   Link,
+  Button,
+  Tooltip,
 } from "@material-ui/core";
 import { useScreenSize } from "hooks";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect } from "react";
 import { useQueryParamIso } from "hooks/query-params";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetDailyReport } from "./graphql/get-daily-report.gen";
 import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
-import { FilterList, ExpandMore } from "@material-ui/icons";
 import { Section } from "ui/components/section";
 import { DailyReport as DailyReportType } from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
-import clsx from "clsx";
 import {
   Detail,
   MapDailyReportDetails,
@@ -33,8 +28,13 @@ import {
 } from "./helpers";
 import { GroupCard } from "./group-card";
 import { TFunction } from "i18next";
-import { ActionMenu } from "ui/components/action-menu";
 import { format } from "date-fns";
+import { DailyReportSection } from "./daily-report-section";
+import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
+import { useDialog, RenderFunctionsType } from "hooks/use-dialog";
+import { CancelAssignment } from "./graphql/cancel-assignment.gen";
+import { useSnackbar } from "hooks/use-snackbar";
+import { Print } from "@material-ui/icons";
 
 type Props = {
   orgId: string;
@@ -49,15 +49,24 @@ export const DailyReport: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
+  const { openDialog } = useDialog();
+  const { openSnackbar } = useSnackbar();
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const [selectedCard, setSelectedCard] = useState<CardType | undefined>();
+  const [selectedRows, setSelectedRows] = useState<Detail[]>([]);
 
+  // Keep date in filters in sync with date passed in from DateStepperHeader
   useEffect(() => {
     const dateString = format(props.date, "P");
     if (dateString !== filters.date) {
       updateFilters({ date: dateString });
     }
   }, [props.date]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Clear out all selected rows if the filters change or a card is selected
+  useEffect(() => {
+    setSelectedRows([]);
+  }, [filters, selectedCard]);
 
   const serverQueryFilters = useMemo(() => filters, [
     filters.date,
@@ -121,19 +130,147 @@ export const DailyReport: React.FC<Props> = props => {
     );
   }, [getTotalContractedEmployeeCount]);
 
+  const updateSelectedDetails = (detail: Detail, add: boolean) => {
+    if (add) {
+      setSelectedRows([...selectedRows, detail]);
+    } else {
+      const filteredRows = selectedRows.filter(
+        r => !(r.detailId === detail.detailId && r.type === detail.type)
+      );
+      setSelectedRows(filteredRows);
+    }
+  };
+
+  const [swapVacancyAssignments] = useMutationBundle(SwapVacancyAssignments, {
+    onError: error => {
+      const warnings = error.graphQLErrors.filter(
+        e => e.extensions?.data?.severity === "Warn"
+      );
+      const warningsOnly = warnings.length === error.graphQLErrors.length;
+
+      openDialog({
+        title: t("There was an issue swapping substitutes"),
+        renderContent() {
+          return error.graphQLErrors.map((e, i) => {
+            const errorMessage =
+              e.extensions?.data?.text ?? e.extensions?.data?.code;
+            if (!errorMessage) {
+              return null;
+            }
+            return <div key={i}>{errorMessage}</div>;
+          });
+        },
+        renderActions({ closeDialog }: RenderFunctionsType) {
+          return (
+            <>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => closeDialog()}
+              >
+                {warningsOnly ? t("Cancel") : t("Okay")}
+              </Button>
+              {warningsOnly && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={async () => {
+                    closeDialog();
+                    await swapSubs(true);
+                  }}
+                >
+                  {t("Ignore & Continue")}
+                </Button>
+              )}
+            </>
+          );
+        },
+      });
+    },
+  });
+
+  const swapSubs = async (ignoreWarnings?: boolean) => {
+    if (selectedRows.length !== 2) {
+      return;
+    }
+
+    const firstDetail = selectedRows[0];
+    const secondDetail = selectedRows[1];
+
+    const result = await swapVacancyAssignments({
+      variables: {
+        swapDetails: {
+          firstVacancyId: firstDetail.vacancyId
+            ? Number(firstDetail.vacancyId)
+            : 0,
+          firstVacancyRowVersion: firstDetail.vacancyRowVersion ?? "",
+          secondVacancyId: secondDetail.vacancyId
+            ? Number(secondDetail.vacancyId)
+            : 0,
+          secondVacancyRowVersion: secondDetail.vacancyRowVersion ?? "",
+          ignoreWarnings: ignoreWarnings ?? false,
+        },
+      },
+    });
+
+    if (result) {
+      await getDailyReport.refetch();
+      setSelectedRows([]);
+    }
+  };
+
+  const [cancelAssignment] = useMutationBundle(CancelAssignment, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
+
+  const removeSub = async (
+    assignmentId?: string,
+    assignmentRowVersion?: string
+  ) => {
+    const result = await cancelAssignment({
+      variables: {
+        cancelRequest: {
+          id: Number(assignmentId) ?? "",
+          rowVersion: assignmentRowVersion ?? "",
+        },
+      },
+    });
+    if (result) {
+      await getDailyReport.refetch();
+    }
+  };
+
   return (
     <Section>
-      <SectionHeader title={props.header} />
+      <SectionHeader title={props.header} className={classes.header} />
       {props.showFilters && (
         <>
           <Filters orgId={props.orgId} setDate={props.setDate} />
           <Divider />
         </>
       )}
-      <Grid container spacing={4} className={classes.cardContainer}>
+      <Grid
+        container
+        spacing={4}
+        justify="flex-start"
+        className={classes.cardContainer}
+      >
         {props.cards.map((c, i) => {
           return (
-            <Grid item key={i} className={classes.card}>
+            <Grid item key={i}>
               <GroupCard
                 cardType={c}
                 details={allDetails}
@@ -147,77 +284,48 @@ export const DailyReport: React.FC<Props> = props => {
           );
         })}
       </Grid>
-      {displaySections(groupedDetails, selectedCard, classes, t, () =>
-        setSelectedCard(undefined)
+      {displaySections(
+        groupedDetails,
+        selectedCard,
+        classes,
+        t,
+        () => setSelectedCard(undefined),
+        selectedRows,
+        updateSelectedDetails,
+        swapSubs,
+        removeSub
       )}
     </Section>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  header: {
+    "@media print": {
+      display: "none",
+    },
+  },
   cardContainer: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-  },
-  card: {
-    flexGrow: 1,
+    "@media print": {
+      display: "none",
+    },
   },
   detailGroup: {
     marginTop: theme.spacing(2),
-  },
-  summary: {
-    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
-    height: theme.typography.pxToRem(16),
-  },
-  summaryText: {
-    color: theme.palette.primary.main,
-    fontWeight: "bold",
-  },
-  subGroupSummaryText: {
-    fontWeight: "bold",
-  },
-  subGroupExpanded: {
-    borderTop: "0 !important",
-    margin: "0 !important",
-    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
-  },
-  details: {
-    padding: 0,
-    display: "block",
-  },
-  detail: {
-    paddingLeft: theme.spacing(4),
-    paddingTop: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-  },
-  employeeSection: {
-    display: "flex",
-  },
-  detailHeader: {
-    color: theme.customColors.edluminSubText,
-    background: theme.customColors.lightGray,
-    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
-  },
-  detailEmployeeHeader: {
-    paddingLeft: theme.spacing(5),
-  },
-  detailSubText: {
-    color: theme.customColors.edluminSubText,
-  },
-  detailActionsSection: {
-    textAlign: "right",
+    "@media print": {
+      marginTop: 0,
+    },
   },
   action: {
     cursor: "pointer",
   },
-  alternatingRow: {
-    background: theme.customColors.lightGray,
-    borderTop: `1px solid ${theme.customColors.medLightGray}`,
-    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
-  },
-  subDetailHeader: {
-    width: "100%",
+  print: {
+    color: "#9E9E9E",
+    "@media print": {
+      display: "none",
+    },
   },
 }));
 
@@ -226,7 +334,14 @@ const displaySections = (
   selectedCard?: CardType | undefined,
   classes: any,
   t: TFunction,
-  clearSelection: () => void
+  clearSelectedCard: () => void,
+  selectedRows: Detail[],
+  updateSelectedDetails: (detail: Detail, add: boolean) => void,
+  swapSubs: (ignoreWarnings?: boolean) => Promise<void>,
+  removeSub: (
+    assignmentId?: string,
+    assignmentRowVersion?: string
+  ) => Promise<void>
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -262,14 +377,25 @@ const displaySections = (
   // Build a display section for each group
   return (
     <div>
-      {selectedCard && (
-        <div>
-          {selectedCardDisplayText}{" "}
-          <Link className={classes.action} onClick={clearSelection}>
-            {t("Show all")}
-          </Link>
-        </div>
-      )}
+      <Grid container justify="space-between" alignItems="center">
+        {selectedCard && (
+          <Grid item>
+            {selectedCardDisplayText}{" "}
+            <Link className={classes.action} onClick={clearSelectedCard}>
+              {t("Show all")}
+            </Link>
+          </Grid>
+        )}
+        <Grid item>{displaySwabSubsAction(selectedRows, swapSubs, t)}</Grid>
+        <Grid item>
+          {!!groupedDetails.length && (
+            <Print
+              className={[classes.action, classes.print].join(" ")}
+              onClick={window.print}
+            />
+          )}
+        </Grid>
+      </Grid>
       {groupedDetails.map((g, i) => {
         const hasDetails = !!(g.details && g.details.length);
         if (selectedCard && !hasDetails) {
@@ -278,7 +404,12 @@ const displaySections = (
 
         return (
           <div key={`group-${i}`} className={classes.detailGroup}>
-            {getSectionDisplay(g, classes, t)}
+            <DailyReportSection
+              group={g}
+              selectedDetails={selectedRows}
+              updateSelectedDetails={updateSelectedDetails}
+              removeSub={removeSub}
+            />
           </div>
         );
       })}
@@ -286,221 +417,38 @@ const displaySections = (
   );
 };
 
-const getSectionDisplay = (
-  detailGroup: DetailGroup,
-  classes: any,
+const displaySwabSubsAction = (
+  selectedRows: Detail[],
+  swapSubs: (ignoreWarnings?: boolean) => Promise<void>,
   t: TFunction
 ) => {
-  let headerText = `${detailGroup.label}`;
-  if (!detailGroup.subGroups && detailGroup.details) {
-    headerText = `${headerText} (${detailGroup.details.length})`;
+  if (selectedRows.length < 2) {
+    return;
   }
-  const hasSubGroups = !!detailGroup.subGroups;
-  const hasDetails = !!(detailGroup.details && detailGroup.details.length);
-  const panelId = detailGroup.label;
 
-  return (
-    <ExpansionPanel defaultExpanded={hasDetails}>
-      <ExpansionPanelSummary
-        expandIcon={hasDetails ? <ExpandMore /> : undefined}
-        aria-label="Expand"
-        aria-controls={`${panelId}-content`}
-        id={panelId}
-        className={classes.summary}
-      >
-        <FormControlLabel
-          onClick={event => event.stopPropagation()}
-          onFocus={event => event.stopPropagation()}
-          control={<Checkbox color="primary" />}
-          label={headerText}
-          classes={{
-            label: classes.summaryText,
-          }}
-        />
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails className={classes.details}>
-        {hasSubGroups &&
-          detailGroup.subGroups!.map((s, i) => {
-            const subGroupHasDetails = !!(s.details && s.details.length);
-            let subHeaderText = `${s.label}`;
-            if (subGroupHasDetails) {
-              subHeaderText = `${subHeaderText} (${s.details!.length})`;
-            }
-            const subGroupPanelId = `${panelId}-subGroup-${i}`;
-
-            return (
-              <ExpansionPanel
-                className={classes.subDetailHeader}
-                defaultExpanded={subGroupHasDetails}
-                key={`subGroup-${i}`}
-                classes={{
-                  expanded: classes.subGroupExpanded,
-                }}
-              >
-                <ExpansionPanelSummary
-                  expandIcon={<ExpandMore />}
-                  aria-label="Expand"
-                  aria-controls={`${subGroupPanelId}-content`}
-                  id={subGroupPanelId}
-                  className={classes.summary}
-                >
-                  <FormControlLabel
-                    onClick={event => event.stopPropagation()}
-                    onFocus={event => event.stopPropagation()}
-                    control={<Checkbox color="primary" />}
-                    label={subHeaderText}
-                    classes={{
-                      label: classes.subGroupSummaryText,
-                    }}
-                  />
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails className={classes.details}>
-                  <Grid container alignItems="flex-start">
-                    {getDetailsDisplay(
-                      s.details ?? [],
-                      subGroupPanelId,
-                      classes,
-                      t
-                    )}
-                  </Grid>
-                </ExpansionPanelDetails>
-              </ExpansionPanel>
-            );
-          })}
-        {!hasSubGroups && (
-          <Grid container alignItems="flex-start">
-            {getDetailsDisplay(detailGroup.details ?? [], panelId, classes, t)}
-          </Grid>
-        )}
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
+  const button = (
+    <Button
+      variant="outlined"
+      color="primary"
+      disabled={selectedRows.length > 2}
+      onClick={async () => await swapSubs(false)}
+    >
+      {t("Swap subs")}
+    </Button>
   );
-};
 
-const getDetailsDisplay = (
-  details: Detail[],
-  panelId: string,
-  classes: any,
-  t: TFunction
-) => {
-  const detailsDisplay = details.map((d, i) => {
-    const showAlternatingBackground = i % 2 === 1;
+  if (selectedRows.length === 2) {
+    return button;
+  }
 
-    return (
-      <Grid
-        item
-        xs={12}
-        container
-        key={`${panelId}-${i}`}
-        className={clsx({
-          [classes.alternatingRow]: showAlternatingBackground,
-          [classes.detail]: true,
-        })}
-      >
-        <Grid item xs={3}>
-          <div className={classes.employeeSection}>
-            <Checkbox color="primary" />
-            <div>
-              {d.type === "absence" ? (
-                <>
-                  <div>{d.employee?.name}</div>
-                  <div className={classes.detailSubText}>
-                    {d.position?.name}
-                  </div>
-                </>
-              ) : (
-                <div>{d.position?.name}</div>
-              )}
-            </div>
-          </div>
-        </Grid>
-        <Grid item xs={2}>
-          <div>{d.absenceReason}</div>
-          <div className={classes.detailSubText}>{d.dateRange}</div>
-        </Grid>
-        <Grid item xs={2}>
-          <div>{d.location?.name}</div>
-          <div
-            className={classes.detailSubText}
-          >{`${d.startTime} - ${d.endTime}`}</div>
-        </Grid>
-        <Grid item xs={1}>
-          <div>{d.created}</div>
-        </Grid>
-        <Grid item xs={2}>
-          {d.state === "noSubRequired" && (
-            <div className={classes.detailSubText}>{t("Not required")}</div>
-          )}
-          {d.state !== "noSubRequired" && d.substitute && (
-            <>
-              <div>{d.substitute.name}</div>
-              <div className={classes.detailSubText}>{d.substitute.phone}</div>
-            </>
-          )}
-          {d.state !== "noSubRequired" && !d.substitute && (
-            <Link className={classes.action}>{t("Assign")}</Link>
-          )}
-        </Grid>
-        <Grid item xs={1}>
-          <div>{d.type === "absence" ? `#${d.id}` : `#V${d.id}`}</div>
-          {d.assignmentId && (
-            <div className={classes.detailSubText}>{`#C${d.assignmentId}`}</div>
-          )}
-        </Grid>
-        <Grid item xs={1} className={classes.detailActionsSection}>
-          <ActionMenu
-            options={[
-              {
-                name: t("Edit"),
-                onClick: () => {},
-              },
-              {
-                name: d.substitute ? t("Remove Sub") : t("Assign Sub"),
-                onClick: () => {},
-              },
-              {
-                name: t("Delete"),
-                onClick: () => {},
-              },
-            ]}
-          />
-        </Grid>
-      </Grid>
-    );
-  });
-
-  // Include a Header above all of the details
+  // Button is wrapped in a span, because in this case the button will be disabled and Tooltip
+  // needs its first descendant to be an active element
   return (
-    <>
-      <Grid
-        item
-        xs={12}
-        container
-        className={clsx({
-          [classes.detail]: true,
-          [classes.detailHeader]: true,
-        })}
-      >
-        <Grid item xs={3} className={classes.detailEmployeeHeader}>
-          {t("Employee")}
-        </Grid>
-        <Grid item xs={2}>
-          {t("Reason")}
-        </Grid>
-        <Grid item xs={2}>
-          {t("Location")}
-        </Grid>
-        <Grid item xs={1}>
-          {t("Created")}
-        </Grid>
-        <Grid item xs={2}>
-          {t("Substitute")}
-        </Grid>
-        <Grid item xs={1}>
-          {t("Conf#")}
-        </Grid>
-      </Grid>
-      {detailsDisplay}
-    </>
+    <Tooltip
+      title={t("Substitutes can only be swapped between 2 Absences")}
+      placement="right"
+    >
+      <span>{button}</span>
+    </Tooltip>
   );
 };

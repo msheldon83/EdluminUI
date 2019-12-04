@@ -18,6 +18,7 @@ import { OrganizationSwitcherBar } from "./organization-switcher-bar";
 import { Route } from "react-router";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
 import { SnackbarProvider } from "hooks/use-snackbar";
+import { DialogProvider } from "hooks/use-dialog";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -48,14 +49,16 @@ export const AppChrome: React.FunctionComponent = props => {
             <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
             <div className={classes.mainContent}>
               <SnackbarProvider>
-                <div />
-                <div className={classes.contentView}>
-                  <ErrorBoundary>
-                    <LoadingStateIndicatorFullScreen>
-                      {props.children}
-                    </LoadingStateIndicatorFullScreen>
-                  </ErrorBoundary>
-                </div>
+                <DialogProvider>
+                  <div />
+                  <div className={classes.contentView}>
+                    <ErrorBoundary>
+                      <LoadingStateIndicatorFullScreen>
+                        {props.children}
+                      </LoadingStateIndicatorFullScreen>
+                    </ErrorBoundary>
+                  </div>
+                </DialogProvider>
               </SnackbarProvider>
             </div>
             <Route path={AdminChromeRoute.path}>
@@ -84,34 +87,36 @@ export const AppChrome: React.FunctionComponent = props => {
             />
             <div className={`${classes.container}`}>
               <SnackbarProvider>
-                <div
-                  className={`${
-                    expanded
-                      ? classes.navWidthExpanded
-                      : classes.navWidthCompact
-                  }`}
-                >
-                  <div className={classes.fabContainer}>
-                    <Fab
-                      onClick={toggleExpand}
-                      size="small"
-                      className={classes.fab}
-                    >
-                      {expanded ? (
-                        <ChevronLeftIcon className={classes.white} />
-                      ) : (
-                        <ChevronRightIcon className={classes.white} />
-                      )}
-                    </Fab>
+                <DialogProvider>
+                  <div
+                    className={`${
+                      expanded
+                        ? classes.navWidthExpanded
+                        : classes.navWidthCompact
+                    }`}
+                  >
+                    <div className={classes.fabContainer}>
+                      <Fab
+                        onClick={toggleExpand}
+                        size="small"
+                        className={classes.fab}
+                      >
+                        {expanded ? (
+                          <ChevronLeftIcon className={classes.white} />
+                        ) : (
+                          <ChevronRightIcon className={classes.white} />
+                        )}
+                      </Fab>
+                    </div>
                   </div>
-                </div>
-                <div className={`${classes.contentView}`}>
-                  <ErrorBoundary>
-                    <LoadingStateIndicatorFullScreen>
-                      {props.children}
-                    </LoadingStateIndicatorFullScreen>
-                  </ErrorBoundary>
-                </div>
+                  <div className={`${classes.contentView}`}>
+                    <ErrorBoundary>
+                      <LoadingStateIndicatorFullScreen>
+                        {props.children}
+                      </LoadingStateIndicatorFullScreen>
+                    </ErrorBoundary>
+                  </div>
+                </DialogProvider>
               </SnackbarProvider>
             </div>
             <Route path={AdminChromeRoute.path}>
@@ -152,6 +157,9 @@ const useStyles = makeStyles(theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
     }),
+    "@media print": {
+      display: "none",
+    },
   },
   navWidthCompact: {
     flexShrink: 0,
@@ -163,6 +171,9 @@ const useStyles = makeStyles(theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
     }),
+    "@media print": {
+      display: "none",
+    },
   },
   contentView: {
     flexGrow: 1,
@@ -171,6 +182,10 @@ const useStyles = makeStyles(theme => ({
     [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(0),
       paddingTop: theme.spacing(2),
+    },
+    "@media print": {
+      padding: 0,
+      fontSize: theme.typography.pxToRem(11),
     },
   },
   name: {

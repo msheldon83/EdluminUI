@@ -50,6 +50,9 @@ const useStyles = makeStyles(theme => ({
     bottom: 0,
     top: "auto",
     background: theme.customColors.lightBlue,
+    "@media print": {
+      display: "none",
+    },
   },
   text: {
     color: theme.customColors.gray,

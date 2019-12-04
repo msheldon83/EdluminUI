@@ -21,5 +21,8 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.customColors.sectionBorder,
     borderStyle: "solid",
     padding: theme.spacing(4),
+    "@media print": {
+      padding: 0,
+    },
   },
 }));

@@ -1,0 +1,5 @@
+mutation SwapVacancyAssignments($swapDetails: SwapVacancyAssignmentsInput!) {
+  vacancy {
+    swapVacancyAssignments(swapDetails: $swapDetails)
+  }
+}
