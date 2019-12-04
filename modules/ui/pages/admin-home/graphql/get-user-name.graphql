@@ -1,0 +1,10 @@
+query GetUserName {
+  userAccess {
+    me {
+      user {
+        id
+        firstName
+      }
+    }
+  }
+}
