@@ -66,8 +66,10 @@ export const SubSchedule: React.FC<Props> = props => {
     <>
       <PageTitle title="My Schedule" withoutHeading />
 
-      <Typography variant="h5">{t("My Schedule")}</Typography>
-      <Typography variant="h1">2019-2020</Typography>
+      <Grid className={classes.header}>
+        <Typography variant="h5">{t("My Schedule")}</Typography>
+        <Typography variant="h1">2019-2020</Typography>
+      </Grid>
 
       <Section>
         <Grid container justify="space-between">
@@ -99,4 +101,5 @@ const useStyles = makeStyles(theme => ({
   divider: {
     margin: `${theme.typography.pxToRem(8)} -${theme.typography.pxToRem(32)}`,
   },
+  header: { paddingBottom: theme.spacing(3) },
 }));

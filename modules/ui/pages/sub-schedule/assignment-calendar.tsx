@@ -28,10 +28,14 @@ export const AssignmentCalendar: React.FC<Props> = props => {
     skip: !props.userId,
   });
 
-  if (assignmentsForMonth.state !== "DONE") {
+  if (
+    assignmentsForMonth.state !== "UPDATING" &&
+    assignmentsForMonth.state !== "DONE"
+  ) {
     return <></>;
   }
 
+  // TODO these should be memoized
   const data = compact(
     assignmentsForMonth.data.employee?.employeeAssignmentSchedule
   );

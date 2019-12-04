@@ -10,6 +10,7 @@ import {
   SubScheduleListViewRoute,
   SubScheduleRoute,
 } from "ui/routes/sub-schedule";
+import { spacing } from "react-select/src/theme";
 
 type Props = {
   view: "list" | "calendar";
@@ -24,10 +25,10 @@ export const ScheduleViewToggle: React.FC<Props> = props => {
   const f = SubScheduleListViewRoute.generate(params);
   return (
     <>
-      <div className={classes.d}>
+      <div className={classes.option}>
         <Link
           to={props.listViewRoute}
-          className={`${classes.d} ${
+          className={`${classes.option} ${
             props.view === "list" ? classes.selected : ""
           }`}
         >
@@ -37,10 +38,10 @@ export const ScheduleViewToggle: React.FC<Props> = props => {
           </Typography>
         </Link>
       </div>
-      <div className={classes.d}>
+      <div className={classes.option}>
         <Link
           to={props.calendarViewRoute}
-          className={`${classes.d} ${
+          className={`${classes.option} ${
             props.view === "calendar" ? classes.selected : ""
           }`}
         >
@@ -55,13 +56,14 @@ export const ScheduleViewToggle: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  d: {
+  option: {
     display: "inline-flex",
     margin: theme.spacing(1),
     color: theme.customColors.edluminSubText,
     textDecoration: "none",
   },
   buttonText: {
+    paddingLeft: theme.spacing(1),
     textTransform: "uppercase",
     fontWeight: 500,
   },

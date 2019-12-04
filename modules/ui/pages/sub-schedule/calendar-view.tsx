@@ -37,7 +37,10 @@ export const CalendarView: React.FC<Props> = props => {
     skip: !props.userId,
   });
 
-  if (upcomingAssignments.state !== "DONE") {
+  if (
+    upcomingAssignments.state !== "DONE" &&
+    upcomingAssignments.state !== "UPDATING"
+  ) {
     return <></>;
   }
 

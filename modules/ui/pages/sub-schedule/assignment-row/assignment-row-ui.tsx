@@ -66,14 +66,12 @@ export const AssignmentRowUI: React.FC<Props> = props => {
         <Typography className={classes.subText}>{vacancyDaysOfWeek}</Typography>
       </Grid>
       <Grid item>
-        <Typography className={classes.text}>
-          {props.locationName}
-          {props.organizationName && (
-            <Typography className={classes.subText}>
-              {props.organizationName}
-            </Typography>
-          )}
-        </Typography>
+        <Typography className={classes.text}>{props.locationName}</Typography>
+        {props.organizationName && (
+          <Typography className={classes.subText}>
+            {props.organizationName}
+          </Typography>
+        )}
       </Grid>
       <Grid item>
         <Typography className={classes.bold}>{props.positionName}</Typography>
@@ -106,7 +104,11 @@ export const AssignmentRowUI: React.FC<Props> = props => {
         </Typography>
       </Grid>
       <Grid item>
-        <Button variant="outlined" onClick={props.onCancel}>
+        <Button
+          variant="outlined"
+          className={classes.cancel}
+          onClick={props.onCancel}
+        >
           {t("Cancel")}
         </Button>
       </Grid>
@@ -136,4 +138,5 @@ const useStyles = makeStyles(theme => ({
     display: "inline-block",
     paddingLeft: theme.spacing(1),
   },
+  cancel: { color: theme.customColors.darkRed },
 }));
