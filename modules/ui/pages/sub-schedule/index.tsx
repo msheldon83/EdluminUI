@@ -37,30 +37,30 @@ export const SubSchedule: React.FC<Props> = props => {
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
 
-  const fromDate = useMemo(() => new Date(), []);
-  const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
+  // const fromDate = useMemo(() => new Date(), []);
+  // const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
 
-  const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
-    variables: {
-      id: String(userId),
-      fromDate,
-      toDate,
-      includeCompletedToday: false,
-    },
-    skip: !userId,
-  });
+  // const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
+  //   variables: {
+  //     id: String(userId),
+  //     fromDate,
+  //     toDate,
+  //     includeCompletedToday: false,
+  //   },
+  //   skip: !userId,
+  // });
 
-  if (upcomingAssignments.state !== "DONE") {
-    return <></>;
-  }
+  // if (upcomingAssignments.state !== "DONE") {
+  //   return <></>;
+  // }
 
-  const data = upcomingAssignments.data.employee?.employeeAssignmentSchedule;
-  console.log(
-    "userId",
-    userId,
-    "jobs",
-    upcomingAssignments.data.employee?.employeeAssignmentSchedule
-  );
+  // const data = upcomingAssignments.data.employee?.employeeAssignmentSchedule;
+  // console.log(
+  //   "userId",
+  //   userId,
+  //   "jobs",
+  //   upcomingAssignments.data.employee?.employeeAssignmentSchedule
+  // );
 
   return (
     <>
@@ -85,24 +85,8 @@ export const SubSchedule: React.FC<Props> = props => {
             />
           </Grid>
         </Grid>
-        {/* <Divider /> */}
-      </Section>
-      <Section>
-        ALL
-        {/* {data?.map((a, i) => (
-          <AssignmentRow
-            key={a?.id || i}
-            confirmationNumber={a?.assignment?.id.toString() || i.toString()}
-            startTime={a?.startTimeLocal}
-            endTime={a?.endTimeLocal}
-            employeeName={`${a?.vacancy?.absence?.employee?.firstName} ${a?.vacancy?.absence?.employee?.lastName}`}
-            dates={`${a?.startDate}` || "n/a"}
-            locationName={a?.location?.name || "n/a"}
-            positionName={a?.vacancy?.position?.name || "n/a"}
-            totalDayPart={DayPart.FullDay}
-            onCancel={() => console.log("cancel")}
-          />
-        ))} */}
+        <Divider className={classes.divider} />
+
         {/* Either list or calendar view */}
         {props.view === "calendar" && <CalendarView userId={userId} />}
         {props.view === "list" && <div>LIST</div>}
@@ -111,4 +95,8 @@ export const SubSchedule: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({}));
+const useStyles = makeStyles(theme => ({
+  divider: {
+    margin: `${theme.typography.pxToRem(8)} -${theme.typography.pxToRem(32)}`,
+  },
+}));

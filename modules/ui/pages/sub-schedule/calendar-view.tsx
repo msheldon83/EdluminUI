@@ -7,14 +7,25 @@ import { GetUpcomingAssignments } from "../sub-home/graphql/get-upcoming-assignm
 import { AssignmentRow } from "./assignment-row";
 import { compact } from "lodash-es";
 import { NoAssignment } from "./assignment-row/no-assignment";
+import { Divider, makeStyles, Grid } from "@material-ui/core";
+import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
+import { AssignmentCalendar } from "./assignment-calendar";
 
 type Props = { userId?: string };
 
 export const CalendarView: React.FC<Props> = props => {
-  const [selectedDate, setSelectedDate] = useState(addDays(new Date(), 0));
+  const classes = useStyles();
+  const [selectedDate, setSelectedDate] = useState(addDays(new Date(), 1));
+
+  const onSelectDate = React.useCallback(
+    (date: Date) => setSelectedDate(date),
+    [setSelectedDate]
+  );
 
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(addMonths(startDate, 12));
+  const m2 = addMonths(startDate, 1);
+  const m3 = addMonths(startDate, 2);
 
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
@@ -39,10 +50,8 @@ export const CalendarView: React.FC<Props> = props => {
     "jobs",
     upcomingAssignments.data.employee?.employeeAssignmentSchedule
   );
-
   return (
     <>
-      tomorrow
       {data && data.length > 0 ? (
         data.map((a, i) => (
           <AssignmentRow
@@ -54,7 +63,29 @@ export const CalendarView: React.FC<Props> = props => {
       ) : (
         <NoAssignment date={selectedDate} />
       )}
-      <Calendar startDate={startDate} />
+      <Divider className={classes.divider} />
+      <Grid container>
+        <AssignmentCalendar
+          onSelectDate={onSelectDate}
+          userId={props.userId}
+          date={startDate}
+        />
+        <AssignmentCalendar
+          onSelectDate={onSelectDate}
+          userId={props.userId}
+          date={m2}
+        />
+      </Grid>
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  divider: {
+    marginBottom: theme.spacing(2),
+  },
+  calendar: {
+    display: "flex",
+    padding: theme.spacing(1),
+  },
+}));

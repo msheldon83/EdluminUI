@@ -1,0 +1,20 @@
+query GetAssignmentDatesForEmployee(
+  $id: ID!
+  $fromDate: DateTime!
+  $toDate: Date!
+  $limit: Int
+  $includeCompletedToday: Boolean
+) {
+  employee {
+    employeeAssignmentSchedule(
+      id: $id
+      fromDate: $fromDate
+      toDate: $toDate
+      limit: $limit
+      includeCompletedToday: $includeCompletedToday
+    ) {
+      id
+      startDate
+    }
+  }
+}
