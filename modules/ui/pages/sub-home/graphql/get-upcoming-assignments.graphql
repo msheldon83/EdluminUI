@@ -18,6 +18,7 @@ query GetUpcomingAssignments(
       endDate
       startTimeLocal
       endTimeLocal
+      dayPortion
       assignment {
         id
         startTimeLocal
@@ -34,6 +35,10 @@ query GetUpcomingAssignments(
       }
       vacancy {
         id
+        organization {
+          id
+          name
+        }
         absence {
           id
           employee {

@@ -18,20 +18,25 @@ export const NoAssignment: React.FC<Props> = props => {
   const vacancyDaysOfWeek = DateFns.format(props.date, "EEEE");
 
   return (
-    <Grid container className={props.className} alignContent="center">
+    <Grid
+      container
+      className={[classes.container, props.className].join(" ")}
+      alignContent="center"
+    >
       <Grid item xs={2}>
         <Typography className={classes.date}>{vacancyDates}</Typography>
         <Typography className={classes.subText}>{vacancyDaysOfWeek}</Typography>
       </Grid>
 
       <Grid item>
-        <Typography>{t("No Assignment")}</Typography>
+        <Typography className={classes.text}>{t("No assignment")}</Typography>
       </Grid>
     </Grid>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  container: { padding: theme.spacing(2) },
   date: {
     fontSize: theme.typography.pxToRem(18),
     fontWeight: 500,
@@ -39,7 +44,7 @@ const useStyles = makeStyles(theme => ({
   subText: {
     color: theme.customColors.edluminSubText,
   },
-  bold: {
-    fontWeight: 500,
+  text: {
+    fontSize: theme.typography.pxToRem(18),
   },
 }));

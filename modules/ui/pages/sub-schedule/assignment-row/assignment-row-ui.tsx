@@ -1,17 +1,19 @@
-import * as React from "react";
-import { DayPart } from "graphql/server-types.gen";
+import { Button, Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { Grid, Button, Typography } from "@material-ui/core";
-import { useTranslation } from "react-i18next";
 import * as DateFns from "date-fns";
+import { formatIsoDateIfPossible } from "helpers/date";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { DayIcon } from "ui/pages/sub-home/components/day-icon";
 
 type Props = {
   startDate: string;
   endDate: string;
   locationName: string;
+  organizationName?: string;
   positionName: string;
   employeeName: string;
-  totalDayPart: string;
+  dayPortion: number;
   startTime: string;
   endTime: string;
   confirmationNumber: string;
@@ -40,10 +42,22 @@ export const AssignmentRowUI: React.FC<Props> = props => {
     }
   }
 
+  const parseDayPortion = (dayPortion: number) => {
+    if (dayPortion < 0.5) {
+      return t("Partial Day(Hourly)");
+    } else if (dayPortion === 0.5) {
+      return t("Half Day");
+    } else if (dayPortion > 0.5 && dayPortion < 2) {
+      return t("Full Day");
+    } else {
+      return t("Full Days");
+    }
+  };
+
   return (
     <Grid
       container
-      className={props.className}
+      className={[classes.container, props.className].join(" ")}
       justify="space-between"
       alignContent="center"
     >
@@ -51,15 +65,40 @@ export const AssignmentRowUI: React.FC<Props> = props => {
         <Typography className={classes.date}>{vacancyDates}</Typography>
         <Typography className={classes.subText}>{vacancyDaysOfWeek}</Typography>
       </Grid>
-      <Grid item>{props.locationName}</Grid>
+      <Grid item>
+        <Typography className={classes.text}>
+          {props.locationName}
+          {props.organizationName && (
+            <Typography className={classes.subText}>
+              {props.organizationName}
+            </Typography>
+          )}
+        </Typography>
+      </Grid>
       <Grid item>
         <Typography className={classes.bold}>{props.positionName}</Typography>
         <Typography className={classes.subText}>
           {t("for")} {props.employeeName}
         </Typography>
       </Grid>
+
       <Grid item>
-        <Typography className={classes.bold}>{props.totalDayPart}</Typography>
+        <div className={classes.dayPartContainer}>
+          <DayIcon dayPortion={props.dayPortion} startTime={props.startTime} />
+
+          <div className={classes.dayPart}>
+            <Typography variant="h6">{`${Math.round(props.dayPortion)} ${t(
+              parseDayPortion(props.dayPortion)
+            )}`}</Typography>
+
+            <Typography className={classes.subText}>
+              {`${formatIsoDateIfPossible(
+                props.startTime,
+                "h:mm aaa"
+              )} - ${formatIsoDateIfPossible(props.endTime, "h:mm aaa")}`}
+            </Typography>
+          </div>
+        </div>
       </Grid>
       <Grid item>
         <Typography className={classes.bold}>
@@ -76,6 +115,7 @@ export const AssignmentRowUI: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  container: { padding: theme.spacing(2) },
   date: {
     fontSize: theme.typography.pxToRem(18),
     fontWeight: 500,
@@ -85,5 +125,15 @@ const useStyles = makeStyles(theme => ({
   },
   bold: {
     fontWeight: 500,
+  },
+  text: {
+    fontSize: theme.typography.pxToRem(18),
+  },
+  dayPartContainer: {
+    display: "flex",
+  },
+  dayPart: {
+    display: "inline-block",
+    paddingLeft: theme.spacing(1),
   },
 }));

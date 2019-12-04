@@ -17,10 +17,12 @@ type AssignmentDetails = {
   endDate?: string;
   startTimeLocal?: string;
   endTimeLocal?: string;
+  dayPortion: number;
   location: {
     name?: string;
   } | null;
   vacancy: {
+    organization: { name?: string };
     position: {
       name?: string;
     } | null;
@@ -44,24 +46,21 @@ export const AssignmentRow: React.FC<Props> = props => {
   const { t } = useTranslation();
   const a = props.assignment;
 
-  // const startDate = a.startDate && DateFns.parseISO(a.startDate);
-  // const endDate = a.endDate && DateFns.parseISO(a.endDate);
-  // let vacancyDates = startDate ? DateFns.format(startDate, "MMM d") : "";
-  // let vacancyDaysOfWeek = startDate ? DateFns.format(startDate, "EEEE") : "";
-
   const employeeName = `${a.vacancy?.absence?.employee?.firstName} ${a.vacancy?.absence?.employee?.lastName}`;
+
   return (
     <AssignmentRowUI
       {...props}
-      confirmationNumber={a.assignment?.id.toString() || ""}
+      confirmationNumber={a.assignment?.id || ""}
       startTime={a.startTimeLocal || ""}
       endTime={a.endTimeLocal || ""}
       employeeName={employeeName}
       startDate={a.startDate || ""}
       endDate={a.endDate || ""}
-      locationName={a?.location?.name || "n/a"}
-      positionName={a?.vacancy?.position?.name || "n/a"}
-      totalDayPart={"Not SURE"}
+      locationName={a?.location?.name || ""}
+      organizationName={a?.vacancy?.organization?.name}
+      positionName={a?.vacancy?.position?.name || ""}
+      dayPortion={a.dayPortion}
     />
   );
 };
