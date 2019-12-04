@@ -32,7 +32,7 @@ import {
 } from "./helpers";
 import { GroupCard } from "./group-card";
 import { TFunction } from "i18next";
-import { format } from "date-fns";
+import { format, isFuture, startOfToday } from "date-fns";
 import { DailyReportSection } from "./daily-report-section";
 import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
 import { useDialog, RenderFunctionsType } from "hooks/use-dialog";
@@ -87,6 +87,26 @@ export const DailyReport: React.FC<Props> = props => {
       setSelectedCard(props.selectedCard);
     }
   }, [props.selectedCard]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Prevent future movement when on the Awaiting Verification card
+  // with some explanation to the user as to why they can't go forward in time
+  useEffect(() => {
+    if (selectedCard === "awaitingVerification" && isFuture(props.date)) {
+      openSnackbar({
+        message: (
+          <div>
+            {t(
+              "Future dates cannot be verified. We switched your view back to today."
+            )}
+          </div>
+        ),
+        dismissable: true,
+        autoHideDuration: 5000,
+        status: "info",
+      });
+      props.setDate(startOfToday());
+    }
+  }, [selectedCard, props.date]);
 
   const serverQueryFilters = useMemo(() => filters, [
     filters.date,
