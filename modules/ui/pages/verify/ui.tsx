@@ -17,6 +17,7 @@ import { Assignment } from "./components/assignment";
 type Props = {
   showVerified: boolean;
   locationsFilter: number[];
+  showLinkToVerify?: boolean;
 };
 
 export const VerifyUI: React.FC<Props> = props => {
@@ -121,6 +122,7 @@ export const VerifyUI: React.FC<Props> = props => {
         selectedDateTab={selectedDateTab}
         setSelectedDateTab={setSelectedDateTab}
         dateTabOptions={dateTabOptions}
+        showLinkToVerify={props.showLinkToVerify}
       />
       <Section>
         {getVacancyDetails.state === "LOADING" ? (

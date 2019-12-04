@@ -480,7 +480,11 @@ const displaySections = (
       </Grid>
       {selectedCard === "awaitingVerification" ? (
         <div className={classes.verifyContainer}>
-          <VerifyUI showVerified={false} locationsFilter={[]} />
+          <VerifyUI
+            showVerified={false}
+            locationsFilter={[]}
+            showLinkToVerify={true}
+          />
         </div>
       ) : (
         <div className={classes.groupedDetailsContainer}>
