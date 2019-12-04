@@ -15,6 +15,8 @@ import {
   GetUserNameQueryVariables,
 } from "./graphql/get-user-name.gen";
 import { TFunction } from "i18next";
+import { Link } from "react-router-dom";
+import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 
 type Props = {};
 
@@ -24,6 +26,7 @@ export const AdminHome: React.FC<Props> = props => {
   const params = useRouteParams(AdminHomeRoute);
   const [date, setDate] = useState(startOfToday());
   const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay());
+  const dailyReportRouteParams = useRouteParams(DailyReportRoute);
   const getUserName = useQueryBundle(GetUserName, {
     fetchPolicy: "cache-first",
   });
@@ -59,7 +62,17 @@ export const AdminHome: React.FC<Props> = props => {
         <Grid item>
           <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
         </Grid>
-        <Grid item>{getDevViewToggle(toggleTimeOfDay, timeOfDay)}</Grid>
+        <Grid item>
+          {getDevViewToggle(toggleTimeOfDay, timeOfDay)}
+          <Button
+            variant="outlined"
+            component={Link}
+            to={DailyReportRoute.generate(dailyReportRouteParams)}
+            className={classes.dailyReportButton}
+          >
+            {t("Daily Report")}
+          </Button>
+        </Grid>
       </Grid>
 
       {(timeOfDay === "morning" || timeOfDay === "evening") && (
@@ -80,6 +93,9 @@ export const AdminHome: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(3),
+  },
+  dailyReportButton: {
+    marginLeft: theme.spacing(),
   },
 }));
 
