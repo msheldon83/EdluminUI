@@ -39,6 +39,7 @@ import { useDialog, RenderFunctionsType } from "hooks/use-dialog";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { Print } from "@material-ui/icons";
+import { VerifyUI } from "ui/pages/verify/ui";
 
 type Props = {
   orgId: string;
@@ -304,38 +305,40 @@ export const DailyReport: React.FC<Props> = props => {
   };
 
   return (
-    <Section>
-      <SectionHeader title={props.header} className={classes.header} />
-      {props.showFilters && (
-        <>
-          <Filters orgId={props.orgId} setDate={props.setDate} />
-          <Divider />
-        </>
-      )}
-      <Grid
-        container
-        spacing={4}
-        justify="flex-start"
-        className={classes.cardContainer}
-      >
-        {props.cards.map((c, i) => {
-          return (
-            <Grid item key={i}>
-              <GroupCard
-                cardType={c}
-                details={allDetails}
-                totalContractedEmployeeCount={totalContractedEmployeeCount}
-                totalAwaitingVerificationCount={awaitingVerificationCount}
-                onClick={(c: CardType) => {
-                  setSelectedCard(c === "total" ? undefined : c);
-                }}
-                activeCard={selectedCard}
-                showPercentInLabel={c !== "awaitingVerification"}
-              />
-            </Grid>
-          );
-        })}
-      </Grid>
+    <Section className={classes.dailyReportContainer}>
+      <div className={classes.headerContainer}>
+        <SectionHeader title={props.header} className={classes.header} />
+        {props.showFilters && (
+          <>
+            <Filters orgId={props.orgId} setDate={props.setDate} />
+            <Divider />
+          </>
+        )}
+        <Grid
+          container
+          spacing={4}
+          justify="flex-start"
+          className={classes.cardContainer}
+        >
+          {props.cards.map((c, i) => {
+            return (
+              <Grid item key={i}>
+                <GroupCard
+                  cardType={c}
+                  details={allDetails}
+                  totalContractedEmployeeCount={totalContractedEmployeeCount}
+                  totalAwaitingVerificationCount={awaitingVerificationCount}
+                  onClick={(c: CardType) => {
+                    setSelectedCard(c === "total" ? undefined : c);
+                  }}
+                  activeCard={selectedCard}
+                  showPercentInLabel={c !== "awaitingVerification"}
+                />
+              </Grid>
+            );
+          })}
+        </Grid>
+      </div>
       {displaySections(
         groupedDetails,
         selectedCard,
@@ -352,6 +355,16 @@ export const DailyReport: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  dailyReportContainer: {
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
+  headerContainer: {
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+  },
   header: {
     "@media print": {
       display: "none",
@@ -364,11 +377,22 @@ const useStyles = makeStyles(theme => ({
       display: "none",
     },
   },
+  detailActions: {
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+  },
+  groupedDetailsContainer: {
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+  },
   detailGroup: {
     marginTop: theme.spacing(2),
     "@media print": {
       marginTop: 0,
     },
+  },
+  verifyContainer: {
+    marginTop: theme.spacing(2),
   },
   action: {
     cursor: "pointer",
@@ -432,7 +456,12 @@ const displaySections = (
   // Build a display section for each group
   return (
     <div>
-      <Grid container justify="space-between" alignItems="center">
+      <Grid
+        container
+        justify="space-between"
+        alignItems="center"
+        className={classes.detailActions}
+      >
         {selectedCard && (
           <Grid item>
             {selectedCardDisplayText}{" "}
@@ -450,25 +479,29 @@ const displaySections = (
         </Grid>
       </Grid>
       {selectedCard === "awaitingVerification" ? (
-        <div>Verify component goes here</div>
+        <div className={classes.verifyContainer}>
+          <VerifyUI showVerified={false} locationsFilter={[]} />
+        </div>
       ) : (
-        groupedDetails.map((g, i) => {
-          const hasDetails = !!(g.details && g.details.length);
-          if (selectedCard && !hasDetails) {
-            return null;
-          }
+        <div className={classes.groupedDetailsContainer}>
+          {groupedDetails.map((g, i) => {
+            const hasDetails = !!(g.details && g.details.length);
+            if (selectedCard && !hasDetails) {
+              return null;
+            }
 
-          return (
-            <div key={`group-${i}`} className={classes.detailGroup}>
-              <DailyReportSection
-                group={g}
-                selectedDetails={selectedRows}
-                updateSelectedDetails={updateSelectedDetails}
-                removeSub={removeSub}
-              />
-            </div>
-          );
-        })
+            return (
+              <div key={`group-${i}`} className={classes.detailGroup}>
+                <DailyReportSection
+                  group={g}
+                  selectedDetails={selectedRows}
+                  updateSelectedDetails={updateSelectedDetails}
+                  removeSub={removeSub}
+                />
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

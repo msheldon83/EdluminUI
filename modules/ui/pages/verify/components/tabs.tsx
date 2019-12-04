@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Tab, Tabs, makeStyles, Avatar } from "@material-ui/core";
+import { Tab, Tabs, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 
