@@ -17,9 +17,11 @@ import {
   format,
   isEqual,
   startOfToday,
+  isValid,
 } from "date-fns";
 import { VacancyDetailCount, VacancyDetail } from "graphql/server-types.gen";
 import { Assignment } from "./components/assignment";
+import { useHistory } from "react-router";
 
 type Props = {
   showVerified: boolean;
@@ -33,6 +35,7 @@ type Props = {
 export const VerifyUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const history = useHistory();
   const params = useRouteParams(VerifyRoute);
 
   const today = useMemo(() => startOfToday(), []);
@@ -115,6 +118,21 @@ export const VerifyUI: React.FC<Props> = props => {
   // tabs, keep the focus to Today
   if (!dateTabOptions.find(d => isEqual(d.date, selectedDateToUse))) {
     selectedDateToUse = today;
+  }
+
+  // Check to see if we've been provided a default tab date to start with
+  if (history.location.state?.selectedDateTab && !!dateTabOptions.length) {
+    if (history.location.state?.selectedDateTab === "older") {
+      selectedDateToUse = dateTabOptions[dateTabOptions.length - 1].date;
+    } else {
+      const providedDate = new Date(history.location.state?.selectedDateTab);
+      const tabOptionMatch = dateTabOptions.find(d =>
+        isEqual(d.date, providedDate)
+      );
+      if (tabOptionMatch) {
+        selectedDateToUse = tabOptionMatch.date;
+      }
+    }
   }
 
   const getVacancyDetails = useQueryBundle(GetVacancyDetails, {

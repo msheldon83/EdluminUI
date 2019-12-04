@@ -382,7 +382,9 @@ export const DailyReport: React.FC<Props> = props => {
         props.setDate,
         () => {
           const url = VerifyRoute.generate(verifyRouteParams);
-          history.push(url);
+          history.push(url, {
+            selectedDateTab: "older",
+          });
         }
       )}
     </Section>
