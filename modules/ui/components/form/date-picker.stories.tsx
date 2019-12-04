@@ -8,6 +8,7 @@ import addDays from "date-fns/addDays";
 import { DatePicker, DEFAULT_DATE_FORMAT } from "./date-picker";
 import { Calendar } from "./calendar";
 import { FiveWeekCalendar } from "./five-week-calendar";
+import { SingleMonthCalendar } from "./single-month-calendar";
 
 export default {
   title: "Forms/Date Picker",
@@ -191,10 +192,34 @@ FiveWeekCalendarStory.story = {
   name: "Five Week Calendar",
 };
 
+export const SingleMonthCalendarStory = () => {
+  const classes = useStyles();
+  const today = new Date();
+
+  return (
+    <div className={classes.container}>
+      <SingleMonthCalendar
+        month={customDate("startDate", today)}
+        selectedDates={[
+          today,
+          addDays(today, 1),
+          addDays(today, 2),
+          addDays(today, 8),
+        ]}
+        disabledDates={[addDays(today, 3), addDays(today, 4)]}
+      />
+    </div>
+  );
+};
+
+SingleMonthCalendarStory.story = {
+  name: "Single Month Calendar",
+};
+
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(2),
-    maxWidth: theme.typography.pxToRem(575),
+    maxWidth: theme.typography.pxToRem(480),
     width: "100%",
   },
 }));
