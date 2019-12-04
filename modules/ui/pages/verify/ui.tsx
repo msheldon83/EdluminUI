@@ -117,13 +117,11 @@ export const VerifyUI: React.FC<Props> = props => {
 
   return (
     <>
-      <Section>
-        <DateTabs
-          selectedDateTab={selectedDateTab}
-          setSelectedDateTab={setSelectedDateTab}
-          dateTabOptions={dateTabOptions}
-        />
-      </Section>
+      <DateTabs
+        selectedDateTab={selectedDateTab}
+        setSelectedDateTab={setSelectedDateTab}
+        dateTabOptions={dateTabOptions}
+      />
       <Section>
         {getVacancyDetails.state === "LOADING" ? (
           <Typography variant="h5">
