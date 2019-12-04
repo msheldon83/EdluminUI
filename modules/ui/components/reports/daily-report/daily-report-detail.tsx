@@ -34,18 +34,14 @@ export const DailyReportDetail: React.FC<Props> = props => {
       props.detail.state === "unfilled");
 
   return (
-    <Grid
-      item
-      xs={12}
-      container
-      className={[classes.detail, props.className].join(" ")}
-    >
-      <Grid item xs={3}>
+    <Grid item xs={12} container className={props.className}>
+      <Grid item xs={3} zeroMinWidth>
         <div className={classes.employeeSection}>
           <Checkbox
             color="primary"
             className={clsx({
               [classes.hidden]: hideCheckbox,
+              [classes.checkbox]: true,
             })}
             checked={isChecked}
             onChange={e => {
@@ -66,11 +62,11 @@ export const DailyReportDetail: React.FC<Props> = props => {
           </div>
         </div>
       </Grid>
-      <Grid item xs={2}>
+      <Grid item xs={2} zeroMinWidth>
         <div>{props.detail.absenceReason}</div>
         <div className={classes.detailSubText}>{props.detail.dateRange}</div>
       </Grid>
-      <Grid item xs={2}>
+      <Grid item xs={2} zeroMinWidth>
         <div>{props.detail.location?.name}</div>
         <div
           className={classes.detailSubText}
@@ -79,7 +75,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
       <Grid item xs={1}>
         <div>{props.detail.created}</div>
       </Grid>
-      <Grid item xs={2}>
+      <Grid item xs={2} zeroMinWidth>
         {props.detail.state === "noSubRequired" && (
           <div className={classes.detailSubText}>{t("Not required")}</div>
         )}
@@ -95,7 +91,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
           <Link className={classes.action}>{t("Assign")}</Link>
         )}
       </Grid>
-      <Grid item xs={1}>
+      <Grid item xs={1} zeroMinWidth>
         <div>
           {props.detail.type === "absence"
             ? `#${props.detail.id}`
@@ -137,12 +133,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  detail: {
-    paddingLeft: theme.spacing(4),
-    paddingTop: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-  },
   employeeSection: {
     display: "flex",
   },
@@ -151,9 +141,17 @@ const useStyles = makeStyles(theme => ({
   },
   detailActionsSection: {
     textAlign: "right",
+    "@media print": {
+      display: "none",
+    },
   },
   action: {
     cursor: "pointer",
+  },
+  checkbox: {
+    "@media print": {
+      display: "none",
+    },
   },
   hidden: {
     visibility: "hidden",

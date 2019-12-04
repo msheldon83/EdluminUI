@@ -62,7 +62,7 @@ export const DateStepperHeader: React.FC<Props> = props => {
 
   return (
     <div>
-      <div>
+      <div className={classes.dayDescription}>
         <Typography variant="h5">
           {dateSubText ? (
             dateSubText
@@ -91,6 +91,11 @@ export const DateStepperHeader: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  dayDescription: {
+    "@media print": {
+      display: "none",
+    },
+  },
   todayLink: {
     cursor: "pointer",
   },
@@ -102,6 +107,9 @@ const useStyles = makeStyles(theme => ({
   arrow: {
     fill: theme.palette.primary.main,
     cursor: "pointer",
+    "@media print": {
+      display: "none",
+    },
   },
   forwardArrow: {
     marginLeft: theme.spacing(),

@@ -114,6 +114,10 @@ const useStyles = makeStyles(theme => ({
   summary: {
     borderBottom: `1px solid ${theme.customColors.medLightGray}`,
     height: theme.typography.pxToRem(16),
+    "@media print": {
+      paddingLeft: theme.spacing(),
+      minHeight: `${theme.typography.pxToRem(30)} !important`,
+    },
   },
   summaryText: {
     color: theme.palette.primary.main,
@@ -122,6 +126,9 @@ const useStyles = makeStyles(theme => ({
   subGroupSummaryText: {
     fontWeight: "bold",
     paddingLeft: theme.spacing(2),
+    "@media print": {
+      paddingLeft: 0,
+    },
   },
   subGroupExpanded: {
     borderTop: "0 !important",
@@ -145,6 +152,12 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),
+    "@media print": {
+      paddingLeft: theme.spacing(),
+      paddingTop: 0,
+      paddingRight: 0,
+      paddingBottom: 0,
+    },
   },
   detailHeader: {
     color: theme.customColors.edluminSubText,
@@ -153,6 +166,9 @@ const useStyles = makeStyles(theme => ({
   },
   detailEmployeeHeader: {
     paddingLeft: theme.spacing(5),
+    "@media print": {
+      paddingLeft: 0,
+    },
   },
 }));
 
@@ -173,10 +189,15 @@ const getDetailsDisplay = (
   }
 
   const detailsDisplay = details.map((d, i) => {
+    const className = [
+      classes.detail,
+      i % 2 == 1 ? classes.shadedRow : undefined,
+    ].join(" ");
+
     return (
       <DailyReportDetail
         detail={d}
-        className={i % 2 == 1 ? classes.shadedRow : undefined}
+        className={className}
         selectedDetails={selectedDetails}
         updateSelectedDetails={updateSelectedDetails}
         removeSub={removeSub}

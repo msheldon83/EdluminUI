@@ -183,6 +183,10 @@ const useStyles = makeStyles(theme => ({
       padding: theme.spacing(0),
       paddingTop: theme.spacing(2),
     },
+    "@media print": {
+      padding: 0,
+      fontSize: theme.typography.pxToRem(11),
+    },
   },
   name: {
     backgroundColor: theme.customColors.mustard,

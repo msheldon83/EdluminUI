@@ -60,6 +60,9 @@ export const DailyReportPage: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(3),
+    "@media print": {
+      marginBottom: theme.spacing(),
+    },
   },
   action: {
     "@media print": {

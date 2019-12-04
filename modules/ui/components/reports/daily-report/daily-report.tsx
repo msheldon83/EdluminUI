@@ -255,7 +255,7 @@ export const DailyReport: React.FC<Props> = props => {
 
   return (
     <Section>
-      <SectionHeader title={props.header} />
+      <SectionHeader title={props.header} className={classes.header} />
       {props.showFilters && (
         <>
           <Filters orgId={props.orgId} setDate={props.setDate} />
@@ -300,12 +300,23 @@ export const DailyReport: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  header: {
+    "@media print": {
+      display: "none",
+    },
+  },
   cardContainer: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    "@media print": {
+      display: "none",
+    },
   },
   detailGroup: {
     marginTop: theme.spacing(2),
+    "@media print": {
+      marginTop: 0,
+    },
   },
   action: {
     cursor: "pointer",

@@ -4,6 +4,7 @@ import { Grid, Button } from "@material-ui/core";
 
 type Props = {
   title: string;
+  className?: string;
   action?: Action;
   cancel?: Action;
   submit?: Action;
@@ -19,7 +20,7 @@ export const SectionHeader: React.FC<Props> = props => {
   return (
     <Grid
       container
-      className={classes.header}
+      className={[classes.header, props.className].join(" ")}
       justify="space-between"
       alignItems="center"
     >
