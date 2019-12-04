@@ -3,9 +3,9 @@ import { Tab, Tabs, makeStyles, Avatar } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 
 type Props = {
-  dateOptions: { dateLabel: string; count: number }[];
-  selectedDateTab: string;
-  setSelectedDateTab: React.Dispatch<React.SetStateAction<string>>;
+  selectedDateTab: Date;
+  dateTabOptions: {date: Date; dateLabel: string; count: number}[];
+  setSelectedDateTab: React.Dispatch<React.SetStateAction<Date>>;
 };
 
 export const DateTabs: React.FC<Props> = props => {
@@ -14,7 +14,7 @@ export const DateTabs: React.FC<Props> = props => {
 
   const updateDateTab = (
     event: React.ChangeEvent<{}>,
-    newSelectedDate: string
+    newSelectedDate: Date
   ) => {
     props.setSelectedDateTab(newSelectedDate);
   };
@@ -28,7 +28,7 @@ export const DateTabs: React.FC<Props> = props => {
         onChange={updateDateTab}
         aria-label="date-selector"
       >
-        {props.dateOptions.map((dateOption, index: number) => (
+        {props.dateTabOptions.map((dateOption, index: number) => (
           <Tab
             key={index}
             label={
@@ -37,7 +37,7 @@ export const DateTabs: React.FC<Props> = props => {
                 <Avatar className={classes.tabLabel}>{dateOption.count}</Avatar>
               </div>
             }
-            value={dateOption.dateLabel}
+            value={dateOption.date}
             className={classes.tab}
           />
         ))}

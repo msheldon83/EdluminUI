@@ -1,0 +1,20 @@
+query GetAssignmentCount(
+  $orgId: ID!
+  $locationIds: [Int]
+  $fromDate: Date
+  $toDate: Date
+  $includeVerified: Boolean
+) {
+  vacancy {
+    getCountOfAssignmentsForVerify(
+      orgId: $orgId
+      locationIds: $locationIds
+      fromDate: $fromDate
+      toDate: $toDate
+      includeVerified: $includeVerified
+    ) {
+      date
+      count
+    }
+  }
+}

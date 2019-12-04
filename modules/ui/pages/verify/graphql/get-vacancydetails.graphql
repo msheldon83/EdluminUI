@@ -1,0 +1,63 @@
+query GetVacancyDetails(
+  $orgId: ID!
+  $locationIds: [Int]
+  $fromDate: Date
+  $toDate: Date
+  $includeVerified: Boolean
+) {
+  vacancy {
+    getAssignmentsForVerify(
+      orgId: $orgId
+      locationIds: $locationIds
+      fromDate: $fromDate
+      toDate: $toDate
+      includeVerified: $includeVerified
+    ) {
+      id
+      startTimeLocal
+      endTimeLocal
+      dayPortion
+      assignment {
+        id
+        employee {
+          id
+          firstName
+          lastName
+        }
+      }
+      payCode {
+        id
+        name
+      }
+      location {
+        name
+        address1
+        city
+        stateName
+        postalCode
+        phoneNumber
+      }
+      vacancy {
+        absence {
+          id
+          employee {
+            id
+            firstName
+            lastName
+          }
+          details {
+            startDate
+            startTimeLocal
+            endTimeLocal
+            dayPortion
+          }
+        }
+        position {
+          id
+          name
+        }
+        notesToReplacement
+      }
+    }
+  }
+}
