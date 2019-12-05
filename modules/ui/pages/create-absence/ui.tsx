@@ -1,35 +1,27 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import {
-  addMonths,
   eachDayOfInterval,
-  endOfMonth,
   format,
   isBefore,
   isDate,
   isEqual,
   isValid,
-  parseISO,
-  startOfDay,
   startOfMonth,
 } from "date-fns";
 import { useForm } from "forms";
-import {
-  HookQueryResult,
-  useMutationBundle,
-  useQueryBundle,
-} from "graphql/hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
   Absence,
   AbsenceCreateInput,
   AbsenceDetailCreateInput,
   AbsenceReasonTrackingTypeId,
   AbsenceVacancyInput,
-  CalendarDayType,
   DayPart,
   NeedsReplacement,
   Vacancy,
 } from "graphql/server-types.gen";
+import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate, isAfterDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
@@ -40,7 +32,6 @@ import { useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
-import { AbsenceDetails } from "./absence-details";
 import { AssignSub } from "./assign-sub/index";
 import { Confirmation } from "./confirmation";
 import { EditVacancies } from "./edit-vacancies";
@@ -50,7 +41,7 @@ import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { VacancyDetail } from "./types";
-import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
+import { AbsenceDetails } from "ui/components/absence/absence-details";
 
 type Props = {
   firstName: string;
@@ -339,8 +330,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             )}
             <Section className={classes.absenceDetails}>
               <AbsenceDetails
-                state={state}
-                dispatch={dispatch}
+                onSwitchMonth={d =>
+                  dispatch({ action: "switchMonth", month: d })
+                }
+                wantsReplacement={state.needsReplacement}
+                onSubstituteWantedChange={subWanted =>
+                  dispatch({ action: "setNeedsReplacement", to: subWanted })
+                }
+                organizationId={props.organizationId}
                 setValue={setValue}
                 values={formValues}
                 errors={errors}
