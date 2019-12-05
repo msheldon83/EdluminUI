@@ -199,14 +199,37 @@ export const SingleMonthCalendarStory = () => {
   return (
     <div className={classes.container}>
       <SingleMonthCalendar
-        month={customDate("startDate", today)}
-        selectedDates={[
-          today,
-          addDays(today, 1),
-          addDays(today, 2),
-          addDays(today, 8),
+        currentMonth={customDate("startDate", today)}
+        onSelectDate={date => alert(`Selected date: ${date}`)}
+        customDates={[
+          {
+            date: today,
+            buttonProps: {
+              className: classes.activeDay,
+              onClick() {
+                alert("Clicked");
+              },
+            },
+          },
+          {
+            date: addDays(today, 1),
+            buttonProps: {
+              className: classes.activeDay,
+            },
+          },
+          {
+            date: addDays(today, 3),
+            buttonProps: {
+              className: classes.customDay,
+            },
+          },
+          {
+            date: addDays(today, 13),
+            buttonProps: {
+              className: classes.customDay,
+            },
+          },
         ]}
-        disabledDates={[addDays(today, 3), addDays(today, 4)]}
       />
     </div>
   );
@@ -221,5 +244,24 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2),
     maxWidth: theme.typography.pxToRem(480),
     width: "100%",
+  },
+  activeDay: {
+    backgroundColor: "#2196F3",
+    color: "white",
+
+    "&:hover": {
+      backgroundColor: "#2196F3",
+      color: "white",
+    },
+  },
+  customDay: {
+    backgroundColor: "red",
+    color: "white",
+    cursor: "default",
+
+    "&:hover": {
+      backgroundColor: "red",
+      color: "white",
+    },
   },
 }));

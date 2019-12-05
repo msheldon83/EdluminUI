@@ -1,64 +1,63 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import clsx from "clsx";
-import Button from "@material-ui/core/Button";
-import addDays from "date-fns/addDays";
+import Button, { ButtonProps } from "@material-ui/core/Button";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
 import format from "date-fns/format";
-import isWeekend from "date-fns/isWeekend";
-import startOfWeek from "date-fns/startOfWeek";
 import isSameDay from "date-fns/isSameDay";
-import getDaysInMonth from "date-fns/getDaysInMonth";
 import lastDayOfMonth from "date-fns/lastDayOfMonth";
 import startOfMonth from "date-fns/startOfMonth";
 import getDay from "date-fns/getDay";
 
 type SingleMonthCalendarProps = {
-  month: Date;
-  disabledDates?: Array<Date>;
-  selectedDates?: Array<Date>;
+  currentMonth: Date;
+  customDates?: Array<{
+    date: Date;
+    buttonProps: ButtonProps;
+  }>;
+  onSelectDate?: (date: Date) => void;
 };
 
 export const SingleMonthCalendar = (props: SingleMonthCalendarProps) => {
-  const { selectedDates = [], month, disabledDates = [] } = props;
+  const { customDates = [], currentMonth, onSelectDate = () => {} } = props;
 
   const classes = useStyles();
 
-  const firstDay = startOfMonth(month);
-  const lastDay = lastDayOfMonth(month);
+  const firstDay = startOfMonth(currentMonth);
+  const lastDay = lastDayOfMonth(currentMonth);
   const firstDayOfMonthNumber = getDay(firstDay);
   const daysList = eachDayOfInterval({ start: firstDay, end: lastDay });
-  const monthTitle = format(month, "MMMM yyyy");
+  const monthTitle = format(currentMonth, "MMMM yyyy");
 
   const renderDates = () => {
-    return daysList.map((date, index) => {
-      const day = format(date, "d");
-      const formattedDate = format(date, "yyyy-MM-dd");
+    return daysList.map((dayListDate, index) => {
+      const day = format(dayListDate, "d");
+      const formattedDate = format(dayListDate, "yyyy-MM-dd");
 
-      const isDisabled = disabledDates.find(disabledDate =>
-        isSameDay(disabledDate, date)
-      );
-      const isSelected = selectedDates.find(selectedDate =>
-        isSameDay(selectedDate, date)
-      );
+      const { buttonProps = {} } =
+        customDates.find(highlightedDate =>
+          isSameDay(highlightedDate.date, dayListDate)
+        ) || {};
 
-      const itemStyle =
+      const buttonClassName = buttonProps.className
+        ? buttonProps.className
+        : "";
+
+      const dayItemStyle =
         index === 0 ? { gridColumn: firstDayOfMonthNumber + 1 } : {};
-
-      const buttonClassNames = clsx({
-        [classes.dayButton]: true,
-        [classes.daySelected]: isSelected,
-        [classes.dayDisabled]: isDisabled,
-      });
 
       return (
         <li
           className={classes.date}
-          style={itemStyle}
+          style={dayItemStyle}
           role="gridcell"
           key={formattedDate}
         >
-          <Button className={buttonClassNames} disableFocusRipple disableRipple>
+          <Button
+            onClick={() => onSelectDate(dayListDate)}
+            onKeyPress={() => onSelectDate(dayListDate)}
+            {...buttonProps}
+            className={`${classes.dayButton} ${buttonClassName}`}
+          >
             <time className={classes.dayButtonTime} dateTime={formattedDate}>
               {day}
             </time>
@@ -113,12 +112,10 @@ const useStyles = makeStyles(theme => ({
     },
   },
   header: {
-    // Future proofing styling for adding functionality here later
     alignItems: "center",
     display: "flex",
     justifyContent: "center",
-    paddingBottom: theme.spacing(5),
-    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(3),
   },
   calendarTitle: {
     fontSize: theme.typography.pxToRem(14),
@@ -146,7 +143,6 @@ const useStyles = makeStyles(theme => ({
     textAlign: "center",
   },
   dayButton: {
-    cursor: "default",
     fontSize: theme.typography.pxToRem(16),
     fontWeight: "normal",
     maxWidth: theme.typography.pxToRem(48),
@@ -171,23 +167,5 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "center",
     position: "absolute",
     width: "100%",
-  },
-  daySelected: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.customColors.white,
-    },
-  },
-  dayDisabled: {
-    backgroundColor: theme.customColors.lightGray,
-    color: theme.palette.text.disabled,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
-      color: theme.palette.text.disabled,
-    },
   },
 }));
