@@ -11,13 +11,14 @@ import { Section } from "ui/components/section";
 import { useQueryParamIso } from "hooks/query-params";
 import { StepParams } from "./step-params";
 import { EditAbsenceState, editAbsenceReducer } from "./state";
-import { useReducer, useMemo } from "react";
+import { useReducer, useMemo, useState } from "react";
 import { startOfMonth } from "date-fns/esm";
 import { useQueryBundle } from "graphql/hooks";
 import { format, endOfMonth, addMonths } from "date-fns";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
 import useForm from "react-hook-form";
+import { VacancyDetail } from "../create-absence/types";
 
 type Props = {
   firstName: string;
@@ -34,6 +35,7 @@ type Props = {
   startDate: Date;
   endDate: Date;
   dayPart?: DayPart;
+  initialVacancyDetails: VacancyDetail[];
 };
 
 type EditAbsenceFormData = {
@@ -56,6 +58,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
+
+  const [vacanciesInput, setVacanciesInput] = useState<
+    VacancyDetail[] | undefined
+  >(props.initialVacancyDetails);
 
   const disabledDates = useEmployeeDisabledDates(
     state.employeeId,
@@ -102,6 +108,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         {step === "absence" && (
           <Section>
             <AbsenceDetails
+              saveLabel={t("Save")}
               setStep={setStep}
               disabledDates={disabledDates}
               isAdmin={props.userIsAdmin}
@@ -118,9 +125,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               triggerValidation={triggerValidation}
               vacancies={[]}
               balanceUsageText="TBD"
-              setVacanciesInput={details =>
-                console.log("setVacanciesInput()", details)
-              }
+              setVacanciesInput={setVacanciesInput}
             />
           </Section>
         )}

@@ -48,6 +48,7 @@ export type AbsenceDetailsFormData = {
 };
 
 type Props = {
+  saveLabel?: string;
   organizationId: string;
   onSubstituteWantedChange: (wanted: boolean) => void;
   onSwitchMonth: (month: Date) => void;
@@ -341,7 +342,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
       <Grid item xs={12}>
         <div className={classes.actionButtons}>
           <Button type="submit" variant="contained">
-            {t("Create")}
+            {props.saveLabel ?? t("Create")}
           </Button>
         </div>
       </Grid>

@@ -6,6 +6,9 @@ import { GetAbsence } from "./graphql/get-absence.gen";
 import { useIsAdmin } from "reference-data/is-admin";
 import { EditAbsenceUI } from "./ui";
 import { NeedsReplacement } from "graphql/server-types.gen";
+import { VacancyDetail } from "../create-absence/types";
+import { compact } from "lodash-es";
+import { useMemo } from "react";
 
 export const EditAbsence: React.FC = () => {
   const params = useRouteParams(AdminEditAbsenceRoute);
@@ -16,6 +19,30 @@ export const EditAbsence: React.FC = () => {
       id: params.absenceId,
     },
   });
+
+  const initialVacancyDetails: VacancyDetail[] = useMemo(() => {
+    if (absence.state !== "DONE") {
+      return [];
+    }
+    // @ts-ignore
+    console.log("wat", absence.data.absence?.byId.vacancies);
+    return compact(
+      // @ts-ignore
+      (absence.data.absence?.byId.vacancies ?? []).map(d => {
+        /* this will need to be updated once vacancies can have multiple details */
+        // @ts-ignore
+        const details = d?.details[0];
+        if (!details) return null;
+        return {
+          date: details.startDate,
+          startTime: details.startTimeLocal,
+          endTime: details.endTimeLocal,
+          locationId: details.locationId!,
+        };
+      })
+    );
+  }, [absence]);
+
   if (absence.state !== "DONE") {
     return <></>;
   }
@@ -52,6 +79,7 @@ export const EditAbsence: React.FC = () => {
       startDate={data.startDate!}
       endDate={data.endDate!}
       dayPart={dayPart}
+      initialVacancyDetails={initialVacancyDetails}
     />
   );
 };
