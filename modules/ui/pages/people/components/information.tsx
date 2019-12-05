@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Typography, Divider, Grid } from "@material-ui/core";
+import { Typography, Divider, Grid, makeStyles } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import { AvatarCard } from "ui/components/avatar-card";
 import { useBreakpoint } from "hooks";
 import { getInitials } from "ui/components/helpers";
 import { StateCode, CountryCode, OrgUserRole } from "graphql/server-types.gen";
+import { PeopleGridItem } from "./people-grid-item";
 
 type Props = {
   editing: string | null;
@@ -39,6 +40,8 @@ type Props = {
 };
 
 export const Information: React.FC<Props> = props => {
+  const classes = useStyles();
+
   const orgUser = props.orgUser;
   const { t } = useTranslation();
   const history = useHistory();
@@ -50,7 +53,11 @@ export const Information: React.FC<Props> = props => {
   );
 
   const formattedBirthDate = formatIsoDateIfPossible(
-    orgUser.dateOfBirth ? orgUser.dateOfBirth : "Not Specified",
+    orgUser.dateOfBirth ? (
+      orgUser.dateOfBirth
+    ) : (
+      <span className={classes.notSpecified}>{t("Not Specified")}</span>
+    ),
     "MMM d, yyyy"
   );
 
@@ -67,7 +74,7 @@ export const Information: React.FC<Props> = props => {
 
   return (
     <>
-      <Section>
+      <Section className={classes.customSection}>
         <SectionHeader
           title={t("Information")}
           action={{
@@ -79,17 +86,16 @@ export const Information: React.FC<Props> = props => {
             },
           }}
         />
-        <Grid container spacing={2}>
-          <Grid container item spacing={2} xs={8}>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Email")}</Typography>
-              <div>{orgUser.email}</div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Address")}</Typography>
-              <div>
-                {!orgUser.address1 ? (
-                  t("Not specified")
+        <Grid container>
+          <Grid container item xs={8} component="dl" spacing={2}>
+            <PeopleGridItem title={t("Email")} description={orgUser.email} />
+            <PeopleGridItem
+              title={t("Address")}
+              description={
+                !orgUser.address1 ? (
+                  <span className={classes.notSpecified}>
+                    {t("Not specified")}
+                  </span>
                 ) : (
                   <>
                     <div>{orgUser.address1}</div>
@@ -97,38 +103,46 @@ export const Information: React.FC<Props> = props => {
                     <div>{`${orgUser.city}, ${orgUser.state} ${orgUser.postalCode}`}</div>
                     <div>{orgUser.country}</div>
                   </>
-                )}
-              </div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Phone")}</Typography>
-              <div>{orgUser.phoneNumber ?? t("Not specified")}</div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Date of Birth")}</Typography>
-              <div>{formattedBirthDate}</div>
-            </Grid>
+                )
+              }
+            />
+            <PeopleGridItem
+              title={t("Phone")}
+              description={
+                orgUser.phoneNumber ?? (
+                  <span className={classes.notSpecified}>
+                    {t("Not specified")}
+                  </span>
+                )
+              }
+            />
+            <PeopleGridItem
+              title={t("Date of Birth")}
+              description={formattedBirthDate}
+            />
             <Grid item xs={12}>
-              <Divider variant="middle" />
+              <Divider variant="fullWidth" className={classes.divider} />
             </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Permissions")}</Typography>
-              <div>{permissions}</div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Last Login")}</Typography>
-              <div>{formattedLoginTime}</div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Username")}</Typography>
-              <div>{orgUser.loginEmail}</div>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Password")}</Typography>
-              <TextButton onClick={() => props.onResetPassword()}>
-                {t("Reset Password")}
-              </TextButton>
-            </Grid>
+            <PeopleGridItem
+              title={t("Permissions")}
+              description={permissions}
+            />
+            <PeopleGridItem
+              title={t("Last Login")}
+              description={formattedLoginTime}
+            />
+            <PeopleGridItem
+              title={t("Last Username")}
+              description={orgUser.loginEmail}
+            />
+            <PeopleGridItem
+              title={t("Password")}
+              description={
+                <TextButton onClick={() => props.onResetPassword()}>
+                  {t("Reset Password")}
+                </TextButton>
+              }
+            />
           </Grid>
           <Grid container item spacing={2} xs={4}>
             <Grid
@@ -136,7 +150,9 @@ export const Information: React.FC<Props> = props => {
               container={isSmDown}
               justify={isSmDown ? "center" : undefined}
             >
-              <AvatarCard initials={initials} />
+              <div className={classes.avatar}>
+                <AvatarCard initials={initials} />
+              </div>
             </Grid>
           </Grid>
         </Grid>
@@ -144,3 +160,20 @@ export const Information: React.FC<Props> = props => {
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  customSection: {
+    borderRadius: `0 0 ${theme.typography.pxToRem(
+      4
+    )} ${theme.typography.pxToRem(4)}`,
+  },
+  divider: {
+    marginBottom: theme.spacing(1),
+  },
+  avatar: {
+    paddingLeft: theme.spacing(9),
+  },
+  notSpecified: {
+    color: theme.customColors.edluminSubText,
+  },
+}));
