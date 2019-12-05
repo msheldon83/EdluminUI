@@ -29,6 +29,10 @@ export const Confirmation: React.FC<Props> = props => {
       : EmployeeCreateAbsenceRoute
   );
 
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   if (!props.absence) {
     // Redirect the User back to the Absence Details step
     props.setStep("absence");
