@@ -1,11 +1,5 @@
 import * as React from "react";
-import { DayPart } from "graphql/server-types.gen";
-import { makeStyles } from "@material-ui/styles";
-import { Grid, Button, Typography } from "@material-ui/core";
-import { useTranslation } from "react-i18next";
 import { AssignmentRowUI } from "./assignment-row-ui";
-import { VacancyDetail } from "ui/pages/create-absence/types";
-import * as DateFns from "date-fns";
 
 // Mirrors gql type
 type AssignmentDetails = {
@@ -41,28 +35,32 @@ type Props = {
   className?: string;
 };
 
+/* The purpose of this component is to handle the data coming out of 
+    of graphql in one place, rather than clutter any component that 
+    uses it. */
 export const AssignmentRow: React.FC<Props> = props => {
-  const classes = useStyles();
-  const { t } = useTranslation();
   const a = props.assignment;
 
+  const confirmationNumber = a.assignment?.id || "";
   const employeeName = `${a.vacancy?.absence?.employee?.firstName} ${a.vacancy?.absence?.employee?.lastName}`;
+  const positionName = a?.vacancy?.position?.name || "";
+  const organizationName = a?.vacancy?.organization?.name;
+  const locationName = a?.location?.name || "";
 
   return (
     <AssignmentRowUI
-      {...props}
-      confirmationNumber={a.assignment?.id || ""}
+      confirmationNumber={confirmationNumber}
       startTime={a.startTimeLocal || ""}
       endTime={a.endTimeLocal || ""}
       employeeName={employeeName}
       startDate={a.startDate || ""}
       endDate={a.endDate || ""}
-      locationName={a?.location?.name || ""}
-      organizationName={a?.vacancy?.organization?.name}
-      positionName={a?.vacancy?.position?.name || ""}
+      locationName={locationName}
+      organizationName={organizationName}
+      positionName={positionName}
       dayPortion={a.dayPortion}
+      onCancel={props.onCancel}
+      className={props.className}
     />
   );
 };
-
-const useStyles = makeStyles(theme => ({}));

@@ -4,7 +4,7 @@ import { useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
 import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
-import { GetAssignmentDatesForEmployee } from "./graphql/get-assignments-for-employee.gen";
+import { GetAssignmentDatesForEmployee } from "../graphql/get-assignments-dates-for-employee.gen";
 
 type Props = {
   userId?: string;
