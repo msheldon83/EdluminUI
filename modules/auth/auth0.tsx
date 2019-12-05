@@ -67,9 +67,10 @@ type Props = {
   history: History<any>;
 };
 export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
-  const [state, dispatch] = useReducer<
-    Reducer<Auth0State, Auth0Action>
-  >(authReducer, { loading: true });
+  const [state, dispatch] = useReducer<Reducer<Auth0State, Auth0Action>>(
+    authReducer,
+    { loading: true }
+  );
 
   useEffect(() => {
     const initAuth0 = async () => {
@@ -154,7 +155,7 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
   const logout = useCallback(
     () => {
       if (!state.loading) {
-        return state.client.logout();
+        return state.client.logout({ returnTo: Config.Auth0.redirectUrl });
       }
     },
     /* eslint-disable-line react-hooks/exhaustive-deps */ [
