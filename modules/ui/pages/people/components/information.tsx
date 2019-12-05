@@ -57,7 +57,11 @@ export const Information: React.FC<Props> = props => {
     orgUser.dateOfBirth ? (
       orgUser.dateOfBirth
     ) : (
+<<<<<<< HEAD
       <span className={classes.notSpecified}>{t("Not Specified")}</span>
+=======
+      <span className={classes.notSpecified}>Not Specified</span>
+>>>>>>> Update person information styles
     ),
     "MMM d, yyyy"
   );
