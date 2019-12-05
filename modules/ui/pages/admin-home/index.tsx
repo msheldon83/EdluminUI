@@ -17,6 +17,7 @@ import {
 import { TFunction } from "i18next";
 import { Link } from "react-router-dom";
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
+import { CardType } from "ui/components/reports/daily-report/helpers";
 
 type Props = {};
 
@@ -26,6 +27,8 @@ export const AdminHome: React.FC<Props> = props => {
   const params = useRouteParams(AdminHomeRoute);
   const [date, setDate] = useState(startOfToday());
   const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay());
+  const [selectedCard, setSelectedCard] = useState<CardType>("unfilled");
+
   const dailyReportRouteParams = useRouteParams(DailyReportRoute);
   const getUserName = useQueryBundle(GetUserName, {
     fetchPolicy: "cache-first",
@@ -35,9 +38,14 @@ export const AdminHome: React.FC<Props> = props => {
   useEffect(() => {
     if (timeOfDay === "morning") {
       setDate(startOfToday());
+      setSelectedCard("unfilled");
+    }
+    if (timeOfDay === "afternoon") {
+      setSelectedCard("awaitingVerification");
     }
     if (timeOfDay === "evening") {
       setDate(startOfTomorrow());
+      setSelectedCard("unfilled");
     }
   }, [timeOfDay]);
 
@@ -62,7 +70,7 @@ export const AdminHome: React.FC<Props> = props => {
         <Grid item>
           <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
         </Grid>
-        <Grid item>
+        <Grid item className={classes.actions}>
           {getDevViewToggle(toggleTimeOfDay, timeOfDay)}
           <Button
             variant="outlined"
@@ -74,18 +82,16 @@ export const AdminHome: React.FC<Props> = props => {
           </Button>
         </Grid>
       </Grid>
-
-      {(timeOfDay === "morning" || timeOfDay === "evening") && (
-        <DailyReport
-          orgId={params.organizationId}
-          date={date}
-          setDate={setDate}
-          header={salutation}
-          showFilters={false}
-          cards={["unfilled", "total"]}
-        />
-      )}
-      {timeOfDay === "afternoon" && <div>Verify goes here</div>}
+      <DailyReport
+        orgId={params.organizationId}
+        date={date}
+        setDate={setDate}
+        header={salutation}
+        showFilters={false}
+        cards={["unfilled", "total", "awaitingVerification"]}
+        selectedCard={selectedCard}
+        isHomePage={true}
+      />
     </>
   );
 };
@@ -96,6 +102,11 @@ const useStyles = makeStyles(theme => ({
   },
   dailyReportButton: {
     marginLeft: theme.spacing(),
+  },
+  actions: {
+    "@media print": {
+      display: "none",
+    },
   },
 }));
 

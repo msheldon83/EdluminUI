@@ -1,0 +1,5 @@
+query GetTotalAwaitingVerificationCountForSchoolYear($orgId: ID!) {
+  vacancy {
+    getTotalCountOfAssignmentsToVerifyForCurrentSchoolYear(orgId: $orgId)
+  }
+}

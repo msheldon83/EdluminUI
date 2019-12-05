@@ -1,57 +1,124 @@
 import * as React from "react";
-import { Tab, Tabs, makeStyles, Avatar } from "@material-ui/core";
+import { Tab, Tabs, makeStyles, Grid } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
+import clsx from "clsx";
+import { Link } from "react-router-dom";
+import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
+import { useRouteParams } from "ui/routes/definition";
+import { format, isEqual } from "date-fns";
 
 type Props = {
   selectedDateTab: Date;
-  dateTabOptions: {date: Date; dateLabel: string; count: number}[];
+  dateTabOptions: DateTabOption[];
   setSelectedDateTab: React.Dispatch<React.SetStateAction<Date>>;
+  showLinkToVerify?: boolean;
+};
+
+export type DateTabOption = {
+  date: Date;
+  dateLabel: string;
+  count: number;
+  onClick?: () => void;
 };
 
 export const DateTabs: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const verifyRouteParams = useRouteParams(VerifyRoute);
 
   const updateDateTab = (
     event: React.ChangeEvent<{}>,
-    newSelectedDate: Date
+    newSelectedDate: string
   ) => {
-    props.setSelectedDateTab(newSelectedDate);
+    props.setSelectedDateTab(new Date(newSelectedDate));
   };
 
   return (
-    <>
-      <Tabs
-        value={props.selectedDateTab}
-        indicatorColor="primary"
-        textColor="primary"
-        onChange={updateDateTab}
-        aria-label="date-selector"
-      >
-        {props.dateTabOptions.map((dateOption, index: number) => (
-          <Tab
-            key={index}
-            label={
-              <div>
-                {dateOption.dateLabel}
-                <Avatar className={classes.tabLabel}>{dateOption.count}</Avatar>
-              </div>
-            }
-            value={dateOption.date}
-            className={classes.tab}
-          />
-        ))}
-      </Tabs>
-    </>
+    <Grid
+      container
+      justify="space-between"
+      alignItems="center"
+      className={classes.container}
+    >
+      <Grid item>
+        <Tabs
+          value={format(props.selectedDateTab, "P")}
+          indicatorColor="primary"
+          textColor="primary"
+          onChange={updateDateTab}
+          aria-label="date-selector"
+        >
+          {props.dateTabOptions.map((dateOption, index: number) => {
+            const isActiveTab = isEqual(props.selectedDateTab, dateOption.date);
+            return (
+              <Tab
+                key={index}
+                label={
+                  <div className={classes.tabLabel}>
+                    {dateOption.dateLabel}
+                    <div
+                      className={clsx({
+                        [classes.activeTabCount]: isActiveTab,
+                        [classes.count]: true,
+                      })}
+                    >
+                      {dateOption.count}
+                    </div>
+                  </div>
+                }
+                value={format(dateOption.date, "P")}
+                className={classes.tab}
+                onClick={
+                  dateOption.onClick ? () => dateOption.onClick!() : undefined
+                }
+              />
+            );
+          })}
+        </Tabs>
+      </Grid>
+      <Grid item>
+        {props.showLinkToVerify && (
+          <Link
+            to={VerifyRoute.generate(verifyRouteParams)}
+            className={classes.verifyUiLink}
+          >
+            {t("Advanced view")}
+          </Link>
+        )}
+      </Grid>
+    </Grid>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  container: {
+    backgroundColor: theme.customColors.white,
+    border: `1px solid ${theme.customColors.sectionBorder}`,
+  },
   tab: {
     textTransform: "uppercase",
+    fontWeight: "bold",
+    minWidth: theme.typography.pxToRem(150),
   },
   tabLabel: {
-    display: "inline",
-    marginLeft: "5px",
+    display: "flex",
+    alignItems: "center",
+  },
+  activeTabCount: {
+    backgroundColor: `${theme.palette.primary.main} !important`,
+  },
+  count: {
+    marginLeft: theme.spacing(),
+    borderRadius: "50%",
+    width: theme.typography.pxToRem(28),
+    height: theme.typography.pxToRem(28),
+    paddingTop: theme.typography.pxToRem(2),
+    backgroundColor: "#9E9E9E",
+    color: theme.customColors.white,
+    fontWeight: "bold",
+  },
+  verifyUiLink: {
+    marginRight: theme.spacing(2),
+    color: theme.palette.primary.main,
   },
 }));

@@ -30,6 +30,7 @@ query GetVacancyDetails(
         name
       }
       location {
+        id
         name
         address1
         city
@@ -38,6 +39,7 @@ query GetVacancyDetails(
         phoneNumber
       }
       vacancy {
+        id
         absence {
           id
           employee {
@@ -46,6 +48,7 @@ query GetVacancyDetails(
             lastName
           }
           details {
+            id
             startDate
             startTimeLocal
             endTimeLocal

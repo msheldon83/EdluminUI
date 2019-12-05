@@ -4,28 +4,50 @@ import { Section } from "ui/components/section";
 import { makeStyles } from "@material-ui/styles";
 import { Typography } from "@material-ui/core";
 import { useState, useMemo, useEffect } from "react";
-import { DateTabs } from "./components/tabs";
+import { DateTabs, DateTabOption } from "./components/tabs";
 import { useQueryBundle } from "graphql/hooks";
 import { useRouteParams } from "ui/routes/definition";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 import { GetAssignmentCount } from "./graphql/get-assignment-count.gen";
 import { GetVacancyDetails } from "./graphql/get-vacancydetails.gen";
-import { isToday, addDays, isWeekend, format, isEqual } from "date-fns";
+import {
+  isToday,
+  addDays,
+  isWeekend,
+  format,
+  isEqual,
+  startOfToday,
+  isValid,
+} from "date-fns";
 import { VacancyDetailCount, VacancyDetail } from "graphql/server-types.gen";
 import { Assignment } from "./components/assignment";
+import { useHistory } from "react-router";
 
 type Props = {
   showVerified: boolean;
   locationsFilter: number[];
+  showLinkToVerify?: boolean;
+  date?: Date;
+  setDate?: (date: Date) => void;
+  olderAction?: () => void;
 };
 
 export const VerifyUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const history = useHistory();
   const params = useRouteParams(VerifyRoute);
 
-  const today = useMemo(() => new Date(), []);
-  const [selectedDateTab, setSelectedDateTab] = useState<Date>(today);
+  const today = useMemo(() => startOfToday(), []);
+  /* Because this UI can stand alone or show up on the Admin homepage, we need
+    to account for only controlling the selectedDate within here as well
+    as the scenario where the selected date is provided to us through props.
+    To handle that make sure to use "selectedDateToUse" when trying 
+    to retrieve the currently selected date */
+  const [selectedDateTab, setSelectedDateTab] = useState<Date>(
+    props.date ?? today
+  );
+  let selectedDateToUse = props.date ? props.date : selectedDateTab;
 
   const getAssignmentCounts = useQueryBundle(GetAssignmentCount, {
     variables: {
@@ -39,11 +61,15 @@ export const VerifyUI: React.FC<Props> = props => {
     : getAssignmentCounts.data?.vacancy?.getCountOfAssignmentsForVerify ??
       []) as VacancyDetailCount[];
 
-  const dateTabOptions: {
-    date: Date;
-    dateLabel: string;
-    count: number;
-  }[] = useMemo(() => [], [assignmentCounts]);
+  const dateTabOptions: DateTabOption[] = useMemo(() => [], [assignmentCounts]);
+
+  // If the date is controlled outside this component, track local state change
+  // and call the provided setDate function in props
+  useEffect(() => {
+    if (props.setDate) {
+      props.setDate(selectedDateTab);
+    }
+  }, [selectedDateTab]);
 
   // Determines what tabs are shown and the count of unverified assignments on each tab
   // We show today and each day of the last week unless weekends have 0
@@ -61,6 +87,7 @@ export const VerifyUI: React.FC<Props> = props => {
           date: date,
           dateLabel: t("Older"),
           count: totalCount,
+          onClick: props.olderAction,
         });
       } else {
         const dateToFind = format(date, "YYY-MM-dd");
@@ -87,15 +114,36 @@ export const VerifyUI: React.FC<Props> = props => {
     }
   }, [assignmentCounts, today, dateTabOptions, t]);
 
+  // If we're given a date we don't actually have in our list of
+  // tabs, keep the focus to Today
+  if (!dateTabOptions.find(d => isEqual(d.date, selectedDateToUse))) {
+    selectedDateToUse = today;
+  }
+
+  // Check to see if we've been provided a default tab date to start with
+  if (history.location.state?.selectedDateTab && !!dateTabOptions.length) {
+    if (history.location.state?.selectedDateTab === "older") {
+      selectedDateToUse = dateTabOptions[dateTabOptions.length - 1].date;
+    } else {
+      const providedDate = new Date(history.location.state?.selectedDateTab);
+      const tabOptionMatch = dateTabOptions.find(d =>
+        isEqual(d.date, providedDate)
+      );
+      if (tabOptionMatch) {
+        selectedDateToUse = tabOptionMatch.date;
+      }
+    }
+  }
+
   const getVacancyDetails = useQueryBundle(GetVacancyDetails, {
     variables: {
       orgId: params.organizationId,
       includeVerified: props.showVerified,
       locationIds: props.locationsFilter,
-      fromDate: isEqual(selectedDateTab, addDays(today, -8))
+      fromDate: isEqual(selectedDateToUse, addDays(today, -8))
         ? null
-        : selectedDateTab,
-      toDate: selectedDateTab,
+        : selectedDateToUse,
+      toDate: selectedDateToUse,
     },
   });
 
@@ -117,13 +165,12 @@ export const VerifyUI: React.FC<Props> = props => {
 
   return (
     <>
-      <Section>
-        <DateTabs
-          selectedDateTab={selectedDateTab}
-          setSelectedDateTab={setSelectedDateTab}
-          dateTabOptions={dateTabOptions}
-        />
-      </Section>
+      <DateTabs
+        selectedDateTab={selectedDateToUse}
+        setSelectedDateTab={setSelectedDateTab}
+        dateTabOptions={dateTabOptions}
+        showLinkToVerify={props.showLinkToVerify}
+      />
       <Section>
         {getVacancyDetails.state === "LOADING" ? (
           <Typography variant="h5">

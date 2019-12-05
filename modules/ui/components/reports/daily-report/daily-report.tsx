@@ -14,10 +14,14 @@ import { useQueryParamIso } from "hooks/query-params";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetDailyReport } from "./graphql/get-daily-report.gen";
 import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
+import { GetTotalAwaitingVerificationCountForSchoolYear } from "./graphql/get-total-awaiting-verification-count-school-year.gen";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
 import { Section } from "ui/components/section";
-import { DailyReport as DailyReportType } from "graphql/server-types.gen";
+import {
+  DailyReport as DailyReportType,
+  VacancyDetailCount,
+} from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
 import {
   Detail,
@@ -28,13 +32,17 @@ import {
 } from "./helpers";
 import { GroupCard } from "./group-card";
 import { TFunction } from "i18next";
-import { format } from "date-fns";
+import { format, isFuture, startOfToday } from "date-fns";
 import { DailyReportSection } from "./daily-report-section";
 import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
 import { useDialog, RenderFunctionsType } from "hooks/use-dialog";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { Print } from "@material-ui/icons";
+import { VerifyUI } from "ui/pages/verify/ui";
+import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
+import { useRouteParams } from "ui/routes/definition";
+import { useHistory } from "react-router";
 
 type Props = {
   orgId: string;
@@ -43,17 +51,23 @@ type Props = {
   header: string;
   showFilters?: boolean;
   cards: CardType[];
+  selectedCard?: CardType;
+  isHomePage?: boolean;
 };
 
 export const DailyReport: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useScreenSize() === "mobile";
+  const history = useHistory();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
-  const [selectedCard, setSelectedCard] = useState<CardType | undefined>();
+  const [selectedCard, setSelectedCard] = useState<CardType | undefined>(
+    props.selectedCard
+  );
   const [selectedRows, setSelectedRows] = useState<Detail[]>([]);
+  const verifyRouteParams = useRouteParams(VerifyRoute);
 
   // Keep date in filters in sync with date passed in from DateStepperHeader
   useEffect(() => {
@@ -67,6 +81,33 @@ export const DailyReport: React.FC<Props> = props => {
   useEffect(() => {
     setSelectedRows([]);
   }, [filters, selectedCard]);
+
+  // Make sure we change the selected card if the prop has changed
+  useEffect(() => {
+    if (selectedCard !== props.selectedCard) {
+      setSelectedCard(props.selectedCard);
+    }
+  }, [props.selectedCard]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Prevent future movement when on the Awaiting Verification card
+  // with some explanation to the user as to why they can't go forward in time
+  useEffect(() => {
+    if (selectedCard === "awaitingVerification" && isFuture(props.date)) {
+      openSnackbar({
+        message: (
+          <div>
+            {t(
+              "Future dates cannot be verified. We switched your view back to today."
+            )}
+          </div>
+        ),
+        dismissable: true,
+        autoHideDuration: 5000,
+        status: "info",
+      });
+      props.setDate(startOfToday());
+    }
+  }, [selectedCard, props.date]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const serverQueryFilters = useMemo(() => filters, [
     filters.date,
@@ -89,6 +130,15 @@ export const DailyReport: React.FC<Props> = props => {
         orgId: props.orgId,
         contractedOn: filters.date,
       },
+    }
+  );
+  const getTotalAwaitingVerificationCount = useQueryBundle(
+    GetTotalAwaitingVerificationCountForSchoolYear,
+    {
+      variables: {
+        orgId: props.orgId,
+      },
+      skip: !props.cards.includes("awaitingVerification"),
     }
   );
 
@@ -129,6 +179,25 @@ export const DailyReport: React.FC<Props> = props => {
       getTotalContractedEmployeeCount.data?.employee?.paged?.totalCount
     );
   }, [getTotalContractedEmployeeCount]);
+  const awaitingVerificationCount = useMemo(() => {
+    if (
+      !(
+        getTotalAwaitingVerificationCount.state === "DONE" ||
+        getTotalAwaitingVerificationCount.state === "UPDATING"
+      )
+    ) {
+      return undefined;
+    }
+
+    const totalCount =
+      getTotalAwaitingVerificationCount.data?.vacancy
+        ?.getTotalCountOfAssignmentsToVerifyForCurrentSchoolYear;
+    if (!totalCount) {
+      return 0;
+    }
+
+    return Number(totalCount);
+  }, [getTotalAwaitingVerificationCount]);
 
   const updateSelectedDetails = (detail: Detail, add: boolean) => {
     if (add) {
@@ -254,36 +323,51 @@ export const DailyReport: React.FC<Props> = props => {
   };
 
   return (
-    <Section>
-      <SectionHeader title={props.header} className={classes.header} />
-      {props.showFilters && (
-        <>
-          <Filters orgId={props.orgId} setDate={props.setDate} />
-          <Divider />
-        </>
-      )}
-      <Grid
-        container
-        spacing={4}
-        justify="flex-start"
-        className={classes.cardContainer}
-      >
-        {props.cards.map((c, i) => {
-          return (
-            <Grid item key={i}>
-              <GroupCard
-                cardType={c}
-                details={allDetails}
-                totalContractedEmployeeCount={totalContractedEmployeeCount}
-                onClick={(c: CardType) => {
-                  setSelectedCard(c === "total" ? undefined : c);
-                }}
-                activeCard={selectedCard}
-              />
-            </Grid>
-          );
-        })}
-      </Grid>
+    <Section className={classes.dailyReportContainer}>
+      <div className={classes.headerContainer}>
+        <SectionHeader title={props.header} className={classes.header} />
+        {props.showFilters && (
+          <>
+            <Filters orgId={props.orgId} setDate={props.setDate} />
+            <Divider />
+          </>
+        )}
+        <Grid
+          container
+          spacing={4}
+          justify="flex-start"
+          className={classes.cardContainer}
+        >
+          {props.cards.map((c, i) => {
+            let countOverride = undefined;
+            let totalOverride = undefined;
+
+            if (c === "total") {
+              totalOverride = totalContractedEmployeeCount ?? 0;
+            } else if (c === "awaitingVerification") {
+              countOverride = awaitingVerificationCount ?? 0;
+              totalOverride = awaitingVerificationCount ?? 0;
+            }
+
+            return (
+              <Grid item key={i}>
+                <GroupCard
+                  cardType={c}
+                  details={allDetails}
+                  countOverride={countOverride}
+                  totalOverride={totalOverride}
+                  onClick={(c: CardType) => {
+                    setSelectedCard(c === "total" ? undefined : c);
+                  }}
+                  activeCard={selectedCard}
+                  showPercentInLabel={c !== "awaitingVerification"}
+                  showFractionCount={props.isHomePage && c === "unfilled"}
+                />
+              </Grid>
+            );
+          })}
+        </Grid>
+      </div>
       {displaySections(
         groupedDetails,
         selectedCard,
@@ -293,13 +377,31 @@ export const DailyReport: React.FC<Props> = props => {
         selectedRows,
         updateSelectedDetails,
         swapSubs,
-        removeSub
+        removeSub,
+        props.date,
+        props.setDate,
+        () => {
+          const url = VerifyRoute.generate(verifyRouteParams);
+          history.push(url, {
+            selectedDateTab: "older",
+          });
+        }
       )}
     </Section>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  dailyReportContainer: {
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
+  headerContainer: {
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+  },
   header: {
     "@media print": {
       display: "none",
@@ -312,11 +414,22 @@ const useStyles = makeStyles(theme => ({
       display: "none",
     },
   },
+  detailActions: {
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+  },
+  groupedDetailsContainer: {
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+  },
   detailGroup: {
     marginTop: theme.spacing(2),
     "@media print": {
       marginTop: 0,
     },
+  },
+  verifyContainer: {
+    marginTop: theme.spacing(2),
   },
   action: {
     cursor: "pointer",
@@ -341,7 +454,10 @@ const displaySections = (
   removeSub: (
     assignmentId?: string,
     assignmentRowVersion?: string
-  ) => Promise<void>
+  ) => Promise<void>,
+  date: Date,
+  setDate: (date: Date) => void,
+  verifyOlderAction: () => void
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -372,12 +488,20 @@ const displaySections = (
     case "noSubRequired":
       selectedCardDisplayText = t("Showing only No sub required absences.");
       break;
+    case "awaitingVerification":
+      selectedCardDisplayText = t("Showing only Awaiting verification.");
+      break;
   }
 
   // Build a display section for each group
   return (
     <div>
-      <Grid container justify="space-between" alignItems="center">
+      <Grid
+        container
+        justify="space-between"
+        alignItems="center"
+        className={classes.detailActions}
+      >
         {selectedCard && (
           <Grid item>
             {selectedCardDisplayText}{" "}
@@ -388,31 +512,44 @@ const displaySections = (
         )}
         <Grid item>{displaySwabSubsAction(selectedRows, swapSubs, t)}</Grid>
         <Grid item>
-          {!!groupedDetails.length && (
-            <Print
-              className={[classes.action, classes.print].join(" ")}
-              onClick={window.print}
-            />
-          )}
+          <Print
+            className={[classes.action, classes.print].join(" ")}
+            onClick={window.print}
+          />
         </Grid>
       </Grid>
-      {groupedDetails.map((g, i) => {
-        const hasDetails = !!(g.details && g.details.length);
-        if (selectedCard && !hasDetails) {
-          return null;
-        }
+      {selectedCard === "awaitingVerification" ? (
+        <div className={classes.verifyContainer}>
+          <VerifyUI
+            showVerified={false}
+            locationsFilter={[]}
+            showLinkToVerify={true}
+            date={date}
+            setDate={setDate}
+            olderAction={verifyOlderAction}
+          />
+        </div>
+      ) : (
+        <div className={classes.groupedDetailsContainer}>
+          {groupedDetails.map((g, i) => {
+            const hasDetails = !!(g.details && g.details.length);
+            if (selectedCard && !hasDetails) {
+              return null;
+            }
 
-        return (
-          <div key={`group-${i}`} className={classes.detailGroup}>
-            <DailyReportSection
-              group={g}
-              selectedDetails={selectedRows}
-              updateSelectedDetails={updateSelectedDetails}
-              removeSub={removeSub}
-            />
-          </div>
-        );
-      })}
+            return (
+              <div key={`group-${i}`} className={classes.detailGroup}>
+                <DailyReportSection
+                  group={g}
+                  selectedDetails={selectedRows}
+                  updateSelectedDetails={updateSelectedDetails}
+                  removeSub={removeSub}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
