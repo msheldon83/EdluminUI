@@ -20,6 +20,10 @@ import { useMemo } from "react";
 import { AssignmentRow } from "./assignment-row";
 import { DayPart } from "graphql/server-types.gen";
 
+import { addMonths, parseISO } from "date-fns";
+import { groupBy, compact } from "lodash-es";
+import { startOfMonth } from "date-fns/esm";
+
 type Props = {
   view: "list" | "calendar";
 };
@@ -37,30 +41,29 @@ export const SubSchedule: React.FC<Props> = props => {
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
 
-  // const fromDate = useMemo(() => new Date(), []);
-  // const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
+  const fromDate = useMemo(() => new Date(), []);
+  const toDate = useMemo(() => addMonths(fromDate, 12), [fromDate]);
 
-  // const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
-  //   variables: {
-  //     id: String(userId),
-  //     fromDate,
-  //     toDate,
-  //     includeCompletedToday: false,
-  //   },
-  //   skip: !userId,
-  // });
+  const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
+    variables: {
+      id: String(userId),
+      fromDate,
+      toDate,
+      includeCompletedToday: false,
+    },
+    skip: !userId,
+  });
 
-  // if (upcomingAssignments.state !== "DONE") {
-  //   return <></>;
-  // }
+  if (
+    upcomingAssignments.state !== "DONE" &&
+    upcomingAssignments.state !== "UPDATING"
+  ) {
+    return <></>;
+  }
 
-  // const data = upcomingAssignments.data.employee?.employeeAssignmentSchedule;
-  // console.log(
-  //   "userId",
-  //   userId,
-  //   "jobs",
-  //   upcomingAssignments.data.employee?.employeeAssignmentSchedule
-  // );
+  const data = compact(
+    upcomingAssignments.data.employee?.employeeAssignmentSchedule
+  );
 
   return (
     <>
@@ -89,8 +92,9 @@ export const SubSchedule: React.FC<Props> = props => {
         </Grid>
         <Divider className={classes.divider} />
 
-        {/* Either list or calendar view */}
-        {props.view === "calendar" && <CalendarView userId={userId} />}
+        {props.view === "calendar" && (
+          <CalendarView userId={userId} assignments={data} />
+        )}
         {props.view === "list" && <div>LIST</div>}
       </Section>
     </>

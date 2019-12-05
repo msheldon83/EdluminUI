@@ -1,11 +1,15 @@
-import { Divider, Grid, makeStyles } from "@material-ui/core";
-import { addMonths } from "date-fns";
+import { Grid, makeStyles } from "@material-ui/core";
+import { parseISO } from "date-fns";
+import { startOfMonth } from "date-fns/esm";
+import { groupBy } from "lodash-es";
 import * as React from "react";
 import { useState } from "react";
 import { AssignmentCalendar } from "./assignment-calendar";
 import { NowViewingAssignmentsForDate } from "./now-viewing-assignments";
+import { AssignmentDetails } from "./types";
 
-type Props = { userId?: string };
+
+type Props = { userId?: string; assignments: AssignmentDetails[] };
 
 export const CalendarView: React.FC<Props> = props => {
   const classes = useStyles();
@@ -16,37 +20,48 @@ export const CalendarView: React.FC<Props> = props => {
     [setSelectedDate]
   );
 
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(addMonths(startDate, 12));
-  const m2 = addMonths(startDate, 1);
-  const m3 = addMonths(startDate, 2);
+  const groups = groupAssignmentsByMonth(props.assignments);
 
   return (
     <>
       <NowViewingAssignmentsForDate date={selectedDate} userId={props.userId} />
-      <Divider className={classes.divider} />
       <Grid container>
-        <AssignmentCalendar
-          onSelectDate={onSelectDate}
-          userId={props.userId}
-          date={startDate}
-        />
-        <AssignmentCalendar
-          onSelectDate={onSelectDate}
-          userId={props.userId}
-          date={m2}
-        />
+        {groups.map((group, i) => (
+          <AssignmentCalendar
+            key={i}
+            onSelectDate={onSelectDate}
+            userId={props.userId}
+            date={group.month}
+            assignmentDates={group.assignmentDates}
+          />
+        ))}
       </Grid>
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  divider: {
-    marginBottom: theme.spacing(2),
-  },
   calendar: {
     display: "flex",
     padding: theme.spacing(1),
   },
 }));
+
+const groupAssignmentsByMonth = (assignments: AssignmentDetails[]) => {
+  const groupedByMonth = Object.entries(
+    groupBy(
+      assignments,
+      a =>
+        a.assignment?.startTimeLocal &&
+        startOfMonth(parseISO(a.assignment?.startTimeLocal)).toISOString()
+    )
+  ).map(([date, assignments]): { month: string; assignmentDates: Date[] } => {
+    return {
+      month: date,
+      assignmentDates: assignments.map(a => parseISO(a.startDate!)),
+    };
+  });
+
+  console.log(groupedByMonth);
+  return groupedByMonth;
+};
