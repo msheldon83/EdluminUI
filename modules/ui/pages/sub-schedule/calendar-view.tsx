@@ -8,14 +8,13 @@ import { AssignmentRow } from "./assignment-row";
 import { compact } from "lodash-es";
 import { NoAssignment } from "./assignment-row/no-assignment";
 import { Divider, makeStyles, Grid } from "@material-ui/core";
-import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
 import { AssignmentCalendar } from "./assignment-calendar";
 
 type Props = { userId?: string };
 
 export const CalendarView: React.FC<Props> = props => {
   const classes = useStyles();
-  const [selectedDate, setSelectedDate] = useState(addDays(new Date(), 1));
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const onSelectDate = React.useCallback(
     (date: Date) => setSelectedDate(date),

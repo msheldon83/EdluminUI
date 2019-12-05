@@ -39,11 +39,20 @@ export const AssignmentCalendar: React.FC<Props> = props => {
   const data = compact(
     assignmentsForMonth.data.employee?.employeeAssignmentSchedule
   );
-  const assignmentDates: Date[] = data.map(d => DateFns.parseISO(d.startDate));
+  const assignmentDates = data.map(d => {
+    return {
+      date: DateFns.parseISO(d.startDate),
+      buttonProps: { className: classes.assignment },
+    };
+  });
 
   return (
     <div className={classes.calendar}>
-      <SingleMonthCalendar month={props.date} selectedDates={assignmentDates} />
+      <SingleMonthCalendar
+        currentMonth={props.date}
+        customDates={assignmentDates}
+        onSelectDate={props.onSelectDate}
+      />
     </div>
   );
 };
@@ -52,5 +61,14 @@ const useStyles = makeStyles(theme => ({
   calendar: {
     display: "flex",
     padding: theme.spacing(1),
+  },
+  assignment: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.customColors.white,
+    },
   },
 }));
