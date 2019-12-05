@@ -3,6 +3,8 @@ query GetAbsence($id: ID!) {
     byId(id: $id) {
       id
       details {
+	id
+	dayPartId
 	reasonUsages {
 	  id
 	  amount
@@ -38,7 +40,6 @@ query GetAbsence($id: ID!) {
 	  id
 	  startDate
 	  endDate
-	  dayPortion
 	  locationId
 	  payCodeId
 	  assignmentId

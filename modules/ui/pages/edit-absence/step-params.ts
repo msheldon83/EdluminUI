@@ -1,6 +1,6 @@
 import { Isomorphism } from "@atomic-object/lenses";
 
-export type Step = "absence" | "assignSub" | "edit";
+export type Step = "absence" | "preAssignSub" | "edit";
 
 export type StepParam = {
   step: string;
@@ -14,7 +14,7 @@ export const StepParamIso: Isomorphism<StepParam, Step> = {
   to(k) {
     switch (k.step) {
       case "absence":
-      case "assignSub":
+      case "preAssignSub":
       case "edit":
         return k.step;
       default:

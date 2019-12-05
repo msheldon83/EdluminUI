@@ -30,6 +30,8 @@ export const EditAbsence: React.FC = () => {
   const detail = data?.details[0];
   // @ts-ignore
   const reasonUsage = detail?.reasonUsages[0];
+  // @ts-ignore
+  const dayPart = detail?.dayPartId ?? undefined;
 
   if (!data || !vacancy || !position || !employee || !detail || !reasonUsage) {
     return <></>;
@@ -47,6 +49,9 @@ export const EditAbsence: React.FC = () => {
       organizationId={data.organization.id}
       absenceReasonId={reasonUsage?.absenceReasonId}
       absenceId={data.id}
+      startDate={data.startDate!}
+      endDate={data.endDate!}
+      dayPart={dayPart}
     />
   );
 };
