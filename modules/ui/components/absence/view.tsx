@@ -208,7 +208,7 @@ export const View: React.FC<Props> = props => {
                       )}
                     </div>
                   </div>
-                  {props.isConfirmation && (
+                  {!props.isConfirmation && (
                     <div className={classes.edit}>
                       <Button variant="outlined" onClick={() => {}}>
                         {t("Edit")}

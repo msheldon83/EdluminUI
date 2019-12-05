@@ -231,7 +231,6 @@ export function App(props: {}) {
                         path={BellScheduleRoute.path}
                       />
                       <Route component={VerifyLoader} path={VerifyRoute.path} />
-
                       <Route
                         component={BellScheduleVariantsLoader}
                         path={BellScheduleVariantsRoute.path}

@@ -308,12 +308,14 @@ export const Settings: React.FC<Props> = props => {
                     name: "minAbsenceDurationMinutes",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
-                    helperText: t(
-                      "The shortest time (in hh:mm) that an employee with this position can be absent."
-                    ),
                     fullWidth: true,
                   }}
                 />
+                <FormHelperText className={classes.formHelperText}>
+                  {t(
+                    "The shortest time (in hh:mm) that an employee with this position can be absent."
+                  )}
+                </FormHelperText>
               </div>
             </div>
             <ActionButtons
@@ -336,6 +338,10 @@ const useStyles = makeStyles(theme => ({
   },
   mobileSectionSpacing: {
     marginTop: theme.spacing(2),
+  },
+  formHelperText: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
   },
   normalSectionSpacing: {
     marginTop: theme.spacing(6),

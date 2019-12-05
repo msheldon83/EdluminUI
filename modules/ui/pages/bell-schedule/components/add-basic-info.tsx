@@ -116,8 +116,8 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     name: "externalId",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
+                    helperText: t("Usually used for data integrations"),
                     fullWidth: true,
-                    tesT: "test",
                   }}
                 />
               </Grid>
