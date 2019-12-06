@@ -3,6 +3,7 @@ import {
   NeedsReplacement,
   DayPart,
   AbsenceVacancyInput,
+  Vacancy,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -19,6 +20,9 @@ import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-
 import { AbsenceDetails } from "ui/components/absence/absence-details";
 import useForm from "react-hook-form";
 import { VacancyDetail } from "../create-absence/types";
+import { buildAbsenceCreateInput } from "../create-absence/ui";
+import { GetProjectedVacancies } from "../create-absence/graphql/get-projected-vacancies.gen";
+import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
 
 type Props = {
   firstName: string;
@@ -36,6 +40,7 @@ type Props = {
   endDate: Date;
   dayPart?: DayPart;
   initialVacancyDetails: VacancyDetail[];
+  initialVacancies: Vacancy[];
 };
 
 type EditAbsenceFormData = {
@@ -59,14 +64,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
 
-  const [vacanciesInput, setVacanciesInput] = useState<
-    VacancyDetail[] | undefined
-  >(props.initialVacancyDetails);
-
-  const disabledDates = useEmployeeDisabledDates(
-    state.employeeId,
-    state.viewingCalendarMonth
-  );
+  const [vacanciesInput, setVacanciesInput] = useState<VacancyDetail[]>();
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -87,7 +85,93 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   } = useForm<EditAbsenceFormData>({
     defaultValues: initialFormData,
   });
+
   const formValues = getValues();
+
+  const disabledDates = useEmployeeDisabledDates(
+    state.employeeId,
+    state.viewingCalendarMonth
+  );
+
+  const projectedVacanciesInput = useMemo(
+    () =>
+      buildAbsenceCreateInput(
+        formValues,
+        Number(props.organizationId),
+        Number(state.employeeId),
+        Number(props.positionId),
+        disabledDates,
+        vacanciesInput !== undefined,
+        { ...state, organizationId: props.organizationId },
+        vacanciesInput
+      ),
+    [
+      formValues.startDate,
+      formValues.endDate,
+      formValues.absenceReason,
+      formValues.dayPart,
+      formValues.hourlyStartTime,
+      formValues.hourlyEndTime,
+      vacanciesInput,
+      state,
+      props.positionId,
+      disabledDates,
+    ]
+  );
+
+  const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
+    variables: {
+      absence: projectedVacanciesInput!,
+    },
+    skip: !vacanciesInput || projectedVacanciesInput === null,
+    onError: () => {},
+  });
+
+  const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
+    variables: {
+      absence: projectedVacanciesInput!,
+    },
+    skip: !vacanciesInput || projectedVacanciesInput === null,
+    // fetchPolicy: "no-cache",
+    onError: () => {
+      // This shouldn't prevent the User from continuing on
+      // with Absence Create. Any major issues will be caught
+      // and reported back to them when calling the Create mutation.
+    },
+  });
+
+  const projectedVacancyDetails: VacancyDetail[] = useMemo(() => {
+    /* cf 2019-11-25
+       we don't currently support having multiple AbsenceVacancyInputs on this page.
+       as such, this projection can't handle that case
+     */
+    if (
+      !(
+        getProjectedVacancies.state === "DONE" ||
+        getProjectedVacancies.state === "UPDATING"
+      )
+    ) {
+      return [];
+    }
+    const vacancies = getProjectedVacancies.data.absence?.projectedVacancies;
+    if (!vacancies || vacancies.length < 1) {
+      return [];
+    }
+    return (vacancies[0]?.details ?? [])
+      .map(d => ({
+        date: d?.startDate,
+        locationId: d?.locationId,
+        startTime: d?.startTimeLocal,
+        endTime: d?.endTimeLocal,
+      }))
+      .filter(
+        (detail): detail is VacancyDetail =>
+          detail.locationId && detail.date && detail.startTime && detail.endTime
+      );
+  }, [getProjectedVacancies.state]);
+
+  const theVacancyDetails: VacancyDetail[] =
+    projectedVacancyDetails || props.initialVacancyDetails;
 
   return (
     <>
@@ -123,7 +207,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               setValue={setValue}
               errors={{}}
               triggerValidation={triggerValidation}
-              vacancies={[]}
+              vacancies={props.initialVacancies}
               balanceUsageText="TBD"
               setVacanciesInput={setVacanciesInput}
             />

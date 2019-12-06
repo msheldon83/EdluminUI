@@ -30,6 +30,8 @@ query GetAbsence($id: ID!) {
 	id
 	startDate
 	endDate
+	rowVersion
+	positionId
 	position {
 	  id
 	  positionTypeId

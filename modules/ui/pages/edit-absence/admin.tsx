@@ -50,7 +50,8 @@ export const EditAbsence: React.FC = () => {
   // @ts-ignore - I think I've found a bug in typescript?
   const data = absence.data?.absence?.byId;
   // @ts-ignore
-  const vacancy = data?.vacancies[0];
+  const vacancies = compact(data?.vacancies ?? []);
+  const vacancy = vacancies[0];
   const position = vacancy?.position;
   const employee = data?.employee;
   // @ts-ignore
@@ -80,6 +81,10 @@ export const EditAbsence: React.FC = () => {
       endDate={data.endDate!}
       dayPart={dayPart}
       initialVacancyDetails={initialVacancyDetails}
+      /* cf 2019-12-06 -
+      it is impossible to satisfy the graphql type Vacancy, because it is impossible to
+      satisfy the graphql type Organization, because it is infinitely recursive.  */
+      initialVacancies={vacancies as any}
     />
   );
 };

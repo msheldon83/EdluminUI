@@ -423,7 +423,7 @@ export type CreateAbsenceFormData = {
   payCode?: string;
 };
 
-const buildAbsenceCreateInput = (
+export const buildAbsenceCreateInput = (
   formValues: CreateAbsenceFormData,
   organizationId: number,
   employeeId: number,
