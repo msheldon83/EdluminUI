@@ -283,6 +283,8 @@ type AccountingCode implements ModelObjectInterface & OrgObjectInterface & Domai
   description: String
   validUntil: Date
   expired: Boolean
+  locationId: Int
+  location: Location
 }
 
 input AccountingCodeCreateInput {
@@ -290,6 +292,7 @@ input AccountingCodeCreateInput {
   name: String!
   description: String
   externalId: String
+  locationId: Int
 }
 
 input AccountingCodeUpdateInput {
@@ -299,6 +302,7 @@ input AccountingCodeUpdateInput {
   description: String
   externalId: String
   expired: Boolean
+  locationId: Int
 }
 
 type Address {
@@ -1458,6 +1462,10 @@ enum EventType {
   VACANCY_EMPLOYEE_REQUEST_REMOVED
   EMPLOYEE_INTERESTED_IN_VACANCY
   EMPLOYEE_REJECTED_VACANCY
+  VACANCY_NOTIFICATION_SENT
+  VACANCY_DETAIL_UPDATED
+  VACANCY_DETAIL_VERIFIED
+  VACANCY_DETAIL_UN_VERIFIED
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
@@ -1986,6 +1994,7 @@ type OrgRef_AccountingCodeMutations {
 type OrgRef_AccountingCodeQueries {
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AccountingCode]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAccountingCode
+  accountingCodesByLocationId(locationId: Int): [AccountingCode]
 }
 
 type OrgRef_CalendarChangeReasonMutations {
@@ -2587,6 +2596,7 @@ enum PermissionEnum {
   ASSIGN_EMPLOYEE_WITH_MINOR_JOB_CONFLICT
   ASSIGN_EMPLOYEE_WITH_MAJOR_JOB_CONFLICT
   ASSIGN_EXCLUDED_EMPLOYEE
+  VACANCY_VERIFY
 }
 
 type PermissionSet implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -4106,6 +4116,8 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   isFilled: Boolean
   verifiedAtLocal: DateTime
   verifiedAtUtc: DateTime
+  verifyComments: String
+  payDurationOverride: Int
   workDayScheduleId: Int
   workDayId: Int!
   workDay: WorkDay
@@ -4153,6 +4165,15 @@ input VacancyDetailInput {
   startTime: Seconds
   endTime: Seconds
   locationId: Int!
+}
+
+input VacancyDetailVerifyInput {
+  vacancyDetailId: ID
+  doVerify: Boolean
+  verifyComments: String
+  payCodeId: Int
+  payDurationOverride: Int
+  accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
 }
 
 type VacancyEmployeeInterest implements ModelObjectInterface & OrgObjectInterface {
@@ -4204,6 +4225,7 @@ type VacancyMutations {
   rejectVacancy(vacancyRejection: EmployeeRejectVacancyInput!): VacancyEmployeeInterest
   assignVacancy(vacancyAssignment: CreateVacancyAssignmentInput!): Assignment
   swapVacancyAssignments(swapDetails: SwapVacancyAssignmentsInput!): Boolean
+  verifyVacancyDetail(vacancyDetail: VacancyDetailVerifyInput!): VacancyDetail
 }
 
 enum VacancyQualification {

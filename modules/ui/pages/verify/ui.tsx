@@ -2,14 +2,21 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { makeStyles } from "@material-ui/styles";
-import { Typography } from "@material-ui/core";
+import {
+  Typography,
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+} from "@material-ui/core";
+import { ExpandMore } from "@material-ui/icons";
 import { useState, useMemo, useEffect } from "react";
 import { DateTabs, DateTabOption } from "./components/tabs";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useRouteParams } from "ui/routes/definition";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 import { GetAssignmentCount } from "./graphql/get-assignment-count.gen";
 import { GetVacancyDetails } from "./graphql/get-vacancydetails.gen";
+import { VerifyVacancyDetail } from "./graphql/verify-vacancy-detail.gen";
 import {
   isToday,
   addDays,
@@ -19,9 +26,15 @@ import {
   startOfToday,
   isValid,
 } from "date-fns";
-import { VacancyDetailCount, VacancyDetail } from "graphql/server-types.gen";
+import { formatIsoDateIfPossible } from "helpers/date";
+import {
+  VacancyDetailCount,
+  VacancyDetail,
+  VacancyDetailVerifyInput,
+} from "graphql/server-types.gen";
 import { Assignment } from "./components/assignment";
 import { useHistory } from "react-router";
+import { usePayCodes } from "reference-data/pay-codes";
 
 type Props = {
   showVerified: boolean;
@@ -37,6 +50,9 @@ export const VerifyUI: React.FC<Props> = props => {
   const classes = useStyles();
   const history = useHistory();
   const params = useRouteParams(VerifyRoute);
+  const [selectedVacancyDetail, setSelectedVacancyDetail] = useState<
+    string | undefined
+  >(undefined);
 
   const today = useMemo(() => startOfToday(), []);
   /* Because this UI can stand alone or show up on the Admin homepage, we need
@@ -159,9 +175,27 @@ export const VerifyUI: React.FC<Props> = props => {
     | "location"
     | "vacancy"
     | "dayPortion"
+    | "startDate"
   >[];
 
-  const onVerify = async (vacancyDetailId: string) => {};
+  const payCodes = usePayCodes(params.organizationId);
+  const payCodeOptions = useMemo(
+    () => payCodes.map(c => ({ label: c.name, value: c.id })),
+    [payCodes]
+  );
+
+  const [verifyVacancyDetail] = useMutationBundle(VerifyVacancyDetail);
+  const onVerify = async (verifyInput: VacancyDetailVerifyInput) => {
+    await verifyVacancyDetail({
+      variables: {
+        vacancyDetail: verifyInput,
+      },
+    });
+    await getVacancyDetails.refetch();
+  };
+
+  const uniqueDays = [...new Set(assignments.map(x => x.startDate))];
+  console.log(uniqueDays);
 
   return (
     <>
@@ -178,15 +212,48 @@ export const VerifyUI: React.FC<Props> = props => {
           </Typography>
         ) : assignments.length === 0 ? (
           <Typography variant="h5">{t("All assignments verified")}</Typography>
-        ) : (
+        ) : uniqueDays.length === 1 ? (
           assignments.map((vacancyDetail, index) => (
-            // TODO: if we are on the Older tab, we need to group the vacancies by date
             <Assignment
-              key={index}
+              key={vacancyDetail.id}
               vacancyDetail={vacancyDetail}
               shadeRow={index % 2 != 0}
               onVerify={onVerify}
+              selectedVacancyDetail={selectedVacancyDetail}
+              setSelectedVacancyDetail={setSelectedVacancyDetail}
+              payCodeOptions={payCodeOptions}
             />
+          ))
+        ) : (
+          uniqueDays.map((d, i) => (
+            <ExpansionPanel defaultExpanded={true} key={`panel-${i}`}>
+              <ExpansionPanelSummary
+                key={`summary-${i}`}
+                expandIcon={<ExpandMore />}
+                aria-controls={`content-${i}`}
+                id={`summaryid-${i}`}
+                className={classes.summary}
+              >
+                <div className={classes.subGroupSummaryText}>
+                  {formatIsoDateIfPossible(d, "EEE MMM, d")}
+                </div>
+              </ExpansionPanelSummary>
+              <ExpansionPanelDetails className={classes.details}>
+                {assignments
+                  .filter(x => x.startDate === d)
+                  .map((vacancyDetail, index) => (
+                    <Assignment
+                      key={vacancyDetail.id}
+                      vacancyDetail={vacancyDetail}
+                      shadeRow={index % 2 != 0}
+                      onVerify={onVerify}
+                      selectedVacancyDetail={selectedVacancyDetail}
+                      setSelectedVacancyDetail={setSelectedVacancyDetail}
+                      payCodeOptions={payCodeOptions}
+                    />
+                  ))}
+              </ExpansionPanelDetails>
+            </ExpansionPanel>
           ))
         )}
       </Section>
@@ -194,4 +261,36 @@ export const VerifyUI: React.FC<Props> = props => {
   );
 };
 
-export const useStyles = makeStyles(theme => ({}));
+export const useStyles = makeStyles(theme => ({
+  subGroupSummaryText: {
+    fontWeight: "bold",
+    paddingLeft: theme.spacing(2),
+    "@media print": {
+      paddingLeft: 0,
+    },
+  },
+  subGroupExpanded: {
+    borderTop: "0 !important",
+    margin: "0 !important",
+    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
+  },
+  details: {
+    padding: 0,
+    display: "block",
+  },
+  subDetailHeader: {
+    width: "100%",
+  },
+  summary: {
+    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
+    height: theme.typography.pxToRem(16),
+    "@media print": {
+      paddingLeft: theme.spacing(),
+      minHeight: `${theme.typography.pxToRem(30)} !important`,
+    },
+  },
+  summaryText: {
+    color: theme.palette.primary.main,
+    fontWeight: "bold",
+  },
+}));

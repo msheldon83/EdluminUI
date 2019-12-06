@@ -1,19 +1,32 @@
 import * as React from "react";
 import { Assignment } from "./assignment";
 import { makeStyles } from "@material-ui/core/styles";
-import { VacancyDetail } from "graphql/server-types.gen";
+import {
+  VacancyDetail,
+  VacancyDetailVerifyInput,
+} from "graphql/server-types.gen";
 
 export default {
   title: "Pages/Verify/Assignment",
 };
 
-const onVerify = async (vacancyDetailId: string) => {};
-
 export const AssignmentStory = () => {
+  const [selectedVacancyDetail, setSelectedVacancyDetail] = React.useState<
+    string | undefined
+  >(undefined);
+  const onVerify = async (vacancyDetail: VacancyDetailVerifyInput) => {};
+
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <Assignment vacancyDetail={simpleAssignment} shadeRow={false} onVerify={onVerify} />
+      <Assignment
+        vacancyDetail={simpleAssignment}
+        shadeRow={false}
+        onVerify={onVerify}
+        selectedVacancyDetail={selectedVacancyDetail}
+        setSelectedVacancyDetail={setSelectedVacancyDetail}
+        payCodeOptions={payCodeOptions}
+      />
     </div>
   );
 };
@@ -62,6 +75,15 @@ const simpleAssignment = ({
         firstName: "Joe",
         lastName: "Schmoe",
       },
+      details: [
+        {
+          id: "12345",
+          startDate: "2019-11-20",
+          startTimeLocal: "2019-11-20T08:00",
+          endTimeLocal: "2019-11-20T15:00",
+          dayPortion: 1.0,
+        },
+      ],
     },
     position: {
       name: "Kindergarten",
@@ -78,4 +100,10 @@ const simpleAssignment = ({
   | "location"
   | "vacancy"
   | "dayPortion"
+  | "accountingCodeAllocations"
 >;
+
+const payCodeOptions = [
+  { label: "Option 1", value: "12" },
+  { label: "Option 2", value: "13" },
+];

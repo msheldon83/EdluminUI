@@ -1,0 +1,7 @@
+mutation VerifyVacancyDetail($vacancyDetail: VacancyDetailVerifyInput!) {
+  vacancy {
+    verifyVacancyDetail(vacancyDetail: $vacancyDetail) {
+      id
+    }
+  }
+}
