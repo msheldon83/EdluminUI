@@ -3,8 +3,8 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import PhoneInput from "react-phone-input-2";
 
 type Props = {
-  phoneNumber?: string;
-  forEdit: boolean;
+  phoneNumber: string;
+  forViewOnly: boolean;
 };
 
 //export Phone Number Component with minimal props
@@ -13,16 +13,24 @@ export const PhoneNumberInput: React.FunctionComponent<Props> = props => {
 
   return (
     <PhoneInput
-      className={classes.alignCenter}
-      forEdit
-      phoneNumber
+      country="us"
+      regions={["north-america"]}
+      //inputStyle={[classes.inputStyle]}
+      disabled={props.forViewOnly}
+      value={props.phoneNumber}
       {...props}
     />
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  alignCenter: {
+  inputStyle: {
     justifyContent: "center",
+    borderStyle: "none",
+    backgroundColor: "none",
+  },
+  font: {
+    fontFamily: "Roboto",
+    fontSize: theme.typography.pxToRem(12),
   },
 }));

@@ -105,7 +105,7 @@ export const Information: React.FC<Props> = props => {
               <Typography variant="h6">{t("Phone")}</Typography>
               <PhoneNumberInput
                 phoneNumber={orgUser.phoneNumber ?? t("Not specified")}
-                forEdit={false}
+                forViewOnly={true}
               />
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
