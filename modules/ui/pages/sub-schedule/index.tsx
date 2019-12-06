@@ -36,6 +36,7 @@ export const SubSchedule: React.FC<Props> = props => {
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
 
+  const numberOfMonthsInSchoolYear = 12;
   const beginningOfSchoolYear = useMemo(() => {
     const today = new Date();
     // Always show july to june
@@ -47,9 +48,10 @@ export const SubSchedule: React.FC<Props> = props => {
     return new Date(year, july);
   }, []);
 
-  const endOfSchoolYear = useMemo(() => addMonths(beginningOfSchoolYear, 12), [
-    beginningOfSchoolYear,
-  ]);
+  const endOfSchoolYear = useMemo(
+    () => addMonths(beginningOfSchoolYear, numberOfMonthsInSchoolYear),
+    [beginningOfSchoolYear]
+  );
 
   const schoolYear = useMemo(
     () =>
@@ -95,41 +97,58 @@ export const SubSchedule: React.FC<Props> = props => {
         <Typography variant="h1">{schoolYear}</Typography>
       </Grid>
 
-      <Section>
-        <Grid container justify="space-between">
-          <Grid item>
+      <Section className={classes.section}>
+        <div className={classes.itemContainer}>
+          <div className={classes.item}>
             {props.view === "calendar" && (
-              <Typography variant="h5">{t("Upcoming 12 months")}</Typography>
+              <Typography variant="h5">{`${t(
+                "Upcoming"
+              )} ${numberOfMonthsInSchoolYear} ${t("months")}`}</Typography>
             )}
-          </Grid>
+          </div>
 
-          <Grid item>
+          <div className={classes.item}>
             <ScheduleViewToggle
               view={props.view}
               listViewRoute={SubScheduleListViewRoute.generate(params)}
               calendarViewRoute={SubScheduleCalendarViewRoute.generate(params)}
             />
-          </Grid>
-        </Grid>
-        <Divider className={classes.divider} />
+          </div>
+        </div>
 
-        {props.view === "calendar" && (
-          <CalendarView
-            userId={userId}
-            assignments={data}
-            fromDate={beginningOfSchoolYear}
-            toDate={endOfSchoolYear}
-          />
-        )}
-        {props.view === "list" && <div>LIST</div>}
+        <Divider />
+
+        <div className={classes.viewContainer}>
+          {props.view === "calendar" && (
+            <CalendarView
+              userId={userId}
+              assignments={data}
+              fromDate={beginningOfSchoolYear}
+              toDate={endOfSchoolYear}
+            />
+          )}
+          {props.view === "list" && <div>LIST</div>}
+        </div>
       </Section>
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  divider: {
-    margin: `${theme.typography.pxToRem(8)} -${theme.typography.pxToRem(32)}`,
-  },
+  section: { padding: 0 },
   header: { paddingBottom: theme.spacing(3) },
+  itemContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: `${theme.typography.pxToRem(14)} ${theme.typography.pxToRem(24)}`,
+  },
+  item: {
+    display: "flex",
+  },
+  viewContainer: {
+    padding: `0 ${theme.typography.pxToRem(24)} ${theme.typography.pxToRem(
+      18
+    )}`,
+  },
 }));

@@ -29,6 +29,7 @@ export const AssignmentCalendar: React.FC<Props> = props => {
         currentMonth={DateFns.parseISO(props.date)}
         customDates={assignmentDates}
         onSelectDate={props.onSelectDate}
+        className={classes.calendarSize}
       />
     </div>
   );
@@ -38,7 +39,9 @@ const useStyles = makeStyles(theme => ({
   calendar: {
     display: "flex",
     padding: theme.spacing(1),
-    maxWidth: theme.typography.pxToRem(460),
+  },
+  calendarSize: {
+    minWidth: theme.typography.pxToRem(300),
   },
   assignment: {
     backgroundColor: theme.palette.primary.main,
