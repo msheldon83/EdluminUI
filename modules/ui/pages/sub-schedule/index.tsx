@@ -54,16 +54,24 @@ export const SubSchedule: React.FC<Props> = props => {
     skip: !userId,
   });
 
+  const data = useMemo(() => {
+    if (
+      upcomingAssignments.state == "DONE" ||
+      upcomingAssignments.state == "UPDATING"
+    ) {
+      return compact(
+        upcomingAssignments.data.employee?.employeeAssignmentSchedule
+      );
+    }
+    return [];
+  }, [upcomingAssignments]);
+
   if (
     upcomingAssignments.state !== "DONE" &&
     upcomingAssignments.state !== "UPDATING"
   ) {
     return <></>;
   }
-
-  const data = compact(
-    upcomingAssignments.data.employee?.employeeAssignmentSchedule
-  );
 
   return (
     <>

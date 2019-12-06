@@ -41,6 +41,7 @@ const useStyles = makeStyles(theme => ({
   calendar: {
     display: "flex",
     padding: theme.spacing(1),
+    maxWidth: theme.typography.pxToRem(460),
   },
   assignment: {
     backgroundColor: theme.palette.primary.main,
