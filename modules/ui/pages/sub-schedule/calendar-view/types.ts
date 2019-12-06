@@ -14,6 +14,7 @@ export type AssignmentDetails = {
     name?: string;
   } | null;
   vacancy: {
+    notesToReplacement?: string;
     organization: { name?: string };
     position: {
       name?: string;

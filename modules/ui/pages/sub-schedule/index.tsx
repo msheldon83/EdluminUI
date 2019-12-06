@@ -30,7 +30,6 @@ export const SubSchedule: React.FC<Props> = props => {
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
     fetchPolicy: "cache-first",
   });
-
   const userId =
     getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
       ? undefined
@@ -69,7 +68,7 @@ export const SubSchedule: React.FC<Props> = props => {
     skip: !userId,
   });
 
-  const data = useMemo(() => {
+  const assignments = useMemo(() => {
     if (
       upcomingAssignments.state == "DONE" ||
       upcomingAssignments.state == "UPDATING"
@@ -122,7 +121,7 @@ export const SubSchedule: React.FC<Props> = props => {
           {props.view === "calendar" && (
             <CalendarView
               userId={userId}
-              assignments={data}
+              assignments={assignments}
               fromDate={beginningOfSchoolYear}
               toDate={endOfSchoolYear}
             />
