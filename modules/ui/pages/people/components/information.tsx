@@ -9,6 +9,7 @@ import { TextButton } from "ui/components/text-button";
 import { AvatarCard } from "ui/components/avatar-card";
 import { useBreakpoint } from "hooks";
 import { getInitials } from "ui/components/helpers";
+import { PhoneNumberInput } from "ui/components/form/phone-number-input";
 import { StateCode, CountryCode, OrgUserRole } from "graphql/server-types.gen";
 
 type Props = {
@@ -102,7 +103,10 @@ export const Information: React.FC<Props> = props => {
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Phone")}</Typography>
-              <div>{orgUser.phoneNumber ?? t("Not specified")}</div>
+              <PhoneNumberInput
+                phoneNumber={orgUser.phoneNumber ?? t("Not specified")}
+                forEdit={false}
+              />
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Date of Birth")}</Typography>
