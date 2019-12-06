@@ -1,7 +1,10 @@
 import { Divider, Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import { addMonths } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
+import { compact } from "lodash-es";
 import * as React from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -12,17 +15,9 @@ import {
   SubScheduleListViewRoute,
   SubScheduleRoute,
 } from "ui/routes/sub-schedule";
+import { GetUpcomingAssignments } from "../sub-home/graphql/get-upcoming-assignments.gen";
 import { CalendarView } from "./calendar-view";
 import { ScheduleViewToggle } from "./schedule-view-toggle";
-import { GetUpcomingAssignments } from "../sub-home/graphql/get-upcoming-assignments.gen";
-import { addDays } from "date-fns";
-import { useMemo } from "react";
-import { AssignmentRow } from "./assignment-row";
-import { DayPart } from "graphql/server-types.gen";
-
-import { addMonths, parseISO } from "date-fns";
-import { groupBy, compact } from "lodash-es";
-import { startOfMonth } from "date-fns/esm";
 
 type Props = {
   view: "list" | "calendar";
@@ -41,14 +36,32 @@ export const SubSchedule: React.FC<Props> = props => {
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
 
-  const fromDate = useMemo(() => new Date(), []);
-  const toDate = useMemo(() => addMonths(fromDate, 12), [fromDate]);
+  const beginningOfSchoolYear = useMemo(() => {
+    const today = new Date();
+    // Always show july to june
+    const july = 6; /* months start at 0 in js dates */
+    let year = today.getFullYear();
+    if (today.getMonth() < july) {
+      year -= 1;
+    }
+    return new Date(year, july);
+  }, []);
+
+  const endOfSchoolYear = useMemo(() => addMonths(beginningOfSchoolYear, 12), [
+    beginningOfSchoolYear,
+  ]);
+
+  const schoolYear = useMemo(
+    () =>
+      `${beginningOfSchoolYear.getFullYear()}-${endOfSchoolYear.getFullYear()}`,
+    [beginningOfSchoolYear, endOfSchoolYear]
+  );
 
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
       id: String(userId),
-      fromDate,
-      toDate,
+      fromDate: beginningOfSchoolYear,
+      toDate: endOfSchoolYear,
       includeCompletedToday: false,
     },
     skip: !userId,
@@ -79,7 +92,7 @@ export const SubSchedule: React.FC<Props> = props => {
 
       <Grid className={classes.header}>
         <Typography variant="h5">{t("My Schedule")}</Typography>
-        <Typography variant="h1">2019-2020</Typography>
+        <Typography variant="h1">{schoolYear}</Typography>
       </Grid>
 
       <Section>
@@ -101,7 +114,12 @@ export const SubSchedule: React.FC<Props> = props => {
         <Divider className={classes.divider} />
 
         {props.view === "calendar" && (
-          <CalendarView userId={userId} assignments={data} />
+          <CalendarView
+            userId={userId}
+            assignments={data}
+            fromDate={beginningOfSchoolYear}
+            toDate={endOfSchoolYear}
+          />
         )}
         {props.view === "list" && <div>LIST</div>}
       </Section>

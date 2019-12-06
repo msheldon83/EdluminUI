@@ -42,14 +42,7 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
   ) {
     return <></>;
   }
-  console.log(
-    "userId",
-    props.userId,
-    "on date",
-    props.date,
-    "jobs",
-    upcomingAssignments.data.employee?.employeeAssignmentSchedule
-  );
+
   return (
     <>
       {data && data.length > 0 ? (

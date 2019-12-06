@@ -26,7 +26,3 @@ export type AssignmentDetails = {
     } | null;
   } | null;
 };
-
-export type GroupedAssignmentsByMonth = {
-  month: Date;
-};
