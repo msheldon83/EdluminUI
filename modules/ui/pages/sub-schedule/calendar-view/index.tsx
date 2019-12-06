@@ -44,6 +44,7 @@ export const CalendarView: React.FC<Props> = props => {
             userId={props.userId}
             date={group.month}
             assignmentDates={group.dates}
+            selectedDate={selectedDate}
           />
         ))}
       </Grid>

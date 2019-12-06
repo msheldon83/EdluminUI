@@ -9,24 +9,55 @@ type Props = {
   date: string;
   onSelectDate: (date: Date) => void;
   assignmentDates: Date[];
+  selectedDate: Date;
 };
 
 export const AssignmentCalendar: React.FC<Props> = props => {
   const classes = useStyles();
+  const parsedDate = useMemo(() => DateFns.parseISO(props.date), [props.date]);
+
+  const className = classes.assignment;
+  const checkDays = useMemo(
+    () => DateFns.isSameMonth(parsedDate, props.selectedDate),
+    [parsedDate, props.selectedDate]
+  );
+
+  const checkSelected = useMemo(
+    () => (d: Date) => {
+      if (DateFns.isSameDay(d, props.selectedDate)) {
+        return [classes.assignment, classes.selected].join(" ");
+      } else {
+        return className;
+      }
+    },
+    [props.selectedDate, classes, className]
+  );
 
   const assignmentDates = useMemo(
     () =>
-      props.assignmentDates.map(d => ({
-        date: d,
-        buttonProps: { className: classes.assignment },
-      })),
-    [props.assignmentDates, classes.assignment]
+      checkDays
+        ? props.assignmentDates.map(d => ({
+            date: d,
+            buttonProps: { className: checkSelected(d) },
+          }))
+        : props.assignmentDates.map(d => ({
+            date: d,
+            buttonProps: { className },
+          })),
+    [props.assignmentDates, className, checkDays, checkSelected]
   );
+
+  // If the selected day is not in assignmentDates, add an entry for it
+  checkDays &&
+    assignmentDates.push({
+      date: props.selectedDate,
+      buttonProps: { className: classes.selected },
+    });
 
   return (
     <div className={classes.calendar}>
       <SingleMonthCalendar
-        currentMonth={DateFns.parseISO(props.date)}
+        currentMonth={parsedDate}
         customDates={assignmentDates}
         onSelectDate={props.onSelectDate}
         className={classes.calendarSize}
@@ -42,6 +73,9 @@ const useStyles = makeStyles(theme => ({
   },
   calendarSize: {
     minWidth: theme.typography.pxToRem(300),
+  },
+  selected: {
+    border: `${theme.customColors.tomato} ${theme.typography.pxToRem(2)} solid`,
   },
   assignment: {
     backgroundColor: theme.palette.primary.main,
