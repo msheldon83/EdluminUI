@@ -15,7 +15,14 @@ import { EditAbsenceState, editAbsenceReducer } from "./state";
 import { useReducer, useMemo, useState, useCallback } from "react";
 import { startOfMonth } from "date-fns/esm";
 import { useQueryBundle } from "graphql/hooks";
-import { format, endOfMonth, addMonths, parseISO } from "date-fns";
+import {
+  format,
+  endOfMonth,
+  addMonths,
+  parseISO,
+  eachDayOfInterval,
+  isSameDay,
+} from "date-fns";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
 import useForm from "react-hook-form";
@@ -24,6 +31,7 @@ import { buildAbsenceCreateInput } from "../create-absence/ui";
 import { GetProjectedVacancies } from "../create-absence/graphql/get-projected-vacancies.gen";
 import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
 import { EditVacancies } from "../create-absence/edit-vacancies";
+import { differenceWith } from "lodash-es";
 
 type Props = {
   firstName: string;
@@ -126,10 +134,30 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   register({ name: "accountingCode", type: "custom" });
   register({ name: "payCode", type: "custom" });
 
-  const disabledDates = useEmployeeDisabledDates(
+  const disabledDatesQuery = useEmployeeDisabledDates(
     state.employeeId,
     state.viewingCalendarMonth
   );
+
+  /* We are going to presume that any dates that exist within the original absence
+     can still be selected, regardless of why they may presently exist in the disabledDates.
+     (hopefully this is simply because the absence itself exists)
+   */
+  const disabledDates = useMemo(() => {
+    const start = parseISO(props.startDate);
+    const end = parseISO(props.endDate);
+    const absenceDays = eachDayOfInterval({ start, end });
+    const remaining = differenceWith(
+      disabledDatesQuery,
+      absenceDays,
+      isSameDay
+    );
+    console.log("start", start);
+    console.log("end", end);
+    console.log("absencedays", absenceDays);
+    console.log("remaining", remaining);
+    return remaining;
+  }, [disabledDatesQuery, props.startDate, props.endDate]);
 
   const projectedVacanciesInput = useMemo(
     () =>
