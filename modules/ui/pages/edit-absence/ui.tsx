@@ -12,10 +12,10 @@ import { Section } from "ui/components/section";
 import { useQueryParamIso } from "hooks/query-params";
 import { StepParams } from "./step-params";
 import { EditAbsenceState, editAbsenceReducer } from "./state";
-import { useReducer, useMemo, useState } from "react";
+import { useReducer, useMemo, useState, useCallback } from "react";
 import { startOfMonth } from "date-fns/esm";
 import { useQueryBundle } from "graphql/hooks";
-import { format, endOfMonth, addMonths } from "date-fns";
+import { format, endOfMonth, addMonths, parseISO } from "date-fns";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
 import useForm from "react-hook-form";
@@ -23,6 +23,7 @@ import { VacancyDetail } from "../create-absence/types";
 import { buildAbsenceCreateInput } from "../create-absence/ui";
 import { GetProjectedVacancies } from "../create-absence/graphql/get-projected-vacancies.gen";
 import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
+import { EditVacancies } from "../create-absence/edit-vacancies";
 
 type Props = {
   firstName: string;
@@ -36,8 +37,8 @@ type Props = {
   positionName?: string;
   absenceReasonId: number;
   absenceId: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   dayPart?: DayPart;
   initialVacancyDetails: VacancyDetail[];
   initialVacancies: Vacancy[];
@@ -69,10 +70,17 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const name = `${props.firstName} ${props.lastName}`;
 
   const initialFormData: EditAbsenceFormData = {
-    startDate: props.startDate,
-    endDate: props.endDate,
+    startDate: parseISO(props.startDate),
+    endDate: parseISO(props.endDate),
     absenceReason: props.absenceReasonId.toString(),
     dayPart: props.dayPart,
+    payCode:
+      // @ts-ignore
+      props.initialVacancies[0]?.details[0]?.payCodeId?.toString() ?? undefined,
+    accountingCode:
+      // @ts-ignore
+      props.initialVacancies[0]?.details[0]?.accountingCodeAllocations[0]?.accountingCodeId.toString() ??
+      undefined,
   };
 
   const {
@@ -87,6 +95,36 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   });
 
   const formValues = getValues();
+  const required = t("Required");
+  register({ name: "dayPart", type: "custom" }, { required });
+  register({ name: "absenceReason", type: "custom" }, { required });
+  register({ name: "startDate", type: "custom" }, { required });
+  register({ name: "endDate", type: "custom" });
+  register({ name: "needsReplacement", type: "custom" });
+  register({ name: "notesToApprover", type: "custom" });
+  register({ name: "notesToReplacement", type: "custom" });
+  register({ name: "replacementEmployeeId", type: "custom" });
+  register({ name: "replacementEmployeeName", type: "custom" });
+  register(
+    { name: "hourlyStartTime", type: "custom" },
+    {
+      validate: value =>
+        formValues.dayPart !== DayPart.Hourly ||
+        value ||
+        t("Start time is required"),
+    }
+  );
+  register(
+    { name: "hourlyEndTime", type: "custom" },
+    {
+      validate: value =>
+        formValues.dayPart !== DayPart.Hourly ||
+        value ||
+        t("End time is required"),
+    }
+  );
+  register({ name: "accountingCode", type: "custom" });
+  register({ name: "payCode", type: "custom" });
 
   const disabledDates = useEmployeeDisabledDates(
     state.employeeId,
@@ -170,26 +208,37 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       );
   }, [getProjectedVacancies.state]);
 
+  const onChangedVacancies = useCallback(
+    (vacancyDetails: VacancyDetail[]) => {
+      setStep("absence");
+      setVacanciesInput(vacancyDetails);
+    },
+    [setVacanciesInput, setStep]
+  );
+  const onCancel = useCallback(() => setStep("absence"), [setStep]);
+
   const theVacancyDetails: VacancyDetail[] =
-    projectedVacancyDetails || props.initialVacancyDetails;
+    vacanciesInput || props.initialVacancyDetails;
 
   return (
     <>
       <PageTitle title={t("Edit Absence")} withoutHeading />
-      {props.actingAsEmployee ? (
-        <Typography variant="h1">{t("Edit absence")}</Typography>
-      ) : (
-        <>
-          <Typography variant="h5">{t("Edit absence")}</Typography>
-          <Typography variant="h1">{name}</Typography>
-        </>
-      )}
-      <form
-        onSubmit={handleSubmit(async data => {
-          console.log("submit edit data", data);
-        })}
-      >
-        {step === "absence" && (
+
+      {step === "absence" && (
+        <form
+          onSubmit={handleSubmit(async data => {
+            console.log("submit edit data", data);
+          })}
+        >
+          {props.actingAsEmployee ? (
+            <Typography variant="h1">{t("Edit absence")}</Typography>
+          ) : (
+            <>
+              <Typography variant="h5">{t("Edit absence")}</Typography>
+              <Typography variant="h1">{name}</Typography>
+            </>
+          )}
+
           <Section>
             <AbsenceDetails
               saveLabel={t("Save")}
@@ -212,8 +261,19 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               setVacanciesInput={setVacanciesInput}
             />
           </Section>
-        )}
-      </form>
+        </form>
+      )}
+      {step === "edit" && (
+        <EditVacancies
+          actingAsEmployee={props.actingAsEmployee}
+          employeeName={name}
+          positionName={props.positionName}
+          onCancel={onCancel}
+          details={theVacancyDetails}
+          onChangedVacancies={onChangedVacancies}
+          employeeId={props.employeeId}
+        />
+      )}
     </>
   );
 };
@@ -221,6 +281,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 const initialState = (props: Props): EditAbsenceState => ({
   employeeId: props.employeeId,
   absenceId: props.absenceId,
-  viewingCalendarMonth: startOfMonth(new Date()),
+  viewingCalendarMonth: startOfMonth(parseISO(props.startDate)),
   needsReplacement: props.needsReplacement !== NeedsReplacement.No,
 });

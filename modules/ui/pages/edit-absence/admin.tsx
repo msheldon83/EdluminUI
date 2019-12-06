@@ -24,8 +24,6 @@ export const EditAbsence: React.FC = () => {
     if (absence.state !== "DONE") {
       return [];
     }
-    // @ts-ignore
-    console.log("wat", absence.data.absence?.byId.vacancies);
     return compact(
       // @ts-ignore
       (absence.data.absence?.byId.vacancies ?? []).map(d => {
@@ -64,7 +62,6 @@ export const EditAbsence: React.FC = () => {
   if (!data || !vacancy || !position || !employee || !detail || !reasonUsage) {
     return <></>;
   }
-
   return (
     <EditAbsenceUI
       firstName={employee.firstName}

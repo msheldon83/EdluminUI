@@ -307,8 +307,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
 
-      {/* {JSON.stringify(getValues())} */}
-
       <form
         onSubmit={handleSubmit(async data => {
           const absence = await create(data);
