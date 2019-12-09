@@ -10,12 +10,14 @@ type Props = {
 //export Phone Number Component with minimal props
 export const PhoneNumberInput: React.FunctionComponent<Props> = props => {
   const classes = useStyles();
+  const inputStyle = props.forViewOnly ? classes.viewStyle : classes.editStyle;
 
   return (
     <PhoneInput
-      country="us"
-      regions={["north-america"]}
-      //inputStyle={[classes.inputStyle]}
+      country={"us"}
+      disableDropdown={true}
+      regions={"north-america"}
+      inputClass={inputStyle}
       disabled={props.forViewOnly}
       value={props.phoneNumber}
       {...props}
@@ -24,13 +26,26 @@ export const PhoneNumberInput: React.FunctionComponent<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  inputStyle: {
+  viewStyle: {
     justifyContent: "center",
-    borderStyle: "none",
-    backgroundColor: "none",
-  },
-  font: {
+    backgroundColor: "white",
+    border: "none",
     fontFamily: "Roboto",
-    fontSize: theme.typography.pxToRem(12),
+    fontSize: "14px",
+    color: "black",
+    width: "50%",
+  },
+  editStyle: {
+    justifyContent: "center",
+    padding: "7px",
+    fontFamily: "Roboto",
+    fontSize: "14px",
+    color: "black",
+    borderRadius: "4px",
+    width: "50%",
+  },
+  input: {
+    justifyContent: "center",
+    fontFamily: "Roboto",
   },
 }));
