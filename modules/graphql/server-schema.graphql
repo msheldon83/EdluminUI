@@ -1992,9 +1992,9 @@ type OrgRef_AccountingCodeMutations {
 }
 
 type OrgRef_AccountingCodeQueries {
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AccountingCode]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAccountingCode
-  accountingCodesByLocationId(locationId: Int): [AccountingCode]
+  byId(id: ID!): AccountingCode
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], includeExpired: Boolean, locationIds: [Int]): [AccountingCode]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], includeExpired: Boolean, locationIds: [Int]): PagedAccountingCode
 }
 
 type OrgRef_CalendarChangeReasonMutations {

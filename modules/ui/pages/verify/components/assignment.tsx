@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMemo } from "react";
 import {
   Grid,
   Button,
@@ -12,6 +13,7 @@ import {
   VacancyDetailVerifyInput,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
+import { useAccountingCodes } from "reference-data/accounting-codes";
 import { parseISO, format, isEqual } from "date-fns";
 import clsx from "clsx";
 import * as yup from "yup";
@@ -23,7 +25,9 @@ type Props = {
   vacancyDetail: Pick<
     VacancyDetail,
     | "id"
+    | "orgId"
     | "startTimeLocal"
+    | "startDate"
     | "endTimeLocal"
     | "assignment"
     | "payCode"
@@ -32,6 +36,7 @@ type Props = {
     | "dayPortion"
     | "accountingCodeAllocations"
     | "verifyComments"
+    | "verifiedAtLocal"
   >;
   shadeRow: boolean;
   onVerify: (verifyInput: VacancyDetailVerifyInput) => Promise<void>;
@@ -46,6 +51,18 @@ export const Assignment: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const vacancyDetail = props.vacancyDetail;
+
+  // If the date is null, this record is not verified and needs to be verified
+  // If it is verified, we would want to allow the record to be unverified
+  const notVerified = vacancyDetail.verifiedAtLocal === null;
+
+  const accountingCodes = useAccountingCodes(vacancyDetail.orgId.toString(), [
+    +vacancyDetail.location!.id,
+  ]);
+  const accountingCodeOptions = useMemo(
+    () => accountingCodes.map(a => ({ label: a.name, value: a.id })),
+    [accountingCodes]
+  );
 
   const vacancyDetailStartTime = parseISO(vacancyDetail.startTimeLocal);
   const vacancyDetailEndTime = parseISO(vacancyDetail.endTimeLocal);
@@ -97,6 +114,7 @@ export const Assignment: React.FC<Props> = props => {
   });
 
   register({ name: "payCode", type: "custom" });
+  register({ name: "accountingCode", type: "custom" });
   register({ name: "verifyComments", type: "custom" });
   const formValues = getValues();
 
@@ -104,6 +122,14 @@ export const Assignment: React.FC<Props> = props => {
     async event => {
       await setValue("payCode", event?.value);
       await triggerValidation({ name: "payCode" });
+    },
+    [setValue, triggerValidation]
+  );
+
+  const onAccountingCodeChange = React.useCallback(
+    async event => {
+      await setValue("accountingCode", event?.value);
+      await triggerValidation({ name: "accountingCode" });
     },
     [setValue, triggerValidation]
   );
@@ -123,7 +149,15 @@ export const Assignment: React.FC<Props> = props => {
             vacancyDetailId: vacancyDetail.id,
             payCodeId: Number(formValues.payCode),
             verifyComments: formValues.verifyComments,
-            doVerify: true,
+            accountingCodeAllocations: formValues.accountingCode
+              ? [
+                  {
+                    accountingCodeId: Number(formValues.accountingCode),
+                    allocation: 1.0,
+                  },
+                ]
+              : [],
+            doVerify: notVerified,
           });
         })}
       >
@@ -206,14 +240,29 @@ export const Assignment: React.FC<Props> = props => {
                 <Typography className={classes.lightText}>
                   {vacancyDetail.location!.name}
                 </Typography>
-                <Typography variant="h6">
-                  {`Acct: ${vacancyDetail.accountingCodeAllocations![0]
-                    ?.accountingCode?.name ?? t("N/A")}`}
-                </Typography>
+                {isActiveCard ? (
+                  <Select
+                    value={{
+                      value: formValues.accountingCode,
+                      label:
+                        accountingCodeOptions.find(
+                          a => a.value === formValues.accountingCode
+                        )?.label || "",
+                    }}
+                    onChange={onAccountingCodeChange}
+                    options={accountingCodeOptions}
+                    isClearable={!!formValues.accountingCode}
+                    inputStatus={errors.accountingCode ? "error" : undefined}
+                    validationMessage={errors.accountingCode?.message}
+                  />
+                ) : (
+                  <Typography variant="h6">{`Acct: ${vacancyDetail.accountingCodeAllocations![0]
+                    ?.accountingCode?.name ?? t("N/A")}`}</Typography>
+                )}
               </Grid>
               <Grid item xs={2}>
                 <Button variant="outlined" type="submit">
-                  {t("Verify")}
+                  {notVerified ? t("Verify") : t("Undo verify")}
                 </Button>
               </Grid>
             </Grid>

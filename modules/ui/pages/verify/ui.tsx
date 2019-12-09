@@ -7,6 +7,7 @@ import {
   ExpansionPanel,
   ExpansionPanelSummary,
   ExpansionPanelDetails,
+  Button,
 } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
 import { useState, useMemo, useEffect } from "react";
@@ -35,6 +36,7 @@ import {
 import { Assignment } from "./components/assignment";
 import { useHistory } from "react-router";
 import { usePayCodes } from "reference-data/pay-codes";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {
   showVerified: boolean;
@@ -49,6 +51,7 @@ export const VerifyUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const history = useHistory();
+  const { openSnackbar } = useSnackbar();
   const params = useRouteParams(VerifyRoute);
   const [selectedVacancyDetail, setSelectedVacancyDetail] = useState<
     string | undefined
@@ -168,14 +171,18 @@ export const VerifyUI: React.FC<Props> = props => {
     : getVacancyDetails.data?.vacancy?.getAssignmentsForVerify ?? []) as Pick<
     VacancyDetail,
     | "id"
+    | "orgId"
     | "startTimeLocal"
+    | "startDate"
     | "endTimeLocal"
     | "assignment"
     | "payCode"
     | "location"
     | "vacancy"
     | "dayPortion"
-    | "startDate"
+    | "accountingCodeAllocations"
+    | "verifyComments"
+    | "verifiedAtLocal"
   >[];
 
   const payCodes = usePayCodes(params.organizationId);
@@ -191,11 +198,34 @@ export const VerifyUI: React.FC<Props> = props => {
         vacancyDetail: verifyInput,
       },
     });
+    if (verifyInput.doVerify) {
+      openSnackbar({
+        dismissable: true,
+        autoHideDuration: 5000,
+        status: "info",
+        message: (
+          <div>
+            {t("Assignment has been verified.")}
+            <Button
+              variant="contained"
+              onClick={() =>
+                onVerify({
+                  vacancyDetailId: verifyInput.vacancyDetailId,
+                  doVerify: false,
+                })
+              }
+            >
+              {t("Undo verify")}
+            </Button>
+          </div>
+        ),
+      });
+    }
+    await getAssignmentCounts.refetch();
     await getVacancyDetails.refetch();
   };
 
   const uniqueDays = [...new Set(assignments.map(x => x.startDate))];
-  console.log(uniqueDays);
 
   return (
     <>
