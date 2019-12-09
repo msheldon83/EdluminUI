@@ -27,17 +27,17 @@ export const EditAbsence: React.FC = () => {
     }
     return compact(
       // @ts-ignore
-      (absence.data.absence?.byId.vacancies ?? []).map(d => {
-        /* this will need to be updated once vacancies can have multiple details */
+      flatMap(absence.data.absence?.byId.vacancies ?? [], v => {
         // @ts-ignore
-        const details = d?.details[0];
-        if (!details) return null;
-        return {
-          date: details.startDate,
-          startTime: details.startTimeLocal,
-          endTime: details.endTimeLocal,
-          locationId: details.locationId!,
-        };
+        return v.details.map(d => {
+          if (!d) return null;
+          return {
+            date: d.startDate,
+            startTime: d.startTimeLocal,
+            endTime: d.endTimeLocal,
+            locationId: d.locationId!,
+          };
+        });
       })
     );
   }, [absence]);

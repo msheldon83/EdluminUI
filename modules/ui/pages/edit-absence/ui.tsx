@@ -145,7 +145,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     !isSameDay(parseISO(props.endDate), formValues.endDate) ||
     formValues.dayPart !== props.dayPart ||
     state.needsReplacement !== props.initialVacancies.length > 0;
-  console.log("useProjectedInformation", useProjectedInformation);
 
   const disabledDatesQuery = useEmployeeDisabledDates(
     state.employeeId,
@@ -193,8 +192,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       disabledDates,
     ]
   );
-
-  console.log("projectedVacanciesInput", projectedVacanciesInput);
 
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
@@ -247,6 +244,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
       setStep("absence");
+      console.log("got vacancy details?", vacancyDetails);
       setVacanciesInput(vacancyDetails);
     },
     [setVacanciesInput, setStep]
@@ -255,6 +253,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const theVacancyDetails: VacancyDetail[] =
     vacanciesInput || props.initialVacancyDetails;
+  console.log("theVacancyDetails", theVacancyDetails);
 
   return (
     <>
