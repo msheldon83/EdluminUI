@@ -18,6 +18,7 @@ import {
 import { GetUpcomingAssignments } from "../sub-home/graphql/get-upcoming-assignments.gen";
 import { CalendarView } from "./calendar-view";
 import { ScheduleViewToggle } from "./schedule-view-toggle";
+import { ListView } from "./list-view";
 
 type Props = {
   view: "list" | "calendar";
@@ -126,7 +127,9 @@ export const SubSchedule: React.FC<Props> = props => {
               toDate={endOfSchoolYear}
             />
           )}
-          {props.view === "list" && <div>LIST</div>}
+          {props.view === "list" && (
+            <ListView userId={userId} assignments={assignments} />
+          )}
         </div>
       </Section>
     </>
