@@ -10,7 +10,6 @@ import {
   SubScheduleListViewRoute,
   SubScheduleRoute,
 } from "ui/routes/sub-schedule";
-import { spacing } from "react-select/src/theme";
 
 type Props = {
   view: "list" | "calendar";

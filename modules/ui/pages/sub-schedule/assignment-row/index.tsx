@@ -1,6 +1,6 @@
 import * as React from "react";
 import { AssignmentRowUI } from "./assignment-row-ui";
-import { AssignmentVacancyDetails } from "../calendar-view/types";
+import { AssignmentVacancyDetails } from "../types";
 
 type Props = {
   assignment: AssignmentVacancyDetails;
