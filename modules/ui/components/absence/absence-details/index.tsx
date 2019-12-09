@@ -323,7 +323,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
               </Typography>
             )}
 
-            {needsReplacement && (
+            {wantsReplacement && (
               <SubstituteRequiredDetails
                 setValue={setValue}
                 vacancies={props.vacancies}

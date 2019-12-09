@@ -139,6 +139,14 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   register({ name: "accountingCode", type: "custom" });
   register({ name: "payCode", type: "custom" });
 
+  const useProjectedInformation =
+    vacanciesInput ||
+    !isSameDay(parseISO(props.startDate), formValues.startDate) ||
+    !isSameDay(parseISO(props.endDate), formValues.endDate) ||
+    formValues.dayPart !== props.dayPart ||
+    state.needsReplacement !== props.initialVacancies.length > 0;
+  console.log("useProjectedInformation", useProjectedInformation);
+
   const disabledDatesQuery = useEmployeeDisabledDates(
     state.employeeId,
     state.viewingCalendarMonth
@@ -186,19 +194,23 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     ]
   );
 
+  console.log("projectedVacanciesInput", projectedVacanciesInput);
+
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
       absence: projectedVacanciesInput!,
+      ignoreAbsenceId: Number(props.absenceId),
     },
-    skip: !vacanciesInput || projectedVacanciesInput === null,
+    skip: !useProjectedInformation || projectedVacanciesInput === null,
     onError: () => {},
   });
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
       absence: projectedVacanciesInput!,
+      ignoreAbsenceId: Number(props.absenceId),
     },
-    skip: !vacanciesInput || projectedVacanciesInput === null,
+    skip: !useProjectedInformation || projectedVacanciesInput === null,
     // fetchPolicy: "no-cache",
     onError: () => {
       // This shouldn't prevent the User from continuing on
@@ -224,35 +236,13 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     }
   }, [getProjectedAbsenceUsage]);
 
-  const projectedVacancyDetails: VacancyDetail[] = useMemo(() => {
-    /* cf 2019-11-25
-       we don't currently support having multiple AbsenceVacancyInputs on this page.
-       as such, this projection can't handle that case
-     */
-    if (
-      !(
-        getProjectedVacancies.state === "DONE" ||
-        getProjectedVacancies.state === "UPDATING"
-      )
-    ) {
-      return [];
-    }
-    const vacancies = getProjectedVacancies.data.absence?.projectedVacancies;
-    if (!vacancies || vacancies.length < 1) {
-      return [];
-    }
-    return (vacancies[0]?.details ?? [])
-      .map(d => ({
-        date: d?.startDate,
-        locationId: d?.locationId,
-        startTime: d?.startTimeLocal,
-        endTime: d?.endTimeLocal,
-      }))
-      .filter(
-        (detail): detail is VacancyDetail =>
-          detail.locationId && detail.date && detail.startTime && detail.endTime
-      );
-  }, [getProjectedVacancies.state]);
+  const projectedVacancies =
+    getProjectedVacancies.state === "DONE" ||
+    getProjectedVacancies.state === "UPDATING"
+      ? (compact(
+          getProjectedVacancies.data?.absence?.projectedVacancies ?? []
+        ) as Vacancy[])
+      : null;
 
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
@@ -292,8 +282,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               disabledDates={disabledDates}
               isAdmin={props.userIsAdmin}
               needsReplacement={props.needsReplacement}
-              organizationId={props.organizationId}
               wantsReplacement={state.needsReplacement}
+              organizationId={props.organizationId}
               onSwitchMonth={d => dispatch({ action: "switchMonth", month: d })}
               onSubstituteWantedChange={subWanted =>
                 dispatch({ action: "setNeedsReplacement", to: subWanted })
@@ -302,7 +292,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               setValue={setValue}
               errors={{}}
               triggerValidation={triggerValidation}
-              vacancies={props.initialVacancies}
+              vacancies={projectedVacancies || props.initialVacancies}
               balanceUsageText={absenceUsageText ?? undefined}
               setVacanciesInput={setVacanciesInput}
             />

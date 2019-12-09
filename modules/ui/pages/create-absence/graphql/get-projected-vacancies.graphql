@@ -1,6 +1,6 @@
-query GetProjectedVacancies($absence: AbsenceCreateInput!) {
+query GetProjectedVacancies($absence: AbsenceCreateInput!, $ignoreAbsenceId: Int) {
   absence {
-    projectedVacancies(absence: $absence) {
+    projectedVacancies(absence: $absence, ignoreAbsenceId: $ignoreAbsenceId) {
       startDate
       startTimeLocal
       endDate
