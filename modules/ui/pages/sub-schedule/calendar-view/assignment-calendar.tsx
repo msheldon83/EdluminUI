@@ -25,7 +25,7 @@ export const AssignmentCalendar: React.FC<Props> = props => {
   const checkSelected = useMemo(
     () => (d: Date) => {
       if (DateFns.isSameDay(d, props.selectedDate)) {
-        return [classes.assignment, classes.selected].join(" ");
+        return classes.selected;
       } else {
         return className;
       }
@@ -75,14 +75,15 @@ const useStyles = makeStyles(theme => ({
     minWidth: theme.typography.pxToRem(300),
   },
   selected: {
-    border: `${theme.customColors.tomato} ${theme.typography.pxToRem(2)} solid`,
+    backgroundColor: theme.customColors.blueHover,
+    color: theme.customColors.white,
   },
   assignment: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.customColors.sky,
     color: theme.customColors.white,
 
     "&:hover": {
-      backgroundColor: theme.palette.primary.main,
+      backgroundColor: theme.customColors.sky,
       color: theme.customColors.white,
     },
   },
