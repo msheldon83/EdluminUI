@@ -7,11 +7,11 @@ import {
   mergeAssignmentsByMonth,
 } from "./grouping-helpers";
 import { NowViewingAssignmentsForDate } from "./now-viewing-assignments";
-import { AssignmentDetails } from "./types";
+import { AssignmentVacancyDetails } from "./types";
 
 type Props = {
   userId?: string;
-  assignments: AssignmentDetails[];
+  assignments: AssignmentVacancyDetails[];
   fromDate: Date;
   toDate: Date;
 };

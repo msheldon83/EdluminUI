@@ -5,6 +5,7 @@ import { formatIsoDateIfPossible } from "helpers/date";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { DayIcon } from "ui/pages/sub-home/components/day-icon";
+import { parseDayPortion } from "ui/components/helpers";
 
 type Props = {
   startDate: string;
@@ -42,18 +43,6 @@ export const AssignmentRowUI: React.FC<Props> = props => {
     }
   }
 
-  const parseDayPortion = (dayPortion: number) => {
-    if (dayPortion < 0.5) {
-      return t("Partial Day(Hourly)");
-    } else if (dayPortion === 0.5) {
-      return t("Half Day");
-    } else if (dayPortion > 0.5 && dayPortion < 2) {
-      return t("Full Day");
-    } else {
-      return t("Full Days");
-    }
-  };
-
   return (
     <Grid
       container
@@ -85,9 +74,9 @@ export const AssignmentRowUI: React.FC<Props> = props => {
           <DayIcon dayPortion={props.dayPortion} startTime={props.startTime} />
 
           <div className={classes.dayPart}>
-            <Typography variant="h6">{`${Math.round(props.dayPortion)} ${t(
-              parseDayPortion(props.dayPortion)
-            )}`}</Typography>
+            <Typography variant="h6">{`${Math.round(
+              props.dayPortion
+            )} ${parseDayPortion(t, props.dayPortion)}`}</Typography>
 
             <Typography className={classes.subText}>
               {`${formatIsoDateIfPossible(

@@ -1,9 +1,9 @@
 import * as React from "react";
 import { AssignmentRowUI } from "./assignment-row-ui";
-import { AssignmentDetails } from "../calendar-view/types";
+import { AssignmentVacancyDetails } from "../calendar-view/types";
 
 type Props = {
-  assignment: AssignmentDetails;
+  assignment: AssignmentVacancyDetails;
   onCancel: () => void;
   className?: string;
 };

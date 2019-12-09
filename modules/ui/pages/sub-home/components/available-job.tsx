@@ -17,6 +17,7 @@ import { AvailableJobDetail } from "./available-job-detail";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { Vacancy } from "graphql/server-types.gen";
 import { DayIcon } from "./day-icon";
+import { parseDayPortion } from "ui/components/helpers";
 
 type Props = {
   vacancy: Pick<
@@ -77,19 +78,6 @@ export const AvailableJob: React.FC<Props> = props => {
   };
   const notesOpen = Boolean(notesAnchor);
   const notesId = notesOpen ? "notes-popper" : undefined;
-
-  const parseDayPortion = (dayPortion: number) => {
-    if (dayPortion < 0.5) {
-      return t("Partial Day(Hourly)");
-    } else if (dayPortion === 0.5) {
-      return t("Half Day");
-    } else if (dayPortion > 0.5 && dayPortion < 2) {
-      return t("Full Day");
-    } else {
-      return t("Full Days");
-    }
-  };
-
   return (
     <>
       <Grid
@@ -126,9 +114,9 @@ export const AvailableJob: React.FC<Props> = props => {
           />
         </Grid>
         <Grid item xs={2}>
-          <Typography variant="h6">{`${Math.round(vacancy.totalDayPortion)} ${t(
-            parseDayPortion(vacancy.totalDayPortion)
-          )}`}</Typography>
+          <Typography variant="h6">{`${Math.round(
+            vacancy.totalDayPortion
+          )} ${parseDayPortion(t, vacancy.totalDayPortion)}`}</Typography>
           <Typography className={classes.lightText}>{`${formatIsoDateIfPossible(
             vacancy.startTimeLocal,
             "h:mm aaa"
@@ -173,9 +161,9 @@ export const AvailableJob: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={1}>
           {expanded || vacancy.details!.length === 1 ? (
-            <Button 
-              variant="outlined" 
-              onClick={() => 
+            <Button
+              variant="outlined"
+              onClick={() =>
                 props.onAccept(vacancy.organization.id, vacancy.id)
               }
             >
@@ -193,7 +181,7 @@ export const AvailableJob: React.FC<Props> = props => {
               <AvailableJobDetail
                 locationName={detail!.location!.name}
                 dayPortion={detail!.dayPortion}
-                dayPortionLabel={parseDayPortion(detail!.dayPortion)}
+                dayPortionLabel={parseDayPortion(t, detail!.dayPortion)}
                 startTimeLocal={detail!.startTimeLocal ?? ""}
                 endTimeLocal={detail!.endTimeLocal ?? ""}
                 shadeRow={index % 2 != 0}

@@ -1,4 +1,4 @@
-export type AssignmentDetails = {
+export type AssignmentVacancyDetails = {
   id?: string;
   assignment: {
     id: string;

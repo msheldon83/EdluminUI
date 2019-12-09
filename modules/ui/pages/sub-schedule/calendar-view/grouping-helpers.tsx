@@ -1,7 +1,7 @@
 import { addMonths, differenceInCalendarMonths, parseISO } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
 import { groupBy, range } from "lodash-es";
-import { AssignmentDetails } from "./types";
+import { AssignmentVacancyDetails } from "./types";
 
 export interface DateGroupByMonth {
   month: string;
@@ -23,7 +23,7 @@ export function generateEmptyDateMap(from: Date, to: Date): DateGroupByMonth[] {
 
 export const mergeAssignmentsByMonth = (
   emptyMap: DateGroupByMonth[],
-  assignments: AssignmentDetails[]
+  assignments: AssignmentVacancyDetails[]
 ) => {
   const all = emptyMap;
   Object.entries(
