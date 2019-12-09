@@ -3,6 +3,7 @@ import { Grid, Button, Typography, makeStyles } from "@material-ui/core";
 import { VacancyDetail } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { parseISO, format } from "date-fns";
+import { parseDayPortion } from "ui/components/helpers";
 
 type Props = {
   vacancyDetail: Pick<
@@ -28,19 +29,6 @@ export const Assignment: React.FC<Props> = props => {
   const vacancyDetailStartTime = parseISO(vacancyDetail.startTimeLocal);
   const vacancyDetailEndTime = parseISO(vacancyDetail.endTimeLocal);
   // TODO Parse start and end time from the Absence Detail
-
-  const parseDayPortion = (dayPortion: number) => {
-    if (dayPortion < 0.5) {
-      return t("Partial Day(Hourly)");
-    } else if (dayPortion === 0.5) {
-      return t("Half Day");
-    } else if (dayPortion > 0.5 && dayPortion < 2) {
-      return t("Full Day");
-    } else {
-      return t("Full Days");
-    }
-  };
-
   return (
     <>
       <Grid
@@ -60,15 +48,25 @@ export const Assignment: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={2}>
           <Typography className={classes.lightText}>
-            {`${vacancyDetail.vacancy!.absence!.employee!.firstName} ${vacancyDetail.vacancy!.absence!.employee!.lastName}`}
+            {`${vacancyDetail.vacancy!.absence!.employee!.firstName} ${
+              vacancyDetail.vacancy!.absence!.employee!.lastName
+            }`}
           </Typography>
-          <Typography variant="h6">{`${vacancyDetail.assignment!.employee!.firstName} ${vacancyDetail.assignment!.employee!.lastName}`}</Typography>
+          <Typography variant="h6">{`${
+            vacancyDetail.assignment!.employee!.firstName
+          } ${vacancyDetail.assignment!.employee!.lastName}`}</Typography>
         </Grid>
-        <Grid item xs={2}>          
+        <Grid item xs={2}>
           <Typography className={classes.lightText}>
-            {`${parseDayPortion(vacancyDetail.dayPortion)} (${format(vacancyDetailStartTime, "h:mmaaa")}-${format(vacancyDetailEndTime, "h:mmaaa")})`}
+            {`${parseDayPortion(t, vacancyDetail.dayPortion)} (${format(
+              vacancyDetailStartTime,
+              "h:mmaaa"
+            )}-${format(vacancyDetailEndTime, "h:mmaaa")})`}
           </Typography>
-          <Typography variant="h6">{`${format(vacancyDetailStartTime, "h:mm aaa")} - ${format(vacancyDetailEndTime, "h:mm aaa")}`}</Typography>
+          <Typography variant="h6">{`${format(
+            vacancyDetailStartTime,
+            "h:mm aaa"
+          )} - ${format(vacancyDetailEndTime, "h:mm aaa")}`}</Typography>
         </Grid>
         <Grid item xs={2}>
           <Typography className={classes.lightText}>

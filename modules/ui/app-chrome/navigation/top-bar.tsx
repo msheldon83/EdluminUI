@@ -5,13 +5,16 @@ import {
   makeStyles,
   Toolbar,
 } from "@material-ui/core";
-import AddToPhotosIcon from "@material-ui/icons/AddToPhotos";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import * as React from "react";
+import { Route } from "react-router-dom";
 import { LoadingStateIndicator } from "ui/components/loading-state/loading-state-indicator";
 import { SearchBar } from "./search-bar";
 import { UserMenu } from "./user-menu";
 import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
+import { QuickCreateButton } from "ui/components/absence/quick-create-button";
+import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = { contentClassName?: string };
 
@@ -22,6 +25,7 @@ export const TopBar: React.FC<Props> = props => {
     null
   );
   const mobileToolbarClasses = useMobileToolbarClasses();
+  const params = useRouteParams(AppChromeRoute);
 
   return (
     <>
@@ -35,9 +39,13 @@ export const TopBar: React.FC<Props> = props => {
               </Grid>
 
               <Grid item>
-                <IconButton edge="end" classes={iconButtonClasses}>
-                  <AddToPhotosIcon />
-                </IconButton>
+                {params.role === "admin" ? (
+                  <Route path={AdminChromeRoute.path}>
+                    <QuickCreateButton role={params.role} />
+                  </Route>
+                ) : (
+                  <QuickCreateButton role={params.role} />
+                )}
 
                 <IconButton edge="end" classes={iconButtonClasses}>
                   <NotificationsNoneIcon />
