@@ -15,12 +15,12 @@ import {
   Absence,
   AbsenceCreateInput,
   AbsenceDetailCreateInput,
-  AbsenceReasonTrackingTypeId,
   AbsenceVacancyInput,
   DayPart,
   NeedsReplacement,
   Vacancy,
 } from "graphql/server-types.gen";
+import { computeAbsenceUsageText } from "helpers/absence/computeAbsenceUsageText";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate, isAfterDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
@@ -30,6 +30,7 @@ import { compact, differenceWith, flatMap } from "lodash-es";
 import * as React from "react";
 import { useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { AbsenceDetails } from "ui/components/absence/absence-details";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { AssignSub } from "./assign-sub/index";
@@ -41,7 +42,6 @@ import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { VacancyDetail } from "./types";
-import { AbsenceDetails } from "ui/components/absence/absence-details";
 
 type Props = {
   firstName: string;
@@ -232,12 +232,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         ) as Vacancy[]);
 
   const absenceUsageText = useMemo(() => {
-    /*
-      cf 2019-11-21
-      Given that we can't select multiple absence reasons via the UI, I'm
-      not attempting to implement this calculation in a way that could handle
-      multiple absence reasons or differing units.
-    */
     if (
       !(
         getProjectedAbsenceUsage.state === "DONE" ||
@@ -252,20 +246,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         d => d?.reasonUsages?.map(ru => ru)
       )
     );
-
-    if (usages.length < 1) return null;
-
-    const type = usages[0].absenceReasonTrackingTypeId!;
-    const amount = usages.reduce((m, v) => m + v.amount, 0);
-    const unitText = {
-      [AbsenceReasonTrackingTypeId.Invalid]: null,
-      [AbsenceReasonTrackingTypeId.Daily]: ["day", "days"],
-      [AbsenceReasonTrackingTypeId.Hourly]: ["hour", "hours"],
-    }[type];
-    if (!unitText) return null;
-    return `${t("Uses")} ${amount} ${t(unitText[Number(amount !== 1)])} ${t(
-      "of your balance"
-    )}`;
+    return computeAbsenceUsageText(usages as any, t);
   }, [getProjectedVacancies]);
 
   const name = `${props.firstName} ${props.lastName}`;

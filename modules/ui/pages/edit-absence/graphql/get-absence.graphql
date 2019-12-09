@@ -9,6 +9,7 @@ query GetAbsence($id: ID!) {
 	  id
 	  amount
 	  sequence
+	  absenceReasonTrackingTypeId
 	  absenceReasonId
 	}
       }

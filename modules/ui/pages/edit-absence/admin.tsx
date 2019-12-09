@@ -7,8 +7,9 @@ import { useIsAdmin } from "reference-data/is-admin";
 import { EditAbsenceUI } from "./ui";
 import { NeedsReplacement } from "graphql/server-types.gen";
 import { VacancyDetail } from "../create-absence/types";
-import { compact } from "lodash-es";
+import { compact, flatMap, isNil } from "lodash-es";
 import { useMemo } from "react";
+import { AbsenceReasonUsageData } from "helpers/absence/computeAbsenceUsageText";
 
 export const EditAbsence: React.FC = () => {
   const params = useRouteParams(AdminEditAbsenceRoute);
@@ -53,15 +54,33 @@ export const EditAbsence: React.FC = () => {
   const position = vacancy?.position;
   const employee = data?.employee;
   // @ts-ignore
-  const detail = data?.details[0];
+  const details = data?.details ?? [];
+  const detail = details[0];
   // @ts-ignore
   const reasonUsage = detail?.reasonUsages[0];
   // @ts-ignore
   const dayPart = detail?.dayPartId ?? undefined;
 
+  const processedUsage: AbsenceReasonUsageData[] = (() => {
+    const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
+    return usages.reduce((p, u) => {
+      if (u && u.absenceReasonTrackingTypeId && !isNil(u.amount)) {
+        return [
+          ...p,
+          {
+            amount: u.amount,
+            absenceReasonTrackingTypeId: u.absenceReasonTrackingTypeId,
+          },
+        ];
+      }
+      return p;
+    }, [] as AbsenceReasonUsageData[]);
+  })();
+
   if (!data || !vacancy || !position || !employee || !detail || !reasonUsage) {
     return <></>;
   }
+
   return (
     <EditAbsenceUI
       firstName={employee.firstName}
@@ -82,6 +101,7 @@ export const EditAbsence: React.FC = () => {
       it is impossible to satisfy the graphql type Vacancy, because it is impossible to
       satisfy the graphql type Organization, because it is infinitely recursive.  */
       initialVacancies={vacancies as any}
+      initialAbsenceUsageData={processedUsage}
     />
   );
 };

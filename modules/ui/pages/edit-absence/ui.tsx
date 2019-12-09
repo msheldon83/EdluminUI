@@ -31,7 +31,11 @@ import { buildAbsenceCreateInput } from "../create-absence/ui";
 import { GetProjectedVacancies } from "../create-absence/graphql/get-projected-vacancies.gen";
 import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
 import { EditVacancies } from "../create-absence/edit-vacancies";
-import { differenceWith } from "lodash-es";
+import { differenceWith, compact, flatMap } from "lodash-es";
+import {
+  AbsenceReasonUsageData,
+  computeAbsenceUsageText,
+} from "helpers/absence/computeAbsenceUsageText";
 
 type Props = {
   firstName: string;
@@ -50,6 +54,7 @@ type Props = {
   dayPart?: DayPart;
   initialVacancyDetails: VacancyDetail[];
   initialVacancies: Vacancy[];
+  initialAbsenceUsageData: AbsenceReasonUsageData[];
 };
 
 type EditAbsenceFormData = {
@@ -152,10 +157,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       absenceDays,
       isSameDay
     );
-    console.log("start", start);
-    console.log("end", end);
-    console.log("absencedays", absenceDays);
-    console.log("remaining", remaining);
     return remaining;
   }, [disabledDatesQuery, props.startDate, props.endDate]);
 
@@ -205,6 +206,23 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       // and reported back to them when calling the Create mutation.
     },
   });
+
+  const absenceUsageText = useMemo(() => {
+    if (
+      getProjectedAbsenceUsage.state === "DONE" ||
+      getProjectedAbsenceUsage.state === "UPDATING"
+    ) {
+      const usages = compact(
+        flatMap(
+          getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
+          d => d?.reasonUsages?.map(ru => ru)
+        )
+      );
+      return computeAbsenceUsageText(usages as any, t);
+    } else {
+      return computeAbsenceUsageText(props.initialAbsenceUsageData, t);
+    }
+  }, [getProjectedAbsenceUsage]);
 
   const projectedVacancyDetails: VacancyDetail[] = useMemo(() => {
     /* cf 2019-11-25
@@ -285,7 +303,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               errors={{}}
               triggerValidation={triggerValidation}
               vacancies={props.initialVacancies}
-              balanceUsageText="TBD"
+              balanceUsageText={absenceUsageText ?? undefined}
               setVacanciesInput={setVacanciesInput}
             />
           </Section>
