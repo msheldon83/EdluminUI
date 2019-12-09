@@ -36,6 +36,7 @@ import {
   AbsenceReasonUsageData,
   computeAbsenceUsageText,
 } from "helpers/absence/computeAbsenceUsageText";
+import { projectVacancyDetails } from "../create-absence/project-vacancy-details";
 
 type Props = {
   firstName: string;
@@ -78,7 +79,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
 
-  const [vacanciesInput, setVacanciesInput] = useState<VacancyDetail[]>();
+  const [customizedVacancyDetails, setVacanciesInput] = useState<
+    VacancyDetail[]
+  >();
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -140,7 +143,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   register({ name: "payCode", type: "custom" });
 
   const useProjectedInformation =
-    vacanciesInput ||
+    customizedVacancyDetails ||
     !isSameDay(parseISO(props.startDate), formValues.startDate) ||
     !isSameDay(parseISO(props.endDate), formValues.endDate) ||
     formValues.dayPart !== props.dayPart ||
@@ -175,9 +178,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         Number(state.employeeId),
         Number(props.positionId),
         disabledDates,
-        vacanciesInput !== undefined,
+        customizedVacancyDetails !== undefined,
         { ...state, organizationId: props.organizationId },
-        vacanciesInput
+        customizedVacancyDetails
       ),
     [
       formValues.startDate,
@@ -186,7 +189,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       formValues.dayPart,
       formValues.hourlyStartTime,
       formValues.hourlyEndTime,
-      vacanciesInput,
+      customizedVacancyDetails,
       state,
       props.positionId,
       disabledDates,
@@ -251,8 +254,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   );
   const onCancel = useCallback(() => setStep("absence"), [setStep]);
 
+  const projectedVacancyDetails: VacancyDetail[] = useMemo(
+    () => projectVacancyDetails(getProjectedVacancies),
+    [getProjectedVacancies.state]
+  );
+
   const theVacancyDetails: VacancyDetail[] =
-    vacanciesInput || props.initialVacancyDetails;
+    customizedVacancyDetails ||
+    (useProjectedInformation && projectedVacancyDetails) ||
+    props.initialVacancyDetails;
   console.log("theVacancyDetails", theVacancyDetails);
 
   return (

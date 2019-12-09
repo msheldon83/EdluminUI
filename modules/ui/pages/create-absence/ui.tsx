@@ -42,6 +42,7 @@ import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { VacancyDetail } from "./types";
+import { projectVacancyDetails } from "./project-vacancy-details";
 
 type Props = {
   firstName: string;
@@ -190,35 +191,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     },
   });
 
-  const projectedVacancyDetails: VacancyDetail[] = useMemo(() => {
-    /* cf 2019-11-25
-    we don't currently support having multiple AbsenceVacancyInputs on this page.
-    as such, this projection can't handle that case
-    */
-    if (
-      !(
-        getProjectedVacancies.state === "DONE" ||
-        getProjectedVacancies.state === "UPDATING"
-      )
-    ) {
-      return [];
-    }
-    const vacancies = getProjectedVacancies.data.absence?.projectedVacancies;
-    if (!vacancies || vacancies.length < 1) {
-      return [];
-    }
-    return (vacancies[0]?.details ?? [])
-      .map(d => ({
-        date: d?.startDate,
-        locationId: d?.locationId,
-        startTime: d?.startTimeLocal,
-        endTime: d?.endTimeLocal,
-      }))
-      .filter(
-        (detail): detail is VacancyDetail =>
-          detail.locationId && detail.date && detail.startTime && detail.endTime
-      );
-  }, [getProjectedVacancies.state]);
+  const projectedVacancyDetails: VacancyDetail[] = useMemo(
+    () => projectVacancyDetails(getProjectedVacancies),
+    [getProjectedVacancies.state]
+  );
 
   const theVacancyDetails: VacancyDetail[] =
     vacanciesInput || projectedVacancyDetails;
