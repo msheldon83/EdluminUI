@@ -44,8 +44,4 @@ const useStyles = makeStyles(theme => ({
     borderRadius: "4px",
     width: "50%",
   },
-  input: {
-    justifyContent: "center",
-    fontFamily: "Roboto",
-  },
 }));
