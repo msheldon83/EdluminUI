@@ -185,6 +185,8 @@ export const VerifyUI: React.FC<Props> = props => {
     | "accountingCodeAllocations"
     | "verifyComments"
     | "verifiedAtLocal"
+    | "payDurationOverride"
+    | "actualDuration"
   >[];
 
   const payCodes = usePayCodes(params.organizationId);

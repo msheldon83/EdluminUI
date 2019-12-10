@@ -106,6 +106,8 @@ const simpleAssignment = ({
   | "accountingCodeAllocations"
   | "verifyComments"
   | "verifiedAtLocal"
+  | "payDurationOverride"
+  | "actualDuration"
 >;
 
 const payCodeOptions = [
