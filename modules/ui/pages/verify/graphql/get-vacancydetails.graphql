@@ -14,9 +14,21 @@ query GetVacancyDetails(
       includeVerified: $includeVerified
     ) {
       id
+      orgId
+      startDate
       startTimeLocal
       endTimeLocal
       dayPortion
+      verifyComments
+      verifiedAtLocal
+      accountingCodeAllocations {
+        id
+        allocation
+        accountingCode {
+          id
+          name
+        }
+      }
       assignment {
         id
         employee {

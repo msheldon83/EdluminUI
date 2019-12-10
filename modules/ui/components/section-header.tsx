@@ -25,7 +25,9 @@ export const SectionHeader: React.FC<Props> = props => {
       alignItems="center"
     >
       <Grid item>
-        <Typography variant="h5">{props.title}</Typography>
+        <Typography variant="h5" className={classes.title}>
+          {props.title}
+        </Typography>
       </Grid>
       <Grid item>
         {props.action && props.action.visible && (
@@ -51,5 +53,8 @@ export const SectionHeader: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(2),
+  },
+  title: {
+    marginBottom: theme.spacing(1),
   },
 }));
