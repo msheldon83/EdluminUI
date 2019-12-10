@@ -105,12 +105,14 @@ export const DailyReportDetail: React.FC<Props> = props => {
           <div className={classes.detailSubText}>{t("Not required")}</div>
         )}
         {props.detail.state !== "noSubRequired" && props.detail.substitute && (
-          <div>
-            {props.detail.substitute.name}{" "}
+          <div className={classes.subWithPhone}>
+            <div>{props.detail.substitute.name}</div>
             {props.detail.substitute.phone && (
-              <Tooltip title={props.detail.substitute.phone} placement="top">
-                <InfoIcon color="primary" />
-              </Tooltip>
+              <div className={classes.subPhoneInfoIcon}>
+                <Tooltip title={props.detail.substitute.phone} placement="top">
+                  <InfoIcon color="primary" />
+                </Tooltip>
+              </div>
             )}
           </div>
         )}
@@ -145,6 +147,16 @@ export const DailyReportDetail: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   employeeSection: {
     display: "flex",
+  },
+  subWithPhone: {
+    display: "flex",
+    alignItems: "center",
+  },
+  subPhoneInfoIcon: {
+    marginLeft: theme.spacing(),
+    "@media print": {
+      display: "none",
+    },
   },
   detailSubText: {
     color: theme.customColors.edluminSubText,
