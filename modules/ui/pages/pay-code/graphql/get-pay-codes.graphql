@@ -5,7 +5,7 @@ query GetAllPayCodesWithinOrg($orgId: ID, $includeExpired: Boolean) {
       name
       rowVersion
       externalId
-      validUntil
+      description
       expired
     }
   }

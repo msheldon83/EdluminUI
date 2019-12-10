@@ -4,19 +4,19 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import { SchoolGroupsRoute } from "ui/routes/school-groups";
+import { PayCodeViewRoute } from "ui/routes/pay-code";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
 
 type Props = {};
 
-export const SchoolGroups: React.FC<Props> = props => {
+export const PayCodeViewPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
-  const params = useRouteParams(SchoolGroupsRoute);
+  const params = useRouteParams(PayCodeViewRoute);
 
   const [triggerError, setTriggerError] = React.useState(false);
 
@@ -26,7 +26,7 @@ export const SchoolGroups: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle title={`${params.organizationId} ${t("School Groups")}`} />
+      <PageTitle title={`${params.organizationId} ${t("View")}`} />
       {__DEV__ && (
         <Button
           variant="contained"

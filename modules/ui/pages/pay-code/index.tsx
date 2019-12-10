@@ -17,7 +17,7 @@ import {
   PayCodeViewRoute,
 } from "ui/routes/pay-code";
 import { useRouteParams } from "ui/routes/definition";
-import { GetAllPayCodesWithinOrg } from "ui/pages/pay-code/graphql/pay-codes.gen";
+import { GetAllPayCodesWithinOrg } from "ui/pages/pay-code/graphql/get-pay-codes.gen";
 import { DeletePayCode } from "./graphql/delete-pay-code.gen";
 
 type Props = {};
@@ -77,7 +77,9 @@ export const PayCode: React.FC<Props> = props => {
     return <></>;
   }
 
-  const payCodes = compact(getPayCodes?.data?.payCode?.all ?? []);
+  console.log(getPayCodes.data);
+
+  const payCodes = compact(getPayCodes?.data?.orgRef_PayCode?.all ?? []);
   const payCodesCount = payCodes.length;
 
   return (
