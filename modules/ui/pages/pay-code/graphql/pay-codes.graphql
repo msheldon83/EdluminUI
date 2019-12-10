@@ -1,0 +1,12 @@
+query GetAllPayCodesWithinOrg($orgId: ID, $includeExpired: Boolean) {
+  orgRef_PayCode {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
+      id
+      name
+      rowVersion
+      externalId
+      validUntil
+      expired
+    }
+  }
+}
