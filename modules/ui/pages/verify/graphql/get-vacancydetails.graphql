@@ -19,6 +19,7 @@ query GetVacancyDetails(
       startTimeLocal
       endTimeLocal
       dayPortion
+      totalDayPortion
       verifyComments
       verifiedAtLocal
       actualDuration

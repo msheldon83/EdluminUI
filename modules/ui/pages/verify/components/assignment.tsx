@@ -17,6 +17,7 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { useForm } from "forms";
 import { parseDayPortion } from "ui/components/helpers";
 import { OptionTypeBase } from "react-select/src/types";
+import { getDisplayName } from "ui/components/enumHelpers";
 
 type Props = {
   vacancyDetail: Pick<
@@ -31,6 +32,7 @@ type Props = {
     | "location"
     | "vacancy"
     | "dayPortion"
+    | "totalDayPortion"
     | "accountingCodeAllocations"
     | "verifyComments"
     | "verifiedAtLocal"
@@ -83,9 +85,15 @@ export const Assignment: React.FC<Props> = props => {
     : false;
 
   const payType = vacancyDetail.vacancy!.position!.positionType!.payTypeId!;
+  const daysInfo =
+    vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
+      ? `${vacancyDetail.dayPortion.toFixed(1)}`
+      : `${vacancyDetail.dayPortion.toFixed(
+          1
+        )}/${vacancyDetail.totalDayPortion.toFixed(1)}`;
   const payInfo =
     payType === "DAILY"
-      ? `${vacancyDetail.dayPortion.toFixed(1)} ${t("Days")}`
+      ? `${daysInfo} ${t("Days")}`
       : `${vacancyDetail.payDurationOverride ??
           vacancyDetail.actualDuration} ${t("Hours")}`;
 
@@ -157,10 +165,14 @@ export const Assignment: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.lightText}>
-                  {`${absenceDetail?.dayPartId} (${format(
-                    absenceDetailStartTime,
+                  {`${getDisplayName(
+                    "dayPart",
+                    absenceDetail!.dayPartId!.toString(),
+                    t
+                  )} (${format(absenceDetailStartTime, "h:mmaaa")}-${format(
+                    absenceDetailEndTime,
                     "h:mmaaa"
-                  )}-${format(absenceDetailEndTime, "h:mmaaa")})`}
+                  )})`}
                 </Typography>
                 <Typography className={classes.regularText}>{`${format(
                   vacancyDetailStartTime,

@@ -4134,6 +4134,7 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   payCodeId: Int
   payCode: PayCode
   vacancy: BasicVacancy
+  totalDayPortion: Decimal
 }
 
 type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInterface {

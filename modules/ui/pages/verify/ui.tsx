@@ -182,6 +182,7 @@ export const VerifyUI: React.FC<Props> = props => {
     | "location"
     | "vacancy"
     | "dayPortion"
+    | "totalDayPortion"
     | "accountingCodeAllocations"
     | "verifyComments"
     | "verifiedAtLocal"
