@@ -2,7 +2,7 @@ import { Grid, Typography } from "@material-ui/core";
 import * as React from "react";
 import { useStyles } from "./available-job";
 import { formatIsoDateIfPossible } from "helpers/date";
-import { DayIcon } from "./day-icon";
+import { DayIcon } from "../../../components/day-icon";
 
 type Props = {
   locationName: string;
