@@ -32,14 +32,14 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   let vacancyDaysOfWeek = DateFns.format(startDate, "EEEE");
 
   if (!DateFns.isEqual(startDate, endDate)) {
-    vacancyDaysOfWeek = `${DateFns.format(startDate, "EEE")} - ${DateFns.format(
+    vacancyDaysOfWeek = `${DateFns.format(startDate, "EEE")}-${DateFns.format(
       endDate,
       "EEE"
     )}`;
     if (startDate.getMonth() === endDate.getMonth()) {
-      vacancyDates = `${vacancyDates} - ${DateFns.format(endDate, "d")}`;
+      vacancyDates = `${vacancyDates}-${DateFns.format(endDate, "d")}`;
     } else {
-      vacancyDates = `${vacancyDates} - ${DateFns.format(endDate, "MMM d")}`;
+      vacancyDates = `${vacancyDates}-${DateFns.format(endDate, "MMM d")}`;
     }
   }
 

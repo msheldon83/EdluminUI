@@ -1,18 +1,15 @@
 import { Grid } from "@material-ui/core";
+import { useQueryBundle } from "graphql/hooks";
+import { compact } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState } from "react";
+import { GetAssignmentDatesForEmployee } from "../graphql/get-assignments-dates-for-employee.gen";
 import { AssignmentCalendar } from "./assignment-calendar";
 import {
   generateEmptyDateMap,
-  mergeAssignmentsByMonth,
   mergeAssignmentDatesByMonth,
-  mergeAssignmentsByMonth2,
 } from "./grouping-helpers";
 import { NowViewingAssignmentsForDate } from "./now-viewing-assignments";
-import { AssignmentVacancyDetails } from "../types";
-import { useQueryBundle } from "graphql/hooks";
-import { GetAssignmentDatesForEmployee } from "../graphql/get-assignments-dates-for-employee.gen";
-import { compact } from "lodash-es";
 
 type Props = {
   userId?: string;
@@ -58,7 +55,7 @@ export const CalendarView: React.FC<Props> = props => {
   );
 
   const all = useMemo(() => {
-    return mergeAssignmentsByMonth2(empty, assignmentDates);
+    return mergeAssignmentDatesByMonth(empty, assignmentDates);
   }, [empty, assignmentDates]);
 
   if (

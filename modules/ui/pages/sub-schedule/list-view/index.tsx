@@ -1,12 +1,13 @@
 import { Grid } from "@material-ui/core";
-import * as React from "react";
-import { useMemo, useState } from "react";
-import { AssignmentRow } from "../assignment-row";
-import { AssignmentVacancyDetails } from "../types";
 import { makeStyles } from "@material-ui/styles";
-import { compact } from "lodash-es";
 import { useQueryBundle } from "graphql/hooks";
+import { compact, map, mapValues } from "lodash-es";
+import * as React from "react";
+import { useMemo } from "react";
 import { GetUpcomingAssignments } from "ui/pages/sub-home/graphql/get-upcoming-assignments.gen";
+import { AssignmentGroup } from "../assignment-row/assignment-group";
+import { groupAssignmentsByVacancy } from "../calendar-view/grouping-helpers";
+import { AssignmentRow } from "../assignment-row";
 
 type Props = {
   userId?: string;
@@ -38,6 +39,10 @@ export const ListView: React.FC<Props> = props => {
     return [];
   }, [upcomingAssignments]);
 
+  const groupedAssignments = useMemo(
+    () => groupAssignmentsByVacancy(assignments),
+    [assignments]
+  );
   if (
     upcomingAssignments.state !== "DONE" &&
     upcomingAssignments.state !== "UPDATING"
@@ -48,14 +53,24 @@ export const ListView: React.FC<Props> = props => {
   return (
     <>
       <Grid container>
-        {assignments.map((a, i) => (
-          <AssignmentRow
-            key={a.id}
-            assignment={a}
-            onCancel={() => console.log("cancel assignment", a.assignment?.id)}
-            className={i % 2 == 1 ? classes.shadedRow : undefined}
-          />
-        ))}
+        {map(groupedAssignments, (group, key, i) => {
+          return group.length > 1 ? (
+            <AssignmentGroup
+              key={key}
+              assignmentGroup={group}
+              onCancel={() => console.log("cancel assignment")}
+            />
+          ) : (
+            <AssignmentRow
+              key={group[0].id}
+              assignment={group[0]}
+              onCancel={() =>
+                console.log("cancel assignment", group[0].assignment?.id)
+              }
+              // className={i % 2 == 1 ? classes.shadedRow : undefined}
+            />
+          );
+        })}
       </Grid>
     </>
   );

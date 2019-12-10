@@ -10,6 +10,7 @@ import {
   SubScheduleListViewRoute,
   SubScheduleRoute,
 } from "ui/routes/sub-schedule";
+import { useIsMobile } from "hooks";
 
 type Props = {
   view: "list" | "calendar";
@@ -22,6 +23,7 @@ export const ScheduleViewToggle: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(SubScheduleRoute);
   const f = SubScheduleListViewRoute.generate(params);
+  const isMobile = useIsMobile();
   return (
     <>
       <div className={classes.option}>
@@ -32,9 +34,11 @@ export const ScheduleViewToggle: React.FC<Props> = props => {
           }`}
         >
           <ListIcon fontSize={"small"} />
-          <Typography className={classes.buttonText}>
-            {t("List View")}
-          </Typography>
+          {!isMobile && (
+            <Typography className={classes.buttonText}>
+              {t("List View")}
+            </Typography>
+          )}
         </Link>
       </div>
       <div className={classes.option}>
@@ -45,9 +49,11 @@ export const ScheduleViewToggle: React.FC<Props> = props => {
           }`}
         >
           <CalendarTodayIcon fontSize={"small"} />
-          <Typography className={classes.buttonText}>
-            {t("Calendar View")}
-          </Typography>
+          {!isMobile && (
+            <Typography className={classes.buttonText}>
+              {t("Calendar View")}
+            </Typography>
+          )}
         </Link>
       </div>
     </>

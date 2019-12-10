@@ -1,6 +1,6 @@
 import { addMonths, differenceInCalendarMonths, parseISO } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
-import { groupBy, range } from "lodash-es";
+import { groupBy, range, sortBy } from "lodash-es";
 import { AssignmentVacancyDetails } from "../types";
 
 export interface DateGroupByMonth {
@@ -21,27 +21,6 @@ export function generateEmptyDateMap(from: Date, to: Date): DateGroupByMonth[] {
     : [];
 }
 
-export const mergeAssignmentsByMonth = (
-  emptyMap: DateGroupByMonth[],
-  assignments: AssignmentVacancyDetails[]
-) => {
-  const all = emptyMap;
-  Object.entries(
-    groupBy(
-      assignments,
-      a =>
-        a.assignment?.startTimeLocal &&
-        startOfMonth(parseISO(a.assignment?.startTimeLocal)).toISOString()
-    )
-  ).map(([date, assignments]) => {
-    const month = all.find(e => e.month === date);
-    if (!month) return;
-    month.dates = assignments.map(a => parseISO(a.startDate!));
-  });
-
-  return all;
-};
-
 export type AssignmentVacancyTimeDetails = {
   id?: string;
   assignment: {
@@ -52,7 +31,7 @@ export type AssignmentVacancyTimeDetails = {
   startDate?: string;
 };
 
-export const mergeAssignmentsByMonth2 = (
+export const mergeAssignmentDatesByMonth = (
   emptyMap: DateGroupByMonth[],
   assignments: AssignmentVacancyTimeDetails[]
 ) => {
@@ -73,18 +52,8 @@ export const mergeAssignmentsByMonth2 = (
   return all;
 };
 
-export const mergeAssignmentDatesByMonth = (
-  emptyMap: DateGroupByMonth[],
-  assignmentDates: Date[]
+export const groupAssignmentsByVacancy = (
+  assignments: AssignmentVacancyDetails[]
 ) => {
-  const all = emptyMap;
-  Object.entries(
-    groupBy(assignmentDates, a => startOfMonth(a).toISOString())
-  ).map(([date, dates]) => {
-    const month = all.find(e => e.month === date);
-    if (!month) return;
-    month.dates = dates;
-  });
-
-  return all;
+  return groupBy(assignments, a => a.vacancy?.id);
 };
