@@ -47,16 +47,22 @@ export const ScheduledAbsences: React.FC<Props> = props => {
                 <div className={classes.subText}>{dateRangeDisplay}</div>
               </Grid>
               <Grid item xs={3}>
-                {a.substitute ? (
+                {a.substitute && (
                   <>
                     <div>{a.substitute?.name}</div>
                     <div className={classes.subText}>
                       {a.substitute?.phoneNumber}
                     </div>
                   </>
-                ) : (
+                )}
+                {!a.substitute && a.subRequired && (
                   <div className={classes.subText}>
                     {t("No substitute assigned")}
+                  </div>
+                )}
+                {!a.substitute && !a.subRequired && (
+                  <div className={classes.subText}>
+                    {t("No substitute required")}
                   </div>
                 )}
               </Grid>

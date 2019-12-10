@@ -14,6 +14,9 @@ import { useQueryBundle } from "graphql/hooks";
 import { GetEmployeeAbsenceSchedule } from "./graphql/get-employee-absence-schedule.gen";
 import { DayPart, Absence } from "graphql/server-types.gen";
 import { parseISO, format } from "date-fns";
+import { useSnackbar } from "hooks/use-snackbar";
+import { useMutationBundle } from "graphql/hooks";
+import { DeleteAbsence } from "./graphql/delete-absence.gen";
 
 type Props = {};
 
@@ -21,6 +24,7 @@ export const EmployeeHome: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
+  const { openSnackbar } = useSnackbar();
   const employee = useGetEmployee();
   const currentSchoolYear = useCurrentSchoolYear(employee?.orgId?.toString());
 
@@ -35,6 +39,23 @@ export const EmployeeHome: React.FC<Props> = props => {
       toDate: endDate,
     },
     skip: !employee || !startDate || !endDate,
+  });
+
+  const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
   });
 
   if (!employee && !currentSchoolYear) {
@@ -81,6 +102,7 @@ export const EmployeeHome: React.FC<Props> = props => {
         startTimeLocal: parseISO(a.startTimeLocal),
         endTime: format(parseISO(a.endTimeLocal), "h:mm a"),
         endTimeLocal: parseISO(a.endTimeLocal),
+        subRequired: !!a.vacancies && a.vacancies.length > 0,
         substitute: assignment
           ? {
               name: `${assignment.employee!.firstName} ${
@@ -93,9 +115,16 @@ export const EmployeeHome: React.FC<Props> = props => {
     }
   );
 
-  console.log(employeeAbsenceDetails);
-
-  const cancelAbsence = async () => {};
+  const cancelAbsence = async (absenceId: string) => {
+    const result = await deleteAbsence({
+      variables: {
+        absenceId: Number(absenceId),
+      },
+    });
+    if (result) {
+      getAbsenceSchedule.refetch();
+    }
+  };
 
   return (
     <>
@@ -140,6 +169,7 @@ export type EmployeeAbsenceDetail = {
   startTimeLocal: Date;
   endTime: string;
   endTimeLocal: Date;
+  subRequired: boolean;
   substitute?: {
     name: string;
     phoneNumber?: string | null | undefined;
