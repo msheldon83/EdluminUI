@@ -1,20 +1,27 @@
-import { Grid, InputLabel, Typography } from "@material-ui/core";
+import { Grid, InputLabel, Typography, makeStyles } from "@material-ui/core";
 import { isSameDay, parseISO } from "date-fns";
 import * as React from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Select, OptionType } from "ui/components/form/select";
+import { Select } from "ui/components/form/select";
 
 type Props = {
   view: "list" | "calendar";
-  numberOfMonthsInSchoolYear: number;
   today: Date;
   beginningOfSchoolYear: Date;
+  endOfSchoolYear: Date;
   startDate: Date;
   setStartDate: React.Dispatch<React.SetStateAction<Date>>;
 };
 
 export const ScheduleHeader: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const classes = useStyles();
+  const schoolYear = useMemo(
+    () =>
+      `${props.beginningOfSchoolYear.getFullYear()}-${props.endOfSchoolYear.getFullYear()}`,
+    [props.beginningOfSchoolYear, props.endOfSchoolYear]
+  );
 
   const listViewFilterOptions = [
     { label: t("Today"), value: props.today.toISOString() },
@@ -25,12 +32,12 @@ export const ScheduleHeader: React.FC<Props> = props => {
   ];
   return (
     <>
-      {props.view === "calendar" ? (
-        <Typography variant="h5">{`${t("Upcoming")} ${
-          props.numberOfMonthsInSchoolYear
-        } ${t("months")}`}</Typography>
-      ) : (
-        <Grid item>
+      <div className={classes.years}>
+        <Typography variant="h5">{schoolYear}</Typography>
+      </div>
+
+      {props.view === "list" && (
+        <div className={classes.select}>
           <InputLabel>{t("From")}</InputLabel>
           <Select
             withDropdownIndicator
@@ -46,8 +53,20 @@ export const ScheduleHeader: React.FC<Props> = props => {
             isClearable={false}
             options={listViewFilterOptions}
           />
-        </Grid>
+        </div>
       )}
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  years: {
+    paddingTop: theme.spacing(2),
+  },
+  select: {
+    display: "flex",
+    flexDirection: "column",
+    minWidth: theme.typography.pxToRem(250),
+    paddingLeft: theme.spacing(3),
+  },
+}));

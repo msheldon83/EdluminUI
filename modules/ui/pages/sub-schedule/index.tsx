@@ -56,22 +56,16 @@ export const SubSchedule: React.FC<Props> = props => {
     [beginningOfSchoolYear]
   );
 
-  const schoolYear = useMemo(
-    () =>
-      `${beginningOfSchoolYear.getFullYear()}-${endOfSchoolYear.getFullYear()}`,
-    [beginningOfSchoolYear, endOfSchoolYear]
-  );
-
   const [queryStartDate, setQueryStartDate] = useState(today);
 
   return (
     <>
-      <PageTitle title="My Schedule" withoutHeading />
+      <PageTitle title="My Schedule" />
 
-      <Grid className={classes.header}>
+      {/* <Grid className={classes.header}>
         <Typography variant="h5">{t("My Schedule")}</Typography>
         <Typography variant="h1">{schoolYear}</Typography>
-      </Grid>
+      </Grid> */}
 
       <Section className={classes.section}>
         <div className={classes.itemContainer}>
@@ -80,7 +74,7 @@ export const SubSchedule: React.FC<Props> = props => {
               view={props.view}
               today={today}
               beginningOfSchoolYear={beginningOfSchoolYear}
-              numberOfMonthsInSchoolYear={numberOfMonthsInSchoolYear}
+              endOfSchoolYear={endOfSchoolYear}
               startDate={queryStartDate}
               setStartDate={setQueryStartDate}
             />
@@ -129,6 +123,7 @@ const useStyles = makeStyles(theme => ({
   },
   item: {
     display: "flex",
+    alignItems: "center",
   },
   viewContainer: {
     padding: `0 ${theme.typography.pxToRem(24)} ${theme.typography.pxToRem(
