@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { Check, Clear, Edit } from "@material-ui/icons";
 import { Formik } from "formik";
@@ -113,11 +114,13 @@ export const PageHeader: React.FC<Props> = props => {
             )}
           </Grid>
           {headerIsEditable && (
-            <Grid item>
+            <Grid item style={{ paddingLeft: 0 }}>
               <Edit
-                className={
-                  props.isSubHeader ? classes.smallAction : classes.action
-                }
+                className={clsx({
+                  [classes.action]: !props.isSubHeader,
+                  [classes.smallAction]: props.isSubHeader,
+                  [classes.editIcon]: true,
+                })}
                 onClick={() => {
                   props.onEdit!();
                   setEditing(true);
@@ -215,5 +218,10 @@ const useStyles = makeStyles(theme => ({
   },
   activateAction: {
     color: theme.customColors.eduBlack,
+  },
+  editIcon: {
+    color: theme.customColors.edluminSubText,
+    height: theme.typography.pxToRem(15),
+    width: theme.typography.pxToRem(15),
   },
 }));

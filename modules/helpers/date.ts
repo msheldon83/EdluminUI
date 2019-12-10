@@ -37,7 +37,7 @@ export const isAfterDate = (
 };
 
 export const formatIsoDateIfPossible = (
-  date: string | undefined,
+  date: any,
   formatDefinition: string
 ) => {
   if (!date) {

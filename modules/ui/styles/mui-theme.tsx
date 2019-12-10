@@ -129,6 +129,9 @@ export const EdluminTheme = createMuiTheme({
         },
       },
       root: {
+        fontSize: pxToRem(14),
+        letterSpacing: pxToRem(1.25),
+
         "&$disabled": {
           "& p": {
             opacity: 0.3,
@@ -283,6 +286,7 @@ export const EdluminTheme = createMuiTheme({
     h6: {
       fontSize: pxToRem(16),
       fontWeight: "bold",
+      letterSpacing: pxToRem(0.15),
     },
   }),
 });
