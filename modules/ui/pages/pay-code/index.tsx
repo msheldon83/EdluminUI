@@ -77,8 +77,6 @@ export const PayCode: React.FC<Props> = props => {
     return <></>;
   }
 
-  console.log(getPayCodes.data);
-
   const payCodes = compact(getPayCodes?.data?.orgRef_PayCode?.all ?? []);
   const payCodesCount = payCodes.length;
 
