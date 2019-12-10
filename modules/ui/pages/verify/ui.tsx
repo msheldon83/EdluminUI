@@ -8,6 +8,7 @@ import {
   ExpansionPanelSummary,
   ExpansionPanelDetails,
   Button,
+  Collapse,
 } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
 import { useState, useMemo, useEffect } from "react";
@@ -56,6 +57,7 @@ export const VerifyUI: React.FC<Props> = props => {
   const [selectedVacancyDetail, setSelectedVacancyDetail] = useState<
     string | undefined
   >(undefined);
+  const [verifiedId, setVerifiedId] = useState<string | null | undefined>(null);
 
   const today = useMemo(() => startOfToday(), []);
   /* Because this UI can stand alone or show up on the Admin homepage, we need
@@ -197,8 +199,9 @@ export const VerifyUI: React.FC<Props> = props => {
       variables: {
         vacancyDetail: verifyInput,
       },
-    });
+    });    
     if (verifyInput.doVerify) {
+      setVerifiedId(verifyInput.vacancyDetailId);
       openSnackbar({
         dismissable: true,
         autoHideDuration: 5000,
@@ -223,6 +226,7 @@ export const VerifyUI: React.FC<Props> = props => {
     }
     await getAssignmentCounts.refetch();
     await getVacancyDetails.refetch();
+    setVerifiedId(null);
   };
 
   const uniqueDays = [...new Set(assignments.map(x => x.startDate))];
@@ -244,15 +248,17 @@ export const VerifyUI: React.FC<Props> = props => {
           <Typography variant="h5">{t("All assignments verified")}</Typography>
         ) : uniqueDays.length === 1 ? (
           assignments.map((vacancyDetail, index) => (
-            <Assignment
-              key={vacancyDetail.id}
-              vacancyDetail={vacancyDetail}
-              shadeRow={index % 2 != 0}
-              onVerify={onVerify}
-              selectedVacancyDetail={selectedVacancyDetail}
-              setSelectedVacancyDetail={setSelectedVacancyDetail}
-              payCodeOptions={payCodeOptions}
-            />
+            <Collapse in={verifiedId !== vacancyDetail.id} key={vacancyDetail.id}>
+              <Assignment
+                key={vacancyDetail.id}
+                vacancyDetail={vacancyDetail}
+                shadeRow={index % 2 != 0}
+                onVerify={onVerify}
+                selectedVacancyDetail={selectedVacancyDetail}
+                setSelectedVacancyDetail={setSelectedVacancyDetail}
+                payCodeOptions={payCodeOptions}
+              />
+            </Collapse>
           ))
         ) : (
           uniqueDays.map((d, i) => (
@@ -272,15 +278,17 @@ export const VerifyUI: React.FC<Props> = props => {
                 {assignments
                   .filter(x => x.startDate === d)
                   .map((vacancyDetail, index) => (
-                    <Assignment
-                      key={vacancyDetail.id}
-                      vacancyDetail={vacancyDetail}
-                      shadeRow={index % 2 != 0}
-                      onVerify={onVerify}
-                      selectedVacancyDetail={selectedVacancyDetail}
-                      setSelectedVacancyDetail={setSelectedVacancyDetail}
-                      payCodeOptions={payCodeOptions}
-                    />
+                    <Collapse in={verifiedId !== vacancyDetail.id} key={vacancyDetail.id}>
+                      <Assignment
+                        key={vacancyDetail.id}
+                        vacancyDetail={vacancyDetail}
+                        shadeRow={index % 2 != 0}
+                        onVerify={onVerify}
+                        selectedVacancyDetail={selectedVacancyDetail}
+                        setSelectedVacancyDetail={setSelectedVacancyDetail}
+                        payCodeOptions={payCodeOptions}
+                      />
+                    </Collapse>
                   ))}
               </ExpansionPanelDetails>
             </ExpansionPanel>

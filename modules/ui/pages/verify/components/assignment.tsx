@@ -261,7 +261,10 @@ export const Assignment: React.FC<Props> = props => {
                 )}
               </Grid>
               <Grid item xs={2}>
-                <Button variant="outlined" type="submit">
+                <Button
+                  variant={isActiveCard ? "contained" : "outlined"}
+                  type="submit"
+                >
                   {notVerified ? t("Verify") : t("Undo verify")}
                 </Button>
               </Grid>
