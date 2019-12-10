@@ -45,7 +45,7 @@ export const RoleTabs: React.FC<Props> = props => {
 
   return (
     <>
-      <Paper square>
+      <Paper square elevation={0} className={classes.tabs}>
         <Tabs
           value={props.selectedRole}
           indicatorColor="primary"
@@ -118,5 +118,13 @@ const useStyles = makeStyles(theme => ({
   valueMissing: {
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
+  },
+  tabs: {
+    backgroundColor: theme.customColors.white,
+    border: `1px solid ${theme.customColors.sectionBorder}`,
+    borderBottomWidth: 0,
+    borderRadius: `${theme.typography.pxToRem(4)} ${theme.typography.pxToRem(
+      4
+    )} 0 0`,
   },
 }));

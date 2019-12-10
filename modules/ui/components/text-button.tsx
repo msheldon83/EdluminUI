@@ -16,9 +16,15 @@ export const TextButton: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   button: {
     color: theme.customColors.blue,
-    textTransform: "uppercase",
+    padding: 0,
+    fontWeight: "normal",
+    textDecoration: "underline",
+    fontSize: theme.typography.pxToRem(14),
+    letterSpacing: theme.typography.pxToRem(0.5),
+
     "&:hover": {
       backgroundColor: "inherit",
+      textDecoration: "underline",
     },
   },
 }));
