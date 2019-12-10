@@ -19,8 +19,11 @@ query GetVacancyDetails(
       startTimeLocal
       endTimeLocal
       dayPortion
+      totalDayPortion
       verifyComments
       verifiedAtLocal
+      actualDuration
+      payDurationOverride
       accountingCodeAllocations {
         id
         allocation
@@ -65,11 +68,16 @@ query GetVacancyDetails(
             startTimeLocal
             endTimeLocal
             dayPortion
+            dayPartId
           }
         }
         position {
           id
           name
+          positionType {
+            id
+            payTypeId
+          }
         }
         notesToReplacement
       }

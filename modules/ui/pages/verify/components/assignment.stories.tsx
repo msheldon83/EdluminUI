@@ -103,9 +103,12 @@ const simpleAssignment = ({
   | "location"
   | "vacancy"
   | "dayPortion"
+  | "totalDayPortion"
   | "accountingCodeAllocations"
   | "verifyComments"
   | "verifiedAtLocal"
+  | "payDurationOverride"
+  | "actualDuration"
 >;
 
 const payCodeOptions = [
