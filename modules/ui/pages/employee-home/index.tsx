@@ -10,13 +10,26 @@ import { QuickAbsenceCreate } from "./components/quick-absence-create";
 import { ScheduleCalendar } from "./components/schedule-calendar";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { useGetEmployee } from "reference-data/employee";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, HookQueryResult } from "graphql/hooks";
 import { GetEmployeeAbsenceSchedule } from "./graphql/get-employee-absence-schedule.gen";
-import { DayPart, Absence } from "graphql/server-types.gen";
-import { parseISO, format } from "date-fns";
+import { DayPart, Absence, CalendarDayType } from "graphql/server-types.gen";
+import {
+  parseISO,
+  format,
+  startOfWeek,
+  isAfter,
+  addDays,
+  startOfDay,
+} from "date-fns";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useMutationBundle } from "graphql/hooks";
 import { DeleteAbsence } from "./graphql/delete-absence.gen";
+import { useMemo } from "react";
+import {
+  GetEmployeeContractSchedule,
+  GetEmployeeContractScheduleQuery,
+  GetEmployeeContractScheduleQueryVariables,
+} from "./graphql/get-employee-contract-schedule.gen";
 
 type Props = {};
 
@@ -28,17 +41,25 @@ export const EmployeeHome: React.FC<Props> = props => {
   const employee = useGetEmployee();
   const currentSchoolYear = useCurrentSchoolYear(employee?.orgId?.toString());
 
-  // Account for the 5 week calendar going back a little
-  const startDate = currentSchoolYear?.startDate;
+  const startDate = useMemo(() => startOfWeek(new Date()), []);
+  const today = useMemo(() => new Date(), []);
   const endDate = currentSchoolYear?.endDate;
 
   const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
     variables: {
-      id: employee?.id,
+      id: employee?.id ?? "0",
       fromDate: startDate,
       toDate: endDate,
     },
-    skip: !employee || !startDate || !endDate,
+    skip: !employee || !endDate,
+  });
+  const getContractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
+    variables: {
+      id: employee?.id ?? "0",
+      fromDate: startDate,
+      toDate: addDays(startDate, 45),
+    },
+    skip: !employee,
   });
 
   const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
@@ -57,6 +78,11 @@ export const EmployeeHome: React.FC<Props> = props => {
       });
     },
   });
+
+  const disabledDates = useMemo(
+    () => computeDisabledDates(getContractSchedule),
+    [getContractSchedule]
+  );
 
   if (!employee && !currentSchoolYear) {
     return <></>;
@@ -122,7 +148,7 @@ export const EmployeeHome: React.FC<Props> = props => {
       },
     });
     if (result) {
-      getAbsenceSchedule.refetch();
+      await getAbsenceSchedule.refetch();
     }
   };
 
@@ -135,13 +161,16 @@ export const EmployeeHome: React.FC<Props> = props => {
         </Grid>
         <Grid item md={6} xs={12}>
           <ScheduleCalendar
+            startDate={startDate}
             absences={employeeAbsenceDetails}
-            disabledDates={[]}
+            disabledDates={disabledDates}
           />
         </Grid>
         <Grid item xs={12}>
           <ScheduledAbsences
-            absences={employeeAbsenceDetails}
+            absences={employeeAbsenceDetails.filter(
+              (a: EmployeeAbsenceDetail) => isAfter(a.startTimeLocal, today)
+            )}
             cancelAbsence={cancelAbsence}
           />
         </Grid>
@@ -150,12 +179,7 @@ export const EmployeeHome: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}));
+const useStyles = makeStyles(theme => ({}));
 
 export type EmployeeAbsenceDetail = {
   id: string;
@@ -174,4 +198,27 @@ export type EmployeeAbsenceDetail = {
     name: string;
     phoneNumber?: string | null | undefined;
   };
+};
+
+const computeDisabledDates = (
+  queryResult: HookQueryResult<
+    GetEmployeeContractScheduleQuery,
+    GetEmployeeContractScheduleQueryVariables
+  >
+) => {
+  if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {
+    return [];
+  }
+  const dates = new Set<Date>();
+  queryResult.data.employee?.employeeContractSchedule?.forEach(contractDate => {
+    switch (contractDate?.calendarDayTypeId) {
+      case CalendarDayType.CancelledDay:
+      case CalendarDayType.Invalid:
+      case CalendarDayType.NonWorkDay: {
+        const theDate = startOfDay(parseISO(contractDate.date));
+        dates.add(theDate);
+      }
+    }
+  });
+  return [...dates];
 };
