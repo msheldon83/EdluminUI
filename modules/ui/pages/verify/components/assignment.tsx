@@ -14,8 +14,6 @@ import { Formik } from "formik";
 import { Input } from "ui/components/form/input";
 import { Select, SelectValueType, OptionType } from "ui/components/form/select";
 import { TextField as FormTextField } from "ui/components/form/text-field";
-import { useForm } from "forms";
-import { parseDayPortion } from "ui/components/helpers";
 import { OptionTypeBase } from "react-select/src/types";
 import { getDisplayName } from "ui/components/enumHelpers";
 
@@ -41,9 +39,7 @@ type Props = {
   >;
   shadeRow: boolean;
   onVerify: (verifyInput: VacancyDetailVerifyInput) => Promise<void>;
-  setSelectedVacancyDetail: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
+  onSelectDetail: (vacancyDetailId: string) => void;
   selectedVacancyDetail: string | undefined;
   payCodeOptions: OptionType[];
 };
@@ -97,13 +93,58 @@ export const Assignment: React.FC<Props> = props => {
       : `${vacancyDetail.payDurationOverride ??
           vacancyDetail.actualDuration} ${t("Hours")}`;
 
+  const handlePayCodeOnBlur = async (payCodeId: string | undefined) => {
+    await props.onVerify({
+      vacancyDetailId: vacancyDetail.id,
+      doVerify: null,
+      payCodeId: Number(payCodeId),
+    });
+  };
+
+  const handleAccountingCodeOnBlur = async (
+    accountingCodeId: string | undefined
+  ) => {
+    await props.onVerify({
+      vacancyDetailId: vacancyDetail.id,
+      doVerify: null,
+      accountingCodeAllocations: accountingCodeId
+        ? [
+            {
+              accountingCodeId: Number(accountingCodeId),
+              allocation: 1.0,
+            },
+          ]
+        : [],
+    });
+  };
+
+  const handleCommentsOnBlur = async (verifyComments: string | undefined) => {
+    await props.onVerify({
+      vacancyDetailId: vacancyDetail.id,
+      doVerify: null,
+      verifyComments,
+    });
+  };
+
+  const handleDaysOnBlur = async (
+    dayPortion: number,
+    payDurationOverride: number | null | undefined
+  ) => {
+    await props.onVerify({
+      vacancyDetailId: vacancyDetail.id,
+      doVerify: null,
+      dayPortion,
+      payDurationOverride: payType === "HOURLY" ? payDurationOverride : null,
+    });
+  };
+
   return (
     <div
-      onClick={() => props.setSelectedVacancyDetail(vacancyDetail.id)}
+      onClick={() => props.onSelectDetail(vacancyDetail.id)}
       className={clsx({
         [classes.shadedRow]: props.shadeRow,
         [classes.cardSelection]: isActiveCard,
-        [classes.cardContent]: true,
+        [classes.cardRoot]: true,
       })}
     >
       <Formik
@@ -136,6 +177,14 @@ export const Assignment: React.FC<Props> = props => {
             doVerify: notVerified,
           });
         }}
+        validationSchema={yup.object().shape({
+          dayPortion: yup.number().typeError(t("Not a valid number")),
+          payDurationOverride: yup
+            .number()
+            .nullable()
+            .typeError(t("Not a valid number")),
+          verifyComments: yup.string().nullable(),
+        })}
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
@@ -236,7 +285,10 @@ export const Assignment: React.FC<Props> = props => {
                       }
                       InputComponent={FormTextField}
                       inputComponentProps={{
-                        name: "actualPay",
+                        name:
+                          payType === "DAILY"
+                            ? "dayPortion"
+                            : "payDurationOverride",
                         margin: "normal",
                         label: payType === "DAILY" ? t("Days") : t("Hours"),
                         fullWidth: true,
@@ -251,6 +303,12 @@ export const Assignment: React.FC<Props> = props => {
                           event.target.value
                         );
                       }}
+                      onBlur={() =>
+                        handleDaysOnBlur(
+                          values.dayPortion,
+                          values.payDurationOverride
+                        )
+                      }
                     />
                   </Grid>
                   <Grid item xs={2}>
@@ -278,6 +336,7 @@ export const Assignment: React.FC<Props> = props => {
                       }}
                       options={props.payCodeOptions}
                       isClearable={!!values.payCodeId}
+                      onBlur={() => handlePayCodeOnBlur(values.payCodeId)}
                     />
                   </Grid>
                   <Grid item xs={2}>
@@ -305,6 +364,9 @@ export const Assignment: React.FC<Props> = props => {
                       }}
                       options={accountingCodeOptions}
                       isClearable={!!values.accountingCodeId}
+                      onBlur={() =>
+                        handleAccountingCodeOnBlur(values.accountingCodeId)
+                      }
                     />
                   </Grid>
                   <Grid item xs={2}></Grid>
@@ -327,6 +389,7 @@ export const Assignment: React.FC<Props> = props => {
                         fullWidth: true,
                         placeholder: t("Comments"),
                       }}
+                      onBlur={() => handleCommentsOnBlur(values.verifyComments)}
                     />
                   </Grid>
                   <Grid item xs={2}>
@@ -348,18 +411,6 @@ export const Assignment: React.FC<Props> = props => {
 };
 
 export const useStyles = makeStyles(theme => ({
-  root: {
-    width: 500,
-  },
-  typography: {
-    padding: theme.spacing(2),
-  },
-  paper: {
-    border: "1px solid",
-    padding: theme.spacing(1),
-    backgroundColor: theme.palette.background.paper,
-  },
-
   lightText: {
     fontSize: theme.typography.fontSize,
     color: theme.customColors.edluminSubText,
@@ -375,13 +426,14 @@ export const useStyles = makeStyles(theme => ({
   shadedRow: {
     background: theme.customColors.lightGray,
   },
+  cardRoot: {
+    cursor: "pointer",
+    padding: theme.spacing(2),
+  },
   cardSelection: {
     boxShadow:
       "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24)",
     opacity: 1,
     marginBottom: theme.spacing(1),
-  },
-  cardContent: {
-    padding: theme.spacing(2),
   },
 }));
