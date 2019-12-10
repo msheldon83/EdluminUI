@@ -52,6 +52,8 @@ export type Detail = {
     name: string;
     phone: string;
   };
+  subStartTime?: string;
+  subEndTime?: string;
   assignmentId?: string;
   assignmentRowVersion?: string;
   position?: {
@@ -122,9 +124,15 @@ export const MapDailyReportDetails = (
             ? {
                 id: matchingVacancyDetail.assignment.employee.id,
                 name: `${matchingVacancyDetail.assignment.employee.firstName} ${matchingVacancyDetail.assignment.employee.lastName}`,
-                phone: matchingVacancyDetail.assignment.employee.phoneNumber,
+                phone: matchingVacancyDetail.assignment.employee.formattedPhone,
               }
             : undefined,
+        subStartTime: matchingVacancyDetail
+          ? format(parseISO(matchingVacancyDetail.startTimeLocal), "h:mm a")
+          : undefined,
+        subEndTime: matchingVacancyDetail
+          ? format(parseISO(matchingVacancyDetail.endTimeLocal), "h:mm a")
+          : undefined,
         assignmentId: matchingVacancyDetail?.assignment?.id,
         assignmentRowVersion: matchingVacancyDetail?.assignment?.rowVersion,
         position:
@@ -179,9 +187,11 @@ export const MapDailyReportDetails = (
             ? {
                 id: vacancyDetail.assignment.employee.id,
                 name: `${vacancyDetail.assignment.employee.firstName} ${vacancyDetail.assignment.employee.lastName}`,
-                phone: vacancyDetail.assignment.employee.phoneNumber,
+                phone: vacancyDetail.assignment.employee.formattedPhone,
               }
             : undefined,
+        subStartTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
+        subEndTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
         assignmentId: vacancyDetail?.assignment?.id,
         assignmentRowVersion: vacancyDetail?.assignment?.rowVersion,
         position: v.position
@@ -240,6 +250,12 @@ export const MapDailyReportDetails = (
           a.createdLocal,
           "MMM d h:mm a"
         ),
+        subStartTime: matchingVacancyDetail
+          ? format(parseISO(matchingVacancyDetail.startTimeLocal), "h:mm a")
+          : undefined,
+        subEndTime: matchingVacancyDetail
+          ? format(parseISO(matchingVacancyDetail.endTimeLocal), "h:mm a")
+          : undefined,
         isMultiDay: a.details && a.details.length > 1,
         position:
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
@@ -286,6 +302,8 @@ export const MapDailyReportDetails = (
           v.createdLocal,
           "MMM d h:mm a"
         ),
+        subStartTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
+        subEndTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
         isMultiDay: v.details && v.details.length > 1,
         position: v.position
           ? {

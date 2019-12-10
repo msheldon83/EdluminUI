@@ -1,9 +1,10 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles, Grid, Checkbox, Link } from "@material-ui/core";
+import { makeStyles, Grid, Checkbox, Link, Tooltip } from "@material-ui/core";
 import { Detail } from "./helpers";
 import clsx from "clsx";
 import { ActionMenu } from "ui/components/action-menu";
+import InfoIcon from "@material-ui/icons/Info";
 
 type Props = {
   detail: Detail;
@@ -104,15 +105,24 @@ export const DailyReportDetail: React.FC<Props> = props => {
           <div className={classes.detailSubText}>{t("Not required")}</div>
         )}
         {props.detail.state !== "noSubRequired" && props.detail.substitute && (
-          <>
+          <div className={classes.subWithPhone}>
             <div>{props.detail.substitute.name}</div>
-            <div className={classes.detailSubText}>
-              {props.detail.substitute.phone}
-            </div>
-          </>
+            {props.detail.substitute.phone && (
+              <div className={classes.subPhoneInfoIcon}>
+                <Tooltip title={props.detail.substitute.phone} placement="top">
+                  <InfoIcon color="primary" />
+                </Tooltip>
+              </div>
+            )}
+          </div>
         )}
         {props.detail.state !== "noSubRequired" && !props.detail.substitute && (
           <Link className={classes.action}>{t("Assign")}</Link>
+        )}
+        {props.detail.subStartTime && props.detail.subEndTime && (
+          <div className={classes.detailSubText}>
+            {`${props.detail.subStartTime} - ${props.detail.subEndTime}`}
+          </div>
         )}
       </Grid>
       <Grid item xs={1} zeroMinWidth>
@@ -137,6 +147,16 @@ export const DailyReportDetail: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   employeeSection: {
     display: "flex",
+  },
+  subWithPhone: {
+    display: "flex",
+    alignItems: "center",
+  },
+  subPhoneInfoIcon: {
+    marginLeft: theme.spacing(),
+    "@media print": {
+      display: "none",
+    },
   },
   detailSubText: {
     color: theme.customColors.edluminSubText,
