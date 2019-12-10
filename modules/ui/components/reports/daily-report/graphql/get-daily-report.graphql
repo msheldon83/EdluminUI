@@ -61,7 +61,7 @@ query GetDailyReport(
                 id
                 firstName
                 lastName
-                phoneNumber
+                formattedPhone
               }
             }
           }
@@ -94,7 +94,7 @@ query GetDailyReport(
               id
               firstName
               lastName
-              phoneNumber
+              formattedPhone
             }
           }
         }
@@ -148,7 +148,7 @@ query GetDailyReport(
                 id
                 firstName
                 lastName
-                phoneNumber
+                formattedPhone
               }
             }
           }
@@ -181,7 +181,7 @@ query GetDailyReport(
               id
               firstName
               lastName
-              phoneNumber
+              formattedPhone
             }
           }
         }
