@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "center",
     backgroundColor: "white",
     border: "none",
-    fontFamily: "Roboto",
+    fontFamily: theme.typography.fontFamily,
     fontSize: "14px",
     color: "black",
     width: "50%",
@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
   editStyle: {
     justifyContent: "center",
     padding: "7px",
-    fontFamily: "Roboto",
+    fontFamily: theme.typography.fontFamily,
     fontSize: "14px",
     color: "black",
     borderRadius: "4px",
