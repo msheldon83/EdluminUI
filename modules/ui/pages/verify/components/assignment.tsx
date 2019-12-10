@@ -20,6 +20,7 @@ import * as yup from "yup";
 import { Input } from "ui/components/form/input";
 import { Select, SelectValueType, OptionType } from "ui/components/form/select";
 import { useForm } from "forms";
+import { parseDayPortion } from "ui/components/helpers";
 
 type Props = {
   vacancyDetail: Pick<
