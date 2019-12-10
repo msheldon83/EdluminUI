@@ -4,6 +4,9 @@ import {
   DayPart,
   AbsenceVacancyInput,
   Vacancy,
+  AbsenceUpdateInput,
+  AbsenceCreateInput,
+  AbsenceDetailCreateInput,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +17,7 @@ import { StepParams } from "./step-params";
 import { EditAbsenceState, editAbsenceReducer } from "./state";
 import { useReducer, useMemo, useState, useCallback } from "react";
 import { startOfMonth } from "date-fns/esm";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import {
   format,
   endOfMonth,
@@ -22,6 +25,9 @@ import {
   parseISO,
   eachDayOfInterval,
   isSameDay,
+  isEqual,
+  isDate,
+  isValid,
 } from "date-fns";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
@@ -30,6 +36,7 @@ import { VacancyDetail } from "../create-absence/types";
 import { buildAbsenceCreateInput } from "../create-absence/ui";
 import { GetProjectedVacancies } from "../create-absence/graphql/get-projected-vacancies.gen";
 import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
+import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { EditVacancies } from "../create-absence/edit-vacancies";
 import { differenceWith, compact, flatMap } from "lodash-es";
 import {
@@ -37,6 +44,9 @@ import {
   computeAbsenceUsageText,
 } from "helpers/absence/computeAbsenceUsageText";
 import { projectVacancyDetails } from "../create-absence/project-vacancy-details";
+import { isAfterDate, convertStringToDate } from "helpers/date";
+import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {
   firstName: string;
@@ -46,7 +56,7 @@ type Props = {
   organizationId: string;
   needsReplacement: NeedsReplacement;
   userIsAdmin: boolean;
-  positionId?: string;
+  positionId: string;
   positionName?: string;
   absenceReasonId: number;
   absenceId: string;
@@ -56,6 +66,7 @@ type Props = {
   initialVacancyDetails: VacancyDetail[];
   initialVacancies: Vacancy[];
   initialAbsenceUsageData: AbsenceReasonUsageData[];
+  rowVersion: string;
 };
 
 type EditAbsenceFormData = {
@@ -83,6 +94,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     VacancyDetail[]
   >();
 
+  const [updateAbsence] = useMutationBundle(UpdateAbsence, {});
+  const { openSnackbar } = useSnackbar();
+
   const name = `${props.firstName} ${props.lastName}`;
 
   const initialFormData: EditAbsenceFormData = {
@@ -95,7 +109,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       props.initialVacancies[0]?.details[0]?.payCodeId?.toString() ?? undefined,
     accountingCode:
       // @ts-ignore
-      props.initialVacancies[0]?.details[0]?.accountingCodeAllocations[0]?.accountingCodeId.toString() ??
+      props.initialVacancies[0]?.details[0]?.accountingCodeAllocations[0]?.accountingCode?.id?.toString() ??
       undefined,
   };
 
@@ -247,7 +261,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
       setStep("absence");
-      console.log("got vacancy details?", vacancyDetails);
       setVacanciesInput(vacancyDetails);
     },
     [setVacanciesInput, setStep]
@@ -263,7 +276,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     customizedVacancyDetails ||
     (useProjectedInformation && projectedVacancyDetails) ||
     props.initialVacancyDetails;
-  console.log("theVacancyDetails", theVacancyDetails);
 
   return (
     <>
@@ -272,7 +284,28 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       {step === "absence" && (
         <form
           onSubmit={handleSubmit(async data => {
-            console.log("submit edit data", data);
+            const absenceUpdateInput = buildAbsenceUpdateInput(
+              props.absenceId,
+              props.positionId,
+              props.rowVersion,
+              formValues,
+              disabledDates,
+              state,
+              theVacancyDetails
+            );
+            console.log(
+              "submit edit data",
+              absenceUpdateInput,
+              data,
+              theVacancyDetails
+            );
+            await updateAbsence({ variables: { absence: absenceUpdateInput } });
+            openSnackbar({
+              message: t("The absence has been updated"),
+              dismissable: true,
+              status: "success",
+              autoHideDuration: 5000,
+            });
           })}
         >
           {props.actingAsEmployee ? (
@@ -329,3 +362,107 @@ const initialState = (props: Props): EditAbsenceState => ({
   viewingCalendarMonth: startOfMonth(parseISO(props.startDate)),
   needsReplacement: props.needsReplacement !== NeedsReplacement.No,
 });
+
+const buildAbsenceUpdateInput = (
+  absenceId: string,
+  positionId: string,
+  rowVersion: string,
+  formValues: EditAbsenceFormData,
+  disabledDates: Date[],
+  state: EditAbsenceState,
+  vacancyDetails: VacancyDetail[]
+): AbsenceUpdateInput => {
+  const startDate =
+    typeof formValues.startDate === "string"
+      ? new Date(formValues.startDate)
+      : formValues.startDate;
+  let endDate =
+    typeof formValues.endDate === "string"
+      ? new Date(formValues.endDate)
+      : formValues.endDate;
+
+  // If we don't have an end date, set it to the start date
+  // Assuming a single day absence as of this point
+  if (!endDate) {
+    endDate = startDate;
+  }
+
+  if (
+    !isDate(startDate) ||
+    !isValid(startDate) ||
+    !isDate(endDate) ||
+    !isValid(endDate)
+  ) {
+    throw Error("invalid start/end date");
+  }
+
+  // Ensure the end date is after the start date or they are equal
+  if (!isEqual(startDate, endDate) && !isAfterDate(endDate, startDate)) {
+    throw Error("invalid start/end date");
+  }
+
+  const dates = differenceWith(
+    eachDayOfInterval({ start: startDate, end: endDate }),
+    disabledDates,
+    (a, b) => isEqual(a, b)
+  );
+
+  const vDetails =
+    vacancyDetails?.map(v => ({
+      ...v,
+      startTime: secondsSinceMidnight(
+        parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
+      ),
+      endTime: secondsSinceMidnight(
+        parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
+      ),
+    })) || undefined;
+
+  let absence: AbsenceUpdateInput = {
+    id: Number(absenceId),
+    rowVersion,
+    notesToApprover: formValues.notesToApprover,
+    details: dates.map(d => {
+      let detail: AbsenceDetailCreateInput = {
+        date: format(d, "P"),
+        dayPartId: formValues.dayPart,
+        reasons: [{ absenceReasonId: Number(formValues.absenceReason) }],
+      };
+
+      if (formValues.dayPart === DayPart.Hourly) {
+        detail = {
+          ...detail,
+          startTime: secondsSinceMidnight(
+            parseTimeFromString(format(formValues.hourlyStartTime!, "h:mm a"))
+          ),
+          endTime: secondsSinceMidnight(
+            parseTimeFromString(format(formValues.hourlyEndTime!, "h:mm a"))
+          ),
+        };
+      }
+
+      return detail;
+    }),
+    vacancies: [
+      {
+        positionId: Number(positionId),
+        useSuppliedDetails: true,
+        needsReplacement: state.needsReplacement,
+        notesToReplacement: formValues.notesToReplacement,
+        prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
+        details: vDetails,
+        accountingCodeAllocations: formValues.accountingCode
+          ? [
+              {
+                accountingCodeId: Number(formValues.accountingCode),
+                allocation: 1.0,
+              },
+            ]
+          : undefined,
+        payCodeId: formValues.payCode ? Number(formValues.payCode) : undefined,
+      },
+    ],
+  };
+
+  return absence;
+};

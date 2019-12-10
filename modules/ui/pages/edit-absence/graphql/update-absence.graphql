@@ -1,0 +1,7 @@
+mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
+  absence {
+    update(absence: $absence) {
+      ...FullAbsenceDetails
+    }
+  }
+}

@@ -86,6 +86,7 @@ export const EditAbsence: React.FC = () => {
       firstName={employee.firstName}
       lastName={employee.lastName}
       employeeId={employee.id.toString()}
+      rowVersion={data.rowVersion}
       needsReplacement={position.needsReplacement ?? NeedsReplacement.No}
       userIsAdmin={userIsAdmin}
       positionId={position.id}
