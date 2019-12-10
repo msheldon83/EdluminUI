@@ -107,9 +107,14 @@ export const Information: React.FC<Props> = props => {
                 )
               }
             />
-            <PhoneNumberInput
-              phoneNumber={orgUser.phoneNumber ?? t("Not specified")}
-              forViewOnly={true}
+            <PeopleGridItem
+              title={t("Phone")}
+              description={
+                <PhoneNumberInput
+                  phoneNumber={orgUser.phoneNumber ?? t("Not specified")}
+                  forViewOnly={true}
+                />
+              }
             />
             <PeopleGridItem
               title={t("Date of Birth")}
