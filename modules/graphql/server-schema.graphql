@@ -1064,6 +1064,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   middleName: String
   lastName: String!
   phoneNumber: String
+  formattedPhone: String
   assignments: [Assignment]
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
@@ -4134,6 +4135,7 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   payCodeId: Int
   payCode: PayCode
   vacancy: BasicVacancy
+  totalDayPortion: Decimal
 }
 
 type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInterface {
