@@ -9,6 +9,7 @@ import { TextButton } from "ui/components/text-button";
 import { AvatarCard } from "ui/components/avatar-card";
 import { useBreakpoint } from "hooks";
 import { getInitials } from "ui/components/helpers";
+import { PhoneNumberInput } from "ui/components/form/phone-number-input";
 import { StateCode, CountryCode, OrgUserRole } from "graphql/server-types.gen";
 import { PeopleGridItem } from "./people-grid-item";
 
@@ -109,11 +110,10 @@ export const Information: React.FC<Props> = props => {
             <PeopleGridItem
               title={t("Phone")}
               description={
-                orgUser.phoneNumber ?? (
-                  <span className={classes.notSpecified}>
-                    {t("Not specified")}
-                  </span>
-                )
+                <PhoneNumberInput
+                  phoneNumber={orgUser.phoneNumber ?? t("Not specified")}
+                  forViewOnly={true}
+                />
               }
             />
             <PeopleGridItem
