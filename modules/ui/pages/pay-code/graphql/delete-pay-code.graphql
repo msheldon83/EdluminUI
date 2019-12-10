@@ -1,0 +1,5 @@
+mutation DeletePayCode($payCodeId: Int!) {
+  orgRef_PayCode {
+    delete(payCodeId: $payCodeId)
+  }
+}

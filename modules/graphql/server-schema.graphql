@@ -113,7 +113,7 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   name: String!
   description: String
   validUntil: Date
-  expired: Boolean
+  expired: Boolean!
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isBucket: Boolean!
@@ -282,7 +282,7 @@ type AccountingCode implements ModelObjectInterface & OrgObjectInterface & Domai
   name: String!
   description: String
   validUntil: Date
-  expired: Boolean
+  expired: Boolean!
   locationId: Int
   location: Location
 }
@@ -604,7 +604,7 @@ type CalendarChangeReason implements ModelObjectInterface & OrgObjectInterface &
   name: String!
   description: String
   validUntil: Date
-  expired: Boolean
+  expired: Boolean!
   calendarDayTypeId: CalendarDayType
   workDayScheduleVariantTypeId: Int
   workDayScheduleVariantType: WorkDayScheduleVariant
@@ -1177,7 +1177,7 @@ type EndEmploymentReason implements ModelObjectInterface & OrgObjectInterface & 
   name: String!
   description: String
   validUntil: Date
-  expired: Boolean
+  expired: Boolean!
 }
 
 input EndEmploymentReasonCreateInput {
@@ -1213,7 +1213,7 @@ type Endorsement implements ModelObjectInterface & OrgObjectInterface & DomainOb
   name: String!
   description: String
   validUntil: Date
-  expired: Boolean
+  expired: Boolean!
   expires: Boolean!
 }
 
@@ -1562,7 +1562,7 @@ type Label implements ModelObjectInterface & OrgObjectInterface & DomainObjectIn
   name: String!
   description: String
   validUntil: Date
-  expired: Boolean
+  expired: Boolean!
   allowedLabelTypes: LabelType
 }
 
@@ -2518,7 +2518,7 @@ type PayCode implements ModelObjectInterface & OrgObjectInterface & DomainObject
   name: String!
   description: String
   validUntil: Date
-  expired: Boolean
+  expired: Boolean!
 }
 
 input PayCodeCreateInput {
@@ -4621,7 +4621,7 @@ type WorkDayScheduleVariantType implements ModelObjectInterface & OrgObjectInter
   name: String!
   description: String
   validUntil: Date
-  expired: Boolean
+  expired: Boolean!
   isStandard: Boolean!
 }
 
