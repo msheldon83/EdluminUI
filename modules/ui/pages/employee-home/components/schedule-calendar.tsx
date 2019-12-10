@@ -32,7 +32,7 @@ export const ScheduleCalendar: React.FC<Props> = props => {
   }, [props.absences]);
 
   return (
-    <Section>
+    <Section className={classes.container}>
       <SectionHeader title={t("Upcoming schedule")} />
       <FiveWeekCalendar
         startDate={props.startDate}
@@ -43,4 +43,8 @@ export const ScheduleCalendar: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({}));
+const useStyles = makeStyles(theme => ({
+  container: {
+    marginBottom: 0,
+  },
+}));

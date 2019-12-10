@@ -2,10 +2,9 @@ import { makeStyles, useTheme } from "@material-ui/styles";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
 import { ScheduledAbsences } from "./components/scheduled-absences";
-import { Grid } from "@material-ui/core";
+import { Grid, Typography } from "@material-ui/core";
 import { QuickAbsenceCreate } from "./components/quick-absence-create";
 import { ScheduleCalendar } from "./components/schedule-calendar";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
@@ -154,8 +153,11 @@ export const EmployeeHome: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle title={t("Home")} />
-      <Grid container spacing={4}>
+      <PageTitle title={t("Home")} withoutHeading />
+      <Typography variant="h1">
+        {`${t("Welcome")}, ${employee?.firstName}`}
+      </Typography>
+      <Grid container spacing={2} className={classes.content}>
         <Grid item md={6} xs={12}>
           <QuickAbsenceCreate />
         </Grid>
@@ -179,7 +181,11 @@ export const EmployeeHome: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({}));
+const useStyles = makeStyles(theme => ({
+  content: {
+    marginTop: theme.spacing(2),
+  },
+}));
 
 export type EmployeeAbsenceDetail = {
   id: string;
