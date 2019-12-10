@@ -7,6 +7,15 @@ export const SubScheduleRoute = defineSubRoute(
   "/schedule"
 );
 
+export const SubScheduleListViewRoute = defineSubRoute(
+  SubScheduleRoute,
+  "/list-view"
+);
+export const SubScheduleCalendarViewRoute = defineSubRoute(
+  SubScheduleRoute,
+  "/calendar-view"
+);
+
 export const SubScheduleLoader = asyncComponent({
   resolve: async () => {
     const SubSchedule = (await import("ui/pages/sub-schedule/index"))

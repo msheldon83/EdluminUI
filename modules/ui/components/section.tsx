@@ -2,8 +2,10 @@ import * as React from "react";
 import { Paper, makeStyles } from "@material-ui/core";
 
 type Props = { className?: string };
+
 export const Section: React.FC<Props> = props => {
   const classes = useStyles();
+
   return (
     <Paper
       elevation={0}
@@ -16,11 +18,12 @@ export const Section: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   section: {
-    borderRadius: theme.typography.pxToRem(5),
+    borderRadius: theme.typography.pxToRem(4),
     borderWidth: theme.typography.pxToRem(1),
     borderColor: theme.customColors.sectionBorder,
     borderStyle: "solid",
-    padding: theme.spacing(4),
+    padding: theme.spacing(3),
+    marginBottom: theme.spacing(3),
     "@media print": {
       padding: 0,
     },

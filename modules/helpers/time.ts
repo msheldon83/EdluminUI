@@ -112,20 +112,28 @@ export const parseTimeFromString = (
 
   const date = new Date();
   date.setHours(hour);
-  date.setMinutes(Math.max(minute, earliestMinutes));
+  date.setMinutes(minute);
   date.setSeconds(0);
   date.setMilliseconds(0);
 
   /*
-    When there is no am or pm for in the input, assume a am or pm based off of the
-    earliestTime
+  When there is no am or pm for in the input, assume a am or pm based off of the
+  earliestTime
   */
   if (!periodDefined && hour < earliestHour) {
     date.setHours(hour + 12);
+    date.setMinutes(earliestMinutes);
   }
 
   // Minimum hour based off of earliest possible time given
   date.setHours(Math.max(date.getHours(), earliestHour));
+
+  // Only check the minutes if the hours are the same
+  date.setMinutes(
+    date.getHours() === earliestHour
+      ? Math.max(minute, earliestMinutes)
+      : minute
+  );
 
   return date.getTime();
 };

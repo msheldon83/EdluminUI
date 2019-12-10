@@ -1,4 +1,4 @@
-import i18next = require("i18next");
+import * as i18next from "i18next";
 
 type Props = {
   firstName?: string;
@@ -24,4 +24,16 @@ export const minutesToHours = (mins?: number, decimalPlaces = 2) => {
 
 export const boolToDisplay = (t: i18next.TFunction, bool?: boolean | null) => {
   return bool ? t("Yes") : t("No");
+};
+
+export const parseDayPortion = (t: i18next.TFunction, dayPortion: number) => {
+  if (dayPortion < 0.5) {
+    return t("Partial Day(Hourly)");
+  } else if (dayPortion === 0.5) {
+    return t("Half Day");
+  } else if (dayPortion > 0.5 && dayPortion < 2) {
+    return t("Full Day");
+  } else {
+    return t("Full Days");
+  }
 };

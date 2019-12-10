@@ -15,6 +15,7 @@ type SingleMonthCalendarProps = {
     buttonProps: ButtonProps;
   }>;
   onSelectDate?: (date: Date) => void;
+  className?: string;
 };
 
 export const SingleMonthCalendar = (props: SingleMonthCalendarProps) => {
@@ -74,7 +75,7 @@ export const SingleMonthCalendar = (props: SingleMonthCalendarProps) => {
   );
 
   return (
-    <section className={classes.calendar}>
+    <section className={[classes.calendar, props.className].join(" ")}>
       <header className={classes.header}>
         <span role="heading" className={classes.calendarTitle}>
           {monthTitle}

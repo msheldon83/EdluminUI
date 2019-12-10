@@ -46,6 +46,7 @@ const themeColors: Theme["customColors"] = {
   edluminSlate: "#2B3648",
   edluminLightSlate: "#56657F",
   edluminSubText: "#9E9E9E",
+  darkRed: "#C62828",
 
   /* colors below are historical */
   black: "#262c36",
@@ -128,6 +129,9 @@ export const EdluminTheme = createMuiTheme({
         },
       },
       root: {
+        fontSize: pxToRem(14),
+        letterSpacing: pxToRem(1.25),
+
         "&$disabled": {
           "& p": {
             opacity: 0.3,
@@ -233,7 +237,7 @@ export const EdluminTheme = createMuiTheme({
       main: themeColors.darkGray,
     },
     error: {
-      main: "#c62828",
+      main: themeColors.darkRed,
     },
   },
   customColors: {
@@ -282,6 +286,7 @@ export const EdluminTheme = createMuiTheme({
     h6: {
       fontSize: pxToRem(16),
       fontWeight: "bold",
+      letterSpacing: pxToRem(0.15),
     },
   }),
 });

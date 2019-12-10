@@ -20,6 +20,7 @@ import * as yup from "yup";
 import { Input } from "ui/components/form/input";
 import { Select, SelectValueType, OptionType } from "ui/components/form/select";
 import { useForm } from "forms";
+import { parseDayPortion } from "ui/components/helpers";
 
 type Props = {
   vacancyDetail: Pick<
@@ -78,18 +79,6 @@ export const Assignment: React.FC<Props> = props => {
   );
   const absenceDetailStartTime = parseISO(absenceDetail?.startTimeLocal);
   const absenceDetailEndTime = parseISO(absenceDetail?.endTimeLocal);
-
-  const parseDayPortion = (dayPortion: number) => {
-    if (dayPortion < 0.5) {
-      return t("Partial Day(Hourly)");
-    } else if (dayPortion === 0.5) {
-      return t("Half Day");
-    } else if (dayPortion > 0.5 && dayPortion < 2) {
-      return t("Full Day");
-    } else {
-      return t("Full Days");
-    }
-  };
 
   const isActiveCard = props.selectedVacancyDetail
     ? vacancyDetail.id === props.selectedVacancyDetail
@@ -202,7 +191,7 @@ export const Assignment: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.lightText}>
-                  {`${parseDayPortion(absenceDetail?.dayPortion)} (${format(
+                  {`${parseDayPortion(t, absenceDetail?.dayPortion)} (${format(
                     absenceDetailStartTime,
                     "h:mmaaa"
                   )}-${format(absenceDetailEndTime, "h:mmaaa")})`}
