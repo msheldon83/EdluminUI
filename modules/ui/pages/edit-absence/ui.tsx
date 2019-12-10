@@ -1,52 +1,50 @@
 import { Typography } from "@material-ui/core";
 import {
-  NeedsReplacement,
-  DayPart,
-  AbsenceVacancyInput,
-  Vacancy,
-  AbsenceUpdateInput,
-  AbsenceCreateInput,
-  AbsenceDetailCreateInput,
-} from "graphql/server-types.gen";
-import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { PageTitle } from "ui/components/page-title";
-import { Section } from "ui/components/section";
-import { useQueryParamIso } from "hooks/query-params";
-import { StepParams } from "./step-params";
-import { EditAbsenceState, editAbsenceReducer } from "./state";
-import { useReducer, useMemo, useState, useCallback } from "react";
-import { startOfMonth } from "date-fns/esm";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import {
-  format,
-  endOfMonth,
-  addMonths,
-  parseISO,
   eachDayOfInterval,
-  isSameDay,
-  isEqual,
+  format,
   isDate,
+  isEqual,
+  isSameDay,
   isValid,
+  parseISO,
+  formatISO,
 } from "date-fns";
-import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { AbsenceDetails } from "ui/components/absence/absence-details";
-import useForm from "react-hook-form";
-import { VacancyDetail } from "../create-absence/types";
-import { buildAbsenceCreateInput } from "../create-absence/ui";
-import { GetProjectedVacancies } from "../create-absence/graphql/get-projected-vacancies.gen";
-import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
-import { UpdateAbsence } from "./graphql/update-absence.gen";
-import { EditVacancies } from "../create-absence/edit-vacancies";
-import { differenceWith, compact, flatMap } from "lodash-es";
+import { startOfMonth } from "date-fns/esm";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import {
+  AbsenceDetailCreateInput,
+  AbsenceUpdateInput,
+  AbsenceVacancyInput,
+  DayPart,
+  NeedsReplacement,
+  Vacancy,
+} from "graphql/server-types.gen";
 import {
   AbsenceReasonUsageData,
   computeAbsenceUsageText,
 } from "helpers/absence/computeAbsenceUsageText";
-import { projectVacancyDetails } from "../create-absence/project-vacancy-details";
-import { isAfterDate, convertStringToDate } from "helpers/date";
-import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
+import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
+import { convertStringToDate, isAfterDate } from "helpers/date";
+import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
+import { useQueryParamIso } from "hooks/query-params";
 import { useSnackbar } from "hooks/use-snackbar";
+import { compact, differenceWith, flatMap } from "lodash-es";
+import * as React from "react";
+import { useCallback, useMemo, useReducer, useState } from "react";
+import useForm from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { AbsenceDetails } from "ui/components/absence/absence-details";
+import { PageTitle } from "ui/components/page-title";
+import { Section } from "ui/components/section";
+import { EditVacancies } from "../create-absence/edit-vacancies";
+import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
+import { GetProjectedVacancies } from "../create-absence/graphql/get-projected-vacancies.gen";
+import { projectVacancyDetails } from "../create-absence/project-vacancy-details";
+import { VacancyDetail } from "../create-absence/types";
+import { buildAbsenceCreateInput } from "../create-absence/ui";
+import { UpdateAbsence } from "./graphql/update-absence.gen";
+import { editAbsenceReducer, EditAbsenceState } from "./state";
+import { StepParams } from "./step-params";
 
 type Props = {
   firstName: string;
@@ -67,6 +65,7 @@ type Props = {
   initialVacancies: Vacancy[];
   initialAbsenceUsageData: AbsenceReasonUsageData[];
   rowVersion: string;
+  absenceDetailsIdsByDate: Record<string, string>;
 };
 
 type EditAbsenceFormData = {
@@ -288,6 +287,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               props.absenceId,
               props.positionId,
               props.rowVersion,
+              props.absenceDetailsIdsByDate,
               formValues,
               disabledDates,
               state,
@@ -367,6 +367,7 @@ const buildAbsenceUpdateInput = (
   absenceId: string,
   positionId: string,
   rowVersion: string,
+  absenceDetailsIdsByDate: Record<string, string>,
   formValues: EditAbsenceFormData,
   disabledDates: Date[],
   state: EditAbsenceState,
@@ -423,8 +424,11 @@ const buildAbsenceUpdateInput = (
     rowVersion,
     notesToApprover: formValues.notesToApprover,
     details: dates.map(d => {
+      const formattedDate = formatISO(d, { representation: "date" });
+      const previousId = absenceDetailsIdsByDate[formattedDate];
       let detail: AbsenceDetailCreateInput = {
-        date: format(d, "P"),
+        date: formattedDate,
+        id: previousId ? Number(previousId) : null,
         dayPartId: formValues.dayPart,
         reasons: [{ absenceReasonId: Number(formValues.absenceReason) }],
       };
