@@ -420,6 +420,7 @@ type BasicEmployee implements ModelObjectInterface & OrgObjectInterface {
   middleName: String
   lastName: String!
   phoneNumber: String
+  formattedPhone: String
 }
 
 type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
