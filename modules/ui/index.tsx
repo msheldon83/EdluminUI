@@ -97,7 +97,14 @@ import {
   AccountingCodeLoader,
   AccountingCodeRoute,
 } from "./routes/accounting-code";
-import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
+import {
+  PayCodeLoader,
+  PayCodeRoute,
+  PayCodeAddRoute,
+  PayCodeAddLoader,
+  PayCodeViewEditRoute,
+  PayCodeViewEditLoader,
+} from "./routes/pay-code";
 import { SchoolsRoute, SchoolsLoader } from "./routes/schools";
 import { SchoolGroupsRoute, SchoolGroupsLoader } from "./routes/school-groups";
 import {
@@ -304,6 +311,14 @@ export function App(props: {}) {
                         <Route
                           component={AccountingCodeLoader}
                           path={AccountingCodeRoute.path}
+                        />
+                        <Route
+                          component={PayCodeAddLoader}
+                          path={PayCodeAddRoute.path}
+                        />
+                        <Route
+                          component={PayCodeViewEditLoader}
+                          path={PayCodeViewEditRoute.path}
                         />
                         <Route
                           component={PayCodeLoader}
