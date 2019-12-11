@@ -1,14 +1,14 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles, Grid, Button, Typography } from "@material-ui/core";
-import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { EmployeeAbsenceDetail } from "..";
+import { EmployeeAbsenceDetail } from "ui/components/employee/helpers";
 import { isEqual, format } from "date-fns";
 import { DayIcon } from "ui/components/day-icon";
 import { parseDayPortion } from "ui/components/helpers";
 
 type Props = {
+  header?: string;
   absences: EmployeeAbsenceDetail[];
   cancelAbsence: (absenceId: string) => Promise<void>;
   isLoading: boolean;
@@ -20,10 +20,10 @@ export const ScheduledAbsences: React.FC<Props> = props => {
 
   const wrapper = (children: React.ReactFragment) => {
     return (
-      <Section>
-        <SectionHeader title={t("Scheduled absences")} />
+      <div>
+        {props.header && <SectionHeader title={props.header} />}
         {children}
-      </Section>
+      </div>
     );
   };
 
