@@ -735,7 +735,7 @@ type ContractDate implements ModelObjectInterface & OrgObjectInterface {
   schoolYearId: Int!
   schoolYear: SchoolYear
   date: Date!
-  calendarDayTypeId: CalendarDayType
+  calendarDayTypeId: CalendarDayType!
   daysFromStart: Int
   daysToEnd: Int
   workDayId: Int
