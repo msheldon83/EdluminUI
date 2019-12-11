@@ -1983,6 +1983,7 @@ type OrgRef_AbsenceReasonMutations {
 }
 
 type OrgRef_AbsenceReasonQueries {
+  byId(id: ID!): AbsenceReason
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AbsenceReason]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAbsenceReason
 }
@@ -2006,6 +2007,7 @@ type OrgRef_CalendarChangeReasonMutations {
 }
 
 type OrgRef_CalendarChangeReasonQueries {
+  byId(id: ID!): CalendarChangeReason
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [CalendarChangeReason]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedCalendarChangeReason
 }
@@ -2017,6 +2019,7 @@ type OrgRef_EndEmploymentReasonMutations {
 }
 
 type OrgRef_EndEmploymentReasonQueries {
+  byId(id: ID!): EndEmploymentReason
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [EndEmploymentReason]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedEndEmploymentReason
 }
@@ -2028,6 +2031,7 @@ type OrgRef_EndorsementMutations {
 }
 
 type OrgRef_EndorsementQueries {
+  byId(id: ID!): Endorsement
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Endorsement]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedEndorsement
 }
@@ -2039,6 +2043,7 @@ type OrgRef_LabelMutations {
 }
 
 type OrgRef_LabelQueries {
+  byId(id: ID!): Label
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Label]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedLabel
 }
@@ -2050,6 +2055,7 @@ type OrgRef_PayCodeMutations {
 }
 
 type OrgRef_PayCodeQueries {
+  byId(id: ID!): PayCode
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [PayCode]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedPayCode
 }
@@ -2061,6 +2067,7 @@ type OrgRef_WorkDayScheduleVariantTypeMutations {
 }
 
 type OrgRef_WorkDayScheduleVariantTypeQueries {
+  byId(id: ID!): WorkDayScheduleVariantType
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [WorkDayScheduleVariantType]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedWorkDayScheduleVariantType
 }
@@ -2744,10 +2751,10 @@ type PositionScheduleDate {
   positionId: Int!
   positionScheduleId: Int!
   workScheduleVariantTypeId: Int!
-  startTimeLocal: Date!
-  endTimeLocal: Date!
-  startTimeUtc: Date!
-  endTimeUtc: Date!
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
   fullWorkdayDuration: Short!
   totalDuration: Short!
   absenceBalanceDuration: Short!
@@ -2756,28 +2763,29 @@ type PositionScheduleDate {
   replacementDayPortion: Decimal!
   halfDayMorningAbsenceBalanceDayPortion: Decimal
   halfDayAfternoonAbsenceBalanceDayPortion: Decimal
-  halfDayMorningEndLocal: Date
-  halfDayMorningEndUtc: Date
-  halfDayAfternoonStartLocal: Date
+  halfDayMorningEndLocal: DateTime
+  halfDayMorningEndUtc: DateTime
+  halfDayAfternoonStartLocal: DateTime
   halfDayMorningDuration: Short
   halfDayAfternoonDuration: Short
-  quarterDayEarlyMorningEndLocal: Date
-  quarterDayEarlyMorningEndUtc: Date
-  quarterDayLateMorningStartLocal: Date
-  quarterDayLateMorningStartUtc: Date
-  quarterDayLateMorningEndLocal: Date
-  quarterDayLateMorningEndUtc: Date
-  quarterDayEarlyAfternoonStartLocal: Date
-  quarterDayEarlyAfternoonStartUtc: Date
-  quarterDayEarlyAfternoonEndLocal: Date
-  quarterDayEarlyAfternoonEndUtc: Date
-  quarterDayLateAfternoonStartLocal: Date
-  quarterDayLateAfternoonStartUtc: Date
+  quarterDayEarlyMorningEndLocal: DateTime
+  quarterDayEarlyMorningEndUtc: DateTime
+  quarterDayLateMorningStartLocal: DateTime
+  quarterDayLateMorningStartUtc: DateTime
+  quarterDayLateMorningEndLocal: DateTime
+  quarterDayLateMorningEndUtc: DateTime
+  quarterDayEarlyAfternoonStartLocal: DateTime
+  quarterDayEarlyAfternoonStartUtc: DateTime
+  quarterDayEarlyAfternoonEndLocal: DateTime
+  quarterDayEarlyAfternoonEndUtc: DateTime
+  quarterDayLateAfternoonStartLocal: DateTime
+  quarterDayLateAfternoonStartUtc: DateTime
   quarterDayEarlyMorningDuration: Short
   quarterDayLateMorningDuration: Short
   quarterDayEarlyAfternoonDuration: Short
   quarterDayLateAfternoonDuration: Short
   details: [PositionScheduleDateDetail]
+  position: Position
 }
 
 type PositionScheduleDateDetail {
@@ -2790,12 +2798,12 @@ type PositionScheduleDateDetail {
   workDaySchedulePeriodId: Int
   startDate: Date
   endDate: Date
-  startTimeLocal: Date!
-  endTimeLocal: Date!
-  nextStartTimeLocal: Date!
-  startTimeUtc: Date!
-  endTimeUtc: Date!
-  nextStartTimeUtc: Date!
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  nextStartTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
+  nextStartTimeUtc: DateTime
   periodDuration: Short!
   travelDuration: Short!
   needsReplacement: Boolean!
@@ -2814,6 +2822,7 @@ type PositionScheduleDateDetail {
   isQuarterDayEarlyAfternoonStart: Boolean!
   isQuarterDayEarlyAfternoonEnd: Boolean!
   isQuarterDayLateAfternoonStart: Boolean!
+  location: Location
 }
 
 type PositionScheduleMutations {
