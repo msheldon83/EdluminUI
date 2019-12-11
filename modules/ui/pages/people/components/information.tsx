@@ -12,6 +12,17 @@ import { getInitials } from "ui/components/helpers";
 import { PhoneNumberInput } from "ui/components/form/phone-number-input";
 import { StateCode, CountryCode, OrgUserRole } from "graphql/server-types.gen";
 import { PeopleGridItem } from "./people-grid-item";
+import * as yup from "yup";
+import { Formik } from "formik";
+import { Input } from "ui/components/form/input";
+import { Select, SelectValueType, OptionType } from "ui/components/form/select";
+import { TextField as FormTextField } from "ui/components/form/text-field";
+import { USStates } from "reference-data/states";
+import { OptionTypeBase } from "react-select/src/types";
+
+const editableSections = {
+  information: "edit-iinformation",
+};
 
 type Props = {
   editing: string | null;
@@ -49,7 +60,7 @@ export const Information: React.FC<Props> = props => {
   const isSmDown = useBreakpoint("sm", "down");
 
   const formattedLoginTime = formatIsoDateIfPossible(
-    props.lastLogin ? props.lastLogin : "Not Available",
+    props.lastLogin ? props.lastLogin : null,
     "MMM d, yyyy h:m a"
   );
 
@@ -73,90 +84,216 @@ export const Information: React.FC<Props> = props => {
         .join(",") ?? t("No Permissions Defined");
   }
 
+  const stateOptions = USStates.map(s => ({
+    label: s.name,
+    value: s.enumValue,
+  }));
+
   return (
     <>
-      <Section className={classes.customSection}>
-        <SectionHeader
-          title={t("Information")}
-          action={{
-            text: t("Edit"),
-            visible: !props.editing,
-            execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
-              history.push(editSettingsUrl);
-            },
-          }}
-        />
-        <Grid container>
-          <Grid container item xs={8} component="dl" spacing={2}>
-            <PeopleGridItem title={t("Email")} description={orgUser.email} />
-            <PeopleGridItem
-              title={t("Address")}
-              description={
-                !orgUser.address1 ? (
-                  <span className={classes.notSpecified}>
-                    {t("Not specified")}
-                  </span>
-                ) : (
-                  <>
-                    <div>{orgUser.address1}</div>
-                    <div>{orgUser.address2 && `${orgUser.address2}`}</div>
-                    <div>{`${orgUser.city}, ${orgUser.state} ${orgUser.postalCode}`}</div>
-                    <div>{orgUser.country}</div>
-                  </>
-                )
-              }
-            />
-            <PeopleGridItem
-              title={t("Phone")}
-              description={
-                <PhoneNumberInput
-                  phoneNumber={orgUser.phoneNumber ?? t("Not specified")}
-                  forViewOnly={true}
-                />
-              }
-            />
-            <PeopleGridItem
-              title={t("Date of Birth")}
-              description={formattedBirthDate}
-            />
-            <Grid item xs={12}>
-              <Divider variant="fullWidth" className={classes.divider} />
-            </Grid>
-            <PeopleGridItem
-              title={t("Permissions")}
-              description={permissions}
-            />
-            <PeopleGridItem
-              title={t("Last Login")}
-              description={formattedLoginTime}
-            />
-            <PeopleGridItem
-              title={t("Last Username")}
-              description={orgUser.loginEmail}
-            />
-            <PeopleGridItem
-              title={t("Password")}
-              description={
-                <TextButton onClick={() => props.onResetPassword()}>
-                  {t("Reset Password")}
-                </TextButton>
-              }
-            />
-          </Grid>
-          <Grid container item spacing={2} xs={4}>
-            <Grid
-              item
-              container={isSmDown}
-              justify={isSmDown ? "center" : undefined}
-            >
-              <div className={classes.avatar}>
-                <AvatarCard initials={initials} />
-              </div>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Section>
+      <Formik
+        initialValues={{
+          email: orgUser.email,
+          phoneNumber: orgUser.phoneNumber ?? "",
+          address1: orgUser.address1 ?? "",
+          city: orgUser.city ?? "",
+          state: orgUser.state,
+          postalCode: orgUser.postalCode ?? "",
+          dateOofBirth: orgUser.dateOfBirth,
+        }}
+        onSubmit={async (data, e) => {}}
+      >
+        {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
+          <form onSubmit={handleSubmit}>
+            <Section className={classes.customSection}>
+              <SectionHeader
+                title={t("Information")}
+                action={
+                  props.editing === editableSections.information
+                    ? {
+                        text: t("Save"),
+                        visible: true,
+                        execute: () => {
+                          props.setEditing(editableSections.information);
+                        },
+                      }
+                    : {
+                        text: t("Edit"),
+                        visible: !props.editing,
+                        execute: () => {
+                          props.setEditing(editableSections.information);
+                        },
+                      }
+                }
+              />
+              <Grid container>
+                <Grid container item xs={8} component="dl" spacing={2}>
+                  <PeopleGridItem
+                    title={t("Email")}
+                    description={
+                      props.editing === editableSections.information ? (
+                        <Input
+                          value={values.email}
+                          InputComponent={FormTextField}
+                          inputComponentProps={{
+                            name: "email",
+                          }}
+                        />
+                      ) : (
+                        orgUser.email
+                      )
+                    }
+                  />
+                  <PeopleGridItem
+                    title={t("Address")}
+                    description={
+                      props.editing === editableSections.information ? (
+                        <Grid container spacing={2}>
+                          <Grid item xs={12}>
+                            <div>{t("Street")}</div>
+                            <Input
+                              value={values.address1}
+                              InputComponent={FormTextField}
+                              inputComponentProps={{
+                                name: "address1",
+                              }}
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <div>{t("City")}</div>
+                            <Input
+                              value={values.city}
+                              InputComponent={FormTextField}
+                              inputComponentProps={{
+                                name: "city",
+                              }}
+                            />
+                          </Grid>
+                          <Grid item xs={6}>
+                            <div>{t("State")}</div>
+                            <Select
+                              value={{
+                                value: values.state,
+                                label:
+                                  stateOptions.find(
+                                    a => a.value === values.state
+                                  )?.label || "",
+                              }}
+                              onChange={(e: SelectValueType) => {
+                                //TODO: Once the select component is updated,
+                                // can remove the Array checking
+                                let selectedValue = null;
+                                if (e) {
+                                  if (Array.isArray(e)) {
+                                    selectedValue = (e as Array<
+                                      OptionTypeBase
+                                    >)[0].value;
+                                  } else {
+                                    selectedValue = (e as OptionTypeBase).value;
+                                  }
+                                }
+                                setFieldValue("state", selectedValue);
+                              }}
+                              options={stateOptions}
+                              isClearable={!!values.state}
+                            />
+                          </Grid>
+                          <Grid item xs={6}>
+                            <div>{t("Zip")}</div>
+                            <Input
+                              value={values.postalCode}
+                              InputComponent={FormTextField}
+                              inputComponentProps={{
+                                name: "postalCode",
+                              }}
+                            />
+                          </Grid>
+                        </Grid>
+                      ) : !orgUser.address1 ? (
+                        <span className={classes.notSpecified}>
+                          {t("Not specified")}
+                        </span>
+                      ) : (
+                        <>
+                          <div>{orgUser.address1}</div>
+                          <div>{orgUser.address2 && `${orgUser.address2}`}</div>
+                          <div>{`${orgUser.city}, ${orgUser.state} ${orgUser.postalCode}`}</div>
+                          <div>{orgUser.country}</div>
+                        </>
+                      )
+                    }
+                  />
+                  <PeopleGridItem
+                    title={t("Phone")}
+                    description={
+                      props.editing === editableSections.information ? (
+                        <Input
+                          value={values.phoneNumber}
+                          InputComponent={FormTextField}
+                          inputComponentProps={{
+                            name: "phoneNumber",
+                          }}
+                        />
+                      ) : orgUser.phoneNumber ? (
+                        <PhoneNumberInput
+                          phoneNumber={orgUser.phoneNumber}
+                          forViewOnly={true}
+                        />
+                      ) : (
+                        <span className={classes.notSpecified}>
+                          {t("Not specified")}
+                        </span>
+                      )
+                    }
+                  />
+                  <PeopleGridItem
+                    title={t("Date of Birth")}
+                    description={formattedBirthDate}
+                  />
+                  <Grid item xs={12}>
+                    <Divider variant="fullWidth" className={classes.divider} />
+                  </Grid>
+                  <PeopleGridItem
+                    title={t("Username")}
+                    description={orgUser.loginEmail}
+                  />
+                  <PeopleGridItem
+                    title={t("Last Login")}
+                    description={
+                      formattedLoginTime ? (
+                        formattedLoginTime
+                      ) : (
+                        <span className={classes.notSpecified}>
+                          {t("Not Available")}
+                        </span>
+                      )
+                    }
+                  />
+                  <PeopleGridItem
+                    title={t("Password")}
+                    description={
+                      <TextButton onClick={() => props.onResetPassword()}>
+                        {t("Reset Password")}
+                      </TextButton>
+                    }
+                  />
+                </Grid>
+                <Grid container item spacing={2} xs={4}>
+                  <Grid
+                    item
+                    container={isSmDown}
+                    justify={isSmDown ? "center" : undefined}
+                  >
+                    <div className={classes.avatar}>
+                      <AvatarCard initials={initials} />
+                    </div>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Section>
+          </form>
+        )}
+      </Formik>
     </>
   );
 };

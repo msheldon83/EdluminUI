@@ -41,6 +41,7 @@
     "lodash-es": "^4.17.15",
     "material-table": "^1.52.0",
     "material-ui-chip-input": "^1.0.0",
+    "material-ui-phone-number": "^2.2.5",
     "react": "^16.10.1",
     "react-autosuggest": "^9.4.3",
     "react-dom": "^16.10.1",
