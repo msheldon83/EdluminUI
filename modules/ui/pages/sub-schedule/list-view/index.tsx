@@ -53,12 +53,14 @@ export const ListView: React.FC<Props> = props => {
   return (
     <>
       <Grid container>
-        {map(groupedAssignments, (group, key, i) => {
+        {groupedAssignments.map((group, i) => {
+          console.log("key", i);
           return group.length > 1 ? (
             <AssignmentGroup
-              key={key}
+              key={i}
               assignmentGroup={group}
               onCancel={() => console.log("cancel assignment")}
+              className={i % 2 == 1 ? classes.shadedRow : undefined}
             />
           ) : (
             <AssignmentRow
@@ -67,7 +69,7 @@ export const ListView: React.FC<Props> = props => {
               onCancel={() =>
                 console.log("cancel assignment", group[0].assignment?.id)
               }
-              // className={i % 2 == 1 ? classes.shadedRow : undefined}
+              className={i % 2 == 1 ? classes.shadedRow : undefined}
             />
           );
         })}

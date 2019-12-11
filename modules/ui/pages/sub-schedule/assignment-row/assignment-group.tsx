@@ -1,9 +1,12 @@
 import * as React from "react";
 import { AssignmentRowUI } from "./assignment-row-ui";
 import { AssignmentVacancyDetails } from "../types";
-import parseISO from "date-fns/parseISO";
-import format from "date-fns/format";
-import isEqual from "date-fns/isEqual";
+import { useState } from "react";
+import { makeStyles } from "@material-ui/styles";
+import { classNames } from "react-select/src/utils";
+import { AvailableJobDetail } from "ui/pages/sub-home/components/available-job-detail";
+import { parseDayPortion } from "ui/components/helpers";
+import { AssignmentGroupDetail } from "./assignment-group-detail";
 
 type Props = {
   assignmentGroup: AssignmentVacancyDetails[];
@@ -12,17 +15,20 @@ type Props = {
 };
 
 /*  1. handle collapse/expand state
-    2. do the parsing to get date range
+    2. org(s)
     3. location(s)
     4. total day portions
     5. ??
     */
 
 export const AssignmentGroup: React.FC<Props> = props => {
+  const classes = useStyles();
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const assignment = props.assignmentGroup;
 
   const vacancy = assignment[0].vacancy !== null && assignment[0].vacancy;
-  if (!vacancy) return <></>;
+  if (!vacancy || !assignment[0].assignment) return <></>;
 
   const locationNames = [...new Set(assignment.map(a => a.location!.name))];
   const locationNameText =
@@ -38,7 +44,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
       ? `${orgNames[0]} +${orgNames.length - 1}`
       : orgNames[0];
 
-  const confirmationNumber = vacancy.id;
+  const confirmationNumber = assignment[0].assignment.id;
   const employeeName = `${vacancy.absence?.employee?.firstName} ${vacancy.absence?.employee?.lastName}`;
   const positionName = vacancy.position?.name ?? "";
 
@@ -55,7 +61,10 @@ export const AssignmentGroup: React.FC<Props> = props => {
   const endDate = lastAssignment.endDate!;
 
   return (
-    <>
+    <div
+      className={[classes.container, props.className].join(" ")}
+      onClick={() => setIsExpanded(!isExpanded)}
+    >
       <AssignmentRowUI
         confirmationNumber={confirmationNumber}
         startTime={startTime}
@@ -70,8 +79,28 @@ export const AssignmentGroup: React.FC<Props> = props => {
         onCancel={props.onCancel}
         className={props.className}
       />
-      I can expand! Click to see more:{" "}
-      {`${props.assignmentGroup.map(a => a.startDate?.toString())}`}
-    </>
+      {isExpanded ? (
+        <>
+          {props.assignmentGroup.map((a, i) => (
+            <AssignmentGroupDetail
+              dayPortion={a.dayPortion}
+              startTimeLocal={a.startTimeLocal ?? ""}
+              endTimeLocal={a.endTimeLocal ?? ""}
+              locationName={a.location?.name ?? ""}
+              shadeRow={i % 2 != 0}
+              key={i}
+            />
+          ))}
+        </>
+      ) : (
+        <>I can expand! Click to see more: </>
+      )}
+    </div>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  container: {
+    display: "contents",
+  },
+}));

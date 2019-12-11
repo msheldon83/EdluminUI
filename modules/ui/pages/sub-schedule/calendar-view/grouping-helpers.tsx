@@ -55,5 +55,8 @@ export const mergeAssignmentDatesByMonth = (
 export const groupAssignmentsByVacancy = (
   assignments: AssignmentVacancyDetails[]
 ) => {
-  return groupBy(assignments, a => a.vacancy?.id);
+  const d = Object.entries(groupBy(assignments, a => a.vacancy?.id)).map(
+    ([index, value]) => value
+  );
+  return d; //groupBy(assignments, a => a.vacancy?.id);
 };
