@@ -1,0 +1,52 @@
+query GetEmployeeAbsenceSchedule($id: ID!, $fromDate: Date!, $toDate: Date!) {
+  employee {
+    employeeAbsenceSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+      id
+      startDate
+      startTimeLocal
+      endDate
+      endTimeLocal
+      numDays
+      totalDayPortion
+      details {
+        id
+        dayPartId
+        dayPortion
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        reasonUsages {
+          id
+          absenceReason {
+            id
+            name
+          }
+        }
+      }
+      vacancies {
+        id
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        numDays
+        details {
+          id
+          startDate
+          startTimeLocal
+          endDate
+          endTimeLocal
+          assignment {
+            id
+            employee {
+              firstName
+              lastName
+              formattedPhone
+            }
+          }
+        }
+      }
+    }
+  }
+}

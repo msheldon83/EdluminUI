@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { AvailableJobDetail } from "./available-job-detail";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { Vacancy } from "graphql/server-types.gen";
-import { DayIcon } from "./day-icon";
+import { DayIcon } from "../../../components/day-icon";
 import { parseDayPortion } from "ui/components/helpers";
 
 type Props = {

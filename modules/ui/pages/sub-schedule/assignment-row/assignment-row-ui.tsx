@@ -4,7 +4,7 @@ import * as DateFns from "date-fns";
 import { formatIsoDateIfPossible } from "helpers/date";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { DayIcon } from "ui/pages/sub-home/components/day-icon";
+import { DayIcon } from "ui/components/day-icon";
 import { parseDayPortion } from "ui/components/helpers";
 
 type Props = {
