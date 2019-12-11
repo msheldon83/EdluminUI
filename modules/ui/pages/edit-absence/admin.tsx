@@ -11,7 +11,8 @@ import { VacancyDetail } from "../create-absence/types";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { EditAbsenceUI } from "./ui";
 
-export const EditAbsence: React.FC = () => {
+type Props = { actingAsEmployee?: boolean };
+export const EditAbsence: React.FC<Props> = props => {
   const params = useRouteParams(AdminEditAbsenceRoute);
   const userIsAdmin = useIsAdmin();
 
@@ -126,6 +127,7 @@ export const EditAbsence: React.FC = () => {
       absenceDetailsIdsByDate={absenceDetailsIdsByDate}
       replacementEmployeeId={replacementEmployeeId}
       replacementEmployeeName={replacementEmployeeName}
+      actingAsEmployee={props.actingAsEmployee}
     />
   );
 };

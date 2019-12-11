@@ -62,6 +62,7 @@ import {
 import {
   AdminEditAbsenceLoader,
   AdminEditAbsenceRoute,
+  EmployeeEditAbsenceRoute,
 } from "./routes/edit-absence";
 import { EmployeeHomeLoader, EmployeeHomeRoute } from "./routes/employee-home";
 import {
@@ -172,6 +173,9 @@ export function App() {
                       component={EmployeeCreateAbsenceLoader}
                       path={EmployeeCreateAbsenceRoute.path}
                     />
+                    <Route path={EmployeeEditAbsenceRoute.path}>
+                      <AdminEditAbsenceLoader actingAsEmployee />
+                    </Route>
 
                     <Route path={SubScheduleCalendarViewRoute.path}>
                       <SubScheduleLoader view="calendar" />
@@ -355,7 +359,7 @@ export function App() {
                           path={DailyReportRoute.path}
                         />
                         {/* This route handles unknown or underspecified routes and takes the
-                            admin to their organization (or a switcher) */}
+                              admin to their organization (or a switcher) */}
                         <Route path={AdminRootChromeRoute.path}>
                           <Redirect to={AdminRootChromeRoute.generate({})} />
                         </Route>

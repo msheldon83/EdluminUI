@@ -32,6 +32,9 @@ fragment FullAbsenceDetails on Absence {
     id
     startDate
     endDate
+    startTimeLocal
+    endTimeLocal
+    numDays
     rowVersion
     positionId
     position {
@@ -47,6 +50,10 @@ fragment FullAbsenceDetails on Absence {
       startTimeLocal
       endTimeLocal
       locationId
+      location {
+	id
+	name
+      }
       payCodeId
       assignment {
 	id

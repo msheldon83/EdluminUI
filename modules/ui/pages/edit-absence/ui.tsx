@@ -347,8 +347,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               vacancies={projectedVacancies || props.initialVacancies}
               balanceUsageText={absenceUsageText ?? undefined}
               setVacanciesInput={setVacanciesInput}
-              arrangedSubText={t("arranged")}
-              arrangeSubButtonTitle={t("Arrange Sub")}
+              arrangedSubText={t("assigned")}
+              arrangeSubButtonTitle={t("Assign Sub")}
             />
           </Section>
         </form>

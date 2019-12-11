@@ -1,10 +1,9 @@
-import { defineSubRoute } from "./definition";
-import { PeopleRoute } from "./people";
-import { EmployeeChromeRoute } from "./app-chrome";
 import { asyncComponent } from "ui/async-component";
+import { AdminChromeRoute, EmployeeChromeRoute } from "./app-chrome";
+import { defineSubRoute } from "./definition";
 
 export const AdminEditAbsenceRoute = defineSubRoute(
-  PeopleRoute,
+  AdminChromeRoute,
   "absence/edit/:absenceId",
   ["absenceId"]
 );
