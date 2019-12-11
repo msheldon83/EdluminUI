@@ -17,15 +17,6 @@ export const PayCodeViewRoute = defineSubRoute(PayCodeRoute, "/:payCodeId", [
   "payCodeId",
 ]);
 
-export const PayCodeViewLoader = asyncComponent({
-  resolve: async () => {
-    const PayCodeViewPage = (await import("ui/pages/pay-code/view"))
-      .PayCodeViewPage;
-    return PayCodeViewPage;
-  },
-  name: "PayCodeViewPage",
-});
-
 // Add
 export const PayCodeAddRoute = defineSubRoute(PayCodeRoute, "/add", []);
 

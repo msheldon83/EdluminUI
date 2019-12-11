@@ -102,8 +102,6 @@ import {
   PayCodeRoute,
   PayCodeAddRoute,
   PayCodeAddLoader,
-  PayCodeViewRoute,
-  PayCodeViewLoader,
   PayCodeEditSettingsRoute,
   PayCodeEditSettingsLoader,
 } from "./routes/pay-code";
@@ -305,10 +303,6 @@ export function App(props: {}) {
                         <Route
                           component={PayCodeEditSettingsLoader}
                           path={PayCodeEditSettingsRoute.path}
-                        />
-                        <Route
-                          component={PayCodeViewLoader}
-                          path={PayCodeViewRoute.path}
                         />
                         <Route
                           component={PayCodeLoader}
