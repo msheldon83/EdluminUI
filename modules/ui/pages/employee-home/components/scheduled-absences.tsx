@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles, Grid, Button } from "@material-ui/core";
+import { makeStyles, Grid, Button, Typography } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { EmployeeAbsenceDetail } from "..";
@@ -11,92 +11,109 @@ import { parseDayPortion } from "ui/components/helpers";
 type Props = {
   absences: EmployeeAbsenceDetail[];
   cancelAbsence: (absenceId: string) => Promise<void>;
+  isLoading: boolean;
 };
 
 export const ScheduledAbsences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  return (
-    <Section>
-      <SectionHeader title={t("Scheduled absences")} />
-      <Grid container>
-        {props.absences.map((a, i) => {
-          const className = [
-            classes.detail,
-            i % 2 == 1 ? classes.shadedRow : undefined,
-          ].join(" ");
+  const wrapper = (children: React.ReactFragment) => {
+    return (
+      <Section>
+        <SectionHeader title={t("Scheduled absences")} />
+        {children}
+      </Section>
+    );
+  };
 
-          const dateRangeDisplay = isEqual(a.startDate, a.endDate)
-            ? format(a.startDate, "MMM d")
-            : `${format(a.startDate, "MMM d")} - ${format(a.endDate, "MMM d")}`;
+  if (props.isLoading) {
+    return wrapper(
+      <Typography variant="h6">{t("Loading absences")}...</Typography>
+    );
+  } else if (props.absences.length === 0) {
+    return wrapper(
+      <Typography variant="h6">{t("No scheduled absences")}</Typography>
+    );
+  }
 
-          const dayPortionNumberDisplay = Math.round(a.totalDayPortion);
-          const dayPortionDisplay =
-            dayPortionNumberDisplay >= 1
-              ? `${dayPortionNumberDisplay} ${parseDayPortion(
-                  t,
-                  a.totalDayPortion
-                )}`
-              : parseDayPortion(t, a.totalDayPortion);
+  return wrapper(
+    <Grid container>
+      {props.absences.map((a, i) => {
+        const className = [
+          classes.detail,
+          i % 2 == 1 ? classes.shadedRow : undefined,
+        ].join(" ");
 
-          return (
-            <Grid item container xs={12} key={i} className={className}>
-              <Grid item xs={3}>
-                <div>{a.absenceReason}</div>
-                <div className={classes.subText}>{dateRangeDisplay}</div>
-              </Grid>
-              <Grid item xs={3}>
-                {a.substitute && (
-                  <>
-                    <div>{a.substitute?.name}</div>
-                    <div className={classes.subText}>
-                      {a.substitute?.phoneNumber}
-                    </div>
-                  </>
-                )}
-                {!a.substitute && a.subRequired && (
+        const dateRangeDisplay = isEqual(a.startDate, a.endDate)
+          ? format(a.startDate, "MMM d")
+          : `${format(a.startDate, "MMM d")} - ${format(a.endDate, "MMM d")}`;
+
+        const dayPortionNumberDisplay = Math.round(a.totalDayPortion);
+        const dayPortionDisplay =
+          dayPortionNumberDisplay >= 1
+            ? `${dayPortionNumberDisplay} ${parseDayPortion(
+                t,
+                a.totalDayPortion
+              )}`
+            : parseDayPortion(t, a.totalDayPortion);
+
+        return (
+          <Grid item container xs={12} key={i} className={className}>
+            <Grid item xs={3}>
+              <div>{a.absenceReason}</div>
+              <div className={classes.subText}>{dateRangeDisplay}</div>
+            </Grid>
+            <Grid item xs={3}>
+              {a.substitute && (
+                <>
+                  <div>{a.substitute?.name}</div>
                   <div className={classes.subText}>
-                    {t("No substitute assigned")}
+                    {a.substitute?.phoneNumber}
                   </div>
-                )}
-                {!a.substitute && !a.subRequired && (
+                </>
+              )}
+              {!a.substitute && a.subRequired && (
+                <div className={classes.subText}>
+                  {t("No substitute assigned")}
+                </div>
+              )}
+              {!a.substitute && !a.subRequired && (
+                <div className={classes.subText}>
+                  {t("No substitute required")}
+                </div>
+              )}
+            </Grid>
+            <Grid item xs={3}>
+              <div className={classes.dayPartContainer}>
+                <DayIcon
+                  dayPortion={a.totalDayPortion}
+                  startTime={a.startTimeLocal.toString()}
+                />
+                <div className={classes.dayPart}>
+                  <div>{dayPortionDisplay}</div>
                   <div className={classes.subText}>
-                    {t("No substitute required")}
-                  </div>
-                )}
-              </Grid>
-              <Grid item xs={3}>
-                <div className={classes.dayPartContainer}>
-                  <DayIcon
-                    dayPortion={a.totalDayPortion}
-                    startTime={a.startTimeLocal.toString()}
-                  />
-                  <div className={classes.dayPart}>
-                    <div>{dayPortionDisplay}</div>
-                    <div className={classes.subText}>
-                      {`${a.startTime} - ${a.endTime}`}
-                    </div>
+                    {`${a.startTime} - ${a.endTime}`}
                   </div>
                 </div>
-              </Grid>
-              <Grid item xs={1}>
-                <div>{`#${a.id}`}</div>
-              </Grid>
-              <Grid item xs={2} className={classes.cancelButtonContainer}>
-                <Button
-                  variant="outlined"
-                  onClick={async () => await props.cancelAbsence(a.id)}
-                  className={classes.cancelButton}
-                >
-                  {t("Cancel")}
-                </Button>
-              </Grid>
+              </div>
             </Grid>
-          );
-        })}
-      </Grid>
-    </Section>
+            <Grid item xs={1}>
+              <div>{`#${a.id}`}</div>
+            </Grid>
+            <Grid item xs={2} className={classes.cancelButtonContainer}>
+              <Button
+                variant="outlined"
+                onClick={async () => await props.cancelAbsence(a.id)}
+                className={classes.cancelButton}
+              >
+                {t("Cancel")}
+              </Button>
+            </Grid>
+          </Grid>
+        );
+      })}
+    </Grid>
   );
 };
 

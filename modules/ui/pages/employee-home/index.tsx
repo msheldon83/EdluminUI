@@ -133,7 +133,7 @@ export const EmployeeHome: React.FC<Props> = props => {
               name: `${assignment.employee!.firstName} ${
                 assignment.employee!.lastName
               }`,
-              phoneNumber: assignment.employee!.phoneNumber,
+              phoneNumber: assignment.employee!.formattedPhone,
             }
           : undefined,
       };
@@ -174,6 +174,10 @@ export const EmployeeHome: React.FC<Props> = props => {
               (a: EmployeeAbsenceDetail) => isAfter(a.startTimeLocal, today)
             )}
             cancelAbsence={cancelAbsence}
+            isLoading={
+              getAbsenceSchedule.state === "LOADING" ||
+              getAbsenceSchedule.state === "UPDATING"
+            }
           />
         </Grid>
       </Grid>
