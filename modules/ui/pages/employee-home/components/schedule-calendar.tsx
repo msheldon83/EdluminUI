@@ -6,7 +6,7 @@ import { SectionHeader } from "ui/components/section-header";
 import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
 import { useMemo } from "react";
 import { eachDayOfInterval } from "date-fns";
-import { EmployeeAbsenceDetail } from "ui/components/employee/helpers";
+import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 
 type Props = {
   startDate: Date;

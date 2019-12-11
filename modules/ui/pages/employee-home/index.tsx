@@ -29,10 +29,8 @@ import {
   GetEmployeeContractScheduleQuery,
   GetEmployeeContractScheduleQueryVariables,
 } from "ui/components/employee/graphql/get-employee-contract-schedule.gen";
-import {
-  GetEmployeeAbsenceDetails,
-  EmployeeAbsenceDetail,
-} from "ui/components/employee/helpers";
+import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
+import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 import { Section } from "ui/components/section";
 
 type Props = {};

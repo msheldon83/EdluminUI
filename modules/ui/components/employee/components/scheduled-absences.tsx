@@ -2,7 +2,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles, Grid, Button, Typography } from "@material-ui/core";
 import { SectionHeader } from "ui/components/section-header";
-import { EmployeeAbsenceDetail } from "ui/components/employee/helpers";
+import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 import { isEqual, format } from "date-fns";
 import { DayIcon } from "ui/components/day-icon";
 import { parseDayPortion } from "ui/components/helpers";
