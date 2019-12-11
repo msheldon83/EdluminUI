@@ -132,6 +132,12 @@ import {
   DailyReportLoader,
   DailyReportRoute,
 } from "./routes/absence-vacancy/daily-report";
+import {
+  EmployeeScheduleCalendarViewRoute,
+  EmployeeScheduleLoader,
+  EmployeeScheduleListViewRoute,
+  EmployeeScheduleRoute,
+} from "./routes/employee-schedule";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 export function App(props: {}) {
@@ -180,6 +186,16 @@ export function App(props: {}) {
                       path={SubPreferencesRoute.path}
                     />
                     <Route component={SubHomeLoader} path={SubHomeRoute.path} />
+
+                    <Route path={EmployeeScheduleCalendarViewRoute.path}>
+                      <EmployeeScheduleLoader view="calendar" />
+                    </Route>
+                    <Route path={EmployeeScheduleListViewRoute.path}>
+                      <EmployeeScheduleLoader view="list" />
+                    </Route>
+                    <Route path={EmployeeScheduleRoute.path}>
+                      <EmployeeScheduleLoader view="list" />
+                    </Route>
                     <Route
                       component={EmployeeHomeLoader}
                       path={EmployeeHomeRoute.path}
