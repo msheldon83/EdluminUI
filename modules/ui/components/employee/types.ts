@@ -22,6 +22,7 @@ export type EmployeeAbsenceDetail = {
     name: string;
     phoneNumber?: string | null | undefined;
   };
+  allDays: Date[];
 };
 
 export type ContractDate = {
@@ -46,5 +47,6 @@ export type ScheduleDate = {
     | "nonWorkDay"
     | "teacherWorkDay"
     | "cancelledDay";
-  display?: React.ReactFragment;
+  description?: string;
+  rawData: EmployeeAbsenceDetail | ContractDate | PositionScheduleDate;
 };
