@@ -1,0 +1,24 @@
+query GetEmployeeForCurrentUser {
+  userAccess {
+    me {
+      user {
+        id
+        orgUsers {
+          id
+          employee {
+            id
+            orgId
+            firstName
+            lastName
+            primaryPositionId
+            primaryPosition {
+              id
+              name
+              needsReplacement
+            }
+          }
+        }
+      }
+    }
+  }
+}

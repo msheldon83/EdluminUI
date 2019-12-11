@@ -8,6 +8,7 @@ import {
   ExpansionPanelSummary,
   ExpansionPanelDetails,
   Button,
+  Collapse,
 } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
 import { useState, useMemo, useEffect } from "react";
@@ -25,7 +26,6 @@ import {
   format,
   isEqual,
   startOfToday,
-  isValid,
 } from "date-fns";
 import { formatIsoDateIfPossible } from "helpers/date";
 import {
@@ -56,6 +56,10 @@ export const VerifyUI: React.FC<Props> = props => {
   const [selectedVacancyDetail, setSelectedVacancyDetail] = useState<
     string | undefined
   >(undefined);
+  const [nextSelectedVacancyDetail, setNextSelectedVacancyDetail] = useState<
+    string | undefined
+  >(undefined);
+  const [verifiedId, setVerifiedId] = useState<string | null | undefined>(null);
 
   const today = useMemo(() => startOfToday(), []);
   /* Because this UI can stand alone or show up on the Admin homepage, we need
@@ -180,9 +184,12 @@ export const VerifyUI: React.FC<Props> = props => {
     | "location"
     | "vacancy"
     | "dayPortion"
+    | "totalDayPortion"
     | "accountingCodeAllocations"
     | "verifyComments"
     | "verifiedAtLocal"
+    | "payDurationOverride"
+    | "actualDuration"
   >[];
 
   const payCodes = usePayCodes(params.organizationId);
@@ -199,6 +206,7 @@ export const VerifyUI: React.FC<Props> = props => {
       },
     });
     if (verifyInput.doVerify) {
+      setVerifiedId(verifyInput.vacancyDetailId);
       openSnackbar({
         dismissable: true,
         autoHideDuration: 5000,
@@ -220,12 +228,31 @@ export const VerifyUI: React.FC<Props> = props => {
           </div>
         ),
       });
+      setSelectedVacancyDetail(nextSelectedVacancyDetail);
     }
-    await getAssignmentCounts.refetch();
-    await getVacancyDetails.refetch();
+    if (verifyInput.doVerify !== null) {
+      await getAssignmentCounts.refetch();
+      await getVacancyDetails.refetch();
+      setVerifiedId(null);
+    }    
   };
 
   const uniqueDays = [...new Set(assignments.map(x => x.startDate))];
+
+  // When we select a detail record figure out what the next record we should have selected once we verify
+  const onSelectDetail = (vacancyDetailId: string) => {
+    setSelectedVacancyDetail(vacancyDetailId);
+    const index = assignments.findIndex(x => x.id === vacancyDetailId);
+    const nextId = assignments[index + 1]?.id;
+    const previousId = assignments[index - 1]?.id;
+    if (nextId) {
+      setNextSelectedVacancyDetail(nextId);
+    } else if (previousId) {
+      setNextSelectedVacancyDetail(previousId);
+    } else {
+      setNextSelectedVacancyDetail(undefined);
+    }
+  };
 
   return (
     <>
@@ -244,15 +271,20 @@ export const VerifyUI: React.FC<Props> = props => {
           <Typography variant="h5">{t("All assignments verified")}</Typography>
         ) : uniqueDays.length === 1 ? (
           assignments.map((vacancyDetail, index) => (
-            <Assignment
+            <Collapse
+              in={verifiedId !== vacancyDetail.id}
               key={vacancyDetail.id}
-              vacancyDetail={vacancyDetail}
-              shadeRow={index % 2 != 0}
-              onVerify={onVerify}
-              selectedVacancyDetail={selectedVacancyDetail}
-              setSelectedVacancyDetail={setSelectedVacancyDetail}
-              payCodeOptions={payCodeOptions}
-            />
+            >
+              <Assignment
+                key={vacancyDetail.id}
+                vacancyDetail={vacancyDetail}
+                shadeRow={index % 2 != 0}
+                onVerify={onVerify}
+                selectedVacancyDetail={selectedVacancyDetail}
+                onSelectDetail={onSelectDetail}
+                payCodeOptions={payCodeOptions}
+              />
+            </Collapse>
           ))
         ) : (
           uniqueDays.map((d, i) => (
@@ -272,15 +304,20 @@ export const VerifyUI: React.FC<Props> = props => {
                 {assignments
                   .filter(x => x.startDate === d)
                   .map((vacancyDetail, index) => (
-                    <Assignment
+                    <Collapse
+                      in={verifiedId !== vacancyDetail.id}
                       key={vacancyDetail.id}
-                      vacancyDetail={vacancyDetail}
-                      shadeRow={index % 2 != 0}
-                      onVerify={onVerify}
-                      selectedVacancyDetail={selectedVacancyDetail}
-                      setSelectedVacancyDetail={setSelectedVacancyDetail}
-                      payCodeOptions={payCodeOptions}
-                    />
+                    >
+                      <Assignment
+                        key={vacancyDetail.id}
+                        vacancyDetail={vacancyDetail}
+                        shadeRow={index % 2 != 0}
+                        onVerify={onVerify}
+                        selectedVacancyDetail={selectedVacancyDetail}
+                        onSelectDetail={onSelectDetail}
+                        payCodeOptions={payCodeOptions}
+                      />
+                    </Collapse>
                   ))}
               </ExpansionPanelDetails>
             </ExpansionPanel>

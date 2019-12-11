@@ -11,9 +11,7 @@ export default {
 };
 
 export const AssignmentStory = () => {
-  const [selectedVacancyDetail, setSelectedVacancyDetail] = React.useState<
-    string | undefined
-  >(undefined);
+  const onSelectDetail = () => {};
   const onVerify = async (vacancyDetail: VacancyDetailVerifyInput) => {};
 
   const classes = useStyles();
@@ -23,8 +21,8 @@ export const AssignmentStory = () => {
         vacancyDetail={simpleAssignment}
         shadeRow={false}
         onVerify={onVerify}
-        selectedVacancyDetail={selectedVacancyDetail}
-        setSelectedVacancyDetail={setSelectedVacancyDetail}
+        selectedVacancyDetail={undefined}
+        onSelectDetail={onSelectDetail}
         payCodeOptions={payCodeOptions}
       />
     </div>
@@ -103,9 +101,12 @@ const simpleAssignment = ({
   | "location"
   | "vacancy"
   | "dayPortion"
+  | "totalDayPortion"
   | "accountingCodeAllocations"
   | "verifyComments"
   | "verifiedAtLocal"
+  | "payDurationOverride"
+  | "actualDuration"
 >;
 
 const payCodeOptions = [

@@ -1,13 +1,6 @@
 import * as React from "react";
 import { useMemo } from "react";
-import {
-  Grid,
-  Button,
-  Typography,
-  makeStyles,
-  Card,
-  CardContent,
-} from "@material-ui/core";
+import { Grid, Button, Typography, makeStyles } from "@material-ui/core";
 import {
   VacancyDetail,
   VacancyDetailVerifyInput,
@@ -17,10 +10,12 @@ import { useAccountingCodes } from "reference-data/accounting-codes";
 import { parseISO, format, isEqual } from "date-fns";
 import clsx from "clsx";
 import * as yup from "yup";
+import { Formik } from "formik";
 import { Input } from "ui/components/form/input";
 import { Select, SelectValueType, OptionType } from "ui/components/form/select";
-import { useForm } from "forms";
-import { parseDayPortion } from "ui/components/helpers";
+import { TextField as FormTextField } from "ui/components/form/text-field";
+import { OptionTypeBase } from "react-select/src/types";
+import { getDisplayName } from "ui/components/enumHelpers";
 
 type Props = {
   vacancyDetail: Pick<
@@ -35,15 +30,16 @@ type Props = {
     | "location"
     | "vacancy"
     | "dayPortion"
+    | "totalDayPortion"
     | "accountingCodeAllocations"
     | "verifyComments"
     | "verifiedAtLocal"
+    | "payDurationOverride"
+    | "actualDuration"
   >;
   shadeRow: boolean;
   onVerify: (verifyInput: VacancyDetailVerifyInput) => Promise<void>;
-  setSelectedVacancyDetail: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
+  onSelectDetail: (vacancyDetailId: string) => void;
   selectedVacancyDetail: string | undefined;
   payCodeOptions: OptionType[];
 };
@@ -84,100 +80,127 @@ export const Assignment: React.FC<Props> = props => {
     ? vacancyDetail.id === props.selectedVacancyDetail
     : false;
 
-  const initialFormData: VerifyVacancyDetailFormData = {
-    verifyComments: vacancyDetail.verifyComments ?? undefined,
-    payCode: vacancyDetail.payCode?.id ?? undefined,
-    dayPortion: vacancyDetail.dayPortion,
+  const payType = vacancyDetail.vacancy!.position!.positionType!.payTypeId!;
+  const daysInfo =
+    vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
+      ? `${vacancyDetail.dayPortion.toFixed(1)}`
+      : `${vacancyDetail.dayPortion.toFixed(
+          1
+        )}/${vacancyDetail.totalDayPortion.toFixed(1)}`;
+  const payInfo =
+    payType === "DAILY"
+      ? `${daysInfo} ${t("Days")}`
+      : `${vacancyDetail.payDurationOverride ??
+          vacancyDetail.actualDuration} ${t("Hours")}`;
+
+  const handlePayCodeOnBlur = async (payCodeId: string | undefined) => {
+    await props.onVerify({
+      vacancyDetailId: vacancyDetail.id,
+      doVerify: null,
+      payCodeId: Number(payCodeId),
+    });
   };
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState,
-    getValues,
-    errors,
-    triggerValidation,
-  } = useForm<VerifyVacancyDetailFormData>({
-    defaultValues: initialFormData,
-  });
+  const handleAccountingCodeOnBlur = async (
+    accountingCodeId: string | undefined
+  ) => {
+    await props.onVerify({
+      vacancyDetailId: vacancyDetail.id,
+      doVerify: null,
+      accountingCodeAllocations: accountingCodeId
+        ? [
+            {
+              accountingCodeId: Number(accountingCodeId),
+              allocation: 1.0,
+            },
+          ]
+        : [],
+    });
+  };
 
-  register({ name: "payCode", type: "custom" });
-  register({ name: "accountingCode", type: "custom" });
-  register({ name: "verifyComments", type: "custom" });
-  const formValues = getValues();
+  const handleCommentsOnBlur = async (verifyComments: string | undefined) => {
+    await props.onVerify({
+      vacancyDetailId: vacancyDetail.id,
+      doVerify: null,
+      verifyComments,
+    });
+  };
 
-  const onPayCodeChange = React.useCallback(
-    async event => {
-      await setValue("payCode", event?.value);
-      await triggerValidation({ name: "payCode" });
-    },
-    [setValue, triggerValidation]
-  );
-
-  const onAccountingCodeChange = React.useCallback(
-    async event => {
-      await setValue("accountingCode", event?.value);
-      await triggerValidation({ name: "accountingCode" });
-    },
-    [setValue, triggerValidation]
-  );
-
-  const onVerifyCommentsChange = React.useCallback(
-    async event => {
-      await setValue("verifyComments", event.target.value);
-    },
-    [setValue]
-  );
+  const handleDaysOnBlur = async (
+    dayPortion: number,
+    payDurationOverride: number | null | undefined
+  ) => {
+    await props.onVerify({
+      vacancyDetailId: vacancyDetail.id,
+      doVerify: null,
+      dayPortion,
+      payDurationOverride: payType === "HOURLY" ? payDurationOverride : null,
+    });
+  };
 
   return (
-    <div onClick={() => props.setSelectedVacancyDetail(vacancyDetail.id)}>
-      <form
-        onSubmit={handleSubmit(async (data, e) => {
+    <div
+      onClick={() => props.onSelectDetail(vacancyDetail.id)}
+      className={clsx({
+        [classes.shadedRow]: props.shadeRow,
+        [classes.cardSelection]: isActiveCard,
+        [classes.cardRoot]: true,
+      })}
+    >
+      <Formik
+        initialValues={{
+          verifyComments: vacancyDetail.verifyComments ?? undefined,
+          payCodeId: vacancyDetail.payCode?.id ?? undefined,
+          dayPortion: vacancyDetail.dayPortion,
+          accountingCodeId:
+            vacancyDetail.accountingCodeAllocations![0]?.accountingCode?.id ??
+            undefined,
+          payDurationOverride:
+            vacancyDetail.payDurationOverride ?? vacancyDetail.actualDuration,
+        }}
+        onSubmit={async (data, e) => {
           await props.onVerify({
             vacancyDetailId: vacancyDetail.id,
-            payCodeId: Number(formValues.payCode),
-            verifyComments: formValues.verifyComments,
-            accountingCodeAllocations: formValues.accountingCode
+            payCodeId: Number(data.payCodeId),
+            verifyComments: data.verifyComments,
+            accountingCodeAllocations: data.accountingCodeId
               ? [
                   {
-                    accountingCodeId: Number(formValues.accountingCode),
+                    accountingCodeId: Number(data.accountingCodeId),
                     allocation: 1.0,
                   },
                 ]
               : [],
+            dayPortion: data.dayPortion,
+            payDurationOverride:
+              payType === "HOURLY" ? data.payDurationOverride : null,
             doVerify: notVerified,
           });
+        }}
+        validationSchema={yup.object().shape({
+          dayPortion: yup.number().typeError(t("Not a valid number")),
+          payDurationOverride: yup
+            .number()
+            .nullable()
+            .typeError(t("Not a valid number")),
+          verifyComments: yup.string().nullable(),
         })}
       >
-        <Card
-          classes={{
-            root: clsx({
-              [classes.cardRoot]: true,
-              [classes.cardSelection]:
-                !isActiveCard || !props.selectedVacancyDetail,
-            }),
-          }}
-        >
-          <CardContent
-            classes={{
-              root: classes.cardContentRoot,
-            }}
-          >
+        {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
+          <form onSubmit={handleSubmit}>
             <Grid
               container
               justify="space-between"
               alignItems="center"
               spacing={2}
-              className={props.shadeRow ? classes.shadedRow : undefined}
             >
               <Grid item xs={2}>
                 <Typography className={classes.lightText}>
                   {`${t("Absence")} #${vacancyDetail.vacancy!.absence!.id}`}
                 </Typography>
-                <Typography variant="h6">{`${t("Assignment")} #C${
-                  vacancyDetail.assignment!.id
-                }`}</Typography>
+                <Typography className={classes.regularText}>{`${t(
+                  "Assignment"
+                )} #C${vacancyDetail.assignment!.id}`}</Typography>
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.lightText}>
@@ -185,123 +208,216 @@ export const Assignment: React.FC<Props> = props => {
                     vacancyDetail.vacancy!.absence!.employee!.lastName
                   }`}
                 </Typography>
-                <Typography variant="h6">{`${
+                <Typography className={classes.boldText}>{`${
                   vacancyDetail.assignment!.employee!.firstName
                 } ${vacancyDetail.assignment!.employee!.lastName}`}</Typography>
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.lightText}>
-                  {`${parseDayPortion(t, absenceDetail?.dayPortion)} (${format(
-                    absenceDetailStartTime,
+                  {`${getDisplayName(
+                    "dayPart",
+                    absenceDetail!.dayPartId!.toString(),
+                    t
+                  )} (${format(absenceDetailStartTime, "h:mmaaa")}-${format(
+                    absenceDetailEndTime,
                     "h:mmaaa"
-                  )}-${format(absenceDetailEndTime, "h:mmaaa")})`}
+                  )})`}
                 </Typography>
-                <Typography variant="h6">{`${format(
+                <Typography className={classes.regularText}>{`${format(
                   vacancyDetailStartTime,
                   "h:mm aaa"
                 )} - ${format(vacancyDetailEndTime, "h:mm aaa")}`}</Typography>
+                {!isActiveCard && (
+                  <Typography className={classes.boldText}>
+                    {payInfo}
+                  </Typography>
+                )}
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.lightText}>
                   {vacancyDetail.vacancy!.position!.name}
                 </Typography>
-                {isActiveCard ? (
-                  <Select
-                    value={{
-                      value: formValues.payCode,
-                      label:
-                        props.payCodeOptions.find(
-                          a => a.value === formValues.payCode
-                        )?.label || "",
-                    }}
-                    onChange={onPayCodeChange}
-                    options={props.payCodeOptions}
-                    isClearable={!!formValues.payCode}
-                    inputStatus={errors.payCode ? "error" : undefined}
-                    validationMessage={errors.payCode?.message}
-                  />
-                ) : (
-                  <Typography variant="h6">{`Pay: ${vacancyDetail.payCode
-                    ?.name ?? t("N/A")}`}</Typography>
+                {!isActiveCard && (
+                  <Typography
+                    className={classes.boldText}
+                  >{`Pay: ${vacancyDetail.payCode?.name ??
+                    t("N/A")}`}</Typography>
                 )}
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.lightText}>
                   {vacancyDetail.location!.name}
                 </Typography>
-                {isActiveCard ? (
-                  <Select
-                    value={{
-                      value: formValues.accountingCode,
-                      label:
-                        accountingCodeOptions.find(
-                          a => a.value === formValues.accountingCode
-                        )?.label || "",
-                    }}
-                    onChange={onAccountingCodeChange}
-                    options={accountingCodeOptions}
-                    isClearable={!!formValues.accountingCode}
-                    inputStatus={errors.accountingCode ? "error" : undefined}
-                    validationMessage={errors.accountingCode?.message}
-                  />
-                ) : (
-                  <Typography variant="h6">{`Acct: ${vacancyDetail.accountingCodeAllocations![0]
+                {!isActiveCard && (
+                  <Typography
+                    className={classes.boldText}
+                  >{`Acct: ${vacancyDetail.accountingCodeAllocations![0]
                     ?.accountingCode?.name ?? t("N/A")}`}</Typography>
                 )}
               </Grid>
               <Grid item xs={2}>
-                <Button variant="outlined" type="submit">
-                  {notVerified ? t("Verify") : t("Undo verify")}
-                </Button>
+                {!isActiveCard && (
+                  <Button
+                    variant={isActiveCard ? "contained" : "outlined"}
+                    type="submit"
+                  >
+                    {notVerified ? t("Verify") : t("Undo verify")}
+                  </Button>
+                )}
               </Grid>
             </Grid>
             {isActiveCard && (
-              <Grid
-                container
-                justify="flex-end"
-                alignItems="center"
-                spacing={2}
-              >
-                <Grid item></Grid>
-                <Grid item xs={6}>
-                  <Input
-                    value={formValues.verifyComments}
-                    inputComponentProps={{
-                      name: "verifyComments",
-                      margin: "normal",
-                      fullWidth: true,
-                      placeholder: t("Comments"),
-                    }}
-                    onChange={onVerifyCommentsChange}
-                  />
+              <div>
+                <Grid
+                  container
+                  justify="space-between"
+                  alignItems="center"
+                  spacing={2}
+                  className={props.shadeRow ? classes.shadedRow : undefined}
+                >
+                  <Grid item xs={4}></Grid>
+                  <Grid item xs={2}>
+                    <Input
+                      value={
+                        payType === "DAILY"
+                          ? values.dayPortion
+                          : values.payDurationOverride
+                      }
+                      InputComponent={FormTextField}
+                      inputComponentProps={{
+                        name:
+                          payType === "DAILY"
+                            ? "dayPortion"
+                            : "payDurationOverride",
+                        margin: "normal",
+                        label: payType === "DAILY" ? t("Days") : t("Hours"),
+                        fullWidth: true,
+                      }}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => {
+                        setFieldValue(
+                          payType === "DAILY"
+                            ? "dayPortion"
+                            : "payDurationOverride",
+                          event.target.value
+                        );
+                      }}
+                      onBlur={() =>
+                        handleDaysOnBlur(
+                          values.dayPortion,
+                          values.payDurationOverride
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Select
+                      value={{
+                        value: values.payCodeId,
+                        label:
+                          props.payCodeOptions.find(
+                            a => a.value === values.payCodeId
+                          )?.label || "",
+                      }}
+                      onChange={(e: SelectValueType) => {
+                        //TODO: Once the select component is updated,
+                        // can remove the Array checking
+                        let selectedValue = null;
+                        if (e) {
+                          if (Array.isArray(e)) {
+                            selectedValue = (e as Array<OptionTypeBase>)[0]
+                              .value;
+                          } else {
+                            selectedValue = (e as OptionTypeBase).value;
+                          }
+                        }
+                        setFieldValue("payCodeId", selectedValue);
+                      }}
+                      options={props.payCodeOptions}
+                      isClearable={!!values.payCodeId}
+                      onBlur={() => handlePayCodeOnBlur(values.payCodeId)}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Select
+                      value={{
+                        value: values.accountingCodeId,
+                        label:
+                          accountingCodeOptions.find(
+                            a => a.value === values.accountingCodeId
+                          )?.label || "",
+                      }}
+                      onChange={(e: SelectValueType) => {
+                        //TODO: Once the select component is updated,
+                        // can remove the Array checking
+                        let selectedValue = null;
+                        if (e) {
+                          if (Array.isArray(e)) {
+                            selectedValue = (e as Array<OptionTypeBase>)[0]
+                              .value;
+                          } else {
+                            selectedValue = (e as OptionTypeBase).value;
+                          }
+                        }
+                        setFieldValue("accountingCodeId", selectedValue);
+                      }}
+                      options={accountingCodeOptions}
+                      isClearable={!!values.accountingCodeId}
+                      onBlur={() =>
+                        handleAccountingCodeOnBlur(values.accountingCodeId)
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={2}></Grid>
                 </Grid>
-              </Grid>
+                <Grid
+                  container
+                  justify="space-between"
+                  alignItems="center"
+                  spacing={2}
+                  className={props.shadeRow ? classes.shadedRow : undefined}
+                >
+                  <Grid item xs={4}></Grid>
+                  <Grid item xs={6}>
+                    <Input
+                      value={values.verifyComments}
+                      InputComponent={FormTextField}
+                      inputComponentProps={{
+                        name: "verifyComments",
+                        margin: "normal",
+                        fullWidth: true,
+                        placeholder: t("Comments"),
+                      }}
+                      onBlur={() => handleCommentsOnBlur(values.verifyComments)}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Button
+                      variant={isActiveCard ? "contained" : "outlined"}
+                      type="submit"
+                    >
+                      {notVerified ? t("Verify") : t("Undo verify")}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </div>
             )}
-          </CardContent>
-        </Card>
-      </form>
+          </form>
+        )}
+      </Formik>
     </div>
   );
 };
 
 export const useStyles = makeStyles(theme => ({
-  root: {
-    width: 500,
-  },
-  typography: {
-    padding: theme.spacing(2),
-  },
-  paper: {
-    border: "1px solid",
-    padding: theme.spacing(1),
-    backgroundColor: theme.palette.background.paper,
-  },
-
   lightText: {
     fontSize: theme.typography.fontSize,
+    color: theme.customColors.edluminSubText,
   },
-  locationText: {
-    fontSize: theme.typography.fontSize + 4,
+  regularText: {
+    fontSize: theme.typography.fontSize,
+    fontWeight: "normal",
   },
   boldText: {
     fontSize: theme.typography.fontSize,
@@ -310,30 +426,14 @@ export const useStyles = makeStyles(theme => ({
   shadedRow: {
     background: theme.customColors.lightGray,
   },
-
-  cardRoot: {},
-  cardSelection: {
+  cardRoot: {
     cursor: "pointer",
-    "&:hover": {
-      boxShadow:
-        "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24)",
-      opacity: 1,
-    },
-  },
-  inactiveCard: {
-    opacity: 0.5,
-  },
-  cardContentRoot: {
-    padding: "0 !important",
-  },
-  cardContent: {
     padding: theme.spacing(2),
   },
+  cardSelection: {
+    boxShadow:
+      "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24)",
+    opacity: 1,
+    marginBottom: theme.spacing(1),
+  },
 }));
-
-export type VerifyVacancyDetailFormData = {
-  accountingCode?: string;
-  payCode?: string;
-  dayPortion?: number;
-  verifyComments?: string;
-};
