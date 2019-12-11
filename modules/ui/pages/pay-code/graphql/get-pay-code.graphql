@@ -1,0 +1,12 @@
+query GetPayCodeById($id: ID!) {
+  orgRef_PayCode {
+    byId(id: $id) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      expired
+    }
+  }
+}

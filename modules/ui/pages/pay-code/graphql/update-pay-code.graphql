@@ -1,0 +1,12 @@
+mutation UpdatePayCode($payCode: PayCodeUpdateInput!) {
+  orgRef_PayCode {
+    update(payCode: $payCode) {
+      id
+      name
+      rowVersion
+      description
+      externalId
+      expired
+    }
+  }
+}
