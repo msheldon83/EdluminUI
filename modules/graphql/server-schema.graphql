@@ -1983,6 +1983,7 @@ type OrgRef_AbsenceReasonMutations {
 }
 
 type OrgRef_AbsenceReasonQueries {
+  byId(id: ID!): AbsenceReason
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AbsenceReason]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAbsenceReason
 }
@@ -2006,6 +2007,7 @@ type OrgRef_CalendarChangeReasonMutations {
 }
 
 type OrgRef_CalendarChangeReasonQueries {
+  byId(id: ID!): CalendarChangeReason
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [CalendarChangeReason]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedCalendarChangeReason
 }
@@ -2017,6 +2019,7 @@ type OrgRef_EndEmploymentReasonMutations {
 }
 
 type OrgRef_EndEmploymentReasonQueries {
+  byId(id: ID!): EndEmploymentReason
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [EndEmploymentReason]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedEndEmploymentReason
 }
@@ -2028,6 +2031,7 @@ type OrgRef_EndorsementMutations {
 }
 
 type OrgRef_EndorsementQueries {
+  byId(id: ID!): Endorsement
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Endorsement]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedEndorsement
 }
@@ -2039,6 +2043,7 @@ type OrgRef_LabelMutations {
 }
 
 type OrgRef_LabelQueries {
+  byId(id: ID!): Label
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Label]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedLabel
 }
@@ -2050,6 +2055,7 @@ type OrgRef_PayCodeMutations {
 }
 
 type OrgRef_PayCodeQueries {
+  byId(id: ID!): PayCode
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [PayCode]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedPayCode
 }
@@ -2061,6 +2067,7 @@ type OrgRef_WorkDayScheduleVariantTypeMutations {
 }
 
 type OrgRef_WorkDayScheduleVariantTypeQueries {
+  byId(id: ID!): WorkDayScheduleVariantType
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [WorkDayScheduleVariantType]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedWorkDayScheduleVariantType
 }
