@@ -1,5 +1,3 @@
-import { useTranslation } from "react-i18next";
-import { useMemo } from "react";
 import { TFunction } from "i18next";
 
 export type AbsenceReasonUsageData = {
@@ -17,7 +15,7 @@ export type AbsenceReasonUsageData = {
 export const computeAbsenceUsage = (usages: AbsenceReasonUsageData[]) => {
   if (usages.length < 1) return null;
 
-  const trackingType = usages[0].absenceReasonTrackingTypeId!;
+  const trackingType = usages[0].absenceReasonTrackingTypeId;
   const amount = usages.reduce((m, v) => m + v.amount, 0);
   return { trackingType, amount };
 };

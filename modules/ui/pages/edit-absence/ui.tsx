@@ -445,7 +445,7 @@ const buildAbsenceUpdateInput = (
       ),
     })) || undefined;
 
-  let absence: AbsenceUpdateInput = {
+  const absence: AbsenceUpdateInput = {
     id: Number(absenceId),
     rowVersion,
     notesToApprover: formValues.notesToApprover,

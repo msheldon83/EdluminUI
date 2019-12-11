@@ -115,8 +115,8 @@ export const EditAbsence: React.FC<Props> = props => {
       organizationId={data.organization.id}
       absenceReasonId={reasonUsage?.absenceReasonId}
       absenceId={data.id}
-      startDate={data.startDate!}
-      endDate={data.endDate!}
+      startDate={data.startDate}
+      endDate={data.endDate}
       dayPart={dayPart}
       initialVacancyDetails={initialVacancyDetails}
       /* cf 2019-12-06 -
