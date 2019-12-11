@@ -115,6 +115,10 @@ export const PayCodeViewEditPage: React.FC<Props> = props => {
         },
       },
     });
+    const viewParams = {
+      ...params,
+    };
+    history.push(PayCodeRoute.generate(viewParams));
   };
 
   const cancelUrl = () => {
