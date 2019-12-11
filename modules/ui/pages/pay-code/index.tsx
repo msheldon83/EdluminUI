@@ -14,7 +14,7 @@ import { Column } from "material-table";
 import {
   PayCodeRoute,
   PayCodeAddRoute,
-  PayCodeEditSettingsRoute,
+  PayCodeViewEditRoute,
 } from "ui/routes/pay-code";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllPayCodesWithinOrg } from "ui/pages/pay-code/graphql/get-pay-codes.gen";
@@ -113,7 +113,7 @@ export const PayCode: React.FC<Props> = props => {
             ...params,
             payCodeId: payCode.id,
           };
-          history.push(PayCodeEditSettingsRoute.generate(newParams));
+          history.push(PayCodeViewEditRoute.generate(newParams));
         }}
         options={{
           search: true,

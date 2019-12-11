@@ -1,33 +1,38 @@
-import { Grid, Typography } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import * as React from "react";
+import { Section } from "ui/components/section";
 import { useState } from "react";
 import Maybe from "graphql/tsutils/Maybe";
 import { useTranslation } from "react-i18next";
 import { Redirect, useHistory } from "react-router";
-import { boolToDisplay } from "ui/components/helpers";
 import { PageTitle } from "ui/components/page-title";
-import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
 import { PageHeader } from "ui/components/page-header";
-import { PayCodeRoute, PayCodeEditSettingsRoute } from "ui/routes/pay-code";
+import { PayCodeRoute, PayCodeViewEditRoute } from "ui/routes/pay-code";
 import { GetPayCodeById } from "ui/pages/pay-code/graphql/get-pay-code.gen";
 import { useRouteParams } from "ui/routes/definition";
+import { SectionHeader } from "ui/components/section-header";
+import { Grid, Typography } from "@material-ui/core";
 import * as yup from "yup";
 import { DeletePayCode } from "./graphql/delete-pay-code.gen";
 import { UpdatePayCode } from "./graphql/update-pay-code.gen";
+import { PayCodeDescription } from "./components/description";
 
 const editableSections = {
   name: "edit-name",
   externalId: "edit-external-id",
 };
 
-export const PayCodeEditSettingsPage: React.FC<{}> = props => {
+type Props = {
+  onSubmit: (name: string, externalId?: string | null | undefined) => void;
+  onCancel: () => void;
+};
+
+export const PayCodeViewEditPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const isMobile = useIsMobile();
-  const params = useRouteParams(PayCodeEditSettingsRoute);
+  const params = useRouteParams(PayCodeViewEditRoute);
   const [editing, setEditing] = useState<string | null>(null);
   const [enabled, setEnabled] = useState<boolean | null>(null);
 
@@ -100,6 +105,23 @@ export const PayCodeEditSettingsPage: React.FC<{}> = props => {
     });
   };
 
+  const updateDescription = async (description?: string | null) => {
+    await updatePayCode({
+      variables: {
+        payCode: {
+          id: Number(payCode.id),
+          rowVersion: payCode.rowVersion,
+          description,
+        },
+      },
+    });
+  };
+
+  const cancelUrl = () => {
+    const url = PayCodeRoute.generate(params);
+    history.push(url);
+  };
+
   return (
     <>
       <PageTitle title={t("Pay Code")} withoutHeading={!isMobile} />
@@ -159,10 +181,11 @@ export const PayCodeEditSettingsPage: React.FC<{}> = props => {
       <Section>
         <SectionHeader title={t("Settings")} />
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">{t("Description")}</Typography>
-            <div>{boolToDisplay(t, payCode.description)}</div>
-          </Grid>
+          <PayCodeDescription
+            description={payCode.description}
+            onSubmit={updateDescription}
+            onCancel={cancelUrl}
+          />
         </Grid>
       </Section>
     </>
