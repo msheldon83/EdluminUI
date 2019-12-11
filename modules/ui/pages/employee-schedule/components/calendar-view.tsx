@@ -99,7 +99,7 @@ export const CalendarView: React.FC<Props> = props => {
   }, [monthGroups, today, selectedScheduleDates.length]);
 
   return (
-    <Grid container>
+    <Grid container spacing={2}>
       <Grid item xs={12}>
         {selectedScheduleDates && selectedScheduleDates.length > 0 && (
           <SelectedDateView
@@ -124,8 +124,7 @@ export const CalendarView: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  subText: {
-    color: theme.customColors.edluminSubText,
-    fontWeight: "normal",
+  calendarContainer: {
+    padding: theme.spacing(),
   },
 }));

@@ -37,7 +37,7 @@ export const SelectedDateView: React.FC<Props> = props => {
   );
 
   return (
-    <Grid container>
+    <Grid container className={classes.container}>
       <Grid item xs={12}>
         <Typography variant="h6">
           {format(props.selectedDate, "EEEE, MMMM d")}
@@ -50,6 +50,12 @@ export const SelectedDateView: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  container: {
+    padding: theme.spacing(),
+  },
+  instructionalDay: {
+    padding: theme.spacing(),
+  },
   subText: {
     color: theme.customColors.edluminSubText,
   },
@@ -62,8 +68,8 @@ const displayInstructionalDayInformation = (
   return instructionalDays.map((d, i) => {
     const day = d.rawData as PositionScheduleDate;
     return (
-      <Grid item container xs={12} spacing={4} key={i}>
-        <Grid item>
+      <Grid item container xs={12} key={i} className={classes.instructionalDay}>
+        <Grid item xs={4}>
           <div>{day.position}</div>
           <div className={classes.subText}>{day.location}</div>
         </Grid>
