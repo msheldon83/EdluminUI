@@ -54,7 +54,6 @@ export const ListView: React.FC<Props> = props => {
     <>
       <Grid container>
         {groupedAssignments.map((group, i) => {
-          console.log("key", i);
           return group.length > 1 ? (
             <AssignmentGroup
               key={i}
@@ -81,5 +80,11 @@ export const ListView: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   shadedRow: {
     backgroundColor: theme.customColors.lightGray,
+    borderTop: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.sectionBorder
+    }`,
+    borderBottom: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.sectionBorder
+    }`,
   },
 }));

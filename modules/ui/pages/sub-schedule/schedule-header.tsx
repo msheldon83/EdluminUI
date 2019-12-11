@@ -67,6 +67,6 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "column",
     minWidth: theme.typography.pxToRem(250),
-    paddingLeft: theme.spacing(3),
+    paddingLeft: theme.spacing(6),
   },
 }));

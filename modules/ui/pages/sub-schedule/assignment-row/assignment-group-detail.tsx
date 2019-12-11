@@ -12,6 +12,7 @@ type Props = {
   dayPortion: number;
   shadeRow: boolean;
   onCancel: () => void;
+  className?: string;
 };
 
 export const AssignmentGroupDetail: React.FC<Props> = props => {
@@ -23,7 +24,8 @@ export const AssignmentGroupDetail: React.FC<Props> = props => {
     <div
       className={[
         classes.container,
-        props.shadeRow ? classes.shadedRow : "",
+        props.shadeRow ? classes.shadedRow : classes.unshadedRow,
+        props.className,
       ].join(" ")}
     >
       <div className={classes.date}>
@@ -76,7 +78,10 @@ export const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.fontSize,
   },
   shadedRow: {
-    background: "#E5E5E5", // CHANGE
+    background: theme.customColors.lighterGray,
+  },
+  unshadedRow: {
+    background: theme.customColors.white,
   },
   dayPortion: {
     display: "flex",

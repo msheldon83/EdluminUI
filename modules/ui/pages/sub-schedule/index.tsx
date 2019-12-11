@@ -62,11 +62,6 @@ export const SubSchedule: React.FC<Props> = props => {
     <>
       <PageTitle title="My Schedule" />
 
-      {/* <Grid className={classes.header}>
-        <Typography variant="h5">{t("My Schedule")}</Typography>
-        <Typography variant="h1">{schoolYear}</Typography>
-      </Grid> */}
-
       <Section className={classes.section}>
         <div className={classes.itemContainer}>
           <div className={classes.item}>
