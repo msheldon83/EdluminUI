@@ -44,7 +44,7 @@ export const PayCodeDescription: React.FC<Props> = props => {
           {({ handleSubmit, submitForm, values }) => (
             <form onSubmit={handleSubmit}>
               <Grid container spacing={isMobile ? 2 : 8}>
-                <Grid item xs={12} sm={4} lg={4}>
+                <Grid item xs={12} sm={6} lg={6}>
                   <Input
                     value={values.description}
                     InputComponent={FormTextField}
