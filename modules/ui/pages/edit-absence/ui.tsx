@@ -309,14 +309,23 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             });
           })}
         >
-          {props.actingAsEmployee ? (
-            <Typography variant="h1">{t("Edit absence")}</Typography>
-          ) : (
-            <>
-              <Typography variant="h5">{t("Edit absence")}</Typography>
-              <Typography variant="h1">{name}</Typography>
-            </>
-          )}
+          <div className={classes.titleContainer}>
+            <div className={classes.title}>
+              {props.actingAsEmployee ? (
+                <Typography variant="h1">{t("Edit absence")}</Typography>
+              ) : (
+                <>
+                  <Typography variant="h5">{t("Edit absence")}</Typography>
+                  <Typography variant="h1">{name}</Typography>
+                </>
+              )}
+            </div>
+            <div className={classes.confirmationNumber}>
+              <Typography variant="h6">
+                {t("Confirmation")} #{props.absenceId}
+              </Typography>
+            </div>
+          </div>
 
           <Section className={classes.absenceDetails}>
             <AbsenceDetails
@@ -493,4 +502,11 @@ const useStyles = makeStyles(theme => ({
   absenceDetails: {
     marginTop: theme.spacing(3),
   },
+  titleContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "flex-end",
+  },
+  title: { flexGrow: 1 },
+  confirmationNumber: {},
 }));
