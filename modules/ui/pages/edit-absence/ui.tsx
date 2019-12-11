@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography, makeStyles } from "@material-ui/core";
 import {
   eachDayOfInterval,
   format,
@@ -98,6 +98,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const [updateAbsence] = useMutationBundle(UpdateAbsence, {});
   const { openSnackbar } = useSnackbar();
+
+  const classes = useStyles();
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -298,12 +300,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               state,
               theVacancyDetails
             );
-            console.log(
-              "submit edit data",
-              absenceUpdateInput,
-              data,
-              theVacancyDetails
-            );
             await updateAbsence({ variables: { absence: absenceUpdateInput } });
             openSnackbar({
               message: t("The absence has been updated"),
@@ -322,7 +318,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             </>
           )}
 
-          <Section>
+          <Section className={classes.absenceDetails}>
             <AbsenceDetails
               saveLabel={t("Save")}
               setStep={setStep}
@@ -342,6 +338,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               vacancies={projectedVacancies || props.initialVacancies}
               balanceUsageText={absenceUsageText ?? undefined}
               setVacanciesInput={setVacanciesInput}
+              arrangedSubText={t("arranged")}
+              arrangeSubButtonTitle={t("Arrange Sub")}
             />
           </Section>
         </form>
@@ -359,6 +357,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       )}
       {step === "preAssignSub" && (
         <AssignSub
+          existingVacancy
           employeeName={name}
           orgId={props.organizationId}
           vacancies={projectedVacancies || props.initialVacancies}
@@ -489,3 +488,9 @@ const buildAbsenceUpdateInput = (
 
   return absence;
 };
+
+const useStyles = makeStyles(theme => ({
+  absenceDetails: {
+    marginTop: theme.spacing(3),
+  },
+}));

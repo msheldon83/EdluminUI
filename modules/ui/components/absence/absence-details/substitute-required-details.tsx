@@ -26,6 +26,7 @@ type Props = {
   isAdmin: boolean;
   errors: Errors;
   values: AbsenceDetailsFormData;
+  arrangeSubButtonTitle?: string;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -158,7 +159,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
             className={classes.preArrangeButton}
             onClick={() => setStep("preAssignSub")}
           >
-            {t("Pre-arrange")}
+            {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
           </Button>
 
           <Button variant="outlined" onClick={() => setStep("edit")}>

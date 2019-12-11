@@ -66,6 +66,10 @@ type Props = {
   setVacanciesInput: React.Dispatch<
     React.SetStateAction<VacancyDetail[] | undefined>
   >;
+  /** default: pre-arrange */
+  arrangeSubButtonTitle?: string;
+  /** default: pre-arranged */
+  arrangedSubText?: string;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -299,7 +303,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             <AssignedSub
               employeeId={values.replacementEmployeeId}
               employeeName={values.replacementEmployeeName || ""}
-              subText={t("pre-arranged")}
+              subText={props.arrangedSubText ?? t("pre-arranged")}
               onRemove={removePrearrangedReplacementEmployee}
             />
           )}
@@ -333,6 +337,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 values={values}
                 errors={errors}
                 isAdmin={!!isAdmin}
+                arrangeSubButtonTitle={props.arrangeSubButtonTitle}
               />
             )}
           </div>

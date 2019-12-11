@@ -23,7 +23,7 @@ import {
 
 type Props = {
   orgId: string;
-  vacancyId?: string | null | undefined;
+  existingVacancy?: boolean;
   vacancies: Vacancy[];
   userIsAdmin: boolean;
   employeeName: string;
@@ -99,7 +99,6 @@ export const AssignSub: React.FC<Props> = props => {
     {
       variables: {
         orgId: props.orgId,
-        vacancyId: props.vacancyId,
         vacancy: buildVacancyInput(props.vacancies),
         absentEmployeeId: props.employeeId ?? undefined,
         name: searchFilter?.name,
@@ -199,7 +198,7 @@ export const AssignSub: React.FC<Props> = props => {
   };
 
   const replacementEmployeeCount = replacementEmployees.length;
-  const pageHeader = props.vacancyId
+  const pageHeader = props.existingVacancy
     ? t("Assign Substitute")
     : `${t("Create Absence")}: ${t("Prearranging Substitute")}`;
 
