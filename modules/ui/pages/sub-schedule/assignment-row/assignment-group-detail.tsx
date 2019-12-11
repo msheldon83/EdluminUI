@@ -86,7 +86,7 @@ export const useStyles = makeStyles(theme => ({
   dayPortion: {
     display: "flex",
     alignItems: "center",
-    flex: 6,
+    flex: 6.5,
   },
   smallDayIcon: {
     width: theme.typography.pxToRem(16),
@@ -96,6 +96,6 @@ export const useStyles = makeStyles(theme => ({
     flex: 2,
   },
   location: {
-    flex: 8,
+    flex: 9,
   },
 }));

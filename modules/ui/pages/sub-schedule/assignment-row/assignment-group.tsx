@@ -22,8 +22,8 @@ type Props = {
     */
 
 export const AssignmentGroup: React.FC<Props> = props => {
+  const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
-  const classes = useStyles(isExpanded);
 
   const assignment = props.assignmentGroup;
 
@@ -77,7 +77,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
         positionName={positionName}
         dayPortion={totalDayPortion}
         onCancel={props.onCancel}
-        className={[classes.mainRow, props.className].join(" ")}
+        className={props.className}
       />
       {isExpanded && (
         <div className={[classes.container, classes.expandedDetails].join(" ")}>
@@ -104,9 +104,6 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
     flexDirection: "column",
   },
-  mainRow: (isExpanded: boolean) => ({
-    paddingBottom: isExpanded ? theme.spacing(1) : theme.spacing(2),
-  }),
   expandedDetails: {
     marginBottom: theme.spacing(2),
   },
