@@ -5,12 +5,12 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import { Grid, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import {
   PayCodeRoute,
   PayCodeAddRoute,
   PayCodeViewRoute,
-} from "ui/routes/Pay-code";
+} from "ui/routes/pay-code";
 import { PayCodeCreateInput } from "graphql/server-types.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { CreatePayCode } from "./graphql/create.gen";
@@ -72,13 +72,11 @@ export const PayCodeAddPage: React.FC<{}> = props => {
             description: description,
           };
           setPayCode(newPayCode);
-          // Create the Position Type
           const id = await create(newPayCode);
           const viewParams = {
             ...params,
             payCodeId: id!,
           };
-          // Go to the Position Type View page
           history.push(PayCodeViewRoute.generate(viewParams));
         }}
         onCancel={() => {
