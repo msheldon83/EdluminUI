@@ -2,12 +2,12 @@ import { Typography } from "@material-ui/core";
 import {
   eachDayOfInterval,
   format,
+  formatISO,
   isDate,
   isEqual,
   isSameDay,
   isValid,
   parseISO,
-  formatISO,
 } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
@@ -45,6 +45,7 @@ import { buildAbsenceCreateInput } from "../create-absence/ui";
 import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
+import { AssignSub } from "../create-absence/assign-sub";
 
 type Props = {
   firstName: string;
@@ -66,6 +67,8 @@ type Props = {
   initialAbsenceUsageData: AbsenceReasonUsageData[];
   rowVersion: string;
   absenceDetailsIdsByDate: Record<string, string>;
+  replacementEmployeeId?: number;
+  replacementEmployeeName?: string;
 };
 
 type EditAbsenceFormData = {
@@ -102,6 +105,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     startDate: parseISO(props.startDate),
     endDate: parseISO(props.endDate),
     absenceReason: props.absenceReasonId.toString(),
+    replacementEmployeeId: props.replacementEmployeeId,
+    replacementEmployeeName: props.replacementEmployeeName,
     dayPart: props.dayPart,
     payCode:
       // @ts-ignore
@@ -352,6 +357,19 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeId={props.employeeId}
         />
       )}
+      {step === "preAssignSub" && (
+        <AssignSub
+          employeeName={name}
+          orgId={props.organizationId}
+          vacancies={projectedVacancies || props.initialVacancies}
+          userIsAdmin={props.userIsAdmin}
+          employeeId={props.employeeId}
+          positionId={props.positionId}
+          positionName={props.positionName}
+          setStep={setStep}
+          setValue={setValue}
+        />
+      )}
     </>
   );
 };
@@ -453,7 +471,8 @@ const buildAbsenceUpdateInput = (
         useSuppliedDetails: true,
         needsReplacement: state.needsReplacement,
         notesToReplacement: formValues.notesToReplacement,
-        prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
+        prearrangedReplacementEmployeeId:
+          formValues.replacementEmployeeId || null,
         details: vDetails,
         accountingCodeAllocations: formValues.accountingCode
           ? [

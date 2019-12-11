@@ -15,7 +15,6 @@ import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
 import { VacancyDetails } from "../../../components/absence/vacancy-details";
-import { Step } from "../step-params";
 import { getAssignSubColumns } from "./columns";
 import {
   AssignSubFilters as Filters,
@@ -31,7 +30,7 @@ type Props = {
   employeeId?: string;
   positionId?: string;
   positionName?: string;
-  setStep: (s: Step) => void;
+  setStep: (s: "absence") => void;
   setValue: SetValue;
 };
 

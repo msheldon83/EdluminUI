@@ -48,7 +48,14 @@ fragment FullAbsenceDetails on Absence {
       endTimeLocal
       locationId
       payCodeId
-      assignmentId
+      assignment {
+	id
+	employee {
+	  id
+	  firstName
+	  lastName
+	}
+      }
       accountingCodeAllocations {
 	id
 	accountingCode {

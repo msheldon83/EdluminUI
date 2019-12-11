@@ -10,7 +10,6 @@ import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { VacancyDetail } from "../create-absence/types";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { EditAbsenceUI } from "./ui";
-import { format, parseISO } from "date-fns";
 
 export const EditAbsence: React.FC = () => {
   const params = useRouteParams(AdminEditAbsenceRoute);
@@ -61,6 +60,16 @@ export const EditAbsence: React.FC = () => {
   const reasonUsage = detail?.reasonUsages[0];
   // @ts-ignore
   const dayPart = detail?.dayPartId ?? undefined;
+
+  let replacementEmployeeId: number | undefined;
+  let replacementEmployeeName: string | undefined;
+
+  // @ts-ignore
+  const assignedEmployee = vacancy?.details[0]?.assignment?.employee;
+  if (assignedEmployee) {
+    replacementEmployeeId = Number(assignedEmployee.id);
+    replacementEmployeeName = `${assignedEmployee.firstName} ${assignedEmployee.lastName}`;
+  }
 
   const processedUsage: AbsenceReasonUsageData[] = (() => {
     const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
@@ -115,6 +124,8 @@ export const EditAbsence: React.FC = () => {
       initialVacancies={vacancies as any}
       initialAbsenceUsageData={processedUsage}
       absenceDetailsIdsByDate={absenceDetailsIdsByDate}
+      replacementEmployeeId={replacementEmployeeId}
+      replacementEmployeeName={replacementEmployeeName}
     />
   );
 };
