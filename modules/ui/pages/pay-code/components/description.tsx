@@ -19,7 +19,7 @@ export const PayCodeDescription: React.FC<Props> = props => {
   const isMobile = useIsMobile();
 
   const initialValues = {
-    description: props.description ? "" : null,
+    description: props.description,
   };
 
   const validateBasicDetails = React.useMemo(
@@ -38,7 +38,7 @@ export const PayCodeDescription: React.FC<Props> = props => {
           initialValues={initialValues}
           validationSchema={validateBasicDetails}
           onSubmit={async (data: any) => {
-            props.onSubmit(data.description);
+            props.onSubmit(data.description ? "" : null);
           }}
         >
           {({ handleSubmit, submitForm, values }) => (
