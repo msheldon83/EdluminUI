@@ -9,7 +9,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { Grid, Button, Divider } from "@material-ui/core";
 import { useGetEmployee } from "reference-data/employee";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -18,6 +18,13 @@ import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
 import { ScheduledAbsences } from "ui/components/employee/components/scheduled-absences";
 import { CalendarView } from "./components/calendar-view";
 import { parseISO } from "date-fns";
+import { ScheduleHeader } from "ui/components/schedule/schedule-header";
+import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
+import {
+  EmployeeScheduleRoute,
+  EmployeeScheduleListViewRoute,
+  EmployeeScheduleCalendarViewRoute,
+} from "ui/routes/employee-schedule";
 
 type Props = {
   view: "list" | "calendar";
@@ -28,6 +35,7 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
   const createAbsenceParams = useRouteParams(EmployeeCreateAbsenceRoute);
+  const params = useRouteParams(EmployeeScheduleRoute);
   const employee = useGetEmployee();
 
   // TODO: Switch to using School Year dropdown
@@ -45,11 +53,13 @@ export const EmployeeSchedule: React.FC<Props> = props => {
     [currentSchoolYear]
   );
 
+  const [queryStartDate, setQueryStartDate] = useState(startDateOfToday);
+
   const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
     variables: {
       id: employee?.id ?? "0",
       fromDate:
-        props.view === "calendar" ? startDateOfSchoolYear : startDateOfToday,
+        props.view === "calendar" ? startDateOfSchoolYear : queryStartDate,
       toDate: endDate,
     },
     skip: !employee || !endDate,
@@ -91,6 +101,10 @@ export const EmployeeSchedule: React.FC<Props> = props => {
     }
   };
 
+  if (!currentSchoolYear) {
+    return <></>;
+  }
+
   return (
     <>
       <Grid container justify="space-between" alignItems="center">
@@ -107,15 +121,33 @@ export const EmployeeSchedule: React.FC<Props> = props => {
           </Button>
         </Grid>
       </Grid>
-      {props.view === "list" && (
-        <Section className={classes.container}>
-          <Grid container>
-            <Grid item xs={12} className={classes.filters}>
-              Filter section
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
+      <Section className={classes.container}>
+        <Grid container>
+          <Grid item xs={12} className={classes.filters}>
+            <div className={classes.scheduleHeader}>
+              <ScheduleHeader
+                view={props.view}
+                today={startDateOfToday}
+                beginningOfSchoolYear={startDateOfSchoolYear}
+                endOfSchoolYear={endDate}
+                startDate={queryStartDate}
+                setStartDate={setQueryStartDate}
+              />
+            </div>
+            <div>
+              <ScheduleViewToggle
+                view={props.view}
+                listViewRoute={EmployeeScheduleListViewRoute.generate(params)}
+                calendarViewRoute={EmployeeScheduleCalendarViewRoute.generate(
+                  params
+                )}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          {props.view === "list" && (
             <Grid item xs={12} className={classes.listContent}>
               <ScheduledAbsences
                 absences={employeeAbsenceDetails}
@@ -126,18 +158,8 @@ export const EmployeeSchedule: React.FC<Props> = props => {
                 }
               />
             </Grid>
-          </Grid>
-        </Section>
-      )}
-      {props.view === "calendar" && (
-        <Section className={classes.container}>
-          <Grid container>
-            <Grid item xs={12} className={classes.filters}>
-              School year selection section
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
+          )}
+          {props.view === "calendar" && (
             <Grid item xs={12}>
               <div className={classes.calendarContent}>
                 <CalendarView
@@ -149,9 +171,9 @@ export const EmployeeSchedule: React.FC<Props> = props => {
                 />
               </div>
             </Grid>
-          </Grid>
-        </Section>
-      )}
+          )}
+        </Grid>
+      </Section>
     </>
   );
 };
@@ -162,6 +184,12 @@ const useStyles = makeStyles(theme => ({
   },
   filters: {
     padding: theme.spacing(3),
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  scheduleHeader: {
+    display: "flex",
   },
   listContent: {
     padding: theme.spacing(3),

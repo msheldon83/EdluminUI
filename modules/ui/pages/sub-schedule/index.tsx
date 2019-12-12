@@ -15,12 +15,10 @@ import {
   SubScheduleListViewRoute,
   SubScheduleRoute,
 } from "ui/routes/sub-schedule";
-import { GetUpcomingAssignments } from "../sub-home/graphql/get-upcoming-assignments.gen";
 import { CalendarView } from "./calendar-view";
-import { ScheduleViewToggle } from "./schedule-view-toggle";
 import { ListView } from "./list-view";
-import { Select } from "ui/components/form/select";
-import { ScheduleHeader } from "./schedule-header";
+import { ScheduleHeader } from "ui/components/schedule/schedule-header";
+import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 
 type Props = {
   view: "list" | "calendar";
