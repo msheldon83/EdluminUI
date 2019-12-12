@@ -40,7 +40,7 @@ import { EditVacancies } from "../create-absence/edit-vacancies";
 import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
 import { GetProjectedVacancies } from "../create-absence/graphql/get-projected-vacancies.gen";
 import { projectVacancyDetails } from "../create-absence/project-vacancy-details";
-import { VacancyDetail } from "../create-absence/types";
+import { VacancyDetail } from "../../components/absence/types";
 import { buildAbsenceCreateInput } from "../create-absence/ui";
 import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";

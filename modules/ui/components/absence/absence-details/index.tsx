@@ -34,7 +34,7 @@ import { Input } from "ui/components/form/input";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
-import { VacancyDetail } from "ui/pages/create-absence/types";
+import { VacancyDetail } from "ui/components/absence/types";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;

@@ -13,7 +13,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
-import { VacancyDetail } from "../types";
+import { VacancyDetail } from "../../../components/absence/types";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 
 type Props = {

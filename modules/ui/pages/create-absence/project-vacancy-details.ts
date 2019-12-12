@@ -1,7 +1,7 @@
 import { HookQueryResult } from "graphql/hooks";
 import { GetProjectedAbsenceUsageQueryVariables } from "./graphql/get-projected-absence-usage.gen";
 import { GetProjectedVacanciesQuery } from "./graphql/get-projected-vacancies.gen";
-import { VacancyDetail } from "./types";
+import { VacancyDetail } from "../../components/absence/types";
 
 export const projectVacancyDetails = (
   getProjectedVacancies: HookQueryResult<

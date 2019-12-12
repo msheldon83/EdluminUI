@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { useIsAdmin } from "reference-data/is-admin";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
-import { VacancyDetail } from "../create-absence/types";
+import { VacancyDetail } from "../../components/absence/types";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { EditAbsenceUI } from "./ui";
 

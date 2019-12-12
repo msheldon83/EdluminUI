@@ -41,7 +41,7 @@ import { GetProjectedAbsenceUsage } from "./graphql/get-projected-absence-usage.
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-import { VacancyDetail } from "./types";
+import { VacancyDetail } from "../../components/absence/types";
 import { projectVacancyDetails } from "./project-vacancy-details";
 
 type Props = {
