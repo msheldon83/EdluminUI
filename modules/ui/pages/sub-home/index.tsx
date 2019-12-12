@@ -32,6 +32,8 @@ import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
 import { SubJobSearch } from "./graphql/sub-job-search.gen";
 import { RequestAbsenceDialog } from "./components/request-dialog";
 
+import { Padding } from "ui/components/padding";
+
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
 import { FilterList } from "@material-ui/icons";
@@ -226,11 +228,14 @@ export const SubHome: React.FC<Props> = props => {
         {!isMobile && (
           <Grid item xs={12} sm={6} lg={6}>
             <Section>
-              <FiveWeekCalendar
-                startDate={fromDate}
-                disableWeekends={true}
-                selectedDates={uniqueWorkingDays}
-              />
+              <Padding bottom={6}>
+                <FiveWeekCalendar
+                  startDate={fromDate}
+                  disableWeekends={true}
+                  selectedDates={uniqueWorkingDays}
+                  contained={false}
+                />
+              </Padding>
             </Section>
           </Grid>
         )}
