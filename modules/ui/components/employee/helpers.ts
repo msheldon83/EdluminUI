@@ -153,9 +153,9 @@ export const GroupEmployeeScheduleByMonth = (
         if (c.hasCalendarChange) {
           if (!!c.calendarChangeDescription && !!c.calendarChangeReasonName) {
             description = `${c.calendarChangeReasonName} - ${c.calendarChangeDescription}`;
-          } else if (!!c.calendarChangeReasonName) {
+          } else if (c.calendarChangeReasonName) {
             description = c.calendarChangeReasonName;
-          } else if (!!c.calendarChangeDescription) {
+          } else if (c.calendarChangeDescription) {
             description = c.calendarChangeDescription;
           }
         }
