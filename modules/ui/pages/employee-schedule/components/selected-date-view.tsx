@@ -86,6 +86,11 @@ const displayInstructionalDayInformation = (
           <div className={classes.subText}>{day.location}</div>
         </Grid>
         <Grid item>{`${day.startTime} - ${day.endTime}`}</Grid>
+        {day.nonStandardVariantTypeName && (
+          <Grid item>
+            <Chip label={day.nonStandardVariantTypeName} />
+          </Grid>
+        )}
       </Grid>
     );
   });
@@ -117,7 +122,7 @@ const displayNonInstructionalDayInformation = (
   return nonInstructionalDays.map((d, i) => {
     const day = d.rawData as ContractDate;
 
-    const description = !!d.description
+    const description = d.description
       ? d.description
       : d.type === "teacherWorkDay"
       ? t("Teacher Inservice")

@@ -41,6 +41,7 @@ export type PositionScheduleDate = {
   startTime: string;
   endTime: string;
   location: string;
+  nonStandardVariantTypeName?: string;
 };
 
 export type ScheduleDate = {

@@ -13,7 +13,7 @@ import {
   isSameDay,
 } from "date-fns";
 import { GetEmployeePositionContractSchedule } from "./graphql/get-employee-position-contract-schedule.gen";
-import { flatMap, concat, range, map, groupBy } from "lodash-es";
+import { flatMap, range, groupBy } from "lodash-es";
 import {
   EmployeeAbsenceDetail,
   PositionScheduleDate,
@@ -119,6 +119,10 @@ export const GetPositionScheduleDates = (
         startTime: format(parseISO(detail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(detail.endTimeLocal), "h:mm a"),
         location: detail.location?.name ?? "",
+        nonStandardVariantTypeName:
+          p.workScheduleVariantType && !p.workScheduleVariantType.isStandard
+            ? p.workScheduleVariantType?.name
+            : undefined,
       };
     });
   });

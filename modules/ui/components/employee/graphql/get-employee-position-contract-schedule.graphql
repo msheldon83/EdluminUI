@@ -18,6 +18,10 @@ query GetEmployeePositionContractSchedule(
           name
         }
       }
+      workScheduleVariantType {
+        name
+        isStandard
+      }
     }
   }
   employee {

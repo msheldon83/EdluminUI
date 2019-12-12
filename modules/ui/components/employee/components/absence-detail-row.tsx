@@ -5,6 +5,8 @@ import { Grid, makeStyles, Typography, Button, Chip } from "@material-ui/core";
 import { isEqual, format } from "date-fns";
 import { DayIcon } from "ui/components/day-icon";
 import { parseDayPortion } from "ui/components/helpers";
+import { Link } from "react-router-dom";
+import { EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
 
 type Props = {
   absence: EmployeeAbsenceDetail;
@@ -75,7 +77,15 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
         </div>
       </Grid>
       <Grid item xs={1}>
-        <div className={classes.detailText}>{`#${props.absence.id}`}</div>
+        <div className={classes.detailText}>
+          <Link
+            to={EmployeeEditAbsenceRoute.generate({
+              absenceId: props.absence.id,
+            })}
+          >
+            {`#${props.absence.id}`}
+          </Link>
+        </div>
       </Grid>
       <Grid item xs={2} className={classes.cancelButtonContainer}>
         <Button
