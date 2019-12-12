@@ -152,7 +152,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         Number(state.employeeId),
         Number(props.positionId),
         disabledDates,
-        vacanciesInput !== undefined,
         state,
         vacanciesInput
       ),
@@ -234,7 +233,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       Number(state.employeeId),
       Number(props.positionId),
       disabledDates,
-      true,
       state,
       theVacancyDetails
     );
@@ -384,7 +382,6 @@ export const buildAbsenceCreateInput = (
   employeeId: number,
   positionId: number,
   disabledDates: Date[],
-  includeVacancies: boolean,
   state: CreateAbsenceState,
   vacancyDetails?: VacancyDetail[]
 ) => {
@@ -485,36 +482,32 @@ export const buildAbsenceCreateInput = (
       ),
     })) || undefined;
 
-  // Populate the Vacancies on the Absence if needed
-  if (includeVacancies) {
-    absence = {
-      ...absence,
-      /* TODO: When we support multi Position Employees we'll need to account for the following:
-            When creating an Absence, there must be 1 Vacancy created here per Position Id.
-        */
-      vacancies: [
-        {
-          positionId: positionId,
-          useSuppliedDetails: true,
-          needsReplacement: state.needsReplacement,
-          notesToReplacement: formValues.notesToReplacement,
-          prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
-          details: vDetails,
-          accountingCodeAllocations: formValues.accountingCode
-            ? [
-                {
-                  accountingCodeId: Number(formValues.accountingCode),
-                  allocation: 1.0,
-                },
-              ]
-            : undefined,
-          payCodeId: formValues.payCode
-            ? Number(formValues.payCode)
-            : undefined,
-        },
-      ],
-    };
-  }
+  // Populate the Vacancies on the Absence
+  absence = {
+    ...absence,
+    /* TODO: When we support multi Position Employees we'll need to account for the following:
+          When creating an Absence, there must be 1 Vacancy created here per Position Id.
+      */
+    vacancies: [
+      {
+        positionId: positionId,
+        useSuppliedDetails: vDetails !== undefined,
+        needsReplacement: state.needsReplacement,
+        notesToReplacement: formValues.notesToReplacement,
+        prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
+        details: vDetails,
+        accountingCodeAllocations: formValues.accountingCode
+          ? [
+              {
+                accountingCodeId: Number(formValues.accountingCode),
+                allocation: 1.0,
+              },
+            ]
+          : undefined,
+        payCodeId: formValues.payCode ? Number(formValues.payCode) : undefined,
+      },
+    ],
+  };
 
   return absence;
 };

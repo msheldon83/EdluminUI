@@ -38,6 +38,10 @@ const buildVacancyInput = (
   vacancies: Vacancy[]
 ): AbsenceVacancyInput | null => {
   const vacancy = vacancies[0];
+  if (vacancy === undefined) {
+    return null;
+  }
+
   return {
     positionId: vacancy.positionId,
     needsReplacement: true,
