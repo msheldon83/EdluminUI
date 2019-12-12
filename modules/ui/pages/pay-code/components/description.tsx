@@ -39,9 +39,7 @@ export const PayCodeDescription: React.FC<Props> = props => {
           validationSchema={validateBasicDetails}
           onSubmit={async (data: any) => {
             props.onSubmit(
-              data.description && data.description.trim().length === 0
-                ? null
-                : data.description
+              data.description.trim().length === 0 ? null : data.description
             );
           }}
         >
