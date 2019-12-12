@@ -741,7 +741,7 @@ type ContractDate implements ModelObjectInterface & OrgObjectInterface {
   workDayId: Int
   workDay: WorkDay
   workDayScheduleVariantTypeId: Int!
-  workDayScheduleVariantType: WorkDayScheduleVariant
+  workDayScheduleVariantType: WorkDayScheduleVariantType
   calendarChangeId: Int
   calendarChange: CalendarChange
 }
@@ -1618,6 +1618,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
   phoneNumber: String
+  formattedPhone: String
   address1: String
   address2: String
   city: String
