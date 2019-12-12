@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import Button from "@material-ui/core/Button";
@@ -14,6 +15,8 @@ type FiveWeekCalendarProps = {
   disabledDates?: Array<Date>;
   selectedDates?: Array<Date>;
   startDate?: Date;
+  contained?: boolean;
+  style?: React.CSSProperties;
 };
 
 export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
@@ -22,9 +25,11 @@ export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
     disabledDates = [],
     disableWeekends = false,
     startDate = new Date(),
+    contained = true,
+    style = {},
   } = props;
 
-  const classes = useStyles();
+  const classes = useStyles({ contained });
 
   const startingSunday = startOfWeek(startDate);
   const endDate = addDays(startingSunday, 34);
@@ -68,7 +73,7 @@ export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
   );
 
   return (
-    <section className={classes.calendar}>
+    <section className={classes.calendar} style={style}>
       <header className={classes.header}>
         <span role="heading" className={classes.dayRange}>
           {firstDay} - {lastDay}
@@ -89,14 +94,16 @@ export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles<Theme, FiveWeekCalendarProps>(theme => ({
   calendar: {
-    backgroundColor: theme.customColors.white,
-    border: "1px solid rgba(0, 0, 0, 0.23)",
+    backgroundColor: props =>
+      props.contained ? theme.customColors.white : "none",
+    border: props =>
+      props.contained ? "1px solid rgba(0, 0, 0, 0.23)" : "none",
     borderRadius: theme.typography.pxToRem(4),
     minWidth: theme.typography.pxToRem(450),
     overflow: "hidden",
-    padding: theme.spacing(3),
+    padding: props => (props.contained ? theme.spacing(3) : 0),
     position: "relative",
     transition: "border-color 100ms linear",
     width: "100%",

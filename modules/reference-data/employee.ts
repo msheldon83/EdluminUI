@@ -1,10 +1,10 @@
 import { useQueryBundle } from "graphql/hooks";
 import { compact, map } from "lodash-es";
+import { useMemo } from "react";
 import {
   GetEmployeeForCurrentUser,
-  GetEmployeeForCurrentUserQueryResult,
+  GetEmployeeForCurrentUserQuery,
 } from "./get-employee-for-current-user.gen";
-import { useMemo } from "react";
 
 export function useGetEmployee() {
   const potentialEmployees = useQueryBundle(GetEmployeeForCurrentUser, {
@@ -13,14 +13,14 @@ export function useGetEmployee() {
 
   return useMemo(() => {
     if (potentialEmployees.state === "DONE") {
-      return findEmployee(potentialEmployees);
+      return findEmployee(potentialEmployees.data);
     }
     return null;
   }, [potentialEmployees]);
 }
 
-const findEmployee = (data: GetEmployeeForCurrentUserQueryResult) => {
-  const orgUsers = data.data?.userAccess?.me?.user?.orgUsers ?? [];
+const findEmployee = (data: GetEmployeeForCurrentUserQuery) => {
+  const orgUsers = data.userAccess?.me?.user?.orgUsers ?? [];
   const emps = compact(map(orgUsers, u => u?.employee));
   return emps[0];
 };

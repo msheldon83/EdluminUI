@@ -2,20 +2,23 @@ import { Grid, Typography } from "@material-ui/core";
 import * as React from "react";
 import { useStyles } from "./available-job";
 import { formatIsoDateIfPossible } from "helpers/date";
-import { DayIcon } from "../../../components/day-icon";
+import { DayIcon } from "ui/components/day-icon";
+import { useTranslation } from "react-i18next";
+import { parseDayPortion } from "ui/components/helpers";
 
 type Props = {
   locationName: string;
   startTimeLocal: string;
   endTimeLocal: string;
   dayPortion: number;
-  dayPortionLabel: string;
   shadeRow: boolean;
 };
 
 export const AvailableJobDetail: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
 
+  const dayPortionLabel = parseDayPortion(t, props.dayPortion);
   return (
     <>
       <Grid
@@ -48,9 +51,10 @@ export const AvailableJobDetail: React.FC<Props> = props => {
             {`${formatIsoDateIfPossible(
               props.startTimeLocal,
               "h:mm aaa"
-            )} - ${formatIsoDateIfPossible(props.endTimeLocal, "h:mm aaa")} ${
-              props.dayPortionLabel
-            }`}
+            )} - ${formatIsoDateIfPossible(
+              props.endTimeLocal,
+              "h:mm aaa"
+            )} ${dayPortionLabel}`}
           </Typography>
         </Grid>
       </Grid>

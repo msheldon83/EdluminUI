@@ -15,7 +15,6 @@ import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
 import { VacancyDetails } from "../../../components/absence/vacancy-details";
-import { Step } from "../step-params";
 import { getAssignSubColumns } from "./columns";
 import {
   AssignSubFilters as Filters,
@@ -24,14 +23,14 @@ import {
 
 type Props = {
   orgId: string;
-  vacancyId?: string | null | undefined;
+  existingVacancy?: boolean;
   vacancies: Vacancy[];
   userIsAdmin: boolean;
   employeeName: string;
   employeeId?: string;
   positionId?: string;
   positionName?: string;
-  setStep: (s: Step) => void;
+  setStep: (s: "absence") => void;
   setValue: SetValue;
 };
 
@@ -39,6 +38,10 @@ const buildVacancyInput = (
   vacancies: Vacancy[]
 ): AbsenceVacancyInput | null => {
   const vacancy = vacancies[0];
+  if (vacancy === undefined) {
+    return null;
+  }
+
   return {
     positionId: vacancy.positionId,
     needsReplacement: true,
@@ -100,7 +103,6 @@ export const AssignSub: React.FC<Props> = props => {
     {
       variables: {
         orgId: props.orgId,
-        vacancyId: props.vacancyId,
         vacancy: buildVacancyInput(props.vacancies),
         absentEmployeeId: props.employeeId ?? undefined,
         name: searchFilter?.name,
@@ -200,7 +202,7 @@ export const AssignSub: React.FC<Props> = props => {
   };
 
   const replacementEmployeeCount = replacementEmployees.length;
-  const pageHeader = props.vacancyId
+  const pageHeader = props.existingVacancy
     ? t("Assign Substitute")
     : `${t("Create Absence")}: ${t("Prearranging Substitute")}`;
 

@@ -5,7 +5,7 @@ import * as React from "react";
 import { useIsAdmin } from "reference-data/is-admin";
 import {
   FindEmployeeForCurrentUser,
-  FindEmployeeForCurrentUserQueryResult,
+  FindEmployeeForCurrentUserQuery,
 } from "./graphql/find-employee-for-current-user.gen";
 import { CreateAbsenceUI } from "./ui";
 
@@ -24,7 +24,7 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
     return <></>;
   }
 
-  const employee = findEmployee(potentialEmployees);
+  const employee = findEmployee(potentialEmployees.data);
   if (!employee) {
     throw new Error("The user is not an employee");
   }
@@ -46,8 +46,8 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
   );
 };
 
-const findEmployee = (data: FindEmployeeForCurrentUserQueryResult) => {
-  const orgUsers = data.data?.userAccess?.me?.user?.orgUsers ?? [];
+const findEmployee = (data: FindEmployeeForCurrentUserQuery) => {
+  const orgUsers = data.userAccess?.me?.user?.orgUsers ?? [];
   const emps = compact(map(orgUsers, u => u?.employee));
   return emps[0];
 };

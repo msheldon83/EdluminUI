@@ -1,0 +1,7 @@
+query GetAbsence($id: ID!) {
+  absence {
+    byId(id: $id) {
+      ...FullAbsenceDetails
+    }
+  }
+}

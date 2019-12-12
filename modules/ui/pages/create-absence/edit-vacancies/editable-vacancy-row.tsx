@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { FormikSelect } from "ui/components/form/formik-select";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
-import { VacancyDetail } from "../types";
+import { VacancyDetail } from "../../../components/absence/types";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];

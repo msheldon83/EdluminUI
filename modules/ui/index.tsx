@@ -1,6 +1,5 @@
 import { CssBaseline } from "@material-ui/core";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
-import { useAuth0 } from "auth/auth0";
 import * as React from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { AppChrome } from "./app-chrome";
@@ -8,6 +7,23 @@ import { IfAuthenticated } from "./components/auth/if-authenticated";
 import { RedirectToLogin } from "./components/auth/redirect-to-login";
 import { LoginPageRouteLoader } from "./pages/login/loader";
 import { IndexLoader } from "./routes";
+import {
+  DailyReportLoader,
+  DailyReportRoute,
+} from "./routes/absence-vacancy/daily-report";
+import {
+  AbsenceVacancyRulesLoader,
+  AbsenceVacancyRulesRoute,
+} from "./routes/absence-vacancy/rules";
+import { VerifyLoader, VerifyRoute } from "./routes/absence-vacancy/verify";
+import {
+  AbsenceReasonLoader,
+  AbsenceReasonRoute,
+} from "./routes/absence/reason";
+import {
+  AccountingCodeLoader,
+  AccountingCodeRoute,
+} from "./routes/accounting-code";
 import { AdminHomeLoader, AdminHomeRoute } from "./routes/admin-home";
 import { AdminRootChromeRoute, AppChromeRoute } from "./routes/app-chrome";
 import {
@@ -19,6 +35,23 @@ import {
   BellScheduleViewRoute,
 } from "./routes/bell-schedule";
 import {
+  BellScheduleVariantsLoader,
+  BellScheduleVariantsRoute,
+} from "./routes/bell-schedule-variants";
+import {
+  CalendarEventReasonsLoader,
+  CalendarEventReasonsRoute,
+} from "./routes/calendar/event-reasons";
+import {
+  CalendarPastYearsLoader,
+  CalendarPastYearsRoute,
+} from "./routes/calendar/past-years";
+import {
+  CalendarThisYearLoader,
+  CalendarThisYearRoute,
+} from "./routes/calendar/this-year";
+import { ContractsLoader, ContractsRoute } from "./routes/contracts";
+import {
   AdminCreateAbsenceRoute,
   AdminSelectEmployeeForCreateAbsenceRoute,
   CreateAbsenceLoader,
@@ -26,11 +59,29 @@ import {
   EmployeeCreateAbsenceRoute,
   SelectEmployeeForCreateAbsenceLoader,
 } from "./routes/create-absence";
+import {
+  AdminEditAbsenceLoader,
+  AdminEditAbsenceRoute,
+  EmployeeEditAbsenceRoute,
+} from "./routes/edit-absence";
 import { EmployeeHomeLoader, EmployeeHomeRoute } from "./routes/employee-home";
+import {
+  GeneralSettingsLoader,
+  GeneralSettingsRoute,
+} from "./routes/general-settings";
+import { ConfigurationLoader, ConfigurationRoute } from "./routes/org-config";
 import {
   OrganizationsLoader,
   OrganizationsRoute,
 } from "./routes/organizations";
+import {
+  PayCodeAddLoader,
+  PayCodeAddRoute,
+  PayCodeLoader,
+  PayCodeRoute,
+  PayCodeViewEditLoader,
+  PayCodeViewEditRoute,
+} from "./routes/pay-code";
 import {
   PeopleLoader,
   PeopleRoute,
@@ -47,98 +98,49 @@ import {
   PositionTypeViewLoader,
   PositionTypeViewRoute,
 } from "./routes/position-type";
-import { VerifyRoute, VerifyLoader } from "./routes/absence-vacancy/verify";
-import { ConfigurationRoute, ConfigurationLoader } from "./routes/org-config";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
+import {
+  ReplacementAttributeLoader,
+  ReplacementAttributeRoute,
+} from "./routes/replacement-attribute";
+import { SchoolGroupsLoader, SchoolGroupsRoute } from "./routes/school-groups";
+import { SchoolsLoader, SchoolsRoute } from "./routes/schools";
+import {
+  SecurityManagedOrganizationsLoader,
+  SecurityManagedOrganizationsRoute,
+} from "./routes/security/managed-organizations";
+import {
+  SecurityPartnersLoader,
+  SecurityPartnersRoute,
+} from "./routes/security/partners";
+import {
+  SecurityPermissionSetsLoader,
+  SecurityPermissionSetsRoute,
+} from "./routes/security/permission-sets";
+import {
+  SecurityUsersLoader,
+  SecurityUsersRoute,
+} from "./routes/security/users";
 import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
 import {
   SubPreferencesLoader,
   SubPreferencesRoute,
 } from "./routes/sub-preferences";
 import {
-  SubScheduleLoader,
-  SubScheduleRoute,
   SubScheduleCalendarViewRoute,
   SubScheduleListViewRoute,
+  SubScheduleLoader,
+  SubScheduleRoute,
 } from "./routes/sub-schedule";
-import {
-  GeneralSettingsLoader,
-  GeneralSettingsRoute,
-} from "./routes/general-settings";
-import {
-  BellScheduleVariantsLoader,
-  BellScheduleVariantsRoute,
-} from "./routes/bell-schedule-variants";
-import {
-  CalendarEventReasonsLoader,
-  CalendarEventReasonsRoute,
-} from "./routes/calendar/event-reasons";
-import {
-  ReplacementAttributeLoader,
-  ReplacementAttributeRoute,
-} from "./routes/replacement-attribute";
-import {
-  AbsenceReasonLoader,
-  AbsenceReasonRoute,
-} from "./routes/absence/reason";
-import {
-  VacancyReasonLoader,
-  VacancyReasonRoute,
-} from "./routes/vacancy-reason";
-import {
-  AbsenceVacancyRulesLoader,
-  AbsenceVacancyRulesRoute,
-} from "./routes/absence-vacancy/rules";
 import {
   SubstituteSettingsLoader,
   SubstituteSettingsRoute,
 } from "./routes/substitute-settings";
 import {
-  AccountingCodeLoader,
-  AccountingCodeRoute,
-} from "./routes/accounting-code";
-import {
-  PayCodeLoader,
-  PayCodeRoute,
-  PayCodeAddRoute,
-  PayCodeAddLoader,
-  PayCodeViewEditRoute,
-  PayCodeViewEditLoader,
-} from "./routes/pay-code";
-import { SchoolsRoute, SchoolsLoader } from "./routes/schools";
-import { SchoolGroupsRoute, SchoolGroupsLoader } from "./routes/school-groups";
-import {
-  CalendarThisYearRoute,
-  CalendarThisYearLoader,
-} from "./routes/calendar/this-year";
-import {
-  CalendarPastYearsRoute,
-  CalendarPastYearsLoader,
-} from "./routes/calendar/past-years";
-import {
-  SecurityUsersLoader,
-  SecurityUsersRoute,
-} from "./routes/security/users";
-
-import {
-  SecurityPermissionSetsLoader,
-  SecurityPermissionSetsRoute,
-} from "./routes/security/permission-sets";
-import {
-  SecurityPartnersLoader,
-  SecurityPartnersRoute,
-} from "./routes/security/partners";
-import {
-  SecurityManagedOrganizationsLoader,
-  SecurityManagedOrganizationsRoute,
-} from "./routes/security/managed-organizations";
-
-import { ContractsLoader, ContractsRoute } from "./routes/contracts";
+  VacancyReasonLoader,
+  VacancyReasonRoute,
+} from "./routes/vacancy-reason";
 import { EdluminTheme } from "./styles/mui-theme";
-import {
-  DailyReportLoader,
-  DailyReportRoute,
-} from "./routes/absence-vacancy/daily-report";
 import {
   EmployeeScheduleCalendarViewRoute,
   EmployeeScheduleLoader,
@@ -147,9 +149,9 @@ import {
 } from "./routes/employee-schedule";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
-export function App(props: {}) {
+
+export function App() {
   const classes = useStyles();
-  const auth0 = useAuth0();
 
   return (
     <ThemeProvider theme={EdluminTheme}>
@@ -177,6 +179,9 @@ export function App(props: {}) {
                       component={EmployeeCreateAbsenceLoader}
                       path={EmployeeCreateAbsenceRoute.path}
                     />
+                    <Route path={EmployeeEditAbsenceRoute.path}>
+                      <AdminEditAbsenceLoader actingAsEmployee />
+                    </Route>
 
                     <Route path={SubScheduleCalendarViewRoute.path}>
                       <SubScheduleLoader view="calendar" />
@@ -218,6 +223,10 @@ export function App(props: {}) {
                         <Route
                           component={OrganizationsLoader}
                           path={OrganizationsRoute.path}
+                        />
+                        <Route
+                          component={AdminEditAbsenceLoader}
+                          path={AdminEditAbsenceRoute.path}
                         />
                         <Route
                           component={CreateAbsenceLoader}
@@ -366,7 +375,7 @@ export function App(props: {}) {
                           path={DailyReportRoute.path}
                         />
                         {/* This route handles unknown or underspecified routes and takes the
-                          admin to their organization (or a switcher) */}
+                              admin to their organization (or a switcher) */}
                         <Route path={AdminRootChromeRoute.path}>
                           <Redirect to={AdminRootChromeRoute.generate({})} />
                         </Route>
