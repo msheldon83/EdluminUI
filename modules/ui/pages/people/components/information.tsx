@@ -19,9 +19,12 @@ import { Select, SelectValueType, OptionType } from "ui/components/form/select";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
+import {
+  DateInput
+} from "ui/components/form/date-picker";
 
 const editableSections = {
-  information: "edit-iinformation",
+  information: "edit-information",
 };
 
 type Props = {
@@ -97,9 +100,9 @@ export const Information: React.FC<Props> = props => {
           phoneNumber: orgUser.phoneNumber ?? "",
           address1: orgUser.address1 ?? "",
           city: orgUser.city ?? "",
-          state: orgUser.state,
+          state: orgUser.state ?? undefined,
           postalCode: orgUser.postalCode ?? "",
-          dateOofBirth: orgUser.dateOfBirth,
+          dateOfBirth: orgUser.dateOfBirth ?? undefined,
         }}
         onSubmit={async (data, e) => {}}
       >
@@ -248,7 +251,15 @@ export const Information: React.FC<Props> = props => {
                   />
                   <PeopleGridItem
                     title={t("Date of Birth")}
-                    description={formattedBirthDate}
+                    description={
+                      props.editing === editableSections.information ? (
+                        <DateInput 
+                          value={values.dateOfBirth}
+                          label={""}
+                          onChange={(e) => setFieldValue("dateOfBirth", e)}
+                          onValidDate={(e) => setFieldValue("dateOfBirth", e)}
+                        /> 
+                      ) : (formattedBirthDate)}
                   />
                   <Grid item xs={12}>
                     <Divider variant="fullWidth" className={classes.divider} />
