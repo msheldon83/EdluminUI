@@ -19,7 +19,7 @@ export const PayCodeDescription: React.FC<Props> = props => {
   const isMobile = useIsMobile();
 
   const initialValues = {
-    description: props.description,
+    description: props.description ? "" : null,
   };
 
   const validateBasicDetails = React.useMemo(
