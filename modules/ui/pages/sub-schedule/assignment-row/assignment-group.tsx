@@ -1,28 +1,17 @@
-import * as React from "react";
-import { AssignmentRowUI } from "./assignment-row-ui";
-import { AssignmentVacancyDetails } from "../types";
-import { useState } from "react";
 import { makeStyles } from "@material-ui/styles";
-import { classNames } from "react-select/src/utils";
-import { AvailableJobDetail } from "ui/pages/sub-home/components/available-job-detail";
-import { parseDayPortion } from "ui/components/helpers";
-import { AssignmentGroupDetail } from "./assignment-group-detail";
-import { getTime } from "date-fns";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { groupBy } from "lodash-es";
+import * as React from "react";
+import { useState } from "react";
+import { AssignmentVacancyDetails } from "../types";
+import { AssignmentGroupDetail } from "./assignment-group-detail";
+import { AssignmentRowUI } from "./assignment-row-ui";
 
 type Props = {
   assignmentGroup: AssignmentVacancyDetails[];
   onCancel: () => void;
   className?: string;
 };
-
-/*  1. handle collapse/expand state
-    2. org(s)
-    3. location(s)
-    4. total day portions
-    5. ??
-    */
 
 export const AssignmentGroup: React.FC<Props> = props => {
   const classes = useStyles();

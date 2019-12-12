@@ -1,6 +1,6 @@
 import { addMonths, differenceInCalendarMonths, parseISO } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
-import { groupBy, range, sortBy } from "lodash-es";
+import { groupBy, range } from "lodash-es";
 import { AssignmentVacancyDetails } from "../types";
 
 export interface DateGroupByMonth {
@@ -55,8 +55,7 @@ export const mergeAssignmentDatesByMonth = (
 export const groupAssignmentsByVacancy = (
   assignments: AssignmentVacancyDetails[]
 ) => {
-  const d = Object.entries(groupBy(assignments, a => a.vacancy?.id)).map(
+  return Object.entries(groupBy(assignments, a => a.vacancy?.id)).map(
     ([index, value]) => value
   );
-  return d; //groupBy(assignments, a => a.vacancy?.id);
 };
