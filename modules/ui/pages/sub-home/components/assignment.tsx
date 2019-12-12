@@ -29,6 +29,7 @@ type Props = {
     | "vacancy"
   >;
   shadeRow: boolean;
+  className?: string;
 };
 
 export const AssignmentCard: React.FC<Props> = props => {
@@ -79,7 +80,7 @@ export const AssignmentCard: React.FC<Props> = props => {
   } ${!isMobile && assignmentId}`;
 
   return (
-    <Section className={classes.section} raised>
+    <Section className={`${classes.section} ${props.className}`} raised>
       <Grid
         container
         justify="space-between"

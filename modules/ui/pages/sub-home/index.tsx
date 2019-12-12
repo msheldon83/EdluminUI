@@ -1,4 +1,11 @@
-import { Grid, Button, Typography, Divider } from "@material-ui/core";
+import clsx from "clsx";
+import {
+  Link as MuiLink,
+  Grid,
+  Button,
+  Typography,
+  Divider,
+} from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { addDays, format, isEqual, parseISO } from "date-fns";
 import {
@@ -185,6 +192,23 @@ export const SubHome: React.FC<Props> = props => {
         "MMM d"
       )}`;
 
+  const renderAssignments = () => {
+    return assignments.slice(0, 3).map((assignment, index, assignments) => {
+      const classNames = clsx({
+        [classes.lastAssignmentInList]: index == assignments.length - 1, // last one
+      });
+
+      return (
+        <AssignmentCard
+          vacancyDetail={assignment}
+          shadeRow={false}
+          key={index}
+          className={classNames}
+        />
+      );
+    });
+  };
+
   return (
     <>
       <Grid
@@ -211,19 +235,15 @@ export const SubHome: React.FC<Props> = props => {
               </Grid>
             </Section>
           ) : (
-            assignments
-              .slice(0, 3)
-              .map((assignment, index) => (
-                <AssignmentCard
-                  vacancyDetail={assignment}
-                  shadeRow={false}
-                  key={index}
-                />
-              ))
+            renderAssignments()
           )}
-          <Button component={Link} to={SubScheduleRoute.generate(params)}>
+          <MuiLink
+            className={classes.viewAllAssignmentsLink}
+            component={Link}
+            to={SubScheduleRoute.generate(params)}
+          >
             {t("View All")}
-          </Button>
+          </MuiLink>
         </Grid>
         {!isMobile && (
           <Grid item xs={12} sm={6} lg={6}>
@@ -317,5 +337,26 @@ const useStyles = makeStyles(theme => ({
   },
   upcomingWork: {
     backgroundColor: "transparent",
+  },
+  lastAssignmentInList: {
+    opacity: 0.4,
+    position: "relative",
+
+    "&:after": {
+      content: "''",
+      position: "absolute",
+      top: 0,
+      left: `-${theme.typography.pxToRem(20)}`,
+      width: `calc(100% + ${theme.typography.pxToRem(40)})`,
+      height: `calc(100% + ${theme.typography.pxToRem(20)})`,
+      background:
+        "linear-gradient(0deg, rgba(242,242,242,1) 33%, rgba(242,242,242,0) 80%)",
+    },
+  },
+  viewAllAssignmentsLink: {
+    textDecoration: "underline",
+    position: "relative",
+    top: theme.typography.pxToRem(-40),
+    left: theme.spacing(3),
   },
 }));
