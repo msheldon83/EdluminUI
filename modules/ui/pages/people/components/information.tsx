@@ -1,5 +1,12 @@
 import * as React from "react";
-import { Typography, Divider, Grid, makeStyles } from "@material-ui/core";
+import {
+  Typography,
+  Divider,
+  Grid,
+  makeStyles,
+  Tooltip,
+} from "@material-ui/core";
+import InfoIcon from "@material-ui/icons/Info";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
@@ -136,7 +143,33 @@ export const Information: React.FC<Props> = props => {
               description={orgUser.loginEmail}
             />
             <PeopleGridItem
-              title={t("Password")}
+              title={
+                <span className={classes.resetPassword}>
+                  {t("Password")}{" "}
+                  <Tooltip
+                    title={
+                      <div className={classes.tooltip}>
+                        <Typography
+                          variant="h6"
+                          className={classes.tooltipTitle}
+                        >
+                          Tooltip with header
+                        </Typography>
+                        <Typography variant="body1">
+                          Lorem Ipsum is simply dummy text of the printing and
+                          typesetting industry.
+                        </Typography>
+                      </div>
+                    }
+                    placement="right-start"
+                  >
+                    <InfoIcon
+                      color="primary"
+                      style={{ fontSize: "16px", marginLeft: "8px" }}
+                    />
+                  </Tooltip>
+                </span>
+              }
               description={
                 <TextButton onClick={() => props.onResetPassword()}>
                   {t("Reset Password")}
@@ -175,5 +208,17 @@ const useStyles = makeStyles(theme => ({
   },
   notSpecified: {
     color: theme.customColors.edluminSubText,
+  },
+  resetPassword: {
+    fontWeight: 400,
+    fontSize: theme.typography.pxToRem(14),
+    display: "flex",
+    alignItems: "center",
+  },
+  tooltip: {
+    padding: theme.spacing(2),
+  },
+  tooltipTitle: {
+    paddingBottom: theme.spacing(1),
   },
 }));
