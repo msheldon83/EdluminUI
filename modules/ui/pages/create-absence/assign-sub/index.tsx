@@ -1,4 +1,4 @@
-import { Collapse, Divider, Link, Typography } from "@material-ui/core";
+import { Collapse, Divider, Link, Typography, Button } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
 import { SetValue } from "forms";
@@ -80,6 +80,10 @@ export const AssignSub: React.FC<Props> = props => {
   const [searchFilter, updateSearch] = React.useState<
     ReplacementEmployeeFilters
   >();
+
+  if (props.vacancies.length === 0) {
+    props.setStep("absence");
+  }
 
   // Vacancy Details collapse configuration
   const collapsedVacancyDetailsHeight = 150;
@@ -231,10 +235,17 @@ export const AssignSub: React.FC<Props> = props => {
   return (
     <>
       <div className={classes.header}>
-        <Typography variant="h5">{pageHeader}</Typography>
-        {props.userIsAdmin && (
-          <Typography variant="h1">{props.employeeName}</Typography>
-        )}
+        <div>
+          <Typography variant="h5">{pageHeader}</Typography>
+          {props.userIsAdmin && (
+            <Typography variant="h1">{props.employeeName}</Typography>
+          )}
+        </div>
+        <div>
+          <Button variant="outlined" onClick={() => props.setStep("absence")}>
+            {t("Back to Absence Details")}
+          </Button>
+        </div>
       </div>
       <Section>
         <div className={classes.vacancyDetails}>{renderVacancyDetails()}</div>
@@ -271,6 +282,9 @@ export const AssignSub: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(2),
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   vacancyDetails: {
     marginBottom: theme.spacing(3),
