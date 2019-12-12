@@ -38,7 +38,9 @@ export const PayCodeDescription: React.FC<Props> = props => {
           initialValues={initialValues}
           validationSchema={validateBasicDetails}
           onSubmit={async (data: any) => {
-            props.onSubmit(data.description ? "" : null);
+            props.onSubmit(
+              data.description.trim().length === 0 ? null : data.description
+            );
           }}
         >
           {({ handleSubmit, submitForm, values }) => (

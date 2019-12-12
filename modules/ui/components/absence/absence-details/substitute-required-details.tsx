@@ -1,10 +1,10 @@
 import {
   Button,
   Chip,
+  Grid,
   makeStyles,
   TextField,
   Typography,
-  Grid,
 } from "@material-ui/core";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import { Vacancy } from "graphql/server-types.gen";
@@ -14,19 +14,19 @@ import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { usePayCodes } from "reference-data/pay-codes";
 import { VacancyDetails } from "ui/components/absence/vacancy-details";
-import { Step } from "../step-params";
 import { Select } from "ui/components/form/select";
-import { CreateAbsenceFormData } from "../ui";
+import { AbsenceDetailsFormData } from ".";
 
 type Props = {
   setValue: SetValue;
   vacancies: Vacancy[];
-  setStep: (S: Step) => void;
+  setStep: (step: "absence" | "preAssignSub" | "edit") => void;
   triggerValidation: TriggerValidation;
   organizationId: string;
   isAdmin: boolean;
   errors: Errors;
-  values: CreateAbsenceFormData;
+  values: AbsenceDetailsFormData;
+  arrangeSubButtonTitle?: string;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -35,9 +35,9 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const {
+    setStep,
     setValue,
     vacancies,
-    setStep,
     organizationId,
     errors,
     isAdmin,
@@ -159,7 +159,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
             className={classes.preArrangeButton}
             onClick={() => setStep("preAssignSub")}
           >
-            {t("Pre-arrange")}
+            {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
           </Button>
 
           <Button variant="outlined" onClick={() => setStep("edit")}>

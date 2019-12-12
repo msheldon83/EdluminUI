@@ -29,6 +29,7 @@ type Props = {
     | "vacancy"
   >;
   shadeRow: boolean;
+  className?: string;
 };
 
 export const AssignmentCard: React.FC<Props> = props => {
@@ -79,100 +80,99 @@ export const AssignmentCard: React.FC<Props> = props => {
   } ${!isMobile && assignmentId}`;
 
   return (
-    <>
-      <Section>
-        <Grid
-          container
-          justify="space-between"
-          alignItems="center"
-          spacing={1}
-          className={props.shadeRow ? classes.shadedRow : undefined}
-        >
-          <Grid item xs={6}>
-            <Typography variant="h6">{dateHeader}</Typography>
-            {isMobile && <Typography variant="h6">{assignmentId}</Typography>}
-            <Typography className={classes.lightText}>
-              {vacancyDetail.location!.name}
-            </Typography>
-            <Typography className={classes.lightText}>{`${
-              vacancyDetail.vacancy!.position!.name
-            } for ${vacancyDetail.vacancy!.absence!.employee!.firstName} ${
-              vacancyDetail.vacancy!.absence!.employee!.lastName
-            }`}</Typography>
-            <Typography
-              className={classes.lightText}
-            >{`${formatIsoDateIfPossible(
-              vacancyDetail.assignment!.startTimeLocal,
-              "h:mm aaa"
-            )} - ${formatIsoDateIfPossible(
-              vacancyDetail.assignment!.endTimeLocal,
-              "h:mm aaa"
-            )}`}</Typography>
-          </Grid>
-          <Grid item>
-            <IconButton href={mapUrl} target={"_blank"} rel={"noreferrer"}>
-              <Directions />
+    <Section className={`${classes.section} ${props.className}`} raised>
+      <Grid
+        container
+        justify="space-between"
+        alignItems="center"
+        spacing={1}
+        className={props.shadeRow ? classes.shadedRow : undefined}
+      >
+        <Grid item xs={6}>
+          <Typography variant="h6">{dateHeader}</Typography>
+          {isMobile && <Typography variant="h6">{assignmentId}</Typography>}
+          <Typography className={classes.lightText}>
+            {vacancyDetail.location!.name}
+          </Typography>
+          <Typography className={classes.lightText}>{`${
+            vacancyDetail.vacancy!.position!.name
+          } for ${vacancyDetail.vacancy!.absence!.employee!.firstName} ${
+            vacancyDetail.vacancy!.absence!.employee!.lastName
+          }`}</Typography>
+          <Typography className={classes.lightText}>{`${formatIsoDateIfPossible(
+            vacancyDetail.assignment!.startTimeLocal,
+            "h:mm aaa"
+          )} - ${formatIsoDateIfPossible(
+            vacancyDetail.assignment!.endTimeLocal,
+            "h:mm aaa"
+          )}`}</Typography>
+        </Grid>
+        <Grid item>
+          <IconButton href={mapUrl} target={"_blank"} rel={"noreferrer"}>
+            <Directions />
+          </IconButton>
+          {vacancyDetail.location!.phoneNumber && isMobile ? (
+            <IconButton
+              href={`tel:${vacancyDetail.location!.phoneNumber}`}
+              target={"_blank"}
+              rel={"noreferrer"}
+            >
+              <LocalPhone />
             </IconButton>
-            {vacancyDetail.location!.phoneNumber && isMobile ? (
-              <IconButton
-                href={`tel:${vacancyDetail.location!.phoneNumber}`}
-                target={"_blank"}
-                rel={"noreferrer"}
-              >
+          ) : (
+            <>
+              <IconButton id={phoneId} onClick={handleShowPhone}>
                 <LocalPhone />
               </IconButton>
-            ) : (
-              <>
-                <IconButton id={phoneId} onClick={handleShowPhone}>
-                  <LocalPhone />
-                </IconButton>
-                <Popper
-                  transition
-                  open={phoneOpen}
-                  anchorEl={phoneAnchor}
-                  placement="bottom-end"
-                >
-                  {({ TransitionProps }) => (
-                    <Fade {...TransitionProps} timeout={150}>
-                      <div className={classes.paper}>
-                        {vacancyDetail.location!.phoneNumber}
-                      </div>
-                    </Fade>
-                  )}
-                </Popper>
-              </>
-            )}
-            {vacancyDetail.vacancy!.notesToReplacement && (
-              <>
-                <IconButton id={notesId} onClick={handleShowNotes}>
-                  <ReceiptOutlined />
-                </IconButton>
-                <Popper
-                  transition
-                  open={notesOpen}
-                  anchorEl={notesAnchor}
-                  placement="bottom-end"
-                >
-                  {({ TransitionProps }) => (
-                    <Fade {...TransitionProps} timeout={150}>
-                      <div className={classes.paper}>
-                        {vacancyDetail.vacancy!.notesToReplacement}
-                      </div>
-                    </Fade>
-                  )}
-                </Popper>
-              </>
-            )}
-          </Grid>
+              <Popper
+                transition
+                open={phoneOpen}
+                anchorEl={phoneAnchor}
+                placement="bottom-end"
+              >
+                {({ TransitionProps }) => (
+                  <Fade {...TransitionProps} timeout={150}>
+                    <div className={classes.paper}>
+                      {vacancyDetail.location!.phoneNumber}
+                    </div>
+                  </Fade>
+                )}
+              </Popper>
+            </>
+          )}
+          {vacancyDetail.vacancy!.notesToReplacement && (
+            <>
+              <IconButton id={notesId} onClick={handleShowNotes}>
+                <ReceiptOutlined />
+              </IconButton>
+              <Popper
+                transition
+                open={notesOpen}
+                anchorEl={notesAnchor}
+                placement="bottom-end"
+              >
+                {({ TransitionProps }) => (
+                  <Fade {...TransitionProps} timeout={150}>
+                    <div className={classes.paper}>
+                      {vacancyDetail.vacancy!.notesToReplacement}
+                    </div>
+                  </Fade>
+                )}
+              </Popper>
+            </>
+          )}
         </Grid>
-      </Section>
-    </>
+      </Grid>
+    </Section>
   );
 };
 
 export const useStyles = makeStyles(theme => ({
   root: {
     width: 500,
+  },
+  section: {
+    marginBottom: theme.spacing(1),
   },
   typography: {
     padding: theme.spacing(2),

@@ -1,23 +1,23 @@
 import {
-  Grid,
   Button,
-  Typography,
+  Fade,
+  Grid,
   IconButton,
   makeStyles,
   Popper,
-  Fade,
+  Typography,
 } from "@material-ui/core";
 import { ReceiptOutlined } from "@material-ui/icons";
-import * as React from "react";
-import parseISO from "date-fns/parseISO";
-import isEqual from "date-fns/isEqual";
 import format from "date-fns/format";
-import { useTranslation } from "react-i18next";
-import { AvailableJobDetail } from "./available-job-detail";
-import { formatIsoDateIfPossible } from "helpers/date";
+import isEqual from "date-fns/isEqual";
+import parseISO from "date-fns/parseISO";
 import { Vacancy } from "graphql/server-types.gen";
-import { DayIcon } from "../../../components/day-icon";
+import { formatIsoDateIfPossible } from "helpers/date";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { parseDayPortion } from "ui/components/helpers";
+import { AvailableJobDetail } from "./available-job-detail";
+import { DayIcon } from "ui/components/day-icon";
 
 type Props = {
   vacancy: Pick<
@@ -181,7 +181,6 @@ export const AvailableJob: React.FC<Props> = props => {
               <AvailableJobDetail
                 locationName={detail!.location!.name}
                 dayPortion={detail!.dayPortion}
-                dayPortionLabel={parseDayPortion(t, detail!.dayPortion)}
                 startTimeLocal={detail!.startTimeLocal ?? ""}
                 endTimeLocal={detail!.endTimeLocal ?? ""}
                 shadeRow={index % 2 != 0}

@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 
 type PeopleGridItemProps = {
-  title: string;
+  title: React.ReactNode;
   description: React.ReactNode;
 };
 

@@ -1,17 +1,18 @@
 import { Grid } from "@material-ui/core";
+import { useQueryBundle } from "graphql/hooks";
+import { compact } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState } from "react";
+import { GetAssignmentDatesForEmployee } from "../graphql/get-assignments-dates-for-employee.gen";
 import { AssignmentCalendar } from "./assignment-calendar";
 import {
   generateEmptyDateMap,
-  mergeAssignmentsByMonth,
+  mergeAssignmentDatesByMonth,
 } from "./grouping-helpers";
 import { NowViewingAssignmentsForDate } from "./now-viewing-assignments";
-import { AssignmentVacancyDetails } from "./types";
 
 type Props = {
   userId?: string;
-  assignments: AssignmentVacancyDetails[];
   fromDate: Date;
   toDate: Date;
 };
@@ -24,14 +25,45 @@ export const CalendarView: React.FC<Props> = props => {
     [setSelectedDate]
   );
 
+  const upcomingAssignmentDates = useQueryBundle(
+    GetAssignmentDatesForEmployee,
+    {
+      variables: {
+        id: String(props.userId),
+        fromDate: props.fromDate,
+        toDate: props.toDate,
+        includeCompletedToday: true,
+      },
+      skip: !props.userId,
+    }
+  );
+  const assignmentDates = useMemo(() => {
+    if (
+      upcomingAssignmentDates.state == "DONE" ||
+      upcomingAssignmentDates.state == "UPDATING"
+    ) {
+      return compact(
+        upcomingAssignmentDates.data.employee?.employeeAssignmentSchedule
+      );
+    }
+    return [];
+  }, [upcomingAssignmentDates]);
+
   const empty = useMemo(
     () => generateEmptyDateMap(props.fromDate, props.toDate),
     [props.fromDate, props.toDate]
   );
-  const all = useMemo(() => mergeAssignmentsByMonth(empty, props.assignments), [
-    props.assignments,
-    empty,
-  ]);
+
+  const all = useMemo(() => {
+    return mergeAssignmentDatesByMonth(empty, assignmentDates);
+  }, [empty, assignmentDates]);
+
+  if (
+    upcomingAssignmentDates.state !== "DONE" &&
+    upcomingAssignmentDates.state !== "UPDATING"
+  ) {
+    return <></>;
+  }
 
   return (
     <>

@@ -33,28 +33,43 @@ import {
 import { Input } from "ui/components/form/input";
 import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
-import { CreateAbsenceActions, CreateAbsenceState } from "../state";
-import { Step } from "../step-params";
-import { CreateAbsenceFormData } from "../ui";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
-import { VacancyDetail } from "../types";
+import { VacancyDetail } from "ui/components/absence/types";
+
+export type AbsenceDetailsFormData = {
+  dayPart?: DayPart;
+  absenceReason: string;
+  startDate: Date;
+  endDate: Date;
+  replacementEmployeeId?: number;
+  replacementEmployeeName?: string;
+  accountingCode?: string;
+  payCode?: string;
+};
 
 type Props = {
-  state: CreateAbsenceState;
-  dispatch: React.Dispatch<CreateAbsenceActions>;
+  saveLabel?: string;
+  organizationId: string;
+  onSubstituteWantedChange: (wanted: boolean) => void;
+  onSwitchMonth: (month: Date) => void;
   setValue: SetValue;
-  values: CreateAbsenceFormData;
+  values: AbsenceDetailsFormData;
   errors: Errors;
   triggerValidation: TriggerValidation;
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
+  wantsReplacement: boolean;
   vacancies: Vacancy[];
-  setStep: (S: Step) => void;
+  setStep: (S: "absence" | "preAssignSub" | "edit") => void;
   disabledDates: Date[];
   balanceUsageText?: string;
   setVacanciesInput: React.Dispatch<
     React.SetStateAction<VacancyDetail[] | undefined>
   >;
+  /** default: pre-arrange */
+  arrangeSubButtonTitle?: string;
+  /** default: pre-arranged */
+  arrangedSubText?: string;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -62,12 +77,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
   const {
-    state,
+    organizationId,
     setValue,
     values,
     isAdmin,
     needsReplacement,
-    dispatch,
+    wantsReplacement,
+    onSubstituteWantedChange,
+    onSwitchMonth,
     errors,
     triggerValidation,
   } = props;
@@ -107,12 +124,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [setValue, triggerValidation]
   );
 
-  const absenceReasons = useAbsenceReasons(state.organizationId);
+  const absenceReasons = useAbsenceReasons(organizationId);
   const absenceReasonOptions = useMemo(
     () => absenceReasons.map(r => ({ label: r.name, value: r.id })),
     [absenceReasons]
   );
-  const featureFlags = useOrgFeatureFlags(state.organizationId);
+  const featureFlags = useOrgFeatureFlags(organizationId);
   const dayPartOptions = useMemo(
     () => featureFlagsToDayPartOptions(featureFlags),
     [featureFlags]
@@ -158,16 +175,16 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
   const onNeedsReplacementChange = React.useCallback(
     event => {
-      dispatch({ action: "setNeedsReplacement", to: event.target.checked });
+      onSubstituteWantedChange(event.target.checked);
     },
-    [dispatch]
+    [onSubstituteWantedChange]
   );
 
   const onMonthChange: DatePickerOnMonthChange = React.useCallback(
     date => {
-      dispatch({ action: "switchMonth", month: date });
+      onSwitchMonth(date);
     },
-    [dispatch]
+    [onSwitchMonth]
   );
 
   const removePrearrangedReplacementEmployee = async () => {
@@ -286,7 +303,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             <AssignedSub
               employeeId={values.replacementEmployeeId}
               employeeName={values.replacementEmployeeName || ""}
-              subText={t("pre-arranged")}
+              subText={props.arrangedSubText ?? t("pre-arranged")}
               onRemove={removePrearrangedReplacementEmployee}
             />
           )}
@@ -296,7 +313,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 label={t("Requires a substitute")}
                 control={
                   <Checkbox
-                    checked={state.needsReplacement}
+                    checked={wantsReplacement}
                     onChange={onNeedsReplacementChange}
                     color="primary"
                   />
@@ -310,16 +327,17 @@ export const AbsenceDetails: React.FC<Props> = props => {
               </Typography>
             )}
 
-            {state.needsReplacement && (
+            {wantsReplacement && (
               <SubstituteRequiredDetails
                 setValue={setValue}
                 vacancies={props.vacancies}
                 setStep={props.setStep}
-                organizationId={state.organizationId}
+                organizationId={organizationId}
                 triggerValidation={triggerValidation}
                 values={values}
                 errors={errors}
                 isAdmin={!!isAdmin}
+                arrangeSubButtonTitle={props.arrangeSubButtonTitle}
               />
             )}
           </div>
@@ -329,7 +347,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
       <Grid item xs={12}>
         <div className={classes.actionButtons}>
           <Button type="submit" variant="contained">
-            {t("Create")}
+            {props.saveLabel ?? t("Create")}
           </Button>
         </div>
       </Grid>

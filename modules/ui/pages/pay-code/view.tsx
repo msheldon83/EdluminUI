@@ -186,7 +186,7 @@ export const PayCodeViewEditPage: React.FC<Props> = props => {
         <SectionHeader title={t("Settings")} />
         <Grid container spacing={2}>
           <PayCodeDescription
-            description={payCode.description ? null : ""}
+            description={payCode.description ?? ""}
             onSubmit={updateDescription}
             onCancel={cancelUrl}
           />

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { AssignmentRowUI } from "./assignment-row-ui";
-import { AssignmentVacancyDetails } from "../calendar-view/types";
+import { AssignmentVacancyDetails } from "../types";
 
 type Props = {
   assignment: AssignmentVacancyDetails;
@@ -26,6 +26,7 @@ export const AssignmentRow: React.FC<Props> = props => {
       startTime={a.startTimeLocal ?? ""}
       endTime={a.endTimeLocal ?? ""}
       employeeName={employeeName}
+      multipleTimes={false}
       startDate={a.startDate ?? ""}
       endDate={a.endDate ?? ""}
       locationName={locationName}
