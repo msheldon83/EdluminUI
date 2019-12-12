@@ -735,13 +735,15 @@ type ContractDate implements ModelObjectInterface & OrgObjectInterface {
   schoolYearId: Int!
   schoolYear: SchoolYear
   date: Date!
-  calendarDayTypeId: CalendarDayType
+  calendarDayTypeId: CalendarDayType!
   daysFromStart: Int
   daysToEnd: Int
   workDayId: Int
   workDay: WorkDay
   workDayScheduleVariantTypeId: Int!
   workDayScheduleVariantType: WorkDayScheduleVariant
+  calendarChangeId: Int
+  calendarChange: CalendarChange
 }
 
 input ContractedAssignmentCreateInput {
@@ -1616,6 +1618,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
   phoneNumber: String
+  formattedPhone: String
   address1: String
   address2: String
   city: String
@@ -2648,8 +2651,8 @@ type PermissionSetMutations {
 
 type PermissionSetQueries {
   byId(id: ID!): PermissionSet
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [PermissionSet]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedPermissionSet
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], roles: [OrgUserRole]): [PermissionSet]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], roles: [OrgUserRole]): PagedPermissionSet
 }
 
 input PermissionSetUpdateInput {
@@ -2751,10 +2754,10 @@ type PositionScheduleDate {
   positionId: Int!
   positionScheduleId: Int!
   workScheduleVariantTypeId: Int!
-  startTimeLocal: Date!
-  endTimeLocal: Date!
-  startTimeUtc: Date!
-  endTimeUtc: Date!
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
   fullWorkdayDuration: Short!
   totalDuration: Short!
   absenceBalanceDuration: Short!
@@ -2763,28 +2766,29 @@ type PositionScheduleDate {
   replacementDayPortion: Decimal!
   halfDayMorningAbsenceBalanceDayPortion: Decimal
   halfDayAfternoonAbsenceBalanceDayPortion: Decimal
-  halfDayMorningEndLocal: Date
-  halfDayMorningEndUtc: Date
-  halfDayAfternoonStartLocal: Date
+  halfDayMorningEndLocal: DateTime
+  halfDayMorningEndUtc: DateTime
+  halfDayAfternoonStartLocal: DateTime
   halfDayMorningDuration: Short
   halfDayAfternoonDuration: Short
-  quarterDayEarlyMorningEndLocal: Date
-  quarterDayEarlyMorningEndUtc: Date
-  quarterDayLateMorningStartLocal: Date
-  quarterDayLateMorningStartUtc: Date
-  quarterDayLateMorningEndLocal: Date
-  quarterDayLateMorningEndUtc: Date
-  quarterDayEarlyAfternoonStartLocal: Date
-  quarterDayEarlyAfternoonStartUtc: Date
-  quarterDayEarlyAfternoonEndLocal: Date
-  quarterDayEarlyAfternoonEndUtc: Date
-  quarterDayLateAfternoonStartLocal: Date
-  quarterDayLateAfternoonStartUtc: Date
+  quarterDayEarlyMorningEndLocal: DateTime
+  quarterDayEarlyMorningEndUtc: DateTime
+  quarterDayLateMorningStartLocal: DateTime
+  quarterDayLateMorningStartUtc: DateTime
+  quarterDayLateMorningEndLocal: DateTime
+  quarterDayLateMorningEndUtc: DateTime
+  quarterDayEarlyAfternoonStartLocal: DateTime
+  quarterDayEarlyAfternoonStartUtc: DateTime
+  quarterDayEarlyAfternoonEndLocal: DateTime
+  quarterDayEarlyAfternoonEndUtc: DateTime
+  quarterDayLateAfternoonStartLocal: DateTime
+  quarterDayLateAfternoonStartUtc: DateTime
   quarterDayEarlyMorningDuration: Short
   quarterDayLateMorningDuration: Short
   quarterDayEarlyAfternoonDuration: Short
   quarterDayLateAfternoonDuration: Short
   details: [PositionScheduleDateDetail]
+  position: Position
 }
 
 type PositionScheduleDateDetail {
@@ -2797,12 +2801,12 @@ type PositionScheduleDateDetail {
   workDaySchedulePeriodId: Int
   startDate: Date
   endDate: Date
-  startTimeLocal: Date!
-  endTimeLocal: Date!
-  nextStartTimeLocal: Date!
-  startTimeUtc: Date!
-  endTimeUtc: Date!
-  nextStartTimeUtc: Date!
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  nextStartTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
+  nextStartTimeUtc: DateTime
   periodDuration: Short!
   travelDuration: Short!
   needsReplacement: Boolean!
@@ -2821,6 +2825,7 @@ type PositionScheduleDateDetail {
   isQuarterDayEarlyAfternoonStart: Boolean!
   isQuarterDayEarlyAfternoonEnd: Boolean!
   isQuarterDayLateAfternoonStart: Boolean!
+  location: Location
 }
 
 type PositionScheduleMutations {
