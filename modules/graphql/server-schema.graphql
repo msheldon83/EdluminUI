@@ -87,7 +87,7 @@ type AbsenceMutations {
 }
 
 type AbsenceQueries {
-  byId(id: ID!): Absence!
+  byId(id: ID!): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
   projectedVacancies(absence: AbsenceCreateInput!, ignoreAbsenceId: Int): [Vacancy]
@@ -2651,8 +2651,8 @@ type PermissionSetMutations {
 
 type PermissionSetQueries {
   byId(id: ID!): PermissionSet
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [PermissionSet]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedPermissionSet
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], roles: [OrgUserRole]): [PermissionSet]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], roles: [OrgUserRole]): PagedPermissionSet
 }
 
 input PermissionSetUpdateInput {
@@ -2789,6 +2789,7 @@ type PositionScheduleDate {
   quarterDayLateAfternoonDuration: Short
   details: [PositionScheduleDateDetail]
   position: Position
+  workScheduleVariantType: WorkDayScheduleVariantType
 }
 
 type PositionScheduleDateDetail {
