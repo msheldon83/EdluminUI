@@ -1,5 +1,12 @@
 import * as React from "react";
-import { Typography, Divider, Grid, makeStyles } from "@material-ui/core";
+import {
+  Typography,
+  Divider,
+  Grid,
+  makeStyles,
+  Tooltip,
+} from "@material-ui/core";
+import InfoIcon from "@material-ui/icons/Info";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
@@ -19,9 +26,7 @@ import { Select, SelectValueType, OptionType } from "ui/components/form/select";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
-import {
-  DateInput
-} from "ui/components/form/date-picker";
+import { DateInput } from "ui/components/form/date-picker";
 
 const editableSections = {
   information: "edit-information",
@@ -253,13 +258,16 @@ export const Information: React.FC<Props> = props => {
                     title={t("Date of Birth")}
                     description={
                       props.editing === editableSections.information ? (
-                        <DateInput 
+                        <DateInput
                           value={values.dateOfBirth}
                           label={""}
-                          onChange={(e) => setFieldValue("dateOfBirth", e)}
-                          onValidDate={(e) => setFieldValue("dateOfBirth", e)}
-                        /> 
-                      ) : (formattedBirthDate)}
+                          onChange={e => setFieldValue("dateOfBirth", e)}
+                          onValidDate={e => setFieldValue("dateOfBirth", e)}
+                        />
+                      ) : (
+                        formattedBirthDate
+                      )
+                    }
                   />
                   <Grid item xs={12}>
                     <Divider variant="fullWidth" className={classes.divider} />
@@ -281,7 +289,33 @@ export const Information: React.FC<Props> = props => {
                     }
                   />
                   <PeopleGridItem
-                    title={t("Password")}
+                    title={
+                      <span className={classes.resetPassword}>
+                        {t("Password")}{" "}
+                        <Tooltip
+                          title={
+                            <div className={classes.tooltip}>
+                              <Typography
+                                variant="h6"
+                                className={classes.tooltipTitle}
+                              >
+                                Tooltip with header
+                              </Typography>
+                              <Typography variant="body1">
+                                Reset password will send the user an email with
+                                a link to reset the password.
+                              </Typography>
+                            </div>
+                          }
+                          placement="right-start"
+                        >
+                          <InfoIcon
+                            color="primary"
+                            style={{ fontSize: "16px", marginLeft: "8px" }}
+                          />
+                        </Tooltip>
+                      </span>
+                    }
                     description={
                       <TextButton onClick={() => props.onResetPassword()}>
                         {t("Reset Password")}
@@ -323,5 +357,17 @@ const useStyles = makeStyles(theme => ({
   },
   notSpecified: {
     color: theme.customColors.edluminSubText,
+  },
+  resetPassword: {
+    fontWeight: 400,
+    fontSize: theme.typography.pxToRem(14),
+    display: "flex",
+    alignItems: "center",
+  },
+  tooltip: {
+    padding: theme.spacing(2),
+  },
+  tooltipTitle: {
+    paddingBottom: theme.spacing(1),
   },
 }));
