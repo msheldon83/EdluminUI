@@ -7,6 +7,9 @@ import { classNames } from "react-select/src/utils";
 import { AvailableJobDetail } from "ui/pages/sub-home/components/available-job-detail";
 import { parseDayPortion } from "ui/components/helpers";
 import { AssignmentGroupDetail } from "./assignment-group-detail";
+import { getTime } from "date-fns";
+import { formatIsoDateIfPossible } from "helpers/date";
+import { groupBy } from "lodash-es";
 
 type Props = {
   assignmentGroup: AssignmentVacancyDetails[];
@@ -48,17 +51,36 @@ export const AssignmentGroup: React.FC<Props> = props => {
   const employeeName = `${vacancy.absence?.employee?.firstName} ${vacancy.absence?.employee?.lastName}`;
   const positionName = vacancy.position?.name ?? "";
 
-  // below will need to change
-  const startTime = assignment[0].startTimeLocal!;
-  const endTime = assignment[0].endTimeLocal!;
-  const totalDayPortion = assignment[0].dayPortion;
+  let totalDayPortion = 0;
+  assignment.map(a => (totalDayPortion += a.dayPortion));
 
   const lastAssignment = assignment[assignment.length - 1];
   const startDate = assignment[0].startDate!;
 
   /* the vacancy details come back from the server sorted by date,
-   so this should be the latest date for the vacancy */
+  so this should be the latest date for the vacancy */
   const endDate = lastAssignment.endDate!;
+
+  const multipleStarts =
+    Object.entries(
+      groupBy(assignment, a =>
+        formatIsoDateIfPossible(a.startTimeLocal, "h:mm aaa")
+      )
+    ).length > 1;
+  const multipleEndTimes =
+    Object.entries(
+      groupBy(assignment, a =>
+        formatIsoDateIfPossible(a.endTimeLocal, "h:mm aaa")
+      )
+    ).length > 1;
+  const multipleTimes = multipleStarts && multipleEndTimes;
+
+  const times = multipleTimes
+    ? { multipleTimes }
+    : {
+        multipleTimes,
+        endTime: assignment[0].endTimeLocal!,
+      };
 
   return (
     <div
@@ -67,8 +89,8 @@ export const AssignmentGroup: React.FC<Props> = props => {
     >
       <AssignmentRowUI
         confirmationNumber={confirmationNumber}
-        startTime={startTime}
-        endTime={endTime}
+        {...times}
+        startTime={assignment[0].startTimeLocal!}
         employeeName={employeeName}
         startDate={startDate}
         endDate={endDate}

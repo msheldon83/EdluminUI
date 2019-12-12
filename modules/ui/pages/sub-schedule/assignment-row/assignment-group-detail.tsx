@@ -56,7 +56,9 @@ export const AssignmentGroupDetail: React.FC<Props> = props => {
         </Typography>
       </div>
 
-      <Button onClick={props.onCancel}>{t("Cancel")}</Button>
+      <Button className={classes.cancel} onClick={props.onCancel}>
+        {t("Cancel")}
+      </Button>
     </div>
   );
 };
@@ -97,5 +99,11 @@ export const useStyles = makeStyles(theme => ({
   },
   location: {
     flex: 9,
+  },
+  cancel: {
+    fontSize: theme.typography.pxToRem(14),
+    color: theme.customColors.darkRed,
+    textDecoration: "underline",
+    fontWeight: 400,
   },
 }));

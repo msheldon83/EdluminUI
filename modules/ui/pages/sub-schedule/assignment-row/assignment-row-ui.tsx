@@ -10,17 +10,27 @@ import { parseDayPortion } from "ui/components/helpers";
 type Props = {
   startDate: string;
   endDate: string;
+  startTime: string;
   locationName: string;
   organizationName?: string;
   positionName: string;
   employeeName: string;
   dayPortion: number;
-  startTime: string;
-  endTime: string;
   confirmationNumber: string;
   onCancel: () => void;
   className?: string;
-};
+} /* If there are various times within the vacancy, we
+     do not want to give false information. However, we still need
+     a startTime to determine which day icon to use.
+   */ & (
+  | {
+      multipleTimes: true;
+    }
+  | {
+      multipleTimes: false;
+      endTime: string;
+    }
+);
 
 export const AssignmentRowUI: React.FC<Props> = props => {
   const classes = useStyles();
@@ -73,10 +83,12 @@ export const AssignmentRowUI: React.FC<Props> = props => {
           )} ${parseDayPortion(t, props.dayPortion)}`}</Typography>
 
           <Typography className={classes.subText}>
-            {`${formatIsoDateIfPossible(
-              props.startTime,
-              "h:mm aaa"
-            )} - ${formatIsoDateIfPossible(props.endTime, "h:mm aaa")}`}
+            {props.multipleTimes
+              ? t("Various")
+              : `${formatIsoDateIfPossible(
+                  props.startTime,
+                  "h:mm aaa"
+                )} - ${formatIsoDateIfPossible(props.endTime, "h:mm aaa")}`}
           </Typography>
         </div>
       </div>

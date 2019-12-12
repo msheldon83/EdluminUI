@@ -26,6 +26,7 @@ export const AssignmentRow: React.FC<Props> = props => {
       startTime={a.startTimeLocal ?? ""}
       endTime={a.endTimeLocal ?? ""}
       employeeName={employeeName}
+      multipleTimes={false}
       startDate={a.startDate ?? ""}
       endDate={a.endDate ?? ""}
       locationName={locationName}

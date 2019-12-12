@@ -1,7 +1,7 @@
 import { Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useQueryBundle } from "graphql/hooks";
-import { compact, map, mapValues } from "lodash-es";
+import { compact } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import { GetUpcomingAssignments } from "ui/pages/sub-home/graphql/get-upcoming-assignments.gen";
