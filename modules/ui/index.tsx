@@ -78,8 +78,12 @@ import {
   ReplacementAttributeRoute,
 } from "./routes/replacement-attribute";
 import {
-  AbsenceReasonLoader,
   AbsenceReasonRoute,
+  AbsenceReasonLoader,
+  AbsenceReasonAddRoute,
+  AbsenceReasonAddLoader,
+  AbsenceReasonViewEditRoute,
+  AbsenceReasonViewEditLoader,
 } from "./routes/absence/reason";
 import {
   VacancyReasonLoader,
@@ -307,6 +311,18 @@ export function App(props: {}) {
                         <Route
                           component={PayCodeLoader}
                           path={PayCodeRoute.path}
+                        />
+                        <Route
+                          component={AbsenceReasonAddLoader}
+                          path={AbsenceReasonAddRoute.path}
+                        />
+                        <Route
+                          component={AbsenceReasonViewEditLoader}
+                          path={AbsenceReasonViewEditRoute.path}
+                        />
+                        <Route
+                          component={AbsenceReasonLoader}
+                          path={AbsenceReasonRoute.path}
                         />
                         <Route
                           component={ContractsLoader}

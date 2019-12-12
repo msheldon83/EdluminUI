@@ -69,7 +69,7 @@ export const PayCodeAddPage: React.FC<{}> = props => {
             ...payCode,
             name: name,
             externalId: externalId,
-            description: description,
+            description: description ? "" : null,
           };
           setPayCode(newPayCode);
           const id = await create(newPayCode);
