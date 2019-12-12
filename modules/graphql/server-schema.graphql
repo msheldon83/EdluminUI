@@ -742,6 +742,8 @@ type ContractDate implements ModelObjectInterface & OrgObjectInterface {
   workDay: WorkDay
   workDayScheduleVariantTypeId: Int!
   workDayScheduleVariantType: WorkDayScheduleVariant
+  calendarChangeId: Int
+  calendarChange: CalendarChange
 }
 
 input ContractedAssignmentCreateInput {
