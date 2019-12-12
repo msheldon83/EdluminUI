@@ -106,7 +106,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
       <AssignSub
         orgId={"1006"}
         userIsAdmin={true}
-        vacancyId={"1"}
+        existingVacancy
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
@@ -313,7 +313,7 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
       <AssignSub
         orgId={"1006"}
         userIsAdmin={false}
-        vacancyId={"1"}
+        existingVacancy
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}

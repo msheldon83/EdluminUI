@@ -40,7 +40,7 @@ const themeColors: Theme["customColors"] = {
 
   blueHover: "#0053CB",
 
-  sectionBorder: "#e5e5e5",
+  sectionBorder: "#d2d0d0",
   marigold: "#FFB946",
 
   edluminSlate: "#2B3648",
@@ -186,6 +186,8 @@ export const EdluminTheme = createMuiTheme({
       tooltip: {
         backgroundColor: themeColors.white,
         color: themeColors.black,
+        boxShadow:
+          "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24);",
       },
     },
     MuiFormLabel: {

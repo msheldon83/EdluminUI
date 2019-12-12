@@ -1,6 +1,6 @@
-query GetProjectedAbsenceUsage($absence: AbsenceCreateInput!) {
+query GetProjectedAbsenceUsage($absence: AbsenceCreateInput!, $ignoreAbsenceId: Int) {
   absence {
-    projectedAbsence(absence: $absence) {
+    projectedAbsence(absence: $absence, ignoreAbsenceId: $ignoreAbsenceId) {
       details {
         reasonUsages {
           sequence
