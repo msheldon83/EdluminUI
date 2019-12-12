@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { EmployeeAbsenceDetail } from "../types";
-import { Grid, makeStyles, Typography, Button } from "@material-ui/core";
+import { Grid, makeStyles, Typography, Button, Chip } from "@material-ui/core";
 import { isEqual, format } from "date-fns";
 import { DayIcon } from "ui/components/day-icon";
 import { parseDayPortion } from "ui/components/helpers";
@@ -9,6 +9,7 @@ import { parseDayPortion } from "ui/components/helpers";
 type Props = {
   absence: EmployeeAbsenceDetail;
   cancelAbsence: (absenceId: string) => Promise<void>;
+  showAbsenceChip?: boolean;
 };
 
 export const AbsenceDetailRow: React.FC<Props> = props => {
@@ -39,6 +40,7 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
       <Grid item xs={3}>
         <div className={classes.detailText}>{props.absence.absenceReason}</div>
         <div className={classes.subText}>{dateRangeDisplay}</div>
+        {props.showAbsenceChip && <Chip label={t("Absence")} />}
       </Grid>
       <Grid item xs={3}>
         {props.absence.substitute && (

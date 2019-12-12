@@ -25,6 +25,16 @@ query GetEmployeePositionContractSchedule(
       id
       date
       calendarDayTypeId
+      calendarChangeId
+      calendarChange {
+        description
+        startDate
+        endDate
+        calendarChangeReason {
+          calendarDayTypeId
+          name
+        }
+      }
     }
   }
 }

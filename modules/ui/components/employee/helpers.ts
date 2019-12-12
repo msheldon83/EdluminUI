@@ -81,9 +81,20 @@ export const GetContractDates = (
   contractSchedule: GetEmployeePositionContractSchedule.EmployeeContractSchedule[]
 ): ContractDate[] => {
   return contractSchedule.map(c => {
+    const hasCalendarChange = !!c.calendarChange;
     return {
       date: parseISO(c.date),
       calendarDayType: c.calendarDayTypeId,
+      hasCalendarChange: hasCalendarChange,
+      calendarChangeDescription: c.calendarChange?.description ?? undefined,
+      calendarChangeReasonName:
+        c.calendarChange?.calendarChangeReason?.name ?? undefined,
+      startDate: hasCalendarChange
+        ? parseISO(c.calendarChange!.startDate)
+        : undefined,
+      endDate: hasCalendarChange
+        ? parseISO(c.calendarChange!.endDate)
+        : undefined,
     };
   });
 };
@@ -134,10 +145,22 @@ export const GroupEmployeeScheduleByMonth = (
     ...contractDates
       .filter(c => c.calendarDayType !== CalendarDayType.InstructionalDay)
       .map(c => {
+        let description = undefined;
+        if (c.hasCalendarChange) {
+          if (!!c.calendarChangeDescription && !!c.calendarChangeReasonName) {
+            description = `${c.calendarChangeReasonName} - ${c.calendarChangeDescription}`;
+          } else if (!!c.calendarChangeReasonName) {
+            description = c.calendarChangeReasonName;
+          } else if (!!c.calendarChangeDescription) {
+            description = c.calendarChangeDescription;
+          }
+        }
+
         return {
           date: c.date,
           type: getScheduleDateType(c.calendarDayType),
           rawData: c,
+          description: description,
         } as ScheduleDate;
       })
   );

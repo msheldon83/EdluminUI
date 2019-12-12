@@ -28,6 +28,11 @@ export type EmployeeAbsenceDetail = {
 export type ContractDate = {
   date: Date;
   calendarDayType: CalendarDayType;
+  hasCalendarChange: boolean;
+  calendarChangeDescription?: string;
+  calendarChangeReasonName?: string;
+  startDate?: Date;
+  endDate?: Date;
 };
 
 export type PositionScheduleDate = {
