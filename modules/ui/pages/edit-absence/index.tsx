@@ -11,6 +11,8 @@ import { VacancyDetail } from "../create-absence/types";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { EditAbsenceUI } from "./ui";
 
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
+
 type Props = { actingAsEmployee?: boolean };
 export const EditAbsence: React.FC<Props> = props => {
   const params = useRouteParams(AdminEditAbsenceRoute);

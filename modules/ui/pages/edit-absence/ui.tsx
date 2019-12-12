@@ -87,6 +87,14 @@ type EditAbsenceFormData = {
   payCode?: string;
 };
 
+/*
+ * We're allowing @ts-ignore comments in this file because of a difficult problem.
+ * It appears that something to do with the generated types for GetAbsence cause
+ * spurious errors to be emitted from typescript. Hopefully this is an isolated
+ * problem. If not, we'll need to figure out a proper fix.
+ */
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
+
 export const EditAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const [step, setStep] = useQueryParamIso(StepParams);

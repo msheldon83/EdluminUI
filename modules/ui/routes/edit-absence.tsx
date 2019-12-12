@@ -10,7 +10,7 @@ export const AdminEditAbsenceRoute = defineSubRoute(
 
 export const AdminEditAbsenceLoader = asyncComponent({
   async resolve() {
-    return (await import("ui/pages/edit-absence/admin")).EditAbsence;
+    return (await import("ui/pages/edit-absence")).EditAbsence;
   },
 });
 
