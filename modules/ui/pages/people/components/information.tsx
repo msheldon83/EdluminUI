@@ -6,7 +6,7 @@ import {
   makeStyles,
   Tooltip,
 } from "@material-ui/core";
-import InfoIcon from "@material-ui/icons/info";
+import InfoIcon from "@material-ui/icons/Info";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
