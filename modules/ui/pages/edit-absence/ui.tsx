@@ -206,7 +206,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         Number(state.employeeId),
         Number(props.positionId),
         disabledDates,
-        { ...state, organizationId: props.organizationId },
+        state.needsReplacement,
         customizedVacancyDetails
       ),
     [
@@ -343,6 +343,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               needsReplacement={props.needsReplacement}
               wantsReplacement={state.needsReplacement}
               organizationId={props.organizationId}
+              employeeId={props.employeeId}
               onSwitchMonth={d => dispatch({ action: "switchMonth", month: d })}
               onSubstituteWantedChange={subWanted =>
                 dispatch({ action: "setNeedsReplacement", to: subWanted })
@@ -369,6 +370,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           details={theVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
+          setStep={setStep}
         />
       )}
       {step === "preAssignSub" && (

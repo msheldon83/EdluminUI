@@ -24,6 +24,7 @@ type Props = {
   onCancel: () => void;
   onChangedVacancies: (data: VacancyDetail[]) => void;
   employeeId: string;
+  setStep: (s: "absence") => void;
 };
 
 type EditVacancyFormData = {
@@ -48,6 +49,11 @@ export const EditVacancies: React.FC<Props> = props => {
     (locationQuery.state !== "LOADING" &&
       compact(locationQuery.data.employee?.byId?.locations)) ||
     [];
+
+  if (props.details.length === 0) {
+    props.setStep("absence");
+    return <></>;
+  }
 
   return (
     <Formik
@@ -103,7 +109,7 @@ export const EditVacancies: React.FC<Props> = props => {
               }
             />
 
-            <Grid container justify="flex-end">
+            <Grid container justify="flex-end" spacing={2}>
               <Grid item>
                 <Button onClick={props.onCancel} variant="outlined">
                   {t("Cancel")}

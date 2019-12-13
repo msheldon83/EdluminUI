@@ -32,6 +32,31 @@ export const dayPartToLabel = (dayPart: DayPart): string => {
   }
 };
 
+export const dayPartToTimesLabel = (dayPart: DayPart, times: ScheduleTimes) => {
+  switch (dayPart) {
+    case DayPart.FullDay:
+      return `(${times.startTime} - ${times.endTime})`;
+    case DayPart.HalfDayMorning:
+      return `(${times.startTime} - ${times.halfDayMorningEnd})`;
+    case DayPart.HalfDayAfternoon:
+      return `(${times.halfDayAfternoonStart} - ${times.endTime})`;
+    case DayPart.Hourly:
+    case DayPart.QuarterDayEarlyMorning:
+    case DayPart.QuarterDayLateMorning:
+    case DayPart.QuarterDayEarlyAfternoon:
+    case DayPart.QuarterDayLateAfternoon:
+    default:
+      return "";
+  }
+};
+
+export type ScheduleTimes = {
+  startTime: string;
+  halfDayMorningEnd: string;
+  halfDayAfternoonStart: string;
+  endTime: string;
+};
+
 export type ReplacementEmployeeForVacancy = {
   employeeId: number;
   firstName: string;
