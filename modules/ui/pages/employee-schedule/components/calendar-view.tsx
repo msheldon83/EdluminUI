@@ -49,18 +49,20 @@ export const CalendarView: React.FC<Props> = props => {
       skip: !props.employeeId,
     }
   );
-  const positionSchedule =
-    getEmployeeSchedule.state === "LOADING" ||
-    getEmployeeSchedule.state === "UPDATING"
+  const positionSchedule = useMemo(() => {
+    return getEmployeeSchedule.state === "LOADING" ||
+      getEmployeeSchedule.state === "UPDATING"
       ? []
       : (getEmployeeSchedule.data?.employee
           ?.employeePositionSchedule as GetEmployeePositionContractSchedule.EmployeePositionSchedule[]);
-  const contractSchedule =
-    getEmployeeSchedule.state === "LOADING" ||
-    getEmployeeSchedule.state === "UPDATING"
+  }, [getEmployeeSchedule]);
+  const contractSchedule = useMemo(() => {
+    return getEmployeeSchedule.state === "LOADING" ||
+      getEmployeeSchedule.state === "UPDATING"
       ? []
       : (getEmployeeSchedule.data?.employee
           ?.employeeContractSchedule as GetEmployeePositionContractSchedule.EmployeeContractSchedule[]);
+  }, [getEmployeeSchedule]);
 
   const monthGroups = useMemo(
     () =>
