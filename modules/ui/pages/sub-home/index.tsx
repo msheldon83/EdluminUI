@@ -107,6 +107,7 @@ export const SubHome: React.FC<Props> = props => {
     | "totalDayPortion"
     | "details"
   >[];
+  const sortedVacancies = vacancies.sort(x => x.startTimeLocal);
 
   const fromDate = useMemo(() => new Date(), []);
   const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
@@ -302,7 +303,7 @@ export const SubHome: React.FC<Props> = props => {
                   <Typography variant="h5">{t("No Jobs Available")}</Typography>
                 </Grid>
               ) : (
-                vacancies.map((vacancy, index) => (
+                sortedVacancies.map((vacancy, index) => (
                   <AvailableJob
                     vacancy={vacancy}
                     shadeRow={index % 2 != 0}
