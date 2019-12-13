@@ -3,6 +3,10 @@ mutation UpdateOrgUser($orgUser: OrgUserUpdateInput!) {
     update(orgUser: $orgUser) {
       id
       active
+      firstName
+      middleName
+      lastName
+      externalId
     }
   }
 }
