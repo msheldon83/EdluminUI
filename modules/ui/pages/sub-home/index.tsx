@@ -44,6 +44,7 @@ import { Padding } from "ui/components/padding";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
 import { FilterList } from "@material-ui/icons";
+import { useScreenSize } from "hooks/index";
 
 type Props = {};
 
@@ -61,6 +62,7 @@ export const SubHome: React.FC<Props> = props => {
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy);
   const [requestVacancyMutation] = useMutationBundle(RequestVacancy);
   const [filters] = useQueryParamIso(FilterQueryParams);
+  const screenSize = useScreenSize();
 
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
     fetchPolicy: "cache-first",
@@ -194,20 +196,24 @@ export const SubHome: React.FC<Props> = props => {
       )}`;
 
   const renderAssignments = () => {
-    return assignments.slice(0, 3).map((assignment, index, assignments) => {
-      const classNames = clsx({
-        [classes.lastAssignmentInList]: index == assignments.length - 1, // last one
-      });
+    const numberOfAssingments = screenSize === "mobile" ? 2 : 3;
 
-      return (
-        <AssignmentCard
-          vacancyDetail={assignment}
-          shadeRow={false}
-          key={index}
-          className={classNames}
-        />
-      );
-    });
+    return assignments
+      .slice(0, numberOfAssingments)
+      .map((assignment, index, assignments) => {
+        const classNames = clsx({
+          [classes.lastAssignmentInList]: index == assignments.length - 1, // last one
+        });
+
+        return (
+          <AssignmentCard
+            vacancyDetail={assignment}
+            shadeRow={false}
+            key={index}
+            className={classNames}
+          />
+        );
+      });
   };
 
   return (
@@ -218,8 +224,13 @@ export const SubHome: React.FC<Props> = props => {
         spacing={2}
         alignItems="stretch"
       >
-        <SectionHeader title={upcomingWorkTitle} />
-        <Grid item xs={12} sm={6} lg={6}>
+        <Grid item xs={12} style={{ paddingBottom: 0 }}>
+          <SectionHeader
+            title={upcomingWorkTitle}
+            titleClassName={classes.title}
+          />
+        </Grid>
+        <Grid item xs={12} sm={12} md={6} lg={6}>
           {getUpcomingAssignments.state === "LOADING" ||
           getUpcomingAssignments.state === "UPDATING" ? (
             <Section>
@@ -336,8 +347,16 @@ const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(2),
   },
+  title: {
+    marginBottom: 0,
+  },
   upcomingWork: {
     backgroundColor: "transparent",
+
+    [theme.breakpoints.down("md")]: {
+      padding: theme.spacing(2),
+      paddingTop: 0,
+    },
   },
   lastAssignmentInList: {
     opacity: 0.4,
