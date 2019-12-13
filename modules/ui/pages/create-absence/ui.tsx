@@ -289,6 +289,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                   dispatch({ action: "setNeedsReplacement", to: subWanted })
                 }
                 organizationId={props.organizationId}
+                employeeId={state.employeeId}
                 setValue={setValue}
                 values={formValues}
                 errors={errors}
