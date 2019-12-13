@@ -1,4 +1,4 @@
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
@@ -9,8 +9,6 @@ import {
   FeatureFlag,
   WorkDayScheduleVariantType,
   WorkDayScheduleVariantInput,
-  WorkDaySchedulePeriodInput,
-  Maybe,
 } from "graphql/server-types.gen";
 import { CreateWorkdaySchedule } from "./graphql/create.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
@@ -22,23 +20,19 @@ import {
 } from "ui/routes/bell-schedule";
 import { AddBasicInfo } from "./components/add-basic-info";
 import { TFunction } from "i18next";
-import { Schedule, Period } from "./components/schedule";
-import {
-  secondsSinceMidnight,
-  midnightTime,
-  timeStampToIso,
-} from "../../../helpers/time";
+import { Schedule } from "./components/schedule";
+import { secondsSinceMidnight } from "../../../helpers/time";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { useWorkDayPatterns } from "reference-data/work-day-patterns";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 import { Assign } from "./components/assign";
-
-export type ScheduleSettings = {
-  isBasic: boolean;
-  periodSettings: {
-    numberOfPeriods: number;
-  };
-};
+import { useSnackbar } from "hooks/use-snackbar";
+import {
+  ScheduleSettings,
+  Period,
+  BuildPeriodsFromSchedule,
+  BuildPeriodsFromScheduleSettings,
+} from "./helpers";
 
 const scheduleSettingsDefaults: ScheduleSettings = {
   isBasic: true,
@@ -47,123 +41,28 @@ const scheduleSettingsDefaults: ScheduleSettings = {
   },
 };
 
-const buildPeriodsFromScheduleSettings = (
-  settings: ScheduleSettings,
-  useHalfDayBreaks: boolean,
-  t: TFunction
-): Array<Period> => {
-  const periods: Array<Period> = [];
-
-  if (settings.isBasic) {
-    // Basic Schedule
-    periods.push({
-      placeholder: t("Morning"),
-      startTime: undefined,
-      endTime: undefined,
-      skipped: false,
-    });
-    periods.push({
-      placeholder: t("Afternoon"),
-      startTime: undefined,
-      endTime: undefined,
-      skipped: false,
-    });
-  } else {
-    // Period Schedule
-    for (let i = 0; i < settings.periodSettings.numberOfPeriods; i++) {
-      periods.push({
-        placeholder: `${t("Period")} ${i + 1}`,
-        startTime: undefined,
-        endTime: undefined,
-        skipped: false,
-      });
-    }
-  }
-
-  // If using Half Day Breaks, add one into the list
-  if (useHalfDayBreaks) {
-    const middleIndex = Math.ceil(periods.length / 2);
-    periods.splice(middleIndex, 0, {
-      placeholder: t("Lunch"),
-      startTime: undefined,
-      endTime: undefined,
-      isHalfDayAfternoonStart: true,
-      skipped: false,
-    });
-    periods[middleIndex - 1].isHalfDayMorningEnd = true;
-  }
-
-  return periods;
-};
-
-const buildPeriodsFromSchedule = (
-  periods: Array<Maybe<WorkDaySchedulePeriodInput>>,
-  variant: WorkDayScheduleVariantInput | null | undefined,
-  useHalfDayBreaks: boolean,
-  standardSchedule: WorkDayScheduleVariantInput | null | undefined
-) => {
-  const schedulePeriods = periods.map(p => {
-    const variantPeriod =
-      variant && variant.periods
-        ? variant.periods.find(vp => vp!.workDaySchedulePeriodName === p!.name)
-        : null;
-
-    return {
-      name: p!.name || "",
-      placeholder: "",
-      startTime:
-        variantPeriod && variantPeriod.startTime
-          ? timeStampToIso(midnightTime().setSeconds(variantPeriod.startTime))
-          : undefined,
-      endTime:
-        variantPeriod && variantPeriod.endTime
-          ? timeStampToIso(midnightTime().setSeconds(variantPeriod.endTime))
-          : undefined,
-      isHalfDayMorningEnd:
-        variantPeriod != null && (variantPeriod?.isHalfDayMorningEnd || false),
-      isHalfDayAfternoonStart:
-        variantPeriod != null &&
-        (variantPeriod?.isHalfDayAfternoonStart || false),
-      skipped: false,
-    };
-  });
-
-  if (useHalfDayBreaks) {
-    // Default Half Day Morning End and Half Day Afternoon Start if not set
-    const currentHalfDayMorningEnd = schedulePeriods.find(
-      p => p.isHalfDayMorningEnd
-    );
-    const currentHalfDayAfternoonStart = schedulePeriods.find(
-      p => p.isHalfDayAfternoonStart
-    );
-    if (
-      !currentHalfDayMorningEnd &&
-      !currentHalfDayAfternoonStart &&
-      standardSchedule &&
-      standardSchedule.periods
-    ) {
-      const halfDayAfternoonStartIndex = standardSchedule.periods.findIndex(
-        p => p!.isHalfDayAfternoonStart
-      );
-      const halfDayMorningEndIndex = standardSchedule.periods.findIndex(
-        p => p!.isHalfDayMorningEnd
-      );
-      schedulePeriods[
-        halfDayAfternoonStartIndex
-      ].isHalfDayAfternoonStart = true;
-      schedulePeriods[halfDayMorningEndIndex].isHalfDayMorningEnd = true;
-    }
-  }
-
-  return schedulePeriods;
-};
-
 export const BellScheduleAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(BellScheduleAddRoute);
   const classes = useStyles();
-  const [createWorkdaySchedule] = useMutationBundle(CreateWorkdaySchedule);
+  const [createWorkdaySchedule] = useMutationBundle(CreateWorkdaySchedule, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
+  const { openSnackbar } = useSnackbar();
   const [name, setName] = React.useState<string | null>(null);
   const namePlaceholder = t("Eastend High School");
   const [scheduleSettings, setScheduleSettings] = React.useState<
@@ -246,7 +145,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
         ? bellSchedule.additionalVariants[variantIndex]
         : null;
       schedulePeriods.push(
-        ...buildPeriodsFromSchedule(
+        ...BuildPeriodsFromSchedule(
           bellSchedule.periods,
           variant,
           orgUsesHalfDayBreaks,
@@ -255,7 +154,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
       );
     } else {
       schedulePeriods.push(
-        ...buildPeriodsFromScheduleSettings(
+        ...BuildPeriodsFromScheduleSettings(
           scheduleSettings,
           orgUsesHalfDayBreaks,
           t
@@ -363,12 +262,14 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
 
           // Create the Bell Schedule
           const id = await create(updatedBellSchedule);
-          const viewParams = {
-            ...params,
-            workDayScheduleId: id!,
-          };
-          // Go to the Bell Schedule View page
-          history.push(BellScheduleViewRoute.generate(viewParams));
+          if (id) {
+            const viewParams = {
+              ...params,
+              workDayScheduleId: id,
+            };
+            // Go to the Bell Schedule View page
+            history.push(BellScheduleViewRoute.generate(viewParams));
+          }
         }}
         onCancel={() => {
           const url = BellScheduleRoute.generate(params);
