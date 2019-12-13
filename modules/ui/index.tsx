@@ -19,6 +19,10 @@ import { VerifyLoader, VerifyRoute } from "./routes/absence-vacancy/verify";
 import {
   AbsenceReasonLoader,
   AbsenceReasonRoute,
+  AbsenceReasonAddRoute,
+  AbsenceReasonAddLoader,
+  AbsenceReasonViewEditRoute,
+  AbsenceReasonViewEditLoader,
 } from "./routes/absence/reason";
 import {
   AccountingCodeLoader,
@@ -316,6 +320,18 @@ export function App() {
                         <Route
                           component={PayCodeLoader}
                           path={PayCodeRoute.path}
+                        />
+                        <Route
+                          component={AbsenceReasonAddLoader}
+                          path={AbsenceReasonAddRoute.path}
+                        />
+                        <Route
+                          component={AbsenceReasonViewEditLoader}
+                          path={AbsenceReasonViewEditRoute.path}
+                        />
+                        <Route
+                          component={AbsenceReasonLoader}
+                          path={AbsenceReasonRoute.path}
                         />
                         <Route
                           component={ContractsLoader}
