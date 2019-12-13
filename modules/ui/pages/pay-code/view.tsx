@@ -115,6 +115,10 @@ export const PayCodeViewEditPage: React.FC<Props> = props => {
         },
       },
     });
+    const viewParams = {
+      ...params,
+    };
+    history.push(PayCodeRoute.generate(viewParams));
   };
 
   const cancelUrl = () => {
@@ -182,7 +186,7 @@ export const PayCodeViewEditPage: React.FC<Props> = props => {
         <SectionHeader title={t("Settings")} />
         <Grid container spacing={2}>
           <PayCodeDescription
-            description={payCode.description}
+            description={payCode.description ?? ""}
             onSubmit={updateDescription}
             onCancel={cancelUrl}
           />

@@ -135,7 +135,6 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
       content: renderSettings,
     },
   ];
-
   return (
     <>
       <div className={classes.header}>
