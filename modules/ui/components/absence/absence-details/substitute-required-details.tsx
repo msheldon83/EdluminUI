@@ -153,7 +153,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
       </div>
 
       {hasVacancies && (
-        <div>
+        <div className={classes.substituteActions}>
           <Button
             variant="outlined"
             className={classes.preArrangeButton}
@@ -187,6 +187,9 @@ const useStyles = makeStyles(theme => ({
   },
   preArrangeButton: {
     marginRight: theme.spacing(2),
+  },
+  substituteActions: {
+    marginTop: theme.spacing(2),
   },
 }));
 

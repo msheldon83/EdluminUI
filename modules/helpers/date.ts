@@ -158,11 +158,11 @@ export const GetYesterdayTodayTomorrowFormat = (
   const dateInput = typeof date === "string" ? parseISO(date) : date;
   let dateFormat = baseFormat;
   if (isYesterday(dateInput)) {
-    dateFormat = `'Yesterday,' ${baseFormat}`;
+    dateFormat = `'Yesterday'`;
   } else if (isToday(dateInput)) {
-    dateFormat = `'Today,' ${baseFormat}`;
+    dateFormat = `'Today'`;
   } else if (isTomorrow(dateInput)) {
-    dateFormat = `'Tomorrow,' ${baseFormat}`;
+    dateFormat = `'Tomorrow'`;
   }
   return dateFormat;
 };
