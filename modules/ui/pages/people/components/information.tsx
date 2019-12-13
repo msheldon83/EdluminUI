@@ -22,7 +22,6 @@ import {
   CountryCode,
   OrgUserRole,
   OrgUserUpdateInput,
-  Maybe,
 } from "graphql/server-types.gen";
 import { PeopleGridItem } from "./people-grid-item";
 import * as yup from "yup";
@@ -60,10 +59,14 @@ type Props = {
     loginEmail?: string | null | undefined;
     dateOfBirth?: string | null | undefined;
     permissionSets?:
-      | Array<{ name: string; orgUserRole: OrgUserRole } | null | undefined>
+      | Array<
+          | { name: string; orgUserRole?: OrgUserRole | null | undefined }
+          | null
+          | undefined
+        >
       | null
       | undefined;
-    permissionSetIds: number[];
+    permissionSetIds?: number[] | null | undefined;
     isSuperUser: boolean;
   };
   lastLogin: string | null | undefined;
@@ -138,11 +141,14 @@ export const Information: React.FC<Props> = props => {
             id: Number(orgUser.id),
             rowVersion: orgUser.rowVersion,
             email: data.email,
-            phoneNumber: data.phoneNumber,
+            phoneNumber:
+              data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
             dateOfBirth: data.dateOfBirth,
-            address1: data.address1,
+            address1: data.address1.trim().length === 0 ? null : data.address1,
             stateId: data.state,
-            postalCode: data.postalCode,
+            postalCode:
+              data.postalCode.trim().length === 0 ? null : data.postalCode,
+            countryId: data.state ? ("US" as CountryCode) : null,
             permissionSetIds: data.permissionSetIds,
           });
         }}
@@ -179,7 +185,7 @@ export const Information: React.FC<Props> = props => {
                             value={permissionSetOptions.filter(
                               e =>
                                 e.value &&
-                                values.permissionSetIds.includes(
+                                values.permissionSetIds?.includes(
                                   Number(e.value)
                                 )
                             )}
