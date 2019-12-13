@@ -1,6 +1,12 @@
 import { Chip, FormHelperText, makeStyles } from "@material-ui/core";
 import { Add, CancelOutlined, DragHandle } from "@material-ui/icons";
-import { addMinutes, differenceInMinutes, isValid } from "date-fns";
+import {
+  addMinutes,
+  differenceInMinutes,
+  isValid,
+  isBefore,
+  parseISO,
+} from "date-fns";
 import { Formik, FormikErrors } from "formik";
 import { useIsMobile } from "hooks";
 import { TFunction } from "i18next";
@@ -18,6 +24,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
+import { Period } from "../helpers";
 
 type Props = {
   name?: string | null | undefined;
@@ -30,19 +37,6 @@ type Props = {
     variantId?: number | null | undefined
   ) => void;
   onCancel: () => void;
-};
-
-export type Period = {
-  periodId?: string | null | undefined;
-  variantPeriodId?: string | null | undefined;
-  name?: string;
-  placeholder: string;
-  startTime?: string;
-  endTime?: string;
-  isHalfDayMorningEnd?: boolean;
-  isHalfDayAfternoonStart?: boolean;
-  skipped: boolean;
-  sequence?: number;
 };
 
 const travelDuration = 5;
@@ -283,6 +277,7 @@ export const Schedule: React.FC<Props> = props => {
   };
 
   const getError = (errors: any, fieldName: string, index: number) => {
+    console.log(errors);
     if (!errors.periods || !errors.periods[index]) {
       return null;
     }
@@ -466,6 +461,7 @@ export const Schedule: React.FC<Props> = props => {
                         }
                       >
                         <Chip
+                          tabIndex={-1}
                           className={classes.startOfAfternoonChip}
                           label={t("Start of afternoon")}
                         />
@@ -528,6 +524,7 @@ export const Schedule: React.FC<Props> = props => {
                         className={!p.isHalfDayMorningEnd ? classes.hidden : ""}
                       >
                         <Chip
+                          tabIndex={-1}
                           className={classes.endOfMorningChip}
                           label={t("End of morning")}
                         />
@@ -566,18 +563,51 @@ export const Schedule: React.FC<Props> = props => {
         validateOnChange={false}
         validateOnBlur={false}
         validationSchema={yup.object().shape({
-          periods: yup.array().of(
-            yup.object().shape({
-              startTime: yup.string().when("skipped", {
-                is: false,
-                then: yup.string().required(t("Required")),
-              }),
-              endTime: yup.string().when("skipped", {
-                is: false,
-                then: yup.string().required(t("Required")),
-              }),
-            })
-          ),
+          periods: yup
+            .array()
+            .of(
+              yup
+                .object()
+                .shape({
+                  startTime: yup.string().when("skipped", {
+                    is: false,
+                    then: yup.string().required(t("Required")),
+                  }),
+                  endTime: yup.string().when("skipped", {
+                    is: false,
+                    then: yup.string().required(t("Required")),
+                  }),
+                })
+                .test({
+                  name: "endBeforeStartCheck",
+                  test: function test(value) {
+                    if (
+                      isBefore(
+                        parseISO(value.endTime),
+                        parseISO(value.startTime)
+                      )
+                    ) {
+                      return new yup.ValidationError(
+                        t("End Time before Start Time"),
+                        null,
+                        `${this.path}.endTime`
+                      );
+                    }
+
+                    return true;
+                  },
+                })
+            )
+            .test({
+              name: "periodOverlapsCheck",
+              test: value => {
+                console.log(value);
+
+                //array of the Period object
+                // startTime and endTime strings
+                return true;
+              },
+            }),
         })}
       >
         {({ handleSubmit, values, setFieldValue, submitForm, errors }) => (
