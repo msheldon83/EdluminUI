@@ -1,6 +1,13 @@
-import { Chip, FormHelperText, makeStyles } from "@material-ui/core";
+import { Chip, FormHelperText, makeStyles, Grid } from "@material-ui/core";
 import { Add, CancelOutlined, DragHandle } from "@material-ui/icons";
-import { addMinutes, differenceInMinutes, isValid } from "date-fns";
+import {
+  addMinutes,
+  differenceInMinutes,
+  isValid,
+  isBefore,
+  parseISO,
+  areIntervalsOverlapping,
+} from "date-fns";
 import { Formik, FormikErrors } from "formik";
 import { useIsMobile } from "hooks";
 import { TFunction } from "i18next";
@@ -18,6 +25,8 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
+import { Period } from "../helpers";
+import { isArray } from "lodash-es";
 
 type Props = {
   name?: string | null | undefined;
@@ -30,19 +39,6 @@ type Props = {
     variantId?: number | null | undefined
   ) => void;
   onCancel: () => void;
-};
-
-export type Period = {
-  periodId?: string | null | undefined;
-  variantPeriodId?: string | null | undefined;
-  name?: string;
-  placeholder: string;
-  startTime?: string;
-  endTime?: string;
-  isHalfDayMorningEnd?: boolean;
-  isHalfDayAfternoonStart?: boolean;
-  skipped: boolean;
-  sequence?: number;
 };
 
 const travelDuration = 5;
@@ -466,6 +462,7 @@ export const Schedule: React.FC<Props> = props => {
                         }
                       >
                         <Chip
+                          tabIndex={-1}
                           className={classes.startOfAfternoonChip}
                           label={t("Start of afternoon")}
                         />
@@ -528,6 +525,7 @@ export const Schedule: React.FC<Props> = props => {
                         className={!p.isHalfDayMorningEnd ? classes.hidden : ""}
                       >
                         <Chip
+                          tabIndex={-1}
                           className={classes.endOfMorningChip}
                           label={t("End of morning")}
                         />
@@ -554,7 +552,6 @@ export const Schedule: React.FC<Props> = props => {
 
   return (
     <Section>
-      {props.name && <SectionHeader title={props.name} />}
       <Formik
         initialValues={{
           periods: props.periods,
@@ -566,22 +563,102 @@ export const Schedule: React.FC<Props> = props => {
         validateOnChange={false}
         validateOnBlur={false}
         validationSchema={yup.object().shape({
-          periods: yup.array().of(
-            yup.object().shape({
-              startTime: yup.string().when("skipped", {
-                is: false,
-                then: yup.string().required(t("Required")),
-              }),
-              endTime: yup.string().when("skipped", {
-                is: false,
-                then: yup.string().required(t("Required")),
-              }),
-            })
-          ),
+          periods: yup
+            .array()
+            .of(
+              yup
+                .object()
+                .shape({
+                  startTime: yup.string().when("skipped", {
+                    is: false,
+                    then: yup.string().required(t("Required")),
+                  }),
+                  endTime: yup.string().when("skipped", {
+                    is: false,
+                    then: yup.string().required(t("Required")),
+                  }),
+                })
+                .test({
+                  name: "endBeforeStartCheck",
+                  test: function test(value) {
+                    if (
+                      isBefore(
+                        parseISO(value.endTime),
+                        parseISO(value.startTime)
+                      )
+                    ) {
+                      return new yup.ValidationError(
+                        t("End Time before Start Time"),
+                        null,
+                        `${this.path}.endTime`
+                      );
+                    }
+
+                    return true;
+                  },
+                })
+            )
+            .test({
+              name: "periodOverlapsCheck",
+              test: value => {
+                if (
+                  value.find((v: any) =>
+                    isBefore(parseISO(v.endTime), parseISO(v.startTime))
+                  )
+                ) {
+                  // endBeforeStartCheck test above will handle this scenario
+                  // We don't want to call areIntervalsOverlapping with invalid intervals
+                  return true;
+                }
+
+                const overlaps = value.filter(
+                  (v: any) =>
+                    !!value.find(
+                      (f: any) =>
+                        v !== f &&
+                        areIntervalsOverlapping(
+                          {
+                            start: parseISO(v.startTime),
+                            end: parseISO(v.endTime),
+                          },
+                          {
+                            start: parseISO(f.startTime),
+                            end: parseISO(f.endTime),
+                          }
+                        )
+                    )
+                );
+
+                if (overlaps.length > 0) {
+                  return new yup.ValidationError(
+                    t("Period times can not overlap"),
+                    null,
+                    "periods"
+                  );
+                }
+
+                return true;
+              },
+            }),
         })}
       >
         {({ handleSubmit, values, setFieldValue, submitForm, errors }) => (
           <form onSubmit={handleSubmit}>
+            <Grid container justify="space-between" alignItems="center">
+              <Grid item>
+                {props.name && <SectionHeader title={props.name} />}
+              </Grid>
+              <Grid item>
+                {errors && errors.periods && !isArray(errors.periods) && (
+                  <FormHelperText
+                    error={true}
+                    className={classes.scheduleError}
+                  >
+                    {errors.periods}
+                  </FormHelperText>
+                )}
+              </Grid>
+            </Grid>
             <DragDropContext
               onDragEnd={(result: DropResult) => {
                 const updatedPeriods = onDragEnd(result, values.periods, t);
@@ -691,5 +768,8 @@ const useStyles = makeStyles(theme => ({
   skippedDiv: {
     flexGrow: 2,
     textTransform: "uppercase",
+  },
+  scheduleError: {
+    fontSize: theme.typography.pxToRem(14),
   },
 }));
