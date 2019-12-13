@@ -12,3 +12,43 @@ export const AbsenceReasonLoader = asyncComponent({
   },
   name: "AbsenceReason",
 });
+
+// View/Edit
+export const AbsenceReasonViewRoute = defineSubRoute(
+  AbsenceReasonRoute,
+  "/:absenceReasonId",
+  ["absenceReasonId"]
+);
+
+// Add
+export const AbsenceReasonAddRoute = defineSubRoute(
+  AbsenceReasonRoute,
+  "/add",
+  []
+);
+
+export const AbsenceReasonAddLoader = asyncComponent({
+  resolve: async () => {
+    const AbsenceReasonAddPage = (await import("ui/pages/absence-reason/add"))
+      .AbsenceReasonAddPage;
+    return AbsenceReasonAddPage;
+  },
+  name: "AbsenceReasonAddPage",
+});
+
+// Edit Settings
+export const AbsenceReasonViewEditRoute = defineSubRoute(
+  AbsenceReasonViewRoute,
+  "/view",
+  []
+);
+
+export const AbsenceReasonViewEditLoader = asyncComponent({
+  resolve: async () => {
+    const AbsenceReasonViewEditPage = (
+      await import("ui/pages/absence-reason/view")
+    ).AbsenceReasonViewEditPage;
+    return AbsenceReasonViewEditPage;
+  },
+  name: "AbsenceReasonViewEditPage",
+});

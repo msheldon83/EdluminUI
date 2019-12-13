@@ -1,0 +1,12 @@
+mutation CreatePayCode($payCode: PayCodeCreateInput!) {
+  orgRef_PayCode {
+    create(payCode: $payCode) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      expired
+    }
+  }
+}
