@@ -77,7 +77,7 @@ export const AsAdmin = () => {
           positionName="Math Teacher"
           onChangedVacancies={() => {}}
           onCancel={() => {}}
-          setStep={() => {})}
+          setStep={() => {}}
         />
       </Route>
     </Provider>
