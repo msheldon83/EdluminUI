@@ -265,7 +265,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
           if (id) {
             const viewParams = {
               ...params,
-              workDayScheduleId: id!,
+              workDayScheduleId: id,
             };
             // Go to the Bell Schedule View page
             history.push(BellScheduleViewRoute.generate(viewParams));
