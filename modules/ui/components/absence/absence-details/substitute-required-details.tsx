@@ -29,6 +29,7 @@ type Props = {
   values: AbsenceDetailsFormData;
   arrangeSubButtonTitle?: string;
   disabledDates?: DisabledDate[];
+  disableReplacementInteractions?: boolean;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -164,6 +165,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
             variant="outlined"
             className={classes.preArrangeButton}
             onClick={() => setStep("preAssignSub")}
+            disabled={props.disableReplacementInteractions}
           >
             {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
           </Button>

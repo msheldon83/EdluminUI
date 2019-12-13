@@ -197,7 +197,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   });
 
   const useProjectedInformation =
-    customizedVacancyDetails ||
+    customizedVacancyDetails !== undefined ||
     !isSameDay(parseISO(props.startDate), formValues.startDate) ||
     !isSameDay(parseISO(props.endDate), formValues.endDate) ||
     formValues.dayPart !== props.dayPart ||
@@ -236,6 +236,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         customizedVacancyDetails
       ),
     [
+      props.organizationId,
       formValues.startDate,
       formValues.endDate,
       formValues.absenceReason,
@@ -293,7 +294,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     } else {
       return computeAbsenceUsageText(props.initialAbsenceUsageData, t);
     }
-  }, [getProjectedAbsenceUsage]);
+  }, [props.initialAbsenceUsageData, t, getProjectedAbsenceUsage]);
 
   const projectedVacancies =
     getProjectedVacancies.state === "DONE" ||
@@ -314,7 +315,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const projectedVacancyDetails: VacancyDetail[] = useMemo(
     () => projectVacancyDetails(getProjectedVacancies),
-    [getProjectedVacancies.state]
+    [projectVacancyDetails, getProjectedVacancies.state]
   );
 
   const theVacancyDetails: VacancyDetail[] =
@@ -409,6 +410,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               setVacanciesInput={setVacanciesInput}
               arrangedSubText={t("assigned")}
               arrangeSubButtonTitle={t("Assign Sub")}
+              disableReplacementInteractions={useProjectedInformation}
             />
           </Section>
         </form>

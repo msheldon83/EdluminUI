@@ -14,6 +14,7 @@ type Props = {
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
+  disableReplacementInteractions?: boolean;
 };
 
 export const AssignedSub: React.FC<Props> = props => {
@@ -34,6 +35,7 @@ export const AssignedSub: React.FC<Props> = props => {
       <div>
         {props.onRemove && (
           <Button
+            disabled={props.disableReplacementInteractions}
             className={classes.removeButton}
             variant="outlined"
             onClick={async () =>
