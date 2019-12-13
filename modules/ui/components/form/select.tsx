@@ -172,16 +172,20 @@ export const StyledSelect: React.FC<Props> = props => {
       <ArrowDropDownIcon className={classes.arrowDownIcon} />
     ) : null;
 
+  const id = `react-select-${
+    props.label ? props.label : Math.round(Math.random() * 1000)
+  }`;
+
   return (
     <ReactSelect
       name={props.name}
       classes={classes}
       styles={selectStyles}
-      inputId="react-select-single"
+      inputId={id}
       TextFieldProps={{
         label: props.label,
         InputLabelProps: {
-          htmlFor: "react-select-single",
+          htmlFor: id,
           shrink: !!props.value || hasFocus,
           placeholder: "",
         },

@@ -35,6 +35,7 @@ import { DateInput } from "ui/components/form/date-picker";
 import { usePermissionSets } from "reference-data/permissionsets";
 import { UpdateOrgUser } from "../graphql/update-orguser.gen";
 import { useMutationBundle } from "graphql/hooks";
+import { isValid, parseISO } from "date-fns";
 
 const editableSections = {
   information: "edit-information",
@@ -133,7 +134,9 @@ export const Information: React.FC<Props> = props => {
           city: orgUser.city ?? "",
           state: orgUser.state ?? undefined,
           postalCode: orgUser.postalCode ?? "",
-          dateOfBirth: orgUser.dateOfBirth ?? undefined,
+          dateOfBirth: orgUser.dateOfBirth
+            ? parseISO(orgUser.dateOfBirth)
+            : undefined,
           permissionSetIds: orgUser.permissionSetIds,
         }}
         onSubmit={async (data, e) => {
@@ -143,8 +146,9 @@ export const Information: React.FC<Props> = props => {
             email: data.email,
             phoneNumber:
               data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
-            dateOfBirth: data.dateOfBirth,
+            dateOfBirth: isValid(data.dateOfBirth) ? data.dateOfBirth : null,
             address1: data.address1.trim().length === 0 ? null : data.address1,
+            city: data.city.trim().length === 0 ? null : data.city,
             stateId: data.state,
             postalCode:
               data.postalCode.trim().length === 0 ? null : data.postalCode,
@@ -152,6 +156,9 @@ export const Information: React.FC<Props> = props => {
             permissionSetIds: data.permissionSetIds,
           });
         }}
+        validationSchema={yup.object().shape({
+          email: yup.string().required(t("Email is required")),
+        })}
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
@@ -220,6 +227,7 @@ export const Information: React.FC<Props> = props => {
                             InputComponent={FormTextField}
                             inputComponentProps={{
                               name: "email",
+                              id: "email",
                             }}
                           />
                         ) : (
@@ -236,6 +244,7 @@ export const Information: React.FC<Props> = props => {
                             InputComponent={FormTextField}
                             inputComponentProps={{
                               name: "phoneNumber",
+                              id: "phoneNumber",
                             }}
                           />
                         ) : orgUser.phoneNumber ? (
@@ -264,6 +273,7 @@ export const Information: React.FC<Props> = props => {
                                 InputComponent={FormTextField}
                                 inputComponentProps={{
                                   name: "address1",
+                                  id: "address1",
                                 }}
                               />
                             </Grid>
@@ -274,6 +284,7 @@ export const Information: React.FC<Props> = props => {
                                 InputComponent={FormTextField}
                                 inputComponentProps={{
                                   name: "city",
+                                  id: "city",
                                 }}
                               />
                             </Grid>
@@ -314,6 +325,7 @@ export const Information: React.FC<Props> = props => {
                                 InputComponent={FormTextField}
                                 inputComponentProps={{
                                   name: "postalCode",
+                                  id: "postalCode",
                                 }}
                               />
                             </Grid>
@@ -329,7 +341,6 @@ export const Information: React.FC<Props> = props => {
                               {orgUser.address2 && `${orgUser.address2}`}
                             </div>
                             <div>{`${orgUser.city}, ${orgUser.state} ${orgUser.postalCode}`}</div>
-                            <div>{orgUser.country}</div>
                           </>
                         )
                       }

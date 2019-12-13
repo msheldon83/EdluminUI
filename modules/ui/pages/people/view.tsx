@@ -22,21 +22,52 @@ import { GetOrgUserLastLogin } from "./graphql/get-orguser-lastlogin.gen";
 import { UpdateEmployee } from "./graphql/update-employee.gen";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { OrgUserUpdateInput } from "graphql/server-types.gen";
+import { useSnackbar } from "hooks/use-snackbar";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const history = useHistory();
+  const { openSnackbar } = useSnackbar();
 
   const params = useRouteParams(PersonViewRoute);
   const [editing, setEditing] = React.useState<string | null>(null);
-  const [active, setActive] = React.useState<boolean | null>(null);
   const [selectedRole, setSelectedRole] = React.useState<OrgUserRole | null>(
     null
   );
 
-  const [resetPassword] = useMutationBundle(ResetPassword);
-  const [deleteOrgUserMutation] = useMutationBundle(DeleteOrgUser);
+  const [resetPassword] = useMutationBundle(ResetPassword, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
+  const [deleteOrgUserMutation] = useMutationBundle(DeleteOrgUser, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
   const deleteOrgUser = React.useCallback(() => {
     history.push(PeopleRoute.generate(params));
     return deleteOrgUserMutation({
@@ -46,22 +77,38 @@ export const PersonViewPage: React.FC<{}> = props => {
     });
   }, [deleteOrgUserMutation, history, params]);
 
-  const [updateEmployee] = useMutationBundle(UpdateEmployee);
-  const [updateOrgUser] = useMutationBundle(UpdateOrgUser);
-  const activateDeactivateOrgUser = React.useCallback(
-    (active: boolean, rowVersion: string) => {
-      return updateOrgUser({
-        variables: {
-          orgUser: {
-            id: Number(params.orgUserId),
-            rowVersion: rowVersion,
-            active: active,
-          },
-        },
+  const [updateEmployee] = useMutationBundle(UpdateEmployee, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
       });
     },
-    [updateOrgUser, params]
-  );
+  });
+  const [updateOrgUser] = useMutationBundle(UpdateOrgUser, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
 
   const getOrgUser = useQueryBundle(GetOrgUserById, {
     variables: { id: params.orgUserId },
@@ -95,47 +142,15 @@ export const PersonViewPage: React.FC<{}> = props => {
   const lastLogin =
     getOrgUserLastLogin?.data?.orgUser?.lastLoginById?.lastLogin;
 
-  if (active === null) {
-    setActive(orgUser.active);
-  }
-
-  const updateName = async (nameFields: FieldData[]) => {
-    const lastName = nameFields.find(x => x.key === "lastName")?.value;
-    const middleName = nameFields.find(x => x.key === "middleName")?.value;
-    const firstName = nameFields.find(x => x.key === "firstName")?.value;
-
-    await updateOrgUser({
-      variables: {
-        orgUser: {
-          id: Number(orgUser.id),
-          rowVersion: orgUser.rowVersion,
-          lastName,
-          firstName,
-          middleName,
-        },
-      },
-    });
-  };
-
-  const updateExternalId = async (externalId?: string | null) => {
-    await updateOrgUser({
-      variables: {
-        orgUser: {
-          id: Number(orgUser.id),
-          rowVersion: orgUser.rowVersion,
-          externalId,
-        },
-      },
-    });
-  };
-
   const onUpdateOrgUser = async (orgUser: OrgUserUpdateInput) => {
-    await updateOrgUser({
+    const result = await updateOrgUser({
       variables: {
         orgUser: orgUser,
       },
     });
-    setEditing(null);
+    if (result) {
+      setEditing(null);
+    }
   };
 
   const defaultSelectedRole = orgUser.isAdmin
@@ -150,13 +165,9 @@ export const PersonViewPage: React.FC<{}> = props => {
       <PersonViewHeader
         orgUser={orgUser}
         editing={editing}
-        active={active}
         setEditing={setEditing}
-        setActive={setActive}
-        updateName={updateName}
-        updateExternalId={updateExternalId}
         deleteOrgUser={deleteOrgUser}
-        activateDeactivateOrgUser={activateDeactivateOrgUser}
+        onSaveOrgUser={onUpdateOrgUser}
       />
       <RoleTabs
         orgUser={orgUser}
