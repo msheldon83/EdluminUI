@@ -87,7 +87,7 @@ type AbsenceMutations {
 }
 
 type AbsenceQueries {
-  byId(id: ID!): Absence!
+  byId(id: ID!): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
   projectedVacancies(absence: AbsenceCreateInput!, ignoreAbsenceId: Int): [Vacancy]
@@ -741,7 +741,7 @@ type ContractDate implements ModelObjectInterface & OrgObjectInterface {
   workDayId: Int
   workDay: WorkDay
   workDayScheduleVariantTypeId: Int!
-  workDayScheduleVariantType: WorkDayScheduleVariant
+  workDayScheduleVariantType: WorkDayScheduleVariantType
   calendarChangeId: Int
   calendarChange: CalendarChange
 }
@@ -2789,6 +2789,7 @@ type PositionScheduleDate {
   quarterDayLateAfternoonDuration: Short
   details: [PositionScheduleDateDetail]
   position: Position
+  workScheduleVariantType: WorkDayScheduleVariantType
 }
 
 type PositionScheduleDateDetail {

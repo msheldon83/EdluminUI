@@ -1,0 +1,10 @@
+query GetEmployeeScheduleTimes($id: ID!, $fromDate: Date!, $toDate: Date!) {
+  employee {
+    employeePositionSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+      startTimeLocal
+      endTimeLocal
+      halfDayMorningEndLocal
+      halfDayAfternoonStartLocal
+    }
+  }
+}

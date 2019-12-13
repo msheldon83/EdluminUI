@@ -38,13 +38,15 @@ export const PayCodeDescription: React.FC<Props> = props => {
           initialValues={initialValues}
           validationSchema={validateBasicDetails}
           onSubmit={async (data: any) => {
-            props.onSubmit(data.name);
+            props.onSubmit(
+              data.description.trim().length === 0 ? null : data.description
+            );
           }}
         >
           {({ handleSubmit, submitForm, values }) => (
             <form onSubmit={handleSubmit}>
               <Grid container spacing={isMobile ? 2 : 8}>
-                <Grid item xs={12} sm={4} lg={4}>
+                <Grid item xs={12} sm={6} lg={6}>
                   <Input
                     value={values.description}
                     InputComponent={FormTextField}

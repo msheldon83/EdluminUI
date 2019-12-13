@@ -9,7 +9,7 @@ import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useIsMobile } from "hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
@@ -155,14 +155,15 @@ export const AssignSub: React.FC<Props> = props => {
     }));
   }, [replacementEmployees]);
 
-  const selectReplacementEmployee = async (
-    replacementEmployeeId: number,
-    name: string
-  ) => {
-    await props.setValue("replacementEmployeeId", replacementEmployeeId);
-    await props.setValue("replacementEmployeeName", name);
-    props.setStep("absence");
-  };
+  const { setValue, setStep } = props;
+  const selectReplacementEmployee = useCallback(
+    async (replacementEmployeeId: number, name: string) => {
+      await setValue("replacementEmployeeId", replacementEmployeeId);
+      await setValue("replacementEmployeeName", name);
+      setStep("absence");
+    },
+    [setValue, setStep]
+  );
 
   const setSearch = (filters: ReplacementEmployeeFilters) => {
     updateSearch(filters);
@@ -232,6 +233,10 @@ export const AssignSub: React.FC<Props> = props => {
     ]
   );
 
+  const isLoading =
+    getReplacementEmployeesForVacancyQuery.state === "LOADING" ||
+    getReplacementEmployeesForVacancyQuery.state === "UPDATING";
+
   return (
     <>
       <div className={classes.header}>
@@ -259,21 +264,29 @@ export const AssignSub: React.FC<Props> = props => {
         </div>
         <Divider />
 
-        <Table
-          title={`${replacementEmployeeCount} ${
-            replacementEmployeeCount === 1 ? t("substitute") : t("substitutes")
-          }`}
-          columns={columns}
-          data={tableData}
-          selection={false}
-          style={{
-            boxShadow: "initial",
-          }}
-          backgroundFillForAlternatingRows={true}
-        />
-        {/* As of 12/2/2019, we are not going to page this data.
+        <div className={classes.substitutesList}>
+          {isLoading ? (
+            <Typography variant="h6">{t("Loading substitutes")}...</Typography>
+          ) : (
+            <Table
+              title={`${replacementEmployeeCount} ${
+                replacementEmployeeCount === 1
+                  ? t("substitute")
+                  : t("substitutes")
+              }`}
+              columns={columns}
+              data={tableData}
+              selection={false}
+              style={{
+                boxShadow: "initial",
+              }}
+              backgroundFillForAlternatingRows={true}
+            />
+          )}
+          {/* As of 12/2/2019, we are not going to page this data.
           We will reintroduce pagining in the future.
         <PaginationControls pagination={pagination} /> */}
+        </div>
       </Section>
     </>
   );
@@ -299,5 +312,8 @@ const useStyles = makeStyles(theme => ({
   },
   selectButton: {
     color: theme.customColors.blue,
+  },
+  substitutesList: {
+    marginTop: theme.spacing(2),
   },
 }));
