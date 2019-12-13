@@ -153,7 +153,9 @@ export const Information: React.FC<Props> = props => {
             postalCode:
               data.postalCode.trim().length === 0 ? null : data.postalCode,
             countryId: data.state ? ("US" as CountryCode) : null,
-            permissionSetIds: data.permissionSetIds,
+            permissionSetIds: !orgUser.isSuperUser
+              ? data.permissionSetIds
+              : undefined,
           });
         }}
         validationSchema={yup.object().shape({
@@ -187,7 +189,8 @@ export const Information: React.FC<Props> = props => {
                     <PeopleGridItem
                       title={t("Permissions")}
                       description={
-                        props.editing === editableSections.information ? (
+                        props.editing === editableSections.information &&
+                        !orgUser.isSuperUser ? (
                           <Select
                             value={permissionSetOptions.filter(
                               e =>
