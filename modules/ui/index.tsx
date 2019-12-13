@@ -19,6 +19,10 @@ import { VerifyLoader, VerifyRoute } from "./routes/absence-vacancy/verify";
 import {
   AbsenceReasonLoader,
   AbsenceReasonRoute,
+  AbsenceReasonAddRoute,
+  AbsenceReasonAddLoader,
+  AbsenceReasonViewEditRoute,
+  AbsenceReasonViewEditLoader,
 } from "./routes/absence/reason";
 import {
   AccountingCodeLoader,
@@ -136,26 +140,6 @@ import {
   SubstituteSettingsLoader,
   SubstituteSettingsRoute,
 } from "./routes/substitute-settings";
-import {
-  BellScheduleVariantsLoader,
-  BellScheduleVariantsRoute,
-} from "./routes/bell-schedule-variants";
-import {
-  CalendarEventReasonsLoader,
-  CalendarEventReasonsRoute,
-} from "./routes/calendar/event-reasons";
-import {
-  ReplacementAttributeLoader,
-  ReplacementAttributeRoute,
-} from "./routes/replacement-attribute";
-import {
-  AbsenceReasonRoute,
-  AbsenceReasonLoader,
-  AbsenceReasonAddRoute,
-  AbsenceReasonAddLoader,
-  AbsenceReasonViewEditRoute,
-  AbsenceReasonViewEditLoader,
-} from "./routes/absence/reason";
 import {
   VacancyReasonLoader,
   VacancyReasonRoute,
