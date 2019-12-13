@@ -29,7 +29,8 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import * as yup from "yup";
 import { Assign } from "./components/assign";
-import { Period, Schedule } from "./components/schedule";
+import { Schedule } from "./components/schedule";
+import { Period } from "./helpers";
 import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import { UpdateWorkDayScheduleVariant } from "./graphql/update-workday-schedule-variant.gen";
 import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
