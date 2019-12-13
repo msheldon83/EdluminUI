@@ -21,6 +21,7 @@ import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
 import { GetOrgUserLastLogin } from "./graphql/get-orguser-lastlogin.gen";
 import { UpdateEmployee } from "./graphql/update-employee.gen";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
+import { OrgUserUpdateInput } from "graphql/server-types.gen";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -128,6 +129,15 @@ export const PersonViewPage: React.FC<{}> = props => {
     });
   };
 
+  const onUpdateOrgUser = async (orgUser: OrgUserUpdateInput) => {
+    await updateOrgUser({
+      variables: {
+        orgUser: orgUser,
+      },
+    });
+    setEditing(null);
+  };
+
   const defaultSelectedRole = orgUser.isAdmin
     ? OrgUserRole.Administrator
     : orgUser.isEmployee
@@ -160,6 +170,7 @@ export const PersonViewPage: React.FC<{}> = props => {
         setEditing={setEditing}
         onResetPassword={onResetPassword}
         selectedRole={selectedRole ?? defaultSelectedRole}
+        onSaveOrgUser={onUpdateOrgUser}
       />
       {orgUser.isAdmin &&
         (selectedRole ?? defaultSelectedRole) === OrgUserRole.Administrator && (

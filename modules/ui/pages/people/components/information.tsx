@@ -17,7 +17,13 @@ import { AvatarCard } from "ui/components/avatar-card";
 import { useBreakpoint } from "hooks";
 import { getInitials } from "ui/components/helpers";
 import { PhoneNumberInput } from "ui/components/form/phone-number-input";
-import { StateCode, CountryCode, OrgUserRole } from "graphql/server-types.gen";
+import {
+  StateCode,
+  CountryCode,
+  OrgUserRole,
+  OrgUserUpdateInput,
+  Maybe,
+} from "graphql/server-types.gen";
 import { PeopleGridItem } from "./people-grid-item";
 import * as yup from "yup";
 import { Formik } from "formik";
@@ -40,6 +46,7 @@ type Props = {
   orgUser: {
     id: string;
     orgId: number;
+    rowVersion: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -63,6 +70,7 @@ type Props = {
   selectedRole: OrgUserRole;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   onResetPassword: () => Promise<unknown>;
+  onSaveOrgUser: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
 };
 
 export const Information: React.FC<Props> = props => {
@@ -125,7 +133,19 @@ export const Information: React.FC<Props> = props => {
           dateOfBirth: orgUser.dateOfBirth ?? undefined,
           permissionSetIds: orgUser.permissionSetIds,
         }}
-        onSubmit={async (data, e) => {}}
+        onSubmit={async (data, e) => {
+          await props.onSaveOrgUser({
+            id: Number(orgUser.id),
+            rowVersion: orgUser.rowVersion,
+            email: data.email,
+            phoneNumber: data.phoneNumber,
+            dateOfBirth: data.dateOfBirth,
+            address1: data.address1,
+            stateId: data.state,
+            postalCode: data.postalCode,
+            permissionSetIds: data.permissionSetIds,
+          });
+        }}
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
@@ -137,9 +157,7 @@ export const Information: React.FC<Props> = props => {
                     ? {
                         text: t("Save"),
                         visible: true,
-                        execute: () => {
-                          props.setEditing(editableSections.information);
-                        },
+                        execute: submitForm,
                       }
                     : {
                         text: t("Edit"),
