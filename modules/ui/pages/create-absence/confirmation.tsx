@@ -12,6 +12,10 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { Step } from "./step-params";
 import { EmployeeChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
+import {
+  AdminEditAbsenceRoute,
+  EmployeeEditAbsenceRoute,
+} from "ui/routes/edit-absence";
 
 type Props = {
   orgId: string;
@@ -88,6 +92,25 @@ export const Confirmation: React.FC<Props> = props => {
               }
             >
               {props.isAdmin ? t("Back to List") : t("Back to Home")}
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="outlined"
+              component={Link}
+              to={
+                props.isAdmin
+                  ? AdminEditAbsenceRoute.generate({
+                      ...params,
+                      absenceId: props.absence.id,
+                    })
+                  : EmployeeEditAbsenceRoute.generate({
+                      ...params,
+                      absenceId: props.absence.id,
+                    })
+              }
+            >
+              {t("Edit")}
             </Button>
           </Grid>
         </Grid>
