@@ -127,7 +127,7 @@ export const AbsenceReason: React.FC<{}> = props => {
         }
         actions={[
           {
-            tooltip: `${t("Delete selected pay codes")}`,
+            tooltip: `${t("Delete selected absence reasons")}`,
             icon: () => <DeleteOutline /> /* eslint-disable-line */, // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
             onClick: async (event, data) => {
               await deleteSelected(data);
