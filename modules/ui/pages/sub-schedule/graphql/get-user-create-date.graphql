@@ -1,0 +1,8 @@
+query GetUserCreateDate($id: ID!) {
+  user {
+    byId(id: $id) {
+      id
+      createdUtc
+    }
+  }
+}

@@ -5,6 +5,7 @@ import { useQueryBundle } from "graphql/hooks";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { getBeginningOfSchoolYear } from "ui/components/helpers";
 import { PageTitle } from "ui/components/page-title";
 import { ScheduleHeader } from "ui/components/schedule/schedule-header";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
@@ -40,13 +41,7 @@ export const SubSchedule: React.FC<Props> = props => {
   const today = new Date();
 
   const beginningOfSchoolYear = useMemo(() => {
-    // Always show july to june
-    const july = 6; /* months start at 0 in js dates */
-    let year = today.getFullYear();
-    if (today.getMonth() < july) {
-      year -= 1;
-    }
-    return new Date(year, july);
+    return getBeginningOfSchoolYear(today);
   }, [today]);
 
   const endOfSchoolYear = useMemo(
@@ -85,6 +80,7 @@ export const SubSchedule: React.FC<Props> = props => {
               endOfSchoolYear={endOfSchoolYear}
               startDate={queryStartDate}
               setStartDate={setQueryStartDate}
+              userId={userId}
             />
           </div>
 
