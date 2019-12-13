@@ -1,4 +1,4 @@
-import { Chip, FormHelperText, makeStyles } from "@material-ui/core";
+import { Chip, FormHelperText, makeStyles, Grid } from "@material-ui/core";
 import { Add, CancelOutlined, DragHandle } from "@material-ui/icons";
 import {
   addMinutes,
@@ -26,6 +26,7 @@ import { SectionHeader } from "ui/components/section-header";
 import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { Period } from "../helpers";
+import { isArray } from "lodash-es";
 
 type Props = {
   name?: string | null | undefined;
@@ -278,7 +279,6 @@ export const Schedule: React.FC<Props> = props => {
   };
 
   const getError = (errors: any, fieldName: string, index: number) => {
-    console.log(errors);
     if (!errors.periods || !errors.periods[index]) {
       return null;
     }
@@ -552,7 +552,6 @@ export const Schedule: React.FC<Props> = props => {
 
   return (
     <Section>
-      {props.name && <SectionHeader title={props.name} />}
       <Formik
         initialValues={{
           periods: props.periods,
@@ -602,15 +601,39 @@ export const Schedule: React.FC<Props> = props => {
             .test({
               name: "periodOverlapsCheck",
               test: value => {
-                const overlaps = value.filter((v: any) => !!value.find((f: any) => v !== f && 
-                  areIntervalsOverlapping({start: parseISO(v.startTime), end: parseISO(v.endTime)}, 
-                  {start: parseISO(f.startTime), end: parseISO(f.endTime)})));
-                
-                  if (overlaps.length > 0) {
+                if (
+                  value.find((v: any) =>
+                    isBefore(parseISO(v.endTime), parseISO(v.startTime))
+                  )
+                ) {
+                  // endBeforeStartCheck test above will handle this scenario
+                  // We don't want to call areIntervalsOverlapping with invalid intervals
+                  return true;
+                }
+
+                const overlaps = value.filter(
+                  (v: any) =>
+                    !!value.find(
+                      (f: any) =>
+                        v !== f &&
+                        areIntervalsOverlapping(
+                          {
+                            start: parseISO(v.startTime),
+                            end: parseISO(v.endTime),
+                          },
+                          {
+                            start: parseISO(f.startTime),
+                            end: parseISO(f.endTime),
+                          }
+                        )
+                    )
+                );
+
+                if (overlaps.length > 0) {
                   return new yup.ValidationError(
                     t("Period times can not overlap"),
                     null,
-                    "periodTimeOverlap"
+                    "periods"
                   );
                 }
 
@@ -621,6 +644,21 @@ export const Schedule: React.FC<Props> = props => {
       >
         {({ handleSubmit, values, setFieldValue, submitForm, errors }) => (
           <form onSubmit={handleSubmit}>
+            <Grid container justify="space-between" alignItems="center">
+              <Grid item>
+                {props.name && <SectionHeader title={props.name} />}
+              </Grid>
+              <Grid item>
+                {errors && errors.periods && !isArray(errors.periods) && (
+                  <FormHelperText
+                    error={true}
+                    className={classes.scheduleError}
+                  >
+                    {errors.periods}
+                  </FormHelperText>
+                )}
+              </Grid>
+            </Grid>
             <DragDropContext
               onDragEnd={(result: DropResult) => {
                 const updatedPeriods = onDragEnd(result, values.periods, t);
@@ -730,5 +768,8 @@ const useStyles = makeStyles(theme => ({
   skippedDiv: {
     flexGrow: 2,
     textTransform: "uppercase",
+  },
+  scheduleError: {
+    fontSize: theme.typography.pxToRem(14),
   },
 }));
