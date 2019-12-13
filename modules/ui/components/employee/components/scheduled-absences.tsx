@@ -59,7 +59,11 @@ const useStyles = makeStyles(theme => ({
   },
   shadedRow: {
     background: theme.customColors.lightGray,
-    borderTop: `1px solid ${theme.customColors.medLightGray}`,
-    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
+    borderTop: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
+    borderBottom: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
   },
 }));
