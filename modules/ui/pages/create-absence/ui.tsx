@@ -152,7 +152,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         Number(state.employeeId),
         Number(props.positionId),
         disabledDates,
-        state,
+        state.needsReplacement,
         vacanciesInput
       ),
     [
@@ -163,9 +163,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       formValues.hourlyStartTime,
       formValues.hourlyEndTime,
       vacanciesInput,
-      state,
-      props.positionId,
-      disabledDates,
+      state.needsReplacement,
     ]
   );
 
@@ -233,7 +231,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       Number(state.employeeId),
       Number(props.positionId),
       disabledDates,
-      state,
+      state.needsReplacement,
       theVacancyDetails
     );
     if (!absenceCreateInput) {
@@ -382,7 +380,7 @@ export const buildAbsenceCreateInput = (
   employeeId: number,
   positionId: number,
   disabledDates: Date[],
-  state: CreateAbsenceState,
+  needsReplacement: boolean,
   vacancyDetails?: VacancyDetail[]
 ) => {
   if (
@@ -492,7 +490,7 @@ export const buildAbsenceCreateInput = (
       {
         positionId: positionId,
         useSuppliedDetails: vDetails !== undefined,
-        needsReplacement: state.needsReplacement,
+        needsReplacement: needsReplacement,
         notesToReplacement: formValues.notesToReplacement,
         prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
         details: vDetails,

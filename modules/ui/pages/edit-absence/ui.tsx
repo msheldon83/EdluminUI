@@ -206,7 +206,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         Number(state.employeeId),
         Number(props.positionId),
         disabledDates,
-        { ...state, organizationId: props.organizationId },
+        state.needsReplacement,
         customizedVacancyDetails
       ),
     [
