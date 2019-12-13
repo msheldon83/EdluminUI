@@ -369,6 +369,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           details={theVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
+          setStep={setStep}
         />
       )}
       {step === "preAssignSub" && (
