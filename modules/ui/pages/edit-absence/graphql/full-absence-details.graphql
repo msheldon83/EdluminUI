@@ -1,0 +1,78 @@
+fragment FullAbsenceDetails on Absence {
+  id
+  rowVersion
+  details {
+    id
+    startDate
+    endDate
+    dayPartId
+    reasonUsages {
+      id
+      amount
+      sequence
+      absenceReasonTrackingTypeId
+      absenceReasonId
+    }
+  }
+  employeeId
+  organization {
+    id
+  }
+  startDate
+  endDate
+  numDays
+  totalDuration
+  totalDayPortion
+  employee {
+    id
+    firstName
+    lastName
+  }
+  vacancies {
+    id
+    startDate
+    endDate
+    startTimeLocal
+    endTimeLocal
+    numDays
+    rowVersion
+    positionId
+    position {
+      id
+      positionTypeId
+      name
+      needsReplacement
+    }
+    details {
+      id
+      startDate
+      endDate
+      startTimeLocal
+      endTimeLocal
+      locationId
+      location {
+	id
+	name
+      }
+      payCodeId
+      assignment {
+	id
+	employee {
+	  id
+	  firstName
+	  lastName
+	}
+      }
+      accountingCodeAllocations {
+	id
+	accountingCode {
+	  id
+	  name
+	  description
+	  externalId
+	}
+	allocation
+      }
+    }
+  }
+}

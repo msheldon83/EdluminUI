@@ -96,6 +96,7 @@ module.exports = {
     "react/display-name": 0,
 
     // don't want, at least for now:
+    "@typescript-eslint/no-empty-function": 0,
     "@typescript-eslint/no-var-requires": 0,
     "@typescript-eslint/require-await": 0,
     "@typescript-eslint/explicit-function-return-type": 0,

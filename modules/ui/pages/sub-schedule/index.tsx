@@ -1,10 +1,10 @@
-import { Divider, Grid, Typography } from "@material-ui/core";
+import { Divider, Grid, Typography, InputLabel } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { addMonths } from "date-fns";
+import { addMonths, parseISO, isSameDay } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -18,6 +18,9 @@ import {
 import { GetUpcomingAssignments } from "../sub-home/graphql/get-upcoming-assignments.gen";
 import { CalendarView } from "./calendar-view";
 import { ScheduleViewToggle } from "./schedule-view-toggle";
+import { ListView } from "./list-view";
+import { Select } from "ui/components/form/select";
+import { ScheduleHeader } from "./schedule-header";
 
 type Props = {
   view: "list" | "calendar";
@@ -36,8 +39,9 @@ export const SubSchedule: React.FC<Props> = props => {
       : getOrgUsers.data?.userAccess?.me?.user?.id;
 
   const numberOfMonthsInSchoolYear = 12;
+  const today = new Date();
+
   const beginningOfSchoolYear = useMemo(() => {
-    const today = new Date();
     // Always show july to june
     const july = 6; /* months start at 0 in js dates */
     let year = today.getFullYear();
@@ -45,65 +49,30 @@ export const SubSchedule: React.FC<Props> = props => {
       year -= 1;
     }
     return new Date(year, july);
-  }, []);
+  }, [today]);
 
   const endOfSchoolYear = useMemo(
     () => addMonths(beginningOfSchoolYear, numberOfMonthsInSchoolYear),
     [beginningOfSchoolYear]
   );
 
-  const schoolYear = useMemo(
-    () =>
-      `${beginningOfSchoolYear.getFullYear()}-${endOfSchoolYear.getFullYear()}`,
-    [beginningOfSchoolYear, endOfSchoolYear]
-  );
-
-  const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
-    variables: {
-      id: String(userId),
-      fromDate: beginningOfSchoolYear,
-      toDate: endOfSchoolYear,
-      includeCompletedToday: false,
-    },
-    skip: !userId,
-  });
-
-  const assignments = useMemo(() => {
-    if (
-      upcomingAssignments.state == "DONE" ||
-      upcomingAssignments.state == "UPDATING"
-    ) {
-      return compact(
-        upcomingAssignments.data.employee?.employeeAssignmentSchedule
-      );
-    }
-    return [];
-  }, [upcomingAssignments]);
-
-  if (
-    upcomingAssignments.state !== "DONE" &&
-    upcomingAssignments.state !== "UPDATING"
-  ) {
-    return <></>;
-  }
+  const [queryStartDate, setQueryStartDate] = useState(today);
 
   return (
     <>
-      <PageTitle title="My Schedule" withoutHeading />
-
-      <Grid className={classes.header}>
-        <Typography variant="h5">{t("My Schedule")}</Typography>
-        <Typography variant="h1">{schoolYear}</Typography>
-      </Grid>
+      <PageTitle title="My Schedule" />
 
       <Section className={classes.section}>
         <div className={classes.itemContainer}>
           <div className={classes.item}>
-            {props.view === "calendar" && (
-              <Typography variant="h5">{`${t(
-                "Upcoming"
-              )} ${numberOfMonthsInSchoolYear} ${t("months")}`}</Typography>
-            )}
+            <ScheduleHeader
+              view={props.view}
+              today={today}
+              beginningOfSchoolYear={beginningOfSchoolYear}
+              endOfSchoolYear={endOfSchoolYear}
+              startDate={queryStartDate}
+              setStartDate={setQueryStartDate}
+            />
           </div>
 
           <div className={classes.item}>
@@ -121,12 +90,17 @@ export const SubSchedule: React.FC<Props> = props => {
           {props.view === "calendar" && (
             <CalendarView
               userId={userId}
-              assignments={assignments}
               fromDate={beginningOfSchoolYear}
               toDate={endOfSchoolYear}
             />
           )}
-          {props.view === "list" && <div>LIST</div>}
+          {props.view === "list" && (
+            <ListView
+              userId={userId}
+              startDate={queryStartDate}
+              endDate={endOfSchoolYear}
+            />
+          )}
         </div>
       </Section>
     </>
@@ -144,6 +118,7 @@ const useStyles = makeStyles(theme => ({
   },
   item: {
     display: "flex",
+    alignItems: "center",
   },
   viewContainer: {
     padding: `0 ${theme.typography.pxToRem(24)} ${theme.typography.pxToRem(

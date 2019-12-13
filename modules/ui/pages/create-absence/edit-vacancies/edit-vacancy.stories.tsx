@@ -5,7 +5,7 @@ import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { GetProjectedVacancies } from "../graphql/get-projected-vacancies.gen";
 import { EditVacancies } from ".";
 import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
-import { VacancyDetail } from "../types";
+import { VacancyDetail } from "../../../components/absence/types";
 
 export default {
   title: "Pages/Create Absence/Edit Absence",

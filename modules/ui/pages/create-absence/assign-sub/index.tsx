@@ -1,4 +1,4 @@
-import { Collapse, Divider, Link, Typography } from "@material-ui/core";
+import { Collapse, Divider, Link, Typography, Button } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
 import { SetValue } from "forms";
@@ -15,7 +15,6 @@ import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
 import { VacancyDetails } from "../../../components/absence/vacancy-details";
-import { Step } from "../step-params";
 import { getAssignSubColumns } from "./columns";
 import {
   AssignSubFilters as Filters,
@@ -24,14 +23,14 @@ import {
 
 type Props = {
   orgId: string;
-  vacancyId?: string | null | undefined;
+  existingVacancy?: boolean;
   vacancies: Vacancy[];
   userIsAdmin: boolean;
   employeeName: string;
   employeeId?: string;
   positionId?: string;
   positionName?: string;
-  setStep: (s: Step) => void;
+  setStep: (s: "absence") => void;
   setValue: SetValue;
 };
 
@@ -39,6 +38,10 @@ const buildVacancyInput = (
   vacancies: Vacancy[]
 ): AbsenceVacancyInput | null => {
   const vacancy = vacancies[0];
+  if (vacancy === undefined) {
+    return null;
+  }
+
   return {
     positionId: vacancy.positionId,
     needsReplacement: true,
@@ -78,6 +81,10 @@ export const AssignSub: React.FC<Props> = props => {
     ReplacementEmployeeFilters
   >();
 
+  if (props.vacancies.length === 0) {
+    props.setStep("absence");
+  }
+
   // Vacancy Details collapse configuration
   const collapsedVacancyDetailsHeight = 150;
   const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
@@ -100,7 +107,6 @@ export const AssignSub: React.FC<Props> = props => {
     {
       variables: {
         orgId: props.orgId,
-        vacancyId: props.vacancyId,
         vacancy: buildVacancyInput(props.vacancies),
         absentEmployeeId: props.employeeId ?? undefined,
         name: searchFilter?.name,
@@ -200,7 +206,7 @@ export const AssignSub: React.FC<Props> = props => {
   };
 
   const replacementEmployeeCount = replacementEmployees.length;
-  const pageHeader = props.vacancyId
+  const pageHeader = props.existingVacancy
     ? t("Assign Substitute")
     : `${t("Create Absence")}: ${t("Prearranging Substitute")}`;
 
@@ -229,10 +235,17 @@ export const AssignSub: React.FC<Props> = props => {
   return (
     <>
       <div className={classes.header}>
-        <Typography variant="h5">{pageHeader}</Typography>
-        {props.userIsAdmin && (
-          <Typography variant="h1">{props.employeeName}</Typography>
-        )}
+        <div>
+          <Typography variant="h5">{pageHeader}</Typography>
+          {props.userIsAdmin && (
+            <Typography variant="h1">{props.employeeName}</Typography>
+          )}
+        </div>
+        <div>
+          <Button variant="outlined" onClick={() => props.setStep("absence")}>
+            {t("Back to Absence Details")}
+          </Button>
+        </div>
       </div>
       <Section>
         <div className={classes.vacancyDetails}>{renderVacancyDetails()}</div>
@@ -269,6 +282,9 @@ export const AssignSub: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(2),
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   vacancyDetails: {
     marginBottom: theme.spacing(3),

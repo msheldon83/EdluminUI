@@ -1,7 +1,7 @@
 import { addMonths, differenceInCalendarMonths, parseISO } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
 import { groupBy, range } from "lodash-es";
-import { AssignmentVacancyDetails } from "./types";
+import { AssignmentVacancyDetails } from "../types";
 
 export interface DateGroupByMonth {
   month: string;
@@ -21,9 +21,19 @@ export function generateEmptyDateMap(from: Date, to: Date): DateGroupByMonth[] {
     : [];
 }
 
-export const mergeAssignmentsByMonth = (
+export type AssignmentVacancyTimeDetails = {
+  id?: string;
+  assignment: {
+    id: string;
+    startTimeLocal?: string;
+    endTimeLocal?: string;
+  } | null;
+  startDate?: string;
+};
+
+export const mergeAssignmentDatesByMonth = (
   emptyMap: DateGroupByMonth[],
-  assignments: AssignmentVacancyDetails[]
+  assignments: AssignmentVacancyTimeDetails[]
 ) => {
   const all = emptyMap;
   Object.entries(
@@ -40,4 +50,12 @@ export const mergeAssignmentsByMonth = (
   });
 
   return all;
+};
+
+export const groupAssignmentsByVacancy = (
+  assignments: AssignmentVacancyDetails[]
+) => {
+  return Object.entries(groupBy(assignments, a => a.vacancy?.id)).map(
+    ([index, value]) => value
+  );
 };
