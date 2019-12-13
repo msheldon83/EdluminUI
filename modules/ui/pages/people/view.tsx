@@ -55,7 +55,7 @@ export const PersonViewPage: React.FC<{}> = props => {
           orgUser: {
             id: Number(params.orgUserId),
             rowVersion: rowVersion,
-            active: !active,
+            active: active,
           },
         },
       });
