@@ -6,6 +6,7 @@ import {
   isValid,
   isBefore,
   parseISO,
+  areIntervalsOverlapping,
 } from "date-fns";
 import { Formik, FormikErrors } from "formik";
 import { useIsMobile } from "hooks";
@@ -601,10 +602,18 @@ export const Schedule: React.FC<Props> = props => {
             .test({
               name: "periodOverlapsCheck",
               test: value => {
-                console.log(value);
+                const overlaps = value.filter((v: any) => !!value.find((f: any) => v !== f && 
+                  areIntervalsOverlapping({start: parseISO(v.startTime), end: parseISO(v.endTime)}, 
+                  {start: parseISO(f.startTime), end: parseISO(f.endTime)})));
+                
+                  if (overlaps.length > 0) {
+                  return new yup.ValidationError(
+                    t("Period times can not overlap"),
+                    null,
+                    "periodTimeOverlap"
+                  );
+                }
 
-                //array of the Period object
-                // startTime and endTime strings
                 return true;
               },
             }),
