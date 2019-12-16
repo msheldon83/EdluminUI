@@ -19,7 +19,6 @@ import {
   BellScheduleViewRoute,
 } from "ui/routes/bell-schedule";
 import { AddBasicInfo } from "./components/add-basic-info";
-import { TFunction } from "i18next";
 import { Schedule } from "./components/schedule";
 import { secondsSinceMidnight } from "../../../helpers/time";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
@@ -32,6 +31,8 @@ import {
   Period,
   BuildPeriodsFromSchedule,
   BuildPeriodsFromScheduleSettings,
+  BellSchedule,
+  Variant,
 } from "./helpers";
 
 const scheduleSettingsDefaults: ScheduleSettings = {
@@ -75,17 +76,12 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     params.organizationId
   );
 
-  const [bellSchedule, setBellSchedule] = React.useState<
-    WorkDayScheduleCreateInput
-  >({
-    orgId: Number(params.organizationId),
+  const [bellSchedule, setBellSchedule] = React.useState<BellSchedule>({
     name: "",
-    externalId: null,
-    periods: null,
-    standardSchedule: null,
-    additionalVariants: null,
-    locationIds: null,
-    locationGroupIds: null,
+    standard: undefined,
+    variants: [],
+    locationIds: undefined,
+    locationGroupIds: undefined,
   });
 
   if (
@@ -129,27 +125,20 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     );
   };
 
-  const renderSchedule = (
+  const renderStandardSchedule = (
     setStep: React.Dispatch<React.SetStateAction<number>>,
     goToNextStep: Function,
-    isStandard: boolean,
     variantTypeId: number,
-    variantTypeName: string,
-    variantIndex: number
+    variantTypeName: string
   ) => {
     const schedulePeriods: Array<Period> = [];
-    if (bellSchedule.periods) {
-      const variant = isStandard
-        ? bellSchedule.standardSchedule
-        : bellSchedule.additionalVariants
-        ? bellSchedule.additionalVariants[variantIndex]
-        : null;
+    if (bellSchedule.standard && bellSchedule.standard.periods) {
       schedulePeriods.push(
         ...BuildPeriodsFromSchedule(
-          bellSchedule.periods,
-          variant,
+          bellSchedule.standard.periods,
+          bellSchedule.standard,
           orgUsesHalfDayBreaks,
-          bellSchedule.standardSchedule
+          bellSchedule.standard
         )
       );
     } else {
@@ -165,69 +154,92 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     return (
       <Schedule
         name={variantTypeName}
-        isStandard={isStandard}
+        isStandard={true}
         submitLabel={t("Next")}
         periods={schedulePeriods}
         onSubmit={async (periods: Array<Period>) => {
-          let updatedBellSchedule = { ...bellSchedule };
-          if (isStandard) {
-            // Build out a Bell Schedule with the period info and standard schedule
-            updatedBellSchedule = {
-              ...bellSchedule,
+          const updatedBellSchedule = {
+            ...bellSchedule,
+            standard: {
               periods: periods.map(p => {
                 return {
+                  ...p,
                   name: p.name || p.placeholder,
                 };
               }),
-              standardSchedule: {
-                workDayScheduleVariantTypeId: variantTypeId,
-                periods: periods.map(p => {
-                  return {
-                    workDaySchedulePeriodName: p.name || p.placeholder,
-                    startTime: p.startTime
-                      ? secondsSinceMidnight(p.startTime)
-                      : null,
-                    endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
-                    isHalfDayMorningEnd: p.isHalfDayMorningEnd,
-                    isHalfDayAfternoonStart: p.isHalfDayAfternoonStart,
-                  };
-                }),
-              },
-            };
-          } else {
-            // Non Standard Variant Type
-            const updatedVariants = bellSchedule.additionalVariants || [];
-            const variant: WorkDayScheduleVariantInput = {
               workDayScheduleVariantTypeId: variantTypeId,
-              periods: periods
-                .filter(p => !p.skipped)
-                .map(p => {
-                  return {
-                    workDaySchedulePeriodName: p.name || p.placeholder,
-                    startTime: p.startTime
-                      ? secondsSinceMidnight(p.startTime)
-                      : null,
-                    endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
-                    isHalfDayMorningEnd: p.isHalfDayMorningEnd,
-                    isHalfDayAfternoonStart: p.isHalfDayAfternoonStart,
-                  };
-                }),
-            };
+            },
+          };
 
-            if (!updatedVariants[variantIndex]) {
-              // First time populating this variant
-              updatedVariants.push(variant);
-            } else {
-              // Update the existing variant in state
-              updatedVariants[variantIndex] = variant;
-            }
+          // Set the Bell Schedule in state and move to the next step
+          setBellSchedule(updatedBellSchedule);
+          goToNextStep();
+        }}
+        onCancel={() => {
+          const url = BellScheduleRoute.generate(params);
+          history.push(url);
+        }}
+      />
+    );
+  };
 
-            // Add/Update variants on the Bell Schedule
-            updatedBellSchedule = {
-              ...bellSchedule,
-              additionalVariants: updatedVariants,
-            };
+  const renderVariantSchedule = (
+    setStep: React.Dispatch<React.SetStateAction<number>>,
+    goToNextStep: Function,
+    variantTypeId: number,
+    variantTypeName: string,
+    variantIndex: number
+  ) => {
+    const schedulePeriods: Array<Period> = [];
+    if (bellSchedule.standard && bellSchedule.standard.periods) {
+      const variant = bellSchedule.variants
+        ? bellSchedule.variants[variantIndex]
+        : null;
+      schedulePeriods.push(
+        ...BuildPeriodsFromSchedule(
+          bellSchedule.standard.periods,
+          variant,
+          orgUsesHalfDayBreaks,
+          bellSchedule.standard
+        )
+      );
+    } else {
+      schedulePeriods.push(
+        ...BuildPeriodsFromScheduleSettings(
+          scheduleSettings,
+          orgUsesHalfDayBreaks,
+          t
+        )
+      );
+    }
+
+    return (
+      <Schedule
+        name={variantTypeName}
+        isStandard={false}
+        submitLabel={t("Next")}
+        periods={schedulePeriods}
+        onSubmit={async (periods: Array<Period>) => {
+          // Non Standard Variant Type
+          const updatedVariants = bellSchedule.variants || [];
+          const variant: Variant = {
+            workDayScheduleVariantTypeId: variantTypeId,
+            periods: periods.filter(p => !p.skipped),
+          };
+
+          if (!updatedVariants[variantIndex]) {
+            // First time populating this variant
+            updatedVariants.push(variant);
+          } else {
+            // Update the existing variant in state
+            updatedVariants[variantIndex] = variant;
           }
+
+          // Add/Update variants on the Bell Schedule
+          const updatedBellSchedule = {
+            ...bellSchedule,
+            variants: updatedVariants,
+          };
 
           // Set the Bell Schedule in state and move to the next step
           setBellSchedule(updatedBellSchedule);
@@ -254,14 +266,14 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
           locationIds: Array<number>,
           locationGroupIds: Array<number>
         ) => {
-          const updatedBellSchedule = {
-            ...bellSchedule,
-            locationIds,
-            locationGroupIds,
-          };
+          // Convert to Work Day Schedule to send to server
+          const workDaySchedule = buildWorkDayScheduleCreateInput(
+            { ...bellSchedule, locationIds, locationGroupIds },
+            params.organizationId
+          );
 
           // Create the Bell Schedule
-          const id = await create(updatedBellSchedule);
+          const id = await create(workDaySchedule);
           if (id) {
             const viewParams = {
               ...params,
@@ -296,35 +308,63 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     return result?.data?.workDaySchedule?.create?.id;
   };
 
+  // Configure all of the tabs for the wizard
+  let stepNumberCounter = 0;
   const tabs: Array<Step> = [
     {
-      stepNumber: 0,
+      stepNumber: stepNumberCounter++,
       name: t("Setup"),
       content: renderBasicInfoStep,
     },
   ];
-  orgWorkDayScheduleVariantTypes.forEach((v, i) => {
+
+  // Add the Standard Variant Type as a Tab
+  const standardVariantType = orgWorkDayScheduleVariantTypes.find(
+    v => v.isStandard
+  );
+  if (standardVariantType) {
     tabs.push({
-      stepNumber: i + 1,
-      name: v.name || "",
+      stepNumber: stepNumberCounter++,
+      name: standardVariantType.name || "",
       content: (
         setStep: React.Dispatch<React.SetStateAction<number>>,
         goToNextStep: Function
       ) => {
-        const isLastVariant = i === orgWorkDayScheduleVariantTypes.length - 1;
-        return renderSchedule(
+        return renderStandardSchedule(
           setStep,
           goToNextStep,
-          v.isStandard,
-          Number(v.id),
-          v.name,
-          i
+          Number(standardVariantType.id),
+          standardVariantType.name
         );
       },
     });
-  });
+  }
+
+  // Add Non Standard Variant Types as Tabs
+  orgWorkDayScheduleVariantTypes
+    .filter(v => !v.isStandard)
+    .forEach((v, i) => {
+      tabs.push({
+        stepNumber: stepNumberCounter++,
+        name: v.name || "",
+        content: (
+          setStep: React.Dispatch<React.SetStateAction<number>>,
+          goToNextStep: Function
+        ) => {
+          return renderVariantSchedule(
+            setStep,
+            goToNextStep,
+            Number(v.id),
+            v.name,
+            i
+          );
+        },
+      });
+    });
+
+  // Last Tab is the Location/Location Group Assignment
   tabs.push({
-    stepNumber: orgWorkDayScheduleVariantTypes.length + 1,
+    stepNumber: stepNumberCounter,
     name: t("Assign"),
     content: renderAssign,
   });
@@ -353,3 +393,59 @@ const useStyles = makeStyles(theme => ({
     filter: "alpha(opacity = 20)",
   },
 }));
+
+const buildWorkDayScheduleCreateInput = (
+  bellSchedule: BellSchedule,
+  organizationId: string
+): WorkDayScheduleCreateInput => {
+  let workDaySchedule: WorkDayScheduleCreateInput = {
+    orgId: Number(organizationId),
+    name: bellSchedule.name,
+    externalId: bellSchedule.externalId,
+    additionalVariants: bellSchedule.variants.map((v: Variant) => {
+      const variant: WorkDayScheduleVariantInput = {
+        workDayScheduleVariantTypeId: v.workDayScheduleVariantTypeId,
+        periods: v.periods
+          .filter((p: Period) => !p.skipped)
+          .map((p: Period) => {
+            return {
+              workDaySchedulePeriodName: p.name || p.placeholder,
+              startTime: p.startTime ? secondsSinceMidnight(p.startTime) : null,
+              endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
+              isHalfDayMorningEnd: p.isHalfDayMorningEnd,
+              isHalfDayAfternoonStart: p.isHalfDayAfternoonStart,
+            };
+          }),
+      };
+      return variant;
+    }),
+    locationIds: bellSchedule.locationIds,
+    locationGroupIds: bellSchedule.locationGroupIds,
+  };
+
+  if (bellSchedule.standard) {
+    workDaySchedule = {
+      ...workDaySchedule,
+      periods: bellSchedule.standard.periods.map((p: Period) => {
+        return {
+          name: p.name || p.placeholder,
+        };
+      }),
+      standardSchedule: {
+        workDayScheduleVariantTypeId:
+          bellSchedule.standard.workDayScheduleVariantTypeId,
+        periods: bellSchedule.standard.periods.map((p: Period) => {
+          return {
+            workDaySchedulePeriodName: p.name || p.placeholder,
+            startTime: p.startTime ? secondsSinceMidnight(p.startTime) : null,
+            endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
+            isHalfDayMorningEnd: p.isHalfDayMorningEnd,
+            isHalfDayAfternoonStart: p.isHalfDayAfternoonStart,
+          };
+        }),
+      },
+    };
+  }
+
+  return workDaySchedule;
+};

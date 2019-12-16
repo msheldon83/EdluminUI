@@ -5,13 +5,27 @@ import {
   WorkDayScheduleVariantInput,
 } from "graphql/server-types.gen";
 import { midnightTime, timeStampToIso } from "helpers/time";
-import { isValid, differenceInMinutes, addMinutes } from "date-fns";
+import { isValid, differenceInMinutes, addMinutes, parseISO } from "date-fns";
 
 export type ScheduleSettings = {
   isBasic: boolean;
   periodSettings: {
     numberOfPeriods: number;
   };
+};
+
+export type BellSchedule = {
+  name: string;
+  externalId?: string | null | undefined;
+  standard: Variant | undefined;
+  variants: Variant[];
+  locationIds: number[] | undefined;
+  locationGroupIds: number[] | undefined;
+};
+
+export type Variant = {
+  periods: Period[];
+  workDayScheduleVariantTypeId: number;
 };
 
 export type Period = {
@@ -25,6 +39,7 @@ export type Period = {
   isHalfDayAfternoonStart?: boolean;
   skipped: boolean;
   sequence?: number;
+  isEndOfDayPeriod?: boolean;
 };
 
 export const BuildPeriodsFromScheduleSettings = (
@@ -77,30 +92,27 @@ export const BuildPeriodsFromScheduleSettings = (
 };
 
 export const BuildPeriodsFromSchedule = (
-  periods: Array<Maybe<WorkDaySchedulePeriodInput>>,
-  variant: WorkDayScheduleVariantInput | null | undefined,
+  periods: Period[],
+  variant: Variant | null,
   useHalfDayBreaks: boolean,
-  standardSchedule: WorkDayScheduleVariantInput | null | undefined
-) => {
+  standardSchedule: Variant
+): Period[] => {
   const schedulePeriods = periods.map(p => {
-    const period = p as WorkDaySchedulePeriodInput;
     const variantPeriod =
       variant && variant.periods
-        ? variant.periods.find(
-            vp => vp!.workDaySchedulePeriodName === period.name
-          )
+        ? variant.periods.find(vp => vp.name === p.name)
         : null;
 
     return {
-      name: period.name || "",
-      placeholder: "",
+      name: p.name || "",
+      placeholder: p.placeholder,
       startTime:
         variantPeriod && variantPeriod.startTime
-          ? timeStampToIso(midnightTime().setSeconds(variantPeriod.startTime))
+          ? parseISO(variantPeriod.startTime).toISOString()
           : undefined,
       endTime:
         variantPeriod && variantPeriod.endTime
-          ? timeStampToIso(midnightTime().setSeconds(variantPeriod.endTime))
+          ? parseISO(variantPeriod.endTime).toISOString()
           : undefined,
       isHalfDayMorningEnd:
         variantPeriod != null && (variantPeriod?.isHalfDayMorningEnd || false),
@@ -108,6 +120,7 @@ export const BuildPeriodsFromSchedule = (
         variantPeriod != null &&
         (variantPeriod?.isHalfDayAfternoonStart || false),
       skipped: false,
+      isEndOfDayPeriod: p.isEndOfDayPeriod,
     };
   });
 
@@ -126,10 +139,10 @@ export const BuildPeriodsFromSchedule = (
       standardSchedule.periods
     ) {
       const halfDayAfternoonStartIndex = standardSchedule.periods.findIndex(
-        p => p!.isHalfDayAfternoonStart
+        p => p.isHalfDayAfternoonStart
       );
       const halfDayMorningEndIndex = standardSchedule.periods.findIndex(
-        p => p!.isHalfDayMorningEnd
+        p => p.isHalfDayMorningEnd
       );
       schedulePeriods[
         halfDayAfternoonStartIndex
@@ -239,7 +252,22 @@ export const SkipPeriod = (periods: Array<Period>, index: number) => {
 export const UnskipPeriod = (periods: Array<Period>, index: number) => {
   const periodItems = [...periods];
   periodItems[index].skipped = false;
-  return periodItems;
+
+  // If we only have a single period, default it to both
+  // end of morning and start of afternoon
+  if (periodItems.filter(p => !p.skipped).length === 1) {
+    periodItems[index].isHalfDayMorningEnd = true;
+    periodItems[index].isHalfDayAfternoonStart = true;
+  }
+
+  // Re sort periods to make sure the Skipped stay at the bottom of the list
+  const sortedPeriods = periods.sort(
+    (a, b) =>
+      (a.skipped ? 1 : 0) - (b.skipped ? 1 : 0) ||
+      (a.sequence || 0) - (b.sequence || 0)
+  );
+
+  return sortedPeriods;
 };
 
 export const AddPeriod = (
