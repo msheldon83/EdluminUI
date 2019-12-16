@@ -139,11 +139,10 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   ) => {
     const schedulePeriods: Array<Period> = [];
     if (bellSchedule.periods) {
-      const variant = isStandard
-        ? bellSchedule.standardSchedule
-        : bellSchedule.additionalVariants
-        ? bellSchedule.additionalVariants[variantIndex]
-        : null;
+      let variant = isStandard ? bellSchedule.standardSchedule : null;
+      if (!isStandard && bellSchedule.additionalVariants) {
+        variant = bellSchedule.additionalVariants[variantIndex];
+      }
       schedulePeriods.push(
         ...BuildPeriodsFromSchedule(
           bellSchedule.periods,
@@ -311,7 +310,6 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
         setStep: React.Dispatch<React.SetStateAction<number>>,
         goToNextStep: Function
       ) => {
-        const isLastVariant = i === orgWorkDayScheduleVariantTypes.length - 1;
         return renderSchedule(
           setStep,
           goToNextStep,
