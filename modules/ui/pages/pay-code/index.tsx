@@ -10,7 +10,12 @@ import { Link } from "react-router-dom";
 import { compact } from "lodash-es";
 import { EditableTable } from "ui/components/editable-table";
 import { PageTitle } from "ui/components/page-title";
+import {
+  PayCodeCreateInput,
+  PayCodeUpdateInput,
+} from "graphql/server-types.gen";
 import { Column } from "material-table";
+import { CreatePayCode } from "./graphql/create.gen";
 import {
   PayCodeRoute,
   PayCodeAddRoute,
@@ -18,6 +23,7 @@ import {
 } from "ui/routes/pay-code";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllPayCodesWithinOrg } from "ui/pages/pay-code/graphql/get-pay-codes.gen";
+import { UpdatePayCode } from "./graphql/update-pay-code.gen";
 import { DeletePayCode } from "./graphql/delete-pay-code.gen";
 
 type Props = {};
@@ -28,7 +34,9 @@ export const PayCode: React.FC<Props> = props => {
   const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
-  const params = useRouteParams(PayCodeRoute);
+  const [createPayCode] = useMutationBundle(CreatePayCode);
+  const [updatePayCode] = useMutationBundle(UpdatePayCode);
+  const params = useRouteParams(PayCodeViewEditRoute);
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
   const getPayCodes = useQueryBundle(GetAllPayCodesWithinOrg, {
@@ -41,6 +49,43 @@ export const PayCode: React.FC<Props> = props => {
         payCodeId: Number(payCodeId),
       },
     });
+  };
+
+  const [payCode, setPayCode] = React.useState<PayCodeCreateInput>({
+    orgId: Number(params.organizationId),
+    name: "",
+    externalId: null,
+    description: "",
+  });
+
+  const create = async (payCode: PayCodeCreateInput) => {
+    const result = await createPayCode({
+      variables: {
+        payCode: {
+          ...payCode,
+          externalId:
+            payCode.externalId && payCode.externalId.trim().length === 0
+              ? null
+              : payCode.externalId,
+        },
+      },
+    });
+    return result?.data?.orgRef_PayCode?.create?.id;
+  };
+
+  const update = async (payCode: PayCodeUpdateInput) => {
+    const result = await updatePayCode({
+      variables: {
+        payCode: {
+          ...payCode,
+          externalId:
+            payCode.externalId && payCode.externalId.trim().length === 0
+              ? null
+              : payCode.externalId,
+        },
+      },
+    });
+    return result?.data?.orgRef_PayCode?.update?.id;
   };
 
   const deleteSelected = async (data: { id: string } | { id: string }[]) => {
@@ -57,19 +102,22 @@ export const PayCode: React.FC<Props> = props => {
       title: t("Name"),
       field: "name",
       defaultSort: "asc",
-      searchable: true,      
+      searchable: true,
+      editable: "always",
     },
     {
       title: t("External Id"),
       field: "externalId",
       searchable: true,
       hidden: isMobile,
+      editable: "always",
     },
     {
       title: t("Description"),
       field: "description",
       searchable: true,
       hidden: isMobile,
+      editable: "always",
     },
   ];
 
@@ -103,12 +151,31 @@ export const PayCode: React.FC<Props> = props => {
         </Grid>
       </Grid>
       <EditableTable
-        title={`${payCodesCount} ${t("Pay Codes")}`}        
+        title={`${payCodesCount} ${t("Pay Codes")}`}
         columns={columns}
         data={payCodes}
-        onRowAdd={(newData) => }
-        onRowUpdate={(newData, oldData) =>}
-        onRowDelete={(oldData)=>}
+        onRowAdd={async newData => {
+          const newPayCode = {
+            ...payCode,
+            name: newData.name,
+            externalId: newData.externalId,
+            description: newData.description ? "" : null,
+          };
+          await create(newPayCode);
+        }}
+        onRowUpdate={async newData => {
+          const updatePayCode = {
+            id: Number(newData.id),
+            rowVersion: newData.rowVersion,
+            name: newData.name,
+            externalId: newData.externalId,
+            description: newData.description ? "" : null,
+          };
+          await update(updatePayCode);
+        }}
+        onRowDelete={async oldData => {
+          await deletePayCode(String(oldData.id));
+        }}
         selection={!isMobile}
         // onRowClick={(event, payCode) => {
         //   if (!payCode) return;
