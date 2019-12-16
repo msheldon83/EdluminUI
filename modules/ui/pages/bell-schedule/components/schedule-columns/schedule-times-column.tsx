@@ -103,7 +103,6 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
           </div>
         );
       })}
-      ;
     </>
   );
 };
