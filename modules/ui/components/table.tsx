@@ -33,7 +33,7 @@ import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
 import { useTranslation } from "react-i18next";
 
-type Props<T extends object> = {
+export type TableProps<T extends object> = {
   title: string;
   data: Array<T>;
   selection?: boolean;
@@ -55,7 +55,7 @@ type Props<T extends object> = {
   expiredRowCheck?: (rowData: T) => boolean;
   style?: React.CSSProperties;
   backgroundFillForAlternatingRows?: boolean;
-} & Pick<MaterialTableProps<T>, "options" | "columns" | "actions">;
+} & Pick<MaterialTableProps<T>, "options" | "columns" | "actions" | "editable">;
 
 /* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
 /* eslint-disable react/display-name */
@@ -84,7 +84,7 @@ const tableIcons: Icons = {
   ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
 };
 
-export function Table<T extends object>(props: Props<T>) {
+export function Table<T extends object>(props: TableProps<T>) {
   const classes = useStyles();
   const theme = useTheme();
   const { t } = useTranslation();

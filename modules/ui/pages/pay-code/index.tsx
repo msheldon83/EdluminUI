@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { compact } from "lodash-es";
-import { Table } from "ui/components/table";
+import { EditableTable } from "ui/components/editable-table";
 import { PageTitle } from "ui/components/page-title";
 import { Column } from "material-table";
 import {
@@ -57,7 +57,7 @@ export const PayCode: React.FC<Props> = props => {
       title: t("Name"),
       field: "name",
       defaultSort: "asc",
-      searchable: true,
+      searchable: true,      
     },
     {
       title: t("External Id"),
@@ -102,19 +102,22 @@ export const PayCode: React.FC<Props> = props => {
           </Button>
         </Grid>
       </Grid>
-      <Table
-        title={`${payCodesCount} ${t("Pay Codes")}`}
+      <EditableTable
+        title={`${payCodesCount} ${t("Pay Codes")}`}        
         columns={columns}
         data={payCodes}
+        onRowAdd={(newData) => }
+        onRowUpdate={(newData, oldData) =>}
+        onRowDelete={(oldData)=>}
         selection={!isMobile}
-        onRowClick={(event, payCode) => {
-          if (!payCode) return;
-          const newParams = {
-            ...params,
-            payCodeId: payCode.id,
-          };
-          history.push(PayCodeViewEditRoute.generate(newParams));
-        }}
+        // onRowClick={(event, payCode) => {
+        //   if (!payCode) return;
+        //   const newParams = {
+        //     ...params,
+        //     payCodeId: payCode.id,
+        //   };
+        //   history.push(PayCodeViewEditRoute.generate(newParams));
+        // }}
         options={{
           search: true,
         }}

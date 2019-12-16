@@ -1,16 +1,15 @@
 import * as React from "react";
-import { Table } from "ui/components/table";
-import { TableProps } from "@material-ui/core/Table";
+import { Table, TableProps } from "ui/components/table";
 
-type Props = TableProps & {
-  onRowAdd: () => void;
-  onRowUpdate: () => void;
-  onRowDelete: () => void;
+type Props<T extends object> = TableProps<T> & {
+  onRowAdd?: (rowData: object) => Promise<void>;
+  onRowUpdate?: (newData: object, oldData?: object) => Promise<void>;
+  onRowDelete?: (oldData: object) => Promise<void>;
 };
 
-export const EditableTable = (props: Props) => {
+export function EditableTable<T extends object>(props: Props<T>) {
   const { onRowAdd, onRowUpdate, onRowDelete, ...tableProps } = props;
   return (
-    <Table {...tableProps} editable={{ onRowAdd, onRowUpdate, onRowDelete }} />
+    <Table editable={{ onRowAdd, onRowUpdate, onRowDelete }} {...tableProps} />
   );
-};
+}
