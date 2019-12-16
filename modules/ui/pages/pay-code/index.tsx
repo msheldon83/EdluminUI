@@ -140,13 +140,13 @@ export const PayCode: React.FC<Props> = props => {
           <PageTitle title={t("Pay Codes")} />
         </Grid>
         <Grid item>
-          <Button
+          {/* <Button
             variant="contained"
             component={Link}
             to={PayCodeAddRoute.generate(params)}
           >
             {t("Add Pay Code")}
-          </Button>
+          </Button> */}
         </Grid>
       </Grid>
       <EditableTable
@@ -178,13 +178,6 @@ export const PayCode: React.FC<Props> = props => {
         options={{
           search: true,
         }}
-        showIncludeExpired={true}
-        onIncludeExpiredChange={checked => {
-          setIncludeExpired(checked);
-        }}
-        expiredRowCheck={(rowData: GetAllPayCodesWithinOrg.All) =>
-          rowData.expired
-        }
       />
     </>
   );

@@ -4,6 +4,7 @@ import {
   makeStyles,
   FormControlLabel,
   Checkbox,
+  Button,
   Grid,
   Typography,
 } from "@material-ui/core";
@@ -153,7 +154,6 @@ export function Table<T extends object>(props: TableProps<T>) {
               expiredRowCheckFunc && expiredRowCheckFunc(props.data),
             [classes.tableRow]: true,
           });
-
           return <MTableBodyRow className={classNames} {...props} />;
         },
         Cell: props => <MTableCell {...props} className={classes.cell} />,
