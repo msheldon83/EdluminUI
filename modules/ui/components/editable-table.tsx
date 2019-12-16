@@ -13,6 +13,7 @@ export function EditableTable<T extends object>(props: Props<T>) {
   return (
     <Table
       selection={false}
+      isEditable={true}
       editable={{
         onRowAdd,
         onRowUpdate,

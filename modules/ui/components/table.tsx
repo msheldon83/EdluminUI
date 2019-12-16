@@ -40,6 +40,7 @@ export type TableProps<T extends object> = {
   paging?: boolean;
   onRowClick?: (event?: React.MouseEvent, rowData?: T) => void;
   onEdit?: Function;
+  isEditable?: boolean;
   /**
    * @deprecated This is temporary functionality, we're going to create
    * a new filter component for tables that will allow Active filtering
@@ -164,6 +165,8 @@ export function Table<T extends object>(props: TableProps<T>) {
                 <Grid item>
                   <FormControlLabel
                     control={
+                      //editable => {
+                      //      if (!props.isEditable) {
                       <Checkbox
                         checked={includeExpired}
                         onChange={async e => {
@@ -176,6 +179,7 @@ export function Table<T extends object>(props: TableProps<T>) {
                         color="primary"
                       />
                     }
+                    // }}
                     label={
                       <Typography variant="h6">
                         {t("Include inactive")}
