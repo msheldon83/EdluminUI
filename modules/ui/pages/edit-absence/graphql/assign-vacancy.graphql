@@ -1,0 +1,12 @@
+mutation AssignVacancy ($assignment: CreateVacancyAssignmentInput!) {
+  vacancy {
+    assignVacancy(vacancyAssignment: $assignment) {
+      id
+      employee {
+	id
+	firstName
+	lastName
+      }
+    }
+  }
+}

@@ -110,8 +110,8 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        setStep={() => {}}
-        setValue={() => {}}
+        onCancel={() => {}}
+        onSelectReplacement={() => {}}
         vacancies={
           [
             {
@@ -311,14 +311,14 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
   return (
     <Provider>
       <AssignSub
+        onSelectReplacement={() => {}}
+        onCancel={() => {}}
         orgId={"1006"}
         userIsAdmin={false}
         existingVacancy
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        setStep={() => {}}
-        setValue={() => {}}
         vacancies={
           [
             {
@@ -368,13 +368,13 @@ export const PrearrangeSubAsAdmin = () => {
   return (
     <Provider>
       <AssignSub
+        onSelectReplacement={() => {}}
+        onCancel={() => {}}
         orgId={"1006"}
         userIsAdmin={true}
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        setStep={() => {}}
-        setValue={() => {}}
         vacancies={
           [
             {
@@ -424,13 +424,13 @@ export const PrearrangeSubAsEmployee = () => {
   return (
     <Provider>
       <AssignSub
+        onSelectReplacement={() => {}}
+        onCancel={() => {}}
         orgId={"1006"}
         userIsAdmin={false}
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
-        setStep={() => {}}
-        setValue={() => {}}
         vacancies={
           [
             {

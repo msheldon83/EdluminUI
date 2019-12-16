@@ -1,4 +1,4 @@
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { NeedsReplacement } from "graphql/server-types.gen";
 import { AbsenceReasonUsageData } from "helpers/absence/computeAbsenceUsageText";
 import { compact, flatMap, isNil } from "lodash-es";

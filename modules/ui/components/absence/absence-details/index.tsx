@@ -82,6 +82,8 @@ type Props = {
   /** default: pre-arranged */
   arrangedSubText?: string;
   disableReplacementInteractions?: boolean;
+  replacementEmployeeId?: number;
+  replacementEmployeeName?: string;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -377,13 +379,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </Typography>
 
         <Paper>
-          {values.replacementEmployeeId && (
+          {props.replacementEmployeeId && (
             <AssignedSub
               disableReplacementInteractions={
                 props.disableReplacementInteractions
               }
-              employeeId={values.replacementEmployeeId}
-              employeeName={values.replacementEmployeeName || ""}
+              employeeId={props.replacementEmployeeId}
+              employeeName={props.replacementEmployeeName || ""}
               subText={props.arrangedSubText ?? t("pre-arranged")}
               onRemove={removePrearrangedReplacementEmployee}
             />
@@ -423,6 +425,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 isAdmin={!!isAdmin}
                 arrangeSubButtonTitle={props.arrangeSubButtonTitle}
                 disabledDates={props.disabledDates}
+                replacementEmployeeId={props.replacementEmployeeId}
+                replacementEmployeeName={props.replacementEmployeeName}
               />
             )}
           </div>

@@ -12,6 +12,7 @@ import { AccountCircleOutlined } from "@material-ui/icons";
 export const getAssignSubColumns = (
   tableData: any[],
   isAdmin: boolean,
+  selectTitle: string,
   selectReplacementEmployee: (
     replacementEmployeeId: number,
     name: string
@@ -126,7 +127,7 @@ export const getAssignSubColumns = (
           );
         }}
       >
-        {t("Select")}
+        {selectTitle}
       </Button>
     ),
   });

@@ -44,6 +44,7 @@ import { projectVacancyDetails } from "../create-absence/project-vacancy-details
 import { VacancyDetail } from "../../components/absence/types";
 import { buildAbsenceCreateInput } from "../create-absence/ui";
 import { UpdateAbsence } from "./graphql/update-absence.gen";
+import { AssignVacancy } from "./graphql/assign-vacancy.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { AssignSub } from "../create-absence/assign-sub";
@@ -87,8 +88,6 @@ type EditAbsenceFormData = {
   hourlyEndTime?: Date;
   notesToApprover?: string;
   notesToReplacement?: string;
-  replacementEmployeeId?: number;
-  replacementEmployeeName?: string;
   vacancies?: AbsenceVacancyInput[];
   accountingCode?: string;
   payCode?: string;
@@ -103,6 +102,7 @@ type EditAbsenceFormData = {
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 
 export const EditAbsenceUI: React.FC<Props> = props => {
+  console.log("EditAbsenceUI props", props);
   const { t } = useTranslation();
   const classes = useStyles();
   const { openDialog } = useDialog();
@@ -113,6 +113,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [customizedVacancyDetails, setVacanciesInput] = useState<
     VacancyDetail[]
   >();
+  const [assignVacancy] = useMutationBundle(AssignVacancy, {});
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -120,8 +121,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     startDate: parseISO(props.startDate),
     endDate: parseISO(props.endDate),
     absenceReason: props.absenceReasonId.toString(),
-    replacementEmployeeId: props.replacementEmployeeId,
-    replacementEmployeeName: props.replacementEmployeeName,
     dayPart: props.dayPart,
     payCode:
       // @ts-ignore
@@ -160,8 +159,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
-  register({ name: "replacementEmployeeId", type: "custom" });
-  register({ name: "replacementEmployeeName", type: "custom" });
   register(
     { name: "hourlyStartTime", type: "custom" },
     {
@@ -358,6 +355,23 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       });
     }
   };
+  const onSelectReplacement = useCallback(
+    async (employeeId: number, name: string) => {
+      console.log("got", employeeId, name);
+      await assignVacancy({
+        variables: {
+          assignment: {
+            orgId: Number(props.organizationId),
+            employeeId: employeeId,
+            appliesToAllVacancyDetails: true,
+            vacancyId: Number(props.initialVacancies[0].id),
+          },
+        },
+      });
+      setStep("absence");
+    },
+    [setStep, assignVacancy]
+  );
 
   return (
     <>
@@ -411,6 +425,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               arrangedSubText={t("assigned")}
               arrangeSubButtonTitle={t("Assign Sub")}
               disableReplacementInteractions={useProjectedInformation}
+              replacementEmployeeId={props.replacementEmployeeId}
+              replacementEmployeeName={props.replacementEmployeeName}
             />
           </Section>
         </form>
@@ -438,9 +454,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeId={props.employeeId}
           positionId={props.positionId}
           positionName={props.positionName}
-          setStep={setStep}
-          setValue={setValue}
           disabledDates={disabledDates}
+          selectButtonText={t("Assign")}
+          onSelectReplacement={onSelectReplacement}
+          onCancel={onCancel}
         />
       )}
     </>
@@ -544,8 +561,7 @@ const buildAbsenceUpdateInput = (
         useSuppliedDetails: true,
         needsReplacement: state.needsReplacement,
         notesToReplacement: formValues.notesToReplacement,
-        prearrangedReplacementEmployeeId:
-          formValues.replacementEmployeeId || null,
+        prearrangedReplacementEmployeeId: null, // TODO make this the currently assigned employee
         details: vDetails,
         accountingCodeAllocations: formValues.accountingCode
           ? [
