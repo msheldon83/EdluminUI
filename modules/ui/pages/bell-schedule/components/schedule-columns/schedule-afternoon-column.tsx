@@ -135,16 +135,17 @@ const onDragEnd = (
     return null;
   }
 
-  // Find index of End Of Morning
+  // Find index of End Of Morning. Start of Afternoon cannot be before End of Morning, but they can be the same.
   const endOfMorningIndex = periods.findIndex(p => p.isHalfDayMorningEnd);
-  if (destination.index <= endOfMorningIndex) {
-    // Start of Afternoon cannot be before End of Morning, but they can be the same
-    periods[endOfMorningIndex].isHalfDayAfternoonStart = true;
-  } else {
-    periods[destination.index].isHalfDayAfternoonStart = true;
+  const destinationIndex =
+    destination.index <= endOfMorningIndex
+      ? endOfMorningIndex
+      : destination.index;
+  periods[destinationIndex].isHalfDayAfternoonStart = true;
+  if (destinationIndex != source.index) {
+    // Clear out the old Start of Afternoon flag if we made a move
+    periods[source.index].isHalfDayAfternoonStart = false;
   }
-  // Clear out the old Start of Afternoon flag
-  periods[source.index].isHalfDayAfternoonStart = false;
 
   return periods;
 };
