@@ -30,7 +30,6 @@ type Props = {};
 
 export const PayCode: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
   const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
@@ -51,7 +50,7 @@ export const PayCode: React.FC<Props> = props => {
     });
   };
 
-  const [payCode, setPayCode] = React.useState<PayCodeCreateInput>({
+  const [payCode] = React.useState<PayCodeCreateInput>({
     orgId: Number(params.organizationId),
     name: "",
     externalId: null,
@@ -176,7 +175,7 @@ export const PayCode: React.FC<Props> = props => {
         onRowDelete={async oldData => {
           await deletePayCode(String(oldData.id));
         }}
-        selection={!isMobile}
+        // selection={!isMobile}
         // onRowClick={(event, payCode) => {
         //   if (!payCode) return;
         //   const newParams = {

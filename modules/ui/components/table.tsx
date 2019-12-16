@@ -122,6 +122,7 @@ export function Table<T extends object>(props: TableProps<T>) {
       title={props.title}
       columns={allColumns}
       data={props.data}
+      editable={props.editable}
       onRowClick={props.onRowClick}
       options={{
         search: false,

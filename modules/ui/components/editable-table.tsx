@@ -9,8 +9,10 @@ type Props<T extends object> = TableProps<T> & {
 
 export function EditableTable<T extends object>(props: Props<T>) {
   const { onRowAdd, onRowUpdate, onRowDelete, ...tableProps } = props;
+
   return (
     <Table
+      selection={false}
       editable={{
         onRowAdd,
         onRowUpdate,
