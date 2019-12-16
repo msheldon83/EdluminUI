@@ -34,6 +34,7 @@ import {
   BellSchedule,
   Variant,
 } from "./helpers";
+import { ShowErrors } from "ui/components/error-helpers";
 
 const scheduleSettingsDefaults: ScheduleSettings = {
   isBasic: true,
@@ -47,23 +48,12 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   const history = useHistory();
   const params = useRouteParams(BellScheduleAddRoute);
   const classes = useStyles();
+  const { openSnackbar } = useSnackbar();
   const [createWorkdaySchedule] = useMutationBundle(CreateWorkdaySchedule, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
-  const { openSnackbar } = useSnackbar();
   const [name, setName] = React.useState<string | null>(null);
   const namePlaceholder = t("Eastend High School");
   const [scheduleSettings, setScheduleSettings] = React.useState<

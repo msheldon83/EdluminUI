@@ -43,7 +43,10 @@ import { VerifyUI } from "ui/pages/verify/ui";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
-import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
+import {
+  ShowIgnoreAndContinueOrError,
+  ShowErrors,
+} from "ui/components/error-helpers";
 
 type Props = {
   orgId: string;
@@ -255,18 +258,7 @@ export const DailyReport: React.FC<Props> = props => {
 
   const [cancelAssignment] = useMutationBundle(CancelAssignment, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
 
