@@ -34,6 +34,7 @@ import { Period } from "./helpers";
 import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import { UpdateWorkDayScheduleVariant } from "./graphql/update-workday-schedule-variant.gen";
 import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
+import { useSnackbar } from "hooks/use-snackbar";
 
 const editableSections = {
   name: "edit-name",
@@ -48,11 +49,28 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   const params = useRouteParams(BellScheduleViewRoute);
   const [editing, setEditing] = useState<string | null>(null);
   const [enabled, setEnabled] = useState<boolean | null>(null);
+  const { openSnackbar } = useSnackbar();
   const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(
     params.organizationId
   );
   const [updateWorkDayScheduleVariant] = useMutationBundle(
-    UpdateWorkDayScheduleVariant
+    UpdateWorkDayScheduleVariant,
+    {
+      onError: error => {
+        openSnackbar({
+          message: error.graphQLErrors.map((e, i) => {
+            const errorMessage =
+              e.extensions?.data?.text ?? e.extensions?.data?.code;
+            if (!errorMessage) {
+              return null;
+            }
+            return <div key={i}>{errorMessage}</div>;
+          }),
+          dismissable: true,
+          status: "error",
+        });
+      },
+    }
   );
 
   const standardVariantType = orgWorkDayScheduleVariantTypes.find(
@@ -74,7 +92,22 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     });
   }, [deleteWorkDayScheduleMutation, history, params]);
 
-  const [updateWorkDaySchedule] = useMutationBundle(UpdateWorkDaySchedule);
+  const [updateWorkDaySchedule] = useMutationBundle(UpdateWorkDaySchedule, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
   const enableDisableWorkDaySchedule = React.useCallback(
     (enabled: boolean, rowVersion: string) => {
       return updateWorkDaySchedule({
