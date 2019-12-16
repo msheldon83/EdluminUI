@@ -25,6 +25,7 @@ export type Period = {
   isHalfDayAfternoonStart?: boolean;
   skipped: boolean;
   sequence?: number;
+  isEndOfDayPeriod?: boolean;
 };
 
 export const BuildPeriodsFromScheduleSettings = (
