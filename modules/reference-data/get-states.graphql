@@ -1,0 +1,9 @@
+query GetStates {
+  referenceData {
+    states {
+      enumValue
+      name
+      description
+    }
+  }
+}

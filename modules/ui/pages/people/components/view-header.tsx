@@ -7,6 +7,7 @@ import {
 import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import Maybe from "graphql/tsutils/Maybe";
+import { OrgUserUpdateInput } from "graphql/server-types.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -14,9 +15,10 @@ const editableSections = {
 };
 
 type Props = {
-  active: boolean | null;
   editing: string | null;
   orgUser: {
+    id: string;
+    active: boolean;
     firstName: string;
     middleName?: string | null | undefined;
     lastName: string;
@@ -24,14 +26,8 @@ type Props = {
     externalId?: string | null | undefined;
   };
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
-  setActive: React.Dispatch<React.SetStateAction<boolean | null>>;
-  updateName: (nameFields: FieldData[]) => Promise<unknown>;
-  updateExternalId: (externalId?: string | null) => Promise<unknown>;
   deleteOrgUser: () => Promise<unknown>;
-  activateDeactivateOrgUser: (
-    active: boolean,
-    rowVersion: string
-  ) => Promise<unknown>;
+  onSaveOrgUser: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
 };
 
 export const PersonViewHeader: React.FC<Props> = props => {
@@ -69,9 +65,14 @@ export const PersonViewHeader: React.FC<Props> = props => {
             label: t("Last Name"),
           },
         ]}
-        onSubmit={async (value: Array<FieldData>) => {
-          await props.updateName(value);
-          props.setEditing(null);
+        onSubmit={async (values: Array<FieldData>) => {
+          await props.onSaveOrgUser({
+            rowVersion: orgUser.rowVersion,
+            id: Number(orgUser.id),
+            firstName: values.find(x => x.key === "firstName")?.value,
+            lastName: values.find(x => x.key === "lastName")?.value,
+            middleName: values.find(x => x.key === "middleName")?.value,
+          });
         }}
         onCancel={() => props.setEditing(null)}
         actions={[
@@ -80,13 +81,13 @@ export const PersonViewHeader: React.FC<Props> = props => {
             onClick: () => {},
           },
           {
-            name: props.active ? t("Inactivate") : t("Activate"),
+            name: orgUser.active ? t("Inactivate") : t("Activate"),
             onClick: async () => {
-              await props.activateDeactivateOrgUser(
-                !props.active,
-                orgUser.rowVersion
-              );
-              props.setActive(!props.active);
+              await props.onSaveOrgUser({
+                rowVersion: orgUser.rowVersion,
+                id: Number(orgUser.id),
+                active: !orgUser.active,
+              });
             },
           },
           {
@@ -94,11 +95,14 @@ export const PersonViewHeader: React.FC<Props> = props => {
             onClick: props.deleteOrgUser,
           },
         ]}
-        isInactive={!props.active}
+        isInactive={!orgUser.active}
         inactiveDisplayText={t("This person is currently inactive.")}
         onActivate={async () => {
-          await props.activateDeactivateOrgUser(true, orgUser.rowVersion);
-          props.setActive(true);
+          await props.onSaveOrgUser({
+            rowVersion: orgUser.rowVersion,
+            id: Number(orgUser.id),
+            active: !orgUser.active,
+          });
         }}
       />
       <PageHeader
@@ -110,8 +114,11 @@ export const PersonViewHeader: React.FC<Props> = props => {
           value: yup.string().nullable(),
         })}
         onSubmit={async (value: Maybe<string>) => {
-          await props.updateExternalId(value);
-          props.setEditing(null);
+          await props.onSaveOrgUser({
+            rowVersion: orgUser.rowVersion,
+            id: Number(orgUser.id),
+            externalId: value,
+          });
         }}
         onCancel={() => props.setEditing(null)}
         isSubHeader={true}
