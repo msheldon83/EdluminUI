@@ -160,35 +160,38 @@ export function Table<T extends object>(props: TableProps<T>) {
         Toolbar: props => (
           <>
             <div className={classes.tableTitle}>{props.title}</div>
-            {showIncludeExpiredSetting && (
-              <Grid container justify="flex-end">
-                <Grid item>
-                  <FormControlLabel
-                    control={
-                      //editable => {
-                      //      if (!props.isEditable) {
-                      <Checkbox
-                        checked={includeExpired}
-                        onChange={async e => {
-                          setIncludeExpired(e.target.checked);
-                          if (onIncludeExpiredChangeFunc) {
-                            onIncludeExpiredChangeFunc(e.target.checked);
+            {() => {
+              if (!props.isEditable) {
+                {
+                  showIncludeExpiredSetting && (
+                    <Grid container justify="flex-end">
+                      <Grid item>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={includeExpired}
+                              onChange={async e => {
+                                setIncludeExpired(e.target.checked);
+                                if (onIncludeExpiredChangeFunc) {
+                                  onIncludeExpiredChangeFunc(e.target.checked);
+                                }
+                              }}
+                              value={includeExpired}
+                              color="primary"
+                            />
                           }
-                        }}
-                        value={includeExpired}
-                        color="primary"
-                      />
-                    }
-                    // }}
-                    label={
-                      <Typography variant="h6">
-                        {t("Include inactive")}
-                      </Typography>
-                    }
-                  />
-                </Grid>
-              </Grid>
-            )}
+                          label={
+                            <Typography variant="h6">
+                              {t("Include inactive")}
+                            </Typography>
+                          }
+                        />
+                      </Grid>
+                    </Grid>
+                  );
+                }
+              }
+            }}
           </>
         ),
       }}

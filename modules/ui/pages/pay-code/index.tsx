@@ -175,15 +175,6 @@ export const PayCode: React.FC<Props> = props => {
         onRowDelete={async oldData => {
           await deletePayCode(String(oldData.id));
         }}
-        // selection={!isMobile}
-        // onRowClick={(event, payCode) => {
-        //   if (!payCode) return;
-        //   const newParams = {
-        //     ...params,
-        //     payCodeId: payCode.id,
-        //   };
-        //   history.push(PayCodeViewEditRoute.generate(newParams));
-        // }}
         options={{
           search: true,
         }}
@@ -194,15 +185,6 @@ export const PayCode: React.FC<Props> = props => {
         expiredRowCheck={(rowData: GetAllPayCodesWithinOrg.All) =>
           rowData.expired
         }
-        actions={[
-          {
-            tooltip: `${t("Delete selected pay codes")}`,
-            icon: () => <DeleteOutline /> /* eslint-disable-line */, // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
-            onClick: async (event, data) => {
-              await deleteSelected(data);
-            },
-          },
-        ]}
       />
     </>
   );
