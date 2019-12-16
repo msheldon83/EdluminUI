@@ -65,7 +65,7 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                               ref={innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className={props.scheduleClasses.draggableSection}
+                              className={classes.draggableSection}
                             >
                               <div className={classes.nameInput}>
                                 {props.isStandard && (
@@ -86,7 +86,7 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                                 )}
                                 {!props.isStandard && p.name}
                               </div>
-                              <div className={props.scheduleClasses.actionDiv}>
+                              <div className={classes.actionDiv}>
                                 {props.periods.length > 1 && !p.skipped && (
                                   <DragHandle />
                                 )}
@@ -113,6 +113,14 @@ const useStyles = makeStyles(theme => ({
     width: theme.typography.pxToRem(200),
     margin: theme.spacing(),
   },
+  draggableSection: {
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  actionDiv: {
+    width: theme.typography.pxToRem(50),
+  },
 }));
 
 const onDragEnd = (
@@ -125,6 +133,7 @@ const onDragEnd = (
   if (!destination) {
     return null;
   }
+
   if (
     destination.droppableId === source.droppableId &&
     destination.index === source.index
@@ -132,35 +141,38 @@ const onDragEnd = (
     return null;
   }
 
-  console.log(source, destination);
+  console.log("NAME", source, destination);
 
   if (periods[destination.index].skipped) {
-    // Should not be able to assign anything to a Skipped period
+    // Should not be able to swap names with a Skipped Period
     return null;
   }
 
-  if (draggableId.startsWith(nameDragPrefix)) {
-    // Just reordering the names of the periods
-    const oldPeriods = periods.map(p => {
-      return { ...p };
-    });
-    if (source.index < destination.index) {
-      // Dragging down the list
-      for (let i = destination.index - 1; i >= source.index; i--) {
-        periods[i].name = oldPeriods[i + 1].name;
-      }
-    } else {
-      // Dragging up the list
-      for (let i = destination.index + 1; i <= source.index; i++) {
-        periods[i].name = oldPeriods[i - 1].name;
-      }
-    }
-    // Update the destination name that was actually dragged
-    periods[destination.index].name = oldPeriods[source.index].name;
-
-    // Update placeholders
-    UpdatePeriodPlaceholders(periods, t);
+  if (!draggableId.startsWith(nameDragPrefix)) {
+    // Shouldn't occur, but just to be safe
+    return null;
   }
+
+  // Just reordering the names of the periods
+  const oldPeriods = periods.map(p => {
+    return { ...p };
+  });
+  if (source.index < destination.index) {
+    // Dragging down the list
+    for (let i = destination.index - 1; i >= source.index; i--) {
+      periods[i].name = oldPeriods[i + 1].name;
+    }
+  } else {
+    // Dragging up the list
+    for (let i = destination.index + 1; i <= source.index; i++) {
+      periods[i].name = oldPeriods[i - 1].name;
+    }
+  }
+  // Update the destination name that was actually dragged
+  periods[destination.index].name = oldPeriods[source.index].name;
+
+  // Update placeholders
+  UpdatePeriodPlaceholders(periods, t);
 
   return periods;
 };

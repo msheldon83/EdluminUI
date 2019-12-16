@@ -8,7 +8,6 @@ import {
   Droppable,
   Draggable,
 } from "react-beautiful-dnd";
-import { TFunction } from "i18next";
 
 type Props = {
   periods: Period[];
@@ -25,7 +24,7 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
   return (
     <DragDropContext
       onDragEnd={(result: DropResult) => {
-        const updatedPeriods = onDragEnd(result, props.periods, t);
+        const updatedPeriods = onDragEnd(result, props.periods);
         if (updatedPeriods) {
           props.setPeriods(updatedPeriods);
         }
@@ -108,8 +107,7 @@ const useStyles = makeStyles(theme => ({
 
 const onDragEnd = (
   result: DropResult,
-  periods: Array<Period>,
-  t: TFunction
+  periods: Array<Period>
 ): Array<Period> | null => {
   const { destination, source, draggableId } = result;
 
@@ -123,27 +121,30 @@ const onDragEnd = (
     return null;
   }
 
-  console.log(source, destination);
+  console.log("MORNING", source, destination);
 
   if (periods[destination.index].skipped) {
     // Should not be able to assign anything to a Skipped period
     return null;
   }
 
-  if (draggableId.startsWith(endOfMorningDragPrefix)) {
-    // Find index of Start Of Afternoon
-    const startOfAfternoonIndex = periods.findIndex(
-      p => p.isHalfDayAfternoonStart
-    );
-    if (destination.index > startOfAfternoonIndex) {
-      // End of Morning cannot be after Start of Afternoon, but they can be the same
-      periods[startOfAfternoonIndex].isHalfDayMorningEnd = true;
-    } else {
-      periods[destination.index].isHalfDayMorningEnd = true;
-    }
-    // Clear out the old End of Morning flag
-    periods[source.index].isHalfDayMorningEnd = false;
+  if (!draggableId.startsWith(endOfMorningDragPrefix)) {
+    // Shouldn't occur, but just to be safe
+    return null;
   }
+
+  // Find index of Start Of Afternoon
+  const startOfAfternoonIndex = periods.findIndex(
+    p => p.isHalfDayAfternoonStart
+  );
+  if (destination.index >= startOfAfternoonIndex) {
+    // End of Morning cannot be after Start of Afternoon, but they can be the same
+    periods[startOfAfternoonIndex].isHalfDayMorningEnd = true;
+  } else {
+    periods[destination.index].isHalfDayMorningEnd = true;
+  }
+  // Clear out the old End of Morning flag
+  periods[source.index].isHalfDayMorningEnd = false;
 
   return periods;
 };

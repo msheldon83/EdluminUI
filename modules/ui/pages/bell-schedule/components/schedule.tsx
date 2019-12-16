@@ -31,7 +31,7 @@ type Props = {
 };
 
 const travelDuration = 5;
-const minNumberOfPeriods = 2;
+const minNumberOfPeriods = 1;
 
 export const Schedule: React.FC<Props> = props => {
   const { t } = useTranslation();
@@ -275,9 +275,6 @@ const useStyles = makeStyles(theme => ({
   },
   scheduleError: {
     fontSize: theme.typography.pxToRem(14),
-  },
-  actionDiv: {
-    width: theme.typography.pxToRem(50),
   },
   action: {
     cursor: "pointer",
