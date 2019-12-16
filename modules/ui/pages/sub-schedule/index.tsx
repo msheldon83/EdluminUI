@@ -1,13 +1,12 @@
 import { Divider } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { addMonths } from "date-fns";
+import { addMonths, endOfMonth } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
 import * as React from "react";
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { getBeginningOfSchoolYear } from "ui/components/helpers";
 import { PageTitle } from "ui/components/page-title";
-import { ScheduleHeader } from "ui/components/schedule/schedule-header";
+import { numberOfMonthsInSchoolYear } from "ui/components/schedule/helpers";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { Section } from "ui/components/section";
 import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
@@ -20,6 +19,8 @@ import {
 import { CalendarView } from "./calendar-view";
 import { NowViewingAssignmentsForDate } from "./calendar-view/now-viewing-assignments";
 import { ListView } from "./list-view";
+import { ScheduleHeader } from "ui/components/schedule/schedule-header";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   view: "list" | "calendar";
@@ -37,19 +38,26 @@ export const SubSchedule: React.FC<Props> = props => {
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
 
-  const numberOfMonthsInSchoolYear = 12;
-  const today = new Date();
+  /* the value for today will not change as long as the 
+      component is mounted. This could cause stale today
+      values to be shown if the browser is on the same page
+      over multiple days. */
+  const today = useMemo(() => new Date(), []);
 
   const beginningOfSchoolYear = useMemo(() => {
     return getBeginningOfSchoolYear(today);
   }, [today]);
 
   const endOfSchoolYear = useMemo(
-    () => addMonths(beginningOfSchoolYear, numberOfMonthsInSchoolYear),
+    () =>
+      endOfMonth(
+        addMonths(beginningOfSchoolYear, numberOfMonthsInSchoolYear - 1)
+      ),
     [beginningOfSchoolYear]
   );
 
   const [queryStartDate, setQueryStartDate] = useState(today);
+  const [queryEndDate, setQueryEndDate] = useState(endOfSchoolYear);
 
   /* selected date is used on the calendar view only. The state lives
      here because we need it to show the assignments for the selected date
@@ -76,10 +84,11 @@ export const SubSchedule: React.FC<Props> = props => {
             <ScheduleHeader
               view={props.view}
               today={today}
-              beginningOfSchoolYear={beginningOfSchoolYear}
-              endOfSchoolYear={endOfSchoolYear}
+              beginningOfCurrentSchoolYear={beginningOfSchoolYear}
+              endOfSchoolCurrentYear={endOfSchoolYear}
               startDate={queryStartDate}
               setStartDate={setQueryStartDate}
+              setEndDate={setQueryEndDate}
               userId={userId}
             />
           </div>
@@ -100,7 +109,7 @@ export const SubSchedule: React.FC<Props> = props => {
             <CalendarView
               userId={userId}
               fromDate={beginningOfSchoolYear}
-              toDate={endOfSchoolYear}
+              toDate={queryEndDate}
               selectedDate={selectedDate}
               onSelectDate={onSelectDate}
             />
@@ -109,7 +118,7 @@ export const SubSchedule: React.FC<Props> = props => {
             <ListView
               userId={userId}
               startDate={queryStartDate}
-              endDate={endOfSchoolYear}
+              endDate={queryEndDate}
             />
           )}
         </div>

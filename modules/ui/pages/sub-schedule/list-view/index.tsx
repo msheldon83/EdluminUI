@@ -1,4 +1,4 @@
-import { Grid } from "@material-ui/core";
+import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
@@ -8,6 +8,7 @@ import { GetUpcomingAssignments } from "ui/pages/sub-home/graphql/get-upcoming-a
 import { AssignmentGroup } from "../assignment-row/assignment-group";
 import { groupAssignmentsByVacancy } from "../calendar-view/grouping-helpers";
 import { AssignmentRow } from "../assignment-row";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   userId?: string;
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export const ListView: React.FC<Props> = props => {
+  const { t } = useTranslation();
   const classes = useStyles();
 
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
@@ -53,25 +55,31 @@ export const ListView: React.FC<Props> = props => {
   return (
     <>
       <Grid container>
-        {groupedAssignments.map((group, i) => {
-          return group.length > 1 ? (
-            <AssignmentGroup
-              key={i}
-              assignmentGroup={group}
-              onCancel={() => console.log("cancel assignment")}
-              className={i % 2 == 1 ? classes.shadedRow : undefined}
-            />
-          ) : (
-            <AssignmentRow
-              key={group[0].id}
-              assignment={group[0]}
-              onCancel={() =>
-                console.log("cancel assignment", group[0].assignment?.id)
-              }
-              className={i % 2 == 1 ? classes.shadedRow : undefined}
-            />
-          );
-        })}
+        {groupedAssignments.length < 1 ? (
+          <Typography className={classes.noRecords}>
+            {t("No records")}
+          </Typography>
+        ) : (
+          groupedAssignments.map((group, i) => {
+            return group.length > 1 ? (
+              <AssignmentGroup
+                key={i}
+                assignmentGroup={group}
+                onCancel={() => console.log("cancel assignment")}
+                className={i % 2 == 1 ? classes.shadedRow : undefined}
+              />
+            ) : (
+              <AssignmentRow
+                key={group[0].id}
+                assignment={group[0]}
+                onCancel={() =>
+                  console.log("cancel assignment", group[0].assignment?.id)
+                }
+                className={i % 2 == 1 ? classes.shadedRow : undefined}
+              />
+            );
+          })
+        )}
       </Grid>
     </>
   );
@@ -86,5 +94,9 @@ const useStyles = makeStyles(theme => ({
     borderBottom: `${theme.typography.pxToRem(1)} solid ${
       theme.customColors.sectionBorder
     }`,
+  },
+  noRecords: {
+    fontStyle: "italic",
+    paddingTop: theme.typography.pxToRem(16),
   },
 }));

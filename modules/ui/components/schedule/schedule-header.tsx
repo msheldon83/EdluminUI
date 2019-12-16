@@ -1,19 +1,22 @@
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
-import { isSameDay, parseISO, getYear } from "date-fns";
+import { isSameDay, parseISO, isWithinInterval } from "date-fns";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Select } from "ui/components/form/select";
-import { GetUserCreateDate } from "./graphql/get-user-create-date.gen";
 import { useQueryBundle } from "graphql/hooks";
+import { GetUserCreateDate } from "../../pages/sub-schedule/graphql/get-user-create-date.gen";
+import { range } from "lodash-es";
+import { stringToStartAndEndDate, createYearOption } from "./helpers";
 
 type Props = {
   view: "list" | "calendar";
   today: Date;
-  beginningOfSchoolYear: Date;
-  endOfSchoolYear: Date;
+  beginningOfCurrentSchoolYear: Date;
+  endOfSchoolCurrentYear: Date;
   startDate: Date;
   setStartDate: React.Dispatch<React.SetStateAction<Date>>;
+  setEndDate: React.Dispatch<React.SetStateAction<Date>>;
   userId?: string;
 };
 
@@ -21,56 +24,62 @@ export const ScheduleHeader: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
+  const showFromPicker = isWithinInterval(props.startDate, {
+    start: props.beginningOfCurrentSchoolYear,
+    end: props.endOfSchoolCurrentYear,
+  });
+
   const listViewFilterOptions = useMemo(
     () => [
       { label: t("Today"), value: props.today.toISOString() },
       {
         label: t("Beginning of the school year"),
-        value: props.beginningOfSchoolYear.toISOString(),
+        value: props.beginningOfCurrentSchoolYear.toISOString(),
       },
     ],
-    [props.today, props.beginningOfSchoolYear, t]
+    [props.today, props.beginningOfCurrentSchoolYear, t]
   );
 
-  const currentSchoolYear = useMemo(
-    () =>
-      `${props.beginningOfSchoolYear.getFullYear()}-${props.endOfSchoolYear.getFullYear()}`,
-    [props.beginningOfSchoolYear, props.endOfSchoolYear]
-  );
-
-  //////////////////////////////////////////////////////////////
-  const startYearForSub = useQueryBundle(GetUserCreateDate, {
+  const startYearForUser = useQueryBundle(GetUserCreateDate, {
     variables: {
       id: props.userId,
     },
     skip: !props.userId,
   });
 
-  // 1. fill in the years between the startYear and the current year
-  // 2. create the respective values for each
-  // 3. make the select generic
-  const schoolYearOptions = useMemo(
-    () => [
-      {
-        label: currentSchoolYear,
-        value: {
-          startDate: props.beginningOfSchoolYear,
-          endDate: props.endOfSchoolYear,
-        },
-      },
-    ],
-    []
-  );
+  const schoolYearOptions = useMemo(() => {
+    if (
+      startYearForUser.state !== "DONE" &&
+      startYearForUser.state !== "UPDATING"
+    )
+      return [];
+    const userStartDate = parseISO(
+      startYearForUser.data.user?.byId?.createdUtc
+    );
+    const startYear = userStartDate.getFullYear();
+    const endYear = props.endOfSchoolCurrentYear.getFullYear();
+
+    // 1. fill in the years between the startYear and the current year
+    // 2. create the respective values for each
+    return startYear !== endYear
+      ? range(startYear, endYear).map(d => {
+          const year = userStartDate;
+          year.setFullYear(d);
+          return createYearOption(year);
+        })
+      : [createYearOption(props.beginningOfCurrentSchoolYear)];
+  }, [
+    props.beginningOfCurrentSchoolYear,
+    props.endOfSchoolCurrentYear,
+    startYearForUser,
+  ]);
+
   if (
-    startYearForSub.state !== "DONE" &&
-    startYearForSub.state !== "UPDATING"
+    startYearForUser.state !== "DONE" &&
+    startYearForUser.state !== "UPDATING"
   ) {
     return <></>;
   }
-  const startYear = getYear(
-    parseISO(startYearForSub.data.user?.byId?.createdUtc)
-  );
-  console.log(startYear, startYearForSub.data.user?.byId?.createdUtc);
 
   return (
     <>
@@ -78,20 +87,32 @@ export const ScheduleHeader: React.FC<Props> = props => {
         {props.view === "list" && <InputLabel>{t("Year")}</InputLabel>}
         <Select
           withDropdownIndicator
-          onChange={
-            val => console.log(val)
-            // val &&
-            // props.setStartDate(
-            //   parseISO((val as typeof listViewFilterOptions[0]).value)
-            // )
-          }
-          value={schoolYearOptions[0]}
+          onChange={val => {
+            const dates = stringToStartAndEndDate(
+              (val as typeof schoolYearOptions[0]).value
+            );
+            if (dates) {
+              props.setStartDate(dates.startDate);
+              props.setEndDate(dates.endDate);
+            }
+          }}
+          value={schoolYearOptions.find(y => {
+            const dates = stringToStartAndEndDate(y.value);
+
+            return (
+              dates &&
+              isWithinInterval(props.startDate, {
+                start: dates.startDate,
+                end: dates.endDate,
+              })
+            );
+          })}
           isClearable={false}
           options={schoolYearOptions}
         />
       </div>
 
-      {props.view === "list" && (
+      {props.view === "list" && showFromPicker && (
         <div className={[classes.select, classes.fromSelect].join(" ")}>
           <InputLabel>{t("From")}</InputLabel>
           <Select

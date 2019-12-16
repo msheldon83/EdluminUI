@@ -1,31 +1,32 @@
-import * as React from "react";
+import { Button, Divider, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { useTranslation } from "react-i18next";
-import { PageTitle } from "ui/components/page-title";
-import { Section } from "ui/components/section";
-import { Link } from "react-router-dom";
-import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
-import { useRouteParams } from "ui/routes/definition";
-import { Grid, Button, Divider } from "@material-ui/core";
-import { useGetEmployee } from "reference-data/employee";
-import { useCurrentSchoolYear } from "reference-data/current-school-year";
-import { useMemo, useState } from "react";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
-import { useSnackbar } from "hooks/use-snackbar";
-import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
-import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
-import { ScheduledAbsences } from "ui/components/employee/components/scheduled-absences";
-import { CalendarView } from "./components/calendar-view";
 import { parseISO } from "date-fns";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useSnackbar } from "hooks/use-snackbar";
+import * as React from "react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { useCurrentSchoolYear } from "reference-data/current-school-year";
+import { useGetEmployee } from "reference-data/employee";
+import { ScheduledAbsences } from "ui/components/employee/components/scheduled-absences";
+import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
+import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
+import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
+import { ScheduleDate } from "ui/components/employee/types";
+import { PageTitle } from "ui/components/page-title";
 import { ScheduleHeader } from "ui/components/schedule/schedule-header";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
+import { Section } from "ui/components/section";
+import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
+import { useRouteParams } from "ui/routes/definition";
 import {
-  EmployeeScheduleRoute,
-  EmployeeScheduleListViewRoute,
   EmployeeScheduleCalendarViewRoute,
+  EmployeeScheduleListViewRoute,
+  EmployeeScheduleRoute,
 } from "ui/routes/employee-schedule";
-import { ScheduleDate } from "ui/components/employee/types";
+import { QueryOrgUsers } from "../sub-home/graphql/get-orgusers.gen";
+import { CalendarView } from "./components/calendar-view";
 import { SelectedDateView } from "./components/selected-date-view";
 
 type Props = {
@@ -39,10 +40,16 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   const createAbsenceParams = useRouteParams(EmployeeCreateAbsenceRoute);
   const params = useRouteParams(EmployeeScheduleRoute);
   const employee = useGetEmployee();
+  const getOrgUsers = useQueryBundle(QueryOrgUsers, {
+    fetchPolicy: "cache-first",
+  });
+  const userId =
+    getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
+      ? undefined
+      : getOrgUsers.data?.userAccess?.me?.user?.id;
 
-  // TODO: Switch to using School Year dropdown
   const currentSchoolYear = useCurrentSchoolYear(employee?.orgId?.toString());
-  // TODO: Dropdown filter to start with Today or the beginning of the School year (default of Today)
+
   const startDateOfToday = useMemo(() => new Date(), []);
   const startDateOfSchoolYear = useMemo(
     () =>
@@ -56,13 +63,14 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   );
 
   const [queryStartDate, setQueryStartDate] = useState(startDateOfToday);
+  const [queryEndDate, setQueryEndDate] = useState(endDate);
 
   const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
     variables: {
       id: employee?.id ?? "0",
       fromDate:
         props.view === "calendar" ? startDateOfSchoolYear : queryStartDate,
-      toDate: endDate,
+      toDate: queryEndDate,
     },
     skip: !employee || !endDate,
   });
@@ -150,10 +158,12 @@ export const EmployeeSchedule: React.FC<Props> = props => {
               <ScheduleHeader
                 view={props.view}
                 today={startDateOfToday}
-                beginningOfSchoolYear={startDateOfSchoolYear}
-                endOfSchoolYear={endDate}
+                beginningOfCurrentSchoolYear={startDateOfSchoolYear}
+                endOfSchoolCurrentYear={endDate}
                 startDate={queryStartDate}
                 setStartDate={setQueryStartDate}
+                setEndDate={setQueryEndDate}
+                userId={userId}
               />
             </div>
             <div>
