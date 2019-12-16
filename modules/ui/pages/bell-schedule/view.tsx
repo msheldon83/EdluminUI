@@ -127,7 +127,10 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     variables: { id: params.workDayScheduleId },
   });
 
-  if (getWorkDaySchedule.state === "LOADING") {
+  if (
+    getWorkDaySchedule.state === "LOADING" ||
+    getWorkDaySchedule.state === "UPDATING"
+  ) {
     return <></>;
   }
 
