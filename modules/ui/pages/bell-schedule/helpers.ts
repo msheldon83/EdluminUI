@@ -214,35 +214,22 @@ export const SkipPeriod = (periods: Array<Period>, index: number) => {
     (a, b) => (a.skipped ? 1 : 0) - (b.skipped ? 1 : 0)
   );
 
-  // Preserve the half day break
+  // Move the half day break flags
   if (skippedPeriod.isHalfDayAfternoonStart) {
     skippedPeriod.isHalfDayAfternoonStart = false;
-    const endOfMorningPeriodIndex = sortedPeriods.findIndex(
-      p => p.isHalfDayMorningEnd
-    );
-    const activePeriods = sortedPeriods.filter(s => !s.skipped);
-    if (endOfMorningPeriodIndex === activePeriods.length - 1) {
-      sortedPeriods[endOfMorningPeriodIndex].isHalfDayAfternoonStart = true;
-      sortedPeriods[endOfMorningPeriodIndex].isHalfDayMorningEnd = false;
-      sortedPeriods[
-        endOfMorningPeriodIndex - 1
-      ].isHalfDayAfternoonStart = false;
-      sortedPeriods[endOfMorningPeriodIndex - 1].isHalfDayMorningEnd = true;
+    if (sortedPeriods[index].skipped) {
+      sortedPeriods[index - 1].isHalfDayAfternoonStart = true;
     } else {
-      sortedPeriods[endOfMorningPeriodIndex + 1].isHalfDayAfternoonStart = true;
+      sortedPeriods[index].isHalfDayAfternoonStart = true;
     }
-  } else if (skippedPeriod.isHalfDayMorningEnd) {
+  }
+
+  if (skippedPeriod.isHalfDayMorningEnd) {
     skippedPeriod.isHalfDayMorningEnd = false;
-    const startOfAfternoonPeriodIndex = sortedPeriods.findIndex(
-      p => p.isHalfDayAfternoonStart
-    );
-    if (startOfAfternoonPeriodIndex === 0) {
-      sortedPeriods[0].isHalfDayMorningEnd = true;
-      sortedPeriods[0].isHalfDayAfternoonStart = false;
-      sortedPeriods[1].isHalfDayMorningEnd = false;
-      sortedPeriods[1].isHalfDayAfternoonStart = true;
+    if (sortedPeriods[index].skipped) {
+      sortedPeriods[index - 1].isHalfDayMorningEnd = true;
     } else {
-      sortedPeriods[startOfAfternoonPeriodIndex - 1].isHalfDayMorningEnd = true;
+      sortedPeriods[index].isHalfDayMorningEnd = true;
     }
   }
 

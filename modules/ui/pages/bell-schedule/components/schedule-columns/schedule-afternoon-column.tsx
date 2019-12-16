@@ -123,8 +123,6 @@ const onDragEnd = (
     return null;
   }
 
-  console.log("AFTERNOON", source, destination);
-
   if (periods[destination.index].skipped) {
     // Should not be able to assign anything to a Skipped period
     return null;

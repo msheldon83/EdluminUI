@@ -1,5 +1,5 @@
 import { FormHelperText, makeStyles, Grid } from "@material-ui/core";
-import { isBefore, parseISO, areIntervalsOverlapping } from "date-fns";
+import { isBefore, parseISO, areIntervalsOverlapping, isValid } from "date-fns";
 import { Formik } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -108,6 +108,10 @@ export const Schedule: React.FC<Props> = props => {
                     !!value.find(
                       (f: any) =>
                         v !== f &&
+                        isValid(parseISO(v.startTime)) &&
+                        isValid(parseISO(v.endTime)) &&
+                        isValid(parseISO(f.startTime)) &&
+                        isValid(parseISO(f.endTime)) &&
                         areIntervalsOverlapping(
                           {
                             start: parseISO(v.startTime),

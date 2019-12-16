@@ -141,8 +141,6 @@ const onDragEnd = (
     return null;
   }
 
-  console.log("NAME", source, destination);
-
   if (periods[destination.index].skipped) {
     // Should not be able to swap names with a Skipped Period
     return null;
