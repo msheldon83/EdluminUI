@@ -1,0 +1,166 @@
+import * as React from "react";
+import { Period, UpdatePeriodPlaceholders } from "../../helpers";
+import { makeStyles } from "@material-ui/core";
+import { useTranslation } from "react-i18next";
+import {
+  DragDropContext,
+  DropResult,
+  Droppable,
+  Draggable,
+} from "react-beautiful-dnd";
+import { TFunction } from "i18next";
+import { DragHandle } from "@material-ui/icons";
+import { TextField as FormTextField } from "ui/components/form/text-field";
+
+type Props = {
+  periods: Period[];
+  isStandard: boolean;
+  setPeriods: (periods: Period[]) => void;
+  setFieldValue: Function;
+  scheduleClasses: any;
+};
+
+const nameDragPrefix = "nameDrag-";
+
+export const ScheduleNamesColumn: React.FC<Props> = props => {
+  const { t } = useTranslation();
+  const classes = useStyles();
+
+  return (
+    <>
+      <DragDropContext
+        onDragEnd={(result: DropResult) => {
+          const updatedPeriods = onDragEnd(result, props.periods, t);
+          if (updatedPeriods) {
+            props.setPeriods(updatedPeriods);
+          }
+        }}
+      >
+        <Droppable droppableId="nameDroppable">
+          {(provided, snapshot) => {
+            const { innerRef } = provided;
+            return (
+              <div ref={innerRef} {...provided.droppableProps}>
+                {props.periods.map((p, i) => {
+                  const periodClasses = [props.scheduleClasses.period];
+                  if (i % 2 === 1) {
+                    periodClasses.push(props.scheduleClasses.alternatingItem);
+                  }
+                  if (p.skipped) {
+                    periodClasses.push(props.scheduleClasses.skippedPeriod);
+                  }
+
+                  return (
+                    <div key={i} className={periodClasses.join(" ")}>
+                      <Draggable
+                        key={`${nameDragPrefix}${i}`}
+                        draggableId={`${nameDragPrefix}${i}`}
+                        index={i}
+                        isDragDisabled={p.skipped}
+                      >
+                        {(provided, snapshot) => {
+                          const { innerRef } = provided;
+                          return (
+                            <div
+                              ref={innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={props.scheduleClasses.draggableSection}
+                            >
+                              <div className={classes.nameInput}>
+                                {props.isStandard && (
+                                  <FormTextField
+                                    placeholder={p.placeholder}
+                                    value={p.name || ""}
+                                    name={`periods[${i}].name`}
+                                    variant="outlined"
+                                    onChange={(
+                                      e: React.ChangeEvent<HTMLInputElement>
+                                    ) => {
+                                      props.setFieldValue(
+                                        `periods[${i}].name`,
+                                        e.target.value
+                                      );
+                                    }}
+                                  />
+                                )}
+                                {!props.isStandard && p.name}
+                              </div>
+                              <div className={props.scheduleClasses.actionDiv}>
+                                {props.periods.length > 1 && !p.skipped && (
+                                  <DragHandle />
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }}
+                      </Draggable>
+                    </div>
+                  );
+                })}
+                {provided.placeholder}
+              </div>
+            );
+          }}
+        </Droppable>
+      </DragDropContext>
+    </>
+  );
+};
+
+const useStyles = makeStyles(theme => ({
+  nameInput: {
+    width: theme.typography.pxToRem(200),
+    margin: theme.spacing(),
+  },
+}));
+
+const onDragEnd = (
+  result: DropResult,
+  periods: Period[],
+  t: TFunction
+): Array<Period> | null => {
+  const { destination, source, draggableId } = result;
+
+  if (!destination) {
+    return null;
+  }
+  if (
+    destination.droppableId === source.droppableId &&
+    destination.index === source.index
+  ) {
+    return null;
+  }
+
+  console.log(source, destination);
+
+  if (periods[destination.index].skipped) {
+    // Should not be able to assign anything to a Skipped period
+    return null;
+  }
+
+  if (draggableId.startsWith(nameDragPrefix)) {
+    // Just reordering the names of the periods
+    const oldPeriods = periods.map(p => {
+      return { ...p };
+    });
+    if (source.index < destination.index) {
+      // Dragging down the list
+      for (let i = destination.index - 1; i >= source.index; i--) {
+        periods[i].name = oldPeriods[i + 1].name;
+      }
+    } else {
+      // Dragging up the list
+      for (let i = destination.index + 1; i <= source.index; i++) {
+        periods[i].name = oldPeriods[i - 1].name;
+      }
+    }
+    // Update the destination name that was actually dragged
+    periods[destination.index].name = oldPeriods[source.index].name;
+
+    // Update placeholders
+    UpdatePeriodPlaceholders(periods, t);
+  }
+
+  return periods;
+};
