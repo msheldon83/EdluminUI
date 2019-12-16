@@ -5,6 +5,7 @@ import {
   WorkDayScheduleVariantInput,
 } from "graphql/server-types.gen";
 import { midnightTime, timeStampToIso } from "helpers/time";
+import { isValid, differenceInMinutes, addMinutes } from "date-fns";
 
 export type ScheduleSettings = {
   isBasic: boolean;
@@ -138,4 +139,181 @@ export const BuildPeriodsFromSchedule = (
   }
 
   return schedulePeriods;
+};
+
+export const GetPeriodDurationInMinutes = (
+  startTime: string | undefined,
+  endTime: string | undefined,
+  travelDuration: number,
+  showTravelDuration: boolean,
+  t: TFunction
+) => {
+  if (!startTime || !endTime) {
+    return null;
+  }
+
+  const startTimeDate = new Date(startTime);
+  const endTimeDate = new Date(endTime);
+  if (!isValid(startTimeDate) || !isValid(endTimeDate)) {
+    return null;
+  }
+
+  // As the TimeInput is changing, the value may not be a date string yet
+  // and just a number (i.e. "10" for 10:00 am). Since we enforce "earliestTime" on
+  // the TimeInput, endTime should never be before startTime so just bail out here
+  // and wait till we have a valid date string
+  if (endTimeDate < startTimeDate) {
+    return null;
+  }
+
+  const minutes = differenceInMinutes(endTimeDate, startTimeDate);
+  if (typeof minutes !== "number" || isNaN(minutes)) {
+    return null;
+  }
+
+  const travelDurationString = ` (+${travelDuration}) `;
+  const minutesDisplay = `${minutes}${
+    showTravelDuration ? travelDurationString : " "
+  }${t("minutes")}`;
+  return minutesDisplay;
+};
+
+export const RemovePeriod = (
+  periods: Array<Period>,
+  index: number,
+  t: TFunction
+) => {
+  const periodItems = [...periods];
+  const [removed] = periodItems.splice(index, 1);
+
+  // Move the half day break flags
+  if (removed.isHalfDayAfternoonStart || removed.isHalfDayMorningEnd) {
+    let currentIndex = index;
+    if (currentIndex === periodItems.length) {
+      // Last period has been deleted
+      currentIndex = currentIndex - 1;
+    }
+    if (removed.isHalfDayAfternoonStart) {
+      periodItems[currentIndex].isHalfDayAfternoonStart = true;
+    }
+    if (removed.isHalfDayMorningEnd) {
+      periodItems[currentIndex].isHalfDayMorningEnd = true;
+    }
+  }
+
+  UpdatePeriodPlaceholders(periodItems, t);
+  return periodItems;
+};
+
+export const SkipPeriod = (periods: Array<Period>, index: number) => {
+  const periodItems = [...periods];
+  const skippedPeriod = periodItems[index];
+  skippedPeriod.skipped = true;
+
+  const sortedPeriods = periodItems.sort(
+    (a, b) => (a.skipped ? 1 : 0) - (b.skipped ? 1 : 0)
+  );
+
+  // Move the half day break flags
+  if (skippedPeriod.isHalfDayAfternoonStart) {
+    skippedPeriod.isHalfDayAfternoonStart = false;
+    if (sortedPeriods[index].skipped) {
+      sortedPeriods[index - 1].isHalfDayAfternoonStart = true;
+    } else {
+      sortedPeriods[index].isHalfDayAfternoonStart = true;
+    }
+  }
+
+  if (skippedPeriod.isHalfDayMorningEnd) {
+    skippedPeriod.isHalfDayMorningEnd = false;
+    if (sortedPeriods[index].skipped) {
+      sortedPeriods[index - 1].isHalfDayMorningEnd = true;
+    } else {
+      sortedPeriods[index].isHalfDayMorningEnd = true;
+    }
+  }
+
+  return sortedPeriods;
+};
+
+export const UnskipPeriod = (periods: Array<Period>, index: number) => {
+  const periodItems = [...periods];
+  periodItems[index].skipped = false;
+  return periodItems;
+};
+
+export const AddPeriod = (
+  periods: Array<Period>,
+  travelDuration: number,
+  t: TFunction
+) => {
+  const placeholder = `${t("Period")} ${periods.length + 1}`;
+  const previousPeriod = periods[periods.length - 1];
+  const defaultStartTime =
+    previousPeriod && previousPeriod.endTime
+      ? addMinutes(
+          new Date(previousPeriod.endTime),
+          travelDuration
+        ).toISOString()
+      : undefined;
+  const periodItems = [
+    ...periods,
+    {
+      placeholder,
+      startTime: defaultStartTime,
+      endTime: undefined,
+      skipped: false,
+    },
+  ];
+
+  UpdatePeriodPlaceholders(periodItems, t);
+  return periodItems;
+};
+
+export const UpdatePeriodPlaceholders = (
+  periods: Array<Period>,
+  t: TFunction
+) => {
+  const halfDayBreakPeriod = periods.find(p => p.isHalfDayAfternoonStart);
+
+  if (
+    halfDayBreakPeriod &&
+    periods.length === 3 &&
+    periods[1].isHalfDayAfternoonStart
+  ) {
+    periods[0].placeholder = t("Morning");
+    periods[2].placeholder = t("Afternoon");
+  } else if (!halfDayBreakPeriod && periods.length === 2) {
+    periods[0].placeholder = t("Morning");
+    periods[1].placeholder = t("Afternoon");
+  } else {
+    let periodNumber = 1;
+    periods.forEach(p => {
+      if (!p.isHalfDayAfternoonStart) {
+        p.placeholder = `${t("Period")} ${periodNumber++}`;
+      }
+    });
+  }
+
+  if (halfDayBreakPeriod) {
+    halfDayBreakPeriod.placeholder = t("Lunch");
+  }
+};
+
+export const GetError = (errors: any, fieldName: string, index: number) => {
+  if (!errors.periods || !errors.periods[index]) {
+    return null;
+  }
+
+  const periodError = errors.periods[index];
+  if (!periodError) {
+    return null;
+  }
+
+  if (!periodError[fieldName]) {
+    return null;
+  }
+
+  const errorMessage: string = periodError[fieldName];
+  return errorMessage;
 };
