@@ -260,6 +260,7 @@ export const Assignment: React.FC<Props> = props => {
                   <Button
                     variant={isActiveCard ? "contained" : "outlined"}
                     type="submit"
+                    onClick={event => {event.stopPropagation(); onsubmit;}}
                   >
                     {notVerified ? t("Verify") : t("Undo verify")}
                   </Button>
