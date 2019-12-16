@@ -211,14 +211,13 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           isHalfDayAfternoonStart:
             matchingVariantPeriod != null &&
             matchingVariantPeriod.isHalfDayAfternoonStart,
-          skipped: matchingVariantPeriod == null,
+          skipped:
+            matchingVariantPeriod == null && p!.name !== endOfDayPeriodName,
           sequence:
             matchingVariantPeriod && matchingVariantPeriod.sequence
               ? matchingVariantPeriod.sequence
               : p!.sequence ?? 0,
-          isEndOfDayPeriod: endOfDayPeriodName
-            ? p!.name === endOfDayPeriodName
-            : false,
+          isEndOfDayPeriod: p!.name === endOfDayPeriodName,
         };
       }
     );
@@ -346,7 +345,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           periods: Array<Period>,
           variantId: number | null | undefined
         ) => {
-          await updateVariantSchedule(periods, variantId);
+          await updateVariantSchedule(periods, variantTypeId, variantId);
         }}
         onCancel={() => {
           const url = BellScheduleRoute.generate(params);
@@ -358,6 +357,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
 
   const updateVariantSchedule = async (
     periods: Array<Period>,
+    variantTypeId: string,
     variantId?: number | null | undefined
   ) => {
     await updateWorkDayScheduleVariant({
@@ -366,12 +366,13 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           workDayScheduleId: Number(workDaySchedule.id),
           rowVersion: workDaySchedule.rowVersion,
           scheduleVariant: {
-            id: variantId,
+            id: variantId ?? undefined,
+            workDayScheduleVariantTypeId: Number(variantTypeId),
             periods: periods
               .filter(p => !p.skipped)
               .map(p => {
                 return {
-                  id: p.variantPeriodId ? Number(p.variantPeriodId) : null,
+                  id: p.variantPeriodId ? Number(p.variantPeriodId) : undefined,
                   workDaySchedulePeriodName: p.name || p.placeholder,
                   startTime: p.startTime
                     ? secondsSinceMidnight(p.startTime)
