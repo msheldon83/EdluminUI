@@ -366,9 +366,11 @@ const displayEndOfDay = (periods: Period[], t: TFunction, classes: any) => {
   }
 
   const activePeriods = periods.filter(p => !p.skipped);
-  const endOfDayTime = !!activePeriods[activePeriods.length - 1].endTime
-    ? parseISO(activePeriods[activePeriods.length - 1].endTime!)
-    : undefined;
+  const endOfDayTime =
+    activePeriods[activePeriods.length - 1] &&
+    activePeriods[activePeriods.length - 1].endTime
+      ? parseISO(activePeriods[activePeriods.length - 1].endTime!)
+      : undefined;
 
   return (
     <div className={endOfDayClass.join(" ")}>

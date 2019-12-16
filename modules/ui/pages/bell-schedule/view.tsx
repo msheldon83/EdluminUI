@@ -35,6 +35,7 @@ import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import { UpdateWorkDayScheduleVariant } from "./graphql/update-workday-schedule-variant.gen";
 import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
 import { useSnackbar } from "hooks/use-snackbar";
+import { parseISO, isEqual } from "date-fns";
 
 const editableSections = {
   name: "edit-name",
@@ -172,7 +173,8 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
 
   const buildPeriods = (
     variant: Maybe<WorkDayScheduleVariant>,
-    workDaySchedule: WorkDaySchedule
+    workDaySchedule: WorkDaySchedule,
+    endOfDayPeriodName?: string
   ): Array<Period> => {
     if (!workDaySchedule.periods) {
       return [];
@@ -213,7 +215,10 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           sequence:
             matchingVariantPeriod && matchingVariantPeriod.sequence
               ? matchingVariantPeriod.sequence
-              : 0,
+              : p!.sequence ?? 0,
+          isEndOfDayPeriod: endOfDayPeriodName
+            ? p!.name === endOfDayPeriodName
+            : false,
         };
       }
     );
@@ -305,7 +310,31 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
       (v: Maybe<WorkDayScheduleVariant>) =>
         v!.workDayScheduleVariantTypeId.toString() === variantTypeId
     );
-    const periods = buildPeriods(existingVariant, workDaySchedule);
+
+    // Find the End of Day period name
+    let endOfDayPeriodName: string | undefined = undefined;
+    const standardSchedule = workDaySchedule.variants!.find(
+      (v: Maybe<WorkDayScheduleVariant>) => v!.isStandard
+    )!;
+    const lastPeriod = standardSchedule.periods![
+      standardSchedule.periods!.length - 1
+    ];
+    if (
+      lastPeriod &&
+      lastPeriod.startTime &&
+      lastPeriod.endTime &&
+      lastPeriod.startTime === lastPeriod.endTime
+    ) {
+      endOfDayPeriodName = workDaySchedule.periods!.find(
+        p => Number(p!.id) === lastPeriod.workDaySchedulePeriodId
+      )?.name;
+    }
+
+    const periods = buildPeriods(
+      existingVariant,
+      workDaySchedule,
+      endOfDayPeriodName
+    );
 
     return (
       <Schedule

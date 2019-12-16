@@ -252,7 +252,22 @@ export const SkipPeriod = (periods: Array<Period>, index: number) => {
 export const UnskipPeriod = (periods: Array<Period>, index: number) => {
   const periodItems = [...periods];
   periodItems[index].skipped = false;
-  return periodItems;
+
+  // If we only have a single period, default it to both
+  // end of morning and start of afternoon
+  if (periodItems.filter(p => !p.skipped).length === 1) {
+    periodItems[index].isHalfDayMorningEnd = true;
+    periodItems[index].isHalfDayAfternoonStart = true;
+  }
+
+  // Re sort periods to make sure the Skipped stay at the bottom of the list
+  const sortedPeriods = periods.sort(
+    (a, b) =>
+      (a.skipped ? 1 : 0) - (b.skipped ? 1 : 0) ||
+      (a.sequence || 0) - (b.sequence || 0)
+  );
+
+  return sortedPeriods;
 };
 
 export const AddPeriod = (
