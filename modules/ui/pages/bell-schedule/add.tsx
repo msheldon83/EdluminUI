@@ -192,7 +192,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   ) => {
     const schedulePeriods: Array<Period> = [];
     if (bellSchedule.standard && bellSchedule.standard.periods) {
-      let variant = bellSchedule.variants
+      const variant = bellSchedule.variants
         ? bellSchedule.variants[variantIndex]
         : null;
       schedulePeriods.push(
