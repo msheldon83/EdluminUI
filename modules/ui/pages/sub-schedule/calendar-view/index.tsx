@@ -2,29 +2,23 @@ import { Grid } from "@material-ui/core";
 import { useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { GetAssignmentDatesForEmployee } from "../graphql/get-assignments-dates-for-employee.gen";
 import { AssignmentCalendar } from "./assignment-calendar";
 import {
   generateEmptyDateMap,
   mergeAssignmentDatesByMonth,
 } from "./grouping-helpers";
-import { NowViewingAssignmentsForDate } from "./now-viewing-assignments";
 
 type Props = {
   userId?: string;
+  selectedDate: Date;
+  onSelectDate: (date: Date) => void;
   fromDate: Date;
   toDate: Date;
 };
 
 export const CalendarView: React.FC<Props> = props => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-
-  const onSelectDate = React.useCallback(
-    (date: Date) => setSelectedDate(date),
-    [setSelectedDate]
-  );
-
   const upcomingAssignmentDates = useQueryBundle(
     GetAssignmentDatesForEmployee,
     {
@@ -66,20 +60,17 @@ export const CalendarView: React.FC<Props> = props => {
   }
 
   return (
-    <>
-      <NowViewingAssignmentsForDate date={selectedDate} userId={props.userId} />
-      <Grid container>
-        {all.map((group, i) => (
-          <AssignmentCalendar
-            key={i}
-            onSelectDate={onSelectDate}
-            userId={props.userId}
-            date={group.month}
-            assignmentDates={group.dates}
-            selectedDate={selectedDate}
-          />
-        ))}
-      </Grid>
-    </>
+    <Grid container>
+      {all.map((group, i) => (
+        <AssignmentCalendar
+          key={i}
+          onSelectDate={props.onSelectDate}
+          userId={props.userId}
+          date={group.month}
+          assignmentDates={group.dates}
+          selectedDate={props.selectedDate}
+        />
+      ))}
+    </Grid>
   );
 };

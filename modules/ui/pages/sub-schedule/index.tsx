@@ -1,12 +1,13 @@
-import { Divider, Grid, Typography, InputLabel } from "@material-ui/core";
+import { Divider } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { addMonths, parseISO, isSameDay } from "date-fns";
+import { addMonths } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
-import { compact } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
+import { ScheduleHeader } from "ui/components/schedule/schedule-header";
+import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { Section } from "ui/components/section";
 import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
 import { useRouteParams } from "ui/routes/definition";
@@ -16,9 +17,8 @@ import {
   SubScheduleRoute,
 } from "ui/routes/sub-schedule";
 import { CalendarView } from "./calendar-view";
+import { NowViewingAssignmentsForDate } from "./calendar-view/now-viewing-assignments";
 import { ListView } from "./list-view";
-import { ScheduleHeader } from "ui/components/schedule/schedule-header";
-import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 
 type Props = {
   view: "list" | "calendar";
@@ -56,9 +56,24 @@ export const SubSchedule: React.FC<Props> = props => {
 
   const [queryStartDate, setQueryStartDate] = useState(today);
 
+  /* selected date is used on the calendar view only. The state lives
+     here because we need it to show the assignments for the selected date
+     above the calendar view component */
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const onSelectDate = React.useCallback(
+    (date: Date) => setSelectedDate(date),
+    [setSelectedDate]
+  );
   return (
     <>
-      <PageTitle title="My Schedule" />
+      <div className={classes.sticky}>
+        <PageTitle title="My Schedule" />
+        {props.view === "calendar" && (
+          <Section>
+            <NowViewingAssignmentsForDate date={selectedDate} userId={userId} />
+          </Section>
+        )}
+      </div>
 
       <Section className={classes.section}>
         <div className={classes.itemContainer}>
@@ -89,7 +104,9 @@ export const SubSchedule: React.FC<Props> = props => {
             <CalendarView
               userId={userId}
               fromDate={beginningOfSchoolYear}
-              toDate={endOfSchoolYear}
+              toDate={queryEndDate}
+              selectedDate={selectedDate}
+              onSelectDate={onSelectDate}
             />
           )}
           {props.view === "list" && (
@@ -122,5 +139,9 @@ const useStyles = makeStyles(theme => ({
     padding: `0 ${theme.typography.pxToRem(24)} ${theme.typography.pxToRem(
       18
     )}`,
+  },
+  sticky: {
+    position: "sticky",
+    top: 1,
   },
 }));
