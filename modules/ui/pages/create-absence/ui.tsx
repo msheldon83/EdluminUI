@@ -285,6 +285,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     [setStep, setValue]
   );
 
+  const removePrearrangedReplacementEmployee = React.useCallback(async () => {
+    await setValue("replacementEmployeeId", undefined);
+    await setValue("replacementEmployeeName", undefined);
+  }, [setValue]);
+
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
@@ -328,6 +333,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 setVacanciesInput={setVacanciesInput}
                 replacementEmployeeId={formValues.replacementEmployeeId}
                 replacementEmployeeName={formValues.replacementEmployeeName}
+                onRemoveReplacement={removePrearrangedReplacementEmployee}
               />
             </Section>
           </>

@@ -84,6 +84,11 @@ type Props = {
   disableReplacementInteractions?: boolean;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
+  onRemoveReplacement: (
+    replacementEmployeeId: number,
+    replacementEmployeeName?: string,
+    assignmentRowVersion?: string
+  ) => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -251,11 +256,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [onSwitchMonth]
   );
 
-  const removePrearrangedReplacementEmployee = async () => {
-    await setValue("replacementEmployeeId", undefined);
-    await setValue("replacementEmployeeName", undefined);
-  };
-
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -357,7 +357,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         <div className={classes.notesForApprover}>
           <Typography variant="h6">{t("Notes for administration")}</Typography>
           <Typography className={classes.subText}>
-            {t("Can be seen by the administrator and the employee.")}
+            n {t("Can be seen by the administrator and the employee.")}
           </Typography>
           <Input
             multiline
@@ -387,7 +387,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
               employeeId={props.replacementEmployeeId}
               employeeName={props.replacementEmployeeName || ""}
               subText={props.arrangedSubText ?? t("pre-arranged")}
-              onRemove={removePrearrangedReplacementEmployee}
+              onRemove={props.onRemoveReplacement}
             />
           )}
           <div className={classes.container}>

@@ -1,4 +1,4 @@
-import { Typography, makeStyles } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import {
   eachDayOfInterval,
   format,
@@ -12,22 +12,24 @@ import {
 import { startOfMonth } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
+  Absence,
   AbsenceDetailCreateInput,
   AbsenceUpdateInput,
   AbsenceVacancyInput,
   DayPart,
   NeedsReplacement,
   Vacancy,
-  Absence,
 } from "graphql/server-types.gen";
 import {
   AbsenceReasonUsageData,
   computeAbsenceUsageText,
 } from "helpers/absence/computeAbsenceUsageText";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate, isAfterDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
+import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
 import { compact, differenceWith, flatMap } from "lodash-es";
 import * as React from "react";
@@ -35,23 +37,21 @@ import { useCallback, useMemo, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
+import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
+import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
+import { VacancyDetail } from "../../components/absence/types";
+import { AssignSub } from "../create-absence/assign-sub";
 import { EditVacancies } from "../create-absence/edit-vacancies";
 import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
 import { GetProjectedVacancies } from "../create-absence/graphql/get-projected-vacancies.gen";
 import { projectVacancyDetails } from "../create-absence/project-vacancy-details";
-import { VacancyDetail } from "../../components/absence/types";
 import { buildAbsenceCreateInput } from "../create-absence/ui";
-import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { AssignVacancy } from "./graphql/assign-vacancy.gen";
+import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-import { AssignSub } from "../create-absence/assign-sub";
-import { useDialog } from "hooks/use-dialog";
-import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
-import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   firstName: string;
@@ -75,8 +75,11 @@ type Props = {
   absenceDetailsIdsByDate: Record<string, string>;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
+
   startTimeLocal: string;
   endTimeLocal: string;
+
+  cancelAssignments: () => void;
 };
 
 type EditAbsenceFormData = {
@@ -113,6 +116,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [customizedVacancyDetails, setVacanciesInput] = useState<
     VacancyDetail[]
   >();
+
   const [assignVacancy] = useMutationBundle(AssignVacancy, {});
 
   const name = `${props.firstName} ${props.lastName}`;
@@ -427,6 +431,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               disableReplacementInteractions={useProjectedInformation}
               replacementEmployeeId={props.replacementEmployeeId}
               replacementEmployeeName={props.replacementEmployeeName}
+              onRemoveReplacement={props.cancelAssignments}
             />
           </Section>
         </form>
