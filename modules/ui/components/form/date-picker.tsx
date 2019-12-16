@@ -188,7 +188,6 @@ export const DatePicker = (props: DatePickerProps) => {
         newStartDate = date;
         newEndDate = undefined;
       }
-      console.log("newStartDate", newStartDate);
       onChange({ startDate: newStartDate, endDate: newEndDate });
     },
     [endDate, startDate, onChange]

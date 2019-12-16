@@ -32,10 +32,7 @@ export const DateFilter: React.FC<Props> = props => {
             }
           }}
           startLabel={props.dateLabel}
-          dateFormat={GetYesterdayTodayTomorrowFormat(
-            dateFilterAsDate,
-            "MMMM d"
-          )}
+          dateFormat={"MMMM d Y"}
         />
       </Grid>
     </>

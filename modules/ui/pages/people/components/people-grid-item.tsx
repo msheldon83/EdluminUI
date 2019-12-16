@@ -11,7 +11,7 @@ export const PeopleGridItem = ({ title, description }: PeopleGridItemProps) => {
   const classes = useStyles();
 
   return (
-    <Grid item xs={12} sm={6} lg={6}>
+    <Grid item xs={12} sm={12} lg={12}>
       <dt className={classes.title}>{title}</dt>
       <dd className={classes.description}>{description}</dd>
     </Grid>
