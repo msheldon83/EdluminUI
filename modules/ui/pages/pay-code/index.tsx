@@ -1,12 +1,9 @@
-import { Button, Grid, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import { useTheme } from "@material-ui/styles";
-import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
-import { Link } from "react-router-dom";
 import { compact } from "lodash-es";
 import { EditableTable } from "ui/components/editable-table";
 import { PageTitle } from "ui/components/page-title";
@@ -17,11 +14,7 @@ import {
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { CreatePayCode } from "./graphql/create.gen";
-import {
-  PayCodeRoute,
-  PayCodeAddRoute,
-  PayCodeViewEditRoute,
-} from "ui/routes/pay-code";
+import { PayCodeViewEditRoute } from "ui/routes/pay-code";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllPayCodesWithinOrg } from "ui/pages/pay-code/graphql/get-pay-codes.gen";
 import { UpdatePayCode } from "./graphql/update-pay-code.gen";
@@ -95,15 +88,6 @@ export const PayCode: React.FC<Props> = props => {
       },
     });
     return result?.data?.orgRef_PayCode?.update?.id;
-  };
-
-  const deleteSelected = async (data: { id: string } | { id: string }[]) => {
-    if (Array.isArray(data)) {
-      await Promise.all(data.map(id => deletePayCode(id.id)));
-    } else {
-      await Promise.resolve(deletePayCode(data.id));
-    }
-    await getPayCodes.refetch();
   };
 
   const columns: Column<GetAllPayCodesWithinOrg.All>[] = [
