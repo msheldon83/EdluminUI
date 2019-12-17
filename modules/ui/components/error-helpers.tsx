@@ -4,6 +4,7 @@ import { ApolloError } from "apollo-client";
 import { Button } from "@material-ui/core";
 import { TFunction } from "i18next";
 import { SnackbarHookType } from "hooks/use-snackbar";
+import { compact, uniq } from "lodash-es";
 
 export const ShowIgnoreAndContinueOrError = (
   error: ApolloError,
@@ -24,17 +25,22 @@ export const ShowIgnoreAndContinueOrError = (
   openDialog({
     title: title,
     renderContent() {
-      return error.graphQLErrors.map((e, i) => {
-        const errorMessage = translateCodeToMessage
-          ? translateCodeToMessage(e.extensions?.data?.code, t) ??
-            e.extensions?.data?.text ??
-            e.extensions?.data?.code
-          : e.extensions?.data?.text ?? e.extensions?.data?.code;
-        if (!errorMessage) {
-          return null;
-        }
-        return <div key={i}>{errorMessage}</div>;
-      });
+      const messages = uniq(
+        compact(
+          error.graphQLErrors.map((e, i) => {
+            const errorMessage = translateCodeToMessage
+              ? translateCodeToMessage(e.extensions?.data?.code, t) ??
+                e.extensions?.data?.text ??
+                e.extensions?.data?.code
+              : e.extensions?.data?.text ?? e.extensions?.data?.code;
+            if (!errorMessage) {
+              return null;
+            }
+            return errorMessage;
+          })
+        )
+      );
+      return messages.map((m, i) => <div key={i}>{m}</div>);
     },
     renderActions({ closeDialog }: RenderFunctionsType) {
       return (
@@ -64,14 +70,23 @@ export const ShowErrors = (
   error: ApolloError,
   openSnackbar: (snackbarConfig: SnackbarHookType) => void
 ) => {
+  const messages = uniq(
+    compact(
+      error.graphQLErrors.map((e, i) => {
+        const errorMessage =
+          e.extensions?.data?.text ?? e.extensions?.data?.code;
+        if (!errorMessage) {
+          return null;
+        }
+        return errorMessage[errorMessage.length - 1] === "."
+          ? errorMessage
+          : `${errorMessage}.`;
+      })
+    )
+  );
+
   openSnackbar({
-    message: error.graphQLErrors.map((e, i) => {
-      const errorMessage = e.extensions?.data?.text ?? e.extensions?.data?.code;
-      if (!errorMessage) {
-        return null;
-      }
-      return <div key={i}>{errorMessage}</div>;
-    }),
+    message: messages.map((m, i) => <div key={i}>{m}</div>),
     dismissable: true,
     status: "error",
   });
