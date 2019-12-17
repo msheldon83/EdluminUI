@@ -31,6 +31,7 @@ import {
 import { ConfigurationRoute } from "ui/routes/org-config";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { SchoolsRoute } from "ui/routes/schools";
+import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
 
 type Props = {
   onClick?: () => void;
@@ -66,7 +67,10 @@ export const EmployeeNavLinks: React.FC<Props> = props => {
         onClick={props.onClick}
         route={EmployeeHomeRoute.generate(params)}
       />
-      <MyScheduleNavLink onClick={props.onClick} route={tbd.generate(params)} />
+      <MyScheduleNavLink
+        onClick={props.onClick}
+        route={EmployeeScheduleRoute.generate(params)}
+      />
       <PTOBalancesNavLink
         onClick={props.onClick}
         route={tbd.generate(params)}

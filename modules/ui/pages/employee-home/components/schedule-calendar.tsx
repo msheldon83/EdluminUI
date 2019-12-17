@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import { makeStyles, Grid, Checkbox, Link } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { EmployeeAbsenceDetail } from "..";
 import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
 import { useMemo } from "react";
 import { eachDayOfInterval } from "date-fns";
+import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 
 type Props = {
   startDate: Date;

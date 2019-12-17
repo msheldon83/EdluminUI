@@ -3,6 +3,7 @@ import { useField, useFormikContext } from "formik";
 import { TimeInput, Props as TimeInputProps } from "./time-input";
 import { useState } from "react";
 import { convertStringToDate } from "helpers/date";
+import { parseISO, getHours, getMinutes } from "date-fns";
 
 type Props = Omit<
   TimeInputProps,
@@ -10,6 +11,7 @@ type Props = Omit<
 > & {
   name: string;
   label?: string;
+  date?: Date;
 };
 
 export const FormikTimeInput: React.FC<Props> = props => {
@@ -26,10 +28,26 @@ export const FormikTimeInput: React.FC<Props> = props => {
       name={props.name}
       {...props}
       value={time}
-      onChange={v => setTime(v)}
-      onValidTime={v => {
+      onChange={v => {
         setTime(v);
-        setFieldValue(props.name, v);
+        if (!v) {
+          setFieldValue(props.name, undefined);
+        }
+      }}
+      onValidTime={v => {
+        let time = v;
+        if (props.date) {
+          const vAsDate = parseISO(v);
+          const date = new Date(props.date);
+          date.setHours(getHours(vAsDate));
+          date.setMinutes(getMinutes(vAsDate));
+          date.setSeconds(0);
+          date.setMilliseconds(0);
+          time = date.toISOString();
+        }
+
+        setTime(time);
+        setFieldValue(props.name, time);
       }}
     />
   );

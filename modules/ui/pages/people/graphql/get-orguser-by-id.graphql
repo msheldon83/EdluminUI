@@ -2,6 +2,7 @@ query GetOrgUserById($id: ID!) {
   orgUser {
     byId(id: $id) {
       id
+      orgId
       userId
       loginEmail
       rowVersion
@@ -23,6 +24,7 @@ query GetOrgUserById($id: ID!) {
       state
       postalCode
       country
+      permissionSetIds
       permissionSets {
         id
         name

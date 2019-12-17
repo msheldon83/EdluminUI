@@ -1,0 +1,8 @@
+query GetPermissionSets($orgId: ID, $roles: [OrgUserRole]) {
+  permissionSet {
+    all(orgId: $orgId, roles: $roles) {
+      id
+      name
+    }
+  }
+}
