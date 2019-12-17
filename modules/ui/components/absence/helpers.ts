@@ -426,18 +426,14 @@ export const TranslateAbsenceErrorCodeToMessage = (
   t: TFunction
 ) => {
   switch (errorCode) {
-    case "AbsenceDetailTooShort":
-      break;
     case "OverlappingDetails":
-      break;
+      return t("Absence times cannot overlap.");
     case "NegativeBalances":
-      break;
-    case "MissingDayPart":
-      break;
+      return t("The balance for this absence reason is now below zero.");
     case "AbsenceStartsBeforeWorkday":
-      break;
+      return t("Absence starts before the scheduled start time.");
     case "AbsenceEndsAfterWorkday":
-      break;
+      return t("Absence ends after the scheduled end time.");
     default:
       console.log(`Absence Error Code unhandled: ${errorCode}`);
       return undefined;
