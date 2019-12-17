@@ -13,6 +13,7 @@ import { FormikSelect } from "ui/components/form/formik-select";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
 import { VacancyDetail } from "../../../components/absence/types";
+import { FormikErrors } from "formik";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
@@ -22,6 +23,7 @@ type Props = {
   showRemoveButton: boolean;
   onRemoveRow: () => void;
   onAddRow: () => void;
+  error?: FormikErrors<VacancyDetail>;
 };
 
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
@@ -35,6 +37,10 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
   const fieldNamePrefix = props.keyPrefix;
 
   const date = convertStringToDate(props.values.date);
+  const startTimeError =
+    props.error && props.error.startTime ? props.error.startTime : undefined;
+  const endTimeError =
+    props.error && props.error.endTime ? props.error.endTime : undefined;
 
   return (
     <Grid
@@ -50,12 +56,18 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
       <Grid item container alignItems="center">
         <Grid item container md={3} className={classes.vacancyBlockItem}>
           <Grid item xs={4} className={classes.timeInput}>
-            <FormikTimeInput name={`${fieldNamePrefix}.startTime`} />
+            <FormikTimeInput
+              name={`${fieldNamePrefix}.startTime`}
+              inputStatus={startTimeError ? "error" : "default"}
+              validationMessage={startTimeError}
+            />
           </Grid>
           <Grid item xs={4} className={classes.timeInput}>
             <FormikTimeInput
               name={`${fieldNamePrefix}.endTime`}
               earliestTime={props.values.startTime}
+              inputStatus={endTimeError ? "error" : "default"}
+              validationMessage={endTimeError}
             />
           </Grid>
         </Grid>

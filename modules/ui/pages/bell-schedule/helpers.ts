@@ -330,16 +330,16 @@ export const UpdatePeriodPlaceholders = (
 
 export const GetError = (errors: any, fieldName: string, index: number) => {
   if (!errors.periods || !errors.periods[index]) {
-    return null;
+    return undefined;
   }
 
   const periodError = errors.periods[index];
   if (!periodError) {
-    return null;
+    return undefined;
   }
 
   if (!periodError[fieldName]) {
-    return null;
+    return undefined;
   }
 
   const errorMessage: string = periodError[fieldName];
