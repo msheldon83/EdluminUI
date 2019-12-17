@@ -80,6 +80,7 @@ type Props = {
   endTimeLocal: string;
 
   cancelAssignments: () => void;
+  refetchAbsence: () => Promise<unknown>;
 };
 
 type EditAbsenceFormData = {
@@ -372,6 +373,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           },
         },
       });
+      await props.refetchAbsence();
       setStep("absence");
     },
     [setStep, assignVacancy]

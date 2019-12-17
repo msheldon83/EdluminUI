@@ -175,6 +175,7 @@ export const EditAbsence: React.FC<Props> = props => {
       startTimeLocal={data.startTimeLocal}
       endTimeLocal={data.endTimeLocal}
       cancelAssignments={cancelAssignments}
+      refetchAbsence={absence.refetch}
     />
   );
 };
