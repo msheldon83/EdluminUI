@@ -63,6 +63,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
         <OutlinedInput
           fullWidth
           className={inputClassNames}
+          notched={false}
           id={id}
           name={id}
           labelWidth={0}
