@@ -10,7 +10,11 @@ export const ShowIgnoreAndContinueOrError = (
   openDialog: (options: OpenDialogOptions) => void,
   title: string,
   continueAction: () => Promise<void>,
-  t: TFunction
+  t: TFunction,
+  translateCodeToMessage?: (
+    errorCode: string,
+    t: TFunction
+  ) => string | undefined
 ) => {
   const warnings = error.graphQLErrors.filter(
     e => e.extensions?.data?.severity === "Warn"
@@ -21,8 +25,11 @@ export const ShowIgnoreAndContinueOrError = (
     title: title,
     renderContent() {
       return error.graphQLErrors.map((e, i) => {
-        const errorMessage =
-          e.extensions?.data?.text ?? e.extensions?.data?.code;
+        const errorMessage = translateCodeToMessage
+          ? translateCodeToMessage(e.extensions?.data?.code, t) ??
+            e.extensions?.data?.text ??
+            e.extensions?.data?.code
+          : e.extensions?.data?.text ?? e.extensions?.data?.code;
         if (!errorMessage) {
           return null;
         }

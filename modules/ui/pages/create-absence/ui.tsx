@@ -45,6 +45,7 @@ import { VacancyDetail } from "../../components/absence/types";
 import { projectVacancyDetails } from "./project-vacancy-details";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { useDialog } from "hooks/use-dialog";
+import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
 
 type Props = {
   firstName: string;
@@ -98,7 +99,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         openDialog,
         t("There was an issue creating the absence"),
         async () => await create(formValues, true),
-        t
+        t,
+        TranslateAbsenceErrorCodeToMessage
       );
     },
   });
