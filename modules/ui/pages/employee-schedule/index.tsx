@@ -25,6 +25,8 @@ import {
   EmployeeScheduleListViewRoute,
   EmployeeScheduleCalendarViewRoute,
 } from "ui/routes/employee-schedule";
+import { ScheduleDate } from "ui/components/employee/types";
+import { SelectedDateView } from "./components/selected-date-view";
 
 type Props = {
   view: "list" | "calendar";
@@ -82,6 +84,10 @@ export const EmployeeSchedule: React.FC<Props> = props => {
     },
   });
 
+  /* selected schedule dates moved here to support selected date view */
+  const [selectedScheduleDates, setSelectedScheduleDates] = useState<
+    ScheduleDate[]
+  >([]);
   const absences =
     getAbsenceSchedule.state === "LOADING" ||
     getAbsenceSchedule.state === "UPDATING"
@@ -106,21 +112,37 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   }
 
   return (
-    <>
-      <Grid container justify="space-between" alignItems="center">
-        <Grid item>
-          <PageTitle title={t("My schedule")} />
+    <div className={classes.pageContainer}>
+      <div className={classes.sticky}>
+        <Grid container justify="space-between" alignItems="center">
+          <Grid item>
+            <PageTitle title="My Schedule" />
+          </Grid>
+          <Grid item>
+            <Button
+              variant="outlined"
+              component={Link}
+              to={EmployeeCreateAbsenceRoute.generate(createAbsenceParams)}
+            >
+              {t("Create Absence")}
+            </Button>
+          </Grid>
+          {props.view === "calendar" && (
+            <Grid item xs={12}>
+              <Section className={classes.absenceSection}>
+                {selectedScheduleDates && selectedScheduleDates.length > 0 && (
+                  <SelectedDateView
+                    scheduleDates={selectedScheduleDates}
+                    selectedDate={selectedScheduleDates[0].date}
+                    cancelAbsence={cancelAbsence}
+                  />
+                )}
+              </Section>
+            </Grid>
+          )}
         </Grid>
-        <Grid item>
-          <Button
-            variant="outlined"
-            component={Link}
-            to={EmployeeCreateAbsenceRoute.generate(createAbsenceParams)}
-          >
-            {t("Create Absence")}
-          </Button>
-        </Grid>
-      </Grid>
+      </div>
+
       <Section className={classes.container}>
         <Grid container>
           <Grid item xs={12} className={classes.filters}>
@@ -163,18 +185,19 @@ export const EmployeeSchedule: React.FC<Props> = props => {
             <Grid item xs={12}>
               <div className={classes.calendarContent}>
                 <CalendarView
+                  selectedScheduleDates={selectedScheduleDates}
+                  setSelectedScheduleDates={setSelectedScheduleDates}
                   employeeId={employee?.id}
                   startDate={startDateOfSchoolYear}
                   endDate={endDate}
                   absences={employeeAbsenceDetails}
-                  cancelAbsence={cancelAbsence}
                 />
               </div>
             </Grid>
           )}
         </Grid>
       </Section>
-    </>
+    </div>
   );
 };
 
@@ -196,5 +219,27 @@ const useStyles = makeStyles(theme => ({
   },
   calendarContent: {
     padding: theme.spacing(),
+  },
+  pageContainer: {
+    display: "contents",
+    overflow: "scroll",
+    height: "100vh",
+    position: "fixed",
+  },
+  sticky: {
+    position: "sticky",
+    top: 0,
+    zIndex: 1,
+    backgroundColor: theme.customColors.appBackgroundGray,
+    boxShadow: `0 ${theme.typography.pxToRem(16)} ${theme.typography.pxToRem(
+      16
+    )} -${theme.typography.pxToRem(13)} ${
+      theme.customColors.appBackgroundGray
+    }`,
+    marginBottom: theme.spacing(3),
+  },
+  absenceSection: {
+    padding: theme.spacing(1),
+    marginBottom: 0,
   },
 }));

@@ -104,7 +104,7 @@ export const SubSchedule: React.FC<Props> = props => {
             <CalendarView
               userId={userId}
               fromDate={beginningOfSchoolYear}
-              toDate={queryEndDate}
+              toDate={endOfSchoolYear}
               selectedDate={selectedDate}
               onSelectDate={onSelectDate}
             />
