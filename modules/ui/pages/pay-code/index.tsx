@@ -11,6 +11,7 @@ import { compact } from "lodash-es";
 import { EditableTable } from "ui/components/editable-table";
 import { PageTitle } from "ui/components/page-title";
 import {
+  PayCode as PayCodeGQL,
   PayCodeCreateInput,
   PayCodeUpdateInput,
 } from "graphql/server-types.gen";
@@ -148,20 +149,14 @@ export const PayCode: React.FC<Props> = props => {
         <Grid item>
           <PageTitle title={t("Pay Codes")} />
         </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            component={Link}
-            to={PayCodeAddRoute.generate(params)}
-          >
-            {t("Add Pay Code")}
-          </Button>
-        </Grid>
       </Grid>
       <EditableTable
         title={`${payCodesCount} ${t("Pay Codes")}`}
         columns={columns}
         data={payCodes}
+        defaultObject={
+          { name: "", externalId: null, description: null } as PayCodeGQL
+        }
         onRowAdd={async newData => {
           const newPayCode = {
             ...payCode,
@@ -170,6 +165,7 @@ export const PayCode: React.FC<Props> = props => {
             description: newData.description,
           };
           await create(newPayCode);
+          //refetch Table Query
         }}
         onRowUpdate={async newData => {
           const updatePayCode = {
@@ -183,6 +179,7 @@ export const PayCode: React.FC<Props> = props => {
         }}
         onRowDelete={async oldData => {
           await deletePayCode(String(oldData.id));
+          //refetch Table Query
         }}
         options={{
           search: true,

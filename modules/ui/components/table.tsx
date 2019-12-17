@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect } from "react";
 import clsx from "clsx";
 import {
   makeStyles,
@@ -11,6 +12,7 @@ import {
 import MaterialTable, {
   MTableBodyRow,
   MTableCell,
+  MTableToolbar,
   MTableActions,
 } from "material-table";
 import { useTheme } from "@material-ui/core/styles";
@@ -42,6 +44,7 @@ export type TableProps<T extends object> = {
   onRowClick?: (event?: React.MouseEvent, rowData?: T) => void;
   onEdit?: Function;
   isEditable?: boolean;
+  defaultObject?: T;
   /**
    * @deprecated This is temporary functionality, we're going to create
    * a new filter component for tables that will allow Active filtering
@@ -91,6 +94,11 @@ export function Table<T extends object>(props: TableProps<T>) {
   const theme = useTheme();
   const { t } = useTranslation();
   const [includeExpired, setIncludeExpired] = React.useState(false);
+  const [data, setData] = React.useState(props.data);
+
+  useEffect(() => {
+    setData(props.data);
+  }, [props.data]);
 
   const allColumns: MaterialTableProps<T>["columns"] = props.columns;
   if (props.onEdit) {
@@ -114,40 +122,56 @@ export function Table<T extends object>(props: TableProps<T>) {
     });
   }
 
+  const tableIsEditable = props.isEditable;
   const showIncludeExpiredSetting = props.showIncludeExpired;
   const onIncludeExpiredChangeFunc = props.onIncludeExpiredChange;
   const expiredRowCheckFunc = props.expiredRowCheck;
   const styleAlternatingRows = props.backgroundFillForAlternatingRows;
 
-  const CheckForEditableAndIncludeExpiredAndReturnDisplay = () => {
-    if (props.editable) {
-      return null;
+  const CheckForEditableAndIncludeExpiredAndReturnDisplay = (props: any) => {
+    if (tableIsEditable) {
+      return (
+        <>
+          <MTableToolbar
+            {...props}
+            // getFieldValue={""}
+            // onColumnsChanged={""}
+            // onSearchChanged={""}
+            // components={{ search: "false" }}
+          />
+        </>
+      );
     } else {
       return (
-        showIncludeExpiredSetting && (
-          <Grid container justify="flex-end">
-            <Grid item>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={includeExpired}
-                    onChange={async e => {
-                      setIncludeExpired(e.target.checked);
-                      if (onIncludeExpiredChangeFunc) {
-                        onIncludeExpiredChangeFunc(e.target.checked);
-                      }
-                    }}
-                    value={includeExpired}
-                    color="primary"
-                  />
-                }
-                label={
-                  <Typography variant="h6">{t("Include inactive")}</Typography>
-                }
-              />
+        <>
+          <div className={classes.tableTitle}>{props.title}</div>
+          {showIncludeExpiredSetting && (
+            <Grid container justify="flex-end">
+              <Grid item>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={includeExpired}
+                      onChange={async e => {
+                        setIncludeExpired(e.target.checked);
+                        if (onIncludeExpiredChangeFunc) {
+                          onIncludeExpiredChangeFunc(e.target.checked);
+                        }
+                      }}
+                      value={includeExpired}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Typography variant="h6">
+                      {t("Include inactive")}
+                    </Typography>
+                  }
+                />
+              </Grid>
             </Grid>
-          </Grid>
-        )
+          )}
+        </>
       );
     }
   };
@@ -157,10 +181,11 @@ export function Table<T extends object>(props: TableProps<T>) {
       icons={tableIcons}
       title={props.title}
       columns={allColumns}
-      data={props.data}
+      data={data}
       editable={props.editable}
       onRowClick={props.onRowClick}
       options={{
+        addRowPosition: "first",
         search: false,
         selection: props.selection,
         paging: props.paging,
@@ -191,12 +216,13 @@ export function Table<T extends object>(props: TableProps<T>) {
           return <MTableBodyRow className={classNames} {...props} />;
         },
         Cell: props => <MTableCell {...props} className={classes.cell} />,
-        Toolbar: props => (
-          <>
-            <div className={classes.tableTitle}>{props.title}</div>
-            {CheckForEditableAndIncludeExpiredAndReturnDisplay()}
-          </>
-        ),
+        Toolbar: props => {
+          {
+            return CheckForEditableAndIncludeExpiredAndReturnDisplay({
+              ...props,
+            });
+          }
+        },
       }}
     />
   );
