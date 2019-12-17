@@ -18,7 +18,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
-import { ScheduleSettings } from "../add";
+import { ScheduleSettings } from "../helpers";
 
 type Props = {
   bellSchedule: {

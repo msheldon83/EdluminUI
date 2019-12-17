@@ -1,0 +1,44 @@
+query GetEmployeePositionContractSchedule(
+  $id: ID!
+  $fromDate: Date!
+  $toDate: Date!
+) {
+  employee {
+    employeePositionSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+      position {
+        id
+        name
+      }
+      details {
+        startDate
+        startTimeLocal
+        endTimeLocal
+        location {
+          id
+          name
+        }
+      }
+      workScheduleVariantType {
+        name
+        isStandard
+      }
+    }
+  }
+  employee {
+    employeeContractSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+      id
+      date
+      calendarDayTypeId
+      calendarChangeId
+      calendarChange {
+        description
+        startDate
+        endDate
+        calendarChangeReason {
+          calendarDayTypeId
+          name
+        }
+      }
+    }
+  }
+}

@@ -57,5 +57,7 @@ export const groupAssignmentsByVacancy = (
 ) => {
   return Object.entries(groupBy(assignments, a => a.vacancy?.id)).map(
     ([index, value]) => value
-  );
+  ).sort((a, b) => (
+    (a[0].startTimeLocal ?? "").localeCompare(b[0].startTimeLocal ?? "")
+  ));
 };
