@@ -8,6 +8,7 @@ import {
 import { groupBy, differenceWith, uniqWith } from "lodash-es";
 import { isAfter, isWithinInterval, format } from "date-fns";
 import { convertStringToDate } from "helpers/date";
+import { TFunction } from "i18next";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -418,4 +419,23 @@ const convertVacancyDetailsToDetailsItem = (
     d => d !== undefined
   ) as DetailsItemByDate<VacancyDetailsItem>[];
   return populatedItems;
+};
+
+export const TranslateAbsenceErrorCodeToMessage = (
+  errorCode: string,
+  t: TFunction
+) => {
+  switch (errorCode) {
+    case "OverlappingDetails":
+      return t("Absence times cannot overlap.");
+    case "NegativeBalances":
+      return t("The balance for this absence reason is now below zero.");
+    case "AbsenceStartsBeforeWorkday":
+      return t("Absence starts before the scheduled start time.");
+    case "AbsenceEndsAfterWorkday":
+      return t("Absence ends after the scheduled end time.");
+    default:
+      console.log(`Absence Error Code unhandled: ${errorCode}`);
+      return undefined;
+  }
 };

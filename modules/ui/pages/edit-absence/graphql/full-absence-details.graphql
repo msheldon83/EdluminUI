@@ -20,6 +20,8 @@ fragment FullAbsenceDetails on Absence {
   }
   startDate
   endDate
+  startTimeLocal
+  endTimeLocal
   numDays
   totalDuration
   totalDayPortion
@@ -51,27 +53,27 @@ fragment FullAbsenceDetails on Absence {
       endTimeLocal
       locationId
       location {
-	id
-	name
+        id
+        name
       }
       payCodeId
       assignment {
-	id
-	employee {
-	  id
-	  firstName
-	  lastName
-	}
+        id
+        employee {
+          id
+          firstName
+          lastName
+        }
       }
       accountingCodeAllocations {
-	id
-	accountingCode {
-	  id
-	  name
-	  description
-	  externalId
-	}
-	allocation
+        id
+        accountingCode {
+          id
+          name
+          description
+          externalId
+        }
+        allocation
       }
     }
   }

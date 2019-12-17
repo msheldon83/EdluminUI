@@ -52,6 +52,8 @@ export type AbsenceDetailsFormData = {
   replacementEmployeeName?: string;
   accountingCode?: string;
   payCode?: string;
+  hourlyStartTime?: Date;
+  hourlyEndTime?: Date;
 };
 
 type Props = {
@@ -97,8 +99,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
     triggerValidation,
   } = props;
 
-  const [hourlyStartTime, setHourlyStartTime] = useState<string | undefined>();
-  const [hourlyEndTime, setHourlyEndTime] = useState<string | undefined>();
+  const [hourlyStartTime, setHourlyStartTime] = useState<string | undefined>(
+    values.hourlyStartTime ? values.hourlyStartTime.toISOString() : undefined
+  );
+  const [hourlyEndTime, setHourlyEndTime] = useState<string | undefined>(
+    values.hourlyEndTime ? values.hourlyEndTime.toISOString() : undefined
+  );
 
   useEffect(() => {
     const parsedStartTimeDate = parseISO(hourlyStartTime ?? "");

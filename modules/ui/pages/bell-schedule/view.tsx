@@ -36,6 +36,7 @@ import { UpdateWorkDayScheduleVariant } from "./graphql/update-workday-schedule-
 import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { parseISO, isEqual } from "date-fns";
+import { ShowErrors } from "ui/components/error-helpers";
 
 const editableSections = {
   name: "edit-name",
@@ -58,18 +59,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     UpdateWorkDayScheduleVariant,
     {
       onError: error => {
-        openSnackbar({
-          message: error.graphQLErrors.map((e, i) => {
-            const errorMessage =
-              e.extensions?.data?.text ?? e.extensions?.data?.code;
-            if (!errorMessage) {
-              return null;
-            }
-            return <div key={i}>{errorMessage}</div>;
-          }),
-          dismissable: true,
-          status: "error",
-        });
+        ShowErrors(error, openSnackbar);
       },
     }
   );
@@ -95,18 +85,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
 
   const [updateWorkDaySchedule] = useMutationBundle(UpdateWorkDaySchedule, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
   const enableDisableWorkDaySchedule = React.useCallback(
