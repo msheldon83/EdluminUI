@@ -12,7 +12,7 @@ export const PayCodeLoader = asyncComponent({
   name: "PayCode",
 });
 
-// View/Edit
+// Index View
 export const PayCodeIndexRoute = defineSubRoute(PayCodeRoute, "/:payCodeId", [
   "payCodeId",
 ]);
