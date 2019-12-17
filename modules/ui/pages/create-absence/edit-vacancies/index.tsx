@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { FieldArray, Formik, FormikErrors } from "formik";
 import { useQueryBundle } from "graphql/hooks";
-import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
+import { getDateRangeDisplayText } from "helpers/date";
 import { compact, isArray } from "lodash-es";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -42,6 +42,8 @@ export const EditVacancies: React.FC<Props> = props => {
     details: props.details.map(d => ({
       ...d,
       locationId: Number(d.locationId),
+      startTime: parseISO(d.startTime).toISOString(),
+      endTime: parseISO(d.endTime).toISOString(),
     })),
   };
 
@@ -108,24 +110,33 @@ export const EditVacancies: React.FC<Props> = props => {
 
               const overlaps = value.filter(
                 (v: any) =>
-                  !!value.find(
-                    (f: any) =>
-                      v !== f &&
-                      isValid(parseISO(v.startTime)) &&
-                      isValid(parseISO(v.endTime)) &&
-                      isValid(parseISO(f.startTime)) &&
-                      isValid(parseISO(f.endTime)) &&
-                      areIntervalsOverlapping(
-                        {
-                          start: parseISO(v.startTime),
-                          end: parseISO(v.endTime),
-                        },
-                        {
-                          start: parseISO(f.startTime),
-                          end: parseISO(f.endTime),
-                        }
+                  !!value.find((f: any) => {
+                    if (v === f) {
+                      return false;
+                    }
+
+                    if (
+                      !(
+                        isValid(parseISO(v.startTime)) &&
+                        isValid(parseISO(v.endTime)) &&
+                        isValid(parseISO(f.startTime)) &&
+                        isValid(parseISO(f.endTime))
                       )
-                  )
+                    ) {
+                      return false;
+                    }
+
+                    return areIntervalsOverlapping(
+                      {
+                        start: parseISO(v.startTime),
+                        end: parseISO(v.endTime),
+                      },
+                      {
+                        start: parseISO(f.startTime),
+                        end: parseISO(f.endTime),
+                      }
+                    );
+                  })
               );
 
               if (overlaps.length > 0) {
@@ -160,10 +171,8 @@ export const EditVacancies: React.FC<Props> = props => {
               <Grid item>
                 <Typography variant="h5">
                   {getDateRangeDisplayText(
-                    convertStringToDate(props.details[0].date),
-                    convertStringToDate(
-                      props.details[props.details.length - 1].date
-                    )
+                    parseISO(props.details[0].date),
+                    parseISO(props.details[props.details.length - 1].date)
                   )}
                   {props.positionName && ` - ${props.positionName}`}
                 </Typography>
