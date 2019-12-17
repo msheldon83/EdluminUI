@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Period, GetError } from "../../helpers";
-import { makeStyles, FormHelperText } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { addMinutes, isValid } from "date-fns";
 import { TimeInput as TimeInputComponent } from "ui/components/form/time-input";
@@ -64,12 +64,9 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       props.setFieldValue(`periods[${i}].startTime`, value);
                     }}
                     earliestTime={earliestStartTime}
+                    inputStatus={startTimeError ? "error" : "default"}
+                    validationMessage={startTimeError}
                   />
-                  {startTimeError && (
-                    <FormHelperText error={true}>
-                      {startTimeError}
-                    </FormHelperText>
-                  )}
                 </div>
                 <div className={classes.timeInput}>
                   <TimeInputComponent
@@ -93,10 +90,9 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       props.setFieldValue(`periods[${i}].endTime`, value);
                     }}
                     earliestTime={p.startTime || earliestStartTime}
+                    inputStatus={endTimeError ? "error" : "default"}
+                    validationMessage={endTimeError}
                   />
-                  {endTimeError && (
-                    <FormHelperText error={true}>{endTimeError}</FormHelperText>
-                  )}
                 </div>
               </>
             )}

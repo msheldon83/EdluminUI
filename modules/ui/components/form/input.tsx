@@ -29,7 +29,7 @@ export const Input = React.forwardRef((props: Props, ref) => {
   } = props;
 
   const classes = useStyles();
-  const id = `custom-input-${label}`;
+  const id = `custom-input-${label ? label : Math.round(Math.random() * 1000)}`;
 
   const isError = inputStatus === "error";
 

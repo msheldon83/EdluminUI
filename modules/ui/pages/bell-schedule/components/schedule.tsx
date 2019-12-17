@@ -1,5 +1,18 @@
-import { FormHelperText, makeStyles, Grid } from "@material-ui/core";
-import { isBefore, parseISO, areIntervalsOverlapping, isValid } from "date-fns";
+import {
+  FormHelperText,
+  makeStyles,
+  Grid,
+  Typography,
+} from "@material-ui/core";
+import {
+  isBefore,
+  parseISO,
+  areIntervalsOverlapping,
+  isValid,
+  isDate,
+  format,
+  isEqual,
+} from "date-fns";
 import { Formik } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -16,6 +29,8 @@ import { ScheduleAfternoonColumn } from "./schedule-columns/schedule-afternoon-c
 import { ScheduleMorningColumn } from "./schedule-columns/schedule-morning-column";
 import { ScheduleTimesColumn } from "./schedule-columns/schedule-times-column";
 import { ScheduleDurationColumn } from "./schedule-columns/schedule-duration-column";
+import { TFunction } from "i18next";
+import { useMemo } from "react";
 
 type Props = {
   name?: string | null | undefined;
@@ -42,15 +57,62 @@ export const Schedule: React.FC<Props> = props => {
     setFieldValue("periods", periods);
   };
 
+  // Determine if we already have an End of Day period or not
+  const endOfDayPeriod = useMemo(() => {
+    const periodMarkedAsEndOfDay = props.periods.find(p => p.isEndOfDayPeriod);
+    if (periodMarkedAsEndOfDay) {
+      return periodMarkedAsEndOfDay;
+    }
+
+    // Figure out the End of Day by the details of the last non skipped Period
+    const nonSkippedPeriods = props.periods.filter(p => !p.skipped);
+    const lastPeriod = nonSkippedPeriods[nonSkippedPeriods.length - 1];
+    return props.variantId &&
+      lastPeriod.startTime &&
+      lastPeriod.endTime &&
+      isEqual(parseISO(lastPeriod.startTime), parseISO(lastPeriod.endTime))
+      ? lastPeriod
+      : undefined;
+  }, [props.periods, props.variantId]);
+  const periodsMinusEndOfDay = useMemo(() => {
+    return endOfDayPeriod
+      ? props.periods.filter(p => p !== endOfDayPeriod)
+      : props.periods;
+  }, [endOfDayPeriod, props.periods]);
+
   return (
     <Section>
       <Formik
         initialValues={{
-          periods: props.periods,
+          periods: periodsMinusEndOfDay,
         }}
         enableReinitialize={true}
         onSubmit={(data, meta) => {
-          props.onSubmit(data.periods, props.variantId);
+          // Add the end of Day period in here before returning
+          const periods = data.periods;
+          const nonSkippedPeriods = periods.filter(p => !p.skipped);
+          if (endOfDayPeriod) {
+            endOfDayPeriod.startTime =
+              nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime;
+            endOfDayPeriod.endTime =
+              nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime;
+            periods.push({
+              ...endOfDayPeriod,
+              isEndOfDayPeriod: true,
+            });
+          } else {
+            periods.push({
+              name: "EndOfDay",
+              placeholder: "EndOfDay",
+              startTime:
+                nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime,
+              endTime: nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime,
+              skipped: false,
+              isEndOfDayPeriod: true,
+            });
+          }
+
+          props.onSubmit(periods, props.variantId);
         }}
         validateOnChange={false}
         validateOnBlur={false}
@@ -217,7 +279,7 @@ export const Schedule: React.FC<Props> = props => {
                 />
               </div>
             </div>
-
+            {displayEndOfDay(values.periods, t, classes)}
             <ActionButtons
               submit={{
                 text: props.submitLabel || t("Save"),
@@ -287,4 +349,42 @@ const useStyles = makeStyles(theme => ({
   hidden: {
     visibility: "hidden",
   },
+  endOfDayLabel: {
+    paddingLeft: theme.spacing(7),
+  },
+  endOfDayTime: {
+    flexGrow: 2,
+    textAlign: "center",
+  },
 }));
+
+const displayEndOfDay = (periods: Period[], t: TFunction, classes: any) => {
+  const numberOfPeriods = periods.length;
+  const endOfDayClass = [classes.period];
+  if (numberOfPeriods % 2 === 1) {
+    endOfDayClass.push(classes.alternatingItem);
+  }
+
+  const activePeriods = periods.filter(p => !p.skipped);
+  const endOfDayTime =
+    activePeriods[activePeriods.length - 1] &&
+    activePeriods[activePeriods.length - 1].endTime
+      ? parseISO(activePeriods[activePeriods.length - 1].endTime!)
+      : undefined;
+
+  return (
+    <div className={endOfDayClass.join(" ")}>
+      <div className={classes.endOfDayLabel}>
+        <Typography variant="h6">{t("End of day")}</Typography>
+      </div>
+      <div className={classes.endOfDayTime}>
+        <Typography variant="h6">
+          {endOfDayTime &&
+            isValid(endOfDayTime) &&
+            isDate(endOfDayTime) &&
+            format(endOfDayTime, "h:mm a")}
+        </Typography>
+      </div>
+    </div>
+  );
+};
