@@ -77,6 +77,11 @@ const useStyles = makeStyles(theme => ({
   selected: {
     backgroundColor: theme.customColors.blueHover,
     color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.blueHover,
+      color: theme.customColors.white,
+    },
   },
   assignment: {
     backgroundColor: theme.customColors.sky,

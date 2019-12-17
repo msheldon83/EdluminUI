@@ -65,11 +65,11 @@ export const SubSchedule: React.FC<Props> = props => {
     [setSelectedDate]
   );
   return (
-    <>
-      <div className={classes.sticky}>
+    <div className={classes.pageContainer}>
+      <div className={props.view === "calendar" ? classes.sticky : ""}>
         <PageTitle title="My Schedule" />
         {props.view === "calendar" && (
-          <Section>
+          <Section className={classes.assignments}>
             <NowViewingAssignmentsForDate date={selectedDate} userId={userId} />
           </Section>
         )}
@@ -118,7 +118,7 @@ export const SubSchedule: React.FC<Props> = props => {
           )}
         </div>
       </Section>
-    </>
+    </div>
   );
 };
 
@@ -140,8 +140,24 @@ const useStyles = makeStyles(theme => ({
       18
     )}`,
   },
+  pageContainer: {
+    display: "contents",
+    overflow: "scroll",
+    height: "100vh",
+    position: "fixed",
+  },
   sticky: {
     position: "sticky",
-    top: 1,
+    top: 0,
+    zIndex: 1,
+    backgroundColor: theme.customColors.appBackgroundGray,
+    boxShadow: `0 ${theme.typography.pxToRem(32)} ${theme.typography.pxToRem(
+      16
+    )} -${theme.typography.pxToRem(13)} ${
+      theme.customColors.appBackgroundGray
+    }`,
+  },
+  assignments: {
+    padding: theme.spacing(1),
   },
 }));
