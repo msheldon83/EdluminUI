@@ -1,0 +1,12 @@
+query GetAllAbsenceReasonsWithinOrg($orgId: ID, $includeExpired: Boolean) {
+  orgRef_AbsenceReason {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      expired
+    }
+  }
+}

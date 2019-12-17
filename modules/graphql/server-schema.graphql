@@ -38,6 +38,7 @@ input AbsenceCreateInput {
   notesToApprover: String
   details: [AbsenceDetailCreateInput]
   vacancies: [AbsenceVacancyInput]
+  ignoreWarnings: Boolean
 }
 
 type AbsenceDetail implements ModelObjectInterface & OrgObjectInterface {
@@ -87,7 +88,7 @@ type AbsenceMutations {
 }
 
 type AbsenceQueries {
-  byId(id: ID!): Absence!
+  byId(id: ID!): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
   projectedVacancies(absence: AbsenceCreateInput!, ignoreAbsenceId: Int): [Vacancy]
@@ -249,6 +250,7 @@ input AbsenceUpdateInput {
   notesToApprover: String
   details: [AbsenceDetailCreateInput]
   vacancies: [AbsenceVacancyInput]
+  ignoreWarnings: Boolean
 }
 
 input AbsenceVacancyInput {
@@ -735,13 +737,15 @@ type ContractDate implements ModelObjectInterface & OrgObjectInterface {
   schoolYearId: Int!
   schoolYear: SchoolYear
   date: Date!
-  calendarDayTypeId: CalendarDayType
+  calendarDayTypeId: CalendarDayType!
   daysFromStart: Int
   daysToEnd: Int
   workDayId: Int
   workDay: WorkDay
   workDayScheduleVariantTypeId: Int!
-  workDayScheduleVariantType: WorkDayScheduleVariant
+  workDayScheduleVariantType: WorkDayScheduleVariantType
+  calendarChangeId: Int
+  calendarChange: CalendarChange
 }
 
 input ContractedAssignmentCreateInput {
@@ -1131,6 +1135,24 @@ type EmployeeMutations {
   create(employee: EmployeeCreateInput!): Employee
   update(employee: EmployeeUpdateInput!): Employee
   delete(employeeId: Int!): Boolean
+}
+
+type EmployeeQualifiedResult {
+  _info: [ReturnMessage]
+  employeeId: Int!
+  userId: Int!
+  firstName: String!
+  middleName: String
+  lastName: String!
+  phoneNumber: String
+  isQualified: Boolean!
+  excludedAttribute: Boolean!
+  missingAttribute: Boolean!
+  qualifiedAtMinutesLeft: Int!
+  qualifiedAtPercentLeft: Int!
+  qualifiedAtLocal: DateTime
+  qualifiedAtUtc: DateTime
+  levelQualified: VacancyQualification!
 }
 
 type EmployeeQueries {
@@ -1616,6 +1638,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
   phoneNumber: String
+  formattedPhone: String
   address1: String
   address2: String
   city: String
@@ -2284,6 +2307,15 @@ type PagedEmployee {
   totalCount: Int
 }
 
+type PagedEmployeeQualifiedResult {
+  _info: [ReturnMessage]
+  results: [EmployeeQualifiedResult]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedEndEmploymentReason {
   _info: [ReturnMessage]
   results: [EndEmploymentReason]
@@ -2377,6 +2409,15 @@ type PagedPayCode {
 type PagedPermissionSet {
   _info: [ReturnMessage]
   results: [PermissionSet]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedPosition {
+  _info: [ReturnMessage]
+  results: [Position]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -2648,8 +2689,8 @@ type PermissionSetMutations {
 
 type PermissionSetQueries {
   byId(id: ID!): PermissionSet
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [PermissionSet]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedPermissionSet
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], roles: [OrgUserRole]): [PermissionSet]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], roles: [OrgUserRole]): PagedPermissionSet
 }
 
 input PermissionSetUpdateInput {
@@ -2708,6 +2749,14 @@ input PositionCreateInput {
   hoursPerFullWorkDay: Decimal
 }
 
+type PositionQueries {
+  byId(id: ID!): Position
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Position]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedPosition
+  qualifiedEmployeeCounts(orgId: ID!, limit: Int, offset: Int, positionId: Int!, name: String): QualifiedEmployeeCounts
+  qualifiedEmployees(orgId: ID!, limit: Int, offset: Int, positionId: Int!, name: String): PagedEmployeeQualifiedResult
+}
+
 type PositionSchedule implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -2751,10 +2800,10 @@ type PositionScheduleDate {
   positionId: Int!
   positionScheduleId: Int!
   workScheduleVariantTypeId: Int!
-  startTimeLocal: Date!
-  endTimeLocal: Date!
-  startTimeUtc: Date!
-  endTimeUtc: Date!
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
   fullWorkdayDuration: Short!
   totalDuration: Short!
   absenceBalanceDuration: Short!
@@ -2763,28 +2812,30 @@ type PositionScheduleDate {
   replacementDayPortion: Decimal!
   halfDayMorningAbsenceBalanceDayPortion: Decimal
   halfDayAfternoonAbsenceBalanceDayPortion: Decimal
-  halfDayMorningEndLocal: Date
-  halfDayMorningEndUtc: Date
-  halfDayAfternoonStartLocal: Date
+  halfDayMorningEndLocal: DateTime
+  halfDayMorningEndUtc: DateTime
+  halfDayAfternoonStartLocal: DateTime
   halfDayMorningDuration: Short
   halfDayAfternoonDuration: Short
-  quarterDayEarlyMorningEndLocal: Date
-  quarterDayEarlyMorningEndUtc: Date
-  quarterDayLateMorningStartLocal: Date
-  quarterDayLateMorningStartUtc: Date
-  quarterDayLateMorningEndLocal: Date
-  quarterDayLateMorningEndUtc: Date
-  quarterDayEarlyAfternoonStartLocal: Date
-  quarterDayEarlyAfternoonStartUtc: Date
-  quarterDayEarlyAfternoonEndLocal: Date
-  quarterDayEarlyAfternoonEndUtc: Date
-  quarterDayLateAfternoonStartLocal: Date
-  quarterDayLateAfternoonStartUtc: Date
+  quarterDayEarlyMorningEndLocal: DateTime
+  quarterDayEarlyMorningEndUtc: DateTime
+  quarterDayLateMorningStartLocal: DateTime
+  quarterDayLateMorningStartUtc: DateTime
+  quarterDayLateMorningEndLocal: DateTime
+  quarterDayLateMorningEndUtc: DateTime
+  quarterDayEarlyAfternoonStartLocal: DateTime
+  quarterDayEarlyAfternoonStartUtc: DateTime
+  quarterDayEarlyAfternoonEndLocal: DateTime
+  quarterDayEarlyAfternoonEndUtc: DateTime
+  quarterDayLateAfternoonStartLocal: DateTime
+  quarterDayLateAfternoonStartUtc: DateTime
   quarterDayEarlyMorningDuration: Short
   quarterDayLateMorningDuration: Short
   quarterDayEarlyAfternoonDuration: Short
   quarterDayLateAfternoonDuration: Short
   details: [PositionScheduleDateDetail]
+  position: Position
+  workScheduleVariantType: WorkDayScheduleVariantType
 }
 
 type PositionScheduleDateDetail {
@@ -2797,12 +2848,12 @@ type PositionScheduleDateDetail {
   workDaySchedulePeriodId: Int
   startDate: Date
   endDate: Date
-  startTimeLocal: Date!
-  endTimeLocal: Date!
-  nextStartTimeLocal: Date!
-  startTimeUtc: Date!
-  endTimeUtc: Date!
-  nextStartTimeUtc: Date!
+  startTimeLocal: DateTime
+  endTimeLocal: DateTime
+  nextStartTimeLocal: DateTime
+  startTimeUtc: DateTime
+  endTimeUtc: DateTime
+  nextStartTimeUtc: DateTime
   periodDuration: Short!
   travelDuration: Short!
   needsReplacement: Boolean!
@@ -2821,6 +2872,7 @@ type PositionScheduleDateDetail {
   isQuarterDayEarlyAfternoonStart: Boolean!
   isQuarterDayEarlyAfternoonEnd: Boolean!
   isQuarterDayLateAfternoonStart: Boolean!
+  location: Location
 }
 
 type PositionScheduleMutations {
@@ -3031,6 +3083,8 @@ type PositionTypeQueries {
   byId(id: ID!): PositionType
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [PositionType]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedPositionType
+  qualifiedEmployeeCounts(orgId: ID!, limit: Int, offset: Int, positionTypeId: Int!, name: String): QualifiedEmployeeCounts
+  qualifiedEmployees(orgId: ID!, limit: Int, offset: Int, positionTypeId: Int!, name: String): PagedEmployeeQualifiedResult
 }
 
 input PositionTypeUpdateInput {
@@ -3045,6 +3099,17 @@ input PositionTypeUpdateInput {
   defaultContractId: Int
   expired: Boolean
   payTypeId: AbsenceReasonTrackingTypeId
+}
+
+type QualifiedEmployeeCounts {
+  _info: [ReturnMessage]
+  nameMask: String!
+  offset: Int!
+  limit: Int!
+  moreEmployees: Boolean!
+  numFullyQualified: Int!
+  numMinimallyQualified: Int!
+  numNeverQualified: Int!
 }
 
 type Query {
@@ -3072,6 +3137,7 @@ type Query {
   orgRef_WorkDayScheduleVariantType: OrgRef_WorkDayScheduleVariantTypeQueries
   orgUser: OrgUserQueries
   permissionSet: PermissionSetQueries
+  position: PositionQueries
   positionSchedule: PositionScheduleQueries
   positionType: PositionTypeQueries
   referenceData: ReferenceDataQueries

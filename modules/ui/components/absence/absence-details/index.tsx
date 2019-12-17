@@ -10,13 +10,14 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import InfoIcon from "@material-ui/icons/Info";
-import { isValid, parseISO } from "date-fns";
+import { isValid, parseISO, format } from "date-fns";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import {
   DayPart,
   FeatureFlag,
   NeedsReplacement,
   Vacancy,
+  PositionScheduleDate,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -24,7 +25,11 @@ import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
-import { dayPartToLabel } from "ui/components/absence/helpers";
+import {
+  dayPartToLabel,
+  ScheduleTimes,
+  dayPartToTimesLabel,
+} from "ui/components/absence/helpers";
 import {
   DatePicker,
   DatePickerOnChange,
@@ -35,6 +40,8 @@ import { Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
 import { VacancyDetail } from "ui/components/absence/types";
+import { GetEmployeeScheduleTimes } from "../graphql/get-employee-schedule-times.gen";
+import { useQueryBundle } from "graphql/hooks";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -45,11 +52,14 @@ export type AbsenceDetailsFormData = {
   replacementEmployeeName?: string;
   accountingCode?: string;
   payCode?: string;
+  hourlyStartTime?: Date;
+  hourlyEndTime?: Date;
 };
 
 type Props = {
   saveLabel?: string;
   organizationId: string;
+  employeeId: string;
   onSubstituteWantedChange: (wanted: boolean) => void;
   onSwitchMonth: (month: Date) => void;
   setValue: SetValue;
@@ -89,8 +99,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
     triggerValidation,
   } = props;
 
-  const [hourlyStartTime, setHourlyStartTime] = useState<string | undefined>();
-  const [hourlyEndTime, setHourlyEndTime] = useState<string | undefined>();
+  const [hourlyStartTime, setHourlyStartTime] = useState<string | undefined>(
+    values.hourlyStartTime ? values.hourlyStartTime.toISOString() : undefined
+  );
+  const [hourlyEndTime, setHourlyEndTime] = useState<string | undefined>(
+    values.hourlyEndTime ? values.hourlyEndTime.toISOString() : undefined
+  );
 
   useEffect(() => {
     const parsedStartTimeDate = parseISO(hourlyStartTime ?? "");
@@ -134,6 +148,52 @@ export const AbsenceDetails: React.FC<Props> = props => {
     () => featureFlagsToDayPartOptions(featureFlags),
     [featureFlags]
   );
+
+  const getEmployeeScheduleTimes = useQueryBundle(GetEmployeeScheduleTimes, {
+    variables: {
+      id: props.employeeId,
+      fromDate: values.startDate ? format(values.startDate, "P") : undefined,
+      toDate: values.startDate ? format(values.startDate, "P") : undefined,
+    },
+    skip: !values.startDate,
+  });
+  const employeeScheduleTimes: ScheduleTimes | undefined = useMemo(() => {
+    if (
+      getEmployeeScheduleTimes.state === "DONE" ||
+      getEmployeeScheduleTimes.state === "UPDATING"
+    ) {
+      const scheduleTimes =
+        getEmployeeScheduleTimes.data?.employee?.employeePositionSchedule &&
+        getEmployeeScheduleTimes.data?.employee?.employeePositionSchedule
+          .length > 0
+          ? (getEmployeeScheduleTimes.data?.employee
+              ?.employeePositionSchedule[0] as Pick<
+              PositionScheduleDate,
+              | "startTimeLocal"
+              | "endTimeLocal"
+              | "halfDayMorningEndLocal"
+              | "halfDayAfternoonStartLocal"
+            >)
+          : undefined;
+
+      if (!scheduleTimes) {
+        return undefined;
+      }
+
+      return {
+        startTime: format(parseISO(scheduleTimes.startTimeLocal), "h:mm a"),
+        halfDayMorningEnd: format(
+          parseISO(scheduleTimes.halfDayMorningEndLocal),
+          "h:mm a"
+        ),
+        halfDayAfternoonStart: format(
+          parseISO(scheduleTimes.halfDayAfternoonStartLocal),
+          "h:mm a"
+        ),
+        endTime: format(parseISO(scheduleTimes.endTimeLocal), "h:mm a"),
+      };
+    }
+  }, [getEmployeeScheduleTimes]);
 
   useEffect(() => {
     if (!values.dayPart && dayPartOptions && dayPartOptions[0]) {
@@ -239,14 +299,30 @@ export const AbsenceDetails: React.FC<Props> = props => {
           aria-label="dayPart"
           className={classes.radioGroup}
         >
-          {dayPartOptions.map((type, i) => (
-            <FormControlLabel
-              key={type}
-              value={type}
-              control={<Radio checked={type === values.dayPart} />}
-              label={t(dayPartToLabel(type))}
-            />
-          ))}
+          {dayPartOptions.map((type, i) => {
+            const timeDisplay = employeeScheduleTimes
+              ? dayPartToTimesLabel(type, employeeScheduleTimes)
+              : "";
+            return (
+              <Grid
+                container
+                justify="space-between"
+                alignItems="center"
+                key={type}
+              >
+                <Grid item xs={10}>
+                  <FormControlLabel
+                    value={type}
+                    control={<Radio checked={type === values.dayPart} />}
+                    label={`${t(dayPartToLabel(type))} ${timeDisplay}`}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  {dayPartToIcon(type, classes)}
+                </Grid>
+              </Grid>
+            );
+          })}
         </RadioGroup>
         {values.dayPart === DayPart.Hourly && (
           <div className={classes.hourlyTimes}>
@@ -403,6 +479,9 @@ const useStyles = makeStyles(theme => ({
   usageText: {
     marginLeft: theme.spacing(1),
   },
+  dayPartIcon: {
+    height: theme.spacing(3),
+  },
 }));
 
 const useTextFieldClasses = makeStyles(theme => ({
@@ -415,28 +494,66 @@ const featureFlagsToDayPartOptions = (
   featureFlags: FeatureFlag[]
 ): DayPart[] => {
   const dayPartOptions: DayPart[] = [];
-  featureFlags.map(a => {
-    switch (a) {
-      case FeatureFlag.FullDayAbsences:
-        dayPartOptions.push(DayPart.FullDay);
-        break;
-      case FeatureFlag.HalfDayAbsences:
-        dayPartOptions.push(DayPart.HalfDayAfternoon);
-        dayPartOptions.push(DayPart.HalfDayMorning);
-        break;
-      case FeatureFlag.QuarterDayAbsences:
-        dayPartOptions.push(DayPart.QuarterDayEarlyAfternoon);
-        dayPartOptions.push(DayPart.QuarterDayLateAfternoon);
-        dayPartOptions.push(DayPart.QuarterDayEarlyMorning);
-        dayPartOptions.push(DayPart.QuarterDayLateMorning);
-        break;
-      case FeatureFlag.HourlyAbsences:
-        dayPartOptions.push(DayPart.Hourly);
-        break;
-      case FeatureFlag.None:
-      default:
-        break;
-    }
-  });
+  // Day Part options have to be in a specific order
+  if (featureFlags.includes(FeatureFlag.FullDayAbsences)) {
+    dayPartOptions.push(DayPart.FullDay);
+  }
+
+  if (featureFlags.includes(FeatureFlag.HalfDayAbsences)) {
+    dayPartOptions.push(DayPart.HalfDayMorning);
+    dayPartOptions.push(DayPart.HalfDayAfternoon);
+  }
+
+  if (featureFlags.includes(FeatureFlag.QuarterDayAbsences)) {
+    dayPartOptions.push(DayPart.QuarterDayEarlyMorning);
+    dayPartOptions.push(DayPart.QuarterDayLateMorning);
+    dayPartOptions.push(DayPart.QuarterDayEarlyAfternoon);
+    dayPartOptions.push(DayPart.QuarterDayLateAfternoon);
+  }
+
+  // Add Hourly last
+  if (featureFlags.includes(FeatureFlag.HourlyAbsences)) {
+    dayPartOptions.push(DayPart.Hourly);
+  }
+
   return dayPartOptions;
+};
+
+const dayPartToIcon = (dayPart: DayPart, classes: any): React.ReactFragment => {
+  switch (dayPart) {
+    case DayPart.FullDay:
+      return (
+        <img
+          src={require("ui/icons/full-day.svg")}
+          className={classes.dayPartIcon}
+        />
+      );
+    case DayPart.HalfDayMorning:
+      return (
+        <img
+          src={require("ui/icons/half-day-am.svg")}
+          className={classes.dayPartIcon}
+        />
+      );
+    case DayPart.HalfDayAfternoon:
+      return (
+        <img
+          src={require("ui/icons/half-day-pm.svg")}
+          className={classes.dayPartIcon}
+        />
+      );
+    case DayPart.Hourly:
+      return (
+        <img
+          src={require("ui/icons/partial-day.svg")}
+          className={classes.dayPartIcon}
+        />
+      );
+    case DayPart.QuarterDayEarlyMorning:
+    case DayPart.QuarterDayLateMorning:
+    case DayPart.QuarterDayEarlyAfternoon:
+    case DayPart.QuarterDayLateAfternoon:
+    default:
+      return "";
+  }
 };

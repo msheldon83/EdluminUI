@@ -43,6 +43,10 @@ import { VerifyUI } from "ui/pages/verify/ui";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
+import {
+  ShowIgnoreAndContinueOrError,
+  ShowErrors,
+} from "ui/components/error-helpers";
 
 type Props = {
   orgId: string;
@@ -212,49 +216,13 @@ export const DailyReport: React.FC<Props> = props => {
 
   const [swapVacancyAssignments] = useMutationBundle(SwapVacancyAssignments, {
     onError: error => {
-      const warnings = error.graphQLErrors.filter(
-        e => e.extensions?.data?.severity === "Warn"
+      ShowIgnoreAndContinueOrError(
+        error,
+        openDialog,
+        t("There was an issue swapping substitutes"),
+        async () => await swapSubs(true),
+        t
       );
-      const warningsOnly = warnings.length === error.graphQLErrors.length;
-
-      openDialog({
-        title: t("There was an issue swapping substitutes"),
-        renderContent() {
-          return error.graphQLErrors.map((e, i) => {
-            const errorMessage =
-              e.extensions?.data?.text ?? e.extensions?.data?.code;
-            if (!errorMessage) {
-              return null;
-            }
-            return <div key={i}>{errorMessage}</div>;
-          });
-        },
-        renderActions({ closeDialog }: RenderFunctionsType) {
-          return (
-            <>
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() => closeDialog()}
-              >
-                {warningsOnly ? t("Cancel") : t("Okay")}
-              </Button>
-              {warningsOnly && (
-                <Button
-                  size="small"
-                  variant="contained"
-                  onClick={async () => {
-                    closeDialog();
-                    await swapSubs(true);
-                  }}
-                >
-                  {t("Ignore & Continue")}
-                </Button>
-              )}
-            </>
-          );
-        },
-      });
     },
   });
 
@@ -290,18 +258,7 @@ export const DailyReport: React.FC<Props> = props => {
 
   const [cancelAssignment] = useMutationBundle(CancelAssignment, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
 

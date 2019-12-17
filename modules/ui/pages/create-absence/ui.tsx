@@ -43,6 +43,9 @@ import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { VacancyDetail } from "../../components/absence/types";
 import { projectVacancyDetails } from "./project-vacancy-details";
+import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
+import { useDialog } from "hooks/use-dialog";
+import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
 
 type Props = {
   firstName: string;
@@ -59,28 +62,9 @@ type Props = {
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { openSnackbar } = useSnackbar();
+  const { openDialog } = useDialog();
   const [absence, setAbsence] = useState<Absence>();
-
   const [vacanciesInput, setVacanciesInput] = useState<VacancyDetail[]>();
-
-  const [createAbsence] = useMutationBundle(CreateAbsence, {
-    onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
-    },
-  });
-
   const [step, setStep] = useQueryParamIso(StepParams);
 
   const [state, dispatch] = useReducer(
@@ -107,6 +91,19 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   });
 
   const formValues = getValues();
+
+  const [createAbsence] = useMutationBundle(CreateAbsence, {
+    onError: error => {
+      ShowIgnoreAndContinueOrError(
+        error,
+        openDialog,
+        t("There was an issue creating the absence"),
+        async () => await create(formValues, true),
+        t,
+        TranslateAbsenceErrorCodeToMessage
+      );
+    },
+  });
 
   const required = t("Required");
   register({ name: "dayPart", type: "custom" }, { required });
@@ -152,7 +149,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         Number(state.employeeId),
         Number(props.positionId),
         disabledDates,
-        state,
+        state.needsReplacement,
         vacanciesInput
       ),
     [
@@ -163,15 +160,16 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       formValues.hourlyStartTime,
       formValues.hourlyEndTime,
       vacanciesInput,
-      state,
-      props.positionId,
-      disabledDates,
+      state.needsReplacement,
     ]
   );
 
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
-      absence: projectedVacanciesInput!,
+      absence: {
+        ...projectedVacanciesInput!,
+        ignoreWarnings: true,
+      },
     },
     skip: projectedVacanciesInput === null,
     onError: () => {},
@@ -179,7 +177,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
-      absence: projectedVacanciesInput!,
+      absence: {
+        ...projectedVacanciesInput!,
+        ignoreWarnings: true,
+      },
     },
     skip: projectedVacanciesInput === null,
     // fetchPolicy: "no-cache",
@@ -226,18 +227,28 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const name = `${props.firstName} ${props.lastName}`;
 
-  const create = async (formValues: CreateAbsenceFormData) => {
-    const absenceCreateInput = buildAbsenceCreateInput(
+  const create = async (
+    formValues: CreateAbsenceFormData,
+    ignoreWarnings?: boolean
+  ) => {
+    let absenceCreateInput = buildAbsenceCreateInput(
       formValues,
       Number(state.organizationId),
       Number(state.employeeId),
       Number(props.positionId),
       disabledDates,
-      state,
+      state.needsReplacement,
       theVacancyDetails
     );
     if (!absenceCreateInput) {
-      return null;
+      return;
+    }
+
+    if (ignoreWarnings) {
+      absenceCreateInput = {
+        ...absenceCreateInput,
+        ignoreWarnings: true,
+      };
     }
 
     const result = await createAbsence({
@@ -246,7 +257,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       },
     });
 
-    return result?.data?.absence?.create as Absence;
+    const absence = result?.data?.absence?.create as Absence;
+    if (absence) {
+      setAbsence(absence);
+      setStep("confirmation");
+    }
   };
 
   const onChangedVacancies = React.useCallback(
@@ -264,11 +279,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
       <form
         onSubmit={handleSubmit(async data => {
-          const absence = await create(data);
-          if (absence) {
-            setAbsence(absence);
-            setStep("confirmation");
-          }
+          await create(data);
         })}
       >
         {step === "absence" && (
@@ -291,6 +302,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                   dispatch({ action: "setNeedsReplacement", to: subWanted })
                 }
                 organizationId={props.organizationId}
+                employeeId={state.employeeId}
                 setValue={setValue}
                 values={formValues}
                 errors={errors}
@@ -338,6 +350,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           details={projectedVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
+          setStep={setStep}
         />
       )}
     </>
@@ -382,9 +395,9 @@ export const buildAbsenceCreateInput = (
   employeeId: number,
   positionId: number,
   disabledDates: Date[],
-  state: CreateAbsenceState,
+  needsReplacement: boolean,
   vacancyDetails?: VacancyDetail[]
-) => {
+): AbsenceCreateInput | null => {
   if (
     !formValues.startDate ||
     !formValues.absenceReason ||
@@ -492,7 +505,7 @@ export const buildAbsenceCreateInput = (
       {
         positionId: positionId,
         useSuppliedDetails: vDetails !== undefined,
-        needsReplacement: state.needsReplacement,
+        needsReplacement: needsReplacement,
         notesToReplacement: formValues.notesToReplacement,
         prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
         details: vDetails,

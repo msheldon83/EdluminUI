@@ -5,11 +5,6 @@ import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { useRouteParams } from "ui/routes/definition";
-import {
-  SubScheduleListViewRoute,
-  SubScheduleRoute,
-} from "ui/routes/sub-schedule";
 import { useIsMobile } from "hooks";
 
 type Props = {
@@ -21,8 +16,6 @@ type Props = {
 export const ScheduleViewToggle: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(SubScheduleRoute);
-  const f = SubScheduleListViewRoute.generate(params);
   const isMobile = useIsMobile();
   return (
     <>

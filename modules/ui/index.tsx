@@ -19,6 +19,10 @@ import { VerifyLoader, VerifyRoute } from "./routes/absence-vacancy/verify";
 import {
   AbsenceReasonLoader,
   AbsenceReasonRoute,
+  AbsenceReasonAddRoute,
+  AbsenceReasonAddLoader,
+  AbsenceReasonViewEditRoute,
+  AbsenceReasonViewEditLoader,
 } from "./routes/absence/reason";
 import {
   AccountingCodeLoader,
@@ -74,14 +78,7 @@ import {
   OrganizationsLoader,
   OrganizationsRoute,
 } from "./routes/organizations";
-import {
-  PayCodeAddLoader,
-  PayCodeAddRoute,
-  PayCodeLoader,
-  PayCodeRoute,
-  PayCodeViewEditLoader,
-  PayCodeViewEditRoute,
-} from "./routes/pay-code";
+import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
 import {
   PeopleLoader,
   PeopleRoute,
@@ -141,6 +138,12 @@ import {
   VacancyReasonRoute,
 } from "./routes/vacancy-reason";
 import { EdluminTheme } from "./styles/mui-theme";
+import {
+  EmployeeScheduleCalendarViewRoute,
+  EmployeeScheduleLoader,
+  EmployeeScheduleListViewRoute,
+  EmployeeScheduleRoute,
+} from "./routes/employee-schedule";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -192,6 +195,16 @@ export function App() {
                       path={SubPreferencesRoute.path}
                     />
                     <Route component={SubHomeLoader} path={SubHomeRoute.path} />
+
+                    <Route path={EmployeeScheduleCalendarViewRoute.path}>
+                      <EmployeeScheduleLoader view="calendar" />
+                    </Route>
+                    <Route path={EmployeeScheduleListViewRoute.path}>
+                      <EmployeeScheduleLoader view="list" />
+                    </Route>
+                    <Route path={EmployeeScheduleRoute.path}>
+                      <EmployeeScheduleLoader view="list" />
+                    </Route>
                     <Route
                       component={EmployeeHomeLoader}
                       path={EmployeeHomeRoute.path}
@@ -305,17 +318,22 @@ export function App() {
                           component={AccountingCodeLoader}
                           path={AccountingCodeRoute.path}
                         />
-                        <Route
-                          component={PayCodeAddLoader}
-                          path={PayCodeAddRoute.path}
-                        />
-                        <Route
-                          component={PayCodeViewEditLoader}
-                          path={PayCodeViewEditRoute.path}
-                        />
+
                         <Route
                           component={PayCodeLoader}
                           path={PayCodeRoute.path}
+                        />
+                        <Route
+                          component={AbsenceReasonAddLoader}
+                          path={AbsenceReasonAddRoute.path}
+                        />
+                        <Route
+                          component={AbsenceReasonViewEditLoader}
+                          path={AbsenceReasonViewEditRoute.path}
+                        />
+                        <Route
+                          component={AbsenceReasonLoader}
+                          path={AbsenceReasonRoute.path}
                         />
                         <Route
                           component={ContractsLoader}

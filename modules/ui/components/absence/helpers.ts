@@ -8,6 +8,7 @@ import {
 import { groupBy, differenceWith, uniqWith } from "lodash-es";
 import { isAfter, isWithinInterval, format } from "date-fns";
 import { convertStringToDate } from "helpers/date";
+import { TFunction } from "i18next";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -30,6 +31,31 @@ export const dayPartToLabel = (dayPart: DayPart): string => {
     default:
       return "Other";
   }
+};
+
+export const dayPartToTimesLabel = (dayPart: DayPart, times: ScheduleTimes) => {
+  switch (dayPart) {
+    case DayPart.FullDay:
+      return `(${times.startTime} - ${times.endTime})`;
+    case DayPart.HalfDayMorning:
+      return `(${times.startTime} - ${times.halfDayMorningEnd})`;
+    case DayPart.HalfDayAfternoon:
+      return `(${times.halfDayAfternoonStart} - ${times.endTime})`;
+    case DayPart.Hourly:
+    case DayPart.QuarterDayEarlyMorning:
+    case DayPart.QuarterDayLateMorning:
+    case DayPart.QuarterDayEarlyAfternoon:
+    case DayPart.QuarterDayLateAfternoon:
+    default:
+      return "";
+  }
+};
+
+export type ScheduleTimes = {
+  startTime: string;
+  halfDayMorningEnd: string;
+  halfDayAfternoonStart: string;
+  endTime: string;
 };
 
 export type ReplacementEmployeeForVacancy = {
@@ -393,4 +419,23 @@ const convertVacancyDetailsToDetailsItem = (
     d => d !== undefined
   ) as DetailsItemByDate<VacancyDetailsItem>[];
   return populatedItems;
+};
+
+export const TranslateAbsenceErrorCodeToMessage = (
+  errorCode: string,
+  t: TFunction
+) => {
+  switch (errorCode) {
+    case "OverlappingDetails":
+      return t("Absence times cannot overlap.");
+    case "NegativeBalances":
+      return t("The balance for this absence reason is now below zero.");
+    case "AbsenceStartsBeforeWorkday":
+      return t("Absence starts before the scheduled start time.");
+    case "AbsenceEndsAfterWorkday":
+      return t("Absence ends after the scheduled end time.");
+    default:
+      console.log(`Absence Error Code unhandled: ${errorCode}`);
+      return undefined;
+  }
 };

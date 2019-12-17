@@ -18,6 +18,7 @@ import {
   DayPart,
   NeedsReplacement,
   Vacancy,
+  Absence,
 } from "graphql/server-types.gen";
 import {
   AbsenceReasonUsageData,
@@ -46,6 +47,9 @@ import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { AssignSub } from "../create-absence/assign-sub";
+import { useDialog } from "hooks/use-dialog";
+import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
+import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
 
 type Props = {
   firstName: string;
@@ -69,6 +73,8 @@ type Props = {
   absenceDetailsIdsByDate: Record<string, string>;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
+  startTimeLocal: string;
+  endTimeLocal: string;
 };
 
 type EditAbsenceFormData = {
@@ -97,17 +103,15 @@ type EditAbsenceFormData = {
 
 export const EditAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const classes = useStyles();
+  const { openDialog } = useDialog();
+  const { openSnackbar } = useSnackbar();
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
 
   const [customizedVacancyDetails, setVacanciesInput] = useState<
     VacancyDetail[]
   >();
-
-  const [updateAbsence] = useMutationBundle(UpdateAbsence, {});
-  const { openSnackbar } = useSnackbar();
-
-  const classes = useStyles();
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -125,6 +129,14 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       // @ts-ignore
       props.initialVacancies[0]?.details[0]?.accountingCodeAllocations[0]?.accountingCode?.id?.toString() ??
       undefined,
+    hourlyStartTime:
+      props.dayPart === DayPart.Hourly
+        ? parseISO(props.startTimeLocal)
+        : undefined,
+    hourlyEndTime:
+      props.dayPart === DayPart.Hourly
+        ? parseISO(props.endTimeLocal)
+        : undefined,
   };
 
   const {
@@ -170,6 +182,19 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   register({ name: "accountingCode", type: "custom" });
   register({ name: "payCode", type: "custom" });
 
+  const [updateAbsence] = useMutationBundle(UpdateAbsence, {
+    onError: error => {
+      ShowIgnoreAndContinueOrError(
+        error,
+        openDialog,
+        t("There was an issue updating the absence"),
+        async () => await update(formValues, true),
+        t,
+        TranslateAbsenceErrorCodeToMessage
+      );
+    },
+  });
+
   const useProjectedInformation =
     customizedVacancyDetails ||
     !isSameDay(parseISO(props.startDate), formValues.startDate) ||
@@ -206,7 +231,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         Number(state.employeeId),
         Number(props.positionId),
         disabledDates,
-        { ...state, organizationId: props.organizationId },
+        state.needsReplacement,
         customizedVacancyDetails
       ),
     [
@@ -225,7 +250,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
-      absence: projectedVacanciesInput!,
+      absence: {
+        ...projectedVacanciesInput!,
+        ignoreWarnings: true,
+      },
       ignoreAbsenceId: Number(props.absenceId),
     },
     skip: !useProjectedInformation || projectedVacanciesInput === null,
@@ -234,7 +262,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
-      absence: projectedVacanciesInput!,
+      absence: {
+        ...projectedVacanciesInput!,
+        ignoreWarnings: true,
+      },
       ignoreAbsenceId: Number(props.absenceId),
     },
     skip: !useProjectedInformation || projectedVacanciesInput === null,
@@ -290,6 +321,42 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     (useProjectedInformation && projectedVacancyDetails) ||
     props.initialVacancyDetails;
 
+  const update = async (
+    data: EditAbsenceFormData,
+    ignoreWarnings?: boolean
+  ) => {
+    let absenceUpdateInput = buildAbsenceUpdateInput(
+      props.absenceId,
+      props.positionId,
+      props.rowVersion,
+      props.absenceDetailsIdsByDate,
+      data,
+      disabledDates,
+      state,
+      theVacancyDetails
+    );
+
+    if (ignoreWarnings) {
+      absenceUpdateInput = {
+        ...absenceUpdateInput,
+        ignoreWarnings: true,
+      };
+    }
+
+    const result = await updateAbsence({
+      variables: { absence: absenceUpdateInput },
+    });
+    const absence = result?.data?.absence?.update as Absence;
+    if (absence) {
+      openSnackbar({
+        message: t("The absence has been updated"),
+        dismissable: true,
+        status: "success",
+        autoHideDuration: 5000,
+      });
+    }
+  };
+
   return (
     <>
       <PageTitle title={t("Edit Absence")} withoutHeading />
@@ -297,23 +364,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       {step === "absence" && (
         <form
           onSubmit={handleSubmit(async data => {
-            const absenceUpdateInput = buildAbsenceUpdateInput(
-              props.absenceId,
-              props.positionId,
-              props.rowVersion,
-              props.absenceDetailsIdsByDate,
-              data,
-              disabledDates,
-              state,
-              theVacancyDetails
-            );
-            await updateAbsence({ variables: { absence: absenceUpdateInput } });
-            openSnackbar({
-              message: t("The absence has been updated"),
-              dismissable: true,
-              status: "success",
-              autoHideDuration: 5000,
-            });
+            await update(data);
           })}
         >
           <div className={classes.titleContainer}>
@@ -343,6 +394,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               needsReplacement={props.needsReplacement}
               wantsReplacement={state.needsReplacement}
               organizationId={props.organizationId}
+              employeeId={props.employeeId}
               onSwitchMonth={d => dispatch({ action: "switchMonth", month: d })}
               onSubstituteWantedChange={subWanted =>
                 dispatch({ action: "setNeedsReplacement", to: subWanted })
@@ -369,6 +421,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           details={theVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
+          setStep={setStep}
         />
       )}
       {step === "preAssignSub" && (

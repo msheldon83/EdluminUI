@@ -4,19 +4,17 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import { PayCodeAddRoute } from "ui/routes/pay-code";
+import { AbsenceReasonRoute } from "ui/routes/absence/reason";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
 
-type Props = {};
-
-export const PayCodeAddPage: React.FC<Props> = props => {
+export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
-  const params = useRouteParams(PayCodeAddRoute);
+  const params = useRouteParams(AbsenceReasonRoute);
 
   const [triggerError, setTriggerError] = React.useState(false);
 
@@ -26,7 +24,7 @@ export const PayCodeAddPage: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle title={`${params.organizationId} ${t("Add pay code")}`} />
+      <PageTitle title={`${params.organizationId} ${t("Schools")}`} />
       {__DEV__ && (
         <Button
           variant="contained"
