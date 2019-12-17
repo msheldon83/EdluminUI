@@ -46,6 +46,7 @@ import { projectVacancyDetails } from "./project-vacancy-details";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { useDialog } from "hooks/use-dialog";
 import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   firstName: string;
@@ -394,7 +395,7 @@ export const buildAbsenceCreateInput = (
   organizationId: number,
   employeeId: number,
   positionId: number,
-  disabledDates: Date[],
+  disabledDates: DisabledDate[],
   needsReplacement: boolean,
   vacancyDetails?: VacancyDetail[]
 ): AbsenceCreateInput | null => {
@@ -441,7 +442,7 @@ export const buildAbsenceCreateInput = (
   });
 
   // Filter out disabled dates
-  dates = differenceWith(dates, disabledDates, (a, b) => isEqual(a, b));
+  dates = differenceWith(dates, disabledDates, (a, b) => isEqual(a, b.date));
 
   if (!dates.length) {
     return null;

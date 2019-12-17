@@ -24,12 +24,13 @@ import { useState } from "react";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useMutationBundle } from "graphql/hooks";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   orgId: string;
   absence: Absence | undefined;
   isConfirmation?: boolean;
-  disabledDates: Date[];
+  disabledDates: DisabledDate[];
   isAdmin: boolean;
 };
 
@@ -110,7 +111,7 @@ export const View: React.FC<Props> = props => {
                 endDate={new Date(`${absence.endDate} 00:00`)}
                 range={true}
                 disableDays={true}
-                disabledDates={props.disabledDates}
+                disabledDates={props.disabledDates.map(d => d.date)}
               />
             </div>
 

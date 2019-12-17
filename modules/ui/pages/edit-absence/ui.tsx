@@ -50,6 +50,7 @@ import { AssignSub } from "../create-absence/assign-sub";
 import { useDialog } from "hooks/use-dialog";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   firstName: string;
@@ -216,11 +217,11 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     const end = parseISO(props.endDate);
     const absenceDays = eachDayOfInterval({ start, end });
     const remaining = differenceWith(
-      disabledDatesQuery,
+      disabledDatesQuery.map(d => d.date),
       absenceDays,
       isSameDay
     );
-    return remaining;
+    return disabledDatesQuery.filter(d => remaining.find(r => r === d.date));
   }, [disabledDatesQuery, props.startDate, props.endDate]);
 
   const projectedVacanciesInput = useMemo(
@@ -455,7 +456,7 @@ const buildAbsenceUpdateInput = (
   rowVersion: string,
   absenceDetailsIdsByDate: Record<string, string>,
   formValues: EditAbsenceFormData,
-  disabledDates: Date[],
+  disabledDates: DisabledDate[],
   state: EditAbsenceState,
   vacancyDetails: VacancyDetail[]
 ): AbsenceUpdateInput => {
@@ -491,7 +492,7 @@ const buildAbsenceUpdateInput = (
   const dates = differenceWith(
     eachDayOfInterval({ start: startDate, end: endDate }),
     disabledDates,
-    (a, b) => isEqual(a, b)
+    (a, b) => isEqual(a, b.date)
   );
 
   const vDetails =

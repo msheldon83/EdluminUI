@@ -12,6 +12,7 @@ import {
   Vacancy,
 } from "graphql/server-types.gen";
 import { Route } from "react-router";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 export default {
   title: "Pages/Create Absence/Confirmation",
@@ -295,15 +296,15 @@ const getAbsence = (
   return absence;
 };
 
-const disabledDates = [
-  new Date("2019-11-2 00:00"),
-  new Date("2019-11-9 00:00"),
-  new Date("2019-11-16 00:00"),
-  new Date("2019-11-30 00:00"),
-  new Date("2019-11-5 00:00"),
-  new Date("2019-11-15 00:00"),
-  new Date("2019-11-23 00:00"),
-  new Date("2019-11-24 00:00"),
+const disabledDates: DisabledDate[] = [
+  { date: new Date("2019-11-2 00:00"), type: "nonWorkDay" },
+  { date: new Date("2019-11-9 00:00"), type: "nonWorkDay" },
+  { date: new Date("2019-11-16 00:00"), type: "nonWorkDay" },
+  { date: new Date("2019-11-30 00:00"), type: "nonWorkDay" },
+  { date: new Date("2019-11-5 00:00"), type: "absence" },
+  { date: new Date("2019-11-15 00:00"), type: "absence" },
+  { date: new Date("2019-11-23 00:00"), type: "nonWorkDay" },
+  { date: new Date("2019-11-24 00:00"), type: "nonWorkDay" },
 ];
 
 export const AsAdminWithAllInformation = () => {
