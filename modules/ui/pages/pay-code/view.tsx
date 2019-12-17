@@ -12,7 +12,7 @@ import { PayCodeRoute, PayCodeViewEditRoute } from "ui/routes/pay-code";
 import { GetPayCodeById } from "ui/pages/pay-code/graphql/get-pay-code.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { SectionHeader } from "ui/components/section-header";
-import { Grid, Typography } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import * as yup from "yup";
 import { DeletePayCode } from "./graphql/delete-pay-code.gen";
 import { UpdatePayCode } from "./graphql/update-pay-code.gen";

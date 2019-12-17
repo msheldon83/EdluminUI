@@ -66,6 +66,10 @@ export const PayCode: React.FC<Props> = props => {
             payCode.externalId && payCode.externalId.trim().length === 0
               ? null
               : payCode.externalId,
+          description:
+            payCode.description && payCode.description.trim().length === 0
+              ? null
+              : payCode.description,
         },
       },
     });
@@ -76,11 +80,16 @@ export const PayCode: React.FC<Props> = props => {
     const result = await updatePayCode({
       variables: {
         payCode: {
-          ...payCode,
+          id: Number(payCode.id),
+          rowVersion: payCode.rowVersion,
           externalId:
             payCode.externalId && payCode.externalId.trim().length === 0
               ? null
               : payCode.externalId,
+          description:
+            payCode.description && payCode.description.trim().length === 0
+              ? null
+              : payCode.description,
         },
       },
     });
@@ -140,13 +149,13 @@ export const PayCode: React.FC<Props> = props => {
           <PageTitle title={t("Pay Codes")} />
         </Grid>
         <Grid item>
-          {/* <Button
+          <Button
             variant="contained"
             component={Link}
             to={PayCodeAddRoute.generate(params)}
           >
             {t("Add Pay Code")}
-          </Button> */}
+          </Button>
         </Grid>
       </Grid>
       <EditableTable
@@ -158,7 +167,7 @@ export const PayCode: React.FC<Props> = props => {
             ...payCode,
             name: newData.name,
             externalId: newData.externalId,
-            description: newData.description ? "" : null,
+            description: newData.description,
           };
           await create(newPayCode);
         }}
@@ -168,7 +177,7 @@ export const PayCode: React.FC<Props> = props => {
             rowVersion: newData.rowVersion,
             name: newData.name,
             externalId: newData.externalId,
-            description: newData.description ? "" : null,
+            description: newData.description,
           };
           await update(updatePayCode);
         }}
