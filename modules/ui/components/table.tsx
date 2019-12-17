@@ -129,8 +129,6 @@ export function Table<T extends object>(props: TableProps<T>) {
   const styleAlternatingRows = props.backgroundFillForAlternatingRows;
 
   const CheckForEditableAndIncludeExpiredAndReturnDisplay = (props: any) => {
-    console.log(props);
-
     if (tableIsEditable) {
       return (
         <>

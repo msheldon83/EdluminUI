@@ -149,7 +149,7 @@ export const PayCode: React.FC<Props> = props => {
             description: newData.description,
           };
           await create(newPayCode);
-          //refetch Table Query
+          getPayCodes.refetch();
         }}
         onRowUpdate={async newData => {
           const updatePayCode = {
@@ -163,7 +163,7 @@ export const PayCode: React.FC<Props> = props => {
         }}
         onRowDelete={async oldData => {
           await deletePayCode(String(oldData.id));
-          //refetch Table Query
+          getPayCodes.refetch();
         }}
         options={{
           search: true,
