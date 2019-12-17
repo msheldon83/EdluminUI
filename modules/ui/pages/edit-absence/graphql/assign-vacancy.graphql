@@ -2,6 +2,7 @@ mutation AssignVacancy ($assignment: CreateVacancyAssignmentInput!) {
   vacancy {
     assignVacancy(vacancyAssignment: $assignment) {
       id
+      rowVersion
       employee {
 	id
 	firstName

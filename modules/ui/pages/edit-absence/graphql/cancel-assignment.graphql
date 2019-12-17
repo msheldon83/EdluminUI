@@ -3,6 +3,7 @@ mutation CancelAssignment($assignment: CancelVacancyAssignmentInput!) {
     cancelAssignment(cancelRequest: $assignment) {
       id
       rowVersion
+      cancelledAtUtc
     }
   }
 }

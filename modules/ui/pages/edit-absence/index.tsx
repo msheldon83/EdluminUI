@@ -1,7 +1,7 @@
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { NeedsReplacement } from "graphql/server-types.gen";
 import { AbsenceReasonUsageData } from "helpers/absence/computeAbsenceUsageText";
-import { compact, flatMap, isNil } from "lodash-es";
+import { compact, flatMap, isNil, uniqBy } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import { useIsAdmin } from "reference-data/is-admin";
@@ -42,8 +42,26 @@ export const EditAbsence: React.FC<Props> = props => {
   }, [employeeInfo]);
 
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
-  const cancelAssignments = React.useCallback(() => {
-    console.log("cancel assignments");
+  const cancelAssignments = React.useCallback(async () => {
+    if (absence.state !== "DONE") return;
+    const assignments = uniqBy(
+      compact(
+        flatMap(absence.data.absence?.byId?.vacancies, v =>
+          v?.details?.map(vd => vd?.assignment)
+        )
+      ),
+      "id"
+    );
+    await Promise.all(
+      assignments.map(a =>
+        cancelAssignment({
+          variables: {
+            assignment: { id: Number(a.id), rowVersion: a.rowVersion },
+          },
+        })
+      )
+    );
+    await absence.refetch();
   }, [absence, cancelAssignment]);
 
   const initialVacancyDetails: VacancyDetail[] = useMemo(() => {
@@ -67,7 +85,7 @@ export const EditAbsence: React.FC<Props> = props => {
     );
   }, [absence]);
 
-  if (absence.state !== "DONE") {
+  if (absence.state !== "DONE" && absence.state !== "UPDATING") {
     return <></>;
   }
   if (userIsAdmin === null) return <></>;
