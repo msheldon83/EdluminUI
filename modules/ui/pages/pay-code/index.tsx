@@ -14,7 +14,7 @@ import {
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { CreatePayCode } from "./graphql/create.gen";
-import { PayCodeViewEditRoute } from "ui/routes/pay-code";
+import { PayCodeIndexRoute } from "ui/routes/pay-code";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllPayCodesWithinOrg } from "ui/pages/pay-code/graphql/get-pay-codes.gen";
 import { UpdatePayCode } from "./graphql/update-pay-code.gen";
@@ -29,7 +29,7 @@ export const PayCode: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const [createPayCode] = useMutationBundle(CreatePayCode);
   const [updatePayCode] = useMutationBundle(UpdatePayCode);
-  const params = useRouteParams(PayCodeViewEditRoute);
+  const params = useRouteParams(PayCodeIndexRoute);
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
   const getPayCodes = useQueryBundle(GetAllPayCodesWithinOrg, {

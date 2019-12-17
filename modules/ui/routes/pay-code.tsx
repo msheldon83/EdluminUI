@@ -13,34 +13,6 @@ export const PayCodeLoader = asyncComponent({
 });
 
 // View/Edit
-export const PayCodeViewRoute = defineSubRoute(PayCodeRoute, "/:payCodeId", [
+export const PayCodeIndexRoute = defineSubRoute(PayCodeRoute, "/:payCodeId", [
   "payCodeId",
 ]);
-
-// Add
-export const PayCodeAddRoute = defineSubRoute(PayCodeRoute, "/add", []);
-
-export const PayCodeAddLoader = asyncComponent({
-  resolve: async () => {
-    const PayCodeAddPage = (await import("ui/pages/pay-code/add"))
-      .PayCodeAddPage;
-    return PayCodeAddPage;
-  },
-  name: "PayCodeAddPage",
-});
-
-// Edit Settings
-export const PayCodeViewEditRoute = defineSubRoute(
-  PayCodeViewRoute,
-  "/view",
-  []
-);
-
-export const PayCodeViewEditLoader = asyncComponent({
-  resolve: async () => {
-    const PayCodeViewEditPage = (await import("ui/pages/pay-code/view"))
-      .PayCodeViewEditPage;
-    return PayCodeViewEditPage;
-  },
-  name: "PayCodeViewEditPage",
-});
