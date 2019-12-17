@@ -1,0 +1,14 @@
+mutation CreateAccountingCode($accountingCode: AccountingCodeCreateInput!) {
+  orgRef_AccountingCode {
+    create(accountingCode: $accountingCode) {
+      id
+      name
+      rowVersion
+      externalId
+      location {
+        id
+        name
+      }
+    }
+  }
+}

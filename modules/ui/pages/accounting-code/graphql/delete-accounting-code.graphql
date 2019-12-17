@@ -1,0 +1,5 @@
+mutation DeleteAccountingCode($accountingCodeId: Int!) {
+  orgRef_AccountingCode {
+    delete(accountingCodeId: $accountingCodeId)
+  }
+}
