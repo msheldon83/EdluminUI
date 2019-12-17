@@ -130,6 +130,8 @@ export const EditAbsence: React.FC<Props> = props => {
       replacementEmployeeId={replacementEmployeeId}
       replacementEmployeeName={replacementEmployeeName}
       actingAsEmployee={props.actingAsEmployee}
+      startTimeLocal={data.startTimeLocal}
+      endTimeLocal={data.endTimeLocal}
     />
   );
 };
