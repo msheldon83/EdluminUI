@@ -1,0 +1,27 @@
+query GetEmployeeReplacementCriteria($id: ID!) {
+  replacementCriteria {
+    replacementCriteriaByEmployee(id: $id) {
+      id
+      positionId
+      positionTypeId
+      replacementCriterion {
+        id
+        replacementCriteriaId
+        endorsementId
+        endorsement {
+          id
+          name
+          expires
+        }
+      }
+      replacementCriteriaConfig {
+        id
+        name
+        requiredUntilLeadTimeMinutesRemain
+        requiredUntilLeadTimePercentRemain
+        requiredUntilNCandidateRemain
+        includeMatchingCandidates
+      }
+    }
+  }
+}
