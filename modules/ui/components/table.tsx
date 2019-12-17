@@ -118,6 +118,40 @@ export function Table<T extends object>(props: TableProps<T>) {
   const onIncludeExpiredChangeFunc = props.onIncludeExpiredChange;
   const expiredRowCheckFunc = props.expiredRowCheck;
   const styleAlternatingRows = props.backgroundFillForAlternatingRows;
+
+  const CheckForEditableAndIncludeExpiredAndReturnDisplay = () => {
+    if (props.editable) {
+      return null;
+    } else {
+      return (
+        showIncludeExpiredSetting && (
+          <Grid container justify="flex-end">
+            <Grid item>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={includeExpired}
+                    onChange={async e => {
+                      setIncludeExpired(e.target.checked);
+                      if (onIncludeExpiredChangeFunc) {
+                        onIncludeExpiredChangeFunc(e.target.checked);
+                      }
+                    }}
+                    value={includeExpired}
+                    color="primary"
+                  />
+                }
+                label={
+                  <Typography variant="h6">{t("Include inactive")}</Typography>
+                }
+              />
+            </Grid>
+          </Grid>
+        )
+      );
+    }
+  };
+
   return (
     <MaterialTable
       icons={tableIcons}
@@ -160,36 +194,7 @@ export function Table<T extends object>(props: TableProps<T>) {
         Toolbar: props => (
           <>
             <div className={classes.tableTitle}>{props.title}</div>
-            {() => {
-              if (!props.isEditable) {
-                showIncludeExpiredSetting && (
-                  <Grid container justify="flex-end">
-                    <Grid item>
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={includeExpired}
-                            onChange={async e => {
-                              setIncludeExpired(e.target.checked);
-                              if (onIncludeExpiredChangeFunc) {
-                                onIncludeExpiredChangeFunc(e.target.checked);
-                              }
-                            }}
-                            value={includeExpired}
-                            color="primary"
-                          />
-                        }
-                        label={
-                          <Typography variant="h6">
-                            {t("Include inactive")}
-                          </Typography>
-                        }
-                      />
-                    </Grid>
-                  </Grid>
-                );
-              }
-            }}
+            {CheckForEditableAndIncludeExpiredAndReturnDisplay()}
           </>
         ),
       }}
