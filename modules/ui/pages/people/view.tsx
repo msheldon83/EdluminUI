@@ -184,8 +184,8 @@ export const PersonViewPage: React.FC<{}> = props => {
             <RemainingBalances
               employeeId={orgUser?.id}
               title={t("Time off balances")}
-              showEdit={true}
-              editing={editing}
+              showEdit={false} // TODO: Set to true when we have an edit page
+              editing={editing} 
               setEditing={setEditing}
             />
             <SubstitutePreferences editing={editing} setEditing={setEditing} />

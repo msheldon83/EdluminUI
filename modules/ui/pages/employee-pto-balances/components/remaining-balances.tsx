@@ -54,6 +54,10 @@ export const RemainingBalances: React.FC<Props> = props => {
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Loading")}</Typography>
             </Grid>
+          ) : balances.length === 0 ? (
+            <Grid item xs={12} sm={6} lg={6}>
+              <Typography variant="h6">{t("No balance defined")}</Typography>
+            </Grid>
           ) : (
             <>
               <Grid item xs={12}>
@@ -76,27 +80,23 @@ export const RemainingBalances: React.FC<Props> = props => {
                   </Grid>
                 </Grid>
               </Grid>
-              {balances.length === 0 ? (
-                <div>{t("No balances defined")}</div>
-              ) : (
-                balances.map((balance, index) => (
-                  <Grid item xs={12} key={index}>
-                    <SingleBalance
-                      key={index}
-                      name={balance?.absenceReason?.name ?? ""}
-                      initialBalance={balance?.initialBalance ?? 0}
-                      usedBalance={balance?.usedBalance ?? 0}
-                      plannedBalance={0}
-                      remainingBalance={balance?.unusedBalance ?? 0}
-                      trackingType={
-                        balance?.absenceReasonTrackingTypeId ??
-                        ("DAILY" as AbsenceReasonTrackingTypeId)
-                      }
-                      shadeRow={index % 2 != 0}
-                    />
-                  </Grid>
-                ))
-              )}
+              {balances.map((balance, index) => (
+                <Grid item xs={12} key={index}>
+                  <SingleBalance
+                    key={index}
+                    name={balance?.absenceReason?.name ?? ""}
+                    initialBalance={balance?.initialBalance ?? 0}
+                    usedBalance={balance?.usedBalance ?? 0}
+                    plannedBalance={0}
+                    remainingBalance={balance?.unusedBalance ?? 0}
+                    trackingType={
+                      balance?.absenceReasonTrackingTypeId ??
+                      ("DAILY" as AbsenceReasonTrackingTypeId)
+                    }
+                    shadeRow={index % 2 != 0}
+                  />
+                </Grid>
+              ))}
             </>
           )}
         </Grid>

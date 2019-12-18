@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, makeStyles, LinearProgress } from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 import clsx from "clsx";
@@ -140,7 +140,7 @@ export const useStyles = makeStyles(theme => ({
   },
   barPlannedNegative: {
     height: theme.typography.pxToRem(14),
-    backgroundColor: "#E16B6B",
+    backgroundColor: "#E16B6B", // TODO: Confirm with UX that this is the appropriate color
     width: (props: Props) =>
       props.usedBalance === 0
         ? "100%"
