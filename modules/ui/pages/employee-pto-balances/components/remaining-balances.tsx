@@ -49,29 +49,31 @@ export const RemainingBalances: React.FC<Props> = props => {
             },
           }}
         />
-        <Grid container spacing={2}>
+        <Grid container spacing={2} className={classes.container}>
           {getAbsenceReasonBalances.state === "LOADING" ? (
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Loading")}</Typography>
             </Grid>
           ) : (
             <>
-              <Grid
-                container
-                justify="space-between"
-                alignItems="center"
-                spacing={2}
-                className={classes.shadedRow}
-              >
-                <Grid item xs={8}></Grid>
-                <Grid item xs={1}>
-                  <div>{t("Used")}</div>
-                </Grid>
-                <Grid item xs={1}>
-                  <div>{t("Planned")}</div>
-                </Grid>
-                <Grid item xs={1}>
-                  <div>{t("Remaining")}</div>
+              <Grid item xs={12}>
+                <Grid
+                  container
+                  justify="space-between"
+                  alignItems="center"
+                  spacing={2}
+                  className={classes.shadedRow}
+                >
+                  <Grid item xs={8}></Grid>
+                  <Grid item xs={1}>
+                    <div>{t("Used")}</div>
+                  </Grid>
+                  <Grid item xs={1}>
+                    <div>{t("Planned")}</div>
+                  </Grid>
+                  <Grid item xs={1}>
+                    <div>{t("Remaining")}</div>
+                  </Grid>
                 </Grid>
               </Grid>
               {balances.length === 0 ? (
@@ -107,7 +109,7 @@ const useStyles = makeStyles(theme => ({
   shadedRow: {
     background: theme.customColors.lightGray,
   },
-  header: {
-    marginBottom: theme.spacing(2),
+  container: {
+    border: `1px solid ${theme.customColors.lightGray}`,
   },
 }));

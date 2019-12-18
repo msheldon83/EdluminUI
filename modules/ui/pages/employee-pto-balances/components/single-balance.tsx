@@ -17,7 +17,8 @@ type Props = {
 export const SingleBalance: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles(props);
-  const balanceTrackingType = props.trackingType === "DAILY" ? "Days" : "Hours";
+  const balanceTrackingType =
+    props.trackingType === "DAILY" ? t("Days") : t("Hours");
 
   const usedPercentage = props.usedBalance / props.initialBalance;
   const plannedPercentage = props.plannedBalance / props.initialBalance;
