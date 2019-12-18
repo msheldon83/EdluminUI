@@ -3,7 +3,7 @@ import { Typography } from "@material-ui/core";
 import { Vacancy } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { getAbsenceDateRangeDisplayText } from "./date-helpers";
-import { parseISO } from "date-fns";
+import { convertStringToDate } from "helpers/date";
 
 type Props = {
   positionName?: string | null;
@@ -26,9 +26,10 @@ export const VacancySummaryHeader: React.FC<Props> = props => {
     totalVacancyDays > 1
       ? `${totalVacancyDays} days`
       : `${totalVacancyDays} day`;
+
   let headerText = getAbsenceDateRangeDisplayText(
-    parseISO(firstVacancy.startTimeLocal),
-    parseISO(lastVacancy.endTimeLocal),
+    convertStringToDate(firstVacancy.startTimeLocal),
+    convertStringToDate(lastVacancy.endTimeLocal),
     props.disabledDates
   );
   headerText = props.positionName
