@@ -50,6 +50,7 @@ import { AssignSub } from "../create-absence/assign-sub";
 import { useDialog } from "hooks/use-dialog";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   firstName: string;
@@ -59,7 +60,7 @@ type Props = {
   organizationId: string;
   needsReplacement: NeedsReplacement;
   userIsAdmin: boolean;
-  positionId: string;
+  positionId?: string;
   positionName?: string;
   absenceReasonId: number;
   absenceId: string;
@@ -212,16 +213,16 @@ export const EditAbsenceUI: React.FC<Props> = props => {
      (hopefully this is simply because the absence itself exists)
    */
   const disabledDates = useMemo(() => {
-    const start = parseISO(props.startDate);
-    const end = parseISO(props.endDate);
-    const absenceDays = eachDayOfInterval({ start, end });
+    const absenceDays = Object.keys(props.absenceDetailsIdsByDate).map(d =>
+      parseISO(d)
+    );
     const remaining = differenceWith(
-      disabledDatesQuery,
+      disabledDatesQuery.map(d => d.date),
       absenceDays,
       isSameDay
     );
-    return remaining;
-  }, [disabledDatesQuery, props.startDate, props.endDate]);
+    return disabledDatesQuery.filter(d => remaining.find(r => r === d.date));
+  }, [disabledDatesQuery, props.absenceDetailsIdsByDate]);
 
   const projectedVacanciesInput = useMemo(
     () =>
@@ -327,7 +328,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   ) => {
     let absenceUpdateInput = buildAbsenceUpdateInput(
       props.absenceId,
-      props.positionId,
+      Number(props.positionId),
       props.rowVersion,
       props.absenceDetailsIdsByDate,
       data,
@@ -422,6 +423,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
           setStep={setStep}
+          disabledDates={disabledDates}
         />
       )}
       {step === "preAssignSub" && (
@@ -436,6 +438,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           positionName={props.positionName}
           setStep={setStep}
           setValue={setValue}
+          disabledDates={disabledDates}
         />
       )}
     </>
@@ -451,11 +454,11 @@ const initialState = (props: Props): EditAbsenceState => ({
 
 const buildAbsenceUpdateInput = (
   absenceId: string,
-  positionId: string,
+  positionId: number,
   rowVersion: string,
   absenceDetailsIdsByDate: Record<string, string>,
   formValues: EditAbsenceFormData,
-  disabledDates: Date[],
+  disabledDates: DisabledDate[],
   state: EditAbsenceState,
   vacancyDetails: VacancyDetail[]
 ): AbsenceUpdateInput => {
@@ -491,7 +494,7 @@ const buildAbsenceUpdateInput = (
   const dates = differenceWith(
     eachDayOfInterval({ start: startDate, end: endDate }),
     disabledDates,
-    (a, b) => isEqual(a, b)
+    (a, b) => isEqual(a, b.date)
   );
 
   const vDetails =

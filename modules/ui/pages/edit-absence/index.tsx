@@ -10,6 +10,7 @@ import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { VacancyDetail } from "../../components/absence/types";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { EditAbsenceUI } from "./ui";
+import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
 
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 
@@ -23,6 +24,21 @@ export const EditAbsence: React.FC<Props> = props => {
       id: params.absenceId,
     },
   });
+  const employeeInfo = useQueryBundle(GetEmployee, {
+    variables: {
+      employeeId:
+        absence.state === "DONE" && absence.data.absence?.byId?.employeeId
+          ? absence.data.absence?.byId?.employeeId
+          : "0",
+    },
+    skip: absence.state !== "DONE",
+  });
+
+  const employee = useMemo(() => {
+    if (employeeInfo.state === "DONE") {
+      return employeeInfo.data.employee?.byId;
+    }
+  }, [employeeInfo]);
 
   const initialVacancyDetails: VacancyDetail[] = useMemo(() => {
     if (absence.state !== "DONE") {
@@ -54,8 +70,8 @@ export const EditAbsence: React.FC<Props> = props => {
   // @ts-ignore
   const vacancies = compact(data?.vacancies ?? []);
   const vacancy = vacancies[0];
+  const needsSub = !!vacancy;
   const position = vacancy?.position;
-  const employee = data?.employee;
   // @ts-ignore
   const details = data?.details ?? [];
   const detail = details[0];
@@ -100,7 +116,7 @@ export const EditAbsence: React.FC<Props> = props => {
     {}
   );
 
-  if (!data || !vacancy || !position || !employee || !detail || !reasonUsage) {
+  if (!data || !employee || !detail || !reasonUsage) {
     return <></>;
   }
 
@@ -110,10 +126,14 @@ export const EditAbsence: React.FC<Props> = props => {
       lastName={employee.lastName}
       employeeId={employee.id.toString()}
       rowVersion={data.rowVersion}
-      needsReplacement={position.needsReplacement ?? NeedsReplacement.No}
+      needsReplacement={
+        needsSub ? NeedsReplacement.Yes : NeedsReplacement.No
+      }
       userIsAdmin={userIsAdmin}
-      positionId={position.id}
-      positionName={position.name}
+      positionId={
+        position?.id ?? employee.primaryPositionId?.toString() ?? undefined
+      }
+      positionName={position?.name ?? employee.primaryPosition?.name}
       organizationId={data.organization.id}
       absenceReasonId={reasonUsage?.absenceReasonId}
       absenceId={data.id}

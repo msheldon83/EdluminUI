@@ -472,7 +472,7 @@ const getRangeDisplayText = (startDate: string, endDate: string): string => {
   const endDateAsDate = parseISO(endDate);
 
   if (
-    startDateAsDate.getDay() === endDateAsDate.getDay() &&
+    startDateAsDate.getDate() === endDateAsDate.getDate() &&
     startDateAsDate.getMonth() === endDateAsDate.getMonth()
   ) {
     return format(startDateAsDate, "MMM d");

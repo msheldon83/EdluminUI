@@ -8,7 +8,6 @@ import {
 } from "@material-ui/core";
 import { FieldArray, Formik, FormikErrors } from "formik";
 import { useQueryBundle } from "graphql/hooks";
-import { getDateRangeDisplayText } from "helpers/date";
 import { compact, isArray } from "lodash-es";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -18,6 +17,8 @@ import { VacancyDetail } from "../../../components/absence/types";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import * as yup from "yup";
 import { isBefore, parseISO, isValid, areIntervalsOverlapping } from "date-fns";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
+import { getAbsenceDateRangeDisplayText } from "ui/components/absence/date-helpers";
 
 type Props = {
   details: VacancyDetail[];
@@ -28,6 +29,7 @@ type Props = {
   onChangedVacancies: (data: VacancyDetail[]) => void;
   employeeId: string;
   setStep: (s: "absence") => void;
+  disabledDates?: DisabledDate[];
 };
 
 type EditVacancyFormData = {
@@ -170,9 +172,10 @@ export const EditVacancies: React.FC<Props> = props => {
             >
               <Grid item>
                 <Typography variant="h5">
-                  {getDateRangeDisplayText(
+                  {getAbsenceDateRangeDisplayText(
                     parseISO(props.details[0].date),
-                    parseISO(props.details[props.details.length - 1].date)
+                    parseISO(props.details[props.details.length - 1].date),
+                    props.disabledDates
                   )}
                   {props.positionName && ` - ${props.positionName}`}
                 </Typography>

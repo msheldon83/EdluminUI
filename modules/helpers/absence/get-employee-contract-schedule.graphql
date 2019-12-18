@@ -9,7 +9,15 @@ query GetEmployeeContractSchedule($id: ID!, $fromDate: Date!, $toDate: Date!) {
       id
       startDate
       endDate
+      startTimeLocal
       endTimeLocal
+      details {
+        id
+        startDate
+        endDate
+        startTimeLocal
+        endTimeLocal
+      }
     }
   }
 }
