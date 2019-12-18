@@ -44,7 +44,6 @@ import { Padding } from "ui/components/padding";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
 import { FilterList } from "@material-ui/icons";
-import { useScreenSize } from "hooks/index";
 
 type Props = {};
 
@@ -62,7 +61,6 @@ export const SubHome: React.FC<Props> = props => {
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy);
   const [requestVacancyMutation] = useMutationBundle(RequestVacancy);
   const [filters] = useQueryParamIso(FilterQueryParams);
-  const screenSize = useScreenSize();
 
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
     fetchPolicy: "cache-first",
@@ -196,10 +194,10 @@ export const SubHome: React.FC<Props> = props => {
       )}`;
 
   const renderAssignments = () => {
-    const numberOfAssingments = screenSize === "mobile" ? 2 : 3;
+    const numberOfAssignments = isMobile ? 2 : 3;
 
     return assignments
-      .slice(0, numberOfAssingments)
+      .slice(0, numberOfAssignments)
       .map((assignment, index, assignments) => {
         const classNames = clsx({
           [classes.lastAssignmentInList]: index == assignments.length - 1, // last one
