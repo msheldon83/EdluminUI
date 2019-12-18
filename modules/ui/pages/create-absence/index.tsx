@@ -4,8 +4,8 @@ import * as React from "react";
 import { useIsAdmin } from "reference-data/is-admin";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
-import { GetEmployee } from "./graphql/get-employee.gen";
 import { CreateAbsenceUI } from "./ui";
+import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
 
 type Props = {};
 

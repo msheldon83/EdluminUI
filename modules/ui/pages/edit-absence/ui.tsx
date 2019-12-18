@@ -60,7 +60,7 @@ type Props = {
   organizationId: string;
   needsReplacement: NeedsReplacement;
   userIsAdmin: boolean;
-  positionId: string;
+  positionId?: string;
   positionName?: string;
   absenceReasonId: number;
   absenceId: string;
@@ -328,7 +328,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   ) => {
     let absenceUpdateInput = buildAbsenceUpdateInput(
       props.absenceId,
-      props.positionId,
+      Number(props.positionId),
       props.rowVersion,
       props.absenceDetailsIdsByDate,
       data,
@@ -454,7 +454,7 @@ const initialState = (props: Props): EditAbsenceState => ({
 
 const buildAbsenceUpdateInput = (
   absenceId: string,
-  positionId: string,
+  positionId: number,
   rowVersion: string,
   absenceDetailsIdsByDate: Record<string, string>,
   formValues: EditAbsenceFormData,
