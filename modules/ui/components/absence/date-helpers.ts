@@ -22,24 +22,33 @@ export const getAbsenceDateRangeDisplayText = (
   }
 
   const monthFormat = "MMMM";
-  const yearFormat = "yyyy";
   let currentMonth = format(intervals[0].start, monthFormat);
-  let currentYear = format(intervals[0].start, "yyyy");
+  let currentYear = intervals[0].start.getFullYear();
   let overallDateRangeDisplay = `${currentMonth} `;
   intervals.forEach(interval => {
-    if (currentYear !== format(interval.end, yearFormat)) {
+    if (currentYear !== interval.start.getFullYear()) {
+      // New interval crosses over into a new Year from the previous interval
+      overallDateRangeDisplay += ` ${currentYear} - ${format(
+        interval.start,
+        `${monthFormat}`
+      )} `;
+      currentYear = interval.start.getFullYear();
+      currentMonth = format(interval.start, monthFormat);
+    }
+
+    if (currentYear !== interval.end.getFullYear()) {
       // Current interval crosses a year boundary
       overallDateRangeDisplay += `${format(
         interval.start,
-        "d, yyyy"
-      )} - ${format(interval.end, "MMMM d")},`;
-      currentYear = format(interval.end, yearFormat);
+        `d`
+      )}, ${currentYear} - ${format(interval.end, `${monthFormat} d`)},`;
+      currentYear = interval.end.getFullYear();
       currentMonth = format(interval.end, monthFormat);
     } else if (currentMonth !== format(interval.end, monthFormat)) {
       // Current interval crosses a month boundary
       overallDateRangeDisplay += `${format(interval.start, "d")} - ${format(
         interval.end,
-        "MMMM d"
+        `${monthFormat} d`
       )},`;
       currentMonth = format(interval.end, monthFormat);
     } else if (interval.start.getDate() === interval.end.getDate()) {
