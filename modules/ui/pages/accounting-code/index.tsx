@@ -20,6 +20,8 @@ import {
 } from "graphql/server-types.gen";
 import * as Yup from "yup";
 import { useSnackbar } from "hooks/use-snackbar";
+import { useLocations } from "reference-data/locations";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {};
 
@@ -32,15 +34,34 @@ export const AccountingCode: React.FC<Props> = props => {
   const params = useRouteParams(AccountingCodeRoute);
   const { openSnackbar } = useSnackbar();
 
+  const locations = useLocations(params.organizationId);
+  const locationOptions = locations.reduce(
+    (o: any, key: any) => ({ ...o, [key.id]: key.name }),
+    {}
+  );
+
   //Hardcoding includeExpired.  Currently UI does not give option to choose.
   const getAccountingCodes = useQueryBundle(GetAllAccountingCodesWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired: true },
   });
 
-  const [updateAccountingCode] = useMutationBundle(UpdateAccountingCode);
-  const [createAccountingCode] = useMutationBundle(CreateAccountingCode);
+  const [updateAccountingCode] = useMutationBundle(UpdateAccountingCode, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const [createAccountingCode] = useMutationBundle(CreateAccountingCode, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const [deleteAccountingCodeMutation] = useMutationBundle(
-    DeleteAccountingCode
+    DeleteAccountingCode,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
   );
 
   const [accountingCode] = React.useState<AccountingCodeCreateInput>({
@@ -71,6 +92,7 @@ export const AccountingCode: React.FC<Props> = props => {
       searchable: true,
       hidden: isMobile,
       editable: "always",
+      lookup: locationOptions,
     },
   ];
 
@@ -102,6 +124,13 @@ export const AccountingCode: React.FC<Props> = props => {
   const accountingCodes = compact(
     getAccountingCodes?.data?.orgRef_AccountingCode?.all ?? []
   );
+
+  const formattedAccountingCodes = accountingCodes.map(o => ({
+    ...o,
+    location: o.location === null ? { id: "", name: "" } : o.location,
+    externalId: o.externalId?.toString(),
+  }));
+
   const accountingCodesCount = accountingCodes.length;
 
   const editAccountingCode = async (
@@ -128,13 +157,6 @@ export const AccountingCode: React.FC<Props> = props => {
               : accountingCode.locationId,
         },
       },
-    }).catch(err => {
-      openSnackbar({
-        message: <div>{t(err)}</div>,
-        dismissable: true,
-        autoHideDuration: 5000,
-        status: "error",
-      });
     });
   };
 
@@ -154,15 +176,13 @@ export const AccountingCode: React.FC<Props> = props => {
             accountingCode.externalId.trim().length === 0
               ? null
               : accountingCode.externalId,
+          locationId:
+            accountingCode.locationId &&
+            accountingCode.locationId.toString().length === 0
+              ? null
+              : accountingCode.locationId,
         },
       },
-    }).catch(err => {
-      openSnackbar({
-        message: <div>{t(err)}</div>,
-        dismissable: true,
-        autoHideDuration: 5000,
-        status: "error",
-      });
     });
   };
 
@@ -187,25 +207,34 @@ export const AccountingCode: React.FC<Props> = props => {
           <PageTitle title={t("Accounting Codes")} />
         </Grid>
       </Grid>
+
       <EditableTable
         title={`${accountingCodesCount} ${t("Accounting Codes")}`}
         columns={columns}
-        data={accountingCodes}
+        data={formattedAccountingCodes}
         onRowAdd={async newData => {
-          const newAccountingCode = {
+          const newAccountingCode: AccountingCodeCreateInput = {
             ...accountingCode,
             name: newData.name,
             externalId: newData.externalId,
+            locationId:
+              newData.location === null
+                ? undefined
+                : parseInt(newData.location?.id),
           };
           await addAccountingCode(newAccountingCode);
           getAccountingCodes.refetch();
         }}
         onRowUpdate={async newData => {
-          const updateAccountingCode = {
+          const updateAccountingCode: AccountingCodeUpdateInput = {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,
             name: newData.name,
             externalId: newData.externalId,
+            locationId:
+              newData.location === null
+                ? undefined
+                : parseInt(newData.location?.id),
           };
           await editAccountingCode(updateAccountingCode);
         }}
