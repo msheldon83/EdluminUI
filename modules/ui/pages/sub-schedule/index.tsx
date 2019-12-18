@@ -67,7 +67,7 @@ export const SubSchedule: React.FC<Props> = props => {
   return (
     <div className={classes.pageContainer}>
       <div className={props.view === "calendar" ? classes.sticky : ""}>
-        <PageTitle title="My Schedule" />
+        <PageTitle title={t("My Schedule")} />
         {props.view === "calendar" && (
           <Section className={classes.assignments}>
             <NowViewingAssignmentsForDate date={selectedDate} userId={userId} />

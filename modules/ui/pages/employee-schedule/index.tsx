@@ -116,7 +116,7 @@ export const EmployeeSchedule: React.FC<Props> = props => {
       <div className={classes.sticky}>
         <Grid container justify="space-between" alignItems="center">
           <Grid item>
-            <PageTitle title="My Schedule" />
+            <PageTitle title={t("My Schedule")} />
           </Grid>
           <Grid item>
             <Button
