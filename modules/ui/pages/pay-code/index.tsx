@@ -9,7 +9,6 @@ import { compact } from "lodash-es";
 import { EditableTable } from "ui/components/editable-table";
 import { PageTitle } from "ui/components/page-title";
 import {
-  PayCode as PayCodeGQL,
   PayCodeCreateInput,
   PayCodeUpdateInput,
 } from "graphql/server-types.gen";
@@ -184,7 +183,10 @@ export const PayCode: React.FC<Props> = props => {
           const updatePayCode = {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,
-            name: newData.name,
+            name:
+              newData.name && newData.name.trim().length === 0
+                ? null
+                : newData.name,
             externalId: newData.externalId,
             description: newData.description,
           };

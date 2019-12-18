@@ -1,0 +1,17 @@
+query GetAllCalendarChangeReasonsWithinOrg(
+  $orgId: ID
+  $includeExpired: Boolean
+) {
+  orgRef_CalendarChangeReason {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      expired
+      calendarDayTypeId
+      workDayScheduleVariantTypeId
+    }
+  }
+}
