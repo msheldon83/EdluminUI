@@ -43,8 +43,8 @@ import {
   BellScheduleVariantsRoute,
 } from "./routes/bell-schedule-variants";
 import {
-  CalendarEventReasonsLoader,
-  CalendarEventReasonsRoute,
+  CalendarChangeReasonLoader,
+  CalendarChangeReasonRoute,
 } from "./routes/calendar/event-reasons";
 import {
   CalendarPastYearsLoader,
@@ -291,8 +291,8 @@ export function App() {
                           path={GeneralSettingsRoute.path}
                         />
                         <Route
-                          component={CalendarEventReasonsLoader}
-                          path={CalendarEventReasonsRoute.path}
+                          component={CalendarChangeReasonLoader}
+                          path={CalendarChangeReasonRoute.path}
                         />
                         <Route
                           component={ReplacementAttributeLoader}

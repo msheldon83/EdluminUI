@@ -2,24 +2,24 @@ import { asyncComponent } from "ui/async-component";
 import { AdminChromeRoute } from "../app-chrome";
 import { defineSubRoute } from "../definition";
 
-export const CalendarChangeReasonsRoute = defineSubRoute(
+export const CalendarChangeReasonRoute = defineSubRoute(
   AdminChromeRoute,
   "/calendar/event-reasons"
 );
 
-export const CalendarChangeReasonsLoader = asyncComponent({
+export const CalendarChangeReasonLoader = asyncComponent({
   resolve: async () => {
-    const CalendarChangeReasonsPage = (
+    const CalendarChangeReasonPage = (
       await import("ui/pages/calendar-event-reasons/index")
-    ).CalendarChangeReasons;
-    return CalendarChangeReasonsPage;
+    ).CalendarChangeReason;
+    return CalendarChangeReasonPage;
   },
   name: "CalendarEventReasons",
 });
 
 // Index View
-export const CalendarChangeReasonsIndexRoute = defineSubRoute(
-  CalendarChangeReasonsRoute,
+export const CalendarChangeReasonIndexRoute = defineSubRoute(
+  CalendarChangeReasonRoute,
   "/:calendarChangeReasonId",
   ["calendarChangeReasonId"]
 );

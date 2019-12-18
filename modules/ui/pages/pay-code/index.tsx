@@ -20,12 +20,12 @@ import { useRouteParams } from "ui/routes/definition";
 import { GetAllPayCodesWithinOrg } from "ui/pages/pay-code/graphql/get-pay-codes.gen";
 import { UpdatePayCode } from "./graphql/update-pay-code.gen";
 import { DeletePayCode } from "./graphql/delete-pay-code.gen";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {};
 
 export const PayCode: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
   const [createPayCode] = useMutationBundle(CreatePayCode);
@@ -37,7 +37,11 @@ export const PayCode: React.FC<Props> = props => {
   const getPayCodes = useQueryBundle(GetAllPayCodesWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired },
   });
-  const [deletePayCodeMutation] = useMutationBundle(DeletePayCode);
+  const [deletePayCodeMutation] = useMutationBundle(DeletePayCode, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const deletePayCode = (payCodeId: string) => {
     return deletePayCodeMutation({
       variables: {
@@ -152,7 +156,7 @@ export const PayCode: React.FC<Props> = props => {
   const payCodes = compact(getPayCodes?.data?.orgRef_PayCode?.all ?? []);
   const mappedData = payCodes.map(o => ({
     ...o,
-    description: o.description?.toString(),
+    description: o.description === null ? o.description : "", //?.toString(),
     externalId: o.externalId?.toString(),
   }));
   const payCodesCount = payCodes.length;
@@ -188,10 +192,7 @@ export const PayCode: React.FC<Props> = props => {
           const updatePayCode = {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,
-            name:
-              newData.name && newData.name.trim().length === 0
-                ? null
-                : newData.name,
+            name: newData.name,
             externalId: newData.externalId,
             description: newData.description,
           };

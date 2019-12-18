@@ -15,17 +15,17 @@ import {
 import { Column } from "material-table";
 import { useSnackbar } from "hooks/use-snackbar";
 import { CreateCalendarChangeReason } from "./graphql/create.gen";
-import { CalendarChangeReasonsIndexRoute } from "ui/routes/calendar/event-reasons";
+import { CalendarChangeReasonIndexRoute } from "ui/routes/calendar/event-reasons";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllCalendarChangeReasonsWithinOrg } from "ui/pages/calendar-event-reasons/graphql/get-calendar-event-reasons.gen";
 import { UpdateCalendarChangeReason } from "./graphql/update.gen";
 import { DeleteCalendarChangeReason } from "./graphql/delete.gen";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {};
 
-export const CalendarChangeReasons: React.FC<Props> = props => {
+export const CalendarChangeReason: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
   const [createCalendarChangeReasons] = useMutationBundle(
@@ -34,7 +34,7 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
   const [updateCalendarChangeReasons] = useMutationBundle(
     UpdateCalendarChangeReason
   );
-  const params = useRouteParams(CalendarChangeReasonsIndexRoute);
+  const params = useRouteParams(CalendarChangeReasonIndexRoute);
   const { openSnackbar } = useSnackbar();
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
@@ -45,7 +45,12 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
     }
   );
   const [deleteCalendarChangeReasonsMutation] = useMutationBundle(
-    DeleteCalendarChangeReason
+    DeleteCalendarChangeReason,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
   );
   const deleteCalendarChangeReasons = (calendarChangeReasonId: string) => {
     return deleteCalendarChangeReasonsMutation({
@@ -79,7 +84,6 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
   >({
     orgId: Number(params.organizationId),
     name: "",
-    externalId: null,
     description: "",
   });
 
@@ -95,16 +99,11 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
       variables: {
         calendarChangeReason: {
           ...calendarChangeReason,
-          //       externalId:
-          //         calendarChangeReason.externalId &&
-          //         calendarChangeReason.externalId.trim().length === 0
-          //           ? null
-          //           : calendarChangeReason.externalId,
-          //       description:
-          //         calendarChangeReason.description &&
-          //         calendarChangeReason.description.trim().length === 0
-          //           ? null
-          //           : calendarChangeReason.description,
+          description:
+            calendarChangeReason.description &&
+            calendarChangeReason.description.trim().length === 0
+              ? null
+              : calendarChangeReason.description,
         },
       },
     });
@@ -128,11 +127,6 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
             calendarChangeReason.name.trim().length === 0
               ? null
               : calendarChangeReason.name,
-          externalId:
-            calendarChangeReason.externalId &&
-            calendarChangeReason.externalId.trim().length === 0
-              ? null
-              : calendarChangeReason.externalId,
           description:
             calendarChangeReason.description &&
             calendarChangeReason.description.trim().length === 0
@@ -152,19 +146,21 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
       editable: "always",
     },
     {
-      title: t("External Id"),
-      field: "externalId",
-      searchable: true,
-      hidden: isMobile,
-      editable: "always",
-    },
-    {
       title: t("Description"),
       field: "description",
       searchable: true,
       hidden: isMobile,
       editable: "always",
     },
+    {
+      title: t("Day Type"),
+      field: "calendarDayTypeEnum",
+      searchable: true,
+      hidden: isMobile,
+      editable: "always",
+    },
+    //Add enum drop down
+    //Work Day as well
   ];
 
   if (getCalendarChangeReasons.state === "LOADING") {
@@ -197,7 +193,6 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
           const newCalendarChangeReason = {
             ...calendarChangeReason,
             name: newData.name,
-            externalId: newData.externalId,
             description: newData.description,
           };
           await create(newCalendarChangeReason);
@@ -208,7 +203,6 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,
             name: newData.name,
-            externalId: newData.externalId,
             description: newData.description,
           };
           await update(updateCalendarChangeReason);
