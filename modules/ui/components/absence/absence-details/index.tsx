@@ -357,7 +357,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         <div className={classes.notesForApprover}>
           <Typography variant="h6">{t("Notes for administration")}</Typography>
           <Typography className={classes.subText}>
-            n {t("Can be seen by the administrator and the employee.")}
+            {t("Can be seen by the administrator and the employee.")}
           </Typography>
           <Input
             multiline

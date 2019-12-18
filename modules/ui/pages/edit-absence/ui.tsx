@@ -106,7 +106,6 @@ type EditAbsenceFormData = {
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 
 export const EditAbsenceUI: React.FC<Props> = props => {
-  console.log("EditAbsenceUI props", props);
   const { t } = useTranslation();
   const classes = useStyles();
   const { openDialog } = useDialog();
@@ -362,7 +361,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   };
   const onSelectReplacement = useCallback(
     async (employeeId: number, name: string) => {
-      console.log("got", employeeId, name);
       await assignVacancy({
         variables: {
           assignment: {
