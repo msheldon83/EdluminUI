@@ -1,0 +1,19 @@
+query GetAbsenceReasonBalances($id: ID!) {
+  employee {
+    byId(id: $id) {
+      id
+      absenceReasonBalances {
+        id
+        absenceReason {
+          id
+          name
+        }
+        initialBalance
+        usedBalance
+        unusedBalance
+        schoolYearId
+        absenceReasonTrackingTypeId
+      }
+    }
+  }
+}

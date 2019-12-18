@@ -8,6 +8,7 @@ import {
 } from "ui/routes/app-chrome";
 import { defineSubRoute, useRouteParams } from "ui/routes/definition";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
+import { EmployeePtoBalanceRoute } from "ui/routes/employee-pto-balances";
 import { OrganizationsRoute } from "ui/routes/organizations";
 import { PeopleRoute } from "ui/routes/people";
 import { SubHomeRoute } from "ui/routes/sub-home";
@@ -73,7 +74,7 @@ export const EmployeeNavLinks: React.FC<Props> = props => {
       />
       <PTOBalancesNavLink
         onClick={props.onClick}
-        route={tbd.generate(params)}
+        route={EmployeePtoBalanceRoute.generate(params)}
       />
       <SubPreferencesNavLink
         onClick={props.onClick}
