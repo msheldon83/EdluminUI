@@ -43,6 +43,9 @@ import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { VacancyDetail } from "../../components/absence/types";
 import { projectVacancyDetails } from "./project-vacancy-details";
+import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
+import { useDialog } from "hooks/use-dialog";
+import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
 
 type Props = {
   firstName: string;
@@ -59,28 +62,9 @@ type Props = {
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { openSnackbar } = useSnackbar();
+  const { openDialog } = useDialog();
   const [absence, setAbsence] = useState<Absence>();
-
   const [vacanciesInput, setVacanciesInput] = useState<VacancyDetail[]>();
-
-  const [createAbsence] = useMutationBundle(CreateAbsence, {
-    onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
-    },
-  });
-
   const [step, setStep] = useQueryParamIso(StepParams);
 
   const [state, dispatch] = useReducer(
@@ -107,6 +91,19 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   });
 
   const formValues = getValues();
+
+  const [createAbsence] = useMutationBundle(CreateAbsence, {
+    onError: error => {
+      ShowIgnoreAndContinueOrError(
+        error,
+        openDialog,
+        t("There was an issue creating the absence"),
+        async () => await create(formValues, true),
+        t,
+        TranslateAbsenceErrorCodeToMessage
+      );
+    },
+  });
 
   const required = t("Required");
   register({ name: "dayPart", type: "custom" }, { required });
@@ -169,7 +166,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
-      absence: projectedVacanciesInput!,
+      absence: {
+        ...projectedVacanciesInput!,
+        ignoreWarnings: true,
+      },
     },
     skip: projectedVacanciesInput === null,
     onError: () => {},
@@ -177,7 +177,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
-      absence: projectedVacanciesInput!,
+      absence: {
+        ...projectedVacanciesInput!,
+        ignoreWarnings: true,
+      },
     },
     skip: projectedVacanciesInput === null,
     // fetchPolicy: "no-cache",
@@ -224,8 +227,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const name = `${props.firstName} ${props.lastName}`;
 
-  const create = async (formValues: CreateAbsenceFormData) => {
-    const absenceCreateInput = buildAbsenceCreateInput(
+  const create = async (
+    formValues: CreateAbsenceFormData,
+    ignoreWarnings?: boolean
+  ) => {
+    let absenceCreateInput = buildAbsenceCreateInput(
       formValues,
       Number(state.organizationId),
       Number(state.employeeId),
@@ -235,7 +241,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       theVacancyDetails
     );
     if (!absenceCreateInput) {
-      return null;
+      return;
+    }
+
+    if (ignoreWarnings) {
+      absenceCreateInput = {
+        ...absenceCreateInput,
+        ignoreWarnings: true,
+      };
     }
 
     const result = await createAbsence({
@@ -244,7 +257,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       },
     });
 
-    return result?.data?.absence?.create as Absence;
+    const absence = result?.data?.absence?.create as Absence;
+    if (absence) {
+      setAbsence(absence);
+      setStep("confirmation");
+    }
   };
 
   const onChangedVacancies = React.useCallback(
@@ -262,11 +279,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
       <form
         onSubmit={handleSubmit(async data => {
-          const absence = await create(data);
-          if (absence) {
-            setAbsence(absence);
-            setStep("confirmation");
-          }
+          await create(data);
         })}
       >
         {step === "absence" && (
@@ -384,7 +397,7 @@ export const buildAbsenceCreateInput = (
   disabledDates: Date[],
   needsReplacement: boolean,
   vacancyDetails?: VacancyDetail[]
-) => {
+): AbsenceCreateInput | null => {
   if (
     !formValues.startDate ||
     !formValues.absenceReason ||

@@ -12,7 +12,7 @@ import ErrorIcon from "@material-ui/icons/Error";
 import InfoIcon from "@material-ui/icons/Info";
 import WarningIcon from "@material-ui/icons/Warning";
 
-type SnackbarHookType = {
+export type SnackbarHookType = {
   status?: StatusType;
   dismissable?: boolean;
   message: React.ReactNode;
