@@ -1,0 +1,14 @@
+mutation UpdateAccountingCode($accountingCode: AccountingCodeUpdateInput!) {
+  orgRef_AccountingCode {
+    update(accountingCode: $accountingCode) {
+      id
+      name
+      rowVersion
+      externalId
+      location {
+        id
+        name
+      }
+    }
+  }
+}

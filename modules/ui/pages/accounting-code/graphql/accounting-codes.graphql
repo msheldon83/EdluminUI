@@ -1,0 +1,17 @@
+query GetAllAccountingCodesWithinOrg($orgId: ID, $includeExpired: Boolean) {
+  orgRef_AccountingCode {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
+      id
+      name
+      expired
+      externalId
+      rowVersion
+      location {
+        id
+        name
+      }
+      isDeleted
+      validUntil
+    }
+  }
+}
