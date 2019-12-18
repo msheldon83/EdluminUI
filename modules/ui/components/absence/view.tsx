@@ -248,6 +248,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
   notesForApprover: {
+    wordBreak: "break-word",
     marginTop: theme.spacing(),
     paddingRight: theme.spacing(6),
   },
@@ -261,6 +262,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(4),
   },
   notesForSub: {
+    wordBreak: "break-word",
     marginTop: theme.spacing(),
   },
   subText: {

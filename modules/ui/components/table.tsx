@@ -44,7 +44,6 @@ export type TableProps<T extends object> = {
   onRowClick?: (event?: React.MouseEvent, rowData?: T) => void;
   onEdit?: Function;
   isEditable?: boolean;
-  defaultObject?: T;
   /**
    * @deprecated This is temporary functionality, we're going to create
    * a new filter component for tables that will allow Active filtering

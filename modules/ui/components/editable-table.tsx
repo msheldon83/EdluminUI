@@ -5,7 +5,6 @@ type Props<T extends object> = TableProps<T> & {
   onRowAdd?: (rowData: T) => Promise<void>;
   onRowUpdate?: (newData: T, oldData?: T) => Promise<void>;
   onRowDelete?: (oldData: T) => Promise<void>;
-  //defaultObject: T;
 };
 
 export function EditableTable<T extends object>(props: Props<T>) {
@@ -15,7 +14,6 @@ export function EditableTable<T extends object>(props: Props<T>) {
     <Table
       selection={false}
       isEditable={true}
-      //defaultObject={props.defaultObject}
       editable={{
         onRowAdd,
         onRowUpdate,
