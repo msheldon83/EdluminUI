@@ -18,6 +18,8 @@ import {
   AccountingCodeCreateInput,
   AccountingCodeUpdateInput,
 } from "graphql/server-types.gen";
+import * as Yup from "yup";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {};
 
@@ -28,7 +30,9 @@ export const AccountingCode: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
   const params = useRouteParams(AccountingCodeRoute);
+  const { openSnackbar } = useSnackbar();
 
+  //Hardcoding includeExpired.  Currently UI does not give option to choose.
   const getAccountingCodes = useQueryBundle(GetAllAccountingCodesWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired: true },
   });
@@ -38,10 +42,12 @@ export const AccountingCode: React.FC<Props> = props => {
   const [deleteAccountingCodeMutation] = useMutationBundle(
     DeleteAccountingCode
   );
+
   const [accountingCode] = React.useState<AccountingCodeCreateInput>({
     orgId: Number(params.organizationId),
     name: "",
     externalId: null,
+    locationId: null,
   });
 
   const columns: Column<GetAllAccountingCodesWithinOrg.All>[] = [
@@ -61,12 +67,33 @@ export const AccountingCode: React.FC<Props> = props => {
     },
     {
       title: t("School"),
-      field: "location.name",
+      field: "location.id",
       searchable: true,
       hidden: isMobile,
       editable: "always",
     },
   ];
+
+  const validateAccountingCode = React.useMemo(
+    () =>
+      Yup.object().shape({
+        name: Yup.string()
+          .nullable()
+          .required(t("Name is required")),
+        externalId: Yup.string().nullable(),
+        locationId: Yup.string().nullable(),
+      }),
+    [t]
+  );
+
+  const handleError = (error: any) => {
+    openSnackbar({
+      message: <div>{t(error.errors[0])}</div>,
+      dismissable: true,
+      autoHideDuration: 5000,
+      status: "error",
+    });
+  };
 
   if (getAccountingCodes.state === "LOADING") {
     return <></>;
@@ -77,7 +104,12 @@ export const AccountingCode: React.FC<Props> = props => {
   );
   const accountingCodesCount = accountingCodes.length;
 
-  const updateRow = async (accountingCode: AccountingCodeUpdateInput) => {
+  const editAccountingCode = async (
+    accountingCode: AccountingCodeUpdateInput
+  ) => {
+    validateAccountingCode.validate(accountingCode).catch(function(err) {
+      handleError(err);
+    });
     const result = await updateAccountingCode({
       variables: {
         accountingCode: {
@@ -96,11 +128,22 @@ export const AccountingCode: React.FC<Props> = props => {
               : accountingCode.locationId,
         },
       },
+    }).catch(err => {
+      openSnackbar({
+        message: <div>{t(err)}</div>,
+        dismissable: true,
+        autoHideDuration: 5000,
+        status: "error",
+      });
     });
-    return result?.data?.orgRef_AccountingCode?.update?.id;
   };
 
-  const addRow = async (accountingCode: AccountingCodeCreateInput) => {
+  const addAccountingCode = async (
+    accountingCode: AccountingCodeCreateInput
+  ) => {
+    validateAccountingCode.validate(accountingCode).catch(function(err) {
+      handleError(err);
+    });
     const result = await createAccountingCode({
       variables: {
         accountingCode: {
@@ -113,11 +156,17 @@ export const AccountingCode: React.FC<Props> = props => {
               : accountingCode.externalId,
         },
       },
+    }).catch(err => {
+      openSnackbar({
+        message: <div>{t(err)}</div>,
+        dismissable: true,
+        autoHideDuration: 5000,
+        status: "error",
+      });
     });
-    return result?.data?.orgRef_AccountingCode?.create?.id;
   };
 
-  const deleteRow = (accountingCodeId: string) => {
+  const deleteAccountingCode = (accountingCodeId: string) => {
     return deleteAccountingCodeMutation({
       variables: {
         accountingCodeId: Number(accountingCodeId),
@@ -148,7 +197,7 @@ export const AccountingCode: React.FC<Props> = props => {
             name: newData.name,
             externalId: newData.externalId,
           };
-          await addRow(newAccountingCode);
+          await addAccountingCode(newAccountingCode);
           getAccountingCodes.refetch();
         }}
         onRowUpdate={async newData => {
@@ -157,12 +206,11 @@ export const AccountingCode: React.FC<Props> = props => {
             rowVersion: newData.rowVersion,
             name: newData.name,
             externalId: newData.externalId,
-            locationId: newData.locationId,
           };
-          await updateRow(updateAccountingCode);
+          await editAccountingCode(updateAccountingCode);
         }}
         onRowDelete={async oldData => {
-          await deleteRow(String(oldData.id));
+          await deleteAccountingCode(String(oldData.id));
           getAccountingCodes.refetch();
         }}
         options={{
