@@ -64,12 +64,12 @@ export const AccountingCode: React.FC<Props> = props => {
     }
   );
 
-  const [accountingCode] = React.useState<AccountingCodeCreateInput>({
+  const accountingCode: AccountingCodeCreateInput = {
     orgId: Number(params.organizationId),
     name: "",
     externalId: null,
     locationId: null,
-  });
+  };
 
   const columns: Column<GetAllAccountingCodesWithinOrg.All>[] = [
     {
@@ -213,7 +213,7 @@ export const AccountingCode: React.FC<Props> = props => {
         columns={columns}
         data={formattedAccountingCodes}
         onRowAdd={async newData => {
-          const newAccountingCode: AccountingCodeCreateInput = {
+          const newAccountingCode = {
             ...accountingCode,
             name: newData.name,
             externalId: newData.externalId,
@@ -226,7 +226,7 @@ export const AccountingCode: React.FC<Props> = props => {
           getAccountingCodes.refetch();
         }}
         onRowUpdate={async newData => {
-          const updateAccountingCode: AccountingCodeUpdateInput = {
+          const updateAccountingCode = {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,
             name: newData.name,
@@ -237,6 +237,7 @@ export const AccountingCode: React.FC<Props> = props => {
                 : parseInt(newData.location?.id),
           };
           await editAccountingCode(updateAccountingCode);
+          getAccountingCodes.refetch();
         }}
         onRowDelete={async oldData => {
           await deleteAccountingCode(String(oldData.id));
