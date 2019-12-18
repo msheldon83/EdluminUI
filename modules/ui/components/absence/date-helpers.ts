@@ -14,9 +14,7 @@ export const getAbsenceDateRangeDisplayText = (
   const intervals = getContiguousDateIntervals(
     startDate,
     endDate,
-    disabledDates
-      ? disabledDates.filter(d => d.type === "absence").map(d => d.date)
-      : undefined
+    disabledDates ? disabledDates.map(d => d.date) : undefined
   );
 
   if (intervals.length === 0) {
