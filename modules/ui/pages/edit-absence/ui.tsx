@@ -213,16 +213,16 @@ export const EditAbsenceUI: React.FC<Props> = props => {
      (hopefully this is simply because the absence itself exists)
    */
   const disabledDates = useMemo(() => {
-    const start = parseISO(props.startDate);
-    const end = parseISO(props.endDate);
-    const absenceDays = eachDayOfInterval({ start, end });
+    const absenceDays = Object.keys(props.absenceDetailsIdsByDate).map(d =>
+      parseISO(d)
+    );
     const remaining = differenceWith(
       disabledDatesQuery.map(d => d.date),
       absenceDays,
       isSameDay
     );
     return disabledDatesQuery.filter(d => remaining.find(r => r === d.date));
-  }, [disabledDatesQuery, props.startDate, props.endDate]);
+  }, [disabledDatesQuery, props.absenceDetailsIdsByDate]);
 
   const projectedVacanciesInput = useMemo(
     () =>
