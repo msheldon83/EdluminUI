@@ -15,7 +15,7 @@ export function EditableTable<T extends object>(props: Props<T>) {
     <Table
       selection={false}
       isEditable={true}
-      defaultObject={props.defaultObject}
+      //defaultObject={props.defaultObject}
       editable={{
         onRowAdd,
         onRowUpdate,

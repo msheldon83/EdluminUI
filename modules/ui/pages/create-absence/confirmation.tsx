@@ -16,12 +16,13 @@ import {
   AdminEditAbsenceRoute,
   EmployeeEditAbsenceRoute,
 } from "ui/routes/edit-absence";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   orgId: string;
   absence: Absence | undefined;
   setStep: (s: Step) => void;
-  disabledDates: Date[];
+  disabledDates: DisabledDate[];
   isAdmin: boolean;
 };
 

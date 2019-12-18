@@ -3,6 +3,8 @@ import {
   Vacancy,
   VacancyAvailability,
   VacancyQualification,
+  PositionScheduleDate,
+  FeatureFlag,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { Route } from "react-router";
@@ -80,6 +82,25 @@ const allAbsenceReasons = [
   },
 ];
 
+const employeeScheduleTimes = [
+  {
+    startTimeLocal: "2019-11-18T08:30:00",
+    endTimeLocal: "2019-11-18T17:00:00",
+    halfDayMorningEndLocal: "2019-11-18T12:00:00",
+    halfDayAfternoonStartLocal: "2019-11-18T13:00:00",
+  },
+] as PositionScheduleDate[];
+
+const organization = {
+  config: {
+    featureFlags: [
+      FeatureFlag.FullDayAbsences,
+      FeatureFlag.HalfDayAbsences,
+      FeatureFlag.HourlyAbsences,
+    ],
+  },
+};
+
 export const AsAdmin = () => {
   const path = AdminCreateAbsenceRoute.generate({
     organizationId: "1006",
@@ -91,6 +112,9 @@ export const AsAdmin = () => {
     logMissingMocks: true,
     mocks: {
       Query: () => ({
+        organization: () => ({
+          byId: () => organization,
+        }),
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
         }),
@@ -110,6 +134,7 @@ export const AsAdmin = () => {
         employee: () => ({
           employeeContractSchedule: () => [],
           employeeAbsenceSchedule: () => [],
+          employeePositionSchedule: () => employeeScheduleTimes,
         }),
       }),
     },
@@ -138,6 +163,9 @@ export const AsEmployee = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        organization: () => ({
+          byId: () => organization,
+        }),
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
         }),
@@ -157,6 +185,7 @@ export const AsEmployee = () => {
         employee: () => ({
           employeeContractSchedule: () => [],
           employeeAbsenceSchedule: () => [],
+          employeePositionSchedule: () => employeeScheduleTimes,
         }),
       }),
     },
@@ -186,6 +215,9 @@ export const AsSubNotNeededEmployee = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        organization: () => ({
+          byId: () => organization,
+        }),
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
         }),
@@ -205,6 +237,7 @@ export const AsSubNotNeededEmployee = () => {
         employee: () => ({
           employeeContractSchedule: () => [],
           employeeAbsenceSchedule: () => [],
+          employeePositionSchedule: () => employeeScheduleTimes,
         }),
       }),
     },
@@ -234,6 +267,9 @@ export const AsSubNeededEmployee = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        organization: () => ({
+          byId: () => organization,
+        }),
         userAccess: () => ({
           me: () => ({
             user: () => ({
@@ -248,6 +284,7 @@ export const AsSubNeededEmployee = () => {
         employee: () => ({
           employeeContractSchedule: () => [],
           employeeAbsenceSchedule: () => [],
+          employeePositionSchedule: () => employeeScheduleTimes,
           byId: {
             id: "123",
             primaryPosition: {

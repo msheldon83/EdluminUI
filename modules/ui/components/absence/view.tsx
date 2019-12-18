@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 import { VacancyDetails } from "./vacancy-details";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { Calendar } from "../form/calendar";
-import { getDateRangeDisplayText } from "helpers/date";
 import {
   dayPartToLabel,
   getReplacementEmployeeForVacancy,
@@ -24,12 +23,14 @@ import { useState } from "react";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useMutationBundle } from "graphql/hooks";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
+import { getAbsenceDateRangeDisplayText } from "./date-helpers";
 
 type Props = {
   orgId: string;
   absence: Absence | undefined;
   isConfirmation?: boolean;
-  disabledDates: Date[];
+  disabledDates: DisabledDate[];
   isAdmin: boolean;
 };
 
@@ -84,7 +85,7 @@ export const View: React.FC<Props> = props => {
     });
   };
 
-  const hasVacancies = absence.vacancies && absence.vacancies.length;
+  const hasVacancies = absence.vacancies && absence.vacancies.length > 0;
   const notesToReplacement =
     absence.vacancies && absence.vacancies[0]
       ? absence.vacancies[0].notesToReplacement
@@ -101,7 +102,12 @@ export const View: React.FC<Props> = props => {
           </Grid>
           <Grid item xs={12} className={classes.absenceDetailsSection}>
             <div>
-              {getAbsenceReasonListDisplay(absence, absenceReasons, classes)}
+              {getAbsenceReasonListDisplay(
+                absence,
+                absenceReasons,
+                props.disabledDates,
+                classes
+              )}
             </div>
 
             <div className={classes.dates}>
@@ -110,7 +116,7 @@ export const View: React.FC<Props> = props => {
                 endDate={new Date(`${absence.endDate} 00:00`)}
                 range={true}
                 disableDays={true}
-                disabledDates={props.disabledDates}
+                disabledDates={props.disabledDates.map(d => d.date)}
               />
             </div>
 
@@ -166,6 +172,7 @@ export const View: React.FC<Props> = props => {
                       <VacancyDetails
                         vacancies={absence.vacancies as Vacancy[]}
                         equalWidthDetails
+                        disabledDates={props.disabledDates}
                       />
                       <>
                         {props.isAdmin && (accountingCode || payCode) && (
@@ -283,6 +290,7 @@ const useStyles = makeStyles(theme => ({
 const getAbsenceReasonListDisplay = (
   absence: Absence,
   absenceReasons: Pick<AbsenceReason, "id" | "name">[],
+  disabledDates: DisabledDate[],
   classes: any
 ) => {
   const detailsGrouping = getAbsenceDetailsGrouping(absence);
@@ -301,7 +309,11 @@ const getAbsenceReasonListDisplay = (
           {matchingAbsenceReason?.name}
         </div>
         <Typography variant="h6">
-          {getDateRangeDisplayText(d.startDate, d.endDate ?? new Date())}
+          {getAbsenceDateRangeDisplayText(
+            d.startDate,
+            d.endDate ?? new Date(),
+            disabledDates
+          )}
         </Typography>
         {d.simpleDetailItems &&
           d.simpleDetailItems.map((di, detailIndex) => {

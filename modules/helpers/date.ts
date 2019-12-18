@@ -1,20 +1,25 @@
 import isAfter from "date-fns/isAfter";
 import isValid from "date-fns/isValid";
-import formatDistance from "date-fns/formatDistance";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import isWithinInterval from "date-fns/isWithinInterval";
 import isEqual from "date-fns/isEqual";
 import {
-  differenceInDays,
-  addDays,
   isDate,
   isYesterday,
   isToday,
   isTomorrow,
+  eachDayOfInterval,
+  differenceInCalendarDays,
+  isSameDay,
 } from "date-fns";
+import { differenceWith } from "lodash-es";
 
 export type PolymorphicDateType = Date | string | undefined;
+export type DateInterval = {
+  start: Date;
+  end: Date;
+};
 
 export const isAfterDate = (
   date1: PolymorphicDateType,
@@ -117,7 +122,7 @@ export const getDateRangeDisplayText = (
 
   // Same date
   if (
-    startDate.getDay() === endDate.getDay() &&
+    startDate.getDate() === endDate.getDate() &&
     startDate.getMonth() === endDate.getMonth() &&
     startDate.getFullYear() === endDate.getFullYear()
   ) {
@@ -166,4 +171,52 @@ export const GetYesterdayTodayTomorrowFormat = (
     dateFormat = `'Tomorrow,' h:mm a`;
   }
   return dateFormat;
+};
+
+export const getContiguousDateIntervals = (
+  startDate: Date,
+  endDate: Date,
+  disabledDates?: Date[]
+): DateInterval[] => {
+  const allDates = eachDayOfInterval({ start: startDate, end: endDate });
+  const nonAbsenceDisabledDates = disabledDates
+    ? differenceWith(allDates, disabledDates, isSameDay)
+    : allDates;
+
+  const intervals: DateInterval[] = [];
+  let index = 0;
+  while (index < nonAbsenceDisabledDates.length) {
+    let earlierDate = nonAbsenceDisabledDates[index];
+    const interval: DateInterval = {
+      start: earlierDate,
+      end: earlierDate,
+    };
+
+    const endIntervalIndex = index + 1;
+    if (endIntervalIndex >= nonAbsenceDisabledDates.length) {
+      // Nothing more to look through or we have a single item scenario
+      index = nonAbsenceDisabledDates.length;
+      intervals.push(interval);
+    }
+
+    for (let j = endIntervalIndex; j < nonAbsenceDisabledDates.length; j++) {
+      const nextDate = nonAbsenceDisabledDates[j];
+      if (differenceInCalendarDays(nextDate, earlierDate) > 1) {
+        index = j;
+        intervals.push(interval);
+        break;
+      } else if (j === nonAbsenceDisabledDates.length - 1) {
+        // Last item in the list
+        index = nonAbsenceDisabledDates.length;
+        intervals.push({
+          ...interval,
+          end: nextDate,
+        });
+      }
+      earlierDate = nextDate;
+      interval.end = nextDate;
+    }
+  }
+
+  return intervals;
 };

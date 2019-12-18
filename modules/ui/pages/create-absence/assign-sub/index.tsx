@@ -20,6 +20,7 @@ import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
 } from "./filters";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   orgId: string;
@@ -32,6 +33,7 @@ type Props = {
   positionName?: string;
   setStep: (s: "absence") => void;
   setValue: SetValue;
+  disabledDates?: DisabledDate[];
 };
 
 const buildVacancyInput = (
@@ -189,6 +191,7 @@ export const AssignSub: React.FC<Props> = props => {
             positionName={props.positionName}
             gridRef={vacancyDetailsRef}
             showHeader
+            disabledDates={props.disabledDates}
           />
         </Collapse>
         {showViewAllDetails && (
