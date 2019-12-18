@@ -85,7 +85,7 @@ export const View: React.FC<Props> = props => {
     });
   };
 
-  const hasVacancies = absence.vacancies && absence.vacancies.length;
+  const hasVacancies = absence.vacancies && absence.vacancies.length > 0;
   const notesToReplacement =
     absence.vacancies && absence.vacancies[0]
       ? absence.vacancies[0].notesToReplacement
