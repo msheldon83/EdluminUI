@@ -42,6 +42,7 @@ import { SubstituteRequiredDetails } from "./substitute-required-details";
 import { VacancyDetail } from "ui/components/absence/types";
 import { GetEmployeeScheduleTimes } from "../graphql/get-employee-schedule-times.gen";
 import { useQueryBundle } from "graphql/hooks";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -71,7 +72,7 @@ type Props = {
   wantsReplacement: boolean;
   vacancies: Vacancy[];
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
-  disabledDates: Date[];
+  disabledDates: DisabledDate[];
   balanceUsageText?: string;
   setVacanciesInput: React.Dispatch<
     React.SetStateAction<VacancyDetail[] | undefined>
@@ -282,7 +283,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           startLabel={t("From")}
           endLabel={t("To")}
           onMonthChange={onMonthChange}
-          disableDates={props.disabledDates}
+          disableDates={props.disabledDates.map(d => d.date)}
         />
 
         {props.balanceUsageText && (
@@ -414,6 +415,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 errors={errors}
                 isAdmin={!!isAdmin}
                 arrangeSubButtonTitle={props.arrangeSubButtonTitle}
+                disabledDates={props.disabledDates}
               />
             )}
           </div>
