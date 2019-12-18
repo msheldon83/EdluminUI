@@ -16,6 +16,7 @@ import { usePayCodes } from "reference-data/pay-codes";
 import { VacancyDetails } from "ui/components/absence/vacancy-details";
 import { Select } from "ui/components/form/select";
 import { AbsenceDetailsFormData } from ".";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   setValue: SetValue;
@@ -27,6 +28,7 @@ type Props = {
   errors: Errors;
   values: AbsenceDetailsFormData;
   arrangeSubButtonTitle?: string;
+  disabledDates?: DisabledDate[];
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -87,7 +89,11 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 
   return (
     <>
-      <VacancyDetails vacancies={vacancies} equalWidthDetails />
+      <VacancyDetails
+        vacancies={vacancies}
+        disabledDates={props.disabledDates}
+        equalWidthDetails
+      />
 
       {isAdmin && (hasAccountingCodeOptions || hasPayCodeOptions) && (
         <Grid item container spacing={4} className={classes.subCodes}>

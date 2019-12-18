@@ -415,6 +415,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 errors={errors}
                 isAdmin={!!isAdmin}
                 arrangeSubButtonTitle={props.arrangeSubButtonTitle}
+                disabledDates={props.disabledDates}
               />
             )}
           </div>

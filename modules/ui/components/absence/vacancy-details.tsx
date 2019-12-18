@@ -2,11 +2,12 @@ import * as React from "react";
 import { Vacancy, VacancyDetail, Maybe } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { Grid, makeStyles, Typography } from "@material-ui/core";
-import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
 import { Fragment } from "react";
 import { getVacancyDetailsGrouping } from "./helpers";
 import { TFunction } from "i18next";
 import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
+import { getAbsenceDateRangeDisplayText } from "./date-helpers";
 
 type Props = {
   vacancies: Vacancy[];
@@ -14,6 +15,7 @@ type Props = {
   showHeader?: boolean;
   equalWidthDetails?: boolean;
   gridRef?: React.RefObject<HTMLDivElement>;
+  disabledDates?: DisabledDate[];
 };
 
 export const VacancyDetails: React.FC<Props> = props => {
@@ -35,6 +37,7 @@ export const VacancyDetails: React.FC<Props> = props => {
           <VacancySummaryHeader
             positionName={props.positionName}
             vacancies={props.vacancies}
+            disabledDates={props.disabledDates}
           />
         </Grid>
       )}
@@ -44,7 +47,8 @@ export const VacancyDetails: React.FC<Props> = props => {
             v.details,
             props.equalWidthDetails || false,
             t,
-            classes
+            classes,
+            props.disabledDates
           );
         }
       })}
@@ -65,7 +69,8 @@ const getVacancyDetailsDisplay = (
   vacancyDetails: Maybe<VacancyDetail>[],
   equalWidthDetails: boolean,
   t: TFunction,
-  classes: any
+  classes: any,
+  disabledDates?: DisabledDate[]
 ) => {
   const groupedDetails = getVacancyDetailsGrouping(vacancyDetails);
   if (groupedDetails === null || !groupedDetails.length) {
@@ -77,7 +82,11 @@ const getVacancyDetailsDisplay = (
       <Grid key={detailsIndex} item container xs={12} alignItems="center">
         <Grid item xs={equalWidthDetails ? 6 : 2}>
           <Typography variant="h6">
-            {getDateRangeDisplayText(g.startDate, g.endDate ?? new Date())}
+            {getAbsenceDateRangeDisplayText(
+              g.startDate,
+              g.endDate ?? new Date(),
+              disabledDates
+            )}
           </Typography>
         </Grid>
         <Grid

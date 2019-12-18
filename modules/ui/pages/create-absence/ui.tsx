@@ -330,6 +330,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             vacancies={projectedVacancies}
             setStep={setStep}
             setValue={setValue}
+            disabledDates={disabledDates}
           />
         )}
         {step === "confirmation" && (
@@ -352,6 +353,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
           setStep={setStep}
+          disabledDates={disabledDates}
         />
       )}
     </>
