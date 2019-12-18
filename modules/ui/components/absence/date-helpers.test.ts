@@ -31,17 +31,15 @@ describe("getAbsenceDateRangeDisplayText", () => {
       startOfDay(new Date("12/23/2019")),
       disabledDates
     );
-    expect(result).toBe("December 16-17,19-23, 2019");
+    expect(result).toBe("December 16-17,19-20,23, 2019");
   });
 
   it("Display multiple non-contiguous dates within a single month (overly complex scenario)", () => {
     const disabledDates: DisabledDate[] = [
       { date: startOfDay(new Date("11/20/2019")), type: "absence" },
-      { date: startOfDay(new Date("11/22/2019")), type: "absence" },
-      { date: startOfDay(new Date("11/23/2019")), type: "nonWorkDay" },
-      { date: startOfDay(new Date("11/24/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("11/22/2019")), type: "nonWorkDay" },
       { date: startOfDay(new Date("11/27/2019")), type: "absence" },
-      { date: startOfDay(new Date("11/28/2019")), type: "absence" },
+      { date: startOfDay(new Date("11/28/2019")), type: "nonWorkDay" },
     ];
 
     const result = getAbsenceDateRangeDisplayText(
@@ -63,8 +61,6 @@ describe("getAbsenceDateRangeDisplayText", () => {
   it("Display multiple non-contiguous dates across months", () => {
     const disabledDates: DisabledDate[] = [
       { date: startOfDay(new Date("11/29/2019")), type: "absence" },
-      { date: startOfDay(new Date("11/30/2019")), type: "nonWorkDay" },
-      { date: startOfDay(new Date("12/1/2019")), type: "nonWorkDay" },
     ];
 
     const result = getAbsenceDateRangeDisplayText(
@@ -78,17 +74,11 @@ describe("getAbsenceDateRangeDisplayText", () => {
   it("Display multiple non-contiguous dates across months (overly complex scenario)", () => {
     const disabledDates: DisabledDate[] = [
       { date: startOfDay(new Date("11/20/2019")), type: "absence" },
-      { date: startOfDay(new Date("11/22/2019")), type: "absence" },
-      { date: startOfDay(new Date("11/23/2019")), type: "nonWorkDay" },
-      { date: startOfDay(new Date("11/24/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("11/22/2019")), type: "nonWorkDay" },
       { date: startOfDay(new Date("11/27/2019")), type: "absence" },
       { date: startOfDay(new Date("11/28/2019")), type: "absence" },
-      { date: startOfDay(new Date("11/30/2019")), type: "nonWorkDay" },
-      { date: startOfDay(new Date("12/1/2019")), type: "nonWorkDay" },
       { date: startOfDay(new Date("12/3/2019")), type: "absence" },
-      { date: startOfDay(new Date("12/6/2019")), type: "absence" },
-      { date: startOfDay(new Date("12/7/2019")), type: "nonWorkDay" },
-      { date: startOfDay(new Date("12/8/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("12/6/2019")), type: "nonWorkDay" },
       { date: startOfDay(new Date("12/10/2019")), type: "absence" },
     ];
 
@@ -110,15 +100,19 @@ describe("getAbsenceDateRangeDisplayText", () => {
     expect(result).toBe("December 23, 2019 - January 6, 2020");
   });
 
+  it("Display multiple contiguous dates across years within the same week", () => {
+    const result = getAbsenceDateRangeDisplayText(
+      startOfDay(new Date("12/31/2019")),
+      startOfDay(new Date("1/1/2020"))
+    );
+    expect(result).toBe("December 31, 2019 - January 1, 2020");
+  });
+
   it("Display multiple non-contiguous dates across years", () => {
     const disabledDates: DisabledDate[] = [
       { date: startOfDay(new Date("12/25/2019")), type: "absence" },
-      { date: startOfDay(new Date("12/27/2019")), type: "absence" },
-      { date: startOfDay(new Date("12/28/2019")), type: "nonWorkDay" },
-      { date: startOfDay(new Date("12/29/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("12/27/2019")), type: "nonWorkDay" },
       { date: startOfDay(new Date("1/2/2020")), type: "absence" },
-      { date: startOfDay(new Date("1/4/2020")), type: "nonWorkDay" },
-      { date: startOfDay(new Date("1/5/2020")), type: "nonWorkDay" },
     ];
 
     const result = getAbsenceDateRangeDisplayText(
@@ -127,5 +121,26 @@ describe("getAbsenceDateRangeDisplayText", () => {
       disabledDates
     );
     expect(result).toBe("December 23-24,26,28, 2019 - January 1,3-6, 2020");
+  });
+
+  it("Display multiple non-contiguous single day dates that cross years", () => {
+    const disabledDates: DisabledDate[] = [
+      { date: startOfDay(new Date("12/24/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("12/25/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("12/26/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("12/27/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("12/28/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("12/29/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("12/30/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("12/31/2019")), type: "nonWorkDay" },
+      { date: startOfDay(new Date("1/2/2020")), type: "nonWorkDay" },
+    ];
+
+    const result = getAbsenceDateRangeDisplayText(
+      startOfDay(new Date("12/23/2019")),
+      startOfDay(new Date("1/3/2020")),
+      disabledDates
+    );
+    expect(result).toBe("December 23, 2019 - January 1,3, 2020");
   });
 });
