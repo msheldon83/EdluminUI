@@ -170,9 +170,6 @@ export const PayCode: React.FC<Props> = props => {
         title={`${payCodesCount} ${t("Pay Codes")}`}
         columns={columns}
         data={payCodes}
-        defaultObject={
-          { name: "", externalId: null, description: null } as PayCodeGQL
-        }
         onRowAdd={async newData => {
           const newPayCode = {
             ...payCode,
