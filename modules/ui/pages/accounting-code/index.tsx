@@ -7,13 +7,13 @@ import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
 import { AccountingCodeRoute } from "ui/routes/accounting-code";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
 import { GetAllAccountingCodesWithinOrg } from "ui/pages/accounting-code/graphql/accounting-codes.gen";
 import { UpdateAccountingCode } from "./graphql/update-accounting-code.gen";
 import { CreateAccountingCode } from "./graphql/create-accounting-code.gen";
+import { DeleteAccountingCode } from "./graphql/delete-accounting-code.gen";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
-import { Table } from "ui/components/table";
+import { EditableTable } from "ui/components/editable-table";
 import {
   AccountingCodeCreateInput,
   AccountingCodeUpdateInput,
@@ -35,6 +35,14 @@ export const AccountingCode: React.FC<Props> = props => {
 
   const [updateAccountingCode] = useMutationBundle(UpdateAccountingCode);
   const [createAccountingCode] = useMutationBundle(CreateAccountingCode);
+  const [deleteAccountingCodeMutation] = useMutationBundle(
+    DeleteAccountingCode
+  );
+  const [accountingCode] = React.useState<AccountingCodeCreateInput>({
+    orgId: Number(params.organizationId),
+    name: "",
+    externalId: null,
+  });
 
   const columns: Column<GetAllAccountingCodesWithinOrg.All>[] = [
     {
@@ -42,19 +50,21 @@ export const AccountingCode: React.FC<Props> = props => {
       field: "name",
       defaultSort: "asc",
       searchable: true,
+      editable: "always",
     },
     {
       title: t("Code"),
       field: "externalId",
       searchable: true,
       hidden: isMobile,
+      editable: "always",
     },
     {
       title: t("School"),
-      field: "location.id",
-      type: "boolean",
+      field: "location.name",
       searchable: true,
       hidden: isMobile,
+      editable: "always",
     },
   ];
 
@@ -74,11 +84,20 @@ export const AccountingCode: React.FC<Props> = props => {
           id: Number(accountingCode.id),
           rowVersion: accountingCode.rowVersion,
           name: accountingCode.name,
-          externalId: accountingCode.externalId,
+          externalId:
+            accountingCode.externalId &&
+            accountingCode.externalId.trim().length === 0
+              ? null
+              : accountingCode.externalId,
+          locationId:
+            accountingCode.locationId &&
+            accountingCode.locationId.toString().length === 0
+              ? null
+              : accountingCode.locationId,
         },
       },
     });
-    return result?.data.orgRef_AccountingCode?.update?.id;
+    return result?.data?.orgRef_AccountingCode?.update?.id;
   };
 
   const addRow = async (accountingCode: AccountingCodeCreateInput) => {
@@ -87,11 +106,23 @@ export const AccountingCode: React.FC<Props> = props => {
         accountingCode: {
           ...accountingCode,
           name: accountingCode.name,
-          externalId: accountingCode.externalId,
+          externalId:
+            accountingCode.externalId &&
+            accountingCode.externalId.trim().length === 0
+              ? null
+              : accountingCode.externalId,
         },
       },
     });
     return result?.data?.orgRef_AccountingCode?.create?.id;
+  };
+
+  const deleteRow = (accountingCodeId: string) => {
+    return deleteAccountingCodeMutation({
+      variables: {
+        accountingCodeId: Number(accountingCodeId),
+      },
+    });
   };
 
   return (
@@ -107,18 +138,32 @@ export const AccountingCode: React.FC<Props> = props => {
           <PageTitle title={t("Accounting Codes")} />
         </Grid>
       </Grid>
-      <Table
+      <EditableTable
         title={`${accountingCodesCount} ${t("Accounting Codes")}`}
         columns={columns}
         data={accountingCodes}
-        selection={!isMobile}
-        onRowClick={(event, positionType) => {
-          if (!positionType) return;
-          const newParams = {
-            ...params,
-            positionTypeId: positionType.id,
+        onRowAdd={async newData => {
+          const newAccountingCode = {
+            ...accountingCode,
+            name: newData.name,
+            externalId: newData.externalId,
           };
-          history.push(AccountingCodeRoute.generate(newParams));
+          await addRow(newAccountingCode);
+          getAccountingCodes.refetch();
+        }}
+        onRowUpdate={async newData => {
+          const updateAccountingCode = {
+            id: Number(newData.id),
+            rowVersion: newData.rowVersion,
+            name: newData.name,
+            externalId: newData.externalId,
+            locationId: newData.locationId,
+          };
+          await updateRow(updateAccountingCode);
+        }}
+        onRowDelete={async oldData => {
+          await deleteRow(String(oldData.id));
+          getAccountingCodes.refetch();
         }}
         options={{
           search: true,
