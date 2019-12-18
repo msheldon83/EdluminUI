@@ -35,8 +35,8 @@ const exampleAccountingCodeAndPayCode = {
 
 const complexVacancies = [
   {
-    startDate: "2019-11-19",
-    startTimeLocal: "2019-11-19T08:00:00",
+    startDate: "2019-11-18",
+    startTimeLocal: "2019-11-18T08:00:00",
     endDate: "2019-11-25",
     endTimeLocal: "2019-11-25T15:00:00",
     numDays: 5,
@@ -44,6 +44,28 @@ const complexVacancies = [
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
     positionId: 1,
     details: [
+      {
+        startDate: "2019-11-18",
+        startTimeLocal: "2019-11-18T08:00:00",
+        endDate: "2019-11-18",
+        endTimeLocal: "2019-11-18T12:00:00",
+        locationId: 1,
+        location: {
+          name: "Evans Elementary School",
+        },
+        ...exampleAccountingCodeAndPayCode,
+      },
+      {
+        startDate: "2019-11-18",
+        startTimeLocal: "2019-11-18T12:15:00",
+        endDate: "2019-11-18",
+        endTimeLocal: "2019-11-18T15:00:00",
+        locationId: 2,
+        location: {
+          name: "Brook Elementary School",
+        },
+        ...exampleAccountingCodeAndPayCode,
+      },
       {
         startDate: "2019-11-19",
         startTimeLocal: "2019-11-19T08:00:00",
@@ -60,28 +82,6 @@ const complexVacancies = [
         startTimeLocal: "2019-11-19T12:15:00",
         endDate: "2019-11-19",
         endTimeLocal: "2019-11-19T15:00:00",
-        locationId: 2,
-        location: {
-          name: "Brook Elementary School",
-        },
-        ...exampleAccountingCodeAndPayCode,
-      },
-      {
-        startDate: "2019-11-20",
-        startTimeLocal: "2019-11-20T08:00:00",
-        endDate: "2019-11-20",
-        endTimeLocal: "2019-11-20T12:00:00",
-        locationId: 1,
-        location: {
-          name: "Evans Elementary School",
-        },
-        ...exampleAccountingCodeAndPayCode,
-      },
-      {
-        startDate: "2019-11-20",
-        startTimeLocal: "2019-11-20T12:15:00",
-        endDate: "2019-11-20",
-        endTimeLocal: "2019-11-20T15:00:00",
         locationId: 2,
         location: {
           name: "Brook Elementary School",
@@ -149,20 +149,20 @@ const complexVacancies = [
 
 const simpleVacancies = [
   {
-    startDate: "2019-11-19",
-    startTimeLocal: "2019-11-19T08:00:00",
-    endDate: "2019-11-19",
-    endTimeLocal: "2019-11-19T15:00:00",
+    startDate: "2019-11-18",
+    startTimeLocal: "2019-11-18T08:00:00",
+    endDate: "2019-11-18",
+    endTimeLocal: "2019-11-18T15:00:00",
     numDays: 1,
     notesToReplacement:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
     positionId: 1,
     details: [
       {
-        startDate: "2019-11-19",
-        startTimeLocal: "2019-11-19T08:00:00",
-        endDate: "2019-11-19",
-        endTimeLocal: "2019-11-19T15:00:00",
+        startDate: "2019-11-18",
+        startTimeLocal: "2019-11-18T08:00:00",
+        endDate: "2019-11-18",
+        endTimeLocal: "2019-11-18T15:00:00",
         locationId: 1,
         location: {
           name: "Evans Elementary School",
@@ -200,8 +200,8 @@ const getAbsence = (
 ) => {
   let absence = {
     id: "123456789",
-    startDate: "2019-11-19",
-    startTimeLocal: "2019-11-19T08:00:00",
+    startDate: "2019-11-18",
+    startTimeLocal: "2019-11-18T08:00:00",
     endDate: "2019-11-25",
     endTimeLocal: "2019-11-25T15:00:00",
     numDays: 5,
@@ -210,10 +210,10 @@ const getAbsence = (
     details: [
       {
         dayPartId: DayPart.FullDay,
-        startDate: "2019-11-19",
-        startTimeLocal: "2019-11-19T08:00:00",
-        endDate: "2019-11-19",
-        endTimeLocal: "2019-11-19T15:00:00",
+        startDate: "2019-11-18",
+        startTimeLocal: "2019-11-18T08:00:00",
+        endDate: "2019-11-18",
+        endTimeLocal: "2019-11-18T15:00:00",
         reasonUsages: [
           {
             absenceReasonId: absenceReasonId,
@@ -222,10 +222,10 @@ const getAbsence = (
       },
       {
         dayPartId: DayPart.FullDay,
-        startDate: "2019-11-20",
-        startTimeLocal: "2019-11-20T08:00:00",
-        endDate: "2019-11-20",
-        endTimeLocal: "2019-11-20T15:00:00",
+        startDate: "2019-11-19",
+        startTimeLocal: "2019-11-19T08:00:00",
+        endDate: "2019-11-19",
+        endTimeLocal: "2019-11-19T15:00:00",
         reasonUsages: [
           {
             absenceReasonId: absenceReasonId,
@@ -303,6 +303,7 @@ const disabledDates: DisabledDate[] = [
   { date: new Date("2019-11-30 00:00"), type: "nonWorkDay" },
   { date: new Date("2019-11-5 00:00"), type: "absence" },
   { date: new Date("2019-11-15 00:00"), type: "absence" },
+  { date: new Date("2019-11-20 00:00"), type: "absence" },
   { date: new Date("2019-11-23 00:00"), type: "nonWorkDay" },
   { date: new Date("2019-11-24 00:00"), type: "nonWorkDay" },
 ];
@@ -325,13 +326,15 @@ export const AsAdminWithAllInformation = () => {
 
   return (
     <Provider>
-      <Confirmation
-        orgId={"1000"}
-        absence={getAbsence("1", true, true)}
-        disabledDates={disabledDates}
-        setStep={() => {}}
-        isAdmin={true}
-      />
+      <Route path={AdminCreateAbsenceRoute.path}>
+        <Confirmation
+          orgId={"1000"}
+          absence={getAbsence("1", true, true)}
+          disabledDates={disabledDates}
+          setStep={() => {}}
+          isAdmin={true}
+        />
+      </Route>
     </Provider>
   );
 };
@@ -354,13 +357,15 @@ export const AsAdminWithSimpleAbsence = () => {
 
   return (
     <Provider>
-      <Confirmation
-        orgId={"1000"}
-        absence={getAbsence("1", true, false)}
-        setStep={() => {}}
-        disabledDates={disabledDates}
-        isAdmin={true}
-      />
+      <Route path={AdminCreateAbsenceRoute.path}>
+        <Confirmation
+          orgId={"1000"}
+          absence={getAbsence("1", true, false)}
+          setStep={() => {}}
+          disabledDates={disabledDates}
+          isAdmin={true}
+        />
+      </Route>
     </Provider>
   );
 };
@@ -383,13 +388,15 @@ export const AsAdminWithMinimumInformation = () => {
 
   return (
     <Provider>
-      <Confirmation
-        orgId={"1000"}
-        absence={getAbsence("2", false, false)}
-        disabledDates={disabledDates}
-        setStep={() => {}}
-        isAdmin={true}
-      />
+      <Route path={AdminCreateAbsenceRoute.path}>
+        <Confirmation
+          orgId={"1000"}
+          absence={getAbsence("2", false, false)}
+          disabledDates={disabledDates}
+          setStep={() => {}}
+          isAdmin={true}
+        />
+      </Route>
     </Provider>
   );
 };
