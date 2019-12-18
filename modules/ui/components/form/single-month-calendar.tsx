@@ -101,7 +101,6 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.customColors.white,
     border: "1px solid rgba(0, 0, 0, 0.23)",
     borderRadius: theme.typography.pxToRem(4),
-    minWidth: theme.typography.pxToRem(450),
     overflow: "hidden",
     padding: theme.spacing(3),
     position: "relative",

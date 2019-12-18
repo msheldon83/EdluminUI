@@ -88,7 +88,7 @@ export const AssignmentCard: React.FC<Props> = props => {
         spacing={1}
         className={props.shadeRow ? classes.shadedRow : undefined}
       >
-        <Grid item xs={6}>
+        <Grid item>
           <Typography variant="h6">{dateHeader}</Typography>
           {isMobile && <Typography variant="h6">{assignmentId}</Typography>}
           <Typography className={classes.lightText}>
