@@ -14,7 +14,6 @@ import {
   PayCodeUpdateInput,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
-import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { CreatePayCode } from "./graphql/create.gen";
 import { PayCodeIndexRoute } from "ui/routes/pay-code";
