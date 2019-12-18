@@ -79,7 +79,6 @@ export const PayCode: React.FC<Props> = props => {
   const create = async (payCode: PayCodeCreateInput) => {
     validatePayCode.validate(payCode).catch(function(err) {
       handleError(err);
-      return refetchPayCodes;
     });
     const result = await createPayCode({
       variables: {
@@ -101,7 +100,6 @@ export const PayCode: React.FC<Props> = props => {
   const update = async (payCode: PayCodeUpdateInput) => {
     validatePayCode.validate(payCode).catch(function(err) {
       handleError(err);
-      return refetchPayCodes;
     });
     const result = await updatePayCode({
       variables: {
@@ -123,10 +121,6 @@ export const PayCode: React.FC<Props> = props => {
         },
       },
     });
-  };
-
-  const refetchPayCodes = () => {
-    getPayCodes.refetch();
   };
 
   const columns: Column<GetAllPayCodesWithinOrg.All>[] = [
@@ -188,7 +182,7 @@ export const PayCode: React.FC<Props> = props => {
             description: newData.description,
           };
           await create(newPayCode);
-          refetchPayCodes();
+          getPayCodes.refetch();
         }}
         onRowUpdate={async newData => {
           const updatePayCode = {
@@ -199,11 +193,11 @@ export const PayCode: React.FC<Props> = props => {
             description: newData.description,
           };
           await update(updatePayCode);
-          refetchPayCodes();
+          getPayCodes.refetch();
         }}
         onRowDelete={async oldData => {
           await deletePayCode(String(oldData.id));
-          refetchPayCodes();
+          getPayCodes.refetch();
         }}
         options={{
           search: true,
