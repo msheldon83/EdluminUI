@@ -2,7 +2,7 @@ import { makeStyles } from "@material-ui/styles";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { groupBy, uniqBy, compact, flatMap } from "lodash-es";
 import * as React from "react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { AssignmentVacancyDetails } from "../types";
 import { AssignmentGroupDetail } from "./assignment-group-detail";
 import { AssignmentRowUI } from "./assignment-row-ui";
@@ -20,27 +20,15 @@ export const AssignmentGroup: React.FC<Props> = props => {
   const assignment = props.assignmentGroup;
   const { onCancel } = props;
 
-  const assignmentIds = []; // uniqBy
-  const assignments = uniqBy(
-    compact(flatMap(assignment, a => a.assignment?.id)),
-    "id"
+  const assignments = useMemo(
+    () => uniqBy(compact(flatMap(assignment, a => a.assignment)), "id"),
+    [assignment]
   );
-  // await Promise.all(
-  //   assignments.map(a =>
-  //     cancelAssignment({
-  //       variables: {
-  //         assignment: { id: Number(a.id), rowVersion: a.rowVersion },
-  //       },
-  //     })
-  //   )
-  // );
+
   const onCancelGroupOfAssignments = useCallback(async () => {
     await Promise.all(
-      assignment.map(async a => {
-        onCancel(
-          Number(a.assignment?.id) ?? "",
-          a.assignment?.rowVersion ?? ""
-        );
+      assignments.map(async a => {
+        onCancel(Number(a.id) ?? "", a.rowVersion ?? "");
       })
     );
   }, [onCancel, assignments]);

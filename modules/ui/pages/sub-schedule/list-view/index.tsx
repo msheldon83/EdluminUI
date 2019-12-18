@@ -37,15 +37,6 @@ export const ListView: React.FC<Props> = props => {
     [cancelAssignment]
   );
 
-  const onCancelGroupOfAssignments = useCallback(
-    async (cancelRequests: { id: number; rowVersion: string }[]) => {
-      cancelRequests.map(async c => {
-        await onCancel(c.id, c.rowVersion);
-      });
-    },
-    [onCancel]
-  );
-
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
       id: String(props.userId),

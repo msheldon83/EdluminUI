@@ -24,8 +24,7 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
 
   const onCancel = useCallback(
     async (id: number, rowVersion: string) => {
-      console.log(id, rowVersion);
-      const r = await cancelAssignment({
+      await cancelAssignment({
         variables: {
           cancelRequest: {
             id,
@@ -33,10 +32,10 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
           },
         },
       });
-      console.log(r);
     },
     [cancelAssignment]
   );
+
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
       id: String(props.userId),
