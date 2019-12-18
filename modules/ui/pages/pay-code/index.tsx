@@ -4,6 +4,7 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
+import * as Yup from "yup";
 import { compact } from "lodash-es";
 import { EditableTable } from "ui/components/editable-table";
 import { PageTitle } from "ui/components/page-title";
@@ -13,6 +14,7 @@ import {
   PayCodeUpdateInput,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
+import { useSnackbar } from "hooks/use-snackbar";
 import { CreatePayCode } from "./graphql/create.gen";
 import { PayCodeIndexRoute } from "ui/routes/pay-code";
 import { useRouteParams } from "ui/routes/definition";
@@ -30,6 +32,7 @@ export const PayCode: React.FC<Props> = props => {
   const [createPayCode] = useMutationBundle(CreatePayCode);
   const [updatePayCode] = useMutationBundle(UpdatePayCode);
   const params = useRouteParams(PayCodeIndexRoute);
+  const { openSnackbar } = useSnackbar();
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
   const getPayCodes = useQueryBundle(GetAllPayCodesWithinOrg, {
@@ -44,6 +47,27 @@ export const PayCode: React.FC<Props> = props => {
     });
   };
 
+  const validatePayCode = React.useMemo(
+    () =>
+      Yup.object().shape({
+        name: Yup.string()
+          .nullable()
+          .required(t("Name is required")),
+        externalId: Yup.string().nullable(),
+        description: Yup.string().nullable(),
+      }),
+    [t]
+  );
+
+  const handleError = (error: any) => {
+    openSnackbar({
+      message: <div>{t(error.errors[0])}</div>,
+      dismissable: true,
+      autoHideDuration: 5000,
+      status: "error",
+    });
+  };
+
   const [payCode] = React.useState<PayCodeCreateInput>({
     orgId: Number(params.organizationId),
     name: "",
@@ -52,6 +76,9 @@ export const PayCode: React.FC<Props> = props => {
   });
 
   const create = async (payCode: PayCodeCreateInput) => {
+    validatePayCode.validate(payCode).catch(function(err) {
+      handleError(err);
+    });
     const result = await createPayCode({
       variables: {
         payCode: {
@@ -67,15 +94,21 @@ export const PayCode: React.FC<Props> = props => {
         },
       },
     });
-    return result?.data?.orgRef_PayCode?.create?.id;
   };
 
   const update = async (payCode: PayCodeUpdateInput) => {
+    validatePayCode.validate(payCode).catch(function(err) {
+      handleError(err);
+    });
     const result = await updatePayCode({
       variables: {
         payCode: {
           id: Number(payCode.id),
           rowVersion: payCode.rowVersion,
+          name:
+            payCode.name && payCode.name.trim().length === 0
+              ? null
+              : payCode.name,
           externalId:
             payCode.externalId && payCode.externalId.trim().length === 0
               ? null
@@ -87,7 +120,6 @@ export const PayCode: React.FC<Props> = props => {
         },
       },
     });
-    return result?.data?.orgRef_PayCode?.update?.id;
   };
 
   const columns: Column<GetAllPayCodesWithinOrg.All>[] = [
@@ -160,6 +192,7 @@ export const PayCode: React.FC<Props> = props => {
             description: newData.description,
           };
           await update(updatePayCode);
+          getPayCodes.refetch();
         }}
         onRowDelete={async oldData => {
           await deletePayCode(String(oldData.id));
