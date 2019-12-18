@@ -85,22 +85,26 @@ export const SubHome: React.FC<Props> = props => {
     }
   );
 
-  const vacancies = (getVacancies.state === "LOADING"
-    ? []
-    : getVacancies.data?.vacancy?.userJobSearch?.results ?? []) as Pick<
-    Vacancy,
-    | "id"
-    | "organization"
-    | "position"
-    | "absence"
-    | "startTimeLocal"
-    | "endTimeLocal"
-    | "startDate"
-    | "endDate"
-    | "notesToReplacement"
-    | "totalDayPortion"
-    | "details"
-  >[];
+  const vacancies = useMemo(
+    () =>
+      (getVacancies.state === "DONE" || getVacancies.state === "UPDATING"
+        ? getVacancies.data.vacancy?.userJobSearch?.results ?? []
+        : []) as Pick<
+        Vacancy,
+        | "id"
+        | "organization"
+        | "position"
+        | "absence"
+        | "startTimeLocal"
+        | "endTimeLocal"
+        | "startDate"
+        | "endDate"
+        | "notesToReplacement"
+        | "totalDayPortion"
+        | "details"
+      >[],
+    [getVacancies]
+  );
 
   const sortedVacancies = useMemo(
     () =>
@@ -123,20 +127,24 @@ export const SubHome: React.FC<Props> = props => {
     skip: !userId,
   });
 
-  const assignments = (getUpcomingAssignments.state === "LOADING"
-    ? []
-    : getUpcomingAssignments.data?.employee?.employeeAssignmentSchedule ??
-      []) as Pick<
-    VacancyDetail,
-    | "id"
-    | "startTimeLocal"
-    | "endTimeLocal"
-    | "assignment"
-    | "location"
-    | "vacancy"
-    | "startDate"
-    | "endDate"
-  >[];
+  const assignments = useMemo(
+    () =>
+      (getUpcomingAssignments.state === "LOADING"
+        ? []
+        : getUpcomingAssignments.data?.employee?.employeeAssignmentSchedule ??
+          []) as Pick<
+        VacancyDetail,
+        | "id"
+        | "startTimeLocal"
+        | "endTimeLocal"
+        | "assignment"
+        | "location"
+        | "vacancy"
+        | "startDate"
+        | "endDate"
+      >[],
+    [getUpcomingAssignments]
+  );
 
   const onDismissVacancy = async (orgId: string, vacancyId: string) => {
     const employeeId = determineEmployeeId(orgId);
