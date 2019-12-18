@@ -47,13 +47,13 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
   const [deleteCalendarChangeReasonsMutation] = useMutationBundle(
     DeleteCalendarChangeReason
   );
-  const deleteCalendarChangeReasons = (calendarChangeReasonsId: string) => {
+  const deleteCalendarChangeReasons = (calendarChangeReasonId: string) => {
     return deleteCalendarChangeReasonsMutation({
-      variables: { calendarChangeReasonsId: Number(calendarChangeReasonsId) },
+      variables: { calendarChangeReasonId: Number(calendarChangeReasonId) },
     });
   };
 
-  const validateCalendarChangeReasons = React.useMemo(
+  const validateCalendarChangeReason = React.useMemo(
     () =>
       Yup.object().shape({
         name: Yup.string()
@@ -91,56 +91,56 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
       .catch(function(err) {
         handleError(err);
       });
-    // const result = await createCalendarChangeReasons({
-    //   variables: {
-    //     CalendarChangeReasons: {
-    //       ...CalendarChangeReasons,
-    //       externalId:
-    //         CalendarChangeReasons.externalId &&
-    //         CalendarChangeReasons.externalId.trim().length === 0
-    //           ? null
-    //           : CalendarChangeReasons.externalId,
-    //       description:
-    //         CalendarChangeReasons.description &&
-    //         CalendarChangeReasons.description.trim().length === 0
-    //           ? null
-    //           : CalendarChangeReasons.description,
-    //     },
-    //   },
-    // });
+    const result = await createCalendarChangeReasons({
+      variables: {
+        calendarChangeReason: {
+          ...calendarChangeReason,
+          //       externalId:
+          //         calendarChangeReason.externalId &&
+          //         calendarChangeReason.externalId.trim().length === 0
+          //           ? null
+          //           : calendarChangeReason.externalId,
+          //       description:
+          //         calendarChangeReason.description &&
+          //         calendarChangeReason.description.trim().length === 0
+          //           ? null
+          //           : calendarChangeReason.description,
+        },
+      },
+    });
   };
 
   const update = async (
-    CalendarChangeReasons: CalendarChangeReasonUpdateInput
+    calendarChangeReason: CalendarChangeReasonUpdateInput
   ) => {
-    validateCalendarChangeReasons
-      .validate(CalendarChangeReasons)
+    validateCalendarChangeReason
+      .validate(calendarChangeReason)
       .catch(function(err) {
         handleError(err);
       });
-    // const result = await updateCalendarChangeReasons({
-    //   variables: {
-    //     CalendarChangeReasons: {
-    //       id: Number(CalendarChangeReasons.id),
-    //       rowVersion: CalendarChangeReasons.rowVersion,
-    //       name:
-    //         CalendarChangeReasons.name &&
-    //         CalendarChangeReasons.name.trim().length === 0
-    //           ? null
-    //           : CalendarChangeReasons.name,
-    //       externalId:
-    //         CalendarChangeReasons.externalId &&
-    //         CalendarChangeReasons.externalId.trim().length === 0
-    //           ? null
-    //           : CalendarChangeReasons.externalId,
-    //       description:
-    //         CalendarChangeReasons.description &&
-    //         CalendarChangeReasons.description.trim().length === 0
-    //           ? null
-    //           : CalendarChangeReasons.description,
-    //     },
-    //   },
-    //});
+    const result = await updateCalendarChangeReasons({
+      variables: {
+        calendarChangeReason: {
+          id: Number(calendarChangeReason.id),
+          rowVersion: calendarChangeReason.rowVersion,
+          name:
+            calendarChangeReason.name &&
+            calendarChangeReason.name.trim().length === 0
+              ? null
+              : calendarChangeReason.name,
+          externalId:
+            calendarChangeReason.externalId &&
+            calendarChangeReason.externalId.trim().length === 0
+              ? null
+              : calendarChangeReason.externalId,
+          description:
+            calendarChangeReason.description &&
+            calendarChangeReason.description.trim().length === 0
+              ? null
+              : calendarChangeReason.description,
+        },
+      },
+    });
   };
 
   const columns: Column<GetAllCalendarChangeReasonsWithinOrg.All>[] = [
@@ -172,7 +172,7 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
   }
 
   const CalendarChangeReasons = compact(
-    getCalendarChangeReasons?.data?.orgRef_CalendarChangeReasons?.all ?? []
+    getCalendarChangeReasons?.data?.orgRef_CalendarChangeReason?.all ?? []
   );
   const CalendarChangeReasonsCount = CalendarChangeReasons.length;
 
@@ -195,7 +195,7 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
         data={CalendarChangeReasons}
         onRowAdd={async newData => {
           const newCalendarChangeReason = {
-            ...CalendarChangeReasons,
+            ...calendarChangeReason,
             name: newData.name,
             externalId: newData.externalId,
             description: newData.description,
@@ -204,14 +204,14 @@ export const CalendarChangeReasons: React.FC<Props> = props => {
           getCalendarChangeReasons.refetch();
         }}
         onRowUpdate={async newData => {
-          const updateCalendarChangeReasons = {
+          const updateCalendarChangeReason = {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,
             name: newData.name,
             externalId: newData.externalId,
             description: newData.description,
           };
-          await update(updateCalendarChangeReasons);
+          await update(updateCalendarChangeReason);
           getCalendarChangeReasons.refetch();
         }}
         onRowDelete={async oldData => {
