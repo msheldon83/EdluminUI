@@ -150,6 +150,11 @@ export const PayCode: React.FC<Props> = props => {
   }
 
   const payCodes = compact(getPayCodes?.data?.orgRef_PayCode?.all ?? []);
+  const mappedData = payCodes.map(o => ({
+    ...o,
+    description: o.description?.toString(),
+    externalId: o.externalId?.toString(),
+  }));
   const payCodesCount = payCodes.length;
 
   return (
@@ -168,7 +173,7 @@ export const PayCode: React.FC<Props> = props => {
       <EditableTable
         title={`${payCodesCount} ${t("Pay Codes")}`}
         columns={columns}
-        data={payCodes}
+        data={mappedData}
         onRowAdd={async newData => {
           const newPayCode = {
             ...payCode,
