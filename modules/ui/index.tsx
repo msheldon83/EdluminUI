@@ -78,14 +78,7 @@ import {
   OrganizationsLoader,
   OrganizationsRoute,
 } from "./routes/organizations";
-import {
-  PayCodeAddLoader,
-  PayCodeAddRoute,
-  PayCodeLoader,
-  PayCodeRoute,
-  PayCodeViewEditLoader,
-  PayCodeViewEditRoute,
-} from "./routes/pay-code";
+import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
 import {
   PeopleLoader,
   PeopleRoute,
@@ -325,14 +318,7 @@ export function App() {
                           component={AccountingCodeLoader}
                           path={AccountingCodeRoute.path}
                         />
-                        <Route
-                          component={PayCodeAddLoader}
-                          path={PayCodeAddRoute.path}
-                        />
-                        <Route
-                          component={PayCodeViewEditLoader}
-                          path={PayCodeViewEditRoute.path}
-                        />
+
                         <Route
                           component={PayCodeLoader}
                           path={PayCodeRoute.path}
