@@ -11,6 +11,7 @@ import ExpandMore from "@material-ui/icons/ExpandMore";
 import * as React from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import clsx from "clsx";
+import { some, compact } from "lodash-es";
 
 type Props = NavItemType & {
   icon: JSX.Element;
@@ -31,7 +32,15 @@ export const NavLink: React.FC<Props> = props => {
   const matches =
     useRouteMatch({ exact: props.exact ?? false, path: props.route }) !==
       null && props.route;
-  const [subNavOpen, setSubNavOpen] = React.useState(false);
+
+  const subNavActive =
+    compact(
+      props.subNavItems?.map(
+        n => useRouteMatch({ path: n.route, exact: n.exact }) !== null
+      )
+    ).length === 1;
+
+  const [subNavOpen, setSubNavOpen] = React.useState(subNavActive || false);
 
   const { subNavItems = [] } = props;
   const hasSubNavItems = subNavItems && subNavItems.length > 0;
@@ -58,18 +67,13 @@ export const NavLink: React.FC<Props> = props => {
     </IconButton>
   );
 
-  const containerClasses = clsx({
-    [classes.container]: true,
-    [classes.active]: subNavOpen,
-  });
-
   const subNavClasses = clsx({
     [classes.subNavItems]: true,
     [classes.subNavItemsOpen]: subNavOpen,
   });
 
   return (
-    <div className={containerClasses}>
+    <div>
       <Link to={props.route} className={classes.link}>
         <ListItem
           button
@@ -100,13 +104,15 @@ export const NavLink: React.FC<Props> = props => {
         >
           {subNavItems.map(subNavProps => {
             const { title, route, ...linkProps } = subNavProps;
-
+            const matches =
+              useRouteMatch({ exact: true, path: route }) !== null && route;
             return (
               <li key={route}>
                 <Link
                   {...linkProps}
                   to={route}
-                  className={classes.subNavItemLink}
+                  className={`${classes.subNavItemLink} ${matches &&
+                    classes.active}`}
                 >
                   {title}
                 </Link>
@@ -180,6 +186,8 @@ const useStyles = makeStyles(theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.shorter,
     }),
+    borderRadius: theme.typography.pxToRem(4),
+    // This should have selected styles
 
     "&:hover": {
       color: theme.customColors.white,
