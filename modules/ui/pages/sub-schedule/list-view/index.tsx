@@ -21,6 +21,10 @@ export const ListView: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
+  /* TODO change to cancel vacancy detail mutation for the purposes
+     of individual detail rows. The assignment group component can
+     either use the cancelAssignement mutation or map over the details
+     and delete them individually. The former would be preferred */
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
 
   const onCancel = useCallback(

@@ -20,6 +20,8 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
   const { t } = useTranslation();
   const [showingMore, setShowingMore] = useState(false);
 
+  /* TODO change mutation to cancelVacancyDetail. This component breaks them up
+     so we only want to cancel the individual piece of the assignment */
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
 
   const onCancel = useCallback(
