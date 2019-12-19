@@ -234,7 +234,7 @@ const useStyles = makeStyles(theme => ({
     cursor: "pointer",
   },
   inactiveRow: {
-    color: theme.customColors.gray,
+    color: `${theme.customColors.gray} !important`,
   },
   tableRow: {
     borderTop: `1px solid ${theme.customColors.sectionBorder}`,
