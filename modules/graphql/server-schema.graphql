@@ -3944,9 +3944,10 @@ type SchoolYear implements ModelObjectInterface & OrgObjectInterface & DomainObj
   externalId: String
   rowVersion: String!
   name: String!
-  startDate: Date
-  endDate: Date
-  earliestDateForAbsenceEntry: Date
+  startDate: Date!
+  endDate: Date!
+  earliestDateForAbsenceEntry: Date!
+  isCurrentSchoolYear: Boolean!
 }
 
 input SchoolYearCreateInput {
