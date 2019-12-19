@@ -27,6 +27,7 @@ type NavItemType = {
 
 export const NavLink: React.FC<Props> = props => {
   const classes = useStyles();
+  const menuItemClasses = useMenuItemStyles();
   const matches =
     useRouteMatch({ exact: props.exact ?? false, path: props.route }) !==
       null && props.route;
@@ -77,13 +78,13 @@ export const NavLink: React.FC<Props> = props => {
             classes.menuItemWithSubNavItems}`}
           href={props.route}
           onClick={props.onClick}
+          classes={menuItemClasses}
         >
           <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
           <ListItemText
             primary={props.title}
             primaryTypographyProps={{
               className: classes.text,
-              noWrap: true,
             }}
           />
           {hasSubNavItems && renderSubNavIcon()}
@@ -193,5 +194,11 @@ const useStyles = makeStyles(theme => ({
   },
   expandLessIcon: {
     color: theme.customColors.white,
+  },
+}));
+
+const useMenuItemStyles = makeStyles(theme => ({
+  gutters: {
+    paddingRight: theme.typography.pxToRem(3),
   },
 }));
