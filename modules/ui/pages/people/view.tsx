@@ -23,6 +23,13 @@ import { UpdateEmployee } from "./graphql/update-employee.gen";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { OrgUserUpdateInput } from "graphql/server-types.gen";
 import { useSnackbar } from "hooks/use-snackbar";
+import { ScheduledAbsences } from "../../components/employee/components/scheduled-absences";
+import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
+import { useMemo } from "react";
+import { useCurrentSchoolYear } from "reference-data/current-school-year";
+import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
+import { EmployeeAbsenceDetail } from "ui/components/employee/types";
+import { isAfter } from "date-fns";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -35,6 +42,7 @@ export const PersonViewPage: React.FC<{}> = props => {
   const [selectedRole, setSelectedRole] = React.useState<OrgUserRole | null>(
     null
   );
+  const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
 
   const [resetPassword] = useMutationBundle(ResetPassword, {
     onError: error => {
@@ -159,6 +167,29 @@ export const PersonViewPage: React.FC<{}> = props => {
     ? OrgUserRole.Employee
     : OrgUserRole.ReplacementEmployee;
 
+  //const getAbsenceSchedule: any;
+  //if(orgUser.isEmployee){
+  const startDate = new Date();
+  const endDate = currentSchoolYear?.endDate;
+  const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
+    variables: {
+      id: employee?.id ?? "0",
+      fromDate: startDate,
+      toDate: endDate,
+    },
+    skip: !employee || !endDate,
+  });
+
+  const absences =
+    getAbsenceSchedule.state === "LOADING" ||
+    getAbsenceSchedule.state === "UPDATING"
+      ? []
+      : (getAbsenceSchedule.data?.employee
+          ?.employeeAbsenceSchedule as GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]);
+  const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
+
+  //}
+
   return (
     <>
       <PageTitle title={t("Person")} withoutHeading={!isMobile} />
@@ -225,8 +256,19 @@ export const PersonViewPage: React.FC<{}> = props => {
                 orgUser?.employee?.locations?.map(s => s?.name) ?? []
               }
             />
-            <SubstitutePreferences editing={editing} setEditing={setEditing} />
             <ReplacementCriteria editing={editing} setEditing={setEditing} />
+            <SubstitutePreferences editing={editing} setEditing={setEditing} />
+            <ScheduledAbsences
+              header={t("Upcoming Absences")}
+              absences={employeeAbsenceDetails.filter(
+                (a: EmployeeAbsenceDetail) =>
+                  isAfter(a.startTimeLocal, startDate)
+              )}
+              isLoading={
+                getAbsenceSchedule.state === "LOADING" ||
+                getAbsenceSchedule.state === "UPDATING"
+              }
+            />
           </>
         )}
     </>
