@@ -1,56 +1,48 @@
-import clsx from "clsx";
 import {
-  Link as MuiLink,
-  Grid,
   Button,
-  Typography,
   Divider,
+  Grid,
+  Link as MuiLink,
+  Typography,
 } from "@material-ui/core";
-import { makeStyles, useTheme } from "@material-ui/styles";
+import { FilterList } from "@material-ui/icons";
+import { makeStyles } from "@material-ui/styles";
+import clsx from "clsx";
 import { addDays, format, isEqual, parseISO } from "date-fns";
 import {
   useMutationBundle,
   usePagedQueryBundle,
   useQueryBundle,
 } from "graphql/hooks";
+import { OrgUser, Vacancy, VacancyDetail } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
+import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
+import { Padding } from "ui/components/padding";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
-
 import { useRouteParams } from "ui/routes/definition";
 import { SubHomeRoute } from "ui/routes/sub-home";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
-
 import { AssignmentCard } from "./components/assignment";
 import { AvailableJob } from "./components/available-job";
-
-import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
-import { Vacancy, OrgUser, VacancyDetail } from "graphql/server-types.gen";
-import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
-import { RequestVacancy } from "./graphql/request-vacancy.gen";
-import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
-import { SubJobSearch } from "./graphql/sub-job-search.gen";
 import { RequestAbsenceDialog } from "./components/request-dialog";
-
-import { Padding } from "ui/components/padding";
-
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
-import { FilterList } from "@material-ui/icons";
+import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
+import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
+import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
+import { RequestVacancy } from "./graphql/request-vacancy.gen";
+import { SubJobSearch } from "./graphql/sub-job-search.gen";
 
 type Props = {};
 
 export const SubHome: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
   const classes = useStyles();
   const params = useRouteParams(SubHomeRoute);
   const isMobile = useIsMobile();
@@ -58,6 +50,9 @@ export const SubHome: React.FC<Props> = props => {
   const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
   const [employeeId, setEmployeeId] = React.useState<string | null>(null);
   const [vacancyId, setVacancyId] = React.useState<string | null>(null);
+  const [dismissedAssignments, setDismissedAssignments] = React.useState<
+    string[]
+  >([]);
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy);
   const [requestVacancyMutation] = useMutationBundle(RequestVacancy);
   const [filters] = useQueryParamIso(FilterQueryParams);
@@ -90,24 +85,34 @@ export const SubHome: React.FC<Props> = props => {
     }
   );
 
-  const vacancies = (getVacancies.state === "LOADING" ||
-  getVacancies.state === "UPDATING"
-    ? []
-    : getVacancies.data?.vacancy?.userJobSearch?.results ?? []) as Pick<
-    Vacancy,
-    | "id"
-    | "organization"
-    | "position"
-    | "absence"
-    | "startTimeLocal"
-    | "endTimeLocal"
-    | "startDate"
-    | "endDate"
-    | "notesToReplacement"
-    | "totalDayPortion"
-    | "details"
-  >[];
-  const sortedVacancies = vacancies.sort(x => x.startTimeLocal);
+  const vacancies = useMemo(
+    () =>
+      (getVacancies.state === "DONE" || getVacancies.state === "UPDATING"
+        ? getVacancies.data.vacancy?.userJobSearch?.results ?? []
+        : []) as Pick<
+        Vacancy,
+        | "id"
+        | "organization"
+        | "position"
+        | "absence"
+        | "startTimeLocal"
+        | "endTimeLocal"
+        | "startDate"
+        | "endDate"
+        | "notesToReplacement"
+        | "totalDayPortion"
+        | "details"
+      >[],
+    [getVacancies]
+  );
+
+  const sortedVacancies = useMemo(
+    () =>
+      vacancies
+        .filter(x => !dismissedAssignments.includes(x.id))
+        .sort(x => x.startTimeLocal),
+    [vacancies, dismissedAssignments]
+  );
 
   const fromDate = useMemo(() => new Date(), []);
   const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
@@ -122,25 +127,29 @@ export const SubHome: React.FC<Props> = props => {
     skip: !userId,
   });
 
-  const assignments = (getUpcomingAssignments.state === "LOADING" ||
-  getUpcomingAssignments.state === "UPDATING"
-    ? []
-    : getUpcomingAssignments.data?.employee?.employeeAssignmentSchedule ??
-      []) as Pick<
-    VacancyDetail,
-    | "id"
-    | "startTimeLocal"
-    | "endTimeLocal"
-    | "assignment"
-    | "location"
-    | "vacancy"
-    | "startDate"
-    | "endDate"
-  >[];
+  const assignments = useMemo(
+    () =>
+      (getUpcomingAssignments.state === "LOADING"
+        ? []
+        : getUpcomingAssignments.data?.employee?.employeeAssignmentSchedule ??
+          []) as Pick<
+        VacancyDetail,
+        | "id"
+        | "startTimeLocal"
+        | "endTimeLocal"
+        | "assignment"
+        | "location"
+        | "vacancy"
+        | "startDate"
+        | "endDate"
+      >[],
+    [getUpcomingAssignments]
+  );
 
   const onDismissVacancy = async (orgId: string, vacancyId: string) => {
     const employeeId = determineEmployeeId(orgId);
     if (employeeId != 0) {
+      setDismissedAssignments([...dismissedAssignments, vacancyId]);
       await Promise.resolve(
         dismissVacancyMutation({
           variables: {
@@ -194,20 +203,24 @@ export const SubHome: React.FC<Props> = props => {
       )}`;
 
   const renderAssignments = () => {
-    return assignments.slice(0, 3).map((assignment, index, assignments) => {
-      const classNames = clsx({
-        [classes.lastAssignmentInList]: index == assignments.length - 1, // last one
-      });
+    const numberOfAssignments = isMobile ? 2 : 3;
 
-      return (
-        <AssignmentCard
-          vacancyDetail={assignment}
-          shadeRow={false}
-          key={index}
-          className={classNames}
-        />
-      );
-    });
+    return assignments
+      .slice(0, numberOfAssignments)
+      .map((assignment, index, assignments) => {
+        const classNames = clsx({
+          [classes.lastAssignmentInList]: index == assignments.length - 1, // last one
+        });
+
+        return (
+          <AssignmentCard
+            vacancyDetail={assignment}
+            shadeRow={false}
+            key={index}
+            className={classNames}
+          />
+        );
+      });
   };
 
   return (
@@ -218,10 +231,14 @@ export const SubHome: React.FC<Props> = props => {
         spacing={2}
         alignItems="stretch"
       >
-        <SectionHeader title={upcomingWorkTitle} />
-        <Grid item xs={12} sm={6} lg={6}>
-          {getUpcomingAssignments.state === "LOADING" ||
-          getUpcomingAssignments.state === "UPDATING" ? (
+        <Grid item xs={12} style={{ paddingBottom: 0 }}>
+          <SectionHeader
+            title={upcomingWorkTitle}
+            titleClassName={classes.title}
+          />
+        </Grid>
+        <Grid item xs={12} sm={12} md={6} lg={6}>
+          {getUpcomingAssignments.state === "LOADING" ? (
             <Section>
               <Typography variant="h5">
                 {t("Loading Upcoming Assignments")}
@@ -291,8 +308,7 @@ export const SubHome: React.FC<Props> = props => {
             {showFilters && <Filters />}
             <div>
               <Divider className={classes.header} />
-              {getVacancies.state === "LOADING" ||
-              getVacancies.state === "UPDATING" ? (
+              {getVacancies.state === "LOADING" ? (
                 <Grid item>
                   <Typography variant="h5">
                     {t("Loading Available Jobs")}
@@ -336,8 +352,16 @@ const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(2),
   },
+  title: {
+    marginBottom: 0,
+  },
   upcomingWork: {
     backgroundColor: "transparent",
+
+    [theme.breakpoints.down("md")]: {
+      padding: theme.spacing(2),
+      paddingTop: 0,
+    },
   },
   lastAssignmentInList: {
     opacity: 0.4,

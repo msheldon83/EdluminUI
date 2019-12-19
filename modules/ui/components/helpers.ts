@@ -37,3 +37,13 @@ export const parseDayPortion = (t: i18next.TFunction, dayPortion: number) => {
     return t("Full days");
   }
 };
+
+export const getBeginningOfSchoolYear = (date: Date) => {
+  // School years are defined as july to june
+  const july = 6; /* months start at 0 in js dates */
+  let year = date.getFullYear();
+  if (date.getMonth() < july) {
+    year -= 1;
+  }
+  return new Date(year, july);
+};

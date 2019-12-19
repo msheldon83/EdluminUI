@@ -81,6 +81,14 @@ type Props = {
   arrangeSubButtonTitle?: string;
   /** default: pre-arranged */
   arrangedSubText?: string;
+  disableReplacementInteractions?: boolean;
+  replacementEmployeeId?: number;
+  replacementEmployeeName?: string;
+  onRemoveReplacement: (
+    replacementEmployeeId: number,
+    replacementEmployeeName?: string,
+    assignmentRowVersion?: string
+  ) => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -248,11 +256,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [onSwitchMonth]
   );
 
-  const removePrearrangedReplacementEmployee = async () => {
-    await setValue("replacementEmployeeId", undefined);
-    await setValue("replacementEmployeeName", undefined);
-  };
-
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -376,12 +379,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </Typography>
 
         <Paper>
-          {values.replacementEmployeeId && (
+          {props.replacementEmployeeId && (
             <AssignedSub
-              employeeId={values.replacementEmployeeId}
-              employeeName={values.replacementEmployeeName || ""}
+              disableReplacementInteractions={
+                props.disableReplacementInteractions
+              }
+              employeeId={props.replacementEmployeeId}
+              employeeName={props.replacementEmployeeName || ""}
               subText={props.arrangedSubText ?? t("pre-arranged")}
-              onRemove={removePrearrangedReplacementEmployee}
+              onRemove={props.onRemoveReplacement}
             />
           )}
           <div className={classes.container}>
@@ -406,6 +412,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
             {wantsReplacement && (
               <SubstituteRequiredDetails
+                disableReplacementInteractions={
+                  props.disableReplacementInteractions
+                }
                 setValue={setValue}
                 vacancies={props.vacancies}
                 setStep={props.setStep}
@@ -416,6 +425,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 isAdmin={!!isAdmin}
                 arrangeSubButtonTitle={props.arrangeSubButtonTitle}
                 disabledDates={props.disabledDates}
+                replacementEmployeeId={props.replacementEmployeeId}
+                replacementEmployeeName={props.replacementEmployeeName}
               />
             )}
           </div>

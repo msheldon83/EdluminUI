@@ -101,7 +101,6 @@ const useStyles = makeStyles<Theme, FiveWeekCalendarProps>(theme => ({
     border: props =>
       props.contained ? "1px solid rgba(0, 0, 0, 0.23)" : "none",
     borderRadius: theme.typography.pxToRem(4),
-    minWidth: theme.typography.pxToRem(450),
     overflow: "hidden",
     padding: props => (props.contained ? theme.spacing(3) : 0),
     position: "relative",

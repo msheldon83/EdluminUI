@@ -31,9 +31,10 @@ type Props = {
   employeeId?: string;
   positionId?: string;
   positionName?: string;
-  setStep: (s: "absence") => void;
-  setValue: SetValue;
   disabledDates?: DisabledDate[];
+  selectButtonText?: string;
+  onSelectReplacement: (replacementId: number, replacementName: string) => void;
+  onCancel: () => void;
 };
 
 const buildVacancyInput = (
@@ -84,7 +85,7 @@ export const AssignSub: React.FC<Props> = props => {
   >();
 
   if (props.vacancies.length === 0) {
-    props.setStep("absence");
+    props.onCancel();
   }
 
   // Vacancy Details collapse configuration
@@ -157,15 +158,12 @@ export const AssignSub: React.FC<Props> = props => {
     }));
   }, [replacementEmployees]);
 
-  const { setValue, setStep } = props;
-  const selectReplacementEmployee = useCallback(
-    async (replacementEmployeeId: number, name: string) => {
-      await setValue("replacementEmployeeId", replacementEmployeeId);
-      await setValue("replacementEmployeeName", name);
-      setStep("absence");
-    },
-    [setValue, setStep]
-  );
+  const selectReplacementEmployee = async (
+    replacementEmployeeId: number,
+    name: string
+  ) => {
+    props.onSelectReplacement(replacementEmployeeId, name);
+  };
 
   const setSearch = (filters: ReplacementEmployeeFilters) => {
     updateSearch(filters);
@@ -214,11 +212,13 @@ export const AssignSub: React.FC<Props> = props => {
     ? t("Assign Substitute")
     : `${t("Create Absence")}: ${t("Prearranging Substitute")}`;
 
+  const selectTitle = props.selectButtonText || t("Select")!;
   const columns = useMemo(
     () =>
       getAssignSubColumns(
         tableData,
         props.userIsAdmin,
+        selectTitle,
         selectReplacementEmployee,
         isMobile,
         theme,
@@ -250,7 +250,7 @@ export const AssignSub: React.FC<Props> = props => {
           )}
         </div>
         <div>
-          <Button variant="outlined" onClick={() => props.setStep("absence")}>
+          <Button variant="outlined" onClick={props.onCancel}>
             {t("Back to Absence Details")}
           </Button>
         </div>

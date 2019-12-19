@@ -8,6 +8,7 @@ type Props = {
   action?: Action;
   cancel?: Action;
   submit?: Action;
+  titleClassName?: string;
 };
 type Action = {
   text: string;
@@ -16,7 +17,9 @@ type Action = {
 };
 
 export const SectionHeader: React.FC<Props> = props => {
+  const { titleClassName = "" } = props;
   const classes = useStyles();
+
   return (
     <Grid
       container
@@ -25,7 +28,10 @@ export const SectionHeader: React.FC<Props> = props => {
       alignItems="center"
     >
       <Grid item>
-        <Typography variant="h5" className={classes.title}>
+        <Typography
+          variant="h5"
+          className={`${classes.title} ${titleClassName}`}
+        >
           {props.title}
         </Typography>
       </Grid>
@@ -52,7 +58,9 @@ export const SectionHeader: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   header: {
-    marginBottom: theme.spacing(2),
+    [theme.breakpoints.up("md")]: {
+      marginBottom: theme.spacing(2),
+    },
   },
   title: {
     marginBottom: theme.spacing(1),

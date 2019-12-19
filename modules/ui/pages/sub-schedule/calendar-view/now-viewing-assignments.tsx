@@ -53,7 +53,7 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
   const moreCount = data && data.length - 1;
 
   return (
-    <div className={classes.container}>
+    <div>
       {firstAssignment ? (
         <AssignmentRow
           key={firstAssignment.id}
@@ -65,7 +65,6 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
       ) : (
         <NoAssignment date={props.date} />
       )}
-      <Divider />
 
       {ableToShowMore &&
         (!showingMore ? (
@@ -77,6 +76,7 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
           </TextButton>
         ) : (
           <>
+            <Divider />
             {otherAssignments &&
               otherAssignments.map((a, i) => (
                 <>
@@ -103,9 +103,6 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  container: {
-    marginBottom: theme.spacing(2),
-  },
   moreOrLess: {
     textTransform: "none",
     textDecoration: "underline",

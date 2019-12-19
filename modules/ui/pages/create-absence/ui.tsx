@@ -274,6 +274,22 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   );
   const onCancel = React.useCallback(() => setStep("absence"), [setStep]);
 
+  const onAssignSub = React.useCallback(
+    (replacementId: number, replacementName: string) => {
+      /* eslint-disable @typescript-eslint/no-floating-promises */
+      setValue("replacementEmployeeId", replacementId);
+      setValue("replacementEmployeeName", replacementName);
+      /* eslint-enable @typescript-eslint/no-floating-promises */
+      setStep("absence");
+    },
+    [setStep, setValue]
+  );
+
+  const removePrearrangedReplacementEmployee = React.useCallback(async () => {
+    await setValue("replacementEmployeeId", undefined);
+    await setValue("replacementEmployeeName", undefined);
+  }, [setValue]);
+
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
@@ -315,6 +331,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 disabledDates={disabledDates}
                 balanceUsageText={absenceUsageText || undefined}
                 setVacanciesInput={setVacanciesInput}
+                replacementEmployeeId={formValues.replacementEmployeeId}
+                replacementEmployeeName={formValues.replacementEmployeeName}
+                onRemoveReplacement={removePrearrangedReplacementEmployee}
               />
             </Section>
           </>
@@ -328,9 +347,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             positionId={props.positionId}
             positionName={props.positionName}
             vacancies={projectedVacancies}
-            setStep={setStep}
-            setValue={setValue}
             disabledDates={disabledDates}
+            onCancel={onCancel}
+            onSelectReplacement={onAssignSub}
           />
         )}
         {step === "confirmation" && (

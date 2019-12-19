@@ -13,7 +13,8 @@ type Props = {
     employeeId: number,
     assignmentId?: string,
     assignmentRowVersion?: string
-  ) => Promise<void>;
+  ) => void;
+  disableReplacementInteractions?: boolean;
 };
 
 export const AssignedSub: React.FC<Props> = props => {
@@ -34,15 +35,18 @@ export const AssignedSub: React.FC<Props> = props => {
       <div>
         {props.onRemove && (
           <Button
+            disabled={props.disableReplacementInteractions}
             className={classes.removeButton}
             variant="outlined"
-            onClick={async () =>
-              await props.onRemove!(
-                props.employeeId,
-                props.assignmentId,
-                props.assignmentRowVersion
-              )
-            }
+            onClick={() => {
+              if (props.onRemove) {
+                props.onRemove(
+                  props.employeeId,
+                  props.assignmentId,
+                  props.assignmentRowVersion
+                );
+              }
+            }}
           >
             {t("Remove")}
           </Button>

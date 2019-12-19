@@ -58,12 +58,13 @@ fragment FullAbsenceDetails on Absence {
       }
       payCodeId
       assignment {
-        id
-        employee {
-          id
-          firstName
-          lastName
-        }
+	id
+	rowVersion
+	employee {
+	  id
+	  firstName
+	  lastName
+	}
       }
       accountingCodeAllocations {
         id

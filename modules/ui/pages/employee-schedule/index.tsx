@@ -1,30 +1,33 @@
-import * as React from "react";
+import { Button, Divider, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { useTranslation } from "react-i18next";
-import { PageTitle } from "ui/components/page-title";
-import { Section } from "ui/components/section";
-import { Link } from "react-router-dom";
-import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
-import { useRouteParams } from "ui/routes/definition";
-import { Grid, Button, Divider } from "@material-ui/core";
-import { useGetEmployee } from "reference-data/employee";
-import { useCurrentSchoolYear } from "reference-data/current-school-year";
-import { useMemo, useState } from "react";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
-import { useSnackbar } from "hooks/use-snackbar";
-import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
-import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
-import { ScheduledAbsences } from "ui/components/employee/components/scheduled-absences";
-import { CalendarView } from "./components/calendar-view";
 import { parseISO } from "date-fns";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useSnackbar } from "hooks/use-snackbar";
+import * as React from "react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { useCurrentSchoolYear } from "reference-data/current-school-year";
+import { useGetEmployee } from "reference-data/employee";
+import { ScheduledAbsences } from "ui/components/employee/components/scheduled-absences";
+import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
+import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
+import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
+import { ScheduleDate } from "ui/components/employee/types";
+import { PageTitle } from "ui/components/page-title";
 import { ScheduleHeader } from "ui/components/schedule/schedule-header";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
+import { Section } from "ui/components/section";
+import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
+import { useRouteParams } from "ui/routes/definition";
 import {
-  EmployeeScheduleRoute,
-  EmployeeScheduleListViewRoute,
   EmployeeScheduleCalendarViewRoute,
+  EmployeeScheduleListViewRoute,
+  EmployeeScheduleRoute,
 } from "ui/routes/employee-schedule";
+import { QueryOrgUsers } from "../sub-home/graphql/get-orgusers.gen";
+import { CalendarView } from "./components/calendar-view";
+import { SelectedDateView } from "./components/selected-date-view";
 
 type Props = {
   view: "list" | "calendar";
@@ -37,10 +40,16 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   const createAbsenceParams = useRouteParams(EmployeeCreateAbsenceRoute);
   const params = useRouteParams(EmployeeScheduleRoute);
   const employee = useGetEmployee();
+  const getOrgUsers = useQueryBundle(QueryOrgUsers, {
+    fetchPolicy: "cache-first",
+  });
+  const userId =
+    getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
+      ? undefined
+      : getOrgUsers.data?.userAccess?.me?.user?.id;
 
-  // TODO: Switch to using School Year dropdown
   const currentSchoolYear = useCurrentSchoolYear(employee?.orgId?.toString());
-  // TODO: Dropdown filter to start with Today or the beginning of the School year (default of Today)
+
   const startDateOfToday = useMemo(() => new Date(), []);
   const startDateOfSchoolYear = useMemo(
     () =>
@@ -54,13 +63,14 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   );
 
   const [queryStartDate, setQueryStartDate] = useState(startDateOfToday);
+  const [queryEndDate, setQueryEndDate] = useState(endDate);
 
   const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
     variables: {
       id: employee?.id ?? "0",
       fromDate:
         props.view === "calendar" ? startDateOfSchoolYear : queryStartDate,
-      toDate: endDate,
+      toDate: queryEndDate,
     },
     skip: !employee || !endDate,
   });
@@ -82,6 +92,10 @@ export const EmployeeSchedule: React.FC<Props> = props => {
     },
   });
 
+  /* selected schedule dates moved here to support selected date view */
+  const [selectedScheduleDates, setSelectedScheduleDates] = useState<
+    ScheduleDate[]
+  >([]);
   const absences =
     getAbsenceSchedule.state === "LOADING" ||
     getAbsenceSchedule.state === "UPDATING"
@@ -106,21 +120,37 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   }
 
   return (
-    <>
-      <Grid container justify="space-between" alignItems="center">
-        <Grid item>
-          <PageTitle title={t("My schedule")} />
+    <div className={classes.pageContainer}>
+      <div className={classes.sticky}>
+        <Grid container justify="space-between" alignItems="center">
+          <Grid item>
+            <PageTitle title={t("My Schedule")} />
+          </Grid>
+          <Grid item>
+            <Button
+              variant="outlined"
+              component={Link}
+              to={EmployeeCreateAbsenceRoute.generate(createAbsenceParams)}
+            >
+              {t("Create Absence")}
+            </Button>
+          </Grid>
+          {props.view === "calendar" && (
+            <Grid item xs={12}>
+              <Section className={classes.absenceSection}>
+                {selectedScheduleDates && selectedScheduleDates.length > 0 && (
+                  <SelectedDateView
+                    scheduleDates={selectedScheduleDates}
+                    selectedDate={selectedScheduleDates[0].date}
+                    cancelAbsence={cancelAbsence}
+                  />
+                )}
+              </Section>
+            </Grid>
+          )}
         </Grid>
-        <Grid item>
-          <Button
-            variant="outlined"
-            component={Link}
-            to={EmployeeCreateAbsenceRoute.generate(createAbsenceParams)}
-          >
-            {t("Create Absence")}
-          </Button>
-        </Grid>
-      </Grid>
+      </div>
+
       <Section className={classes.container}>
         <Grid container>
           <Grid item xs={12} className={classes.filters}>
@@ -128,10 +158,12 @@ export const EmployeeSchedule: React.FC<Props> = props => {
               <ScheduleHeader
                 view={props.view}
                 today={startDateOfToday}
-                beginningOfSchoolYear={startDateOfSchoolYear}
-                endOfSchoolYear={endDate}
+                beginningOfCurrentSchoolYear={startDateOfSchoolYear}
+                endOfSchoolCurrentYear={endDate}
                 startDate={queryStartDate}
                 setStartDate={setQueryStartDate}
+                setEndDate={setQueryEndDate}
+                userId={userId}
               />
             </div>
             <div>
@@ -163,18 +195,19 @@ export const EmployeeSchedule: React.FC<Props> = props => {
             <Grid item xs={12}>
               <div className={classes.calendarContent}>
                 <CalendarView
+                  selectedScheduleDates={selectedScheduleDates}
+                  setSelectedScheduleDates={setSelectedScheduleDates}
                   employeeId={employee?.id}
                   startDate={startDateOfSchoolYear}
                   endDate={endDate}
                   absences={employeeAbsenceDetails}
-                  cancelAbsence={cancelAbsence}
                 />
               </div>
             </Grid>
           )}
         </Grid>
       </Section>
-    </>
+    </div>
   );
 };
 
@@ -196,5 +229,28 @@ const useStyles = makeStyles(theme => ({
   },
   calendarContent: {
     padding: theme.spacing(),
+  },
+  pageContainer: {
+    display: "block",
+    overflowY: "scroll",
+    height: "100vh",
+    position: "fixed",
+    paddingRight: theme.spacing(3),
+  },
+  sticky: {
+    position: "sticky",
+    top: 0,
+    zIndex: 1,
+    backgroundColor: theme.customColors.appBackgroundGray,
+    boxShadow: `0 ${theme.typography.pxToRem(16)} ${theme.typography.pxToRem(
+      16
+    )} -${theme.typography.pxToRem(13)} ${
+      theme.customColors.appBackgroundGray
+    }`,
+    marginBottom: theme.spacing(3),
+  },
+  absenceSection: {
+    padding: theme.spacing(1),
+    marginBottom: 0,
   },
 }));
