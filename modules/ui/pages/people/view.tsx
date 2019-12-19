@@ -23,6 +23,7 @@ import { UpdateEmployee } from "./graphql/update-employee.gen";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { OrgUserUpdateInput } from "graphql/server-types.gen";
 import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -38,75 +39,31 @@ export const PersonViewPage: React.FC<{}> = props => {
 
   const [resetPassword] = useMutationBundle(ResetPassword, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
   const [deleteOrgUserMutation] = useMutationBundle(DeleteOrgUser, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
-  const deleteOrgUser = React.useCallback(() => {
-    history.push(PeopleRoute.generate(params));
-    return deleteOrgUserMutation({
+  const deleteOrgUser = React.useCallback(async () => {
+    await deleteOrgUserMutation({
       variables: {
         orgUserId: Number(params.orgUserId),
       },
     });
+    history.push(PeopleRoute.generate(params));
   }, [deleteOrgUserMutation, history, params]);
 
   const [updateEmployee] = useMutationBundle(UpdateEmployee, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
   const [updateOrgUser] = useMutationBundle(UpdateOrgUser, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
 
@@ -143,14 +100,12 @@ export const PersonViewPage: React.FC<{}> = props => {
     getOrgUserLastLogin?.data?.orgUser?.lastLoginById?.lastLogin;
 
   const onUpdateOrgUser = async (orgUser: OrgUserUpdateInput) => {
-    const result = await updateOrgUser({
+    await updateOrgUser({
       variables: {
         orgUser: orgUser,
       },
     });
-    if (result) {
-      setEditing(null);
-    }
+    setEditing(null);
   };
 
   const defaultSelectedRole = orgUser.isAdmin
