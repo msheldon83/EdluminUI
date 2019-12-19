@@ -10,6 +10,8 @@ import { groupAssignmentsByVacancy } from "../calendar-view/grouping-helpers";
 import { AssignmentRow } from "../assignment-row";
 import { useTranslation } from "react-i18next";
 import { CancelAssignment } from "ui/components/absence/graphql/cancel-assignment.gen";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {
   userId?: string;
@@ -20,26 +22,17 @@ type Props = {
 export const ListView: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const { openSnackbar } = useSnackbar();
 
   /* TODO change to cancel vacancy detail mutation for the purposes
      of individual detail rows. The assignment group component can
      either use the cancelAssignement mutation or map over the details
      and delete them individually. The former would be preferred */
-  const [cancelAssignment] = useMutationBundle(CancelAssignment);
-
-  const onCancel = useCallback(
-    async (id: number, rowVersion: string) => {
-      await cancelAssignment({
-        variables: {
-          cancelRequest: {
-            id,
-            rowVersion,
-          },
-        },
-      });
+  const [cancelAssignment] = useMutationBundle(CancelAssignment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
     },
-    [cancelAssignment]
-  );
+  });
 
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
@@ -61,6 +54,21 @@ export const ListView: React.FC<Props> = props => {
     }
     return [];
   }, [upcomingAssignments]);
+
+  const onCancel = useCallback(
+    async (id: number, rowVersion: string) => {
+      await cancelAssignment({
+        variables: {
+          cancelRequest: {
+            id,
+            rowVersion,
+          },
+        },
+      });
+      await upcomingAssignments.refetch();
+    },
+    [cancelAssignment, upcomingAssignments]
+  );
 
   const groupedAssignments = useMemo(
     () => groupAssignmentsByVacancy(assignments),
