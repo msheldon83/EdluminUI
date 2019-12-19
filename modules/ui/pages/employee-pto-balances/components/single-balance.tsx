@@ -3,6 +3,7 @@ import { Grid, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 import clsx from "clsx";
+import { round } from "lodash-es";
 
 type Props = {
   name: string;
@@ -20,12 +21,13 @@ export const SingleBalance: React.FC<Props> = props => {
   const balanceTrackingType =
     props.trackingType === "DAILY" ? t("Days") : t("Hours");
 
-  const usedPercentage = props.usedBalance / props.initialBalance;
-  const plannedPercentage = props.plannedBalance / props.initialBalance;
-  const negativeBalance = usedPercentage + plannedPercentage > 1;
+  const usedBalance = round(props.usedBalance, 1);
+  const plannedBalance = round(props.plannedBalance, 1);
+  const remainingBalance = round(props.remainingBalance, 1);
 
-  console.log(`used: ${usedPercentage}`);
-  console.log(`planned: ${plannedPercentage}`);
+  const usedPercentage = usedBalance / props.initialBalance;
+  const plannedPercentage = plannedBalance / props.initialBalance;
+  const negativeBalance = usedPercentage + plannedPercentage > 1;
 
   return (
     <>
@@ -35,7 +37,8 @@ export const SingleBalance: React.FC<Props> = props => {
         alignItems="center"
         spacing={2}
         className={clsx({
-          [classes.shadedRow]: props.shadeRow,
+          [classes.shadedRow]: props.shadeRow,  
+          [classes.container]: true,
         })}
       >
         <Grid item xs={2}>
@@ -62,7 +65,10 @@ export const SingleBalance: React.FC<Props> = props => {
                     [classes.barPlanned]: true,
                     [classes.barRoundLeft]: usedPercentage === 0,
                     [classes.barRoundRight]:
-                      usedPercentage + plannedPercentage === 1,
+                      usedPercentage + plannedPercentage === 1 &&
+                      plannedPercentage < 1,
+                    [classes.barRoundBoth]:
+                      usedPercentage === 0 && plannedPercentage === 1,
                   })}
                 />
               </>
@@ -89,13 +95,13 @@ export const SingleBalance: React.FC<Props> = props => {
           </div>
         </Grid>
         <Grid item xs={1}>
-          <div>{props.usedBalance}</div>
+          <div>{usedBalance}</div>
         </Grid>
         <Grid item xs={1}>
-          <div>{props.plannedBalance}</div>
+          <div>{plannedBalance}</div>
         </Grid>
         <Grid item xs={1}>
-          <div>{props.remainingBalance}</div>
+          <div>{remainingBalance}</div>
         </Grid>
       </Grid>
     </>
@@ -106,8 +112,8 @@ export const useStyles = makeStyles(theme => ({
   shadedRow: {
     background: theme.customColors.lightGray,
   },
-  paper: {
-    padding: theme.spacing(2),
+  container: {
+    padding: theme.spacing(1),
   },
   barRoot: {
     width: "100%",

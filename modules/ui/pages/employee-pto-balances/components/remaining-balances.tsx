@@ -11,6 +11,7 @@ import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 
 type Props = {
   employeeId: string | undefined;
+  schoolYearId?: string;
   showEdit: boolean;
   editing?: string | null;
   setEditing?: React.Dispatch<React.SetStateAction<string | null>>;
@@ -24,7 +25,8 @@ export const RemainingBalances: React.FC<Props> = props => {
 
   const getAbsenceReasonBalances = useQueryBundle(GetAbsenceReasonBalances, {
     variables: {
-      id: props.employeeId,
+      employeeId: props.employeeId ?? "",
+      schoolYearId: props.schoolYearId,
     },
     skip: !props.employeeId,
   });
@@ -32,8 +34,7 @@ export const RemainingBalances: React.FC<Props> = props => {
   const balances =
     getAbsenceReasonBalances.state === "LOADING"
       ? []
-      : getAbsenceReasonBalances.data?.employee?.byId?.absenceReasonBalances ??
-        [];
+      : getAbsenceReasonBalances.data?.absenceReasonBalance?.byEmployeeId ?? [];
 
   return (
     <>
@@ -86,11 +87,13 @@ export const RemainingBalances: React.FC<Props> = props => {
                     key={index}
                     name={balance?.absenceReason?.name ?? ""}
                     initialBalance={balance?.initialBalance ?? 0}
-                    usedBalance={balance?.usedBalance ?? 0}
-                    plannedBalance={0}
+                    usedBalance={
+                      balance?.usedBalance - balance?.plannedBalance ?? 0
+                    }
+                    plannedBalance={balance?.plannedBalance}
                     remainingBalance={balance?.unusedBalance ?? 0}
                     trackingType={
-                      balance?.absenceReasonTrackingTypeId ??
+                      balance?.absenceReason?.absenceReasonTrackingTypeId ??
                       ("DAILY" as AbsenceReasonTrackingTypeId)
                     }
                     shadeRow={index % 2 != 0}
