@@ -5,6 +5,10 @@ export const CalendarDayTypes: {
   name: string;
 }[] = [
   {
+    enumValue: "CANCELLED_DAY" as CalendarDayType,
+    name: "Cancelled Day",
+  },
+  {
     enumValue: "INSTRUCTIONAL_DAY" as CalendarDayType,
     name: "Instructional Day",
   },
@@ -12,9 +16,5 @@ export const CalendarDayTypes: {
   {
     enumValue: "TEACHER_WORK_DAY" as CalendarDayType,
     name: "Teacher Work Day",
-  },
-  {
-    enumValue: "CANCELLED_DAY" as CalendarDayType,
-    name: "Cancelled Day",
   },
 ];

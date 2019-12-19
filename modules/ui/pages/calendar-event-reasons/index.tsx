@@ -2,6 +2,7 @@ import { Grid, makeStyles } from "@material-ui/core";
 import { useTheme } from "@material-ui/styles";
 import { useIsMobile } from "hooks";
 import * as React from "react";
+import { useCallback, useMemo } from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import * as Yup from "yup";
@@ -20,7 +21,9 @@ import { useRouteParams } from "ui/routes/definition";
 import { GetAllCalendarChangeReasonsWithinOrg } from "ui/pages/calendar-event-reasons/graphql/get-calendar-event-reasons.gen";
 import { UpdateCalendarChangeReason } from "./graphql/update.gen";
 import { DeleteCalendarChangeReason } from "./graphql/delete.gen";
+import { CalendarDayTypes } from "reference-data/calendar-day-type";
 import { ShowErrors } from "ui/components/error-helpers";
+import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 
 type Props = {};
 
@@ -44,6 +47,21 @@ export const CalendarChangeReason: React.FC<Props> = props => {
       variables: { orgId: params.organizationId, includeExpired },
     }
   );
+
+  const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(
+    params.organizationId
+  );
+
+  const workDayScheduleVariantTypes = orgWorkDayScheduleVariantTypes.reduce(
+    (o: any, key: any) => ({ ...o, [key.id]: key.name }),
+    {}
+  );
+
+  const calendarDayTypes = CalendarDayTypes.reduce(
+    (o: any, key: any) => ({ ...o, [key.enumValue]: key.name }),
+    {}
+  );
+
   const [deleteCalendarChangeReasonsMutation] = useMutationBundle(
     DeleteCalendarChangeReason,
     {
@@ -66,6 +84,10 @@ export const CalendarChangeReason: React.FC<Props> = props => {
           .required(t("Name is required")),
         externalId: Yup.string().nullable(),
         description: Yup.string().nullable(),
+        calendarDayTypeId: Yup.string()
+          .nullable()
+          .required(t("Day Type is required")),
+        workDayScheduleVariantId: Yup.string().nullable(),
       }),
     [t]
   );
@@ -104,6 +126,17 @@ export const CalendarChangeReason: React.FC<Props> = props => {
             calendarChangeReason.description.trim().length === 0
               ? null
               : calendarChangeReason.description,
+          workDayScheduleVariantTypeId:
+            calendarChangeReason.workDayScheduleVariantTypeId &&
+            calendarChangeReason.workDayScheduleVariantTypeId.toString()
+              .length === 0
+              ? null
+              : calendarChangeReason.workDayScheduleVariantTypeId,
+          calendarDayTypeId:
+            calendarChangeReason.calendarDayTypeId &&
+            calendarChangeReason.calendarDayTypeId.toString().length === 0
+              ? null
+              : calendarChangeReason.calendarDayTypeId,
         },
       },
     });
@@ -132,6 +165,17 @@ export const CalendarChangeReason: React.FC<Props> = props => {
             calendarChangeReason.description.trim().length === 0
               ? null
               : calendarChangeReason.description,
+          workDayScheduleVariantTypeId:
+            calendarChangeReason.workDayScheduleVariantTypeId &&
+            calendarChangeReason.workDayScheduleVariantTypeId.toString()
+              .length === 0
+              ? null
+              : calendarChangeReason.workDayScheduleVariantTypeId,
+          calendarDayTypeId:
+            calendarChangeReason.calendarDayTypeId &&
+            calendarChangeReason.calendarDayTypeId.toString().length === 0
+              ? null
+              : calendarChangeReason.calendarDayTypeId,
         },
       },
     });
@@ -154,13 +198,20 @@ export const CalendarChangeReason: React.FC<Props> = props => {
     },
     {
       title: t("Day Type"),
-      field: "calendarDayTypeEnum",
+      field: "calendarDayTypeId",
       searchable: true,
       hidden: isMobile,
       editable: "always",
+      lookup: calendarDayTypes,
     },
-    //Add enum drop down
-    //Work Day as well
+    {
+      title: t("Work Day Schedule"),
+      field: "workDayScheduleVariantTypeId",
+      searchable: true,
+      hidden: isMobile,
+      editable: "always",
+      lookup: workDayScheduleVariantTypes,
+    },
   ];
 
   if (getCalendarChangeReasons.state === "LOADING") {
@@ -170,6 +221,10 @@ export const CalendarChangeReason: React.FC<Props> = props => {
   const CalendarChangeReasons = compact(
     getCalendarChangeReasons?.data?.orgRef_CalendarChangeReason?.all ?? []
   );
+  const mappedData = CalendarChangeReasons.map(o => ({
+    ...o,
+    externalId: o.externalId === null ? o.externalId : "",
+  }));
   const CalendarChangeReasonsCount = CalendarChangeReasons.length;
 
   return (
@@ -188,12 +243,17 @@ export const CalendarChangeReason: React.FC<Props> = props => {
       <EditableTable
         title={`${CalendarChangeReasonsCount} ${t("Calendar Event Reasons")}`}
         columns={columns}
-        data={CalendarChangeReasons}
+        data={mappedData}
         onRowAdd={async newData => {
           const newCalendarChangeReason = {
             ...calendarChangeReason,
             name: newData.name,
             description: newData.description,
+            workDayScheduleVariantTypeId:
+              newData.workDayScheduleVariantTypeId === null
+                ? undefined
+                : newData.workDayScheduleVariantTypeId,
+            calendarDayTypeId: newData.calendarDayTypeId,
           };
           await create(newCalendarChangeReason);
           getCalendarChangeReasons.refetch();
@@ -204,6 +264,11 @@ export const CalendarChangeReason: React.FC<Props> = props => {
             rowVersion: newData.rowVersion,
             name: newData.name,
             description: newData.description,
+            workDayScheduleVariantTypeId:
+              newData.workDayScheduleVariantTypeId === null
+                ? undefined
+                : newData.workDayScheduleVariantTypeId,
+            calendarDayTypeId: newData.calendarDayTypeId,
           };
           await update(updateCalendarChangeReason);
           getCalendarChangeReasons.refetch();
