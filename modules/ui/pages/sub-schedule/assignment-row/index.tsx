@@ -1,10 +1,11 @@
 import * as React from "react";
 import { AssignmentRowUI } from "./assignment-row-ui";
 import { AssignmentVacancyDetails } from "../types";
+import { useCallback } from "react";
 
 type Props = {
   assignment: AssignmentVacancyDetails;
-  onCancel: () => void;
+  onCancel: (id: number, rowVersion: string) => void;
   className?: string;
 };
 
@@ -13,13 +14,18 @@ type Props = {
     uses it. */
 export const AssignmentRow: React.FC<Props> = props => {
   const a = props.assignment;
+  const { onCancel } = props;
 
   const confirmationNumber = a.assignment?.id ?? "";
   const employeeName = `${a.vacancy?.absence?.employee?.firstName} ${a.vacancy?.absence?.employee?.lastName}`;
   const positionName = a?.vacancy?.position?.name ?? "";
   const organizationName = a?.vacancy?.organization?.name;
   const locationName = a?.location?.name ?? "";
-
+  const onCancelMutation = useCallback(
+    () =>
+      onCancel(Number(a.assignment?.id) ?? "", a.assignment?.rowVersion ?? ""),
+    [onCancel, a.assignment]
+  );
   return (
     <AssignmentRowUI
       confirmationNumber={confirmationNumber}
@@ -33,7 +39,7 @@ export const AssignmentRow: React.FC<Props> = props => {
       organizationName={organizationName}
       positionName={positionName}
       dayPortion={a.dayPortion}
-      onCancel={props.onCancel}
+      onCancel={onCancelMutation}
       className={props.className}
     />
   );

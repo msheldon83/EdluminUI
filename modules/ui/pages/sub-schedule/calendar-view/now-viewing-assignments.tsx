@@ -1,13 +1,14 @@
-import { Divider, makeStyles, Button } from "@material-ui/core";
-import { useQueryBundle } from "graphql/hooks";
+import { Divider, makeStyles } from "@material-ui/core";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { GetUpcomingAssignments } from "../../sub-home/graphql/get-upcoming-assignments.gen";
 import { AssignmentRow } from "../assignment-row";
 import { NoAssignment } from "../assignment-row/no-assignment";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
+import { CancelAssignment } from "ui/components/absence/graphql/cancel-assignment.gen";
 
 type Props = {
   userId?: string;
@@ -18,6 +19,24 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const [showingMore, setShowingMore] = useState(false);
+
+  /* TODO change mutation to cancelVacancyDetail. This component breaks them up
+     so we only want to cancel the individual piece of the assignment */
+  const [cancelAssignment] = useMutationBundle(CancelAssignment);
+
+  const onCancel = useCallback(
+    async (id: number, rowVersion: string) => {
+      await cancelAssignment({
+        variables: {
+          cancelRequest: {
+            id,
+            rowVersion,
+          },
+        },
+      });
+    },
+    [cancelAssignment]
+  );
 
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
@@ -58,9 +77,7 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
         <AssignmentRow
           key={firstAssignment.id}
           assignment={firstAssignment}
-          onCancel={() =>
-            console.log("cancel assignment", firstAssignment.assignment?.id)
-          }
+          onCancel={onCancel}
         />
       ) : (
         <NoAssignment date={props.date} />
@@ -83,9 +100,7 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
                   <AssignmentRow
                     key={a.id || i}
                     assignment={a}
-                    onCancel={() =>
-                      console.log("cancel assignment", a.assignment?.id)
-                    }
+                    onCancel={onCancel}
                   />
                   <Divider />
                 </>
