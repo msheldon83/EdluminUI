@@ -723,6 +723,7 @@ input CancelVacancyAssignmentInput {
   id: Int!
   rowVersion: String!
   cancellationReasonId: Int
+  vacancyDetailIds: [ID]
 }
 
 type ChangedContract implements ModelObjectInterface & OrgObjectInterface {
@@ -2608,15 +2609,6 @@ type PagedPositionType {
   totalCount: Int
 }
 
-type PagedReplacementCriteria {
-  _info: [ReturnMessage]
-  results: [ReplacementCriteria]
-  offset: Int!
-  limit: Int!
-  hasMoreData: Boolean!
-  totalCount: Int
-}
-
 type PagedReplacementCriteriaConfig {
   _info: [ReturnMessage]
   results: [ReplacementCriteriaConfig]
@@ -3324,7 +3316,6 @@ type Query {
   positionType: PositionTypeQueries
   referenceData: ReferenceDataQueries
   replacementCriteriaConfig: ReplacementCriteriaConfigQueries
-  replacementCriteria: ReplacementCriteriaQueries
   replacementPoolConfig: ReplacementPoolConfigQueries
   replacementPool: ReplacementPoolQueries
   returnMessageTest: ReturnMessageTestQueries
@@ -3703,13 +3694,6 @@ type ReplacementCriteriaMutations {
   removeEndorsements(replacementCriteriaEndorsements: ReplacementCriteriaRemoveEndorsementsInput!): ReplacementCriteria
 }
 
-type ReplacementCriteriaQueries {
-  byId(id: ID!): ReplacementCriteria
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ReplacementCriteria]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedReplacementCriteria
-  replacementCriteriaByEmployee(id: ID!): [ReplacementCriteria]
-}
-
 input ReplacementCriteriaRemoveEndorsementsInput {
   id: Int!
   rowVersion: String!
@@ -3744,7 +3728,6 @@ type ReplacementCriterion implements ModelObjectInterface & OrgObjectInterface {
   deletedLocal: DateTime
   replacementCriteriaId: Int!
   endorsementId: Int!
-  endorsement: Endorsement
 }
 
 type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
