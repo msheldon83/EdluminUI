@@ -75,7 +75,10 @@ export const Confirmation: React.FC<Props> = props => {
               component={Link}
               to={
                 props.isAdmin
-                  ? AdminSelectEmployeeForCreateAbsenceRoute.generate(params)
+                  ? AdminSelectEmployeeForCreateAbsenceRoute.generate({
+                      ...params,
+                      organizationId: props.orgId,
+                    })
                   : EmployeeCreateAbsenceRoute.generate(params)
               }
             >
@@ -88,7 +91,10 @@ export const Confirmation: React.FC<Props> = props => {
               component={Link}
               to={
                 props.isAdmin
-                  ? AdminChromeRoute.generate(params)
+                  ? AdminChromeRoute.generate({
+                      ...params,
+                      organizationId: props.orgId,
+                    })
                   : EmployeeChromeRoute.generate(params)
               }
             >
@@ -103,6 +109,7 @@ export const Confirmation: React.FC<Props> = props => {
                 props.isAdmin
                   ? AdminEditAbsenceRoute.generate({
                       ...params,
+                      organizationId: props.orgId,
                       absenceId: props.absence.id,
                     })
                   : EmployeeEditAbsenceRoute.generate({

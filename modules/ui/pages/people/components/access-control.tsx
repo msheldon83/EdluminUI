@@ -46,7 +46,9 @@ export const AccessControl: React.FC<Props> = props => {
                   : props.locations.length === 0 &&
                     props.locationGroups.length === 0 &&
                     t("None")}
-                {props.locations.length > 0 &&
+                {!props.allLocationIdsInScope &&
+                  !props.isSuperUser &&
+                  props.locations.length > 0 &&
                   props.locations.map(
                     (location: { name: string } | null) =>
                       location && (
@@ -57,7 +59,9 @@ export const AccessControl: React.FC<Props> = props => {
                         />
                       )
                   )}
-                {props.locationGroups.length > 0 &&
+                {!props.allLocationIdsInScope &&
+                  !props.isSuperUser &&
+                  props.locationGroups.length > 0 &&
                   props.locationGroups.map(
                     (locationGroup: { name: string } | null) =>
                       locationGroup && (
@@ -76,7 +80,9 @@ export const AccessControl: React.FC<Props> = props => {
                 {props.allPositionTypeIdsInScope || props.isSuperUser
                   ? t("All")
                   : props.positionTypes.length === 0 && t("None")}
-                {props.positionTypes.length > 0 &&
+                {!props.allPositionTypeIdsInScope &&
+                  !props.isSuperUser &&
+                  props.positionTypes.length > 0 &&
                   props.positionTypes.map(
                     (positionType: { name: string } | null) =>
                       positionType && (
