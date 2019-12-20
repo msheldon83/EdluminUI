@@ -19,7 +19,9 @@ export const SingleBalance: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles(props);
   const balanceTrackingType =
-    props.trackingType === "DAILY" ? t("Days") : t("Hours");
+    props.trackingType === AbsenceReasonTrackingTypeId.Daily
+      ? t("Days")
+      : t("Hours");
 
   const usedBalance = round(props.usedBalance, 1);
   const plannedBalance = round(props.plannedBalance, 1);
@@ -37,7 +39,7 @@ export const SingleBalance: React.FC<Props> = props => {
         alignItems="center"
         spacing={2}
         className={clsx({
-          [classes.shadedRow]: props.shadeRow,  
+          [classes.shadedRow]: props.shadeRow,
           [classes.container]: true,
         })}
       >

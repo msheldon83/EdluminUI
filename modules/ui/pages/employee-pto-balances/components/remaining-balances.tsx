@@ -94,7 +94,7 @@ export const RemainingBalances: React.FC<Props> = props => {
                     remainingBalance={balance?.unusedBalance ?? 0}
                     trackingType={
                       balance?.absenceReason?.absenceReasonTrackingTypeId ??
-                      ("DAILY" as AbsenceReasonTrackingTypeId)
+                      AbsenceReasonTrackingTypeId.Daily
                     }
                     shadeRow={index % 2 != 0}
                   />
