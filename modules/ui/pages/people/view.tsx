@@ -13,6 +13,7 @@ import { Information } from "./components/information";
 import { Position } from "./components/position";
 import { ReplacementCriteria } from "./components/replacement-criteria";
 import { RoleTabs } from "./components/role-tabs";
+import { OrganizationList } from "./components/org-list";
 import { SubstitutePreferences } from "./components/substitute-preferences";
 import { PersonViewHeader } from "./components/view-header";
 import { DeleteOrgUser } from "./graphql/delete-orguser.gen";
@@ -214,7 +215,15 @@ export const PersonViewPage: React.FC<{}> = props => {
         )}
       {orgUser.isReplacementEmployee &&
         (selectedRole ?? defaultSelectedRole) ===
-          OrgUserRole.ReplacementEmployee && <></>}
+          OrgUserRole.ReplacementEmployee && (
+          <>
+            <OrganizationList
+              editing={editing}
+              orgs={orgUser?.relatedOrganizations}
+              setEditing={setEditing}
+            />
+          </>
+        )}
     </>
   );
 };

@@ -30,6 +30,10 @@ query GetOrgUserById($id: ID!) {
         name
         orgUserRole
       }
+      relatedOrganizations {
+        id
+        name
+      }
       employee {
         id
         rowVersion
