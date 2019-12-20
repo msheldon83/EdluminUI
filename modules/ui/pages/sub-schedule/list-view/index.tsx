@@ -56,12 +56,17 @@ export const ListView: React.FC<Props> = props => {
   }, [upcomingAssignments]);
 
   const onCancel = useCallback(
-    async (id: number, rowVersion: string) => {
+    async (
+      assignmentId: number,
+      rowVersion: string,
+      vacancyDetailIds?: string[]
+    ) => {
       await cancelAssignment({
         variables: {
           cancelRequest: {
-            id,
+            id: assignmentId,
             rowVersion,
+            vacancyDetailIds,
           },
         },
       });
@@ -93,7 +98,7 @@ export const ListView: React.FC<Props> = props => {
             return group.length > 1 ? (
               <AssignmentGroup
                 key={i}
-                assignmentGroup={group}
+                vacancyDetails={group}
                 onCancel={onCancel}
                 className={i % 2 == 1 ? classes.shadedRow : undefined}
               />

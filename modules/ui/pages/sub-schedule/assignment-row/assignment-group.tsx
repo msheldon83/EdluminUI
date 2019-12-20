@@ -2,14 +2,18 @@ import { makeStyles } from "@material-ui/styles";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { groupBy, uniqBy, compact, flatMap } from "lodash-es";
 import * as React from "react";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { AssignmentVacancyDetails } from "../types";
 import { AssignmentGroupDetail } from "./assignment-group-detail";
 import { AssignmentRowUI } from "./assignment-row-ui";
 
 type Props = {
-  assignmentGroup: AssignmentVacancyDetails[];
-  onCancel: (id: number, rowVersion: string) => void;
+  vacancyDetails: AssignmentVacancyDetails[];
+  onCancel: (
+    assignmentId: number,
+    rowVersion: string,
+    vacancyDetailIds?: string[]
+  ) => void;
   className?: string;
 };
 
@@ -17,62 +21,50 @@ export const AssignmentGroup: React.FC<Props> = props => {
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const assignment = props.assignmentGroup;
+  const vacancyDetails = props.vacancyDetails;
   const { onCancel } = props;
 
-  const assignments = useMemo(
-    () => uniqBy(compact(flatMap(assignment, a => a.assignment)), "id"),
-    [assignment]
-  );
+  const vacancy =
+    vacancyDetails[0].vacancy !== null && vacancyDetails[0].vacancy;
+  if (!vacancy || !vacancyDetails[0].assignment) return <></>;
 
-  const onCancelGroupOfAssignments = useCallback(async () => {
-    await Promise.all(
-      assignments.map(async a => {
-        onCancel(Number(a.id) ?? "", a.rowVersion ?? "");
-      })
-    );
-  }, [onCancel, assignments]);
-
-  const vacancy = assignment[0].vacancy !== null && assignment[0].vacancy;
-  if (!vacancy || !assignment[0].assignment) return <></>;
-
-  const locationNames = [...new Set(assignment.map(a => a.location!.name))];
+  const locationNames = [...new Set(vacancyDetails.map(a => a.location!.name))];
   const locationNameText =
     locationNames.length > 1
       ? `${locationNames[0]} +${locationNames.length - 1}`
       : locationNames[0];
 
   const orgNames = [
-    ...new Set(assignment.map(a => a.vacancy!.organization.name)),
+    ...new Set(vacancyDetails.map(a => a.vacancy!.organization.name)),
   ];
   const orgNameText =
     orgNames.length > 1
       ? `${orgNames[0]} +${orgNames.length - 1}`
       : orgNames[0];
 
-  const confirmationNumber = assignment[0].assignment.id;
+  const confirmationNumber = vacancyDetails[0].assignment.id;
   const employeeName = `${vacancy.absence?.employee?.firstName} ${vacancy.absence?.employee?.lastName}`;
   const positionName = vacancy.position?.name ?? "";
 
   let totalDayPortion = 0;
-  assignment.map(a => (totalDayPortion += a.dayPortion));
+  vacancyDetails.map(a => (totalDayPortion += a.dayPortion));
 
-  const lastAssignment = assignment[assignment.length - 1];
-  const startDate = assignment[0].startDate!;
+  const lastVacancyDetail = vacancyDetails[vacancyDetails.length - 1];
+  const startDate = vacancyDetails[0].startDate!;
 
   /* the vacancy details come back from the server sorted by date,
   so this should be the latest date for the vacancy */
-  const endDate = lastAssignment.endDate!;
+  const endDate = lastVacancyDetail.endDate!;
 
   const multipleStarts =
     Object.entries(
-      groupBy(assignment, a =>
+      groupBy(vacancyDetails, a =>
         formatIsoDateIfPossible(a.startTimeLocal, "h:mm aaa")
       )
     ).length > 1;
   const multipleEndTimes =
     Object.entries(
-      groupBy(assignment, a =>
+      groupBy(vacancyDetails, a =>
         formatIsoDateIfPossible(a.endTimeLocal, "h:mm aaa")
       )
     ).length > 1;
@@ -82,7 +74,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
     ? { multipleTimes }
     : {
         multipleTimes,
-        endTime: assignment[0].endTimeLocal!,
+        endTime: vacancyDetails[0].endTimeLocal!,
       };
 
   return (
@@ -93,7 +85,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
       <AssignmentRowUI
         confirmationNumber={confirmationNumber}
         {...times}
-        startTime={assignment[0].startTimeLocal!}
+        startTime={vacancyDetails[0].startTimeLocal!}
         employeeName={employeeName}
         startDate={startDate}
         endDate={endDate}
@@ -101,12 +93,17 @@ export const AssignmentGroup: React.FC<Props> = props => {
         organizationName={orgNameText}
         positionName={positionName}
         dayPortion={totalDayPortion}
-        onCancel={onCancelGroupOfAssignments}
+        onCancel={() =>
+          onCancel(
+            Number(vacancyDetails[0].assignment?.id) ?? "",
+            vacancyDetails[0].assignment?.rowVersion ?? ""
+          )
+        }
         className={props.className}
       />
       {isExpanded && (
         <div className={[classes.container, classes.expandedDetails].join(" ")}>
-          {props.assignmentGroup.map((a, i) => (
+          {props.vacancyDetails.map((a, i) => (
             <AssignmentGroupDetail
               dayPortion={a.dayPortion}
               startTimeLocal={a.startTimeLocal ?? ""}
@@ -117,7 +114,8 @@ export const AssignmentGroup: React.FC<Props> = props => {
               onCancel={() =>
                 onCancel(
                   Number(a.assignment?.id) ?? "",
-                  a.assignment?.rowVersion ?? ""
+                  a.assignment?.rowVersion ?? "",
+                  [a.id ?? ""]
                 )
               }
             />
