@@ -31,6 +31,7 @@ export const UpcomingAbsences: React.FC<Props> = props => {
       fromDate: startDate,
       toDate: endDate,
     },
+    skip: !endDate,
   });
 
   const absences =
