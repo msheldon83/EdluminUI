@@ -269,6 +269,20 @@ input AbsenceVacancyInput {
   payCodeId: Int
 }
 
+type AccessControl {
+  _info: [ReturnMessage]
+  locationIds: [Int]
+  locations: [Location]
+  locationGroupIds: [Int]
+  locationGroups: [LocationGroup]
+  positionTypeIds: [Int]
+  positionTypes: [PositionType]
+  derivedAdminLocations: [Location]
+  derivedAdminPositionTypes: [PositionType]
+  allLocationIdsInScope: Boolean!
+  allPositionTypeIdsInScope: Boolean!
+}
+
 type AccountingCode implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -340,6 +354,39 @@ enum AddressType {
   WORK_ADDRESS
 }
 
+type Administrator implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  externalId: String
+  rowVersion: String!
+  firstName: String!
+  middleName: String
+  lastName: String!
+  email: String!
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  state: StateCode
+  postalCode: String
+  country: CountryCode
+  phoneNumber: String
+  formattedPhone: String
+  active: Boolean!
+  isSuperUser: Boolean!
+  permissionSet: PermissionSet
+  accessControl: AccessControl
+}
+
 type AdminScopeLocationRules {
   _info: [ReturnMessage]
   locationIds: [Int]
@@ -380,7 +427,9 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
   assignmentTypeId: AssignmentType
   employeeId: Int!
   positionId: Int!
+  position: Position
   contractId: Int!
+  contract: Contract
   vacancyId: Int
   cancellationReasonId: Int
   startTimeLocal: DateTime
@@ -1075,23 +1124,33 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+  firstName: String!
+  middleName: String
+  lastName: String!
+  email: String!
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  state: StateCode
+  postalCode: String
+  country: CountryCode
+  phoneNumber: String
+  formattedPhone: String
+  active: Boolean!
   rowVersion: String
-  canFillVacancies: Boolean
   isShadowEmployee: Boolean!
   shadowEmployeeId: Int
   shadowEmployee: Employee
   primaryPositionId: Int
   primaryPosition: Position
-  firstName: String!
-  middleName: String
-  lastName: String!
-  phoneNumber: String
-  formattedPhone: String
+  permissionSet: PermissionSet
   assignments: [Assignment]
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
   endorsements: [EmployeeEndorsement]
   locations: [Location]
+  substitutePools: SubstitutePool
 }
 
 input EmployeeCreateInput {
@@ -1875,6 +1934,14 @@ enum NotificationReason {
   ABSENCE_CANCELLED
 }
 
+type ObjectReplacementCriteria {
+  _info: [ReturnMessage]
+  mustHave: [Endorsement]
+  preferToHave: [Endorsement]
+  preferToNotHave: [Endorsement]
+  mustNotHave: [Endorsement]
+}
+
 enum ObjectType {
   INVALID
   USER
@@ -2210,17 +2277,20 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   isReplacementEmployee: Boolean!
   isEmployee: Boolean!
   isAdmin: Boolean!
-  isSuperUser: Boolean!
   permissionSets: [PermissionSet]
   permissionSetIds: [Int!]
+  isSuperUser: Boolean!
   adminScopeLocationRules: AdminScopeLocationRules
   adminScopePositionTypeRules: AdminScopePositionTypeRules
   adminLocations: [Location]
   adminPositionTypes: [PositionType]
   allLocationIdsInScope: Boolean!
   allPositionTypeIdsInScope: Boolean!
-  employee: Employee
   relatedOrgIds: [Int]
+  relatedOrganizations: [Organization]
+  employee: Employee
+  substitute: Substitute
+  administrator: Administrator
 }
 
 input OrgUserCreateInput {
@@ -2829,7 +2899,10 @@ type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
   hoursPerFullWorkDay: Decimal
+  replacementCriteria: ObjectReplacementCriteria
   schedules: [PositionSchedule]
+  locationIds: [Int]
+  locations: [Location]
 }
 
 input PositionCreateInput {
@@ -3156,6 +3229,7 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   validUntil: DateTime
   expired: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
+  replacementCriteria: ObjectReplacementCriteria
 }
 
 input PositionTypeCreateInput {
@@ -3384,7 +3458,8 @@ type ReferenceDataQueries {
   organizationTypes: [RefOrganizationType]
   permissions: [RefPermission]
   phoneTypes: [RefPhoneType]
-  requirementTypes: [RefRequirementType]
+  replacementCriteriaTypes: [RefReplacementCriteriaType]
+  replacementPoolTypes: [RefReplacementPoolType]
   states: [RefStateCode]
   labelTypes: [RefLabelType]
   fillStatuses: [RefFillStatus]
@@ -3471,9 +3546,16 @@ type RefPhoneType {
   description: String
 }
 
-type RefRequirementType {
+type RefReplacementCriteriaType {
   _info: [ReturnMessage]
-  enumValue: RequirementType
+  enumValue: ReplacementCriteriaType
+  name: String!
+  description: String
+}
+
+type RefReplacementPoolType {
+  _info: [ReturnMessage]
+  enumValue: ReplacementPoolType
   name: String!
   description: String
 }
@@ -3561,6 +3643,7 @@ type ReplacementCriteriaConfig implements ModelObjectInterface & OrgObjectInterf
   requiredUntilLeadTimePercentRemain: Int
   requiredUntilNCandidateRemain: Int
   includeMatchingCandidates: Boolean
+  replacementCriteriaTypeId: ReplacementCriteriaType
 }
 
 input ReplacementCriteriaConfigCreateInput {
@@ -3587,7 +3670,7 @@ type ReplacementCriteriaConfigQueries {
 input ReplacementCriteriaConfigUpdateInput {
   id: Int!
   rowVersion: String!
-  name: String!
+  name: String
   requiredUntilLeadTimeMinutesRemain: Int
   requiredUntilLeadTimePercentRemain: Int
   requiredUntilNCandidateRemain: Int
@@ -3614,6 +3697,14 @@ input ReplacementCriteriaRemoveEndorsementsInput {
   id: Int!
   rowVersion: String!
   endorsementIds: [Int]
+}
+
+enum ReplacementCriteriaType {
+  INVALID
+  MUST_HAVE
+  PREFER_TO_HAVE
+  PREFER_TO_NOT_HAVE
+  MUST_NOT_HAVE
 }
 
 input ReplacementCriteriaUpdateInput {
@@ -3655,9 +3746,13 @@ type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & Doma
   replacementPoolConfigId: Int!
   includeAllEmployees: Boolean
   locationGroupId: Int
+  locationGroup: LocationGroup
   locationId: Int
+  location: Location
   positionTypeId: Int
+  positionType: PositionType
   employeeId: Int
+  employee: Employee
   objectType: ObjectType
   objectKey: Int!
   numReplacements: Int
@@ -3693,6 +3788,7 @@ type ReplacementPoolConfig implements ModelObjectInterface & OrgObjectInterface 
   minLeadTImeMinutes: Int!
   selectable: Boolean
   percentLeadTime: Int
+  replacementPoolTypeId: ReplacementPoolType
 }
 
 input ReplacementPoolConfigCreateInput {
@@ -3802,17 +3898,17 @@ type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface
   replacementPoolConfig: ReplacementPoolConfig
 }
 
+enum ReplacementPoolType {
+  INVALID
+  FAVORITE
+  BLOCKED
+  OTHER
+}
+
 input ReplacementPoolUpdateInput {
   id: Int!
   rowVersion: String!
   replacementPoolConfigId: Int!
-}
-
-enum RequirementType {
-  INVALID
-  REQUIRED
-  DESIRED
-  DISQUALIFYING
 }
 
 input ResetUserPasswordInput {
@@ -4091,6 +4187,71 @@ enum StateCode {
   QC
   SK
   YT
+}
+
+type Substitute implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  firstName: String!
+  middleName: String
+  lastName: String!
+  email: String!
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  state: StateCode
+  postalCode: String
+  country: CountryCode
+  phoneNumber: String
+  formattedPhone: String
+  active: Boolean!
+  rowVersion: String
+  isShadowEmployee: Boolean!
+  shadowEmployeeId: Int
+  shadowEmployee: Employee
+  permissionSet: PermissionSet
+  assignments: [Assignment]
+  attributes: [EmployeeEndorsement]
+  qualifiedPositionTypes: [PositionType]
+  substitutePoolMembership: SubstitutePoolMembership
+}
+
+type SubstitutePool {
+  _info: [ReturnMessage]
+  favoriteEmployeeIds: [Int]
+  favoriteEmployees: [Employee]
+  blockedEmployeeIds: [Int]
+  blockedEmployees: [Employee]
+}
+
+type SubstitutePoolMembership {
+  _info: [ReturnMessage]
+  favoriteForLocationIds: [Int]
+  favoriteForLocations: [Location]
+  blockedFromLocationIds: [Int]
+  blockedFromLocations: [Location]
+  favoriteForLocationGroupIds: [Int]
+  favoriteForLocationGroups: [LocationGroup]
+  blockedFromLocationGroupIds: [Int]
+  blockedFromLocationGroups: [LocationGroup]
+  favoriteForEmployeeIds: [Int]
+  favoriteForEmployees: [Employee]
+  blockedFromEmployeeIds: [Int]
+  blockedFromEmployees: [Employee]
+  favoriteForPositionTypeIds: [Int]
+  favoriteForPositionTypes: [PositionType]
+  blockedFromPositionTypeIds: [Int]
+  blockedFromPositionTypes: [PositionType]
 }
 
 input SwapVacancyAssignmentsInput {
