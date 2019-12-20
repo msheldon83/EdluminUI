@@ -387,39 +387,6 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
   accessControl: AccessControl
 }
 
-type AdminScopeLocationRules {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  orgId: Int!
-  organization: Organization!
-  createdLocal: DateTime
-  changedLocal: DateTime
-  deletedLocal: DateTime
-  externalId: String
-  rowVersion: String!
-  firstName: String!
-  middleName: String
-  lastName: String!
-  email: String!
-  dateOfBirth: Date
-  address1: String
-  address2: String
-  city: String
-  state: StateCode
-  postalCode: String
-  country: CountryCode
-  phoneNumber: String
-  formattedPhone: String
-  active: Boolean!
-  isSuperUser: Boolean!
-  permissionSet: PermissionSet
-  accessControl: AccessControl
-}
-
 input AdminScopeLocationRulesInput {
   locationIds: [Int]
   locationGroupIds: [Int]
@@ -1273,25 +1240,6 @@ input EmployeeRejectVacancyInput {
   vacancyId: ID
   employeeId: Int!
   vacancyRejectionReasonId: VacancyRejectionReason
-}
-
-type EmployeeSubstitutePreference implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  orgId: Int!
-  organization: Organization!
-  createdLocal: DateTime
-  changedLocal: DateTime
-  deletedLocal: DateTime
-  externalId: String
-  rowVersion: String!
-  includeAllEmployees: Boolean!
-  replacementEmployeeIds: [Int]
-  replacementEmployees: [Employee]
 }
 
 input EmployeeUpdateInput {
@@ -2317,13 +2265,6 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   isAdmin: Boolean!
   permissionSets: [PermissionSet]
   permissionSetIds: [Int!]
-  isSuperUser: Boolean!
-  adminScopeLocationRules: AdminScopeLocationRules
-  adminScopePositionTypeRules: AdminScopePositionTypeRules
-  adminLocations: [Location]
-  adminPositionTypes: [PositionType]
-  allLocationIdsInScope: Boolean!
-  allPositionTypeIdsInScope: Boolean!
   relatedOrgIds: [Int]
   relatedOrganizations: [Organization]
   employee: Employee
@@ -2963,24 +2904,6 @@ type PositionQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedPosition
   qualifiedEmployeeCounts(orgId: ID!, limit: Int, offset: Int, positionId: Int!, name: String): QualifiedEmployeeCounts
   qualifiedEmployees(orgId: ID!, limit: Int, offset: Int, positionId: Int!, name: String): PagedEmployeeQualifiedResult
-}
-
-type PositionRequirement implements ModelObjectInterface & OrgObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  orgId: Int!
-  organization: Organization!
-  createdLocal: DateTime
-  changedLocal: DateTime
-  deletedLocal: DateTime
-  positionId: Int!
-  endorsementId: Int!
-  endorsement: Endorsement
-  requirementTypeId: RequirementType
 }
 
 type PositionSchedule implements ModelObjectInterface & OrgObjectInterface {
@@ -3856,6 +3779,7 @@ input ReplacementPoolConfigCreateInput {
   minLeadTImeMinutes: Int!
   selectable: Boolean
   percentLeadTime: Int
+  replacementPoolTypeId: ReplacementPoolType
 }
 
 type ReplacementPoolConfigMutations {
@@ -3873,13 +3797,14 @@ type ReplacementPoolConfigQueries {
 input ReplacementPoolConfigUpdateInput {
   id: Int!
   rowVersion: String!
-  name: String!
+  name: String
   description: String
   exclude: Boolean
-  maxLeadTimeMinutes: Int!
-  minLeadTImeMinutes: Int!
+  maxLeadTimeMinutes: Int
+  minLeadTImeMinutes: Int
   selectable: Boolean
   percentLeadTime: Int
+  replacementPoolTypeId: ReplacementPoolType
 }
 
 input ReplacementPoolCreateInput {
