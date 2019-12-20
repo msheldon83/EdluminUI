@@ -208,6 +208,9 @@ export const PersonViewPage: React.FC<{}> = props => {
             )}
           </>
         )}
+      {orgUser.isReplacementEmployee &&
+        (selectedRole ?? defaultSelectedRole) ===
+          OrgUserRole.ReplacementEmployee && <></>}
     </>
   );
 };
