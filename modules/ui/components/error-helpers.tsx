@@ -101,7 +101,7 @@ export const ShowGenericErrors = (
   openSnackbar({
     message: messages.map((m, i) => <div key={i}>{m}</div>),
     dismissable: true,
-    autoHideDuration: 5000,
+    //autoHideDuration: 5000,
     status: "error",
   });
 };

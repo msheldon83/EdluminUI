@@ -105,7 +105,6 @@ export const CalendarChangeReason: React.FC<Props> = props => {
     validateCalendarChangeReason
       .validate(calendarChangeReason, { abortEarly: false })
       .catch(function(err) {
-        console.log(err);
         ShowGenericErrors(err, openSnackbar);
       });
     const result = await createCalendarChangeReasons({
