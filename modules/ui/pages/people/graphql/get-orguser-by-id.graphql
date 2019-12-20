@@ -34,6 +34,44 @@ query GetOrgUserById($id: ID!) {
         id
         name
       }
+      substitute {
+        substitutePoolMembership {
+          blockedFromEmployees {
+            id
+            firstName
+            lastName
+          }
+          favoriteForEmployees {
+            id
+            firstName
+            lastName
+          }
+          blockedFromPositionTypes {
+            id
+            name
+          }
+          favoriteForPositionTypes {
+            id
+            name
+          }
+          blockedFromLocationGroups {
+            id
+            name
+          }
+          favoriteForLocationGroups {
+            id
+            name
+          }
+          blockedFromLocations {
+            id
+            name
+          }
+          favoriteForLocations {
+            id
+            name
+          }
+        }
+      }
       employee {
         id
         rowVersion
