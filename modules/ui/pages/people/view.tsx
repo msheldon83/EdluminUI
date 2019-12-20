@@ -4,7 +4,7 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Redirect, useHistory } from "react-router";
-import { FieldData } from "ui/components/page-header-multifieldedit";
+//import { FieldData } from "ui/components/page-header-multifieldedit";
 import { PageTitle } from "ui/components/page-title";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { useRouteParams } from "ui/routes/definition";
@@ -21,15 +21,16 @@ import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
 import { GetOrgUserLastLogin } from "./graphql/get-orguser-lastlogin.gen";
 import { UpdateEmployee } from "./graphql/update-employee.gen";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
-import { OrgUserUpdateInput } from "graphql/server-types.gen";
+import { OrgUserUpdateInput, OrgUser } from "graphql/server-types.gen";
 import { useSnackbar } from "hooks/use-snackbar";
-import { ScheduledAbsences } from "../../components/employee/components/scheduled-absences";
+/*import { ScheduledAbsences } from "../../components/employee/components/scheduled-absences";
 import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
 import { useMemo } from "react";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
 import { EmployeeAbsenceDetail } from "ui/components/employee/types";
-import { isAfter } from "date-fns";
+import { isAfter } from "date-fns";*/
+import { UpcomingAbsences } from "./components/upcoming-absences";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -42,7 +43,16 @@ export const PersonViewPage: React.FC<{}> = props => {
   const [selectedRole, setSelectedRole] = React.useState<OrgUserRole | null>(
     null
   );
-  const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
+
+  /********************** New Code *********************************************/
+  //const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
+  //const startDate = useMemo(() => new Date(), []);
+  //const endDate = currentSchoolYear?.endDate;
+  //console.log(params.orgUserId);
+  //console.log(currentSchoolYear);
+  //const [absenceScheduleVars, setAbsenceScheduleVars] = React.useState();
+  //let absenceScheduleVars: undefined | GetEmployeeAbsenceSchedule.Variables;
+  /********************** New Code *********************************************/
 
   const [resetPassword] = useMutationBundle(ResetPassword, {
     onError: error => {
@@ -126,6 +136,21 @@ export const PersonViewPage: React.FC<{}> = props => {
     variables: { id: params.orgUserId },
   });
 
+  const orgUser =
+    getOrgUser.state === "LOADING"
+      ? undefined
+      : getOrgUser?.data?.orgUser?.byId;
+  /********************** New Code *********************************************/
+  /*const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
+    variables: {
+      id: orgUser?.employee?.id ?? "0",
+      fromDate: startDate,
+      toDate: endDate,
+    },
+    skip: orgUser === undefined,
+  });*/
+  /********************** New Code *********************************************/
+
   if (
     getOrgUser.state === "LOADING" ||
     getOrgUserLastLogin.state === "LOADING"
@@ -133,12 +158,23 @@ export const PersonViewPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const orgUser = getOrgUser?.data?.orgUser?.byId;
   if (!orgUser) {
     // Redirect the User back to the List page
     const listUrl = PeopleRoute.generate(params);
     return <Redirect to={listUrl} />;
   }
+
+  /********************** New Code *********************************************/
+  /* if (getOrgUser.state === "DONE") {
+    console.log("setting");
+    setAbsenceScheduleVars({
+      id: orgUser.employee?.id ?? "0",
+      fromDate: startDate,
+      toDate: endDate,
+    });
+  }
+  console.log(absenceScheduleVars);*/
+  /********************** New Code *********************************************/
 
   const onResetPassword = async () => {
     await resetPassword({
@@ -167,26 +203,17 @@ export const PersonViewPage: React.FC<{}> = props => {
     ? OrgUserRole.Employee
     : OrgUserRole.ReplacementEmployee;
 
-  //const getAbsenceSchedule: any;
-  //if(orgUser.isEmployee){
-  const startDate = new Date();
-  const endDate = currentSchoolYear?.endDate;
-  const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
-    variables: {
-      id: employee?.id ?? "0",
-      fromDate: startDate,
-      toDate: endDate,
-    },
-    skip: !employee || !endDate,
-  });
-
-  const absences =
+  /********************** New Code *********************************************/
+  /* const absences =
     getAbsenceSchedule.state === "LOADING" ||
     getAbsenceSchedule.state === "UPDATING"
       ? []
       : (getAbsenceSchedule.data?.employee
           ?.employeeAbsenceSchedule as GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]);
-  const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
+           const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
+          */
+
+  /********************** New Code *********************************************/
 
   //}
 
@@ -258,7 +285,13 @@ export const PersonViewPage: React.FC<{}> = props => {
             />
             <ReplacementCriteria editing={editing} setEditing={setEditing} />
             <SubstitutePreferences editing={editing} setEditing={setEditing} />
-            <ScheduledAbsences
+            {orgUser?.employee && (
+              <UpcomingAbsences
+                employeeId={orgUser?.employee?.id}
+                orgId={params.orgUserId}
+              />
+            )}
+            {/* <ScheduledAbsences
               header={t("Upcoming Absences")}
               absences={employeeAbsenceDetails.filter(
                 (a: EmployeeAbsenceDetail) =>
@@ -268,7 +301,7 @@ export const PersonViewPage: React.FC<{}> = props => {
                 getAbsenceSchedule.state === "LOADING" ||
                 getAbsenceSchedule.state === "UPDATING"
               }
-            />
+            /> */}
           </>
         )}
     </>
