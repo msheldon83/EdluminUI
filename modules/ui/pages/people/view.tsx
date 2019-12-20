@@ -23,6 +23,7 @@ import { UpdateEmployee } from "./graphql/update-employee.gen";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { OrgUserUpdateInput } from "graphql/server-types.gen";
 import { useSnackbar } from "hooks/use-snackbar";
+import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
 import { ShowErrors } from "ui/components/error-helpers";
 
 export const PersonViewPage: React.FC<{}> = props => {
@@ -179,6 +180,13 @@ export const PersonViewPage: React.FC<{}> = props => {
               locationNames={
                 orgUser?.employee?.locations?.map(s => s?.name) ?? []
               }
+            />
+            <RemainingBalances
+              employeeId={orgUser?.id}
+              title={t("Time off balances")}
+              showEdit={false} // TODO: Set to true when we have an edit page
+              editing={editing} 
+              setEditing={setEditing}
             />
             <SubstitutePreferences editing={editing} setEditing={setEditing} />
             <ReplacementCriteria editing={editing} setEditing={setEditing} />
