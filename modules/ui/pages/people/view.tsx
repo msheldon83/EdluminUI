@@ -13,6 +13,7 @@ import { Information } from "./components/information";
 import { Position } from "./components/position";
 import { ReplacementCriteria } from "./components/replacement-criteria";
 import { RoleTabs } from "./components/role-tabs";
+import { OrganizationList } from "./components/org-list";
 import { SubstitutePreferences } from "./components/substitute-preferences";
 import { PersonViewHeader } from "./components/view-header";
 import { DeleteOrgUser } from "./graphql/delete-orguser.gen";
@@ -25,6 +26,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { UpcomingAbsences } from "./components/upcoming-absences";
 import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
 import { ShowErrors } from "ui/components/error-helpers";
+import { SubstitutePools } from "./components/substitute-pools";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -199,14 +201,42 @@ export const PersonViewPage: React.FC<{}> = props => {
               editing={editing}
               setEditing={setEditing}
             />
-            <ReplacementCriteria editing={editing} setEditing={setEditing} />
-            <SubstitutePreferences editing={editing} setEditing={setEditing} />
+            <ReplacementCriteria
+              editing={editing}
+              setEditing={setEditing}
+              replacementCriteria={
+                orgUser?.employee?.primaryPosition?.replacementCriteria
+              }
+            />
+            <SubstitutePreferences
+              editing={editing}
+              setEditing={setEditing}
+              substitutePools={orgUser?.employee?.substitutePools}
+            />
             {orgUser?.id && (
               <UpcomingAbsences
                 employeeId={orgUser?.id}
                 orgId={params.organizationId}
               />
             )}
+          </>
+        )}
+      {orgUser.isReplacementEmployee &&
+        (selectedRole ?? defaultSelectedRole) ===
+          OrgUserRole.ReplacementEmployee && (
+          <>
+            <SubstitutePools
+              editing={editing}
+              setEditing={setEditing}
+              substitutePoolMembership={
+                orgUser?.substitute?.substitutePoolMembership
+              }
+            />
+            <OrganizationList
+              editing={editing}
+              orgs={orgUser?.relatedOrganizations}
+              setEditing={setEditing}
+            />
           </>
         )}
     </>
