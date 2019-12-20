@@ -39,18 +39,9 @@ query GetAllPeopleForOrg(
         isAdmin
         email
         phoneNumber
-        allLocationIdsInScope
-        allPositionTypeIdsInScope
-        adminLocations {
-          id
-          name
-        }
-        adminPositionTypes {
-          id
-          name
-        }
         employee {
           id
+          rowVersion
           locations {
             id
             name
@@ -62,6 +53,51 @@ query GetAllPeopleForOrg(
           endorsements {
             id
             endorsement {
+              id
+              name
+            }
+          }
+        }
+        substitute {
+          id
+          rowVersion
+          attributes {
+            id
+            endorsement {
+              id
+              name
+            }
+          }
+        }
+        administrator {
+          id
+          rowVersion
+          isSuperUser
+          permissionSet {
+            id
+            name
+            orgUserRole
+          }
+          accessControl {
+            allLocationIdsInScope
+            allPositionTypeIdsInScope
+            locations {
+              id
+              name
+            }
+            locationGroups {
+              id
+              name
+            }
+            positionTypes {
+              id
+              name
+            }
+            derivedAdminLocations {
+              id
+              name
+            }
+            derivedAdminPositionTypes {
               id
               name
             }

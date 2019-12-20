@@ -139,6 +139,7 @@ export const PersonViewPage: React.FC<{}> = props => {
       <Information
         editing={editing}
         orgUser={orgUser}
+        isSuperUser={orgUser.administrator?.isSuperUser ?? false}
         lastLogin={lastLogin}
         setEditing={setEditing}
         onResetPassword={onResetPassword}
@@ -150,16 +151,22 @@ export const PersonViewPage: React.FC<{}> = props => {
           <AccessControl
             editing={editing}
             setEditing={setEditing}
-            locations={orgUser?.adminScopeLocationRules?.locations ?? []}
+            locations={orgUser?.administrator?.accessControl?.locations ?? []}
             locationGroups={
-              orgUser?.adminScopeLocationRules?.locationGroups ?? []
+              orgUser?.administrator?.accessControl?.locationGroups ?? []
             }
             positionTypes={
-              orgUser?.adminScopePositionTypeRules?.positionTypes ?? []
+              orgUser?.administrator?.accessControl?.positionTypes ?? []
             }
-            allLocationIdsInScope={orgUser?.allLocationIdsInScope}
-            allPositionTypeIdsInScope={orgUser?.allPositionTypeIdsInScope}
-            isSuperUser={orgUser?.isSuperUser}
+            allLocationIdsInScope={
+              orgUser?.administrator?.accessControl?.allLocationIdsInScope ??
+              false
+            }
+            allPositionTypeIdsInScope={
+              orgUser?.administrator?.accessControl
+                ?.allPositionTypeIdsInScope ?? false
+            }
+            isSuperUser={orgUser?.administrator?.isSuperUser ?? false}
           />
         )}
       {orgUser.isEmployee &&

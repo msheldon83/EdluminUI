@@ -14,10 +14,10 @@ import { OrgUserRole } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
 import { useIsMobile, usePrevious } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
-import { compact, isEqual } from "lodash-es";
+import { compact, isEqual, flatMap } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
@@ -63,20 +63,23 @@ export const PeoplePage: React.FC<Props> = props => {
     [filters, oldFilters]
   );
 
-  const listRoles = (isAdmin: boolean, isEmployee: boolean, isSub: boolean) => {
-    const roles = [];
-    if (isAdmin) {
-      roles.push(t("Administrator"));
-    }
-    if (isEmployee) {
-      roles.push(t("Employee"));
-    }
-    if (isSub) {
-      roles.push(t("Substitute"));
-    }
+  const listRoles = useCallback(
+    (isAdmin: boolean, isEmployee: boolean, isSub: boolean) => {
+      const roles = [];
+      if (isAdmin) {
+        roles.push(t("Administrator"));
+      }
+      if (isEmployee) {
+        roles.push(t("Employee"));
+      }
+      if (isSub) {
+        roles.push(t("Substitute"));
+      }
 
-    return roles.join(",");
-  };
+      return roles.join(",");
+    },
+    []
+  );
 
   const [
     locationsManagedAnchor,
@@ -146,11 +149,21 @@ export const PeoplePage: React.FC<Props> = props => {
       primaryPosition: person.employee?.primaryPosition?.name,
       phone: person.phoneNumber,
       locations: person.employee?.locations,
-      endorsements: person.employee?.endorsements,
-      adminLocations: person.adminLocations,
-      allLocationIdsInScope: person.allLocationIdsInScope,
-      adminPositionTypes: person.adminPositionTypes,
-      allPositionTypeIdsInScope: person.allPositionTypeIdsInScope,
+      endorsements: person.substitute?.attributes
+        ? compact(
+            flatMap(person.substitute?.attributes, a =>
+              a?.endorsement ? a.endorsement : null
+            )
+          )
+        : [],
+      adminLocations:
+        person.administrator?.accessControl?.derivedAdminLocations ?? [],
+      allLocationIdsInScope:
+        person.administrator?.accessControl?.allLocationIdsInScope ?? false,
+      adminPositionTypes:
+        person.administrator?.accessControl?.derivedAdminPositionTypes ?? [],
+      allPositionTypeIdsInScope:
+        person.administrator?.accessControl?.allPositionTypeIdsInScope ?? false,
     }));
   }, [people, listRoles]);
 
@@ -251,7 +264,7 @@ export const PeoplePage: React.FC<Props> = props => {
               {({ TransitionProps }) => (
                 <Fade {...TransitionProps} timeout={150}>
                   <List className={classes.paper}>
-                    {o.adminPositionTypes!.map((l, index) => (
+                    {o.adminPositionTypes.map((l, index) => (
                       <ListItemText key={index}>{l?.name}</ListItemText>
                     ))}
                   </List>
@@ -307,7 +320,7 @@ export const PeoplePage: React.FC<Props> = props => {
         !o.endorsements || o.endorsements?.length < 1 ? (
           t("None")
         ) : o.endorsements.length === 1 ? (
-          o.endorsements[0]?.endorsement?.name
+          o.endorsements[0]?.name
         ) : (
           <>
             <Button id={endorsementsId} onClick={handleShowEndorsements}>
@@ -322,10 +335,8 @@ export const PeoplePage: React.FC<Props> = props => {
               {({ TransitionProps }) => (
                 <Fade {...TransitionProps} timeout={150}>
                   <List className={classes.paper}>
-                    {o.endorsements!.map((e, index) => (
-                      <ListItemText key={index}>
-                        {e?.endorsement?.name}
-                      </ListItemText>
+                    {o.endorsements.map((e, index) => (
+                      <ListItemText key={index}>{e?.name}</ListItemText>
                     ))}
                   </List>
                 </Fade>
