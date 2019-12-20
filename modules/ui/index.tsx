@@ -43,8 +43,8 @@ import {
   BellScheduleVariantsRoute,
 } from "./routes/bell-schedule-variants";
 import {
-  CalendarEventReasonsLoader,
-  CalendarEventReasonsRoute,
+  CalendarChangeReasonLoader,
+  CalendarChangeReasonRoute,
 } from "./routes/calendar/event-reasons";
 import {
   CalendarPastYearsLoader,
@@ -144,6 +144,10 @@ import {
   EmployeeScheduleListViewRoute,
   EmployeeScheduleRoute,
 } from "./routes/employee-schedule";
+import {
+  EmployeePtoBalanceRoute,
+  EmployeePtoBalanceLoader,
+} from "./routes/employee-pto-balances";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -196,6 +200,10 @@ export function App() {
                     />
                     <Route component={SubHomeLoader} path={SubHomeRoute.path} />
 
+                    <Route
+                      component={EmployeePtoBalanceLoader}
+                      path={EmployeePtoBalanceRoute.path}
+                    />
                     <Route path={EmployeeScheduleCalendarViewRoute.path}>
                       <EmployeeScheduleLoader view="calendar" />
                     </Route>
@@ -291,8 +299,8 @@ export function App() {
                           path={GeneralSettingsRoute.path}
                         />
                         <Route
-                          component={CalendarEventReasonsLoader}
-                          path={CalendarEventReasonsRoute.path}
+                          component={CalendarChangeReasonLoader}
+                          path={CalendarChangeReasonRoute.path}
                         />
                         <Route
                           component={ReplacementAttributeLoader}

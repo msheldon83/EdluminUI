@@ -1,15 +1,15 @@
 import { makeStyles } from "@material-ui/styles";
 import { formatIsoDateIfPossible } from "helpers/date";
-import { groupBy } from "lodash-es";
+import { groupBy, uniqBy, compact, flatMap } from "lodash-es";
 import * as React from "react";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { AssignmentVacancyDetails } from "../types";
 import { AssignmentGroupDetail } from "./assignment-group-detail";
 import { AssignmentRowUI } from "./assignment-row-ui";
 
 type Props = {
   assignmentGroup: AssignmentVacancyDetails[];
-  onCancel: () => void;
+  onCancel: (id: number, rowVersion: string) => void;
   className?: string;
 };
 
@@ -18,6 +18,20 @@ export const AssignmentGroup: React.FC<Props> = props => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const assignment = props.assignmentGroup;
+  const { onCancel } = props;
+
+  const assignments = useMemo(
+    () => uniqBy(compact(flatMap(assignment, a => a.assignment)), "id"),
+    [assignment]
+  );
+
+  const onCancelGroupOfAssignments = useCallback(async () => {
+    await Promise.all(
+      assignments.map(async a => {
+        onCancel(Number(a.id) ?? "", a.rowVersion ?? "");
+      })
+    );
+  }, [onCancel, assignments]);
 
   const vacancy = assignment[0].vacancy !== null && assignment[0].vacancy;
   if (!vacancy || !assignment[0].assignment) return <></>;
@@ -87,7 +101,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
         organizationName={orgNameText}
         positionName={positionName}
         dayPortion={totalDayPortion}
-        onCancel={props.onCancel}
+        onCancel={onCancelGroupOfAssignments}
         className={props.className}
       />
       {isExpanded && (
@@ -100,7 +114,12 @@ export const AssignmentGroup: React.FC<Props> = props => {
               locationName={a.location?.name ?? ""}
               shadeRow={i % 2 != 0}
               key={i}
-              onCancel={() => console.log(a)}
+              onCancel={() =>
+                onCancel(
+                  Number(a.assignment?.id) ?? "",
+                  a.assignment?.rowVersion ?? ""
+                )
+              }
             />
           ))}
         </div>

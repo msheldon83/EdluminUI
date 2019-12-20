@@ -1,0 +1,15 @@
+mutation UpdateCalendarChangeReason(
+  $calendarChangeReason: CalendarChangeReasonUpdateInput!
+) {
+  orgRef_CalendarChangeReason {
+    update(calendarChangeReason: $calendarChangeReason) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      calendarDayTypeId
+      workDayScheduleVariantTypeId
+    }
+  }
+}

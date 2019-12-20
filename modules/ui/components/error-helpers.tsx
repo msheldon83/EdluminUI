@@ -91,3 +91,17 @@ export const ShowErrors = (
     status: "error",
   });
 };
+
+//Used for handling Yup errors
+export const ShowGenericErrors = (
+  error: { errors: string[] },
+  openSnackbar: (snackbarConfig: SnackbarHookType) => void
+) => {
+  const messages = uniq(compact(error.errors));
+  openSnackbar({
+    message: messages.map((m, i) => <div key={i}>{m}</div>),
+    dismissable: true,
+    //autoHideDuration: 5000,
+    status: "error",
+  });
+};

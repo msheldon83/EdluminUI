@@ -387,6 +387,39 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
   accessControl: AccessControl
 }
 
+type AdminScopeLocationRules {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  externalId: String
+  rowVersion: String!
+  firstName: String!
+  middleName: String
+  lastName: String!
+  email: String!
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  state: StateCode
+  postalCode: String
+  country: CountryCode
+  phoneNumber: String
+  formattedPhone: String
+  active: Boolean!
+  isSuperUser: Boolean!
+  permissionSet: PermissionSet
+  accessControl: AccessControl
+}
+
 input AdminScopeLocationRulesInput {
   locationIds: [Int]
   locationGroupIds: [Int]
@@ -1136,8 +1169,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   employmentHistories: [EmploymentHistory]
   endorsements: [EmployeeEndorsement]
   locations: [Location]
-  favoriteSubstitutePool: EmployeeSubstitutePreference
-  blockedSubstitutePool: EmployeeSubstitutePreference
+  substitutePools: SubstitutePool
 }
 
 input EmployeeCreateInput {
@@ -1940,6 +1972,14 @@ enum NotificationReason {
   ABSENCE_CANCELLED
 }
 
+type ObjectReplacementCriteria {
+  _info: [ReturnMessage]
+  mustHave: [Endorsement]
+  preferToHave: [Endorsement]
+  preferToNotHave: [Endorsement]
+  mustNotHave: [Endorsement]
+}
+
 enum ObjectType {
   INVALID
   USER
@@ -2277,6 +2317,13 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   isAdmin: Boolean!
   permissionSets: [PermissionSet]
   permissionSetIds: [Int!]
+  isSuperUser: Boolean!
+  adminScopeLocationRules: AdminScopeLocationRules
+  adminScopePositionTypeRules: AdminScopePositionTypeRules
+  adminLocations: [Location]
+  adminPositionTypes: [PositionType]
+  allLocationIdsInScope: Boolean!
+  allPositionTypeIdsInScope: Boolean!
   relatedOrgIds: [Int]
   relatedOrganizations: [Organization]
   employee: Employee
@@ -2890,11 +2937,7 @@ type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
   hoursPerFullWorkDay: Decimal
-  hasRequirements: Boolean
-  mustHaveRequirements: [PositionRequirement]
-  preferToHaveRequirements: [PositionRequirement]
-  preferToNotHaveRequirements: [PositionRequirement]
-  mustNotHaveRequirements: [PositionRequirement]
+  replacementCriteria: ObjectReplacementCriteria
   schedules: [PositionSchedule]
   locationIds: [Int]
   locations: [Location]
@@ -3242,6 +3285,7 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   validUntil: DateTime
   expired: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
+  replacementCriteria: ObjectReplacementCriteria
 }
 
 input PositionTypeCreateInput {
@@ -3470,7 +3514,8 @@ type ReferenceDataQueries {
   organizationTypes: [RefOrganizationType]
   permissions: [RefPermission]
   phoneTypes: [RefPhoneType]
-  requirementTypes: [RefRequirementType]
+  replacementCriteriaTypes: [RefReplacementCriteriaType]
+  replacementPoolTypes: [RefReplacementPoolType]
   states: [RefStateCode]
   labelTypes: [RefLabelType]
   fillStatuses: [RefFillStatus]
@@ -3557,9 +3602,16 @@ type RefPhoneType {
   description: String
 }
 
-type RefRequirementType {
+type RefReplacementCriteriaType {
   _info: [ReturnMessage]
-  enumValue: RequirementType
+  enumValue: ReplacementCriteriaType
+  name: String!
+  description: String
+}
+
+type RefReplacementPoolType {
+  _info: [ReturnMessage]
+  enumValue: ReplacementPoolType
   name: String!
   description: String
 }
@@ -3647,6 +3699,7 @@ type ReplacementCriteriaConfig implements ModelObjectInterface & OrgObjectInterf
   requiredUntilLeadTimePercentRemain: Int
   requiredUntilNCandidateRemain: Int
   includeMatchingCandidates: Boolean
+  replacementCriteriaTypeId: ReplacementCriteriaType
 }
 
 input ReplacementCriteriaConfigCreateInput {
@@ -3673,7 +3726,7 @@ type ReplacementCriteriaConfigQueries {
 input ReplacementCriteriaConfigUpdateInput {
   id: Int!
   rowVersion: String!
-  name: String!
+  name: String
   requiredUntilLeadTimeMinutesRemain: Int
   requiredUntilLeadTimePercentRemain: Int
   requiredUntilNCandidateRemain: Int
@@ -3700,6 +3753,14 @@ input ReplacementCriteriaRemoveEndorsementsInput {
   id: Int!
   rowVersion: String!
   endorsementIds: [Int]
+}
+
+enum ReplacementCriteriaType {
+  INVALID
+  MUST_HAVE
+  PREFER_TO_HAVE
+  PREFER_TO_NOT_HAVE
+  MUST_NOT_HAVE
 }
 
 input ReplacementCriteriaUpdateInput {
@@ -3783,6 +3844,7 @@ type ReplacementPoolConfig implements ModelObjectInterface & OrgObjectInterface 
   minLeadTImeMinutes: Int!
   selectable: Boolean
   percentLeadTime: Int
+  replacementPoolTypeId: ReplacementPoolType
 }
 
 input ReplacementPoolConfigCreateInput {
@@ -3892,18 +3954,17 @@ type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface
   replacementPoolConfig: ReplacementPoolConfig
 }
 
+enum ReplacementPoolType {
+  INVALID
+  FAVORITE
+  BLOCKED
+  OTHER
+}
+
 input ReplacementPoolUpdateInput {
   id: Int!
   rowVersion: String!
   replacementPoolConfigId: Int!
-}
-
-enum RequirementType {
-  INVALID
-  REQUIRED
-  PREFER_TO_HAVE
-  DISQUALIFYING
-  PREFER_TO_NOT_HAVE
 }
 
 input ResetUserPasswordInput {
@@ -4035,9 +4096,10 @@ type SchoolYear implements ModelObjectInterface & OrgObjectInterface & DomainObj
   externalId: String
   rowVersion: String!
   name: String!
-  startDate: Date
-  endDate: Date
-  earliestDateForAbsenceEntry: Date
+  startDate: Date!
+  endDate: Date!
+  earliestDateForAbsenceEntry: Date!
+  isCurrentSchoolYear: Boolean!
 }
 
 input SchoolYearCreateInput {
@@ -4217,8 +4279,35 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   assignments: [Assignment]
   attributes: [EmployeeEndorsement]
   qualifiedPositionTypes: [PositionType]
-  nonBlockedPools: [ReplacementPool]
-  blockedPools: [ReplacementPool]
+  substitutePoolMembership: SubstitutePoolMembership
+}
+
+type SubstitutePool {
+  _info: [ReturnMessage]
+  favoriteEmployeeIds: [Int]
+  favoriteEmployees: [Employee]
+  blockedEmployeeIds: [Int]
+  blockedEmployees: [Employee]
+}
+
+type SubstitutePoolMembership {
+  _info: [ReturnMessage]
+  favoriteForLocationIds: [Int]
+  favoriteForLocations: [Location]
+  blockedFromLocationIds: [Int]
+  blockedFromLocations: [Location]
+  favoriteForLocationGroupIds: [Int]
+  favoriteForLocationGroups: [LocationGroup]
+  blockedFromLocationGroupIds: [Int]
+  blockedFromLocationGroups: [LocationGroup]
+  favoriteForEmployeeIds: [Int]
+  favoriteForEmployees: [Employee]
+  blockedFromEmployeeIds: [Int]
+  blockedFromEmployees: [Employee]
+  favoriteForPositionTypeIds: [Int]
+  favoriteForPositionTypes: [PositionType]
+  blockedFromPositionTypeIds: [Int]
+  blockedFromPositionTypes: [PositionType]
 }
 
 input SwapVacancyAssignmentsInput {

@@ -9,7 +9,6 @@ import { compact } from "lodash-es";
 import { EditableTable } from "ui/components/editable-table";
 import { PageTitle } from "ui/components/page-title";
 import {
-  PayCode as PayCodeGQL,
   PayCodeCreateInput,
   PayCodeUpdateInput,
 } from "graphql/server-types.gen";
@@ -21,12 +20,12 @@ import { useRouteParams } from "ui/routes/definition";
 import { GetAllPayCodesWithinOrg } from "ui/pages/pay-code/graphql/get-pay-codes.gen";
 import { UpdatePayCode } from "./graphql/update-pay-code.gen";
 import { DeletePayCode } from "./graphql/delete-pay-code.gen";
+import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 
 type Props = {};
 
 export const PayCode: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
   const [createPayCode] = useMutationBundle(CreatePayCode);
@@ -38,7 +37,11 @@ export const PayCode: React.FC<Props> = props => {
   const getPayCodes = useQueryBundle(GetAllPayCodesWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired },
   });
-  const [deletePayCodeMutation] = useMutationBundle(DeletePayCode);
+  const [deletePayCodeMutation] = useMutationBundle(DeletePayCode, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const deletePayCode = (payCodeId: string) => {
     return deletePayCodeMutation({
       variables: {
@@ -59,15 +62,6 @@ export const PayCode: React.FC<Props> = props => {
     [t]
   );
 
-  const handleError = (error: any) => {
-    openSnackbar({
-      message: <div>{t(error.errors[0])}</div>,
-      dismissable: true,
-      autoHideDuration: 5000,
-      status: "error",
-    });
-  };
-
   const [payCode] = React.useState<PayCodeCreateInput>({
     orgId: Number(params.organizationId),
     name: "",
@@ -76,48 +70,27 @@ export const PayCode: React.FC<Props> = props => {
   });
 
   const create = async (payCode: PayCodeCreateInput) => {
-    validatePayCode.validate(payCode).catch(function(err) {
-      handleError(err);
-    });
+    validatePayCode
+      .validate(payCode, { abortEarly: false })
+      .catch(function(err) {
+        ShowGenericErrors(err, openSnackbar);
+      });
     const result = await createPayCode({
       variables: {
-        payCode: {
-          ...payCode,
-          externalId:
-            payCode.externalId && payCode.externalId.trim().length === 0
-              ? null
-              : payCode.externalId,
-          description:
-            payCode.description && payCode.description.trim().length === 0
-              ? null
-              : payCode.description,
-        },
+        payCode,
       },
     });
   };
 
   const update = async (payCode: PayCodeUpdateInput) => {
-    validatePayCode.validate(payCode).catch(function(err) {
-      handleError(err);
-    });
+    validatePayCode
+      .validate(payCode, { abortEarly: false })
+      .catch(function(err) {
+        ShowGenericErrors(err, openSnackbar);
+      });
     const result = await updatePayCode({
       variables: {
-        payCode: {
-          id: Number(payCode.id),
-          rowVersion: payCode.rowVersion,
-          name:
-            payCode.name && payCode.name.trim().length === 0
-              ? null
-              : payCode.name,
-          externalId:
-            payCode.externalId && payCode.externalId.trim().length === 0
-              ? null
-              : payCode.externalId,
-          description:
-            payCode.description && payCode.description.trim().length === 0
-              ? null
-              : payCode.description,
-        },
+        payCode,
       },
     });
   };
@@ -151,6 +124,11 @@ export const PayCode: React.FC<Props> = props => {
   }
 
   const payCodes = compact(getPayCodes?.data?.orgRef_PayCode?.all ?? []);
+  const mappedData = payCodes.map(o => ({
+    ...o,
+    description: o.description?.toString(),
+    externalId: o.externalId?.toString(),
+  }));
   const payCodesCount = payCodes.length;
 
   return (
@@ -169,13 +147,19 @@ export const PayCode: React.FC<Props> = props => {
       <EditableTable
         title={`${payCodesCount} ${t("Pay Codes")}`}
         columns={columns}
-        data={payCodes}
+        data={mappedData}
         onRowAdd={async newData => {
           const newPayCode = {
             ...payCode,
             name: newData.name,
-            externalId: newData.externalId,
-            description: newData.description,
+            externalId:
+              newData.externalId && newData.externalId.trim().length === 0
+                ? null
+                : newData.externalId,
+            description:
+              newData.description && newData.description.trim().length === 0
+                ? null
+                : newData.description,
           };
           await create(newPayCode);
           getPayCodes.refetch();
@@ -185,8 +169,14 @@ export const PayCode: React.FC<Props> = props => {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,
             name: newData.name,
-            externalId: newData.externalId,
-            description: newData.description,
+            externalId:
+              newData.externalId && newData.externalId.trim().length === 0
+                ? null
+                : newData.externalId,
+            description:
+              newData.description && newData.description.trim().length === 0
+                ? null
+                : newData.description,
           };
           await update(updatePayCode);
           getPayCodes.refetch();

@@ -10,7 +10,7 @@ import { EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
 
 type Props = {
   absence: EmployeeAbsenceDetail;
-  cancelAbsence: (absenceId: string) => Promise<void>;
+  cancelAbsence?: (absenceId: string) => Promise<void>;
   showAbsenceChip?: boolean;
 };
 
@@ -87,15 +87,17 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
           </Link>
         </div>
       </Grid>
-      <Grid item xs={2} className={classes.cancelButtonContainer}>
-        <Button
-          variant="outlined"
-          onClick={async () => await props.cancelAbsence(props.absence.id)}
-          className={classes.cancelButton}
-        >
-          {t("Cancel")}
-        </Button>
-      </Grid>
+      {props.cancelAbsence && (
+        <Grid item xs={2} className={classes.cancelButtonContainer}>
+          <Button
+            variant="outlined"
+            onClick={async () => await props.cancelAbsence!(props.absence.id)}
+            className={classes.cancelButton}
+          >
+            {t("Cancel")}
+          </Button>
+        </Grid>
+      )}
     </>
   );
 };
