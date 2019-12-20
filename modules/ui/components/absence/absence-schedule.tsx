@@ -42,6 +42,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
     fetchPolicy: "cache-first",
   });
+
   const userId =
     getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
       ? undefined
@@ -53,9 +54,11 @@ export const AbsenceSchedule: React.FC<Props> = props => {
   const [selectedScheduleDates, setSelectedScheduleDates] = useState<
     ScheduleDate[]
   >([]);
+
   const currentSchoolYear = useCurrentSchoolYear(props.orgId);
 
   const startDateOfToday = useMemo(() => new Date(), []);
+
   const startDateOfSchoolYear = useMemo(
     () =>
       currentSchoolYear ? parseISO(currentSchoolYear?.startDate) : new Date(),
@@ -78,6 +81,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
     },
     skip: !endDate,
   });
+
   const absences =
     getAbsenceSchedule.state === "LOADING" ||
     getAbsenceSchedule.state === "UPDATING"

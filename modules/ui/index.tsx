@@ -84,6 +84,10 @@ import {
   PeopleRoute,
   PersonViewLoader,
   PersonViewRoute,
+  PersonAbsScheduleLoader,
+  PersonAbsScheduleRoute,
+  PersonAbsScheduleCalendarViewRoute,
+  PersonAbsScheduleListViewRoute,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -249,6 +253,19 @@ export function App() {
                           component={PeopleLoader}
                           path={PeopleRoute.path}
                         />
+                        <Route
+                          component={PersonAbsScheduleLoader}
+                          path={PersonAbsScheduleRoute.path}
+                        />
+
+                        <Route path={PersonAbsScheduleCalendarViewRoute.path}>
+                          <PersonAbsScheduleLoader view="calendar" />
+                        </Route>
+
+                        <Route path={PersonAbsScheduleListViewRoute.path}>
+                          <PersonAbsScheduleLoader view="list" />
+                        </Route>
+
                         <Route
                           component={ConfigurationLoader}
                           path={ConfigurationRoute.path}
