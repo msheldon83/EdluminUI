@@ -13,6 +13,7 @@ import { Information } from "./components/information";
 import { Position } from "./components/position";
 import { ReplacementCriteria } from "./components/replacement-criteria";
 import { RoleTabs } from "./components/role-tabs";
+import { OrganizationList } from "./components/org-list";
 import { SubstitutePreferences } from "./components/substitute-preferences";
 import { PersonViewHeader } from "./components/view-header";
 import { DeleteOrgUser } from "./graphql/delete-orguser.gen";
@@ -200,7 +201,11 @@ export const PersonViewPage: React.FC<{}> = props => {
                 orgUser?.employee?.primaryPosition?.replacementCriteria
               }
             />
-            <SubstitutePreferences editing={editing} setEditing={setEditing} />
+            <SubstitutePreferences
+              editing={editing}
+              setEditing={setEditing}
+              substitutePools={orgUser?.employee?.substitutePools}
+            />
             {orgUser?.id && (
               <UpcomingAbsences
                 employeeId={orgUser?.id}
@@ -219,6 +224,11 @@ export const PersonViewPage: React.FC<{}> = props => {
               substitutePoolMembership={
                 orgUser?.substitute?.substitutePoolMembership
               }
+            />
+            <OrganizationList
+              editing={editing}
+              orgs={orgUser?.relatedOrganizations}
+              setEditing={setEditing}
             />
           </>
         )}

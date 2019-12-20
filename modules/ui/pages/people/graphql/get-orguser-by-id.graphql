@@ -30,6 +30,10 @@ query GetOrgUserById($id: ID!) {
         name
         orgUserRole
       }
+      relatedOrganizations {
+        id
+        name
+      }
       substitute {
         substitutePoolMembership {
           blockedFromEmployees {
@@ -105,6 +109,18 @@ query GetOrgUserById($id: ID!) {
               id
               name
             }
+          }
+        }
+        substitutePools {
+          blockedEmployees {
+            id
+            firstName
+            lastName
+          }
+          favoriteEmployees {
+            id
+            firstName
+            lastName
           }
         }
       }
