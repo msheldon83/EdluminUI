@@ -28,6 +28,7 @@ import {
 import { QueryOrgUsers } from "../sub-home/graphql/get-orgusers.gen";
 import { CalendarView } from "./components/calendar-view";
 import { SelectedDateView } from "./components/selected-date-view";
+import { AbsenceSchedule } from "ui/components/absence/absence-schedule";
 
 type Props = {
   view: "list" | "calendar";
@@ -37,19 +38,18 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
-  const createAbsenceParams = useRouteParams(EmployeeCreateAbsenceRoute);
+  //const createAbsenceParams = useRouteParams(EmployeeCreateAbsenceRoute);
   const params = useRouteParams(EmployeeScheduleRoute);
   const employee = useGetEmployee();
-  const getOrgUsers = useQueryBundle(QueryOrgUsers, {
+  /*const getOrgUsers = useQueryBundle(QueryOrgUsers, {
     fetchPolicy: "cache-first",
   });
   const userId =
     getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
       ? undefined
-      : getOrgUsers.data?.userAccess?.me?.user?.id;
+      : getOrgUsers.data?.userAccess?.me?.user?.id;*/
 
-  const currentSchoolYear = useCurrentSchoolYear(employee?.orgId?.toString());
-
+  /*  const currentSchoolYear = useCurrentSchoolYear(employee?.orgId?.toString());
   const startDateOfToday = useMemo(() => new Date(), []);
   const startDateOfSchoolYear = useMemo(
     () =>
@@ -73,7 +73,7 @@ export const EmployeeSchedule: React.FC<Props> = props => {
       toDate: queryEndDate,
     },
     skip: !employee || !endDate,
-  });
+  });*/
 
   const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
     onError: error => {
@@ -93,16 +93,16 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   });
 
   /* selected schedule dates moved here to support selected date view */
-  const [selectedScheduleDates, setSelectedScheduleDates] = useState<
+  /*const [selectedScheduleDates, setSelectedScheduleDates] = useState<
     ScheduleDate[]
-  >([]);
-  const absences =
+  >([]);*/
+  /*const absences =
     getAbsenceSchedule.state === "LOADING" ||
     getAbsenceSchedule.state === "UPDATING"
       ? []
       : (getAbsenceSchedule.data?.employee
           ?.employeeAbsenceSchedule as GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]);
-  const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
+  const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);*/
 
   const cancelAbsence = async (absenceId: string) => {
     const result = await deleteAbsence({
@@ -110,18 +110,30 @@ export const EmployeeSchedule: React.FC<Props> = props => {
         absenceId: Number(absenceId),
       },
     });
-    if (result) {
-      await getAbsenceSchedule.refetch();
-    }
+    // if (result) {
+    //await getAbsenceSchedule.refetch();
+    // }
   };
 
-  if (!currentSchoolYear) {
+  /* if (!currentSchoolYear) {
     return <></>;
-  }
+  }*/
 
   return (
     <div className={classes.pageContainer}>
-      <div className={classes.sticky}>
+      {employee && (
+        <AbsenceSchedule
+          view={props.view}
+          employeeId={employee?.id}
+          orgId={employee?.orgId?.toString()}
+          pageTitle={"My Schedule"}
+          showCreateAbsence={true}
+          cancelAbsence={cancelAbsence}
+          calendarViewRoute={EmployeeScheduleCalendarViewRoute.generate(params)}
+          listViewRoute={EmployeeScheduleListViewRoute.generate(params)}
+        />
+      )}
+      {/* <div className={classes.sticky}>
         <Grid container justify="space-between" alignItems="center">
           <Grid item>
             <PageTitle title={t("My Schedule")} />
@@ -207,12 +219,13 @@ export const EmployeeSchedule: React.FC<Props> = props => {
           )}
         </Grid>
       </Section>
+*/}
     </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  container: {
+  /* container: {
     padding: 0,
   },
   filters: {
@@ -229,7 +242,7 @@ const useStyles = makeStyles(theme => ({
   },
   calendarContent: {
     padding: theme.spacing(),
-  },
+  },*/
   pageContainer: {
     display: "block",
     overflowY: "scroll",
@@ -237,7 +250,7 @@ const useStyles = makeStyles(theme => ({
     position: "fixed",
     paddingRight: theme.spacing(3),
   },
-  sticky: {
+  /*sticky: {
     position: "sticky",
     top: 0,
     zIndex: 1,
@@ -252,5 +265,5 @@ const useStyles = makeStyles(theme => ({
   absenceSection: {
     padding: theme.spacing(1),
     marginBottom: 0,
-  },
+  },*/
 }));

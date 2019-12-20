@@ -9,6 +9,7 @@ type Props = {
   header?: string;
   absences: EmployeeAbsenceDetail[];
   cancelAbsence?: (absenceId: string) => Promise<void>;
+  handleAfterAbsence?: Function;
   isLoading: boolean;
 };
 
@@ -45,7 +46,11 @@ export const ScheduledAbsences: React.FC<Props> = props => {
 
         return (
           <Grid item container xs={12} key={i} className={className}>
-            <AbsenceDetailRow absence={a} cancelAbsence={props.cancelAbsence} />
+            <AbsenceDetailRow
+              absence={a}
+              cancelAbsence={props.cancelAbsence}
+              handleAfterCancel={props.handleAfterAbsence}
+            />
           </Grid>
         );
       })}

@@ -104,9 +104,13 @@ export const EmployeeHome: React.FC<Props> = props => {
         absenceId: Number(absenceId),
       },
     });
-    if (result) {
-      await getAbsenceSchedule.refetch();
-    }
+    //if (result) {
+    //await getAbsenceSchedule.refetch();
+    //}
+  };
+
+  const handleAfterAbsense = async () => {
+    await getAbsenceSchedule.refetch();
   };
 
   return (
@@ -134,6 +138,7 @@ export const EmployeeHome: React.FC<Props> = props => {
                 (a: EmployeeAbsenceDetail) => isAfter(a.startTimeLocal, today)
               )}
               cancelAbsence={cancelAbsence}
+              handleAfterAbsence={handleAfterAbsense}
               isLoading={
                 getAbsenceSchedule.state === "LOADING" ||
                 getAbsenceSchedule.state === "UPDATING"
