@@ -159,11 +159,11 @@ export const PeoplePage: React.FC<Props> = props => {
       adminLocations:
         person.administrator?.accessControl?.derivedAdminLocations ?? [],
       allLocationIdsInScope:
-        person.administrator?.accessControl?.allLocationIdsInScope ?? [],
+        person.administrator?.accessControl?.allLocationIdsInScope ?? false,
       adminPositionTypes:
         person.administrator?.accessControl?.derivedAdminPositionTypes ?? [],
       allPositionTypeIdsInScope:
-        person.administrator?.accessControl?.allPositionTypeIdsInScope ?? [],
+        person.administrator?.accessControl?.allPositionTypeIdsInScope ?? false,
     }));
   }, [people, listRoles]);
 
