@@ -2,7 +2,6 @@ import { Grid, makeStyles } from "@material-ui/core";
 import { useTheme } from "@material-ui/styles";
 import { useIsMobile } from "hooks";
 import * as React from "react";
-import { useCallback, useMemo } from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import * as Yup from "yup";
@@ -22,7 +21,7 @@ import { GetAllCalendarChangeReasonsWithinOrg } from "ui/pages/calendar-event-re
 import { UpdateCalendarChangeReason } from "./graphql/update.gen";
 import { DeleteCalendarChangeReason } from "./graphql/delete.gen";
 import { CalendarDayTypes } from "reference-data/calendar-day-type";
-import { ShowErrors } from "ui/components/error-helpers";
+import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 
 type Props = {};
@@ -79,12 +78,10 @@ export const CalendarChangeReason: React.FC<Props> = props => {
   const validateCalendarChangeReason = React.useMemo(
     () =>
       Yup.object().shape({
-        name: Yup.string()
-          .nullable()
-          .required(t("Name is required")),
+        name: Yup.string().required(t("Name is required")),
         externalId: Yup.string().nullable(),
         description: Yup.string().nullable(),
-        calendarDayTypeId: Yup.string()
+        calendarDayTypeId: Yup.number()
           .nullable()
           .required(t("Day Type is required")),
         workDayScheduleVariantId: Yup.string().nullable(),
@@ -92,52 +89,28 @@ export const CalendarChangeReason: React.FC<Props> = props => {
     [t]
   );
 
-  const handleError = (error: any) => {
-    openSnackbar({
-      message: <div>{t(error.errors[0])}</div>,
-      dismissable: true,
-      autoHideDuration: 5000,
-      status: "error",
-    });
-  };
-
   const [calendarChangeReason] = React.useState<
     CalendarChangeReasonCreateInput
   >({
     orgId: Number(params.organizationId),
     name: "",
     description: "",
+    calendarDayTypeId: null,
+    workDayScheduleVariantTypeId: null,
   });
 
   const create = async (
     calendarChangeReason: CalendarChangeReasonCreateInput
   ) => {
     validateCalendarChangeReason
-      .validate(calendarChangeReason)
+      .validate(calendarChangeReason, { abortEarly: false })
       .catch(function(err) {
-        handleError(err);
+        console.log(err);
+        ShowGenericErrors(err, openSnackbar);
       });
     const result = await createCalendarChangeReasons({
       variables: {
-        calendarChangeReason: {
-          ...calendarChangeReason,
-          description:
-            calendarChangeReason.description &&
-            calendarChangeReason.description.trim().length === 0
-              ? null
-              : calendarChangeReason.description,
-          workDayScheduleVariantTypeId:
-            calendarChangeReason.workDayScheduleVariantTypeId &&
-            calendarChangeReason.workDayScheduleVariantTypeId.toString()
-              .length === 0
-              ? null
-              : calendarChangeReason.workDayScheduleVariantTypeId,
-          calendarDayTypeId:
-            calendarChangeReason.calendarDayTypeId &&
-            calendarChangeReason.calendarDayTypeId.toString().length === 0
-              ? null
-              : calendarChangeReason.calendarDayTypeId,
-        },
+        calendarChangeReason,
       },
     });
   };
@@ -146,37 +119,14 @@ export const CalendarChangeReason: React.FC<Props> = props => {
     calendarChangeReason: CalendarChangeReasonUpdateInput
   ) => {
     validateCalendarChangeReason
-      .validate(calendarChangeReason)
+      .validate(calendarChangeReason, { abortEarly: false })
+      .then(() => {})
       .catch(function(err) {
-        handleError(err);
+        ShowGenericErrors(err, openSnackbar);
       });
     const result = await updateCalendarChangeReasons({
       variables: {
-        calendarChangeReason: {
-          id: Number(calendarChangeReason.id),
-          rowVersion: calendarChangeReason.rowVersion,
-          name:
-            calendarChangeReason.name &&
-            calendarChangeReason.name.trim().length === 0
-              ? null
-              : calendarChangeReason.name,
-          description:
-            calendarChangeReason.description &&
-            calendarChangeReason.description.trim().length === 0
-              ? null
-              : calendarChangeReason.description,
-          workDayScheduleVariantTypeId:
-            calendarChangeReason.workDayScheduleVariantTypeId &&
-            calendarChangeReason.workDayScheduleVariantTypeId.toString()
-              .length === 0
-              ? null
-              : calendarChangeReason.workDayScheduleVariantTypeId,
-          calendarDayTypeId:
-            calendarChangeReason.calendarDayTypeId &&
-            calendarChangeReason.calendarDayTypeId.toString().length === 0
-              ? null
-              : calendarChangeReason.calendarDayTypeId,
-        },
+        calendarChangeReason,
       },
     });
   };
@@ -223,7 +173,8 @@ export const CalendarChangeReason: React.FC<Props> = props => {
   );
   const mappedData = CalendarChangeReasons.map(o => ({
     ...o,
-    externalId: o.externalId === null ? o.externalId : "",
+    externalId: o.externalId?.toString(),
+    description: o.description?.toString(),
   }));
   const CalendarChangeReasonsCount = CalendarChangeReasons.length;
 
@@ -248,7 +199,10 @@ export const CalendarChangeReason: React.FC<Props> = props => {
           const newCalendarChangeReason = {
             ...calendarChangeReason,
             name: newData.name,
-            description: newData.description,
+            description:
+              newData.description && newData.description.trim().length === 0
+                ? null
+                : newData.description,
             workDayScheduleVariantTypeId:
               newData.workDayScheduleVariantTypeId === null
                 ? undefined
@@ -263,7 +217,10 @@ export const CalendarChangeReason: React.FC<Props> = props => {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,
             name: newData.name,
-            description: newData.description,
+            description:
+              newData.description && newData.description.trim().length === 0
+                ? null
+                : newData.description,
             workDayScheduleVariantTypeId:
               newData.workDayScheduleVariantTypeId === null
                 ? undefined
