@@ -25,6 +25,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { UpcomingAbsences } from "./components/upcoming-absences";
 import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
 import { ShowErrors } from "ui/components/error-helpers";
+import { SubstitutePools } from "./components/substitute-pools";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -210,7 +211,17 @@ export const PersonViewPage: React.FC<{}> = props => {
         )}
       {orgUser.isReplacementEmployee &&
         (selectedRole ?? defaultSelectedRole) ===
-          OrgUserRole.ReplacementEmployee && <></>}
+          OrgUserRole.ReplacementEmployee && (
+          <>
+            <SubstitutePools
+              editing={editing}
+              setEditing={setEditing}
+              substitutePoolMembership={
+                orgUser?.substitute?.substitutePoolMembership
+              }
+            />
+          </>
+        )}
     </>
   );
 };
