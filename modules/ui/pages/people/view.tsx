@@ -4,7 +4,6 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Redirect, useHistory } from "react-router";
-import { FieldData } from "ui/components/page-header-multifieldedit";
 import { PageTitle } from "ui/components/page-title";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { useRouteParams } from "ui/routes/definition";
@@ -21,8 +20,9 @@ import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
 import { GetOrgUserLastLogin } from "./graphql/get-orguser-lastlogin.gen";
 import { UpdateEmployee } from "./graphql/update-employee.gen";
 import { UpdateOrgUser } from "./graphql/update-orguser.gen";
-import { OrgUserUpdateInput } from "graphql/server-types.gen";
+import { OrgUserUpdateInput, OrgUser } from "graphql/server-types.gen";
 import { useSnackbar } from "hooks/use-snackbar";
+import { UpcomingAbsences } from "./components/upcoming-absences";
 import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
 import { ShowErrors } from "ui/components/error-helpers";
 
@@ -76,6 +76,11 @@ export const PersonViewPage: React.FC<{}> = props => {
     variables: { id: params.orgUserId },
   });
 
+  const orgUser =
+    getOrgUser.state === "LOADING"
+      ? undefined
+      : getOrgUser?.data?.orgUser?.byId;
+
   if (
     getOrgUser.state === "LOADING" ||
     getOrgUserLastLogin.state === "LOADING"
@@ -83,7 +88,6 @@ export const PersonViewPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const orgUser = getOrgUser?.data?.orgUser?.byId;
   if (!orgUser) {
     // Redirect the User back to the List page
     const listUrl = PeopleRoute.generate(params);
@@ -185,11 +189,17 @@ export const PersonViewPage: React.FC<{}> = props => {
               employeeId={orgUser?.id}
               title={t("Time off balances")}
               showEdit={false} // TODO: Set to true when we have an edit page
-              editing={editing} 
+              editing={editing}
               setEditing={setEditing}
             />
-            <SubstitutePreferences editing={editing} setEditing={setEditing} />
             <ReplacementCriteria editing={editing} setEditing={setEditing} />
+            <SubstitutePreferences editing={editing} setEditing={setEditing} />
+            {orgUser?.id && (
+              <UpcomingAbsences
+                employeeId={orgUser?.id}
+                orgId={params.organizationId}
+              />
+            )}
           </>
         )}
     </>
