@@ -192,7 +192,13 @@ export const PersonViewPage: React.FC<{}> = props => {
               editing={editing}
               setEditing={setEditing}
             />
-            <ReplacementCriteria editing={editing} setEditing={setEditing} />
+            <ReplacementCriteria
+              editing={editing}
+              setEditing={setEditing}
+              replacementCriteria={
+                orgUser?.employee?.primaryPosition?.replacementCriteria
+              }
+            />
             <SubstitutePreferences editing={editing} setEditing={setEditing} />
             {orgUser?.id && (
               <UpcomingAbsences
@@ -202,6 +208,9 @@ export const PersonViewPage: React.FC<{}> = props => {
             )}
           </>
         )}
+      {orgUser.isReplacementEmployee &&
+        (selectedRole ?? defaultSelectedRole) ===
+          OrgUserRole.ReplacementEmployee && <></>}
     </>
   );
 };

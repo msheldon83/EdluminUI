@@ -50,6 +50,24 @@ query GetOrgUserById($id: ID!) {
             id
             name
           }
+          replacementCriteria {
+            mustHave {
+              id
+              name
+            }
+            mustNotHave {
+              id
+              name
+            }
+            preferToHave {
+              id
+              name
+            }
+            preferToNotHave {
+              id
+              name
+            }
+          }
         }
       }
       allLocationIdsInScope

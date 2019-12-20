@@ -723,6 +723,7 @@ input CancelVacancyAssignmentInput {
   id: Int!
   rowVersion: String!
   cancellationReasonId: Int
+  vacancyDetailIds: [ID]
 }
 
 type ChangedContract implements ModelObjectInterface & OrgObjectInterface {
