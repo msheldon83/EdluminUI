@@ -14,7 +14,6 @@ query GetOrgUserById($id: ID!) {
       isReplacementEmployee
       isEmployee
       isAdmin
-      isSuperUser
       email
       dateOfBirth
       phoneNumber
@@ -51,23 +50,45 @@ query GetOrgUserById($id: ID!) {
             name
           }
         }
-      }
-      allLocationIdsInScope
-      allPositionTypeIdsInScope
-      adminScopeLocationRules {
-        locations {
+        permissionSet {
           id
           name
-        }
-        locationGroups {
-          id
-          name
+          orgUserRole
         }
       }
-      adminScopePositionTypeRules {
-        positionTypes {
+      substitute {
+        id
+        rowVersion
+        permissionSet {
           id
           name
+          orgUserRole
+        }
+      }
+      administrator {
+        id
+        rowVersion
+        isSuperUser
+        permissionSet {
+          id
+          name
+          orgUserRole
+        }
+        accessControl {
+          allLocationIdsInScope
+          allPositionTypeIdsInScope
+          locations {
+            id
+            name
+          }
+          locationGroups {
+            id
+            name
+          }
+          positionTypes {
+            id
+            name
+          }
         }
       }
     }

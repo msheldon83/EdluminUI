@@ -6,11 +6,13 @@ query GetOrgsForUser {
         id
         orgUsers {
           id
-          isSuperUser
           isAdmin
           organization {
             id
             name
+          }
+          administrator {
+            isSuperUser
           }
         }
       }

@@ -68,8 +68,8 @@ type Props = {
       | null
       | undefined;
     permissionSetIds?: number[] | null | undefined;
-    isSuperUser: boolean;
   };
+  isSuperUser: boolean;
   lastLogin: string | null | undefined;
   selectedRole: OrgUserRole;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
@@ -110,7 +110,7 @@ export const Information: React.FC<Props> = props => {
 
   const initials = getInitials(props.orgUser);
 
-  let permissions = orgUser.isSuperUser ? t("Org Admin") : "";
+  let permissions = props.isSuperUser ? t("Org Admin") : "";
   if (orgUser.permissionSets!.length > 0) {
     permissions =
       orgUser?.permissionSets
@@ -153,7 +153,7 @@ export const Information: React.FC<Props> = props => {
             postalCode:
               data.postalCode.trim().length === 0 ? null : data.postalCode,
             countryId: data.state ? ("US" as CountryCode) : null,
-            permissionSetIds: !orgUser.isSuperUser
+            permissionSetIds: !props.isSuperUser
               ? data.permissionSetIds
               : undefined,
           });
@@ -190,7 +190,7 @@ export const Information: React.FC<Props> = props => {
                       title={t("Permissions")}
                       description={
                         props.editing === editableSections.information &&
-                        !orgUser.isSuperUser ? (
+                        !props.isSuperUser ? (
                           <Select
                             value={permissionSetOptions.filter(
                               e =>
