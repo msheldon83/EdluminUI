@@ -199,7 +199,11 @@ export const PersonViewPage: React.FC<{}> = props => {
                 orgUser?.employee?.primaryPosition?.replacementCriteria
               }
             />
-            <SubstitutePreferences editing={editing} setEditing={setEditing} />
+            <SubstitutePreferences
+              editing={editing}
+              setEditing={setEditing}
+              substitutePools={orgUser?.employee?.substitutePools}
+            />
             {orgUser?.id && (
               <UpcomingAbsences
                 employeeId={orgUser?.id}

@@ -69,6 +69,18 @@ query GetOrgUserById($id: ID!) {
             }
           }
         }
+        substitutePools {
+          blockedEmployees {
+            id
+            firstName
+            lastName
+          }
+          favoriteEmployees {
+            id
+            firstName
+            lastName
+          }
+        }
       }
       allLocationIdsInScope
       allPositionTypeIdsInScope
