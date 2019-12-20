@@ -22,14 +22,9 @@ export const UpcomingAbsences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   //const classes = useStyles();
-  const currentSchoolYear = useCurrentSchoolYear(props.orgId);
+  const currentSchoolYear = useCurrentSchoolYear(props.orgId.toString());
   const startDate = useMemo(() => new Date(), []);
-  //const endDate = currentSchoolYear?.endDate;
-  const endDate = useMemo(() => new Date(2020, 10, 30), []);
-  console.log("in upcoming absences cmpt" + props.orgId);
-  console.log(currentSchoolYear);
-  console.log(startDate);
-  console.log(endDate);
+  const endDate = currentSchoolYear?.endDate;
   const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
     variables: {
       id: props.employeeId,

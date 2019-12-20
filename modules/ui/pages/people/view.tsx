@@ -288,7 +288,7 @@ export const PersonViewPage: React.FC<{}> = props => {
             {orgUser?.employee && (
               <UpcomingAbsences
                 employeeId={orgUser?.employee?.id}
-                orgId={params.orgUserId}
+                orgId={params.organizationId}
               />
             )}
             {/* <ScheduledAbsences
