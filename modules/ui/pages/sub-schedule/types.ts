@@ -2,6 +2,7 @@ export type AssignmentVacancyDetails = {
   id?: string;
   assignment: {
     id: string;
+    rowVersion: string;
     startTimeLocal?: string;
     endTimeLocal?: string;
   } | null;

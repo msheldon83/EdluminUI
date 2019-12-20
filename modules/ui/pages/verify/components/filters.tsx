@@ -13,6 +13,7 @@ import { useCallback, useMemo } from "react";
 
 type Props = {
   showVerified: boolean;
+  orgId: string;
   setShowVerified: React.Dispatch<React.SetStateAction<boolean>>;
   locationsFilter: number[];
   setLocationsFilter: React.Dispatch<React.SetStateAction<number[]>>;
@@ -22,7 +23,7 @@ export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const locations = useLocations();
+  const locations = useLocations(props.orgId);
   const locationOptions: OptionType[] = useMemo(
     () => locations.map(l => ({ label: l.name, value: l.id })),
     [locations]

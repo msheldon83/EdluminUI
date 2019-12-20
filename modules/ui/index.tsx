@@ -144,6 +144,10 @@ import {
   EmployeeScheduleListViewRoute,
   EmployeeScheduleRoute,
 } from "./routes/employee-schedule";
+import {
+  EmployeePtoBalanceRoute,
+  EmployeePtoBalanceLoader,
+} from "./routes/employee-pto-balances";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -196,6 +200,10 @@ export function App() {
                     />
                     <Route component={SubHomeLoader} path={SubHomeRoute.path} />
 
+                    <Route
+                      component={EmployeePtoBalanceLoader}
+                      path={EmployeePtoBalanceRoute.path}
+                    />
                     <Route path={EmployeeScheduleCalendarViewRoute.path}>
                       <EmployeeScheduleLoader view="calendar" />
                     </Route>

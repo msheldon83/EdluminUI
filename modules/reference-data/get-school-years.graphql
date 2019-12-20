@@ -1,0 +1,10 @@
+query GetAllSchoolYears($orgId: ID!) {
+  schoolYear {
+    all(orgId: $orgId) {
+      id
+      startDate
+      endDate
+      isCurrentSchoolYear
+    }
+  }
+}

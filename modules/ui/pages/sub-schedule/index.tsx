@@ -146,10 +146,11 @@ const useStyles = makeStyles(theme => ({
     )}`,
   },
   pageContainer: {
-    display: "contents",
-    overflow: "scroll",
+    display: "block",
+    overflowY: "scroll",
     height: "100vh",
     position: "fixed",
+    paddingRight: theme.spacing(3),
   },
   sticky: {
     position: "sticky",

@@ -5,11 +5,14 @@ import { Section } from "ui/components/section";
 import { useState } from "react";
 import { Filters } from "./components/filters";
 import { VerifyUI } from "./ui";
+import { useRouteParams } from "ui/routes/definition";
+import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 
 export const VerifyPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const [showVerified, setShowVerified] = useState(false);
   const [locationsFilter, setLocationsFilter] = useState<number[]>([]);
+  const params = useRouteParams(VerifyRoute);
 
   return (
     <>
@@ -20,6 +23,7 @@ export const VerifyPage: React.FC<{}> = props => {
           locationsFilter={locationsFilter}
           setShowVerified={setShowVerified}
           setLocationsFilter={setLocationsFilter}
+          orgId={params.organizationId}
         />
       </Section>
       <VerifyUI showVerified={showVerified} locationsFilter={locationsFilter} />

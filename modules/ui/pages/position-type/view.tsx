@@ -22,6 +22,7 @@ import {
 import * as yup from "yup";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import { UpdatePositionType } from "./graphql/update-position-type.gen";
+import { GetAllPositionTypesWithinOrg } from "./graphql/position-types.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -38,13 +39,15 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const [enabled, setEnabled] = useState<boolean | null>(null);
 
   const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType);
-  const deletePositionType = React.useCallback(() => {
-    history.push(PositionTypeRoute.generate(params));
-    return deletePositionTypeMutation({
+  const deletePositionType = React.useCallback(async () => {
+    await deletePositionTypeMutation({
       variables: {
         positionTypeId: Number(params.positionTypeId),
       },
+      awaitRefetchQueries: true,
+      refetchQueries: ["GetAllPositionTypesWithinOrg"],
     });
+    history.push(PositionTypeRoute.generate(params));
   }, [deletePositionTypeMutation, history, params]);
 
   const [updatePositionType] = useMutationBundle(UpdatePositionType);

@@ -1,4 +1,4 @@
-import { Button, Grid, Typography } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import * as DateFns from "date-fns";
 import { formatIsoDateIfPossible } from "helpers/date";
@@ -102,7 +102,10 @@ export const AssignmentRowUI: React.FC<Props> = props => {
       <Button
         variant="outlined"
         className={classes.cancel}
-        onClick={props.onCancel}
+        onClick={e => {
+          e.stopPropagation();
+          props.onCancel();
+        }}
       >
         {t("Cancel")}
       </Button>

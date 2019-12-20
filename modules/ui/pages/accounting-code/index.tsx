@@ -39,6 +39,7 @@ export const AccountingCode: React.FC<Props> = props => {
     (o: any, key: any) => ({ ...o, [key.id]: key.name }),
     {}
   );
+  locationOptions[0] = "All Schools"; //add default option
 
   //Hardcoding includeExpired.  Currently UI does not give option to choose.
   const getAccountingCodes = useQueryBundle(GetAllAccountingCodesWithinOrg, {
@@ -127,7 +128,8 @@ export const AccountingCode: React.FC<Props> = props => {
 
   const formattedAccountingCodes = accountingCodes.map(o => ({
     ...o,
-    location: o.location === null ? { id: "", name: "" } : o.location,
+    location:
+      o.location === null ? { id: "0", name: "All Schools" } : o.location,
     externalId: o.externalId?.toString(),
   }));
 
@@ -139,6 +141,8 @@ export const AccountingCode: React.FC<Props> = props => {
     validateAccountingCode.validate(accountingCode).catch(function(err) {
       handleError(err);
     });
+    accountingCode.locationId =
+      accountingCode.locationId === 0 ? null : accountingCode.locationId;
     const result = await updateAccountingCode({
       variables: {
         accountingCode: {
@@ -166,6 +170,8 @@ export const AccountingCode: React.FC<Props> = props => {
     validateAccountingCode.validate(accountingCode).catch(function(err) {
       handleError(err);
     });
+    accountingCode.locationId =
+      accountingCode.locationId === 0 ? null : accountingCode.locationId;
     const result = await createAccountingCode({
       variables: {
         accountingCode: {
