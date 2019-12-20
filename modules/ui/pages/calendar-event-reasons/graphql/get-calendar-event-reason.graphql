@@ -1,0 +1,13 @@
+query GetCalendarChangeReasonById($id: ID!) {
+  orgRef_CalendarChangeReason {
+    byId(id: $id) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      calendarDayTypeId
+      workDayScheduleVariantTypeId
+    }
+  }
+}
