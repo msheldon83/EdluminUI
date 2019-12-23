@@ -9,7 +9,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
 import { GeneralSettingsRoute } from "ui/routes/general-settings";
 import { BellScheduleVariantsRoute } from "ui/routes/bell-schedule-variants";
-import { CalendarEventReasonsRoute } from "ui/routes/calendar/event-reasons";
+import { CalendarChangeReasonRoute } from "ui/routes/calendar/event-reasons";
 import { BellScheduleRoute } from "ui/routes/bell-schedule";
 import { ReplacementAttributeRoute } from "ui/routes/replacement-attribute";
 import { AbsenceReasonRoute } from "ui/routes/absence/reason";
@@ -73,7 +73,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
           src={require("ui/icons/calendar-event-reasons.svg")}
         />
       ),
-      route: CalendarEventReasonsRoute,
+      route: CalendarChangeReasonRoute,
     },
   ];
 

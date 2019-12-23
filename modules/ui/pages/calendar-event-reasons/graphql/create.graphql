@@ -1,0 +1,15 @@
+mutation CreateCalendarChangeReason(
+  $calendarChangeReason: CalendarChangeReasonCreateInput!
+) {
+  orgRef_CalendarChangeReason {
+    create(calendarChangeReason: $calendarChangeReason) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      calendarDayTypeId
+      workDayScheduleVariantTypeId
+    }
+  }
+}

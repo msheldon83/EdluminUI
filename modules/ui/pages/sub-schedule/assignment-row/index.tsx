@@ -5,7 +5,11 @@ import { useCallback } from "react";
 
 type Props = {
   assignment: AssignmentVacancyDetails;
-  onCancel: (id: number, rowVersion: string) => void;
+  onCancel: (
+    assignmentId: number,
+    rowVersion: string,
+    vacancyDetailIds?: string[]
+  ) => void;
   className?: string;
 };
 
@@ -23,7 +27,11 @@ export const AssignmentRow: React.FC<Props> = props => {
   const locationName = a?.location?.name ?? "";
   const onCancelMutation = useCallback(
     () =>
-      onCancel(Number(a.assignment?.id) ?? "", a.assignment?.rowVersion ?? ""),
+      onCancel(
+        Number(a.assignment?.id) ?? "",
+        a.assignment?.rowVersion ?? "",
+        undefined
+      ),
     [onCancel, a.assignment]
   );
   return (

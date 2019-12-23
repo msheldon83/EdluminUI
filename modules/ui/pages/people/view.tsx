@@ -13,6 +13,7 @@ import { Information } from "./components/information";
 import { Position } from "./components/position";
 import { ReplacementCriteria } from "./components/replacement-criteria";
 import { RoleTabs } from "./components/role-tabs";
+import { OrganizationList } from "./components/org-list";
 import { SubstitutePreferences } from "./components/substitute-preferences";
 import { PersonViewHeader } from "./components/view-header";
 import { DeleteOrgUser } from "./graphql/delete-orguser.gen";
@@ -25,6 +26,8 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { UpcomingAbsences } from "./components/upcoming-absences";
 import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
 import { ShowErrors } from "ui/components/error-helpers";
+import { SubstitutePools } from "./components/substitute-pools";
+import { SubPositionsAttributes } from "./components/sub-positions-attributes";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -137,6 +140,7 @@ export const PersonViewPage: React.FC<{}> = props => {
       <Information
         editing={editing}
         orgUser={orgUser}
+        isSuperUser={orgUser.administrator?.isSuperUser ?? false}
         lastLogin={lastLogin}
         setEditing={setEditing}
         onResetPassword={onResetPassword}
@@ -148,16 +152,22 @@ export const PersonViewPage: React.FC<{}> = props => {
           <AccessControl
             editing={editing}
             setEditing={setEditing}
-            locations={orgUser?.adminScopeLocationRules?.locations ?? []}
+            locations={orgUser?.administrator?.accessControl?.locations ?? []}
             locationGroups={
-              orgUser?.adminScopeLocationRules?.locationGroups ?? []
+              orgUser?.administrator?.accessControl?.locationGroups ?? []
             }
             positionTypes={
-              orgUser?.adminScopePositionTypeRules?.positionTypes ?? []
+              orgUser?.administrator?.accessControl?.positionTypes ?? []
             }
-            allLocationIdsInScope={orgUser?.allLocationIdsInScope}
-            allPositionTypeIdsInScope={orgUser?.allPositionTypeIdsInScope}
-            isSuperUser={orgUser?.isSuperUser}
+            allLocationIdsInScope={
+              orgUser?.administrator?.accessControl?.allLocationIdsInScope ??
+              false
+            }
+            allPositionTypeIdsInScope={
+              orgUser?.administrator?.accessControl
+                ?.allPositionTypeIdsInScope ?? false
+            }
+            isSuperUser={orgUser?.administrator?.isSuperUser ?? false}
           />
         )}
       {orgUser.isEmployee &&
@@ -192,14 +202,53 @@ export const PersonViewPage: React.FC<{}> = props => {
               editing={editing}
               setEditing={setEditing}
             />
-            <ReplacementCriteria editing={editing} setEditing={setEditing} />
-            <SubstitutePreferences editing={editing} setEditing={setEditing} />
+            <ReplacementCriteria
+              editing={editing}
+              setEditing={setEditing}
+              replacementCriteria={
+                orgUser?.employee?.primaryPosition?.replacementCriteria
+              }
+            />
+            <SubstitutePreferences
+              editing={editing}
+              setEditing={setEditing}
+              substitutePools={orgUser?.employee?.substitutePools}
+            />
             {orgUser?.id && (
               <UpcomingAbsences
                 employeeId={orgUser?.id}
                 orgId={params.organizationId}
               />
             )}
+          </>
+        )}
+      {orgUser.isReplacementEmployee &&
+        (selectedRole ?? defaultSelectedRole) ===
+          OrgUserRole.ReplacementEmployee && (
+          <>
+            <SubPositionsAttributes
+              editing={editing}
+              setEditing={setEditing}
+              attributes={
+                orgUser?.substitute?.attributes?.map(ee => ee?.endorsement) ??
+                []
+              }
+              qualifiedPositionTypes={
+                orgUser?.substitute?.qualifiedPositionTypes
+              }
+            />
+            <SubstitutePools
+              editing={editing}
+              setEditing={setEditing}
+              substitutePoolMembership={
+                orgUser?.substitute?.substitutePoolMembership
+              }
+            />
+            <OrganizationList
+              editing={editing}
+              orgs={orgUser?.relatedOrganizations}
+              setEditing={setEditing}
+            />
           </>
         )}
     </>

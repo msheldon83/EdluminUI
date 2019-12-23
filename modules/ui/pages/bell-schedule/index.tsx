@@ -125,7 +125,7 @@ export const BellSchedulePage: React.FC<{}> = props => {
         }`}
         columns={columns}
         data={workDaySchedules}
-        selection={!isMobile}
+        selection={false}
         onRowClick={(event, workDaySchedule) => {
           if (!workDaySchedule) return;
           const newParams = {
@@ -137,13 +137,6 @@ export const BellSchedulePage: React.FC<{}> = props => {
         options={{
           search: true,
           sorting: true,
-          selectionProps: (
-            rowData: GetAllWorkDaySchedulesWithinOrg.Results
-          ) => ({
-            disabled: rowData?.usages?.length
-              ? rowData?.usages?.length > 0
-              : false,
-          }),
         }}
         showIncludeExpired={true}
         onIncludeExpiredChange={checked => {
@@ -152,15 +145,6 @@ export const BellSchedulePage: React.FC<{}> = props => {
         expiredRowCheck={(rowData: GetAllWorkDaySchedulesWithinOrg.Results) =>
           rowData.expired ?? false
         }
-        actions={[
-          {
-            tooltip: `${t("Delete selected bell schedules")}`,
-            icon: () => <DeleteOutline /> /* eslint-disable-line */, // This should be able to be "delete" as a string which will use the table delete icon, but that didn't work for some reason
-            onClick: async (event, data) => {
-              await deleteSelected(data);
-            },
-          },
-        ]}
       />
     </>
   );

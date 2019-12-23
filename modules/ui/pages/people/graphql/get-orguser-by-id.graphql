@@ -14,7 +14,6 @@ query GetOrgUserById($id: ID!) {
       isReplacementEmployee
       isEmployee
       isAdmin
-      isSuperUser
       email
       dateOfBirth
       phoneNumber
@@ -29,6 +28,59 @@ query GetOrgUserById($id: ID!) {
         id
         name
         orgUserRole
+      }
+      relatedOrganizations {
+        id
+        name
+      }
+      substitute {
+        attributes {
+          id
+          endorsement {
+            id
+            name
+          }
+        }
+        qualifiedPositionTypes {
+          id
+          name
+        }
+        substitutePoolMembership {
+          blockedFromEmployees {
+            id
+            firstName
+            lastName
+          }
+          favoriteForEmployees {
+            id
+            firstName
+            lastName
+          }
+          blockedFromPositionTypes {
+            id
+            name
+          }
+          favoriteForPositionTypes {
+            id
+            name
+          }
+          blockedFromLocationGroups {
+            id
+            name
+          }
+          favoriteForLocationGroups {
+            id
+            name
+          }
+          blockedFromLocations {
+            id
+            name
+          }
+          favoriteForLocations {
+            id
+            name
+          }
+        }
       }
       employee {
         id
@@ -50,24 +102,76 @@ query GetOrgUserById($id: ID!) {
             id
             name
           }
+          replacementCriteria {
+            mustHave {
+              id
+              name
+            }
+            mustNotHave {
+              id
+              name
+            }
+            preferToHave {
+              id
+              name
+            }
+            preferToNotHave {
+              id
+              name
+            }
+          }
+        }
+        substitutePools {
+          blockedEmployees {
+            id
+            firstName
+            lastName
+          }
+          favoriteEmployees {
+            id
+            firstName
+            lastName
+          }
+        }
+        permissionSet {
+          id
+          name
+          orgUserRole
         }
       }
-      allLocationIdsInScope
-      allPositionTypeIdsInScope
-      adminScopeLocationRules {
-        locations {
+      substitute {
+        id
+        rowVersion
+        permissionSet {
           id
           name
-        }
-        locationGroups {
-          id
-          name
+          orgUserRole
         }
       }
-      adminScopePositionTypeRules {
-        positionTypes {
+      administrator {
+        id
+        rowVersion
+        isSuperUser
+        permissionSet {
           id
           name
+          orgUserRole
+        }
+        accessControl {
+          allLocationIdsInScope
+          allPositionTypeIdsInScope
+          locations {
+            id
+            name
+          }
+          locationGroups {
+            id
+            name
+          }
+          positionTypes {
+            id
+            name
+          }
         }
       }
     }

@@ -113,7 +113,7 @@ export const VerifyUI: React.FC<Props> = props => {
           onClick: props.olderAction,
         });
       } else {
-        const dateToFind = format(date, "YYY-MM-dd");
+        const dateToFind = format(date, "yyyy-MM-dd");
         const index = assignmentCounts.findIndex(x => x.date === dateToFind);
         if (index != -1) {
           count = assignmentCounts[index].count;
@@ -234,7 +234,7 @@ export const VerifyUI: React.FC<Props> = props => {
       await getAssignmentCounts.refetch();
       await getVacancyDetails.refetch();
       setVerifiedId(null);
-    }    
+    }
   };
 
   const uniqueDays = [...new Set(assignments.map(x => x.startDate))];

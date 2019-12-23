@@ -6,7 +6,6 @@ import { OrgUserRole } from "graphql/server-types.gen";
 type Props = {
   orgUser: {
     isAdmin: boolean;
-    isSuperUser: boolean;
     isEmployee: boolean;
     isReplacementEmployee: boolean;
   };
