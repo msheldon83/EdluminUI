@@ -107,18 +107,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
     });
   };
 
-  const columns: Column<
-    Pick<
-      Endorsement,
-      | "id"
-      | "name"
-      | "externalId"
-      | "expires"
-      | "description"
-      | "rowVersion"
-      | "expired"
-    >
-  >[] = [
+  const columns: Column<GetAllReplacementEndorsementsWithinOrg.All>[] = [
     {
       title: t("Name"),
       field: "name",
@@ -142,9 +131,9 @@ export const ReplacementAttribute: React.FC<Props> = props => {
       editComponent: o => (
         <Checkbox
           color="primary"
-          value={o.expires}
-          checked={o.expires}
-          onChange={e => o.expires == e.target.value}
+          value={o?.expires}
+          checked={o?.expires}
+          onChange={e => o?.expires == e.target.checked}
         />
       ),
     },
