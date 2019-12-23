@@ -49,7 +49,14 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
             justify="flex-end"
             alignItems="flex-start"
           >
-            <Button variant="outlined" hidden={!props.editing}>
+            <Button
+              variant="outlined"
+              hidden={!props.editing}
+              onClick={() => {
+                const editSettingsUrl = "/"; //TODO figure out the URL for editing
+                history.push(editSettingsUrl);
+              }}
+            >
               {t("Edit")}
             </Button>
           </Grid>
