@@ -1,14 +1,15 @@
 mutation UpdateReplacementEndorsement(
-  $replacementAttribute: EndorsementUpdateInput!
+  $replacementEndorsement: EndorsementUpdateInput!
 ) {
   orgRef_Endorsement {
-    update(endorsement: $replacementAttribute) {
+    update(endorsement: $replacementEndorsement) {
       id
       name
       rowVersion
       description
       externalId
       expired
+      expires
     }
   }
 }

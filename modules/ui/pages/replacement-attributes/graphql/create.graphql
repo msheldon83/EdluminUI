@@ -9,6 +9,7 @@ mutation CreateReplacementEndorsement(
       externalId
       description
       expired
+      expires
     }
   }
 }

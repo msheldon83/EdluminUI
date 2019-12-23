@@ -6,7 +6,11 @@ query GetAllReplacementEndorsementsWithinOrg(
     all(orgId: $orgId, includeExpired: false) {
       id
       name
+      rowVersion
+      description
+      externalId
       expired
+      expires
     }
   }
 }

@@ -67,6 +67,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
           .required(t("Name is required")),
         externalId: Yup.string().nullable(),
         description: Yup.string().nullable(),
+        expires: Yup.boolean().required(t("Expires is required")),
       }),
     [t]
   );
@@ -121,6 +122,13 @@ export const ReplacementAttribute: React.FC<Props> = props => {
       editable: "always",
     },
     {
+      title: t("Expires"),
+      field: "expires",
+      searchable: true,
+      hidden: isMobile,
+      editable: "always",
+    },
+    {
       title: t("Description"),
       field: "description",
       searchable: true,
@@ -153,21 +161,22 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         className={classes.header}
       >
         <Grid item>
-          <PageTitle title={t("Pay Codes")} />
+          <PageTitle title={t("Replacement Attributes")} />
         </Grid>
       </Grid>
       <EditableTable
-        title={`${replacementEndorsementsCount} ${t("Pay Codes")}`}
+        title={`${replacementEndorsementsCount} ${t("Replacement Attributes")}`}
         columns={columns}
         data={mappedData}
         onRowAdd={async newData => {
           const newReplacementEndorsement = {
-            ...getReplacementEndorsement,
+            ...replacementEndorsement,
             name: newData.name,
             externalId:
               newData.externalId && newData.externalId.trim().length === 0
                 ? null
                 : newData.externalId,
+            expires: newData.expires,
             description:
               newData.description && newData.description.trim().length === 0
                 ? null
@@ -185,6 +194,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
               newData.externalId && newData.externalId.trim().length === 0
                 ? null
                 : newData.externalId,
+            expires: newData.expires,
             description:
               newData.description && newData.description.trim().length === 0
                 ? null
