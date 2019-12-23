@@ -3,7 +3,7 @@ query GetAllReplacementEndorsementsWithinOrg(
   $includeExpired: Boolean
 ) {
   orgRef_Endorsement {
-    all(orgId: $orgId, includeExpired: false) {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
       id
       name
       rowVersion
