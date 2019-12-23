@@ -9,6 +9,7 @@ import { EditableTable } from "ui/components/editable-table";
 import { PageTitle } from "ui/components/page-title";
 import {
   EndorsementCreateInput,
+  Endorsement,
   EndorsementUpdateInput,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
@@ -67,7 +68,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
           .required(t("Name is required")),
         externalId: Yup.string().nullable(),
         description: Yup.string().nullable(),
-        expires: Yup.boolean().required(t("Expires is required")),
+        expires: Yup.boolean().required(t("Expiration is required")),
       }),
     [t]
   );
@@ -81,8 +82,6 @@ export const ReplacementAttribute: React.FC<Props> = props => {
   });
 
   const create = async (replacementEndorsement: EndorsementCreateInput) => {
-    console.log(replacementEndorsement);
-
     validateReplacementEndorsement
       .validate(replacementEndorsement, { abortEarly: false })
       .catch(function(err) {
@@ -108,7 +107,18 @@ export const ReplacementAttribute: React.FC<Props> = props => {
     });
   };
 
-  const columns: Column<GetAllReplacementEndorsementsWithinOrg.All>[] = [
+  const columns: Column<
+    Pick<
+      Endorsement,
+      | "id"
+      | "name"
+      | "externalId"
+      | "expires"
+      | "description"
+      | "rowVersion"
+      | "expired"
+    >
+  >[] = [
     {
       title: t("Name"),
       field: "name",
@@ -129,7 +139,14 @@ export const ReplacementAttribute: React.FC<Props> = props => {
       searchable: true,
       hidden: isMobile,
       editable: "always",
-      editComponent: o => <Checkbox color="primary" />,
+      editComponent: o => (
+        <Checkbox
+          color="primary"
+          value={o.expires}
+          checked={o.expires}
+          onChange={e => o.expires == e.target.value}
+        />
+      ),
     },
     {
       title: t("Description"),
@@ -172,6 +189,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         columns={columns}
         data={mappedData}
         onRowAdd={async newData => {
+          console.log(newData);
           const newReplacementEndorsement = {
             ...replacementEndorsement,
             name: newData.name,
@@ -189,6 +207,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
           getReplacementEndorsements.refetch();
         }}
         onRowUpdate={async newData => {
+          console.log(newData);
           const updateReplacementEndorsement = {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,

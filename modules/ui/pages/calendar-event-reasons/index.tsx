@@ -81,7 +81,7 @@ export const CalendarChangeReason: React.FC<Props> = props => {
         name: Yup.string().required(t("Name is required")),
         externalId: Yup.string().nullable(),
         description: Yup.string().nullable(),
-        calendarDayTypeId: Yup.number()
+        calendarDayTypeId: Yup.string()
           .nullable()
           .required(t("Day Type is required")),
         workDayScheduleVariantId: Yup.string().nullable(),
@@ -146,7 +146,7 @@ export const CalendarChangeReason: React.FC<Props> = props => {
       editable: "always",
     },
     {
-      title: t("Day Type"),
+      title: t("Applies To"),
       field: "calendarDayTypeId",
       searchable: true,
       hidden: isMobile,
