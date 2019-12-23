@@ -52,8 +52,9 @@ export const PersonAbsScheduleCalendarViewRoute = defineSubRoute(
 
 export const PersonAbsScheduleLoader = asyncComponent({
   resolve: async () => {
-    const PersonAbsSchedulePage = (await import("ui/pages/people/abs-schedule"))
-      .PersonAbsenceSchedulePage;
+    const PersonAbsSchedulePage = (
+      await import("ui/pages/people/person-abs-schedule")
+    ).PersonAbsenceSchedulePage;
     return PersonAbsSchedulePage;
   },
   name: "PersonAbsSchedulePage",

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
-import { useSnackbar } from "hooks/use-snackbar";
 import { Button, Divider, Grid } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
 import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
@@ -14,21 +13,20 @@ import { useMemo, useState } from "react";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { ScheduleHeader } from "ui/components/schedule/schedule-header";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useQueryBundle } from "graphql/hooks";
 import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
 import { parseISO } from "date-fns";
 import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
 import { ScheduledAbsences } from "ui/components/employee/components/scheduled-absences";
 import { CalendarView } from "ui/pages/employee-schedule/components/calendar-view";
 import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
-import { EmployeeAbsenceDetail } from "ui/components/employee/types";
+import { useIsAdmin } from "reference-data/is-admin";
 
 type Props = {
   view: "list" | "calendar";
   employeeId: string;
   orgId: string;
   pageTitle: string;
-  showCreateAbsence: boolean;
   cancelAbsence?: (absenceId: string) => Promise<void>;
   calendarViewRoute: string;
   listViewRoute: string;
@@ -37,7 +35,7 @@ type Props = {
 export const AbsenceSchedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { openSnackbar } = useSnackbar();
+  const userIsAdmin = useIsAdmin();
 
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
     fetchPolicy: "cache-first",
@@ -48,9 +46,10 @@ export const AbsenceSchedule: React.FC<Props> = props => {
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
 
-  const createAbsenceParams = props.showCreateAbsence
+  const createAbsenceParams = userIsAdmin
     ? useRouteParams(EmployeeCreateAbsenceRoute)
     : {};
+
   const [selectedScheduleDates, setSelectedScheduleDates] = useState<
     ScheduleDate[]
   >([]);
@@ -106,7 +105,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
           <Grid item>
             <PageTitle title={t(props.pageTitle)} />
           </Grid>
-          {props.showCreateAbsence && (
+          {!userIsAdmin && (
             <Grid item>
               <Button
                 variant="outlined"

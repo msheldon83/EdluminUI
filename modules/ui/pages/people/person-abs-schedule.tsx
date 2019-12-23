@@ -1,9 +1,7 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
-import { useSnackbar } from "hooks/use-snackbar";
+import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { useGetEmployee } from "reference-data/employee";
 import { useRouteParams } from "ui/routes/definition";
 import {
   PersonAbsScheduleRoute,
@@ -22,9 +20,6 @@ type Props = {
 export const PersonAbsenceSchedulePage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { openSnackbar } = useSnackbar();
-  //const params = useRouteParams(EmployeeScheduleRoute);
-  const employee = useGetEmployee();
   const params = useRouteParams(PersonAbsScheduleRoute);
 
   const getOrgUser = useQueryBundle(GetOrgUserById, {
@@ -46,8 +41,6 @@ export const PersonAbsenceSchedulePage: React.FC<Props> = props => {
     return <Redirect to={listUrl} />;
   }
 
-  const employeeName = orgUser.firstName + " " + orgUser.lastName;
-
   return (
     <div className={classes.pageContainer}>
       {orgUser && (
@@ -55,8 +48,7 @@ export const PersonAbsenceSchedulePage: React.FC<Props> = props => {
           view={props.view}
           employeeId={params.orgUserId}
           orgId={params.organizationId}
-          pageTitle={employeeName + "'s Schedule"}
-          showCreateAbsence={true}
+          pageTitle={`${orgUser.firstName} ${orgUser.lastName}'s Schedule`}
           calendarViewRoute={PersonAbsScheduleCalendarViewRoute.generate(
             params
           )}
