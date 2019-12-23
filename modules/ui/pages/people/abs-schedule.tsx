@@ -11,6 +11,9 @@ import {
   PersonAbsScheduleCalendarViewRoute,
 } from "ui/routes/people";
 import { AbsenceSchedule } from "ui/components/absence/absence-schedule";
+import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
+import { PeopleRoute } from "ui/routes/people";
+import { Redirect } from "react-router";
 
 type Props = {
   view: "list" | "calendar";
@@ -24,14 +27,35 @@ export const PersonAbsenceSchedulePage: React.FC<Props> = props => {
   const employee = useGetEmployee();
   const params = useRouteParams(PersonAbsScheduleRoute);
 
+  const getOrgUser = useQueryBundle(GetOrgUserById, {
+    variables: { id: params.orgUserId },
+  });
+
+  const orgUser =
+    getOrgUser.state === "LOADING"
+      ? undefined
+      : getOrgUser?.data?.orgUser?.byId;
+
+  if (getOrgUser.state === "LOADING") {
+    return <></>;
+  }
+
+  if (!orgUser) {
+    // Redirect the User back to the List page
+    const listUrl = PeopleRoute.generate(params);
+    return <Redirect to={listUrl} />;
+  }
+
+  const employeeName = orgUser.firstName + " " + orgUser.lastName;
+
   return (
     <div className={classes.pageContainer}>
-      {employee && (
+      {orgUser && (
         <AbsenceSchedule
           view={props.view}
           employeeId={params.orgUserId}
           orgId={params.organizationId}
-          pageTitle={"Employee's Name Schedule"}
+          pageTitle={employeeName + "'s Schedule"}
           showCreateAbsence={true}
           calendarViewRoute={PersonAbsScheduleCalendarViewRoute.generate(
             params

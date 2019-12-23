@@ -245,6 +245,17 @@ export function App() {
                           component={SelectEmployeeForCreateAbsenceLoader}
                           path={AdminSelectEmployeeForCreateAbsenceRoute.path}
                         />
+                        <Route path={PersonAbsScheduleCalendarViewRoute.path}>
+                          <PersonAbsScheduleLoader view="calendar" />
+                        </Route>
+
+                        <Route path={PersonAbsScheduleListViewRoute.path}>
+                          <PersonAbsScheduleLoader view="list" />
+                        </Route>
+                        <Route
+                          component={PersonAbsScheduleLoader}
+                          path={PersonAbsScheduleRoute.path}
+                        />
                         <Route
                           component={PersonViewLoader}
                           path={PersonViewRoute.path}
@@ -253,18 +264,6 @@ export function App() {
                           component={PeopleLoader}
                           path={PeopleRoute.path}
                         />
-                        <Route
-                          component={PersonAbsScheduleLoader}
-                          path={PersonAbsScheduleRoute.path}
-                        />
-
-                        <Route path={PersonAbsScheduleCalendarViewRoute.path}>
-                          <PersonAbsScheduleLoader view="calendar" />
-                        </Route>
-
-                        <Route path={PersonAbsScheduleListViewRoute.path}>
-                          <PersonAbsScheduleLoader view="list" />
-                        </Route>
 
                         <Route
                           component={ConfigurationLoader}
