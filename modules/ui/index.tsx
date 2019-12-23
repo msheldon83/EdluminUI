@@ -84,10 +84,10 @@ import {
   PeopleRoute,
   PersonViewLoader,
   PersonViewRoute,
-  PersonAbsScheduleLoader,
-  PersonAbsScheduleRoute,
-  PersonAbsScheduleCalendarViewRoute,
-  PersonAbsScheduleListViewRoute,
+  EmployeeAbsScheduleLoader,
+  EmployeeAbsScheduleRoute,
+  EmployeeAbsScheduleCalendarViewRoute,
+  EmployeeAbsScheduleListViewRoute,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -245,16 +245,16 @@ export function App() {
                           component={SelectEmployeeForCreateAbsenceLoader}
                           path={AdminSelectEmployeeForCreateAbsenceRoute.path}
                         />
-                        <Route path={PersonAbsScheduleCalendarViewRoute.path}>
-                          <PersonAbsScheduleLoader view="calendar" />
+                        <Route path={EmployeeAbsScheduleCalendarViewRoute.path}>
+                          <EmployeeAbsScheduleLoader view="calendar" />
                         </Route>
 
-                        <Route path={PersonAbsScheduleListViewRoute.path}>
-                          <PersonAbsScheduleLoader view="list" />
+                        <Route path={EmployeeAbsScheduleListViewRoute.path}>
+                          <EmployeeAbsScheduleLoader view="list" />
                         </Route>
                         <Route
-                          component={PersonAbsScheduleLoader}
-                          path={PersonAbsScheduleRoute.path}
+                          component={EmployeeAbsScheduleLoader}
+                          path={EmployeeAbsScheduleRoute.path}
                         />
                         <Route
                           component={PersonViewLoader}

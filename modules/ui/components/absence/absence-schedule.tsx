@@ -46,9 +46,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
       ? undefined
       : getOrgUsers.data?.userAccess?.me?.user?.id;
 
-  const createAbsenceParams = userIsAdmin
-    ? useRouteParams(EmployeeCreateAbsenceRoute)
-    : {};
+  const createAbsenceParams = useRouteParams(EmployeeCreateAbsenceRoute);
 
   const [selectedScheduleDates, setSelectedScheduleDates] = useState<
     ScheduleDate[]

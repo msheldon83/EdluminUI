@@ -4,9 +4,9 @@ import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useRouteParams } from "ui/routes/definition";
 import {
-  PersonAbsScheduleRoute,
-  PersonAbsScheduleListViewRoute,
-  PersonAbsScheduleCalendarViewRoute,
+  EmployeeAbsScheduleRoute,
+  EmployeeAbsScheduleListViewRoute,
+  EmployeeAbsScheduleCalendarViewRoute,
 } from "ui/routes/people";
 import { AbsenceSchedule } from "ui/components/absence/absence-schedule";
 import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
@@ -17,10 +17,10 @@ type Props = {
   view: "list" | "calendar";
 };
 
-export const PersonAbsenceSchedulePage: React.FC<Props> = props => {
+export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(PersonAbsScheduleRoute);
+  const params = useRouteParams(EmployeeAbsScheduleRoute);
 
   const getOrgUser = useQueryBundle(GetOrgUserById, {
     variables: { id: params.orgUserId },
@@ -49,10 +49,10 @@ export const PersonAbsenceSchedulePage: React.FC<Props> = props => {
           employeeId={params.orgUserId}
           orgId={params.organizationId}
           pageTitle={`${orgUser.firstName} ${orgUser.lastName}'s Schedule`}
-          calendarViewRoute={PersonAbsScheduleCalendarViewRoute.generate(
+          calendarViewRoute={EmployeeAbsScheduleCalendarViewRoute.generate(
             params
           )}
-          listViewRoute={PersonAbsScheduleListViewRoute.generate(params)}
+          listViewRoute={EmployeeAbsScheduleListViewRoute.generate(params)}
         />
       )}
     </div>

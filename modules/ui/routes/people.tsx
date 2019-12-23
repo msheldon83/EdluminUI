@@ -36,26 +36,26 @@ export const PeopleLoader = asyncComponent({
 });
 
 //employee abs schedule
-export const PersonAbsScheduleRoute = defineSubRoute(
+export const EmployeeAbsScheduleRoute = defineSubRoute(
   PersonViewRoute,
   "/schedule"
 );
 
-export const PersonAbsScheduleListViewRoute = defineSubRoute(
-  PersonAbsScheduleRoute,
+export const EmployeeAbsScheduleListViewRoute = defineSubRoute(
+  EmployeeAbsScheduleRoute,
   "/list-view"
 );
-export const PersonAbsScheduleCalendarViewRoute = defineSubRoute(
-  PersonAbsScheduleRoute,
+export const EmployeeAbsScheduleCalendarViewRoute = defineSubRoute(
+  EmployeeAbsScheduleRoute,
   "/calendar-view"
 );
 
-export const PersonAbsScheduleLoader = asyncComponent({
+export const EmployeeAbsScheduleLoader = asyncComponent({
   resolve: async () => {
-    const PersonAbsSchedulePage = (
-      await import("ui/pages/people/person-abs-schedule")
-    ).PersonAbsenceSchedulePage;
-    return PersonAbsSchedulePage;
+    const EmployeeAbsSchedulePage = (
+      await import("ui/pages/people/employee-abs-schedule")
+    ).EmployeeAbsenceSchedulePage;
+    return EmployeeAbsSchedulePage;
   },
-  name: "PersonAbsSchedulePage",
+  name: "EmployeeAbsSchedulePage",
 });

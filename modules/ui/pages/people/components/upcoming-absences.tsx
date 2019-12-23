@@ -13,7 +13,11 @@ import { isAfter } from "date-fns";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useRouteParams } from "ui/routes/definition";
-import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
+import {
+  PeopleRoute,
+  PersonViewRoute,
+  EmployeeAbsScheduleListViewRoute,
+} from "ui/routes/people";
 
 type Props = {
   employeeId: string;
@@ -55,8 +59,10 @@ export const UpcomingAbsences: React.FC<Props> = props => {
             text: t("View All"),
             visible: true,
             execute: () => {
-              const viewAllAbsencesScheduleUrl =
-                params.orgUserId + "/schedule/list-view"; //TODO figure out the URL for editing
+              const viewAllAbsencesScheduleUrl = EmployeeAbsScheduleListViewRoute.generate(
+                params
+              );
+              //params.orgUserId + "/schedule/list-view"; //TODO figure out the URL for editing
               history.push(viewAllAbsencesScheduleUrl);
             },
           }}
