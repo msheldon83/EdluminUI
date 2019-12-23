@@ -8,48 +8,58 @@ import { compact } from "lodash-es";
 import { EditableTable } from "ui/components/editable-table";
 import { PageTitle } from "ui/components/page-title";
 import {
-  PayCodeCreateInput,
-  PayCodeUpdateInput,
+  EndorsementCreateInput,
+  EndorsementUpdateInput,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { useSnackbar } from "hooks/use-snackbar";
-import { CreatePayCode } from "./graphql/create.gen";
-import { PayCodeIndexRoute } from "ui/routes/pay-code";
+import { CreateReplacementEndorsement } from "./graphql/create.gen";
+import { UpdateReplacementEndorsement } from "./graphql/update.gen";
+import { DeleteReplacementEndorsement } from "./graphql/delete.gen";
+import { ReplacementAttributeIndexRoute } from "ui/routes/replacement-attribute";
+import { GetAllReplacementEndorsementsWithinOrg } from "./graphql/get-replacement-endorsements.gen";
 import { useRouteParams } from "ui/routes/definition";
-import { GetAllPayCodesWithinOrg } from "./graphql/get-pay-codes.gen";
-import { UpdatePayCode } from "./graphql/update-pay-code.gen";
-import { DeletePayCode } from "./graphql/delete-pay-code.gen";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 
 type Props = {};
 
-export const PayCode: React.FC<Props> = props => {
+export const ReplacementAttribute: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
-  const [createPayCode] = useMutationBundle(CreatePayCode);
-  const [updatePayCode] = useMutationBundle(UpdatePayCode);
-  const params = useRouteParams(PayCodeIndexRoute);
+  const [createReplacementEndorsement] = useMutationBundle(
+    CreateReplacementEndorsement
+  );
+  const [updateReplacementEndorsement] = useMutationBundle(
+    UpdateReplacementEndorsement
+  );
+  const params = useRouteParams(ReplacementAttributeIndexRoute);
   const { openSnackbar } = useSnackbar();
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
-  const getPayCodes = useQueryBundle(GetAllPayCodesWithinOrg, {
-    variables: { orgId: params.organizationId, includeExpired },
-  });
-  const [deletePayCodeMutation] = useMutationBundle(DeletePayCode, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-  const deletePayCode = (payCodeId: string) => {
-    return deletePayCodeMutation({
+  const getReplacementEndorsements = useQueryBundle(
+    GetAllReplacementEndorsementsWithinOrg,
+    {
+      variables: { orgId: params.organizationId, includeExpired },
+    }
+  );
+  const [deleteReplacementEndorsementMutation] = useMutationBundle(
+    DeleteReplacementEndorsement,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
+  );
+  const deleteReplacementEndorsement = (endorsementId: string) => {
+    return deleteReplacementEndorsementMutation({
       variables: {
-        payCodeId: Number(payCodeId),
+        endorsementId: Number(endorsementId),
       },
     });
   };
 
-  const validatePayCode = React.useMemo(
+  const validateReplacementEndorsement = React.useMemo(
     () =>
       Yup.object().shape({
         name: Yup.string()
@@ -61,40 +71,41 @@ export const PayCode: React.FC<Props> = props => {
     [t]
   );
 
-  const [payCode] = React.useState<PayCodeCreateInput>({
+  const [replacementEndorsement] = React.useState<EndorsementCreateInput>({
     orgId: Number(params.organizationId),
     name: "",
     externalId: null,
     description: "",
+    expires: false,
   });
 
-  const create = async (payCode: PayCodeCreateInput) => {
-    validatePayCode
-      .validate(payCode, { abortEarly: false })
+  const create = async (replacementEndorsement: EndorsementCreateInput) => {
+    validateReplacementEndorsement
+      .validate(replacementEndorsement, { abortEarly: false })
       .catch(function(err) {
         ShowGenericErrors(err, openSnackbar);
       });
-    const result = await createPayCode({
+    const result = await createReplacementEndorsement({
       variables: {
-        payCode,
+        replacementEndorsement,
       },
     });
   };
 
-  const update = async (payCode: PayCodeUpdateInput) => {
-    validatePayCode
-      .validate(payCode, { abortEarly: false })
+  const update = async (replacementEndorsement: EndorsementUpdateInput) => {
+    validateReplacementEndorsement
+      .validate(replacementEndorsement, { abortEarly: false })
       .catch(function(err) {
         ShowGenericErrors(err, openSnackbar);
       });
-    const result = await updatePayCode({
+    const result = await updateReplacementEndorsement({
       variables: {
-        payCode,
+        replacementEndorsement,
       },
     });
   };
 
-  const columns: Column<GetAllPayCodesWithinOrg.All>[] = [
+  const columns: Column<GetAllReplacementEndorsementsWithinOrg.All>[] = [
     {
       title: t("Name"),
       field: "name",
@@ -118,17 +129,19 @@ export const PayCode: React.FC<Props> = props => {
     },
   ];
 
-  if (getPayCodes.state === "LOADING") {
+  if (getReplacementEndorsements.state === "LOADING") {
     return <></>;
   }
 
-  const payCodes = compact(getPayCodes?.data?.orgRef_PayCode?.all ?? []);
-  const mappedData = payCodes.map(o => ({
+  const replacementEndorsements = compact(
+    getReplacementEndorsements?.data?.orgRef_Endorsement?.all ?? []
+  );
+  const mappedData = replacementEndorsements.map(o => ({
     ...o,
     description: o.description?.toString(),
     externalId: o.externalId?.toString(),
   }));
-  const payCodesCount = payCodes.length;
+  const replacementEndorsementsCount = replacementEndorsements.length;
 
   return (
     <>
@@ -144,12 +157,12 @@ export const PayCode: React.FC<Props> = props => {
         </Grid>
       </Grid>
       <EditableTable
-        title={`${payCodesCount} ${t("Pay Codes")}`}
+        title={`${replacementEndorsementsCount} ${t("Pay Codes")}`}
         columns={columns}
         data={mappedData}
         onRowAdd={async newData => {
-          const newPayCode = {
-            ...payCode,
+          const newReplacementEndorsement = {
+            ...getReplacementEndorsement,
             name: newData.name,
             externalId:
               newData.externalId && newData.externalId.trim().length === 0
@@ -160,11 +173,11 @@ export const PayCode: React.FC<Props> = props => {
                 ? null
                 : newData.description,
           };
-          await create(newPayCode);
-          getPayCodes.refetch();
+          await create(newReplacementEndorsement);
+          getReplacementEndorsements.refetch();
         }}
         onRowUpdate={async newData => {
-          const updatePayCode = {
+          const updateReplacementEndorsement = {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,
             name: newData.name,
@@ -177,12 +190,12 @@ export const PayCode: React.FC<Props> = props => {
                 ? null
                 : newData.description,
           };
-          await update(updatePayCode);
-          getPayCodes.refetch();
+          await update(updateReplacementEndorsement);
+          getReplacementEndorsements.refetch();
         }}
         onRowDelete={async oldData => {
-          await deletePayCode(String(oldData.id));
-          getPayCodes.refetch();
+          await deleteReplacementEndorsement(String(oldData.id));
+          getReplacementEndorsements.refetch();
         }}
         options={{
           search: true,

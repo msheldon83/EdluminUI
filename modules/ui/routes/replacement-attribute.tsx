@@ -16,3 +16,10 @@ export const ReplacementAttributeLoader = asyncComponent({
   },
   name: "ReplacementAttribute",
 });
+
+// Index View
+export const ReplacementAttributeIndexRoute = defineSubRoute(
+  ReplacementAttributeRoute,
+  "/:replacementAttributeId",
+  ["replacementAttributeId"]
+);

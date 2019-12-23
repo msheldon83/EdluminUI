@@ -1,0 +1,14 @@
+mutation CreateReplacementEndorsement(
+  $replacementEndorsement: EndorsementCreateInput!
+) {
+  orgRef_Endorsement {
+    create(endorsement: $replacementEndorsement) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      expired
+    }
+  }
+}
