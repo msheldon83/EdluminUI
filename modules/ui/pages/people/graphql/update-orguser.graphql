@@ -8,21 +8,6 @@ mutation UpdateOrgUser($orgUser: OrgUserUpdateInput!) {
       middleName
       lastName
       externalId
-      email
-      dateOfBirth
-      phoneNumber
-      address1
-      address2
-      city
-      state
-      postalCode
-      country
-      permissionSetIds
-      permissionSets {
-        id
-        name
-        orgUserRole
-      }
     }
   }
 }
