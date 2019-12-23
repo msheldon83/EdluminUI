@@ -3,8 +3,11 @@ import { Typography, Grid, makeStyles } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
 import { Chip } from "@material-ui/core";
+
+const editableSections = {
+  accessControl: "edit-access-control",
+};
 
 type Props = {
   editing: string | null;
@@ -19,7 +22,6 @@ type Props = {
 
 export const AccessControl: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
   const classes = useStyles();
 
   return (
@@ -27,14 +29,23 @@ export const AccessControl: React.FC<Props> = props => {
       <Section>
         <SectionHeader
           title={t("Access Control")}
-          action={{
-            text: t("Edit"),
-            visible: !props.editing,
-            execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
-              history.push(editSettingsUrl);
-            },
-          }}
+          action={
+            props.editing === editableSections.accessControl
+              ? {
+                  text: t("Save"),
+                  visible: true,
+                  execute: () => {
+                    props.setEditing(null);
+                  },
+                }
+              : {
+                  text: t("Edit"),
+                  visible: !props.editing,
+                  execute: () => {
+                    props.setEditing(editableSections.accessControl);
+                  },
+                }
+          }
         />
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={8}>
