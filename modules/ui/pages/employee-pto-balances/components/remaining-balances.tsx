@@ -10,7 +10,7 @@ import { SingleBalance } from "./single-balance";
 import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 
 type Props = {
-  employeeId: string | undefined;
+  employeeId: string;
   schoolYearId?: string;
   showEdit: boolean;
   editing?: string | null;
@@ -25,10 +25,9 @@ export const RemainingBalances: React.FC<Props> = props => {
 
   const getAbsenceReasonBalances = useQueryBundle(GetAbsenceReasonBalances, {
     variables: {
-      employeeId: props.employeeId ?? "",
+      employeeId: props.employeeId,
       schoolYearId: props.schoolYearId,
     },
-    skip: !props.employeeId,
   });
 
   const balances =

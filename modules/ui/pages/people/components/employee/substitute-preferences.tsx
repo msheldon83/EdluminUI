@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Typography, Grid, makeStyles } from "@material-ui/core";
+import { Typography, Grid } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
@@ -8,7 +8,6 @@ import { Maybe, Employee } from "graphql/server-types.gen";
 
 type Props = {
   editing: string | null;
-  setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   substitutePools?: Maybe<{
     blockedEmployees: Maybe<Pick<Employee, "firstName" | "lastName">>[] | null;
     favoriteEmployees: Maybe<Pick<Employee, "firstName" | "lastName">>[] | null;
