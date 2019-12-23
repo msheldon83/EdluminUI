@@ -387,23 +387,9 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
   accessControl: AccessControl
 }
 
-type AdminScopeLocationRules {
-  _info: [ReturnMessage]
-  locationIds: [Int]
-  locationGroupIds: [Int]
-  locations: [Location]
-  locationGroups: [LocationGroup]
-}
-
 input AdminScopeLocationRulesInput {
   locationIds: [Int]
   locationGroupIds: [Int]
-}
-
-type AdminScopePositionTypeRules {
-  _info: [ReturnMessage]
-  positionTypeIds: [Int]
-  positionTypes: [PositionType]
 }
 
 input AdminScopePositionTypeRulesInput {
@@ -2280,13 +2266,6 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   isAdmin: Boolean!
   permissionSets: [PermissionSet]
   permissionSetIds: [Int!]
-  isSuperUser: Boolean!
-  adminScopeLocationRules: AdminScopeLocationRules
-  adminScopePositionTypeRules: AdminScopePositionTypeRules
-  adminLocations: [Location]
-  adminPositionTypes: [PositionType]
-  allLocationIdsInScope: Boolean!
-  allPositionTypeIdsInScope: Boolean!
   relatedOrgIds: [Int]
   relatedOrganizations: [Organization]
   employee: Employee
@@ -3801,6 +3780,7 @@ input ReplacementPoolConfigCreateInput {
   minLeadTImeMinutes: Int!
   selectable: Boolean
   percentLeadTime: Int
+  replacementPoolTypeId: ReplacementPoolType
 }
 
 type ReplacementPoolConfigMutations {
@@ -3818,13 +3798,14 @@ type ReplacementPoolConfigQueries {
 input ReplacementPoolConfigUpdateInput {
   id: Int!
   rowVersion: String!
-  name: String!
+  name: String
   description: String
   exclude: Boolean
-  maxLeadTimeMinutes: Int!
-  minLeadTImeMinutes: Int!
+  maxLeadTimeMinutes: Int
+  minLeadTImeMinutes: Int
   selectable: Boolean
   percentLeadTime: Int
+  replacementPoolTypeId: ReplacementPoolType
 }
 
 input ReplacementPoolCreateInput {

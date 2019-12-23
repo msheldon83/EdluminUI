@@ -34,6 +34,17 @@ query GetOrgUserById($id: ID!) {
         name
       }
       substitute {
+        attributes {
+          id
+          endorsement {
+            id
+            name
+          }
+        }
+        qualifiedPositionTypes {
+          id
+          name
+        }
         substitutePoolMembership {
           blockedFromEmployees {
             id
