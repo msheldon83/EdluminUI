@@ -1,14 +1,12 @@
 import * as React from "react";
 import { Typography, Grid, Button } from "@material-ui/core";
 import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Maybe, Endorsement, PositionType } from "graphql/server-types.gen";
 
 type Props = {
   editing: string | null;
-  setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   attributes?: Maybe<Pick<Endorsement, "name"> | null | undefined>[] | null;
   qualifiedPositionTypes?: Maybe<Pick<PositionType, "name">>[] | null;
 };

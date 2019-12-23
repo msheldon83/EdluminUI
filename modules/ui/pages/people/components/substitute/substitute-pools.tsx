@@ -4,7 +4,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { compact, map } from "lodash-es";
+import { compact } from "lodash-es";
 import {
   Maybe,
   Employee,
@@ -15,7 +15,6 @@ import {
 
 type Props = {
   editing: string | null;
-  setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   substitutePoolMembership?: Maybe<{
     blockedFromEmployees?:
       | Maybe<Pick<Employee, "firstName" | "lastName">>[]
@@ -83,7 +82,9 @@ export const SubstitutePools: React.FC<Props> = props => {
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={4}>
             <Grid item xs={12}>
-              <Typography className={classes.heading}>{t("Favorite for")}</Typography>
+              <Typography className={classes.heading}>
+                {t("Favorite for")}
+              </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h6">{t("Employees")}</Typography>
@@ -119,7 +120,9 @@ export const SubstitutePools: React.FC<Props> = props => {
           </Grid>
           <Grid container item spacing={2} xs={4}>
             <Grid item xs={12}>
-              <Typography className={classes.heading}>{t("Blocked by")}</Typography>
+              <Typography className={classes.heading}>
+                {t("Blocked by")}
+              </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h6">{t("Employees")}</Typography>

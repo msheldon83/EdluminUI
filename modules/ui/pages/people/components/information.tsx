@@ -10,8 +10,8 @@ import InfoIcon from "@material-ui/icons/Info";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
 import { formatIsoDateIfPossible } from "helpers/date";
+import { isValid, parseISO } from "date-fns";
 import { TextButton } from "ui/components/text-button";
 import { AvatarCard } from "ui/components/avatar-card";
 import { useBreakpoint } from "hooks";
@@ -27,15 +27,17 @@ import { PeopleGridItem } from "./people-grid-item";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { Input } from "ui/components/form/input";
-import { Select, SelectValueType, OptionType } from "ui/components/form/select";
+import { Select, SelectValueType } from "ui/components/form/select";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
 import { DateInput } from "ui/components/form/date-picker";
 import { usePermissionSets } from "reference-data/permissionsets";
-import { UpdateOrgUser } from "../graphql/update-orguser.gen";
-import { useMutationBundle } from "graphql/hooks";
-import { isValid, parseISO } from "date-fns";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { ShowErrors } from "ui/components/error-helpers";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
+import { GetOrgUserLastLogin } from "../graphql/get-orguser-lastlogin.gen";
 
 const editableSections = {
   information: "edit-information",
@@ -43,10 +45,12 @@ const editableSections = {
 
 type Props = {
   editing: string | null;
+  userId?: number | null | undefined;
+  loginEmail?: string | null | undefined;
   orgUser: {
     id: string;
     orgId: number;
-    rowVersion: string;
+    rowVersion?: string | null | undefined;
     firstName: string;
     lastName: string;
     email: string;
@@ -57,45 +61,51 @@ type Props = {
     country?: CountryCode | null | undefined;
     postalCode?: string | null | undefined;
     phoneNumber?: string | null | undefined;
-    loginEmail?: string | null | undefined;
     dateOfBirth?: string | null | undefined;
-    permissionSets?:
-      | Array<
-          | { name: string; orgUserRole?: OrgUserRole | null | undefined }
-          | null
-          | undefined
-        >
+    permissionSet?:
+      | {
+          id: string;
+          name: string;
+          orgUserRole?: OrgUserRole | null | undefined;
+        }
       | null
       | undefined;
-    permissionSetIds?: number[] | null | undefined;
   };
   isSuperUser: boolean;
-  lastLogin: string | null | undefined;
   selectedRole: OrgUserRole;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
-  onResetPassword: () => Promise<unknown>;
   onSaveOrgUser: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
 };
 
 export const Information: React.FC<Props> = props => {
   const classes = useStyles();
-
+  const { openSnackbar } = useSnackbar();
   const orgUser = props.orgUser;
   const { t } = useTranslation();
-  const history = useHistory();
   const isSmDown = useBreakpoint("sm", "down");
-  const [updateOrgUser] = useMutationBundle(UpdateOrgUser);
 
-  const permissionSets = usePermissionSets(orgUser.orgId.toString(), [
-    props.selectedRole,
-  ]);
-  const permissionSetOptions = permissionSets.map(ps => ({
-    label: ps.name,
-    value: ps.id,
-  }));
+  const [resetPassword] = useMutationBundle(ResetPassword, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const onResetPassword = async () => {
+    await resetPassword({
+      variables: { resetPasswordInput: { id: Number(props.userId) } },
+    });
+  };
+
+  const getOrgUserLastLogin = useQueryBundle(GetOrgUserLastLogin, {
+    variables: { id: props.orgUser.id },
+  });
+
+  const lastLogin =
+    getOrgUserLastLogin.state === "LOADING"
+      ? undefined
+      : getOrgUserLastLogin?.data?.orgUser?.lastLoginById?.lastLogin;
 
   const formattedLoginTime = formatIsoDateIfPossible(
-    props.lastLogin ? props.lastLogin : null,
+    lastLogin ? lastLogin : null,
     "MMM d, yyyy h:m a"
   );
 
@@ -110,13 +120,17 @@ export const Information: React.FC<Props> = props => {
 
   const initials = getInitials(props.orgUser);
 
+  const permissionSets = usePermissionSets(orgUser.orgId.toString(), [
+    props.selectedRole,
+  ]);
+  const permissionSetOptions = permissionSets.map(ps => ({
+    label: ps.name,
+    value: ps.id,
+  }));
+
   let permissions = props.isSuperUser ? t("Org Admin") : "";
-  if (orgUser.permissionSets!.length > 0) {
-    permissions =
-      orgUser?.permissionSets
-        ?.filter(p => p?.orgUserRole === props.selectedRole)
-        .map(p => p?.name)
-        .join(",") ?? t("No Permissions Defined");
+  if (orgUser.permissionSet) {
+    permissions = orgUser?.permissionSet?.name ?? t("No Permissions Defined");
   }
 
   const stateOptions = USStates.map(s => ({
@@ -137,12 +151,12 @@ export const Information: React.FC<Props> = props => {
           dateOfBirth: orgUser.dateOfBirth
             ? parseISO(orgUser.dateOfBirth)
             : undefined,
-          permissionSetIds: orgUser.permissionSetIds,
+          permissionSetId: orgUser.permissionSet?.id ?? "",
         }}
         onSubmit={async (data, e) => {
           await props.onSaveOrgUser({
             id: Number(orgUser.id),
-            rowVersion: orgUser.rowVersion,
+            rowVersion: orgUser.rowVersion ?? "",
             email: data.email,
             phoneNumber:
               data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
@@ -153,9 +167,7 @@ export const Information: React.FC<Props> = props => {
             postalCode:
               data.postalCode.trim().length === 0 ? null : data.postalCode,
             countryId: data.state ? ("US" as CountryCode) : null,
-            permissionSetIds: !props.isSuperUser
-              ? data.permissionSetIds
-              : undefined,
+            // TODO: handle permission set update
           });
         }}
         validationSchema={yup.object().shape({
@@ -193,28 +205,14 @@ export const Information: React.FC<Props> = props => {
                         !props.isSuperUser ? (
                           <Select
                             value={permissionSetOptions.filter(
-                              e =>
-                                e.value &&
-                                values.permissionSetIds?.includes(
-                                  Number(e.value)
-                                )
+                              e => e.value && values.permissionSetId
                             )}
                             onChange={value => {
-                              let ids: number[] = [];
-                              if (value) {
-                                if (Array.isArray(value)) {
-                                  ids = (value as Array<
-                                    OptionTypeBase
-                                  >).map(v => Number(v.value));
-                                } else {
-                                  ids = [(value as OptionTypeBase).value];
-                                }
-                              }
-                              setFieldValue("permissionSetIds", ids);
+                              const id = [(value as OptionTypeBase).value];
+                              setFieldValue("permissionSetId", id);
                             }}
                             options={permissionSetOptions}
                             isClearable={false}
-                            multi
                           />
                         ) : (
                           permissions
@@ -370,7 +368,7 @@ export const Information: React.FC<Props> = props => {
                   <Grid container item xs={6} spacing={2}>
                     <PeopleGridItem
                       title={t("Username")}
-                      description={orgUser.loginEmail}
+                      description={props.loginEmail}
                     />
                     <PeopleGridItem
                       title={
@@ -401,7 +399,7 @@ export const Information: React.FC<Props> = props => {
                         </span>
                       }
                       description={
-                        <TextButton onClick={() => props.onResetPassword()}>
+                        <TextButton onClick={() => onResetPassword()}>
                           {t("Reset Password")}
                         </TextButton>
                       }

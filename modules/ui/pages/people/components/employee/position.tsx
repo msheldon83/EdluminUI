@@ -1,11 +1,15 @@
 import * as React from "react";
-import { Typography, Grid, makeStyles } from "@material-ui/core";
+import { Typography, Grid } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { NeedsReplacement } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
+
+const editableSections = {
+  empPosition: "edit-employee-position",
+};
 
 type Props = {
   editing: string | null;
@@ -20,21 +24,29 @@ type Props = {
 
 export const Position: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
 
   return (
     <>
       <Section>
         <SectionHeader
           title={t("Position")}
-          action={{
-            text: t("Edit"),
-            visible: !props.editing,
-            execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
-              history.push(editSettingsUrl);
-            },
-          }}
+          action={
+            props.editing === editableSections.empPosition
+              ? {
+                  text: t("Save"),
+                  visible: true,
+                  execute: () => {
+                    props.setEditing(null);
+                  },
+                }
+              : {
+                  text: t("Edit"),
+                  visible: !props.editing,
+                  execute: () => {
+                    props.setEditing(editableSections.empPosition);
+                  },
+                }
+          }
         />
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={8}>

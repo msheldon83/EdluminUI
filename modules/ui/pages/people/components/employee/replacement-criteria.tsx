@@ -8,7 +8,6 @@ import { Maybe, Endorsement } from "graphql/server-types.gen";
 
 type Props = {
   editing: string | null;
-  setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   replacementCriteria?: Maybe<{
     mustHave?: Maybe<Pick<Endorsement, "name">>[] | null;
     mustNotHave?: Maybe<Pick<Endorsement, "name">>[] | null;
