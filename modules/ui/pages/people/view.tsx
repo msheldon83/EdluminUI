@@ -27,6 +27,7 @@ import { UpcomingAbsences } from "./components/upcoming-absences";
 import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
 import { ShowErrors } from "ui/components/error-helpers";
 import { SubstitutePools } from "./components/substitute-pools";
+import { SubPositionsAttributes } from "./components/sub-positions-attributes";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -225,6 +226,17 @@ export const PersonViewPage: React.FC<{}> = props => {
         (selectedRole ?? defaultSelectedRole) ===
           OrgUserRole.ReplacementEmployee && (
           <>
+            <SubPositionsAttributes
+              editing={editing}
+              setEditing={setEditing}
+              attributes={
+                orgUser?.substitute?.attributes?.map(ee => ee?.endorsement) ??
+                []
+              }
+              qualifiedPositionTypes={
+                orgUser?.substitute?.qualifiedPositionTypes
+              }
+            />
             <SubstitutePools
               editing={editing}
               setEditing={setEditing}
