@@ -9,6 +9,7 @@ import format from "date-fns/format";
 import isWeekend from "date-fns/isWeekend";
 import startOfWeek from "date-fns/startOfWeek";
 import isSameDay from "date-fns/isSameDay";
+import { useCallback } from "react";
 
 type FiveWeekCalendarProps = {
   disableWeekends?: boolean;
@@ -17,6 +18,7 @@ type FiveWeekCalendarProps = {
   startDate?: Date;
   contained?: boolean;
   style?: React.CSSProperties;
+  onDateClicked?: (d: Date) => void;
 };
 
 export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
@@ -27,6 +29,7 @@ export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
     startDate = new Date(),
     contained = true,
     style = {},
+    onDateClicked,
   } = props;
 
   const classes = useStyles({ contained });
@@ -58,7 +61,14 @@ export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
       return (
         <li className={classes.date} role="gridcell" key={formattedDate}>
           <Button className={classNames} disableFocusRipple disableRipple>
-            <time className={classes.dayButtonTime} dateTime={formattedDate}>
+            <time
+              className={classes.dayButtonTime}
+              dateTime={formattedDate}
+              data-date={date}
+              onClick={
+                onDateClicked ? onDateClicked.bind(null, date) : undefined
+              }
+            >
               {day}
             </time>
           </Button>

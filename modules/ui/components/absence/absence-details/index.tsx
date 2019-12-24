@@ -10,7 +10,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import InfoIcon from "@material-ui/icons/Info";
-import { isValid, parseISO, format } from "date-fns";
+import { isValid, parseISO, format, max, startOfDay, min } from "date-fns";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import {
   DayPart,
@@ -43,12 +43,11 @@ import { VacancyDetail } from "ui/components/absence/types";
 import { GetEmployeeScheduleTimes } from "../graphql/get-employee-schedule-times.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
+import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
   absenceReason: string;
-  startDate: Date;
-  endDate: Date;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
   accountingCode?: string;
@@ -58,6 +57,8 @@ export type AbsenceDetailsFormData = {
 };
 
 type Props = {
+  absenceDates: Date[];
+  onToggleAbsenceDate: (d: Date) => void;
   saveLabel?: string;
   organizationId: string;
   employeeId: string;
@@ -74,9 +75,7 @@ type Props = {
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
   disabledDates: DisabledDate[];
   balanceUsageText?: string;
-  setVacanciesInput: React.Dispatch<
-    React.SetStateAction<VacancyDetail[] | undefined>
-  >;
+  setVacanciesInput: (input: VacancyDetail[] | undefined) => void;
   /** default: pre-arrange */
   arrangeSubButtonTitle?: string;
   /** default: pre-arranged */
@@ -158,13 +157,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [featureFlags]
   );
 
+  const startDate = startOfDay(min(props.absenceDates));
+  const endDate = startOfDay(max(props.absenceDates));
   const getEmployeeScheduleTimes = useQueryBundle(GetEmployeeScheduleTimes, {
     variables: {
       id: props.employeeId,
-      fromDate: values.startDate ? format(values.startDate, "P") : undefined,
-      toDate: values.startDate ? format(values.startDate, "P") : undefined,
+      fromDate: isValid(startDate) ? format(startDate, "P") : undefined,
+      toDate: isValid(startDate) ? format(startDate, "P") : undefined,
     },
-    skip: !values.startDate,
+    skip: !isValid(startDate),
   });
   const employeeScheduleTimes: ScheduleTimes | undefined = useMemo(() => {
     if (
@@ -279,15 +280,21 @@ export const AbsenceDetails: React.FC<Props> = props => {
           />
         </div>
 
-        <DatePicker
-          startDate={values.startDate}
-          endDate={values.endDate}
-          onChange={onDateChange}
-          startLabel={t("From")}
-          endLabel={t("To")}
-          onMonthChange={onMonthChange}
-          disableDates={props.disabledDates.map(d => d.date)}
+        <FiveWeekCalendar
+          disabledDates={props.disabledDates.map(d => d.date)}
+          selectedDates={[startDate, endDate]}
+          onDateClicked={props.onToggleAbsenceDate}
         />
+        {/* TODO: implement month switching, remove date picker code below */}
+        {/* <DatePicker
+            startDate={values.startDate}
+            endDate={values.endDate}
+            onChange={onDateChange}
+            startLabel={t("From")}
+            endLabel={t("To")}
+            onMonthChange={onMonthChange}
+            disableDates={props.disabledDates.map(d => d.date)}
+            /> */}
 
         {props.balanceUsageText && (
           <div className={classes.usageTextContainer}>
