@@ -282,7 +282,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         <FiveWeekCalendar
           disabledDates={props.disabledDates.map(d => d.date)}
-          selectedDates={[startDate, endDate]}
+          selectedDates={props.absenceDates}
           onDateClicked={props.onToggleAbsenceDate}
         />
         {/* TODO: implement month switching, remove date picker code below */}

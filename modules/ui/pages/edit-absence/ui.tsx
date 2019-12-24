@@ -4,7 +4,6 @@ import {
   format,
   formatISO,
   isDate,
-  isEqual,
   isSameDay,
   isValid,
   parseISO,
@@ -31,7 +30,7 @@ import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
 import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
-import { compact, differenceWith, flatMap } from "lodash-es";
+import { compact, differenceWith, isEqual, flatMap } from "lodash-es";
 import * as React from "react";
 import { useCallback, useMemo, useReducer, useState } from "react";
 import useForm from "react-hook-form";
@@ -65,8 +64,6 @@ type Props = {
   positionName?: string;
   absenceReasonId: number;
   absenceId: string;
-  startDate: string;
-  endDate: string;
   dayPart?: DayPart;
   initialVacancyDetails: VacancyDetail[];
   initialVacancies: Vacancy[];
@@ -78,14 +75,12 @@ type Props = {
 
   startTimeLocal: string;
   endTimeLocal: string;
-
+  absenceDates: Date[];
   cancelAssignments: () => void;
   refetchAbsence: () => Promise<unknown>;
 };
 
 type EditAbsenceFormData = {
-  startDate: Date;
-  endDate: Date;
   absenceReason: string;
   dayPart?: DayPart;
   hourlyStartTime?: Date;
@@ -113,17 +108,19 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
 
-  const [customizedVacancyDetails, setVacanciesInput] = useState<
-    VacancyDetail[]
-  >();
+  const customizedVacancyDetails = state.customizedVacanciesInput;
+  const setVacanciesInput = useCallback(
+    (input: VacancyDetail[] | undefined) => {
+      dispatch({ action: "setVacanciesInput", input });
+    },
+    [dispatch]
+  );
 
   const [assignVacancy] = useMutationBundle(AssignVacancy, {});
 
   const name = `${props.firstName} ${props.lastName}`;
 
   const initialFormData: EditAbsenceFormData = {
-    startDate: parseISO(props.startDate),
-    endDate: parseISO(props.endDate),
     absenceReason: props.absenceReasonId.toString(),
     dayPart: props.dayPart,
     payCode:
@@ -158,8 +155,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const required = t("Required");
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
-  register({ name: "startDate", type: "custom" }, { required });
-  register({ name: "endDate", type: "custom" });
   register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
@@ -199,8 +194,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const useProjectedInformation =
     customizedVacancyDetails !== undefined ||
-    !isSameDay(parseISO(props.startDate), formValues.startDate) ||
-    !isSameDay(parseISO(props.endDate), formValues.endDate) ||
+    !isEqual(state.absenceDates, props.absenceDates) ||
     formValues.dayPart !== props.dayPart ||
     state.needsReplacement !== props.initialVacancies.length > 0;
 
@@ -228,6 +222,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const projectedVacanciesInput = useMemo(
     () =>
       buildAbsenceCreateInput(
+        state.absenceDates,
         formValues,
         Number(props.organizationId),
         Number(state.employeeId),
@@ -238,8 +233,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       ),
     [
       props.organizationId,
-      formValues.startDate,
-      formValues.endDate,
+      state.absenceDates,
       formValues.absenceReason,
       formValues.dayPart,
       formValues.hourlyStartTime,
@@ -332,6 +326,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       props.absenceId,
       Number(props.positionId),
       props.rowVersion,
+      state.absenceDates,
       props.absenceDetailsIdsByDate,
       data,
       disabledDates,
@@ -407,6 +402,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
           <Section className={classes.absenceDetails}>
             <AbsenceDetails
+              absenceDates={state.absenceDates}
+              onToggleAbsenceDate={d =>
+                dispatch({ action: "toggleDate", date: d })
+              }
               saveLabel={t("Save")}
               setStep={setStep}
               disabledDates={disabledDates}
@@ -472,53 +471,29 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 const initialState = (props: Props): EditAbsenceState => ({
   employeeId: props.employeeId,
   absenceId: props.absenceId,
-  viewingCalendarMonth: startOfMonth(parseISO(props.startDate)),
+  viewingCalendarMonth: startOfMonth(props.absenceDates[0]),
   needsReplacement: props.needsReplacement !== NeedsReplacement.No,
+  absenceDates: props.absenceDates,
+  customizedVacanciesInput: undefined,
 });
 
 const buildAbsenceUpdateInput = (
   absenceId: string,
   positionId: number,
   rowVersion: string,
+  absenceDates: Date[],
   absenceDetailsIdsByDate: Record<string, string>,
   formValues: EditAbsenceFormData,
   disabledDates: DisabledDate[],
   state: EditAbsenceState,
   vacancyDetails: VacancyDetail[]
 ): AbsenceUpdateInput => {
-  const startDate =
-    typeof formValues.startDate === "string"
-      ? new Date(formValues.startDate)
-      : formValues.startDate;
-  let endDate =
-    typeof formValues.endDate === "string"
-      ? new Date(formValues.endDate)
-      : formValues.endDate;
-
-  // If we don't have an end date, set it to the start date
-  // Assuming a single day absence as of this point
-  if (!endDate) {
-    endDate = startDate;
+  if (absenceDates.length < 1) {
+    throw Error("no dates selected");
   }
 
-  if (
-    !isDate(startDate) ||
-    !isValid(startDate) ||
-    !isDate(endDate) ||
-    !isValid(endDate)
-  ) {
-    throw Error("invalid start/end date");
-  }
-
-  // Ensure the end date is after the start date or they are equal
-  if (!isEqual(startDate, endDate) && !isAfterDate(endDate, startDate)) {
-    throw Error("invalid start/end date");
-  }
-
-  const dates = differenceWith(
-    eachDayOfInterval({ start: startDate, end: endDate }),
-    disabledDates,
-    (a, b) => isEqual(a, b.date)
+  const dates = differenceWith(absenceDates, disabledDates, (a, b) =>
+    isSameDay(a, b.date)
   );
 
   const vDetails =
