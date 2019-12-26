@@ -1,8 +1,0 @@
-mutation UpdateEmployee($employee: EmployeeUpdateInput!) {
-  employee {
-    update(employee: $employee) {
-      id
-      rowVersion
-    }
-  }
-}
