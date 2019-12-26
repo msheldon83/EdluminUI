@@ -48,16 +48,16 @@ export const SelectNew = () => {
   const [value, setValue] = React.useState<OptionType | undefined>();
 
   const options = [
-    { title: "One", value: 1 },
-    { title: "Two", value: 2 },
-    { title: "Three", value: 3 },
-    { title: "Four", value: 4 },
-    { title: "Five", value: 5 },
-    { title: "Six", value: 6 },
-    { title: "Seven", value: 7 },
-    { title: "Eight", value: 8 },
-    { title: "Nine", value: 9 },
-    { title: "Ten", value: 10 },
+    { label: "One", value: 1 },
+    { label: "Two", value: 2 },
+    { label: "Three", value: 3 },
+    { label: "Four", value: 4 },
+    { label: "Five", value: 5 },
+    { label: "Six", value: 6 },
+    { label: "Seven", value: 7 },
+    { label: "Eight", value: 8 },
+    { label: "Nine", value: 9 },
+    { label: "Ten", value: 10 },
   ];
 
   return (
@@ -88,16 +88,16 @@ export const MultiSelectNew = () => {
   const [value, setValue] = React.useState<Array<OptionType>>([]);
 
   const options = [
-    { title: "One", value: 1 },
-    { title: "Two", value: 2 },
-    { title: "Three", value: 3 },
-    { title: "Four", value: 4 },
-    { title: "Five", value: 5 },
-    { title: "Six", value: 6 },
-    { title: "Seven", value: 7 },
-    { title: "Eight", value: 8 },
-    { title: "Nine", value: 9 },
-    { title: "Ten", value: 10 },
+    { label: "One", value: 1 },
+    { label: "Two", value: 2 },
+    { label: "Three", value: 3 },
+    { label: "Four", value: 4 },
+    { label: "Five", value: 5 },
+    { label: "Six", value: 6 },
+    { label: "Seven", value: 7 },
+    { label: "Eight", value: 8 },
+    { label: "Nine", value: 9 },
+    { label: "Ten", value: 10 },
   ];
 
   return (
