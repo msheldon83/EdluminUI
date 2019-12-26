@@ -12,6 +12,12 @@ import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 import { isAfter } from "date-fns";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { useRouteParams } from "ui/routes/definition";
+import {
+  PeopleRoute,
+  PersonViewRoute,
+  EmployeeAbsScheduleListViewRoute,
+} from "ui/routes/people";
 
 type Props = {
   employeeId: string;
@@ -22,6 +28,7 @@ export const UpcomingAbsences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   //const classes = useStyles();
+  const params = useRouteParams(PersonViewRoute);
   const currentSchoolYear = useCurrentSchoolYear(props.orgId.toString());
   const startDate = useMemo(() => new Date(), []);
   const endDate = currentSchoolYear?.endDate;
@@ -52,8 +59,11 @@ export const UpcomingAbsences: React.FC<Props> = props => {
             text: t("View All"),
             visible: true,
             execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
-              history.push(editSettingsUrl);
+              const viewAllAbsencesScheduleUrl = EmployeeAbsScheduleListViewRoute.generate(
+                params
+              );
+              //params.orgUserId + "/schedule/list-view"; //TODO figure out the URL for editing
+              history.push(viewAllAbsencesScheduleUrl);
             },
           }}
         />
