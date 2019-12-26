@@ -194,12 +194,12 @@ export const ReplacementAttribute: React.FC<Props> = props => {
             ...replacementEndorsement,
             name: newData.name,
             externalId:
-              newData.externalId && newData.externalId.trim().length === 0
+              !newData.externalId || newData.externalId.trim().length === 0
                 ? null
                 : newData.externalId,
-            expires: newData.expires,
+            expires: newData.expires === undefined ? false : newData.expires,
             description:
-              newData.description && newData.description.trim().length === 0
+              !newData.description || newData.description.trim().length === 0
                 ? null
                 : newData.description,
           };
@@ -212,12 +212,12 @@ export const ReplacementAttribute: React.FC<Props> = props => {
             rowVersion: newData.rowVersion,
             name: newData.name,
             externalId:
-              newData.externalId && newData.externalId.trim().length === 0
+              !newData.externalId || newData.externalId.trim().length === 0
                 ? null
                 : newData.externalId,
             expires: newData.expires,
             description:
-              newData.description && newData.description.trim().length === 0
+              !newData.description || newData.description.trim().length === 0
                 ? null
                 : newData.description,
           };
