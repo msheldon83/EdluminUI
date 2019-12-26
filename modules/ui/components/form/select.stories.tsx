@@ -3,6 +3,7 @@ import { action } from "@storybook/addon-actions";
 import { text, boolean, object, select } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
 import { Select as CustomSelect, SelectValueType } from "./select";
+import { SelectNew as CustomSelectNew, OptionType } from "./select-new";
 
 const options = [
   { value: "one", label: "One" },
@@ -23,7 +24,7 @@ export const Select = () => {
           label={text("Label", "Basic Select")}
           value={value}
           onChange={value => {
-            action("Set Value")(value);
+            action("onChange")(value);
             setValue(value);
           }}
           options={object("Options", options)}
@@ -42,8 +43,89 @@ export const Select = () => {
   );
 };
 
+export const SelectNew = () => {
+  const classes = useStyles();
+  const [value, setValue] = React.useState<OptionType | undefined>();
+
+  const options = [
+    { title: "One", value: 1 },
+    { title: "Two", value: 2 },
+    { title: "Three", value: 3 },
+    { title: "Four", value: 4 },
+    { title: "Five", value: 5 },
+    { title: "Six", value: 6 },
+    { title: "Seven", value: 7 },
+    { title: "Eight", value: 8 },
+    { title: "Nine", value: 9 },
+    { title: "Ten", value: 10 },
+  ];
+
+  return (
+    <div className={classes.container}>
+      <CustomSelectNew
+        label={text("label", "Select Label")}
+        value={value}
+        multiple={false}
+        options={object("options", options)}
+        onChange={(value: OptionType) => {
+          action("onChange")(value);
+          setValue(value);
+        }}
+        validationMessage={text("validationMessage", "")}
+        inputStatus={select(
+          "inputStatus",
+          { undefined: null, error: "error" },
+          null
+        )}
+        disabled={boolean("disabled", false)}
+      />
+    </div>
+  );
+};
+
+export const MultiSelectNew = () => {
+  const classes = useStyles();
+  const [value, setValue] = React.useState<Array<OptionType>>([]);
+
+  const options = [
+    { title: "One", value: 1 },
+    { title: "Two", value: 2 },
+    { title: "Three", value: 3 },
+    { title: "Four", value: 4 },
+    { title: "Five", value: 5 },
+    { title: "Six", value: 6 },
+    { title: "Seven", value: 7 },
+    { title: "Eight", value: 8 },
+    { title: "Nine", value: 9 },
+    { title: "Ten", value: 10 },
+  ];
+
+  return (
+    <div className={classes.container}>
+      <CustomSelectNew
+        label={text("label", "Multi Select Label")}
+        value={value}
+        multiple
+        options={object("options", options)}
+        onChange={(value: Array<OptionType>) => {
+          action("onChange")(value);
+          setValue(value);
+        }}
+        validationMessage={text("validationMessage", "")}
+        inputStatus={select(
+          "inputStatus",
+          { undefined: null, error: "error" },
+          null
+        )}
+        disabled={boolean("disabled", false)}
+      />
+    </div>
+  );
+};
+
 const useStyles = makeStyles(theme => ({
   container: {
+    background: "#fff",
     padding: theme.spacing(2),
     maxWidth: theme.typography.pxToRem(400),
     width: "100%",
