@@ -126,16 +126,18 @@ export const ReplacementAttribute: React.FC<Props> = props => {
       title: t("May Have Exiration"),
       field: "expires",
       searchable: true,
-      hidden: isMobile,
+      type: "boolean",
       editable: "always",
-      editComponent: o => (
-        <Checkbox
-          color="primary"
-          value={o?.expires}
-          checked={o?.expires}
-          onChange={e => o?.expires == e.target.checked}
-        />
-      ),
+      editComponent: props => {
+        return (
+          <Checkbox
+            color="primary"
+            checked={props.value}
+            value={props.value}
+            onChange={e => props.onChange(e.target.checked)}
+          />
+        );
+      },
     },
     {
       title: t("Description"),
@@ -178,7 +180,6 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         columns={columns}
         data={mappedData}
         onRowAdd={async newData => {
-          console.log(newData);
           const newReplacementEndorsement = {
             ...replacementEndorsement,
             name: newData.name,
@@ -196,7 +197,6 @@ export const ReplacementAttribute: React.FC<Props> = props => {
           getReplacementEndorsements.refetch();
         }}
         onRowUpdate={async newData => {
-          console.log(newData);
           const updateReplacementEndorsement = {
             id: Number(newData.id),
             rowVersion: newData.rowVersion,
