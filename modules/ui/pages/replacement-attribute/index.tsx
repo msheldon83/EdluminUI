@@ -62,13 +62,6 @@ export const ReplacementAttribute: React.FC<Props> = props => {
       },
     }
   );
-  const deleteReplacementEndorsement = (endorsementId: string) => {
-    return deleteReplacementEndorsementMutation({
-      variables: {
-        endorsementId: Number(endorsementId),
-      },
-    });
-  };
 
   const validateReplacementEndorsement = React.useMemo(
     () =>
@@ -102,8 +95,9 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         replacementEndorsement,
       },
     });
+    if (result === undefined) return false;
+    return true;
   };
-
   const update = async (replacementEndorsement: EndorsementUpdateInput) => {
     validateReplacementEndorsement
       .validate(replacementEndorsement, { abortEarly: false })
@@ -113,6 +107,15 @@ export const ReplacementAttribute: React.FC<Props> = props => {
     const result = await updateReplacementEndorsement({
       variables: {
         replacementEndorsement,
+      },
+    });
+    if (result === undefined) return false;
+    return true;
+  };
+  const deleteReplacementEndorsement = (endorsementId: string) => {
+    const result = deleteReplacementEndorsementMutation({
+      variables: {
+        endorsementId: Number(endorsementId),
       },
     });
   };
@@ -203,8 +206,8 @@ export const ReplacementAttribute: React.FC<Props> = props => {
                 ? null
                 : newData.description,
           };
-          await create(newReplacementEndorsement);
-          await getReplacementEndorsements.refetch();
+          const result = await create(newReplacementEndorsement);
+          if (result) await getReplacementEndorsements.refetch();
         }}
         onRowUpdate={async newData => {
           const updateReplacementEndorsement = {
@@ -221,11 +224,11 @@ export const ReplacementAttribute: React.FC<Props> = props => {
                 ? null
                 : newData.description,
           };
-          await update(updateReplacementEndorsement);
-          await getReplacementEndorsements.refetch();
+          const result = await update(updateReplacementEndorsement);
+          if (result) await getReplacementEndorsements.refetch();
         }}
         onRowDelete={async oldData => {
-          await deleteReplacementEndorsement(String(oldData.id));
+          deleteReplacementEndorsement(String(oldData.id));
           await getReplacementEndorsements.refetch();
         }}
         options={{
