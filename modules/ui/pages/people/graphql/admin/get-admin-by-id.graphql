@@ -1,0 +1,39 @@
+query GetAdminById($id: ID!) {
+  orgUser {
+    byId(id: $id) {
+      id
+      userId
+      loginEmail
+      administrator {
+        id
+        orgId
+        rowVersion
+        email
+        firstName
+        lastName
+        isSuperUser
+        permissionSet {
+          id
+          name
+          orgUserRole
+        }
+        accessControl {
+          allLocationIdsInScope
+          allPositionTypeIdsInScope
+          locations {
+            id
+            name
+          }
+          locationGroups {
+            id
+            name
+          }
+          positionTypes {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}

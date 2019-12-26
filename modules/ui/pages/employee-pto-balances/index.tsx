@@ -71,12 +71,14 @@ export const EmployeePtoBalances: React.FC<Props> = props => {
           </MenuItem>
         ))}
       </Select>
-      <RemainingBalances
-        employeeId={employee?.id}
-        title={t("Remaining balances")}
-        showEdit={false}
-        schoolYearId={schoolYearId}
-      />
+      {employee?.id && (
+        <RemainingBalances
+          employeeId={employee?.id}
+          title={t("Remaining balances")}
+          showEdit={false}
+          schoolYearId={schoolYearId}
+        />
+      )}
     </>
   );
 };
