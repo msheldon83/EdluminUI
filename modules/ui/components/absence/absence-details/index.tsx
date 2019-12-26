@@ -5,6 +5,7 @@ import {
   makeStyles,
   Paper,
   Typography,
+  IconButton,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
@@ -44,6 +45,9 @@ import { GetEmployeeScheduleTimes } from "../graphql/get-employee-schedule-times
 import { useQueryBundle } from "graphql/hooks";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import { addMonths } from "date-fns/esm";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -63,6 +67,7 @@ type Props = {
   organizationId: string;
   employeeId: string;
   onSubstituteWantedChange: (wanted: boolean) => void;
+  currentMonth: Date;
   onSwitchMonth: (month: Date) => void;
   setValue: SetValue;
   values: AbsenceDetailsFormData;
@@ -250,12 +255,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [onSubstituteWantedChange]
   );
 
-  const onMonthChange: DatePickerOnMonthChange = React.useCallback(
-    date => {
-      onSwitchMonth(date);
-    },
-    [onSwitchMonth]
-  );
+  const viewPreviousMonth = React.useCallback(() => {
+    const previousMonth = addMonths(props.currentMonth, -1);
+    onSwitchMonth(previousMonth);
+  }, [props.currentMonth, onSwitchMonth]);
+
+  const viewNextMonth = React.useCallback(() => {
+    const nextMonth = addMonths(props.currentMonth, 1);
+    onSwitchMonth(nextMonth);
+  }, [props.currentMonth, onSwitchMonth]);
 
   return (
     <Grid container>
@@ -280,21 +288,21 @@ export const AbsenceDetails: React.FC<Props> = props => {
           />
         </div>
 
+        <div className={classes.monthSwitcher}>
+          <IconButton onClick={viewPreviousMonth}>
+            <ChevronLeftIcon />
+          </IconButton>
+          <IconButton onClick={viewNextMonth}>
+            <ChevronRightIcon />
+          </IconButton>
+        </div>
+
         <FiveWeekCalendar
+          startDate={props.currentMonth}
           disabledDates={props.disabledDates.map(d => d.date)}
           selectedDates={props.absenceDates}
           onDateClicked={props.onToggleAbsenceDate}
         />
-        {/* TODO: implement month switching, remove date picker code below */}
-        {/* <DatePicker
-            startDate={values.startDate}
-            endDate={values.endDate}
-            onChange={onDateChange}
-            startLabel={t("From")}
-            endLabel={t("To")}
-            onMonthChange={onMonthChange}
-            disableDates={props.disabledDates.map(d => d.date)}
-            /> */}
 
         {props.balanceUsageText && (
           <div className={classes.usageTextContainer}>
@@ -501,6 +509,11 @@ const useStyles = makeStyles(theme => ({
   },
   dayPartIcon: {
     height: theme.spacing(3),
+  },
+  monthSwitcher: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 }));
 

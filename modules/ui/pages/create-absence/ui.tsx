@@ -307,6 +307,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             )}
             <Section className={classes.absenceDetails}>
               <AbsenceDetails
+                currentMonth={state.viewingCalendarMonth}
                 onSwitchMonth={d =>
                   dispatch({ action: "switchMonth", month: d })
                 }

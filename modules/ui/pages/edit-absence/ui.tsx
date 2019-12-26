@@ -414,6 +414,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               wantsReplacement={state.needsReplacement}
               organizationId={props.organizationId}
               employeeId={props.employeeId}
+              currentMonth={state.viewingCalendarMonth}
               onSwitchMonth={d => dispatch({ action: "switchMonth", month: d })}
               onSubstituteWantedChange={subWanted =>
                 dispatch({ action: "setNeedsReplacement", to: subWanted })
