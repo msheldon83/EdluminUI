@@ -1,7 +1,7 @@
+import { isSameDay, startOfDay } from "date-fns";
+import { differenceWith, filter, find, sortBy } from "lodash-es";
 import { Reducer } from "react";
 import { VacancyDetail } from "ui/components/absence/types";
-import { isSameDay, startOfDay } from "date-fns";
-import { filter, find, sortBy } from "lodash-es";
 
 export type EditAbsenceState = {
   employeeId: string;
@@ -16,7 +16,8 @@ export type EditAbsenceActions =
   | { action: "switchMonth"; month: Date }
   | { action: "setNeedsReplacement"; to: boolean }
   | { action: "toggleDate"; date: Date }
-  | { action: "setVacanciesInput"; input: undefined | VacancyDetail[] };
+  | { action: "setVacanciesInput"; input: undefined | VacancyDetail[] }
+  | { action: "removeAbsenceDates"; dates: Date[] };
 
 export const editAbsenceReducer: Reducer<
   EditAbsenceState,
@@ -47,6 +48,16 @@ export const editAbsenceReducer: Reducer<
     }
     case "setVacanciesInput": {
       return { ...prev, customizedVacanciesInput: action.input };
+    }
+    case "removeAbsenceDates": {
+      return {
+        ...prev,
+        absenceDates: differenceWith(
+          prev.absenceDates,
+          action.dates,
+          isSameDay
+        ),
+      };
     }
   }
 };

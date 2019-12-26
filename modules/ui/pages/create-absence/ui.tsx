@@ -1,6 +1,12 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { format, isBefore, isEqual, startOfDay, startOfMonth } from "date-fns";
+import {
+  format,
+  isBefore,
+  isSameDay,
+  startOfDay,
+  startOfMonth,
+} from "date-fns";
 import { useForm } from "forms";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
@@ -19,9 +25,9 @@ import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
 import { useDialog } from "hooks/use-dialog";
-import { compact, differenceWith, flatMap, isEmpty } from "lodash-es";
+import { compact, differenceWith, flatMap, isEmpty, some } from "lodash-es";
 import * as React from "react";
-import { useMemo, useReducer, useState, useCallback } from "react";
+import { useCallback, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
 import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
@@ -136,6 +142,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     state.employeeId,
     state.viewingCalendarMonth
   );
+  React.useEffect(() => {
+    const conflictingDates = disabledDates
+      .map(dis => dis.date)
+      .filter(dis => some(state.absenceDates, ad => isSameDay(ad, dis)));
+    if (conflictingDates.length > 0) {
+      dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
+    }
+  }, [disabledDates]);
 
   const projectedVacanciesInput = useMemo(
     () =>
@@ -430,7 +444,7 @@ export const buildAbsenceCreateInput = (
   }
 
   const dates = differenceWith(absenceDates, disabledDates, (a, b) =>
-    isEqual(a, b.date)
+    isSameDay(a, b.date)
   );
 
   if (!dates.length) {

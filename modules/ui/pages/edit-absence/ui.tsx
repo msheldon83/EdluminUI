@@ -1,13 +1,5 @@
 import { makeStyles, Typography } from "@material-ui/core";
-import {
-  eachDayOfInterval,
-  format,
-  formatISO,
-  isDate,
-  isSameDay,
-  isValid,
-  parseISO,
-} from "date-fns";
+import { format, formatISO, isSameDay, parseISO } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
@@ -25,14 +17,14 @@ import {
 } from "helpers/absence/computeAbsenceUsageText";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { convertStringToDate, isAfterDate } from "helpers/date";
+import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
 import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
-import { compact, differenceWith, isEqual, flatMap } from "lodash-es";
+import { compact, differenceWith, flatMap, isEqual, some } from "lodash-es";
 import * as React from "react";
-import { useCallback, useMemo, useReducer, useState } from "react";
+import { useCallback, useMemo, useReducer } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
@@ -218,6 +210,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     );
     return disabledDatesQuery.filter(d => remaining.find(r => r === d.date));
   }, [disabledDatesQuery, props.absenceDetailsIdsByDate]);
+
+  React.useEffect(() => {
+    const conflictingDates = disabledDates
+      .map(dis => dis.date)
+      .filter(dis => some(state.absenceDates, ad => isSameDay(ad, dis)));
+    if (conflictingDates.length > 0) {
+      dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
+    }
+  }, [disabledDates]);
 
   const projectedVacanciesInput = useMemo(
     () =>

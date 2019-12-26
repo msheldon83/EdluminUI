@@ -1,6 +1,6 @@
 import { startOfDay } from "date-fns";
 import { isSameDay } from "date-fns/esm";
-import { filter, find } from "lodash-es";
+import { differenceWith, filter, find } from "lodash-es";
 import { Reducer } from "react";
 import { VacancyDetail } from "ui/components/absence/types";
 
@@ -17,7 +17,8 @@ export type CreateAbsenceActions =
   | { action: "switchMonth"; month: Date }
   | { action: "setNeedsReplacement"; to: boolean }
   | { action: "toggleDate"; date: Date }
-  | { action: "setVacanciesInput"; input: undefined | VacancyDetail[] };
+  | { action: "setVacanciesInput"; input: undefined | VacancyDetail[] }
+  | { action: "removeAbsenceDates"; dates: Date[] };
 
 export const createAbsenceReducer: Reducer<
   CreateAbsenceState,
@@ -48,6 +49,16 @@ export const createAbsenceReducer: Reducer<
     }
     case "setVacanciesInput": {
       return { ...prev, vacanciesInput: action.input };
+    }
+    case "removeAbsenceDates": {
+      return {
+        ...prev,
+        absenceDates: differenceWith(
+          prev.absenceDates,
+          action.dates,
+          isSameDay
+        ),
+      };
     }
   }
 };
