@@ -1,8 +1,6 @@
 import * as React from "react";
 import clsx from "clsx";
-import initial from "lodash-es/initial";
 import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
 import useAutocomplete from "@material-ui/lab/useAutocomplete";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import Chip from "@material-ui/core/Chip";
@@ -12,6 +10,7 @@ import { Input } from "./input";
 
 export type SelectProps<T extends boolean> = {
   label?: string;
+  placeholder?: string;
   multiple?: T;
   options: Array<OptionType>;
   value?: T extends true ? Array<OptionType> : OptionType;
@@ -28,7 +27,7 @@ export type SelectProps<T extends boolean> = {
 };
 
 export type OptionType = {
-  title: string;
+  label: string;
   value: string | number;
 };
 
@@ -47,6 +46,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     onFocus = () => {},
     inputStatus = "default",
     validationMessage,
+    placeholder,
   } = props;
 
   const [showAllChips, setShowAllChips] = React.useState(false);
@@ -57,7 +57,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   const selectedChipsRef = React.useRef(null);
 
   // Operate on the options entry
-  const getOptionLabel = (option: OptionType): string => option.title;
+  const getOptionLabel = (option: OptionType): string => option.label;
   const getOptionValue = (option: OptionType): string | number => option.value;
   const getOptionSelected = (option: OptionType, value: OptionType) =>
     getOptionValue(option) === getOptionValue(value);
@@ -85,7 +85,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     getOptionProps,
     groupedOptions,
   } = useAutocomplete({
-    id: "use-autocomplete-demo",
+    id: `${label}-${Date.now()}`,
     getOptionSelected,
     multiple,
     value,
@@ -124,11 +124,12 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             disabled={disabled}
             label={label}
             name={name}
-            placeholder="This is the placeholder"
+            placeholder={placeholder}
             error={inputStatus === "error"}
             classes={{
               notchedOutline: inputClasses,
             }}
+            onKeyUp={() => setListOpen(false)}
             endAdornment={
               <ArrowDropDownIcon
                 onClick={e => {
@@ -156,7 +157,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
                   {...getOptionProps({ option, index })}
                   key={getOptionValue(option)}
                 >
-                  {option.title}
+                  {option.label}
                 </li>
               ))}
             </ul>
@@ -170,9 +171,9 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
         </FormHelperText>
       )}
 
-      {multiple && value && Array.isArray(value) && (
+      {multiple && value && Array.isArray(value) && value.length > 0 && (
         <div className={selectChipsClasses} ref={selectedChipsRef}>
-          {value.map(valueItem => {
+          {value.map((valueItem: OptionType) => {
             return (
               <Chip
                 key={getOptionValue(valueItem)}
@@ -206,7 +207,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             </TextButton>
           )}
 
-          {showAllChips && (
+          {value && Array.isArray(value) && value.length > 0 && showAllChips && (
             <TextButton color="primary" onClick={() => setShowAllChips(false)}>
               View less
             </TextButton>
