@@ -204,7 +204,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
                 : newData.description,
           };
           await create(newReplacementEndorsement);
-          getReplacementEndorsements.refetch();
+          await getReplacementEndorsements.refetch();
         }}
         onRowUpdate={async newData => {
           const updateReplacementEndorsement = {
@@ -222,11 +222,11 @@ export const ReplacementAttribute: React.FC<Props> = props => {
                 : newData.description,
           };
           await update(updateReplacementEndorsement);
-          getReplacementEndorsements.refetch();
+          await getReplacementEndorsements.refetch();
         }}
         onRowDelete={async oldData => {
           await deleteReplacementEndorsement(String(oldData.id));
-          getReplacementEndorsements.refetch();
+          await getReplacementEndorsements.refetch();
         }}
         options={{
           search: true,
