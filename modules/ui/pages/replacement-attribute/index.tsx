@@ -29,10 +29,20 @@ export const ReplacementAttribute: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
   const [createReplacementEndorsement] = useMutationBundle(
-    CreateReplacementEndorsement
+    CreateReplacementEndorsement,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
   );
   const [updateReplacementEndorsement] = useMutationBundle(
-    UpdateReplacementEndorsement
+    UpdateReplacementEndorsement,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
   );
   const params = useRouteParams(ReplacementAttributeIndexRoute);
   const { openSnackbar } = useSnackbar();
@@ -123,7 +133,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
       editable: "always",
     },
     {
-      title: t("May Have Exiration"),
+      title: t("May Have Expiration"),
       field: "expires",
       searchable: true,
       type: "boolean",

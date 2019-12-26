@@ -31,10 +31,20 @@ export const CalendarChangeReason: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
   const [createCalendarChangeReasons] = useMutationBundle(
-    CreateCalendarChangeReason
+    CreateCalendarChangeReason,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
   );
   const [updateCalendarChangeReasons] = useMutationBundle(
-    UpdateCalendarChangeReason
+    UpdateCalendarChangeReason,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
   );
   const params = useRouteParams(CalendarChangeReasonIndexRoute);
   const { openSnackbar } = useSnackbar();
