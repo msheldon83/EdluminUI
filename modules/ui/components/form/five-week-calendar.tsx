@@ -60,14 +60,16 @@ export const FiveWeekCalendar = (props: FiveWeekCalendarProps) => {
 
       return (
         <li className={classes.date} role="gridcell" key={formattedDate}>
-          <Button className={classNames} disableFocusRipple disableRipple>
+          <Button
+            className={classNames}
+            disableFocusRipple
+            disableRipple
+            onClick={onDateClicked ? onDateClicked.bind(null, date) : undefined}
+          >
             <time
               className={classes.dayButtonTime}
               dateTime={formattedDate}
               data-date={date}
-              onClick={
-                onDateClicked ? onDateClicked.bind(null, date) : undefined
-              }
             >
               {day}
             </time>
