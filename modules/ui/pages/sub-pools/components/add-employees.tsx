@@ -8,11 +8,13 @@ import { SectionHeader } from "ui/components/section-header";
 type Props = {
   title: string;
   peopleList?: { id: string; name: string }[];
-  onRemove?: (data: any) => Promise<void>;
+  onAdd?: (data: any) => Promise<void>;
+  onBlock?: (data: any) => Promise<void>;
+  positionTypes: string[];
 };
 
 // Used for Sub Pool & Sub Preference Edit Pages
-export const EmployeeList: React.FC<Props> = props => {
+export const AddEmployees: React.FC<Props> = props => {
   const { t } = useTranslation();
   const theme = useTheme();
   const classes = useStyles();
