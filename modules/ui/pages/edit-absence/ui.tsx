@@ -1,5 +1,5 @@
 import { makeStyles, Typography } from "@material-ui/core";
-import { format, formatISO, isSameDay, parseISO } from "date-fns";
+import { format, formatISO, isSameDay, parseISO, isPast } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
@@ -111,7 +111,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [assignVacancy] = useMutationBundle(AssignVacancy, {});
 
   const name = `${props.firstName} ${props.lastName}`;
-  const canEdit = !props.actingAsEmployee || !props.replacementEmployeeId;
+  const canEdit =
+    !props.actingAsEmployee ||
+    (!props.replacementEmployeeId && !some(props.absenceDates, isPast));
 
   const initialFormData: EditAbsenceFormData = {
     absenceReason: props.absenceReasonId.toString(),
