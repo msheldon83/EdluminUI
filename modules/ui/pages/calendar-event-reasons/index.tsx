@@ -122,6 +122,8 @@ export const CalendarChangeReason: React.FC<Props> = props => {
         calendarChangeReason,
       },
     });
+    if (result === undefined) return false;
+    return true;
   };
 
   const update = async (
@@ -138,6 +140,8 @@ export const CalendarChangeReason: React.FC<Props> = props => {
         calendarChangeReason,
       },
     });
+    if (result === undefined) return false;
+    return true;
   };
 
   const columns: Column<GetAllCalendarChangeReasonsWithinOrg.All>[] = [
@@ -218,8 +222,9 @@ export const CalendarChangeReason: React.FC<Props> = props => {
                 : newData.workDayScheduleVariantTypeId,
             calendarDayTypeId: newData.calendarDayTypeId,
           };
-          await create(newCalendarChangeReason);
-          getCalendarChangeReasons.refetch();
+          const result = await create(newCalendarChangeReason);
+          if (!result) throw Error("Preserve Row on error");
+          if (result) await getCalendarChangeReasons.refetch();
         }}
         onRowUpdate={async newData => {
           const updateCalendarChangeReason = {
@@ -236,8 +241,9 @@ export const CalendarChangeReason: React.FC<Props> = props => {
                 : newData.workDayScheduleVariantTypeId,
             calendarDayTypeId: newData.calendarDayTypeId,
           };
-          await update(updateCalendarChangeReason);
-          getCalendarChangeReasons.refetch();
+          const result = await update(updateCalendarChangeReason);
+          if (!result) throw Error("Preserve Row on error");
+          if (result) await getCalendarChangeReasons.refetch();
         }}
         onRowDelete={async oldData => {
           await deleteCalendarChangeReasons(String(oldData.id));

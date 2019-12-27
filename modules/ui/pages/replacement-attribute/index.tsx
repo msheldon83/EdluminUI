@@ -207,6 +207,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
                 : newData.description,
           };
           const result = await create(newReplacementEndorsement);
+          if (!result) throw Error("Preserve Row on error");
           if (result) await getReplacementEndorsements.refetch();
         }}
         onRowUpdate={async newData => {
@@ -225,6 +226,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
                 : newData.description,
           };
           const result = await update(updateReplacementEndorsement);
+          if (!result) throw Error("Preserve Row on error");
           if (result) await getReplacementEndorsements.refetch();
         }}
         onRowDelete={async oldData => {
