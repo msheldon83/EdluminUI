@@ -31,10 +31,20 @@ export const CalendarChangeReason: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
   const [createCalendarChangeReasons] = useMutationBundle(
-    CreateCalendarChangeReason
+    CreateCalendarChangeReason,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
   );
   const [updateCalendarChangeReasons] = useMutationBundle(
-    UpdateCalendarChangeReason
+    UpdateCalendarChangeReason,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
   );
   const params = useRouteParams(CalendarChangeReasonIndexRoute);
   const { openSnackbar } = useSnackbar();
@@ -81,7 +91,7 @@ export const CalendarChangeReason: React.FC<Props> = props => {
         name: Yup.string().required(t("Name is required")),
         externalId: Yup.string().nullable(),
         description: Yup.string().nullable(),
-        calendarDayTypeId: Yup.number()
+        calendarDayTypeId: Yup.string()
           .nullable()
           .required(t("Day Type is required")),
         workDayScheduleVariantId: Yup.string().nullable(),
@@ -112,6 +122,8 @@ export const CalendarChangeReason: React.FC<Props> = props => {
         calendarChangeReason,
       },
     });
+    if (result === undefined) return false;
+    return true;
   };
 
   const update = async (
@@ -128,6 +140,8 @@ export const CalendarChangeReason: React.FC<Props> = props => {
         calendarChangeReason,
       },
     });
+    if (result === undefined) return false;
+    return true;
   };
 
   const columns: Column<GetAllCalendarChangeReasonsWithinOrg.All>[] = [
@@ -146,7 +160,7 @@ export const CalendarChangeReason: React.FC<Props> = props => {
       editable: "always",
     },
     {
-      title: t("Day Type"),
+      title: t("Applies To"),
       field: "calendarDayTypeId",
       searchable: true,
       hidden: isMobile,
@@ -208,8 +222,9 @@ export const CalendarChangeReason: React.FC<Props> = props => {
                 : newData.workDayScheduleVariantTypeId,
             calendarDayTypeId: newData.calendarDayTypeId,
           };
-          await create(newCalendarChangeReason);
-          getCalendarChangeReasons.refetch();
+          const result = await create(newCalendarChangeReason);
+          if (!result) throw Error("Preserve Row on error");
+          if (result) await getCalendarChangeReasons.refetch();
         }}
         onRowUpdate={async newData => {
           const updateCalendarChangeReason = {
@@ -226,8 +241,9 @@ export const CalendarChangeReason: React.FC<Props> = props => {
                 : newData.workDayScheduleVariantTypeId,
             calendarDayTypeId: newData.calendarDayTypeId,
           };
-          await update(updateCalendarChangeReason);
-          getCalendarChangeReasons.refetch();
+          const result = await update(updateCalendarChangeReason);
+          if (!result) throw Error("Preserve Row on error");
+          if (result) await getCalendarChangeReasons.refetch();
         }}
         onRowDelete={async oldData => {
           await deleteCalendarChangeReasons(String(oldData.id));

@@ -1,5 +1,4 @@
 import { Grid, makeStyles } from "@material-ui/core";
-import { useTheme } from "@material-ui/styles";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
@@ -17,7 +16,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { CreatePayCode } from "./graphql/create.gen";
 import { PayCodeIndexRoute } from "ui/routes/pay-code";
 import { useRouteParams } from "ui/routes/definition";
-import { GetAllPayCodesWithinOrg } from "ui/pages/pay-code/graphql/get-pay-codes.gen";
+import { GetAllPayCodesWithinOrg } from "./graphql/get-pay-codes.gen";
 import { UpdatePayCode } from "./graphql/update-pay-code.gen";
 import { DeletePayCode } from "./graphql/delete-pay-code.gen";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
@@ -28,8 +27,16 @@ export const PayCode: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
-  const [createPayCode] = useMutationBundle(CreatePayCode);
-  const [updatePayCode] = useMutationBundle(UpdatePayCode);
+  const [createPayCode] = useMutationBundle(CreatePayCode, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const [updatePayCode] = useMutationBundle(UpdatePayCode, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const params = useRouteParams(PayCodeIndexRoute);
   const { openSnackbar } = useSnackbar();
   const [includeExpired, setIncludeExpired] = React.useState(false);
@@ -80,6 +87,8 @@ export const PayCode: React.FC<Props> = props => {
         payCode,
       },
     });
+    if (result === undefined) return false;
+    return true;
   };
 
   const update = async (payCode: PayCodeUpdateInput) => {
@@ -93,6 +102,8 @@ export const PayCode: React.FC<Props> = props => {
         payCode,
       },
     });
+    if (result === undefined) return false;
+    return true;
   };
 
   const columns: Column<GetAllPayCodesWithinOrg.All>[] = [
@@ -161,8 +172,9 @@ export const PayCode: React.FC<Props> = props => {
                 ? null
                 : newData.description,
           };
-          await create(newPayCode);
-          getPayCodes.refetch();
+          const result = await create(newPayCode);
+          if (!result) throw Error("Preserve Row on error");
+          if (result) await getPayCodes.refetch();
         }}
         onRowUpdate={async newData => {
           const updatePayCode = {
@@ -178,8 +190,9 @@ export const PayCode: React.FC<Props> = props => {
                 ? null
                 : newData.description,
           };
-          await update(updatePayCode);
-          getPayCodes.refetch();
+          const result = await update(updatePayCode);
+          if (!result) throw Error("Preserve Row on error");
+          if (result) await getPayCodes.refetch();
         }}
         onRowDelete={async oldData => {
           await deletePayCode(String(oldData.id));
