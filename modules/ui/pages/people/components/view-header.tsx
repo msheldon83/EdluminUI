@@ -8,6 +8,10 @@ import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import Maybe from "graphql/tsutils/Maybe";
 import { OrgUserUpdateInput } from "graphql/server-types.gen";
+import { useMutationBundle } from "graphql/hooks";
+import { useSnackbar } from "hooks/use-snackbar";
+import { InviteSingleUser } from "../graphql/invite-single-user.gen";
+import { ShowErrors } from "ui/components/error-helpers";
 
 const editableSections = {
   name: "edit-name",
@@ -18,12 +22,16 @@ type Props = {
   editing: string | null;
   orgUser: {
     id: string;
+    orgId: number;
+    userId?: number | null | undefined;
     active: boolean;
     firstName: string;
     middleName?: string | null | undefined;
     lastName: string;
     rowVersion: string;
     externalId?: string | null | undefined;
+    inviteSent?: boolean | null | undefined;
+    isAccountSetup?: boolean | null | undefined;
   };
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   deleteOrgUser: () => Promise<unknown>;
@@ -33,6 +41,27 @@ type Props = {
 export const PersonViewHeader: React.FC<Props> = props => {
   const orgUser = props.orgUser;
   const { t } = useTranslation();
+  const { openSnackbar } = useSnackbar();
+  const [inviteSent, setInviteSent] = React.useState(
+    orgUser.inviteSent || false
+  );
+
+  const [inviteUser] = useMutationBundle(InviteSingleUser, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const invite = React.useCallback(async () => {
+    const result = await inviteUser({
+      variables: {
+        userId: orgUser.userId!,
+        orgId: orgUser.orgId,
+      },
+    });
+    if (result && !inviteSent) {
+      setInviteSent(true);
+    }
+  }, [inviteUser, orgUser, setInviteSent, inviteSent]);
 
   return (
     <>
@@ -76,20 +105,30 @@ export const PersonViewHeader: React.FC<Props> = props => {
         }}
         onCancel={() => props.setEditing(null)}
         actions={[
-          {
-            name: t("Change History"),
-            onClick: () => {},
-          },
-          {
-            name: orgUser.active ? t("Inactivate") : t("Activate"),
-            onClick: async () => {
-              await props.onSaveOrgUser({
-                rowVersion: orgUser.rowVersion,
-                id: Number(orgUser.id),
-                active: !orgUser.active,
-              });
+          ...[
+            {
+              name: t("Change History"),
+              onClick: () => {},
             },
-          },
+            {
+              name: orgUser.active ? t("Inactivate") : t("Activate"),
+              onClick: async () => {
+                await props.onSaveOrgUser({
+                  rowVersion: orgUser.rowVersion,
+                  id: Number(orgUser.id),
+                  active: !orgUser.active,
+                });
+              },
+            },
+          ],
+          ...(orgUser.userId
+            ? [
+                {
+                  name: inviteSent ? t("Resend Invitation") : t("Invite"),
+                  onClick: invite,
+                },
+              ]
+            : []),
           {
             name: t("Delete"),
             onClick: props.deleteOrgUser,
