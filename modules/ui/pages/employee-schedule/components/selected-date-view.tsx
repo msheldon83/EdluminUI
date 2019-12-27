@@ -15,7 +15,8 @@ import { TFunction } from "i18next";
 type Props = {
   selectedDate: Date;
   scheduleDates: ScheduleDate[];
-  cancelAbsence: (absenceId: string) => Promise<void>;
+  cancelAbsence?: (absenceId: string) => Promise<void>;
+  handleAfterCancel?: Function;
 };
 
 export const SelectedDateView: React.FC<Props> = props => {
@@ -48,7 +49,11 @@ export const SelectedDateView: React.FC<Props> = props => {
           {format(props.selectedDate, "EEEE, MMMM d")}
         </Typography>
       </Grid>
-      {displayAbsenceDayInformation(absenceDays, props.cancelAbsence)}
+      {displayAbsenceDayInformation(
+        absenceDays,
+        props.cancelAbsence,
+        props.handleAfterCancel
+      )}
       {displayInstructionalDayInformation(allInstructionalDays, classes)}
       {displayNonInstructionalDayInformation(nonInstructionalDays, classes, t)}
     </Grid>
@@ -98,7 +103,8 @@ const displayInstructionalDayInformation = (
 
 const displayAbsenceDayInformation = (
   absenceDays: ScheduleDate[],
-  cancelAbsence: (absenceId: string) => Promise<void>
+  cancelAbsence?: (absenceId: string) => Promise<void>,
+  handleAfterCancel?: Function
 ) => {
   return absenceDays.map((a, i) => {
     const day = a.rawData as EmployeeAbsenceDetail;
@@ -107,6 +113,7 @@ const displayAbsenceDayInformation = (
         <AbsenceDetailRow
           absence={day}
           cancelAbsence={cancelAbsence}
+          handleAfterCancel={handleAfterCancel}
           showAbsenceChip={true}
         />
       </Grid>

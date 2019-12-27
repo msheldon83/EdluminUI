@@ -12,6 +12,7 @@ type Props = {
   absence: EmployeeAbsenceDetail;
   cancelAbsence?: (absenceId: string) => Promise<void>;
   showAbsenceChip?: boolean;
+  handleAfterCancel?: Function;
 };
 
 export const AbsenceDetailRow: React.FC<Props> = props => {
@@ -91,7 +92,11 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
         <Grid item xs={2} className={classes.cancelButtonContainer}>
           <Button
             variant="outlined"
-            onClick={async () => await props.cancelAbsence!(props.absence.id)}
+            onClick={async () =>
+              await props.cancelAbsence!(props.absence.id).then(
+                props.handleAfterCancel!()
+              )
+            }
             className={classes.cancelButton}
           >
             {t("Cancel")}

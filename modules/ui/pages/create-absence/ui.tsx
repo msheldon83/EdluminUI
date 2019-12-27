@@ -1,12 +1,10 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import {
-  eachDayOfInterval,
   format,
   isBefore,
-  isDate,
-  isEqual,
-  isValid,
+  isSameDay,
+  startOfDay,
   startOfMonth,
 } from "date-fns";
 import { useForm } from "forms";
@@ -21,32 +19,31 @@ import {
   Vacancy,
 } from "graphql/server-types.gen";
 import { computeAbsenceUsageText } from "helpers/absence/computeAbsenceUsageText";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { convertStringToDate, isAfterDate } from "helpers/date";
+import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
-import { useSnackbar } from "hooks/use-snackbar";
-import { compact, differenceWith, flatMap } from "lodash-es";
+import { useDialog } from "hooks/use-dialog";
+import { compact, differenceWith, flatMap, isEmpty, some } from "lodash-es";
 import * as React from "react";
-import { useMemo, useReducer, useState } from "react";
+import { useCallback, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
+import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
+import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
+import { VacancyDetail } from "../../components/absence/types";
 import { AssignSub } from "./assign-sub/index";
 import { Confirmation } from "./confirmation";
 import { EditVacancies } from "./edit-vacancies";
 import { CreateAbsence } from "./graphql/create.gen";
 import { GetProjectedAbsenceUsage } from "./graphql/get-projected-absence-usage.gen";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
+import { projectVacancyDetails } from "./project-vacancy-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-import { VacancyDetail } from "../../components/absence/types";
-import { projectVacancyDetails } from "./project-vacancy-details";
-import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
-import { useDialog } from "hooks/use-dialog";
-import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   firstName: string;
@@ -65,7 +62,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const [absence, setAbsence] = useState<Absence>();
-  const [vacanciesInput, setVacanciesInput] = useState<VacancyDetail[]>();
   const [step, setStep] = useQueryParamIso(StepParams);
 
   const [state, dispatch] = useReducer(
@@ -73,10 +69,17 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     props,
     initialState
   );
-  const today = new Date();
+  const setVacanciesInput: (
+    i: undefined | VacancyDetail[]
+  ) => void = useCallback(
+    i =>
+      dispatch({
+        action: "setVacanciesInput",
+        input: i,
+      }),
+    [dispatch]
+  );
   const initialFormData: CreateAbsenceFormData = {
-    startDate: today,
-    endDate: today,
     absenceReason: "",
   };
 
@@ -109,8 +112,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const required = t("Required");
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
-  register({ name: "startDate", type: "custom" }, { required });
-  register({ name: "endDate", type: "custom" });
   register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
@@ -141,26 +142,34 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     state.employeeId,
     state.viewingCalendarMonth
   );
+  React.useEffect(() => {
+    const conflictingDates = disabledDates
+      .map(dis => dis.date)
+      .filter(dis => some(state.absenceDates, ad => isSameDay(ad, dis)));
+    if (conflictingDates.length > 0) {
+      dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
+    }
+  }, [disabledDates]);
 
   const projectedVacanciesInput = useMemo(
     () =>
       buildAbsenceCreateInput(
+        state.absenceDates,
         formValues,
         Number(state.organizationId),
         Number(state.employeeId),
         Number(props.positionId),
         disabledDates,
         state.needsReplacement,
-        vacanciesInput
+        state.vacanciesInput
       ),
     [
-      formValues.startDate,
-      formValues.endDate,
+      state.absenceDates,
       formValues.absenceReason,
       formValues.dayPart,
       formValues.hourlyStartTime,
       formValues.hourlyEndTime,
-      vacanciesInput,
+      state.vacanciesInput,
       state.needsReplacement,
     ]
   );
@@ -198,7 +207,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   );
 
   const theVacancyDetails: VacancyDetail[] =
-    vacanciesInput || projectedVacancyDetails;
+    state.vacanciesInput || projectedVacancyDetails;
 
   const projectedVacancies =
     getProjectedVacancies.state === "LOADING" ||
@@ -233,6 +242,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     ignoreWarnings?: boolean
   ) => {
     let absenceCreateInput = buildAbsenceCreateInput(
+      state.absenceDates,
       formValues,
       Number(state.organizationId),
       Number(state.employeeId),
@@ -311,6 +321,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             )}
             <Section className={classes.absenceDetails}>
               <AbsenceDetails
+                currentMonth={state.viewingCalendarMonth}
                 onSwitchMonth={d =>
                   dispatch({ action: "switchMonth", month: d })
                 }
@@ -321,6 +332,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 organizationId={props.organizationId}
                 employeeId={state.employeeId}
                 setValue={setValue}
+                absenceDates={state.absenceDates}
+                onToggleAbsenceDate={d =>
+                  dispatch({ action: "toggleDate", date: d })
+                }
                 values={formValues}
                 errors={errors}
                 triggerValidation={triggerValidation}
@@ -393,11 +408,10 @@ const initialState = (props: Props): CreateAbsenceState => ({
   organizationId: props.organizationId,
   viewingCalendarMonth: startOfMonth(new Date()),
   needsReplacement: props.needsReplacement !== NeedsReplacement.No,
+  absenceDates: [startOfDay(new Date())],
 });
 
 export type CreateAbsenceFormData = {
-  startDate: Date;
-  endDate: Date;
   absenceReason: string;
   dayPart?: DayPart;
   hourlyStartTime?: Date;
@@ -412,6 +426,7 @@ export type CreateAbsenceFormData = {
 };
 
 export const buildAbsenceCreateInput = (
+  absenceDates: Date[],
   formValues: CreateAbsenceFormData,
   organizationId: number,
   employeeId: number,
@@ -421,49 +436,16 @@ export const buildAbsenceCreateInput = (
   vacancyDetails?: VacancyDetail[]
 ): AbsenceCreateInput | null => {
   if (
-    !formValues.startDate ||
+    isEmpty(absenceDates) ||
     !formValues.absenceReason ||
     !formValues.dayPart
   ) {
     return null;
   }
 
-  const startDate =
-    typeof formValues.startDate === "string"
-      ? new Date(formValues.startDate)
-      : formValues.startDate;
-  let endDate =
-    typeof formValues.endDate === "string"
-      ? new Date(formValues.endDate)
-      : formValues.endDate;
-
-  // If we don't have an end date, set it to the start date
-  // Assuming a single day absence as of this point
-  if (!endDate) {
-    endDate = startDate;
-  }
-
-  if (
-    !isDate(startDate) ||
-    !isValid(startDate) ||
-    !isDate(endDate) ||
-    !isValid(endDate)
-  ) {
-    return null;
-  }
-
-  // Ensure the end date is after the start date or they are equal
-  if (!isEqual(startDate, endDate) && !isAfterDate(endDate, startDate)) {
-    return null;
-  }
-
-  let dates = eachDayOfInterval({
-    start: startDate,
-    end: endDate,
-  });
-
-  // Filter out disabled dates
-  dates = differenceWith(dates, disabledDates, (a, b) => isEqual(a, b.date));
+  const dates = differenceWith(absenceDates, disabledDates, (a, b) =>
+    isSameDay(a, b.date)
+  );
 
   if (!dates.length) {
     return null;
@@ -543,6 +525,5 @@ export const buildAbsenceCreateInput = (
       },
     ],
   };
-
   return absence;
 };
