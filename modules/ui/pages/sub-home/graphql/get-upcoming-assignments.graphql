@@ -2,14 +2,14 @@ query GetUpcomingAssignments(
   $id: ID!
   $fromDate: DateTime!
   $toDate: Date!
-  $organizationId: String
+  $organizationId: ID
   $limit: Int
   $includeCompletedToday: Boolean
 ) {
   employee {
     employeeAssignmentSchedule(
       id: $id
-      organizationId: $organizationId
+      orgId: $organizationId
       fromDate: $fromDate
       toDate: $toDate
       limit: $limit

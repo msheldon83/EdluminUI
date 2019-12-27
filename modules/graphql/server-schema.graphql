@@ -1333,7 +1333,7 @@ type EmployeeQueries {
   employeeVacancySchedule(id: ID!, fromDate: Date!, toDate: Date!): [Vacancy]
   employeeAssignmentSchedule(
     id: ID!
-    organizationId: String
+    orgId: ID
     fromDate: DateTime!
     toDate: Date!
     limit: Int
