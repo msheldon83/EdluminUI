@@ -16,11 +16,12 @@ import {
   SubScheduleListViewRoute,
   SubScheduleRoute,
 } from "ui/routes/sub-schedule";
-import { CalendarView } from "./calendar-view";
-import { NowViewingAssignmentsForDate } from "./calendar-view/now-viewing-assignments";
-import { ListView } from "./list-view";
+import { SubstituteAssignmentsCalendarView } from "../../components/substitutes/substitute-assignments-calendar";
+import { NowViewingAssignmentsForDate } from "../../components/substitutes/substitute-assignments-calendar/now-viewing-assignments";
+import { SubstituteAssignmentsListView } from "../../components/substitutes/substitute-assignments-list";
 import { ScheduleHeader } from "ui/components/schedule/schedule-header";
 import { useTranslation } from "react-i18next";
+import { useIsAdmin } from "reference-data/is-admin";
 
 type Props = {
   view: "list" | "calendar";
@@ -30,6 +31,8 @@ export const SubSchedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const params = useRouteParams(SubScheduleRoute);
+  let userIsAdmin = useIsAdmin(); //Just in case an admin accesses this page
+  userIsAdmin = userIsAdmin === null ? false : userIsAdmin;
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
     fetchPolicy: "cache-first",
   });
@@ -73,7 +76,11 @@ export const SubSchedule: React.FC<Props> = props => {
         <PageTitle title={t("My Schedule")} />
         {props.view === "calendar" && (
           <Section className={classes.assignments}>
-            <NowViewingAssignmentsForDate date={selectedDate} userId={userId} />
+            <NowViewingAssignmentsForDate
+              date={selectedDate}
+              userId={userId}
+              isAdmin={false}
+            />
           </Section>
         )}
       </div>
@@ -106,7 +113,7 @@ export const SubSchedule: React.FC<Props> = props => {
 
         <div className={classes.viewContainer}>
           {props.view === "calendar" && (
-            <CalendarView
+            <SubstituteAssignmentsCalendarView
               userId={userId}
               fromDate={beginningOfSchoolYear}
               toDate={queryEndDate}
@@ -115,10 +122,11 @@ export const SubSchedule: React.FC<Props> = props => {
             />
           )}
           {props.view === "list" && (
-            <ListView
+            <SubstituteAssignmentsListView
               userId={userId}
               startDate={queryStartDate}
               endDate={queryEndDate}
+              isAdmin={userIsAdmin}
             />
           )}
         </div>

@@ -25,8 +25,10 @@ module.exports = {
   test: process.env.NODE_ENV === "test",
 
   auth0_domain: process.env.AUTH0_DOMAIN || "hcmdev.auth0.com",
-  auth0_client: process.env.AUTH0_CLIENT_ID || "eLiUtXy2kn7cRvjpl3o7oQGCTlbbxeNS",
-  auth0_redirect_url: process.env.AUTH0_REDIRECT_URL || "http://localhost:3000/",
+  auth0_client:
+    process.env.AUTH0_CLIENT_ID || "eLiUtXy2kn7cRvjpl3o7oQGCTlbbxeNS",
+  auth0_redirect_url:
+    process.env.AUTH0_REDIRECT_URL || "http://localhost:3000/",
   auth0_api_audience: process.env.AUTH0_API_AUDIENCE || "https://hcmdev/api",
   auth0_scope: process.env.AUTH0_SCOPE || "openid profile email",
   apiUrl: "/graphql",
@@ -37,7 +39,8 @@ module.exports = {
     hot: true,
     inline: true,
     noInfo: true,
-    proxyHost: process.env.DEV_SERVER_PROXY_HOST || "https://edlumin-api-dev.azurewebsites.net/",
+    //proxyHost: process.env.DEV_SERVER_PROXY_HOST || "https://edlumin-api-dev.azurewebsites.net/",
+    proxyHost: "http://localhost:5000",
     disableHostCheck: ["1", "true"].includes(
       process.env.DEV_SERVER_DISABLE_HOST_CHECK
     ),

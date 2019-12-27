@@ -3,7 +3,7 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState, useCallback } from "react";
-import { GetUpcomingAssignments } from "../../sub-home/graphql/get-upcoming-assignments.gen";
+import { GetUpcomingAssignments } from "../../../pages/sub-home/graphql/get-upcoming-assignments.gen";
 import { AssignmentRow } from "../assignment-row";
 import { NoAssignment } from "../assignment-row/no-assignment";
 import { TextButton } from "ui/components/text-button";
@@ -13,6 +13,7 @@ import { CancelAssignment } from "ui/components/absence/graphql/cancel-assignmen
 type Props = {
   userId?: string;
   date: Date;
+  isAdmin: boolean;
 };
 
 export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
@@ -78,6 +79,7 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
           key={firstAssignment.id}
           assignment={firstAssignment}
           onCancel={onCancel}
+          isAdmin={props.isAdmin}
         />
       ) : (
         <NoAssignment date={props.date} />
@@ -101,6 +103,7 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
                     key={a.id || i}
                     assignment={a}
                     onCancel={onCancel}
+                    isAdmin={props.isAdmin}
                   />
                   <Divider />
                 </>

@@ -3,18 +3,19 @@ import { formatIsoDateIfPossible } from "helpers/date";
 import { groupBy, uniqBy, compact, flatMap } from "lodash-es";
 import * as React from "react";
 import { useState, useMemo } from "react";
-import { AssignmentVacancyDetails } from "../types";
+import { AssignmentVacancyDetails } from "../../../pages/sub-schedule/types";
 import { AssignmentGroupDetail } from "./assignment-group-detail";
 import { AssignmentRowUI } from "./assignment-row-ui";
 
 type Props = {
   vacancyDetails: AssignmentVacancyDetails[];
-  onCancel: (
+  onCancel?: (
     assignmentId: number,
     rowVersion: string,
     vacancyDetailIds?: string[]
   ) => void;
   className?: string;
+  isAdmin: boolean;
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
@@ -94,13 +95,15 @@ export const AssignmentGroup: React.FC<Props> = props => {
         positionName={positionName}
         dayPortion={totalDayPortion}
         onCancel={() =>
-          onCancel(
+          onCancel!(
             Number(vacancyDetails[0].assignment?.id) ?? "",
             vacancyDetails[0].assignment?.rowVersion ?? ""
           )
         }
         className={props.className}
+        isAdmin={props.isAdmin}
       />
+
       {isExpanded && (
         <div className={[classes.container, classes.expandedDetails].join(" ")}>
           {props.vacancyDetails.map((a, i) => (
@@ -112,12 +115,13 @@ export const AssignmentGroup: React.FC<Props> = props => {
               shadeRow={i % 2 != 0}
               key={i}
               onCancel={() =>
-                onCancel(
+                onCancel!(
                   Number(a.assignment?.id) ?? "",
                   a.assignment?.rowVersion ?? "",
                   [a.id ?? ""]
                 )
               }
+              isAdmin={props.isAdmin}
             />
           ))}
         </div>
