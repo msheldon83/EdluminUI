@@ -1,0 +1,9 @@
+module.exports = {
+  minify: true,
+  auth0_domain: "login.redroverk12.com",
+  auth0_client: "CxNLSak72ZWtcZCHwI0t756h4cYV2dFR",
+  auth0_redirect_url: "https://app.redroverk12.com/",
+  auth0_api_audience: "https://redrover/api",
+  auth0_scope: "openid profile email",
+  apiUrl: "https://api.redroverk12.com/graphql"
+};

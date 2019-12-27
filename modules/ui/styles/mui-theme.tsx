@@ -97,7 +97,30 @@ export const EdluminTheme = createMuiTheme({
         boxSizing: "border-box",
         fontSize: baseFontSize,
         height: pxToRem(44),
-        padding: `0 ${pxToRem(14)}`,
+        padding: `0 ${pxToRem(12)}`,
+      },
+      notchedOutline: {
+        borderColor: themeColors.edluminSubText,
+
+        "&:hover": {
+          borderColor: themeColors.edluminSubText,
+        },
+        "&:focus": {
+          borderColor: themeColors.black,
+        },
+        "&:active": {
+          borderColor: themeColors.black,
+        },
+      },
+      root: {
+        "&$focused $notchedOutline": {
+          borderColor: themeColors.black,
+          borderWidth: pxToRem(1),
+        },
+        "&$active $notchedOutline": {
+          borderColor: themeColors.black,
+          borderWidth: pxToRem(1),
+        },
       },
     },
     MuiButton: {

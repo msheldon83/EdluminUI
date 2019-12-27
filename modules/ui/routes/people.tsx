@@ -14,11 +14,9 @@ export type QueryParams = {
   active: boolean;
 };
 
-export const PersonViewRoute = defineSubRoute(
-  PeopleRoute,
-  "/:orgUserId",
-  ["orgUserId"]
-);
+export const PersonViewRoute = defineSubRoute(PeopleRoute, "/:orgUserId", [
+  "orgUserId",
+]);
 
 export const PersonViewLoader = asyncComponent({
   resolve: async () => {
@@ -35,4 +33,29 @@ export const PeopleLoader = asyncComponent({
     return PeoplePage;
   },
   name: "People",
+});
+
+//employee abs schedule
+export const EmployeeAbsScheduleRoute = defineSubRoute(
+  PersonViewRoute,
+  "/schedule"
+);
+
+export const EmployeeAbsScheduleListViewRoute = defineSubRoute(
+  EmployeeAbsScheduleRoute,
+  "/list-view"
+);
+export const EmployeeAbsScheduleCalendarViewRoute = defineSubRoute(
+  EmployeeAbsScheduleRoute,
+  "/calendar-view"
+);
+
+export const EmployeeAbsScheduleLoader = asyncComponent({
+  resolve: async () => {
+    const EmployeeAbsSchedulePage = (
+      await import("ui/pages/people/employee-abs-schedule")
+    ).EmployeeAbsenceSchedulePage;
+    return EmployeeAbsSchedulePage;
+  },
+  name: "EmployeeAbsSchedulePage",
 });

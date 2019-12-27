@@ -146,7 +146,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(16),
     fontWeight: "normal",
     maxWidth: theme.typography.pxToRem(48),
-    minWidth: theme.typography.pxToRem(48),
+    minWidth: theme.typography.pxToRem(20),
     position: "relative",
     width: "100%",
 
