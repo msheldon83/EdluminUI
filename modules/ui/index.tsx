@@ -134,6 +134,10 @@ import {
   SubPreferencesRoute,
 } from "./routes/sub-preferences";
 import {
+  SubSpecificOpportunityLoader,
+  SubSpecificOpportunityRoute,
+} from "./routes/sub-specific-opportunity";
+import {
   SubScheduleCalendarViewRoute,
   SubScheduleListViewRoute,
   SubScheduleLoader,
@@ -207,6 +211,10 @@ export function App() {
                     <Route
                       component={SubPreferencesLoader}
                       path={SubPreferencesRoute.path}
+                    />
+                    <Route
+                      component={SubSpecificOpportunityLoader}
+                      path={SubSpecificOpportunityRoute.path}
                     />
                     <Route component={SubHomeLoader} path={SubHomeRoute.path} />
 
