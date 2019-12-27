@@ -1266,7 +1266,7 @@ type EmployeeQueries {
   employeeContractSchedule(id: ID!, fromDate: Date!, toDate: Date!): [ContractDate]
   employeeAbsenceSchedule(id: ID!, fromDate: Date!, toDate: Date!): [Absence]
   employeeVacancySchedule(id: ID!, fromDate: Date!, toDate: Date!): [Vacancy]
-  employeeAssignmentSchedule(id: ID!, organizationId: String, fromDate: DateTime!, toDate: Date!, limit: Int, includeCompletedToday: Boolean): [VacancyDetail]
+  employeeAssignmentSchedule(id: ID!, orgId: ID, fromDate: DateTime!, toDate: Date!, limit: Int, includeCompletedToday: Boolean): [VacancyDetail]
 }
 
 input EmployeeRejectVacancyInput {
