@@ -14,11 +14,9 @@ export type QueryParams = {
   active: boolean;
 };
 
-export const PersonViewRoute = defineSubRoute(
-  PeopleRoute,
-  "/:orgUserId",
-  ["orgUserId"]
-);
+export const PersonViewRoute = defineSubRoute(PeopleRoute, "/:orgUserId", [
+  "orgUserId",
+]);
 
 export const PersonViewLoader = asyncComponent({
   resolve: async () => {
@@ -35,4 +33,17 @@ export const PeopleLoader = asyncComponent({
     return PeoplePage;
   },
   name: "People",
+});
+
+//Edit Sub Pools
+export const PeopleSubPoolEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-sub-pools"
+);
+export const PeopleSubPoolEditLoader = asyncComponent({
+  resolve: async () => {
+    const SubPool = (await import("ui/pages/sub-pools")).SubPool;
+    return SubPool;
+  },
+  name: "SubPool",
 });

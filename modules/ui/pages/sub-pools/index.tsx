@@ -7,12 +7,16 @@ import { PageTitle } from "ui/components/page-title";
 
 type Props = {};
 
-export const SubPools: React.FC<Props> = props => {
+export const SubPool: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
+
+  //Return 2 components for Favorite/Blocked Remove Employee List
+
+  //Return 1 Component for Add/Block Employee List
 
   return (
     <>
