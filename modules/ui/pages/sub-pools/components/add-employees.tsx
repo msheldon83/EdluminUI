@@ -13,7 +13,7 @@ type Props = {
   positionTypes?: string[];
 };
 
-// Used for Sub Pool & Sub Preference Edit Pages
+//Used for Sub Pool & Sub Preference Edit Pages
 export const AddEmployees: React.FC<Props> = props => {
   const { t } = useTranslation();
   const theme = useTheme();

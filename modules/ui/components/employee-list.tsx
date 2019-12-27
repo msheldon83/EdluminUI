@@ -3,11 +3,12 @@ import { makeStyles, useTheme } from "@material-ui/styles";
 import { Typography, Grid } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { useTranslation } from "react-i18next";
+import { Maybe, Employee } from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
 
 type Props = {
   title: string;
-  peopleList: { id: number; firstName: string; lastName: string }[];
+  peopleList?: Maybe<Pick<Employee, "id" | "firstName" | "lastName">>[] | null;
 };
 
 // Used for Sub Pool & Sub Preference Edit Pages
@@ -23,10 +24,14 @@ export const EmployeeList: React.FC<Props> = props => {
         <Grid container item spacing={2} xs={12}>
           <Grid item xs={12} sm={6} lg={6}>
             {props.peopleList?.length === 0 ? (
-              <div>{t("Not defined")}</div>
+              <div>
+                <b>{t("Not defined")}</b>
+              </div>
             ) : (
               props.peopleList?.map((n, i) => (
-                <div key={i}>{n?.firstName + " " + n?.lastName}</div>
+                <div key={i}>
+                  <b>{n?.firstName + " " + n?.lastName}</b>
+                </div>
               ))
             )}
           </Grid>

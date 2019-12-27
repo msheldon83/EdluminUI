@@ -1,7 +1,7 @@
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { useIsMobile } from "hooks";
 import * as React from "react";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { Typography, Grid } from "@material-ui/core";
 import { useHistory } from "react-router";
