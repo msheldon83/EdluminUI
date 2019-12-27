@@ -12,6 +12,7 @@ import { CancelAssignment } from "ui/components/absence/graphql/cancel-assignmen
 
 type Props = {
   userId?: string;
+  orgId?: string;
   date: Date;
   isAdmin: boolean;
 };
@@ -42,6 +43,7 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
       id: String(props.userId),
+      organizationId: String(props.orgId),
       fromDate: props.date,
       toDate: props.date,
       includeCompletedToday: true,

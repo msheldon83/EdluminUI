@@ -88,6 +88,10 @@ import {
   EmployeeAbsScheduleRoute,
   EmployeeAbsScheduleCalendarViewRoute,
   EmployeeAbsScheduleListViewRoute,
+  SubstituteAssignmentScheduleLoader,
+  SubstituteAssignmentScheduleRoute,
+  SubstituteAssignmentScheduleCalendarViewRoute,
+  SubstituteAssignmentScheduleListViewRoute,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -255,6 +259,24 @@ export function App() {
                         <Route
                           component={EmployeeAbsScheduleLoader}
                           path={EmployeeAbsScheduleRoute.path}
+                        />
+
+                        <Route
+                          path={
+                            SubstituteAssignmentScheduleCalendarViewRoute.path
+                          }
+                        >
+                          <SubstituteAssignmentScheduleLoader view="calendar" />
+                        </Route>
+
+                        <Route
+                          path={SubstituteAssignmentScheduleListViewRoute.path}
+                        >
+                          <SubstituteAssignmentScheduleLoader view="list" />
+                        </Route>
+                        <Route
+                          component={SubstituteAssignmentScheduleLoader}
+                          path={SubstituteAssignmentScheduleRoute.path}
                         />
                         <Route
                           component={PersonViewLoader}

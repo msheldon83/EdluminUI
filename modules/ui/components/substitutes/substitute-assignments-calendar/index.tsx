@@ -12,6 +12,7 @@ import {
 
 type Props = {
   userId?: string;
+  orgId?: string;
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
   fromDate: Date;
@@ -24,6 +25,7 @@ export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
     {
       variables: {
         id: String(props.userId),
+        organizationId: String(props.orgId),
         fromDate: props.fromDate,
         toDate: props.toDate,
         includeCompletedToday: true,

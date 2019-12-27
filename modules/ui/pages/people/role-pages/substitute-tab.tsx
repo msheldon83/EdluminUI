@@ -21,6 +21,11 @@ import { Section } from "ui/components/section";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { useIsAdmin } from "reference-data/is-admin";
+import {
+  SubstituteAssignmentScheduleListViewRoute,
+  PersonViewRoute,
+} from "ui/routes/people";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
   editing: string | null;
@@ -36,6 +41,7 @@ export const SubstituteTab: React.FC<Props> = props => {
   const history = useHistory();
   let userIsAdmin = useIsAdmin();
   userIsAdmin = userIsAdmin === null ? false : userIsAdmin;
+  const params = useRouteParams(PersonViewRoute);
   const [updateSubstitute] = useMutationBundle(UpdateSubstitute, {
     onError: error => {
       ShowErrors(error, openSnackbar);
@@ -110,8 +116,10 @@ export const SubstituteTab: React.FC<Props> = props => {
               text: t("View All"),
               visible: true,
               execute: () => {
-                const editSettingsUrl = "/"; //TODO figure out the URL for editing
-                history.push(editSettingsUrl);
+                const viewAllAssignmentsScheduleUrl = SubstituteAssignmentScheduleListViewRoute.generate(
+                  params
+                );
+                history.push(viewAllAssignmentsScheduleUrl);
               },
             }}
           />
