@@ -7,8 +7,7 @@ import { SectionHeader } from "ui/components/section-header";
 
 type Props = {
   title: string;
-  peopleList?: { id: string; name: string }[];
-  onRemove?: (data: any) => Promise<void>;
+  peopleList: { id: number; firstName: string; lastName: string }[];
 };
 
 // Used for Sub Pool & Sub Preference Edit Pages
@@ -23,13 +22,13 @@ export const EmployeeList: React.FC<Props> = props => {
         <SectionHeader title={t(props.title)} />
         <Grid container item spacing={2} xs={12}>
           <Grid item xs={12} sm={6} lg={6}>
-            {/* {props.qualifiedPositionTypes?.length === 0 ? (
-                <div>{t("Not defined")}</div>
-              ) : (
-                props.qualifiedPositionTypes?.map((n, i) => (
-                  <div key={i}>{n?.name}</div>
-                ))
-              )} */}
+            {props.peopleList?.length === 0 ? (
+              <div>{t("Not defined")}</div>
+            ) : (
+              props.peopleList?.map((n, i) => (
+                <div key={i}>{n?.firstName + " " + n?.lastName}</div>
+              ))
+            )}
           </Grid>
         </Grid>
       </Section>

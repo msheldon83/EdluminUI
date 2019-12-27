@@ -1,0 +1,26 @@
+query GetSubstituteById($id: ID!) {
+  orgUser {
+    byId(id: $id) {
+      id
+      substitute {
+        id
+        orgId
+        rowVersion
+        firstName
+        lastName
+        substitutePoolMembership {
+          blockedFromEmployees {
+            id
+            firstName
+            lastName
+          }
+          favoriteForEmployees {
+            id
+            firstName
+            lastName
+          }
+        }
+      }
+    }
+  }
+}

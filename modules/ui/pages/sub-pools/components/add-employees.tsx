@@ -10,7 +10,7 @@ type Props = {
   peopleList?: { id: string; name: string }[];
   onAdd?: (data: any) => Promise<void>;
   onBlock?: (data: any) => Promise<void>;
-  positionTypes: string[];
+  positionTypes?: string[];
 };
 
 // Used for Sub Pool & Sub Preference Edit Pages
