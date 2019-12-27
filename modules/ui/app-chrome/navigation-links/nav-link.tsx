@@ -43,8 +43,8 @@ export const NavLink: React.FC<Props> = props => {
   //     )
   //   ).length === 1;
 
-  const [subNavOpen, setSubNavOpen] = useState(subNavActive || false);
-
+  const [subNavOpen, setSubNavOpen] = useState(false);
+  const expanded = subNavActive || subNavOpen;
   const { subNavItems = [] } = props;
   const hasSubNavItems = subNavItems && subNavItems.length > 0;
 
@@ -62,7 +62,7 @@ export const NavLink: React.FC<Props> = props => {
       onClick={toggleSubNavClick}
       disableRipple
     >
-      {subNavOpen ? (
+      {expanded ? (
         <ExpandLess className={classes.expandLessIcon} />
       ) : (
         <ExpandMore />
@@ -72,7 +72,7 @@ export const NavLink: React.FC<Props> = props => {
 
   const subNavClasses = clsx({
     [classes.subNavItems]: true,
-    [classes.subNavItemsOpen]: subNavOpen,
+    [classes.subNavItemsOpen]: expanded,
   });
 
   return (
@@ -100,7 +100,7 @@ export const NavLink: React.FC<Props> = props => {
 
       {hasSubNavItems && (
         <Collapse
-          in={subNavOpen}
+          in={expanded}
           timeout="auto"
           component="ul"
           className={subNavClasses}
