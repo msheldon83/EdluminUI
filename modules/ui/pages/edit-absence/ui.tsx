@@ -111,6 +111,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [assignVacancy] = useMutationBundle(AssignVacancy, {});
 
   const name = `${props.firstName} ${props.lastName}`;
+  const canEdit = !props.actingAsEmployee || !props.replacementEmployeeId;
 
   const initialFormData: EditAbsenceFormData = {
     absenceReason: props.absenceReasonId.toString(),
@@ -373,6 +374,13 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     [setStep, assignVacancy]
   );
 
+  const onToggleAbsenceDate = useCallback(
+    (d: Date) => {
+      if (canEdit) dispatch({ action: "toggleDate", date: d });
+    },
+    [dispatch, canEdit]
+  );
+
   return (
     <>
       <PageTitle title={t("Edit Absence")} withoutHeading />
@@ -404,9 +412,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           <Section className={classes.absenceDetails}>
             <AbsenceDetails
               absenceDates={state.absenceDates}
-              onToggleAbsenceDate={d =>
-                dispatch({ action: "toggleDate", date: d })
-              }
+              onToggleAbsenceDate={onToggleAbsenceDate}
               saveLabel={t("Save")}
               setStep={setStep}
               disabledDates={disabledDates}
@@ -430,6 +436,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               arrangedSubText={t("assigned")}
               arrangeSubButtonTitle={t("Assign Sub")}
               disableReplacementInteractions={useProjectedInformation}
+              disableEditingDatesAndTimes={!canEdit}
               replacementEmployeeId={props.replacementEmployeeId}
               replacementEmployeeName={props.replacementEmployeeName}
               onRemoveReplacement={props.cancelAssignments}

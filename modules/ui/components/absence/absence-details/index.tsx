@@ -86,6 +86,7 @@ type Props = {
   /** default: pre-arranged */
   arrangedSubText?: string;
   disableReplacementInteractions?: boolean;
+  disableEditingDatesAndTimes?: boolean;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
   onRemoveReplacement: (
@@ -217,14 +218,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     }
   }, [dayPartOptions]);
 
-  const onDateChange: DatePickerOnChange = React.useCallback(
-    async ({ startDate, endDate }) => {
-      await setValue("startDate", startDate);
-      await setValue("endDate", endDate);
-      /* Clear vacancy input */ props.setVacanciesInput(undefined);
-    },
-    [setValue, props.setVacanciesInput]
-  );
   const onReasonChange = React.useCallback(
     async event => {
       await setValue("absenceReason", event.value);
@@ -235,6 +228,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
   const onDayPartChange = React.useCallback(
     async event => {
+      if (props.disableEditingDatesAndTimes) return;
       /* Clear vacancy input */ props.setVacanciesInput(undefined);
       await setValue("dayPart", event.target.value);
     },
@@ -333,6 +327,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                   <FormControlLabel
                     value={type}
                     control={<Radio checked={type === values.dayPart} />}
+                    disabled={props.disableEditingDatesAndTimes}
                     label={`${t(dayPartToLabel(type))} ${timeDisplay}`}
                   />
                 </Grid>
@@ -430,6 +425,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 disableReplacementInteractions={
                   props.disableReplacementInteractions
                 }
+                disableEditingDatesAndTimes={props.disableEditingDatesAndTimes}
                 setValue={setValue}
                 vacancies={props.vacancies}
                 setStep={props.setStep}
