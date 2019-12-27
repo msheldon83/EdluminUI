@@ -225,7 +225,7 @@ export const AccountingCode: React.FC<Props> = props => {
           };
           const result = await addAccountingCode(newAccountingCode);
           if (!result) throw Error("Preserve Row on error");
-          getAccountingCodes.refetch();
+          if (result) await getAccountingCodes.refetch();
         }}
         onRowUpdate={async newData => {
           const updateAccountingCode = {
@@ -244,7 +244,7 @@ export const AccountingCode: React.FC<Props> = props => {
         }}
         onRowDelete={async oldData => {
           await deleteAccountingCode(String(oldData.id));
-          if (result) await getAccountingCodes.refetch();
+          getAccountingCodes.refetch();
         }}
         options={{
           search: true,
