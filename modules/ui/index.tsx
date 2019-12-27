@@ -86,6 +86,10 @@ import {
   PeopleSubPoolEditLoader,
   PeopleSubPoolEditRoute,
   PersonViewRoute,
+  EmployeeAbsScheduleLoader,
+  EmployeeAbsScheduleRoute,
+  EmployeeAbsScheduleCalendarViewRoute,
+  EmployeeAbsScheduleListViewRoute,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -243,6 +247,17 @@ export function App() {
                           component={SelectEmployeeForCreateAbsenceLoader}
                           path={AdminSelectEmployeeForCreateAbsenceRoute.path}
                         />
+                        <Route path={EmployeeAbsScheduleCalendarViewRoute.path}>
+                          <EmployeeAbsScheduleLoader view="calendar" />
+                        </Route>
+
+                        <Route path={EmployeeAbsScheduleListViewRoute.path}>
+                          <EmployeeAbsScheduleLoader view="list" />
+                        </Route>
+                        <Route
+                          component={EmployeeAbsScheduleLoader}
+                          path={EmployeeAbsScheduleRoute.path}
+                        />
                         <Route
                           component={PeopleSubPoolEditLoader}
                           path={PeopleSubPoolEditRoute.path}
@@ -255,6 +270,7 @@ export function App() {
                           component={PeopleLoader}
                           path={PeopleRoute.path}
                         />
+
                         <Route
                           component={ConfigurationLoader}
                           path={ConfigurationRoute.path}

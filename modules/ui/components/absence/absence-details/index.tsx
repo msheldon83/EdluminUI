@@ -5,12 +5,13 @@ import {
   makeStyles,
   Paper,
   Typography,
+  IconButton,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import InfoIcon from "@material-ui/icons/Info";
-import { isValid, parseISO, format } from "date-fns";
+import { isValid, parseISO, format, max, startOfDay, min } from "date-fns";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import {
   DayPart,
@@ -43,12 +44,14 @@ import { VacancyDetail } from "ui/components/absence/types";
 import { GetEmployeeScheduleTimes } from "../graphql/get-employee-schedule-times.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
+import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import { addMonths } from "date-fns/esm";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
   absenceReason: string;
-  startDate: Date;
-  endDate: Date;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
   accountingCode?: string;
@@ -58,10 +61,13 @@ export type AbsenceDetailsFormData = {
 };
 
 type Props = {
+  absenceDates: Date[];
+  onToggleAbsenceDate: (d: Date) => void;
   saveLabel?: string;
   organizationId: string;
   employeeId: string;
   onSubstituteWantedChange: (wanted: boolean) => void;
+  currentMonth: Date;
   onSwitchMonth: (month: Date) => void;
   setValue: SetValue;
   values: AbsenceDetailsFormData;
@@ -74,9 +80,7 @@ type Props = {
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
   disabledDates: DisabledDate[];
   balanceUsageText?: string;
-  setVacanciesInput: React.Dispatch<
-    React.SetStateAction<VacancyDetail[] | undefined>
-  >;
+  setVacanciesInput: (input: VacancyDetail[] | undefined) => void;
   /** default: pre-arrange */
   arrangeSubButtonTitle?: string;
   /** default: pre-arranged */
@@ -158,13 +162,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [featureFlags]
   );
 
+  const startDate = startOfDay(min(props.absenceDates));
+  const endDate = startOfDay(max(props.absenceDates));
   const getEmployeeScheduleTimes = useQueryBundle(GetEmployeeScheduleTimes, {
     variables: {
       id: props.employeeId,
-      fromDate: values.startDate ? format(values.startDate, "P") : undefined,
-      toDate: values.startDate ? format(values.startDate, "P") : undefined,
+      fromDate: isValid(startDate) ? format(startDate, "P") : undefined,
+      toDate: isValid(startDate) ? format(startDate, "P") : undefined,
     },
-    skip: !values.startDate,
+    skip: !isValid(startDate),
   });
   const employeeScheduleTimes: ScheduleTimes | undefined = useMemo(() => {
     if (
@@ -249,12 +255,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [onSubstituteWantedChange]
   );
 
-  const onMonthChange: DatePickerOnMonthChange = React.useCallback(
-    date => {
-      onSwitchMonth(date);
-    },
-    [onSwitchMonth]
-  );
+  const viewPreviousMonth = React.useCallback(() => {
+    const previousMonth = addMonths(props.currentMonth, -1);
+    onSwitchMonth(previousMonth);
+  }, [props.currentMonth, onSwitchMonth]);
+
+  const viewNextMonth = React.useCallback(() => {
+    const nextMonth = addMonths(props.currentMonth, 1);
+    onSwitchMonth(nextMonth);
+  }, [props.currentMonth, onSwitchMonth]);
 
   return (
     <Grid container>
@@ -279,14 +288,20 @@ export const AbsenceDetails: React.FC<Props> = props => {
           />
         </div>
 
-        <DatePicker
-          startDate={values.startDate}
-          endDate={values.endDate}
-          onChange={onDateChange}
-          startLabel={t("From")}
-          endLabel={t("To")}
-          onMonthChange={onMonthChange}
-          disableDates={props.disabledDates.map(d => d.date)}
+        <div className={classes.monthSwitcher}>
+          <IconButton onClick={viewPreviousMonth}>
+            <ChevronLeftIcon />
+          </IconButton>
+          <IconButton onClick={viewNextMonth}>
+            <ChevronRightIcon />
+          </IconButton>
+        </div>
+
+        <FiveWeekCalendar
+          startDate={props.currentMonth}
+          disabledDates={props.disabledDates.map(d => d.date)}
+          selectedDates={props.absenceDates}
+          onDateClicked={props.onToggleAbsenceDate}
         />
 
         {props.balanceUsageText && (
@@ -494,6 +509,11 @@ const useStyles = makeStyles(theme => ({
   },
   dayPartIcon: {
     height: theme.spacing(3),
+  },
+  monthSwitcher: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 }));
 

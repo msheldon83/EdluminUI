@@ -1,18 +1,16 @@
-import { Grid, InputLabel } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
 import { useOrganizations } from "reference-data/organizations";
-import { OptionType, Select } from "ui/components/form/select";
+import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
-import { useStyles } from "./index";
 
 type Props = {
   orgLabel: string;
 } & SubHomeQueryFilters;
 
 export const DistrictFilter: React.FC<Props> = props => {
-  const classes = useStyles();
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
   const organizations = useOrganizations();
@@ -21,7 +19,7 @@ export const DistrictFilter: React.FC<Props> = props => {
     [organizations]
   );
   const onChangeOrganizations = useCallback(
-    (value /* OptionType[] */) => {
+    (value: OptionType[]) => {
       const ids: number[] = value
         ? value.map((v: OptionType) => Number(v.value))
         : [];
@@ -29,18 +27,22 @@ export const DistrictFilter: React.FC<Props> = props => {
     },
     [updateFilters]
   );
+
+  const value = organizationOptions.filter(
+    e => e.value && props.orgIds.includes(Number(e.value))
+  );
+
   return (
     <>
       {organizationOptions.length > 1 && (
         <Grid item xs={12} sm={6} md={3} lg={3}>
-          <InputLabel className={classes.label}>{props.orgLabel}</InputLabel>
           <Select
+            label={props.orgLabel}
             onChange={onChangeOrganizations}
             options={organizationOptions}
-            value={organizationOptions.filter(
-              e => e.value && props.orgIds.includes(Number(e.value))
-            )}
-            multi
+            value={value}
+            multiple
+            placeholder="Search for districts"
           />
         </Grid>
       )}

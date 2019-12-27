@@ -1,11 +1,10 @@
-import { Grid, InputLabel } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { OptionType, Select } from "ui/components/form/select";
+import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
-import { useStyles } from "./index";
 
 type Props = {
   timeLabel: string;
@@ -13,7 +12,6 @@ type Props = {
 
 export const TimeFilter: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
   const times = [
@@ -26,7 +24,7 @@ export const TimeFilter: React.FC<Props> = props => {
     [times]
   );
   const onChangeTimes = useCallback(
-    (value /* OptionType[] */) => {
+    (value: OptionType[]) => {
       const ids: string[] = value
         ? value.map((v: OptionType) => String(v.value))
         : [];
@@ -34,17 +32,21 @@ export const TimeFilter: React.FC<Props> = props => {
     },
     [updateFilters]
   );
+
+  const value = timeOptions.filter(
+    e => e.value && props.times.includes(String(e.value))
+  );
+
   return (
     <>
       <Grid item xs={12} sm={6} md={3} lg={3}>
-        <InputLabel className={classes.label}>{props.timeLabel}</InputLabel>
         <Select
+          label={props.timeLabel}
           onChange={onChangeTimes}
+          value={value}
           options={timeOptions}
-          value={timeOptions.filter(
-            e => e.value && props.times.includes(String(e.value))
-          )}
-          multi
+          multiple
+          placeholder="Search for times"
         />
       </Grid>
     </>
