@@ -4,7 +4,10 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import { AbsenceReasonRoute } from "ui/routes/absence/reason";
+import {
+  AbsenceReasonRoute,
+  AbsenceReasonViewEditRoute,
+} from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
 
@@ -14,7 +17,7 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
   const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
-  const params = useRouteParams(AbsenceReasonRoute);
+  const params = useRouteParams(AbsenceReasonViewEditRoute);
 
   const [triggerError, setTriggerError] = React.useState(false);
 

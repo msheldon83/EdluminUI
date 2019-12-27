@@ -21,7 +21,7 @@ import {
 import * as Yup from "yup";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useLocations } from "reference-data/locations";
-import { ShowErrors } from "ui/components/error-helpers";
+import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 
 type Props = {};
 
@@ -109,15 +109,6 @@ export const AccountingCode: React.FC<Props> = props => {
     [t]
   );
 
-  const handleError = (error: any) => {
-    openSnackbar({
-      message: <div>{t(error.errors[0])}</div>,
-      dismissable: true,
-      autoHideDuration: 5000,
-      status: "error",
-    });
-  };
-
   if (getAccountingCodes.state === "LOADING") {
     return <></>;
   }
@@ -139,7 +130,7 @@ export const AccountingCode: React.FC<Props> = props => {
     accountingCode: AccountingCodeUpdateInput
   ) => {
     validateAccountingCode.validate(accountingCode).catch(function(err) {
-      handleError(err);
+      ShowGenericErrors(err, openSnackbar);
     });
     accountingCode.locationId =
       accountingCode.locationId === 0 ? null : accountingCode.locationId;
@@ -162,13 +153,15 @@ export const AccountingCode: React.FC<Props> = props => {
         },
       },
     });
+    if (result === undefined) return false;
+    return true;
   };
 
   const addAccountingCode = async (
     accountingCode: AccountingCodeCreateInput
   ) => {
     validateAccountingCode.validate(accountingCode).catch(function(err) {
-      handleError(err);
+      ShowGenericErrors(err, openSnackbar);
     });
     accountingCode.locationId =
       accountingCode.locationId === 0 ? null : accountingCode.locationId;
@@ -190,6 +183,8 @@ export const AccountingCode: React.FC<Props> = props => {
         },
       },
     });
+    if (result === undefined) return false;
+    return true;
   };
 
   const deleteAccountingCode = (accountingCodeId: string) => {
@@ -228,8 +223,9 @@ export const AccountingCode: React.FC<Props> = props => {
                 ? undefined
                 : parseInt(newData.location?.id),
           };
-          await addAccountingCode(newAccountingCode);
-          getAccountingCodes.refetch();
+          const result = await addAccountingCode(newAccountingCode);
+          if (!result) throw Error("Preserve Row on error");
+          if (result) await getAccountingCodes.refetch();
         }}
         onRowUpdate={async newData => {
           const updateAccountingCode = {
@@ -242,8 +238,9 @@ export const AccountingCode: React.FC<Props> = props => {
                 ? undefined
                 : parseInt(newData.location?.id),
           };
-          await editAccountingCode(updateAccountingCode);
-          getAccountingCodes.refetch();
+          const result = await editAccountingCode(updateAccountingCode);
+          if (!result) throw Error("Preserve Row on error");
+          if (result) await getAccountingCodes.refetch();
         }}
         onRowDelete={async oldData => {
           await deleteAccountingCode(String(oldData.id));

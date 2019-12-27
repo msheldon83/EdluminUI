@@ -10,7 +10,7 @@ import {
   AbsenceReasonRoute,
   AbsenceReasonAddRoute,
   AbsenceReasonViewEditRoute,
-} from "ui/routes/absence/reason";
+} from "ui/routes/absence-reason";
 import { Link } from "react-router-dom";
 import { compact } from "lodash-es";
 import { Table } from "ui/components/table";
@@ -63,12 +63,12 @@ export const AbsenceReason: React.FC<{}> = props => {
       searchable: true,
       hidden: isMobile,
     },
-    {
-      title: t("Description"),
-      field: "description",
-      searchable: true,
-      hidden: isMobile,
-    },
+    // {
+    //   title: t("Description"),
+    //   field: "description",
+    //   searchable: true,
+    //   hidden: isMobile,
+    // },
   ];
 
   if (getAbsenceReasons.state === "LOADING") {
