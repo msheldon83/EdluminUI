@@ -12,6 +12,8 @@ import * as React from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import clsx from "clsx";
 import { some, compact } from "lodash-es";
+import { useState } from "react";
+import { SubNavLink } from "./sub-nav-link";
 
 type Props = NavItemType & {
   icon: JSX.Element;
@@ -33,14 +35,15 @@ export const NavLink: React.FC<Props> = props => {
     useRouteMatch({ exact: props.exact ?? false, path: props.route }) !==
       null && props.route;
 
-  const subNavActive =
-    compact(
-      props.subNavItems?.map(
-        n => useRouteMatch({ path: n.route, exact: n.exact }) !== null
-      )
-    ).length === 1;
+  const [subNavActive, setSubNavActive] = useState();
+  // const subNavActive =
+  //   compact(
+  //     props.subNavItems?.map(
+  //       n => useRouteMatch({ path: n.route, exact: n.exact }) !== null
+  //     )
+  //   ).length === 1;
 
-  const [subNavOpen, setSubNavOpen] = React.useState(subNavActive || false);
+  const [subNavOpen, setSubNavOpen] = useState(subNavActive || false);
 
   const { subNavItems = [] } = props;
   const hasSubNavItems = subNavItems && subNavItems.length > 0;
@@ -102,23 +105,13 @@ export const NavLink: React.FC<Props> = props => {
           component="ul"
           className={subNavClasses}
         >
-          {subNavItems.map(subNavProps => {
-            const { title, route, ...linkProps } = subNavProps;
-            const matches =
-              useRouteMatch({ exact: true, path: route }) !== null && route;
-            return (
-              <li key={route}>
-                <Link
-                  {...linkProps}
-                  to={route}
-                  className={`${classes.subNavItemLink} ${matches &&
-                    classes.active}`}
-                >
-                  {title}
-                </Link>
-              </li>
-            );
-          })}
+          {subNavItems.map(subNavProps => (
+            <SubNavLink
+              key={subNavProps.route}
+              {...subNavProps}
+              setSubNavActive={setSubNavActive}
+            />
+          ))}
         </Collapse>
       )}
     </div>
@@ -174,25 +167,7 @@ const useStyles = makeStyles(theme => ({
   subNavItemsOpen: {
     padding: `0 0 ${theme.typography.pxToRem(7)}`,
   },
-  subNavItemLink: {
-    color: "#9da2ab", // this color isn't used anywhere else
-    display: "block",
-    fontSize: theme.typography.pxToRem(14),
-    lineHeight: theme.typography.pxToRem(30),
-    fontWeight: 600,
-    paddingLeft: theme.spacing(8),
-    textDecoration: "none",
-    transition: theme.transitions.create("color", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.shorter,
-    }),
-    borderRadius: theme.typography.pxToRem(4),
-    // This should have selected styles
 
-    "&:hover": {
-      color: theme.customColors.white,
-    },
-  },
   toggleSubNavItemsIcon: {
     color: "#9da2ab",
 
