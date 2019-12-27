@@ -39,8 +39,9 @@ module.exports = {
     hot: true,
     inline: true,
     noInfo: true,
-    //proxyHost: process.env.DEV_SERVER_PROXY_HOST || "https://edlumin-api-dev.azurewebsites.net/",
-    proxyHost: "http://localhost:5000",
+    proxyHost:
+      process.env.DEV_SERVER_PROXY_HOST ||
+      "https://edlumin-api-dev.azurewebsites.net/",
     disableHostCheck: ["1", "true"].includes(
       process.env.DEV_SERVER_DISABLE_HOST_CHECK
     ),
