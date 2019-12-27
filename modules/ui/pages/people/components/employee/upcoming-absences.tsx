@@ -18,6 +18,7 @@ import {
   PersonViewRoute,
   EmployeeAbsScheduleListViewRoute,
 } from "ui/routes/people";
+import { useIsAdmin } from "reference-data/is-admin";
 
 type Props = {
   employeeId: string;
@@ -29,6 +30,8 @@ export const UpcomingAbsences: React.FC<Props> = props => {
   const history = useHistory();
   //const classes = useStyles();
   const params = useRouteParams(PersonViewRoute);
+  const tempUserIsAdmin = useIsAdmin();
+  const userIsAdmin = tempUserIsAdmin === null ? undefined : tempUserIsAdmin;
   const currentSchoolYear = useCurrentSchoolYear(props.orgId.toString());
   const startDate = useMemo(() => new Date(), []);
   const endDate = currentSchoolYear?.endDate;
@@ -77,6 +80,8 @@ export const UpcomingAbsences: React.FC<Props> = props => {
             getAbsenceSchedule.state === "LOADING" ||
             getAbsenceSchedule.state === "UPDATING"
           }
+          orgId={props.orgId}
+          isAdmin={userIsAdmin}
         />
       </Section>
     </>
