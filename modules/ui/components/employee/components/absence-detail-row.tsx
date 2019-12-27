@@ -6,13 +6,18 @@ import { isEqual, format } from "date-fns";
 import { DayIcon } from "ui/components/day-icon";
 import { parseDayPortion } from "ui/components/helpers";
 import { Link } from "react-router-dom";
-import { EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
+import {
+  EmployeeEditAbsenceRoute,
+  AdminEditAbsenceRoute,
+} from "ui/routes/edit-absence";
 
 type Props = {
   absence: EmployeeAbsenceDetail;
   cancelAbsence?: (absenceId: string) => Promise<void>;
   showAbsenceChip?: boolean;
   handleAfterCancel?: Function;
+  isAdmin?: boolean;
+  orgId?: string;
 };
 
 export const AbsenceDetailRow: React.FC<Props> = props => {
@@ -80,9 +85,16 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
       <Grid item xs={1}>
         <div className={classes.detailText}>
           <Link
-            to={EmployeeEditAbsenceRoute.generate({
-              absenceId: props.absence.id,
-            })}
+            to={
+              props.isAdmin
+                ? AdminEditAbsenceRoute.generate({
+                    absenceId: props.absence.id,
+                    organizationId: props.orgId!,
+                  })
+                : EmployeeEditAbsenceRoute.generate({
+                    absenceId: props.absence.id,
+                  })
+            }
           >
             {`#${props.absence.id}`}
           </Link>
