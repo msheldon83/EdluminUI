@@ -57,17 +57,23 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     OrgUser,
     "id" | "orgId"
   >[];
+  const userId =
+    getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
+      ? undefined
+      : getOrgUsers.data?.userAccess?.me?.user?.id;
 
   const getVacancy = useQueryBundle(GetVacancyById, {
     variables: {
-      id: vacancyId,
+      id: userId,
+      vacancyId: vacancyId,
     },
+    skip: !userId,
   });
 
   const vacancy = useMemo(
     () =>
       (getVacancy.state === "DONE" || getVacancy.state === "UPDATING"
-        ? getVacancy.data.vacancy?.byId ?? null
+        ? getVacancy.data.vacancy?.specificJobSearchForUser ?? null
         : null) as Pick<
         Vacancy,
         | "id"

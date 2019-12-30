@@ -1,6 +1,6 @@
-query GetVacancyById($id: ID!) {
+query GetVacancyById($id: ID!, $vacancyId: ID!) {
   vacancy {
-    byId(id: $id) {
+    specificJobSearchForUser(id: $id, vacancyId: $vacancyId) {
       id
       organization {
         id

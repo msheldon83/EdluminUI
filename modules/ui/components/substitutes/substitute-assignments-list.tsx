@@ -27,10 +27,6 @@ export const SubstituteAssignmentsListView: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
 
-  /* TODO change to cancel vacancy detail mutation for the purposes
-     of individual detail rows. The assignment group component can
-     either use the cancelAssignement mutation or map over the details
-     and delete them individually. The former would be preferred */
   const [cancelAssignment] = useMutationBundle(CancelAssignment, {
     onError: error => {
       ShowErrors(error, openSnackbar);
