@@ -8,22 +8,24 @@ import { AssignmentCalendar } from "./assignment-calendar";
 import {
   generateEmptyDateMap,
   mergeAssignmentDatesByMonth,
-} from "./grouping-helpers";
+} from "../grouping-helpers";
 
 type Props = {
   userId?: string;
+  orgId?: string;
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
   fromDate: Date;
   toDate: Date;
 };
 
-export const CalendarView: React.FC<Props> = props => {
+export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
   const upcomingAssignmentDates = useQueryBundle(
     GetAssignmentDatesForEmployee,
     {
       variables: {
         id: String(props.userId),
+        organizationId: String(props.orgId),
         fromDate: props.fromDate,
         toDate: props.toDate,
         includeCompletedToday: true,
@@ -31,6 +33,7 @@ export const CalendarView: React.FC<Props> = props => {
       skip: !props.userId,
     }
   );
+
   const assignmentDates = useMemo(() => {
     if (
       upcomingAssignmentDates.state == "DONE" ||

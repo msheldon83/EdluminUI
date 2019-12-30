@@ -5,9 +5,9 @@ import { compact } from "lodash-es";
 import * as React from "react";
 import { useMemo, useCallback } from "react";
 import { GetUpcomingAssignments } from "ui/pages/sub-home/graphql/get-upcoming-assignments.gen";
-import { AssignmentGroup } from "../assignment-row/assignment-group";
-import { groupAssignmentsByVacancy } from "../calendar-view/grouping-helpers";
-import { AssignmentRow } from "../assignment-row";
+import { AssignmentGroup } from "./assignment-row/assignment-group";
+import { groupAssignmentsByVacancy } from "./grouping-helpers";
+import { AssignmentRow } from "./assignment-row";
 import { useTranslation } from "react-i18next";
 import { CancelAssignment } from "ui/components/absence/graphql/cancel-assignment.gen";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -15,11 +15,14 @@ import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {
   userId?: string;
+  orgId?: string;
   startDate: Date;
   endDate: Date;
+  limit?: number;
+  isAdmin: boolean;
 };
 
-export const ListView: React.FC<Props> = props => {
+export const SubstituteAssignmentsListView: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
@@ -37,12 +40,14 @@ export const ListView: React.FC<Props> = props => {
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
       id: String(props.userId),
+      organizationId: String(props.orgId),
       fromDate: props.startDate,
       toDate: props.endDate,
       includeCompletedToday: true,
     },
     skip: !props.userId,
   });
+
   const assignments = useMemo(() => {
     if (
       upcomingAssignments.state == "DONE" ||
@@ -76,7 +81,10 @@ export const ListView: React.FC<Props> = props => {
   );
 
   const groupedAssignments = useMemo(
-    () => groupAssignmentsByVacancy(assignments),
+    () =>
+      props.limit
+        ? groupAssignmentsByVacancy(assignments).slice(0, props.limit)
+        : groupAssignmentsByVacancy(assignments),
     [assignments]
   );
   if (
@@ -101,6 +109,7 @@ export const ListView: React.FC<Props> = props => {
                 vacancyDetails={group}
                 onCancel={onCancel}
                 className={i % 2 == 1 ? classes.shadedRow : undefined}
+                isAdmin={props.isAdmin}
               />
             ) : (
               <AssignmentRow
@@ -108,6 +117,7 @@ export const ListView: React.FC<Props> = props => {
                 assignment={group[0]}
                 onCancel={onCancel}
                 className={i % 2 == 1 ? classes.shadedRow : undefined}
+                isAdmin={props.isAdmin}
               />
             );
           })
