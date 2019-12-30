@@ -32,7 +32,6 @@ type Props = {
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   selectedRole: OrgUserRole;
   orgUserId: string;
-  orgId: string;
 };
 
 export const SubstituteTab: React.FC<Props> = props => {
@@ -54,7 +53,7 @@ export const SubstituteTab: React.FC<Props> = props => {
 
   /*added for upcoming assignments*/
 
-  const currentSchoolYear = useCurrentSchoolYear(props.orgId);
+  const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
   const startDate = useMemo(() => new Date(), []);
   const endDate = useMemo(
     () => new Date(currentSchoolYear?.endDate.toString()),

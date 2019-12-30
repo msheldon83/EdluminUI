@@ -80,8 +80,11 @@ export const SubstituteAssignmentsListView: React.FC<Props> = props => {
     [cancelAssignment, upcomingAssignments]
   );
 
-  let groupedAssignments = useMemo(
-    () => groupAssignmentsByVacancy(assignments),
+  const groupedAssignments = useMemo(
+    () =>
+      props.limit
+        ? groupAssignmentsByVacancy(assignments).slice(0, props.limit)
+        : groupAssignmentsByVacancy(assignments),
     [assignments]
   );
   if (
@@ -90,10 +93,6 @@ export const SubstituteAssignmentsListView: React.FC<Props> = props => {
   ) {
     return <></>;
   }
-
-  groupedAssignments = props.limit
-    ? groupedAssignments.slice(0, props.limit)
-    : groupedAssignments;
 
   return (
     <>

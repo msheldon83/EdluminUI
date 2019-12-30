@@ -130,7 +130,6 @@ export const PersonViewPage: React.FC<{}> = props => {
           setEditing={setEditing}
           selectedRole={selectedRole ?? defaultSelectedRole}
           orgUserId={orgUser.id}
-          orgId={params.organizationId}
         />
       ) : (
         <div>Create substitute</div>

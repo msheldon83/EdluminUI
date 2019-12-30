@@ -78,56 +78,98 @@ export const AssignmentGroup: React.FC<Props> = props => {
         endTime: vacancyDetails[0].endTimeLocal!,
       };
 
-  return (
-    <div
-      className={classes.container}
-      onClick={() => setIsExpanded(!isExpanded)}
-    >
-      <AssignmentRowUI
-        confirmationNumber={confirmationNumber}
-        {...times}
-        startTime={vacancyDetails[0].startTimeLocal!}
-        employeeName={employeeName}
-        startDate={startDate}
-        endDate={endDate}
-        locationName={locationNameText || ""}
-        organizationName={orgNameText}
-        positionName={positionName}
-        dayPortion={totalDayPortion}
-        onCancel={() =>
-          onCancel!(
-            Number(vacancyDetails[0].assignment?.id) ?? "",
-            vacancyDetails[0].assignment?.rowVersion ?? ""
-          )
-        }
-        className={props.className}
-        isAdmin={props.isAdmin}
-      />
-
-      {isExpanded && (
-        <div className={[classes.container, classes.expandedDetails].join(" ")}>
-          {props.vacancyDetails.map((a, i) => (
-            <AssignmentGroupDetail
-              dayPortion={a.dayPortion}
-              startTimeLocal={a.startTimeLocal ?? ""}
-              endTimeLocal={a.endTimeLocal ?? ""}
-              locationName={a.location?.name ?? ""}
-              shadeRow={i % 2 != 0}
-              key={i}
-              onCancel={() =>
-                onCancel!(
-                  Number(a.assignment?.id) ?? "",
-                  a.assignment?.rowVersion ?? "",
-                  [a.id ?? ""]
-                )
-              }
-              isAdmin={props.isAdmin}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  if (onCancel) {
+    return (
+      <div
+        className={classes.container}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <AssignmentRowUI
+          confirmationNumber={confirmationNumber}
+          {...times}
+          startTime={vacancyDetails[0].startTimeLocal!}
+          employeeName={employeeName}
+          startDate={startDate}
+          endDate={endDate}
+          locationName={locationNameText || ""}
+          organizationName={orgNameText}
+          positionName={positionName}
+          dayPortion={totalDayPortion}
+          onCancel={() =>
+            onCancel(
+              Number(vacancyDetails[0].assignment?.id) ?? "",
+              vacancyDetails[0].assignment?.rowVersion ?? ""
+            )
+          }
+          className={props.className}
+          isAdmin={props.isAdmin}
+        />
+        {isExpanded && (
+          <div
+            className={[classes.container, classes.expandedDetails].join(" ")}
+          >
+            {props.vacancyDetails.map((a, i) => (
+              <AssignmentGroupDetail
+                dayPortion={a.dayPortion}
+                startTimeLocal={a.startTimeLocal ?? ""}
+                endTimeLocal={a.endTimeLocal ?? ""}
+                locationName={a.location?.name ?? ""}
+                shadeRow={i % 2 != 0}
+                key={i}
+                onCancel={() =>
+                  onCancel(
+                    Number(a.assignment?.id) ?? "",
+                    a.assignment?.rowVersion ?? "",
+                    [a.id ?? ""]
+                  )
+                }
+                isAdmin={props.isAdmin}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  } else {
+    return (
+      <div
+        className={classes.container}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <AssignmentRowUI
+          confirmationNumber={confirmationNumber}
+          {...times}
+          startTime={vacancyDetails[0].startTimeLocal!}
+          employeeName={employeeName}
+          startDate={startDate}
+          endDate={endDate}
+          locationName={locationNameText || ""}
+          organizationName={orgNameText}
+          positionName={positionName}
+          dayPortion={totalDayPortion}
+          className={props.className}
+          isAdmin={props.isAdmin}
+        />
+        {isExpanded && (
+          <div
+            className={[classes.container, classes.expandedDetails].join(" ")}
+          >
+            {props.vacancyDetails.map((a, i) => (
+              <AssignmentGroupDetail
+                dayPortion={a.dayPortion}
+                startTimeLocal={a.startTimeLocal ?? ""}
+                endTimeLocal={a.endTimeLocal ?? ""}
+                locationName={a.location?.name ?? ""}
+                shadeRow={i % 2 != 0}
+                key={i}
+                isAdmin={props.isAdmin}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 };
 
 const useStyles = makeStyles(theme => ({
