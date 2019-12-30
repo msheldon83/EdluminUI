@@ -1,0 +1,15 @@
+mutation UpdateReplacementEndorsement(
+  $replacementEndorsement: EndorsementUpdateInput!
+) {
+  orgRef_Endorsement {
+    update(endorsement: $replacementEndorsement) {
+      id
+      name
+      rowVersion
+      description
+      externalId
+      expired
+      expires
+    }
+  }
+}

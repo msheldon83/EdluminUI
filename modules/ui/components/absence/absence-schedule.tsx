@@ -35,7 +35,8 @@ type Props = {
 export const AbsenceSchedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const userIsAdmin = useIsAdmin();
+  const tempUserIsAdmin = useIsAdmin();
+  const userIsAdmin = tempUserIsAdmin === null ? undefined : tempUserIsAdmin;
 
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
     fetchPolicy: "cache-first",
@@ -123,6 +124,8 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                     selectedDate={selectedScheduleDates[0].date}
                     cancelAbsence={props.cancelAbsence}
                     handleAfterCancel={handleAfterCancel}
+                    orgId={props.orgId}
+                    isAdmin={userIsAdmin}
                   />
                 )}
               </Section>
@@ -169,6 +172,8 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                   getAbsenceSchedule.state === "LOADING" ||
                   getAbsenceSchedule.state === "UPDATING"
                 }
+                orgId={props.orgId}
+                isAdmin={userIsAdmin}
               />
             </Grid>
           )}
