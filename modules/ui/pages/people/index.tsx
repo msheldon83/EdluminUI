@@ -363,7 +363,13 @@ export const PeoplePage: React.FC<Props> = props => {
       field: "email",
       sorting: false,
       render: o => (
-        <Link href={`mailto:${o.email}`} color="secondary">
+        <Link
+          href={`mailto:${o.email}`}
+          onClick={(e: React.MouseEvent<HTMLElement>) => {
+            e.stopPropagation();
+          }}
+          color="secondary"
+        >
           <MailIcon />
         </Link>
       ),
