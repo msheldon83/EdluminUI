@@ -5,7 +5,6 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Redirect, useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { RoleTabs } from "./components/role-tabs";

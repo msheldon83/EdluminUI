@@ -1,0 +1,15 @@
+mutation CreateWorkDayScheduleVariantType(
+  $workDayScheduleVariantType: WorkDayScheduleVariantTypeCreateInput!
+) {
+  orgRef_WorkDayScheduleVariantType {
+    create(workDayScheduleVariantType: $workDayScheduleVariantType) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      isStandard
+      expired
+    }
+  }
+}
