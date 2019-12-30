@@ -11,6 +11,21 @@ import { SubstitutePools } from "../components/substitute/substitute-pools";
 import { SubPositionsAttributes } from "../components/substitute/sub-positions-attributes";
 import { OrganizationList } from "../components/substitute/org-list";
 import { Information } from "../components/information";
+import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
+
+import { SubstituteAssignmentsListView } from "ui/components/substitutes/substitute-assignments-list";
+import { useCurrentSchoolYear } from "reference-data/current-school-year";
+import { useMemo } from "react";
+import { SectionHeader } from "ui/components/section-header";
+import { Section } from "ui/components/section";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router";
+import { useIsAdmin } from "reference-data/is-admin";
+import {
+  SubstituteAssignmentScheduleListViewRoute,
+  PersonViewRoute,
+} from "ui/routes/people";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
   editing: string | null;
@@ -21,7 +36,11 @@ type Props = {
 
 export const SubstituteTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
-
+  const { t } = useTranslation();
+  const history = useHistory();
+  let userIsAdmin = useIsAdmin();
+  userIsAdmin = userIsAdmin === null ? false : userIsAdmin;
+  const params = useRouteParams(PersonViewRoute);
   const [updateSubstitute] = useMutationBundle(UpdateSubstitute, {
     onError: error => {
       ShowErrors(error, openSnackbar);
@@ -31,6 +50,17 @@ export const SubstituteTab: React.FC<Props> = props => {
   const getSubstitute = useQueryBundle(GetSubstituteById, {
     variables: { id: props.orgUserId },
   });
+
+  /*added for upcoming assignments*/
+
+  const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
+  const startDate = useMemo(() => new Date(), []);
+  const endDate = useMemo(
+    () => new Date(currentSchoolYear?.endDate.toString()),
+    [currentSchoolYear]
+  );
+
+  /* **************** */
 
   const orgUser =
     getSubstitute.state === "LOADING"
@@ -77,6 +107,31 @@ export const SubstituteTab: React.FC<Props> = props => {
         editing={props.editing}
         orgs={orgUser.relatedOrganizations}
       />
+      {endDate && (
+        <Section>
+          <SectionHeader
+            title={t("Upcoming Assignments")}
+            action={{
+              text: t("View All"),
+              visible: true,
+              execute: () => {
+                const viewAllAssignmentsScheduleUrl = SubstituteAssignmentScheduleListViewRoute.generate(
+                  params
+                );
+                history.push(viewAllAssignmentsScheduleUrl);
+              },
+            }}
+          />
+          <SubstituteAssignmentsListView
+            userId={orgUser?.userId?.toString()}
+            orgId={substitute.orgId.toString()}
+            startDate={startDate}
+            endDate={endDate}
+            limit={5}
+            isAdmin={userIsAdmin}
+          />
+        </Section>
+      )}
     </>
   );
 };
