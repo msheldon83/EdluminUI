@@ -62,7 +62,7 @@ export type PaginationSettings = {
   page: number;
   limit: number;
 };
-const PaginationParams: Isomorphism<
+export const PaginationParams: Isomorphism<
   typeof PaginationQueryParamDefaults,
   PaginationSettings
 > = {
@@ -76,7 +76,7 @@ const PaginationParams: Isomorphism<
   }),
 };
 
-const makeQueryIso = <K extends string, T>(v: QueryIso<K, T>) => v;
+export const makeQueryIso = <K extends string, T>(v: QueryIso<K, T>) => v;
 
 export const PaginationQueryParams = makeQueryIso({
   defaults: PaginationQueryParamDefaults,
