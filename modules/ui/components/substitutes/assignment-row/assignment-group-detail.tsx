@@ -11,8 +11,9 @@ type Props = {
   endTimeLocal: string;
   dayPortion: number;
   shadeRow: boolean;
-  onCancel: () => void;
+  onCancel?: () => void;
   className?: string;
+  isAdmin: boolean;
 };
 
 export const AssignmentGroupDetail: React.FC<Props> = props => {
@@ -56,9 +57,11 @@ export const AssignmentGroupDetail: React.FC<Props> = props => {
         </Typography>
       </div>
 
-      <Button className={classes.cancel} onClick={props.onCancel}>
-        {t("Cancel")}
-      </Button>
+      {!props.isAdmin && (
+        <Button className={classes.cancel} onClick={props.onCancel}>
+          {t("Cancel")}
+        </Button>
+      )}
     </div>
   );
 };

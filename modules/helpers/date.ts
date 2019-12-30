@@ -220,3 +220,13 @@ export const getContiguousDateIntervals = (
 
   return intervals;
 };
+
+export const sortDates = (date1: Date, date2: Date) => {
+  const _date1 = date1.getTime();
+  const _date2 = date2.getTime();
+
+  return {
+    earlier: new Date(Math.min(_date1, _date2)),
+    later: new Date(Math.max(_date1, _date2)),
+  };
+};

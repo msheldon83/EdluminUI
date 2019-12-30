@@ -2,6 +2,7 @@ query GetOrgUserById($id: ID!) {
   orgUser {
     byId(id: $id) {
       id
+      userId
       orgId
       rowVersion
       externalId
@@ -12,6 +13,8 @@ query GetOrgUserById($id: ID!) {
       isReplacementEmployee
       isEmployee
       isAdmin
+      inviteSent
+      isAccountSetup
     }
   }
 }

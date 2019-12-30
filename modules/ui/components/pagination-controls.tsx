@@ -15,6 +15,7 @@ import NavigateBeforeIcon from "@material-ui/icons/NavigateBefore";
 
 type Props = {
   pagination: PaginationInfo;
+  pageSizeOptions?: number[];
 };
 
 export const PaginationControls: React.FC<Props> = props => {
@@ -29,7 +30,8 @@ export const PaginationControls: React.FC<Props> = props => {
   } = props.pagination;
   const classes = useStyles();
   const { t } = useTranslation();
-  const options = sortBy(uniq([10, 25, 50, 100, resultsPerPage]));
+  const pageSizeOptions = props.pageSizeOptions || [10, 25, 50, 100];
+  const options = sortBy(uniq([...pageSizeOptions, resultsPerPage]));
 
   const startIndex = Math.min(
     totalCount,

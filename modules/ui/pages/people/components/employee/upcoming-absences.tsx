@@ -14,7 +14,6 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useRouteParams } from "ui/routes/definition";
 import {
-  PeopleRoute,
   PersonViewRoute,
   EmployeeAbsScheduleListViewRoute,
 } from "ui/routes/people";
@@ -65,7 +64,6 @@ export const UpcomingAbsences: React.FC<Props> = props => {
               const viewAllAbsencesScheduleUrl = EmployeeAbsScheduleListViewRoute.generate(
                 params
               );
-              //params.orgUserId + "/schedule/list-view"; //TODO figure out the URL for editing
               history.push(viewAllAbsencesScheduleUrl);
             },
           }}

@@ -11,9 +11,12 @@ import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { OrgUserRole } from "graphql/server-types.gen";
-import Maybe from "graphql/tsutils/Maybe";
 import { useIsMobile, usePrevious } from "hooks";
-import { useQueryParamIso } from "hooks/query-params";
+import {
+  useQueryParamIso,
+  makeQueryIso,
+  PaginationParams,
+} from "hooks/query-params";
 import { compact, isEqual, flatMap } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
@@ -42,6 +45,14 @@ export const PeoplePage: React.FC<Props> = props => {
   const [filters] = useQueryParamIso(FilterQueryParams);
   const role: OrgUserRole[] = compact([filters.roleFilter]);
 
+  // Default People list to 100 rows per page
+  const peoplePaginationDefaults = makeQueryIso({
+    defaults: {
+      page: "1",
+      limit: "100",
+    },
+    iso: PaginationParams,
+  });
   const [allPeopleQuery, pagination] = usePagedQueryBundle(
     GetAllPeopleForOrg,
     r => r.orgUser?.paged?.totalCount,
@@ -51,8 +62,10 @@ export const PeoplePage: React.FC<Props> = props => {
         orgId: params.organizationId,
         role,
       },
-    }
+    },
+    peoplePaginationDefaults
   );
+
   const oldFilters = usePrevious(filters);
   useEffect(
     () => {
@@ -378,7 +391,10 @@ export const PeoplePage: React.FC<Props> = props => {
             history.push(PersonViewRoute.generate(newParams));
           }}
         />
-        <PaginationControls pagination={pagination} />
+        <PaginationControls
+          pagination={pagination}
+          pageSizeOptions={[25, 50, 100, 250, 500]}
+        />
       </div>
     </>
   );
