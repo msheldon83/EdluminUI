@@ -34,6 +34,7 @@ import { FilterQueryParams } from "./people-filters/filter-params";
 import { InviteUsers } from "./graphql/invite-users.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import { AccessIcon } from "./components/access-icon";
 
 type Props = {};
 
@@ -208,6 +209,8 @@ export const PeoplePage: React.FC<Props> = props => {
         person.administrator?.accessControl?.derivedAdminPositionTypes ?? [],
       allPositionTypeIdsInScope:
         person.administrator?.accessControl?.allPositionTypeIdsInScope ?? false,
+      inviteSent: person.inviteSent ?? false,
+      accountSetup: person.isAccountSetup,
     }));
   }, [people, listRoles]);
 
@@ -228,7 +231,12 @@ export const PeoplePage: React.FC<Props> = props => {
           ? theme.typography.pxToRem(40)
           : theme.typography.pxToRem(70),
       },
-      render: () => <AccountCircleOutlined />, // eslint-disable-line
+      render: o => (
+        <div className={classes.accountCell}>
+          <AccountCircleOutlined />
+          <AccessIcon inviteSent={o.inviteSent} accountSetup={o.accountSetup} />
+        </div>
+      ),
     },
     {
       title: t("First Name"),
@@ -467,5 +475,9 @@ const useStyles = makeStyles(theme => ({
     border: "1px solid",
     padding: theme.spacing(1),
     backgroundColor: theme.palette.background.paper,
+  },
+  accountCell: {
+    display: "flex",
+    alignItems: "center",
   },
 }));
