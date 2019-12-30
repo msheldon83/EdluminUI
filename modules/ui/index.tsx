@@ -136,6 +136,10 @@ import {
   SubSpecificOpportunityRoute,
 } from "./routes/sub-specific-opportunity";
 import {
+  SubSpecificAssignmentLoader,
+  SubSpecificAssignmentRoute,
+} from "./routes/sub-specific-assignment";
+import {
   SubScheduleCalendarViewRoute,
   SubScheduleListViewRoute,
   SubScheduleLoader,
@@ -213,6 +217,10 @@ export function App() {
                     <Route
                       component={SubSpecificOpportunityLoader}
                       path={SubSpecificOpportunityRoute.path}
+                    />
+                    <Route
+                      component={SubSpecificAssignmentLoader}
+                      path={SubSpecificAssignmentRoute.path}
                     />
                     <Route component={SubHomeLoader} path={SubHomeRoute.path} />
 
