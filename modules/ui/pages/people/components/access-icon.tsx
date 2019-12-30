@@ -1,10 +1,12 @@
 import * as React from "react";
 import { makeStyles, Tooltip } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
+import { format, toDate } from "date-fns";
 
 type Props = {
-  inviteSent: boolean;
   accountSetup: boolean;
+  inviteSent: boolean;
+  inviteSentAtUtc?: Date;
 };
 
 export const AccessIcon: React.FC<Props> = props => {
@@ -16,8 +18,14 @@ export const AccessIcon: React.FC<Props> = props => {
     return null;
   } else if (props.inviteSent) {
     // Invite has been sent, but user hasn't finished setting up their account yet
+    let tooltip = t("Invitation pending");
+    if (props.inviteSentAtUtc) {
+      tooltip = t("Invitation from {{date}} pending", {
+        date: format(new Date(props.inviteSentAtUtc), "MMM d h:mm aaaa"),
+      });
+    }
     return (
-      <Tooltip title={t("Invite pending acceptance")}>
+      <Tooltip title={tooltip}>
         <div className={[classes.circle, classes.invitePending].join(" ")} />
       </Tooltip>
     );

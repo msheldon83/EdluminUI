@@ -209,7 +209,8 @@ export const PeoplePage: React.FC<Props> = props => {
         person.administrator?.accessControl?.derivedAdminPositionTypes ?? [],
       allPositionTypeIdsInScope:
         person.administrator?.accessControl?.allPositionTypeIdsInScope ?? false,
-      inviteSent: person.inviteSent ?? false,
+      inviteSent: person.inviteSent,
+      inviteSentAtUtc: person.inviteSentAtUtc,
       accountSetup: person.isAccountSetup,
     }));
   }, [people, listRoles]);
@@ -234,7 +235,11 @@ export const PeoplePage: React.FC<Props> = props => {
       render: o => (
         <div className={classes.accountCell}>
           <AccountCircleOutlined />
-          <AccessIcon inviteSent={o.inviteSent} accountSetup={o.accountSetup} />
+          <AccessIcon
+            inviteSent={o.inviteSent}
+            accountSetup={o.accountSetup}
+            inviteSentAtUtc={o.inviteSentAtUtc}
+          />
         </div>
       ),
     },

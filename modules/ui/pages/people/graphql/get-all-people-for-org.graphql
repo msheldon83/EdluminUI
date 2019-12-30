@@ -41,6 +41,7 @@ query GetAllPeopleForOrg(
         email
         phoneNumber
         inviteSent
+        inviteSentAtUtc
         isAccountSetup
         employee {
           id
