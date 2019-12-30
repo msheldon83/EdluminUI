@@ -9,6 +9,7 @@ import { DatePicker, DEFAULT_DATE_FORMAT } from "./date-picker";
 import { Calendar } from "./calendar";
 import { FiveWeekCalendar } from "./five-week-calendar";
 import { SingleMonthCalendar } from "./single-month-calendar";
+import { CustomCalendar, useToggleDatesList } from "./custom-calendar";
 
 export default {
   title: "Forms/Date Picker",
@@ -190,6 +191,44 @@ export const FiveWeekCalendarStory = () => {
 
 FiveWeekCalendarStory.story = {
   name: "Five Week Calendar",
+};
+
+export const CustomCalendarStory = () => {
+  const classes = useStyles();
+  const {
+    selectedDates,
+    toggleSelectedDates,
+    setSelectedDates,
+  } = useToggleDatesList([]);
+
+  const customDates = [...selectedDates].map((date: number) => ({
+    date: new Date(date),
+    buttonProps: { className: classes.activeDay },
+  }));
+
+  return (
+    <div className={classes.container}>
+      <CustomCalendar
+        onSelectDates={(dates: Array<Date>) => {
+          if (dates.length > 1) {
+            // Selecting a date range
+            setSelectedDates(dates);
+          } else {
+            // Selecting a single date
+            toggleSelectedDates(dates);
+          }
+
+          action("onSelectDates")({ dates });
+        }}
+        month={customDate("month", new Date())}
+        customDates={customDates}
+      />
+    </div>
+  );
+};
+
+CustomCalendarStory.story = {
+  name: "Custom Calendar",
 };
 
 export const SingleMonthCalendarStory = () => {
