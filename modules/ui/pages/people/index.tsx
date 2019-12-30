@@ -6,10 +6,10 @@ import {
   List,
   ListItemText,
 } from "@material-ui/core";
-import { AccountCircleOutlined } from "@material-ui/icons";
+import { AccountCircleOutlined, DeleteOutline } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
-import { usePagedQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { useIsMobile, usePrevious } from "hooks";
 import {
@@ -31,6 +31,9 @@ import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";
+import { InviteUsers } from "./graphql/invite-users.gen";
+import { ShowErrors } from "ui/components/error-helpers";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {};
 
@@ -41,6 +44,7 @@ export const PeoplePage: React.FC<Props> = props => {
   const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
+  const { openSnackbar } = useSnackbar();
 
   const [filters] = useQueryParamIso(FilterQueryParams);
   const role: OrgUserRole[] = compact([filters.roleFilter]);
@@ -92,6 +96,32 @@ export const PeoplePage: React.FC<Props> = props => {
       return roles.join(",");
     },
     []
+  );
+
+  const [inviteUsers] = useMutationBundle(InviteUsers, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const invite = React.useCallback(
+    async (userIds: number[], orgId: number) => {
+      const response = await inviteUsers({
+        variables: {
+          userIds: userIds,
+          orgId: orgId,
+        },
+      });
+      const result = response?.data?.user?.invite;
+      if (result) {
+        openSnackbar({
+          message: t("The invites are being processed"),
+          dismissable: true,
+          status: "success",
+          autoHideDuration: 5000,
+        });
+      }
+    },
+    [inviteUsers, openSnackbar, t]
   );
 
   const [
@@ -150,6 +180,7 @@ export const PeoplePage: React.FC<Props> = props => {
   const tableData = useMemo(() => {
     return people.map(person => ({
       id: person.id,
+      userId: person.userId,
       firstName: person.firstName,
       lastName: person.lastName,
       email: person.email,
@@ -396,6 +427,22 @@ export const PeoplePage: React.FC<Props> = props => {
             };
             history.push(PersonViewRoute.generate(newParams));
           }}
+          actions={[
+            {
+              tooltip: t("Invite selected people"),
+              icon: () => <MailIcon />,
+              onClick: async (evt, data) => {
+                const userIds = [];
+                if (Array.isArray(data)) {
+                  userIds.push(...data.map(d => d.userId));
+                } else {
+                  userIds.push(data.userId);
+                }
+
+                await invite(compact(userIds), Number(params.organizationId));
+              },
+            },
+          ]}
         />
         <PaginationControls
           pagination={pagination}
