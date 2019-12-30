@@ -1,0 +1,16 @@
+query GetAllReplacementEndorsementsWithinOrg(
+  $orgId: ID
+  $includeExpired: Boolean
+) {
+  orgRef_Endorsement {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
+      id
+      name
+      rowVersion
+      description
+      externalId
+      expired
+      expires
+    }
+  }
+}

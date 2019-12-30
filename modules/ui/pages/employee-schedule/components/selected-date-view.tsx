@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, composeInitialProps } from "react-i18next";
 import { Grid, makeStyles, Typography, Chip } from "@material-ui/core";
 import {
   ScheduleDate,
@@ -17,6 +17,8 @@ type Props = {
   scheduleDates: ScheduleDate[];
   cancelAbsence?: (absenceId: string) => Promise<void>;
   handleAfterCancel?: Function;
+  isAdmin?: boolean;
+  orgId?: string;
 };
 
 export const SelectedDateView: React.FC<Props> = props => {
@@ -52,7 +54,9 @@ export const SelectedDateView: React.FC<Props> = props => {
       {displayAbsenceDayInformation(
         absenceDays,
         props.cancelAbsence,
-        props.handleAfterCancel
+        props.handleAfterCancel,
+        props.isAdmin,
+        props.orgId
       )}
       {displayInstructionalDayInformation(allInstructionalDays, classes)}
       {displayNonInstructionalDayInformation(nonInstructionalDays, classes, t)}
@@ -104,7 +108,9 @@ const displayInstructionalDayInformation = (
 const displayAbsenceDayInformation = (
   absenceDays: ScheduleDate[],
   cancelAbsence?: (absenceId: string) => Promise<void>,
-  handleAfterCancel?: Function
+  handleAfterCancel?: Function,
+  isAdmin?: boolean,
+  orgId?: string
 ) => {
   return absenceDays.map((a, i) => {
     const day = a.rawData as EmployeeAbsenceDetail;
@@ -115,6 +121,8 @@ const displayAbsenceDayInformation = (
           cancelAbsence={cancelAbsence}
           handleAfterCancel={handleAfterCancel}
           showAbsenceChip={true}
+          isAdmin={isAdmin}
+          orgId={orgId}
         />
       </Grid>
     );

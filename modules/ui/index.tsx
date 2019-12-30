@@ -23,7 +23,7 @@ import {
   AbsenceReasonAddLoader,
   AbsenceReasonViewEditRoute,
   AbsenceReasonViewEditLoader,
-} from "./routes/absence/reason";
+} from "./routes/absence-reason";
 import {
   AccountingCodeLoader,
   AccountingCodeRoute,

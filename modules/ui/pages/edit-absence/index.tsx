@@ -1,7 +1,9 @@
+import { parseISO } from "date-fns";
+import { isValid, startOfDay } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { NeedsReplacement } from "graphql/server-types.gen";
 import { AbsenceReasonUsageData } from "helpers/absence/computeAbsenceUsageText";
-import { compact, flatMap, isNil, uniqBy } from "lodash-es";
+import { compact, flatMap, isNil, sortBy, uniqBy } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import { useIsAdmin } from "reference-data/is-admin";
@@ -140,6 +142,12 @@ export const EditAbsence: React.FC<Props> = props => {
     {}
   );
 
+  const absenceDates: Date[] = sortBy(
+    compact(details.map(detail => detail?.startDate))
+      .map(dateStr => startOfDay(parseISO(dateStr)))
+      .filter(isValid)
+  );
+
   if (!data || !employee || !detail || !reasonUsage) {
     return <></>;
   }
@@ -159,8 +167,7 @@ export const EditAbsence: React.FC<Props> = props => {
       organizationId={data.organization.id}
       absenceReasonId={reasonUsage?.absenceReasonId}
       absenceId={data.id}
-      startDate={data.startDate}
-      endDate={data.endDate}
+      absenceDates={absenceDates}
       dayPart={dayPart}
       initialVacancyDetails={initialVacancyDetails}
       /* cf 2019-12-06 -

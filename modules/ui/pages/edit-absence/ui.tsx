@@ -1,14 +1,5 @@
 import { makeStyles, Typography } from "@material-ui/core";
-import {
-  eachDayOfInterval,
-  format,
-  formatISO,
-  isDate,
-  isEqual,
-  isSameDay,
-  isValid,
-  parseISO,
-} from "date-fns";
+import { format, formatISO, isSameDay, parseISO } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
@@ -26,14 +17,14 @@ import {
 } from "helpers/absence/computeAbsenceUsageText";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { convertStringToDate, isAfterDate } from "helpers/date";
+import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
 import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
-import { compact, differenceWith, flatMap } from "lodash-es";
+import { compact, differenceWith, flatMap, isEqual, some } from "lodash-es";
 import * as React from "react";
-import { useCallback, useMemo, useReducer, useState } from "react";
+import { useCallback, useMemo, useReducer } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
@@ -65,8 +56,6 @@ type Props = {
   positionName?: string;
   absenceReasonId: number;
   absenceId: string;
-  startDate: string;
-  endDate: string;
   dayPart?: DayPart;
   initialVacancyDetails: VacancyDetail[];
   initialVacancies: Vacancy[];
@@ -78,14 +67,12 @@ type Props = {
 
   startTimeLocal: string;
   endTimeLocal: string;
-
+  absenceDates: Date[];
   cancelAssignments: () => void;
   refetchAbsence: () => Promise<unknown>;
 };
 
 type EditAbsenceFormData = {
-  startDate: Date;
-  endDate: Date;
   absenceReason: string;
   dayPart?: DayPart;
   hourlyStartTime?: Date;
@@ -113,17 +100,19 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
 
-  const [customizedVacancyDetails, setVacanciesInput] = useState<
-    VacancyDetail[]
-  >();
+  const customizedVacancyDetails = state.customizedVacanciesInput;
+  const setVacanciesInput = useCallback(
+    (input: VacancyDetail[] | undefined) => {
+      dispatch({ action: "setVacanciesInput", input });
+    },
+    [dispatch]
+  );
 
   const [assignVacancy] = useMutationBundle(AssignVacancy, {});
 
   const name = `${props.firstName} ${props.lastName}`;
 
   const initialFormData: EditAbsenceFormData = {
-    startDate: parseISO(props.startDate),
-    endDate: parseISO(props.endDate),
     absenceReason: props.absenceReasonId.toString(),
     dayPart: props.dayPart,
     payCode:
@@ -158,8 +147,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const required = t("Required");
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
-  register({ name: "startDate", type: "custom" }, { required });
-  register({ name: "endDate", type: "custom" });
   register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
@@ -199,8 +186,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const useProjectedInformation =
     customizedVacancyDetails !== undefined ||
-    !isSameDay(parseISO(props.startDate), formValues.startDate) ||
-    !isSameDay(parseISO(props.endDate), formValues.endDate) ||
+    !isEqual(state.absenceDates, props.absenceDates) ||
     formValues.dayPart !== props.dayPart ||
     state.needsReplacement !== props.initialVacancies.length > 0;
 
@@ -225,9 +211,19 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     return disabledDatesQuery.filter(d => remaining.find(r => r === d.date));
   }, [disabledDatesQuery, props.absenceDetailsIdsByDate]);
 
+  React.useEffect(() => {
+    const conflictingDates = disabledDates
+      .map(dis => dis.date)
+      .filter(dis => some(state.absenceDates, ad => isSameDay(ad, dis)));
+    if (conflictingDates.length > 0) {
+      dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
+    }
+  }, [disabledDates]);
+
   const projectedVacanciesInput = useMemo(
     () =>
       buildAbsenceCreateInput(
+        state.absenceDates,
         formValues,
         Number(props.organizationId),
         Number(state.employeeId),
@@ -238,8 +234,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       ),
     [
       props.organizationId,
-      formValues.startDate,
-      formValues.endDate,
+      state.absenceDates,
       formValues.absenceReason,
       formValues.dayPart,
       formValues.hourlyStartTime,
@@ -332,6 +327,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       props.absenceId,
       Number(props.positionId),
       props.rowVersion,
+      state.absenceDates,
       props.absenceDetailsIdsByDate,
       data,
       disabledDates,
@@ -407,6 +403,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
           <Section className={classes.absenceDetails}>
             <AbsenceDetails
+              absenceDates={state.absenceDates}
+              onToggleAbsenceDate={d =>
+                dispatch({ action: "toggleDate", date: d })
+              }
               saveLabel={t("Save")}
               setStep={setStep}
               disabledDates={disabledDates}
@@ -415,6 +415,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               wantsReplacement={state.needsReplacement}
               organizationId={props.organizationId}
               employeeId={props.employeeId}
+              currentMonth={state.viewingCalendarMonth}
               onSwitchMonth={d => dispatch({ action: "switchMonth", month: d })}
               onSubstituteWantedChange={subWanted =>
                 dispatch({ action: "setNeedsReplacement", to: subWanted })
@@ -472,53 +473,29 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 const initialState = (props: Props): EditAbsenceState => ({
   employeeId: props.employeeId,
   absenceId: props.absenceId,
-  viewingCalendarMonth: startOfMonth(parseISO(props.startDate)),
+  viewingCalendarMonth: startOfMonth(props.absenceDates[0]),
   needsReplacement: props.needsReplacement !== NeedsReplacement.No,
+  absenceDates: props.absenceDates,
+  customizedVacanciesInput: undefined,
 });
 
 const buildAbsenceUpdateInput = (
   absenceId: string,
   positionId: number,
   rowVersion: string,
+  absenceDates: Date[],
   absenceDetailsIdsByDate: Record<string, string>,
   formValues: EditAbsenceFormData,
   disabledDates: DisabledDate[],
   state: EditAbsenceState,
   vacancyDetails: VacancyDetail[]
 ): AbsenceUpdateInput => {
-  const startDate =
-    typeof formValues.startDate === "string"
-      ? new Date(formValues.startDate)
-      : formValues.startDate;
-  let endDate =
-    typeof formValues.endDate === "string"
-      ? new Date(formValues.endDate)
-      : formValues.endDate;
-
-  // If we don't have an end date, set it to the start date
-  // Assuming a single day absence as of this point
-  if (!endDate) {
-    endDate = startDate;
+  if (absenceDates.length < 1) {
+    throw Error("no dates selected");
   }
 
-  if (
-    !isDate(startDate) ||
-    !isValid(startDate) ||
-    !isDate(endDate) ||
-    !isValid(endDate)
-  ) {
-    throw Error("invalid start/end date");
-  }
-
-  // Ensure the end date is after the start date or they are equal
-  if (!isEqual(startDate, endDate) && !isAfterDate(endDate, startDate)) {
-    throw Error("invalid start/end date");
-  }
-
-  const dates = differenceWith(
-    eachDayOfInterval({ start: startDate, end: endDate }),
-    disabledDates,
-    (a, b) => isEqual(a, b.date)
+  const dates = differenceWith(absenceDates, disabledDates, (a, b) =>
+    isSameDay(a, b.date)
   );
 
   const vDetails =
