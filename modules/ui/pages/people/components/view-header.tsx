@@ -52,16 +52,25 @@ export const PersonViewHeader: React.FC<Props> = props => {
     },
   });
   const invite = React.useCallback(async () => {
-    const result = await inviteUser({
+    const response = await inviteUser({
       variables: {
         userId: orgUser.userId!,
         orgId: orgUser.orgId,
       },
     });
-    if (result && !inviteSent) {
-      setInviteSent(true);
+    const result = response?.data?.user?.invite;
+    if (result) {
+      openSnackbar({
+        message: t("The invite has been sent"),
+        dismissable: true,
+        status: "success",
+        autoHideDuration: 5000,
+      });
+      if (!inviteSent) {
+        setInviteSent(true);
+      }
     }
-  }, [inviteUser, orgUser, setInviteSent, inviteSent]);
+  }, [inviteUser, orgUser, setInviteSent, inviteSent, openSnackbar, t]);
 
   return (
     <>
