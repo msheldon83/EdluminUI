@@ -1,0 +1,8 @@
+query GetAllContracts($orgId: ID!) {
+  contract {
+    all(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}
