@@ -46,14 +46,7 @@ import {
   CalendarChangeReasonLoader,
   CalendarChangeReasonRoute,
 } from "./routes/calendar/event-reasons";
-import {
-  CalendarPastYearsLoader,
-  CalendarPastYearsRoute,
-} from "./routes/calendar/past-years";
-import {
-  CalendarThisYearLoader,
-  CalendarThisYearRoute,
-} from "./routes/calendar/this-year";
+import { CalendarRoute, CalendarsLoader } from "./routes/calendar/calendar";
 import { ContractsLoader, ContractsRoute } from "./routes/contracts";
 import {
   AdminCreateAbsenceRoute,
@@ -394,12 +387,8 @@ export function App() {
                           path={SchoolGroupsRoute.path}
                         />
                         <Route
-                          component={CalendarThisYearLoader}
-                          path={CalendarThisYearRoute.path}
-                        />
-                        <Route
-                          component={CalendarPastYearsLoader}
-                          path={CalendarPastYearsRoute.path}
+                          component={CalendarsLoader}
+                          path={CalendarRoute.path}
                         />
                         <Route
                           component={SecurityUsersLoader}
