@@ -22,7 +22,7 @@ import { CheckCircle, Close } from "@material-ui/icons";
 
 type Props = {
   open: boolean;
-  onClose: () => void;
+  onClose: (assignmentId?: string | null) => void;
   employeeId: string | null;
   vacancyId: string | null;
 };
@@ -84,7 +84,10 @@ export const RequestAbsenceDialog: React.FC<Props> = props => {
   >;
 
   return (
-    <Dialog open={props.open} onClose={props.onClose}>
+    <Dialog
+      open={props.open}
+      onClose={() => props.onClose(wasEmployeeAssigned.assignmentId)}
+    >
       <Box height={300} width={510}>
         <div style={{ padding: 20 }}>
           <Grid
@@ -95,7 +98,9 @@ export const RequestAbsenceDialog: React.FC<Props> = props => {
             spacing={2}
           >
             <Grid container item justify="flex-end">
-              <IconButton onClick={props.onClose}>
+              <IconButton
+                onClick={() => props.onClose(wasEmployeeAssigned.assignmentId)}
+              >
                 <Close />
               </IconButton>
             </Grid>
@@ -128,7 +133,12 @@ export const RequestAbsenceDialog: React.FC<Props> = props => {
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <Button variant="contained" onClick={props.onClose}>
+                  <Button
+                    variant="contained"
+                    onClick={() =>
+                      props.onClose(wasEmployeeAssigned.assignmentId)
+                    }
+                  >
                     {t("Return to search")}
                   </Button>
                 </Grid>
@@ -143,7 +153,12 @@ export const RequestAbsenceDialog: React.FC<Props> = props => {
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <Button variant="contained" onClick={props.onClose}>
+                  <Button
+                    variant="contained"
+                    onClick={() =>
+                      props.onClose(wasEmployeeAssigned.assignmentId)
+                    }
+                  >
                     {t("Return to search")}
                   </Button>
                 </Grid>

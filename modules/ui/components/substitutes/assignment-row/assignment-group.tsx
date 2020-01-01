@@ -16,11 +16,12 @@ type Props = {
   ) => void;
   className?: string;
   isAdmin: boolean;
+  forSpecificAssignment?: boolean;
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
   const classes = useStyles();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(props.forSpecificAssignment ?? false);
 
   const vacancyDetails = props.vacancyDetails;
   const { onCancel } = props;
@@ -103,6 +104,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
           }
           className={props.className}
           isAdmin={props.isAdmin}
+          forSpecificAssignment={props.forSpecificAssignment}
         />
         {isExpanded && (
           <div
@@ -124,6 +126,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
                   )
                 }
                 isAdmin={props.isAdmin}
+                forSpecificAssignment={props.forSpecificAssignment}
               />
             ))}
           </div>
