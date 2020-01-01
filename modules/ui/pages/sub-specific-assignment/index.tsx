@@ -23,8 +23,8 @@ import { GetSpecificAssignment } from "./graphql/get-specific-assignment.gen";
 import { RequestVacancy } from "ui/pages/sub-home/graphql/request-vacancy.gen";
 import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
 
-import { AssignmentRow } from "ui/pages/sub-schedule/assignment-row";
-import { AssignmentGroup } from "ui/pages/sub-schedule/assignment-row/assignment-group";
+import { AssignmentRow } from "ui/components/substitutes/assignment-row";
+import { AssignmentGroup } from "ui/components/substitutes/assignment-row/assignment-group";
 
 type Props = {};
 
@@ -44,11 +44,14 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
     },
   });
 
-  const onCancelAssignment = async (rowVersion: string) => {
+  const onCancelAssignment = async (
+    assignmentId: string,
+    rowVersion: string
+  ) => {
     await cancelAssignment({
       variables: {
         cancelRequest: {
-          id: Number(assignmentId),
+          assignmentId,
           rowVersion,
         },
       },
@@ -121,11 +124,13 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
                       <AssignmentGroup
                         vacancyDetails={vacancyDetails}
                         onCancel={onCancelAssignment}
+                        isAdmin={false}
                       />
                     ) : (
                       <AssignmentRow
                         assignment={vacancyDetails[0]}
                         onCancel={onCancelAssignment}
+                        isAdmin={false}
                       />
                     )}
                   </Grid>
@@ -146,6 +151,7 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
                         variant="outlined"
                         onClick={() =>
                           onCancelAssignment(
+                            assignmentId,
                             vacancyDetails[0].assignment?.rowVersion ?? ""
                           )
                         }

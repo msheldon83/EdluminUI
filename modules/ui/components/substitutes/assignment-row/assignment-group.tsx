@@ -10,7 +10,7 @@ import { AssignmentRowUI } from "./assignment-row-ui";
 type Props = {
   vacancyDetails: AssignmentVacancyDetails[];
   onCancel?: (
-    assignmentId: number,
+    assignmentId: string,
     rowVersion: string,
     vacancyDetailIds?: string[]
   ) => void;
@@ -97,7 +97,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
           dayPortion={totalDayPortion}
           onCancel={() =>
             onCancel(
-              Number(vacancyDetails[0].assignment?.id) ?? "",
+              vacancyDetails[0].assignment?.id ?? "",
               vacancyDetails[0].assignment?.rowVersion ?? ""
             )
           }
@@ -118,7 +118,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
                 key={i}
                 onCancel={() =>
                   onCancel(
-                    Number(a.assignment?.id) ?? "",
+                    a.assignment?.id ?? "",
                     a.assignment?.rowVersion ?? "",
                     [a.id ?? ""]
                   )

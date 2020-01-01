@@ -58,14 +58,14 @@ export const SubstituteAssignmentsListView: React.FC<Props> = props => {
 
   const onCancel = useCallback(
     async (
-      assignmentId: number,
+      assignmentId: string,
       rowVersion: string,
       vacancyDetailIds?: string[]
     ) => {
       await cancelAssignment({
         variables: {
           cancelRequest: {
-            id: assignmentId,
+            assignmentId,
             rowVersion,
             vacancyDetailIds,
           },

@@ -27,11 +27,11 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
 
   const onCancel = useCallback(
-    async (id: number, rowVersion: string) => {
+    async (assignmentId: string, rowVersion: string) => {
       await cancelAssignment({
         variables: {
           cancelRequest: {
-            id,
+            assignmentId,
             rowVersion,
           },
         },

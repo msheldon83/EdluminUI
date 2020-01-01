@@ -60,7 +60,7 @@ export const EditAbsence: React.FC<Props> = props => {
       assignments.map(a =>
         cancelAssignment({
           variables: {
-            assignment: { id: Number(a.id), rowVersion: a.rowVersion },
+            assignment: { assignmentId: a.id, rowVersion: a.rowVersion },
           },
         })
       )
