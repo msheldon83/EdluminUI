@@ -14,6 +14,7 @@ type Props = {
   onCancel?: () => void;
   className?: string;
   isAdmin: boolean;
+  forSpecificAssignment?: boolean;
 };
 
 export const AssignmentGroupDetail: React.FC<Props> = props => {
@@ -57,11 +58,12 @@ export const AssignmentGroupDetail: React.FC<Props> = props => {
         </Typography>
       </div>
 
-      {!props.isAdmin && (
-        <Button className={classes.cancel} onClick={props.onCancel}>
-          {t("Cancel")}
-        </Button>
-      )}
+      {!props.isAdmin ||
+        (!props.forSpecificAssignment && (
+          <Button className={classes.cancel} onClick={props.onCancel}>
+            {t("Cancel")}
+          </Button>
+        ))}
     </div>
   );
 };

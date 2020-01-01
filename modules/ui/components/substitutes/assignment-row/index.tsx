@@ -12,6 +12,7 @@ type Props = {
   ) => void;
   className?: string;
   isAdmin: boolean;
+  forSpecificAssignment?: boolean;
 };
 
 /* The purpose of this component is to handle the data coming out of 
@@ -54,6 +55,7 @@ export const AssignmentRow: React.FC<Props> = props => {
           onCancel={onCancelMutation}
           className={props.className}
           isAdmin={props.isAdmin}
+          forSpecificAssignment={props.forSpecificAssignment}
         />
       )}
       {onCancel === undefined && (
@@ -71,6 +73,7 @@ export const AssignmentRow: React.FC<Props> = props => {
           dayPortion={a.dayPortion}
           className={props.className}
           isAdmin={props.isAdmin}
+          forSpecificAssignment={props.forSpecificAssignment}
         />
       )}
     </>

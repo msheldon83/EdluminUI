@@ -4715,12 +4715,12 @@ type VacancySubSearchQueryResult {
 
 type VacancyWasAssignedResult {
   _info: [ReturnMessage]
-  vacancyId: Int!
+  vacancyId: ID
   employeeId: Int!
   returnCode: Int!
   description: String!
   employeeWasAssigned: Boolean!
-  assignmentId: Int
+  assignmentId: ID
   assignment: Assignment
 }
 

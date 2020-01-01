@@ -19,6 +19,7 @@ type Props = {
   confirmationNumber: string;
   onCancel?: () => void;
   isAdmin: boolean;
+  forSpecificAssignment?: boolean;
   className?: string;
 } /* If there are various times within the vacancy, we
      do not want to give false information. However, we still need
@@ -93,25 +94,26 @@ export const AssignmentRowUI: React.FC<Props> = props => {
           </Typography>
         </div>
       </div>
-
-      <div className={classes.confNumber}>
+      {!props.forSpecificAssignment && (
+        <div className={classes.confNumber}>
         <Typography className={classes.bold}>
           #C{props.confirmationNumber}
         </Typography>
       </div>
-
-      {!props.isAdmin && (
-        <Button
-          variant="outlined"
-          className={classes.cancel}
-          onClick={e => {
-            e.stopPropagation();
-            props.onCancel!();
-          }}
-        >
-          {t("Cancel")}
-        </Button>
       )}
+      {!props.isAdmin ||
+        (!props.forSpecificAssignment && (
+          <Button
+            variant="outlined"
+            className={classes.cancel}
+            onClick={e => {
+              e.stopPropagation();
+              props.onCancel!();
+            }}
+          >
+            {t("Cancel")}
+          </Button>
+        ))}
     </div>
   );
 };

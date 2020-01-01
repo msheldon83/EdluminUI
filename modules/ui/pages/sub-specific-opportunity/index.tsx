@@ -11,6 +11,7 @@ import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { useRouteParams } from "ui/routes/definition";
 import { SubHomeRoute } from "ui/routes/sub-home";
+import { SubSpecificAssignmentRoute } from "ui/routes/sub-specific-assignment";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { AvailableJob } from "ui/pages/sub-home/components/available-job";
@@ -113,9 +114,13 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     return employeeId;
   };
 
-  const onCloseRequestAbsenceDialog = async () => {
+  const onCloseRequestAbsenceDialog = (assignmentId?: string | null) => {
     setRequestAbsenceIsOpen(false);
-    // TODO: send to specific assignment if accepted, or home page if not accepted
+    let route = SubHomeRoute.generate(params);
+    if (assignmentId) {
+      route = SubSpecificAssignmentRoute.generate({ assignmentId });
+    }
+    history.push(route);
   };
 
   const onAcceptVacancy = async (orgId: string, vacancyId: string) => {
@@ -176,8 +181,12 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
                     />
                   </Grid>
                   <Grid item xs={6}>
-                    <Typography variant="h6">{t("Notes")}</Typography>
-                    <div>{vacancy.notesToReplacement}</div>
+                    {vacancy.notesToReplacement && (
+                      <>
+                        <Typography variant="h6">{t("Notes")}</Typography>
+                        <div>{vacancy.notesToReplacement}</div>
+                      </>
+                    )}                    
                   </Grid>
                   <Grid
                     item

@@ -21,7 +21,7 @@ export const EdluminLogo: React.FC<Props> = props => {
         variant={"h5"}
         className={`${classes.productTitle} ${props.titleClassName}`}
       >
-        {t("Edlumin")}
+        {t("RedRover")}
       </Typography>
     </Grid>
   );
