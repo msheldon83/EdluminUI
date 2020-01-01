@@ -6,7 +6,7 @@ import { useCallback } from "react";
 type Props = {
   assignment: AssignmentVacancyDetails;
   onCancel?: (
-    assignmentId: number,
+    assignmentId: string,
     rowVersion: string,
     vacancyDetailIds?: string[]
   ) => void;
@@ -29,7 +29,7 @@ export const AssignmentRow: React.FC<Props> = props => {
   const onCancelMutation = useCallback(
     () =>
       onCancel!(
-        Number(a.assignment?.id) ?? "",
+        a.assignment?.id ?? "",
         a.assignment?.rowVersion ?? "",
         undefined
       ),
