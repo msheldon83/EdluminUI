@@ -32,6 +32,7 @@ type Props = {
   arrangeSubButtonTitle?: string;
   disabledDates?: DisabledDate[];
   disableReplacementInteractions?: boolean;
+  locationIds?: number[];
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -44,6 +45,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     setValue,
     vacancies,
     organizationId,
+    locationIds,
     errors,
     isAdmin,
     values,
@@ -51,7 +53,9 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   } = props;
   const hasVacancies = !!(props.vacancies && props.vacancies.length);
 
-  const accountingCodes = useAccountingCodes(organizationId);
+  //TODO: Add Location Id from Absence
+  const accountingCodes = useAccountingCodes(organizationId, locationIds);
+
   const accountingCodeOptions = useMemo(
     () => accountingCodes.map(c => ({ label: c.name, value: c.id })),
     [accountingCodes]
