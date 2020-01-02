@@ -24,6 +24,7 @@ query GetVacancyDetails(
       verifiedAtLocal
       actualDuration
       payDurationOverride
+      payTypeId
       accountingCodeAllocations {
         id
         allocation

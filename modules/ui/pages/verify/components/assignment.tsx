@@ -4,6 +4,8 @@ import { Grid, Button, Typography, makeStyles } from "@material-ui/core";
 import {
   VacancyDetail,
   VacancyDetailVerifyInput,
+  AbsenceReasonTrackingTypeId,
+  DayConversion,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
@@ -36,12 +38,17 @@ type Props = {
     | "verifiedAtLocal"
     | "payDurationOverride"
     | "actualDuration"
+    | "payTypeId"
   >;
   shadeRow: boolean;
   onVerify: (verifyInput: VacancyDetailVerifyInput) => Promise<void>;
   onSelectDetail: (vacancyDetailId: string) => void;
   selectedVacancyDetail: string | undefined;
   payCodeOptions: OptionType[];
+  vacancyDayConversions: Pick<
+    DayConversion,
+    "name" | "maxMinutes" | "dayEquivalent"
+  >[];
 };
 
 export const Assignment: React.FC<Props> = props => {
@@ -80,7 +87,7 @@ export const Assignment: React.FC<Props> = props => {
     ? vacancyDetail.id === props.selectedVacancyDetail
     : false;
 
-  const payType = vacancyDetail.vacancy!.position!.positionType!.payTypeId!;
+  const payType = vacancyDetail.payTypeId;
   const daysInfo =
     vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
       ? `${vacancyDetail.dayPortion.toFixed(1)}`
@@ -88,7 +95,7 @@ export const Assignment: React.FC<Props> = props => {
           1
         )}/${vacancyDetail.totalDayPortion.toFixed(1)}`;
   const payInfo =
-    payType === "DAILY"
+    payType === AbsenceReasonTrackingTypeId.Daily
       ? `${daysInfo} ${t("Days")}`
       : `${vacancyDetail.payDurationOverride ??
           vacancyDetail.actualDuration} ${t("Hours")}`;
@@ -134,7 +141,10 @@ export const Assignment: React.FC<Props> = props => {
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
       dayPortion,
-      payDurationOverride: payType === "HOURLY" ? payDurationOverride : null,
+      payDurationOverride:
+        payType === AbsenceReasonTrackingTypeId.Hourly
+          ? payDurationOverride
+          : null,
     });
   };
 
@@ -173,7 +183,9 @@ export const Assignment: React.FC<Props> = props => {
               : [],
             dayPortion: data.dayPortion,
             payDurationOverride:
-              payType === "HOURLY" ? data.payDurationOverride : null,
+              payType === AbsenceReasonTrackingTypeId.Hourly
+                ? data.payDurationOverride
+                : null,
             doVerify: notVerified,
           });
         }}
@@ -260,7 +272,10 @@ export const Assignment: React.FC<Props> = props => {
                   <Button
                     variant={isActiveCard ? "contained" : "outlined"}
                     type="submit"
-                    onClick={event => {event.stopPropagation(); onsubmit;}}
+                    onClick={event => {
+                      event.stopPropagation();
+                      onsubmit;
+                    }}
                   >
                     {notVerified ? t("Verify") : t("Undo verify")}
                   </Button>
@@ -280,25 +295,28 @@ export const Assignment: React.FC<Props> = props => {
                   <Grid item xs={2}>
                     <Input
                       value={
-                        payType === "DAILY"
+                        payType === AbsenceReasonTrackingTypeId.Daily
                           ? values.dayPortion
                           : values.payDurationOverride
                       }
                       InputComponent={FormTextField}
                       inputComponentProps={{
                         name:
-                          payType === "DAILY"
+                          payType === AbsenceReasonTrackingTypeId.Daily
                             ? "dayPortion"
                             : "payDurationOverride",
                         margin: "normal",
-                        label: payType === "DAILY" ? t("Days") : t("Hours"),
+                        label:
+                          payType === AbsenceReasonTrackingTypeId.Daily
+                            ? t("Days")
+                            : t("Hours"),
                         fullWidth: true,
                       }}
                       onChange={(
                         event: React.ChangeEvent<HTMLInputElement>
                       ) => {
                         setFieldValue(
-                          payType === "DAILY"
+                          payType === AbsenceReasonTrackingTypeId.Daily
                             ? "dayPortion"
                             : "payDurationOverride",
                           event.target.value

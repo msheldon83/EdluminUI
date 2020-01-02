@@ -24,6 +24,7 @@ export const AssignmentStory = () => {
         selectedVacancyDetail={undefined}
         onSelectDetail={onSelectDetail}
         payCodeOptions={payCodeOptions}
+        vacancyDayConversions={vacancyDayConversions}
       />
     </div>
   );
@@ -112,4 +113,17 @@ const simpleAssignment = ({
 const payCodeOptions = [
   { label: "Option 1", value: "12" },
   { label: "Option 2", value: "13" },
+];
+
+const vacancyDayConversions = [
+  {
+    name: "Half Day",
+    maxMinutes: 240,
+    dayEquivalent: 0.5,
+  },
+  {
+    name: "Full",
+    maxMinutes: 510,
+    dayEquivalent: 1.0,
+  },
 ];
