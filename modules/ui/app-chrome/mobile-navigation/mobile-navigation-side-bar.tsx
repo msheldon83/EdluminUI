@@ -45,7 +45,10 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
         <MobileSearchBar />
       </div>
       <List className={classes.list}>
-        <AutoSwitchingNavLinks onClick={props.collapse} />
+        <AutoSwitchingNavLinks
+          onClick={props.collapse}
+          navBarExpanded={props.expanded}
+        />
       </List>
       <EdluminLogo />
     </Drawer>
