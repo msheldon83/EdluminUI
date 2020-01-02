@@ -54,7 +54,6 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   } = props;
   const hasVacancies = !!(props.vacancies && props.vacancies.length);
 
-  //TODO: Add Location Id from Absence
   const accountingCodes = useAccountingCodes(organizationId, locationIds);
 
   const accountingCodeOptions = useMemo(
