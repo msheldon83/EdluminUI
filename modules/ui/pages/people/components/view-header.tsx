@@ -30,8 +30,8 @@ type Props = {
     lastName: string;
     rowVersion: string;
     externalId?: string | null | undefined;
-    inviteSent?: boolean | null | undefined;
-    isAccountSetup?: boolean | null | undefined;
+    inviteSent: boolean;
+    isAccountSetup: boolean;
   };
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   deleteOrgUser: () => Promise<unknown>;

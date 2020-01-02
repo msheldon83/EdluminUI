@@ -137,7 +137,7 @@ export function Table<T extends object>(props: TableProps<T>) {
     } else {
       return (
         <>
-          <div className={classes.tableTitle}>{props.title}</div>
+          <MTableToolbar {...props} />
           {showIncludeExpiredSetting && (
             <Grid container justify="flex-end">
               <Grid item>
@@ -172,7 +172,7 @@ export function Table<T extends object>(props: TableProps<T>) {
   return (
     <MaterialTable
       icons={tableIcons}
-      title={props.title}
+      title={<div className={classes.tableTitle}>{props.title}</div>}
       columns={allColumns}
       data={data}
       editable={props.editable}
