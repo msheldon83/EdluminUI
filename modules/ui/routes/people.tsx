@@ -35,7 +35,8 @@ export const PeopleLoader = asyncComponent({
   name: "People",
 });
 
-//employee abs schedule
+/***** employee abs schedule *****/
+
 export const EmployeeAbsScheduleRoute = defineSubRoute(
   PersonViewRoute,
   "/schedule"
@@ -71,4 +72,30 @@ export const PeopleSubPoolEditLoader = asyncComponent({
     return SubPool;
   },
   name: "SubPool",
+});
+
+/***** substitute assignment schedule *****/
+
+export const SubstituteAssignmentScheduleRoute = defineSubRoute(
+  PersonViewRoute,
+  "/assignments/schedule"
+);
+
+export const SubstituteAssignmentScheduleListViewRoute = defineSubRoute(
+  SubstituteAssignmentScheduleRoute,
+  "/list-view"
+);
+export const SubstituteAssignmentScheduleCalendarViewRoute = defineSubRoute(
+  SubstituteAssignmentScheduleRoute,
+  "/calendar-view"
+);
+
+export const SubstituteAssignmentScheduleLoader = asyncComponent({
+  resolve: async () => {
+    const SubstituteAssignmentSchedulePage = (
+      await import("ui/pages/people/substitute-assignments-schedule")
+    ).SubstituteAssignmentsSchedulePage;
+    return SubstituteAssignmentSchedulePage;
+  },
+  name: "EmployeeAbsSchedulePage",
 });

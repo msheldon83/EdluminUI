@@ -1,7 +1,7 @@
 import { VacancyDetail } from "graphql/server-types.gen";
 import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
-import { SubSchedule } from "..";
+import { SubSchedule } from "../../../pages/sub-schedule";
 
 export default {
   title: "Pages/Subtitute Schedule/Calendar view",

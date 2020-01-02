@@ -1,5 +1,6 @@
 query GetAssignmentDatesForEmployee(
   $id: ID!
+  $organizationId: ID
   $fromDate: DateTime!
   $toDate: Date!
   $limit: Int
@@ -8,6 +9,7 @@ query GetAssignmentDatesForEmployee(
   employee {
     employeeAssignmentSchedule(
       id: $id
+      orgId: $organizationId
       fromDate: $fromDate
       toDate: $toDate
       limit: $limit

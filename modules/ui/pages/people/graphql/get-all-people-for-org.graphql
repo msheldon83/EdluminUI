@@ -30,6 +30,7 @@ query GetAllPeopleForOrg(
       results {
         id
         rowVersion
+        userId
         externalId
         firstName
         lastName
@@ -39,6 +40,9 @@ query GetAllPeopleForOrg(
         isAdmin
         email
         phoneNumber
+        inviteSent
+        inviteSentAtUtc
+        isAccountSetup
         employee {
           id
           rowVersion

@@ -6,14 +6,17 @@ import {
   List,
   ListItemText,
 } from "@material-ui/core";
-import { AccountCircleOutlined } from "@material-ui/icons";
+import { AccountCircleOutlined, DeleteOutline } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
-import { usePagedQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { OrgUserRole } from "graphql/server-types.gen";
-import Maybe from "graphql/tsutils/Maybe";
 import { useIsMobile, usePrevious } from "hooks";
-import { useQueryParamIso } from "hooks/query-params";
+import {
+  useQueryParamIso,
+  makeQueryIso,
+  PaginationParams,
+} from "hooks/query-params";
 import { compact, isEqual, flatMap } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
@@ -28,6 +31,10 @@ import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";
+import { InviteUsers } from "./graphql/invite-users.gen";
+import { ShowErrors } from "ui/components/error-helpers";
+import { useSnackbar } from "hooks/use-snackbar";
+import { AccessIcon } from "./components/access-icon";
 
 type Props = {};
 
@@ -38,10 +45,19 @@ export const PeoplePage: React.FC<Props> = props => {
   const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
+  const { openSnackbar } = useSnackbar();
 
   const [filters] = useQueryParamIso(FilterQueryParams);
   const role: OrgUserRole[] = compact([filters.roleFilter]);
 
+  // Default People list to 100 rows per page
+  const peoplePaginationDefaults = makeQueryIso({
+    defaults: {
+      page: "1",
+      limit: "100",
+    },
+    iso: PaginationParams,
+  });
   const [allPeopleQuery, pagination] = usePagedQueryBundle(
     GetAllPeopleForOrg,
     r => r.orgUser?.paged?.totalCount,
@@ -51,8 +67,10 @@ export const PeoplePage: React.FC<Props> = props => {
         orgId: params.organizationId,
         role,
       },
-    }
+    },
+    peoplePaginationDefaults
   );
+
   const oldFilters = usePrevious(filters);
   useEffect(
     () => {
@@ -79,6 +97,32 @@ export const PeoplePage: React.FC<Props> = props => {
       return roles.join(",");
     },
     []
+  );
+
+  const [inviteUsers] = useMutationBundle(InviteUsers, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const invite = React.useCallback(
+    async (userIds: number[], orgId: number) => {
+      const response = await inviteUsers({
+        variables: {
+          userIds: userIds,
+          orgId: orgId,
+        },
+      });
+      const result = response?.data?.user?.invite;
+      if (result) {
+        openSnackbar({
+          message: t("The invites are being processed"),
+          dismissable: true,
+          status: "success",
+          autoHideDuration: 5000,
+        });
+      }
+    },
+    [inviteUsers, openSnackbar, t]
   );
 
   const [
@@ -137,6 +181,7 @@ export const PeoplePage: React.FC<Props> = props => {
   const tableData = useMemo(() => {
     return people.map(person => ({
       id: person.id,
+      userId: person.userId,
       firstName: person.firstName,
       lastName: person.lastName,
       email: person.email,
@@ -164,6 +209,9 @@ export const PeoplePage: React.FC<Props> = props => {
         person.administrator?.accessControl?.derivedAdminPositionTypes ?? [],
       allPositionTypeIdsInScope:
         person.administrator?.accessControl?.allPositionTypeIdsInScope ?? false,
+      inviteSent: person.inviteSent,
+      inviteSentAtUtc: person.inviteSentAtUtc,
+      accountSetup: person.isAccountSetup,
     }));
   }, [people, listRoles]);
 
@@ -184,7 +232,16 @@ export const PeoplePage: React.FC<Props> = props => {
           ? theme.typography.pxToRem(40)
           : theme.typography.pxToRem(70),
       },
-      render: () => <AccountCircleOutlined />, // eslint-disable-line
+      render: o => (
+        <div className={classes.accountCell}>
+          <AccountCircleOutlined />
+          <AccessIcon
+            inviteSent={o.inviteSent}
+            accountSetup={o.accountSetup}
+            inviteSentAtUtc={o.inviteSentAtUtc}
+          />
+        </div>
+      ),
     },
     {
       title: t("First Name"),
@@ -350,7 +407,13 @@ export const PeoplePage: React.FC<Props> = props => {
       field: "email",
       sorting: false,
       render: o => (
-        <Link href={`mailto:${o.email}`} color="secondary">
+        <Link
+          href={`mailto:${o.email}`}
+          onClick={(e: React.MouseEvent<HTMLElement>) => {
+            e.stopPropagation();
+          }}
+          color="secondary"
+        >
           <MailIcon />
         </Link>
       ),
@@ -377,8 +440,27 @@ export const PeoplePage: React.FC<Props> = props => {
             };
             history.push(PersonViewRoute.generate(newParams));
           }}
+          actions={[
+            {
+              tooltip: t("Invite selected people"),
+              icon: () => <MailIcon />,
+              onClick: async (evt, data) => {
+                const userIds = [];
+                if (Array.isArray(data)) {
+                  userIds.push(...data.map(d => d.userId));
+                } else {
+                  userIds.push(data.userId);
+                }
+
+                await invite(compact(userIds), Number(params.organizationId));
+              },
+            },
+          ]}
         />
-        <PaginationControls pagination={pagination} />
+        <PaginationControls
+          pagination={pagination}
+          pageSizeOptions={[25, 50, 100, 250, 500]}
+        />
       </div>
     </>
   );
@@ -398,5 +480,9 @@ const useStyles = makeStyles(theme => ({
     border: "1px solid",
     padding: theme.spacing(1),
     backgroundColor: theme.palette.background.paper,
+  },
+  accountCell: {
+    display: "flex",
+    alignItems: "center",
   },
 }));
