@@ -707,10 +707,18 @@ type CalendarChangeMutations {
 
 type CalendarChangeQueries {
   byId(id: ID!): CalendarChange
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [CalendarChange]
+  all(
+    orgId: ID
+    orgIds: [ID]
+    schoolYearId: Int
+    contractId: Int
+    sortBy: [SortDetailsInput]
+  ): [CalendarChange]
   paged(
     orgId: ID
     orgIds: [ID]
+    schoolYearId: Int
+    contractId: Int
     limit: Int
     offset: Int
     sortBy: [SortDetailsInput]
@@ -802,6 +810,7 @@ type ChangedContract implements ModelObjectInterface & OrgObjectInterface {
   calendarChangeId: Int!
   contractId: Int!
   contract: Contract
+  name: String
 }
 
 type ChangeLogQueries {

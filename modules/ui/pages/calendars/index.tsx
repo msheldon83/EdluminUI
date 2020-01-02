@@ -1,12 +1,24 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
+import { Button, Divider, Grid, Typography } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { CalendarRoute } from "ui/routes/calendar/calendar";
 import { Section } from "ui/components/section";
-import { useAllSchoolYears } from "reference-data/school-years";
-import { useContracts } from "reference-data/contracts";
 import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule-header";
+import { useState, useMemo } from "react";
+import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
+import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
+import { useQueryBundle } from "graphql/hooks";
+import { Column } from "material-table";
+import { CalendarChange } from "graphql/server-types.gen";
+import { Table } from "ui/components/table";
+import { compact } from "lodash-es";
+import { parseISO, format } from "date-fns";
+import {
+  CalendarListViewRoute,
+  CalendarCalendarViewRoute,
+} from "ui/routes/calendar/calendar";
 
 type Props = {
   view: "list" | "calendar";
@@ -17,13 +29,72 @@ export const Calendars: React.FC<Props> = props => {
   const params = useRouteParams(CalendarRoute);
   const classes = useStyles();
 
-  const schoolYears = useAllSchoolYears(params.organizationId);
-  const contracts = useContracts(params.organizationId);
+  const [schoolYear, setSchoolYear] = useState();
+  const [contract, setContract] = useState();
 
-  /*TODO Get all Calendar Events initally for All Contracts : maybe this is done on a list component*/
+  const getCalendarChanges = useQueryBundle(GetCalendarChanges, {
+    variables: {
+      orgId: params.organizationId,
+      schoolYearId: schoolYear,
+      contractId: contract,
+    },
+    fetchPolicy: "cache-first",
+  });
 
-  /*TODO Need a way to update calendar events based on contract selected : maybe this is done on a list component*/
+  const changesLoaded =
+    getCalendarChanges.state === "LOADING" ||
+    getCalendarChanges.state === "UPDATING"
+      ? false
+      : true;
 
+  /*const calendarChanges =
+    getCalendarChanges.state === "LOADING" ||
+    getCalendarChanges.state === "UPDATING"
+      ? []
+      : getCalendarChanges?.data?.calendarChange?.all || []*/
+
+  const calendarChanges =
+    getCalendarChanges.state === "LOADING" ||
+    getCalendarChanges.state === "UPDATING"
+      ? []
+      : compact(getCalendarChanges?.data?.calendarChange?.all ?? []);
+
+  /*might want to put list into its own component*/
+
+  const columns: Column<GetCalendarChanges.All>[] = [
+    {
+      title: t("Date"),
+      field: "startDate",
+      searchable: false,
+      render: (o: GetCalendarChanges.All) =>
+        o.startDate === o.endDate
+          ? format(parseISO(o.startDate), "MMM d, yyyy")
+          : `${format(parseISO(o.startDate), "MMM d, yyyy")} to ${format(
+              parseISO(o.endDate),
+              "MMM d, yyyy"
+            )}`,
+    },
+    {
+      title: t("Type"),
+      field: "calendarChangeReason.name",
+      searchable: false,
+    },
+    {
+      title: t("Reason"),
+      field: "calendarChangeReason.calendarDayTypeId",
+      searchable: false,
+    },
+    {
+      title: t("Note"),
+      field: "description",
+      searchable: false,
+    },
+    {
+      title: t("Contract"),
+      field: "changedContracts[0].name",
+      searchable: false,
+    },
+  ];
   /*TODO Need a way to delete a calendar event*/
 
   /*TODO Need a way to add a calendar event*/
@@ -33,12 +104,49 @@ export const Calendars: React.FC<Props> = props => {
   return (
     <>
       <div className={classes.pageContainer}>
-        <Section className={classes.section}>
-          <div className={classes.itemContainer}>
-            <div className={classes.item}>
-              <ContractScheduleHeader view={props.view} />
-            </div>
-          </div>
+        <Section className={classes.container}>
+          <Grid container>
+            <Grid item xs={12} className={classes.filters}>
+              <div className={classes.scheduleHeader}>
+                <ContractScheduleHeader
+                  view={props.view}
+                  schoolYearValue={schoolYear}
+                  setSchoolYear={setSchoolYear}
+                  contractValue={contract}
+                  setContract={setContract}
+                  orgId={params.organizationId}
+                />
+              </div>
+              <div>
+                <ScheduleViewToggle
+                  view={props.view}
+                  listViewRoute={CalendarListViewRoute.generate(params)}
+                  calendarViewRoute={CalendarCalendarViewRoute.generate(params)}
+                />
+              </div>
+            </Grid>
+            <Grid item xs={12}>
+              <Divider />
+            </Grid>
+            {props.view === "list" && (
+              <Grid item xs={12} className={classes.listContent}>
+                <Grid container>
+                  {!changesLoaded && (
+                    <Typography variant="h6">
+                      {t("Loading Calendar Events")}...
+                    </Typography>
+                  )}
+                  {changesLoaded && (
+                    <Table
+                      columns={columns}
+                      data={calendarChanges}
+                      title={""}
+                    />
+                  )}
+                </Grid>
+              </Grid>
+            )}
+          </Grid>
         </Section>
       </div>
     </>
@@ -53,7 +161,34 @@ const useStyles = makeStyles(theme => ({
     position: "fixed",
     paddingRight: theme.spacing(3),
   },
-  section: { padding: 0 },
+  container: {
+    padding: 0,
+  },
+  detail: {
+    padding: theme.spacing(2),
+  },
+  scheduleHeader: {
+    display: "flex",
+  },
+  listContent: {
+    padding: theme.spacing(3),
+  },
+  shadedRow: {
+    background: theme.customColors.lightGray,
+    borderTop: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
+    borderBottom: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
+  },
+
+  filters: {
+    padding: theme.spacing(3),
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   header: { paddingBottom: theme.spacing(3) },
   itemContainer: {
     display: "flex",

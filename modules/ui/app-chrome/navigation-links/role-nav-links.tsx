@@ -11,7 +11,7 @@ import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { EmployeePtoBalanceRoute } from "ui/routes/employee-pto-balances";
 import { OrganizationsRoute } from "ui/routes/organizations";
 import { PeopleRoute } from "ui/routes/people";
-import { CalendarRoute } from "ui/routes/calendar/calendar";
+import { CalendarListViewRoute } from "ui/routes/calendar/calendar";
 import { SubHomeRoute } from "ui/routes/sub-home";
 import { SubPreferencesRoute } from "ui/routes/sub-preferences";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
@@ -136,7 +136,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           />
           <CalendarNavLink
             onClick={props.onClick}
-            route={CalendarRoute.generate(params)}
+            route={CalendarListViewRoute.generate(params)}
           />
           <ConfigurationNavLink
             onClick={props.onClick}
