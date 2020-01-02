@@ -77,6 +77,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
   vacancies: Vacancy[];
+  locationIds?: number[];
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
   disabledDates: DisabledDate[];
   balanceUsageText?: string;
@@ -438,6 +439,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 disabledDates={props.disabledDates}
                 replacementEmployeeId={props.replacementEmployeeId}
                 replacementEmployeeName={props.replacementEmployeeName}
+                locationIds={props.locationIds}
               />
             )}
           </div>
