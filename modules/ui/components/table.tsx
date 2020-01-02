@@ -5,7 +5,6 @@ import {
   makeStyles,
   FormControlLabel,
   Checkbox,
-  Button,
   Grid,
   Typography,
 } from "@material-ui/core";
@@ -13,7 +12,6 @@ import MaterialTable, {
   MTableBodyRow,
   MTableCell,
   MTableToolbar,
-  MTableActions,
 } from "material-table";
 import { useTheme } from "@material-ui/core/styles";
 import { MaterialTableProps } from "material-table";

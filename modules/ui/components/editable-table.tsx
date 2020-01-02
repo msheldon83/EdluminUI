@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Table, TableProps } from "ui/components/table";
-import { MTableActions } from "material-table";
 
 type Props<T extends object> = TableProps<T> & {
   onRowAdd?: (rowData: T) => Promise<void>;

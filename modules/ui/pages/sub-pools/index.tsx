@@ -8,7 +8,7 @@ import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { PersonViewRoute } from "ui/routes/people";
 import { PageTitle } from "ui/components/page-title";
-import { EmployeeList } from "ui/components/employee-list";
+import { EmployeeList } from "ui/pages/sub-pools/components/employee-list";
 import { AddEmployees } from "./components/add-employees";
 import { GetSubstituteById } from "./graphql/get-substitute-by-id.gen";
 
