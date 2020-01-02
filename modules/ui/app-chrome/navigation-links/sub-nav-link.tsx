@@ -60,6 +60,7 @@ const useStyles = makeStyles(theme => ({
 
     "&:hover": {
       color: theme.customColors.white,
+      backgroundColor: theme.customColors.edluminLightSlate,
     },
   },
 }));
