@@ -64,7 +64,7 @@ type Props = {
   absenceDetailsIdsByDate: Record<string, string>;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
-
+  locationIds?: number[];
   startTimeLocal: string;
   endTimeLocal: string;
   absenceDates: Date[];
@@ -442,6 +442,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               replacementEmployeeId={props.replacementEmployeeId}
               replacementEmployeeName={props.replacementEmployeeName}
               onRemoveReplacement={props.cancelAssignments}
+              locationIds={props.locationIds}
             />
           </Section>
         </form>

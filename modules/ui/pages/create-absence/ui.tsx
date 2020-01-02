@@ -55,6 +55,7 @@ type Props = {
   userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
+  locationIds?: number[];
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -343,6 +344,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
                 setStep={setStep}
+                locationIds={props.locationIds}
                 disabledDates={disabledDates}
                 balanceUsageText={absenceUsageText || undefined}
                 setVacanciesInput={setVacanciesInput}
