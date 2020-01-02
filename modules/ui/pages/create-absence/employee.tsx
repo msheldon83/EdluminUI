@@ -1,12 +1,9 @@
 import { useQueryBundle } from "graphql/hooks";
 import { NeedsReplacement } from "graphql/server-types.gen";
-import { compact, map } from "lodash-es";
 import * as React from "react";
 import { useIsAdmin } from "reference-data/is-admin";
-import {
-  FindEmployeeForCurrentUser,
-  FindEmployeeForCurrentUserQuery,
-} from "./graphql/find-employee-for-current-user.gen";
+import { findEmployee } from "ui/components/absence/helpers";
+import { FindEmployeeForCurrentUser } from "./graphql/find-employee-for-current-user.gen";
 import { CreateAbsenceUI } from "./ui";
 
 type Props = {};
@@ -44,10 +41,4 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
       positionId={employee.primaryPosition?.id}
     />
   );
-};
-
-const findEmployee = (data: FindEmployeeForCurrentUserQuery) => {
-  const orgUsers = data.userAccess?.me?.user?.orgUsers ?? [];
-  const emps = compact(map(orgUsers, u => u?.employee));
-  return emps[0];
 };

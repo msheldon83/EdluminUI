@@ -5,10 +5,11 @@ import {
   Maybe,
   VacancyDetail,
 } from "graphql/server-types.gen";
-import { groupBy, differenceWith, uniqWith } from "lodash-es";
+import { groupBy, differenceWith, uniqWith, compact, map } from "lodash-es";
 import { isAfter, isWithinInterval, format } from "date-fns";
 import { convertStringToDate } from "helpers/date";
 import { TFunction } from "i18next";
+import { FindEmployeeForCurrentUserQuery } from "ui/pages/create-absence/graphql/find-employee-for-current-user.gen";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -438,4 +439,10 @@ export const TranslateAbsenceErrorCodeToMessage = (
       console.log(`Absence Error Code unhandled: ${errorCode}`);
       return undefined;
   }
+};
+
+export const findEmployee = (data: FindEmployeeForCurrentUserQuery) => {
+  const orgUsers = data.userAccess?.me?.user?.orgUsers ?? [];
+  const emps = compact(map(orgUsers, u => u?.employee));
+  return emps[0];
 };

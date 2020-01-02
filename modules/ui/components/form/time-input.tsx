@@ -18,6 +18,7 @@ export type Props = {
   ref?: React.Ref<any>;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
+  disabled?: boolean;
 };
 
 export const TimeInput = React.forwardRef((props: Props, ref) => {
@@ -31,6 +32,7 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
     name,
     inputStatus = "default",
     validationMessage,
+    disabled,
   } = props;
 
   const parsedValue = isIso(value)
@@ -60,6 +62,7 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
       onBlur={handleBlur}
       inputRef={ref}
       inputStatus={inputStatus}
+      disabled={disabled}
       validationMessage={validationMessage}
     />
   );
