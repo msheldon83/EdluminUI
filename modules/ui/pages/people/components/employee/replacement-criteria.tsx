@@ -74,7 +74,7 @@ export const ReplacementCriteria: React.FC<Props> = props => {
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">
-                {t("Prefer that subsittutes not have")}
+                {t("Prefer that subsitutes not have")}
               </Typography>
               {replacementCriteria?.preferToNotHave?.length === 0 ? (
                 <div>{t("Not defined")}</div>
