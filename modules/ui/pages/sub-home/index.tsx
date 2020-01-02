@@ -2,11 +2,12 @@ import {
   Button,
   Divider,
   Grid,
+  IconButton,
   Link as MuiLink,
   Typography,
-  IconButton,
 } from "@material-ui/core";
 import { FilterList } from "@material-ui/icons";
+import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/styles";
 import clsx from "clsx";
 import { addDays, format, isEqual, parseISO } from "date-fns";
@@ -19,7 +20,7 @@ import { OrgUser, Vacancy, VacancyDetail } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useMemo, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
@@ -39,7 +40,6 @@ import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
 import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
 import { RequestVacancy } from "./graphql/request-vacancy.gen";
 import { SubJobSearch } from "./graphql/sub-job-search.gen";
-import RefreshIcon from "@material-ui/icons/Refresh";
 
 type Props = {};
 
