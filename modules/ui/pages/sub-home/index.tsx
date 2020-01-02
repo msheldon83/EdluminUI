@@ -4,6 +4,7 @@ import {
   Grid,
   Link as MuiLink,
   Typography,
+  IconButton,
 } from "@material-ui/core";
 import { FilterList } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/styles";
@@ -18,7 +19,7 @@ import { OrgUser, Vacancy, VacancyDetail } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
@@ -38,6 +39,7 @@ import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
 import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
 import { RequestVacancy } from "./graphql/request-vacancy.gen";
 import { SubJobSearch } from "./graphql/sub-job-search.gen";
+import RefreshIcon from "@material-ui/icons/Refresh";
 
 type Props = {};
 
@@ -113,6 +115,7 @@ export const SubHome: React.FC<Props> = props => {
         .sort(x => x.startTimeLocal),
     [vacancies, dismissedAssignments]
   );
+  const onRefreshVacancies = async () => await getVacancies.refetch();
 
   const fromDate = useMemo(() => new Date(), []);
   const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
@@ -293,7 +296,8 @@ export const SubHome: React.FC<Props> = props => {
                   {t("Available Assignments")}
                 </Typography>
               </Grid>
-              {isMobile && (
+
+              {isMobile ? (
                 <Grid item>
                   <Button
                     variant="outlined"
@@ -301,6 +305,15 @@ export const SubHome: React.FC<Props> = props => {
                     onClick={() => setShowFilters(!showFilters)}
                   >
                     {t("Filters")}
+                  </Button>
+                  <IconButton onClick={onRefreshVacancies}>
+                    <RefreshIcon />
+                  </IconButton>
+                </Grid>
+              ) : (
+                <Grid item>
+                  <Button variant="outlined" onClick={onRefreshVacancies}>
+                    {t("Refresh")}
                   </Button>
                 </Grid>
               )}
