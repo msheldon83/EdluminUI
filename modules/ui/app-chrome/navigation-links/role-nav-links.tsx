@@ -35,6 +35,7 @@ import { SchoolsRoute } from "ui/routes/schools";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
 
 type Props = {
+  navBarExpanded: boolean;
   onClick?: () => void;
 };
 
@@ -66,18 +67,22 @@ export const EmployeeNavLinks: React.FC<Props> = props => {
     <>
       <HomeNavLink
         onClick={props.onClick}
+        navBarExpanded={props.navBarExpanded}
         route={EmployeeHomeRoute.generate(params)}
       />
       <MyScheduleNavLink
         onClick={props.onClick}
+        navBarExpanded={props.navBarExpanded}
         route={EmployeeScheduleRoute.generate(params)}
       />
       <PTOBalancesNavLink
         onClick={props.onClick}
+        navBarExpanded={props.navBarExpanded}
         route={EmployeePtoBalanceRoute.generate(params)}
       />
       <SubPreferencesNavLink
         onClick={props.onClick}
+        navBarExpanded={props.navBarExpanded}
         route={tbd.generate(params)}
       />
     </>
@@ -90,14 +95,17 @@ export const SubstituteNavLinks: React.FC<Props> = props => {
     <>
       <HomeNavLink
         onClick={props.onClick}
+        navBarExpanded={props.navBarExpanded}
         route={SubHomeRoute.generate(params)}
       />
       <MyScheduleNavLink
         onClick={props.onClick}
+        navBarExpanded={props.navBarExpanded}
         route={SubScheduleRoute.generate(params)}
       />
       <SubPreferencesNavLink
         onClick={props.onClick}
+        navBarExpanded={props.navBarExpanded}
         route={SubPreferencesRoute.generate(params)}
       />
     </>
@@ -114,35 +122,43 @@ export const AdminNavLinks: React.FC<Props> = props => {
         <>
           <HomeNavLink
             onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
             route={AdminHomeRoute.generate(params)}
           />
           {/* TODO: For now we'll go directly to Absence Create */}
           <AbsenceNavLink
             onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
             route={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
           />
           <AnalyticsAndReportsNavLink
             onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
             route={adminTbd.generate(params)}
           />
           <SchoolsNavLink
             onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
             route={SchoolsRoute.generate(params)}
           />
           <PeopleNavLink
             onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
             route={PeopleRoute.generate(params)}
           />
           <CalendarNavLink
             onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
             route={adminTbd.generate(params)}
           />
           <ConfigurationNavLink
             onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
             route={ConfigurationRoute.generate(params)}
           />
           <SecurityNavLink
             onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
             route={adminTbd.generate(params)}
           />
         </>
@@ -150,6 +166,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
       {showOrgs && (
         <OrganizationsNavLink
           onClick={props.onClick}
+          navBarExpanded={props.navBarExpanded}
           route={
             inOrg
               ? OrganizationsRoute.generate(params)

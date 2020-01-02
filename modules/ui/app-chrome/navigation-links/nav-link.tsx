@@ -15,12 +15,13 @@ import { useCallback, useMemo, useState } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import { SubNavLink } from "./sub-nav-link";
 
-type Props = NavItemType & {
+type Props = SubNavItemType & {
   icon: JSX.Element;
-  subNavItems?: Array<NavItemType>;
+  subNavItems?: Array<SubNavItemType>;
+  navBarExpanded: boolean;
 };
 
-type NavItemType = {
+type SubNavItemType = {
   title: string | JSX.Element;
   route: string;
   onClick?: () => void;
@@ -57,7 +58,14 @@ export const NavLink: React.FC<Props> = props => {
   const [subNavOpen, setSubNavOpen] = useState(false);
   const expanded = subNavActive || subNavOpen;
   const { subNavItems = [] } = props;
-  const hasSubNavItems = subNavItems && subNavItems.length > 0;
+  const showSubNavItems =
+    subNavItems && subNavItems.length > 0 && props.navBarExpanded;
+
+  // When the nav bar is collapsed, bubble up selected state to top level item
+  const displayAsMatching = useMemo(
+    () => matches || (!props.navBarExpanded && subNavActive),
+    [props.navBarExpanded, subNavActive, matches]
+  );
 
   const toggleSubNavClick = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -91,8 +99,9 @@ export const NavLink: React.FC<Props> = props => {
       <Link to={props.route} className={classes.link}>
         <ListItem
           button
-          className={`${classes.menuItem} ${props.className} ${matches &&
-            classes.active} ${hasSubNavItems &&
+          className={`${classes.menuItem} ${
+            props.className
+          } ${displayAsMatching && classes.active} ${showSubNavItems &&
             classes.menuItemWithSubNavItems}`}
           href={props.route}
           onClick={props.onClick}
@@ -105,11 +114,11 @@ export const NavLink: React.FC<Props> = props => {
               className: classes.text,
             }}
           />
-          {hasSubNavItems && renderSubNavIcon()}
+          {showSubNavItems && renderSubNavIcon()}
         </ListItem>
       </Link>
 
-      {hasSubNavItems && (
+      {showSubNavItems && (
         <Collapse
           in={expanded}
           timeout="auto"
@@ -155,6 +164,7 @@ const useStyles = makeStyles(theme => ({
   menuItem: {
     color: theme.customColors.medLightGray,
     borderRadius: theme.typography.pxToRem(5),
+    whiteSpace: "nowrap",
     "&:hover": {
       backgroundColor: theme.customColors.edluminLightSlate,
       color: theme.customColors.white,
