@@ -6,21 +6,25 @@ import { useEffect } from "react";
 type Props = {
   title: string | JSX.Element;
   route: string;
-  setSubNavActive: (active: boolean) => void;
+  setSubNavMatches: (route: string, matches: string | false) => void;
   onClick?: () => void;
   className?: string;
   exact?: boolean;
 };
 
 export const SubNavLink: React.FC<Props> = props => {
-  const { title, route, setSubNavActive, ...linkProps } = props;
+  const {
+    title,
+    route,
+    setSubNavMatches: setSubNavActive,
+    ...linkProps
+  } = props;
   const matches = useRouteMatch({ exact: true, path: route }) !== null && route;
   const classes = useStyles();
 
   useEffect(() => {
-    if (matches) setSubNavActive(true);
-    // setSubNavActive(matches);
-  }, [matches, setSubNavActive]);
+    setSubNavActive(route, matches);
+  }, [matches, setSubNavActive, route]);
 
   return (
     <li>
@@ -41,7 +45,7 @@ const useStyles = makeStyles(theme => ({
   },
 
   subNavItemLink: {
-    color: "#9da2ab", // this color isn't used anywhere else
+    color: theme.customColors.medLightGray,
     display: "block",
     fontSize: theme.typography.pxToRem(14),
     lineHeight: theme.typography.pxToRem(30),
@@ -53,7 +57,6 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.shorter,
     }),
     borderRadius: theme.typography.pxToRem(4),
-    // This should have selected styles
 
     "&:hover": {
       color: theme.customColors.white,

@@ -1,18 +1,18 @@
 import {
+  Collapse,
+  IconButton,
   ListItem,
   ListItemIcon,
   ListItemText,
   makeStyles,
-  Collapse,
-  IconButton,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
-import * as React from "react";
-import { Link, useRouteMatch } from "react-router-dom";
 import clsx from "clsx";
-import { some, compact } from "lodash-es";
-import { useState } from "react";
+import { isEqual } from "lodash-es";
+import * as React from "react";
+import { useCallback, useMemo, useState } from "react";
+import { Link, useRouteMatch } from "react-router-dom";
 import { SubNavLink } from "./sub-nav-link";
 
 type Props = NavItemType & {
@@ -35,13 +35,24 @@ export const NavLink: React.FC<Props> = props => {
     useRouteMatch({ exact: props.exact ?? false, path: props.route }) !==
       null && props.route;
 
-  const [subNavActive, setSubNavActive] = useState();
-  // const subNavActive =
-  //   compact(
-  //     props.subNavItems?.map(
-  //       n => useRouteMatch({ path: n.route, exact: n.exact }) !== null
-  //     )
-  //   ).length === 1;
+  const [subNavMatches, setSubNavMatches] = useState<Set<string>>(new Set([]));
+
+  const setSubNavMatchesCallback = useCallback(
+    (route: string, matches: string | false) => {
+      const updated = new Set(subNavMatches);
+      if (!matches) {
+        updated.delete(route);
+      } else {
+        updated.add(route);
+      }
+      if (!isEqual(updated, subNavMatches)) setSubNavMatches(updated);
+    },
+    [subNavMatches, setSubNavMatches]
+  );
+
+  const subNavActive = useMemo(() => {
+    return subNavMatches && subNavMatches.size > 0;
+  }, [subNavMatches]);
 
   const [subNavOpen, setSubNavOpen] = useState(false);
   const expanded = subNavActive || subNavOpen;
@@ -52,7 +63,7 @@ export const NavLink: React.FC<Props> = props => {
     e.preventDefault();
     e.stopPropagation();
 
-    setSubNavOpen(!subNavOpen);
+    !subNavActive && setSubNavOpen(!subNavOpen);
   };
 
   const renderSubNavIcon = () => (
@@ -109,7 +120,7 @@ export const NavLink: React.FC<Props> = props => {
             <SubNavLink
               key={subNavProps.route}
               {...subNavProps}
-              setSubNavActive={setSubNavActive}
+              setSubNavMatches={setSubNavMatchesCallback}
             />
           ))}
         </Collapse>
@@ -169,7 +180,7 @@ const useStyles = makeStyles(theme => ({
   },
 
   toggleSubNavItemsIcon: {
-    color: "#9da2ab",
+    color: theme.customColors.medLightGray,
 
     "&:hover": {
       color: theme.customColors.white,
