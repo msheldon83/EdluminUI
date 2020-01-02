@@ -50,6 +50,8 @@ export const SubHome: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const { openSnackbar } = useSnackbar();
   const [showFilters, setShowFilters] = React.useState(!isMobile);
+  React.useEffect(() => setShowFilters(!isMobile), [isMobile]);
+
   const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
   const [employeeId, setEmployeeId] = React.useState<string | null>(null);
   const [vacancyId, setVacancyId] = React.useState<string | null>(null);
@@ -301,7 +303,7 @@ export const SubHome: React.FC<Props> = props => {
             >
               <Grid item>
                 <Typography variant="h5">
-                  {t("Available Assignments")}
+                  {t("Available Jobs")}
                 </Typography>
               </Grid>
               {isMobile && (
