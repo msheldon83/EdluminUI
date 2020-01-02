@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Table, TableProps } from "ui/components/table";
+import { MTableActions } from "material-table";
 
 type Props<T extends object> = TableProps<T> & {
   onRowAdd?: (rowData: T) => Promise<void>;
@@ -7,7 +8,6 @@ type Props<T extends object> = TableProps<T> & {
   onRowDelete?: (oldData: T) => Promise<void>;
   editableRows?: ((rowData: T) => boolean) | undefined;
   deletableRows?: ((rowData: T) => boolean) | undefined;
-  nonEditable?: ((rowData: T) => boolean) | undefined;
 };
 
 export function EditableTable<T extends object>(props: Props<T>) {
@@ -23,10 +23,6 @@ export function EditableTable<T extends object>(props: Props<T>) {
         onRowDelete,
         isEditable: props.editableRows,
         isDeletable: props.deletableRows,
-      }}
-      //Create override component for Action's remove icons for nonEditable.
-      components={{
-        Actions: props =>(),
       }}
       {...tableProps}
     />

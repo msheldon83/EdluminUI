@@ -189,8 +189,7 @@ export const BellScheduleVariants: React.FC<Props> = props => {
         columns={columns}
         data={mappedData}
         editableRows={v => !v.isStandard}
-        deletableRows={v => !v.isStandard}
-        nonEditable={v => v.isStandard}
+        deletableRows={v => !v.isStandard}      
         onRowAdd={async newData => {
           const newWorkDayScheduleVariantType = {
             ...workDayScheduleVariantType,
