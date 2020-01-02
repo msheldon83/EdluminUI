@@ -43,7 +43,7 @@ export const SubPool: React.FC<Props> = props => {
   return (
     <>
       <Typography className={classes.header} variant="h4">
-        {t(fullName)}
+        {fullName}
       </Typography>
       <Grid item>
         <PageTitle title={t("Substitute pools")} />
