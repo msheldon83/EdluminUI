@@ -33,6 +33,7 @@ type Props = {
   disabledDates?: DisabledDate[];
   disableReplacementInteractions?: boolean;
   locationIds?: number[];
+  disableEditingDatesAndTimes?: boolean;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -179,7 +180,11 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
             {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
           </Button>
 
-          <Button variant="outlined" onClick={() => setStep("edit")}>
+          <Button
+            variant="outlined"
+            onClick={() => setStep("edit")}
+            disabled={props.disableEditingDatesAndTimes}
+          >
             {t("Edit")}
           </Button>
         </div>

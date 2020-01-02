@@ -1,23 +1,27 @@
 import {
+  Collapse,
+  IconButton,
   ListItem,
   ListItemIcon,
   ListItemText,
   makeStyles,
-  Collapse,
-  IconButton,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
-import * as React from "react";
-import { Link, useRouteMatch } from "react-router-dom";
 import clsx from "clsx";
+import { isEqual } from "lodash-es";
+import * as React from "react";
+import { useCallback, useMemo, useState } from "react";
+import { Link, useRouteMatch } from "react-router-dom";
+import { SubNavLink } from "./sub-nav-link";
 
-type Props = NavItemType & {
+type Props = SubNavItemType & {
   icon: JSX.Element;
-  subNavItems?: Array<NavItemType>;
+  subNavItems?: Array<SubNavItemType>;
+  navBarExpanded: boolean;
 };
 
-type NavItemType = {
+type SubNavItemType = {
   title: string | JSX.Element;
   route: string;
   onClick?: () => void;
@@ -27,19 +31,47 @@ type NavItemType = {
 
 export const NavLink: React.FC<Props> = props => {
   const classes = useStyles();
+  const menuItemClasses = useMenuItemStyles();
   const matches =
     useRouteMatch({ exact: props.exact ?? false, path: props.route }) !==
       null && props.route;
-  const [subNavOpen, setSubNavOpen] = React.useState(false);
 
+  const [subNavMatches, setSubNavMatches] = useState<Set<string>>(new Set([]));
+
+  const setSubNavMatchesCallback = useCallback(
+    (route: string, matches: string | false) => {
+      const updated = new Set(subNavMatches);
+      if (!matches) {
+        updated.delete(route);
+      } else {
+        updated.add(route);
+      }
+      if (!isEqual(updated, subNavMatches)) setSubNavMatches(updated);
+    },
+    [subNavMatches, setSubNavMatches]
+  );
+
+  const subNavActive = useMemo(() => {
+    return subNavMatches && subNavMatches.size > 0;
+  }, [subNavMatches]);
+
+  const [subNavOpen, setSubNavOpen] = useState(false);
+  const expanded = subNavActive || subNavOpen;
   const { subNavItems = [] } = props;
-  const hasSubNavItems = subNavItems && subNavItems.length > 0;
+  const showSubNavItems =
+    subNavItems && subNavItems.length > 0 && props.navBarExpanded;
+
+  // When the nav bar is collapsed, bubble up selected state to top level item
+  const displayAsMatching = useMemo(
+    () => matches || (!props.navBarExpanded && subNavActive),
+    [props.navBarExpanded, subNavActive, matches]
+  );
 
   const toggleSubNavClick = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
-    setSubNavOpen(!subNavOpen);
+    !subNavActive && setSubNavOpen(!subNavOpen);
   };
 
   const renderSubNavIcon = () => (
@@ -49,7 +81,7 @@ export const NavLink: React.FC<Props> = props => {
       onClick={toggleSubNavClick}
       disableRipple
     >
-      {subNavOpen ? (
+      {expanded ? (
         <ExpandLess className={classes.expandLessIcon} />
       ) : (
         <ExpandMore />
@@ -57,61 +89,49 @@ export const NavLink: React.FC<Props> = props => {
     </IconButton>
   );
 
-  const containerClasses = clsx({
-    [classes.container]: true,
-    [classes.active]: subNavOpen,
-  });
-
   const subNavClasses = clsx({
     [classes.subNavItems]: true,
-    [classes.subNavItemsOpen]: subNavOpen,
+    [classes.subNavItemsOpen]: expanded,
   });
 
   return (
-    <div className={containerClasses}>
+    <div>
       <Link to={props.route} className={classes.link}>
         <ListItem
           button
-          className={`${classes.menuItem} ${props.className} ${matches &&
-            classes.active} ${hasSubNavItems &&
+          className={`${classes.menuItem} ${
+            props.className
+          } ${displayAsMatching && classes.active} ${showSubNavItems &&
             classes.menuItemWithSubNavItems}`}
           href={props.route}
           onClick={props.onClick}
+          classes={menuItemClasses}
         >
           <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
           <ListItemText
             primary={props.title}
             primaryTypographyProps={{
               className: classes.text,
-              noWrap: true,
             }}
           />
-          {hasSubNavItems && renderSubNavIcon()}
+          {showSubNavItems && renderSubNavIcon()}
         </ListItem>
       </Link>
 
-      {hasSubNavItems && (
+      {showSubNavItems && (
         <Collapse
-          in={subNavOpen}
+          in={expanded}
           timeout="auto"
           component="ul"
           className={subNavClasses}
         >
-          {subNavItems.map(subNavProps => {
-            const { title, route, ...linkProps } = subNavProps;
-
-            return (
-              <li key={route}>
-                <Link
-                  {...linkProps}
-                  to={route}
-                  className={classes.subNavItemLink}
-                >
-                  {title}
-                </Link>
-              </li>
-            );
-          })}
+          {subNavItems.map(subNavProps => (
+            <SubNavLink
+              key={subNavProps.route}
+              {...subNavProps}
+              setSubNavMatches={setSubNavMatchesCallback}
+            />
+          ))}
         </Collapse>
       )}
     </div>
@@ -144,6 +164,7 @@ const useStyles = makeStyles(theme => ({
   menuItem: {
     color: theme.customColors.medLightGray,
     borderRadius: theme.typography.pxToRem(5),
+    whiteSpace: "nowrap",
     "&:hover": {
       backgroundColor: theme.customColors.edluminLightSlate,
       color: theme.customColors.white,
@@ -167,25 +188,9 @@ const useStyles = makeStyles(theme => ({
   subNavItemsOpen: {
     padding: `0 0 ${theme.typography.pxToRem(7)}`,
   },
-  subNavItemLink: {
-    color: "#9da2ab", // this color isn't used anywhere else
-    display: "block",
-    fontSize: theme.typography.pxToRem(14),
-    lineHeight: theme.typography.pxToRem(30),
-    fontWeight: 600,
-    paddingLeft: theme.spacing(8),
-    textDecoration: "none",
-    transition: theme.transitions.create("color", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.shorter,
-    }),
 
-    "&:hover": {
-      color: theme.customColors.white,
-    },
-  },
   toggleSubNavItemsIcon: {
-    color: "#9da2ab",
+    color: theme.customColors.medLightGray,
 
     "&:hover": {
       color: theme.customColors.white,
@@ -193,5 +198,11 @@ const useStyles = makeStyles(theme => ({
   },
   expandLessIcon: {
     color: theme.customColors.white,
+  },
+}));
+
+const useMenuItemStyles = makeStyles(theme => ({
+  gutters: {
+    paddingRight: theme.typography.pxToRem(3),
   },
 }));

@@ -2,6 +2,7 @@ import * as React from "react";
 import { Typography, Grid, makeStyles } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { compact } from "lodash-es";
@@ -12,6 +13,7 @@ import {
   LocationGroup,
   PositionType,
 } from "graphql/server-types.gen";
+import { PeopleSubPoolEditRoute, PersonViewRoute } from "ui/routes/people";
 
 type Props = {
   editing: string | null;
@@ -35,7 +37,7 @@ export const SubstitutePools: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const classes = useStyles();
-
+  const params = useRouteParams(PersonViewRoute);
   const substitutePoolMembership = props.substitutePoolMembership;
 
   const blockedLocationsList =
@@ -74,7 +76,7 @@ export const SubstitutePools: React.FC<Props> = props => {
             text: t("Edit"),
             visible: !props.editing,
             execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
+              const editSettingsUrl = PeopleSubPoolEditRoute.generate(params);
               history.push(editSettingsUrl);
             },
           }}

@@ -16,3 +16,10 @@ export const BellScheduleVariantsLoader = asyncComponent({
   },
   name: "BellScheduleVariants",
 });
+
+// Index View
+export const BellScheduleVariantsIndexRoute = defineSubRoute(
+  BellScheduleVariantsRoute,
+  "/:workDayScheduleVariantTypeId",
+  ["workDayScheduleVariantTypeId"]
+);
