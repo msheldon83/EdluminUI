@@ -61,6 +61,19 @@ export const EmployeeAbsScheduleLoader = asyncComponent({
   name: "EmployeeAbsSchedulePage",
 });
 
+//Edit Sub Pools
+export const PeopleSubPoolEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-sub-pools"
+);
+export const PeopleSubPoolEditLoader = asyncComponent({
+  resolve: async () => {
+    const SubPool = (await import("ui/pages/sub-pools")).SubPool;
+    return SubPool;
+  },
+  name: "SubPool",
+});
+
 /***** substitute assignment schedule *****/
 
 export const SubstituteAssignmentScheduleRoute = defineSubRoute(
