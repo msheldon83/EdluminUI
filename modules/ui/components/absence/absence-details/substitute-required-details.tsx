@@ -32,6 +32,8 @@ type Props = {
   arrangeSubButtonTitle?: string;
   disabledDates?: DisabledDate[];
   disableReplacementInteractions?: boolean;
+  locationIds?: number[];
+  disableEditingDatesAndTimes?: boolean;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -44,6 +46,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     setValue,
     vacancies,
     organizationId,
+    locationIds,
     errors,
     isAdmin,
     values,
@@ -51,7 +54,8 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   } = props;
   const hasVacancies = !!(props.vacancies && props.vacancies.length);
 
-  const accountingCodes = useAccountingCodes(organizationId);
+  const accountingCodes = useAccountingCodes(organizationId, locationIds);
+
   const accountingCodeOptions = useMemo(
     () => accountingCodes.map(c => ({ label: c.name, value: c.id })),
     [accountingCodes]
@@ -175,7 +179,11 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
             {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
           </Button>
 
-          <Button variant="outlined" onClick={() => setStep("edit")}>
+          <Button
+            variant="outlined"
+            onClick={() => setStep("edit")}
+            disabled={props.disableEditingDatesAndTimes}
+          >
             {t("Edit")}
           </Button>
         </div>

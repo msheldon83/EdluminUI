@@ -1,0 +1,14 @@
+mutation UpdateWorkDayScheduleVariantType(
+  $workDayScheduleVariantType: WorkDayScheduleVariantTypeUpdateInput!
+) {
+  orgRef_WorkDayScheduleVariantType {
+    update(workDayScheduleVariantType: $workDayScheduleVariantType) {
+      id
+      name
+      rowVersion
+      description
+      externalId
+      expired
+    }
+  }
+}

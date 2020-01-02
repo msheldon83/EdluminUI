@@ -63,12 +63,6 @@ export const AbsenceReason: React.FC<{}> = props => {
       searchable: true,
       hidden: isMobile,
     },
-    // {
-    //   title: t("Description"),
-    //   field: "description",
-    //   searchable: true,
-    //   hidden: isMobile,
-    // },
   ];
 
   if (getAbsenceReasons.state === "LOADING") {
