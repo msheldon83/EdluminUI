@@ -248,7 +248,7 @@ export const Assignment: React.FC<Props> = props => {
 
   const handleDaysUpdate = async (
     dayPortion: number,
-    payDurationOverride: number | null | undefined,
+    payDurationOverrideHours: number | null | undefined,
     dayConversionName: string | undefined
   ) => {
     // Find the matching day conversion
@@ -260,7 +260,9 @@ export const Assignment: React.FC<Props> = props => {
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
       dayPortion: dayConversion?.dayEquivalent ?? dayPortion,
-      payDurationOverride: !dayConversion ? payDurationOverride : null,
+      payDurationOverride: !dayConversion
+        ? hoursToMinutes(payDurationOverrideHours ?? undefined)
+        : null,
       payTypeId: dayConversion
         ? AbsenceReasonTrackingTypeId.Daily
         : AbsenceReasonTrackingTypeId.Hourly,
@@ -282,13 +284,16 @@ export const Assignment: React.FC<Props> = props => {
           payCodeId: currentPayCode?.id ?? undefined,
           dayPortion: vacancyDetail.dayPortion,
           accountingCodeId: currentAccountingCode?.id ?? undefined,
-          payDurationOverride:
-            vacancyDetail.payDurationOverride ?? vacancyDetail.actualDuration,
+          payDurationOverrideHours: minutesToHours(
+            vacancyDetail.payDurationOverride ??
+              vacancyDetail.actualDuration ??
+              undefined
+          ),
         }}
         onSubmit={async (data, e) => {
           await props.onVerify({
             vacancyDetailId: vacancyDetail.id,
-            payCodeId: Number(data.payCodeId),
+            payCodeId: data.payCodeId ? Number(data.payCodeId) : null,
             verifyComments: data.verifyComments,
             accountingCodeAllocations: data.accountingCodeId
               ? [
@@ -301,7 +306,7 @@ export const Assignment: React.FC<Props> = props => {
             dayPortion: data.dayPortion,
             payDurationOverride:
               payTypeId === AbsenceReasonTrackingTypeId.Hourly
-                ? data.payDurationOverride
+                ? hoursToMinutes(data.payDurationOverrideHours ?? undefined)
                 : null,
             payTypeId: payTypeId,
             doVerify: notVerified,
@@ -309,7 +314,7 @@ export const Assignment: React.FC<Props> = props => {
         }}
         validationSchema={yup.object().shape({
           dayPortion: yup.number().typeError(t("Not a valid number")),
-          payDurationOverride: yup
+          payDurationOverrideHours: yup
             .number()
             .nullable()
             .typeError(t("Not a valid number")),
@@ -429,7 +434,7 @@ export const Assignment: React.FC<Props> = props => {
                         setSelectedDayConversionName(selectedLabel);
                         await handleDaysUpdate(
                           values.dayPortion,
-                          values.payDurationOverride,
+                          values.payDurationOverrideHours,
                           selectedLabel
                         );
                       }}
@@ -444,12 +449,10 @@ export const Assignment: React.FC<Props> = props => {
                       </Typography>
                     ) : (
                       <Input
-                        value={minutesToHours(
-                          values.payDurationOverride ?? undefined
-                        )}
+                        value={values.payDurationOverrideHours ?? ""}
                         InputComponent={FormTextField}
                         inputComponentProps={{
-                          name: "payDurationOverride",
+                          name: "payDurationOverrideHours",
                           margin: "normal",
                           label: t("Hours"),
                           fullWidth: true,
@@ -458,14 +461,18 @@ export const Assignment: React.FC<Props> = props => {
                           event: React.ChangeEvent<HTMLInputElement>
                         ) => {
                           setFieldValue(
-                            "payDurationOverride",
-                            hoursToMinutes(Number(event.target.value))
+                            "payDurationOverrideHours",
+                            event.target.value
+                              ? event.target.value
+                              : minutesToHours(
+                                  vacancyDetail.actualDuration ?? undefined
+                                )
                           );
                         }}
                         onBlur={() =>
                           handleDaysUpdate(
                             values.dayPortion,
-                            values.payDurationOverride,
+                            values.payDurationOverrideHours,
                             selectedDayConversionName
                           )
                         }
