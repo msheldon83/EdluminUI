@@ -3,5 +3,6 @@ export default {
 };
 
 export { InputStory } from "./input.stories";
+export { PhoneInputStory } from "./phone-input.stories";
 export { Select, SelectNew, MultiSelectNew } from "./select.stories";
 export { TimeInput } from "./time-input.stories";
