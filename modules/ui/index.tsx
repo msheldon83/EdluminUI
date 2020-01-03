@@ -81,6 +81,8 @@ import {
   PeopleLoader,
   PeopleRoute,
   PersonViewLoader,
+  PeopleSubPoolEditLoader,
+  PeopleSubPoolEditRoute,
   PersonViewRoute,
   EmployeeAbsScheduleLoader,
   EmployeeAbsScheduleRoute,
@@ -129,6 +131,14 @@ import {
   SubPreferencesLoader,
   SubPreferencesRoute,
 } from "./routes/sub-preferences";
+import {
+  SubSpecificOpportunityLoader,
+  SubSpecificOpportunityRoute,
+} from "./routes/sub-specific-opportunity";
+import {
+  SubSpecificAssignmentLoader,
+  SubSpecificAssignmentRoute,
+} from "./routes/sub-specific-assignment";
 import {
   SubScheduleCalendarViewRoute,
   SubScheduleListViewRoute,
@@ -204,6 +214,14 @@ export function App() {
                       component={SubPreferencesLoader}
                       path={SubPreferencesRoute.path}
                     />
+                    <Route
+                      component={SubSpecificOpportunityLoader}
+                      path={SubSpecificOpportunityRoute.path}
+                    />
+                    <Route
+                      component={SubSpecificAssignmentLoader}
+                      path={SubSpecificAssignmentRoute.path}
+                    />
                     <Route component={SubHomeLoader} path={SubHomeRoute.path} />
 
                     <Route
@@ -275,6 +293,10 @@ export function App() {
                         <Route
                           component={SubstituteAssignmentScheduleLoader}
                           path={SubstituteAssignmentScheduleRoute.path}
+                        />
+                        <Route
+                          component={PeopleSubPoolEditLoader}
+                          path={PeopleSubPoolEditRoute.path}
                         />
                         <Route
                           component={PersonViewLoader}
@@ -419,11 +441,11 @@ export function App() {
                           component={SecurityManagedOrganizationsLoader}
                           path={SecurityManagedOrganizationsRoute.path}
                         />
-
                         <Route
                           component={DailyReportLoader}
                           path={DailyReportRoute.path}
                         />
+
                         {/* This route handles unknown or underspecified routes and takes the
                               admin to their organization (or a switcher) */}
                         <Route path={AdminRootChromeRoute.path}>

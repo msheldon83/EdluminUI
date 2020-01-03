@@ -1,0 +1,47 @@
+query GetSpecificAssignment($id: ID!, $assignmentId: ID!) {
+  employee {
+    employeeSpecificAssignment(id: $id, assignmentId: $assignmentId) {
+      id
+      startDate
+      endDate
+      startTimeLocal
+      endTimeLocal
+      dayPortion
+      assignment {
+        id
+        rowVersion
+        startTimeLocal
+        endTimeLocal
+      }
+      location {
+        id
+        name
+        address1
+        city
+        stateName
+        postalCode
+        phoneNumber
+      }
+      vacancy {
+        id
+        organization {
+          id
+          name
+        }
+        absence {
+          id
+          employee {
+            id
+            firstName
+            lastName
+          }
+        }
+        position {
+          id
+          name
+        }
+        notesToReplacement
+      }
+    }
+  }
+}

@@ -9,7 +9,6 @@ import { EditableTable } from "ui/components/editable-table";
 import { PageTitle } from "ui/components/page-title";
 import {
   EndorsementCreateInput,
-  Endorsement,
   EndorsementUpdateInput,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";

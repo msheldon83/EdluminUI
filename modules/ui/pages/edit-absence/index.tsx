@@ -43,6 +43,8 @@ export const EditAbsence: React.FC<Props> = props => {
     }
   }, [employeeInfo]);
 
+  const locationIds = employee?.locations?.map(l => Number(l?.id));
+
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
   const cancelAssignments = React.useCallback(async () => {
     if (absence.state !== "DONE") return;
@@ -58,7 +60,7 @@ export const EditAbsence: React.FC<Props> = props => {
       assignments.map(a =>
         cancelAssignment({
           variables: {
-            assignment: { id: Number(a.id), rowVersion: a.rowVersion },
+            assignment: { assignmentId: a.id, rowVersion: a.rowVersion },
           },
         })
       )
@@ -169,6 +171,7 @@ export const EditAbsence: React.FC<Props> = props => {
       absenceId={data.id}
       absenceDates={absenceDates}
       dayPart={dayPart}
+      locationIds={locationIds}
       initialVacancyDetails={initialVacancyDetails}
       /* cf 2019-12-06 -
       it is impossible to satisfy the graphql type Vacancy, because it is impossible to

@@ -2,10 +2,12 @@ import {
   Button,
   Divider,
   Grid,
+  IconButton,
   Link as MuiLink,
   Typography,
 } from "@material-ui/core";
 import { FilterList } from "@material-ui/icons";
+import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/styles";
 import clsx from "clsx";
 import { addDays, format, isEqual, parseISO } from "date-fns";
@@ -18,13 +20,15 @@ import { OrgUser, Vacancy, VacancyDetail } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
 import { Padding } from "ui/components/padding";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 import { useRouteParams } from "ui/routes/definition";
 import { SubHomeRoute } from "ui/routes/sub-home";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
@@ -46,6 +50,7 @@ export const SubHome: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(SubHomeRoute);
   const isMobile = useIsMobile();
+  const { openSnackbar } = useSnackbar();
   const [showFilters, setShowFilters] = React.useState(!isMobile);
   const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
   const [employeeId, setEmployeeId] = React.useState<string | null>(null);
@@ -53,8 +58,16 @@ export const SubHome: React.FC<Props> = props => {
   const [dismissedAssignments, setDismissedAssignments] = React.useState<
     string[]
   >([]);
-  const [dismissVacancyMutation] = useMutationBundle(DismissVacancy);
-  const [requestVacancyMutation] = useMutationBundle(RequestVacancy);
+  const [dismissVacancyMutation] = useMutationBundle(DismissVacancy, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const [requestVacancyMutation] = useMutationBundle(RequestVacancy, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const [filters] = useQueryParamIso(FilterQueryParams);
 
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
@@ -113,6 +126,7 @@ export const SubHome: React.FC<Props> = props => {
         .sort(x => x.startTimeLocal),
     [vacancies, dismissedAssignments]
   );
+  const onRefreshVacancies = async () => await getVacancies.refetch();
 
   const fromDate = useMemo(() => new Date(), []);
   const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
@@ -293,7 +307,8 @@ export const SubHome: React.FC<Props> = props => {
                   {t("Available Assignments")}
                 </Typography>
               </Grid>
-              {isMobile && (
+
+              {isMobile ? (
                 <Grid item>
                   <Button
                     variant="outlined"
@@ -301,6 +316,15 @@ export const SubHome: React.FC<Props> = props => {
                     onClick={() => setShowFilters(!showFilters)}
                   >
                     {t("Filters")}
+                  </Button>
+                  <IconButton onClick={onRefreshVacancies}>
+                    <RefreshIcon />
+                  </IconButton>
+                </Grid>
+              ) : (
+                <Grid item>
+                  <Button variant="outlined" onClick={onRefreshVacancies}>
+                    {t("Refresh")}
                   </Button>
                 </Grid>
               )}

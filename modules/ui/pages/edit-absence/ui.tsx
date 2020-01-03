@@ -1,5 +1,5 @@
 import { makeStyles, Typography } from "@material-ui/core";
-import { format, formatISO, isSameDay, parseISO } from "date-fns";
+import { format, formatISO, isSameDay, parseISO, isPast } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
@@ -64,7 +64,7 @@ type Props = {
   absenceDetailsIdsByDate: Record<string, string>;
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
-
+  locationIds?: number[];
   startTimeLocal: string;
   endTimeLocal: string;
   absenceDates: Date[];
@@ -111,6 +111,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [assignVacancy] = useMutationBundle(AssignVacancy, {});
 
   const name = `${props.firstName} ${props.lastName}`;
+  const canEdit =
+    !props.actingAsEmployee ||
+    (!props.replacementEmployeeId && !some(props.absenceDates, isPast));
 
   const initialFormData: EditAbsenceFormData = {
     absenceReason: props.absenceReasonId.toString(),
@@ -373,6 +376,13 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     [setStep, assignVacancy]
   );
 
+  const onToggleAbsenceDate = useCallback(
+    (d: Date) => {
+      if (canEdit) dispatch({ action: "toggleDate", date: d });
+    },
+    [dispatch, canEdit]
+  );
+
   return (
     <>
       <PageTitle title={t("Edit Absence")} withoutHeading />
@@ -404,9 +414,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           <Section className={classes.absenceDetails}>
             <AbsenceDetails
               absenceDates={state.absenceDates}
-              onToggleAbsenceDate={d =>
-                dispatch({ action: "toggleDate", date: d })
-              }
+              onToggleAbsenceDate={onToggleAbsenceDate}
               saveLabel={t("Save")}
               setStep={setStep}
               disabledDates={disabledDates}
@@ -430,9 +438,11 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               arrangedSubText={t("assigned")}
               arrangeSubButtonTitle={t("Assign Sub")}
               disableReplacementInteractions={useProjectedInformation}
+              disableEditingDatesAndTimes={!canEdit}
               replacementEmployeeId={props.replacementEmployeeId}
               replacementEmployeeName={props.replacementEmployeeName}
               onRemoveReplacement={props.cancelAssignments}
+              locationIds={props.locationIds}
             />
           </Section>
         </form>

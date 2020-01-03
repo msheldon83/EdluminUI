@@ -1,0 +1,5 @@
+mutation DeleteWorkDayScheduleVariantType($workDayScheduleVariantTypeId: Int!) {
+  orgRef_WorkDayScheduleVariantType {
+    delete(workDayScheduleVariantTypeId: $workDayScheduleVariantTypeId)
+  }
+}

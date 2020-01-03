@@ -5,6 +5,8 @@ type Props<T extends object> = TableProps<T> & {
   onRowAdd?: (rowData: T) => Promise<void>;
   onRowUpdate?: (newData: T, oldData?: T) => Promise<void>;
   onRowDelete?: (oldData: T) => Promise<void>;
+  editableRows?: ((rowData: T) => boolean) | undefined;
+  deletableRows?: ((rowData: T) => boolean) | undefined;
 };
 
 export function EditableTable<T extends object>(props: Props<T>) {
@@ -18,6 +20,8 @@ export function EditableTable<T extends object>(props: Props<T>) {
         onRowAdd,
         onRowUpdate,
         onRowDelete,
+        isEditable: props.editableRows,
+        isDeletable: props.deletableRows,
       }}
       {...tableProps}
     />
