@@ -78,7 +78,7 @@ export const View: React.FC<Props> = props => {
     const result = await cancelAssignment({
       variables: {
         cancelRequest: {
-          id: Number(assignmentId) ?? "",
+          assignmentId: assignmentId ?? "",
           rowVersion: assignmentRowVersion ?? "",
         },
       },
