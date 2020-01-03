@@ -188,17 +188,33 @@ export const Assignment: React.FC<Props> = props => {
         )} ${t("Hours")}`;
 
   const handlePayCodeOnBlur = async (payCodeId: string | undefined) => {
+    if (currentPayCode?.id === payCodeId) {
+      // Don't call the mutation if we're not chaning anything
+      return;
+    }
+
     await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
       payCodeId: Number(payCodeId),
     });
+
+    // Find the pay code option that matches our selection and set in state
+    const payCode = props.payCodeOptions.find(x => x.value === payCodeId);
+    setCurrentPayCode(
+      payCode ? { id: payCodeId!, name: payCode.label.toString() } : undefined
+    );
   };
 
   const handleAccountingCodeOnBlur = async (
     accountingCodeId: string | undefined
   ) => {
-    const result = await props.onVerify({
+    if (currentAccountingCode?.id === accountingCodeId) {
+      // Don't call the mutation if we're not chaning anything
+      return;
+    }
+
+    await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
       accountingCodeAllocations: accountingCodeId
@@ -210,7 +226,16 @@ export const Assignment: React.FC<Props> = props => {
           ]
         : [],
     });
-    console.log(result);
+
+    // Find the accounting code option that matches our selection and set in state
+    const accountingCode = accountingCodeOptions.find(
+      x => x.value === accountingCodeId
+    );
+    setCurrentAccountingCode(
+      accountingCode
+        ? { id: accountingCodeId!, name: accountingCode.label.toString() }
+        : undefined
+    );
   };
 
   const handleCommentsOnBlur = async (verifyComments: string | undefined) => {
