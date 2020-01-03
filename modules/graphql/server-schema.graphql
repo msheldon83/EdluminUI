@@ -738,7 +738,7 @@ enum CalendarDayType {
 }
 
 input CancelVacancyAssignmentInput {
-  id: Int!
+  assignmentId: ID!
   rowVersion: String!
   cancellationReasonId: Int
   vacancyDetailIds: [ID]
@@ -1280,6 +1280,7 @@ type EmployeeQueries {
   employeeAbsenceSchedule(id: ID!, fromDate: Date!, toDate: Date!): [Absence]
   employeeVacancySchedule(id: ID!, fromDate: Date!, toDate: Date!): [Vacancy]
   employeeAssignmentSchedule(id: ID!, orgId: ID, fromDate: DateTime!, toDate: Date!, limit: Int, includeCompletedToday: Boolean): [VacancyDetail]
+  employeeSpecificAssignment(id: ID!, assignmentId: ID!, orgId: ID): [VacancyDetail]
 }
 
 input EmployeeRejectVacancyInput {
@@ -4669,6 +4670,7 @@ type VacancyQueries {
   employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
+  specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
   userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [Int], locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
 }
 
@@ -4730,12 +4732,12 @@ type VacancySubSearchQueryResult {
 
 type VacancyWasAssignedResult {
   _info: [ReturnMessage]
-  vacancyId: Int!
+  vacancyId: ID
   employeeId: Int!
   returnCode: Int!
   description: String!
   employeeWasAssigned: Boolean!
-  assignmentId: Int
+  assignmentId: ID
   assignment: Assignment
 }
 
