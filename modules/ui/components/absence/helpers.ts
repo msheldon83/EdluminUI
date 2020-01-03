@@ -4,12 +4,22 @@ import {
   AbsenceDetail,
   Maybe,
   VacancyDetail,
+  AbsenceDetailCreateInput,
 } from "graphql/server-types.gen";
-import { groupBy, differenceWith, uniqWith, compact, map } from "lodash-es";
-import { isAfter, isWithinInterval, format } from "date-fns";
+import {
+  groupBy,
+  differenceWith,
+  uniqWith,
+  compact,
+  map,
+  isEmpty,
+} from "lodash-es";
+import { isAfter, isWithinInterval, format, isSameDay } from "date-fns";
 import { convertStringToDate } from "helpers/date";
 import { TFunction } from "i18next";
 import { FindEmployeeForCurrentUserQuery } from "ui/pages/create-absence/graphql/find-employee-for-current-user.gen";
+import { DateStepperHeader } from "../date-stepper-header";
+import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -445,4 +455,51 @@ export const findEmployee = (data: FindEmployeeForCurrentUserQuery) => {
   const orgUsers = data.userAccess?.me?.user?.orgUsers ?? [];
   const emps = compact(map(orgUsers, u => u?.employee));
   return emps[0];
+};
+
+export const createAbsenceDetailInput = (
+  dates: Date[],
+  absenceReason: string,
+  dayPart?: DayPart,
+  hourlyStartTime?: Date,
+  hourlyEndTime?: Date
+) => {
+  return dates.map(d => {
+    let detail: AbsenceDetailCreateInput = {
+      date: format(d, "P"),
+      dayPartId: dayPart,
+      reasons: [{ absenceReasonId: Number(absenceReason) }],
+    };
+
+    if (dayPart === DayPart.Hourly) {
+      detail = {
+        ...detail,
+        startTime: secondsSinceMidnight(
+          parseTimeFromString(format(hourlyStartTime!, "h:mm a"))
+        ),
+        endTime: secondsSinceMidnight(
+          parseTimeFromString(format(hourlyEndTime!, "h:mm a"))
+        ),
+      };
+    }
+
+    return detail;
+  });
+};
+
+export const getAbsenceDates = (
+  absenceDates: Date[],
+  disabledDates: Date[]
+) => {
+  if (isEmpty(absenceDates)) {
+    return null;
+  }
+  const dates = differenceWith(absenceDates, disabledDates, (a, b) =>
+    isSameDay(a, b)
+  );
+
+  if (!dates.length) {
+    return null;
+  }
+  return dates;
 };

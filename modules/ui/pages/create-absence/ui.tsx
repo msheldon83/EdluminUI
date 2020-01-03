@@ -31,7 +31,11 @@ import * as React from "react";
 import { useCallback, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
-import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
+import {
+  TranslateAbsenceErrorCodeToMessage,
+  createAbsenceDetailInput,
+  getAbsenceDates,
+} from "ui/components/absence/helpers";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -455,21 +459,15 @@ export const buildAbsenceCreateInput = (
   needsReplacement: boolean,
   vacancyDetails?: VacancyDetail[]
 ): AbsenceCreateInput | null => {
-  if (
-    isEmpty(absenceDates) ||
-    !formValues.absenceReason ||
-    !formValues.dayPart
-  ) {
+  if (!formValues.absenceReason || !formValues.dayPart) {
     return null;
   }
-
-  const dates = differenceWith(absenceDates, disabledDates, (a, b) =>
-    isSameDay(a, b.date)
+  const dates = getAbsenceDates(
+    absenceDates,
+    disabledDates.map(d => d.date)
   );
 
-  if (!dates.length) {
-    return null;
-  }
+  if (!dates) return null;
 
   // Must have a start and end time if Hourly
   if (
@@ -485,27 +483,13 @@ export const buildAbsenceCreateInput = (
     orgId: organizationId,
     employeeId: employeeId,
     notesToApprover: formValues.notesToApprover,
-    details: dates.map(d => {
-      let detail: AbsenceDetailCreateInput = {
-        date: format(d, "P"),
-        dayPartId: formValues.dayPart,
-        reasons: [{ absenceReasonId: Number(formValues.absenceReason) }],
-      };
-
-      if (formValues.dayPart === DayPart.Hourly) {
-        detail = {
-          ...detail,
-          startTime: secondsSinceMidnight(
-            parseTimeFromString(format(formValues.hourlyStartTime!, "h:mm a"))
-          ),
-          endTime: secondsSinceMidnight(
-            parseTimeFromString(format(formValues.hourlyEndTime!, "h:mm a"))
-          ),
-        };
-      }
-
-      return detail;
-    }),
+    details: createAbsenceDetailInput(
+      dates,
+      formValues.absenceReason,
+      formValues.dayPart,
+      formValues.hourlyStartTime,
+      formValues.hourlyEndTime
+    ),
   };
 
   const vDetails =

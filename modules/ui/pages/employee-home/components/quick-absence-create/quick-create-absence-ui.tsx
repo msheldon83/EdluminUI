@@ -5,6 +5,7 @@ import {
   Checkbox,
   IconButton,
   Typography,
+  Button,
 } from "@material-ui/core";
 import { Select } from "ui/components/form/select";
 import {
@@ -152,24 +153,32 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
         endTimeError={endTimeError}
       />
 
-      {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
-        <FormControlLabel
-          label={t("Requires a substitute")}
-          control={
-            <Checkbox
-              checked={wantsReplacement}
-              onChange={onNeedsReplacementChangeCallback}
-              color="primary"
-            />
-          }
-        />
-      ) : (
-        <Typography className={classes.substituteRequiredText}>
-          {needsReplacement === NeedsReplacement.Yes
-            ? t("Requires a substitute")
-            : t("No substitute required")}
-        </Typography>
-      )}
+      <div className={classes.replacementNeeded}>
+        {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
+          <FormControlLabel
+            label={t("Requires a substitute")}
+            control={
+              <Checkbox
+                checked={wantsReplacement}
+                onChange={onNeedsReplacementChangeCallback}
+                color="primary"
+              />
+            }
+          />
+        ) : (
+          <Typography className={classes.substituteRequiredText}>
+            {needsReplacement === NeedsReplacement.Yes
+              ? t("Requires a substitute")
+              : t("No substitute required")}
+          </Typography>
+        )}
+      </div>
+
+      <div className={classes.buttons}>
+        <Button variant="outlined" type="submit">
+          {t("Quick Create")}
+        </Button>
+      </div>
     </>
   );
 };
@@ -186,5 +195,12 @@ const useStyles = makeStyles(theme => ({
   },
   substituteRequiredText: {
     fontStyle: "italic",
+  },
+  replacementNeeded: {
+    padding: theme.spacing(1),
+  },
+  buttons: {
+    display: "flex",
+    justifyContent: "flex-end",
   },
 }));

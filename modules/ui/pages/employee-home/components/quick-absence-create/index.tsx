@@ -11,10 +11,20 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useIsAdmin } from "reference-data/is-admin";
 import { useGetEmployee } from "reference-data/employee";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { FindEmployeeForCurrentUser } from "ui/pages/create-absence/graphql/find-employee-for-current-user.gen";
-import { findEmployee } from "ui/components/absence/helpers";
-import { NeedsReplacement, DayPart } from "graphql/server-types.gen";
+import {
+  findEmployee,
+  TranslateAbsenceErrorCodeToMessage,
+  createAbsenceDetailInput,
+  getAbsenceDates,
+} from "ui/components/absence/helpers";
+import {
+  NeedsReplacement,
+  DayPart,
+  AbsenceCreateInput,
+  AbsenceDetailCreateInput,
+} from "graphql/server-types.gen";
 import useForm from "react-hook-form";
 import { useCallback, useMemo } from "react";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
@@ -23,7 +33,19 @@ import { DayPartField } from "ui/components/absence/day-part-field";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { QuickAbsenceCreateUI } from "./quick-create-absence-ui";
 import { QuickCreateAbsenceState, quickCreateAbsenceReducer } from "./state";
-import { startOfMonth, startOfDay, addMonths } from "date-fns";
+import {
+  startOfMonth,
+  startOfDay,
+  addMonths,
+  isSameDay,
+  isBefore,
+  format,
+} from "date-fns";
+import { CreateAbsence } from "ui/pages/create-absence/graphql/create.gen";
+import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
+import { useDialog } from "hooks/use-dialog";
+import { isEmpty, differenceWith } from "lodash-es";
+import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 
 type QuickCreateAbsenceFormData = {
   absenceReason: string;
@@ -41,6 +63,7 @@ type Props = {
 export const QuickAbsenceCreate: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const { openDialog } = useDialog();
 
   const initialState = (props: Props): QuickCreateAbsenceState => ({
     employeeId: props.employeeId,
@@ -91,6 +114,50 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
         t("End time is required"),
     }
   );
+
+  const [createAbsenceMutation] = useMutationBundle(CreateAbsence, {
+    onError: error => {
+      ShowIgnoreAndContinueOrError(
+        error,
+        openDialog,
+        t("There was an issue creating the absence"),
+        async () => await quickCreateAbsence(formValues, state.absenceDates),
+        t,
+        TranslateAbsenceErrorCodeToMessage
+      );
+    },
+  });
+
+  const quickCreateAbsence = async (
+    formData: QuickCreateAbsenceFormData,
+    absenceDates: Date[]
+  ) => {
+    const absenceCreateInput = createQuickAbsenceInputs(
+      props.organizationId,
+      props.employeeId,
+      formData,
+      absenceDates,
+      disabledDates
+    );
+    // if (ignoreWarnings) {
+    //   absenceCreateInput = {
+    //     ...absenceCreateInput,
+    //     ignoreWarnings: true,
+    //   };
+    // }
+    if (!absenceCreateInput) return;
+    console.log("creating absence!", absenceCreateInput);
+    const result = await createAbsenceMutation({
+      variables: {
+        absence: absenceCreateInput,
+      },
+    });
+
+    if (result?.data?.absence?.create) {
+      // redirect to confirmation page
+      console.log("Success! created:", result.data.absence.create);
+    }
+  };
 
   const absenceReasons = useAbsenceReasons(props.organizationId);
   const absenceReasonOptions = useMemo(
@@ -158,40 +225,83 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
   //   employee.primaryPosition?.needsReplacement ?? NeedsReplacement.No;
 
   return (
-    <Section>
-      <SectionHeader title={t("Create absence")} />
-      <QuickAbsenceCreateUI
-        organizationId={props.organizationId}
-        employeeId={props.employeeId}
-        selectedAbsenceReason={formValues.absenceReason}
-        absenceReasonOptions={absenceReasonOptions}
-        onAbsenceReasonChange={onReasonChange}
-        absenceReasonError={errors.absenceReason}
-        viewPreviousMonth={viewPreviousMonth}
-        viewNextMonth={viewNextMonth}
-        absenceDates={state.absenceDates}
-        currentMonth={state.viewingCalendarMonth}
-        onToggleAbsenceDate={(d: Date) =>
-          dispatch({ action: "toggleDate", date: d })
-        }
-        disabledDates={disabledDates}
-        selectedDayPart={formValues.dayPart}
-        onDayPartChange={onDayPartChange}
-        startTimeError={errors.startTimeError}
-        endTimeError={errors.endTimeError}
-        hourlyStartTime={formValues.hourlyStartTime}
-        hourlyEndTime={formValues.hourlyEndTime}
-        onHourlyStartTimeChange={onHourlyStartTimeChange}
-        onHourlyEndTimeChange={onHourlyEndTimeChange}
-        onNeedsReplacementChange={needsReplacement =>
-          dispatch({ action: "setNeedsReplacement", to: needsReplacement })
-        }
-        wantsReplacement={state.needsReplacement}
-        needsReplacement={props.defaultReplacementNeeded}
-        isAdmin={!!userIsAdmin}
-      />
-    </Section>
+    <form
+      onSubmit={handleSubmit(async data => {
+        await quickCreateAbsence(data, state.absenceDates);
+      })}
+    >
+      <Section>
+        <SectionHeader title={t("Create absence")} />
+        <QuickAbsenceCreateUI
+          organizationId={props.organizationId}
+          employeeId={props.employeeId}
+          selectedAbsenceReason={formValues.absenceReason}
+          absenceReasonOptions={absenceReasonOptions}
+          onAbsenceReasonChange={onReasonChange}
+          absenceReasonError={errors.absenceReason}
+          viewPreviousMonth={viewPreviousMonth}
+          viewNextMonth={viewNextMonth}
+          absenceDates={state.absenceDates}
+          currentMonth={state.viewingCalendarMonth}
+          onToggleAbsenceDate={(d: Date) =>
+            dispatch({ action: "toggleDate", date: d })
+          }
+          disabledDates={disabledDates}
+          selectedDayPart={formValues.dayPart}
+          onDayPartChange={onDayPartChange}
+          startTimeError={errors.startTimeError}
+          endTimeError={errors.endTimeError}
+          hourlyStartTime={formValues.hourlyStartTime}
+          hourlyEndTime={formValues.hourlyEndTime}
+          onHourlyStartTimeChange={onHourlyStartTimeChange}
+          onHourlyEndTimeChange={onHourlyEndTimeChange}
+          onNeedsReplacementChange={needsReplacement =>
+            dispatch({ action: "setNeedsReplacement", to: needsReplacement })
+          }
+          wantsReplacement={state.needsReplacement}
+          needsReplacement={props.defaultReplacementNeeded}
+          isAdmin={!!userIsAdmin}
+        />
+      </Section>
+    </form>
   );
 };
 
 const useStyles = makeStyles(theme => ({}));
+
+const createQuickAbsenceInputs = (
+  organizationId: string,
+  employeeId: string,
+  formData: QuickCreateAbsenceFormData,
+  absenceDates: Date[],
+  disabledDates: Date[]
+): AbsenceCreateInput | null => {
+  if (!formData.absenceReason || !formData.dayPart) {
+    return null;
+  }
+  const dates = getAbsenceDates(absenceDates, disabledDates);
+  if (!dates) return null;
+
+  // Must have a start and end time if Hourly
+  if (
+    formData.dayPart === DayPart.Hourly &&
+    (!formData.hourlyStartTime ||
+      !formData.hourlyEndTime ||
+      isBefore(formData.hourlyEndTime, formData.hourlyStartTime))
+  ) {
+    return null;
+  }
+  const details = createAbsenceDetailInput(
+    dates,
+    formData.absenceReason,
+    formData.dayPart,
+    formData.hourlyStartTime,
+    formData.hourlyEndTime
+  );
+
+  return {
+    orgId: Number(organizationId),
+    employeeId: Number(employeeId),
+    details,
+  };
+};
