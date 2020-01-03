@@ -357,7 +357,11 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     const absence = result?.data?.absence?.update as Absence;
     if (absence) {
       openSnackbar({
-        message: t("The absence has been updated"),
+        message: returnUrl
+          ? t("Absence #{{absenceId}} has been updated", {
+              absenceId: absence.id,
+            })
+          : t("The absence has been updated"),
         dismissable: true,
         status: "success",
         autoHideDuration: 5000,
