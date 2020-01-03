@@ -16,8 +16,9 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
 import { startOfDay, min } from "date-fns";
-import { DayPart } from "graphql/server-types.gen";
+import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
 import { useMemo } from "react";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 type Props = {
   organizationId: string;
@@ -40,6 +41,10 @@ type Props = {
   onHourlyEndTimeChange: (value: Date | undefined) => void;
   startTimeError?: FieldError;
   endTimeError?: FieldError;
+  isAdmin: boolean;
+  wantsReplacement: boolean;
+  needsReplacement?: NeedsReplacement | null;
+  onNeedsReplacementChange: (needsReplacement: boolean) => void;
 };
 
 export const QuickAbsenceCreateUI: React.FC<Props> = props => {
@@ -64,6 +69,10 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     onHourlyEndTimeChange,
     startTimeError,
     endTimeError,
+    isAdmin,
+    needsReplacement,
+    wantsReplacement,
+    onNeedsReplacementChange,
   } = props;
 
   const startDate = startOfDay(min(absenceDates));
@@ -90,6 +99,13 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
       }
     },
     [onDayPartChange, onHourlyEndTimeChange, onHourlyStartTimeChange]
+  );
+
+  const onNeedsReplacementChangeCallback = React.useCallback(
+    (event: any) => {
+      onNeedsReplacementChange(event.target.checked);
+    },
+    [onNeedsReplacementChange]
   );
   return (
     <>
@@ -135,6 +151,25 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
         startTimeError={startTimeError}
         endTimeError={endTimeError}
       />
+
+      {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
+        <FormControlLabel
+          label={t("Requires a substitute")}
+          control={
+            <Checkbox
+              checked={wantsReplacement}
+              onChange={onNeedsReplacementChangeCallback}
+              color="primary"
+            />
+          }
+        />
+      ) : (
+        <Typography className={classes.substituteRequiredText}>
+          {needsReplacement === NeedsReplacement.Yes
+            ? t("Requires a substitute")
+            : t("No substitute required")}
+        </Typography>
+      )}
     </>
   );
 };
@@ -148,5 +183,8 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  substituteRequiredText: {
+    fontStyle: "italic",
   },
 }));

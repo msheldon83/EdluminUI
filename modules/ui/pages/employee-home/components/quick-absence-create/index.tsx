@@ -137,7 +137,8 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     async (end: Date | undefined) => await setValue("hourlyEndTime", end),
     [setValue]
   );
-  // const userIsAdmin = useIsAdmin();
+
+  const userIsAdmin = useIsAdmin();
   // const potentialEmployees = useQueryBundle(FindEmployeeForCurrentUser, {
   //   fetchPolicy: "cache-first",
   // });
@@ -182,6 +183,12 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
         hourlyEndTime={formValues.hourlyEndTime}
         onHourlyStartTimeChange={onHourlyStartTimeChange}
         onHourlyEndTimeChange={onHourlyEndTimeChange}
+        onNeedsReplacementChange={needsReplacement =>
+          dispatch({ action: "setNeedsReplacement", to: needsReplacement })
+        }
+        wantsReplacement={state.needsReplacement}
+        needsReplacement={props.defaultReplacementNeeded}
+        isAdmin={!!userIsAdmin}
       />
     </Section>
   );
