@@ -9,12 +9,25 @@ import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule
 import { useState, useMemo } from "react";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
-import { useQueryBundle } from "graphql/hooks";
+import {
+  useQueryBundle,
+  usePagedQueryBundle,
+  useMutationBundle,
+} from "graphql/hooks";
 import { Column } from "material-table";
-import { CalendarChange } from "graphql/server-types.gen";
+import { CalendarChange, CalendarDayType } from "graphql/server-types.gen";
 import { Table } from "ui/components/table";
 import { compact } from "lodash-es";
 import { parseISO, format } from "date-fns";
+import { PageTitle } from "ui/components/page-title";
+import { PaginationControls } from "ui/components/pagination-controls";
+import { CalendarDayTypes } from "reference-data/calendar-day-type";
+import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
+import DeleteIcon from "@material-ui/icons/delete";
+import { DeleteCalendarChange } from "./graphql/delete-calendar-change.gen";
+import { CreateExpansionPanel } from "./components/create-expansion-panel";
+import { CalendarView } from "./components/calendar-view";
+
 import {
   CalendarListViewRoute,
   CalendarCalendarViewRoute,
@@ -32,14 +45,18 @@ export const Calendars: React.FC<Props> = props => {
   const [schoolYear, setSchoolYear] = useState();
   const [contract, setContract] = useState();
 
-  const getCalendarChanges = useQueryBundle(GetCalendarChanges, {
-    variables: {
-      orgId: params.organizationId,
-      schoolYearId: schoolYear,
-      contractId: contract,
-    },
-    fetchPolicy: "cache-first",
-  });
+  const [getCalendarChanges, pagination] = usePagedQueryBundle(
+    GetCalendarChanges,
+    r => r.calendarChange?.paged?.totalCount,
+    {
+      variables: {
+        orgId: params.organizationId,
+        schoolYearId: parseInt(schoolYear?.id),
+        contractId: contract,
+      },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const changesLoaded =
     getCalendarChanges.state === "LOADING" ||
@@ -47,26 +64,36 @@ export const Calendars: React.FC<Props> = props => {
       ? false
       : true;
 
-  /*const calendarChanges =
-    getCalendarChanges.state === "LOADING" ||
-    getCalendarChanges.state === "UPDATING"
-      ? []
-      : getCalendarChanges?.data?.calendarChange?.all || []*/
-
   const calendarChanges =
     getCalendarChanges.state === "LOADING" ||
     getCalendarChanges.state === "UPDATING"
       ? []
-      : compact(getCalendarChanges?.data?.calendarChange?.all ?? []);
+      : compact(getCalendarChanges?.data?.calendarChange?.paged?.results ?? []);
 
-  /*might want to put list into its own component*/
+  /*might want to put list into its own component.  Also make table editable for delete reasons.  Add paginatation.*/
 
-  const columns: Column<GetCalendarChanges.All>[] = [
+  const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(
+    params.organizationId
+  );
+
+  const [deleteCalendarChangeMutation] = useMutationBundle(
+    DeleteCalendarChange
+  );
+
+  const deleteCalendarChange = (calendarChangeId: string) => {
+    return deleteCalendarChangeMutation({
+      variables: {
+        calendarChangeId: Number(calendarChangeId),
+      },
+    });
+  };
+
+  const columns: Column<GetCalendarChanges.Results>[] = [
     {
       title: t("Date"),
       field: "startDate",
       searchable: false,
-      render: (o: GetCalendarChanges.All) =>
+      render: (o: GetCalendarChanges.Results) =>
         o.startDate === o.endDate
           ? format(parseISO(o.startDate), "MMM d, yyyy")
           : `${format(parseISO(o.startDate), "MMM d, yyyy")} to ${format(
@@ -76,12 +103,26 @@ export const Calendars: React.FC<Props> = props => {
     },
     {
       title: t("Type"),
-      field: "calendarChangeReason.name",
+      field: "calendarChangeReason.calendarDayTypeId",
       searchable: false,
+      render: (o: GetCalendarChanges.Results) => {
+        return o.calendarChangeReason?.calendarDayTypeId !==
+          CalendarDayType.InstructionalDay
+          ? CalendarDayTypes?.find(
+              e =>
+                e.enumValue.toString() ==
+                o.calendarChangeReason?.calendarDayTypeId
+            )?.name
+          : orgWorkDayScheduleVariantTypes?.find(
+              e =>
+                e.id.toString() ==
+                o.calendarChangeReason?.workDayScheduleVariantType?.id
+            )?.name;
+      },
     },
     {
       title: t("Reason"),
-      field: "calendarChangeReason.calendarDayTypeId",
+      field: "calendarChangeReason.name",
       searchable: false,
     },
     {
@@ -105,12 +146,15 @@ export const Calendars: React.FC<Props> = props => {
     <>
       <div className={classes.pageContainer}>
         <Section className={classes.container}>
+          <CreateExpansionPanel />
+        </Section>
+        <Section className={classes.container}>
           <Grid container>
             <Grid item xs={12} className={classes.filters}>
               <div className={classes.scheduleHeader}>
                 <ContractScheduleHeader
                   view={props.view}
-                  schoolYearValue={schoolYear}
+                  schoolYearValue={schoolYear?.id}
                   setSchoolYear={setSchoolYear}
                   contractValue={contract}
                   setContract={setContract}
@@ -137,14 +181,47 @@ export const Calendars: React.FC<Props> = props => {
                     </Typography>
                   )}
                   {changesLoaded && (
-                    <Table
-                      columns={columns}
-                      data={calendarChanges}
-                      title={""}
-                    />
+                    <div>
+                      <Table
+                        selection={true}
+                        columns={columns}
+                        data={calendarChanges}
+                        title={""}
+                        actions={[
+                          {
+                            tooltip: t("Delete selected events"),
+                            icon: () => <DeleteIcon />,
+                            onClick: async (evt, data) => {
+                              if (Array.isArray(data)) {
+                                await Promise.all(
+                                  data.map(cc => deleteCalendarChange(cc.id))
+                                );
+                              } else {
+                                await Promise.resolve(
+                                  deleteCalendarChange(data.id)
+                                );
+                              }
+                              await getCalendarChanges.refetch();
+                            },
+                          },
+                        ]}
+                      />
+
+                      <PaginationControls
+                        pagination={pagination}
+                        pageSizeOptions={[25, 50, 100, 250, 500]}
+                      />
+                    </div>
                   )}
                 </Grid>
               </Grid>
+            )}
+            {props.view === "calendar" && (
+              <CalendarView
+                calandarChangeDates={calendarChanges}
+                fromDate={parseISO(schoolYear?.startDate)}
+                toDate={parseISO(schoolYear?.endDate)}
+              />
             )}
           </Grid>
         </Section>

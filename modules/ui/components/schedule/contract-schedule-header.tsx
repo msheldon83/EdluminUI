@@ -6,12 +6,13 @@ import { Grid, InputLabel, makeStyles } from "@material-ui/core";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { parseISO } from "date-fns";
 import { useContracts } from "reference-data/contracts";
+import { LocalConvenienceStoreOutlined } from "@material-ui/icons";
 
 type Props = {
   view: "list" | "calendar";
   orgId: string;
   schoolYearValue: number;
-  setSchoolYear: React.Dispatch<React.SetStateAction<number>>;
+  setSchoolYear: React.Dispatch<React.SetStateAction<any>>;
   contractValue: number;
   setContract: React.Dispatch<React.SetStateAction<number>>;
 };
@@ -29,9 +30,9 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
 
   //initialize drop down
   if (schoolYears.length > 0 && props.schoolYearValue === undefined) {
-    const cy = schoolYears.find(sy => sy.isCurrentSchoolYear)?.id;
+    const cy = schoolYears.find(sy => sy.isCurrentSchoolYear);
     if (cy) {
-      props.setSchoolYear(parseInt(cy));
+      props.setSchoolYear(cy);
     }
   }
 
@@ -53,14 +54,16 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
           withDropdownIndicator
           options={schoolOptions}
           value={schoolOptions.find(
-            (s: any) => s.value === props.schoolYearValue
+            (s: any) => s.value == props.schoolYearValue
           )}
           onChange={(e: SelectValueType) => {
-            let selectedValue = null;
+            let selectedValue: any = null;
             if (e) {
               selectedValue = (e as OptionTypeBase).value;
             }
-            props.setSchoolYear(selectedValue);
+            props.setSchoolYear(
+              schoolYears.find(sy => sy.id === selectedValue.toString())
+            );
           }}
           isClearable={false}
         />

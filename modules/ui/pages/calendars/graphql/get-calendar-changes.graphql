@@ -1,24 +1,42 @@
-query getCalendarChanges($orgId: ID!, $contractId: Int, $schoolYearId: Int) {
+query getCalendarChanges(
+  $orgId: ID!
+  $contractId: Int
+  $schoolYearId: Int
+  $limit: Int
+  $offset: Int
+) {
   calendarChange {
-    all(orgId: $orgId, contractId: $contractId, schoolYearId: $schoolYearId) {
-      id
-      description
-      rowVersion
-      affectsAllContracts
-      calendarChangeReason {
-        name
-        calendarDayTypeId
-        workDayScheduleVariantType {
+    paged(
+      orgId: $orgId
+      contractId: $contractId
+      schoolYearId: $schoolYearId
+      limit: $limit
+      offset: $offset
+    ) {
+      offset
+      limit
+      hasMoreData
+      totalCount
+      results {
+        id
+        description
+        rowVersion
+        affectsAllContracts
+        calendarChangeReason {
+          name
+          calendarDayTypeId
+          workDayScheduleVariantType {
+            id
+          }
+        }
+        startDate
+        endDate
+        changedContracts {
+          name
           id
         }
+        schoolYearId
       }
-      startDate
-      endDate
-      changedContracts {
-        name
-        id
-      }
-      schoolYearId
     }
   }
 }

@@ -104,7 +104,7 @@ export const CalendarView: React.FC<Props> = props => {
     selectedScheduleDates.length,
     setSelectedScheduleDates,
   ]);
-
+  console.log(monthGroups);
   return (
     <Grid container spacing={2}>
       {monthGroups.map((group, i) => (

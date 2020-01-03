@@ -149,6 +149,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           />
           <CalendarNavLink
             onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
             route={CalendarListViewRoute.generate(params)}
           />
           <ConfigurationNavLink
