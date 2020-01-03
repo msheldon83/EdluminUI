@@ -7,7 +7,7 @@ import OutlinedInput, {
   OutlinedInputProps,
 } from "@material-ui/core/OutlinedInput";
 
-type Props = Omit<OutlinedInputProps, "labelWidth"> & {
+export type InputProps = Omit<OutlinedInputProps, "labelWidth"> & {
   label?: string; // optional for now, but in the future should be required
   withSpacing?: boolean;
   InputComponent?: React.ElementType;
@@ -16,7 +16,7 @@ type Props = Omit<OutlinedInputProps, "labelWidth"> & {
   validationMessage?: string | undefined;
 };
 
-export const Input = React.forwardRef((props: Props, ref) => {
+export const Input = React.forwardRef((props: InputProps, ref) => {
   const {
     label,
     InputComponent,
