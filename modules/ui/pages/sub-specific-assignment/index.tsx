@@ -80,8 +80,6 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
     [vacancyDetails]
   );
 
-  console.log(vacancyDetails);
-
   return (
     <>
       <PageTitle title={`${t("Assignment")} ${assignmentNumber}`} />
