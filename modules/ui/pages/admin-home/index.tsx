@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useRouteParams } from "ui/routes/definition";
 import { DailyReport } from "ui/components/reports/daily-report/daily-report";
-import { startOfToday, getHours, startOfTomorrow } from "date-fns";
+import { startOfToday, getHours, startOfTomorrow, isSameDay } from "date-fns";
 import { Grid, Button, Tooltip } from "@material-ui/core";
 import { DateStepperHeader } from "ui/components/date-stepper-header";
 import { useMemo, useState, useEffect } from "react";
@@ -18,6 +18,8 @@ import { TFunction } from "i18next";
 import { Link } from "react-router-dom";
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { CardType } from "ui/components/reports/daily-report/helpers";
+import { useQueryParamIso } from "hooks/query-params";
+import { FilterQueryParams } from "ui/components/reports/daily-report/filters/filter-params";
 
 type Props = {};
 
@@ -25,31 +27,48 @@ export const AdminHome: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const params = useRouteParams(AdminHomeRoute);
-  const [date, setDate] = useState(startOfToday());
-  const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay());
+  const [filters] = useQueryParamIso(FilterQueryParams);
+  const [date, setDate] = useState(new Date(filters.date));
+  // If there is a mismatch between dates, then we should be
+  // using the date coming from the querystring filters
+  // so defaulting to "morning" maintains that
+  const [timeOfDay, setTimeOfDay] = useState(
+    isSameDay(new Date(filters.date), startOfToday())
+      ? getTimeOfDay()
+      : "morning"
+  );
   const [selectedCard, setSelectedCard] = useState<CardType>("unfilled");
-
   const dailyReportRouteParams = useRouteParams(DailyReportRoute);
+
   const getUserName = useQueryBundle(GetUserName, {
     fetchPolicy: "cache-first",
   });
-  const salutation = getSalutation(timeOfDay, getUserName, t);
+  const salutation = useMemo(() => {
+    return getSalutation(getUserName, t);
+  }, [getUserName, t]);
 
+  // On load make sure the right data is
+  // being shown based on the timeOfDay
   useEffect(() => {
     if (timeOfDay === "morning") {
-      setDate(startOfToday());
       setSelectedCard("unfilled");
-    }
-    if (timeOfDay === "afternoon") {
+    } else if (timeOfDay === "afternoon") {
       setSelectedCard("awaitingVerification");
-    }
-    if (timeOfDay === "evening") {
+    } else if (timeOfDay === "evening") {
       setDate(startOfTomorrow());
       setSelectedCard("unfilled");
     }
-  }, [timeOfDay]);
+  }, []);
 
+  /* This is purely to support the "Toggle Time of Day" button
+      in Dev for testing. In Prod we'll only be setting the 
+      timeOfDay once when the page loads.
+  */
   const toggleTimeOfDay = () => {
+    if (!__DEV__) {
+      return;
+    }
+
     let newTimeOfDay: TimeOfDay = "morning";
     if (timeOfDay === "morning") {
       newTimeOfDay = "afternoon";
@@ -57,6 +76,17 @@ export const AdminHome: React.FC<Props> = props => {
       newTimeOfDay = "evening";
     }
     setTimeOfDay(newTimeOfDay);
+
+    if (newTimeOfDay === "morning") {
+      setDate(startOfToday());
+      setSelectedCard("unfilled");
+    } else if (newTimeOfDay === "afternoon") {
+      setDate(startOfToday());
+      setSelectedCard("awaitingVerification");
+    } else if (newTimeOfDay === "evening") {
+      setDate(startOfTomorrow());
+      setSelectedCard("unfilled");
+    }
   };
 
   return (
@@ -111,10 +141,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const getSalutation = (
-  timeOfDay: TimeOfDay,
   queryResult: HookQueryResult<GetUserNameQuery, GetUserNameQueryVariables>,
   t: TFunction
 ) => {
+  const timeOfDay = getTimeOfDay();
   const firstName =
     queryResult.state === "LOADING"
       ? undefined
