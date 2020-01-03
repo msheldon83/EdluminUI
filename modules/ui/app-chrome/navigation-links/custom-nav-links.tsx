@@ -29,6 +29,7 @@ import { SecurityManagedOrganizationsRoute } from "ui/routes/security/managed-or
 type Props = {
   className?: string;
   route: string;
+  navBarExpanded: boolean;
   onClick?: () => void;
 };
 

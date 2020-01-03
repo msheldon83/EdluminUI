@@ -2,10 +2,12 @@ import {
   Button,
   Divider,
   Grid,
+  IconButton,
   Link as MuiLink,
   Typography,
 } from "@material-ui/core";
 import { FilterList } from "@material-ui/icons";
+import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/styles";
 import clsx from "clsx";
 import { addDays, format, isEqual, parseISO } from "date-fns";
@@ -126,6 +128,7 @@ export const SubHome: React.FC<Props> = props => {
         .sort(x => x.startTimeLocal),
     [vacancies, dismissedAssignments]
   );
+  const onRefreshVacancies = async () => await getVacancies.refetch();
 
   const fromDate = useMemo(() => new Date(), []);
   const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
@@ -306,7 +309,8 @@ export const SubHome: React.FC<Props> = props => {
                   {t("Available Jobs")}
                 </Typography>
               </Grid>
-              {isMobile && (
+
+              {isMobile ? (
                 <Grid item>
                   <Button
                     variant="outlined"
@@ -314,6 +318,15 @@ export const SubHome: React.FC<Props> = props => {
                     onClick={() => setShowFilters(!showFilters)}
                   >
                     {t("Filters")}
+                  </Button>
+                  <IconButton onClick={onRefreshVacancies}>
+                    <RefreshIcon />
+                  </IconButton>
+                </Grid>
+              ) : (
+                <Grid item>
+                  <Button variant="outlined" onClick={onRefreshVacancies}>
+                    {t("Refresh")}
                   </Button>
                 </Grid>
               )}

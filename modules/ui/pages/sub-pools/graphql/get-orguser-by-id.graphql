@@ -1,0 +1,17 @@
+query GetOrgUserById($id: ID!) {
+  orgUser {
+    byId(id: $id) {
+      id
+      orgId
+      rowVersion
+      externalId
+      firstName
+      middleName
+      lastName
+      active
+      isReplacementEmployee
+      isEmployee
+      isAdmin
+    }
+  }
+}

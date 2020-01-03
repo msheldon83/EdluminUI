@@ -83,6 +83,8 @@ import {
   PeopleLoader,
   PeopleRoute,
   PersonViewLoader,
+  PeopleSubPoolEditLoader,
+  PeopleSubPoolEditRoute,
   PersonViewRoute,
   EmployeeAbsScheduleLoader,
   EmployeeAbsScheduleRoute,
@@ -295,6 +297,10 @@ export function App() {
                           path={SubstituteAssignmentScheduleRoute.path}
                         />
                         <Route
+                          component={PeopleSubPoolEditLoader}
+                          path={PeopleSubPoolEditRoute.path}
+                        />
+                        <Route
                           component={PersonViewLoader}
                           path={PersonViewRoute.path}
                         />
@@ -433,11 +439,11 @@ export function App() {
                           component={SecurityManagedOrganizationsLoader}
                           path={SecurityManagedOrganizationsRoute.path}
                         />
-
                         <Route
                           component={DailyReportLoader}
                           path={DailyReportRoute.path}
                         />
+
                         {/* This route handles unknown or underspecified routes and takes the
                               admin to their organization (or a switcher) */}
                         <Route path={AdminRootChromeRoute.path}>

@@ -1,0 +1,16 @@
+query GetAllWorkDayScheduleVariantTypesInOrg(
+  $orgId: ID
+  $includeExpired: Boolean
+) {
+  orgRef_WorkDayScheduleVariantType {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
+      id
+      name
+      rowVersion
+      description
+      externalId
+      expired
+      isStandard
+    }
+  }
+}

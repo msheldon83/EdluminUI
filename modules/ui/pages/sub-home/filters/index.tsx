@@ -25,8 +25,10 @@ export const Filters: React.FC<Props> = props => {
     >
       <SchoolFilter {...filters} locationLabel={t("Schools")} />
       <DistrictFilter {...filters} orgLabel={t("Districts")} />
+      {/*
       <PositionTypeFilter {...filters} positionTypeLabel={t("Position type")} />
       <TimeFilter {...filters} timeLabel={t("Time")} />
+      */}
     </Grid>
   );
 };

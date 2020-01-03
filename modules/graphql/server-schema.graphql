@@ -1077,6 +1077,19 @@ scalar DateTime
 
 scalar DateTimeOffset
 
+type DayConversion {
+  _info: [ReturnMessage]
+  name: String!
+  maxMinutes: Int!
+  dayEquivalent: Decimal!
+}
+
+input DayConversionInput {
+  name: String!
+  maxMinutes: Int!
+  dayEquivalent: Decimal!
+}
+
 enum DayOfWeek {
   SUNDAY
   MONDAY
@@ -2061,6 +2074,7 @@ type organizationConfig {
   minRequestedEmployeeHoldMinutes: Int!
   maxRequestedEmployeeHoldMinutes: Int!
   minorConflictThresholdMinutes: Int!
+  vacancyDayConversions: [DayConversion]
 }
 
 input organizationConfigInput {
@@ -2082,6 +2096,7 @@ input organizationConfigInput {
   minRequestedEmployeeHoldMinutes: Int
   maxRequestedEmployeeHoldMinutes: Int
   minorConflictThresholdMinutes: Int
+  vacancyDayConversions: [DayConversionInput]
 }
 
 input OrganizationCreateInput {
@@ -4524,6 +4539,7 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   verifiedAtUtc: DateTime
   verifyComments: String
   payDurationOverride: Int
+  payTypeId: AbsenceReasonTrackingTypeId
   workDayScheduleId: Int
   workDayId: Int!
   workDay: WorkDay
@@ -4582,6 +4598,7 @@ input VacancyDetailVerifyInput {
   payDurationOverride: Int
   dayPortion: Decimal
   accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
+  payTypeId: AbsenceReasonTrackingTypeId
 }
 
 type VacancyEmployeeInterest implements ModelObjectInterface & OrgObjectInterface {
