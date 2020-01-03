@@ -1,11 +1,13 @@
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Grid, Button, Typography, makeStyles } from "@material-ui/core";
 import {
   VacancyDetail,
   VacancyDetailVerifyInput,
   AbsenceReasonTrackingTypeId,
   DayConversion,
+  PayCode,
+  AccountingCode,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
@@ -18,6 +20,7 @@ import { Select, SelectValueType, OptionType } from "ui/components/form/select";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { OptionTypeBase } from "react-select/src/types";
 import { getDisplayName } from "ui/components/enumHelpers";
+import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
 
 type Props = {
   vacancyDetail: Pick<
@@ -55,9 +58,16 @@ export const Assignment: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const vacancyDetail = props.vacancyDetail;
-  const [payTypeId, setPayTypeId] = React.useState<AbsenceReasonTrackingTypeId>(
-    vacancyDetail.payTypeId ?? AbsenceReasonTrackingTypeId.Daily
-  );
+  const [currentPayCode, setCurrentPayCode] = useState<
+    Pick<PayCode, "id" | "name"> | undefined
+  >(vacancyDetail.payCode ?? undefined);
+  const [currentAccountingCode, setCurrentAccountingCode] = useState<
+    Pick<AccountingCode, "id" | "name"> | undefined
+  >(vacancyDetail.accountingCodeAllocations![0]?.accountingCode ?? undefined);
+  const [selectedDayConversionName, setSelectedDayConversionName] = useState<
+    string
+  >();
+  const dayConversionHourlyName = t("Hourly");
 
   // If the date is null, this record is not verified and needs to be verified
   // If it is verified, we would want to allow the record to be unverified
@@ -90,52 +100,92 @@ export const Assignment: React.FC<Props> = props => {
     ? vacancyDetail.id === props.selectedVacancyDetail
     : false;
 
+  // Build dropdown options list for the Day Conversions
   const dayConversionOptions = useMemo(() => {
     return [
       ...props.vacancyDayConversions.map(a => ({
         label: a.name,
         value: a.name,
       })),
-      { label: t("Hourly"), value: AbsenceReasonTrackingTypeId.Hourly },
+      {
+        label: dayConversionHourlyName,
+        value: AbsenceReasonTrackingTypeId.Hourly,
+      },
     ];
-  }, [props.vacancyDayConversions, t]);
-  const matchingDayConversionName = useMemo(() => {
-    if (!vacancyDetail.actualDuration) {
-      return dayConversionOptions.find(
-        x => x.value === AbsenceReasonTrackingTypeId.Hourly
-      )?.label;
+  }, [props.vacancyDayConversions, dayConversionHourlyName]);
+
+  // Make sure the dayConversionName is initially set
+  useEffect(() => {
+    if (
+      !vacancyDetail.dayPortion ||
+      vacancyDetail.payTypeId === AbsenceReasonTrackingTypeId.Hourly
+    ) {
+      setSelectedDayConversionName(
+        dayConversionOptions.find(
+          x => x.value === AbsenceReasonTrackingTypeId.Hourly
+        )?.label
+      );
+      return;
     }
 
-    const matchByDuration = props.vacancyDayConversions.find(
-      x => x.maxMinutes === vacancyDetail.actualDuration
+    const matchByDayPortion = props.vacancyDayConversions.find(
+      x => x.dayEquivalent === vacancyDetail.dayPortion
     );
-    if (matchByDuration) {
-      return dayConversionOptions.find(
-        x =>
-          x.label === matchByDuration.name &&
-          x.value === AbsenceReasonTrackingTypeId.Daily
-      )?.label;
+    if (matchByDayPortion) {
+      setSelectedDayConversionName(
+        dayConversionOptions.find(
+          x =>
+            x.label === matchByDayPortion.name &&
+            x.value === matchByDayPortion.name
+        )?.label
+      );
+      return;
     }
-    return dayConversionOptions.find(
-      x => x.value === AbsenceReasonTrackingTypeId.Hourly
-    )?.label;
+    setSelectedDayConversionName(
+      dayConversionOptions.find(
+        x => x.value === AbsenceReasonTrackingTypeId.Hourly
+      )?.label
+    );
   }, [
-    dayConversionOptions,
     props.vacancyDayConversions,
-    vacancyDetail.actualDuration,
+    dayConversionOptions,
+    vacancyDetail.dayPortion,
+    vacancyDetail.payTypeId,
   ]);
 
-  const daysInfo =
-    vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
+  // Get the current PayTypeId
+  const payTypeId = useMemo(() => {
+    const matchingDayConversion = props.vacancyDayConversions.find(
+      x => x.name === selectedDayConversionName
+    );
+    return matchingDayConversion
+      ? AbsenceReasonTrackingTypeId.Daily
+      : AbsenceReasonTrackingTypeId.Hourly;
+  }, [selectedDayConversionName, props.vacancyDayConversions]);
+
+  const daysInfo = useMemo(() => {
+    const dayEquivalent = props.vacancyDayConversions.find(
+      x => x.name === selectedDayConversionName
+    )?.dayEquivalent;
+    if (dayEquivalent) {
+      return dayEquivalent;
+    }
+
+    return vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
       ? `${vacancyDetail.dayPortion.toFixed(1)}`
       : `${vacancyDetail.dayPortion.toFixed(
           1
         )}/${vacancyDetail.totalDayPortion.toFixed(1)}`;
+  }, [selectedDayConversionName, props.vacancyDayConversions]);
+
   const payInfo =
     payTypeId === AbsenceReasonTrackingTypeId.Daily
       ? `${daysInfo} ${t("Days")}`
-      : `${vacancyDetail.payDurationOverride ??
-          vacancyDetail.actualDuration} ${t("Hours")}`;
+      : `${minutesToHours(
+          vacancyDetail.payDurationOverride ??
+            vacancyDetail.actualDuration ??
+            undefined
+        )} ${t("Hours")}`;
 
   const handlePayCodeOnBlur = async (payCodeId: string | undefined) => {
     await props.onVerify({
@@ -148,7 +198,7 @@ export const Assignment: React.FC<Props> = props => {
   const handleAccountingCodeOnBlur = async (
     accountingCodeId: string | undefined
   ) => {
-    await props.onVerify({
+    const result = await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
       accountingCodeAllocations: accountingCodeId
@@ -160,6 +210,7 @@ export const Assignment: React.FC<Props> = props => {
           ]
         : [],
     });
+    console.log(result);
   };
 
   const handleCommentsOnBlur = async (verifyComments: string | undefined) => {
@@ -170,19 +221,24 @@ export const Assignment: React.FC<Props> = props => {
     });
   };
 
-  const handleDaysOnBlur = async (
+  const handleDaysUpdate = async (
     dayPortion: number,
-    payDurationOverride: number | null | undefined
+    payDurationOverride: number | null | undefined,
+    dayConversionName: string | undefined
   ) => {
+    // Find the matching day conversion
+    const dayConversion = props.vacancyDayConversions.find(
+      x => x.name === dayConversionName
+    );
+
     await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
-      dayPortion,
-      payDurationOverride:
-        payTypeId === AbsenceReasonTrackingTypeId.Hourly
-          ? payDurationOverride
-          : null,
-      payTypeId: payTypeId,
+      dayPortion: dayConversion?.dayEquivalent ?? dayPortion,
+      payDurationOverride: !dayConversion ? payDurationOverride : null,
+      payTypeId: dayConversion
+        ? AbsenceReasonTrackingTypeId.Daily
+        : AbsenceReasonTrackingTypeId.Hourly,
     });
   };
 
@@ -198,14 +254,11 @@ export const Assignment: React.FC<Props> = props => {
       <Formik
         initialValues={{
           verifyComments: vacancyDetail.verifyComments ?? undefined,
-          payCodeId: vacancyDetail.payCode?.id ?? undefined,
+          payCodeId: currentPayCode?.id ?? undefined,
           dayPortion: vacancyDetail.dayPortion,
-          accountingCodeId:
-            vacancyDetail.accountingCodeAllocations![0]?.accountingCode?.id ??
-            undefined,
+          accountingCodeId: currentAccountingCode?.id ?? undefined,
           payDurationOverride:
             vacancyDetail.payDurationOverride ?? vacancyDetail.actualDuration,
-          matchingDayConversionName: matchingDayConversionName,
         }}
         onSubmit={async (data, e) => {
           await props.onVerify({
@@ -292,8 +345,7 @@ export const Assignment: React.FC<Props> = props => {
                 {!isActiveCard && (
                   <Typography
                     className={classes.boldText}
-                  >{`Pay: ${vacancyDetail.payCode?.name ??
-                    t("N/A")}`}</Typography>
+                  >{`Pay: ${currentPayCode?.name ?? t("N/A")}`}</Typography>
                 )}
               </Grid>
               <Grid item xs={2}>
@@ -303,8 +355,8 @@ export const Assignment: React.FC<Props> = props => {
                 {!isActiveCard && (
                   <Typography
                     className={classes.boldText}
-                  >{`Acct: ${vacancyDetail.accountingCodeAllocations![0]
-                    ?.accountingCode?.name ?? t("N/A")}`}</Typography>
+                  >{`Acct: ${currentAccountingCode?.name ??
+                    t("N/A")}`}</Typography>
                 )}
               </Grid>
               <Grid item xs={2}>
@@ -331,15 +383,16 @@ export const Assignment: React.FC<Props> = props => {
                   spacing={2}
                   className={props.shadeRow ? classes.shadedRow : undefined}
                 >
-                  <Grid item xs={4}>
+                  <Grid item xs={2}></Grid>
+                  <Grid item xs={2}>
                     <Select
                       value={dayConversionOptions.find(
-                        a => a.label === values.matchingDayConversionName
+                        a => a.label === selectedDayConversionName
                       )}
-                      onChange={(e: SelectValueType) => {
+                      onChange={async (e: SelectValueType) => {
                         //TODO: Once the select component is updated,
                         // can remove the Array checking
-                        let selectedLabel = null;
+                        let selectedLabel: string | undefined = undefined;
                         if (e) {
                           if (Array.isArray(e)) {
                             selectedLabel = (e as Array<OptionTypeBase>)[0]
@@ -348,50 +401,51 @@ export const Assignment: React.FC<Props> = props => {
                             selectedLabel = (e as OptionTypeBase).label;
                           }
                         }
-                        setFieldValue("matchingDayConversionName", selectedLabel);
-                        //setPayTypeId
+                        setSelectedDayConversionName(selectedLabel);
+                        await handleDaysUpdate(
+                          values.dayPortion,
+                          values.payDurationOverride,
+                          selectedLabel
+                        );
                       }}
                       options={dayConversionOptions}
                       isClearable={false}
                     />
                   </Grid>
                   <Grid item xs={2}>
-                    <Input
-                      value={
-                        payTypeId === AbsenceReasonTrackingTypeId.Daily
-                          ? values.dayPortion
-                          : values.payDurationOverride
-                      }
-                      InputComponent={FormTextField}
-                      inputComponentProps={{
-                        name:
-                          payTypeId === AbsenceReasonTrackingTypeId.Daily
-                            ? "dayPortion"
-                            : "payDurationOverride",
-                        margin: "normal",
-                        label:
-                          payTypeId === AbsenceReasonTrackingTypeId.Daily
-                            ? t("Days")
-                            : t("Hours"),
-                        fullWidth: true,
-                      }}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ) => {
-                        setFieldValue(
-                          payTypeId === AbsenceReasonTrackingTypeId.Daily
-                            ? "dayPortion"
-                            : "payDurationOverride",
-                          event.target.value
-                        );
-                      }}
-                      onBlur={() =>
-                        handleDaysOnBlur(
-                          values.dayPortion,
-                          values.payDurationOverride
-                        )
-                      }
-                    />
+                    {payTypeId === AbsenceReasonTrackingTypeId.Daily ? (
+                      <Typography className={classes.boldText}>
+                        {payInfo}
+                      </Typography>
+                    ) : (
+                      <Input
+                        value={minutesToHours(
+                          values.payDurationOverride ?? undefined
+                        )}
+                        InputComponent={FormTextField}
+                        inputComponentProps={{
+                          name: "payDurationOverride",
+                          margin: "normal",
+                          label: t("Hours"),
+                          fullWidth: true,
+                        }}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ) => {
+                          setFieldValue(
+                            "payDurationOverride",
+                            hoursToMinutes(Number(event.target.value))
+                          );
+                        }}
+                        onBlur={() =>
+                          handleDaysUpdate(
+                            values.dayPortion,
+                            values.payDurationOverride,
+                            selectedDayConversionName
+                          )
+                        }
+                      />
+                    )}
                   </Grid>
                   <Grid item xs={2}>
                     <Select
