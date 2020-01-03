@@ -364,11 +364,11 @@ export const useStyles = makeStyles(theme => ({
     position: "absolute",
     bottom: "0",
     right: "0",
-    padding: theme.spacing(1),
+    padding: "0",
   },
   mobileNotes: {
     position: "absolute",
-    top: "50%",
+    top: "75px",
     right: "0",
     padding: theme.spacing(1),
   },

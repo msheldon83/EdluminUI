@@ -1,5 +1,4 @@
 import {
-  Grid,
   Typography,
   IconButton,
   makeStyles,
@@ -178,6 +177,10 @@ export const useStyles = makeStyles(theme => ({
   },
   section: {
     marginBottom: theme.spacing(1),
+
+    [theme.breakpoints.down("sm")]: {
+      marginBottom: theme.spacing(0),
+    },
   },
   paper: {
     border: "1px solid",
