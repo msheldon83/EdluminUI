@@ -83,6 +83,11 @@ export const AvailableJob: React.FC<Props> = props => {
   const notesOpen = Boolean(notesAnchor);
   const notesId = notesOpen ? "notes-popper" : undefined;
 
+  const handleDismiss = async () => {
+    await props.onDismiss(vacancy.organization.id, vacancy.id);
+    setExpanded(false);
+  };
+
   const renderNotesPopper = (notes: string) => {
     return (
       <>
@@ -183,9 +188,7 @@ export const AvailableJob: React.FC<Props> = props => {
               <Grid item xs={1}>
                 {
                   <Button
-                    onClick={() =>
-                      props.onDismiss(vacancy.organization.id, vacancy.id)
-                    }
+                    onClick={() => handleDismiss()}
                     className={classes.lightUnderlineText}
                   >
                     {t("Dismiss")}
@@ -206,15 +209,8 @@ export const AvailableJob: React.FC<Props> = props => {
           )}
         </Grid>
         {isMobile && (
-          <Grid
-            container
-            direction="column"
-            justify="space-evenly"
-            alignItems="stretch"
-            item
-            xs={2}
-          >
-            <Grid item>
+          <>
+            <div className={classes.mobileAccept}>
               {renderAcceptViewButton(
                 expanded || vacancy.details!.length === 1,
                 props.onAccept,
@@ -223,30 +219,23 @@ export const AvailableJob: React.FC<Props> = props => {
                 vacancy.id,
                 t
               )}
-            </Grid>
-            <Grid item>
-              <div className={vacancy.notesToReplacement ? classes.spacerDiv1 : classes.spacerDiv2}></div>
-            </Grid>
-            <Grid item>
-              {vacancy.notesToReplacement &&
-                renderNotesPopper(vacancy.notesToReplacement)}
-            </Grid>
-            <Grid item>
-              <div className={vacancy.notesToReplacement ? classes.spacerDiv1 : classes.spacerDiv2}></div>
-            </Grid>
+            </div>
+            {vacancy.notesToReplacement && (
+              <div className={classes.mobileNotes}>
+                {renderNotesPopper(vacancy.notesToReplacement)}
+              </div>
+            )}
             {!expanded && (
-              <Grid item>
+              <div className={classes.mobileDismiss}>
                 <Button
-                  onClick={() =>
-                    props.onDismiss(vacancy.organization.id, vacancy.id)
-                  }
+                  onClick={() => handleDismiss()}
                   className={classes.lightUnderlineText}
                 >
                   {t("Dismiss")}
                 </Button>
-              </Grid>
+              </div>
             )}
-          </Grid>
+          </>
         )}
         {(expanded || props.forSingleJob) && vacancy.details!.length > 1 && (
           <>
@@ -326,6 +315,9 @@ export const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
     backgroundColor: theme.palette.background.paper,
   },
+  wrapper: {
+    position: "relative",
+  },
   text: {
     fontSize: theme.typography.pxToRem(14),
   },
@@ -344,11 +336,17 @@ export const useStyles = makeStyles(theme => ({
     textDecoration: "underline",
   },
   nonShadedRow: {
-    padding: theme.spacing(1),
+    position: "relative",
+    marginBottom: theme.spacing(1),
+    width: "100%",
+    paddingLeft: theme.spacing(1),
   },
   shadedRow: {
     background: theme.customColors.lightGray,
-    padding: theme.spacing(1),
+    position: "relative",
+    marginBottom: theme.spacing(1),
+    width: "100%",
+    paddingLeft: theme.spacing(1),
   },
   dayPartContainer: {
     display: "flex",
@@ -356,10 +354,22 @@ export const useStyles = makeStyles(theme => ({
   dayPart: {
     paddingLeft: theme.spacing(),
   },
-  spacerDiv1: {
-    height: "36px",
+  mobileAccept: {
+    position: "absolute",
+    top: "0",
+    right: "0",
+    padding: theme.spacing(1),
   },
-  spacerDiv2: {
-    height: "52px",
-  }
+  mobileDismiss: {
+    position: "absolute",
+    bottom: "0",
+    right: "0",
+    padding: "0",
+  },
+  mobileNotes: {
+    position: "absolute",
+    top: "75px",
+    right: "0",
+    padding: theme.spacing(1),
+  },
 }));
