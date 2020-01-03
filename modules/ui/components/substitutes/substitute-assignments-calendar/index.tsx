@@ -25,7 +25,7 @@ export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
     {
       variables: {
         id: String(props.userId),
-        organizationId: String(props.orgId),
+        organizationId: props.orgId ?? null,
         fromDate: props.fromDate,
         toDate: props.toDate,
         includeCompletedToday: true,

@@ -27,6 +27,8 @@ import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
 import { Padding } from "ui/components/padding";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 import { useRouteParams } from "ui/routes/definition";
 import { SubHomeRoute } from "ui/routes/sub-home";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
@@ -48,15 +50,26 @@ export const SubHome: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(SubHomeRoute);
   const isMobile = useIsMobile();
+  const { openSnackbar } = useSnackbar();
   const [showFilters, setShowFilters] = React.useState(!isMobile);
+  React.useEffect(() => setShowFilters(!isMobile), [isMobile]);
+
   const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
   const [employeeId, setEmployeeId] = React.useState<string | null>(null);
   const [vacancyId, setVacancyId] = React.useState<string | null>(null);
   const [dismissedAssignments, setDismissedAssignments] = React.useState<
     string[]
   >([]);
-  const [dismissVacancyMutation] = useMutationBundle(DismissVacancy);
-  const [requestVacancyMutation] = useMutationBundle(RequestVacancy);
+  const [dismissVacancyMutation] = useMutationBundle(DismissVacancy, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const [requestVacancyMutation] = useMutationBundle(RequestVacancy, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const [filters] = useQueryParamIso(FilterQueryParams);
 
   const getOrgUsers = useQueryBundle(QueryOrgUsers, {
@@ -293,7 +306,7 @@ export const SubHome: React.FC<Props> = props => {
             >
               <Grid item>
                 <Typography variant="h5">
-                  {t("Available Assignments")}
+                  {t("Available Jobs")}
                 </Typography>
               </Grid>
 

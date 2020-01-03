@@ -76,15 +76,17 @@ export const AssignmentCard: React.FC<Props> = props => {
 
   const assignmentId = `(#C${vacancyDetail.assignment!.id})`;
   const dateHeader = `${dayLabel}, ${
-    isMobile ? format(parsedDay, "MMM d") : format(parsedDay, "MMMM d")
-  } ${!isMobile && assignmentId}`;
+    isMobile
+      ? format(parsedDay, "MMM d")
+      : `${format(parsedDay, "MMMM d")} ${assignmentId}`
+  }`;
 
   return (
     <Section className={`${classes.section} ${props.className}`} raised>
       <Grid
         container
         justify="space-between"
-        alignItems="center"
+        alignItems="flex-start"
         spacing={1}
         className={props.shadeRow ? classes.shadedRow : undefined}
       >

@@ -738,7 +738,7 @@ enum CalendarDayType {
 }
 
 input CancelVacancyAssignmentInput {
-  id: Int!
+  assignmentId: ID!
   rowVersion: String!
   cancellationReasonId: Int
   vacancyDetailIds: [ID]
@@ -1077,6 +1077,19 @@ scalar DateTime
 
 scalar DateTimeOffset
 
+type DayConversion {
+  _info: [ReturnMessage]
+  name: String!
+  maxMinutes: Int!
+  dayEquivalent: Decimal!
+}
+
+input DayConversionInput {
+  name: String!
+  maxMinutes: Int!
+  dayEquivalent: Decimal!
+}
+
 enum DayOfWeek {
   SUNDAY
   MONDAY
@@ -1267,6 +1280,7 @@ type EmployeeQueries {
   employeeAbsenceSchedule(id: ID!, fromDate: Date!, toDate: Date!): [Absence]
   employeeVacancySchedule(id: ID!, fromDate: Date!, toDate: Date!): [Vacancy]
   employeeAssignmentSchedule(id: ID!, orgId: ID, fromDate: DateTime!, toDate: Date!, limit: Int, includeCompletedToday: Boolean): [VacancyDetail]
+  employeeSpecificAssignment(id: ID!, assignmentId: ID!, orgId: ID): [VacancyDetail]
 }
 
 input EmployeeRejectVacancyInput {
@@ -2060,6 +2074,7 @@ type organizationConfig {
   minRequestedEmployeeHoldMinutes: Int!
   maxRequestedEmployeeHoldMinutes: Int!
   minorConflictThresholdMinutes: Int!
+  vacancyDayConversions: [DayConversion]
 }
 
 input organizationConfigInput {
@@ -2081,6 +2096,7 @@ input organizationConfigInput {
   minRequestedEmployeeHoldMinutes: Int
   maxRequestedEmployeeHoldMinutes: Int
   minorConflictThresholdMinutes: Int
+  vacancyDayConversions: [DayConversionInput]
 }
 
 input OrganizationCreateInput {
@@ -4523,6 +4539,7 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   verifiedAtUtc: DateTime
   verifyComments: String
   payDurationOverride: Int
+  payTypeId: AbsenceReasonTrackingTypeId
   workDayScheduleId: Int
   workDayId: Int!
   workDay: WorkDay
@@ -4581,6 +4598,7 @@ input VacancyDetailVerifyInput {
   payDurationOverride: Int
   dayPortion: Decimal
   accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
+  payTypeId: AbsenceReasonTrackingTypeId
 }
 
 type VacancyEmployeeInterest implements ModelObjectInterface & OrgObjectInterface {
@@ -4652,6 +4670,7 @@ type VacancyQueries {
   employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
+  specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
   userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [Int], locationIds: [Int], positionTypeIds: [Int], limit: Int, offset: Int): PagedVacancy
 }
 
@@ -4713,12 +4732,12 @@ type VacancySubSearchQueryResult {
 
 type VacancyWasAssignedResult {
   _info: [ReturnMessage]
-  vacancyId: Int!
+  vacancyId: ID
   employeeId: Int!
   returnCode: Int!
   description: String!
   employeeWasAssigned: Boolean!
-  assignmentId: Int
+  assignmentId: ID
   assignment: Assignment
 }
 
