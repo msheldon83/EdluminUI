@@ -97,6 +97,10 @@ export const Information: React.FC<Props> = props => {
 
   const getOrgUserLastLogin = useQueryBundle(GetOrgUserLastLogin, {
     variables: { id: props.orgUser.id },
+    onError: error => {
+      // This shouldn't blow up the page
+      console.error(error);
+    },
   });
 
   const lastLogin =
