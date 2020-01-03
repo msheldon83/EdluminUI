@@ -16,6 +16,7 @@ import { Vacancy } from "graphql/server-types.gen";
 import { formatIsoDateIfPossible } from "helpers/date";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 import { parseDayPortion } from "ui/components/helpers";
 import { AvailableJobDetail } from "./available-job-detail";
 import { DayIcon } from "ui/components/day-icon";
@@ -81,119 +82,171 @@ export const AvailableJob: React.FC<Props> = props => {
   };
   const notesOpen = Boolean(notesAnchor);
   const notesId = notesOpen ? "notes-popper" : undefined;
+
+  const renderNotesPopper = (notes: string) => {
+    return (
+      <>
+        <IconButton id={notesId} onClick={handleShowNotes}>
+          <ReceiptOutlined />
+        </IconButton>
+        <Popper
+          transition
+          open={notesOpen}
+          anchorEl={notesAnchor}
+          placement="bottom-end"
+        >
+          {({ TransitionProps }) => (
+            <Fade {...TransitionProps} timeout={150}>
+              <div className={classes.paper}>{notes}</div>
+            </Fade>
+          )}
+        </Popper>
+      </>
+    );
+  };
+
   return (
     <>
       <Grid
         container
-        justify="space-between"
-        alignItems="center"
-        spacing={2}
-        className={props.shadeRow ? classes.shadedRow : undefined}
+        justify="flex-start"
+        alignItems="flex-start"
+        spacing={1}
+        className={props.shadeRow ? classes.shadedRow : classes.nonShadedRow}
+        item
       >
-        <Grid item xs={isMobile ? 12 : 1}>
-          {isMobile ? (
-            <Typography variant="h6">{`${vacancyDates}, ${vacancyDaysOfWeek}`}</Typography>
-          ) : (
+        <Grid
+          item
+          container
+          direction={isMobile ? "column" : "row"}
+          justify="flex-start"
+          alignItems={isMobile ? "flex-start" : "center"}
+          spacing={1}
+          xs={isMobile ? 10 : 12}
+        >
+          <Grid item xs={isMobile ? 12 : 1}>
+            {isMobile ? (
+              <Typography variant="h6">{`${vacancyDates}, ${vacancyDaysOfWeek}`}</Typography>
+            ) : (
+              <>
+                <Typography variant="h6">{vacancyDates}</Typography>
+                <Typography className={classes.lightText}>
+                  {vacancyDaysOfWeek}
+                </Typography>
+              </>
+            )}
+          </Grid>
+          <Grid item xs={isMobile ? 12 : 3}>
+            <Typography className={classes.text}>
+              {locationNameText ?? t("Unknown")}
+            </Typography>
+            <Typography className={classes.lightText}>
+              {vacancy.organization.name}
+            </Typography>
+          </Grid>
+          <Grid item xs={isMobile ? 12 : 2}>
+            <Typography className={classes.text}>
+              {vacancy.position!.name}
+            </Typography>
+            <Typography className={classes.lightText}>{`for ${
+              vacancy.absence!.employee!.firstName
+            } ${vacancy.absence!.employee!.lastName}`}</Typography>
+          </Grid>
+          <Grid item xs={isMobile ? 12 : 3}>
+            <div className={classes.dayPartContainer}>
+              <DayIcon
+                dayPortion={vacancy.totalDayPortion}
+                startTime={vacancy.startTimeLocal}
+              />
+              <div className={classes.dayPart}>
+                <Typography className={classes.text}>{`${Math.round(
+                  vacancy.totalDayPortion
+                )} ${parseDayPortion(t, vacancy.totalDayPortion)}`}</Typography>
+                <Typography
+                  className={classes.lightText}
+                >{`${formatIsoDateIfPossible(
+                  vacancy.startTimeLocal,
+                  "h:mm aaa"
+                )} - ${formatIsoDateIfPossible(
+                  vacancy.endTimeLocal,
+                  "h:mm aaa"
+                )}`}</Typography>
+              </div>
+            </div>
+          </Grid>
+          {!props.forSingleJob && !isMobile && (
             <>
-              <Typography variant="h6">{vacancyDates}</Typography>
-              <Typography className={classes.lightText}>
-                {vacancyDaysOfWeek}
-              </Typography>
+              <Grid item xs={1}>
+                {vacancy.notesToReplacement &&
+                  renderNotesPopper(vacancy.notesToReplacement)}
+              </Grid>
+              <Grid item xs={1}>
+                {
+                  <Button
+                    onClick={() =>
+                      props.onDismiss(vacancy.organization.id, vacancy.id)
+                    }
+                    className={classes.lightUnderlineText}
+                  >
+                    {t("Dismiss")}
+                  </Button>
+                }
+              </Grid>
+              <Grid item xs={1}>
+                {renderAcceptViewButton(
+                  expanded || vacancy.details!.length === 1,
+                  props.onAccept,
+                  setExpanded,
+                  vacancy.organization.id,
+                  vacancy.id,
+                  t
+                )}
+              </Grid>
             </>
           )}
         </Grid>
-        <Grid item xs={isMobile ? 12 : 3}>
-          <Typography className={classes.locationText}>
-            {locationNameText ?? t("Unknown")}
-          </Typography>
-          <Typography className={classes.lightText}>
-            {vacancy.organization.name}
-          </Typography>
-        </Grid>
-        <Grid item xs={isMobile ? 12 : 2}>
-          <Typography variant="h6">{vacancy.position!.name}</Typography>
-          <Typography className={classes.lightText}>{`for ${
-            vacancy.absence!.employee!.firstName
-          } ${vacancy.absence!.employee!.lastName}`}</Typography>
-        </Grid>
-        <Grid item xs={isMobile ? 12 : 3}>
-          <div className={classes.dayPartContainer}>
-            <DayIcon
-              dayPortion={vacancy.totalDayPortion}
-              startTime={vacancy.startTimeLocal}
-            />
-            <div className={classes.dayPart}>
-              <Typography variant="h6">{`${Math.round(
-                vacancy.totalDayPortion
-              )} ${parseDayPortion(t, vacancy.totalDayPortion)}`}</Typography>
-              <Typography
-                className={classes.lightText}
-              >{`${formatIsoDateIfPossible(
-                vacancy.startTimeLocal,
-                "h:mm aaa"
-              )} - ${formatIsoDateIfPossible(
-                vacancy.endTimeLocal,
-                "h:mm aaa"
-              )}`}</Typography>
-            </div>
-          </div>
-        </Grid>
-        {!props.forSingleJob && (
-          <>
-            <Grid item xs={1}>
-              {vacancy.notesToReplacement && (
-                <>
-                  <IconButton id={notesId} onClick={handleShowNotes}>
-                    <ReceiptOutlined />
-                  </IconButton>
-                  <Popper
-                    transition
-                    open={notesOpen}
-                    anchorEl={notesAnchor}
-                    placement="bottom-end"
-                  >
-                    {({ TransitionProps }) => (
-                      <Fade {...TransitionProps} timeout={150}>
-                        <div className={classes.paper}>
-                          {vacancy.notesToReplacement}
-                        </div>
-                      </Fade>
-                    )}
-                  </Popper>
-                </>
+        {isMobile && (
+          <Grid
+            container
+            direction="column"
+            justify="space-evenly"
+            alignItems="stretch"
+            item
+            xs={2}
+          >
+            <Grid item>
+              {renderAcceptViewButton(
+                expanded || vacancy.details!.length === 1,
+                props.onAccept,
+                setExpanded,
+                vacancy.organization.id,
+                vacancy.id,
+                t
               )}
             </Grid>
-            <Grid item xs={1}>
-              {
+            <Grid item>
+              <div className={vacancy.notesToReplacement ? classes.spacerDiv1 : classes.spacerDiv2}></div>
+            </Grid>
+            <Grid item>
+              {vacancy.notesToReplacement &&
+                renderNotesPopper(vacancy.notesToReplacement)}
+            </Grid>
+            <Grid item>
+              <div className={vacancy.notesToReplacement ? classes.spacerDiv1 : classes.spacerDiv2}></div>
+            </Grid>
+            {!expanded && (
+              <Grid item>
                 <Button
                   onClick={() =>
                     props.onDismiss(vacancy.organization.id, vacancy.id)
                   }
+                  className={classes.lightUnderlineText}
                 >
                   {t("Dismiss")}
                 </Button>
-              }
-            </Grid>
-            <Grid item xs={1}>
-              {expanded || vacancy.details!.length === 1 ? (
-                <Button
-                  variant="outlined"
-                  onClick={() =>
-                    props.onAccept(vacancy.organization.id, vacancy.id)
-                  }
-                >
-                  {t("Accept")}
-                </Button>
-              ) : (
-                <Button
-                  variant="outlined"
-                  onClick={() => setExpanded(!expanded)}
-                >
-                  {t("View")}
-                </Button>
-              )}
-            </Grid>
-          </>
+              </Grid>
+            )}
+          </Grid>
         )}
         {(expanded || props.forSingleJob) && vacancy.details!.length > 1 && (
           <>
@@ -203,51 +256,99 @@ export const AvailableJob: React.FC<Props> = props => {
                 dayPortion={detail!.dayPortion}
                 startTimeLocal={detail!.startTimeLocal ?? ""}
                 endTimeLocal={detail!.endTimeLocal ?? ""}
-                shadeRow={index % 2 != 0}
+                shadeRow={index % 2 != 1}
                 key={index}
               />
             ))}
-            {!props.forSingleJob && (
-              <Grid container justify={"flex-end"}>
+          </>
+        )}
+        {!props.forSingleJob && expanded && (
+          <Grid container>
+            <Grid
+              container
+              justify={isMobile ? "flex-start" : "flex-end"}
+              item
+              xs={isMobile ? 6 : 12}
+            >
+              <Grid item>
+                <Button
+                  onClick={() => setExpanded(!expanded)}
+                  className={classes.lightBlueUnderlineText}
+                >
+                  {t("Collapse")}
+                </Button>
+              </Grid>
+            </Grid>
+
+            {isMobile && (
+              <Grid container justify={"flex-end"} item xs={expanded ? 6 : 12}>
                 <Grid item>
-                  <Button onClick={() => setExpanded(!expanded)}>
-                    {t("Collapse")}
+                  <Button
+                    onClick={() =>
+                      props.onDismiss(vacancy.organization.id, vacancy.id)
+                    }
+                    className={classes.lightUnderlineText}
+                  >
+                    {t("Dismiss")}
                   </Button>
                 </Grid>
               </Grid>
             )}
-          </>
+          </Grid>
         )}
       </Grid>
     </>
   );
 };
 
+const renderAcceptViewButton = (
+  expanded: boolean,
+  onAccept: (orgId: string, vacancyId: string) => Promise<void>,
+  setExpanded: React.Dispatch<React.SetStateAction<boolean>>,
+  orgId: string,
+  vacancyId: string,
+  t: TFunction
+) => {
+  return expanded ? (
+    <Button variant="outlined" onClick={() => onAccept(orgId, vacancyId)}>
+      {t("Accept")}
+    </Button>
+  ) : (
+    <Button variant="outlined" onClick={() => setExpanded(!expanded)}>
+      {t("View")}
+    </Button>
+  );
+};
+
 export const useStyles = makeStyles(theme => ({
-  root: {
-    width: 500,
-  },
-  typography: {
-    padding: theme.spacing(2),
-  },
   paper: {
     border: "1px solid",
     padding: theme.spacing(1),
     backgroundColor: theme.palette.background.paper,
   },
-
+  text: {
+    fontSize: theme.typography.pxToRem(14),
+  },
   lightText: {
-    fontSize: theme.typography.fontSize,
+    fontSize: theme.typography.pxToRem(14),
+    color: theme.customColors.edluminSubText,
   },
-  locationText: {
-    fontSize: theme.typography.fontSize + 4,
+  lightUnderlineText: {
+    fontSize: theme.typography.pxToRem(14),
+    color: theme.customColors.edluminSubText,
+    textDecoration: "underline",
   },
-  boldText: {
-    fontSize: theme.typography.fontSize,
-    fontWeight: "bold",
+  lightBlueUnderlineText: {
+    fontSize: theme.typography.pxToRem(14),
+    color: theme.customColors.blue,
+    textDecoration: "underline",
+  },
+  nonShadedRow: {
+    padding: theme.spacing(1),
   },
   shadedRow: {
     background: theme.customColors.lightGray,
+    padding: theme.spacing(1),
   },
   dayPartContainer: {
     display: "flex",
@@ -255,4 +356,10 @@ export const useStyles = makeStyles(theme => ({
   dayPart: {
     paddingLeft: theme.spacing(),
   },
+  spacerDiv1: {
+    height: "36px",
+  },
+  spacerDiv2: {
+    height: "52px",
+  }
 }));
