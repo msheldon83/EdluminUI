@@ -81,119 +81,111 @@ export const AssignmentCard: React.FC<Props> = props => {
       : `${format(parsedDay, "MMMM d")} ${assignmentId}`
   }`;
 
-  return (
-    <Section className={`${classes.section} ${props.className}`} raised>
-      <Grid
-        container
-        justify="space-between"
-        alignItems="flex-start"
-        spacing={1}
-        className={props.shadeRow ? classes.shadedRow : undefined}
-      >
-        <Grid item>
-          <Typography variant="h6">{dateHeader}</Typography>
-          {isMobile && <Typography variant="h6">{assignmentId}</Typography>}
-          <Typography className={classes.lightText}>
-            {vacancyDetail.location!.name}
-          </Typography>
-          <Typography className={classes.lightText}>{`${
-            vacancyDetail.vacancy!.position!.name
-          } for ${vacancyDetail.vacancy!.absence!.employee!.firstName} ${
-            vacancyDetail.vacancy!.absence!.employee!.lastName
-          }`}</Typography>
-          <Typography className={classes.lightText}>{`${formatIsoDateIfPossible(
-            vacancyDetail.assignment!.startTimeLocal,
-            "h:mm aaa"
-          )} - ${formatIsoDateIfPossible(
-            vacancyDetail.assignment!.endTimeLocal,
-            "h:mm aaa"
-          )}`}</Typography>
-        </Grid>
-        <Grid item>
-          <IconButton href={mapUrl} target={"_blank"} rel={"noreferrer"}>
-            <Directions />
+  const renderIcons = () => {
+    return (
+      <div className={classes.iconButtons}>
+        <IconButton href={mapUrl} target={"_blank"} rel={"noreferrer"}>
+          <Directions />
+        </IconButton>
+        {vacancyDetail.location!.phoneNumber && isMobile ? (
+          <IconButton
+            href={`tel:${vacancyDetail.location!.phoneNumber}`}
+            target={"_blank"}
+            rel={"noreferrer"}
+          >
+            <LocalPhone />
           </IconButton>
-          {vacancyDetail.location!.phoneNumber && isMobile ? (
-            <IconButton
-              href={`tel:${vacancyDetail.location!.phoneNumber}`}
-              target={"_blank"}
-              rel={"noreferrer"}
-            >
+        ) : (
+          <>
+            <IconButton id={phoneId} onClick={handleShowPhone}>
               <LocalPhone />
             </IconButton>
-          ) : (
-            <>
-              <IconButton id={phoneId} onClick={handleShowPhone}>
-                <LocalPhone />
-              </IconButton>
-              <Popper
-                transition
-                open={phoneOpen}
-                anchorEl={phoneAnchor}
-                placement="bottom-end"
-              >
-                {({ TransitionProps }) => (
-                  <Fade {...TransitionProps} timeout={150}>
-                    <div className={classes.paper}>
-                      {vacancyDetail.location!.phoneNumber}
-                    </div>
-                  </Fade>
-                )}
-              </Popper>
-            </>
-          )}
-          {vacancyDetail.vacancy!.notesToReplacement && (
-            <>
-              <IconButton id={notesId} onClick={handleShowNotes}>
-                <ReceiptOutlined />
-              </IconButton>
-              <Popper
-                transition
-                open={notesOpen}
-                anchorEl={notesAnchor}
-                placement="bottom-end"
-              >
-                {({ TransitionProps }) => (
-                  <Fade {...TransitionProps} timeout={150}>
-                    <div className={classes.paper}>
-                      {vacancyDetail.vacancy!.notesToReplacement}
-                    </div>
-                  </Fade>
-                )}
-              </Popper>
-            </>
-          )}
-        </Grid>
-      </Grid>
+            <Popper
+              transition
+              open={phoneOpen}
+              anchorEl={phoneAnchor}
+              placement="bottom-end"
+            >
+              {({ TransitionProps }) => (
+                <Fade {...TransitionProps} timeout={150}>
+                  <div className={classes.paper}>
+                    {vacancyDetail.location!.phoneNumber}
+                  </div>
+                </Fade>
+              )}
+            </Popper>
+          </>
+        )}
+        {vacancyDetail.vacancy!.notesToReplacement && (
+          <>
+            <IconButton id={notesId} onClick={handleShowNotes}>
+              <ReceiptOutlined />
+            </IconButton>
+            <Popper
+              transition
+              open={notesOpen}
+              anchorEl={notesAnchor}
+              placement="bottom-end"
+            >
+              {({ TransitionProps }) => (
+                <Fade {...TransitionProps} timeout={150}>
+                  <div className={classes.paper}>
+                    {vacancyDetail.vacancy!.notesToReplacement}
+                  </div>
+                </Fade>
+              )}
+            </Popper>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <Section className={`${classes.section} ${props.className}`} raised>
+      <div className={classes.wrapper}>
+        <Typography variant="h6">{dateHeader}</Typography>
+        {isMobile && <Typography variant="h6">{assignmentId}</Typography>}
+        <Typography className={classes.text}>
+          {vacancyDetail.location!.name}
+        </Typography>
+        <Typography className={classes.text}>{`${
+          vacancyDetail.vacancy!.position!.name
+        } for ${vacancyDetail.vacancy!.absence!.employee!.firstName} ${
+          vacancyDetail.vacancy!.absence!.employee!.lastName
+        }`}</Typography>
+        <Typography className={classes.text}>{`${formatIsoDateIfPossible(
+          vacancyDetail.assignment!.startTimeLocal,
+          "h:mm aaa"
+        )} - ${formatIsoDateIfPossible(
+          vacancyDetail.assignment!.endTimeLocal,
+          "h:mm aaa"
+        )}`}</Typography>
+        {renderIcons()}
+      </div>
     </Section>
   );
 };
 
 export const useStyles = makeStyles(theme => ({
-  root: {
-    width: 500,
+  iconButtons: {
+    position: "absolute",
+    top: "0",
+    right: "0",
+  },
+  wrapper: {
+    position: "relative",
   },
   section: {
     marginBottom: theme.spacing(1),
-  },
-  typography: {
-    padding: theme.spacing(2),
   },
   paper: {
     border: "1px solid",
     padding: theme.spacing(1),
     backgroundColor: theme.palette.background.paper,
   },
-
-  lightText: {
-    fontSize: theme.typography.fontSize,
-  },
-  locationText: {
-    fontSize: theme.typography.fontSize + 4,
-  },
-  boldText: {
-    fontSize: theme.typography.fontSize,
-    fontWeight: "bold",
+  text: {
+    fontSize: theme.typography.pxToRem(14),
   },
   shadedRow: {
     background: theme.customColors.lightGray,
