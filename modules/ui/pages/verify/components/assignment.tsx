@@ -55,6 +55,9 @@ export const Assignment: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const vacancyDetail = props.vacancyDetail;
+  const [payTypeId, setPayTypeId] = React.useState<AbsenceReasonTrackingTypeId>(
+    vacancyDetail.payTypeId ?? AbsenceReasonTrackingTypeId.Daily
+  );
 
   // If the date is null, this record is not verified and needs to be verified
   // If it is verified, we would want to allow the record to be unverified
@@ -87,7 +90,41 @@ export const Assignment: React.FC<Props> = props => {
     ? vacancyDetail.id === props.selectedVacancyDetail
     : false;
 
-  const payType = vacancyDetail.payTypeId;
+  const dayConversionOptions = useMemo(() => {
+    return [
+      ...props.vacancyDayConversions.map(a => ({
+        label: a.name,
+        value: a.name,
+      })),
+      { label: t("Hourly"), value: AbsenceReasonTrackingTypeId.Hourly },
+    ];
+  }, [props.vacancyDayConversions, t]);
+  const matchingDayConversionName = useMemo(() => {
+    if (!vacancyDetail.actualDuration) {
+      return dayConversionOptions.find(
+        x => x.value === AbsenceReasonTrackingTypeId.Hourly
+      )?.label;
+    }
+
+    const matchByDuration = props.vacancyDayConversions.find(
+      x => x.maxMinutes === vacancyDetail.actualDuration
+    );
+    if (matchByDuration) {
+      return dayConversionOptions.find(
+        x =>
+          x.label === matchByDuration.name &&
+          x.value === AbsenceReasonTrackingTypeId.Daily
+      )?.label;
+    }
+    return dayConversionOptions.find(
+      x => x.value === AbsenceReasonTrackingTypeId.Hourly
+    )?.label;
+  }, [
+    dayConversionOptions,
+    props.vacancyDayConversions,
+    vacancyDetail.actualDuration,
+  ]);
+
   const daysInfo =
     vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
       ? `${vacancyDetail.dayPortion.toFixed(1)}`
@@ -95,7 +132,7 @@ export const Assignment: React.FC<Props> = props => {
           1
         )}/${vacancyDetail.totalDayPortion.toFixed(1)}`;
   const payInfo =
-    payType === AbsenceReasonTrackingTypeId.Daily
+    payTypeId === AbsenceReasonTrackingTypeId.Daily
       ? `${daysInfo} ${t("Days")}`
       : `${vacancyDetail.payDurationOverride ??
           vacancyDetail.actualDuration} ${t("Hours")}`;
@@ -142,9 +179,10 @@ export const Assignment: React.FC<Props> = props => {
       doVerify: null,
       dayPortion,
       payDurationOverride:
-        payType === AbsenceReasonTrackingTypeId.Hourly
+        payTypeId === AbsenceReasonTrackingTypeId.Hourly
           ? payDurationOverride
           : null,
+      payTypeId: payTypeId,
     });
   };
 
@@ -167,6 +205,7 @@ export const Assignment: React.FC<Props> = props => {
             undefined,
           payDurationOverride:
             vacancyDetail.payDurationOverride ?? vacancyDetail.actualDuration,
+          matchingDayConversionName: matchingDayConversionName,
         }}
         onSubmit={async (data, e) => {
           await props.onVerify({
@@ -183,9 +222,10 @@ export const Assignment: React.FC<Props> = props => {
               : [],
             dayPortion: data.dayPortion,
             payDurationOverride:
-              payType === AbsenceReasonTrackingTypeId.Hourly
+              payTypeId === AbsenceReasonTrackingTypeId.Hourly
                 ? data.payDurationOverride
                 : null,
+            payTypeId: payTypeId,
             doVerify: notVerified,
           });
         }}
@@ -291,23 +331,46 @@ export const Assignment: React.FC<Props> = props => {
                   spacing={2}
                   className={props.shadeRow ? classes.shadedRow : undefined}
                 >
-                  <Grid item xs={4}></Grid>
+                  <Grid item xs={4}>
+                    <Select
+                      value={dayConversionOptions.find(
+                        a => a.label === values.matchingDayConversionName
+                      )}
+                      onChange={(e: SelectValueType) => {
+                        //TODO: Once the select component is updated,
+                        // can remove the Array checking
+                        let selectedLabel = null;
+                        if (e) {
+                          if (Array.isArray(e)) {
+                            selectedLabel = (e as Array<OptionTypeBase>)[0]
+                              .label;
+                          } else {
+                            selectedLabel = (e as OptionTypeBase).label;
+                          }
+                        }
+                        setFieldValue("matchingDayConversionName", selectedLabel);
+                        //setPayTypeId
+                      }}
+                      options={dayConversionOptions}
+                      isClearable={false}
+                    />
+                  </Grid>
                   <Grid item xs={2}>
                     <Input
                       value={
-                        payType === AbsenceReasonTrackingTypeId.Daily
+                        payTypeId === AbsenceReasonTrackingTypeId.Daily
                           ? values.dayPortion
                           : values.payDurationOverride
                       }
                       InputComponent={FormTextField}
                       inputComponentProps={{
                         name:
-                          payType === AbsenceReasonTrackingTypeId.Daily
+                          payTypeId === AbsenceReasonTrackingTypeId.Daily
                             ? "dayPortion"
                             : "payDurationOverride",
                         margin: "normal",
                         label:
-                          payType === AbsenceReasonTrackingTypeId.Daily
+                          payTypeId === AbsenceReasonTrackingTypeId.Daily
                             ? t("Days")
                             : t("Hours"),
                         fullWidth: true,
@@ -316,7 +379,7 @@ export const Assignment: React.FC<Props> = props => {
                         event: React.ChangeEvent<HTMLInputElement>
                       ) => {
                         setFieldValue(
-                          payType === AbsenceReasonTrackingTypeId.Daily
+                          payTypeId === AbsenceReasonTrackingTypeId.Daily
                             ? "dayPortion"
                             : "payDurationOverride",
                           event.target.value
