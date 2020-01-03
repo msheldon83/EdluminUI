@@ -40,6 +40,7 @@ query GetEmployeeAbsenceSchedule($id: ID!, $fromDate: Date!, $toDate: Date!) {
           assignment {
             id
             employee {
+              id
               firstName
               lastName
               formattedPhone
