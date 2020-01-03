@@ -25,6 +25,13 @@ import { QuickAbsenceCreateUI } from "./quick-create-absence-ui";
 import { QuickCreateAbsenceState, quickCreateAbsenceReducer } from "./state";
 import { startOfMonth, startOfDay, addMonths } from "date-fns";
 
+type QuickCreateAbsenceFormData = {
+  absenceReason: string;
+  dayPart?: DayPart;
+  hourlyStartTime?: Date;
+  hourlyEndTime?: Date;
+};
+
 type Props = {
   employeeId: string;
   organizationId: string;
@@ -56,7 +63,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     getValues,
     errors,
     triggerValidation,
-  } = useForm({
+  } = useForm<QuickCreateAbsenceFormData>({
     defaultValues: { absenceReason: "" },
   });
 
@@ -118,6 +125,18 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     disabledDateObjs,
   ]);
 
+  const onDayPartChange = React.useCallback(
+    async (value: DayPart | undefined) => await setValue("dayPart", value),
+    [setValue]
+  );
+  const onHourlyStartTimeChange = React.useCallback(
+    async (start: Date | undefined) => await setValue("hourlyStartTime", start),
+    [setValue]
+  );
+  const onHourlyEndTimeChange = React.useCallback(
+    async (end: Date | undefined) => await setValue("hourlyEndTime", end),
+    [setValue]
+  );
   // const userIsAdmin = useIsAdmin();
   // const potentialEmployees = useQueryBundle(FindEmployeeForCurrentUser, {
   //   fetchPolicy: "cache-first",
@@ -142,7 +161,8 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
       <SectionHeader title={t("Create absence")} />
       <QuickAbsenceCreateUI
         organizationId={props.organizationId}
-        absenceReason={formValues.absenceReason}
+        employeeId={props.employeeId}
+        selectedAbsenceReason={formValues.absenceReason}
         absenceReasonOptions={absenceReasonOptions}
         onAbsenceReasonChange={onReasonChange}
         absenceReasonError={errors.absenceReason}
@@ -154,6 +174,14 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
           dispatch({ action: "toggleDate", date: d })
         }
         disabledDates={disabledDates}
+        selectedDayPart={formValues.dayPart}
+        onDayPartChange={onDayPartChange}
+        startTimeError={errors.startTimeError}
+        endTimeError={errors.endTimeError}
+        hourlyStartTime={formValues.hourlyStartTime}
+        hourlyEndTime={formValues.hourlyEndTime}
+        onHourlyStartTimeChange={onHourlyStartTimeChange}
+        onHourlyEndTimeChange={onHourlyEndTimeChange}
       />
     </Section>
   );
