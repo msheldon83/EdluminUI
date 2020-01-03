@@ -1,0 +1,39 @@
+query GetVacancyById($id: ID!, $vacancyId: ID!) {
+  vacancy {
+    specificJobSearchForUser(id: $id, vacancyId: $vacancyId) {
+      id
+      organization {
+        id
+        name
+      }
+      position {
+        id
+        name
+      }
+      absence {
+        id
+        employee {
+          id
+          firstName
+          lastName
+        }
+      }
+      startTimeLocal
+      endTimeLocal
+      startDate
+      endDate
+      notesToReplacement
+      totalDayPortion
+      details {
+        id
+        location {
+          id
+          name
+        }
+        startTimeLocal
+        endTimeLocal
+        dayPortion
+      }
+    }
+  }
+}

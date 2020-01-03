@@ -27,11 +27,11 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
 
   const onCancel = useCallback(
-    async (id: number, rowVersion: string) => {
+    async (assignmentId: string, rowVersion: string) => {
       await cancelAssignment({
         variables: {
           cancelRequest: {
-            id,
+            assignmentId,
             rowVersion,
           },
         },
@@ -43,7 +43,7 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
       id: String(props.userId),
-      organizationId: String(props.orgId),
+      organizationId: props.orgId ?? null,
       fromDate: props.date,
       toDate: props.date,
       includeCompletedToday: true,

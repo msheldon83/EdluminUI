@@ -40,22 +40,24 @@ export const AvailableJobDetail: React.FC<Props> = props => {
           </Typography>
         </Grid>
         <Grid item xs={3}></Grid>
-        <Grid item xs={1}>
-          <DayIcon
-            dayPortion={props.dayPortion}
-            startTime={props.startTimeLocal}
-          />
-        </Grid>
-        <Grid item xs={2}>
-          <Typography className={classes.lightText}>
-            {`${formatIsoDateIfPossible(
-              props.startTimeLocal,
-              "h:mm aaa"
-            )} - ${formatIsoDateIfPossible(
-              props.endTimeLocal,
-              "h:mm aaa"
-            )} ${dayPortionLabel}`}
-          </Typography>
+        <Grid item xs={3}>
+          <div className={classes.dayPartContainer}>
+            <DayIcon
+              dayPortion={props.dayPortion}
+              startTime={props.startTimeLocal}
+            />
+            <div className={classes.dayPart}>
+              <Typography className={classes.lightText}>
+                {`${formatIsoDateIfPossible(
+                  props.startTimeLocal,
+                  "h:mm aaa"
+                )} - ${formatIsoDateIfPossible(
+                  props.endTimeLocal,
+                  "h:mm aaa"
+                )} ${dayPortionLabel}`}
+              </Typography>
+            </div>
+          </div>
         </Grid>
       </Grid>
     </>
