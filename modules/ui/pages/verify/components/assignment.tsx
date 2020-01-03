@@ -196,7 +196,7 @@ export const Assignment: React.FC<Props> = props => {
     await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
-      payCodeId: Number(payCodeId),
+      payCodeId: payCodeId ? Number(payCodeId) : null,
     });
 
     // Find the pay code option that matches our selection and set in state
