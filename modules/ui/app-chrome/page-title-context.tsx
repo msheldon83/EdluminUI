@@ -20,7 +20,7 @@ export const PageTitleProvider: React.FC<{}> = props => {
   const [title, setTitle] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    document.title = compact([title, "Edlumin"]).join(" - ");
+    document.title = compact([title, "RedRover"]).join(" - ");
   }, [title]);
   /*
   the logic for supplyTitle might have race conditions.

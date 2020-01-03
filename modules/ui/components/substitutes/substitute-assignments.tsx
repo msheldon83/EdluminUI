@@ -55,7 +55,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
   /* selected date is used on the calendar view only. The state lives
      here because we need it to show the assignments for the selected date
      above the calendar view component */
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(today);
   const onSelectDate = React.useCallback(
     (date: Date) => setSelectedDate(date),
     [setSelectedDate]
