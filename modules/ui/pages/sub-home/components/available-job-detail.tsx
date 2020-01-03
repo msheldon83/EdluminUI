@@ -85,34 +85,9 @@ export const AvailableJobDetail: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    width: 500,
-  },
-  typography: {
-    padding: theme.spacing(2),
-  },
-  paper: {
-    border: "1px solid",
-    padding: theme.spacing(1),
-    backgroundColor: theme.palette.background.paper,
-  },
-
-  text: {
-    fontSize: theme.typography.pxToRem(14),
-  },
   lightText: {
     fontSize: theme.typography.pxToRem(14),
     color: theme.customColors.edluminSubText,
-  },
-  lightUnderlineText: {
-    fontSize: theme.typography.pxToRem(14),
-    color: theme.customColors.edluminSubText,
-    textDecoration: "underline",
-  },
-  lightBlueUnderlineText: {
-    fontSize: theme.typography.pxToRem(14),
-    color: theme.customColors.blue,
-    textDecoration: "underline",
   },
   nonShadedRow: {
     padding: theme.spacing(1),
@@ -132,5 +107,5 @@ const useStyles = makeStyles(theme => ({
   },
   gridPadding: {
     padding: 0,
-  }
+  },
 }));

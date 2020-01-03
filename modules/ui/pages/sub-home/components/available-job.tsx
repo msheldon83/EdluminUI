@@ -7,7 +7,6 @@ import {
   Popper,
   Typography,
 } from "@material-ui/core";
-import { sizing } from '@material-ui/system';
 import { ReceiptOutlined } from "@material-ui/icons";
 import { useIsMobile } from "hooks";
 import format from "date-fns/format";
@@ -207,7 +206,6 @@ export const AvailableJob: React.FC<Props> = props => {
           )}
         </Grid>
         {isMobile && (
-          <div className={classes.mobileActionsContainer}>
           <Grid
             container
             direction="column"
@@ -227,8 +225,14 @@ export const AvailableJob: React.FC<Props> = props => {
               )}
             </Grid>
             <Grid item>
+              <div className={vacancy.notesToReplacement ? classes.spacerDiv1 : classes.spacerDiv2}></div>
+            </Grid>
+            <Grid item>
               {vacancy.notesToReplacement &&
                 renderNotesPopper(vacancy.notesToReplacement)}
+            </Grid>
+            <Grid item>
+              <div className={vacancy.notesToReplacement ? classes.spacerDiv1 : classes.spacerDiv2}></div>
             </Grid>
             {!expanded && (
               <Grid item>
@@ -243,7 +247,6 @@ export const AvailableJob: React.FC<Props> = props => {
               </Grid>
             )}
           </Grid>
-          </div>
         )}
         {(expanded || props.forSingleJob) && vacancy.details!.length > 1 && (
           <>
@@ -318,18 +321,11 @@ const renderAcceptViewButton = (
 };
 
 export const useStyles = makeStyles(theme => ({
-  root: {
-    width: 500,
-  },
-  typography: {
-    padding: theme.spacing(2),
-  },
   paper: {
     border: "1px solid",
     padding: theme.spacing(1),
     backgroundColor: theme.palette.background.paper,
   },
-
   text: {
     fontSize: theme.typography.pxToRem(14),
   },
@@ -360,7 +356,10 @@ export const useStyles = makeStyles(theme => ({
   dayPart: {
     paddingLeft: theme.spacing(),
   },
-  mobileActionsContainer: {
-    height: "100%",
+  spacerDiv1: {
+    height: "36px",
   },
+  spacerDiv2: {
+    height: "52px",
+  }
 }));
