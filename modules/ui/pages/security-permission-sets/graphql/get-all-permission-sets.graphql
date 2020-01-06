@@ -1,0 +1,13 @@
+query GetAllPermissionSetsWithinOrg($orgId: ID) {
+  permissionSet {
+    all(orgId: $orgId) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      orgUserRole
+      permissionSet
+    }
+  }
+}
