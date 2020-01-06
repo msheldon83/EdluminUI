@@ -16,13 +16,11 @@ import {
   AdminEditAbsenceRoute,
   EmployeeEditAbsenceRoute,
 } from "ui/routes/edit-absence";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   orgId: string;
   absence: Absence | undefined;
   isAdmin: boolean;
-  disabledDates: DisabledDate[];
   setStep?: (s: Step) => void;
 };
 
@@ -64,7 +62,6 @@ export const Confirmation: React.FC<Props> = props => {
             orgId={props.orgId}
             absence={props.absence}
             isConfirmation={true}
-            disabledDates={props.disabledDates}
             isAdmin={props.isAdmin}
           />
         </Grid>

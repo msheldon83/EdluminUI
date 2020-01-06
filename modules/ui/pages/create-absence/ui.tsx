@@ -388,7 +388,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             orgId={props.organizationId}
             absence={absence}
             setStep={setStep}
-            disabledDates={disabledDates}
             isAdmin={props.userIsAdmin}
           />
         )}

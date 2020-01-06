@@ -25,6 +25,7 @@ fragment FullAbsenceDetails on Absence {
   endDate
   startTimeLocal
   endTimeLocal
+  notesToApprover
   numDays
   totalDuration
   totalDayPortion
@@ -41,6 +42,7 @@ fragment FullAbsenceDetails on Absence {
     endTimeLocal
     numDays
     rowVersion
+    notesToReplacement
     positionId
     position {
       id
@@ -61,13 +63,13 @@ fragment FullAbsenceDetails on Absence {
       }
       payCodeId
       assignment {
-	id
-	rowVersion
-	employee {
-	  id
-	  firstName
-	  lastName
-	}
+        id
+        rowVersion
+        employee {
+          id
+          firstName
+          lastName
+        }
       }
       accountingCodeAllocations {
         id
