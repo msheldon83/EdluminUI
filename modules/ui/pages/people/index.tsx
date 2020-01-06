@@ -66,6 +66,7 @@ export const PeoplePage: React.FC<Props> = props => {
         ...filters,
         orgId: params.organizationId,
         role,
+        sortBy: [{sortByPropertyName: "firstName", sortAscending: filters.firstNameSort === "asc"}, {sortByPropertyName: "lastName", sortAscending: filters.lastNameSort === "asc"}]
       },
     },
     peoplePaginationDefaults
@@ -251,21 +252,24 @@ export const PeoplePage: React.FC<Props> = props => {
       title: t("Last Name"),
       field: "lastName",
     },
-    { title: t("Primary Phone"), field: "phone" },
-    { title: t("External ID"), field: "externalId" },
+    { title: t("Primary Phone"), field: "phone", sorting: false, },
+    { title: t("External ID"), field: "externalId", sorting: false, },
     {
       title: t("Role"),
       field: "roles",
+      sorting: false,
       hidden: filters.roleFilter != null,
     },
     {
       title: t("Position"),
       field: "primaryPosition",
+      sorting: false,
       hidden: filters.roleFilter != OrgUserRole.Employee,
     },
     {
       title: t("Location"),
       field: "locations",
+      sorting: false,
       hidden: filters.roleFilter != OrgUserRole.Employee,
       render: o =>
         !o.locations || o.locations?.length < 1 ? (
@@ -299,6 +303,7 @@ export const PeoplePage: React.FC<Props> = props => {
     {
       title: t("Manages position type"),
       field: "managesPositionTypes",
+      sorting: false,
       hidden: filters.roleFilter != OrgUserRole.Administrator,
       render: o =>
         o.allPositionTypeIdsInScope ? (
@@ -334,6 +339,7 @@ export const PeoplePage: React.FC<Props> = props => {
     {
       title: t("Manages location"),
       field: "managesLocations",
+      sorting: false,
       hidden: filters.roleFilter != OrgUserRole.Administrator,
       render: o =>
         o.allLocationIdsInScope ? (
@@ -372,6 +378,7 @@ export const PeoplePage: React.FC<Props> = props => {
     {
       title: t("Attributes"),
       field: "endorsements",
+      sorting: false,
       hidden: filters.roleFilter != OrgUserRole.ReplacementEmployee,
       render: o =>
         !o.endorsements || o.endorsements?.length < 1 ? (
