@@ -4,6 +4,7 @@ import {
   format,
   isBefore,
   isSameDay,
+  min,
   startOfDay,
   startOfMonth,
 } from "date-fns";
@@ -56,6 +57,12 @@ type Props = {
   positionId?: string;
   positionName?: string;
   locationIds?: number[];
+  initialAbsenceReason?: string;
+  initialDates?: Date[];
+  initialDayPart?: DayPart;
+  initialStartHour?: Date;
+  initialEndHour?: Date;
+  initialNeedsReplacement?: boolean;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -81,7 +88,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     [dispatch]
   );
   const initialFormData: CreateAbsenceFormData = {
-    absenceReason: "",
+    absenceReason: props.initialAbsenceReason || "",
+    dayPart: props.initialDayPart,
+    hourlyStartTime: props.initialStartHour,
+    hourlyEndTime: props.initialEndHour,
   };
 
   const {
@@ -405,13 +415,21 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const initialState = (props: Props): CreateAbsenceState => ({
-  employeeId: props.employeeId,
-  organizationId: props.organizationId,
-  viewingCalendarMonth: startOfMonth(new Date()),
-  needsReplacement: props.needsReplacement !== NeedsReplacement.No,
-  absenceDates: [startOfDay(new Date())],
-});
+const initialState = (props: Props): CreateAbsenceState => {
+  const needsReplacement =
+    props.initialNeedsReplacement === undefined
+      ? props.needsReplacement !== NeedsReplacement.No
+      : props.initialNeedsReplacement;
+  const absenceDates = props.initialDates || [startOfDay(new Date())];
+  const viewingCalendarMonth = startOfMonth(min(absenceDates));
+  return {
+    employeeId: props.employeeId,
+    organizationId: props.organizationId,
+    viewingCalendarMonth,
+    needsReplacement,
+    absenceDates,
+  };
+};
 
 export type CreateAbsenceFormData = {
   absenceReason: string;

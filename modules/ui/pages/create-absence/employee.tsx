@@ -1,6 +1,11 @@
+import { parseISO } from "date-fns";
+import { isValid } from "date-fns/esm";
 import { useQueryBundle } from "graphql/hooks";
-import { NeedsReplacement } from "graphql/server-types.gen";
+import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
+import { useQueryParams } from "hooks/query-params";
+import { includes, values } from "lodash-es";
 import * as React from "react";
+import { useMemo } from "react";
 import { useIsAdmin } from "reference-data/is-admin";
 import { findEmployee } from "ui/components/absence/helpers";
 import { FindEmployeeForCurrentUser } from "./graphql/find-employee-for-current-user.gen";
@@ -9,6 +14,19 @@ import { CreateAbsenceUI } from "./ui";
 type Props = {};
 
 export const EmployeeCreateAbsence: React.FC<Props> = props => {
+  const [defaultOptions] = useQueryParams({
+    dates: "",
+    absenceReason: "",
+    dayPart: "",
+    needsReplacement: "",
+    start: "",
+    end: "",
+  });
+  const initialData = useMemo(() => parseOptions(defaultOptions), [
+    defaultOptions,
+  ]);
+  console.log("initialData", initialData, defaultOptions);
+
   const potentialEmployees = useQueryBundle(FindEmployeeForCurrentUser, {
     fetchPolicy: "cache-first",
   });
@@ -28,6 +46,7 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
 
   return (
     <CreateAbsenceUI
+      {...initialData}
       firstName={employee.firstName}
       lastName={employee.lastName}
       employeeId={employee.id}
@@ -42,3 +61,43 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
     />
   );
 };
+
+function parseOptions(opts: {
+  dates: string;
+  absenceReason: string;
+  dayPart: string;
+  needsReplacement: string;
+  start: string;
+  end: string;
+}) {
+  let initialDates: Date[] | undefined;
+  let initialAbsenceReason: string | undefined;
+  let initialDayPart: DayPart | undefined;
+  let initialStartHour: Date | undefined;
+  let initialEndHour: Date | undefined;
+  if (includes(values(DayPart), opts.dayPart.toUpperCase())) {
+    initialDayPart = opts.dayPart as DayPart;
+  }
+  const initialNeedsReplacement: boolean | undefined = ({
+    true: true,
+    false: false,
+  } as Record<string, boolean>)[opts.needsReplacement];
+  try {
+    initialDates = opts.dates.split(",").map(d => parseISO(d));
+    if (opts.absenceReason !== "") {
+      initialAbsenceReason = opts.absenceReason;
+    }
+    initialStartHour = parseISO(opts.start);
+    if (!isValid(initialStartHour)) initialStartHour = undefined;
+    initialEndHour = parseISO(opts.end);
+    if (!isValid(initialEndHour)) initialEndHour = undefined;
+  } catch (e) {}
+  return {
+    initialDates,
+    initialAbsenceReason,
+    initialDayPart,
+    initialStartHour,
+    initialEndHour,
+    initialNeedsReplacement,
+  };
+}
