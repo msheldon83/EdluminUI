@@ -40,7 +40,7 @@ export const ReplacementEmployeeFilters: React.FC<Props> = props => {
 
   return (
     <Grid item md={3}>
-      <InputLabel className={classes.label}>{t("Endorsements")}</InputLabel>
+      <InputLabel className={classes.label}>{t("Attributes")}</InputLabel>
       <Select
         onChange={onChange}
         options={endorsementOptions}
