@@ -513,9 +513,9 @@ const useStyles = makeStyles(theme => ({
     filter: "alpha(opacity = 60)",
   },
   link: {
-    color: "#2196F3",
+    color: theme.customColors.blue,
     "&:visited": {
-      color: "#2196F3",
+      color: theme.customColors.blue,
     },
   },
   linkPadding: {
