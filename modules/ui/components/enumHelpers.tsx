@@ -30,6 +30,14 @@ const buildEnumMap = (t: i18next.TFunction) => {
       name: "dayPart.QUARTER_DAY_LATE_AFTERNOON",
       displayName: t("Quarter Day"),
     },
+    {
+      name: "payTypeId.HOURLY",
+      displayName: t("Hourly"),
+    },
+    {
+      name: "payTypeId.DAILY",
+      displayName: t("Daily"),
+    },
   ];
   return enumMap;
 };

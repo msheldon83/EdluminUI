@@ -9,7 +9,11 @@ import {
 } from "@material-ui/core";
 import { Formik } from "formik";
 import { useQueryBundle } from "graphql/hooks";
-import { Contract, NeedsReplacement } from "graphql/server-types.gen";
+import {
+  Contract,
+  NeedsReplacement,
+  AbsenceReasonTrackingTypeId,
+} from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -22,6 +26,7 @@ import { SectionHeader } from "ui/components/section-header";
 import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
+import { useMemo } from "react";
 
 type Props = {
   orgId: string;
@@ -29,6 +34,7 @@ type Props = {
     forPermanentPositions: boolean;
     forStaffAugmentation: boolean;
     minAbsenceDurationMinutes: number;
+    payTypeId?: AbsenceReasonTrackingTypeId | undefined | null;
     needsReplacement?: NeedsReplacement | undefined | null;
     defaultContractId?: number | undefined | null;
     defaultContract?: {
@@ -42,6 +48,7 @@ type Props = {
     needsReplacement: NeedsReplacement | undefined | null,
     forStaffAugmentation: boolean,
     minAbsenceDurationMinutes: number,
+    payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
     defaultContractId: number | undefined | null
   ) => Promise<unknown>;
   onCancel: () => void;
@@ -75,6 +82,19 @@ export const Settings: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
 
+  const payTypeOptions = useMemo(() => {
+    return [
+      {
+        value: AbsenceReasonTrackingTypeId.Daily,
+        label: t("Daily"),
+      },
+      {
+        value: AbsenceReasonTrackingTypeId.Hourly,
+        label: t("Hourly"),
+      },
+    ];
+  }, []);
+
   const getAllActiveContracts = useQueryBundle(GetAllActiveContracts, {
     variables: { orgId: props.orgId },
   });
@@ -100,6 +120,7 @@ export const Settings: React.FC<Props> = props => {
           minAbsenceDurationMinutes:
             props.positionType.minAbsenceDurationMinutes,
           defaultContractId: props.positionType.defaultContractId,
+          payTypeId: props.positionType.payTypeId,
         }}
         onSubmit={async (data, meta) => {
           await props.onSubmit(
@@ -107,6 +128,7 @@ export const Settings: React.FC<Props> = props => {
             data.needsReplacement,
             data.forStaffAugmentation,
             data.minAbsenceDurationMinutes,
+            data.payTypeId,
             data.defaultContractId
           );
         }}
@@ -318,6 +340,37 @@ export const Settings: React.FC<Props> = props => {
                 </FormHelperText>
               </div>
             </div>
+            <div
+              className={[
+                classes.payTypeSection,
+                isMobile
+                  ? classes.mobileSectionSpacing
+                  : classes.normalSectionSpacing,
+              ].join(" ")}
+            >
+              <div>{t("Pay Type")}</div>
+              <Select
+                value={payTypeOptions.find(
+                  (c: any) => c.value === values.payTypeId
+                )}
+                label=""
+                options={payTypeOptions}
+                isClearable={false}
+                onChange={(e: SelectValueType) => {
+                  //TODO: Once the select component is updated,
+                  // can remove the Array checking
+                  let selectedValue = null;
+                  if (e) {
+                    if (Array.isArray(e)) {
+                      selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                    } else {
+                      selectedValue = (e as OptionTypeBase).value;
+                    }
+                  }
+                  setFieldValue("payTypeId", selectedValue);
+                }}
+              />
+            </div>
             <ActionButtons
               submit={{ text: props.submitText, execute: submitForm }}
               cancel={{ text: t("Cancel"), execute: props.onCancel }}
@@ -367,5 +420,11 @@ const useStyles = makeStyles(theme => ({
   appliesToError: {
     marginTop: theme.spacing(2),
     fontSize: theme.typography.pxToRem(14),
+  },
+  payTypeSection: {
+    maxWidth: "500px",
+    "& p": {
+      marginLeft: 0,
+    },
   },
 }));

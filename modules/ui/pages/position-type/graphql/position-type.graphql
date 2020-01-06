@@ -15,6 +15,7 @@ query GetPositionTypeById($id: ID!) {
         id
         name
       }
+      payTypeId
     }
   }
 }

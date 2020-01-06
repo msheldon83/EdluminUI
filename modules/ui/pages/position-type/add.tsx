@@ -14,6 +14,7 @@ import { Settings } from "./components/add-edit-settings";
 import {
   NeedsReplacement,
   PositionTypeCreateInput,
+  AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
 import { CreatePositionType } from "./graphql/create.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
@@ -39,6 +40,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     forStaffAugmentation: true,
     minAbsenceDurationMinutes: 15,
     defaultContractId: null,
+    payTypeId: AbsenceReasonTrackingTypeId.Daily,
   });
 
   const renderBasicInfoStep = (
@@ -78,6 +80,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
           needsReplacement: NeedsReplacement | undefined | null,
           forStaffAugmentation: boolean,
           minAbsenceDurationMinutes: number,
+          payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
           defaultContractId?: number | null
         ) => {
           const newPositionType = {
@@ -87,6 +90,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
             forStaffAugmentation: forStaffAugmentation,
             minAbsenceDurationMinutes: minAbsenceDurationMinutes,
             defaultContractId: defaultContractId,
+            payTypeId: payTypeId,
           };
           setPositionType(newPositionType);
 
