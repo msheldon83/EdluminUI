@@ -4,6 +4,7 @@ query GetSubstituteById($id: ID!) {
       id
       userId
       loginEmail
+      rowVersion
       relatedOrganizations {
         id
         name

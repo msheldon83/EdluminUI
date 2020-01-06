@@ -54,6 +54,7 @@ export const EmployeeTab: React.FC<Props> = props => {
       },
     });
     props.setEditing(null);
+    await getEmployee.refetch();
   };
 
   return (
@@ -61,6 +62,7 @@ export const EmployeeTab: React.FC<Props> = props => {
       <Information
         editing={props.editing}
         orgUser={employee}
+        orgUserRowVersion={orgUser.rowVersion}
         userId={orgUser?.userId}
         loginEmail={orgUser?.loginEmail}
         isSuperUser={false}
