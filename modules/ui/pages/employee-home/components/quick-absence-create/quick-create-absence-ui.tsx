@@ -50,6 +50,7 @@ type Props = {
   wantsReplacement: boolean;
   needsReplacement?: NeedsReplacement | null;
   onNeedsReplacementChange: (needsReplacement: boolean) => void;
+  isSubmitting: boolean;
 };
 
 export const QuickAbsenceCreateUI: React.FC<Props> = props => {
@@ -211,12 +212,13 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
 
       <div className={classes.buttons}>
         <TextButton
+          disabled={props.isSubmitting}
           className={classes.additionalButton}
           onClick={addAdditionalDetails}
         >
           {t("Add additional details")}
         </TextButton>
-        <Button variant="outlined" type="submit">
+        <Button disabled={props.isSubmitting} variant="outlined" type="submit">
           {t("Quick Create")}
         </Button>
       </div>

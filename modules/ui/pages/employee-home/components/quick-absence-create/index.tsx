@@ -68,6 +68,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     getValues,
     errors,
     triggerValidation,
+    formState,
   } = useForm<QuickCreateAbsenceFormData>({
     defaultValues: { absenceReason: "" },
   });
@@ -227,6 +228,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
       <Section>
         <SectionHeader title={t("Create absence")} />
         <QuickAbsenceCreateUI
+          isSubmitting={formState.isSubmitting}
           organizationId={props.organizationId}
           employeeId={props.employeeId}
           selectedAbsenceReason={formValues.absenceReason}
