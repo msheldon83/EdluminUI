@@ -5,6 +5,9 @@ import { Detail } from "./helpers";
 import clsx from "clsx";
 import { ActionMenu } from "ui/components/action-menu";
 import InfoIcon from "@material-ui/icons/Info";
+import { useHistory } from "react-router";
+import { useRouteParams } from "ui/routes/definition";
+import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 
 type Props = {
   detail: Detail;
@@ -20,6 +23,8 @@ type Props = {
 export const DailyReportDetail: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const history = useHistory();
+  const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
 
   const isChecked = !!props.selectedDetails.find(
     d => d.detailId === props.detail.detailId && d.type === props.detail.type
@@ -34,12 +39,20 @@ export const DailyReportDetail: React.FC<Props> = props => {
       existingUnfilledSelection &&
       props.detail.state === "unfilled");
 
+  const goToAbsenceEdit = (absenceId: string) => {
+    const url = AdminEditAbsenceRoute.generate({
+      ...absenceEditParams,
+      absenceId,
+    });
+    history.push(url, {
+      returnUrl: `${history.location.pathname}${history.location.search}`,
+    });
+  };
+
   const rowActions = [
     {
       name: t("Edit"),
-      onClick: () => {
-        /* TODO: Redirect to Absence Edit screen */
-      },
+      onClick: () => goToAbsenceEdit(props.detail.id),
     },
   ];
   if (props.detail.state !== "noSubRequired") {
@@ -52,7 +65,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
             props.detail.assignmentRowVersion
           );
         } else {
-          /* TODO: Redirect to Absence Edit screen */
+          goToAbsenceEdit(props.detail.id);
         }
       },
     });
@@ -117,7 +130,12 @@ export const DailyReportDetail: React.FC<Props> = props => {
           </div>
         )}
         {props.detail.state !== "noSubRequired" && !props.detail.substitute && (
-          <Link className={classes.action}>{t("Assign")}</Link>
+          <Link
+            className={classes.action}
+            onClick={() => goToAbsenceEdit(props.detail.id)}
+          >
+            {t("Assign")}
+          </Link>
         )}
         {props.detail.subStartTime && props.detail.subEndTime && (
           <div className={classes.detailSubText}>
@@ -127,9 +145,14 @@ export const DailyReportDetail: React.FC<Props> = props => {
       </Grid>
       <Grid item xs={1} zeroMinWidth>
         <div>
-          {props.detail.type === "absence"
-            ? `#${props.detail.id}`
-            : `#V${props.detail.id}`}
+          {props.detail.type === "absence" ? (
+            <Link
+              className={classes.action}
+              onClick={() => goToAbsenceEdit(props.detail.id)}
+            >{`#${props.detail.id}`}</Link>
+          ) : (
+            `#V${props.detail.id}`
+          )}
         </div>
         {props.detail.assignmentId && (
           <div

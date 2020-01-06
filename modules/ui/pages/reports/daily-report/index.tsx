@@ -4,11 +4,13 @@ import { useTranslation } from "react-i18next";
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { useRouteParams } from "ui/routes/definition";
 import { DailyReport } from "ui/components/reports/daily-report/daily-report";
+import { FilterQueryParams } from "ui/components/reports/daily-report/filters/filter-params";
 import { Grid, Button } from "@material-ui/core";
 import { DateStepperHeader } from "ui/components/date-stepper-header";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { Link } from "react-router-dom";
 import { startOfToday } from "date-fns";
+import { useQueryParamIso } from "hooks/query-params";
 
 type Props = {};
 
@@ -16,7 +18,8 @@ export const DailyReportPage: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const params = useRouteParams(DailyReportRoute);
-  const [date, setDate] = React.useState(startOfToday());
+  const [filters] = useQueryParamIso(FilterQueryParams);
+  const [date, setDate] = React.useState(new Date(filters.date));
   const createAbsenceRouteParams = useRouteParams(
     AdminSelectEmployeeForCreateAbsenceRoute
   );
