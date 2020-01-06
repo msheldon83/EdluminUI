@@ -27,6 +27,7 @@ import DeleteIcon from "@material-ui/icons/delete";
 import { DeleteCalendarChange } from "./graphql/delete-calendar-change.gen";
 import { CreateExpansionPanel } from "./components/create-expansion-panel";
 import { CalendarView } from "./components/calendar-view";
+import { StickyHeader } from "./components/sticky-header";
 
 import {
   CalendarListViewRoute,
@@ -44,6 +45,12 @@ export const Calendars: React.FC<Props> = props => {
 
   const [schoolYear, setSchoolYear] = useState();
   const [contract, setContract] = useState();
+  const [
+    selectedDateCalendarChanges,
+    setSelectedDateCalendarChanges,
+  ] = useState();
+  const today = useMemo(() => new Date(), []);
+  const [selectedDate, setSelectedDate] = useState(today);
 
   const [getCalendarChanges, pagination] = usePagedQueryBundle(
     GetCalendarChanges,
@@ -52,7 +59,7 @@ export const Calendars: React.FC<Props> = props => {
       variables: {
         orgId: params.organizationId,
         schoolYearId: parseInt(schoolYear?.id),
-        contractId: contract,
+        contractId: parseInt(contract?.id),
       },
       fetchPolicy: "cache-and-network",
     }
@@ -86,6 +93,11 @@ export const Calendars: React.FC<Props> = props => {
         calendarChangeId: Number(calendarChangeId),
       },
     });
+  };
+
+  const onDeleteCalendarChange = async (calendarChangeId: string) => {
+    await Promise.resolve(deleteCalendarChange(calendarChangeId));
+    await getCalendarChanges.refetch();
   };
 
   const columns: Column<GetCalendarChanges.Results>[] = [
@@ -145,9 +157,35 @@ export const Calendars: React.FC<Props> = props => {
   return (
     <>
       <div className={classes.pageContainer}>
+        <div>
+          <Typography variant="h5">
+            {contract === undefined ? t("All Contracts") : contract.name}
+          </Typography>
+
+          {schoolYear && (
+            <PageTitle
+              title={`${parseISO(
+                schoolYear.startDate
+              ).getFullYear()} - ${parseISO(schoolYear.endDate).getFullYear()}`}
+            />
+          )}
+        </div>
         <Section className={classes.container}>
           <CreateExpansionPanel />
         </Section>
+        <div className={props.view === "calendar" ? classes.sticky : ""}>
+          {props.view === "calendar" && (
+            <Section className={classes.calendarchanges}>
+              <StickyHeader
+                orgId={params.organizationId}
+                calendarChanges={selectedDateCalendarChanges}
+                onDelete={onDeleteCalendarChange}
+                date={selectedDate}
+              />
+            </Section>
+          )}
+        </div>
+
         <Section className={classes.container}>
           <Grid container>
             <Grid item xs={12} className={classes.filters}>
@@ -156,7 +194,7 @@ export const Calendars: React.FC<Props> = props => {
                   view={props.view}
                   schoolYearValue={schoolYear?.id}
                   setSchoolYear={setSchoolYear}
-                  contractValue={contract}
+                  contractValue={contract?.id}
                   setContract={setContract}
                   orgId={params.organizationId}
                 />
@@ -221,6 +259,9 @@ export const Calendars: React.FC<Props> = props => {
                 calandarChangeDates={calendarChanges}
                 fromDate={parseISO(schoolYear?.startDate)}
                 toDate={parseISO(schoolYear?.endDate)}
+                setSelectedCalendarChanges={setSelectedDateCalendarChanges}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
               />
             )}
           </Grid>
@@ -287,13 +328,15 @@ const useStyles = makeStyles(theme => ({
     top: 0,
     zIndex: 1,
     backgroundColor: theme.customColors.appBackgroundGray,
+
     boxShadow: `0 ${theme.typography.pxToRem(32)} ${theme.typography.pxToRem(
       16
     )} -${theme.typography.pxToRem(13)} ${
       theme.customColors.appBackgroundGray
     }`,
   },
-  assignments: {
+  calendarchanges: {
     padding: theme.spacing(1),
+    marginBottom: 0,
   },
 }));

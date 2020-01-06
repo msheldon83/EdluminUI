@@ -14,7 +14,7 @@ type Props = {
   schoolYearValue: number;
   setSchoolYear: React.Dispatch<React.SetStateAction<any>>;
   contractValue: number;
-  setContract: React.Dispatch<React.SetStateAction<number>>;
+  setContract: React.Dispatch<React.SetStateAction<any>>;
 };
 
 export const ContractScheduleHeader: React.FC<Props> = props => {
@@ -75,14 +75,21 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
           options={contractOptions}
           value={contractValue()}
           onChange={(e: SelectValueType) => {
-            let selectedValue = null;
+            let selectedValue: any = null;
             if (e) {
               selectedValue =
                 (e as OptionTypeBase).value === 0
                   ? null
                   : (e as OptionTypeBase).value;
             }
-            props.setContract(selectedValue);
+
+            if (selectedValue == null) {
+              props.setContract(undefined);
+            } else {
+              props.setContract(
+                contracts.find(c => c.id === selectedValue.toString())
+              );
+            }
           }}
           isClearable={false}
         />

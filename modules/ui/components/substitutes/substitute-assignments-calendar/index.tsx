@@ -61,7 +61,7 @@ export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
   ) {
     return <></>;
   }
-  console.log(all);
+
   return (
     <Grid container>
       {all.map((group, i) => (
