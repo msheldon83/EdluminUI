@@ -56,12 +56,6 @@ export const CreateAbsenceConfirmationRoute = defineSubRoute(
   ["absenceId"]
 );
 
-// is this right?? Do we need an admin/employee route?
-export const AdminCreateAbsenceConfirmationRoute = defineSubRoute(
-  AdminCreateAbsenceRoute,
-  "/confirmation"
-);
-
 export const CreateAbsenceConfirmationLoader = asyncComponent({
   resolve: async () => {
     const CreateAbsenceConfirmationPage = (

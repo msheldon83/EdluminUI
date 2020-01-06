@@ -197,7 +197,6 @@ export function App() {
 
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
                     <Route
-                      exact
                       component={EmployeeCreateAbsenceLoader}
                       path={EmployeeCreateAbsenceRoute.path}
                     />
