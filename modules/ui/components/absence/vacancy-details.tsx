@@ -78,15 +78,13 @@ const getVacancyDetailsDisplay = (
   }
 
   return groupedDetails.map((g, detailsIndex) => {
+    const allDates = g.detailItems.map(di => di.date);
+
     return (
       <Grid key={detailsIndex} item container xs={12} alignItems="center">
         <Grid item xs={equalWidthDetails ? 6 : 2}>
           <Typography variant="h6">
-            {getAbsenceDateRangeDisplayText(
-              g.startDate,
-              g.endDate ?? new Date(),
-              disabledDates
-            )}
+            {getAbsenceDateRangeDisplayText(allDates, disabledDates)}
           </Typography>
         </Grid>
         <Grid
