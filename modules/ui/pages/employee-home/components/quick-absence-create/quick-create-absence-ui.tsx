@@ -1,25 +1,29 @@
-import * as React from "react";
-import { useTranslation } from "react-i18next";
 import {
-  makeStyles,
+  Button,
   Checkbox,
   IconButton,
+  makeStyles,
   Typography,
-  Button,
 } from "@material-ui/core";
-import { Select } from "ui/components/form/select";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import { min, startOfDay } from "date-fns";
+import { formatISO } from "date-fns/esm";
+import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
+import * as React from "react";
+import { useMemo } from "react";
+import { FieldError } from "react-hook-form/dist/types";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router";
 import {
   DayPartField,
   DayPartValue,
 } from "ui/components/absence/day-part-field";
-import { FieldError } from "react-hook-form/dist/types";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
-import { startOfDay, min } from "date-fns";
-import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
-import { useMemo } from "react";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { Select } from "ui/components/form/select";
+import { TextButton } from "ui/components/text-button";
+import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
 
 type Props = {
   organizationId: string;
@@ -108,6 +112,37 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     },
     [onNeedsReplacementChange]
   );
+
+  const history = useHistory();
+  const addAdditionalDetails = React.useCallback(() => {
+    const params = new URLSearchParams();
+    params.set("absenceReason", absenceReason);
+    params.set(
+      "dates",
+      absenceDates.map(d => formatISO(d, { representation: "date" })).join(",")
+    );
+    console.log(params.get("dates"));
+    params.set("dayPart", selectedDayPart || "");
+    params.set("needsReplacement", wantsReplacement.toString());
+    if (hourlyStartTime) {
+      params.set("start", hourlyStartTime.toISOString());
+    }
+    if (hourlyEndTime) {
+      params.set("end", hourlyEndTime.toISOString());
+    }
+    history.push(
+      `${EmployeeCreateAbsenceRoute.generate({})}?${params.toString()}`
+    );
+  }, [
+    history,
+    absenceReason,
+    absenceDates,
+    selectedDayPart,
+    wantsReplacement,
+    hourlyStartTime,
+    hourlyEndTime,
+  ]);
+
   return (
     <>
       <div className={classes.select}>
@@ -175,6 +210,12 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
       </div>
 
       <div className={classes.buttons}>
+        <TextButton
+          className={classes.additionalButton}
+          onClick={addAdditionalDetails}
+        >
+          {t("Add additional details")}
+        </TextButton>
         <Button variant="outlined" type="submit">
           {t("Quick Create")}
         </Button>
@@ -202,5 +243,8 @@ const useStyles = makeStyles(theme => ({
   buttons: {
     display: "flex",
     justifyContent: "flex-end",
+  },
+  additionalButton: {
+    marginRight: theme.spacing(3),
   },
 }));

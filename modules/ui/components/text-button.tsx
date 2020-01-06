@@ -5,9 +5,15 @@ import { ButtonProps } from "@material-ui/core/Button";
 type Props = ButtonProps;
 
 export const TextButton: React.FC<Props> = props => {
+  const disableRipple =
+    props.disableRipple === undefined ? true : props.disableRipple;
   const classes = useStyles();
   return (
-    <Button {...props} className={`${classes.button} ${props.className}`}>
+    <Button
+      {...props}
+      disableRipple={disableRipple}
+      className={`${classes.button} ${props.className}`}
+    >
       {props.children}
     </Button>
   );
