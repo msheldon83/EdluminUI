@@ -304,6 +304,7 @@ const getAbsenceReasonListDisplay = (
     const matchingAbsenceReason = absenceReasons.find(
       a => a.id === d.absenceReasonId?.toString()
     );
+    const allDates = d.detailItems.map(di => di.date);
 
     return (
       <div key={groupIndex}>
@@ -311,11 +312,7 @@ const getAbsenceReasonListDisplay = (
           {matchingAbsenceReason?.name}
         </div>
         <Typography variant="h6">
-          {getAbsenceDateRangeDisplayText(
-            d.startDate,
-            d.endDate ?? new Date(),
-            disabledDates
-          )}
+          {getAbsenceDateRangeDisplayText(allDates, disabledDates)}
         </Typography>
         {d.simpleDetailItems &&
           d.simpleDetailItems.map((di, detailIndex) => {

@@ -4,6 +4,8 @@ import { Vacancy } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { getAbsenceDateRangeDisplayText } from "./date-helpers";
 import { convertStringToDate } from "helpers/date";
+import { flatMap, compact } from "lodash-es";
+import { parseISO } from "date-fns";
 
 type Props = {
   positionName?: string | null;
@@ -27,9 +29,12 @@ export const VacancySummaryHeader: React.FC<Props> = props => {
       ? `${totalVacancyDays} days`
       : `${totalVacancyDays} day`;
 
+  const allDateStrings = compact(
+    flatMap(sortedVacancies.map(sv => sv.details!.map(d => d?.startDate)))
+  );
+  const allDates = allDateStrings.map(d => parseISO(d));
   let headerText = getAbsenceDateRangeDisplayText(
-    convertStringToDate(firstVacancy.startTimeLocal),
-    convertStringToDate(lastVacancy.endTimeLocal),
+    allDates,
     props.disabledDates
   );
   headerText = props.positionName

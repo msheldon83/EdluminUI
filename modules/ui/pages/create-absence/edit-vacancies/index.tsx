@@ -173,8 +173,7 @@ export const EditVacancies: React.FC<Props> = props => {
               <Grid item>
                 <Typography variant="h5">
                   {getAbsenceDateRangeDisplayText(
-                    parseISO(props.details[0].date),
-                    parseISO(props.details[props.details.length - 1].date),
+                    props.details.map(d => parseISO(d.date)),
                     props.disabledDates
                   )}
                   {props.positionName && ` - ${props.positionName}`}
