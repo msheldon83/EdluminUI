@@ -1,5 +1,4 @@
-import { parseISO } from "date-fns";
-import { isValid } from "date-fns/esm";
+import { isValid, parseISO } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
 import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
 import { useQueryParams } from "hooks/query-params";
@@ -25,7 +24,6 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
   const initialData = useMemo(() => parseOptions(defaultOptions), [
     defaultOptions,
   ]);
-  console.log("initialData", initialData, defaultOptions);
 
   const potentialEmployees = useQueryBundle(FindEmployeeForCurrentUser, {
     fetchPolicy: "cache-first",
@@ -83,7 +81,11 @@ function parseOptions(opts: {
     false: false,
   } as Record<string, boolean>)[opts.needsReplacement];
   try {
-    initialDates = opts.dates.split(",").map(d => parseISO(d));
+    initialDates = opts.dates
+      .split(",")
+      .map(d => parseISO(d))
+      .filter(isValid);
+    if (initialDates.length <= 0) initialDates = undefined;
     if (opts.absenceReason !== "") {
       initialAbsenceReason = opts.absenceReason;
     }

@@ -424,7 +424,8 @@ const initialState = (props: Props): CreateAbsenceState => {
     props.initialNeedsReplacement === undefined
       ? props.needsReplacement !== NeedsReplacement.No
       : props.initialNeedsReplacement;
-  const absenceDates = props.initialDates || [startOfDay(new Date())];
+  let absenceDates = props.initialDates || [];
+  if (absenceDates.length < 1) absenceDates = [startOfDay(new Date())];
   const viewingCalendarMonth = startOfMonth(min(absenceDates));
   return {
     employeeId: props.employeeId,
