@@ -14,7 +14,6 @@ import {
 } from "helpers/time";
 import { useIsMobile } from "hooks";
 import * as React from "react";
-import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Redirect, useHistory } from "react-router";
@@ -440,11 +439,6 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
 
   return (
     <>
-      <div className={classes.linkPadding}>
-        <Link to={BellScheduleRoute.generate(params)} className={classes.link}>
-          {t("Return to all bell schedules")}
-        </Link>
-      </div>
       <PageTitle title={t("Bell Schedule")} withoutHeading />
       <PageHeader
         text={workDaySchedule.name}
@@ -511,14 +505,5 @@ const useStyles = makeStyles(theme => ({
   valueMissing: {
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
-  },
-  link: {
-    color: theme.customColors.blue,
-    "&:visited": {
-      color: theme.customColors.blue,
-    },
-  },
-  linkPadding: {
-    padding: "10px 0px 15px 10px",
   },
 }));
