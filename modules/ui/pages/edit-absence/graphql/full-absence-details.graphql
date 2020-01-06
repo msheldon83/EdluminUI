@@ -3,8 +3,11 @@ fragment FullAbsenceDetails on Absence {
   rowVersion
   details {
     id
+    actualDuration
     startDate
+    startTimeLocal
     endDate
+    endTimeLocal
     dayPartId
     reasonUsages {
       id

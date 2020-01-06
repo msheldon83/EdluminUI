@@ -1,51 +1,32 @@
+import { makeStyles } from "@material-ui/core";
+import { addMonths, isBefore, startOfDay, startOfMonth } from "date-fns";
+import { useMutationBundle } from "graphql/hooks";
+import {
+  AbsenceCreateInput,
+  DayPart,
+  NeedsReplacement,
+} from "graphql/server-types.gen";
+import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
+import { useDialog } from "hooks/use-dialog";
 import * as React from "react";
+import { useMemo } from "react";
+import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import {
-  makeStyles,
-  Grid,
-  Checkbox,
-  Link,
-  Typography,
-} from "@material-ui/core";
-import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
+import { useHistory } from "react-router-dom";
+import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useIsAdmin } from "reference-data/is-admin";
-import { useGetEmployee } from "reference-data/employee";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { FindEmployeeForCurrentUser } from "ui/pages/create-absence/graphql/find-employee-for-current-user.gen";
 import {
-  findEmployee,
-  TranslateAbsenceErrorCodeToMessage,
   createAbsenceDetailInput,
   getAbsenceDates,
+  TranslateAbsenceErrorCodeToMessage,
 } from "ui/components/absence/helpers";
-import {
-  NeedsReplacement,
-  DayPart,
-  AbsenceCreateInput,
-  AbsenceDetailCreateInput,
-} from "graphql/server-types.gen";
-import useForm from "react-hook-form";
-import { useCallback, useMemo } from "react";
-import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { Select } from "ui/components/form/select";
-import { DayPartField } from "ui/components/absence/day-part-field";
-import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { QuickAbsenceCreateUI } from "./quick-create-absence-ui";
-import { QuickCreateAbsenceState, quickCreateAbsenceReducer } from "./state";
-import {
-  startOfMonth,
-  startOfDay,
-  addMonths,
-  isSameDay,
-  isBefore,
-  format,
-} from "date-fns";
-import { CreateAbsence } from "ui/pages/create-absence/graphql/create.gen";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
-import { useDialog } from "hooks/use-dialog";
-import { isEmpty, differenceWith } from "lodash-es";
-import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
+import { Section } from "ui/components/section";
+import { SectionHeader } from "ui/components/section-header";
+import { CreateAbsence } from "ui/pages/create-absence/graphql/create.gen";
+import { CreateAbsenceConfirmationRoute } from "ui/routes/create-absence";
+import { QuickAbsenceCreateUI } from "./quick-create-absence-ui";
+import { quickCreateAbsenceReducer, QuickCreateAbsenceState } from "./state";
 
 type QuickCreateAbsenceFormData = {
   absenceReason: string;
@@ -64,6 +45,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openDialog } = useDialog();
+  const history = useHistory();
 
   const initialState = (props: Props): QuickCreateAbsenceState => ({
     employeeId: props.employeeId,
@@ -155,7 +137,19 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
 
     if (result?.data?.absence?.create) {
       // redirect to confirmation page
-      console.log("Success! created:", result.data.absence.create);
+      console.log(
+        "Success! created:",
+        result.data.absence.create,
+        "redirecting to:",
+        CreateAbsenceConfirmationRoute.generate({
+          absenceId: result.data.absence.create.id,
+        })
+      );
+      history.push(
+        CreateAbsenceConfirmationRoute.generate({
+          absenceId: result.data.absence.create.id,
+        })
+      );
     }
   };
 

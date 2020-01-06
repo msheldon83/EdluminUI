@@ -331,7 +331,6 @@ export const AsAdminWithAllInformation = () => {
           orgId={"1000"}
           absence={getAbsence("1", true, true)}
           disabledDates={disabledDates}
-          setStep={() => {}}
           isAdmin={true}
         />
       </Route>
@@ -361,7 +360,6 @@ export const AsAdminWithSimpleAbsence = () => {
         <Confirmation
           orgId={"1000"}
           absence={getAbsence("1", true, false)}
-          setStep={() => {}}
           disabledDates={disabledDates}
           isAdmin={true}
         />
@@ -393,7 +391,6 @@ export const AsAdminWithMinimumInformation = () => {
           orgId={"1000"}
           absence={getAbsence("2", false, false)}
           disabledDates={disabledDates}
-          setStep={() => {}}
           isAdmin={true}
         />
       </Route>

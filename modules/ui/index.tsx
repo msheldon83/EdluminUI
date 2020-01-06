@@ -62,6 +62,8 @@ import {
   EmployeeCreateAbsenceLoader,
   EmployeeCreateAbsenceRoute,
   SelectEmployeeForCreateAbsenceLoader,
+  CreateAbsenceConfirmationLoader,
+  CreateAbsenceConfirmationRoute,
 } from "./routes/create-absence";
 import {
   AdminEditAbsenceLoader,
@@ -195,8 +197,13 @@ export function App() {
 
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
                     <Route
+                      exact
                       component={EmployeeCreateAbsenceLoader}
                       path={EmployeeCreateAbsenceRoute.path}
+                    />
+                    <Route
+                      component={CreateAbsenceConfirmationLoader}
+                      path={CreateAbsenceConfirmationRoute.path}
                     />
                     <Route path={EmployeeEditAbsenceRoute.path}>
                       <AdminEditAbsenceLoader actingAsEmployee />

@@ -21,9 +21,9 @@ import { DisabledDate } from "helpers/absence/computeDisabledDates";
 type Props = {
   orgId: string;
   absence: Absence | undefined;
-  setStep: (s: Step) => void;
-  disabledDates: DisabledDate[];
   isAdmin: boolean;
+  disabledDates: DisabledDate[];
+  setStep?: (s: Step) => void;
 };
 
 export const Confirmation: React.FC<Props> = props => {
@@ -41,7 +41,7 @@ export const Confirmation: React.FC<Props> = props => {
 
   if (!props.absence) {
     // Redirect the User back to the Absence Details step
-    props.setStep("absence");
+    props.setStep && props.setStep("absence");
 
     return null;
   }

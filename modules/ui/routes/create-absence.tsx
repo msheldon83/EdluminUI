@@ -48,3 +48,28 @@ export const SelectEmployeeForCreateAbsenceLoader = asyncComponent({
   },
   name: "Select Employee for Absence",
 });
+
+// Quick Create from Employee Home redirects to confimation route
+export const CreateAbsenceConfirmationRoute = defineSubRoute(
+  EmployeeCreateAbsenceRoute,
+  "/:absenceId/confirmation",
+  ["absenceId"]
+);
+
+// is this right?? Do we need an admin/employee route?
+export const AdminCreateAbsenceConfirmationRoute = defineSubRoute(
+  AdminCreateAbsenceRoute,
+  "/confirmation"
+);
+
+export const CreateAbsenceConfirmationLoader = asyncComponent({
+  resolve: async () => {
+    const CreateAbsenceConfirmationPage = (
+      await import(
+        "ui/pages/employee-home/components/quick-absence-create/quick-create-confirmation"
+      )
+    ).QuickCreateConfirmation;
+    return CreateAbsenceConfirmationPage;
+  },
+  name: "Create Absence Confirmation",
+});
