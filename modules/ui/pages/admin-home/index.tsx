@@ -1,5 +1,6 @@
 import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
+import LaunchIcon from "@material-ui/icons/Launch";
 import { useTranslation } from "react-i18next";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useRouteParams } from "ui/routes/definition";
@@ -20,6 +21,7 @@ import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { CardType } from "ui/components/reports/daily-report/helpers";
 import { useQueryParamIso } from "hooks/query-params";
 import { FilterQueryParams } from "ui/components/reports/daily-report/filters/filter-params";
+import { SubSignInRoute } from "ui/routes/sub-sign-in";
 
 type Props = {};
 
@@ -58,7 +60,7 @@ export const AdminHome: React.FC<Props> = props => {
       setDate(startOfTomorrow());
       setSelectedCard("unfilled");
     }
-  }, []);
+  }, [timeOfDay]);
 
   /* This is purely to support the "Toggle Time of Day" button
       in Dev for testing. In Prod we'll only be setting the 
@@ -105,8 +107,20 @@ export const AdminHome: React.FC<Props> = props => {
           <Button
             variant="outlined"
             component={Link}
+            to={SubSignInRoute.generate({
+              organizationId: dailyReportRouteParams.organizationId
+            })}
+            className={classes.button}
+            target={"_blank"}
+          >
+            <LaunchIcon className={classes.signinIcon} />
+            {t("Sub Sign-in ")}
+          </Button>
+          <Button
+            variant="outlined"
+            component={Link}
             to={DailyReportRoute.generate(dailyReportRouteParams)}
-            className={classes.dailyReportButton}
+            className={classes.button}
           >
             {t("Daily Report")}
           </Button>
@@ -130,8 +144,12 @@ const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(3),
   },
-  dailyReportButton: {
+  button: {
     marginLeft: theme.spacing(),
+  },
+  signinIcon: {
+    marginRight: "5px",
+    width: theme.typography.pxToRem(16),
   },
   actions: {
     "@media print": {
