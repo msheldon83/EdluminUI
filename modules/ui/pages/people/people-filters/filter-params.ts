@@ -3,8 +3,8 @@ import { OrgUserRole } from "graphql/server-types.gen";
 
 export const FilterQueryParamDefaults: PeopleFilters = {
   name: "",
-  firstNameSort: "desc",
-  lastNameSort: "",
+  firstNameSort: "asc",
+  lastNameSort: "asc",
   roleFilter: "",
   active: "",
   endorsements: "",

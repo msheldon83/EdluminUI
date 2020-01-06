@@ -66,7 +66,16 @@ export const PeoplePage: React.FC<Props> = props => {
         ...filters,
         orgId: params.organizationId,
         role,
-        sortBy: [{sortByPropertyName: "firstName", sortAscending: filters.firstNameSort === "asc"}, {sortByPropertyName: "lastName", sortAscending: filters.lastNameSort === "asc"}]
+        sortBy: [
+          {
+            sortByPropertyName: "lastName", 
+            sortAscending: filters.lastNameSort === "asc"
+          }, 
+          {
+            sortByPropertyName: "firstName", 
+            sortAscending: filters.firstNameSort === "asc"
+          },
+        ],
       },
     },
     peoplePaginationDefaults
