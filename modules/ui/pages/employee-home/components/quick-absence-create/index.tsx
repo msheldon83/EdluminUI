@@ -129,7 +129,6 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     //   };
     // }
     if (!absenceCreateInput) return;
-    console.log("creating absence!", absenceCreateInput);
     const result = await createAbsenceMutation({
       variables: {
         absence: absenceCreateInput,
@@ -137,15 +136,6 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     });
 
     if (result?.data?.absence?.create) {
-      // redirect to confirmation page
-      console.log(
-        "Success! created:",
-        result.data.absence.create,
-        "redirecting to:",
-        CreateAbsenceConfirmationRoute.generate({
-          absenceId: result.data.absence.create.id,
-        })
-      );
       history.push(
         CreateAbsenceConfirmationRoute.generate({
           absenceId: result.data.absence.create.id,
@@ -201,23 +191,6 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
   );
 
   const userIsAdmin = useIsAdmin();
-  // const potentialEmployees = useQueryBundle(FindEmployeeForCurrentUser, {
-  //   fetchPolicy: "cache-first",
-  // });
-  // if (
-  //   (potentialEmployees.state !== "DONE" &&
-  //     potentialEmployees.state !== "UPDATING") ||
-  //   userIsAdmin === null
-  // ) {
-  //   return <></>;
-  // }
-
-  // const employee = findEmployee(potentialEmployees.data);
-  // if (!employee) {
-  //   throw new Error("The user is not an employee");
-  // }
-  // const needsReplacement =
-  //   employee.primaryPosition?.needsReplacement ?? NeedsReplacement.No;
 
   return (
     <form

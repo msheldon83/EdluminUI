@@ -122,7 +122,6 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
       "dates",
       absenceDates.map(d => formatISO(d, { representation: "date" })).join(",")
     );
-    console.log(params.get("dates"));
     params.set("dayPart", selectedDayPart || "");
     params.set("needsReplacement", wantsReplacement.toString());
     if (hourlyStartTime) {
