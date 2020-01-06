@@ -442,7 +442,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     <>
       <div className={classes.linkPadding}>
         <Link to={BellScheduleRoute.generate(params)} className={classes.link}>
-          {t("Return to all bell schedules")}
+          {t("Return to allbell schedules")}
         </Link>
       </div>
       <PageTitle title={t("Bell Schedule")} withoutHeading />
