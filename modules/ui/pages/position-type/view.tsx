@@ -234,6 +234,16 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               )}
             </div>
           </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Pay Type")}</Typography>
+            <div>
+              {getDisplayName(
+                "payTypeId",
+                positionType.payTypeId?.toString() ?? "",
+                t
+              )}
+            </div>
+          </Grid>
         </Grid>
       </Section>
     </>

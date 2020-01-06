@@ -15,6 +15,7 @@ query GetAllPositionTypesWithinOrg($orgId: ID, $includeExpired: Boolean) {
         id
         name
       }
+      payTypeId
     }
   }
 }
