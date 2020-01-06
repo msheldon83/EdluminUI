@@ -1,12 +1,12 @@
 import { getContiguousDateIntervals } from "./date";
-import { startOfDay } from "date-fns";
+import { startOfDay, eachDayOfInterval } from "date-fns";
 
 describe("getContiguousDateIntervals", () => {
   it("Single day interval", () => {
-    const result = getContiguousDateIntervals(
+    const result = getContiguousDateIntervals([
       startOfDay(new Date("12/18/2019")),
-      startOfDay(new Date("12/18/2019"))
-    );
+      startOfDay(new Date("12/18/2019")),
+    ]);
     expect(result).toStrictEqual([
       {
         start: startOfDay(new Date("12/18/2019")),
@@ -16,10 +16,11 @@ describe("getContiguousDateIntervals", () => {
   });
 
   it("Multiple day contiguous interval", () => {
-    const result = getContiguousDateIntervals(
-      startOfDay(new Date("12/18/2019")),
-      startOfDay(new Date("12/22/2019"))
-    );
+    const allDays = eachDayOfInterval({
+      start: startOfDay(new Date("12/18/2019")),
+      end: startOfDay(new Date("12/22/2019")),
+    });
+    const result = getContiguousDateIntervals(allDays);
     expect(result).toStrictEqual([
       {
         start: startOfDay(new Date("12/18/2019")),
@@ -29,15 +30,15 @@ describe("getContiguousDateIntervals", () => {
   });
 
   it("Multiple day non-contiguous intervals", () => {
-    const result = getContiguousDateIntervals(
-      startOfDay(new Date("12/18/2019")),
-      startOfDay(new Date("1/5/2020")),
-      [
-        startOfDay(new Date("12/22/2019")),
-        startOfDay(new Date("12/27/2019")),
-        startOfDay(new Date("1/4/2020")),
-      ]
-    );
+    const allDays = eachDayOfInterval({
+      start: startOfDay(new Date("12/18/2019")),
+      end: startOfDay(new Date("1/5/2020")),
+    });
+    const result = getContiguousDateIntervals(allDays, [
+      startOfDay(new Date("12/22/2019")),
+      startOfDay(new Date("12/27/2019")),
+      startOfDay(new Date("1/4/2020")),
+    ]);
     expect(result).toStrictEqual([
       {
         start: startOfDay(new Date("12/18/2019")),

@@ -370,7 +370,7 @@ export const PeoplePage: React.FC<Props> = props => {
         ),
     },
     {
-      title: t("Endorsements"),
+      title: t("Attributes"),
       field: "endorsements",
       hidden: filters.roleFilter != OrgUserRole.ReplacementEmployee,
       render: o =>
@@ -381,7 +381,7 @@ export const PeoplePage: React.FC<Props> = props => {
         ) : (
           <>
             <Button id={endorsementsId} onClick={handleShowEndorsements}>
-              {`${o.endorsements?.length} ${t("Endorsements")}`}
+              {`${o.endorsements?.length} ${t("Attributes")}`}
             </Button>
             <Popper
               transition

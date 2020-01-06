@@ -15,6 +15,7 @@ mutation UpdatePositionType($positionType: PositionTypeUpdateInput!) {
         id
         name
       }
+      payTypeId
     }
   }
 }

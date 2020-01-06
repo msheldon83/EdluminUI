@@ -174,11 +174,9 @@ export const GetYesterdayTodayTomorrowFormat = (
 };
 
 export const getContiguousDateIntervals = (
-  startDate: Date,
-  endDate: Date,
+  allDates: Date[],
   disabledDates?: Date[]
 ): DateInterval[] => {
-  const allDates = eachDayOfInterval({ start: startDate, end: endDate });
   const nonAbsenceDisabledDates = disabledDates
     ? differenceWith(allDates, disabledDates, isSameDay)
     : allDates;

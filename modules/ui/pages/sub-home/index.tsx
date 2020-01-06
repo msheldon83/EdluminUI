@@ -52,6 +52,8 @@ export const SubHome: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const { openSnackbar } = useSnackbar();
   const [showFilters, setShowFilters] = React.useState(!isMobile);
+  React.useEffect(() => setShowFilters(!isMobile), [isMobile]);
+
   const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
   const [employeeId, setEmployeeId] = React.useState<string | null>(null);
   const [vacancyId, setVacancyId] = React.useState<string | null>(null);
@@ -260,11 +262,9 @@ export const SubHome: React.FC<Props> = props => {
             </Section>
           ) : assignments.length === 0 ? (
             <Section>
-              <Grid item>
-                <Typography variant="h5">
-                  {t("No Assignments scheduled")}
-                </Typography>
-              </Grid>
+              <Typography variant="h5">
+                {t("No Assignments scheduled")}
+              </Typography>
             </Section>
           ) : (
             renderAssignments()
@@ -292,71 +292,54 @@ export const SubHome: React.FC<Props> = props => {
           </Grid>
         )}
       </Grid>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Section>
-            <Grid
-              container
-              className={classes.header}
-              justify="space-between"
-              alignItems="center"
-              spacing={2}
-            >
-              <Grid item>
-                <Typography variant="h5">
-                  {t("Available Assignments")}
-                </Typography>
-              </Grid>
 
-              {isMobile ? (
-                <Grid item>
-                  <Button
-                    variant="outlined"
-                    startIcon={<FilterList />}
-                    onClick={() => setShowFilters(!showFilters)}
-                  >
-                    {t("Filters")}
-                  </Button>
-                  <IconButton onClick={onRefreshVacancies}>
-                    <RefreshIcon />
-                  </IconButton>
-                </Grid>
-              ) : (
-                <Grid item>
-                  <Button variant="outlined" onClick={onRefreshVacancies}>
-                    {t("Refresh")}
-                  </Button>
-                </Grid>
-              )}
-            </Grid>
-            {showFilters && <Filters />}
-            <div>
-              <Divider className={classes.header} />
-              {getVacancies.state === "LOADING" ? (
-                <Grid item>
-                  <Typography variant="h5">
-                    {t("Loading Available Jobs")}
-                  </Typography>
-                </Grid>
-              ) : vacancies.length === 0 ? (
-                <Grid item>
-                  <Typography variant="h5">{t("No Jobs Available")}</Typography>
-                </Grid>
-              ) : (
-                sortedVacancies.map((vacancy, index) => (
-                  <AvailableJob
-                    vacancy={vacancy}
-                    shadeRow={index % 2 != 0}
-                    onDismiss={onDismissVacancy}
-                    key={index}
-                    onAccept={onAcceptVacancy}
-                  />
-                ))
-              )}
+      <Section className={classes.wrapper}>
+        <Grid container spacing={2} className={classes.header}>
+          <Typography variant="h5" className={classes.availableJobsTitle}>
+            {t("Available Jobs")}
+          </Typography>
+
+          {isMobile ? (
+            <div className={classes.jobButtons}>
+              <Button
+                variant="outlined"
+                startIcon={<FilterList />}
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                {t("Filters")}
+              </Button>
+              <IconButton onClick={onRefreshVacancies}>
+                <RefreshIcon />
+              </IconButton>
             </div>
-          </Section>
+          ) : (
+            <div className={classes.jobButtons}>
+              <Button variant="outlined" onClick={onRefreshVacancies}>
+                {t("Refresh")}
+              </Button>
+            </div>
+          )}
         </Grid>
-      </Grid>
+        {showFilters && <Filters />}
+        <div>
+          <Divider className={classes.header} />
+          {getVacancies.state === "LOADING" ? (
+            <Typography variant="h5">{t("Loading Available Jobs")}</Typography>
+          ) : vacancies.length === 0 ? (
+            <Typography variant="h5">{t("No Jobs Available")}</Typography>
+          ) : (
+            sortedVacancies.map((vacancy, index) => (
+              <AvailableJob
+                vacancy={vacancy}
+                shadeRow={index % 2 != 0}
+                onDismiss={onDismissVacancy}
+                key={index}
+                onAccept={onAcceptVacancy}
+              />
+            ))
+          )}
+        </div>
+      </Section>
 
       <RequestAbsenceDialog
         open={requestAbsenceIsOpen}
@@ -375,9 +358,27 @@ const useStyles = makeStyles(theme => ({
   },
   header: {
     marginBottom: theme.spacing(2),
+    position: "relative",
+  },
+  availableJobsTitle: {
+    paddingTop: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
   },
   title: {
     marginBottom: 0,
+  },
+  wrapper: {
+    position: "relative",
+
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(0),
+      paddingTop: theme.spacing(2),
+    },
+  },
+  jobButtons: {
+    position: "absolute",
+    top: "0",
+    right: "12px",
   },
   upcomingWork: {
     backgroundColor: "transparent",

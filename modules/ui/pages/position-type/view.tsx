@@ -12,6 +12,7 @@ import { PageHeader } from "ui/components/page-header";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { Link } from "react-router-dom";
 import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
 import { useRouteParams } from "ui/routes/definition";
 import {
@@ -111,6 +112,11 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
 
   return (
     <>
+      <div className={classes.linkPadding}>
+        <Link to={PositionTypeRoute.generate(params)} className={classes.link}>
+          {t("Return to all position types")}
+        </Link>
+      </div>
       <PageTitle title={t("Position Type")} withoutHeading={!isMobile} />
       <PageHeader
         text={positionType.name}
@@ -228,6 +234,16 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               )}
             </div>
           </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Pay Type")}</Typography>
+            <div>
+              {getDisplayName(
+                "payTypeId",
+                positionType.payTypeId?.toString() ?? "",
+                t
+              )}
+            </div>
+          </Grid>
         </Grid>
       </Section>
     </>
@@ -238,5 +254,14 @@ const useStyles = makeStyles(theme => ({
   valueMissing: {
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
+  },
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
+  },
+  linkPadding: {
+    padding: "10px 0px 15px 10px",
   },
 }));

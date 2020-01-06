@@ -4,6 +4,7 @@ query GetAdminById($id: ID!) {
       id
       userId
       loginEmail
+      rowVersion
       administrator {
         id
         orgId

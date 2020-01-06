@@ -37,6 +37,7 @@ import { Assignment } from "./components/assignment";
 import { useHistory } from "react-router";
 import { usePayCodes } from "reference-data/pay-codes";
 import { useSnackbar } from "hooks/use-snackbar";
+import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";
 
 type Props = {
   showVerified: boolean;
@@ -60,6 +61,9 @@ export const VerifyUI: React.FC<Props> = props => {
     string | undefined
   >(undefined);
   const [verifiedId, setVerifiedId] = useState<string | null | undefined>(null);
+  const vacancyDayConversions = useOrgVacancyDayConversions(
+    params.organizationId
+  );
 
   const today = useMemo(() => startOfToday(), []);
   /* Because this UI can stand alone or show up on the Admin homepage, we need
@@ -283,6 +287,7 @@ export const VerifyUI: React.FC<Props> = props => {
                 selectedVacancyDetail={selectedVacancyDetail}
                 onSelectDetail={onSelectDetail}
                 payCodeOptions={payCodeOptions}
+                vacancyDayConversions={vacancyDayConversions}
               />
             </Collapse>
           ))
@@ -316,6 +321,7 @@ export const VerifyUI: React.FC<Props> = props => {
                         selectedVacancyDetail={selectedVacancyDetail}
                         onSelectDetail={onSelectDetail}
                         payCodeOptions={payCodeOptions}
+                        vacancyDayConversions={vacancyDayConversions}
                       />
                     </Collapse>
                   ))}

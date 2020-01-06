@@ -13,6 +13,7 @@ import { Settings } from "./components/add-edit-settings";
 import {
   NeedsReplacement,
   PositionTypeUpdateInput,
+  AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
 import { UpdatePositionType } from "./graphql/update-position-type.gen";
 import { GetPositionTypeById } from "./graphql/position-type.gen";
@@ -69,6 +70,7 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
           needsReplacement: NeedsReplacement | undefined | null,
           forStaffAugmentation: boolean,
           minAbsenceDurationMinutes: number,
+          payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
           defaultContractId?: number | null
         ) => {
           const positionTypeSettings: PositionTypeUpdateInput = {
@@ -79,6 +81,7 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
             forStaffAugmentation: forStaffAugmentation,
             minAbsenceDurationMinutes: minAbsenceDurationMinutes,
             defaultContractId: defaultContractId,
+            payTypeId: payTypeId,
           };
 
           // Update the Position Type

@@ -46,6 +46,7 @@ export const AdminTab: React.FC<Props> = props => {
       },
     });
     props.setEditing(null);
+    await getAdmin.refetch();
   };
 
   return (
@@ -53,6 +54,7 @@ export const AdminTab: React.FC<Props> = props => {
       <Information
         editing={props.editing}
         orgUser={admin}
+        orgUserRowVersion={orgUser.rowVersion}
         userId={orgUser?.userId}
         loginEmail={orgUser?.loginEmail}
         isSuperUser={admin?.isSuperUser ?? false}

@@ -3,17 +3,15 @@ import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { format } from "date-fns";
 
 export const getAbsenceDateRangeDisplayText = (
-  startDate: Date | null,
-  endDate: Date | null,
+  allDates: Date[],
   disabledDates?: DisabledDate[]
 ): string | null => {
-  if (!startDate || !endDate) {
+  if (allDates.length === 0) {
     return null;
   }
 
   const intervals = getContiguousDateIntervals(
-    startDate,
-    endDate,
+    allDates,
     disabledDates ? disabledDates.map(d => d.date) : undefined
   );
 
