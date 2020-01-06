@@ -381,12 +381,6 @@ export const Information: React.FC<Props> = props => {
                           <Tooltip
                             title={
                               <div className={classes.tooltip}>
-                                <Typography
-                                  variant="h6"
-                                  className={classes.tooltipTitle}
-                                >
-                                  Tooltip with header
-                                </Typography>
                                 <Typography variant="body1">
                                   Reset password will send the user an email
                                   with a link to reset the password.
