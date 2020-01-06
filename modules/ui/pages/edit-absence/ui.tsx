@@ -43,6 +43,7 @@ import { AssignVacancy } from "./graphql/assign-vacancy.gen";
 import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
+import { useHistory } from "react-router";
 
 type Props = {
   firstName: string;
@@ -97,6 +98,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
+  const history = useHistory();
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
 
@@ -322,6 +324,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     (useProjectedInformation && projectedVacancyDetails) ||
     props.initialVacancyDetails;
 
+  const returnUrl: string | undefined = useMemo(() => {
+    return history.location.state?.returnUrl;
+  }, [history.location.state]);
+
   const update = async (
     data: EditAbsenceFormData,
     ignoreWarnings?: boolean
@@ -351,11 +357,18 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     const absence = result?.data?.absence?.update as Absence;
     if (absence) {
       openSnackbar({
-        message: t("The absence has been updated"),
+        message: returnUrl
+          ? t("Absence #{{absenceId}} has been updated", {
+              absenceId: absence.id,
+            })
+          : t("The absence has been updated"),
         dismissable: true,
         status: "success",
         autoHideDuration: 5000,
       });
+      if (returnUrl) {
+        history.push(returnUrl);
+      }
     }
   };
   const onSelectReplacement = useCallback(
@@ -443,6 +456,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               replacementEmployeeName={props.replacementEmployeeName}
               onRemoveReplacement={props.cancelAssignments}
               locationIds={props.locationIds}
+              returnUrl={returnUrl}
             />
           </Section>
         </form>

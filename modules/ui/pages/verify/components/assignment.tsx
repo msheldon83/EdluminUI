@@ -1,9 +1,13 @@
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Grid, Button, Typography, makeStyles } from "@material-ui/core";
 import {
   VacancyDetail,
   VacancyDetailVerifyInput,
+  AbsenceReasonTrackingTypeId,
+  DayConversion,
+  PayCode,
+  AccountingCode,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
@@ -16,6 +20,7 @@ import { Select, SelectValueType, OptionType } from "ui/components/form/select";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { OptionTypeBase } from "react-select/src/types";
 import { getDisplayName } from "ui/components/enumHelpers";
+import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
 
 type Props = {
   vacancyDetail: Pick<
@@ -36,18 +41,33 @@ type Props = {
     | "verifiedAtLocal"
     | "payDurationOverride"
     | "actualDuration"
+    | "payTypeId"
   >;
   shadeRow: boolean;
   onVerify: (verifyInput: VacancyDetailVerifyInput) => Promise<void>;
   onSelectDetail: (vacancyDetailId: string) => void;
   selectedVacancyDetail: string | undefined;
   payCodeOptions: OptionType[];
+  vacancyDayConversions: Pick<
+    DayConversion,
+    "name" | "maxMinutes" | "dayEquivalent"
+  >[];
 };
 
 export const Assignment: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const vacancyDetail = props.vacancyDetail;
+  const [currentPayCode, setCurrentPayCode] = useState<
+    Pick<PayCode, "id" | "name"> | undefined
+  >(vacancyDetail.payCode ?? undefined);
+  const [currentAccountingCode, setCurrentAccountingCode] = useState<
+    Pick<AccountingCode, "id" | "name"> | undefined
+  >(vacancyDetail.accountingCodeAllocations![0]?.accountingCode ?? undefined);
+  const [selectedDayConversionName, setSelectedDayConversionName] = useState<
+    string
+  >();
+  const dayConversionHourlyName = t("Hourly");
 
   // If the date is null, this record is not verified and needs to be verified
   // If it is verified, we would want to allow the record to be unverified
@@ -80,30 +100,120 @@ export const Assignment: React.FC<Props> = props => {
     ? vacancyDetail.id === props.selectedVacancyDetail
     : false;
 
-  const payType = vacancyDetail.vacancy!.position!.positionType!.payTypeId!;
-  const daysInfo =
-    vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
+  // Build dropdown options list for the Day Conversions
+  const dayConversionOptions = useMemo(() => {
+    return [
+      ...props.vacancyDayConversions.map(a => ({
+        label: a.name,
+        value: a.name,
+      })),
+      {
+        label: dayConversionHourlyName,
+        value: AbsenceReasonTrackingTypeId.Hourly,
+      },
+    ];
+  }, [props.vacancyDayConversions, dayConversionHourlyName]);
+
+  // Make sure the dayConversionName is initially set
+  useEffect(() => {
+    if (
+      !vacancyDetail.dayPortion ||
+      vacancyDetail.payTypeId === AbsenceReasonTrackingTypeId.Hourly
+    ) {
+      setSelectedDayConversionName(
+        dayConversionOptions.find(
+          x => x.value === AbsenceReasonTrackingTypeId.Hourly
+        )?.label
+      );
+      return;
+    }
+
+    const matchByDayPortion = props.vacancyDayConversions.find(
+      x => x.dayEquivalent === vacancyDetail.dayPortion
+    );
+    if (matchByDayPortion) {
+      setSelectedDayConversionName(
+        dayConversionOptions.find(
+          x =>
+            x.label === matchByDayPortion.name &&
+            x.value === matchByDayPortion.name
+        )?.label
+      );
+      return;
+    }
+    setSelectedDayConversionName(
+      dayConversionOptions.find(
+        x => x.value === AbsenceReasonTrackingTypeId.Hourly
+      )?.label
+    );
+  }, [
+    props.vacancyDayConversions,
+    dayConversionOptions,
+    vacancyDetail.dayPortion,
+    vacancyDetail.payTypeId,
+  ]);
+
+  // Get the current PayTypeId
+  const payTypeId = useMemo(() => {
+    const matchingDayConversion = props.vacancyDayConversions.find(
+      x => x.name === selectedDayConversionName
+    );
+    return matchingDayConversion
+      ? AbsenceReasonTrackingTypeId.Daily
+      : AbsenceReasonTrackingTypeId.Hourly;
+  }, [selectedDayConversionName, props.vacancyDayConversions]);
+
+  const daysInfo = useMemo(() => {
+    const dayEquivalent = props.vacancyDayConversions.find(
+      x => x.name === selectedDayConversionName
+    )?.dayEquivalent;
+    if (dayEquivalent) {
+      return dayEquivalent;
+    }
+
+    return vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
       ? `${vacancyDetail.dayPortion.toFixed(1)}`
       : `${vacancyDetail.dayPortion.toFixed(
           1
         )}/${vacancyDetail.totalDayPortion.toFixed(1)}`;
+  }, [selectedDayConversionName, props.vacancyDayConversions]);
+
   const payInfo =
-    payType === "DAILY"
+    payTypeId === AbsenceReasonTrackingTypeId.Daily
       ? `${daysInfo} ${t("Days")}`
-      : `${vacancyDetail.payDurationOverride ??
-          vacancyDetail.actualDuration} ${t("Hours")}`;
+      : `${minutesToHours(
+          vacancyDetail.payDurationOverride ??
+            vacancyDetail.actualDuration ??
+            undefined
+        )} ${t("Hours")}`;
 
   const handlePayCodeOnBlur = async (payCodeId: string | undefined) => {
+    if (currentPayCode?.id === payCodeId) {
+      // Don't call the mutation if we're not chaning anything
+      return;
+    }
+
     await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
-      payCodeId: Number(payCodeId),
+      payCodeId: payCodeId ? Number(payCodeId) : null,
     });
+
+    // Find the pay code option that matches our selection and set in state
+    const payCode = props.payCodeOptions.find(x => x.value === payCodeId);
+    setCurrentPayCode(
+      payCode ? { id: payCodeId!, name: payCode.label.toString() } : undefined
+    );
   };
 
   const handleAccountingCodeOnBlur = async (
     accountingCodeId: string | undefined
   ) => {
+    if (currentAccountingCode?.id === accountingCodeId) {
+      // Don't call the mutation if we're not chaning anything
+      return;
+    }
+
     await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
@@ -116,6 +226,16 @@ export const Assignment: React.FC<Props> = props => {
           ]
         : [],
     });
+
+    // Find the accounting code option that matches our selection and set in state
+    const accountingCode = accountingCodeOptions.find(
+      x => x.value === accountingCodeId
+    );
+    setCurrentAccountingCode(
+      accountingCode
+        ? { id: accountingCodeId!, name: accountingCode.label.toString() }
+        : undefined
+    );
   };
 
   const handleCommentsOnBlur = async (verifyComments: string | undefined) => {
@@ -126,15 +246,26 @@ export const Assignment: React.FC<Props> = props => {
     });
   };
 
-  const handleDaysOnBlur = async (
+  const handleDaysUpdate = async (
     dayPortion: number,
-    payDurationOverride: number | null | undefined
+    payDurationOverrideHours: number | null | undefined,
+    dayConversionName: string | undefined
   ) => {
+    // Find the matching day conversion
+    const dayConversion = props.vacancyDayConversions.find(
+      x => x.name === dayConversionName
+    );
+
     await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
-      dayPortion,
-      payDurationOverride: payType === "HOURLY" ? payDurationOverride : null,
+      dayPortion: dayConversion?.dayEquivalent ?? dayPortion,
+      payDurationOverride: !dayConversion
+        ? hoursToMinutes(payDurationOverrideHours ?? undefined)
+        : null,
+      payTypeId: dayConversion
+        ? AbsenceReasonTrackingTypeId.Daily
+        : AbsenceReasonTrackingTypeId.Hourly,
     });
   };
 
@@ -150,18 +281,19 @@ export const Assignment: React.FC<Props> = props => {
       <Formik
         initialValues={{
           verifyComments: vacancyDetail.verifyComments ?? undefined,
-          payCodeId: vacancyDetail.payCode?.id ?? undefined,
+          payCodeId: currentPayCode?.id ?? undefined,
           dayPortion: vacancyDetail.dayPortion,
-          accountingCodeId:
-            vacancyDetail.accountingCodeAllocations![0]?.accountingCode?.id ??
-            undefined,
-          payDurationOverride:
-            vacancyDetail.payDurationOverride ?? vacancyDetail.actualDuration,
+          accountingCodeId: currentAccountingCode?.id ?? undefined,
+          payDurationOverrideHours: minutesToHours(
+            vacancyDetail.payDurationOverride ??
+              vacancyDetail.actualDuration ??
+              undefined
+          ),
         }}
         onSubmit={async (data, e) => {
           await props.onVerify({
             vacancyDetailId: vacancyDetail.id,
-            payCodeId: Number(data.payCodeId),
+            payCodeId: data.payCodeId ? Number(data.payCodeId) : null,
             verifyComments: data.verifyComments,
             accountingCodeAllocations: data.accountingCodeId
               ? [
@@ -173,13 +305,16 @@ export const Assignment: React.FC<Props> = props => {
               : [],
             dayPortion: data.dayPortion,
             payDurationOverride:
-              payType === "HOURLY" ? data.payDurationOverride : null,
+              payTypeId === AbsenceReasonTrackingTypeId.Hourly
+                ? hoursToMinutes(data.payDurationOverrideHours ?? undefined)
+                : null,
+            payTypeId: payTypeId,
             doVerify: notVerified,
           });
         }}
         validationSchema={yup.object().shape({
           dayPortion: yup.number().typeError(t("Not a valid number")),
-          payDurationOverride: yup
+          payDurationOverrideHours: yup
             .number()
             .nullable()
             .typeError(t("Not a valid number")),
@@ -240,8 +375,7 @@ export const Assignment: React.FC<Props> = props => {
                 {!isActiveCard && (
                   <Typography
                     className={classes.boldText}
-                  >{`Pay: ${vacancyDetail.payCode?.name ??
-                    t("N/A")}`}</Typography>
+                  >{`Pay: ${currentPayCode?.name ?? t("N/A")}`}</Typography>
                 )}
               </Grid>
               <Grid item xs={2}>
@@ -251,8 +385,8 @@ export const Assignment: React.FC<Props> = props => {
                 {!isActiveCard && (
                   <Typography
                     className={classes.boldText}
-                  >{`Acct: ${vacancyDetail.accountingCodeAllocations![0]
-                    ?.accountingCode?.name ?? t("N/A")}`}</Typography>
+                  >{`Acct: ${currentAccountingCode?.name ??
+                    t("N/A")}`}</Typography>
                 )}
               </Grid>
               <Grid item xs={2}>
@@ -260,7 +394,10 @@ export const Assignment: React.FC<Props> = props => {
                   <Button
                     variant={isActiveCard ? "contained" : "outlined"}
                     type="submit"
-                    onClick={event => {event.stopPropagation(); onsubmit;}}
+                    onClick={event => {
+                      event.stopPropagation();
+                      onsubmit;
+                    }}
                   >
                     {notVerified ? t("Verify") : t("Undo verify")}
                   </Button>
@@ -276,41 +413,71 @@ export const Assignment: React.FC<Props> = props => {
                   spacing={2}
                   className={props.shadeRow ? classes.shadedRow : undefined}
                 >
-                  <Grid item xs={4}></Grid>
+                  <Grid item xs={2}></Grid>
                   <Grid item xs={2}>
-                    <Input
-                      value={
-                        payType === "DAILY"
-                          ? values.dayPortion
-                          : values.payDurationOverride
-                      }
-                      InputComponent={FormTextField}
-                      inputComponentProps={{
-                        name:
-                          payType === "DAILY"
-                            ? "dayPortion"
-                            : "payDurationOverride",
-                        margin: "normal",
-                        label: payType === "DAILY" ? t("Days") : t("Hours"),
-                        fullWidth: true,
-                      }}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ) => {
-                        setFieldValue(
-                          payType === "DAILY"
-                            ? "dayPortion"
-                            : "payDurationOverride",
-                          event.target.value
+                    <Select
+                      value={dayConversionOptions.find(
+                        a => a.label === selectedDayConversionName
+                      )}
+                      onChange={async (e: SelectValueType) => {
+                        //TODO: Once the select component is updated,
+                        // can remove the Array checking
+                        let selectedLabel: string | undefined = undefined;
+                        if (e) {
+                          if (Array.isArray(e)) {
+                            selectedLabel = (e as Array<OptionTypeBase>)[0]
+                              .label;
+                          } else {
+                            selectedLabel = (e as OptionTypeBase).label;
+                          }
+                        }
+                        setSelectedDayConversionName(selectedLabel);
+                        await handleDaysUpdate(
+                          values.dayPortion,
+                          values.payDurationOverrideHours,
+                          selectedLabel
                         );
                       }}
-                      onBlur={() =>
-                        handleDaysOnBlur(
-                          values.dayPortion,
-                          values.payDurationOverride
-                        )
-                      }
+                      options={dayConversionOptions}
+                      isClearable={false}
                     />
+                  </Grid>
+                  <Grid item xs={2}>
+                    {payTypeId === AbsenceReasonTrackingTypeId.Daily ? (
+                      <Typography className={classes.boldText}>
+                        {payInfo}
+                      </Typography>
+                    ) : (
+                      <Input
+                        value={values.payDurationOverrideHours ?? ""}
+                        InputComponent={FormTextField}
+                        inputComponentProps={{
+                          name: "payDurationOverrideHours",
+                          margin: "normal",
+                          label: t("Hours"),
+                          fullWidth: true,
+                        }}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ) => {
+                          setFieldValue(
+                            "payDurationOverrideHours",
+                            event.target.value
+                              ? event.target.value
+                              : minutesToHours(
+                                  vacancyDetail.actualDuration ?? undefined
+                                )
+                          );
+                        }}
+                        onBlur={() =>
+                          handleDaysUpdate(
+                            values.dayPortion,
+                            values.payDurationOverrideHours,
+                            selectedDayConversionName
+                          )
+                        }
+                      />
+                    )}
                   </Grid>
                   <Grid item xs={2}>
                     <Select

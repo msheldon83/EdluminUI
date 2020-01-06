@@ -48,6 +48,7 @@ import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import { addMonths } from "date-fns/esm";
+import { useHistory } from "react-router";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -95,12 +96,14 @@ type Props = {
     replacementEmployeeName?: string,
     assignmentRowVersion?: string
   ) => void;
+  returnUrl?: string;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
+  const history = useHistory();
   const {
     organizationId,
     setValue,
@@ -448,6 +451,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
       <Grid item xs={12}>
         <div className={classes.actionButtons}>
+          {props.returnUrl && (
+            <Button
+              onClick={() => history.push(props.returnUrl!)}
+              variant="outlined"
+              className={classes.cancelButton}
+            >
+              {t("Cancel")}
+            </Button>
+          )}
           <Button type="submit" variant="contained">
             {props.saveLabel ?? t("Create")}
           </Button>
@@ -462,6 +474,9 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-end",
+  },
+  cancelButton: {
+    marginRight: theme.spacing(2),
   },
   select: {
     paddingTop: theme.typography.pxToRem(4),

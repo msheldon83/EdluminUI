@@ -2,6 +2,29 @@ mutation VerifyVacancyDetail($vacancyDetail: VacancyDetailVerifyInput!) {
   vacancy {
     verifyVacancyDetail(vacancyDetail: $vacancyDetail) {
       id
+      orgId
+      startDate
+      startTimeLocal
+      endTimeLocal
+      dayPortion
+      totalDayPortion
+      verifyComments
+      verifiedAtLocal
+      actualDuration
+      payDurationOverride
+      payTypeId
+      accountingCodeAllocations {
+        id
+        allocation
+        accountingCode {
+          id
+          name
+        }
+      }
+      payCode {
+        id
+        name
+      }
     }
   }
 }

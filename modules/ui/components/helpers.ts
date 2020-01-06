@@ -22,6 +22,15 @@ export const minutesToHours = (mins?: number, decimalPlaces = 2) => {
   return hours;
 };
 
+export const hoursToMinutes = (hours?: number) => {
+  if (!hours) {
+    return null;
+  }
+
+  const mins = hours * 60;
+  return mins;
+};
+
 export const boolToDisplay = (t: i18next.TFunction, bool?: boolean | null) => {
   return bool ? t("Yes") : t("No");
 };
