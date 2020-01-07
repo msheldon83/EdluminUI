@@ -6,6 +6,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { DayIcon } from "ui/components/day-icon";
 import { parseDayPortion } from "ui/components/helpers";
+import { useIsMobile } from "hooks";
 
 type Props = {
   startDate: string;
@@ -36,6 +37,7 @@ type Props = {
 
 export const AssignmentRowUI: React.FC<Props> = props => {
   const classes = useStyles();
+  const isMoblie = useIsMobile();
   const { t } = useTranslation();
 
   const startDate = DateFns.parseISO(props.startDate);
@@ -56,7 +58,13 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   }
 
   return (
-    <div className={[classes.container, props.className].join(" ")}>
+    <div
+      className={[
+        classes.container,
+        isMoblie ? classes.mobile : "",
+        props.className,
+      ].join(" ")}
+    >
       <div className={classes.dateContainer}>
         <Typography className={classes.date}>{vacancyDates}</Typography>
         <Typography className={classes.subText}>{vacancyDaysOfWeek}</Typography>
@@ -96,10 +104,10 @@ export const AssignmentRowUI: React.FC<Props> = props => {
       </div>
       {!props.forSpecificAssignment && (
         <div className={classes.confNumber}>
-        <Typography className={classes.bold}>
-          #C{props.confirmationNumber}
-        </Typography>
-      </div>
+          <Typography className={classes.bold}>
+            #C{props.confirmationNumber}
+          </Typography>
+        </div>
       )}
       {!props.isAdmin ||
         (!props.forSpecificAssignment && (
@@ -126,6 +134,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  mobile: { flexDirection: "column", alignItems: "flex-start" },
   dateContainer: {
     flex: 4,
   },
