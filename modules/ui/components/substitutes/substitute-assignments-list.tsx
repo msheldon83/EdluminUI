@@ -91,35 +91,31 @@ export const SubstituteAssignmentsListView: React.FC<Props> = props => {
   }
 
   return (
-    <>
-      <Grid container>
-        {groupedAssignments.length < 1 ? (
-          <Typography className={classes.noRecords}>
-            {t("No records")}
-          </Typography>
-        ) : (
-          groupedAssignments.map((group, i) => {
-            return group.length > 1 ? (
-              <AssignmentGroup
-                key={i}
-                vacancyDetails={group}
-                onCancel={onCancel}
-                className={i % 2 == 1 ? classes.shadedRow : undefined}
-                isAdmin={props.isAdmin}
-              />
-            ) : (
-              <AssignmentRow
-                key={group[0].id}
-                assignment={group[0]}
-                onCancel={onCancel}
-                className={i % 2 == 1 ? classes.shadedRow : undefined}
-                isAdmin={props.isAdmin}
-              />
-            );
-          })
-        )}
-      </Grid>
-    </>
+    <Grid container>
+      {groupedAssignments.length < 1 ? (
+        <Typography className={classes.noRecords}>{t("No records")}</Typography>
+      ) : (
+        groupedAssignments.map((group, i) => {
+          return group.length > 1 ? (
+            <AssignmentGroup
+              key={i}
+              vacancyDetails={group}
+              onCancel={onCancel}
+              className={i % 2 == 1 ? classes.shadedRow : undefined}
+              isAdmin={props.isAdmin}
+            />
+          ) : (
+            <AssignmentRow
+              key={group[0].id}
+              assignment={group[0]}
+              onCancel={onCancel}
+              className={i % 2 == 1 ? classes.shadedRow : undefined}
+              isAdmin={props.isAdmin}
+            />
+          );
+        })
+      )}
+    </Grid>
   );
 };
 
