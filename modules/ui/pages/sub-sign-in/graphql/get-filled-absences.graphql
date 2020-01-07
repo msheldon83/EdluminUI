@@ -6,6 +6,9 @@ query GetFilledAbsences($orgId: ID!, $date: Date!, $locationIds: [Int]) {
       endTimeLocal
       dayPortion
       totalDayPortion
+      actualDuration
+      payDurationOverride
+      payTypeId
       vacancy {
         id
         absence {
