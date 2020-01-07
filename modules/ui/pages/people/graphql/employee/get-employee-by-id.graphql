@@ -4,6 +4,7 @@ query GetEmployeeById($id: ID!) {
       id
       userId
       loginEmail
+      rowVersion
       employee {
         id
         orgId

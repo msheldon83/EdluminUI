@@ -50,7 +50,7 @@ type Props = {
   orgUser: {
     id: string;
     orgId: number;
-    rowVersion?: string | null | undefined;
+    rowVersion?: string | null | undefined; // This is the row version of the employee, not of the orgUser.
     firstName: string;
     lastName: string;
     email: string;
@@ -71,6 +71,7 @@ type Props = {
       | null
       | undefined;
   };
+  orgUserRowVersion: string;
   isSuperUser: boolean;
   selectedRole: OrgUserRole;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
@@ -160,7 +161,7 @@ export const Information: React.FC<Props> = props => {
         onSubmit={async (data, e) => {
           await props.onSaveOrgUser({
             id: Number(orgUser.id),
-            rowVersion: orgUser.rowVersion ?? "",
+            rowVersion: props.orgUserRowVersion,
             email: data.email,
             phoneNumber:
               data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
@@ -381,12 +382,6 @@ export const Information: React.FC<Props> = props => {
                           <Tooltip
                             title={
                               <div className={classes.tooltip}>
-                                <Typography
-                                  variant="h6"
-                                  className={classes.tooltipTitle}
-                                >
-                                  Tooltip with header
-                                </Typography>
                                 <Typography variant="body1">
                                   Reset password will send the user an email
                                   with a link to reset the password.

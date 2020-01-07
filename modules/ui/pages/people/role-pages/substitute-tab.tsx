@@ -80,6 +80,7 @@ export const SubstituteTab: React.FC<Props> = props => {
       },
     });
     props.setEditing(null);
+    await getSubstitute.refetch();
   };
 
   return (
@@ -87,6 +88,7 @@ export const SubstituteTab: React.FC<Props> = props => {
       <Information
         editing={props.editing}
         orgUser={substitute}
+        orgUserRowVersion={orgUser.rowVersion}
         userId={orgUser?.userId}
         loginEmail={orgUser?.loginEmail}
         isSuperUser={false}
