@@ -66,7 +66,9 @@ export const AssignmentRowUI: React.FC<Props> = props => {
       ].join(" ")}
     >
       <div className={classes.dateContainer}>
-        <Typography className={classes.date}>{vacancyDates}</Typography>
+        <Typography className={classes.date} noWrap>
+          {vacancyDates}
+        </Typography>
         <Typography className={classes.subText}>{vacancyDaysOfWeek}</Typography>
       </div>
       <div className={classes.location}>
@@ -88,11 +90,11 @@ export const AssignmentRowUI: React.FC<Props> = props => {
         <DayIcon dayPortion={props.dayPortion} startTime={props.startTime} />
 
         <div className={classes.dayPart}>
-          <Typography variant="h6">{`${Math.round(
+          <Typography variant="h6" noWrap>{`${Math.round(
             props.dayPortion
           )} ${parseDayPortion(t, props.dayPortion)}`}</Typography>
 
-          <Typography className={classes.subText}>
+          <Typography className={classes.subText} noWrap>
             {props.multipleTimes
               ? t("Various")
               : `${formatIsoDateIfPossible(
@@ -104,7 +106,7 @@ export const AssignmentRowUI: React.FC<Props> = props => {
       </div>
       {!props.forSpecificAssignment && (
         <div className={classes.confNumber}>
-          <Typography className={classes.bold}>
+          <Typography className={classes.bold} noWrap>
             #C{props.confirmationNumber}
           </Typography>
         </div>
@@ -134,16 +136,20 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  mobile: { flexDirection: "column", alignItems: "flex-start" },
+  mobile: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+  },
   dateContainer: {
     flex: 4,
+    padding: `0 ${theme.typography.pxToRem(4)}`,
   },
   date: {
     fontSize: theme.typography.pxToRem(18),
     fontWeight: 500,
   },
-  location: { flex: 11 },
-  position: { flex: 7 },
+  location: { flex: 11, padding: `0 ${theme.typography.pxToRem(4)}` },
+  position: { flex: 7, padding: `0 ${theme.typography.pxToRem(4)}` },
   subText: {
     color: theme.customColors.edluminSubText,
   },
@@ -156,11 +162,12 @@ const useStyles = makeStyles(theme => ({
   dayPartContainer: {
     display: "flex",
     flex: 8,
+    padding: `0 ${theme.typography.pxToRem(4)}`,
   },
   dayPart: {
     display: "inline-block",
     paddingLeft: theme.spacing(1),
   },
-  confNumber: { flex: 4 },
+  confNumber: { flex: 4, padding: `0 ${theme.typography.pxToRem(4)}` },
   cancel: { color: theme.customColors.darkRed },
 }));
