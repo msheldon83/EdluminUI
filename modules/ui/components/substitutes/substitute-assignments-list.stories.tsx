@@ -1,10 +1,10 @@
 import { VacancyDetail } from "graphql/server-types.gen";
 import * as React from "react";
 import { mockProvider } from "test-helpers/mock-provider";
-import { SubSchedule } from "../../../pages/sub-schedule";
+import { SubSchedule } from "ui/pages/sub-schedule";
 
 export default {
-  title: "Pages/Subtitute Schedule/Calendar view",
+  title: "Pages/Subtitute Schedule/List view",
 };
 
 export const Page = () => {
@@ -140,11 +140,12 @@ export const Page = () => {
         }),
       }),
     },
+    logMissingMocks: true,
   });
 
   return (
     <Provider>
-      <SubSchedule view="calendar" />
+      <SubSchedule view="list" />
     </Provider>
   );
 };

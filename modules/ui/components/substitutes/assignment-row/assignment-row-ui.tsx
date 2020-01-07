@@ -18,7 +18,7 @@ type Props = {
   employeeName: string;
   dayPortion: number;
   confirmationNumber: string;
-  onCancel?: () => void;
+  onCancel: () => void;
   isAdmin: boolean;
   forSpecificAssignment?: boolean;
   className?: string;
@@ -37,7 +37,7 @@ type Props = {
 
 export const AssignmentRowUI: React.FC<Props> = props => {
   const classes = useStyles();
-  const isMoblie = useIsMobile();
+  const isMobile = useIsMobile();
   const { t } = useTranslation();
 
   const startDate = DateFns.parseISO(props.startDate);
@@ -61,7 +61,7 @@ export const AssignmentRowUI: React.FC<Props> = props => {
     <div
       className={[
         classes.container,
-        isMoblie ? classes.mobile : "",
+        isMobile ? classes.mobile : "",
         props.className,
       ].join(" ")}
     >
@@ -111,19 +111,18 @@ export const AssignmentRowUI: React.FC<Props> = props => {
           </Typography>
         </div>
       )}
-      {!props.isAdmin ||
-        (!props.forSpecificAssignment && (
-          <Button
-            variant="outlined"
-            className={classes.cancel}
-            onClick={e => {
-              e.stopPropagation();
-              props.onCancel!();
-            }}
-          >
-            {t("Cancel")}
-          </Button>
-        ))}
+      {!props.forSpecificAssignment && (
+        <Button
+          variant="outlined"
+          className={classes.cancel}
+          onClick={e => {
+            e.stopPropagation();
+            props.onCancel();
+          }}
+        >
+          {t("Cancel")}
+        </Button>
+      )}
     </div>
   );
 };

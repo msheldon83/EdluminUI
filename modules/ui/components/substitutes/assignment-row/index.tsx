@@ -6,7 +6,7 @@ import { CancelDialog } from "./cancel-dialog";
 
 type Props = {
   assignment: AssignmentVacancyDetails;
-  onCancel?: (
+  onCancel: (
     assignmentId: string,
     rowVersion: string,
     vacancyDetailIds?: string[]
@@ -34,7 +34,6 @@ export const AssignmentRow: React.FC<Props> = props => {
   const onCloseDialog = () => setIsCancelDialogOpen(false);
   const onCancelMutation = useCallback(
     () =>
-      onCancel &&
       onCancel(
         a.assignment?.id ?? "",
         a.assignment?.rowVersion ?? "",
