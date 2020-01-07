@@ -1,7 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
-import { useCallback, useMemo } from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { Table } from "ui/components/table";
 import { Column } from "material-table";
@@ -33,29 +32,11 @@ export const PermissionSetUI: React.FC<Props> = props => {
       roles: props.rolesFilter,
     },
   });
-  const [deletePermissionSetMutation] = useMutationBundle(DeletePermissionSet);
-  const deletePermissionSet = (permissionSetId: string) => {
-    return deletePermissionSetMutation({
-      variables: {
-        permissionSetId: Number(permissionSetId),
-      },
-    });
-  };
 
   const orgUserRoles = OrgUserRoles.reduce(
     (o: any, key: any) => ({ ...o, [key.enumValue]: key.name }),
     {}
   );
-
-  //TODO: Wire up check boxes for multi-select. Check with Mike if multi-select is needed when there is no pagination.
-  const deleteSelected = async (data: { id: string } | { id: string }[]) => {
-    if (Array.isArray(data)) {
-      await Promise.all(data.map(id => deletePermissionSet(id.id)));
-    } else {
-      await Promise.resolve(deletePermissionSet(data.id));
-    }
-    await getPermissionSets.refetch();
-  };
 
   const columns: Column<GetAllPermissionSetsWithinOrg.All>[] = [
     {
@@ -101,9 +82,9 @@ export const PermissionSetUI: React.FC<Props> = props => {
             if (!permissionSet) return;
             const newParams = {
               ...params,
-              //permissionSet: permissionSet.id,
+              permissionSet: permissionSet.id,
             };
-            //history.push(PositionTypeViewRoute.generate(newParams)); TODO: Create Route for Permission Set View
+            //history.push(NEW_ROUTE_HERE.generate(newParams)); TODO: Create Route for Permission Set View
           }}
         />
       </Section>

@@ -1,8 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
-import { OptionType, Select } from "ui/components/form/select";
-import { usePermissionSets } from "reference-data/permission-sets";
+import { Select } from "ui/components/form/select";
 import { useCallback, useMemo } from "react";
 import { OrgUserRole } from "graphql/server-types.gen";
 
@@ -16,7 +15,6 @@ export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  //Select Options
   const roleOptions = useMemo(
     () => [
       { id: OrgUserRole.Invalid, label: "(All)" },
@@ -26,6 +24,11 @@ export const Filters: React.FC<Props> = props => {
     ],
     []
   );
+
+  const selectedValue = roleOptions.find(
+    e => e.label && props.rolesFilter.includes(e.id)
+  );
+
   const onChangeRoles = useCallback(
     value => {
       if (value.id === OrgUserRole.Invalid) {
@@ -52,9 +55,7 @@ export const Filters: React.FC<Props> = props => {
             isClearable={false}
             onChange={onChangeRoles}
             options={roleOptions}
-            value={roleOptions.filter(
-              e => e.label && props.rolesFilter.includes(e.id)
-            )}
+            value={selectedValue}
           />
         </Grid>
       </Grid>
@@ -70,8 +71,5 @@ export const useStyles = makeStyles(theme => ({
   filters: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-  },
-  textField: {
-    marginTop: theme.spacing(2),
   },
 }));
