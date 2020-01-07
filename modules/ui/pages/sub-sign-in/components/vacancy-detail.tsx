@@ -1,7 +1,7 @@
-import { Grid, InputLabel } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   VacancyDetail,
@@ -9,7 +9,8 @@ import {
   DayConversion,
 } from "graphql/server-types.gen";
 import { parseISO, format } from "date-fns";
-import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
+import { minutesToHours } from "ui/components/helpers";
+import clsx from "clsx";
 
 type Props = {
   vacancyDetail: Pick<
@@ -69,10 +70,6 @@ export const VacancyDetailRow: React.FC<Props> = props => {
     vacancyDetail.payTypeId,
   ]);
 
-  const matchByDayPortion = props.vacancyDayConversions.find(
-    x => x.dayEquivalent === vacancyDetail.dayPortion
-  );
-
   // Get the current PayTypeId
   const payTypeId = useMemo(() => {
     const matchingDayConversion = props.vacancyDayConversions.find(
@@ -113,7 +110,13 @@ export const VacancyDetailRow: React.FC<Props> = props => {
         )} ${t("Hours")}`;
 
   return (
-    <Grid container>
+    <Grid
+      container
+      className={clsx({
+        [classes.shadedRow]: props.shadeRow,
+        [classes.row]: true,
+      })}
+    >
       <Grid item xs={3}>
         <div
           className={classes.subNameText}
@@ -140,8 +143,14 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           vacancyDetail.vacancy?.absence?.id
         }`}</div>
       </Grid>
-      <Grid item xs={3}>
-        <div>{"Sign in "}</div>
+      <Grid item container xs={3} alignItems="center">
+        <div className={classes.signinLine}>
+          <img
+            className={classes.xIcon}
+            src={require("ui/icons/signin-x.svg")}
+          />
+          <div className={classes.signinText}>{"Sign in "}</div>
+        </div>
       </Grid>
     </Grid>
   );
@@ -162,5 +171,34 @@ const useStyles = makeStyles(theme => ({
   },
   assignmentIdText: {
     fontSize: theme.typography.pxToRem(14),
+  },
+  shadedRow: {
+    backgroundColor: theme.customColors.lightGray,
+    borderTop: `1px solid ${theme.customColors.sectionBorder}`,
+    borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
+  },
+  row: {
+    postion: "relative",
+    padding: theme.spacing(2),
+    "@media print": {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+  },
+  signinLine: {
+    borderBottom: "1px solid #E5E5E5",
+    verticalAlign: "middle",
+    display: "flex",
+    width: "100%",
+  },
+  signinText: {
+    fontSize: theme.typography.pxToRem(14),
+    color: theme.customColors.edluminSubText,
+    "@media print": {
+      display: "none",
+    },
+  },
+  xIcon: {
+    paddingRight: "5px",
   },
 }));

@@ -1,37 +1,27 @@
-import { Button, Grid, Link, Typography } from "@material-ui/core";
+import { Typography, Divider } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useQueryBundle } from "graphql/hooks";
 import { useQueryParamIso } from "hooks/query-params";
-import { PageTitle } from "ui/components/page-title";
-import { OrgUser, VacancyDetail } from "graphql/server-types.gen";
-import { useIsMobile } from "hooks";
+import { VacancyDetail } from "graphql/server-types.gen";
 import * as React from "react";
 import { useCallback, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
-import { Section } from "ui/components/section";
 import { useRouteParams } from "ui/routes/definition";
-import { useSnackbar } from "hooks/use-snackbar";
-import { ShowErrors } from "ui/components/error-helpers";
+import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import { SubSignInRoute } from "ui/routes/sub-sign-in";
 import { startOfToday, format } from "date-fns";
 import { GetFilledAbsences } from "./graphql/get-filled-absences.gen";
 import { useLocations } from "reference-data/locations";
-import { OptionType, Select } from "ui/components/form/select";
-import {
-  FilterQueryParams,
-  LocationsQueryFilters,
-} from "./components/location-param";
+import { FilterQueryParams } from "./components/location-param";
 import { VacancyDetailRow } from "./components/vacancy-detail";
 import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";
+import { EdluminLogo } from "ui/components/edlumin-logo";
 
 type Props = {};
 
 export const SubSignInPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { openSnackbar } = useSnackbar();
-  const history = useHistory();
   const params = useRouteParams(SubSignInRoute);
   const [locationParam, updateLocationParam] = useQueryParamIso(
     FilterQueryParams
@@ -66,12 +56,15 @@ export const SubSignInPage: React.FC<Props> = props => {
     () => locations.map(l => ({ label: l.name, value: l.id })),
     [locations]
   );
-  const onChangeLocations = useCallback(
-    (value /* OptionType */) => {
-      const id: number = value
-        ? value.map((v: OptionType) => Number(v.value))
-        : [];
-      updateLocationParam({ location: id });
+  const onChangeLocation = useCallback(
+    (value: OptionType | OptionType[]) => {
+      let id = null;
+      if (Array.isArray(value)) {
+        id = value[0].value;
+      } else {
+        id = value.value;
+      }
+      updateLocationParam({ location: Number(id) });
     },
     [updateLocationParam]
   );
@@ -112,24 +105,77 @@ export const SubSignInPage: React.FC<Props> = props => {
     return <></>;
   }
 
-  console.log(vacancyDetails);
-
   return (
     <>
-      <Typography variant="h5">{`${location?.name} ${t(
-        "Subtitute Sign-in"
-      )}`}</Typography>
-      <Typography variant="h1">{format(today, "EEEE, MMM, d yyyy")}</Typography>
-      {vacancyDetails.map((v, i) => (
-        <VacancyDetailRow
-          key={i}
-          vacancyDetail={v}
-          shadeRow={i % 2 != 0}
-          vacancyDayConversions={vacancyDayConversions}
-        />
-      ))}
+      <div className={classes.header}>
+        <EdluminLogo />
+      </div>
+      <div className={classes.title}>
+        <Typography variant="h5">{`${location?.name} ${t(
+          "Subtitute Sign-in"
+        )}`}</Typography>
+        <Typography variant="h1">
+          {format(today, "EEEE, MMM, d yyyy")}
+        </Typography>
+      </div>
+      <div className={classes.paper}>
+        <div className={classes.filter}>
+          <Select
+            label={t("School")}
+            onChange={onChangeLocation}
+            value={locationOptions.find(
+              e => e.value && e.value === location?.id
+            )}
+            options={locationOptions}
+          />
+        </div>
+        <Divider />
+        {vacancyDetails.map((v, i) => (
+          <VacancyDetailRow
+            key={i}
+            vacancyDetail={v}
+            shadeRow={i % 2 != 0}
+            vacancyDayConversions={vacancyDayConversions}
+          />
+        ))}
+      </div>
     </>
   );
 };
 
-const useStyles = makeStyles(theme => ({}));
+const useStyles = makeStyles(theme => ({
+  header: {
+    width: "100%",
+    backgroundColor: theme.customColors.edluminSlate,
+    "@media pring": {
+      display: "none",
+    },
+  },
+  title: {
+    padding: theme.spacing(2),
+    "@media print": {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+  },
+  paper: {
+    padding: theme.spacing(2),
+    backgroundColor: theme.palette.background.paper,
+    "@media print": {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+  },
+  divider: {
+    "@media print": {
+      display: "none",
+    },
+  },
+  filter: {
+    paddingBottom: theme.spacing(2),
+    "@media print": {
+      display: "none",
+    },
+    width: "30%",
+  },
+}));
