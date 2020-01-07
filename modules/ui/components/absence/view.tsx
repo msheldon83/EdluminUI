@@ -1,6 +1,5 @@
 import { Button, Grid, makeStyles, Paper, Typography } from "@material-ui/core";
-import { isSameDay } from "date-fns";
-import { parseISO } from "date-fns/esm";
+import { isSameDay, parseISO } from "date-fns";
 import { useMutationBundle } from "graphql/hooks";
 import {
   Absence,
@@ -18,7 +17,7 @@ import * as React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { Calendar } from "../form/calendar";
+import { FiveWeekCalendar } from "../form/five-week-calendar";
 import { AssignedSub } from "./assigned-sub";
 import { getAbsenceDateRangeDisplayText } from "./date-helpers";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
@@ -136,12 +135,10 @@ export const View: React.FC<Props> = props => {
             </div>
 
             <div className={classes.dates}>
-              <Calendar
-                startDate={new Date(`${absence.startDate} 00:00`)}
-                endDate={new Date(`${absence.endDate} 00:00`)}
-                range={true}
-                disableDays={true}
+              <FiveWeekCalendar
+                startDate={parseISO(absence.startDate)}
                 disabledDates={disabledDates.map(d => d.date)}
+                selectedDates={absenceDates}
               />
             </div>
 

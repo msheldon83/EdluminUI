@@ -293,6 +293,7 @@ const getAbsence = (
     };
   }
 
+  console.log("absence", absence);
   return absence;
 };
 
@@ -317,6 +318,10 @@ export const AsAdminWithAllInformation = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
+        }),
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
         }),
@@ -344,8 +349,13 @@ export const AsAdminWithSimpleAbsence = () => {
   });
   const Provider = mockProvider({
     initialUrl: path,
+    logMissingMocks: true,
     mocks: {
       Query: () => ({
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
+        }),
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
         }),
@@ -375,6 +385,10 @@ export const AsAdminWithMinimumInformation = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
+        }),
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
         }),
