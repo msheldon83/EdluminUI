@@ -1,7 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useQueryBundle } from "graphql/hooks";
 import { Table } from "ui/components/table";
 import { Column } from "material-table";
 import { useHistory } from "react-router";
@@ -11,7 +11,6 @@ import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets"
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllPermissionSetsWithinOrg } from "./graphql/get-all-permission-sets.gen";
 import { useIsMobile } from "hooks";
-import { DeletePermissionSet } from "./graphql/delete-permission-set.gen";
 import { OrgUserRoles } from "reference-data/org-user-roles";
 import { OrgUserRole } from "graphql/server-types.gen";
 
