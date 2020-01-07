@@ -21,7 +21,7 @@ export const OrgUserRoles: {
     name: "Substitute",
   },
   {
-    enumValue: "AdminOrEmployee" as OrgUserRole,
+    enumValue: "ADMIN_OR_EMPLOYEE" as OrgUserRole,
     name: "Admin or Employee",
   },
   {
