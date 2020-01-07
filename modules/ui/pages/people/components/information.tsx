@@ -32,7 +32,7 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
 import { DateInput } from "ui/components/form/date-picker";
-import { usePermissionSets } from "reference-data/permissionsets";
+import { usePermissionSets } from "reference-data/permission-sets";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";

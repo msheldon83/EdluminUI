@@ -1,6 +1,6 @@
-query GetAllPermissionSetsWithinOrg($orgId: ID) {
+query GetAllPermissionSetsWithinOrg($orgId: ID, $roles: [OrgUserRole]) {
   permissionSet {
-    all(orgId: $orgId) {
+    all(orgId: $orgId, roles: $roles) {
       id
       name
       rowVersion
