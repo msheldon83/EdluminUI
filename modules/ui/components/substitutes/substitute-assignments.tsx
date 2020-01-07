@@ -62,7 +62,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
   );
 
   return (
-    <div>
+    <>
       <div className={props.view === "calendar" ? classes.sticky : ""}>
         <PageTitle title={t(props.pageTitle)} />
         {props.view === "calendar" && (
@@ -125,7 +125,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
           )}
         </div>
       </Section>
-    </div>
+    </>
   );
 };
 

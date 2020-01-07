@@ -47,7 +47,6 @@ const useStyles = makeStyles(theme => ({
     display: "block",
     overflowY: "scroll",
     height: "100vh",
-    position: "fixed",
     paddingRight: theme.spacing(3),
   },
 }));
