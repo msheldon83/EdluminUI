@@ -8,8 +8,8 @@ import { OrgUserRole } from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
-  rolesFilter: string[];
-  setRolesFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  rolesFilter: OrgUserRole[];
+  setRolesFilter: React.Dispatch<React.SetStateAction<OrgUserRole[]>>;
 };
 
 export const Filters: React.FC<Props> = props => {
@@ -17,9 +17,10 @@ export const Filters: React.FC<Props> = props => {
   const classes = useStyles();
 
   //Select Options
-  const roleOptions: OptionType[] = useMemo(
+  const roleOptions = useMemo(
     () => [
-      { id: OrgUserRole.Administrator, label: "Administrator" },
+      { id: OrgUserRole.Invalid, label: "(All)" },
+      { id: OrgUserRole.Administrator, label: "Admin" },
       { id: OrgUserRole.Employee, label: "Employee" },
       { id: OrgUserRole.ReplacementEmployee, label: "Substitute" },
     ],
@@ -27,10 +28,11 @@ export const Filters: React.FC<Props> = props => {
   );
   const onChangeRoles = useCallback(
     value => {
-      const roleValues: string[] = value
-        ? value.map((v: OptionType) => String(v.value))
-        : [];
-      props.setRolesFilter(roleValues);
+      if (value.id === OrgUserRole.Invalid) {
+        props.setRolesFilter([]);
+      } else {
+        props.setRolesFilter(value.id);
+      }
     },
     [props.setRolesFilter]
   );
@@ -47,12 +49,12 @@ export const Filters: React.FC<Props> = props => {
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <InputLabel className={classes.label}>{t("Roles")}</InputLabel>
           <Select
+            isClearable={false}
             onChange={onChangeRoles}
             options={roleOptions}
             value={roleOptions.filter(
-              e => e.value && props.rolesFilter.includes(e.value.toString())
+              e => e.label && props.rolesFilter.includes(e.id)
             )}
-            multi
           />
         </Grid>
       </Grid>

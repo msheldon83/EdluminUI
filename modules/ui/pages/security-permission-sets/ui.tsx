@@ -1,6 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
+import { useCallback, useMemo } from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { Table } from "ui/components/table";
 import { Column } from "material-table";
@@ -25,8 +26,6 @@ export const PermissionSetUI: React.FC<Props> = props => {
   const history = useHistory();
   const isMobile = useIsMobile();
   const params = useRouteParams(SecurityPermissionSetsRoute);
-
-  console.log(props.rolesFilter);
 
   const getPermissionSets = useQueryBundle(GetAllPermissionSetsWithinOrg, {
     variables: {
