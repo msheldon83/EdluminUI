@@ -1,52 +1,57 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
-import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
+import * as React from "react";
+import { useState } from "react";
+import { Filters } from "./components/filters";
+import { Section } from "ui/components/section";
+import { Grid, Button, makeStyles } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
-import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
+import { PermissionSetUI } from "./ui";
+import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
+import { OrgUserRole } from "graphql/server-types.gen";
 
 type Props = {};
 
 export const SecurityPermissionSets: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
   const classes = useStyles();
-  const isMobile = useIsMobile();
+  const [rolesFilter, setRolesFilter] = useState<OrgUserRole[]>([]);
   const params = useRouteParams(SecurityPermissionSetsRoute);
-
-  const [triggerError, setTriggerError] = React.useState(false);
-
-  if (triggerError) {
-    throw Error("error!");
-  }
 
   return (
     <>
-      <PageTitle
-        title={`${params.organizationId} ${t("Security Permission Sets")}`}
-      />
-      {__DEV__ && (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            setTriggerError(true);
-          }}
-        >
-          Trigger Error
-        </Button>
-      )}
+      <Grid
+        container
+        alignItems="flex-start"
+        justify="space-between"
+        spacing={2}
+        className={classes.header}
+      >
+        <PageTitle title={t("Permission Sets")} />
+        <Grid item>
+          <Button
+            variant="contained"
+            //component={Link}
+            //to={PositionTypeAddRoute.generate(params)} Generate correct Route for ADD
+          >
+            {t("Add Permission Set")}
+          </Button>
+        </Grid>
+      </Grid>
+      <Section>
+        <Filters
+          rolesFilter={rolesFilter}
+          setRolesFilter={setRolesFilter}
+          orgId={params.organizationId}
+        />
+      </Section>
+      <PermissionSetUI rolesFilter={rolesFilter} />
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+  header: {
+    marginBottom: theme.spacing(),
   },
 }));

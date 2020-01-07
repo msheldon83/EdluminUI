@@ -38,6 +38,18 @@ const buildEnumMap = (t: i18next.TFunction) => {
       name: "payTypeId.DAILY",
       displayName: t("Daily"),
     },
+    {
+      name: "orgUserRole.ADMINISTRATOR",
+      displayName: t("Admin"),
+    },
+    {
+      name: "orgUserRole.EMPLOYEE",
+      displayName: t("Employee"),
+    },
+    {
+      name: "orgUserRole.REPLACEMENT_EMPLOYEE",
+      displayName: t("Substitute"),
+    },
   ];
   return enumMap;
 };

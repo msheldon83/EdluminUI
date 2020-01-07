@@ -1,0 +1,5 @@
+mutation DeletePermissionSet($permissionSetId: Int!) {
+  permissionSet {
+    delete(permissionSetId: $permissionSetId)
+  }
+}
