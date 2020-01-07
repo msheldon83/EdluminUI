@@ -27,7 +27,7 @@ export const Filters: React.FC<Props> = props => {
 
   const selectedValue = roleOptions.find(
     e => e.label && props.rolesFilter.includes(e.id)
-  );
+  ) ?? roleOptions.find(e => e.id === OrgUserRole.Invalid);
 
   const onChangeRoles = useCallback(
     value => {
