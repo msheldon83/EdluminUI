@@ -1,11 +1,12 @@
 import * as React from "react";
-import { AssignmentRowUI } from "./assignment-row-ui";
-import { AssignmentVacancyDetails } from "../../../pages/sub-schedule/types";
 import { useCallback } from "react";
+import { AssignmentVacancyDetails } from "../../../pages/sub-schedule/types";
+import { AssignmentRowUI } from "./assignment-row-ui";
+import { CancelDialog } from "./cancel-dialog";
 
 type Props = {
   assignment: AssignmentVacancyDetails;
-  onCancel?: (
+  onCancel: (
     assignmentId: string,
     rowVersion: string,
     vacancyDetailIds?: string[]
@@ -22,14 +23,18 @@ export const AssignmentRow: React.FC<Props> = props => {
   const a = props.assignment;
   const { onCancel } = props;
 
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = React.useState(false);
+
   const confirmationNumber = a.assignment?.id ?? "";
   const employeeName = `${a.vacancy?.absence?.employee?.firstName} ${a.vacancy?.absence?.employee?.lastName}`;
   const positionName = a?.vacancy?.position?.name ?? "";
   const organizationName = a?.vacancy?.organization?.name;
   const locationName = a?.location?.name ?? "";
+  const onCancelClick = () => setIsCancelDialogOpen(true);
+  const onCloseDialog = () => setIsCancelDialogOpen(false);
   const onCancelMutation = useCallback(
     () =>
-      onCancel!(
+      onCancel(
         a.assignment?.id ?? "",
         a.assignment?.rowVersion ?? "",
         undefined
@@ -39,43 +44,29 @@ export const AssignmentRow: React.FC<Props> = props => {
 
   return (
     <>
-      {onCancel && (
-        <AssignmentRowUI
-          confirmationNumber={confirmationNumber}
-          startTime={a.startTimeLocal ?? ""}
-          endTime={a.endTimeLocal ?? ""}
-          employeeName={employeeName}
-          multipleTimes={false}
-          startDate={a.startDate ?? ""}
-          endDate={a.endDate ?? ""}
-          locationName={locationName}
-          organizationName={organizationName}
-          positionName={positionName}
-          dayPortion={a.dayPortion}
-          onCancel={onCancelMutation}
-          className={props.className}
-          isAdmin={props.isAdmin}
-          forSpecificAssignment={props.forSpecificAssignment}
-        />
-      )}
-      {onCancel === undefined && (
-        <AssignmentRowUI
-          confirmationNumber={confirmationNumber}
-          startTime={a.startTimeLocal ?? ""}
-          endTime={a.endTimeLocal ?? ""}
-          employeeName={employeeName}
-          multipleTimes={false}
-          startDate={a.startDate ?? ""}
-          endDate={a.endDate ?? ""}
-          locationName={locationName}
-          organizationName={organizationName}
-          positionName={positionName}
-          dayPortion={a.dayPortion}
-          className={props.className}
-          isAdmin={props.isAdmin}
-          forSpecificAssignment={props.forSpecificAssignment}
-        />
-      )}
+      <CancelDialog
+        open={isCancelDialogOpen}
+        onClose={onCloseDialog}
+        onCancel={onCancelMutation}
+      />
+
+      <AssignmentRowUI
+        confirmationNumber={confirmationNumber}
+        startTime={a.startTimeLocal ?? ""}
+        endTime={a.endTimeLocal ?? ""}
+        employeeName={employeeName}
+        multipleTimes={false}
+        startDate={a.startDate ?? ""}
+        endDate={a.endDate ?? ""}
+        locationName={locationName}
+        organizationName={organizationName}
+        positionName={positionName}
+        dayPortion={a.dayPortion}
+        onCancel={onCancelClick}
+        className={props.className}
+        isAdmin={props.isAdmin}
+        forSpecificAssignment={props.forSpecificAssignment}
+      />
     </>
   );
 };

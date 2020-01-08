@@ -21,6 +21,12 @@ export function useGetEmployee() {
 
 const findEmployee = (data: GetEmployeeForCurrentUserQuery) => {
   const orgUsers = data.userAccess?.me?.user?.orgUsers ?? [];
-  const emps = compact(map(orgUsers, u => u?.employee));
+  const emps = compact(
+    map(orgUsers, u => {
+      if (u?.isEmployee) {
+        return u?.employee;
+      }
+    })
+  );
   return emps[0];
 };

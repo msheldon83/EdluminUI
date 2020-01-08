@@ -4,6 +4,7 @@ import { formatIsoDateIfPossible } from "helpers/date";
 import { useTranslation } from "react-i18next";
 import { parseDayPortion } from "ui/components/helpers";
 import { DayIcon } from "ui/components/day-icon";
+import { TextButton } from "ui/components/text-button";
 
 type Props = {
   locationName: string;
@@ -11,13 +12,13 @@ type Props = {
   endTimeLocal: string;
   dayPortion: number;
   shadeRow: boolean;
-  onCancel?: () => void;
+  onCancel: () => void;
   className?: string;
   isAdmin: boolean;
   forSpecificAssignment?: boolean;
 };
 
-export const AssignmentGroupDetail: React.FC<Props> = props => {
+export const AssignmentGroupDetailUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
@@ -58,12 +59,17 @@ export const AssignmentGroupDetail: React.FC<Props> = props => {
         </Typography>
       </div>
 
-      {!props.isAdmin ||
-        (!props.forSpecificAssignment && (
-          <Button className={classes.cancel} onClick={props.onCancel}>
-            {t("Cancel")}
-          </Button>
-        ))}
+      {!props.forSpecificAssignment && (
+        <TextButton
+          className={classes.cancel}
+          onClick={event => {
+            event.stopPropagation();
+            props.onCancel();
+          }}
+        >
+          {t("Cancel")}
+        </TextButton>
+      )}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { DayIcon } from "ui/components/day-icon";
 import { parseDayPortion } from "ui/components/helpers";
+import { useIsMobile } from "hooks";
 
 type Props = {
   startDate: string;
@@ -17,7 +18,7 @@ type Props = {
   employeeName: string;
   dayPortion: number;
   confirmationNumber: string;
-  onCancel?: () => void;
+  onCancel: () => void;
   isAdmin: boolean;
   forSpecificAssignment?: boolean;
   className?: string;
@@ -36,6 +37,7 @@ type Props = {
 
 export const AssignmentRowUI: React.FC<Props> = props => {
   const classes = useStyles();
+  const isMobile = useIsMobile();
   const { t } = useTranslation();
 
   const startDate = DateFns.parseISO(props.startDate);
@@ -56,9 +58,17 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   }
 
   return (
-    <div className={[classes.container, props.className].join(" ")}>
+    <div
+      className={[
+        classes.container,
+        isMobile ? classes.mobile : "",
+        props.className,
+      ].join(" ")}
+    >
       <div className={classes.dateContainer}>
-        <Typography className={classes.date}>{vacancyDates}</Typography>
+        <Typography className={classes.date} noWrap>
+          {vacancyDates}
+        </Typography>
         <Typography className={classes.subText}>{vacancyDaysOfWeek}</Typography>
       </div>
       <div className={classes.location}>
@@ -80,11 +90,11 @@ export const AssignmentRowUI: React.FC<Props> = props => {
         <DayIcon dayPortion={props.dayPortion} startTime={props.startTime} />
 
         <div className={classes.dayPart}>
-          <Typography variant="h6">{`${Math.round(
+          <Typography variant="h6" noWrap>{`${Math.round(
             props.dayPortion
           )} ${parseDayPortion(t, props.dayPortion)}`}</Typography>
 
-          <Typography className={classes.subText}>
+          <Typography className={classes.subText} noWrap>
             {props.multipleTimes
               ? t("Various")
               : `${formatIsoDateIfPossible(
@@ -96,24 +106,23 @@ export const AssignmentRowUI: React.FC<Props> = props => {
       </div>
       {!props.forSpecificAssignment && (
         <div className={classes.confNumber}>
-        <Typography className={classes.bold}>
-          #C{props.confirmationNumber}
-        </Typography>
-      </div>
+          <Typography className={classes.bold} noWrap>
+            #C{props.confirmationNumber}
+          </Typography>
+        </div>
       )}
-      {!props.isAdmin ||
-        (!props.forSpecificAssignment && (
-          <Button
-            variant="outlined"
-            className={classes.cancel}
-            onClick={e => {
-              e.stopPropagation();
-              props.onCancel!();
-            }}
-          >
-            {t("Cancel")}
-          </Button>
-        ))}
+      {!props.forSpecificAssignment && (
+        <Button
+          variant="outlined"
+          className={classes.cancel}
+          onClick={e => {
+            e.stopPropagation();
+            props.onCancel();
+          }}
+        >
+          {t("Cancel")}
+        </Button>
+      )}
     </div>
   );
 };
@@ -126,15 +135,20 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  mobile: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+  },
   dateContainer: {
     flex: 4,
+    padding: `0 ${theme.typography.pxToRem(4)}`,
   },
   date: {
     fontSize: theme.typography.pxToRem(18),
     fontWeight: 500,
   },
-  location: { flex: 11 },
-  position: { flex: 7 },
+  location: { flex: 11, padding: `0 ${theme.typography.pxToRem(4)}` },
+  position: { flex: 7, padding: `0 ${theme.typography.pxToRem(4)}` },
   subText: {
     color: theme.customColors.edluminSubText,
   },
@@ -147,11 +161,12 @@ const useStyles = makeStyles(theme => ({
   dayPartContainer: {
     display: "flex",
     flex: 8,
+    padding: `0 ${theme.typography.pxToRem(4)}`,
   },
   dayPart: {
     display: "inline-block",
     paddingLeft: theme.spacing(1),
   },
-  confNumber: { flex: 4 },
+  confNumber: { flex: 4, padding: `0 ${theme.typography.pxToRem(4)}` },
   cancel: { color: theme.customColors.darkRed },
 }));

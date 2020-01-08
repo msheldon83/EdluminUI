@@ -1,0 +1,38 @@
+query GetFilledAbsences($orgId: ID!, $date: Date!, $locationIds: [Int]) {
+  absence {
+    subSignInReport(orgId: $orgId, date: $date, locationIds: $locationIds) {
+      id
+      startTimeLocal
+      endTimeLocal
+      dayPortion
+      totalDayPortion
+      actualDuration
+      payDurationOverride
+      payTypeId
+      vacancy {
+        id
+        absence {
+          id
+          employee {
+            id
+            firstName
+            lastName
+          }
+        }
+        position {
+          id
+          name
+        }
+      }
+      assignment {
+        id
+        rowVersion
+        employee {
+          id
+          firstName
+          lastName
+        }
+      }
+    }
+  }
+}
