@@ -9,6 +9,7 @@ query GetPermissionDefinitions($role: OrgUserRole!) {
         levels {
           id
           displayName
+          permissions
         }
       }
     }

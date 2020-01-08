@@ -7,8 +7,12 @@ import { Grid, Button, makeStyles } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
 import { useRouteParams } from "ui/routes/definition";
 import { PermissionSetUI } from "./ui";
-import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
+import {
+  SecurityPermissionSetsRoute,
+  SecurityPermissionSetsAddRoute,
+} from "ui/routes/security/permission-sets";
 import { OrgUserRole } from "graphql/server-types.gen";
+import { Link } from "react-router-dom";
 
 type Props = {};
 
@@ -32,8 +36,8 @@ export const SecurityPermissionSets: React.FC<Props> = props => {
         <Grid item>
           <Button
             variant="contained"
-            //component={Link}
-            //to={PositionTypeAddRoute.generate(params)} Generate correct Route for ADD
+            component={Link}
+            to={SecurityPermissionSetsAddRoute.generate(params)}
           >
             {t("Add Permission Set")}
           </Button>
