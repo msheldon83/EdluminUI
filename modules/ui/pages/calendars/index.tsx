@@ -19,7 +19,7 @@ import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { CalendarDayTypes } from "reference-data/calendar-day-type";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
-import DeleteIcon from "@material-ui/icons/delete";
+import DeleteIcon from "@material-ui/icons/Delete";
 import { DeleteCalendarChange } from "./graphql/delete-calendar-change.gen";
 import { CreateExpansionPanel } from "./components/create-expansion-panel";
 import { CalendarView } from "./components/calendar-view";
