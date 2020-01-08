@@ -1,10 +1,8 @@
-import { Grid, Typography, makeStyles } from "@material-ui/core";
-import * as React from "react";
+import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { formatIsoDateIfPossible } from "helpers/date";
-import { DayIcon } from "ui/components/day-icon";
-import { useTranslation } from "react-i18next";
-import { parseDayPortion } from "ui/components/helpers";
 import { useIsMobile } from "hooks";
+import * as React from "react";
+import { DetailDayPartDisplay } from "ui/components/substitutes/detail-day-part-display";
 
 type Props = {
   locationName: string;
@@ -16,71 +14,48 @@ type Props = {
 
 export const AvailableJobDetail: React.FC<Props> = props => {
   const classes = useStyles();
-  const { t } = useTranslation();
   const isMobile = useIsMobile();
 
-  const dayPortionLabel = parseDayPortion(t, props.dayPortion);
-
-  const renderdayPart = () => {
-    return (
-      <div className={classes.dayPartContainer}>
-        <DayIcon
-          dayPortion={props.dayPortion}
-          startTime={props.startTimeLocal}
-          className={classes.smallDayIcon}
-        />
-        <div className={classes.dayPart}>
-          <Typography className={classes.lightText}>
-            {`${formatIsoDateIfPossible(
-              props.startTimeLocal,
-              "h:mm aaa"
-            )} - ${formatIsoDateIfPossible(
-              props.endTimeLocal,
-              "h:mm aaa"
-            )} ${dayPortionLabel}`}
-          </Typography>
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <>
-      <Grid
-        container
-        item
-        xs={12}
-        justify={"flex-start"}
-        alignItems={"center"}
-        className={props.shadeRow ? classes.shadedRow : classes.nonShadedRow}
-      >
-        <Grid item xs={isMobile ? 4 : 1} className={classes.gridPadding}>
-          <Typography className={classes.lightText}>
-            {formatIsoDateIfPossible(props.startTimeLocal, "EEE, MMM d")}
-          </Typography>
-        </Grid>
-        {!isMobile && (
-          <>
-            <Grid item xs={3} className={classes.gridPadding}>
-              <Typography className={classes.lightText}>
-                {props.locationName}
-              </Typography>
-            </Grid>
-            <Grid item xs={2}></Grid>
-          </>
-        )}
-        <Grid item xs={isMobile ? 8 : 3} className={classes.gridPadding}>
-          {renderdayPart()}
-        </Grid>
-        {isMobile && (
-          <Grid item xs={12} className={classes.gridPadding}>
+    <Grid
+      container
+      item
+      xs={12}
+      justify={"flex-start"}
+      alignItems={"center"}
+      className={props.shadeRow ? classes.shadedRow : classes.nonShadedRow}
+    >
+      <Grid item xs={isMobile ? 4 : 1} className={classes.gridPadding}>
+        <Typography className={classes.lightText}>
+          {formatIsoDateIfPossible(props.startTimeLocal, "EEE, MMM d")}
+        </Typography>
+      </Grid>
+      {!isMobile && (
+        <>
+          <Grid item xs={3} className={classes.gridPadding}>
             <Typography className={classes.lightText}>
               {props.locationName}
             </Typography>
           </Grid>
-        )}
+          <Grid item xs={2}></Grid>
+        </>
+      )}
+      <Grid item xs={isMobile ? 8 : 3} className={classes.gridPadding}>
+        <DetailDayPartDisplay
+          dayPortion={props.dayPortion}
+          endTimeLocal={props.endTimeLocal}
+          startTimeLocal={props.startTimeLocal}
+          iconClassName={classes.dayPartIcon}
+        />
       </Grid>
-    </>
+      {isMobile && (
+        <Grid item xs={12} className={classes.gridPadding}>
+          <Typography className={classes.lightText}>
+            {props.locationName}
+          </Typography>
+        </Grid>
+      )}
+    </Grid>
   );
 };
 
@@ -96,16 +71,11 @@ const useStyles = makeStyles(theme => ({
     background: theme.customColors.lightGray,
     padding: theme.spacing(1),
   },
-  dayPartContainer: {
-    display: "flex",
-  },
-  dayPart: {
-    paddingLeft: theme.spacing(),
-  },
-  smallDayIcon: {
-    width: theme.typography.pxToRem(16),
-  },
   gridPadding: {
     padding: 0,
+  },
+  dayPartIcon: {
+    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(1),
   },
 }));
