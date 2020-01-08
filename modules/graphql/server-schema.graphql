@@ -2811,7 +2811,7 @@ type PermissionCategory {
 type PermissionCategoryIdentifier {
   _info: [ReturnMessage]
   id: String!
-  settings: [PermissionSettingIdentifier]!
+  settings: [PermissionSettingIdentifier!]!
 }
 
 input PermissionCategoryIdentifierInput {
@@ -2945,7 +2945,7 @@ type PermissionSet implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   orgUserRole: OrgUserRole
   permissionSet: [PermissionEnum]
-  categories: [PermissionCategoryIdentifier]
+  categories: [PermissionCategoryIdentifier!]!
   shadowFromPermissionSetId: Int
   shadowFromOrgId: Int
 }
