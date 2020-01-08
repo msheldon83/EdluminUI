@@ -22,7 +22,7 @@ export const AvailableJobSingleStory = () => {
       />
       <AvailableJob
         vacancy={halfDayAM}
-        shadeRow={false}
+        shadeRow={true}
         onDismiss={onDismiss}
         onAccept={onAccept}
       />

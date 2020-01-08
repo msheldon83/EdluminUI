@@ -7,6 +7,8 @@ import { AssignmentVacancyDetails } from "../../../pages/sub-schedule/types";
 import { AssignmentGroupDetail } from "./assignment-group-detail/index";
 import { AssignmentRowUI } from "./assignment-row-ui";
 import { CancelDialog } from "./cancel-dialog";
+import { Typography } from "@material-ui/core";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   vacancyDetails: AssignmentVacancyDetails[];
@@ -22,6 +24,7 @@ type Props = {
 
 export const AssignmentGroup: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(
     props.forSpecificAssignment ?? false
   );
@@ -125,9 +128,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
           forSpecificAssignment={props.forSpecificAssignment}
         />
         {isExpanded && (
-          <div
-            className={[classes.container, classes.expandedDetails].join(" ")}
-          >
+          <div className={classes.container}>
             {props.vacancyDetails.map((a, i) => (
               <AssignmentGroupDetail
                 dayPortion={a.dayPortion}
@@ -149,6 +150,13 @@ export const AssignmentGroup: React.FC<Props> = props => {
             ))}
           </div>
         )}
+        <div className={classes.expand}>
+          <Typography className={classes.smallText}>
+            {isExpanded
+              ? `– ${t("Click to collapse")}`
+              : `+ ${t("Click to expand")}`}
+          </Typography>
+        </div>
       </div>
     </>
   );
@@ -160,7 +168,17 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
     flexDirection: "column",
   },
-  expandedDetails: {
-    marginBottom: theme.spacing(2),
+  expand: {
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    color: theme.customColors.edluminSubText,
+    background: theme.customColors.lighterGray,
+    borderBottom: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.sectionBorder
+    }`,
+  },
+  smallText: {
+    fontSize: theme.typography.pxToRem(12),
   },
 }));
