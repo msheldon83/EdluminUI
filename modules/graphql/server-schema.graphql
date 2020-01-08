@@ -2805,7 +2805,7 @@ type PermissionCategory {
   _info: [ReturnMessage]
   id: String!
   displayName: String!
-  settings: [PermissionSetting]!
+  settings: [PermissionSetting!]!
 }
 
 type PermissionCategoryIdentifier {
@@ -2924,7 +2924,7 @@ type PermissionLevel {
 }
 
 type PermissionQueries {
-  all(role: OrgUserRole!): [PermissionCategory]
+  all(role: OrgUserRole!): [PermissionCategory]!
 }
 
 type PermissionSet implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2975,7 +2975,7 @@ type PermissionSetting {
   _info: [ReturnMessage]
   id: String!
   displayName: String!
-  levels: [PermissionLevel]!
+  levels: [PermissionLevel!]!
 }
 
 type PermissionSettingIdentifier {
