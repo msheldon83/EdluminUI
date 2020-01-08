@@ -18,6 +18,7 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import { GetAllWorkDaySchedulesWithinOrg } from "./graphql/workday-schedules.gen";
+import { PaginationControls } from "ui/components/pagination-controls";
 
 export const BellSchedulePage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -146,6 +147,7 @@ export const BellSchedulePage: React.FC<{}> = props => {
           rowData.expired ?? false
         }
       />
+      <PaginationControls pagination={pagination} />
     </>
   );
 };
