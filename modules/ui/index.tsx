@@ -111,7 +111,7 @@ import {
   ReplacementAttributeRoute,
 } from "./routes/replacement-attribute";
 import { SchoolGroupsLoader, SchoolGroupsRoute } from "./routes/school-groups";
-import { SchoolsLoader, SchoolsRoute } from "./routes/schools";
+import { LocationsLoader, LocationsRoute } from "./routes/locations";
 import {
   SecurityManagedOrganizationsLoader,
   SecurityManagedOrganizationsRoute,
@@ -408,8 +408,8 @@ export function App() {
                           path={ContractsRoute.path}
                         />
                         <Route
-                          component={SchoolsLoader}
-                          path={SchoolsRoute.path}
+                          component={LocationsLoader}
+                          path={LocationsRoute.path}
                         />
                         <Route
                           component={SchoolGroupsLoader}
