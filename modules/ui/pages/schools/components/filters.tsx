@@ -1,43 +1,45 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
-import { Select } from "ui/components/form/select";
+import { OptionType, Select } from "ui/components/form/select";
 import { useCallback, useMemo } from "react";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { useLocationGroups } from "reference-data/location-groups";
+import { useRouteParams } from "ui/routes/definition";
+import { LocationsRoute } from "ui/routes/locations";
 
 type Props = {
   orgId: string;
-  rolesFilter: OrgUserRole[];
-  setRolesFilter: React.Dispatch<React.SetStateAction<OrgUserRole[]>>;
+  locationGroupFilter: number[];
+  setLocationGroupFilter: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const params = useRouteParams(LocationsRoute);
 
-  const roleOptions = useMemo(
-    () => [
-      { id: OrgUserRole.Invalid, label: "(All)" },
-      { id: OrgUserRole.Administrator, label: "Admin" },
-      { id: OrgUserRole.Employee, label: "Employee" },
-      { id: OrgUserRole.ReplacementEmployee, label: "Substitute" },
-    ],
-    []
-  );
+  const locationGroups = useLocationGroups(params.organizationId);
+  const locationGroupOptions: OptionType[] = useMemo(() => {
+    const options = locationGroups.map(l => ({ label: l.name, value: l.id }));
+    options.sort((a, b) => (a.label > b.label ? 1 : -1));
+    options.unshift({ label: t("(All)"), value: "0" });
+    return options;
+  }, [locationGroups]);
 
   const selectedValue =
-    roleOptions.find(e => e.label && props.rolesFilter.includes(e.id)) ??
-    roleOptions.find(e => e.id === OrgUserRole.Invalid);
+    locationGroupOptions.find(
+      (e: any) => e.label && props.locationGroupFilter.includes(e.value)
+    ) ?? locationGroupOptions.find((e: any) => e.value === "0");
 
-  const onChangeRoles = useCallback(
+  const onChangeGroup = useCallback(
     value => {
-      if (value.id === OrgUserRole.Invalid) {
-        props.setRolesFilter([]);
+      if (value.value === "0") {
+        props.setLocationGroupFilter([]);
       } else {
-        props.setRolesFilter(value.id);
+        props.setLocationGroupFilter(value.value);
       }
     },
-    [props.setRolesFilter]
+    [props.setLocationGroupFilter]
   );
 
   return (
@@ -50,11 +52,11 @@ export const Filters: React.FC<Props> = props => {
         className={classes.filters}
       >
         <Grid item xs={12} sm={6} md={3} lg={3}>
-          <InputLabel className={classes.label}>{t("Roles")}</InputLabel>
+          <InputLabel className={classes.label}>{t("Group")}</InputLabel>
           <Select
             isClearable={false}
-            onChange={onChangeRoles}
-            options={roleOptions}
+            onChange={onChangeGroup}
+            options={locationGroupOptions}
             value={selectedValue}
           />
         </Grid>

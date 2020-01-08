@@ -1,8 +1,6 @@
-import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Filters } from "./components/filters";
-import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { Grid, Button, makeStyles } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
@@ -10,14 +8,15 @@ import { LocationsRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationsUI } from "./ui";
 import { useState } from "react";
+import { LocationGroup } from "graphql/server-types.gen";
 
 type Props = {};
 
 export const Locations: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  // const [rolesFilter, setRolesFilter] = useState<OrgUserRole[]>([]);
-  // const params = useRouteParams(SecurityPermissionSetsRoute);
+  const [locationGroupFilter, setLocationGroupsFilter] = useState<number[]>([]);
+  const params = useRouteParams(LocationsRoute);
 
   return (
     <>
@@ -33,20 +32,20 @@ export const Locations: React.FC<Props> = props => {
           <Button
             variant="contained"
             //component={Link}
-            //to={PositionTypeAddRoute.generate(params)} Generate correct Route for ADD
+            //to={ROUTE_GOES_HERE.generate(params)} Generate correct Route for ADD
           >
             {t("Add Permission Set")}
           </Button>
         </Grid>
       </Grid>
       <Section>
-        {/* <Filters
-          rolesFilter={rolesFilter}
-          setRolesFilter={setRolesFilter}
+        <Filters
+          locationGroupFilter={locationGroupFilter}
+          setLocationGroupFilter={setLocationGroupsFilter}
           orgId={params.organizationId}
-        /> */}
+        />
       </Section>
-      <LocationsUI />
+      <LocationsUI locationGroupFilter={locationGroupFilter} />
     </>
   );
 };

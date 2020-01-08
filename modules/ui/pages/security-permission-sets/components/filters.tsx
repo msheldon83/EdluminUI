@@ -25,9 +25,9 @@ export const Filters: React.FC<Props> = props => {
     []
   );
 
-  const selectedValue = roleOptions.find(
-    e => e.label && props.rolesFilter.includes(e.id)
-  ) ?? roleOptions.find(e => e.id === OrgUserRole.Invalid);
+  const selectedValue =
+    roleOptions.find(e => e.label && props.rolesFilter.includes(e.id)) ??
+    roleOptions.find(e => e.id === OrgUserRole.Invalid);
 
   const onChangeRoles = useCallback(
     value => {
@@ -50,7 +50,7 @@ export const Filters: React.FC<Props> = props => {
         className={classes.filters}
       >
         <Grid item xs={12} sm={6} md={3} lg={3}>
-          <InputLabel className={classes.label}>{t("Roles")}</InputLabel>
+          <InputLabel className={classes.label}>{t("Role")}</InputLabel>
           <Select
             isClearable={false}
             onChange={onChangeRoles}

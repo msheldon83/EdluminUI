@@ -646,7 +646,7 @@ type CalendarChange implements ModelObjectInterface & OrgObjectInterface & Domai
   calendarChangeReasonId: Int!
   calendarChangeReason: CalendarChangeReason
   countTowardContractDays: Boolean!
-  changedContracts: [ChangedContract]
+  changedContracts: [Contract]
   schoolYearId: Int!
   schoolYear: SchoolYear
   affectsAllContracts: Boolean!
@@ -671,8 +671,8 @@ type CalendarChangeMutations {
 
 type CalendarChangeQueries {
   byId(id: ID!): CalendarChange
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [CalendarChange]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedCalendarChange
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], contractId: Int, schoolYearId: Int): [CalendarChange]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], contractId: Int, schoolYearId: Int): PagedCalendarChange
 }
 
 type CalendarChangeReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -743,23 +743,6 @@ input CancelVacancyAssignmentInput {
   rowVersion: String!
   cancellationReasonId: Int
   vacancyDetailIds: [ID]
-}
-
-type ChangedContract implements ModelObjectInterface & OrgObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  orgId: Int!
-  organization: Organization!
-  createdLocal: DateTime
-  changedLocal: DateTime
-  deletedLocal: DateTime
-  calendarChangeId: Int!
-  contractId: Int!
-  contract: Contract
 }
 
 type ChangeLogQueries {
@@ -1850,8 +1833,8 @@ type LocationMutations {
 
 type LocationQueries {
   byId(id: ID!): Location
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Location]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedLocation
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], locationGroups: [Int]): [Location]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], locationGroups: [Int]): PagedLocation
 }
 
 input LocationUpdateInput {

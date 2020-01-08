@@ -1,4 +1,3 @@
-import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
@@ -9,12 +8,11 @@ import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
 import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
 import { useRouteParams } from "ui/routes/definition";
-import { GetAllLocationGroupsWithinOrg } from "./graphql/get-all-location-groups.gen";
+import { GetAllLocationsWithinOrg } from "./graphql/get-all-locations.gen";
 import { useIsMobile } from "hooks";
-import { OrgUserRoles } from "reference-data/org-user-roles";
-import { OrgUserRole } from "graphql/server-types.gen";
 
 type Props = {
+  locationGroupFilter: number[];
   olderAction?: () => void;
 };
 
@@ -24,18 +22,14 @@ export const LocationsUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const params = useRouteParams(SecurityPermissionSetsRoute);
 
-  const getLocationGroups = useQueryBundle(GetAllLocationGroupsWithinOrg, {
+  const getLocations = useQueryBundle(GetAllLocationsWithinOrg, {
     variables: {
       orgId: params.organizationId,
+      locationGroups: props.locationGroupFilter,
     },
   });
 
-  const orgUserRoles = OrgUserRoles.reduce(
-    (o: any, key: any) => ({ ...o, [key.enumValue]: key.name }),
-    {}
-  );
-
-  const columns: Column<GetAllLocationGroupsWithinOrg.All>[] = [
+  const columns: Column<GetAllLocationsWithinOrg.All>[] = [
     {
       title: t("Name"),
       field: "name",
@@ -43,50 +37,45 @@ export const LocationsUI: React.FC<Props> = props => {
       searchable: true,
     },
     {
-      title: t("Role"),
-      field: "orgUserRole",
+      title: t("Group"),
+      field: "locationGroup.name",
       type: "string",
       searchable: false,
       hidden: isMobile,
-      lookup: orgUserRoles,
     },
     {
-      title: t("Description"),
-      field: "description",
+      title: t("Externl Id"),
+      field: "externalId",
       searchable: false,
       hidden: isMobile,
     },
   ];
 
-  // if (getPermissionSets.state === "LOADING") {
-  //   return <></>;
-  // }
+  if (getLocations.state === "LOADING") {
+    return <></>;
+  }
 
-  // const permissionSets = compact(
-  //   getPermissionSets?.data?.permissionSet?.all ?? []
-  // );
-  // const permissionSetsCount = permissionSets.length;
+  const locations = compact(getLocations?.data?.location?.all ?? []);
+  const locationsCount = locations.length;
 
   return (
     <>
       <Section>
-        {/* <Table
-          title={`${permissionSetsCount} ${t("Permission Sets")}`}
+        <Table
+          title={`${locationsCount} ${t("Schools")}`}
           columns={columns}
-          data={permissionSets}
+          data={locations}
           selection={false}
-          onRowClick={(event, permissionSet) => {
-            if (!permissionSet) return;
+          onRowClick={(event, location) => {
+            if (!location) return;
             const newParams = {
               ...params,
-              permissionSet: permissionSet.id,
+              location: location.id,
             };
-            //history.push(NEW_ROUTE_HERE.generate(newParams)); TODO: Create Route for Permission Set View
+            // history.push(NEW_ROUTE_HERE.generate(newParams)); TODO: Create Route for Permission Set View
           }}
-        /> */}
+        />
       </Section>
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({}));
