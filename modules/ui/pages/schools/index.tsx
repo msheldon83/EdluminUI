@@ -8,7 +8,6 @@ import { LocationsRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationsUI } from "./ui";
 import { useState } from "react";
-import { LocationGroup } from "graphql/server-types.gen";
 
 type Props = {};
 
@@ -17,6 +16,8 @@ export const Locations: React.FC<Props> = props => {
   const classes = useStyles();
   const [locationGroupFilter, setLocationGroupsFilter] = useState<number[]>([]);
   const params = useRouteParams(LocationsRoute);
+
+  console.log(locationGroupFilter);
 
   return (
     <>
@@ -41,7 +42,7 @@ export const Locations: React.FC<Props> = props => {
       <Section>
         <Filters
           locationGroupFilter={locationGroupFilter}
-          setLocationGroupFilter={setLocationGroupsFilter}
+          setLocationGroupsFilter={setLocationGroupsFilter}
           orgId={params.organizationId}
         />
       </Section>

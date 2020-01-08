@@ -10,7 +10,7 @@ import { LocationsRoute } from "ui/routes/locations";
 type Props = {
   orgId: string;
   locationGroupFilter: number[];
-  setLocationGroupFilter: React.Dispatch<React.SetStateAction<number[]>>;
+  setLocationGroupsFilter: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 export const Filters: React.FC<Props> = props => {
@@ -19,27 +19,30 @@ export const Filters: React.FC<Props> = props => {
   const params = useRouteParams(LocationsRoute);
 
   const locationGroups = useLocationGroups(params.organizationId);
-  const locationGroupOptions: OptionType[] = useMemo(() => {
+  const locationGroupOptions = useMemo(() => {
     const options = locationGroups.map(l => ({ label: l.name, value: l.id }));
     options.sort((a, b) => (a.label > b.label ? 1 : -1));
     options.unshift({ label: t("(All)"), value: "0" });
     return options;
   }, [locationGroups]);
 
-  const selectedValue =
-    locationGroupOptions.find(
-      (e: any) => e.label && props.locationGroupFilter.includes(e.value)
-    ) ?? locationGroupOptions.find((e: any) => e.value === "0");
+  const selectedValue = locationGroupOptions.find(
+    e =>
+      ((e.label && props.locationGroupFilter.includes(Number(e.value))) ===
+        undefined ||
+        null) ??
+      locationGroupOptions.find(e => e.value === "0")
+  );
 
   const onChangeGroup = useCallback(
     value => {
       if (value.value === "0") {
-        props.setLocationGroupFilter([]);
+        props.setLocationGroupsFilter([]);
       } else {
-        props.setLocationGroupFilter(value.value);
+        props.setLocationGroupsFilter([Number(value.value)]);
       }
     },
-    [props.setLocationGroupFilter]
+    [props.setLocationGroupsFilter]
   );
 
   return (
