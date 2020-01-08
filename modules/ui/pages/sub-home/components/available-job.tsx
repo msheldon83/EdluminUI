@@ -252,38 +252,18 @@ export const AvailableJob: React.FC<Props> = props => {
           ))}
         </>
       )}
-      {!props.forSingleJob && expanded && (
-        <Grid container>
-          {/* <Grid
-            container
-            justify={isMobile ? "flex-start" : "flex-end"}
-            item
-            xs={isMobile ? 6 : 12}
-          >
-            <Grid item>
-              <Button
-                onClick={() => setExpanded(!expanded)}
-                className={classes.lightBlueUnderlineText}
-              >
-                {t("Collapse")}
-              </Button>
-            </Grid>
-          </Grid> */}
-
-          {isMobile && (
-            <Grid container justify={"flex-end"} item xs={expanded ? 6 : 12}>
-              <Grid item>
-                <Button
-                  onClick={() =>
-                    props.onDismiss(vacancy.organization.id, vacancy.id)
-                  }
-                  className={classes.lightUnderlineText}
-                >
-                  {t("Dismiss")}
-                </Button>
-              </Grid>
-            </Grid>
-          )}
+      {!props.forSingleJob && expanded && isMobile && (
+        <Grid container justify={"flex-end"} item>
+          <Grid item>
+            <Button
+              onClick={() =>
+                props.onDismiss(vacancy.organization.id, vacancy.id)
+              }
+              className={classes.lightUnderlineText}
+            >
+              {t("Dismiss")}
+            </Button>
+          </Grid>
         </Grid>
       )}
       {!props.forSingleJob && vacancy.details!.length > 1 && (
