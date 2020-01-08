@@ -95,6 +95,7 @@ type AbsenceQueries {
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancy: AbsenceVacancyInput, absentEmployeeId: ID, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   projectedAbsence(absence: AbsenceCreateInput!, ignoreAbsenceId: Int): Absence
   dailyReport(orgId: ID!, date: Date!, locationIds: [Int], positionTypeIds: [Int]): DailyReport
+  subSignInReport(orgId: ID!, date: Date!, locationIds: [Int]): [VacancyDetail]
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -1572,6 +1573,8 @@ enum EventType {
   REPLACEMENT_POOL_DELETED
   EMPLOYEES_ADDED_TO_REPLACEMENT_POOL
   EMPLOYEES_REMOVED_FROM_REPLACEMENT_POOL
+  REPLACEMENT_POOL_MEMBER_ADDED
+  REPLACEMENT_POOL_MEMBER_REMOVED
   REPLACEMENT_CRITERIA_CONFIG_CREATED
   REPLACEMENT_CRITERIA_CONFIG_UPDATED
   REPLACEMENT_CRITERIA_CONFIG_DELETED
@@ -1767,6 +1770,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   replacementEndOffsetMinutes: Int
   phoneNumber: String
   formattedPhone: String
+  locationGroup: LocationGroup
   address1: String
   address2: String
   city: String
@@ -1807,7 +1811,6 @@ type LocationGroup implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
-  locations: [Location]
 }
 
 input LocationGroupCreateInput {
@@ -3775,7 +3778,7 @@ type ReplacementCriterion implements ModelObjectInterface & OrgObjectInterface {
   endorsementId: Int!
 }
 
-type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+type ReplacementPool implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -3787,8 +3790,6 @@ type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & Doma
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  externalId: String
-  rowVersion: String!
   replacementPoolConfigId: Int!
   includeAllEmployees: Boolean
   locationGroupId: Int
@@ -3920,7 +3921,7 @@ input ReplacementPoolRemoveEmployeesInput {
   employeeIds: [Int]
 }
 
-type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -3932,8 +3933,6 @@ type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  externalId: String
-  rowVersion: String!
   replacementPoolConfigId: Int!
   includeAllEmployees: Boolean
   locationGroupId: Int
