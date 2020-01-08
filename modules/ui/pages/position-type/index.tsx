@@ -128,7 +128,7 @@ export const PositionTypePage: React.FC<{}> = props => {
           history.push(PositionTypeViewRoute.generate(newParams));
         }}
         options={{
-          search: true,
+          search: false,
         }}
         showIncludeExpired={true}
         onIncludeExpiredChange={checked => {

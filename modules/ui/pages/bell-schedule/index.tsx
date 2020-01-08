@@ -135,7 +135,7 @@ export const BellSchedulePage: React.FC<{}> = props => {
           history.push(BellScheduleViewRoute.generate(newParams));
         }}
         options={{
-          search: true,
+          search: false,
           sorting: true,
         }}
         showIncludeExpired={true}
