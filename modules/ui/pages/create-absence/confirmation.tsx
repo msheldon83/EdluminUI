@@ -16,14 +16,12 @@ import {
   AdminEditAbsenceRoute,
   EmployeeEditAbsenceRoute,
 } from "ui/routes/edit-absence";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   orgId: string;
   absence: Absence | undefined;
-  setStep: (s: Step) => void;
-  disabledDates: DisabledDate[];
   isAdmin: boolean;
+  setStep?: (s: Step) => void;
 };
 
 export const Confirmation: React.FC<Props> = props => {
@@ -41,7 +39,7 @@ export const Confirmation: React.FC<Props> = props => {
 
   if (!props.absence) {
     // Redirect the User back to the Absence Details step
-    props.setStep("absence");
+    props.setStep && props.setStep("absence");
 
     return null;
   }
@@ -64,7 +62,6 @@ export const Confirmation: React.FC<Props> = props => {
             orgId={props.orgId}
             absence={props.absence}
             isConfirmation={true}
-            disabledDates={props.disabledDates}
             isAdmin={props.isAdmin}
           />
         </Grid>
