@@ -272,15 +272,17 @@ export const SubHome: React.FC<Props> = props => {
               </Typography>
             </Section>
           ) : (
-            renderAssignments()
+            <>
+              {renderAssignments()}
+              <MuiLink
+                className={classes.viewAllAssignmentsLink}
+                component={Link}
+                to={SubScheduleRoute.generate(params)}
+              >
+                {t("View All")}
+              </MuiLink>
+            </>
           )}
-          <MuiLink
-            className={classes.viewAllAssignmentsLink}
-            component={Link}
-            to={SubScheduleRoute.generate(params)}
-          >
-            {t("View All")}
-          </MuiLink>
         </Grid>
         {!isMobile && (
           <Grid item xs={12} sm={6} lg={6}>
