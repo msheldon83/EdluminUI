@@ -8,7 +8,7 @@ import { AssignmentGroupDetail } from "./assignment-group-detail/index";
 import { AssignmentRowUI } from "./assignment-row-ui";
 import { CancelDialog } from "./cancel-dialog";
 import { Typography } from "@material-ui/core";
-import { useTranslation } from "react-i18next";
+import { ExpandOrCollapseIndicator } from "../expand-or-collapse-indicator";
 
 type Props = {
   vacancyDetails: AssignmentVacancyDetails[];
@@ -24,7 +24,6 @@ type Props = {
 
 export const AssignmentGroup: React.FC<Props> = props => {
   const classes = useStyles();
-  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(
     props.forSpecificAssignment ?? false
   );
@@ -150,13 +149,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
             ))}
           </div>
         )}
-        <div className={classes.expand}>
-          <Typography className={classes.smallText}>
-            {isExpanded
-              ? `– ${t("Click to collapse")}`
-              : `+ ${t("Click to expand")}`}
-          </Typography>
-        </div>
+        <ExpandOrCollapseIndicator isExpanded={isExpanded} />
       </div>
     </>
   );
@@ -167,18 +160,5 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     width: "100%",
     flexDirection: "column",
-  },
-  expand: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-    color: theme.customColors.edluminSubText,
-    background: theme.customColors.lighterGray,
-    borderBottom: `${theme.typography.pxToRem(1)} solid ${
-      theme.customColors.sectionBorder
-    }`,
-  },
-  smallText: {
-    fontSize: theme.typography.pxToRem(12),
   },
 }));
