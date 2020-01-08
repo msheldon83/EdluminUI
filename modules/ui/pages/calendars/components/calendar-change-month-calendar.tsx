@@ -11,7 +11,7 @@ type Props = {
   onSelectDate: (date: Date) => void;
 };
 
-export const CalednarChangeMonthCalendar: React.FC<Props> = props => {
+export const CalendarChangeMonthCalendar: React.FC<Props> = props => {
   const classes = useStyles();
   const parsedDate = useMemo(() => DateFns.parseISO(props.date), [props.date]);
   const className = classes.event;

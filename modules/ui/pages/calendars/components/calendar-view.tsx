@@ -1,7 +1,7 @@
 import * as React from "react";
 import { CalendarChange } from "graphql/server-types.gen";
 import { Grid } from "@material-ui/core";
-import { CalednarChangeMonthCalendar } from "./calendar-change-month-calendar";
+import { CalendarChangeMonthCalendar } from "./calendar-change-month-calendar";
 import {
   generateEmptyDateMap,
   mergeAssignmentDatesByMonth,
@@ -81,7 +81,7 @@ export const CalendarView: React.FC<Props> = props => {
     <>
       <Grid container>
         {groupedDates.map((group, i) => (
-          <CalednarChangeMonthCalendar
+          <CalendarChangeMonthCalendar
             key={i}
             onSelectDate={onSelectDate}
             date={group.month}

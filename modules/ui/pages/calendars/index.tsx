@@ -216,46 +216,44 @@ export const Calendars: React.FC<Props> = props => {
             </Grid>
             {props.view === "list" && (
               <Grid item xs={12} className={classes.listContent}>
-                <Grid container>
-                  {!changesLoaded && (
-                    <Typography variant="h6">
-                      {t("Loading Calendar Events")}...
-                    </Typography>
-                  )}
-                  {changesLoaded && (
-                    <div>
-                      <Table
-                        selection={true}
-                        columns={columns}
-                        data={calendarChanges}
-                        title={""}
-                        actions={[
-                          {
-                            tooltip: t("Delete selected events"),
-                            icon: () => <DeleteIcon />,
-                            onClick: async (evt, data) => {
-                              if (Array.isArray(data)) {
-                                await Promise.all(
-                                  data.map(cc => deleteCalendarChange(cc.id))
-                                );
-                              } else {
-                                await Promise.resolve(
-                                  deleteCalendarChange(data.id)
-                                );
-                              }
-                              await getCalendarChanges.refetch();
-                            },
+                {!changesLoaded && (
+                  <Typography variant="h6">
+                    {t("Loading Calendar Events")}...
+                  </Typography>
+                )}
+                {changesLoaded && (
+                  <div>
+                    <Table
+                      selection={true}
+                      columns={columns}
+                      data={calendarChanges}
+                      title={""}
+                      actions={[
+                        {
+                          tooltip: t("Delete selected events"),
+                          icon: () => <DeleteIcon />,
+                          onClick: async (evt, data) => {
+                            if (Array.isArray(data)) {
+                              await Promise.all(
+                                data.map(cc => deleteCalendarChange(cc.id))
+                              );
+                            } else {
+                              await Promise.resolve(
+                                deleteCalendarChange(data.id)
+                              );
+                            }
+                            await getCalendarChanges.refetch();
                           },
-                        ]}
-                      />
+                        },
+                      ]}
+                    />
 
-                      <PaginationControls
-                        pagination={pagination}
-                        pageSizeOptions={[25, 50, 100, 250, 500]}
-                      />
-                    </div>
-                  )}
-                </Grid>
+                    <PaginationControls
+                      pagination={pagination}
+                      pageSizeOptions={[25, 50, 100, 250, 500]}
+                    />
+                  </div>
+                )}
               </Grid>
             )}
             {props.view === "calendar" && (
@@ -282,6 +280,7 @@ const useStyles = makeStyles(theme => ({
     height: "100vh",
     position: "fixed",
     paddingRight: theme.spacing(3),
+    paddingBottom: theme.spacing(15),
   },
   container: {
     padding: 0,
