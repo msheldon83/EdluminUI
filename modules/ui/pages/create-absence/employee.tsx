@@ -5,8 +5,8 @@ import { useQueryParams } from "hooks/query-params";
 import { includes, values } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
+import { useGetEmployee } from "reference-data/employee";
 import { useIsAdmin } from "reference-data/is-admin";
-import { findEmployee } from "ui/components/absence/helpers";
 import { FindEmployeeForCurrentUser } from "./graphql/find-employee-for-current-user.gen";
 import { CreateAbsenceUI } from "./ui";
 
@@ -28,6 +28,9 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
   const potentialEmployees = useQueryBundle(FindEmployeeForCurrentUser, {
     fetchPolicy: "cache-first",
   });
+
+  const employee = useGetEmployee();
+
   const userIsAdmin = useIsAdmin();
   if (
     (potentialEmployees.state !== "DONE" &&
@@ -37,7 +40,6 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
     return <></>;
   }
 
-  const employee = findEmployee(potentialEmployees.data);
   if (!employee) {
     throw new Error("The user is not an employee");
   }

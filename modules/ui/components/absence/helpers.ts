@@ -451,11 +451,11 @@ export const TranslateAbsenceErrorCodeToMessage = (
   }
 };
 
-export const findEmployee = (data: FindEmployeeForCurrentUserQuery) => {
-  const orgUsers = data.userAccess?.me?.user?.orgUsers ?? [];
-  const emps = compact(map(orgUsers, u => u?.employee));
-  return emps[0];
-};
+// export const findEmployee = (data: FindEmployeeForCurrentUserQuery) => {
+//   const orgUsers = data.userAccess?.me?.user?.orgUsers ?? [];
+//   const emps = compact(map(orgUsers, u => u?.employee));
+//   return emps[0];
+// };
 
 export const createAbsenceDetailInput = (
   dates: Date[],
