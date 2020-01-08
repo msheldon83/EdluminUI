@@ -8,6 +8,7 @@ import { LocationsRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationsUI } from "./ui";
 import { useState } from "react";
+import { LocationSearch } from "./components/location-search";
 
 type Props = {};
 
@@ -40,6 +41,7 @@ export const Locations: React.FC<Props> = props => {
         </Grid>
       </Grid>
       <Section>
+        <LocationSearch orgId={params.organizationId} />
         <Filters
           locationGroupFilter={locationGroupFilter}
           setLocationGroupsFilter={setLocationGroupsFilter}
