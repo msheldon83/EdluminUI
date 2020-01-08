@@ -95,6 +95,7 @@ type AbsenceQueries {
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancy: AbsenceVacancyInput, absentEmployeeId: ID, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   projectedAbsence(absence: AbsenceCreateInput!, ignoreAbsenceId: Int): Absence
   dailyReport(orgId: ID!, date: Date!, locationIds: [Int], positionTypeIds: [Int]): DailyReport
+  subSignInReport(orgId: ID!, date: Date!, locationIds: [Int]): [VacancyDetail]
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -1572,6 +1573,8 @@ enum EventType {
   REPLACEMENT_POOL_DELETED
   EMPLOYEES_ADDED_TO_REPLACEMENT_POOL
   EMPLOYEES_REMOVED_FROM_REPLACEMENT_POOL
+  REPLACEMENT_POOL_MEMBER_ADDED
+  REPLACEMENT_POOL_MEMBER_REMOVED
   REPLACEMENT_CRITERIA_CONFIG_CREATED
   REPLACEMENT_CRITERIA_CONFIG_UPDATED
   REPLACEMENT_CRITERIA_CONFIG_DELETED
@@ -2798,6 +2801,24 @@ input PayCodeUpdateInput {
   expired: Boolean
 }
 
+type PermissionCategory {
+  _info: [ReturnMessage]
+  id: String!
+  displayName: String!
+  settings: [PermissionSetting]!
+}
+
+type PermissionCategoryIdentifier {
+  _info: [ReturnMessage]
+  id: String!
+  settings: [PermissionSettingIdentifier]!
+}
+
+input PermissionCategoryIdentifierInput {
+  id: String!
+  settings: [PermissionSettingIdentifierInput]
+}
+
 enum PermissionEnum {
   INVALID
   CONTRACT_SAVE
@@ -2862,6 +2883,48 @@ enum PermissionEnum {
   ORGANIZATION_RELATIONSHIP_SAVE
   ORGANIZATION_RELATIONSHIP_DELETE
   SUBSTITUTE_SAVE
+  ABSENCE_VIEW
+  CONTRACT_VIEW
+  LOCATION_VIEW
+  LOCATION_GROUP_VIEW
+  SCHOOL_YEAR_VIEW
+  WORK_DAY_PATTERN_VIEW
+  WORK_DAY_SCHEDULE_VIEW
+  POSITION_TYPE_VIEW
+  ORGANIZATION_VIEW
+  ADMIN_VIEW
+  EMPLOYEE_VIEW
+  SUBSTITUTE_VIEW
+  ORG_REFERENCE_DATA_VIEW
+  ABSENCE_REASON_BALANCE_VIEW
+  POSITION_VIEW
+  POSITION_SCHEDULE_VIEW
+  CALENDAR_CHANGE_VIEW
+  PERMISSION_SET_VIEW
+  CONTRACTED_ASSIGNMENT_VIEW
+  VACANCY_ASSIGNMENT_VIEW
+  REPLACEMENT_POOL_CONFIG_VIEW
+  REPLACEMENT_POOL_VIEW
+  REPLACEMENT_CRITERIA_VIEW
+  REPLACEMENT_CRITERIA_CONFIG_VIEW
+  VACANCY_VIEW
+  ORGANIZATION_RELATIONSHIP_VIEW
+  ADMIN_DELETE
+  SUBSTITUTE_DELETE
+  EXTERNAL_CONNECTIONS_VIEW
+  EXTERNAL_CONNECTIONS_SAVE
+  EXTERNAL_CONNECTIONS_DELETE
+}
+
+type PermissionLevel {
+  _info: [ReturnMessage]
+  id: String!
+  displayName: String!
+  permissions: [PermissionEnum]!
+}
+
+type PermissionQueries {
+  all(role: OrgUserRole!): [PermissionCategory]
 }
 
 type PermissionSet implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2882,6 +2945,7 @@ type PermissionSet implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   orgUserRole: OrgUserRole
   permissionSet: [PermissionEnum]
+  categories: [PermissionCategoryIdentifier]
   shadowFromPermissionSetId: Int
   shadowFromOrgId: Int
 }
@@ -2889,9 +2953,10 @@ type PermissionSet implements ModelObjectInterface & OrgObjectInterface & Domain
 input PermissionSetCreateInput {
   orgId: Int!
   name: String!
+  externalId: String
   description: String
-  orgUserRole: OrgUserRole
-  permissionSet: [PermissionEnum]
+  orgUserRole: OrgUserRole!
+  categories: [PermissionCategoryIdentifierInput]
 }
 
 type PermissionSetMutations {
@@ -2902,15 +2967,35 @@ type PermissionSetMutations {
 
 type PermissionSetQueries {
   byId(id: ID!): PermissionSet
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], roles: [OrgUserRole]): [PermissionSet]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], roles: [OrgUserRole]): PagedPermissionSet
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], searchText: String, roles: [OrgUserRole]): [PermissionSet]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String, roles: [OrgUserRole]): PagedPermissionSet
+}
+
+type PermissionSetting {
+  _info: [ReturnMessage]
+  id: String!
+  displayName: String!
+  levels: [PermissionLevel]!
+}
+
+type PermissionSettingIdentifier {
+  _info: [ReturnMessage]
+  id: String!
+  levelId: String!
+}
+
+input PermissionSettingIdentifierInput {
+  id: String!
+  levelId: String!
 }
 
 input PermissionSetUpdateInput {
   id: Int!
   rowVersion: String!
-  name: String!
+  name: String
+  externalId: String
   description: String
+  categories: [PermissionCategoryIdentifierInput]
 }
 
 enum PhoneType {
@@ -3355,6 +3440,7 @@ type Query {
   orgRef_PayCode: OrgRef_PayCodeQueries
   orgRef_WorkDayScheduleVariantType: OrgRef_WorkDayScheduleVariantTypeQueries
   orgUser: OrgUserQueries
+  permission: PermissionQueries
   permissionSet: PermissionSetQueries
   position: PositionQueries
   positionSchedule: PositionScheduleQueries
@@ -3775,7 +3861,7 @@ type ReplacementCriterion implements ModelObjectInterface & OrgObjectInterface {
   endorsementId: Int!
 }
 
-type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+type ReplacementPool implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -3787,8 +3873,6 @@ type ReplacementPool implements ModelObjectInterface & OrgObjectInterface & Doma
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  externalId: String
-  rowVersion: String!
   replacementPoolConfigId: Int!
   includeAllEmployees: Boolean
   locationGroupId: Int
@@ -3920,7 +4004,7 @@ input ReplacementPoolRemoveEmployeesInput {
   employeeIds: [Int]
 }
 
-type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -3932,8 +4016,6 @@ type ReplacementPoolSummary implements ModelObjectInterface & OrgObjectInterface
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  externalId: String
-  rowVersion: String!
   replacementPoolConfigId: Int!
   includeAllEmployees: Boolean
   locationGroupId: Int
