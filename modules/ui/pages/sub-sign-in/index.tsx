@@ -1,4 +1,4 @@
-import { Typography, Divider } from "@material-ui/core";
+import { Typography, Divider, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useQueryBundle } from "graphql/hooks";
 import { useQueryParamIso } from "hooks/query-params";
@@ -9,13 +9,14 @@ import { useTranslation } from "react-i18next";
 import { useRouteParams } from "ui/routes/definition";
 import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import { SubSignInRoute } from "ui/routes/sub-sign-in";
-import { startOfToday, format } from "date-fns";
+import { startOfToday, format, parse } from "date-fns";
 import { GetFilledAbsences } from "./graphql/get-filled-absences.gen";
 import { useLocations } from "reference-data/locations";
-import { FilterQueryParams } from "./components/location-param";
+import { FilterQueryParams } from "./components/filter-param";
 import { VacancyDetailRow } from "./components/vacancy-detail";
 import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";
 import { EdluminLogo } from "ui/components/edlumin-logo";
+import { Print } from "@material-ui/icons";
 
 type Props = {};
 
@@ -23,7 +24,7 @@ export const SubSignInPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const params = useRouteParams(SubSignInRoute);
-  const [locationParam, updateLocationParam] = useQueryParamIso(
+  const [filterParams, updateFilterParams] = useQueryParamIso(
     FilterQueryParams
   );
 
@@ -31,25 +32,25 @@ export const SubSignInPage: React.FC<Props> = props => {
     params.organizationId
   );
 
-  const today = useMemo(() => startOfToday(), []);
-  const date = useMemo(() => format(today, "P"), [today]);
+  const date = filterParams.date;
+  const dateLabel = format(parse(date, "P", new Date()), "EEEE, MMM d, yyyy");
 
   const locations = useLocations(params.organizationId);
   useEffect(() => {
     if (
-      (isNaN(locationParam.location) || locationParam.location === 0) &&
+      (isNaN(filterParams.location) || filterParams.location === 0) &&
       locations.length > 0
     ) {
-      updateLocationParam({ location: Number(locations[0].id) });
+      updateFilterParams({ location: Number(locations[0].id) });
     }
-  }, [locations, updateLocationParam, locationParam.location]);
+  }, [locations, updateFilterParams, filterParams.location]);
 
   const location = useMemo(
     () =>
       locations.length > 0
-        ? locations.find(x => x.id === locationParam.location.toString())
+        ? locations.find(x => x.id === filterParams.location.toString())
         : null,
-    [locations, locationParam.location]
+    [locations, filterParams.location]
   );
 
   const locationOptions: OptionType[] = useMemo(
@@ -64,18 +65,18 @@ export const SubSignInPage: React.FC<Props> = props => {
       } else {
         id = value.value;
       }
-      updateLocationParam({ location: Number(id) });
+      updateFilterParams({ location: Number(id) });
     },
-    [updateLocationParam]
+    [updateFilterParams]
   );
 
   const getFilledAbsences = useQueryBundle(GetFilledAbsences, {
     variables: {
       orgId: params.organizationId,
       date,
-      locationIds: [locationParam.location],
+      locationIds: [filterParams.location],
     },
-    skip: isNaN(locationParam.location),
+    skip: isNaN(filterParams.location),
   });
 
   const vacancyDetails = useMemo(
@@ -114,21 +115,35 @@ export const SubSignInPage: React.FC<Props> = props => {
         <Typography variant="h5">{`${location?.name} ${t(
           "Substitute Sign-in"
         )}`}</Typography>
-        <Typography variant="h1">
-          {format(today, "EEEE, MMM d, yyyy")}
-        </Typography>
+        <Typography variant="h1">{dateLabel}</Typography>
       </div>
       <div className={classes.paper}>
-        <div className={classes.filter}>
-          <Select
-            label={t("School")}
-            onChange={onChangeLocation}
-            value={locationOptions.find(
-              e => e.value && e.value === location?.id
-            )}
-            options={locationOptions}
-          />
-        </div>
+        <Grid
+          container
+          spacing={2}
+          className={classes.filter}
+          alignItems="center"
+          justify="space-between"
+        >
+          <Grid item xs={3}>
+            <Select
+              label={t("School")}
+              onChange={onChangeLocation}
+              value={locationOptions.find(
+                e => e.value && e.value === location?.id
+              )}
+              options={locationOptions}
+            />
+          </Grid>
+          <Grid item xs={3}></Grid>
+          <Grid item xs={3}></Grid>
+          <Grid item xs={3} container justify="flex-end">
+            <Print
+              className={[classes.action, classes.print].join(" ")}
+              onClick={window.print}
+            />
+          </Grid>
+        </Grid>
         <Divider />
         {vacancyDetails.map((v, i) => (
           <VacancyDetailRow
@@ -176,6 +191,13 @@ const useStyles = makeStyles(theme => ({
     "@media print": {
       display: "none",
     },
-    width: "30%",
+  },
+  action: {
+    cursor: "pointer",
+  },
+  print: {
+    "@media print": {
+      display: "none",
+    },
   },
 }));

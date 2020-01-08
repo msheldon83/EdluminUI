@@ -5,7 +5,13 @@ import { useTranslation } from "react-i18next";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useRouteParams } from "ui/routes/definition";
 import { DailyReport } from "ui/components/reports/daily-report/daily-report";
-import { startOfToday, getHours, startOfTomorrow, isSameDay } from "date-fns";
+import {
+  startOfToday,
+  getHours,
+  startOfTomorrow,
+  isSameDay,
+  format,
+} from "date-fns";
 import { Grid, Button, Tooltip } from "@material-ui/core";
 import { DateStepperHeader } from "ui/components/date-stepper-header";
 import { useMemo, useState, useEffect } from "react";
@@ -91,6 +97,15 @@ export const AdminHome: React.FC<Props> = props => {
     }
   };
 
+  const subSignInUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("location", "");
+    params.set("date", format(date, "P"));
+    return `${SubSignInRoute.generate({
+      organizationId: dailyReportRouteParams.organizationId,
+    })}?${params.toString()}`;
+  }, [date, dailyReportRouteParams.organizationId]);
+
   return (
     <>
       <Grid
@@ -107,9 +122,7 @@ export const AdminHome: React.FC<Props> = props => {
           <Button
             variant="outlined"
             component={Link}
-            to={SubSignInRoute.generate({
-              organizationId: dailyReportRouteParams.organizationId
-            })}
+            to={subSignInUrl}
             className={classes.button}
             target={"_blank"}
           >

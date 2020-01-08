@@ -1,31 +1,38 @@
 import { Isomorphism } from "@atomic-object/lenses";
+import { startOfToday, format } from "date-fns";
 
-export const FilterQueryParamDefaults: LocationFilter = {
+export const FilterQueryParamDefaults: SubSignInFilter = {
   location: "",
+  date: format(startOfToday(), "P"),
 };
 
-export type LocationFilter = {
+export type SubSignInFilter = {
   location: string;
+  date: string;
 };
 
-type LocationFilterQueryParams = {
+type SubSignInFilterQueryParams = {
   location: number;
+  date: string;
 };
 
-export type LocationsQueryFilters = {
+export type SubSignInQueryFilters = {
   location: number;
+  date: string;
 };
 
 export const FilterParams: Isomorphism<
-  LocationFilter,
-  LocationFilterQueryParams
+  SubSignInFilter,
+  SubSignInFilterQueryParams
 > = {
   to: k => ({
+    date: k.date,
     location: Number(k.location),
   }),
   from: s => ({
     ...FilterQueryParamDefaults,
     location: s.location.toString(),
+    date: s.date,
   }),
 };
 
