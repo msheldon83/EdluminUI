@@ -15,8 +15,8 @@ import { OrgUserRoles } from "reference-data/org-user-roles";
 import { OrgUserRole } from "graphql/server-types.gen";
 
 type Props = {
-  rolesFilter: OrgUserRole[];
-  olderAction?: () => void;
+  rolesFilter?: OrgUserRole[];
+  searchText?: string;
 };
 
 export const PermissionSetUI: React.FC<Props> = props => {
@@ -29,6 +29,7 @@ export const PermissionSetUI: React.FC<Props> = props => {
     variables: {
       orgId: params.organizationId,
       roles: props.rolesFilter,
+      searchText: props.searchText,
     },
   });
 

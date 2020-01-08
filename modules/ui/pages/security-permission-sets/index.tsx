@@ -16,6 +16,7 @@ export const SecurityPermissionSets: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [rolesFilter, setRolesFilter] = useState<OrgUserRole[]>([]);
+  const [searchText, setSearchText] = useState<string | undefined>();
   const params = useRouteParams(SecurityPermissionSetsRoute);
 
   return (
@@ -42,10 +43,11 @@ export const SecurityPermissionSets: React.FC<Props> = props => {
         <Filters
           rolesFilter={rolesFilter}
           setRolesFilter={setRolesFilter}
+          setSearchText={setSearchText}
           orgId={params.organizationId}
         />
       </Section>
-      <PermissionSetUI rolesFilter={rolesFilter} />
+      <PermissionSetUI rolesFilter={rolesFilter} searchText={searchText} />
     </>
   );
 };
