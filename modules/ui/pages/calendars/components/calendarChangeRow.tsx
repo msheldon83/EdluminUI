@@ -4,7 +4,6 @@ import { Button, Typography } from "@material-ui/core";
 import { CalendarChange } from "graphql/server-types.gen";
 import { parseISO, format } from "date-fns";
 import { useContracts } from "reference-data/contracts";
-import DeleteIcon from "@material-ui/icons/delete";
 import { useTranslation } from "react-i18next";
 
 type Props = {
