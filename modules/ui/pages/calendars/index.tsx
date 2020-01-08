@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
-import { Button, Divider, Grid, Typography } from "@material-ui/core";
+import { Divider, Grid, Typography } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { CalendarRoute } from "ui/routes/calendar/calendar";
 import { Section } from "ui/components/section";
@@ -9,11 +9,7 @@ import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule
 import { useState, useMemo } from "react";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
-import {
-  useQueryBundle,
-  usePagedQueryBundle,
-  useMutationBundle,
-} from "graphql/hooks";
+import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { Column } from "material-table";
 import { CalendarChange, CalendarDayType } from "graphql/server-types.gen";
 import { Table } from "ui/components/table";
@@ -97,6 +93,10 @@ export const Calendars: React.FC<Props> = props => {
 
   const onDeleteCalendarChange = async (calendarChangeId: string) => {
     await Promise.resolve(deleteCalendarChange(calendarChangeId));
+    await refectchCalendarChanges();
+  };
+
+  const refectchCalendarChanges = async () => {
     await getCalendarChanges.refetch();
   };
 
@@ -144,15 +144,16 @@ export const Calendars: React.FC<Props> = props => {
     },
     {
       title: t("Contract"),
-      field: "changedContracts[0].name",
       searchable: false,
+      render: (o: GetCalendarChanges.Results) => {
+        const contracts: any[] = [];
+        o.changedContracts?.forEach(e => {
+          contracts.push(e?.name);
+        });
+        return contracts.join(",");
+      },
     },
   ];
-  /*TODO Need a way to delete a calendar event*/
-
-  /*TODO Need a way to add a calendar event*/
-
-  /*TODO This page will store dates selected and schools years, and include a calendar cmpt and list cmpt */
 
   return (
     <>
@@ -171,7 +172,10 @@ export const Calendars: React.FC<Props> = props => {
           )}
         </div>
         <Section className={classes.container}>
-          <CreateExpansionPanel />
+          <CreateExpansionPanel
+            refetchQuery={refectchCalendarChanges}
+            orgId={params.organizationId}
+          />
         </Section>
         <div className={props.view === "calendar" ? classes.sticky : ""}>
           {props.view === "calendar" && (

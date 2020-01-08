@@ -1,12 +1,11 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Select, SelectValueType } from "ui/components/form/select";
-import { OptionTypeBase, ValueType, OptionsType } from "react-select/src/types";
-import { Grid, InputLabel, makeStyles } from "@material-ui/core";
+import { OptionTypeBase } from "react-select/src/types";
+import { makeStyles } from "@material-ui/core";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { parseISO } from "date-fns";
 import { useContracts } from "reference-data/contracts";
-import { LocalConvenienceStoreOutlined } from "@material-ui/icons";
 
 type Props = {
   view: "list" | "calendar";
