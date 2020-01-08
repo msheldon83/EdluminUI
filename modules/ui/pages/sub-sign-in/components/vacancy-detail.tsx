@@ -149,7 +149,7 @@ export const VacancyDetailRow: React.FC<Props> = props => {
             className={classes.xIcon}
             src={require("ui/icons/signin-x.svg")}
           />
-          <div className={classes.signinText}>{"Sign in "}</div>
+          <div className={classes.signinText}>{t("Sign in")}</div>
         </div>
       </Grid>
     </Grid>

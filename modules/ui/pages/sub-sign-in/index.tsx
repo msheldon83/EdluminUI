@@ -112,10 +112,10 @@ export const SubSignInPage: React.FC<Props> = props => {
       </div>
       <div className={classes.title}>
         <Typography variant="h5">{`${location?.name} ${t(
-          "Subtitute Sign-in"
+          "Substitute Sign-in"
         )}`}</Typography>
         <Typography variant="h1">
-          {format(today, "EEEE, MMM, d yyyy")}
+          {format(today, "EEEE, MMM d, yyyy")}
         </Typography>
       </div>
       <div className={classes.paper}>
@@ -147,7 +147,7 @@ const useStyles = makeStyles(theme => ({
   header: {
     width: "100%",
     backgroundColor: theme.customColors.edluminSlate,
-    "@media pring": {
+    "@media print": {
       display: "none",
     },
   },
