@@ -407,9 +407,6 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
-  firstName: String!
-  middleName: String
-  lastName: String!
   email: String!
   dateOfBirth: Date
   address1: String
@@ -421,6 +418,9 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
   phoneNumber: String
   formattedPhone: String
   active: Boolean!
+  firstName: String!
+  middleName: String
+  lastName: String!
   isSuperUser: Boolean!
   permissionSet: PermissionSet
   accessControl: AccessControl
@@ -1238,9 +1238,6 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  firstName: String!
-  middleName: String
-  lastName: String!
   email: String!
   dateOfBirth: Date
   address1: String
@@ -1252,6 +1249,9 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   phoneNumber: String
   formattedPhone: String
   active: Boolean!
+  firstName: String!
+  middleName: String
+  lastName: String!
   rowVersion: String
   isShadowEmployee: Boolean!
   shadowEmployeeId: Int
@@ -2570,9 +2570,6 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
-  firstName: String!
-  middleName: String
-  lastName: String!
   email: String!
   dateOfBirth: Date
   address1: String
@@ -2584,6 +2581,9 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   phoneNumber: String
   formattedPhone: String
   active: Boolean!
+  firstName: String!
+  middleName: String
+  lastName: String!
   userId: Int
   loginEmail: String
   isReplacementEmployee: Boolean!
@@ -4675,9 +4675,6 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  firstName: String!
-  middleName: String
-  lastName: String!
   email: String!
   dateOfBirth: Date
   address1: String
@@ -4689,6 +4686,9 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   phoneNumber: String
   formattedPhone: String
   active: Boolean!
+  firstName: String!
+  middleName: String
+  lastName: String!
   rowVersion: String
   isShadowEmployee: Boolean!
   shadowEmployeeId: Int

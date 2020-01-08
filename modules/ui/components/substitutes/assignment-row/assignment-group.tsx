@@ -1,15 +1,16 @@
 import { makeStyles } from "@material-ui/styles";
 import { formatIsoDateIfPossible } from "helpers/date";
-import { groupBy, uniqBy, compact, flatMap } from "lodash-es";
+import { groupBy } from "lodash-es";
 import * as React from "react";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { AssignmentVacancyDetails } from "../../../pages/sub-schedule/types";
-import { AssignmentGroupDetail } from "./assignment-group-detail";
+import { AssignmentGroupDetail } from "./assignment-group-detail/index";
 import { AssignmentRowUI } from "./assignment-row-ui";
+import { CancelDialog } from "./cancel-dialog";
 
 type Props = {
   vacancyDetails: AssignmentVacancyDetails[];
-  onCancel?: (
+  onCancel: (
     assignmentId: string,
     rowVersion: string,
     vacancyDetailIds?: string[]
@@ -21,10 +22,26 @@ type Props = {
 
 export const AssignmentGroup: React.FC<Props> = props => {
   const classes = useStyles();
-  const [isExpanded, setIsExpanded] = useState(props.forSpecificAssignment ?? false);
+  const [isExpanded, setIsExpanded] = useState(
+    props.forSpecificAssignment ?? false
+  );
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = React.useState(false);
+
+  const onCancelClick = () => setIsCancelDialogOpen(true);
+  const onCloseDialog = () => setIsCancelDialogOpen(false);
 
   const vacancyDetails = props.vacancyDetails;
   const { onCancel } = props;
+
+  const onCancelAllMutation = React.useCallback(
+    () =>
+      onCancel(
+        vacancyDetails[0].assignment?.id ?? "",
+        vacancyDetails[0].assignment?.rowVersion ?? "",
+        undefined
+      ),
+    [onCancel, vacancyDetails[0].assignment]
+  );
 
   const vacancy =
     vacancyDetails[0].vacancy !== null && vacancyDetails[0].vacancy;
@@ -79,8 +96,14 @@ export const AssignmentGroup: React.FC<Props> = props => {
         endTime: vacancyDetails[0].endTimeLocal!,
       };
 
-  if (onCancel) {
-    return (
+  return (
+    <>
+      <CancelDialog
+        open={isCancelDialogOpen}
+        onClose={onCloseDialog}
+        onCancel={onCancelAllMutation}
+      />
+
       <div
         className={classes.container}
         onClick={() => setIsExpanded(!isExpanded)}
@@ -96,12 +119,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
           organizationName={orgNameText}
           positionName={positionName}
           dayPortion={totalDayPortion}
-          onCancel={() =>
-            onCancel(
-              vacancyDetails[0].assignment?.id ?? "",
-              vacancyDetails[0].assignment?.rowVersion ?? ""
-            )
-          }
+          onCancel={onCancelClick}
           className={props.className}
           isAdmin={props.isAdmin}
           forSpecificAssignment={props.forSpecificAssignment}
@@ -132,47 +150,8 @@ export const AssignmentGroup: React.FC<Props> = props => {
           </div>
         )}
       </div>
-    );
-  } else {
-    return (
-      <div
-        className={classes.container}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <AssignmentRowUI
-          confirmationNumber={confirmationNumber}
-          {...times}
-          startTime={vacancyDetails[0].startTimeLocal!}
-          employeeName={employeeName}
-          startDate={startDate}
-          endDate={endDate}
-          locationName={locationNameText || ""}
-          organizationName={orgNameText}
-          positionName={positionName}
-          dayPortion={totalDayPortion}
-          className={props.className}
-          isAdmin={props.isAdmin}
-        />
-        {isExpanded && (
-          <div
-            className={[classes.container, classes.expandedDetails].join(" ")}
-          >
-            {props.vacancyDetails.map((a, i) => (
-              <AssignmentGroupDetail
-                dayPortion={a.dayPortion}
-                startTimeLocal={a.startTimeLocal ?? ""}
-                endTimeLocal={a.endTimeLocal ?? ""}
-                locationName={a.location?.name ?? ""}
-                shadeRow={i % 2 != 0}
-                key={i}
-                isAdmin={props.isAdmin}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
+    </>
+  );
 };
 
 const useStyles = makeStyles(theme => ({

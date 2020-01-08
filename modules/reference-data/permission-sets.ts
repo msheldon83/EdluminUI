@@ -1,6 +1,6 @@
 import { useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
-import { GetPermissionSets } from "./get-permissionsets.gen";
+import { GetPermissionSets } from "./get-permission-sets.gen";
 import { useMemo } from "react";
 import { OrgUserRole } from "graphql/server-types.gen";
 

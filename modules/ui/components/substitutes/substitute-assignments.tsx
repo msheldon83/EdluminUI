@@ -14,7 +14,6 @@ import { useMemo, useState } from "react";
 import { getBeginningOfSchoolYear } from "ui/components/helpers";
 import { numberOfMonthsInSchoolYear } from "ui/components/schedule/helpers";
 import { addMonths, endOfMonth } from "date-fns";
-import { PaginationQueryParams } from "hooks/query-params";
 
 type Props = {
   view: "list" | "calendar";
@@ -62,7 +61,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
   );
 
   return (
-    <div>
+    <>
       <div className={props.view === "calendar" ? classes.sticky : ""}>
         <PageTitle title={t(props.pageTitle)} />
         {props.view === "calendar" && (
@@ -125,7 +124,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
           )}
         </div>
       </Section>
-    </div>
+    </>
   );
 };
 

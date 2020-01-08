@@ -8,6 +8,7 @@ import { useQueryBundle } from "graphql/hooks";
 import { GetUserCreateDate } from "../../pages/sub-schedule/graphql/get-user-create-date.gen";
 import { range } from "lodash-es";
 import { stringToStartAndEndDate, createYearOption } from "./helpers";
+import { useIsMobile } from "hooks";
 
 type Props = {
   view: "list" | "calendar";
@@ -22,7 +23,8 @@ type Props = {
 
 export const ScheduleHeader: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
+  const isMobile = useIsMobile();
+  const classes = useStyles({ isMobile });
 
   const showFromPicker = isWithinInterval(props.startDate, {
     start: props.beginningOfCurrentSchoolYear,
@@ -82,7 +84,7 @@ export const ScheduleHeader: React.FC<Props> = props => {
   }
 
   return (
-    <>
+    <div className={classes.selectContainer}>
       <div className={classes.select}>
         {props.view === "list" && <InputLabel>{t("Year")}</InputLabel>}
         <Select
@@ -113,7 +115,11 @@ export const ScheduleHeader: React.FC<Props> = props => {
       </div>
 
       {props.view === "list" && showFromPicker && (
-        <div className={[classes.select, classes.fromSelect].join(" ")}>
+        <div
+          className={[classes.select, classes.fromSelect, classes.spacing].join(
+            " "
+          )}
+        >
           <InputLabel>{t("From")}</InputLabel>
           <Select
             withDropdownIndicator
@@ -131,17 +137,28 @@ export const ScheduleHeader: React.FC<Props> = props => {
           />
         </div>
       )}
-    </>
+    </div>
   );
 };
 
+type StyleProps = {
+  isMobile: boolean;
+};
+
 const useStyles = makeStyles(theme => ({
-  select: {
+  selectContainer: (props: StyleProps) => ({
     display: "flex",
-    flexDirection: "column",
-    minWidth: theme.typography.pxToRem(250),
-  },
+    flexDirection: props.isMobile ? ("column" as "column") : ("row" as "row"),
+  }),
+  select: (props: StyleProps) => ({
+    display: "flex",
+    flexDirection: "column" as "column",
+    minWidth: theme.typography.pxToRem(props.isMobile ? 125 : 225),
+  }),
   fromSelect: {
-    marginLeft: theme.spacing(6),
+    minWidth: theme.typography.pxToRem(225),
   },
+  spacing: (props: StyleProps) => ({
+    marginLeft: props.isMobile ? 0 : theme.spacing(6),
+  }),
 }));
