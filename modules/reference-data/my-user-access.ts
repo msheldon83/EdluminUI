@@ -2,7 +2,7 @@ import { GetMyUserAccess } from "./get-my-user-access.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { UserAccess, PermissionEnum } from "graphql/server-types.gen";
 import { useMemo } from "react";
-import { compact, flatMap } from "lodash-es";
+import { compact } from "lodash-es";
 
 type MyUserAccess = {
   me: UserAccess | null | undefined;
@@ -31,14 +31,17 @@ export const useMyUserAccess = (): MyUserAccess | null => {
         ? {
             orgId: ou.orgId.toString(),
             permissions:
-              compact(
-                flatMap(ou.permissionSets?.map(ps => ps?.permissionSet))
-              ) ?? [],
+              compact([
+                ...(ou.administrator?.permissions ?? []),
+                ...(ou.employee?.permissions ?? []),
+                ...(ou.substitute?.permissions ?? []),
+              ]) ?? [],
           }
         : null
     )
   );
 
+  // TODO: make sure we have a list of unique permissions
   return {
     me: userAccessQuery.data.userAccess?.me,
     permissionsByOrg,
