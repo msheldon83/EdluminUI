@@ -1,7 +1,7 @@
 import * as React from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
-import {useTheme} from '@material-ui/core';
+import { useTheme } from "@material-ui/core";
 import useAutocomplete from "@material-ui/lab/useAutocomplete";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import Chip from "@material-ui/core/Chip";
@@ -12,7 +12,7 @@ import { Input } from "./input";
 export type SelectProps<T extends boolean> = {
   label?: string;
   placeholder?: string;
-  multiple?: T;
+  multiple: T;
   options: Array<OptionType>;
   value?: T extends true ? Array<OptionType> : OptionType;
   onChange?: (value: T extends true ? Array<OptionType> : OptionType) => void;
@@ -32,7 +32,7 @@ export type OptionType = {
   value: string | number;
 };
 
-const TAG_CHIP_CONTAINER_HEIGHT = 36
+const TAG_CHIP_CONTAINER_HEIGHT = 36;
 
 export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   const classes = useStyles();
@@ -82,8 +82,8 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
     const elementHasOverflow = element.offsetHeight < element.scrollHeight;
 
-    const offsetHeight =  theme.typography.pxToRem(element.offsetHeight)
-    const triggerHeight = theme.typography.pxToRem(TAG_CHIP_CONTAINER_HEIGHT)
+    const offsetHeight = theme.typography.pxToRem(element.offsetHeight);
+    const triggerHeight = theme.typography.pxToRem(TAG_CHIP_CONTAINER_HEIGHT);
 
     setTallEnoughForOverflow(offsetHeight > triggerHeight);
     setHasOverFlow(elementHasOverflow);

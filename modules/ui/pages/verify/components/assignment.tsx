@@ -439,6 +439,7 @@ export const Assignment: React.FC<Props> = props => {
                         );
                       }}
                       options={dayConversionOptions}
+                      multiple={false}
                     />
                   </Grid>
                   <Grid item xs={2}>
@@ -501,6 +502,7 @@ export const Assignment: React.FC<Props> = props => {
                         }
                         setFieldValue("payCodeId", selectedValue);
                       }}
+                      multiple={false}
                       options={props.payCodeOptions}
                       onBlur={() => handlePayCodeOnBlur(values.payCodeId)}
                     />
@@ -529,10 +531,10 @@ export const Assignment: React.FC<Props> = props => {
                         setFieldValue("accountingCodeId", selectedValue);
                       }}
                       options={accountingCodeOptions}
-                      isClearable={!!values.accountingCodeId}
                       onBlur={() =>
                         handleAccountingCodeOnBlur(values.accountingCodeId)
                       }
+                      multiple={false}
                     />
                   </Grid>
                   <Grid item xs={2}></Grid>

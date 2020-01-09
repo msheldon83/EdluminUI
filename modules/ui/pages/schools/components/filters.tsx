@@ -88,6 +88,7 @@ export const Filters: React.FC<Props> = props => {
             onChange={onChangeGroup}
             options={locationGroupOptions}
             value={selectedValue}
+            multiple={false}
           />
         </Grid>
       </Grid>

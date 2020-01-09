@@ -40,7 +40,7 @@ export const PositionTypeFilter: React.FC<Props> = props => {
           onChange={onChangePositionTypes}
           options={positionTypeOptions}
           value={value}
-          multiple
+          multiple={true}
           placeholder="Search for position types"
         />
       </Grid>

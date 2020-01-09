@@ -63,6 +63,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
               schoolYears.find(sy => sy.id === selectedValue.toString())
             );
           }}
+          multiple={false}
         />
       </div>
 
@@ -87,6 +88,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
               );
             }
           }}
+          multiple={false}
         />
       </div>
     </>

@@ -298,6 +298,7 @@ export const Settings: React.FC<Props> = props => {
                   }
                   setFieldValue("defaultContractId", selectedValue);
                 }}
+                multiple={false}
               />
               <FormHelperText>
                 {t(
@@ -353,7 +354,7 @@ export const Settings: React.FC<Props> = props => {
                   (c: any) => c.value === values.payTypeId
                 )}
                 options={payTypeOptions}
-                isClearable={false}
+                multiple={false}
                 onChange={(e: OptionType) => {
                   //TODO: Once the select component is updated,
                   // can remove the Array checking

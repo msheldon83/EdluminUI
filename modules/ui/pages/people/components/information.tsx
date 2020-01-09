@@ -319,6 +319,7 @@ export const Information: React.FC<Props> = props => {
                                   }
                                   setFieldValue("state", selectedValue);
                                 }}
+                                multiple={false}
                                 options={stateOptions}
                               />
                             </Grid>

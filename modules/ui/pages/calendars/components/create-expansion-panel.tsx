@@ -228,7 +228,6 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                         setFieldValue("contracts", ids);
                       }}
                       options={contractOptions}
-                      multiple
                       placeholder="Search for Contracts"
                     />
                   </Grid>
@@ -290,6 +289,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                         setSelectedChangeReason(selectedValue);
                         setFieldValue("changeReason", selectedValue);
                       }}
+                      multiple={false}
                     />
                   </Grid>
                 </Grid>
