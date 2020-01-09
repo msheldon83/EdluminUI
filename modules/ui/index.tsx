@@ -199,7 +199,12 @@ export function App() {
             </Route>
             <Route path={SubSignInRoute.path}>
               <IfAuthenticated>
-                <Route component={SubSignInLoader} path={SubSignInRoute.path} />
+                <IfHasRole role={OrgUserRole.Administrator}>
+                  <Route
+                    component={SubSignInLoader}
+                    path={SubSignInRoute.path}
+                  />
+                </IfHasRole>
               </IfAuthenticated>
               <IfAuthenticated not>
                 <RedirectToLogin />
