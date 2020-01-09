@@ -40,12 +40,6 @@ export const PermissionSettings: React.FC<Props> = props => {
     PermissionCategoryIdentifierInput[]
   >(props.permissionSetCategories);
 
-  useEffect(() => {
-    props.onChange(categories);
-  }, [categories]);
-
-  console.log(props.permissionSetCategories);
-
   if (props.permissionDefinitions.length === 0) {
     // The permission definitions haven't been loaded yet
     return <></>;
@@ -61,14 +55,12 @@ export const PermissionSettings: React.FC<Props> = props => {
     return levelId;
   };
 
-  const updateCategorySelections = (
+  const updateCategorySelections = async (
     categoryId: string,
     settingId: string,
     levelId: string
   ) => {
     const updatedCategories = [...categories];
-
-    console.log(updatedCategories);
 
     // Find the Category and add if missing
     let matchingCategory = updatedCategories.find(c => c.id === categoryId);
@@ -98,6 +90,7 @@ export const PermissionSettings: React.FC<Props> = props => {
     }
     matchingSetting.levelId = levelId;
     setCategories(updatedCategories);
+    await props.onChange(updatedCategories);
   };
 
   return (
@@ -158,7 +151,7 @@ export const PermissionSettings: React.FC<Props> = props => {
                             label=""
                             options={levelOptions}
                             isClearable={false}
-                            onChange={(e: SelectValueType) => {
+                            onChange={async (e: SelectValueType) => {
                               //TODO: Once the select component is updated,
                               // can remove the Array checking
                               let selectedValue = null;
@@ -171,7 +164,7 @@ export const PermissionSettings: React.FC<Props> = props => {
                                   selectedValue = (e as OptionTypeBase).value;
                                 }
                               }
-                              updateCategorySelections(
+                              await updateCategorySelections(
                                 categoryId,
                                 settingId,
                                 selectedValue

@@ -35,18 +35,19 @@ export const SecurityPermissionSetsAddLoader = asyncComponent({
   name: "SecurityPermissionSetsAddPage",
 });
 
-// // View/Edit
-// export const PositionTypeViewRoute = defineSubRoute(
-//   PositionTypeRoute,
-//   "/:positionTypeId",
-//   ["positionTypeId"]
-// );
+// View/Edit
+export const SecurityPermissionSetsViewRoute = defineSubRoute(
+  SecurityPermissionSetsRoute,
+  "/:permissionSetId",
+  ["permissionSetId"]
+);
 
-// export const PositionTypeViewLoader = asyncComponent({
-//   resolve: async () => {
-//     const PositionTypeViewPage = (await import("ui/pages/position-type/view"))
-//       .PositionTypeViewPage;
-//     return PositionTypeViewPage;
-//   },
-//   name: "PositionTypeViewPage",
-// });
+export const SecurityPermissionSetsViewLoader = asyncComponent({
+  resolve: async () => {
+    const SecurityPermissionSetsViewPage = (
+      await import("ui/pages/security-permission-sets/view")
+    ).PermissionSetViewPage;
+    return SecurityPermissionSetsViewPage;
+  },
+  name: "SecurityPermissionSetsViewPage",
+});

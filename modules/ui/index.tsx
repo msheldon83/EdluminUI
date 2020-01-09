@@ -127,6 +127,8 @@ import {
   SecurityPermissionSetsRoute,
   SecurityPermissionSetsAddLoader,
   SecurityPermissionSetsAddRoute,
+  SecurityPermissionSetsViewLoader,
+  SecurityPermissionSetsViewRoute,
 } from "./routes/security/permission-sets";
 import {
   SecurityUsersLoader,
@@ -446,6 +448,10 @@ export function App() {
                         <Route
                           component={SecurityPermissionSetsAddLoader}
                           path={SecurityPermissionSetsAddRoute.path}
+                        />
+                        <Route
+                          component={SecurityPermissionSetsViewLoader}
+                          path={SecurityPermissionSetsViewRoute.path}
                         />
                         <Route
                           component={SecurityPermissionSetsLoader}

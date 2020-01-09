@@ -7,7 +7,10 @@ import { Column } from "material-table";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
-import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
+import {
+  SecurityPermissionSetsRoute,
+  SecurityPermissionSetsViewRoute,
+} from "ui/routes/security/permission-sets";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllPermissionSetsWithinOrg } from "./graphql/get-all-permission-sets.gen";
 import { useIsMobile } from "hooks";
@@ -82,9 +85,9 @@ export const PermissionSetUI: React.FC<Props> = props => {
             if (!permissionSet) return;
             const newParams = {
               ...params,
-              permissionSet: permissionSet.id,
+              permissionSetId: permissionSet.id,
             };
-            //history.push(NEW_ROUTE_HERE.generate(newParams)); TODO: Create Route for Permission Set View
+            history.push(SecurityPermissionSetsViewRoute.generate(newParams));
           }}
         />
       </Section>

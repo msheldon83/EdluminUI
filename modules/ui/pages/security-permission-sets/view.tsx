@@ -1,267 +1,256 @@
-// import { Grid, makeStyles, Typography } from "@material-ui/core";
-// import { useMutationBundle, useQueryBundle } from "graphql/hooks";
-// import Maybe from "graphql/tsutils/Maybe";
-// import { useIsMobile } from "hooks";
-// import * as React from "react";
-// import { useState } from "react";
-// import { useTranslation } from "react-i18next";
-// import { Redirect, useHistory } from "react-router";
-// import { getDisplayName } from "ui/components/enumHelpers";
-// import { boolToDisplay, minutesToHours } from "ui/components/helpers";
-// import { PageHeader } from "ui/components/page-header";
-// import { PageTitle } from "ui/components/page-title";
-// import { Section } from "ui/components/section";
-// import { SectionHeader } from "ui/components/section-header";
-// import { Link } from "react-router-dom";
-// import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
-// import { useRouteParams } from "ui/routes/definition";
-// import {
-//   PositionTypeEditSettingsRoute,
-//   PositionTypeRoute,
-//   PositionTypeViewRoute,
-// } from "ui/routes/position-type";
-// import * as yup from "yup";
-// import { DeletePostionType } from "./graphql/DeletePositionType.gen";
-// import { UpdatePositionType } from "./graphql/update-position-type.gen";
-// import { GetAllPositionTypesWithinOrg } from "./graphql/position-types.gen";
+import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import Maybe from "graphql/tsutils/Maybe";
+import { useIsMobile } from "hooks";
+import * as React from "react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Redirect, useHistory } from "react-router";
+import { PageHeader } from "ui/components/page-header";
+import { PageTitle } from "ui/components/page-title";
+import { Link } from "react-router-dom";
+import { useRouteParams } from "ui/routes/definition";
+import * as yup from "yup";
+import { GetPermissionSetById } from "./graphql/get-permission-set-byId.gen";
+import { DeletePermissionSet } from "./graphql/delete-permission-set.gen";
+import { UpdatePermissionSet } from "./graphql/update.gen";
+import {
+  PermissionCategoryIdentifierInput,
+  OrgUserRole,
+} from "graphql/server-types.gen";
+import {
+  SecurityPermissionSetsViewRoute,
+  SecurityPermissionSetsRoute,
+} from "ui/routes/security/permission-sets";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
+import { PermissionSettings } from "./components/add-edit-permission-settings";
+import { usePermissionDefinitions } from "reference-data/permission-definitions";
+import { pick } from "lodash-es";
 
-// const editableSections = {
-//   name: "edit-name",
-//   externalId: "edit-external-id",
-// };
+const editableSections = {
+  name: "edit-name",
+  externalId: "edit-external-id",
+  description: "edit-description",
+};
 
-// export const PositionTypeViewPage: React.FC<{}> = props => {
-//   const classes = useStyles();
-//   const { t } = useTranslation();
-//   const isMobile = useIsMobile();
-//   const history = useHistory();
-//   const params = useRouteParams(PositionTypeViewRoute);
-//   const [editing, setEditing] = useState<string | null>(null);
-//   const [enabled, setEnabled] = useState<boolean | null>(null);
+export const PermissionSetViewPage: React.FC<{}> = props => {
+  const classes = useStyles();
+  const { t } = useTranslation();
+  const isMobile = useIsMobile();
+  const history = useHistory();
+  const { openSnackbar } = useSnackbar();
+  const params = useRouteParams(SecurityPermissionSetsViewRoute);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [role, setRole] = useState<OrgUserRole | undefined>(undefined);
+  const permissionDefinitions = usePermissionDefinitions(role);
 
-//   const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType);
-//   const deletePositionType = React.useCallback(async () => {
-//     await deletePositionTypeMutation({
-//       variables: {
-//         positionTypeId: Number(params.positionTypeId),
-//       },
-//       awaitRefetchQueries: true,
-//       refetchQueries: ["GetAllPositionTypesWithinOrg"],
-//     });
-//     history.push(PositionTypeRoute.generate(params));
-//   }, [deletePositionTypeMutation, history, params]);
+  const [deletePermissionSetMutation] = useMutationBundle(DeletePermissionSet, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const deletePermissionSet = React.useCallback(async () => {
+    await deletePermissionSetMutation({
+      variables: {
+        permissionSetId: Number(params.permissionSetId),
+      },
+      awaitRefetchQueries: true,
+      refetchQueries: ["GetAllPermissionSetsWithinOrg"],
+    });
+    history.push(SecurityPermissionSetsRoute.generate(params));
+  }, [deletePermissionSetMutation, history, params]);
 
-//   const [updatePositionType] = useMutationBundle(UpdatePositionType);
-//   const enableDisablePositionType = React.useCallback(
-//     (enabled: boolean, rowVersion: string) => {
-//       return updatePositionType({
-//         variables: {
-//           positionType: {
-//             id: Number(params.positionTypeId),
-//             rowVersion: rowVersion,
-//             expired: !enabled,
-//           },
-//         },
-//       });
-//     },
-//     [updatePositionType, params]
-//   );
+  const [updatePermissionSet] = useMutationBundle(UpdatePermissionSet, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
-//   const getPositionType = useQueryBundle(GetPositionTypeById, {
-//     variables: { id: params.positionTypeId },
-//   });
+  const getPermissionSet = useQueryBundle(GetPermissionSetById, {
+    variables: { id: params.permissionSetId },
+  });
 
-//   if (getPositionType.state === "LOADING") {
-//     return <></>;
-//   }
+  if (getPermissionSet.state === "LOADING") {
+    return <></>;
+  }
 
-//   const positionType = getPositionType?.data?.positionType?.byId;
-//   if (!positionType) {
-//     // Redirect the User back to the List page
-//     const listUrl = PositionTypeRoute.generate(params);
-//     return <Redirect to={listUrl} />;
-//   }
+  const permissionSet = getPermissionSet?.data?.permissionSet?.byId;
+  if (!permissionSet) {
+    // Redirect the User back to the List page
+    const listUrl = SecurityPermissionSetsRoute.generate(params);
+    return <Redirect to={listUrl} />;
+  }
+  // Set the role so we can get the appropriate permission definitions
+  // to display the Permission Categories UI
+  if (role === undefined) {
+    setRole(permissionSet.orgUserRole ?? undefined);
+  }
 
-//   if (enabled === null) {
-//     setEnabled(!positionType.expired);
-//   }
+  const updateName = async (name: string) => {
+    await updatePermissionSet({
+      variables: {
+        permissionSet: {
+          id: Number(permissionSet.id),
+          rowVersion: permissionSet.rowVersion,
+          name,
+        },
+      },
+    });
+  };
 
-//   const updateName = async (name: string) => {
-//     await updatePositionType({
-//       variables: {
-//         positionType: {
-//           id: Number(positionType.id),
-//           rowVersion: positionType.rowVersion,
-//           name,
-//         },
-//       },
-//     });
-//   };
+  const updateExternalId = async (externalId?: string | null) => {
+    await updatePermissionSet({
+      variables: {
+        permissionSet: {
+          id: Number(permissionSet.id),
+          rowVersion: permissionSet.rowVersion,
+          externalId,
+        },
+      },
+    });
+  };
 
-//   const updateExternalId = async (externalId?: string | null) => {
-//     await updatePositionType({
-//       variables: {
-//         positionType: {
-//           id: Number(positionType.id),
-//           rowVersion: positionType.rowVersion,
-//           externalId,
-//         },
-//       },
-//     });
-//   };
+  const updateDescription = async (description?: string | null) => {
+    await updatePermissionSet({
+      variables: {
+        permissionSet: {
+          id: Number(permissionSet.id),
+          rowVersion: permissionSet.rowVersion,
+          description,
+        },
+      },
+    });
+  };
 
-//   return (
-//     <>
-//       <div className={classes.linkPadding}>
-//         <Link to={PositionTypeRoute.generate(params)} className={classes.link}>
-//           {t("Return to all position types")}
-//         </Link>
-//       </div>
-//       <PageTitle title={t("Position Type")} withoutHeading={!isMobile} />
-//       <PageHeader
-//         text={positionType.name}
-//         label={t("Name")}
-//         editable={editing === null}
-//         onEdit={() => setEditing(editableSections.name)}
-//         validationSchema={yup.object().shape({
-//           value: yup.string().required(t("Name is required")),
-//         })}
-//         onSubmit={async (value: Maybe<string>) => {
-//           await updateName(value!);
-//           setEditing(null);
-//         }}
-//         onCancel={() => setEditing(null)}
-//         actions={[
-//           {
-//             name: t("Change History"),
-//             onClick: () => {},
-//           },
-//           {
-//             name: enabled ? t("Inactivate") : t("Activate"),
-//             onClick: async () => {
-//               await enableDisablePositionType(
-//                 !enabled,
-//                 positionType.rowVersion
-//               );
-//               setEnabled(!enabled);
-//             },
-//           },
-//           {
-//             name: t("Delete"),
-//             onClick: deletePositionType,
-//           },
-//         ]}
-//         isInactive={!enabled}
-//         inactiveDisplayText={t("This position is currently inactive.")}
-//         onActivate={async () => {
-//           await enableDisablePositionType(true, positionType.rowVersion);
-//           setEnabled(true);
-//         }}
-//       />
-//       <PageHeader
-//         text={positionType.externalId}
-//         label={t("External ID")}
-//         editable={editing === null}
-//         onEdit={() => setEditing(editableSections.externalId)}
-//         validationSchema={yup.object().shape({
-//           value: yup.string().nullable(),
-//         })}
-//         onSubmit={async (value: Maybe<string>) => {
-//           await updateExternalId(value);
-//           setEditing(null);
-//         }}
-//         onCancel={() => setEditing(null)}
-//         isSubHeader={true}
-//         showLabel={true}
-//       />
+  const updateCategories = async (
+    categories: PermissionCategoryIdentifierInput[]
+  ) => {
+    // The server adds a "__typename" property to every object.
+    // Since we're using the Categories defined on the PermissionSet
+    // to seed the UI, we need to remove that extra property before
+    // sending back to the server.
+    const filteredCategoryObjects = categories.map(c => {
+      return {
+        id: c.id,
+        settings: !c.settings
+          ? []
+          : c.settings.map(s => {
+              return {
+                id: s!.id,
+                levelId: s!.levelId,
+              };
+            }),
+      };
+    });
+    await updatePermissionSet({
+      variables: {
+        permissionSet: {
+          id: Number(permissionSet.id),
+          rowVersion: permissionSet.rowVersion,
+          categories: filteredCategoryObjects,
+        },
+      },
+    });
+  };
 
-//       <Section>
-//         <SectionHeader
-//           title={t("Settings")}
-//           action={{
-//             text: t("Edit"),
-//             visible: !editing,
-//             execute: () => {
-//               const editSettingsUrl = PositionTypeEditSettingsRoute.generate(
-//                 params
-//               );
-//               history.push(editSettingsUrl);
-//             },
-//           }}
-//         />
-//         <Grid container spacing={2}>
-//           <Grid item xs={12} sm={6} lg={6}>
-//             <Typography variant="h6">{t("Use for employees")}</Typography>
-//             <div>{boolToDisplay(t, positionType.forPermanentPositions)}</div>
-//           </Grid>
-//           <Grid item xs={12} sm={6} lg={6}>
-//             <Typography variant="h6">
-//               {t("Needs substitute (default)")}
-//             </Typography>
-//             <div>
-//               {positionType.needsReplacement &&
-//                 getDisplayName(
-//                   "needsReplacement",
-//                   positionType.needsReplacement.toString(),
-//                   t
-//                 )}
-//             </div>
-//           </Grid>
-//           <Grid item xs={12} sm={6} lg={6}>
-//             <Typography variant="h6">{t("Use for vacancies")}</Typography>
-//             <div>{boolToDisplay(t, positionType.forStaffAugmentation)}</div>
-//           </Grid>
-//           <Grid item xs={12} sm={6} lg={6}>
-//             <Typography variant="h6">
-//               {t("Minimum absence duration")}
-//             </Typography>
-//             <div>
-//               {`${minutesToHours(
-//                 positionType.minAbsenceDurationMinutes,
-//                 2
-//               )} hour(s)`}
-//             </div>
-//           </Grid>
-//           <Grid item xs={12} sm={6} lg={6}>
-//             <Typography variant="h6">{t("Default Contract")}</Typography>
-//             <div>
-//               {positionType.defaultContract ? (
-//                 positionType.defaultContract.name
-//               ) : (
-//                 <span className={classes.valueMissing}>
-//                   {t("Not Specified")}
-//                 </span>
-//               )}
-//             </div>
-//           </Grid>
-//           <Grid item xs={12} sm={6} lg={6}>
-//             <Typography variant="h6">{t("Pay Type")}</Typography>
-//             <div>
-//               {getDisplayName(
-//                 "payTypeId",
-//                 positionType.payTypeId?.toString() ?? "",
-//                 t
-//               )}
-//             </div>
-//           </Grid>
-//         </Grid>
-//       </Section>
-//     </>
-//   );
-// };
+  return (
+    <>
+      <PageTitle title={t("Permission Set")} withoutHeading={!isMobile} />
+      <div className={classes.headerLink}>
+        <div>
+          <Typography variant="h5">{t("Permissions for")}</Typography>
+        </div>
+        <div className={classes.linkPadding}>
+          <Link
+            to={SecurityPermissionSetsRoute.generate(params)}
+            className={classes.link}
+          >
+            {t("Return to all permission sets")}
+          </Link>
+        </div>
+      </div>
+      <PageHeader
+        text={permissionSet.name}
+        label={t("Name")}
+        editable={editing === null}
+        onEdit={() => setEditing(editableSections.name)}
+        validationSchema={yup.object().shape({
+          value: yup.string().required(t("Name is required")),
+        })}
+        onSubmit={async (value: Maybe<string>) => {
+          await updateName(value!);
+          setEditing(null);
+        }}
+        onCancel={() => setEditing(null)}
+        actions={[
+          {
+            name: t("Change History"),
+            onClick: () => {},
+          },
+          {
+            name: t("Delete"),
+            onClick: deletePermissionSet,
+          },
+        ]}
+      />
+      <PageHeader
+        text={permissionSet.externalId}
+        label={t("External ID")}
+        editable={editing === null}
+        onEdit={() => setEditing(editableSections.externalId)}
+        validationSchema={yup.object().shape({
+          value: yup.string().nullable(),
+        })}
+        onSubmit={async (value: Maybe<string>) => {
+          await updateExternalId(value);
+          setEditing(null);
+        }}
+        onCancel={() => setEditing(null)}
+        isSubHeader={true}
+        showLabel={true}
+      />
+      <PageHeader
+        text={permissionSet.description}
+        label={t("Description")}
+        editable={editing === null}
+        onEdit={() => setEditing(editableSections.description)}
+        validationSchema={yup.object().shape({
+          value: yup.string().nullable(),
+        })}
+        onSubmit={async (value: Maybe<string>) => {
+          await updateDescription(value);
+          setEditing(null);
+        }}
+        onCancel={() => setEditing(null)}
+        isSubHeader={true}
+        showLabel={true}
+      />
 
-// const useStyles = makeStyles(theme => ({
-//   valueMissing: {
-//     opacity: "0.6",
-//     filter: "alpha(opacity = 60)",
-//   },
-//   link: {
-//     color: theme.customColors.blue,
-//     "&:visited": {
-//       color: theme.customColors.blue,
-//     },
-//   },
-//   linkPadding: {
-//     padding: "10px 0px 15px 10px",
-//   },
-// }));
+      <PermissionSettings
+        orgId={params.organizationId}
+        permissionDefinitions={permissionDefinitions}
+        permissionSetCategories={permissionSet.categories}
+        onChange={async categories => {
+          await updateCategories(categories);
+        }}
+      />
+    </>
+  );
+};
+
+const useStyles = makeStyles(theme => ({
+  headerLink: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
+  },
+  linkPadding: {
+    paddingRight: theme.spacing(2),
+  },
+}));
