@@ -8,7 +8,6 @@ import { LocationsRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationsUI } from "./ui";
 import { useState } from "react";
-import { LocationSearch } from "./components/location-search";
 
 type Props = {};
 
@@ -16,6 +15,7 @@ export const Locations: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [locationGroupFilter, setLocationGroupsFilter] = useState<number[]>([]);
+  const [searchText, setSearchText] = useState<string | undefined>();
   const params = useRouteParams(LocationsRoute);
 
   console.log(locationGroupFilter);
@@ -36,19 +36,22 @@ export const Locations: React.FC<Props> = props => {
             //component={Link}
             //to={ROUTE_GOES_HERE.generate(params)} Generate correct Route for ADD
           >
-            {t("Add Permission Set")}
+            {t("Add School")}
           </Button>
         </Grid>
       </Grid>
       <Section>
-        <LocationSearch orgId={params.organizationId} />
         <Filters
           locationGroupFilter={locationGroupFilter}
           setLocationGroupsFilter={setLocationGroupsFilter}
+          setSearchText={setSearchText}
           orgId={params.organizationId}
         />
       </Section>
-      <LocationsUI locationGroupFilter={locationGroupFilter} />
+      <LocationsUI
+        locationGroupFilter={locationGroupFilter}
+        searchText={searchText}
+      />
     </>
   );
 };

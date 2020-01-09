@@ -1,15 +1,18 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
+import { Input } from "ui/components/form/input";
 import { OptionType, Select } from "ui/components/form/select";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import { useLocationGroups } from "reference-data/location-groups";
+import { useDeferredState } from "hooks";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationsRoute } from "ui/routes/locations";
 
 type Props = {
   orgId: string;
   locationGroupFilter: number[];
+  setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
   setLocationGroupsFilter: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
@@ -17,6 +20,22 @@ export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const params = useRouteParams(LocationsRoute);
+
+  const [
+    searchText,
+    pendingSearchText,
+    setPendingSearchText,
+  ] = useDeferredState<string | undefined>(undefined, 200);
+  useEffect(() => {
+    props.setSearchText(searchText);
+  }, [searchText]);
+
+  const updateSearchText = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setPendingSearchText(event.target.value);
+    },
+    [setPendingSearchText]
+  );
 
   const locationGroups = useLocationGroups(params.organizationId);
   const locationGroupOptions = useMemo(() => {
@@ -26,13 +45,15 @@ export const Filters: React.FC<Props> = props => {
     return options;
   }, [locationGroups]);
 
-  const selectedValue = locationGroupOptions.find(
-    e =>
-      ((e.label && props.locationGroupFilter.includes(Number(e.value))) ===
-        undefined ||
-        null) ??
-      locationGroupOptions.find(e => e.value === "0")
+  console.log(props.locationGroupFilter);
+
+  const selectedValue = locationGroupOptions.find(e =>
+    props.locationGroupFilter.length === 0
+      ? locationGroupOptions.find(e => e.value === "0")
+      : e.label && props.locationGroupFilter.includes(Number(e.value))
   );
+
+  //console.log(selectedValue);
 
   const onChangeGroup = useCallback(
     value => {
@@ -54,6 +75,15 @@ export const Filters: React.FC<Props> = props => {
         spacing={2}
         className={classes.filters}
       >
+        <Grid item xs={12} sm={6} md={3} lg={3}>
+          <Input
+            label={t("Name or ID")}
+            value={pendingSearchText}
+            onChange={updateSearchText}
+            placeholder={t("Filter by name or ID")}
+            className={classes.label}
+          />
+        </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <InputLabel className={classes.label}>{t("Group")}</InputLabel>
           <Select

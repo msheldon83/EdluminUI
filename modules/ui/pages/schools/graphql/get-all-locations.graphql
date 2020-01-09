@@ -1,6 +1,14 @@
-query GetAllLocationsWithinOrg($orgId: ID, $locationGroups: [Int]) {
+query GetAllLocationsWithinOrg(
+  $orgId: ID
+  $locationGroups: [Int]
+  $searchText: String
+) {
   location {
-    all(orgId: $orgId, locationGroups: $locationGroups) {
+    all(
+      orgId: $orgId
+      locationGroups: $locationGroups
+      searchText: $searchText
+    ) {
       id
       name
       externalId

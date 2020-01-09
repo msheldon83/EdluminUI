@@ -13,6 +13,7 @@ import { useIsMobile } from "hooks";
 
 type Props = {
   locationGroupFilter: number[];
+  searchText?: string;
   olderAction?: () => void;
 };
 
@@ -26,6 +27,7 @@ export const LocationsUI: React.FC<Props> = props => {
     variables: {
       orgId: params.organizationId,
       locationGroups: props.locationGroupFilter,
+      searchText: props.searchText,
     },
   });
 
