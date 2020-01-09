@@ -22,8 +22,6 @@ type RenderComponent = (props: RouteComponentProps<any>) => React.ReactNode;
 export const AdminOrgRoute: React.FC<AdminOrgRouteProps> = props => {
   const { component: Component, ...rest } = props;
   const params = useRouteParams(AdminChromeRoute);
-
-  //const params = useRouteParams(AdminChromeRoute);
   const userAccess = useMyUserAccess();
   if (!userAccess) {
     return <></>;
