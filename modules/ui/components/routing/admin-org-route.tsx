@@ -6,39 +6,42 @@ import { AdminChromeRoute } from "ui/routes/app-chrome";
 
 // Copied from https://stackoverflow.com/a/52366872 and tweaked
 
-interface PrivateRouteProps extends RouteProps {
+interface AdminOrgRouteProps extends RouteProps {
   component?:
     | React.ComponentType<RouteComponentProps<any>>
     | React.ComponentType<any>;
 }
 type RenderComponent = (props: RouteComponentProps<any>) => React.ReactNode;
 
-export class AdminOrgRoute extends Route<PrivateRouteProps> {
-  render() {
-    const { component: Component, ...rest }: PrivateRouteProps = this.props;
-    const params = useRouteParams(AdminChromeRoute);
-    const userAccess = useMyUserAccess();
-    if (!userAccess) {
-      return <></>;
-    }
+export const AdminOrgRoute: React.FC<AdminOrgRouteProps> = props => {
+  const { component: Component, ...rest } = props;
+  const params = useRouteParams(AdminChromeRoute);
 
-    // Check that the User is an Admin in the current Org
-    const orgUsers = userAccess.user?.orgUsers ?? [];
-    const matchingOrgUser = orgUsers.find(
-      ou => ou?.orgId === Number(params.organizationId)
-    );
-    const hasAccess = !!matchingOrgUser?.isAdmin;
-
-    // TODO: If they don't have Admin access to this Org, redirect them to the No Access page
-    if (!hasAccess) {
-      return <></>;
-    }
-
-    if (!Component) {
-      return <Route {...rest}>{this.props.children}</Route>;
-    }
-
-    const renderComponent: RenderComponent = props => <Component {...props} />;
-    return <Route {...rest} render={renderComponent} />;
+  //const params = useRouteParams(AdminChromeRoute);
+  const userAccess = useMyUserAccess();
+  if (!userAccess) {
+    return <></>;
   }
-}
+
+  //const organizationId = props.location.
+
+  // Check that the User is an Admin in the current Org
+  const orgUsers = userAccess.user?.orgUsers ?? [];
+  const matchingOrgUser = orgUsers.find(
+    ou => ou?.orgId === Number(params.organizationId)
+  );
+  const hasAccess =
+    userAccess.isSystemAdministrator || !!matchingOrgUser?.isAdmin;
+
+  // TODO: If they don't have Admin access to this Org, redirect them to the No Access page
+  if (!hasAccess) {
+    return <></>;
+  }
+
+  if (!Component) {
+    return <Route {...rest}>{props.children}</Route>;
+  }
+
+  const renderComponent: RenderComponent = props => <Component {...props} />;
+  return <Route {...rest} render={renderComponent} />;
+};
