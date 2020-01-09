@@ -23,8 +23,6 @@ export const AdminOrgRoute: React.FC<AdminOrgRouteProps> = props => {
     return <></>;
   }
 
-  //const organizationId = props.location.
-
   // Check that the User is an Admin in the current Org
   const orgUsers = userAccess.user?.orgUsers ?? [];
   const matchingOrgUser = orgUsers.find(
