@@ -1,0 +1,17 @@
+query GetMyUserAccess {
+  userAccess {
+    me {
+      isSystemAdministrator
+      user {
+        id
+        orgUsers {
+          id
+          isAdmin
+          isEmployee
+          isReplacementEmployee
+          orgId
+        }
+      }
+    }
+  }
+}
