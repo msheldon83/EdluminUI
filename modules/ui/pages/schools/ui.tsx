@@ -6,10 +6,11 @@ import { Column } from "material-table";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
-import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
+import { LocationsRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllLocationsWithinOrg } from "./graphql/get-all-locations.gen";
 import { useIsMobile } from "hooks";
+import { PaginationControls } from "ui/components/pagination-controls";
 
 type Props = {
   locationGroupFilter: number[];
@@ -21,7 +22,7 @@ export const LocationsUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const isMobile = useIsMobile();
-  const params = useRouteParams(SecurityPermissionSetsRoute);
+  const params = useRouteParams(LocationsRoute);
 
   const getLocations = useQueryBundle(GetAllLocationsWithinOrg, {
     variables: {
