@@ -244,6 +244,8 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
 
                         setSelectedFromDate(startDateAsDate);
                         setFieldValue("fromDate", startDateAsDate);
+                        setSelectedToDate(startDateAsDate);
+                        setFieldValue("toDate", startDateAsDate);
                       }}
                       startLabel={t("From")}
                     />
