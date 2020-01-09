@@ -1,0 +1,20 @@
+mutation CreatePermissionSet($permissionSet: PermissionSetCreateInput!) {
+  permissionSet {
+    create(permissionSet: $permissionSet) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      orgUserRole
+      permissionSet
+      categories {
+        id
+        settings {
+          id
+          levelId
+        }
+      }
+    }
+  }
+}

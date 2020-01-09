@@ -1,6 +1,10 @@
-query GetAllPermissionSetsWithinOrg($orgId: ID, $roles: [OrgUserRole]) {
+query GetAllPermissionSetsWithinOrg(
+  $orgId: ID
+  $roles: [OrgUserRole]
+  $searchText: String
+) {
   permissionSet {
-    all(orgId: $orgId, roles: $roles) {
+    all(orgId: $orgId, roles: $roles, searchText: $searchText) {
       id
       name
       rowVersion
