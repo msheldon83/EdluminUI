@@ -28,7 +28,7 @@ import { DatePicker } from "ui/components/form/date-picker";
 import { useContracts } from "reference-data/contracts";
 import { useMemo } from "react";
 import { OptionTypeBase } from "react-select/src/types";
-import { parseISO } from "date-fns";
+import { parseISO, format } from "date-fns";
 import { CreateCalendarChange } from "../graphql/create-calendar-change.gen";
 import { CalendarChangeCreateInput } from "graphql/server-types.gen";
 import { ShowErrors } from "ui/components/error-helpers";
@@ -43,7 +43,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
-  const today = useMemo(() => new Date(), []);
+  const today = useMemo(() => format(new Date(), "MMM d, yyyy").toString(), []);
 
   const getCalendarChangeReasons: any = useQueryBundle(
     GetAllCalendarChangeReasonsWithinOrg,
@@ -239,13 +239,11 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       onChange={({ startDate }) => {
                         const startDateAsDate =
                           typeof startDate === "string"
-                            ? parseISO(startDate)
-                            : startDate;
+                            ? startDate
+                            : format(startDate, "MMM d, yyyy").toString();
 
-                        if (startDateAsDate) {
-                          setSelectedFromDate(startDateAsDate);
-                          setFieldValue("fromDate", startDateAsDate);
-                        }
+                        setSelectedFromDate(startDateAsDate);
+                        setFieldValue("fromDate", startDateAsDate);
                       }}
                       startLabel={t("From")}
                     />
@@ -257,13 +255,11 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       onChange={({ startDate }) => {
                         const startDateAsDate =
                           typeof startDate === "string"
-                            ? parseISO(startDate)
-                            : startDate;
+                            ? startDate
+                            : format(startDate, "MMM d, yyyy").toString();
 
-                        if (startDateAsDate) {
-                          setSelectedToDate(startDateAsDate);
-                          setFieldValue("toDate", startDateAsDate);
-                        }
+                        setSelectedToDate(startDateAsDate);
+                        setFieldValue("toDate", startDateAsDate);
                       }}
                       startLabel={t("To")}
                     />
