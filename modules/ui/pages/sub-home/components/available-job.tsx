@@ -1,7 +1,6 @@
 import {
   Button,
   Fade,
-  Grid,
   IconButton,
   makeStyles,
   Popper,
@@ -16,7 +15,6 @@ import { Vacancy } from "graphql/server-types.gen";
 import { formatIsoDateIfPossible } from "helpers/date";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
 import { parseDayPortion } from "ui/components/helpers";
 import { AvailableJobDetail } from "./available-job-detail";
 import { DayIcon } from "ui/components/day-icon";
@@ -56,6 +54,7 @@ export const AvailableJob: React.FC<Props> = props => {
 
   const hasDetails = vacancy.details!.length > 1;
   const acceptButtonDisabled = hasDetails && !expanded;
+  const showDetails = (expanded || props.forSingleJob) && hasDetails;
 
   const startDate = parseISO(vacancy.startDate);
   const endDate = parseISO(vacancy.endDate);
@@ -115,104 +114,105 @@ export const AvailableJob: React.FC<Props> = props => {
   };
 
   return (
-    <>
+    <div onClick={() => setExpanded(!expanded)}>
       <div
         className={[
-          classes.container,
-          props.shadeRow ? classes.shadedRow : undefined,
+          classes.detailContainer,
+          props.shadeRow ? classes.shadedRow : "",
         ].join(" ")}
-        onClick={() => setExpanded(!expanded)}
       >
-        <div
-          className={[
-            classes.infoContainer,
-            isMobile ? classes.mobile : "",
-          ].join(" ")}
-        >
-          <div className={classes.dateContainer}>
-            {isMobile ? (
-              <Typography variant="h6">{`${vacancyDates}, ${vacancyDaysOfWeek}`}</Typography>
-            ) : (
-              <>
-                <Typography variant="h6">{vacancyDates}</Typography>
-                <Typography className={classes.lightText}>
-                  {vacancyDaysOfWeek}
-                </Typography>
-              </>
-            )}
+        <div className={classes.container}>
+          <div
+            className={[
+              classes.infoContainer,
+              isMobile ? classes.mobile : "",
+            ].join(" ")}
+          >
+            <div className={classes.dateContainer}>
+              {isMobile ? (
+                <Typography variant="h6">{`${vacancyDates}, ${vacancyDaysOfWeek}`}</Typography>
+              ) : (
+                <>
+                  <Typography variant="h6">{vacancyDates}</Typography>
+                  <Typography className={classes.lightText}>
+                    {vacancyDaysOfWeek}
+                  </Typography>
+                </>
+              )}
+            </div>
+
+            <div className={classes.location}>
+              <Typography className={classes.text}>
+                {locationNameText ?? t("Unknown")}
+              </Typography>
+              <Typography className={classes.lightText}>
+                {vacancy.organization.name}
+              </Typography>
+            </div>
+
+            <div className={classes.position}>
+              <Typography className={classes.text}>
+                {vacancy.position!.name}
+              </Typography>
+              <Typography className={classes.lightText}>{`for ${
+                vacancy.absence!.employee!.firstName
+              } ${vacancy.absence!.employee!.lastName}`}</Typography>
+            </div>
+
+            <div className={classes.dayPartContainer}>
+              <DayIcon
+                dayPortion={vacancy.totalDayPortion}
+                startTime={vacancy.startTimeLocal}
+              />
+              <div className={classes.dayPart}>
+                <Typography className={classes.text}>{`${Math.round(
+                  vacancy.totalDayPortion
+                )} ${parseDayPortion(t, vacancy.totalDayPortion)}`}</Typography>
+                <Typography
+                  className={classes.lightText}
+                >{`${formatIsoDateIfPossible(
+                  vacancy.startTimeLocal,
+                  "h:mm aaa"
+                )} - ${formatIsoDateIfPossible(
+                  vacancy.endTimeLocal,
+                  "h:mm aaa"
+                )}`}</Typography>
+              </div>
+            </div>
           </div>
 
-          <div className={classes.location}>
-            <Typography className={classes.text}>
-              {locationNameText ?? t("Unknown")}
-            </Typography>
-            <Typography className={classes.lightText}>
-              {vacancy.organization.name}
-            </Typography>
-          </div>
+          <div className={classes.actionContainer}>
+            <div className={classes.actionItem}>
+              {vacancy.notesToReplacement &&
+                renderNotesPopper(vacancy.notesToReplacement)}
+            </div>
 
-          <div className={classes.position}>
-            <Typography className={classes.text}>
-              {vacancy.position!.name}
-            </Typography>
-            <Typography className={classes.lightText}>{`for ${
-              vacancy.absence!.employee!.firstName
-            } ${vacancy.absence!.employee!.lastName}`}</Typography>
-          </div>
-
-          <div className={classes.dayPartContainer}>
-            <DayIcon
-              dayPortion={vacancy.totalDayPortion}
-              startTime={vacancy.startTimeLocal}
-            />
-            <div className={classes.dayPart}>
-              <Typography className={classes.text}>{`${Math.round(
-                vacancy.totalDayPortion
-              )} ${parseDayPortion(t, vacancy.totalDayPortion)}`}</Typography>
-              <Typography
-                className={classes.lightText}
-              >{`${formatIsoDateIfPossible(
-                vacancy.startTimeLocal,
-                "h:mm aaa"
-              )} - ${formatIsoDateIfPossible(
-                vacancy.endTimeLocal,
-                "h:mm aaa"
-              )}`}</Typography>
+            <div className={classes.actionItem}>
+              {
+                <Button
+                  onClick={() => handleDismiss()}
+                  className={classes.lightUnderlineText}
+                >
+                  {t("Dismiss")}
+                </Button>
+              }
+            </div>
+            <div className={classes.actionItem}>
+              <Button
+                variant="outlined"
+                disabled={acceptButtonDisabled}
+                onClick={() =>
+                  props.onAccept(vacancy.organization.id, vacancy.id)
+                }
+              >
+                {t("Accept")}
+              </Button>
             </div>
           </div>
         </div>
 
-        <div className={classes.actionContainer}>
-          <div className={classes.actionItem}>
-            {vacancy.notesToReplacement &&
-              renderNotesPopper(vacancy.notesToReplacement)}
-          </div>
-
-          <div className={classes.actionItem}>
-            {
-              <Button
-                onClick={() => handleDismiss()}
-                className={classes.lightUnderlineText}
-              >
-                {t("Dismiss")}
-              </Button>
-            }
-          </div>
-          <div className={classes.actionItem}>
-            <Button
-              variant="outlined"
-              disabled={acceptButtonDisabled}
-              onClick={() =>
-                props.onAccept(vacancy.organization.id, vacancy.id)
-              }
-            >
-              {t("Accept")}
-            </Button>
-          </div>
-        </div>
-
-        {(expanded || props.forSingleJob) && hasDetails && (
-          <>
+        {showDetails && (
+          <div className={classes.detailContainer}>
             {vacancy.details!.map((detail, index) => (
               <AvailableJobDetail
                 locationName={detail!.location!.name}
@@ -223,7 +223,7 @@ export const AvailableJob: React.FC<Props> = props => {
                 key={index}
               />
             ))}
-          </>
+          </div>
         )}
       </div>
       {!props.forSingleJob && hasDetails && (
@@ -232,7 +232,7 @@ export const AvailableJob: React.FC<Props> = props => {
           className={classes.noBorder}
         />
       )}
-    </>
+    </div>
   );
 };
 
@@ -292,6 +292,11 @@ export const useStyles = makeStyles(theme => ({
     width: "100%",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  detailContainer: {
+    display: "flex",
+    width: "100%",
+    flexDirection: "column",
   },
   mobile: {
     flexDirection: "column",
