@@ -1,6 +1,7 @@
 import * as React from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
+import {useTheme} from '@material-ui/core';
 import useAutocomplete from "@material-ui/lab/useAutocomplete";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import Chip from "@material-ui/core/Chip";
@@ -31,8 +32,11 @@ export type OptionType = {
   value: string | number;
 };
 
+const TAG_CHIP_CONTAINER_HEIGHT = 36
+
 export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   const classes = useStyles();
+  const theme = useTheme();
 
   const {
     label,
@@ -51,6 +55,9 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
   const [showAllChips, setShowAllChips] = React.useState(false);
   const [hasOverflow, setHasOverFlow] = React.useState(false);
+  const [tallEnoughForOverflow, setTallEnoughForOverflow] = React.useState(
+    false
+  );
   const [listOpen, setListOpen] = React.useState(false);
 
   // Reference to all the multiple values display
@@ -75,8 +82,12 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
     const elementHasOverflow = element.offsetHeight < element.scrollHeight;
 
+    const offsetHeight =  theme.typography.pxToRem(element.offsetHeight)
+    const triggerHeight = theme.typography.pxToRem(TAG_CHIP_CONTAINER_HEIGHT)
+
+    setTallEnoughForOverflow(offsetHeight > triggerHeight);
     setHasOverFlow(elementHasOverflow);
-  }, [value, showAllChips]);
+  }, [value, showAllChips, theme.typography]);
 
   const {
     getRootProps,
@@ -112,15 +123,23 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     [classes.showAllSelectedChips]: showAllChips,
   });
 
+  const containerClasses = clsx({
+    [classes.selectContainer]: true,
+    [classes.selectContainerDisabled]: disabled,
+  });
+
+  const {
+    onBlur: autocompoleteOnBlur,
+    onFocus: autoCompleteonFocus,
+    ...autocompleteInputProps
+  } = getInputProps() as any;
+
   return (
-    <div
-      className={classes.selectContainer}
-      {...(disabled ? {} : getRootProps())}
-    >
+    <div className={containerClasses} {...(disabled ? {} : getRootProps())}>
       <div className={classes.inputContainer}>
         <div className={classes.dropdownContainer}>
           <Input
-            {...(disabled ? {} : getInputProps())}
+            {...autocompleteInputProps}
             disabled={disabled}
             label={label}
             name={name}
@@ -129,7 +148,6 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             classes={{
               notchedOutline: inputClasses,
             }}
-            onKeyUp={() => setListOpen(false)}
             endAdornment={
               <ArrowDropDownIcon
                 onClick={e => {
@@ -141,10 +159,12 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             }
             onFocus={e => {
               onFocus(e);
+              autoCompleteonFocus(e);
               setListOpen(true);
             }}
             onBlur={e => {
               onBlur(e);
+              autocompoleteOnBlur(e);
               setListOpen(false);
             }}
             onClick={() => setListOpen(true)}
@@ -207,11 +227,18 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             </TextButton>
           )}
 
-          {value && Array.isArray(value) && value.length > 0 && showAllChips && (
-            <TextButton color="primary" onClick={() => setShowAllChips(false)}>
-              View less
-            </TextButton>
-          )}
+          {value &&
+            Array.isArray(value) &&
+            value.length > 0 &&
+            showAllChips &&
+            tallEnoughForOverflow && (
+              <TextButton
+                color="primary"
+                onClick={() => setShowAllChips(false)}
+              >
+                View less
+              </TextButton>
+            )}
         </div>
       )}
     </div>
@@ -221,6 +248,10 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 const useStyles = makeStyles(theme => ({
   selectContainer: {
     position: "relative",
+  },
+  selectContainerDisabled: {
+    pointerEvents: "none",
+    cursor: "not-allowed",
   },
   inputContainer: {
     cursor: "text",

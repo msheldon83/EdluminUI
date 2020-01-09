@@ -1,20 +1,36 @@
+import { isValid, parseISO } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
-import { NeedsReplacement } from "graphql/server-types.gen";
-import { compact, map } from "lodash-es";
+import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
+import { useQueryParams } from "hooks/query-params";
+import { includes, values } from "lodash-es";
 import * as React from "react";
+import { useMemo } from "react";
+import { useGetEmployee } from "reference-data/employee";
 import { useIsAdmin } from "reference-data/is-admin";
-import {
-  FindEmployeeForCurrentUser,
-  FindEmployeeForCurrentUserQuery,
-} from "./graphql/find-employee-for-current-user.gen";
+import { FindEmployeeForCurrentUser } from "./graphql/find-employee-for-current-user.gen";
 import { CreateAbsenceUI } from "./ui";
 
 type Props = {};
 
 export const EmployeeCreateAbsence: React.FC<Props> = props => {
+  const [defaultOptions] = useQueryParams({
+    dates: "",
+    absenceReason: "",
+    dayPart: "",
+    needsReplacement: "",
+    start: "",
+    end: "",
+  });
+  const initialData = useMemo(() => parseOptions(defaultOptions), [
+    defaultOptions,
+  ]);
+
   const potentialEmployees = useQueryBundle(FindEmployeeForCurrentUser, {
     fetchPolicy: "cache-first",
   });
+
+  const employee = useGetEmployee();
+
   const userIsAdmin = useIsAdmin();
   if (
     (potentialEmployees.state !== "DONE" &&
@@ -24,13 +40,13 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
     return <></>;
   }
 
-  const employee = findEmployee(potentialEmployees.data);
   if (!employee) {
     throw new Error("The user is not an employee");
   }
 
   return (
     <CreateAbsenceUI
+      {...initialData}
       firstName={employee.firstName}
       lastName={employee.lastName}
       employeeId={employee.id}
@@ -46,8 +62,46 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
   );
 };
 
-const findEmployee = (data: FindEmployeeForCurrentUserQuery) => {
-  const orgUsers = data.userAccess?.me?.user?.orgUsers ?? [];
-  const emps = compact(map(orgUsers, u => u?.employee));
-  return emps[0];
-};
+function parseOptions(opts: {
+  dates: string;
+  absenceReason: string;
+  dayPart: string;
+  needsReplacement: string;
+  start: string;
+  end: string;
+}) {
+  let initialDates: Date[] | undefined;
+  let initialAbsenceReason: string | undefined;
+  let initialDayPart: DayPart | undefined;
+  let initialStartHour: Date | undefined;
+  let initialEndHour: Date | undefined;
+  if (includes(values(DayPart), opts.dayPart.toUpperCase())) {
+    initialDayPart = opts.dayPart as DayPart;
+  }
+  const initialNeedsReplacement: boolean | undefined = ({
+    true: true,
+    false: false,
+  } as Record<string, boolean>)[opts.needsReplacement];
+  try {
+    initialDates = opts.dates
+      .split(",")
+      .map(d => parseISO(d))
+      .filter(isValid);
+    if (initialDates.length <= 0) initialDates = undefined;
+    if (opts.absenceReason !== "") {
+      initialAbsenceReason = opts.absenceReason;
+    }
+    initialStartHour = parseISO(opts.start);
+    if (!isValid(initialStartHour)) initialStartHour = undefined;
+    initialEndHour = parseISO(opts.end);
+    if (!isValid(initialEndHour)) initialEndHour = undefined;
+  } catch (e) {}
+  return {
+    initialDates,
+    initialAbsenceReason,
+    initialDayPart,
+    initialStartHour,
+    initialEndHour,
+    initialNeedsReplacement,
+  };
+}

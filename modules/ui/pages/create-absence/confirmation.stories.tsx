@@ -293,6 +293,7 @@ const getAbsence = (
     };
   }
 
+  console.log("absence", absence);
   return absence;
 };
 
@@ -317,6 +318,10 @@ export const AsAdminWithAllInformation = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
+        }),
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
         }),
@@ -330,8 +335,6 @@ export const AsAdminWithAllInformation = () => {
         <Confirmation
           orgId={"1000"}
           absence={getAbsence("1", true, true)}
-          disabledDates={disabledDates}
-          setStep={() => {}}
           isAdmin={true}
         />
       </Route>
@@ -346,8 +349,13 @@ export const AsAdminWithSimpleAbsence = () => {
   });
   const Provider = mockProvider({
     initialUrl: path,
+    logMissingMocks: true,
     mocks: {
       Query: () => ({
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
+        }),
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
         }),
@@ -361,8 +369,6 @@ export const AsAdminWithSimpleAbsence = () => {
         <Confirmation
           orgId={"1000"}
           absence={getAbsence("1", true, false)}
-          setStep={() => {}}
-          disabledDates={disabledDates}
           isAdmin={true}
         />
       </Route>
@@ -379,6 +385,10 @@ export const AsAdminWithMinimumInformation = () => {
     initialUrl: path,
     mocks: {
       Query: () => ({
+        employee: () => ({
+          employeeContractSchedule: () => [],
+          employeeAbsenceSchedule: () => [],
+        }),
         orgRef_AbsenceReason: () => ({
           all: () => allAbsenceReasons,
         }),
@@ -392,8 +402,6 @@ export const AsAdminWithMinimumInformation = () => {
         <Confirmation
           orgId={"1000"}
           absence={getAbsence("2", false, false)}
-          disabledDates={disabledDates}
-          setStep={() => {}}
           isAdmin={true}
         />
       </Route>

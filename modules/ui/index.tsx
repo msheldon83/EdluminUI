@@ -62,6 +62,8 @@ import {
   EmployeeCreateAbsenceLoader,
   EmployeeCreateAbsenceRoute,
   SelectEmployeeForCreateAbsenceLoader,
+  CreateAbsenceConfirmationLoader,
+  CreateAbsenceConfirmationRoute,
 } from "./routes/create-absence";
 import {
   AdminEditAbsenceLoader,
@@ -168,6 +170,7 @@ import {
   EmployeePtoBalanceRoute,
   EmployeePtoBalanceLoader,
 } from "./routes/employee-pto-balances";
+import { SubSignInRoute, SubSignInLoader } from "ui/routes/sub-sign-in";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -189,6 +192,14 @@ export function App() {
                 <RedirectToLogin />
               </IfAuthenticated>
             </Route>
+            <Route path={SubSignInRoute.path}>
+              <IfAuthenticated>
+                <Route component={SubSignInLoader} path={SubSignInRoute.path} />
+              </IfAuthenticated>
+              <IfAuthenticated not>
+                <RedirectToLogin />
+              </IfAuthenticated>
+            </Route>
             <Route path={AppChromeRoute.path}>
               <IfAuthenticated>
                 <AppChrome>
@@ -199,6 +210,10 @@ export function App() {
                     <Route
                       component={EmployeeCreateAbsenceLoader}
                       path={EmployeeCreateAbsenceRoute.path}
+                    />
+                    <Route
+                      component={CreateAbsenceConfirmationLoader}
+                      path={CreateAbsenceConfirmationRoute.path}
                     />
                     <Route path={EmployeeEditAbsenceRoute.path}>
                       <AdminEditAbsenceLoader actingAsEmployee />
@@ -310,7 +325,6 @@ export function App() {
                           component={PeopleLoader}
                           path={PeopleRoute.path}
                         />
-
                         <Route
                           component={ConfigurationLoader}
                           path={ConfigurationRoute.path}

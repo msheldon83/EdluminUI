@@ -5,6 +5,7 @@ query GetEmployeeForCurrentUser {
         id
         orgUsers {
           id
+          isEmployee
           employee {
             id
             orgId

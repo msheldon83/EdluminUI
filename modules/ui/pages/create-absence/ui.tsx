@@ -4,6 +4,7 @@ import {
   format,
   isBefore,
   isSameDay,
+  min,
   startOfDay,
   startOfMonth,
 } from "date-fns";
@@ -30,7 +31,11 @@ import * as React from "react";
 import { useCallback, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
-import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
+import {
+  TranslateAbsenceErrorCodeToMessage,
+  createAbsenceDetailInput,
+  getAbsenceDates,
+} from "ui/components/absence/helpers";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -56,6 +61,12 @@ type Props = {
   positionId?: string;
   positionName?: string;
   locationIds?: number[];
+  initialAbsenceReason?: string;
+  initialDates?: Date[];
+  initialDayPart?: DayPart;
+  initialStartHour?: Date;
+  initialEndHour?: Date;
+  initialNeedsReplacement?: boolean;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -81,7 +92,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     [dispatch]
   );
   const initialFormData: CreateAbsenceFormData = {
-    absenceReason: "",
+    absenceReason: props.initialAbsenceReason || "",
+    dayPart: props.initialDayPart,
+    hourlyStartTime: props.initialStartHour,
+    hourlyEndTime: props.initialEndHour,
   };
 
   const {
@@ -374,7 +388,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             orgId={props.organizationId}
             absence={absence}
             setStep={setStep}
-            disabledDates={disabledDates}
             isAdmin={props.userIsAdmin}
           />
         )}
@@ -405,13 +418,22 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const initialState = (props: Props): CreateAbsenceState => ({
-  employeeId: props.employeeId,
-  organizationId: props.organizationId,
-  viewingCalendarMonth: startOfMonth(new Date()),
-  needsReplacement: props.needsReplacement !== NeedsReplacement.No,
-  absenceDates: [startOfDay(new Date())],
-});
+const initialState = (props: Props): CreateAbsenceState => {
+  const needsReplacement =
+    props.initialNeedsReplacement === undefined
+      ? props.needsReplacement !== NeedsReplacement.No
+      : props.initialNeedsReplacement;
+  let absenceDates = props.initialDates || [];
+  if (absenceDates.length < 1) absenceDates = [startOfDay(new Date())];
+  const viewingCalendarMonth = startOfMonth(min(absenceDates));
+  return {
+    employeeId: props.employeeId,
+    organizationId: props.organizationId,
+    viewingCalendarMonth,
+    needsReplacement,
+    absenceDates,
+  };
+};
 
 export type CreateAbsenceFormData = {
   absenceReason: string;
@@ -437,21 +459,15 @@ export const buildAbsenceCreateInput = (
   needsReplacement: boolean,
   vacancyDetails?: VacancyDetail[]
 ): AbsenceCreateInput | null => {
-  if (
-    isEmpty(absenceDates) ||
-    !formValues.absenceReason ||
-    !formValues.dayPart
-  ) {
+  if (!formValues.absenceReason || !formValues.dayPart) {
     return null;
   }
-
-  const dates = differenceWith(absenceDates, disabledDates, (a, b) =>
-    isSameDay(a, b.date)
+  const dates = getAbsenceDates(
+    absenceDates,
+    disabledDates.map(d => d.date)
   );
 
-  if (!dates.length) {
-    return null;
-  }
+  if (!dates) return null;
 
   // Must have a start and end time if Hourly
   if (
@@ -467,27 +483,13 @@ export const buildAbsenceCreateInput = (
     orgId: organizationId,
     employeeId: employeeId,
     notesToApprover: formValues.notesToApprover,
-    details: dates.map(d => {
-      let detail: AbsenceDetailCreateInput = {
-        date: format(d, "P"),
-        dayPartId: formValues.dayPart,
-        reasons: [{ absenceReasonId: Number(formValues.absenceReason) }],
-      };
-
-      if (formValues.dayPart === DayPart.Hourly) {
-        detail = {
-          ...detail,
-          startTime: secondsSinceMidnight(
-            parseTimeFromString(format(formValues.hourlyStartTime!, "h:mm a"))
-          ),
-          endTime: secondsSinceMidnight(
-            parseTimeFromString(format(formValues.hourlyEndTime!, "h:mm a"))
-          ),
-        };
-      }
-
-      return detail;
-    }),
+    details: createAbsenceDetailInput(
+      dates,
+      formValues.absenceReason,
+      formValues.dayPart,
+      formValues.hourlyStartTime,
+      formValues.hourlyEndTime
+    ),
   };
 
   const vDetails =

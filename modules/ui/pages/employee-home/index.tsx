@@ -1,29 +1,21 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
-import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { PageTitle } from "ui/components/page-title";
-import { ScheduledAbsences } from "../../components/employee/components/scheduled-absences";
 import { Grid, Typography } from "@material-ui/core";
-import { QuickAbsenceCreate } from "./components/quick-absence-create";
-import { ScheduleCalendar } from "./components/schedule-calendar";
+import { makeStyles } from "@material-ui/styles";
+import { addDays, isAfter, parseISO, startOfDay, startOfWeek } from "date-fns";
+import {
+  HookQueryResult,
+  useMutationBundle,
+  useQueryBundle,
+} from "graphql/hooks";
+import { CalendarDayType } from "graphql/server-types.gen";
+import { useIsMobile } from "hooks";
+import { useSnackbar } from "hooks/use-snackbar";
+import * as React from "react";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { useGetEmployee } from "reference-data/employee";
-import { useQueryBundle, HookQueryResult } from "graphql/hooks";
-import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
-import { DayPart, Absence, CalendarDayType } from "graphql/server-types.gen";
-import {
-  parseISO,
-  format,
-  startOfWeek,
-  isAfter,
-  addDays,
-  startOfDay,
-} from "date-fns";
-import { useSnackbar } from "hooks/use-snackbar";
-import { useMutationBundle } from "graphql/hooks";
 import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
-import { useMemo } from "react";
+import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
 import {
   GetEmployeeContractSchedule,
   GetEmployeeContractScheduleQuery,
@@ -31,7 +23,11 @@ import {
 } from "ui/components/employee/graphql/get-employee-contract-schedule.gen";
 import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
 import { EmployeeAbsenceDetail } from "ui/components/employee/types";
+import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
+import { ScheduledAbsences } from "../../components/employee/components/scheduled-absences";
+import { QuickAbsenceCreate } from "./components/quick-absence-create";
+import { ScheduleCalendar } from "./components/schedule-calendar";
 
 type Props = {};
 
@@ -121,7 +117,13 @@ export const EmployeeHome: React.FC<Props> = props => {
       </Typography>
       <Grid container spacing={2} className={classes.content}>
         <Grid item md={6} xs={12}>
-          <QuickAbsenceCreate />
+          <QuickAbsenceCreate
+            employeeId={employee!.id}
+            organizationId={employee!.orgId.toString()}
+            defaultReplacementNeeded={
+              employee?.primaryPosition?.needsReplacement
+            }
+          />
         </Grid>
         <Grid item md={6} xs={12}>
           <ScheduleCalendar

@@ -75,13 +75,15 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   const [deleteWorkDayScheduleMutation] = useMutationBundle(
     DeleteWorkDaySchedule
   );
-  const deleteWorkDaySchedule = React.useCallback(() => {
-    history.push(BellScheduleRoute.generate(params));
-    return deleteWorkDayScheduleMutation({
+  const deleteWorkDaySchedule = React.useCallback(async () => {
+    await deleteWorkDayScheduleMutation({
       variables: {
         workDayScheduleId: Number(params.workDayScheduleId),
       },
+      awaitRefetchQueries: true,
+      refetchQueries: ["GetAllWorkDaySchedulesWithinOrg"],
     });
+    history.push(BellScheduleRoute.generate(params));
   }, [deleteWorkDayScheduleMutation, history, params]);
 
   const [updateWorkDaySchedule] = useMutationBundle(UpdateWorkDaySchedule, {
