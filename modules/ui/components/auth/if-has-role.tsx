@@ -12,7 +12,7 @@ export const IfHasRole: React.FC<{
     return <></>;
   }
 
-  if (userAccess.isSystemAdministrator && !!props.not) {
+  if (userAccess.isSystemAdministrator && !props.not) {
     return <>{props.children}</>;
   }
 
