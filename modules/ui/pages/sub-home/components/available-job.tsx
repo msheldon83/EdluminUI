@@ -42,9 +42,9 @@ type Props = {
 };
 
 export const AvailableJob: React.FC<Props> = props => {
-  const classes = useStyles();
-  const { t } = useTranslation();
   const isMobile = useIsMobile();
+  const classes = useStyles({ isMobile });
+  const { t } = useTranslation();
   const [expanded, setExpanded] = React.useState(false);
   const [notesAnchor, setNotesAnchor] = React.useState<null | HTMLElement>(
     null
@@ -81,6 +81,7 @@ export const AvailableJob: React.FC<Props> = props => {
       : locationNames[0];
 
   const handleShowNotes = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
     setNotesAnchor(notesAnchor ? null : event.currentTarget);
   };
   const notesOpen = Boolean(notesAnchor);
@@ -122,12 +123,7 @@ export const AvailableJob: React.FC<Props> = props => {
         ].join(" ")}
       >
         <div className={classes.container}>
-          <div
-            className={[
-              classes.infoContainer,
-              isMobile ? classes.mobile : "",
-            ].join(" ")}
-          >
+          <div className={classes.infoContainer}>
             <div className={classes.dateContainer}>
               {isMobile ? (
                 <Typography variant="h6">{`${vacancyDates}, ${vacancyDaysOfWeek}`}</Typography>
@@ -182,20 +178,18 @@ export const AvailableJob: React.FC<Props> = props => {
           </div>
 
           <div className={classes.actionContainer}>
-            <div className={classes.actionItem}>
+            <div className={classes.notes}>
               {vacancy.notesToReplacement &&
                 renderNotesPopper(vacancy.notesToReplacement)}
             </div>
 
             <div className={classes.actionItem}>
-              {
-                <Button
-                  onClick={() => handleDismiss()}
-                  className={classes.lightUnderlineText}
-                >
-                  {t("Dismiss")}
-                </Button>
-              }
+              <Button
+                onClick={() => handleDismiss()}
+                className={classes.lightUnderlineText}
+              >
+                {t("Dismiss")}
+              </Button>
             </div>
             <div className={classes.actionItem}>
               <Button
@@ -236,6 +230,7 @@ export const AvailableJob: React.FC<Props> = props => {
   );
 };
 
+type StyleProps = { isMobile: boolean };
 export const useStyles = makeStyles(theme => ({
   noBorder: { border: "none" },
   paper: {
@@ -243,9 +238,7 @@ export const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
     backgroundColor: theme.palette.background.paper,
   },
-  wrapper: {
-    position: "relative",
-  },
+
   text: {
     fontSize: theme.typography.pxToRem(14),
   },
@@ -256,11 +249,6 @@ export const useStyles = makeStyles(theme => ({
   lightUnderlineText: {
     fontSize: theme.typography.pxToRem(14),
     color: theme.customColors.edluminSubText,
-    textDecoration: "underline",
-  },
-  lightBlueUnderlineText: {
-    fontSize: theme.typography.pxToRem(14),
-    color: theme.customColors.blue,
     textDecoration: "underline",
   },
 
@@ -274,33 +262,29 @@ export const useStyles = makeStyles(theme => ({
     }`,
   },
 
-  infoContainer: {
-    display: "flex",
-    width: "100%",
-    // justifyContent: "space-between",
-    flex: 3,
-  },
-  actionContainer: {
-    display: "flex",
-    width: "100%",
-    // justifyContent: "space-between",
-    flex: 1,
-  },
-  container: {
+  container: (props: StyleProps) => ({
     padding: theme.spacing(2),
     display: "flex",
-    width: "100%",
-    alignItems: "center",
+    alignItems: props.isMobile ? "stretch" : "center",
     justifyContent: "space-between",
-  },
+  }),
+  infoContainer: (props: StyleProps) => ({
+    display: "flex",
+    justifyContent: "space-between",
+    flex: 3,
+    flexDirection: props.isMobile ? ("column" as "column") : ("row" as "row"),
+  }),
+
+  actionContainer: (props: StyleProps) => ({
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+    flex: 1,
+    flexDirection: props.isMobile ? ("column" as "column") : ("row" as "row"),
+  }),
   detailContainer: {
     display: "flex",
-    width: "100%",
     flexDirection: "column",
-  },
-  mobile: {
-    flexDirection: "column",
-    alignItems: "flex-start",
   },
   dateContainer: {
     flex: 4,
@@ -324,7 +308,9 @@ export const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(),
   },
   actionItem: {
-    display: "flex",
     flex: 2,
+  },
+  notes: {
+    flex: 1,
   },
 }));

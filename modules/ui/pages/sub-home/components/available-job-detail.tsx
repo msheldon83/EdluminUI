@@ -1,4 +1,4 @@
-import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import { formatIsoDateIfPossible } from "helpers/date";
 import * as React from "react";
 import { DetailDayPartDisplay } from "ui/components/substitutes/detail-day-part-display";
