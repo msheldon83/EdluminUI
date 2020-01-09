@@ -1,6 +1,6 @@
 import { useField, useFormikContext } from "formik";
 import * as React from "react";
-import { Props as SelectProps, Select } from "ui/components/form/select";
+import { Props as SelectProps, SelectNew } from "ui/components/form/select-new";
 
 type Props = Required<Pick<SelectProps, "options" | "name" | "isClearable">>;
 
@@ -9,7 +9,7 @@ export const FormikSelect: React.FC<Props> = props => {
   const { setFieldValue } = useFormikContext<any>();
 
   return (
-    <Select
+    <SelectNew
       {...field}
       {...props}
       value={{

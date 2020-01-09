@@ -4,7 +4,7 @@ import * as React from "react";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useEndorsements } from "reference-data/endorsements";
-import { OptionType, Select } from "ui/components/form/select";
+import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import {
@@ -41,13 +41,13 @@ export const ReplacementEmployeeFilters: React.FC<Props> = props => {
   return (
     <Grid item md={3}>
       <InputLabel className={classes.label}>{t("Attributes")}</InputLabel>
-      <Select
+      <SelectNew
         onChange={onChange}
         options={endorsementOptions}
         value={endorsementOptions.filter(
           e => e.value && props.endorsements.includes(Number(e.value))
         )}
-        multi
+        multiple
       />
     </Grid>
   );

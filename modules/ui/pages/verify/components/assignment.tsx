@@ -16,7 +16,7 @@ import clsx from "clsx";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { Input } from "ui/components/form/input";
-import { Select, SelectValueType, OptionType } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { OptionTypeBase } from "react-select/src/types";
 import { getDisplayName } from "ui/components/enumHelpers";
@@ -415,11 +415,11 @@ export const Assignment: React.FC<Props> = props => {
                 >
                   <Grid item xs={2}></Grid>
                   <Grid item xs={2}>
-                    <Select
+                    <SelectNew
                       value={dayConversionOptions.find(
                         a => a.label === selectedDayConversionName
                       )}
-                      onChange={async (e: SelectValueType) => {
+                      onChange={async (e: OptionType) => {
                         //TODO: Once the select component is updated,
                         // can remove the Array checking
                         let selectedLabel: string | undefined = undefined;
@@ -439,7 +439,6 @@ export const Assignment: React.FC<Props> = props => {
                         );
                       }}
                       options={dayConversionOptions}
-                      isClearable={false}
                     />
                   </Grid>
                   <Grid item xs={2}>
@@ -480,7 +479,7 @@ export const Assignment: React.FC<Props> = props => {
                     )}
                   </Grid>
                   <Grid item xs={2}>
-                    <Select
+                    <SelectNew
                       value={{
                         value: values.payCodeId,
                         label:
@@ -488,7 +487,7 @@ export const Assignment: React.FC<Props> = props => {
                             a => a.value === values.payCodeId
                           )?.label || "",
                       }}
-                      onChange={(e: SelectValueType) => {
+                      onChange={(e: OptionType) => {
                         //TODO: Once the select component is updated,
                         // can remove the Array checking
                         let selectedValue = null;
@@ -503,12 +502,11 @@ export const Assignment: React.FC<Props> = props => {
                         setFieldValue("payCodeId", selectedValue);
                       }}
                       options={props.payCodeOptions}
-                      isClearable={!!values.payCodeId}
                       onBlur={() => handlePayCodeOnBlur(values.payCodeId)}
                     />
                   </Grid>
                   <Grid item xs={2}>
-                    <Select
+                    <SelectNew
                       value={{
                         value: values.accountingCodeId,
                         label:
@@ -516,7 +514,7 @@ export const Assignment: React.FC<Props> = props => {
                             a => a.value === values.accountingCodeId
                           )?.label || "",
                       }}
-                      onChange={(e: SelectValueType) => {
+                      onChange={(e: OptionType) => {
                         //TODO: Once the select component is updated,
                         // can remove the Array checking
                         let selectedValue = null;

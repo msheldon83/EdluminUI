@@ -27,7 +27,7 @@ import { PeopleGridItem } from "./people-grid-item";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { Input } from "ui/components/form/input";
-import { Select, SelectValueType } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
@@ -208,7 +208,7 @@ export const Information: React.FC<Props> = props => {
                       description={
                         props.editing === editableSections.information &&
                         !props.isSuperUser ? (
-                          <Select
+                          <SelectNew
                             value={permissionSetOptions.filter(
                               e => e.value && values.permissionSetId
                             )}
@@ -217,7 +217,6 @@ export const Information: React.FC<Props> = props => {
                               setFieldValue("permissionSetId", id);
                             }}
                             options={permissionSetOptions}
-                            isClearable={false}
                           />
                         ) : (
                           permissions
@@ -296,7 +295,7 @@ export const Information: React.FC<Props> = props => {
                             </Grid>
                             <Grid item xs={6}>
                               <div>{t("State")}</div>
-                              <Select
+                              <SelectNew
                                 value={{
                                   value: values.state,
                                   label:
@@ -304,7 +303,7 @@ export const Information: React.FC<Props> = props => {
                                       a => a.value === values.state
                                     )?.label || "",
                                 }}
-                                onChange={(e: SelectValueType) => {
+                                onChange={(e: OptionType) => {
                                   //TODO: Once the select component is updated,
                                   // can remove the Array checking
                                   let selectedValue = null;
@@ -321,7 +320,6 @@ export const Information: React.FC<Props> = props => {
                                   setFieldValue("state", selectedValue);
                                 }}
                                 options={stateOptions}
-                                isClearable={!!values.state}
                               />
                             </Grid>
                             <Grid item xs={6}>

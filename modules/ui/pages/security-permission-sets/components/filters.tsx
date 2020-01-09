@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
-import { Select } from "ui/components/form/select";
+import { SelectNew } from "ui/components/form/select-new";
 import { useCallback, useMemo } from "react";
 import { OrgUserRole } from "graphql/server-types.gen";
 
@@ -51,8 +51,7 @@ export const Filters: React.FC<Props> = props => {
       >
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <InputLabel className={classes.label}>{t("Role")}</InputLabel>
-          <Select
-            isClearable={false}
+          <SelectNew
             onChange={onChangeRoles}
             options={roleOptions}
             value={selectedValue}

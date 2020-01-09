@@ -18,7 +18,7 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select";
-import { Select, SelectValueType } from "ui/components/form/select";
+import { SelectNew, SelectValueType } from "ui/components/form/select-new";
 
 type Props = {
   showQualifiedAndAvailable: boolean;
@@ -121,17 +121,15 @@ export const AssignSubFilters: React.FC<Props> = props => {
                   <InputLabel className={classes.label}>
                     {t("Qualified")}
                   </InputLabel>
-                  <Select
+                  <SelectNew
                     value={qualifiedOptions.find((o: any) => {
                       const optionsMap = qualifiedOptionsMap.find(
                         m => m.search === searchFilter.qualified
                       );
                       return o.value === optionsMap?.optionValue;
                     })}
-                    label=""
                     disabled={!!searchFilter?.name}
                     options={qualifiedOptions}
-                    isClearable={false}
                     onChange={(e: SelectValueType) => {
                       let selectedValue: string | null = null;
                       if (e) {
@@ -162,17 +160,15 @@ export const AssignSubFilters: React.FC<Props> = props => {
                   <InputLabel className={classes.label}>
                     {t("Available")}
                   </InputLabel>
-                  <Select
+                  <SelectNew
                     value={availableOptions.find((o: any) => {
                       const optionsMap = availableOptionsMap.find(
                         m => m.search === searchFilter.available
                       );
                       return o.value === optionsMap?.optionValue;
                     })}
-                    label=""
                     disabled={!!searchFilter?.name}
                     options={availableOptions}
-                    isClearable={false}
                     onChange={(e: SelectValueType) => {
                       let selectedValue: string | null = null;
                       if (e) {
@@ -203,16 +199,14 @@ export const AssignSubFilters: React.FC<Props> = props => {
             )}
             <Grid item xs={12} md={2}>
               <InputLabel className={classes.label}>{t("Show")}</InputLabel>
-              <Select
+              <SelectNew
                 value={showOptions.find(
                   (s: any) =>
                     (searchFilter.favoritesOnly && s.value === "true") ||
                     (!searchFilter.favoritesOnly && s.value === "false")
                 )}
-                label=""
                 disabled={!!searchFilter?.name}
                 options={showOptions}
-                isClearable={false}
                 onChange={(e: SelectValueType) => {
                   let selectedValue: string | null = null;
                   if (e) {

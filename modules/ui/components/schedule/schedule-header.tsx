@@ -3,7 +3,7 @@ import { isSameDay, parseISO, isWithinInterval } from "date-fns";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Select } from "ui/components/form/select";
+import { SelectNew } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
 import { GetUserCreateDate } from "../../pages/sub-schedule/graphql/get-user-create-date.gen";
 import { range } from "lodash-es";
@@ -87,8 +87,7 @@ export const ScheduleHeader: React.FC<Props> = props => {
     <div className={classes.selectContainer}>
       <div className={classes.select}>
         {props.view === "list" && <InputLabel>{t("Year")}</InputLabel>}
-        <Select
-          withDropdownIndicator
+        <SelectNew
           onChange={val => {
             const dates = stringToStartAndEndDate(
               (val as typeof schoolYearOptions[0]).value
@@ -109,7 +108,6 @@ export const ScheduleHeader: React.FC<Props> = props => {
               })
             );
           })}
-          isClearable={false}
           options={schoolYearOptions}
         />
       </div>
@@ -121,8 +119,7 @@ export const ScheduleHeader: React.FC<Props> = props => {
           )}
         >
           <InputLabel>{t("From")}</InputLabel>
-          <Select
-            withDropdownIndicator
+          <SelectNew
             onChange={val =>
               val &&
               props.setStartDate(
@@ -132,7 +129,6 @@ export const ScheduleHeader: React.FC<Props> = props => {
             value={listViewFilterOptions.find(o =>
               isSameDay(parseISO(o.value), props.startDate)
             )}
-            isClearable={false}
             options={listViewFilterOptions}
           />
         </div>

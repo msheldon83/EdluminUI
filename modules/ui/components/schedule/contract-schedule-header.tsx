@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Select, SelectValueType } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { OptionTypeBase } from "react-select/src/types";
 import { makeStyles } from "@material-ui/core";
 import { useAllSchoolYears } from "reference-data/school-years";
@@ -49,13 +49,12 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
   return (
     <>
       <div className={classes.select}>
-        <Select
-          withDropdownIndicator
+        <SelectNew
           options={schoolOptions}
           value={schoolOptions.find(
             (s: any) => s.value == props.schoolYearValue
           )}
-          onChange={(e: SelectValueType) => {
+          onChange={(e: OptionType) => {
             let selectedValue: any = null;
             if (e) {
               selectedValue = (e as OptionTypeBase).value;
@@ -64,16 +63,14 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
               schoolYears.find(sy => sy.id === selectedValue.toString())
             );
           }}
-          isClearable={false}
         />
       </div>
 
       <div className={[classes.select, classes.fromSelect].join(" ")}>
-        <Select
-          withDropdownIndicator
+        <SelectNew
           options={contractOptions}
           value={contractValue()}
-          onChange={(e: SelectValueType) => {
+          onChange={(e: OptionType) => {
             let selectedValue: any = null;
             if (e) {
               selectedValue =
@@ -90,7 +87,6 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
               );
             }
           }}
-          isClearable={false}
         />
       </div>
     </>
