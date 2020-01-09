@@ -49,6 +49,9 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
+    onCompleted: data => {
+      history.push(SecurityPermissionSetsRoute.generate(params));
+    },
   });
   const deletePermissionSet = React.useCallback(async () => {
     await deletePermissionSetMutation({
@@ -58,8 +61,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
       awaitRefetchQueries: true,
       refetchQueries: ["GetAllPermissionSetsWithinOrg"],
     });
-    history.push(SecurityPermissionSetsRoute.generate(params));
-  }, [deletePermissionSetMutation, history, params]);
+  }, [deletePermissionSetMutation]);
 
   const [updatePermissionSet] = useMutationBundle(UpdatePermissionSet, {
     onError: error => {

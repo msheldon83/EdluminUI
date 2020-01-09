@@ -15,12 +15,8 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
-import { Input } from "ui/components/form/input";
 import { Select, SelectValueType } from "ui/components/form/select";
-import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
 import { useMemo, useState, useEffect } from "react";
-import Maybe from "graphql/tsutils/Maybe";
 import { ExpandMore } from "@material-ui/icons";
 
 type Props = {
