@@ -118,13 +118,13 @@ export const AvailableJob: React.FC<Props> = props => {
     <div onClick={() => setExpanded(!expanded)}>
       <div
         className={[
-          classes.detailContainer,
+          classes.rowContainer,
           props.shadeRow ? classes.shadedRow : "",
         ].join(" ")}
       >
         <div className={classes.container}>
           <div className={classes.infoContainer}>
-            <div className={classes.dateContainer}>
+            <div className={classes.date}>
               {isMobile ? (
                 <Typography variant="h6">{`${vacancyDates}, ${vacancyDaysOfWeek}`}</Typography>
               ) : (
@@ -206,7 +206,7 @@ export const AvailableJob: React.FC<Props> = props => {
         </div>
 
         {showDetails && (
-          <div className={classes.detailContainer}>
+          <div className={classes.rowContainer}>
             {vacancy.details!.map((detail, index) => (
               <AvailableJobDetail
                 locationName={detail!.location!.name}
@@ -282,17 +282,14 @@ export const useStyles = makeStyles(theme => ({
     flex: 1,
     flexDirection: props.isMobile ? ("column" as "column") : ("row" as "row"),
   }),
-  detailContainer: {
+  rowContainer: {
     display: "flex",
     flexDirection: "column",
   },
-  dateContainer: {
+
+  date: {
     flex: 4,
     padding: `0 ${theme.typography.pxToRem(4)}`,
-  },
-  date: {
-    fontSize: theme.typography.pxToRem(18),
-    fontWeight: 500,
   },
   location: { flex: 11, padding: `0 ${theme.typography.pxToRem(4)}` },
   position: { flex: 7, padding: `0 ${theme.typography.pxToRem(4)}` },
