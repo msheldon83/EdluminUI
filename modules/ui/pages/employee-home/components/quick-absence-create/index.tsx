@@ -27,6 +27,8 @@ import { CreateAbsence } from "ui/pages/create-absence/graphql/create.gen";
 import { CreateAbsenceConfirmationRoute } from "ui/routes/create-absence";
 import { QuickAbsenceCreateUI } from "./quick-create-absence-ui";
 import { quickCreateAbsenceReducer, QuickCreateAbsenceState } from "./state";
+import { useSnackbar } from "hooks/use-snackbar";
+import { size } from "lodash-es";
 
 type QuickCreateAbsenceFormData = {
   absenceReason: string;
@@ -191,6 +193,21 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
   );
 
   const userIsAdmin = useIsAdmin();
+
+  const snackbar = useSnackbar();
+  /* only show the form error once. this prevents it from reappearing as the user edits individual fields */
+  const formErrorShown = React.useRef(false);
+  React.useEffect(() => {
+    if (size(errors) > 0 && !formErrorShown.current) {
+      formErrorShown.current = true;
+      snackbar.openSnackbar({
+        message: t("Some fields are missing or invalid."),
+        autoHideDuration: 5000,
+        dismissable: true,
+        status: "error",
+      });
+    }
+  }, [t, errors, snackbar, formErrorShown]);
 
   return (
     <form

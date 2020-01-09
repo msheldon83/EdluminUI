@@ -103,7 +103,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
   );
 
   const startDate = startOfDay(min(props.absenceDates));
-  /* const endDate = startOfDay(max(props.absenceDates)); */
 
   const onReasonChange = React.useCallback(
     async event => {
