@@ -26,7 +26,14 @@ import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
 import { useDialog } from "hooks/use-dialog";
-import { compact, differenceWith, flatMap, isEmpty, some } from "lodash-es";
+import {
+  compact,
+  differenceWith,
+  flatMap,
+  isEmpty,
+  some,
+  size,
+} from "lodash-es";
 import * as React from "react";
 import { useCallback, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -49,6 +56,7 @@ import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { projectVacancyDetails } from "./project-vacancy-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {
   firstName: string;
@@ -108,6 +116,21 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   } = useForm<CreateAbsenceFormData>({
     defaultValues: initialFormData,
   });
+
+  const snackbar = useSnackbar();
+  /* only show the form error once. this prevents it from reappearing as the user edits individual fields */
+  const formErrorShown = React.useRef(false);
+  React.useEffect(() => {
+    if (size(errors) > 0 && !formErrorShown.current) {
+      formErrorShown.current = true;
+      snackbar.openSnackbar({
+        message: t("Some fields are missing or invalid."),
+        autoHideDuration: 5000,
+        dismissable: true,
+        status: "error",
+      });
+    }
+  }, [t, errors, snackbar, formErrorShown]);
 
   const formValues = getValues();
 
