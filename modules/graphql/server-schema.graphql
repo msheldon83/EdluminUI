@@ -1833,8 +1833,8 @@ type LocationMutations {
 
 type LocationQueries {
   byId(id: ID!): Location
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], locationGroups: [Int]): [Location]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], locationGroups: [Int]): PagedLocation
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String, locationGroups: [Int]): [Location]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String, locationGroups: [Int]): PagedLocation
 }
 
 input LocationUpdateInput {
