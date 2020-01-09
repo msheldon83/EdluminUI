@@ -54,6 +54,9 @@ export const AvailableJob: React.FC<Props> = props => {
 
   const vacancy = props.vacancy;
 
+  const hasDetails = vacancy.details!.length > 1;
+  const acceptButtonDisabled = hasDetails && !expanded;
+
   const startDate = parseISO(vacancy.startDate);
   const endDate = parseISO(vacancy.endDate);
   let vacancyDates = format(startDate, "MMM d");
@@ -116,9 +119,7 @@ export const AvailableJob: React.FC<Props> = props => {
       container
       justify="flex-start"
       alignItems="flex-start"
-      spacing={2}
-      className={props.shadeRow ? classes.shadedRow : classes.nonShadedRow}
-      item
+      className={props.shadeRow ? classes.shadedRow : undefined}
       onClick={() => setExpanded(!expanded)}
     >
       <Grid
@@ -127,8 +128,8 @@ export const AvailableJob: React.FC<Props> = props => {
         direction={isMobile ? "column" : "row"}
         justify="flex-start"
         alignItems={isMobile ? "flex-start" : "center"}
-        spacing={2}
         xs={isMobile ? 10 : 12}
+        className={classes.row}
       >
         <Grid item xs={isMobile ? 12 : 1}>
           {isMobile ? (
@@ -180,6 +181,7 @@ export const AvailableJob: React.FC<Props> = props => {
             </div>
           </div>
         </Grid>
+
         {!props.forSingleJob && !isMobile && (
           <>
             <Grid item xs={1}>
@@ -197,48 +199,77 @@ export const AvailableJob: React.FC<Props> = props => {
               }
             </Grid>
             <Grid item xs={1}>
-              {renderAcceptViewButton(
-                expanded || vacancy.details!.length === 1,
-                props.onAccept,
-                setExpanded,
-                vacancy.organization.id,
-                vacancy.id,
-                t
-              )}
+              <Button
+                variant="outlined"
+                disabled={acceptButtonDisabled}
+                onClick={() =>
+                  props.onAccept(vacancy.organization.id, vacancy.id)
+                }
+              >
+                {t("Accept")}
+              </Button>
             </Grid>
           </>
         )}
       </Grid>
+
       {isMobile && (
-        <>
-          <div className={classes.mobileAccept}>
-            {renderAcceptViewButton(
-              expanded || vacancy.details!.length === 1,
-              props.onAccept,
-              setExpanded,
-              vacancy.organization.id,
-              vacancy.id,
-              t
-            )}
-          </div>
-          {vacancy.notesToReplacement && (
-            <div className={classes.mobileNotes}>
-              {renderNotesPopper(vacancy.notesToReplacement)}
-            </div>
-          )}
-          {!expanded && (
-            <div className={classes.mobileDismiss}>
+        <Grid
+          item
+          container
+          xs={2}
+          direction={"column"}
+          justify="space-between"
+        >
+          <Grid item>
+            {vacancy.notesToReplacement &&
+              renderNotesPopper(vacancy.notesToReplacement)}
+          </Grid>
+          <Grid item>
+            {
               <Button
                 onClick={() => handleDismiss()}
                 className={classes.lightUnderlineText}
               >
                 {t("Dismiss")}
               </Button>
+            }
+          </Grid>
+          <Grid item>
+            <Button
+              variant="outlined"
+              disabled={acceptButtonDisabled}
+              onClick={() =>
+                props.onAccept(vacancy.organization.id, vacancy.id)
+              }
+            >
+              {t("Accept")}
+            </Button>
+          </Grid>
+        </Grid>
+      )}
+      {/* </Grid> */}
+      {/* {isMobile && (
+        <>
+          <div className={classes.mobileAccept}>
+            <Button
+              variant="outlined"
+              disabled={acceptButtonDisabled}
+              onClick={() =>
+                props.onAccept(vacancy.organization.id, vacancy.id)
+              }
+            >
+              {t("Accept")}
+            </Button>
+          </div>
+          {vacancy.notesToReplacement && (
+            <div className={classes.mobileNotes}>
+              {renderNotesPopper(vacancy.notesToReplacement)}
             </div>
           )}
         </>
-      )}
-      {(expanded || props.forSingleJob) && vacancy.details!.length > 1 && (
+      )} */}
+      {(expanded || props.forSingleJob) && hasDetails && (
         <>
           {vacancy.details!.map((detail, index) => (
             <AvailableJobDetail
@@ -252,8 +283,8 @@ export const AvailableJob: React.FC<Props> = props => {
           ))}
         </>
       )}
-      {!props.forSingleJob && expanded && isMobile && (
-        <Grid container justify={"flex-end"} item>
+      {/* {!props.forSingleJob && isMobile && (
+        <Grid container justify="space-between">
           <Grid item>
             <Button
               onClick={() =>
@@ -264,9 +295,21 @@ export const AvailableJob: React.FC<Props> = props => {
               {t("Dismiss")}
             </Button>
           </Grid>
+
+          <Grid item>
+            <Button
+              variant="outlined"
+              disabled={acceptButtonDisabled}
+              onClick={() =>
+                props.onAccept(vacancy.organization.id, vacancy.id)
+              }
+            >
+              {t("Accept")}
+            </Button>
+          </Grid>
         </Grid>
-      )}
-      {!props.forSingleJob && vacancy.details!.length > 1 && (
+      )} */}
+      {!props.forSingleJob && hasDetails && (
         <ExpandOrCollapseIndicator
           isExpanded={expanded}
           className={classes.noBorder}
@@ -276,32 +319,10 @@ export const AvailableJob: React.FC<Props> = props => {
   );
 };
 
-const renderAcceptViewButton = (
-  expanded: boolean,
-  onAccept: (orgId: string, vacancyId: string) => Promise<void>,
-  setExpanded: React.Dispatch<React.SetStateAction<boolean>>,
-  orgId: string,
-  vacancyId: string,
-  t: TFunction
-) => {
-  return (
-    // expanded ? (
-    <Button
-      variant="outlined"
-      disabled={!expanded}
-      onClick={() => onAccept(orgId, vacancyId)}
-    >
-      {t("Accept")}
-    </Button>
-  );
-  // ) : (
-  //   <Button variant="outlined" onClick={() => setExpanded(!expanded)}>
-  //     {t("View")}
-  //   </Button>
-  // );
-};
-
 export const useStyles = makeStyles(theme => ({
+  row: {
+    padding: theme.spacing(2),
+  },
   noBorder: { border: "none" },
   paper: {
     border: "1px solid",
@@ -328,18 +349,9 @@ export const useStyles = makeStyles(theme => ({
     color: theme.customColors.blue,
     textDecoration: "underline",
   },
-  nonShadedRow: {
-    position: "relative",
-    marginBottom: theme.spacing(1),
-    width: "100%",
-    paddingLeft: theme.spacing(1),
-  },
+
   shadedRow: {
     background: theme.customColors.lightGray,
-    position: "relative",
-    marginBottom: theme.spacing(1),
-    width: "100%",
-    paddingLeft: theme.spacing(1),
     borderTop: `${theme.typography.pxToRem(1)} solid ${
       theme.customColors.sectionBorder
     }`,
@@ -358,12 +370,6 @@ export const useStyles = makeStyles(theme => ({
     top: "0",
     right: "0",
     padding: theme.spacing(1),
-  },
-  mobileDismiss: {
-    position: "absolute",
-    bottom: "0",
-    right: "0",
-    padding: "0",
   },
   mobileNotes: {
     position: "absolute",
