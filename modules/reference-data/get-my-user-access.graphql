@@ -10,6 +10,9 @@ query GetMyUserAccess {
           isEmployee
           isReplacementEmployee
           orgId
+          permissionSets {
+            permissionSet
+          }
         }
       }
     }

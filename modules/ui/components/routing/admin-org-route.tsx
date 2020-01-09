@@ -24,12 +24,12 @@ export const AdminOrgRoute: React.FC<AdminOrgRouteProps> = props => {
   }
 
   // Check that the User is an Admin in the current Org
-  const orgUsers = userAccess.user?.orgUsers ?? [];
+  const orgUsers = userAccess.me?.user?.orgUsers ?? [];
   const matchingOrgUser = orgUsers.find(
     ou => ou?.orgId === Number(params.organizationId)
   );
   const hasAccess =
-    userAccess.isSystemAdministrator || !!matchingOrgUser?.isAdmin;
+    userAccess.me?.isSystemAdministrator || !!matchingOrgUser?.isAdmin;
 
   // TODO: If they don't have Admin access to this Org, redirect them to the No Access page
   if (!hasAccess) {
