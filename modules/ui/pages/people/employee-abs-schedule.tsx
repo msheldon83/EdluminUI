@@ -66,5 +66,6 @@ const useStyles = makeStyles(theme => ({
     height: "100vh",
     position: "fixed",
     paddingRight: theme.spacing(3),
+    paddingBottom: theme.spacing(15),
   },
 }));
