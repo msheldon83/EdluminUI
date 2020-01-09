@@ -32,6 +32,10 @@ export const AvailableJobSingleStory = () => {
 
 export const AvailableJobMultipleStory = () => {
   const classes = useStyles();
+  const vacancyWithoutNotes = {
+    ...complexVacancy,
+    notesToReplacement: undefined,
+  };
   return (
     <div className={classes.container}>
       <AvailableJob
@@ -42,7 +46,7 @@ export const AvailableJobMultipleStory = () => {
       />
       {/* to get a sense of how they look in sequence */}
       <AvailableJob
-        vacancy={complexVacancy}
+        vacancy={vacancyWithoutNotes}
         shadeRow={true}
         onDismiss={onDismiss}
         onAccept={onAccept}
