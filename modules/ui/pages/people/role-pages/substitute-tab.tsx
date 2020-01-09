@@ -11,7 +11,6 @@ import { SubstitutePools } from "../components/substitute/substitute-pools";
 import { SubPositionsAttributes } from "../components/substitute/sub-positions-attributes";
 import { OrganizationList } from "../components/substitute/org-list";
 import { Information } from "../components/information";
-import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
 
 import { SubstituteAssignmentsListView } from "ui/components/substitutes/substitute-assignments-list";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";

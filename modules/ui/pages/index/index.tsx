@@ -2,14 +2,14 @@ import { useQueryBundle } from "graphql/hooks";
 import { some } from "lodash-es";
 import * as React from "react";
 import { Redirect } from "react-router-dom";
-import { QueryOrgUserRoles } from "ui/app-chrome/role-switcher/QueryOrgUserRoles.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { AdminRootChromeRoute } from "ui/routes/app-chrome";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { SubHomeRoute } from "ui/routes/sub-home";
 
 export const IndexPage: React.FunctionComponent = props => {
-  const orgUserQuery = useQueryBundle(QueryOrgUserRoles, {
+  const orgUserQuery = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-and-network",
   });
 

@@ -2,7 +2,7 @@ import * as React from "react";
 import { RoleSwitcherUI } from "./role-switcher-ui";
 import { some } from "lodash-es";
 import { useQueryBundle } from "graphql/hooks";
-import { QueryOrgUserRoles } from "ui/app-chrome/role-switcher/QueryOrgUserRoles.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { AppChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
 
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export const RoleSwitcher: React.FC<Props> = props => {
-  const orgUserQuery = useQueryBundle(QueryOrgUserRoles, {
+  const orgUserQuery = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-and-network",
   });
 
