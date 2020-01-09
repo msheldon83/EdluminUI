@@ -176,6 +176,7 @@ import { SubSignInRoute, SubSignInLoader } from "ui/routes/sub-sign-in";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { IfHasRole } from "./components/auth/if-has-role";
 import { AdminOrgRoute } from "./components/routing/admin-org-route";
+import { UnauthorizedRoute, UnauthorizedLoader } from "./routes/unauthorized";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -197,6 +198,11 @@ export function App() {
                 <RedirectToLogin />
               </IfAuthenticated>
             </Route>
+            <Route
+              exact
+              component={UnauthorizedLoader}
+              path={UnauthorizedRoute.path}
+            />
             <Route path={SubSignInRoute.path}>
               <IfAuthenticated>
                 <IfHasRole role={OrgUserRole.Administrator}>
@@ -253,8 +259,7 @@ export function App() {
                         </Switch>
                       </IfHasRole>
                       <IfHasRole role={OrgUserRole.Employee} not>
-                        {/* TODO: Redirect to a page (without navigation or top bar) that generically says you do not have access */}
-                        <div>No Access to Employee pages</div>
+                        <Redirect to={UnauthorizedRoute.generate({})} />
                       </IfHasRole>
                     </Route>
 
@@ -291,8 +296,7 @@ export function App() {
                         </Switch>
                       </IfHasRole>
                       <IfHasRole role={OrgUserRole.ReplacementEmployee} not>
-                        {/* TODO: Redirect to a page (without navigation or top bar) that generically says you do not have access */}
-                        <div>No Access to Substitute pages</div>
+                        <Redirect to={UnauthorizedRoute.generate({})} />
                       </IfHasRole>
                     </Route>
 
@@ -522,8 +526,7 @@ export function App() {
                         </Switch>
                       </IfHasRole>
                       <IfHasRole role={OrgUserRole.Administrator} not>
-                        {/* TODO: Redirect to a page (without navigation or top bar) that generically says you do not have access */}
-                        <div>No Access to Admin pages</div>
+                        <Redirect to={UnauthorizedRoute.generate({})} />
                       </IfHasRole>
                     </Route>
                   </Switch>
