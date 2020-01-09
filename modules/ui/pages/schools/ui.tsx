@@ -46,7 +46,7 @@ export const LocationsUI: React.FC<Props> = props => {
       hidden: isMobile,
     },
     {
-      title: t("Externl Id"),
+      title: t("External Id"),
       field: "externalId",
       searchable: false,
       hidden: isMobile,
