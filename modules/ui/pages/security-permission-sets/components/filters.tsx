@@ -2,18 +2,29 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
 import { Select } from "ui/components/form/select";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import { OrgUserRole } from "graphql/server-types.gen";
+import { useDeferredState } from "hooks";
+import { Input } from "ui/components/form/input";
 
 type Props = {
   orgId: string;
   rolesFilter: OrgUserRole[];
   setRolesFilter: React.Dispatch<React.SetStateAction<OrgUserRole[]>>;
+  setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const [
+    searchText,
+    pendingSearchText,
+    setPendingSearchText,
+  ] = useDeferredState<string | undefined>(undefined, 200);
+  useEffect(() => {
+    props.setSearchText(searchText);
+  }, [searchText]);
 
   const roleOptions = useMemo(
     () => [
@@ -25,9 +36,9 @@ export const Filters: React.FC<Props> = props => {
     []
   );
 
-  const selectedValue = roleOptions.find(
-    e => e.label && props.rolesFilter.includes(e.id)
-  ) ?? roleOptions.find(e => e.id === OrgUserRole.Invalid);
+  const selectedValue =
+    roleOptions.find(e => e.label && props.rolesFilter.includes(e.id)) ??
+    roleOptions.find(e => e.id === OrgUserRole.Invalid);
 
   const onChangeRoles = useCallback(
     value => {
@@ -40,6 +51,13 @@ export const Filters: React.FC<Props> = props => {
     [props.setRolesFilter]
   );
 
+  const updateSearchText = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setPendingSearchText(event.target.value);
+    },
+    [setPendingSearchText]
+  );
+
   return (
     <>
       <Grid
@@ -49,6 +67,15 @@ export const Filters: React.FC<Props> = props => {
         spacing={2}
         className={classes.filters}
       >
+        <Grid item xs={12} sm={6} md={3} lg={3}>
+          <Input
+            label={t("Name or ID")}
+            value={pendingSearchText}
+            onChange={updateSearchText}
+            placeholder={t("Filter by name or ID")}
+            className={classes.label}
+          />
+        </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <InputLabel className={classes.label}>{t("Roles")}</InputLabel>
           <Select
