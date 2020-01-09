@@ -73,6 +73,7 @@ export const Filters: React.FC<Props> = props => {
             value={pendingSearchText}
             onChange={updateSearchText}
             placeholder={t("Filter by name or ID")}
+            className={classes.label}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3}>
