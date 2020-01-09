@@ -45,15 +45,11 @@ export const Filters: React.FC<Props> = props => {
     return options;
   }, [locationGroups]);
 
-  console.log(props.locationGroupFilter);
-
   const selectedValue = locationGroupOptions.find(e =>
     props.locationGroupFilter.length === 0
       ? locationGroupOptions.find(e => e.value === "0")
       : e.label && props.locationGroupFilter.includes(Number(e.value))
   );
-
-  //console.log(selectedValue);
 
   const onChangeGroup = useCallback(
     value => {

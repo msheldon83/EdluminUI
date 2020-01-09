@@ -18,8 +18,6 @@ export const Locations: React.FC<Props> = props => {
   const [searchText, setSearchText] = useState<string | undefined>();
   const params = useRouteParams(LocationsRoute);
 
-  console.log(locationGroupFilter);
-
   return (
     <>
       <Grid
