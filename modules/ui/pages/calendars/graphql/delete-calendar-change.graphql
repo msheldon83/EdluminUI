@@ -1,0 +1,5 @@
+mutation DeleteCalendarChange($calendarChangeId: Int!) {
+  calendarChange {
+    delete(calendarChangeId: $calendarChangeId)
+  }
+}

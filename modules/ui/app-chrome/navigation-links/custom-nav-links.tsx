@@ -99,25 +99,7 @@ export const PeopleNavLink: React.FC<Props> = props => {
 
 export const CalendarNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const paramsThisYear = useRouteParams(CalendarThisYearRoute);
-  const paramsPastYears = useRouteParams(CalendarPastYearsRoute);
-  return (
-    <NavLink
-      title={t("Calendars")}
-      icon={<DateRangeIcon />}
-      subNavItems={[
-        {
-          title: t("This Year"),
-          route: CalendarThisYearRoute.generate(paramsThisYear),
-        },
-        {
-          title: t("Past Years"),
-          route: CalendarPastYearsRoute.generate(paramsPastYears),
-        },
-      ]}
-      {...props}
-    />
-  );
+  return <NavLink title={t("Calendars")} icon={<DateRangeIcon />} {...props} />;
 };
 
 export const ConfigurationNavLink: React.FC<Props> = props => {

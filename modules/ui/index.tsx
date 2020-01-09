@@ -53,13 +53,11 @@ import {
   CalendarChangeReasonRoute,
 } from "./routes/calendar/event-reasons";
 import {
-  CalendarPastYearsLoader,
-  CalendarPastYearsRoute,
-} from "./routes/calendar/past-years";
-import {
-  CalendarThisYearLoader,
-  CalendarThisYearRoute,
-} from "./routes/calendar/this-year";
+  CalendarRoute,
+  CalendarsLoader,
+  CalendarListViewRoute,
+  CalendarCalendarViewRoute,
+} from "./routes/calendar/calendar";
 import { ContractsLoader, ContractsRoute } from "./routes/contracts";
 import {
   AdminCreateAbsenceRoute,
@@ -474,13 +472,19 @@ export function App() {
                                 component={SchoolGroupsLoader}
                                 path={SchoolGroupsRoute.path}
                               />
+                              <AdminOrgRoute path={CalendarListViewRoute.path}>
+                                <CalendarsLoader view="list" />
+                              </AdminOrgRoute>
+
                               <AdminOrgRoute
-                                component={CalendarThisYearLoader}
-                                path={CalendarThisYearRoute.path}
-                              />
+                                path={CalendarCalendarViewRoute.path}
+                              >
+                                <CalendarsLoader view="calendar" />
+                              </AdminOrgRoute>
+
                               <AdminOrgRoute
-                                component={CalendarPastYearsLoader}
-                                path={CalendarPastYearsRoute.path}
+                                component={CalendarsLoader}
+                                path={CalendarRoute.path}
                               />
                               <AdminOrgRoute
                                 component={SecurityUsersLoader}
