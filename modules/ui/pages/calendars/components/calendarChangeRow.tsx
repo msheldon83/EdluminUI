@@ -58,7 +58,7 @@ export const CalendarChangeRow: React.FC<Props> = props => {
 
   const contractLabel =
     props.calendarChange.changedContracts?.length === 0
-      ? "All Contracts"
+      ? t("All Contracts")
       : props.calendarChange.changedContracts
           ?.map((cc: any) => {
             return contracts.find(c => c.id === cc.id)?.name;

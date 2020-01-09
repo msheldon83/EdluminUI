@@ -150,7 +150,7 @@ export const Calendars: React.FC<Props> = props => {
           return c?.name;
         });
         if (contracts?.length === 0) {
-          contracts.push("All Contracts");
+          contracts.push(t("All Contracts"));
         }
         return contracts?.join(",");
       },
@@ -167,7 +167,7 @@ export const Calendars: React.FC<Props> = props => {
 
           {schoolYear && (
             <PageTitle
-              title={`Calendar ${parseISO(
+              title={`${t("Calendar")} ${parseISO(
                 schoolYear.startDate
               ).getFullYear()} - ${parseISO(schoolYear.endDate).getFullYear()}`}
             />
