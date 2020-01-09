@@ -1,5 +1,5 @@
-query GetAllLocationGroupssWithinOrg($orgId: ID) {
-  location {
+query GetAllLocationGroupsWithinOrg($orgId: ID) {
+  locationGroup {
     all(orgId: $orgId) {
       id
       name
