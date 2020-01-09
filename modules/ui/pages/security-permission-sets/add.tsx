@@ -102,8 +102,10 @@ export const PermissionSetAddPage: React.FC<{}> = props => {
           permissionDefinitions={permissionDefinitions}
           permissionSetCategories={permissionSet.categories}
           onChange={async categories => {
-            console.log(categories);
-            await Promise.resolve();
+            setPermissionSet({
+              ...permissionSet,
+              categories: categories,
+            });
           }}
         />
         <ActionButtons

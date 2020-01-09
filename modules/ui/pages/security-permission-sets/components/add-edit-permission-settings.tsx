@@ -19,7 +19,7 @@ import { Input } from "ui/components/form/input";
 import { Select, SelectValueType } from "ui/components/form/select";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Maybe from "graphql/tsutils/Maybe";
 import { ExpandMore } from "@material-ui/icons";
 
@@ -32,29 +32,6 @@ type Props = {
   ) => Promise<unknown>;
 };
 
-// const buildContractOptions = (
-//   contracts: Array<Contract>,
-//   positionType: Props["positionType"]
-// ) => {
-//   // Format the contracts as dropdown options
-//   const contractOptions = contracts.map(c => {
-//     return { value: Number(c.id), label: c.name };
-//   });
-
-//   // Handle if the current Position Type is associated with an Expired Contract
-//   if (
-//     positionType.defaultContract &&
-//     !contracts.find(c => Number(c.id) === positionType.defaultContractId)
-//   ) {
-//     contractOptions.push({
-//       value: positionType.defaultContract.id,
-//       label: positionType.defaultContract.name,
-//     });
-//   }
-
-//   return contractOptions;
-// };
-
 export const PermissionSettings: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
@@ -63,7 +40,11 @@ export const PermissionSettings: React.FC<Props> = props => {
     PermissionCategoryIdentifierInput[]
   >(props.permissionSetCategories);
 
-  console.log(props.permissionDefinitions);
+  useEffect(() => {
+    props.onChange(categories);
+  }, [categories]);
+
+  console.log(props.permissionSetCategories);
 
   if (props.permissionDefinitions.length === 0) {
     // The permission definitions haven't been loaded yet
@@ -80,14 +61,14 @@ export const PermissionSettings: React.FC<Props> = props => {
     return levelId;
   };
 
-  const updateCategorySelections = async (
+  const updateCategorySelections = (
     categoryId: string,
     settingId: string,
     levelId: string
   ) => {
-    const updatedCategories = {
-      ...categories,
-    };
+    const updatedCategories = [...categories];
+
+    console.log(updatedCategories);
 
     // Find the Category and add if missing
     let matchingCategory = updatedCategories.find(c => c.id === categoryId);
@@ -98,6 +79,8 @@ export const PermissionSettings: React.FC<Props> = props => {
       };
       updatedCategories.push(matchingCategory);
     }
+
+    // Ensure the Category has a Settings array
     if (!matchingCategory.settings) {
       matchingCategory.settings = [];
     }
@@ -114,8 +97,7 @@ export const PermissionSettings: React.FC<Props> = props => {
       matchingCategory.settings.push(matchingSetting);
     }
     matchingSetting.levelId = levelId;
-
-    await props.onChange(updatedCategories);
+    setCategories(updatedCategories);
   };
 
   return (
@@ -189,8 +171,7 @@ export const PermissionSettings: React.FC<Props> = props => {
                                   selectedValue = (e as OptionTypeBase).value;
                                 }
                               }
-                              console.log(categoryId, settingId, selectedValue);
-                              await updateCategorySelections(
+                              updateCategorySelections(
                                 categoryId,
                                 settingId,
                                 selectedValue
