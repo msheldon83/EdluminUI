@@ -2,12 +2,12 @@ import { useQueryBundle } from "graphql/hooks";
 import { compact, map } from "lodash-es";
 import { useMemo } from "react";
 import {
-  GetEmployeeForCurrentUser,
-  GetEmployeeForCurrentUserQuery,
-} from "./get-employee-for-current-user.gen";
+  GetMyUserAccess,
+  GetMyUserAccessQuery,
+} from "./get-my-user-access.gen";
 
 export function useGetEmployee() {
-  const potentialEmployees = useQueryBundle(GetEmployeeForCurrentUser, {
+  const potentialEmployees = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
 
@@ -19,7 +19,7 @@ export function useGetEmployee() {
   }, [potentialEmployees]);
 }
 
-const findEmployee = (data: GetEmployeeForCurrentUserQuery) => {
+const findEmployee = (data: GetMyUserAccessQuery) => {
   const orgUsers = data.userAccess?.me?.user?.orgUsers ?? [];
   const emps = compact(
     map(orgUsers, u => {

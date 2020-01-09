@@ -18,9 +18,9 @@ import { getInitials } from "ui/components/helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { TextButton } from "ui/components/text-button";
-import { MyProfile } from "ui/pages/profile/MyProfile.gen";
 import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
 import { UpdateUser } from "./UpdateUser.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { ChangeLoginEmailDialog } from "./change-email-dialog";
 import { ChangeTimezoneDialog } from "./change-timezone-dialog";
@@ -30,7 +30,7 @@ import { Input } from "ui/components/form/input";
 import * as yup from "yup";
 
 type Props = {
-  user: MyProfile.User;
+  user: GetMyUserAccess.User;
   updateLoginEmail: MutationFunction<
     UpdateLoginEmail.Mutation,
     UpdateLoginEmail.Variables

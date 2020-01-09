@@ -393,6 +393,7 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
   lastName: String!
   isSuperUser: Boolean!
   permissionSet: PermissionSet
+  permissions: [PermissionEnum]
   accessControl: AccessControl
 }
 
@@ -1161,6 +1162,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   primaryPositionId: Int
   primaryPosition: Position
   permissionSet: PermissionSet
+  permissions: [PermissionEnum]
   assignments: [Assignment]
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
@@ -4315,6 +4317,7 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   shadowEmployeeId: Int
   shadowEmployee: Employee
   permissionSet: PermissionSet
+  permissions: [PermissionEnum]
   assignments: [Assignment]
   attributes: [EmployeeEndorsement]
   qualifiedPositionTypes: [PositionType]

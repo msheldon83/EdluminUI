@@ -1,9 +1,9 @@
-import { QueryOrgUserRoles } from "ui/app-chrome/role-switcher/QueryOrgUserRoles.gen";
+import { GetMyUserAccess } from "./get-my-user-access.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { some } from "lodash-es";
 
 export const useIsAdmin = () => {
-  const orgUserQuery = useQueryBundle(QueryOrgUserRoles, {
+  const orgUserQuery = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
 

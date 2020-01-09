@@ -1,9 +1,9 @@
 import { useQueryBundle } from "graphql/hooks";
-import { GetOrgsForUser } from "./organization-switcher-bar/GetOrgsForUser.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 
 export function useIsSystemAdminOrAdminInMultipleOrgs() {
-  const orgUserQuery = useQueryBundle(GetOrgsForUser, {
-    fetchPolicy: "cache-and-network",
+  const orgUserQuery = useQueryBundle(GetMyUserAccess, {
+    fetchPolicy: "cache-first",
   });
   if (
     orgUserQuery.state !== "LOADING" &&
