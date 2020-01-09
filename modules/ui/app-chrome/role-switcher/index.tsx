@@ -12,7 +12,7 @@ type Props = {
 
 export const RoleSwitcher: React.FC<Props> = props => {
   const orgUserQuery = useQueryBundle(GetMyUserAccess, {
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: "cache-first",
   });
 
   const params = useRouteParams(AppChromeRoute);

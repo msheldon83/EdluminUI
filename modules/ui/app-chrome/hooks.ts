@@ -3,7 +3,7 @@ import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 
 export function useIsSystemAdminOrAdminInMultipleOrgs() {
   const orgUserQuery = useQueryBundle(GetMyUserAccess, {
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: "cache-first",
   });
   if (
     orgUserQuery.state !== "LOADING" &&
