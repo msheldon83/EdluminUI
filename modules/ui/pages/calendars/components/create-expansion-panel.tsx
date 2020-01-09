@@ -33,6 +33,7 @@ import { CreateCalendarChange } from "../graphql/create-calendar-change.gen";
 import { CalendarChangeCreateInput } from "graphql/server-types.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import { useAllSchoolYears } from "reference-data/school-years";
 
 type Props = {
   orgId: string;
@@ -44,6 +45,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
   const today = useMemo(() => format(new Date(), "MMM d, yyyy").toString(), []);
+  const schoolYears = useAllSchoolYears(props.orgId);
 
   const getCalendarChangeReasons: any = useQueryBundle(
     GetAllCalendarChangeReasonsWithinOrg,
@@ -79,10 +81,37 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
     },
   });
 
+  const dateInSchoolYear = (date: string) => {
+    let found = false;
+    const d = new Date(date);
+
+    schoolYears.forEach(sy => {
+      const sd = parseISO(sy.startDate);
+      const ed = parseISO(sy.endDate);
+      if (d >= sd && d <= ed) {
+        found = true;
+        return found;
+      }
+    });
+    return found;
+  };
+
   const create = async (calendarChange: CalendarChangeCreateInput) => {
     if (calendarChange.startDate > calendarChange.endDate) {
       openSnackbar({
         message: t("The from date has to be before the to date."),
+        dismissable: true,
+        status: "error",
+        autoHideDuration: 5000,
+      });
+      return false;
+    }
+    if (
+      !dateInSchoolYear(calendarChange.startDate) ||
+      !dateInSchoolYear(calendarChange.startDate)
+    ) {
+      openSnackbar({
+        message: t("Please enter a date within the available school years."),
         dismissable: true,
         status: "error",
         autoHideDuration: 5000,
