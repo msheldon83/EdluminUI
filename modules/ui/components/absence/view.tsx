@@ -1,36 +1,38 @@
-import * as React from "react";
-import { Grid, makeStyles, Typography, Button, Paper } from "@material-ui/core";
+import { Button, Grid, makeStyles, Paper, Typography } from "@material-ui/core";
+import { isSameDay, parseISO } from "date-fns";
+import { useMutationBundle } from "graphql/hooks";
 import {
   Absence,
-  Vacancy,
   AbsenceReason,
   AccountingCode,
   PayCode,
+  Vacancy,
 } from "graphql/server-types.gen";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
+import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { useScreenSize } from "hooks";
+import { useSnackbar } from "hooks/use-snackbar";
+import { some } from "lodash-es";
+import * as React from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { VacancyDetails } from "./vacancy-details";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { Calendar } from "../form/calendar";
+import { FiveWeekCalendar } from "../form/five-week-calendar";
+import { AssignedSub } from "./assigned-sub";
+import { getAbsenceDateRangeDisplayText } from "./date-helpers";
+import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import {
   dayPartToLabel,
+  getAbsenceDetailsGrouping,
   getReplacementEmployeeForVacancy,
   ReplacementEmployeeForVacancy,
-  getAbsenceDetailsGrouping,
 } from "./helpers";
-import { AssignedSub } from "./assigned-sub";
-import { useState } from "react";
-import { useSnackbar } from "hooks/use-snackbar";
-import { useMutationBundle } from "graphql/hooks";
-import { CancelAssignment } from "./graphql/cancel-assignment.gen";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
-import { getAbsenceDateRangeDisplayText } from "./date-helpers";
+import { VacancyDetails } from "./vacancy-details";
 
 type Props = {
   orgId: string;
-  absence: Absence | undefined;
+  absence: Absence;
   isConfirmation?: boolean;
-  disabledDates: DisabledDate[];
   isAdmin: boolean;
 };
 
@@ -42,6 +44,28 @@ export const View: React.FC<Props> = props => {
   const absenceReasons = useAbsenceReasons(props.orgId);
 
   const absence = props.absence;
+  const absenceStartDate = useMemo(() => new Date(absence.startDate), [
+    absence.startDate,
+  ]);
+
+  const absenceDates = useMemo(
+    () => absence.details?.map(d => parseISO(d?.startDate)) ?? [],
+    [absence.details]
+  );
+
+  const allDisabled = useEmployeeDisabledDates(
+    absence.employeeId.toString(),
+    absenceStartDate
+  );
+
+  const disabledDates = useMemo(
+    () =>
+      allDisabled.filter(
+        disabled => !some(absenceDates, ad => isSameDay(ad, disabled.date))
+      ),
+    [absenceDates, allDisabled]
+  );
+
   const [
     replacementEmployeeInformation,
     setReplacementEmployeeInformation,
@@ -105,18 +129,16 @@ export const View: React.FC<Props> = props => {
               {getAbsenceReasonListDisplay(
                 absence,
                 absenceReasons,
-                props.disabledDates,
+                disabledDates,
                 classes
               )}
             </div>
 
             <div className={classes.dates}>
-              <Calendar
-                startDate={new Date(`${absence.startDate} 00:00`)}
-                endDate={new Date(`${absence.endDate} 00:00`)}
-                range={true}
-                disableDays={true}
-                disabledDates={props.disabledDates.map(d => d.date)}
+              <FiveWeekCalendar
+                startDate={parseISO(absence.startDate)}
+                disabledDates={disabledDates.map(d => d.date)}
+                selectedDates={absenceDates}
               />
             </div>
 
@@ -172,7 +194,7 @@ export const View: React.FC<Props> = props => {
                       <VacancyDetails
                         vacancies={absence.vacancies as Vacancy[]}
                         equalWidthDetails
-                        disabledDates={props.disabledDates}
+                        disabledDates={disabledDates}
                       />
                       <>
                         {props.isAdmin && (accountingCode || payCode) && (

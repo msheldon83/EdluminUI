@@ -15,8 +15,22 @@ export const Page = () => {
           me: {
             user: {
               id: "1234",
+              orgUsers: [
+                {
+                  id: "123",
+                  userId: 24,
+                  isReplacementEmployee: true,
+                },
+              ],
             },
           },
+        }),
+        user: () => ({
+          byId: () => ({
+            id: "123",
+            userId: 23,
+            createdUtc: "2019-11-27T18:10:34.7294627" as any,
+          }),
         }),
         employee: () => ({
           employeeAssignmentSchedule: [
