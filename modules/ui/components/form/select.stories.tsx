@@ -45,7 +45,10 @@ export const Select = () => {
 
 export const SelectNew = () => {
   const classes = useStyles();
-  const [value, setValue] = React.useState<OptionType | undefined>();
+  const [value, setValue] = React.useState<OptionType | undefined>({
+    label: "Initial Value",
+    value: "initial-value",
+  });
 
   const options = [
     { label: "One", value: 1 },

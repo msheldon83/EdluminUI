@@ -1,0 +1,10 @@
+mutation CreateCalendarChange($calendarChange: CalendarChangeCreateInput!) {
+  calendarChange {
+    create(calendarChange: $calendarChange) {
+      id
+      description
+      startDate
+      endDate
+    }
+  }
+}
