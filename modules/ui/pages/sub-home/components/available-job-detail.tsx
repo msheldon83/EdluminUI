@@ -65,6 +65,7 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.edluminSubText,
   },
   nonShadedRow: {
+    background: theme.customColors.white,
     padding: theme.spacing(1),
   },
   shadedRow: {

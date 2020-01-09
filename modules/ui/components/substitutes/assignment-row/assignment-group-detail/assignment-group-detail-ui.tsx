@@ -65,7 +65,6 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
 export const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
-    width: "100%",
     alignItems: "center",
     justifyContent: "space-between",
     marginLeft: theme.spacing(1),
