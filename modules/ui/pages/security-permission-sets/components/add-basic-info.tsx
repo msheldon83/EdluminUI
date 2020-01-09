@@ -52,18 +52,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
         name: Yup.string()
           .nullable()
           .required(t("Name is required")),
-        orgUserRole: Yup.mixed<
-          | OrgUserRole.Administrator
-          | OrgUserRole.Employee
-          | OrgUserRole.ReplacementEmployee
-        >().oneOf(
-          [
-            OrgUserRole.Administrator,
-            OrgUserRole.Employee,
-            OrgUserRole.ReplacementEmployee,
-          ],
-          t("Role is required")
-        ),
+        orgUserRole: Yup.string()
+          .nullable()
+          .required(t("Role is required")),
         externalId: Yup.string().nullable(),
         description: Yup.string().nullable(),
       }),
@@ -76,7 +67,10 @@ export const AddBasicInfo: React.FC<Props> = props => {
       <Formik
         initialValues={{
           name: props.permissionSet.name,
-          orgUserRole: props.permissionSet.orgUserRole,
+          orgUserRole:
+            props.permissionSet.orgUserRole === OrgUserRole.Invalid
+              ? undefined
+              : props.permissionSet.orgUserRole,
           externalId: props.permissionSet.externalId || "",
           description: props.permissionSet.description || "",
         }}

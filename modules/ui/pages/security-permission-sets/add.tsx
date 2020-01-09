@@ -16,7 +16,7 @@ import { Typography, makeStyles } from "@material-ui/core";
 import {
   SecurityPermissionSetsRoute,
   SecurityPermissionSetsAddRoute,
-  SecurityPermissionSetsViewRoute
+  SecurityPermissionSetsViewRoute,
 } from "ui/routes/security/permission-sets";
 import { PermissionSettings } from "./components/add-edit-permission-settings";
 import { usePermissionDefinitions } from "reference-data/permission-definitions";
@@ -115,12 +115,16 @@ export const PermissionSetAddPage: React.FC<{}> = props => {
             execute: async () => {
               // Create the Permission Set
               const id = await create(permissionSet);
-              const viewParams = {
-                ...params,
-                permissionSetId: id!,
-              };
-              // Go to the Permission Set View page
-              history.push(SecurityPermissionSetsViewRoute.generate(viewParams));
+              if (id) {
+                const viewParams = {
+                  ...params,
+                  permissionSetId: id,
+                };
+                // Go to the Permission Set View page
+                history.push(
+                  SecurityPermissionSetsViewRoute.generate(viewParams)
+                );
+              }
             },
           }}
           cancel={{

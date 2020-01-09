@@ -45,6 +45,29 @@ export const PermissionSettings: React.FC<Props> = props => {
     return <></>;
   }
 
+  const seedPermissionCategories = async (
+    permissionDefinitions: PermissionCategory[]
+  ) => {
+    const updatedCategories: PermissionCategoryIdentifierInput[] = permissionDefinitions.map(
+      c => {
+        return {
+          id: c.id,
+          settings: c.settings.map(s => {
+            return {
+              id: s.id,
+              levelId: s.levels[0]?.id,
+            };
+          }),
+        };
+      }
+    );
+    setCategories(updatedCategories);
+    await props.onChange(updatedCategories);
+  };
+  if (!categories || categories.length === 0) {
+    seedPermissionCategories(props.permissionDefinitions);
+  }
+
   const getSelectedLevel = (
     categoryId: string,
     settingId: string
@@ -104,7 +127,6 @@ export const PermissionSettings: React.FC<Props> = props => {
               aria-label="Expand"
               aria-controls={`${categoryId}-content`}
               id={categoryId}
-              //className={classes.summary}
             >
               <Typography variant={"h5"}>{pd.displayName}</Typography>
             </ExpansionPanelSummary>
@@ -200,50 +222,5 @@ const useStyles = makeStyles(theme => ({
   },
   levelSelect: {
     width: theme.typography.pxToRem(300),
-  },
-
-  useForEmployeesSubItems: {
-    marginLeft: theme.spacing(4),
-  },
-  needSubLabel: {
-    marginTop: theme.spacing(2),
-  },
-  mobileSectionSpacing: {
-    marginTop: theme.spacing(2),
-  },
-  formHelperText: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
-  normalSectionSpacing: {
-    marginTop: theme.spacing(6),
-  },
-  contractSection: {
-    maxWidth: "500px",
-    "& p": {
-      marginLeft: 0,
-    },
-  },
-  minAbsenceSection: {
-    maxWidth: "500px",
-    "& p": {
-      marginLeft: 0,
-    },
-  },
-  minAbsenceDurationLabel: {
-    marginTop: theme.spacing(2),
-  },
-  checkboxError: {
-    color: theme.palette.error.main,
-  },
-  appliesToError: {
-    marginTop: theme.spacing(2),
-    fontSize: theme.typography.pxToRem(14),
-  },
-  payTypeSection: {
-    maxWidth: "500px",
-    "& p": {
-      marginLeft: 0,
-    },
   },
 }));
