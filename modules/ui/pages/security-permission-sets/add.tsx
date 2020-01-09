@@ -8,6 +8,7 @@ import { useHistory } from "react-router";
 import {
   PermissionSetCreateInput,
   OrgUserRole,
+  PermissionCategoryIdentifierInput,
 } from "graphql/server-types.gen";
 import { CreatePermissionSet } from "./graphql/create.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
@@ -24,6 +25,15 @@ import { SectionHeader } from "ui/components/section-header";
 import { ActionButtons } from "ui/components/action-buttons";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+
+type PermissionSetCreate = {
+  orgId: number;
+  name: string;
+  externalId?: string | null | undefined;
+  description?: string | null | undefined;
+  orgUserRole: OrgUserRole;
+  categories: PermissionCategoryIdentifierInput[];
+};
 
 export const PermissionSetAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -43,16 +53,16 @@ export const PermissionSetAddPage: React.FC<{}> = props => {
   );
   const permissionDefinitions = usePermissionDefinitions(selectedRole);
 
-  const [permissionSet, setPermissionSet] = React.useState<
-    PermissionSetCreateInput
-  >({
-    orgId: Number(params.organizationId),
-    name: "",
-    externalId: null,
-    description: null,
-    orgUserRole: OrgUserRole.Invalid,
-    categories: [],
-  });
+  const [permissionSet, setPermissionSet] = React.useState<PermissionSetCreate>(
+    {
+      orgId: Number(params.organizationId),
+      name: "",
+      externalId: null,
+      description: null,
+      orgUserRole: OrgUserRole.Invalid,
+      categories: [],
+    }
+  );
 
   const renderBasicInfoStep = (
     setStep: React.Dispatch<React.SetStateAction<number>>

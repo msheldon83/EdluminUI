@@ -19,17 +19,14 @@ import { Input } from "ui/components/form/input";
 import { Select, SelectValueType } from "ui/components/form/select";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Maybe from "graphql/tsutils/Maybe";
 import { ExpandMore } from "@material-ui/icons";
 
 type Props = {
   orgId: string;
   permissionDefinitions: PermissionCategory[];
-  permissionSetCategories:
-    | Maybe<PermissionCategoryIdentifierInput>[]
-    | null
-    | undefined;
+  permissionSetCategories: PermissionCategoryIdentifierInput[];
   onChange: (
     categories: PermissionCategoryIdentifierInput[]
   ) => Promise<unknown>;
@@ -64,7 +61,7 @@ export const PermissionSettings: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const [categories, setCategories] = useState<
     PermissionCategoryIdentifierInput[]
-  >([]);
+  >(props.permissionSetCategories);
 
   console.log(props.permissionDefinitions);
 
@@ -72,6 +69,54 @@ export const PermissionSettings: React.FC<Props> = props => {
     // The permission definitions haven't been loaded yet
     return <></>;
   }
+
+  const getSelectedLevel = (
+    categoryId: string,
+    settingId: string
+  ): string | undefined => {
+    const levelId = categories
+      ?.find(c => c.id === categoryId)
+      ?.settings?.find(s => s?.id === settingId)?.levelId;
+    return levelId;
+  };
+
+  const updateCategorySelections = async (
+    categoryId: string,
+    settingId: string,
+    levelId: string
+  ) => {
+    const updatedCategories = {
+      ...categories,
+    };
+
+    // Find the Category and add if missing
+    let matchingCategory = updatedCategories.find(c => c.id === categoryId);
+    if (!matchingCategory) {
+      matchingCategory = {
+        id: categoryId,
+        settings: [],
+      };
+      updatedCategories.push(matchingCategory);
+    }
+    if (!matchingCategory.settings) {
+      matchingCategory.settings = [];
+    }
+
+    // Find the Setting and add if missing
+    let matchingSetting = matchingCategory.settings?.find(
+      s => s?.id === settingId
+    );
+    if (!matchingSetting) {
+      matchingSetting = {
+        id: settingId,
+        levelId: levelId,
+      };
+      matchingCategory.settings.push(matchingSetting);
+    }
+    matchingSetting.levelId = levelId;
+
+    await props.onChange(updatedCategories);
+  };
 
   return (
     <>
@@ -104,6 +149,13 @@ export const PermissionSettings: React.FC<Props> = props => {
                   const levelOptions = s.levels.map(l => {
                     return { value: l.id, label: l.displayName };
                   });
+                  const matchedLevelId = getSelectedLevel(
+                    categoryId,
+                    settingId
+                  );
+                  const selectedLevel =
+                    levelOptions.find((p: any) => p.value === matchedLevelId) ??
+                    levelOptions[0];
 
                   return (
                     <Grid
@@ -120,10 +172,7 @@ export const PermissionSettings: React.FC<Props> = props => {
                       <Grid item xs={8}>
                         <div className={classes.levelSelect}>
                           <Select
-                            value={levelOptions[0]}
-                            // value={levelOptions.find(
-                            //   (p: any) => p.value === values.orgUserRole
-                            // )}
+                            value={selectedLevel}
                             label=""
                             options={levelOptions}
                             isClearable={false}
@@ -141,9 +190,11 @@ export const PermissionSettings: React.FC<Props> = props => {
                                 }
                               }
                               console.log(categoryId, settingId, selectedValue);
-
-                              //setFieldValue("orgUserRole", selectedValue);
-                              //props.onRoleChange(selectedValue);
+                              await updateCategorySelections(
+                                categoryId,
+                                settingId,
+                                selectedValue
+                              );
                             }}
                           />
                         </div>
