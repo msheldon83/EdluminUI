@@ -149,7 +149,7 @@ export const Calendars: React.FC<Props> = props => {
         const contracts = o.changedContracts?.map(c => {
           return c?.name;
         });
-        if (contracts.length === 0) {
+        if (contracts?.length === 0) {
           contracts.push("All Contracts");
         }
         return contracts?.join(",");
@@ -167,7 +167,7 @@ export const Calendars: React.FC<Props> = props => {
 
           {schoolYear && (
             <PageTitle
-              title={`${parseISO(
+              title={`Calendar ${parseISO(
                 schoolYear.startDate
               ).getFullYear()} - ${parseISO(schoolYear.endDate).getFullYear()}`}
             />
