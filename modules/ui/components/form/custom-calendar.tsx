@@ -3,7 +3,11 @@ import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import Button, { ButtonProps } from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
+import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import addDays from "date-fns/addDays";
+import addMonths from "date-fns/addMonths";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
 import format from "date-fns/format";
 import startOfWeek from "date-fns/startOfWeek";
@@ -14,12 +18,15 @@ type CustomCalendarProps = {
   contained?: boolean;
   style?: React.CSSProperties;
   onSelectDates?: (dates: Array<Date>) => void;
+  onMonthChange?: (date: Date) => void;
   month?: Date;
   customDates?: Array<{
     date: Date;
     buttonProps: ButtonProps;
   }>;
   variant?: "weeks" | "month";
+  viewableFuture?: boolean;
+  viewablePast?: boolean;
 };
 
 export const CustomCalendar = (props: CustomCalendarProps) => {
@@ -27,8 +34,11 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     contained = true,
     style = {},
     onSelectDates = () => {},
+    onMonthChange = () => {},
     month = new Date(),
     customDates = [],
+    viewableFuture = false,
+    viewablePast = false,
 
     // TODO: implement the month version like single-month-calendar
     variant = "weeks",
@@ -102,6 +112,14 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     }
   };
 
+  const handlePreviousMonthClick = React.useCallback(() => {
+    onMonthChange(addMonths(month, -1));
+  }, [month, onMonthChange]);
+
+  const handleNextMonthClick = React.useCallback(() => {
+    onMonthChange(addMonths(month, 1));
+  }, [month, onMonthChange]);
+
   const renderDates = () =>
     daysList.map(date => {
       const day = format(date, "d");
@@ -156,8 +174,30 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   return (
     <section className={classes.calendar} style={style}>
       <header className={classes.header}>
+        <span className={classes.monthNavButton}>
+          {viewablePast && (
+            <IconButton
+              arial-label="view previous month"
+              onClick={handlePreviousMonthClick}
+            >
+              <ArrowBackIosIcon fontSize="small" />
+            </IconButton>
+          )}
+        </span>
+
         <span role="heading" className={classes.dayRange}>
           {firstDay} - {lastDay}
+        </span>
+
+        <span className={classes.monthNavButton}>
+          {viewableFuture && (
+            <IconButton
+              arial-label="view next month"
+              onClick={handleNextMonthClick}
+            >
+              <ArrowForwardIosIcon fontSize="small" />
+            </IconButton>
+          )}
         </span>
       </header>
       <ul role="grid" className={classes.dates}>
@@ -229,8 +269,12 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
     // Future proofing styling for adding functionality here later
     alignItems: "center",
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "space-between",
     paddingBottom: theme.spacing(3),
+  },
+  monthNavButton: {
+    height: theme.typography.pxToRem(44),
+    width: theme.typography.pxToRem(44),
   },
   dayRange: {
     fontSize: theme.typography.pxToRem(14),

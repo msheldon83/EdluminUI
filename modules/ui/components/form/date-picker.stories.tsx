@@ -206,6 +206,8 @@ export const CustomCalendarStory = () => {
     buttonProps: { className: classes.activeDay },
   }));
 
+  const [month, setMonth] = React.useState(new Date());
+
   return (
     <div className={classes.container}>
       <CustomCalendar
@@ -220,8 +222,14 @@ export const CustomCalendarStory = () => {
 
           action("onSelectDates")({ dates });
         }}
-        month={customDate("month", new Date())}
+        month={month}
         customDates={customDates}
+        viewableFuture
+        viewablePast
+        onMonthChange={month => {
+          setMonth(month);
+          action("onMonthChange")({ month });
+        }}
       />
     </div>
   );
