@@ -1,0 +1,9 @@
+query GetAllLocationGroupsWithinOrg($orgId: ID) {
+  locationGroup {
+    all(orgId: $orgId) {
+      id
+      name
+      externalId
+    }
+  }
+}

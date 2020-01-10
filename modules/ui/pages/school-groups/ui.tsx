@@ -6,33 +6,26 @@ import { Column } from "material-table";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
-import { LocationsRoute } from "ui/routes/locations";
+import { LocationGroupsRoute } from "ui/routes/location-groups";
 import { useRouteParams } from "ui/routes/definition";
-import { GetAllLocationsWithinOrg } from "./graphql/get-all-locations.gen";
+import { GetAllLocationGroupsWithinOrg } from "./graphql/get-all-location-groups.gen";
 import { useIsMobile } from "hooks";
-import { PaginationControls } from "ui/components/pagination-controls";
 
-type Props = {
-  locationGroupFilter: number[];
-  searchText?: string;
-  olderAction?: () => void;
-};
+type Props = {};
 
-export const LocationsUI: React.FC<Props> = props => {
+export const LocationGroupsUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const isMobile = useIsMobile();
-  const params = useRouteParams(LocationsRoute);
+  const params = useRouteParams(LocationGroupsRoute);
 
-  const getLocations = useQueryBundle(GetAllLocationsWithinOrg, {
+  const getLocationGroups = useQueryBundle(GetAllLocationGroupsWithinOrg, {
     variables: {
       orgId: params.organizationId,
-      locationGroups: props.locationGroupFilter,
-      searchText: props.searchText,
     },
   });
 
-  const columns: Column<GetAllLocationsWithinOrg.All>[] = [
+  const columns: Column<GetAllLocationGroupsWithinOrg.All>[] = [
     {
       title: t("Name"),
       field: "name",
@@ -40,40 +33,35 @@ export const LocationsUI: React.FC<Props> = props => {
       searchable: true,
     },
     {
-      title: t("Group"),
-      field: "locationGroup.name",
-      type: "string",
-      searchable: false,
-      hidden: isMobile,
-    },
-    {
-      title: t("External Id"),
+      title: t("Externl Id"),
       field: "externalId",
       searchable: false,
       hidden: isMobile,
     },
   ];
 
-  if (getLocations.state === "LOADING") {
+  if (getLocationGroups.state === "LOADING") {
     return <></>;
   }
 
-  const locations = compact(getLocations?.data?.location?.all ?? []);
-  const locationsCount = locations.length;
+  const locationGroups = compact(
+    getLocationGroups?.data?.locationGroup?.all ?? []
+  );
+  const locationGroupsCount = locationGroups.length;
 
   return (
     <>
       <Section>
         <Table
-          title={`${locationsCount} ${t("Schools")}`}
+          title={`${locationGroupsCount} ${t("School Groups")}`}
           columns={columns}
-          data={locations}
+          data={locationGroups}
           selection={false}
-          onRowClick={(event, location) => {
-            if (!location) return;
+          onRowClick={(event, locationGroup) => {
+            if (!locationGroup) return;
             const newParams = {
               ...params,
-              location: location.id,
+              locationGroup: locationGroup.id,
             };
             // history.push(NEW_ROUTE_HERE.generate(newParams)); TODO: Create Route for Permission Set View
           }}

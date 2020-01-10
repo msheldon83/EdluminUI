@@ -68,6 +68,15 @@ export const Filters: React.FC<Props> = props => {
         className={classes.filters}
       >
         <Grid item xs={12} sm={6} md={3} lg={3}>
+          <Input
+            label={t("Name or ID")}
+            value={pendingSearchText}
+            onChange={updateSearchText}
+            placeholder={t("Filter by name or ID")}
+            className={classes.label}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3} lg={3}>
           <InputLabel className={classes.label}>{t("Roles")}</InputLabel>
           <Select
             isClearable={false}
