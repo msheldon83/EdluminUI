@@ -43,13 +43,14 @@ export const SignOutMenuLink: React.FC<Props> = props => {
 
 export const HelpMenuLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const params = useRouteParams(AppChromeRoute);
   return (
     <MenuLink
       title={t("Help")}
       icon={<HelpOutlineIcon />}
-      route={AppChromeRoute.generate(params)}
       {...props}
+      onClick={() => {
+        window.open("https://help.redroverk12.com", "_blank");
+      }}
     />
   );
 };
