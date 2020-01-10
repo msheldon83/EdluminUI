@@ -180,7 +180,6 @@ export const AssignSubFilters: React.FC<Props> = props => {
                           selectedValue = (e as OptionTypeBase).value;
                         }
                       }
-
                       // Get the appropriate array from the availableOptionsMap
                       const optionsMap = availableOptionsMap.find(
                         m => m.optionValue === selectedValue
@@ -188,7 +187,6 @@ export const AssignSubFilters: React.FC<Props> = props => {
                       if (!optionsMap) {
                         return;
                       }
-
                       const updatedSearchOptions = {
                         ...searchFilter,
                         available: optionsMap.search,
@@ -209,7 +207,8 @@ export const AssignSubFilters: React.FC<Props> = props => {
                 )}
                 disabled={!!searchFilter?.name}
                 options={showOptions}
-                onChange={(e: SelectValueType) => {
+                multiple={false}
+                onChange={(e: OptionType) => {
                   let selectedValue: string | null = null;
                   if (e) {
                     if (Array.isArray(e)) {
@@ -218,7 +217,6 @@ export const AssignSubFilters: React.FC<Props> = props => {
                       selectedValue = (e as OptionTypeBase).value;
                     }
                   }
-
                   const updatedSearchOptions = {
                     ...searchFilter,
                     favoritesOnly: selectedValue === "true",

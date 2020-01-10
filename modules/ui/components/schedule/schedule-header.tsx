@@ -108,6 +108,7 @@ export const ScheduleHeader: React.FC<Props> = props => {
               })
             );
           })}
+          multiple={false}
           options={schoolYearOptions}
         />
       </div>
@@ -130,6 +131,7 @@ export const ScheduleHeader: React.FC<Props> = props => {
               isSameDay(parseISO(o.value), props.startDate)
             )}
             options={listViewFilterOptions}
+            multiple={false}
           />
         </div>
       )}

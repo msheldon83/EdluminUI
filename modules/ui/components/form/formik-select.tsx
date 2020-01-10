@@ -1,8 +1,12 @@
 import { useField, useFormikContext } from "formik";
 import * as React from "react";
-import { Props as SelectProps, SelectNew } from "ui/components/form/select-new";
+import {
+  SelectProps,
+  SelectNew,
+  OptionType,
+} from "ui/components/form/select-new";
 
-type Props = Required<Pick<SelectProps, "options" | "name" | "isClearable">>;
+type Props = Required<Pick<SelectProps<false>, "options" | "name">>;
 
 export const FormikSelect: React.FC<Props> = props => {
   const [field, meta] = useField(props.name);
@@ -14,7 +18,9 @@ export const FormikSelect: React.FC<Props> = props => {
       {...props}
       value={{
         value: field.value ?? "",
-        label: props.options.find(op => op.value === field.value)?.label || "",
+        label:
+          props.options.find((op: OptionType) => op.value === field.value)
+            ?.label || "",
       }}
       onChange={v => setFieldValue(props.name, (v as any).value)}
       multiple={false}

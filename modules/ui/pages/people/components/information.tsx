@@ -128,7 +128,7 @@ export const Information: React.FC<Props> = props => {
   const permissionSets = usePermissionSets(orgUser.orgId.toString(), [
     props.selectedRole,
   ]);
-  const permissionSetOptions = permissionSets.map(ps => ({
+  const permissionSetOptions: OptionType[] = permissionSets.map(ps => ({
     label: ps.name,
     value: ps.id,
   }));

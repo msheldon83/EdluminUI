@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
-import { Select } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { useCallback, useMemo, useEffect } from "react";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { useDeferredState } from "hooks";
@@ -26,26 +26,26 @@ export const Filters: React.FC<Props> = props => {
     props.setSearchText(searchText);
   }, [searchText]);
 
-  const roleOptions = useMemo(
+  const roleOptions: OptionType[] = useMemo(
     () => [
-      { id: OrgUserRole.Invalid, label: "(All)" },
-      { id: OrgUserRole.Administrator, label: "Admin" },
-      { id: OrgUserRole.Employee, label: "Employee" },
-      { id: OrgUserRole.ReplacementEmployee, label: "Substitute" },
+      { value: OrgUserRole.Invalid, label: "(All)" },
+      { value: OrgUserRole.Administrator, label: "Admin" },
+      { value: OrgUserRole.Employee, label: "Employee" },
+      { value: OrgUserRole.ReplacementEmployee, label: "Substitute" },
     ],
     []
   );
 
   const selectedValue =
-    roleOptions.find(e => e.label && props.rolesFilter.includes(e.id)) ??
-    roleOptions.find(e => e.id === OrgUserRole.Invalid);
+    roleOptions.find(e => e.label && props.rolesFilter.includes(e.value)) ??
+    roleOptions.find(e => e.value === OrgUserRole.Invalid);
 
   const onChangeRoles = useCallback(
     value => {
-      if (value.id === OrgUserRole.Invalid) {
+      if (value.value === String(OrgUserRole.Invalid)) {
         props.setRolesFilter([]);
       } else {
-        props.setRolesFilter(value.id);
+        props.setRolesFilter(value.value);
       }
     },
     [props.setRolesFilter]
@@ -78,8 +78,7 @@ export const Filters: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <InputLabel className={classes.label}>{t("Roles")}</InputLabel>
-          <Select
-            isClearable={false}
+          <SelectNew
             onChange={onChangeRoles}
             options={roleOptions}
             value={selectedValue}
