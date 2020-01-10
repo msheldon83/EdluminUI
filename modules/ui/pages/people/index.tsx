@@ -201,7 +201,7 @@ export const PeoplePage: React.FC<Props> = props => {
         person.isEmployee,
         person.isReplacementEmployee
       ),
-      primaryPosition: person.employee?.primaryPosition?.name,
+      positionType: person.employee?.primaryPosition?.positionType?.name,
       phone: person.phoneNumber,
       locations: person.employee?.locations,
       endorsements: person.substitute?.attributes
@@ -270,8 +270,8 @@ export const PeoplePage: React.FC<Props> = props => {
       hidden: filters.roleFilter != null,
     },
     {
-      title: t("Position"),
-      field: "primaryPosition",
+      title: t("Position Type"),
+      field: "positionType",
       sorting: false,
       hidden: filters.roleFilter != OrgUserRole.Employee,
     },
