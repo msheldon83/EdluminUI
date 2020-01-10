@@ -1,8 +1,14 @@
 import * as React from "react";
 import { useMyUserAccess } from "reference-data/my-user-access";
-import { RouteProps, Route, RouteComponentProps } from "react-router-dom";
+import {
+  RouteProps,
+  Route,
+  RouteComponentProps,
+  Redirect,
+} from "react-router-dom";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
+import { UnauthorizedRoute } from "ui/routes/unauthorized";
 
 // Copied from https://stackoverflow.com/a/52366872 and tweaked
 
@@ -16,8 +22,6 @@ type RenderComponent = (props: RouteComponentProps<any>) => React.ReactNode;
 export const AdminOrgRoute: React.FC<AdminOrgRouteProps> = props => {
   const { component: Component, ...rest } = props;
   const params = useRouteParams(AdminChromeRoute);
-
-  //const params = useRouteParams(AdminChromeRoute);
   const userAccess = useMyUserAccess();
   if (!userAccess) {
     return <></>;
@@ -31,9 +35,8 @@ export const AdminOrgRoute: React.FC<AdminOrgRouteProps> = props => {
   const hasAccess =
     userAccess.me?.isSystemAdministrator || !!matchingOrgUser?.isAdmin;
 
-  // TODO: If they don't have Admin access to this Org, redirect them to the No Access page
   if (!hasAccess) {
-    return <></>;
+    return <Redirect to={UnauthorizedRoute.generate({})} />;
   }
 
   if (!Component) {

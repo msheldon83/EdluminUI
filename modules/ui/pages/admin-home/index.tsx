@@ -17,10 +17,10 @@ import { DateStepperHeader } from "ui/components/date-stepper-header";
 import { useMemo, useState, useEffect } from "react";
 import { useQueryBundle, HookQueryResult } from "graphql/hooks";
 import {
-  GetUserName,
-  GetUserNameQuery,
-  GetUserNameQueryVariables,
-} from "./graphql/get-user-name.gen";
+  GetMyUserAccess,
+  GetMyUserAccessQuery,
+  GetMyUserAccessQueryVariables,
+} from "reference-data/get-my-user-access.gen";
 import { TFunction } from "i18next";
 import { Link } from "react-router-dom";
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
@@ -48,7 +48,7 @@ export const AdminHome: React.FC<Props> = props => {
   const [selectedCard, setSelectedCard] = useState<CardType>("unfilled");
   const dailyReportRouteParams = useRouteParams(DailyReportRoute);
 
-  const getUserName = useQueryBundle(GetUserName, {
+  const getUserName = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
   const salutation = useMemo(() => {
@@ -172,7 +172,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const getSalutation = (
-  queryResult: HookQueryResult<GetUserNameQuery, GetUserNameQueryVariables>,
+  queryResult: HookQueryResult<
+    GetMyUserAccessQuery,
+    GetMyUserAccessQueryVariables
+  >,
   t: TFunction
 ) => {
   const timeOfDay = getTimeOfDay();

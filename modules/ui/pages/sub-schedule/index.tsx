@@ -1,7 +1,7 @@
 import { makeStyles } from "@material-ui/styles";
 import { useQueryBundle } from "graphql/hooks";
 import * as React from "react";
-import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { useRouteParams } from "ui/routes/definition";
 import {
   SubScheduleCalendarViewRoute,
@@ -18,7 +18,7 @@ export const SubSchedule: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(SubScheduleRoute);
 
-  const getOrgUsers = useQueryBundle(QueryOrgUsers, {
+  const getOrgUsers = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
 
