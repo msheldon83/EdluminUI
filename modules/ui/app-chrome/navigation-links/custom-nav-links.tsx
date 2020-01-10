@@ -18,7 +18,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 import { LocationsRoute } from "ui/routes/locations";
-import { SchoolGroupsRoute } from "ui/routes/school-groups";
+import { LocationGroupsRoute } from "ui/routes/location-groups";
 import { CalendarThisYearRoute } from "ui/routes/calendar/this-year";
 import { CalendarPastYearsRoute } from "ui/routes/calendar/past-years";
 import { SecurityUsersRoute } from "ui/routes/security/users";
@@ -75,7 +75,7 @@ export const AnalyticsAndReportsNavLink: React.FC<Props> = props => {
 export const SchoolsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   const paramsLocations = useRouteParams(LocationsRoute);
-  const paramsGroups = useRouteParams(SchoolGroupsRoute);
+  const paramsGroups = useRouteParams(LocationGroupsRoute);
   return (
     <NavLink
       title={t("Schools")}
@@ -87,7 +87,7 @@ export const SchoolsNavLink: React.FC<Props> = props => {
         },
         {
           title: t("School Groups"),
-          route: SchoolGroupsRoute.generate(paramsGroups),
+          route: LocationGroupsRoute.generate(paramsGroups),
         },
       ]}
       {...props}

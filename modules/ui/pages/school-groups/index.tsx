@@ -1,50 +1,46 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
+import { Grid, Button, makeStyles } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import { SchoolGroupsRoute } from "ui/routes/school-groups";
+import { LocationGroupsRoute } from "ui/routes/location-groups";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
+import { LocationGroupsUI } from "./ui";
 
 type Props = {};
 
-export const SchoolGroups: React.FC<Props> = props => {
+export const LocationGroups: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
   const classes = useStyles();
-  const isMobile = useIsMobile();
-  const params = useRouteParams(SchoolGroupsRoute);
-
-  const [triggerError, setTriggerError] = React.useState(false);
-
-  if (triggerError) {
-    throw Error("error!");
-  }
+  const params = useRouteParams(LocationGroupsRoute);
 
   return (
     <>
-      <PageTitle title={`${params.organizationId} ${t("School Groups")}`} />
-      {__DEV__ && (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            setTriggerError(true);
-          }}
-        >
-          Trigger Error
-        </Button>
-      )}
+      <Grid
+        container
+        alignItems="flex-start"
+        justify="space-between"
+        spacing={2}
+        className={classes.header}
+      >
+        <PageTitle title={t("School Groups")} />
+        <Grid item>
+          <Button
+            variant="contained"
+            //component={Link}
+            //to={ROUTE_GOES_HERE.generate(params)} Generate correct Route for ADD
+          >
+            {t("Add School Group")}
+          </Button>
+        </Grid>
+      </Grid>
+      <LocationGroupsUI />
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+  header: {
+    marginBottom: theme.spacing(),
   },
 }));
