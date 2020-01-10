@@ -46,12 +46,12 @@ export const canViewAbsVacNavLink = (
   if (!currentOrg) return false;
 
   const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
-  if (
+  /* if (
     !userPerms?.includes(PermissionEnum.VacancyView) &&
     !userPerms?.includes(PermissionEnum.VacancyVerify)
   ) {
     return false;
-  }
+  } */
 
   return true;
 };
@@ -70,9 +70,9 @@ export const canViewDailyReportNavLink = (
   if (!currentOrg) return false;
 
   const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
-  if (!userPerms?.includes(PermissionEnum.VacancyView)) {
+  /* if (!userPerms?.includes(PermissionEnum.VacancyView)) {
     return false;
-  }
+  } */
 
   return true;
 };
@@ -91,9 +91,9 @@ export const canViewVerifyNavLink = (
   if (!currentOrg) return false;
 
   const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
-  if (!userPerms?.includes(PermissionEnum.VacancyVerify)) {
+  /* if (!userPerms?.includes(PermissionEnum.VacancyVerify)) {
     return false;
-  }
+  } */
   return true;
 };
 export const canViewAnalyticsReportsNavLink = (
@@ -129,12 +129,12 @@ export const canViewSchoolsNavLink = (
   if (!currentOrg) return false;
 
   const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
-  if (
+  /* if (
     !userPerms?.includes(PermissionEnum.LocationView) &&
     !userPerms?.includes(PermissionEnum.LocationView)
   ) {
     return false;
-  }
+  } */
 
   return true;
 };
@@ -153,9 +153,9 @@ export const canViewSchoolsGroupsNavLink = (
   if (!currentOrg) return false;
 
   const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
-  if (!userPerms?.includes(PermissionEnum.LocationView)) {
+  /* if (!userPerms?.includes(PermissionEnum.LocationView)) {
     return false;
-  }
+  } */
 
   return true;
 };
@@ -174,13 +174,13 @@ export const canViewPeopleNavLink = (
   if (!currentOrg) return false;
 
   const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
-  if (
+  /* if (
     !userPerms?.includes(PermissionEnum.EmployeeView) &&
     !userPerms?.includes(PermissionEnum.SubstituteView) &&
     !userPerms?.includes(PermissionEnum.AdminView)
   ) {
     return false;
-  }
+  } */
 
   return true;
 };
@@ -199,9 +199,9 @@ export const canViewCalendarsNavLink = (
   if (!currentOrg) return false;
 
   const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
-  if (!userPerms?.includes(PermissionEnum.CalendarChangeView)) {
+  /*  if (!userPerms?.includes(PermissionEnum.CalendarChangeView)) {
     return false;
-  }
+  } */
 
   return true;
 };
@@ -220,14 +220,14 @@ export const canViewConfigNavLink = (
   if (!currentOrg) return false;
 
   const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
-  if (
+  /* if (
     !userPerms?.includes(PermissionEnum.GeneralSettingsView) &&
     !userPerms?.includes(PermissionEnum.ScheduleSettingsView) &&
     !userPerms?.includes(PermissionEnum.VacancyView) &&
     !userPerms?.includes(PermissionEnum.FinanceSettingsView)
   ) {
     return false;
-  }
+  } */
 
   return true;
 };
@@ -246,12 +246,7 @@ export const canViewSecurityNavLink = (
   if (!currentOrg) return false;
 
   const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
-  if (
-    !userPerms?.includes(PermissionEnum.PermissionSetView) &&
-    !userPerms?.includes(PermissionEnum.ExternalConnectionsView)
-  ) {
-    return false;
-  }
+  /* ß */
 
   return true;
 };
