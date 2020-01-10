@@ -11,6 +11,8 @@ import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absen
 import { Link } from "react-router-dom";
 import { startOfToday } from "date-fns";
 import { useQueryParamIso } from "hooks/query-params";
+import { useIsMobile } from "hooks";
+import clsx from "clsx";
 
 type Props = {};
 
@@ -20,9 +22,7 @@ export const DailyReportPage: React.FC<Props> = props => {
   const params = useRouteParams(DailyReportRoute);
   const [filters] = useQueryParamIso(FilterQueryParams);
   const [date, setDate] = React.useState(new Date(filters.date));
-  const createAbsenceRouteParams = useRouteParams(
-    AdminSelectEmployeeForCreateAbsenceRoute
-  );
+  const isMobile = useIsMobile();
 
   return (
     <>
@@ -30,22 +30,22 @@ export const DailyReportPage: React.FC<Props> = props => {
         container
         justify="space-between"
         alignItems="center"
-        className={classes.header}
+        className={clsx(classes.header, isMobile && classes.mobileHeader)}
       >
         <Grid item>
           <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
         </Grid>
-        <Grid item className={classes.action}>
-          <Button
-            variant="contained"
-            component={Link}
-            to={AdminSelectEmployeeForCreateAbsenceRoute.generate(
-              createAbsenceRouteParams
-            )}
-          >
-            {t("Create Absence")}
-          </Button>
-        </Grid>
+        {!isMobile && (
+          <Grid item className={classes.action}>
+            <Button
+              variant="contained"
+              component={Link}
+              to={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
+            >
+              {t("Create Absence")}
+            </Button>
+          </Grid>
+        )}
       </Grid>
 
       <DailyReport
@@ -66,6 +66,10 @@ const useStyles = makeStyles(theme => ({
     "@media print": {
       marginBottom: theme.spacing(),
     },
+  },
+  mobileHeader: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
   action: {
     "@media print": {

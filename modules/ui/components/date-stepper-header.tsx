@@ -63,7 +63,7 @@ export const DateStepperHeader: React.FC<Props> = props => {
   return (
     <div>
       <div className={classes.dayDescription}>
-        <Typography variant="h5">
+        <Typography variant={isMobile ? "h6" : "h5"}>
           {dateSubText ? (
             dateSubText
           ) : (
@@ -75,7 +75,7 @@ export const DateStepperHeader: React.FC<Props> = props => {
       </div>
       <div className={classes.dateStepper}>
         <ArrowBackIos onClick={goBackward} className={classes.arrow} />
-        <Typography variant="h1">
+        <Typography variant={isMobile ? "h5" : "h1"}>
           {format(pendingDate, "EEE',' MMM d")}
         </Typography>
         <ArrowForwardIos
