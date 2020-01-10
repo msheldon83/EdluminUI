@@ -9,12 +9,11 @@ import { useTranslation } from "react-i18next";
 import { useRouteParams } from "ui/routes/definition";
 import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import { SubSignInRoute } from "ui/routes/sub-sign-in";
-import { startOfToday, format, parse } from "date-fns";
+import { format, parse } from "date-fns";
 import { GetFilledAbsences } from "./graphql/get-filled-absences.gen";
 import { useLocations } from "reference-data/locations";
 import { FilterQueryParams } from "./components/filter-param";
 import { VacancyDetailRow } from "./components/vacancy-detail";
-import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";
 import { EdluminLogo } from "ui/components/edlumin-logo";
 import { Print } from "@material-ui/icons";
 
@@ -26,10 +25,6 @@ export const SubSignInPage: React.FC<Props> = props => {
   const params = useRouteParams(SubSignInRoute);
   const [filterParams, updateFilterParams] = useQueryParamIso(
     FilterQueryParams
-  );
-
-  const vacancyDayConversions = useOrgVacancyDayConversions(
-    params.organizationId
   );
 
   const date = filterParams.date;
@@ -92,9 +87,7 @@ export const SubSignInPage: React.FC<Props> = props => {
         | "vacancy"
         | "dayPortion"
         | "totalDayPortion"
-        | "actualDuration"
-        | "payDurationOverride"
-        | "payTypeId"
+        | "payInfo"
       >[],
     [getFilledAbsences]
   );
@@ -146,12 +139,7 @@ export const SubSignInPage: React.FC<Props> = props => {
         </Grid>
         <Divider />
         {vacancyDetails.map((v, i) => (
-          <VacancyDetailRow
-            key={i}
-            vacancyDetail={v}
-            shadeRow={i % 2 != 0}
-            vacancyDayConversions={vacancyDayConversions}
-          />
+          <VacancyDetailRow key={i} vacancyDetail={v} shadeRow={i % 2 != 0} />
         ))}
       </div>
     </>

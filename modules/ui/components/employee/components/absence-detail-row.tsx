@@ -35,11 +35,11 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
 
   const dayPortionLabel = React.useMemo(() => {
     const dayPortion = props.absence.totalDayPortion;
-    if (props.absence.totalDayPortion < 0.5) {
+    if (dayPortion < 0.5) {
       return t("Partial day (hourly)");
-    } else if (props.absence.totalDayPortion === 0.5) {
+    } else if (dayPortion === 0.5) {
       return t("Half day");
-    } else if (props.absence.totalDayPortion > 0.5 && props.absence.totalDayPortion < 2) {
+    } else if (dayPortion > 0.5 && dayPortion < 2) {
       return t("Full day");
     } else {
       return t("Full days");
