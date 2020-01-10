@@ -116,7 +116,10 @@ import {
   ReplacementAttributeLoader,
   ReplacementAttributeRoute,
 } from "./routes/replacement-attribute";
-import { SchoolGroupsLoader, SchoolGroupsRoute } from "./routes/school-groups";
+import {
+  LocationGroupsLoader,
+  LocationGroupsRoute,
+} from "./routes/location-groups";
 import { LocationsLoader, LocationsRoute } from "./routes/locations";
 import {
   SecurityManagedOrganizationsLoader,
@@ -482,8 +485,8 @@ export function App() {
                                 path={LocationsRoute.path}
                               />
                               <AdminOrgRoute
-                                component={SchoolGroupsLoader}
-                                path={SchoolGroupsRoute.path}
+                                component={LocationGroupsLoader}
+                                path={LocationGroupsRoute.path}
                               />
                               <AdminOrgRoute path={CalendarListViewRoute.path}>
                                 <CalendarsLoader view="list" />

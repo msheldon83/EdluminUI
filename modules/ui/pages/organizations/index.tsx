@@ -129,6 +129,8 @@ export const OrganizationsPage: React.FC<Props> = props => {
     );
   }
 
+  pagination.totalCount = organizationsCount;
+
   return (
     <>
       <PageTitle title={t("Organizations")} />
