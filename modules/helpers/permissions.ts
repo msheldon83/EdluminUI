@@ -12,15 +12,8 @@ export const can = (permission: string, orgId?: string) => {
 };
 
 const includesOrg = (orgId: string, permissions: OrgUserPermissions[]) => {
-  let found = false;
   if (!permissions) return false;
-  permissions.forEach(orgPerm => {
-    if (orgPerm.orgId === orgId) {
-      found = true;
-      return;
-    }
-  });
-  return found;
+  return !!permissions.find(p => p.orgId === orgId);
 };
 
 const getFirstOrg = (permissions: OrgUserPermissions[]) => {
