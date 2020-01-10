@@ -135,11 +135,11 @@ export const CalendarNavLink: React.FC<Props> = props => {
   );
 };
 
-export const ConfigurationNavLink: React.FC<Props> = props => {
+export const SettingsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
     <Can do={canViewConfigNavLink} orgId={props?.orgId}>
-      <NavLink title={t("Configuration")} icon={<SettingsIcon />} {...props} />
+      <NavLink title={t("Settings")} icon={<SettingsIcon />} {...props} />
     </Can>
   );
 };

@@ -79,7 +79,7 @@ import {
   GeneralSettingsLoader,
   GeneralSettingsRoute,
 } from "./routes/general-settings";
-import { ConfigurationLoader, ConfigurationRoute } from "./routes/org-config";
+import { OrgSettingsLoader, OrgSettingsRoute } from "./routes/org-settings";
 import {
   OrganizationsLoader,
   OrganizationsRoute,
@@ -383,8 +383,8 @@ export function App() {
                                 path={PeopleRoute.path}
                               />
                               <AdminOrgRoute
-                                component={ConfigurationLoader}
-                                path={ConfigurationRoute.path}
+                                component={OrgSettingsLoader}
+                                path={OrgSettingsRoute.path}
                               />
                               <AdminOrgRoute
                                 component={PositionTypeAddLoader}
