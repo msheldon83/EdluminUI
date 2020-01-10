@@ -33,7 +33,7 @@ export const PeopleList = () => {
                 employee: {
                   locations: [{ name: "One Location" }],
                   endorsements: [{ endorsement: { name: "Good teacher" } }],
-                  primaryPosition: { name: "Substitute" },
+                  primaryPosition: { positionType: { name: "Substitute" } },
                 },
                 adminLocations: [],
                 allLocationIdsInScope: true,
@@ -60,7 +60,7 @@ export const PeopleList = () => {
                     { endorsement: { name: "Good teacher" } },
                     { endorsement: { name: "Second endorsement" } },
                   ],
-                  primaryPosition: { name: "Substitute" },
+                  primaryPosition: { positionType: { name: "Substitute" } },
                 },
                 adminLocations: [],
                 allLocationIdsInScope: false,
@@ -81,7 +81,7 @@ export const PeopleList = () => {
                 employee: {
                   locations: [],
                   endorsements: [],
-                  primaryPosition: { name: "Math teacher" },
+                  primaryPosition: { positionType: { name: "Substitute" } },
                 },
                 adminLocations: [
                   { name: "One Location" },
@@ -128,7 +128,7 @@ export const PeopleList = () => {
                 employee: {
                   locations: [{ name: "One Location" }],
                   endorsements: [{ endorsement: { name: "Good teacher" } }],
-                  primaryPosition: { name: "Substitute" },
+                  primaryPosition: { positionType: { name: "Substitute" } },
                 },
                 adminLocations: [{ name: "One Location" }],
                 allLocationIdsInScope: false,
