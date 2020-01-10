@@ -1,14 +1,18 @@
 import { OrgUserPermissions } from "reference-data/my-user-access";
 import { PermissionEnum } from "graphql/server-types.gen";
 
-export const can = (permission: string, orgId?: string) => {
-  //if org is passed in then check if user is able to access org
-
-  //if no org is passed in assume this is an employee and check permission for org associated with employee
-
-  //return userAccess.Permissions.includes(permission);
-
-  return true;
+export const can = (
+  permissions: PermissionEnum[],
+  userPermissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) return true;
+  const userPerms = getUserPermissions(userPermissions, orgId);
+  if (!userPerms === undefined) return false;
+  return userPerms!.some((el: any) => {
+    return permissions.includes(el);
+  });
 };
 
 const includesOrg = (orgId: string, permissions: OrgUserPermissions[]) => {
@@ -46,6 +50,7 @@ export const canViewAbsVacNavLink = (
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
+
   /* if (
     !userPerms?.includes(PermissionEnum.VacancyView) &&
     !userPerms?.includes(PermissionEnum.VacancyVerify)
