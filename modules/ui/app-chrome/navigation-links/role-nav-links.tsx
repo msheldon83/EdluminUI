@@ -20,7 +20,7 @@ import {
   AbsenceNavLink,
   AnalyticsAndReportsNavLink,
   CalendarNavLink,
-  ConfigurationNavLink,
+  SettingsNavLink,
   HomeNavLink,
   MyScheduleNavLink,
   OrganizationsNavLink,
@@ -30,7 +30,7 @@ import {
   SecurityNavLink,
   SubPreferencesNavLink,
 } from "./custom-nav-links";
-import { ConfigurationRoute } from "ui/routes/org-config";
+import { OrgSettingsRoute } from "ui/routes/org-settings";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { LocationsRoute } from "ui/routes/locations";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
@@ -152,10 +152,10 @@ export const AdminNavLinks: React.FC<Props> = props => {
             navBarExpanded={props.navBarExpanded}
             route={CalendarListViewRoute.generate(params)}
           />
-          <ConfigurationNavLink
+          <SettingsNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
-            route={ConfigurationRoute.generate(params)}
+            route={OrgSettingsRoute.generate(params)}
           />
           <SecurityNavLink
             onClick={props.onClick}
