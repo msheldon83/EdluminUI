@@ -121,6 +121,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
           organizationName={orgNameText}
           positionName={positionName}
           dayPortion={totalDayPortion}
+          payInfoLabel={vacancyDetails[0].vacancy?.payInfoSummary?.summaryLabel ?? ""}
           onCancel={onCancelClick}
           className={props.className}
           isAdmin={props.isAdmin}
@@ -131,6 +132,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
             {props.vacancyDetails.map((a, i) => (
               <AssignmentGroupDetail
                 dayPortion={a.dayPortion}
+                payInfoLabel={a.payInfo?.label ?? ""}
                 startTimeLocal={a.startTimeLocal ?? ""}
                 endTimeLocal={a.endTimeLocal ?? ""}
                 locationName={a.location?.name ?? ""}

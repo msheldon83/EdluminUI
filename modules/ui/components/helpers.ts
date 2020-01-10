@@ -35,18 +35,6 @@ export const boolToDisplay = (t: i18next.TFunction, bool?: boolean | null) => {
   return bool ? t("Yes") : t("No");
 };
 
-export const parseDayPortion = (t: i18next.TFunction, dayPortion: number) => {
-  if (dayPortion < 0.5) {
-    return t("Partial day (hourly)");
-  } else if (dayPortion === 0.5) {
-    return t("Half day");
-  } else if (dayPortion > 0.5 && dayPortion < 2) {
-    return t("Full day");
-  } else {
-    return t("Full days");
-  }
-};
-
 export const getBeginningOfSchoolYear = (date: Date) => {
   // School years are defined as july to june
   const july = 6; /* months start at 0 in js dates */

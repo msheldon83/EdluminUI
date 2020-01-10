@@ -5,6 +5,7 @@ import { DetailDayPartDisplay } from "ui/components/substitutes/detail-day-part-
 
 type Props = {
   locationName: string;
+  payInfoLabel: string;
   startTimeLocal: string;
   endTimeLocal: string;
   dayPortion: number;
@@ -34,6 +35,7 @@ export const AvailableJobDetail: React.FC<Props> = props => {
 
       <DetailDayPartDisplay
         dayPortion={props.dayPortion}
+        payInfoLabel={props.payInfoLabel}
         endTimeLocal={props.endTimeLocal}
         startTimeLocal={props.startTimeLocal}
         iconClassName={classes.dayPartIcon}

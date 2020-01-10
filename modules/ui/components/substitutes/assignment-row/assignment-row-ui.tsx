@@ -5,7 +5,6 @@ import { formatIsoDateIfPossible } from "helpers/date";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { DayIcon } from "ui/components/day-icon";
-import { parseDayPortion } from "ui/components/helpers";
 import { useIsMobile } from "hooks";
 
 type Props = {
@@ -17,6 +16,7 @@ type Props = {
   positionName: string;
   employeeName: string;
   dayPortion: number;
+  payInfoLabel: string;
   confirmationNumber: string;
   onCancel: () => void;
   isAdmin: boolean;
@@ -90,10 +90,7 @@ export const AssignmentRowUI: React.FC<Props> = props => {
         <DayIcon dayPortion={props.dayPortion} startTime={props.startTime} />
 
         <div className={classes.dayPart}>
-          <Typography variant="h6" noWrap>{`${Math.round(
-            props.dayPortion
-          )} ${parseDayPortion(t, props.dayPortion)}`}</Typography>
-
+          <Typography variant="h6" noWrap>{props.payInfoLabel}</Typography>
           <Typography className={classes.subText} noWrap>
             {props.multipleTimes
               ? t("Various")

@@ -15,7 +15,6 @@ import { Vacancy } from "graphql/server-types.gen";
 import { formatIsoDateIfPossible } from "helpers/date";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { parseDayPortion } from "ui/components/helpers";
 import { AvailableJobDetail } from "./available-job-detail";
 import { DayIcon } from "ui/components/day-icon";
 import { ExpandOrCollapseIndicator } from "ui/components/substitutes/expand-or-collapse-indicator";
@@ -33,6 +32,7 @@ type Props = {
     | "endDate"
     | "notesToReplacement"
     | "totalDayPortion"
+    | "payInfoSummary"
     | "details"
   >;
   onAccept: (orgId: string, vacancyId: string) => Promise<void>;
@@ -161,9 +161,9 @@ export const AvailableJob: React.FC<Props> = props => {
                 startTime={vacancy.startTimeLocal}
               />
               <div className={classes.dayPart}>
-                <Typography className={classes.text}>{`${Math.round(
-                  vacancy.totalDayPortion
-                )} ${parseDayPortion(t, vacancy.totalDayPortion)}`}</Typography>
+                <Typography className={classes.text}>
+                  {vacancy.payInfoSummary?.summaryLabel}
+                </Typography>
                 <Typography
                   className={classes.lightText}
                 >{`${formatIsoDateIfPossible(
@@ -211,6 +211,7 @@ export const AvailableJob: React.FC<Props> = props => {
               <AvailableJobDetail
                 locationName={detail!.location!.name}
                 dayPortion={detail!.dayPortion}
+                payInfoLabel={detail!.payInfo!.label}
                 startTimeLocal={detail!.startTimeLocal ?? ""}
                 endTimeLocal={detail!.endTimeLocal ?? ""}
                 shadeRow={index % 2 != 1}

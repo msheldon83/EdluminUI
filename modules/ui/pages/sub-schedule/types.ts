@@ -14,8 +14,10 @@ export type AssignmentVacancyDetails = {
   location: {
     name?: string;
   } | null;
+  payInfo?: { label?: string | null } | null;
   vacancy: {
     id: string;
+    payInfoSummary?: { summaryLabel?: string | null } | null;
     notesToReplacement?: string | null;
     organization: { name?: string };
     position: {
