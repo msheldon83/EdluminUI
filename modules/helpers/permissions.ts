@@ -24,6 +24,20 @@ const getFirstOrg = (permissions: OrgUserPermissions[]) => {
   }
 };
 
+const getUserPermissions = (
+  permissions: OrgUserPermissions[],
+  orgId?: string
+) => {
+  //if org id was passed check if orgid is in list of orgs user has access to (admin)
+  if (orgId && !includesOrg(orgId, permissions)) {
+    return [];
+  }
+  const currentOrg = orgId || getFirstOrg(permissions);
+  if (!currentOrg) return [];
+
+  return permissions.find(e => e.orgId == currentOrg)?.permissions;
+};
+
 /* admin left nav helpers */
 export const canViewAbsVacNavLink = (
   permissions: OrgUserPermissions[],
@@ -31,14 +45,7 @@ export const canViewAbsVacNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
-  const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
+  const userPerms = getUserPermissions(permissions, orgId);
   /* if (
     !userPerms?.includes(PermissionEnum.VacancyView) &&
     !userPerms?.includes(PermissionEnum.VacancyVerify)
@@ -54,15 +61,7 @@ export const canViewDailyReportNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
-  const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
+  const userPerms = getUserPermissions(permissions, orgId);
   /* if (!userPerms?.includes(PermissionEnum.VacancyView)) {
     return false;
   } */
@@ -75,15 +74,7 @@ export const canViewVerifyNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
-  const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
+  const userPerms = getUserPermissions(permissions, orgId);
   /* if (!userPerms?.includes(PermissionEnum.VacancyVerify)) {
     return false;
   } */
@@ -95,14 +86,7 @@ export const canViewAnalyticsReportsNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
+  const userPerms = getUserPermissions(permissions, orgId);
   //perform permission checks
 
   return true;
@@ -113,15 +97,7 @@ export const canViewSchoolsNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
-  const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
+  const userPerms = getUserPermissions(permissions, orgId);
   /* if (
     !userPerms?.includes(PermissionEnum.LocationView) &&
     !userPerms?.includes(PermissionEnum.LocationView)
@@ -137,15 +113,7 @@ export const canViewSchoolsGroupsNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
-  const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
+  const userPerms = getUserPermissions(permissions, orgId);
   /* if (!userPerms?.includes(PermissionEnum.LocationView)) {
     return false;
   } */
@@ -158,15 +126,7 @@ export const canViewPeopleNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
-  const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
+  const userPerms = getUserPermissions(permissions, orgId);
   /* if (
     !userPerms?.includes(PermissionEnum.EmployeeView) &&
     !userPerms?.includes(PermissionEnum.SubstituteView) &&
@@ -183,15 +143,7 @@ export const canViewCalendarsNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
-  const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
+  const userPerms = getUserPermissions(permissions, orgId);
   /*  if (!userPerms?.includes(PermissionEnum.CalendarChangeView)) {
     return false;
   } */
@@ -204,15 +156,7 @@ export const canViewConfigNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
-  const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
+  const userPerms = getUserPermissions(permissions, orgId);
   /* if (
     !userPerms?.includes(PermissionEnum.GeneralSettingsView) &&
     !userPerms?.includes(PermissionEnum.ScheduleSettingsView) &&
@@ -230,15 +174,7 @@ export const canViewSecurityNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
-  const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
+  const userPerms = getUserPermissions(permissions, orgId);
   /* ß */
 
   return true;
@@ -249,14 +185,7 @@ export const canViewOrganizationsNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
+  const userPerms = getUserPermissions(permissions, orgId);
   //perform permission checks
 
   return true;
@@ -269,14 +198,7 @@ export const canViewEmpMyScheduleNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
+  const userPerms = getUserPermissions(permissions, orgId);
   //perform permission checks
 
   return true;
@@ -287,14 +209,7 @@ export const canViewPTOBalancesNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true; //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
-
-  const userPerms = permissions.find(e => e.orgId == currentOrg)?.permissions;
+  const userPerms = getUserPermissions(permissions, orgId);
   /*if (
     !userPerms?.includes(PermissionEnum.) &&
     !userPerms?.includes(PermissionEnum.ExternalConnectionsView) 
@@ -310,13 +225,7 @@ export const canViewEmpSubPrefNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
+  const userPerms = getUserPermissions(permissions, orgId);
 
   //if (
   //!userPerms?.includes(PermissionEnum.employ) &&
@@ -335,13 +244,7 @@ export const canViewSubMyScheduleNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
+  const userPerms = getUserPermissions(permissions, orgId);
 
   //perform permission checks
 
@@ -353,13 +256,7 @@ export const canViewSubSubPrefNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return false;
-  }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return false;
+  const userPerms = getUserPermissions(permissions, orgId);
 
   //perform permission checks
 

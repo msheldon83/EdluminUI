@@ -190,9 +190,7 @@ export const SecurityNavLink: React.FC<Props> = props => {
 export const MyScheduleNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewCalendarsNavLink} orgId={props?.orgId}>
-      <NavLink title={t("My Schedule")} icon={<DateRangeIcon />} {...props} />
-    </Can>
+    <NavLink title={t("My Schedule")} icon={<DateRangeIcon />} {...props} />
   );
 };
 
@@ -225,44 +223,30 @@ export const SubPreferencesNavLink: React.FC<Props> = props => {
 export const MyProfileNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewCalendarsNavLink} orgId={props?.orgId}>
-      <NavLink
-        title={t("My Profile")}
-        icon={<AccountCircleIcon />}
-        {...props}
-      />
-    </Can>
+    <NavLink title={t("My Profile")} icon={<AccountCircleIcon />} {...props} />
   );
 };
 
 export const HelpNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return (
-    <Can do={canViewCalendarsNavLink} orgId={props?.orgId}>
-      <NavLink title={t("Help")} icon={<HelpOutlineIcon />} {...props} />{" "}
-    </Can>
-  );
+  return <NavLink title={t("Help")} icon={<HelpOutlineIcon />} {...props} />;
 };
 
 export const SignOutNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewCalendarsNavLink} orgId={props?.orgId}>
-      <NavLink
-        title={t("Sign Out")}
-        icon={<ExitToAppIcon />}
-        route={"/404"}
-        {...props}
-      />
-    </Can>
+    <NavLink
+      title={t("Sign Out")}
+      icon={<ExitToAppIcon />}
+      route={"/404"}
+      {...props}
+    />
   );
 };
 
 export const OrganizationsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewOrganizationsNavLink} orgId={props?.orgId}>
-      <NavLink title={t("Organizations")} icon={<BusinessIcon />} {...props} />
-    </Can>
+    <NavLink title={t("Organizations")} icon={<BusinessIcon />} {...props} />
   );
 };
