@@ -478,8 +478,8 @@ export function App() {
                                 path={ContractsRoute.path}
                               />
                               <AdminOrgRoute
-                                component={SchoolsLoader}
-                                path={SchoolsRoute.path}
+                                component={LocationsLoader}
+                                path={LocationsRoute.path}
                               />
                               <AdminOrgRoute
                                 component={SchoolGroupsLoader}
