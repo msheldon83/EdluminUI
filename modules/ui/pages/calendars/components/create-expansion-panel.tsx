@@ -108,7 +108,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
     }
     if (
       !dateInSchoolYear(calendarChange.startDate) ||
-      !dateInSchoolYear(calendarChange.startDate)
+      !dateInSchoolYear(calendarChange.endDate)
     ) {
       openSnackbar({
         message: t("Please enter a date within the available school years."),
