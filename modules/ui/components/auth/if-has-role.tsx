@@ -12,24 +12,26 @@ export const IfHasRole: React.FC<{
     return <></>;
   }
 
-  if (userAccess.me?.isSystemAdministrator && !props.not) {
-    return <>{props.children}</>;
-  }
-
   let canRender = false;
   switch (props.role) {
     case OrgUserRole.Administrator:
       canRender =
-        some(userAccess.me?.user?.orgUsers ?? [], "isAdmin") !== !!props.not;
+        (userAccess.me?.isSystemAdministrator ||
+          some(userAccess.me?.user?.orgUsers ?? [], "isAdmin")) !== !!props.not;
       break;
     case OrgUserRole.Employee:
       canRender =
-        some(userAccess.me?.user?.orgUsers ?? [], "isEmployee") !== !!props.not;
+        (userAccess.me?.isSystemAdministrator ||
+          some(userAccess.me?.user?.orgUsers ?? [], "isEmployee")) !==
+        !!props.not;
       break;
     case OrgUserRole.ReplacementEmployee:
       canRender =
-        some(userAccess.me?.user?.orgUsers ?? [], "isReplacementEmployee") !==
-        !!props.not;
+        (userAccess.me?.isSystemAdministrator ||
+          some(
+            userAccess.me?.user?.orgUsers ?? [],
+            "isReplacementEmployee"
+          )) !== !!props.not;
       break;
   }
 
