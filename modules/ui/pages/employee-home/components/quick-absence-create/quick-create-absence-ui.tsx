@@ -149,13 +149,14 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
         <Typography>{t("Select a reason")}</Typography>
         <SelectNew
           value={{
-            value: absenceReason,
+            value: absenceReason ?? "",
             label:
               absenceReasonOptions.find(a => a.value === absenceReason)
                 ?.label || "",
           }}
           onChange={onAbsenceReasonChange}
           options={absenceReasonOptions}
+          multiple={false}
           inputStatus={absenceReasonError ? "error" : undefined}
           validationMessage={absenceReasonError?.message}
         />

@@ -133,6 +133,7 @@ export const SubSignInPage: React.FC<Props> = props => {
                 e => e.value && e.value === location?.id
               )}
               options={locationOptions}
+              multiple={false}
             />
           </Grid>
           <Grid item xs={3}></Grid>

@@ -18,7 +18,7 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select";
-import { SelectNew, SelectValueType } from "ui/components/form/select-new";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 
 type Props = {
   showQualifiedAndAvailable: boolean;
@@ -129,8 +129,9 @@ export const AssignSubFilters: React.FC<Props> = props => {
                       return o.value === optionsMap?.optionValue;
                     })}
                     disabled={!!searchFilter?.name}
+                    multiple={false}
                     options={qualifiedOptions}
-                    onChange={(e: SelectValueType) => {
+                    onChange={(e: OptionType) => {
                       let selectedValue: string | null = null;
                       if (e) {
                         if (Array.isArray(e)) {
@@ -169,7 +170,8 @@ export const AssignSubFilters: React.FC<Props> = props => {
                     })}
                     disabled={!!searchFilter?.name}
                     options={availableOptions}
-                    onChange={(e: SelectValueType) => {
+                    multiple={false}
+                    onChange={(e: OptionType) => {
                       let selectedValue: string | null = null;
                       if (e) {
                         if (Array.isArray(e)) {

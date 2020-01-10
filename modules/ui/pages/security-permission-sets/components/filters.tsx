@@ -55,6 +55,7 @@ export const Filters: React.FC<Props> = props => {
             onChange={onChangeRoles}
             options={roleOptions}
             value={selectedValue}
+            multiple={false}
           />
         </Grid>
       </Grid>

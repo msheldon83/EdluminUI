@@ -109,12 +109,13 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
               <Typography>{t("Accounting code")}</Typography>
               <SelectNew
                 value={{
-                  value: values.accountingCode,
+                  value: values.accountingCode ?? "",
                   label:
                     accountingCodeOptions.find(
                       a => a.value === values.accountingCode
                     )?.label || "",
                 }}
+                multiple={false}
                 onChange={onAccountingCodeChange}
                 options={accountingCodeOptions}
                 inputStatus={errors.accountingCode ? "error" : undefined}
@@ -127,11 +128,12 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
               <Typography>{t("Pay code")}</Typography>
               <SelectNew
                 value={{
-                  value: values.payCode,
+                  value: values.payCode ?? "",
                   label:
                     payCodeOptions.find(a => a.value === values.payCode)
                       ?.label || "",
                 }}
+                multiple={false}
                 onChange={onPayCodeChange}
                 options={payCodeOptions}
                 inputStatus={errors.payCode ? "error" : undefined}

@@ -212,7 +212,8 @@ export const Information: React.FC<Props> = props => {
                             value={permissionSetOptions.filter(
                               e => e.value && values.permissionSetId
                             )}
-                            onChange={value => {
+                            multiple={false}
+                            onChange={(value: OptionType) => {
                               const id = [(value as OptionTypeBase).value];
                               setFieldValue("permissionSetId", id);
                             }}
@@ -297,12 +298,13 @@ export const Information: React.FC<Props> = props => {
                               <div>{t("State")}</div>
                               <SelectNew
                                 value={{
-                                  value: values.state,
+                                  value: values.state ?? "",
                                   label:
                                     stateOptions.find(
                                       a => a.value === values.state
                                     )?.label || "",
                                 }}
+                                multiple={false}
                                 onChange={(e: OptionType) => {
                                   //TODO: Once the select component is updated,
                                   // can remove the Array checking
@@ -319,7 +321,6 @@ export const Information: React.FC<Props> = props => {
                                   }
                                   setFieldValue("state", selectedValue);
                                 }}
-                                multiple={false}
                                 options={stateOptions}
                               />
                             </Grid>

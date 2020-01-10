@@ -482,7 +482,7 @@ export const Assignment: React.FC<Props> = props => {
                   <Grid item xs={2}>
                     <SelectNew
                       value={{
-                        value: values.payCodeId,
+                        value: values.payCodeId ?? "",
                         label:
                           props.payCodeOptions.find(
                             a => a.value === values.payCodeId
@@ -510,7 +510,7 @@ export const Assignment: React.FC<Props> = props => {
                   <Grid item xs={2}>
                     <SelectNew
                       value={{
-                        value: values.accountingCodeId,
+                        value: values.accountingCodeId ?? "",
                         label:
                           accountingCodeOptions.find(
                             a => a.value === values.accountingCodeId

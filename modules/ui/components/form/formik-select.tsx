@@ -13,10 +13,11 @@ export const FormikSelect: React.FC<Props> = props => {
       {...field}
       {...props}
       value={{
-        value: field.value,
+        value: field.value ?? "",
         label: props.options.find(op => op.value === field.value)?.label || "",
       }}
       onChange={v => setFieldValue(props.name, (v as any).value)}
+      multiple={false}
     />
   );
 };
