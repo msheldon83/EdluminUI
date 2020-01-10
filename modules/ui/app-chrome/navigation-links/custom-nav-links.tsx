@@ -105,11 +105,9 @@ export const CalendarNavLink: React.FC<Props> = props => {
   return <NavLink title={t("Calendars")} icon={<DateRangeIcon />} {...props} />;
 };
 
-export const ConfigurationNavLink: React.FC<Props> = props => {
+export const SettingsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  return (
-    <NavLink title={t("Configuration")} icon={<SettingsIcon />} {...props} />
-  );
+  return <NavLink title={t("Settings")} icon={<SettingsIcon />} {...props} />;
 };
 
 export const SecurityNavLink: React.FC<Props> = props => {
