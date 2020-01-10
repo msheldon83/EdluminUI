@@ -6,10 +6,10 @@ import { useTranslation } from "react-i18next";
 import {
   VacancyDetail,
   AbsenceReasonTrackingTypeId,
-  DayConversion,
 } from "graphql/server-types.gen";
 import { parseISO, format } from "date-fns";
 import clsx from "clsx";
+import { getPayLabel } from "ui/components/helpers";
 
 type Props = {
   vacancyDetail: Pick<
@@ -35,20 +35,23 @@ export const VacancyDetailRow: React.FC<Props> = props => {
   const vacancyDetailStartTime = parseISO(vacancyDetail.startTimeLocal);
   const vacancyDetailEndTime = parseISO(vacancyDetail.endTimeLocal);
 
-  const payLabel = useMemo(() => {
-    if (vacancyDetail.payInfo?.match) {
-      return vacancyDetail.payInfo.label;
-    }
-    return vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
-      ? `${vacancyDetail.dayPortion.toFixed(1)}`
-      : `${vacancyDetail.dayPortion.toFixed(
-          1
-        )}/${vacancyDetail.totalDayPortion.toFixed(1)}`;
-  }, [
-    vacancyDetail.dayPortion,
-    vacancyDetail.totalDayPortion,
-    vacancyDetail.payInfo,
-  ]);
+  const payLabel = useMemo(
+    () =>
+      getPayLabel(
+        vacancyDetail.payInfo?.match ?? false,
+        vacancyDetail.payInfo?.payTypeId ?? AbsenceReasonTrackingTypeId.Daily,
+        vacancyDetail.payInfo?.label ?? "",
+        vacancyDetail.dayPortion,
+        vacancyDetail.totalDayPortion,
+        t
+      ),
+    [
+      vacancyDetail.dayPortion,
+      vacancyDetail.totalDayPortion,
+      vacancyDetail.payInfo,
+      t,
+    ]
+  );
 
   return (
     <Grid

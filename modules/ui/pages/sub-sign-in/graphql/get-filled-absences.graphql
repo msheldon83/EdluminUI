@@ -9,6 +9,7 @@ query GetFilledAbsences($orgId: ID!, $date: Date!, $locationIds: [Int]) {
       payInfo {
         label
         match
+        payTypeId
       }
       vacancy {
         id
