@@ -146,11 +146,13 @@ export const Calendars: React.FC<Props> = props => {
       title: t("Contract"),
       searchable: false,
       render: (o: GetCalendarChanges.Results) => {
-        const contracts: any[] = [];
-        o.changedContracts?.forEach(e => {
-          contracts.push(e?.name);
+        const contracts = o.changedContracts?.map(c => {
+          return c?.name;
         });
-        return contracts.join(",");
+        if (contracts?.length === 0) {
+          contracts.push(t("All Contracts"));
+        }
+        return contracts?.join(",");
       },
     },
   ];
@@ -165,7 +167,7 @@ export const Calendars: React.FC<Props> = props => {
 
           {schoolYear && (
             <PageTitle
-              title={`${parseISO(
+              title={`${t("Calendar")} ${parseISO(
                 schoolYear.startDate
               ).getFullYear()} - ${parseISO(schoolYear.endDate).getFullYear()}`}
             />

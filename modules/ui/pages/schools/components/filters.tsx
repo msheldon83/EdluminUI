@@ -1,22 +1,27 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
-import { Select } from "ui/components/form/select";
-import { useCallback, useMemo, useEffect } from "react";
-import { OrgUserRole } from "graphql/server-types.gen";
-import { useDeferredState } from "hooks";
 import { Input } from "ui/components/form/input";
+import { OptionType, Select } from "ui/components/form/select";
+import { useCallback, useMemo, useEffect } from "react";
+import { useLocationGroups } from "reference-data/location-groups";
+import { useDeferredState } from "hooks";
+import { useRouteParams } from "ui/routes/definition";
+import { LocationsRoute } from "ui/routes/locations";
+import { sortBy } from "lodash-es";
 
 type Props = {
   orgId: string;
-  rolesFilter: OrgUserRole[];
-  setRolesFilter: React.Dispatch<React.SetStateAction<OrgUserRole[]>>;
+  locationGroupFilter: number[];
   setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setLocationGroupsFilter: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const params = useRouteParams(LocationsRoute);
+
   const [
     searchText,
     pendingSearchText,
@@ -26,36 +31,36 @@ export const Filters: React.FC<Props> = props => {
     props.setSearchText(searchText);
   }, [searchText]);
 
-  const roleOptions = useMemo(
-    () => [
-      { id: OrgUserRole.Invalid, label: "(All)" },
-      { id: OrgUserRole.Administrator, label: "Admin" },
-      { id: OrgUserRole.Employee, label: "Employee" },
-      { id: OrgUserRole.ReplacementEmployee, label: "Substitute" },
-    ],
-    []
-  );
-
-  const selectedValue =
-    roleOptions.find(e => e.label && props.rolesFilter.includes(e.id)) ??
-    roleOptions.find(e => e.id === OrgUserRole.Invalid);
-
-  const onChangeRoles = useCallback(
-    value => {
-      if (value.id === OrgUserRole.Invalid) {
-        props.setRolesFilter([]);
-      } else {
-        props.setRolesFilter(value.id);
-      }
-    },
-    [props.setRolesFilter]
-  );
-
   const updateSearchText = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setPendingSearchText(event.target.value);
     },
     [setPendingSearchText]
+  );
+
+  const locationGroups = useLocationGroups(params.organizationId);
+  const locationGroupOptions = useMemo(() => {
+    const options = locationGroups.map(l => ({ label: l.name, value: l.id }));
+    sortBy(options, ["label"]);
+    options.unshift({ label: t("(All)"), value: "0" });
+    return options;
+  }, [locationGroups]);
+
+  const selectedValue = locationGroupOptions.find(e =>
+    props.locationGroupFilter.length === 0
+      ? locationGroupOptions.find(e => e.value === "0")
+      : e.label && props.locationGroupFilter.includes(Number(e.value))
+  );
+
+  const onChangeGroup = useCallback(
+    value => {
+      if (value.value === "0") {
+        props.setLocationGroupsFilter([]);
+      } else {
+        props.setLocationGroupsFilter([Number(value.value)]);
+      }
+    },
+    [props.setLocationGroupsFilter]
   );
 
   return (
@@ -77,11 +82,11 @@ export const Filters: React.FC<Props> = props => {
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3}>
-          <InputLabel className={classes.label}>{t("Roles")}</InputLabel>
+          <InputLabel className={classes.label}>{t("Group")}</InputLabel>
           <Select
             isClearable={false}
-            onChange={onChangeRoles}
-            options={roleOptions}
+            onChange={onChangeGroup}
+            options={locationGroupOptions}
             value={selectedValue}
           />
         </Grid>

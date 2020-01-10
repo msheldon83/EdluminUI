@@ -1,0 +1,52 @@
+query GetMyUserAccess {
+  userAccess {
+    me {
+      isSystemAdministrator
+      user {
+        id
+        rowVersion
+        firstName
+        lastName
+        loginEmail
+        phone
+        timeZoneId
+        orgUsers {
+          id
+          isAdmin
+          isEmployee
+          isReplacementEmployee
+          orgId
+          organization {
+            id
+            name
+          }
+          administrator {
+            id
+            firstName
+            lastName
+            isSuperUser
+            permissions
+          }
+          employee {
+            id
+            orgId
+            firstName
+            lastName
+            primaryPositionId
+            primaryPosition {
+              id
+              name
+              needsReplacement
+            }
+            permissions
+          }
+          substitute {
+            firstName
+            lastName
+            permissions
+          }
+        }
+      }
+    }
+  }
+}

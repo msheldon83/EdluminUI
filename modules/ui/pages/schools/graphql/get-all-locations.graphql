@@ -1,0 +1,21 @@
+query GetAllLocationsWithinOrg(
+  $orgId: ID
+  $locationGroups: [Int]
+  $searchText: String
+) {
+  location {
+    all(
+      orgId: $orgId
+      locationGroups: $locationGroups
+      searchText: $searchText
+    ) {
+      id
+      name
+      externalId
+      locationGroup {
+        id
+        name
+      }
+    }
+  }
+}

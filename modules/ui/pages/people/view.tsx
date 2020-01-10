@@ -19,10 +19,12 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { AdminTab } from "./role-pages/admin-tab";
 import { EmployeeTab } from "./role-pages/employee-tab";
 import { SubstituteTab } from "./role-pages/substitute-tab";
+import { makeStyles } from "@material-ui/core";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+  const classes = useStyles();
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
 
@@ -96,43 +98,51 @@ export const PersonViewPage: React.FC<{}> = props => {
         deleteOrgUser={deleteOrgUser}
         onSaveOrgUser={onUpdateOrgUser}
       />
-      <RoleTabs
-        orgUser={orgUser}
-        selectedRole={selectedRole ?? defaultSelectedRole}
-        setSelectedRole={setSelectedRole}
-      />
-      {(selectedRole ?? defaultSelectedRole) === OrgUserRole.Administrator ? (
-        orgUser.isAdmin ? (
-          <AdminTab
-            editing={editing}
-            setEditing={setEditing}
-            selectedRole={selectedRole ?? defaultSelectedRole}
-            orgUserId={orgUser.id}
-          />
-        ) : (
-          <div>Create administrator user</div>
-        )
-      ) : (selectedRole ?? defaultSelectedRole) === OrgUserRole.Employee ? (
-        orgUser.isEmployee ? (
-          <EmployeeTab
-            editing={editing}
-            setEditing={setEditing}
-            selectedRole={selectedRole ?? defaultSelectedRole}
-            orgUserId={orgUser.id}
-          />
-        ) : (
-          <div>Create employee</div>
-        )
-      ) : orgUser.isReplacementEmployee ? (
-        <SubstituteTab
-          editing={editing}
-          setEditing={setEditing}
+      <div className={classes.content}>
+        <RoleTabs
+          orgUser={orgUser}
           selectedRole={selectedRole ?? defaultSelectedRole}
-          orgUserId={orgUser.id}
+          setSelectedRole={setSelectedRole}
         />
-      ) : (
-        <div>Create substitute</div>
-      )}
+        {(selectedRole ?? defaultSelectedRole) === OrgUserRole.Administrator ? (
+          orgUser.isAdmin ? (
+            <AdminTab
+              editing={editing}
+              setEditing={setEditing}
+              selectedRole={selectedRole ?? defaultSelectedRole}
+              orgUserId={orgUser.id}
+            />
+          ) : (
+            <div>Create administrator user</div>
+          )
+        ) : (selectedRole ?? defaultSelectedRole) === OrgUserRole.Employee ? (
+          orgUser.isEmployee ? (
+            <EmployeeTab
+              editing={editing}
+              setEditing={setEditing}
+              selectedRole={selectedRole ?? defaultSelectedRole}
+              orgUserId={orgUser.id}
+            />
+          ) : (
+            <div>Create employee</div>
+          )
+        ) : orgUser.isReplacementEmployee ? (
+          <SubstituteTab
+            editing={editing}
+            setEditing={setEditing}
+            selectedRole={selectedRole ?? defaultSelectedRole}
+            orgUserId={orgUser.id}
+          />
+        ) : (
+          <div>Create substitute</div>
+        )}
+      </div>
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  content: {
+    marginTop: theme.spacing(2),
+  },
+}));
