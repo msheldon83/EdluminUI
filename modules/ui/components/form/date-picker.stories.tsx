@@ -224,8 +224,7 @@ export const CustomCalendarStory = () => {
         }}
         month={month}
         customDates={customDates}
-        viewableFuture={boolean("viewableFuture", true)}
-        viewablePast={boolean("viewablePast", true)}
+        monthNavigation={boolean("monthNavigation", true)}
         variant={select("variant", { Month: "month", Weeks: "weeks" }, "month")}
         onMonthChange={month => {
           setMonth(month);

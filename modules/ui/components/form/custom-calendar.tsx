@@ -28,8 +28,7 @@ type CustomCalendarProps = {
     buttonProps: ButtonProps;
   }>;
   variant?: "weeks" | "month";
-  viewableFuture?: boolean;
-  viewablePast?: boolean;
+  monthNavigation?: boolean;
 };
 
 export const CustomCalendar = (props: CustomCalendarProps) => {
@@ -40,8 +39,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     onMonthChange = () => {},
     month = new Date(),
     customDates = [],
-    viewableFuture = false,
-    viewablePast = false,
+    monthNavigation = false,
 
     // TODO: implement the month version like single-month-calendar
     variant = "weeks",
@@ -230,7 +228,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     <section className={classes.calendar} style={style}>
       <header className={classes.header}>
         <span className={classes.monthNavButton}>
-          {viewablePast && (
+          {monthNavigation && (
             <IconButton
               arial-label="view previous month"
               onClick={handlePreviousMonthClick}
@@ -250,7 +248,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
         </span>
 
         <span className={classes.monthNavButton}>
-          {viewableFuture && (
+          {monthNavigation && (
             <IconButton
               arial-label="view next month"
               onClick={handleNextMonthClick}
