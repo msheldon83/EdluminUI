@@ -504,12 +504,17 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
         isSubHeader={true}
         showLabel={true}
       />
-      <Tabs steps={tabs} isWizard={false} />
+      <div className={classes.content}>
+        <Tabs steps={tabs} isWizard={false} />
+      </div>
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  content: {
+    marginTop: theme.spacing(2),
+  },
   valueMissing: {
     opacity: "0.6",
     filter: "alpha(opacity = 60)",

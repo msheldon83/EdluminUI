@@ -17,7 +17,6 @@ import {
 import { isAfter, isWithinInterval, format, isSameDay } from "date-fns";
 import { convertStringToDate } from "helpers/date";
 import { TFunction } from "i18next";
-import { FindEmployeeForCurrentUserQuery } from "ui/pages/create-absence/graphql/find-employee-for-current-user.gen";
 import { DateStepperHeader } from "../date-stepper-header";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 

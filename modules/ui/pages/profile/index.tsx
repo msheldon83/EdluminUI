@@ -2,7 +2,7 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
 import { UpdateUser } from "./UpdateUser.gen";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
-import { MyProfile } from "ui/pages/profile/MyProfile.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import * as React from "react";
 import { ProfileUI } from "./profile-ui";
 import { useTimezones } from "reference-data/timezones";
@@ -10,7 +10,9 @@ import { useTimezones } from "reference-data/timezones";
 type Props = {};
 
 export const ProfilePage: React.FC<Props> = props => {
-  const myProfile = useQueryBundle(MyProfile);
+  const myProfile = useQueryBundle(GetMyUserAccess, {
+    fetchPolicy: "cache-first",
+  });
   const timeZones = useTimezones();
   const [updateLoginEmail] = useMutationBundle(UpdateLoginEmail);
   const [resetPassword] = useMutationBundle(ResetPassword);

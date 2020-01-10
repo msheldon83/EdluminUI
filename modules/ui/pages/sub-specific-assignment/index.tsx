@@ -15,9 +15,9 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { SubSpecificAssignmentRoute } from "ui/routes/sub-specific-assignment";
 import { CancelAssignment } from "ui/components/absence/graphql/cancel-assignment.gen";
 import { GetSpecificAssignment } from "./graphql/get-specific-assignment.gen";
-import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
 import { AssignmentRow } from "ui/components/substitutes/assignment-row";
 import { AssignmentGroup } from "ui/components/substitutes/assignment-row/assignment-group";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 
 type Props = {};
 
@@ -50,7 +50,7 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
     history.push(SubHomeRoute.generate(params));
   };
 
-  const getOrgUsers = useQueryBundle(QueryOrgUsers, {
+  const getOrgUsers = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
 
@@ -117,7 +117,7 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
                       <AssignmentGroup
                         vacancyDetails={vacancyDetails}
                         onCancel={onCancelAssignment}
-                        isAdmin={false} 
+                        isAdmin={false}
                         forSpecificAssignment={true}
                       />
                     ) : (
@@ -133,7 +133,9 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
                     {vacancyDetails[0].vacancy?.notesToReplacement && (
                       <>
                         <Typography variant="h6">{t("Notes")}</Typography>
-                        <div>{vacancyDetails[0].vacancy?.notesToReplacement}</div>
+                        <div>
+                          {vacancyDetails[0].vacancy?.notesToReplacement}
+                        </div>
                       </>
                     )}
                   </Grid>

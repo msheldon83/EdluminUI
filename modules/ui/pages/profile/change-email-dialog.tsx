@@ -10,7 +10,7 @@ import * as Forms from "atomic-object/forms";
 import { useAuth0 } from "auth/auth0";
 import { Formik } from "formik";
 import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
-import { MyProfile } from "ui/pages/profile/MyProfile.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { UserLoginEmailChangeInput } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -21,7 +21,7 @@ import * as Yup from "yup";
 type Props = {
   open: boolean;
   onClose: () => void;
-  user: MyProfile.User;
+  user: GetMyUserAccess.User;
   updateLoginEmail: MutationFunction<
     UpdateLoginEmail.Mutation,
     UpdateLoginEmail.Variables
