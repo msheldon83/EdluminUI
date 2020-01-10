@@ -7,7 +7,7 @@ import * as React from "react";
 import { useMemo } from "react";
 import { useGetEmployee } from "reference-data/employee";
 import { useIsAdmin } from "reference-data/is-admin";
-import { FindEmployeeForCurrentUser } from "./graphql/find-employee-for-current-user.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { CreateAbsenceUI } from "./ui";
 
 type Props = {};
@@ -25,7 +25,7 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
     defaultOptions,
   ]);
 
-  const potentialEmployees = useQueryBundle(FindEmployeeForCurrentUser, {
+  const potentialEmployees = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
 

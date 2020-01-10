@@ -1,25 +1,33 @@
 import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
+import LaunchIcon from "@material-ui/icons/Launch";
 import { useTranslation } from "react-i18next";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useRouteParams } from "ui/routes/definition";
 import { DailyReport } from "ui/components/reports/daily-report/daily-report";
-import { startOfToday, getHours, startOfTomorrow, isSameDay } from "date-fns";
+import {
+  startOfToday,
+  getHours,
+  startOfTomorrow,
+  isSameDay,
+  format,
+} from "date-fns";
 import { Grid, Button, Tooltip } from "@material-ui/core";
 import { DateStepperHeader } from "ui/components/date-stepper-header";
 import { useMemo, useState, useEffect } from "react";
 import { useQueryBundle, HookQueryResult } from "graphql/hooks";
 import {
-  GetUserName,
-  GetUserNameQuery,
-  GetUserNameQueryVariables,
-} from "./graphql/get-user-name.gen";
+  GetMyUserAccess,
+  GetMyUserAccessQuery,
+  GetMyUserAccessQueryVariables,
+} from "reference-data/get-my-user-access.gen";
 import { TFunction } from "i18next";
 import { Link } from "react-router-dom";
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { CardType } from "ui/components/reports/daily-report/helpers";
 import { useQueryParamIso } from "hooks/query-params";
 import { FilterQueryParams } from "ui/components/reports/daily-report/filters/filter-params";
+import { SubSignInRoute } from "ui/routes/sub-sign-in";
 
 type Props = {};
 
@@ -40,7 +48,7 @@ export const AdminHome: React.FC<Props> = props => {
   const [selectedCard, setSelectedCard] = useState<CardType>("unfilled");
   const dailyReportRouteParams = useRouteParams(DailyReportRoute);
 
-  const getUserName = useQueryBundle(GetUserName, {
+  const getUserName = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
   const salutation = useMemo(() => {
@@ -58,7 +66,7 @@ export const AdminHome: React.FC<Props> = props => {
       setDate(startOfTomorrow());
       setSelectedCard("unfilled");
     }
-  }, []);
+  }, [timeOfDay]);
 
   /* This is purely to support the "Toggle Time of Day" button
       in Dev for testing. In Prod we'll only be setting the 
@@ -89,6 +97,15 @@ export const AdminHome: React.FC<Props> = props => {
     }
   };
 
+  const subSignInUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("location", "");
+    params.set("date", format(date, "P"));
+    return `${SubSignInRoute.generate({
+      organizationId: dailyReportRouteParams.organizationId,
+    })}?${params.toString()}`;
+  }, [date, dailyReportRouteParams.organizationId]);
+
   return (
     <>
       <Grid
@@ -105,8 +122,18 @@ export const AdminHome: React.FC<Props> = props => {
           <Button
             variant="outlined"
             component={Link}
+            to={subSignInUrl}
+            className={classes.button}
+            target={"_blank"}
+          >
+            <LaunchIcon className={classes.signinIcon} />
+            {t("Sub Sign-in ")}
+          </Button>
+          <Button
+            variant="outlined"
+            component={Link}
             to={DailyReportRoute.generate(dailyReportRouteParams)}
-            className={classes.dailyReportButton}
+            className={classes.button}
           >
             {t("Daily Report")}
           </Button>
@@ -130,8 +157,12 @@ const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(3),
   },
-  dailyReportButton: {
+  button: {
     marginLeft: theme.spacing(),
+  },
+  signinIcon: {
+    marginRight: "5px",
+    width: theme.typography.pxToRem(16),
   },
   actions: {
     "@media print": {
@@ -141,7 +172,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const getSalutation = (
-  queryResult: HookQueryResult<GetUserNameQuery, GetUserNameQueryVariables>,
+  queryResult: HookQueryResult<
+    GetMyUserAccessQuery,
+    GetMyUserAccessQueryVariables
+  >,
   t: TFunction
 ) => {
   const timeOfDay = getTimeOfDay();

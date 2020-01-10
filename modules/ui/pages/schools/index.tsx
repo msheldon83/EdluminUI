@@ -1,50 +1,61 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
+import { Filters } from "./components/filters";
+import { Section } from "ui/components/section";
+import { Grid, Button, makeStyles } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
-import { SchoolsRoute } from "ui/routes/schools";
+import { LocationsRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
+import { LocationsUI } from "./ui";
+import { useState } from "react";
 
 type Props = {};
 
-export const Schools: React.FC<Props> = props => {
+export const Locations: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
   const classes = useStyles();
-  const isMobile = useIsMobile();
-  const params = useRouteParams(SchoolsRoute);
-
-  const [triggerError, setTriggerError] = React.useState(false);
-
-  if (triggerError) {
-    throw Error("error!");
-  }
+  const [locationGroupFilter, setLocationGroupsFilter] = useState<number[]>([]);
+  const [searchText, setSearchText] = useState<string | undefined>();
+  const params = useRouteParams(LocationsRoute);
 
   return (
     <>
-      <PageTitle title={`${params.organizationId} ${t("Schools")}`} />
-      {__DEV__ && (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            setTriggerError(true);
-          }}
-        >
-          Trigger Error
-        </Button>
-      )}
+      <Grid
+        container
+        alignItems="flex-start"
+        justify="space-between"
+        spacing={2}
+        className={classes.header}
+      >
+        <PageTitle title={t("Schools")} />
+        <Grid item>
+          <Button
+            variant="contained"
+            //component={Link}
+            //to={ROUTE_GOES_HERE.generate(params)} Generate correct Route for ADD
+          >
+            {t("Add School")}
+          </Button>
+        </Grid>
+      </Grid>
+      <Section>
+        <Filters
+          locationGroupFilter={locationGroupFilter}
+          setLocationGroupsFilter={setLocationGroupsFilter}
+          setSearchText={setSearchText}
+          orgId={params.organizationId}
+        />
+      </Section>
+      <LocationsUI
+        locationGroupFilter={locationGroupFilter}
+        searchText={searchText}
+      />
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+  header: {
+    marginBottom: theme.spacing(),
   },
 }));

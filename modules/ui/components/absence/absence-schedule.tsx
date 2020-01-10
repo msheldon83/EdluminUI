@@ -19,7 +19,7 @@ import { parseISO } from "date-fns";
 import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
 import { ScheduledAbsences } from "ui/components/employee/components/scheduled-absences";
 import { CalendarView } from "ui/pages/employee-schedule/components/calendar-view";
-import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { useIsAdmin } from "reference-data/is-admin";
 
 type Props = {
@@ -38,7 +38,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
   const tempUserIsAdmin = useIsAdmin();
   const userIsAdmin = tempUserIsAdmin === null ? undefined : tempUserIsAdmin;
 
-  const getOrgUsers = useQueryBundle(QueryOrgUsers, {
+  const getOrgUsers = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
 

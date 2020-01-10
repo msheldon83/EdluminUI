@@ -11,6 +11,7 @@ import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { EmployeePtoBalanceRoute } from "ui/routes/employee-pto-balances";
 import { OrganizationsRoute } from "ui/routes/organizations";
 import { PeopleRoute } from "ui/routes/people";
+import { CalendarListViewRoute } from "ui/routes/calendar/calendar";
 import { SubHomeRoute } from "ui/routes/sub-home";
 import { SubPreferencesRoute } from "ui/routes/sub-preferences";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
@@ -31,7 +32,7 @@ import {
 } from "./custom-nav-links";
 import { ConfigurationRoute } from "ui/routes/org-config";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
-import { SchoolsRoute } from "ui/routes/schools";
+import { LocationsRoute } from "ui/routes/locations";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
 
 type Props = {
@@ -139,7 +140,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           <SchoolsNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
-            route={SchoolsRoute.generate(params)}
+            route={LocationsRoute.generate(params)}
           />
           <PeopleNavLink
             onClick={props.onClick}
@@ -149,7 +150,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           <CalendarNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
-            route={adminTbd.generate(params)}
+            route={CalendarListViewRoute.generate(params)}
           />
           <ConfigurationNavLink
             onClick={props.onClick}

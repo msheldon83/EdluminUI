@@ -52,7 +52,10 @@ query GetAllPeopleForOrg(
           }
           primaryPosition {
             id
-            name
+            positionType {
+              id
+              name
+            }
           }
           endorsements {
             id

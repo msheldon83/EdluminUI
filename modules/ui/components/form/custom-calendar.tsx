@@ -3,23 +3,32 @@ import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import Button, { ButtonProps } from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
+import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import addDays from "date-fns/addDays";
+import addMonths from "date-fns/addMonths";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
 import format from "date-fns/format";
 import startOfWeek from "date-fns/startOfWeek";
+import startOfMonth from "date-fns/startOfMonth";
+import endOfMonth from "date-fns/endOfMonth";
 import isSameDay from "date-fns/isSameDay";
+import getDay from "date-fns/getDay";
 import { sortDates, inDateInterval } from "helpers/date";
 
 type CustomCalendarProps = {
   contained?: boolean;
   style?: React.CSSProperties;
   onSelectDates?: (dates: Array<Date>) => void;
+  onMonthChange?: (date: Date) => void;
   month?: Date;
   customDates?: Array<{
     date: Date;
     buttonProps: ButtonProps;
   }>;
   variant?: "weeks" | "month";
+  monthNavigation?: boolean;
 };
 
 export const CustomCalendar = (props: CustomCalendarProps) => {
@@ -27,8 +36,10 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     contained = true,
     style = {},
     onSelectDates = () => {},
+    onMonthChange = () => {},
     month = new Date(),
     customDates = [],
+    monthNavigation = false,
 
     // TODO: implement the month version like single-month-calendar
     variant = "weeks",
@@ -54,11 +65,47 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     };
   }, []);
 
-  const startingSunday = startOfWeek(month);
-  const endDate = addDays(startingSunday, 34);
-  const daysList = eachDayOfInterval({ start: startingSunday, end: endDate });
-  const firstDay = format(startingSunday, "LLL d");
-  const lastDay = format(daysList[daysList.length - 1], "LLL d");
+  const getStartDate = (month: Date) => {
+    switch (variant) {
+      case "weeks": {
+        return startOfWeek(month);
+      }
+      case "month": {
+        return startOfMonth(month);
+      }
+    }
+  };
+
+  const getEndDate = (month: Date) => {
+    switch (variant) {
+      case "weeks": {
+        return addDays(startDate, 34);
+      }
+      case "month": {
+        return endOfMonth(month);
+      }
+    }
+  };
+
+  const startDate = getStartDate(month);
+  const firstDayOfMonthNumber = getDay(startDate);
+  const daysList = eachDayOfInterval({
+    start: startDate,
+    end: getEndDate(startDate),
+  });
+
+  const calendarTitle = () => {
+    switch (variant) {
+      case "weeks": {
+        const firstDayText = format(startDate, "LLL d");
+        const lastDayText = format(daysList[daysList.length - 1], "LLL d");
+        return `${firstDayText} - ${lastDayText}`;
+      }
+      case "month": {
+        return format(startDate, "MMMM yyyy");
+      }
+    }
+  };
 
   const handleDateSelect = (date: Date) => {
     // Make it only about the actual date
@@ -102,8 +149,18 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     }
   };
 
+  const handlePreviousMonthClick = React.useCallback(() => {
+    onMonthChange(addMonths(month, -1));
+  }, [month, onMonthChange]);
+
+  const handleNextMonthClick = React.useCallback(() => {
+    onMonthChange(addMonths(month, 1));
+  }, [month, onMonthChange]);
+
+  const handleCurrentMonthClick = () => onMonthChange(new Date());
+
   const renderDates = () =>
-    daysList.map(date => {
+    daysList.map((date, index) => {
       const day = format(date, "d");
       const formattedDate = format(date, "yyyy-MM-dd");
 
@@ -122,8 +179,22 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
         [classes.dayShiftPressed]: shiftPressed,
       });
 
+      /*
+        Start rendering the first day of the month in the correct column, only for the month
+        variant
+      */
+      const dayItemStyle =
+        index === 0 && variant === "month"
+          ? { gridColumn: firstDayOfMonthNumber + 1 }
+          : {};
+
       return (
-        <li className={classes.date} role="gridcell" key={formattedDate}>
+        <li
+          className={classes.date}
+          style={dayItemStyle}
+          role="gridcell"
+          key={formattedDate}
+        >
           <Button
             disableFocusRipple
             disableRipple
@@ -156,8 +227,35 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   return (
     <section className={classes.calendar} style={style}>
       <header className={classes.header}>
+        <span className={classes.monthNavButton}>
+          {monthNavigation && (
+            <IconButton
+              arial-label="view previous month"
+              onClick={handlePreviousMonthClick}
+            >
+              <ArrowBackIosIcon fontSize="small" />
+            </IconButton>
+          )}
+        </span>
+
         <span role="heading" className={classes.dayRange}>
-          {firstDay} - {lastDay}
+          <Button
+            onClick={handleCurrentMonthClick}
+            className={classes.titleButton}
+          >
+            {calendarTitle()}
+          </Button>
+        </span>
+
+        <span className={classes.monthNavButton}>
+          {monthNavigation && (
+            <IconButton
+              arial-label="view next month"
+              onClick={handleNextMonthClick}
+            >
+              <ArrowForwardIosIcon fontSize="small" />
+            </IconButton>
+          )}
         </span>
       </header>
       <ul role="grid" className={classes.dates}>
@@ -229,8 +327,15 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
     // Future proofing styling for adding functionality here later
     alignItems: "center",
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "space-between",
     paddingBottom: theme.spacing(3),
+  },
+  titleButton: {
+    letterSpacing: theme.typography.pxToRem(0.15),
+  },
+  monthNavButton: {
+    height: theme.typography.pxToRem(44),
+    width: theme.typography.pxToRem(44),
   },
   dayRange: {
     fontSize: theme.typography.pxToRem(14),

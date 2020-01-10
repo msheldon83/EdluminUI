@@ -13,7 +13,7 @@ import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Table } from "ui/components/table";
 import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
-import { GetOrgsForUser } from "ui/pages/organizations/GetOrgsForUser.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 
 type Props = { redirectIfOneOrg?: boolean };
@@ -23,14 +23,14 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
 
-  const columns: Column<GetOrgsForUser.Organization>[] = [
+  const columns: Column<GetMyUserAccess.Organization>[] = [
     { title: t("Id"), field: "id" },
     { title: t("Name"), field: "name", defaultSort: "asc" },
     {
       title: "",
       field: "actions",
       sorting: false,
-      render: (rowData: GetOrgsForUser.Organization) => {
+      render: (rowData: GetMyUserAccess.Organization) => {
         const switchOrg = () => {
           return (
             <div className={classes.switchAlign}>
@@ -75,8 +75,8 @@ export const OrganizationsPage: React.FC<Props> = props => {
     },
   ];
 
-  const orgUserQuery = useQueryBundle(GetOrgsForUser, {
-    fetchPolicy: "cache-and-network",
+  const orgUserQuery = useQueryBundle(GetMyUserAccess, {
+    fetchPolicy: "cache-first",
   });
 
   const [getOrganizations, pagination] = usePagedQueryBundle(
@@ -128,6 +128,8 @@ export const OrganizationsPage: React.FC<Props> = props => {
       />
     );
   }
+
+  pagination.totalCount = organizationsCount;
 
   return (
     <>

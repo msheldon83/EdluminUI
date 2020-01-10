@@ -29,7 +29,13 @@ import {
   AccountingCodeRoute,
 } from "./routes/accounting-code";
 import { AdminHomeLoader, AdminHomeRoute } from "./routes/admin-home";
-import { AdminRootChromeRoute, AppChromeRoute } from "./routes/app-chrome";
+import {
+  AdminRootChromeRoute,
+  AppChromeRoute,
+  EmployeeChromeRoute,
+  SubstituteChromeRoute,
+  AdminChromeRoute,
+} from "./routes/app-chrome";
 import {
   BellScheduleAddLoader,
   BellScheduleAddRoute,
@@ -47,13 +53,11 @@ import {
   CalendarChangeReasonRoute,
 } from "./routes/calendar/event-reasons";
 import {
-  CalendarPastYearsLoader,
-  CalendarPastYearsRoute,
-} from "./routes/calendar/past-years";
-import {
-  CalendarThisYearLoader,
-  CalendarThisYearRoute,
-} from "./routes/calendar/this-year";
+  CalendarRoute,
+  CalendarsLoader,
+  CalendarListViewRoute,
+  CalendarCalendarViewRoute,
+} from "./routes/calendar/calendar";
 import { ContractsLoader, ContractsRoute } from "./routes/contracts";
 import {
   AdminCreateAbsenceRoute,
@@ -112,8 +116,11 @@ import {
   ReplacementAttributeLoader,
   ReplacementAttributeRoute,
 } from "./routes/replacement-attribute";
-import { SchoolGroupsLoader, SchoolGroupsRoute } from "./routes/school-groups";
-import { SchoolsLoader, SchoolsRoute } from "./routes/schools";
+import {
+  LocationGroupsLoader,
+  LocationGroupsRoute,
+} from "./routes/location-groups";
+import { LocationsLoader, LocationsRoute } from "./routes/locations";
 import {
   SecurityManagedOrganizationsLoader,
   SecurityManagedOrganizationsRoute,
@@ -125,6 +132,10 @@ import {
 import {
   SecurityPermissionSetsLoader,
   SecurityPermissionSetsRoute,
+  SecurityPermissionSetsAddLoader,
+  SecurityPermissionSetsAddRoute,
+  SecurityPermissionSetsViewLoader,
+  SecurityPermissionSetsViewRoute,
 } from "./routes/security/permission-sets";
 import {
   SecurityUsersLoader,
@@ -168,6 +179,11 @@ import {
   EmployeePtoBalanceRoute,
   EmployeePtoBalanceLoader,
 } from "./routes/employee-pto-balances";
+import { SubSignInRoute, SubSignInLoader } from "ui/routes/sub-sign-in";
+import { OrgUserRole } from "graphql/server-types.gen";
+import { IfHasRole } from "./components/auth/if-has-role";
+import { AdminOrgRoute } from "./components/routing/admin-org-route";
+import { UnauthorizedRoute, UnauthorizedLoader } from "./routes/unauthorized";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -189,6 +205,24 @@ export function App() {
                 <RedirectToLogin />
               </IfAuthenticated>
             </Route>
+            <Route
+              exact
+              component={UnauthorizedLoader}
+              path={UnauthorizedRoute.path}
+            />
+            <Route path={SubSignInRoute.path}>
+              <IfAuthenticated>
+                <IfHasRole role={OrgUserRole.Administrator}>
+                  <Route
+                    component={SubSignInLoader}
+                    path={SubSignInRoute.path}
+                  />
+                </IfHasRole>
+              </IfAuthenticated>
+              <IfAuthenticated not>
+                <RedirectToLogin />
+              </IfAuthenticated>
+            </Route>
             <Route path={AppChromeRoute.path}>
               <IfAuthenticated>
                 <AppChrome>
@@ -196,266 +230,319 @@ export function App() {
                     {/* Protected routes go here */}
 
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
-                    <Route
-                      component={EmployeeCreateAbsenceLoader}
-                      path={EmployeeCreateAbsenceRoute.path}
-                    />
-                    <Route
-                      component={CreateAbsenceConfirmationLoader}
-                      path={CreateAbsenceConfirmationRoute.path}
-                    />
-                    <Route path={EmployeeEditAbsenceRoute.path}>
-                      <AdminEditAbsenceLoader actingAsEmployee />
+
+                    {/* Employee routes go here */}
+                    <Route path={EmployeeChromeRoute.path}>
+                      <IfHasRole role={OrgUserRole.Employee}>
+                        <Switch>
+                          <Route
+                            component={EmployeeCreateAbsenceLoader}
+                            path={EmployeeCreateAbsenceRoute.path}
+                          />
+                          <Route
+                            component={CreateAbsenceConfirmationLoader}
+                            path={CreateAbsenceConfirmationRoute.path}
+                          />
+                          <Route path={EmployeeEditAbsenceRoute.path}>
+                            <AdminEditAbsenceLoader actingAsEmployee />
+                          </Route>
+                          <Route
+                            component={EmployeePtoBalanceLoader}
+                            path={EmployeePtoBalanceRoute.path}
+                          />
+                          <Route path={EmployeeScheduleCalendarViewRoute.path}>
+                            <EmployeeScheduleLoader view="calendar" />
+                          </Route>
+                          <Route path={EmployeeScheduleListViewRoute.path}>
+                            <EmployeeScheduleLoader view="list" />
+                          </Route>
+                          <Route path={EmployeeScheduleRoute.path}>
+                            <EmployeeScheduleLoader view="list" />
+                          </Route>
+                          <Route
+                            component={EmployeeHomeLoader}
+                            path={EmployeeHomeRoute.path}
+                          />
+                        </Switch>
+                      </IfHasRole>
+                      <IfHasRole role={OrgUserRole.Employee} not>
+                        <Redirect to={UnauthorizedRoute.generate({})} />
+                      </IfHasRole>
                     </Route>
 
-                    <Route path={SubScheduleCalendarViewRoute.path}>
-                      <SubScheduleLoader view="calendar" />
-                    </Route>
-                    <Route path={SubScheduleListViewRoute.path}>
-                      <SubScheduleLoader view="list" />
-                    </Route>
-                    <Route path={SubScheduleRoute.path}>
-                      <SubScheduleLoader view="list" />
-                    </Route>
+                    {/* Sub routes go here */}
+                    <Route path={SubstituteChromeRoute.path}>
+                      <IfHasRole role={OrgUserRole.ReplacementEmployee}>
+                        <Switch>
+                          <Route path={SubScheduleCalendarViewRoute.path}>
+                            <SubScheduleLoader view="calendar" />
+                          </Route>
+                          <Route path={SubScheduleListViewRoute.path}>
+                            <SubScheduleLoader view="list" />
+                          </Route>
+                          <Route path={SubScheduleRoute.path}>
+                            <SubScheduleLoader view="list" />
+                          </Route>
 
-                    <Route
-                      component={SubPreferencesLoader}
-                      path={SubPreferencesRoute.path}
-                    />
-                    <Route
-                      component={SubSpecificOpportunityLoader}
-                      path={SubSpecificOpportunityRoute.path}
-                    />
-                    <Route
-                      component={SubSpecificAssignmentLoader}
-                      path={SubSpecificAssignmentRoute.path}
-                    />
-                    <Route component={SubHomeLoader} path={SubHomeRoute.path} />
-
-                    <Route
-                      component={EmployeePtoBalanceLoader}
-                      path={EmployeePtoBalanceRoute.path}
-                    />
-                    <Route path={EmployeeScheduleCalendarViewRoute.path}>
-                      <EmployeeScheduleLoader view="calendar" />
+                          <Route
+                            component={SubPreferencesLoader}
+                            path={SubPreferencesRoute.path}
+                          />
+                          <Route
+                            component={SubSpecificOpportunityLoader}
+                            path={SubSpecificOpportunityRoute.path}
+                          />
+                          <Route
+                            component={SubSpecificAssignmentLoader}
+                            path={SubSpecificAssignmentRoute.path}
+                          />
+                          <Route
+                            component={SubHomeLoader}
+                            path={SubHomeRoute.path}
+                          />
+                        </Switch>
+                      </IfHasRole>
+                      <IfHasRole role={OrgUserRole.ReplacementEmployee} not>
+                        <Redirect to={UnauthorizedRoute.generate({})} />
+                      </IfHasRole>
                     </Route>
-                    <Route path={EmployeeScheduleListViewRoute.path}>
-                      <EmployeeScheduleLoader view="list" />
-                    </Route>
-                    <Route path={EmployeeScheduleRoute.path}>
-                      <EmployeeScheduleLoader view="list" />
-                    </Route>
-                    <Route
-                      component={EmployeeHomeLoader}
-                      path={EmployeeHomeRoute.path}
-                    />
 
                     <Route path={AdminRootChromeRoute.path}>
-                      {/* Admin routes go here*/}
-                      <Switch>
-                        {/*We will need to figure out how to prevent non admin users from accessing this route */}
-                        <Route exact path={AdminRootChromeRoute.path}>
-                          <OrganizationsLoader redirectIfOneOrg />
-                        </Route>
-                        <Route
-                          component={OrganizationsLoader}
-                          path={OrganizationsRoute.path}
-                        />
-                        <Route
-                          component={AdminEditAbsenceLoader}
-                          path={AdminEditAbsenceRoute.path}
-                        />
-                        <Route
-                          component={CreateAbsenceLoader}
-                          path={AdminCreateAbsenceRoute.path}
-                        />
-                        <Route
-                          component={SelectEmployeeForCreateAbsenceLoader}
-                          path={AdminSelectEmployeeForCreateAbsenceRoute.path}
-                        />
-                        <Route path={EmployeeAbsScheduleCalendarViewRoute.path}>
-                          <EmployeeAbsScheduleLoader view="calendar" />
-                        </Route>
+                      <IfHasRole role={OrgUserRole.Administrator}>
+                        {/* Admin routes go here*/}
+                        <Switch>
+                          {/*We will need to figure out how to prevent non admin users from accessing this route */}
+                          <Route exact path={AdminRootChromeRoute.path}>
+                            <OrganizationsLoader redirectIfOneOrg />
+                          </Route>
+                          <Route
+                            component={OrganizationsLoader}
+                            path={OrganizationsRoute.path}
+                          />
+                          <Route path={AdminChromeRoute.path}>
+                            <Switch>
+                              <AdminOrgRoute
+                                component={AdminEditAbsenceLoader}
+                                path={AdminEditAbsenceRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={CreateAbsenceLoader}
+                                path={AdminCreateAbsenceRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={SelectEmployeeForCreateAbsenceLoader}
+                                path={
+                                  AdminSelectEmployeeForCreateAbsenceRoute.path
+                                }
+                              />
+                              <AdminOrgRoute
+                                path={EmployeeAbsScheduleCalendarViewRoute.path}
+                              >
+                                <EmployeeAbsScheduleLoader view="calendar" />
+                              </AdminOrgRoute>
 
-                        <Route path={EmployeeAbsScheduleListViewRoute.path}>
-                          <EmployeeAbsScheduleLoader view="list" />
-                        </Route>
-                        <Route
-                          component={EmployeeAbsScheduleLoader}
-                          path={EmployeeAbsScheduleRoute.path}
-                        />
+                              <AdminOrgRoute
+                                path={EmployeeAbsScheduleListViewRoute.path}
+                              >
+                                <EmployeeAbsScheduleLoader view="list" />
+                              </AdminOrgRoute>
+                              <AdminOrgRoute
+                                component={EmployeeAbsScheduleLoader}
+                                path={EmployeeAbsScheduleRoute.path}
+                              />
 
-                        <Route
-                          path={
-                            SubstituteAssignmentScheduleCalendarViewRoute.path
-                          }
-                        >
-                          <SubstituteAssignmentScheduleLoader view="calendar" />
-                        </Route>
+                              <AdminOrgRoute
+                                path={
+                                  SubstituteAssignmentScheduleCalendarViewRoute.path
+                                }
+                              >
+                                <SubstituteAssignmentScheduleLoader view="calendar" />
+                              </AdminOrgRoute>
 
-                        <Route
-                          path={SubstituteAssignmentScheduleListViewRoute.path}
-                        >
-                          <SubstituteAssignmentScheduleLoader view="list" />
-                        </Route>
-                        <Route
-                          component={SubstituteAssignmentScheduleLoader}
-                          path={SubstituteAssignmentScheduleRoute.path}
-                        />
-                        <Route
-                          component={PeopleSubPoolEditLoader}
-                          path={PeopleSubPoolEditRoute.path}
-                        />
-                        <Route
-                          component={PersonViewLoader}
-                          path={PersonViewRoute.path}
-                        />
-                        <Route
-                          component={PeopleLoader}
-                          path={PeopleRoute.path}
-                        />
+                              <AdminOrgRoute
+                                path={
+                                  SubstituteAssignmentScheduleListViewRoute.path
+                                }
+                              >
+                                <SubstituteAssignmentScheduleLoader view="list" />
+                              </AdminOrgRoute>
+                              <AdminOrgRoute
+                                component={SubstituteAssignmentScheduleLoader}
+                                path={SubstituteAssignmentScheduleRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={PeopleSubPoolEditLoader}
+                                path={PeopleSubPoolEditRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={PersonViewLoader}
+                                path={PersonViewRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={PeopleLoader}
+                                path={PeopleRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={ConfigurationLoader}
+                                path={ConfigurationRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={PositionTypeAddLoader}
+                                path={PositionTypeAddRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={PositionTypeEditSettingsLoader}
+                                path={PositionTypeEditSettingsRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={PositionTypeViewLoader}
+                                path={PositionTypeViewRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={PositionTypeLoader}
+                                path={PositionTypeRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={BellScheduleAddLoader}
+                                path={BellScheduleAddRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={BellScheduleViewLoader}
+                                path={BellScheduleViewRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={BellScheduleLoader}
+                                path={BellScheduleRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={VerifyLoader}
+                                path={VerifyRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={BellScheduleVariantsLoader}
+                                path={BellScheduleVariantsRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={AdminHomeLoader}
+                                path={AdminHomeRoute.path}
+                                exact
+                              />
+                              <AdminOrgRoute
+                                component={GeneralSettingsLoader}
+                                path={GeneralSettingsRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={CalendarChangeReasonLoader}
+                                path={CalendarChangeReasonRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={ReplacementAttributeLoader}
+                                path={ReplacementAttributeRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={AbsenceReasonLoader}
+                                path={AbsenceReasonRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={VacancyReasonLoader}
+                                path={VacancyReasonRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={AbsenceVacancyRulesLoader}
+                                path={AbsenceVacancyRulesRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={SubstituteSettingsLoader}
+                                path={SubstituteSettingsRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={AccountingCodeLoader}
+                                path={AccountingCodeRoute.path}
+                              />
 
-                        <Route
-                          component={ConfigurationLoader}
-                          path={ConfigurationRoute.path}
-                        />
-                        <Route
-                          component={PositionTypeAddLoader}
-                          path={PositionTypeAddRoute.path}
-                        />
-                        <Route
-                          component={PositionTypeEditSettingsLoader}
-                          path={PositionTypeEditSettingsRoute.path}
-                        />
-                        <Route
-                          component={PositionTypeViewLoader}
-                          path={PositionTypeViewRoute.path}
-                        />
-                        <Route
-                          component={PositionTypeLoader}
-                          path={PositionTypeRoute.path}
-                        />
-                        <Route
-                          component={BellScheduleAddLoader}
-                          path={BellScheduleAddRoute.path}
-                        />
-                        <Route
-                          component={BellScheduleViewLoader}
-                          path={BellScheduleViewRoute.path}
-                        />
-                        <Route
-                          component={BellScheduleLoader}
-                          path={BellScheduleRoute.path}
-                        />
-                        <Route
-                          component={VerifyLoader}
-                          path={VerifyRoute.path}
-                        />
-                        <Route
-                          component={BellScheduleVariantsLoader}
-                          path={BellScheduleVariantsRoute.path}
-                        />
-                        <Route
-                          component={AdminHomeLoader}
-                          path={AdminHomeRoute.path}
-                          exact
-                        />
-                        <Route
-                          component={GeneralSettingsLoader}
-                          path={GeneralSettingsRoute.path}
-                        />
-                        <Route
-                          component={CalendarChangeReasonLoader}
-                          path={CalendarChangeReasonRoute.path}
-                        />
-                        <Route
-                          component={ReplacementAttributeLoader}
-                          path={ReplacementAttributeRoute.path}
-                        />
-                        <Route
-                          component={AbsenceReasonLoader}
-                          path={AbsenceReasonRoute.path}
-                        />
-                        <Route
-                          component={VacancyReasonLoader}
-                          path={VacancyReasonRoute.path}
-                        />
-                        <Route
-                          component={AbsenceVacancyRulesLoader}
-                          path={AbsenceVacancyRulesRoute.path}
-                        />
-                        <Route
-                          component={SubstituteSettingsLoader}
-                          path={SubstituteSettingsRoute.path}
-                        />
-                        <Route
-                          component={AccountingCodeLoader}
-                          path={AccountingCodeRoute.path}
-                        />
+                              <AdminOrgRoute
+                                component={PayCodeLoader}
+                                path={PayCodeRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={AbsenceReasonAddLoader}
+                                path={AbsenceReasonAddRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={AbsenceReasonViewEditLoader}
+                                path={AbsenceReasonViewEditRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={AbsenceReasonLoader}
+                                path={AbsenceReasonRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={ContractsLoader}
+                                path={ContractsRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={LocationsLoader}
+                                path={LocationsRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={LocationGroupsLoader}
+                                path={LocationGroupsRoute.path}
+                              />
+                              <AdminOrgRoute path={CalendarListViewRoute.path}>
+                                <CalendarsLoader view="list" />
+                              </AdminOrgRoute>
 
-                        <Route
-                          component={PayCodeLoader}
-                          path={PayCodeRoute.path}
-                        />
-                        <Route
-                          component={AbsenceReasonAddLoader}
-                          path={AbsenceReasonAddRoute.path}
-                        />
-                        <Route
-                          component={AbsenceReasonViewEditLoader}
-                          path={AbsenceReasonViewEditRoute.path}
-                        />
-                        <Route
-                          component={AbsenceReasonLoader}
-                          path={AbsenceReasonRoute.path}
-                        />
-                        <Route
-                          component={ContractsLoader}
-                          path={ContractsRoute.path}
-                        />
-                        <Route
-                          component={SchoolsLoader}
-                          path={SchoolsRoute.path}
-                        />
-                        <Route
-                          component={SchoolGroupsLoader}
-                          path={SchoolGroupsRoute.path}
-                        />
-                        <Route
-                          component={CalendarThisYearLoader}
-                          path={CalendarThisYearRoute.path}
-                        />
-                        <Route
-                          component={CalendarPastYearsLoader}
-                          path={CalendarPastYearsRoute.path}
-                        />
-                        <Route
-                          component={SecurityUsersLoader}
-                          path={SecurityUsersRoute.path}
-                        />
-                        <Route
-                          component={SecurityPermissionSetsLoader}
-                          path={SecurityPermissionSetsRoute.path}
-                        />
-                        <Route
-                          component={SecurityPartnersLoader}
-                          path={SecurityPartnersRoute.path}
-                        />
-                        <Route
-                          component={SecurityManagedOrganizationsLoader}
-                          path={SecurityManagedOrganizationsRoute.path}
-                        />
-                        <Route
-                          component={DailyReportLoader}
-                          path={DailyReportRoute.path}
-                        />
+                              <AdminOrgRoute
+                                path={CalendarCalendarViewRoute.path}
+                              >
+                                <CalendarsLoader view="calendar" />
+                              </AdminOrgRoute>
 
-                        {/* This route handles unknown or underspecified routes and takes the
+                              <AdminOrgRoute
+                                component={CalendarsLoader}
+                                path={CalendarRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={SecurityUsersLoader}
+                                path={SecurityUsersRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={SecurityPermissionSetsAddLoader}
+                                path={SecurityPermissionSetsAddRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={SecurityPermissionSetsViewLoader}
+                                path={SecurityPermissionSetsViewRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={SecurityPermissionSetsLoader}
+                                path={SecurityPermissionSetsRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={SecurityPartnersLoader}
+                                path={SecurityPartnersRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={SecurityManagedOrganizationsLoader}
+                                path={SecurityManagedOrganizationsRoute.path}
+                              />
+                              <AdminOrgRoute
+                                component={DailyReportLoader}
+                                path={DailyReportRoute.path}
+                              />
+                            </Switch>
+                          </Route>
+
+                          {/* This route handles unknown or underspecified routes and takes the
                               admin to their organization (or a switcher) */}
-                        <Route path={AdminRootChromeRoute.path}>
-                          <Redirect to={AdminRootChromeRoute.generate({})} />
-                        </Route>
-                      </Switch>
+                          <Route path={AdminRootChromeRoute.path}>
+                            <Redirect to={AdminRootChromeRoute.generate({})} />
+                          </Route>
+                        </Switch>
+                      </IfHasRole>
+                      <IfHasRole role={OrgUserRole.Administrator} not>
+                        <Redirect to={UnauthorizedRoute.generate({})} />
+                      </IfHasRole>
                     </Route>
                   </Switch>
                 </AppChrome>

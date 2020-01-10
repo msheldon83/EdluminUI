@@ -192,7 +192,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   subHeader: {
-    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(0.5),
   },
   action: {
     cursor: "pointer",
