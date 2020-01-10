@@ -1,19 +1,30 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
-import { SelectNew } from "ui/components/form/select-new";
-import { useCallback, useMemo } from "react";
+import { Select } from "ui/components/form/select";
+import { useCallback, useMemo, useEffect } from "react";
 import { OrgUserRole } from "graphql/server-types.gen";
+import { useDeferredState } from "hooks";
+import { Input } from "ui/components/form/input";
 
 type Props = {
   orgId: string;
   rolesFilter: OrgUserRole[];
   setRolesFilter: React.Dispatch<React.SetStateAction<OrgUserRole[]>>;
+  setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const [
+    searchText,
+    pendingSearchText,
+    setPendingSearchText,
+  ] = useDeferredState<string | undefined>(undefined, 200);
+  useEffect(() => {
+    props.setSearchText(searchText);
+  }, [searchText]);
 
   const roleOptions = useMemo(
     () => [
@@ -40,6 +51,13 @@ export const Filters: React.FC<Props> = props => {
     [props.setRolesFilter]
   );
 
+  const updateSearchText = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setPendingSearchText(event.target.value);
+    },
+    [setPendingSearchText]
+  );
+
   return (
     <>
       <Grid
@@ -50,8 +68,9 @@ export const Filters: React.FC<Props> = props => {
         className={classes.filters}
       >
         <Grid item xs={12} sm={6} md={3} lg={3}>
-          <InputLabel className={classes.label}>{t("Role")}</InputLabel>
-          <SelectNew
+          <InputLabel className={classes.label}>{t("Roles")}</InputLabel>
+          <Select
+            isClearable={false}
             onChange={onChangeRoles}
             options={roleOptions}
             value={selectedValue}

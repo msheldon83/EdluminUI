@@ -56,11 +56,14 @@ export const CalendarChangeRow: React.FC<Props> = props => {
           "EEE"
         )}`;
 
-  const contractLabel = props.calendarChange.changedContracts
-    ?.map((cc: any) => {
-      return contracts.find(c => c.id === cc.id)?.name;
-    })
-    .join(",");
+  const contractLabel =
+    props.calendarChange.changedContracts?.length === 0
+      ? t("All Contracts")
+      : props.calendarChange.changedContracts
+          ?.map((cc: any) => {
+            return contracts.find(c => c.id === cc.id)?.name;
+          })
+          .join(",");
 
   return (
     <div className={classes.container}>
