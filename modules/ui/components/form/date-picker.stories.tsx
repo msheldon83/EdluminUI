@@ -1,6 +1,6 @@
 import * as React from "react";
 import { action } from "@storybook/addon-actions";
-import { text, boolean, date } from "@storybook/addon-knobs";
+import { text, boolean, date, select } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
 import endOfTomorrow from "date-fns/endOfTomorrow";
 import endOfYesterday from "date-fns/endOfYesterday";
@@ -206,6 +206,8 @@ export const CustomCalendarStory = () => {
     buttonProps: { className: classes.activeDay },
   }));
 
+  const [month, setMonth] = React.useState(new Date());
+
   return (
     <div className={classes.container}>
       <CustomCalendar
@@ -220,8 +222,14 @@ export const CustomCalendarStory = () => {
 
           action("onSelectDates")({ dates });
         }}
-        month={customDate("month", new Date())}
+        month={month}
         customDates={customDates}
+        monthNavigation={boolean("monthNavigation", true)}
+        variant={select("variant", { Month: "month", Weeks: "weeks" }, "month")}
+        onMonthChange={month => {
+          setMonth(month);
+          action("onMonthChange")({ month });
+        }}
       />
     </div>
   );
