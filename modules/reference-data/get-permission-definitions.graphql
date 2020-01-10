@@ -1,0 +1,17 @@
+query GetPermissionDefinitions($role: OrgUserRole!) {
+  permission {
+    all(role: $role) {
+      id
+      displayName
+      settings {
+        id
+        displayName
+        levels {
+          id
+          displayName
+          permissions
+        }
+      }
+    }
+  }
+}

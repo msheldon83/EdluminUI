@@ -8,6 +8,7 @@ import { useLocationGroups } from "reference-data/location-groups";
 import { useDeferredState } from "hooks";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationsRoute } from "ui/routes/locations";
+import { sortBy } from "lodash-es";
 
 type Props = {
   orgId: string;
@@ -40,20 +41,16 @@ export const Filters: React.FC<Props> = props => {
   const locationGroups = useLocationGroups(params.organizationId);
   const locationGroupOptions = useMemo(() => {
     const options = locationGroups.map(l => ({ label: l.name, value: l.id }));
-    options.sort((a, b) => (a.label > b.label ? 1 : -1));
+    sortBy(options, ["label"]);
     options.unshift({ label: t("(All)"), value: "0" });
     return options;
   }, [locationGroups]);
-
-  console.log(props.locationGroupFilter);
 
   const selectedValue = locationGroupOptions.find(e =>
     props.locationGroupFilter.length === 0
       ? locationGroupOptions.find(e => e.value === "0")
       : e.label && props.locationGroupFilter.includes(Number(e.value))
   );
-
-  //console.log(selectedValue);
 
   const onChangeGroup = useCallback(
     value => {

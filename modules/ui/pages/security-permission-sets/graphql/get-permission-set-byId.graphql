@@ -1,0 +1,20 @@
+query GetPermissionSetById($id: ID!) {
+  permissionSet {
+    byId(id: $id) {
+      id
+      name
+      rowVersion
+      externalId
+      description
+      orgUserRole
+      permissionSet
+      categories {
+        id
+        settings {
+          id
+          levelId
+        }
+      }
+    }
+  }
+}

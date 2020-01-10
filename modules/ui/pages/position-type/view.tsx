@@ -175,7 +175,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         showLabel={true}
       />
 
-      <Section>
+      <Section className={classes.content}>
         <SectionHeader
           title={t("Settings")}
           action={{
@@ -251,6 +251,9 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  content: {
+    marginTop: theme.spacing(2)
+  },
   valueMissing: {
     opacity: "0.6",
     filter: "alpha(opacity = 60)",

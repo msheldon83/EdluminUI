@@ -2,7 +2,7 @@ import { makeStyles } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import { useQueryBundle } from "graphql/hooks";
 import * as React from "react";
-import { UserProfileAvatar } from "ui/components/profile-avatar/UserProfileAvatar.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { getInitials } from "../helpers";
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export const ProfileAvatar: React.FC<Props> = props => {
-  const profile = useQueryBundle(UserProfileAvatar, {
+  const profile = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
 

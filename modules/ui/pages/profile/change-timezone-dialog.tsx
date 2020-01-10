@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import { GetTimezones } from "reference-data/get-timezones.gen";
 import { InformationHelperText } from "ui/components/information-helper-text";
 import { TextButton } from "ui/components/text-button";
-import { MyProfile } from "ui/pages/profile/MyProfile.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import * as Yup from "yup";
 
 export type MinimalUpdateTimezoneArgs = Pick<
@@ -24,7 +24,7 @@ export type MinimalUpdateTimezoneArgs = Pick<
 type Props = {
   open: boolean;
   onClose: () => void;
-  user: MyProfile.User;
+  user: GetMyUserAccess.User;
   updateTimezone: (timeZoneId: TimeZone) => Promise<any>;
   timeZoneOptions: Maybe<GetTimezones.TimeZones>[];
 };

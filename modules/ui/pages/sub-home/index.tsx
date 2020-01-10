@@ -38,7 +38,7 @@ import { RequestAbsenceDialog } from "./components/request-dialog";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
 import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
-import { QueryOrgUsers } from "./graphql/get-orgusers.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
 import { RequestVacancy } from "./graphql/request-vacancy.gen";
 import { SubJobSearch } from "./graphql/sub-job-search.gen";
@@ -72,7 +72,7 @@ export const SubHome: React.FC<Props> = props => {
   });
   const [filters] = useQueryParamIso(FilterQueryParams);
 
-  const getOrgUsers = useQueryBundle(QueryOrgUsers, {
+  const getOrgUsers = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
 

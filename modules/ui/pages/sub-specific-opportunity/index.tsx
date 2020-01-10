@@ -20,7 +20,7 @@ import { RequestAbsenceDialog } from "ui/pages/sub-home/components/request-dialo
 import { DismissVacancy } from "ui/pages/sub-home/graphql/dismiss-vacancy.gen";
 import { GetVacancyById } from "./graphql/get-opportunity-by-id.gen";
 import { RequestVacancy } from "ui/pages/sub-home/graphql/request-vacancy.gen";
-import { QueryOrgUsers } from "ui/pages/sub-home/graphql/get-orgusers.gen";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 
 type Props = {};
 
@@ -47,7 +47,7 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     },
   });
 
-  const getOrgUsers = useQueryBundle(QueryOrgUsers, {
+  const getOrgUsers = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
 
@@ -186,7 +186,7 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
                         <Typography variant="h6">{t("Notes")}</Typography>
                         <div>{vacancy.notesToReplacement}</div>
                       </>
-                    )}                    
+                    )}
                   </Grid>
                   <Grid
                     item
