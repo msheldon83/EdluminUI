@@ -485,8 +485,8 @@ export function App() {
                                 path={LocationsRoute.path}
                               />
                               <AdminOrgRoute
-                                component={SchoolGroupsLoader}
-                                path={SchoolGroupsRoute.path}
+                                component={LocationGroupsLoader}
+                                path={LocationGroupsRoute.path}
                               />
                               <AdminOrgRoute path={CalendarListViewRoute.path}>
                                 <CalendarsLoader view="list" />
