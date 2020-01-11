@@ -21,13 +21,13 @@ type CustomCalendarProps = {
   contained?: boolean;
   style?: React.CSSProperties;
   onSelectDates?: (dates: Array<Date>) => void;
-  onMonthChange?: (date: Date) => void;
   month?: Date;
   customDates?: Array<{
     date: Date;
     buttonProps: ButtonProps;
   }>;
   variant?: "weeks" | "month";
+  onMonthChange?: (date: Date) => void;
   monthNavigation?: boolean;
 };
 
@@ -35,17 +35,15 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   const {
     contained = true,
     style = {},
-    onSelectDates = () => {},
-    onMonthChange = () => {},
+    onSelectDates,
     month = new Date(),
     customDates = [],
+    onMonthChange = () => {},
     monthNavigation = false,
-
-    // TODO: implement the month version like single-month-calendar
     variant = "weeks",
   } = props;
 
-  const classes = useStyles({ contained });
+  const classes = useStyles({ contained, onSelectDates });
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [lastDateSelected, setLastDateSelected] = React.useState();
   const [mouseOverDate, setMouseOverDate] = React.useState();
@@ -108,6 +106,10 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   };
 
   const handleDateSelect = (date: Date) => {
+    if (!onSelectDates) {
+      return;
+    }
+
     // Make it only about the actual date
     date.setHours(0, 0, 0, 0);
 
@@ -157,7 +159,9 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     onMonthChange(addMonths(month, 1));
   }, [month, onMonthChange]);
 
-  const handleCurrentMonthClick = () => onMonthChange(new Date());
+  const handleCurrentMonthClick = () => {
+    onMonthChange(new Date());
+  };
 
   const renderDates = () =>
     daysList.map((date, index) => {
@@ -239,12 +243,16 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
         </span>
 
         <span role="heading" className={classes.dayRange}>
-          <Button
-            onClick={handleCurrentMonthClick}
-            className={classes.titleButton}
-          >
-            {calendarTitle()}
-          </Button>
+          {monthNavigation ? (
+            <Button
+              onClick={handleCurrentMonthClick}
+              className={classes.titleButton}
+            >
+              {calendarTitle()}
+            </Button>
+          ) : (
+            calendarTitle()
+          )}
         </span>
 
         <span className={classes.monthNavButton}>
@@ -363,22 +371,21 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
     textAlign: "center",
   },
   dayButton: {
-    cursor: "button",
+    cursor: props => (props.onSelectDates ? "pointer" : "default"),
     fontSize: theme.typography.pxToRem(16),
     fontWeight: "normal",
     maxWidth: theme.typography.pxToRem(48),
     minWidth: theme.typography.pxToRem(20),
     position: "relative",
     width: "100%",
+    transition: "none",
+
+    pointerEvents: props => (props.onSelectDates ? "auto" : "none"),
 
     "&:after": {
       content: "''",
       display: "block",
       paddingBottom: "100%",
-    },
-
-    "&:hover": {
-      backgroundColor: theme.customColors.white,
     },
   },
   dayButtonTime: {
@@ -388,15 +395,6 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
     justifyContent: "center",
     position: "absolute",
     width: "100%",
-  },
-  daySelected: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.customColors.white,
-    },
   },
   dayInDateRange: {
     backgroundColor: theme.customColors.lightGray,
