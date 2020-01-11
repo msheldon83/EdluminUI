@@ -6,8 +6,6 @@ import {
   Typography,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import { min, startOfDay } from "date-fns";
 import { formatISO } from "date-fns/esm";
 import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
@@ -20,7 +18,7 @@ import {
   DayPartField,
   DayPartValue,
 } from "ui/components/absence/day-part-field";
-import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
+import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { Select } from "ui/components/form/select";
 import { TextButton } from "ui/components/text-button";
 import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
@@ -33,8 +31,7 @@ type Props = {
   onAbsenceReasonChange: (event: any) => Promise<void>;
   absenceReasonError?: FieldError;
   currentMonth: Date;
-  viewPreviousMonth: () => void;
-  viewNextMonth: () => void;
+  onMonthChange: (date: Date) => void;
   absenceDates: Date[];
   disabledDates: Date[];
   onToggleAbsenceDate: (date: Date) => void;
@@ -61,8 +58,6 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     absenceReasonOptions,
     onAbsenceReasonChange,
     absenceReasonError,
-    viewPreviousMonth,
-    viewNextMonth,
     absenceDates,
     disabledDates,
     onToggleAbsenceDate,
@@ -79,6 +74,7 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     needsReplacement,
     wantsReplacement,
     onNeedsReplacementChange,
+    onMonthChange,
   } = props;
 
   const startDate = startOfDay(min(absenceDates));
@@ -143,6 +139,20 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     hourlyEndTime,
   ]);
 
+  const customDatesDisabled = disabledDates.map(date => {
+    return {
+      date,
+      buttonProps: { className: classes.dateDisabled },
+    };
+  });
+
+  const customAbsenceDates = absenceDates.map(date => {
+    return {
+      date,
+      buttonProps: { className: classes.absenceDate },
+    };
+  });
+
   return (
     <>
       <div className={classes.select}>
@@ -162,20 +172,12 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
         />
       </div>
 
-      <div className={classes.monthSwitcher}>
-        <IconButton onClick={viewPreviousMonth}>
-          <ChevronLeftIcon />
-        </IconButton>
-        <IconButton onClick={viewNextMonth}>
-          <ChevronRightIcon />
-        </IconButton>
-      </div>
-
-      <FiveWeekCalendar
-        startDate={currentMonth}
-        disabledDates={disabledDates}
-        selectedDates={absenceDates}
-        onDateClicked={onToggleAbsenceDate}
+      <CustomCalendar
+        month={currentMonth}
+        monthNavigation
+        onMonthChange={onMonthChange}
+        customDates={customDatesDisabled.concat(customAbsenceDates)}
+        onSelectDates={dates => dates.forEach(onToggleAbsenceDate)}
       />
 
       <DayPartField
@@ -247,5 +249,23 @@ const useStyles = makeStyles(theme => ({
   },
   additionalButton: {
     marginRight: theme.spacing(3),
+  },
+  dateDisabled: {
+    backgroundColor: theme.customColors.lightGray,
+    color: theme.palette.text.disabled,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
+      color: theme.palette.text.disabled,
+    },
+  },
+  absenceDate: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.customColors.white,
+    },
   },
 }));
