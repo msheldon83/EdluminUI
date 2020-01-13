@@ -1,29 +1,32 @@
 import {
   Button,
+  Collapse,
   Divider,
   Grid,
   Link,
   makeStyles,
   Tooltip,
-  Collapse,
 } from "@material-ui/core";
-import { Print } from "@material-ui/icons";
 import { format, isFuture, startOfToday } from "date-fns";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { DailyReport as DailyReportType } from "graphql/server-types.gen";
+import { not } from "helpers";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
 import { TFunction } from "i18next";
 import * as React from "react";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import {
   ShowErrors,
   ShowIgnoreAndContinueOrError,
 } from "ui/components/error-helpers";
+import { FilterListButton } from "ui/components/filter-list-button";
+import { DesktopOnly } from "ui/components/mobile-helpers";
+import { PrintPageButton } from "ui/components/print-page-button";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { VerifyUI } from "ui/pages/verify/ui";
@@ -44,8 +47,6 @@ import {
   DetailGroup,
   MapDailyReportDetails,
 } from "./helpers";
-import { FilterListButton } from "ui/components/filter-list-button";
-import { not } from "helpers";
 
 type Props = {
   orgId: string;
@@ -429,12 +430,6 @@ const useStyles = makeStyles(theme => ({
   action: {
     cursor: "pointer",
   },
-  print: {
-    color: "#9E9E9E",
-    "@media print": {
-      display: "none",
-    },
-  },
 }));
 
 const displaySections = (
@@ -506,12 +501,11 @@ const displaySections = (
           </Grid>
         )}
         <Grid item>{displaySwabSubsAction(selectedRows, swapSubs, t)}</Grid>
-        <Grid item>
-          <Print
-            className={[classes.action, classes.print].join(" ")}
-            onClick={window.print}
-          />
-        </Grid>
+        <DesktopOnly>
+          <Grid item>
+            <PrintPageButton />
+          </Grid>
+        </DesktopOnly>
       </Grid>
       {selectedCard === "awaitingVerification" ? (
         <div className={classes.verifyContainer}>

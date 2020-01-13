@@ -1,22 +1,23 @@
+import { Button, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import clsx from "clsx";
+import { useIsMobile } from "hooks";
+import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
-import { useRouteParams } from "ui/routes/definition";
+import { Link } from "react-router-dom";
+import { DateStepperHeader } from "ui/components/date-stepper-header";
+import { MobileActionBar } from "ui/components/mobile-action-bar";
+import { PrintPageButton } from "ui/components/print-page-button";
 import { DailyReport } from "ui/components/reports/daily-report/daily-report";
 import { FilterQueryParams } from "ui/components/reports/daily-report/filters/filter-params";
-import { Grid, Button } from "@material-ui/core";
-import { DateStepperHeader } from "ui/components/date-stepper-header";
+import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
-import { Link } from "react-router-dom";
-import { startOfToday } from "date-fns";
-import { useQueryParamIso } from "hooks/query-params";
-import { useIsMobile } from "hooks";
-import clsx from "clsx";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = {};
 
-export const DailyReportPage: React.FC<Props> = props => {
+export const DailyReportPage: React.FC<Props> = () => {
   const classes = useStyles();
   const { t } = useTranslation();
   const params = useRouteParams(DailyReportRoute);
@@ -56,6 +57,18 @@ export const DailyReportPage: React.FC<Props> = props => {
         showFilters={true}
         cards={["unfilled", "filled", "noSubRequired", "total"]}
       />
+      <MobileActionBar>
+        <div className={classes.mobileBar}>
+          <PrintPageButton />
+          <Button
+            variant="contained"
+            component={Link}
+            to={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
+          >
+            {t("Create Absence")}
+          </Button>
+        </div>
+      </MobileActionBar>
     </>
   );
 };
@@ -75,5 +88,12 @@ const useStyles = makeStyles(theme => ({
     "@media print": {
       display: "none",
     },
+  },
+  mobileBar: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 }));
