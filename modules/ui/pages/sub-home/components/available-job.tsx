@@ -37,7 +37,8 @@ type Props = {
 
 export const AvailableJob: React.FC<Props> = props => {
   const isMobile = useIsMobile();
-  const classes = useStyles({ isMobile });
+  const { forSingleJob } = props;
+  const classes = useStyles({ isMobile, forSingleJob });
   const { t } = useTranslation();
   const [expanded, setExpanded] = React.useState(false);
   const [notesAnchor, setNotesAnchor] = React.useState<null | HTMLElement>(
@@ -48,7 +49,7 @@ export const AvailableJob: React.FC<Props> = props => {
 
   const hasDetails = vacancy.details!.length > 1;
   const acceptButtonDisabled = hasDetails && !expanded;
-  const showDetails = (expanded || props.forSingleJob) && hasDetails;
+  const showDetails = (expanded || forSingleJob) && hasDetails;
 
   const handleShowNotes = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -98,7 +99,7 @@ export const AvailableJob: React.FC<Props> = props => {
           </div>
 
           <div className={classes.actionContainer}>
-            {!props.forSingleJob && (
+            {!forSingleJob && (
               <>
                 <div className={classes.notes}>
                   {vacancy.notesToReplacement &&
@@ -144,7 +145,7 @@ export const AvailableJob: React.FC<Props> = props => {
           </div>
         )}
       </div>
-      {!props.forSingleJob && hasDetails && (
+      {!forSingleJob && hasDetails && (
         <ExpandOrCollapseIndicator
           isExpanded={expanded}
           className={classes.noBorder}
@@ -154,7 +155,8 @@ export const AvailableJob: React.FC<Props> = props => {
   );
 };
 
-type StyleProps = { isMobile: boolean };
+type StyleProps = { isMobile: boolean; forSingleJob?: boolean };
+
 export const useStyles = makeStyles(theme => ({
   noBorder: { border: "none" },
   paper: {
@@ -180,7 +182,7 @@ export const useStyles = makeStyles(theme => ({
   },
 
   container: (props: StyleProps) => ({
-    padding: theme.spacing(2),
+    padding: props.forSingleJob ? 0 : theme.spacing(2),
     display: "flex",
     alignItems: props.isMobile ? "stretch" : "center",
     justifyContent: "space-between",
