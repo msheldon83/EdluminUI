@@ -21,6 +21,7 @@ import { Section } from "ui/components/section";
 import {
   DailyReport as DailyReportType,
   VacancyDetailCount,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
 import {
@@ -309,7 +310,28 @@ export const DailyReport: React.FC<Props> = props => {
               totalOverride = awaitingVerificationCount ?? 0;
             }
 
-            return (
+            return c === "awaitingVerification" ? (
+              <Can
+                do={[PermissionEnum.AbsVacVerify]}
+                orgId={props.orgId}
+                key={i}
+              >
+                <Grid item>
+                  <GroupCard
+                    cardType={c}
+                    details={allDetails}
+                    countOverride={countOverride}
+                    totalOverride={totalOverride}
+                    onClick={(c: CardType) => {
+                      setSelectedCard(c === "total" ? undefined : c);
+                    }}
+                    activeCard={selectedCard}
+                    showPercentInLabel={c !== "awaitingVerification"}
+                    showFractionCount={false}
+                  />
+                </Grid>
+              </Can>
+            ) : (
               <Grid item key={i}>
                 <GroupCard
                   cardType={c}
@@ -320,7 +342,7 @@ export const DailyReport: React.FC<Props> = props => {
                     setSelectedCard(c === "total" ? undefined : c);
                   }}
                   activeCard={selectedCard}
-                  showPercentInLabel={c !== "awaitingVerification"}
+                  showPercentInLabel={true}
                   showFractionCount={props.isHomePage && c === "unfilled"}
                 />
               </Grid>

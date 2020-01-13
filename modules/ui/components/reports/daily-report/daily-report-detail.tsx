@@ -8,6 +8,10 @@ import InfoIcon from "@material-ui/icons/Info";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AdminHomeRoute } from "ui/routes/admin-home";
+import { Can } from "ui/components/auth/can";
+import { canAssignSub, canEditSub, canRemoveSub } from "helpers/permissions";
+import { OrgUserPermissions } from "reference-data/my-user-access";
 
 type Props = {
   detail: Detail;
@@ -25,6 +29,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
   const classes = useStyles();
   const history = useHistory();
   const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
+  const adminParams = useRouteParams(AdminHomeRoute);
 
   const isChecked = !!props.selectedDetails.find(
     d => d.detailId === props.detail.detailId && d.type === props.detail.type
@@ -53,6 +58,12 @@ export const DailyReportDetail: React.FC<Props> = props => {
     {
       name: t("Edit"),
       onClick: () => goToAbsenceEdit(props.detail.id),
+      permissions: (
+        permissions: OrgUserPermissions[],
+        isSysAdmin: boolean,
+        orgId?: string
+      ) => canEditSub(permissions, isSysAdmin, orgId, props.detail.date),
+      orgId: adminParams.organizationId,
     },
   ];
   if (props.detail.state !== "noSubRequired") {
@@ -68,6 +79,18 @@ export const DailyReportDetail: React.FC<Props> = props => {
           goToAbsenceEdit(props.detail.id);
         }
       },
+      permissions: props.detail.substitute
+        ? (
+            permissions: OrgUserPermissions[],
+            isSysAdmin: boolean,
+            orgId?: string
+          ) => canRemoveSub(permissions, isSysAdmin, orgId, props.detail.date)
+        : (
+            permissions: OrgUserPermissions[],
+            isSysAdmin: boolean,
+            orgId?: string
+          ) => canAssignSub(permissions, isSysAdmin, orgId, props.detail.date),
+      orgId: adminParams.organizationId,
     });
   }
 
@@ -75,17 +98,28 @@ export const DailyReportDetail: React.FC<Props> = props => {
     <Grid item xs={12} container className={props.className}>
       <Grid item xs={3} zeroMinWidth>
         <div className={classes.employeeSection}>
-          <Checkbox
-            color="primary"
-            className={clsx({
-              [classes.hidden]: hideCheckbox,
-              [classes.checkbox]: true,
-            })}
-            checked={isChecked}
-            onChange={e => {
-              props.updateSelectedDetails(props.detail, e.target.checked);
-            }}
-          />
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canAssignSub(permissions, isSysAdmin, orgId, props.detail.date)
+            }
+            orgId={adminParams.organizationId}
+          >
+            <Checkbox
+              color="primary"
+              className={clsx({
+                [classes.hidden]: hideCheckbox,
+                [classes.checkbox]: true,
+              })}
+              checked={isChecked}
+              onChange={e => {
+                props.updateSelectedDetails(props.detail, e.target.checked);
+              }}
+            />
+          </Can>
           <div>
             {props.detail.type === "absence" ? (
               <>
@@ -130,12 +164,23 @@ export const DailyReportDetail: React.FC<Props> = props => {
           </div>
         )}
         {props.detail.state !== "noSubRequired" && !props.detail.substitute && (
-          <Link
-            className={classes.action}
-            onClick={() => goToAbsenceEdit(props.detail.id)}
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canAssignSub(permissions, isSysAdmin, orgId, props.detail.date)
+            }
+            orgId={adminParams.organizationId}
           >
-            {t("Assign")}
-          </Link>
+            <Link
+              className={classes.action}
+              onClick={() => goToAbsenceEdit(props.detail.id)}
+            >
+              {t("Assign")}
+            </Link>
+          </Can>
         )}
         {props.detail.subStartTime && props.detail.subEndTime && (
           <div className={classes.detailSubText}>

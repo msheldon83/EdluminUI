@@ -294,3 +294,53 @@ export const canAssignSub = (
 
   return true;
 };
+
+export const canEditSub = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string,
+  absDate: Date
+) => {
+  if (isSysAdmin) return true;
+  const userPerms = getUserPermissions(permissions, orgId);
+  if (
+    !isToday(absDate) &&
+    !isFuture(absDate) &&
+    !userPerms?.includes(PermissionEnum.AbsVacEditPast)
+  ) {
+    return false;
+  } else if (
+    (isToday(absDate) || isFuture(absDate)) &&
+    !userPerms?.includes(PermissionEnum.AbsVacSave)
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+export const canRemoveSub = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string,
+  absDate: Date
+) => {
+  console.log(permissions);
+  if (isSysAdmin) return true;
+  const userPerms = getUserPermissions(permissions, orgId);
+  if (
+    !isToday(absDate) &&
+    !isFuture(absDate) &&
+    (!userPerms?.includes(PermissionEnum.AbsVacRemoveSub) ||
+      !userPerms?.includes(PermissionEnum.AbsVacEditPast))
+  ) {
+    return false;
+  } else if (
+    (isToday(absDate) || isFuture(absDate)) &&
+    !userPerms?.includes(PermissionEnum.AbsVacRemoveSub)
+  ) {
+    return false;
+  }
+
+  return true;
+};
