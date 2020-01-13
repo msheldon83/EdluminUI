@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { makeStyles, Grid, Checkbox, Link } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
+import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { useMemo } from "react";
 import { eachDayOfInterval } from "date-fns";
 import { EmployeeAbsenceDetail } from "ui/components/employee/types";
@@ -31,14 +31,22 @@ export const ScheduleCalendar: React.FC<Props> = props => {
     return days;
   }, [props.absences]);
 
+  const disabledDates = props.disabledDates.map(date => ({
+    date,
+    buttonProps: { className: classes.dateDisabled },
+  }));
+
+  const absenceDates = absentDays.map(date => ({
+    date,
+    buttonProps: { className: classes.absenceDate },
+  }));
+
+  const customDates = disabledDates.concat(absenceDates);
+
   return (
     <Section className={classes.container}>
       <SectionHeader title={t("Upcoming schedule")} />
-      <FiveWeekCalendar
-        startDate={props.startDate}
-        selectedDates={absentDays}
-        disabledDates={props.disabledDates}
-      />
+      <CustomCalendar month={props.startDate} customDates={customDates} />
     </Section>
   );
 };
@@ -46,5 +54,23 @@ export const ScheduleCalendar: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   container: {
     marginBottom: 0,
+  },
+  dateDisabled: {
+    backgroundColor: theme.customColors.lightGray,
+    color: theme.palette.text.disabled,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
+      color: theme.palette.text.disabled,
+    },
+  },
+  absenceDate: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.customColors.white,
+    },
   },
 }));
