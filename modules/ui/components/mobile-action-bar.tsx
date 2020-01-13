@@ -1,6 +1,5 @@
+import { AppBar, makeStyles, Toolbar } from "@material-ui/core";
 import * as React from "react";
-import { useIsMobile } from "hooks";
-import { AppBar, Toolbar, makeStyles } from "@material-ui/core";
 import { MobileOnly } from "./mobile-helpers";
 
 type Props = {};
@@ -22,5 +21,6 @@ const useStyles = makeStyles(theme => ({
     left: 0,
     zIndex: 1250,
     backgroundColor: theme.customColors.white,
+    "@media print": { display: "none" },
   },
 }));

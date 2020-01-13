@@ -298,7 +298,7 @@ export const DailyReport: React.FC<Props> = props => {
           {props.showFilters && (
             <>
               {isMobile && (
-                <Grid item xs={6} md={12}>
+                <Grid item xs={6} md={12} className={classes.noPrint}>
                   <FilterListButton onClick={toggleFilters} />
                 </Grid>
               )}
@@ -429,6 +429,9 @@ const useStyles = makeStyles(theme => ({
   },
   action: {
     cursor: "pointer",
+  },
+  noPrint: {
+    "@media print": { display: "none" },
   },
 }));
 
