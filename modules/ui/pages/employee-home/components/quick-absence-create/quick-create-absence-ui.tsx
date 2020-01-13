@@ -178,6 +178,7 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
         onMonthChange={onMonthChange}
         customDates={customDatesDisabled.concat(customAbsenceDates)}
         onSelectDates={dates => dates.forEach(onToggleAbsenceDate)}
+        variant="month"
       />
 
       <DayPartField
