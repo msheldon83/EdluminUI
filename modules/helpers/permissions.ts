@@ -1,5 +1,7 @@
 import { OrgUserPermissions } from "reference-data/my-user-access";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { Detail } from "ui/components/reports/daily-report/helpers";
+import { isPast } from "date-fns";
 
 export const can = (
   permissions: PermissionEnum[],
@@ -52,11 +54,11 @@ export const canViewAbsVacNavLink = (
   const userPerms = getUserPermissions(permissions, orgId);
 
   /* if (
-    !userPerms?.includes(PermissionEnum.VacancyView) &&
+    !userPerms?.includes(PermissionEnum) &&
     !userPerms?.includes(PermissionEnum.VacancyVerify)
   ) {
     return false;
-  } */
+  }  */
 
   return true;
 };
@@ -265,5 +267,30 @@ export const canViewSubSubPrefNavLink = (
 
   //perform permission checks
 
+  return true;
+};
+
+/* admin home */
+export const canSwapSubs = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string,
+  absVacDetails?: Detail[]
+) => {
+  if (isSysAdmin) return true;
+  const userPerms = getUserPermissions(permissions, orgId);
+  console.log(absVacDetails);
+  let inPast = false;
+  absVacDetails?.forEach(e => {
+    if (isPast(e.date)) {
+      inPast = true;
+    }
+  });
+  //if (
+  //!userPerms?.includes(PermissionEnum.) &&
+  //!userPerms?.includes(PermissionEnum.ExternalConnectionsView)
+  // ) {
+  // return false;
+  // }
   return true;
 };

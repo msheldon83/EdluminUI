@@ -47,6 +47,8 @@ import {
   ShowIgnoreAndContinueOrError,
   ShowErrors,
 } from "ui/components/error-helpers";
+import { Can } from "ui/components/auth/can";
+import { canSwapSubs } from "helpers/permissions";
 
 type Props = {
   orgId: string;
@@ -342,7 +344,8 @@ export const DailyReport: React.FC<Props> = props => {
           history.push(url, {
             selectedDateTab: "older",
           });
-        }
+        },
+        props.orgId
       )}
     </Section>
   );
@@ -414,7 +417,8 @@ const displaySections = (
   ) => Promise<void>,
   date: Date,
   setDate: (date: Date) => void,
-  verifyOlderAction: () => void
+  verifyOlderAction: () => void,
+  orgId: string
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -467,7 +471,9 @@ const displaySections = (
             </Link>
           </Grid>
         )}
-        <Grid item>{displaySwabSubsAction(selectedRows, swapSubs, t)}</Grid>
+        <Grid item>
+          {displaySwabSubsAction(selectedRows, swapSubs, t, orgId)}
+        </Grid>
         <Grid item>
           <Print
             className={[classes.action, classes.print].join(" ")}
@@ -514,7 +520,8 @@ const displaySections = (
 const displaySwabSubsAction = (
   selectedRows: Detail[],
   swapSubs: (ignoreWarnings?: boolean) => Promise<void>,
-  t: TFunction
+  t: TFunction,
+  orgId: string
 ) => {
   if (selectedRows.length < 2) {
     return;
@@ -532,17 +539,23 @@ const displaySwabSubsAction = (
   );
 
   if (selectedRows.length === 2) {
-    return button;
+    return (
+      <Can do={canSwapSubs} data={selectedRows} orgId={orgId}>
+        button
+      </Can>
+    );
   }
 
   // Button is wrapped in a span, because in this case the button will be disabled and Tooltip
   // needs its first descendant to be an active element
   return (
-    <Tooltip
-      title={t("Substitutes can only be swapped between 2 Absences")}
-      placement="right"
-    >
-      <span>{button}</span>
-    </Tooltip>
+    <Can do={canSwapSubs} data={selectedRows} orgId={orgId}>
+      <Tooltip
+        title={t("Substitutes can only be swapped between 2 Absences")}
+        placement="right"
+      >
+        <span>{button}</span>
+      </Tooltip>
+    </Can>
   );
 };
