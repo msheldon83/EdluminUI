@@ -254,7 +254,7 @@ export function App() {
                           <Route path={EmployeeEditAbsenceRoute.path}>
                             <AdminEditAbsenceLoader actingAsEmployee />
                           </Route>
-                          <Route
+                          <ProtectedRoute
                             component={EmployeePtoBalanceLoader}
                             path={EmployeePtoBalanceRoute.path}
                           />
