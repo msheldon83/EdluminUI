@@ -19,7 +19,7 @@ import {
   DayPartValue,
 } from "ui/components/absence/day-part-field";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
-import { Select } from "ui/components/form/select";
+import { SelectNew } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
 import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
 

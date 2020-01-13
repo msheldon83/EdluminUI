@@ -26,24 +26,20 @@ export const Filters: React.FC<Props> = props => {
     props.setSearchText(searchText);
   }, [searchText]);
 
-  const roleOptions: OptionType[] = useMemo(
-    () => [
-      { value: OrgUserRole.Invalid, label: "(All)" },
-      { value: OrgUserRole.Administrator, label: "Admin" },
-      { value: OrgUserRole.Employee, label: "Employee" },
-      { value: OrgUserRole.ReplacementEmployee, label: "Substitute" },
-    ],
-    []
-  );
+  const roleOptions: OptionType[] = [
+    { value: OrgUserRole.Invalid, label: "(All)" },
+    { value: OrgUserRole.Administrator, label: "Admin" },
+    { value: OrgUserRole.Employee, label: "Employee" },
+    { value: OrgUserRole.ReplacementEmployee, label: "Substitute" },
+  ];
 
   const findRole = (value: React.ReactText) => {
     switch (value) {
-      case "Administrator":
-        console.log("here");
+      case "ADMINISTRATOR":
         return OrgUserRole.Administrator;
-      case "Employee":
+      case "EMPLOYEE":
         return OrgUserRole.Employee;
-      case "ReplacementEmployee":
+      case "REPLACEMENT_EMPLOYEE":
         return OrgUserRole.ReplacementEmployee;
       default:
         return OrgUserRole.Invalid;
@@ -72,8 +68,6 @@ export const Filters: React.FC<Props> = props => {
     },
     [setPendingSearchText]
   );
-
-  console.log(roleOptions);
 
   return (
     <>
