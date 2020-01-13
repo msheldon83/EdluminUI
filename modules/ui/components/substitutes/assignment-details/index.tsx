@@ -26,6 +26,7 @@ type AssignmentVacancy = {
     } | null;
   } | null;
   totalDayPortion: number;
+  payInfoSummary?: { summaryLabel: string } | null;
   // unfortunate that we have anys here.
   startTimeLocal?: any;
   endTimeLocal?: any;
@@ -47,7 +48,7 @@ export const AssignmentDetails: React.FC<Props> = props => {
 
   const locationNames = useMemo(
     () => compact(vacancy.details!.map(d => d!.location!.name)),
-    vacancy.details!
+    [vacancy.details]
   );
 
   const multipleStarts =
@@ -78,6 +79,7 @@ export const AssignmentDetails: React.FC<Props> = props => {
       organizationName={vacancy.organization.name}
       startTime={vacancy.startTimeLocal}
       dayPortion={vacancy.totalDayPortion}
+      payInfoLabel={vacancy.payInfoSummary?.summaryLabel ?? ""}
       startDate={vacancy.startDate}
       endDate={vacancy.endDate}
       locationNames={locationNames}
