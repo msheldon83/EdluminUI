@@ -88,7 +88,7 @@ export const getReplacementEmployeeForVacancy = (
     absence.vacancies[0] &&
     absence.vacancies[0].details &&
     absence.vacancies[0].details[0] &&
-    absence.vacancies[0].details[0]?.assignment?.employeeId;
+    absence.vacancies[0].details[0]?.assignment?.employee?.id;
 
   if (!hasReplacementEmployee) {
     return null;
@@ -96,7 +96,7 @@ export const getReplacementEmployeeForVacancy = (
 
   const assignment = absence.vacancies![0]!.details![0]!.assignment!;
   return {
-    employeeId: assignment.employeeId,
+    employeeId: Number(assignment.employee!.id),
     firstName: assignment.employee?.firstName || "",
     lastName: assignment.employee?.lastName || "",
     assignmentId: assignment.id,
