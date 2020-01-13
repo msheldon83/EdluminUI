@@ -183,7 +183,11 @@ import { SubSignInRoute, SubSignInLoader } from "ui/routes/sub-sign-in";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { IfHasRole } from "./components/auth/if-has-role";
 import { AdminOrgRoute } from "./components/routing/admin-org-route";
-import { UnauthorizedRoute, UnauthorizedLoader } from "./routes/unauthorized";
+import {
+  UnauthorizedRoute,
+  UnauthorizedRoleRoute,
+  UnauthorizedLoader,
+} from "./routes/unauthorized";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -236,6 +240,10 @@ export function App() {
                       <IfHasRole role={OrgUserRole.Employee}>
                         <Switch>
                           <Route
+                            component={UnauthorizedLoader}
+                            path={UnauthorizedRoleRoute.path}
+                          />
+                          <Route
                             component={EmployeeCreateAbsenceLoader}
                             path={EmployeeCreateAbsenceRoute.path}
                           />
@@ -274,6 +282,10 @@ export function App() {
                     <Route path={SubstituteChromeRoute.path}>
                       <IfHasRole role={OrgUserRole.ReplacementEmployee}>
                         <Switch>
+                          <Route
+                            component={UnauthorizedLoader}
+                            path={UnauthorizedRoleRoute.path}
+                          />
                           <Route path={SubScheduleCalendarViewRoute.path}>
                             <SubScheduleLoader view="calendar" />
                           </Route>
@@ -321,6 +333,10 @@ export function App() {
                           />
                           <Route path={AdminChromeRoute.path}>
                             <Switch>
+                              <Route
+                                component={UnauthorizedLoader}
+                                path={UnauthorizedRoleRoute.path}
+                              />
                               <AdminOrgRoute
                                 component={AdminEditAbsenceLoader}
                                 path={AdminEditAbsenceRoute.path}
