@@ -22,7 +22,7 @@ export const AvailableJobSingleStory = () => {
       />
       <AvailableJob
         vacancy={halfDayAM}
-        shadeRow={false}
+        shadeRow={true}
         onDismiss={onDismiss}
         onAccept={onAccept}
       />
@@ -32,8 +32,25 @@ export const AvailableJobSingleStory = () => {
 
 export const AvailableJobMultipleStory = () => {
   const classes = useStyles();
+  const vacancyWithoutNotes = {
+    ...complexVacancy,
+    notesToReplacement: undefined,
+  };
   return (
     <div className={classes.container}>
+      <AvailableJob
+        vacancy={complexVacancy}
+        shadeRow={false}
+        onDismiss={onDismiss}
+        onAccept={onAccept}
+      />
+      {/* to get a sense of how they look in sequence */}
+      <AvailableJob
+        vacancy={vacancyWithoutNotes}
+        shadeRow={true}
+        onDismiss={onDismiss}
+        onAccept={onAccept}
+      />
       <AvailableJob
         vacancy={complexVacancy}
         shadeRow={false}
@@ -108,16 +125,22 @@ const complexVacancy = ({
       endTimeLocal: "2019-11-21T15:00",
       dayPortion: 1,
     },
+    {
+      location: { name: "Another school" },
+      startTimeLocal: "2019-11-22T08:00",
+      endTimeLocal: "2019-11-22T11:30",
+      dayPortion: 0.5,
+    },
   ],
   organization: { name: "Frank's District" },
   position: { name: "Kindergarten Teacher" },
   absence: { employee: { firstName: "Pam", lastName: "Thomas" } },
   startTimeLocal: "2019-11-20T08:00",
-  endTimeLocal: "2019-11-21T15:00",
+  endTimeLocal: "2019-11-22T11:30",
   startDate: "2019-11-20",
-  endDate: "2019-11-21",
+  endDate: "2019-11-22",
   notesToReplacement: "These are notes for the substitute.",
-  totalDayPortion: 2,
+  totalDayPortion: 2.5,
 } as unknown) as Pick<
   Vacancy,
   | "id"

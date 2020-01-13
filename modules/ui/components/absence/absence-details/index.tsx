@@ -23,7 +23,7 @@ import { useHistory } from "react-router";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail } from "ui/components/absence/types";
-import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
+import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { Input } from "ui/components/form/input";
 import { SelectNew } from "ui/components/form/select-new";
 import { DayPartField, DayPartValue } from "../day-part-field";
@@ -128,7 +128,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         await setValue("hourlyEndTime", undefined);
       }
     },
-    [setValue, props.setVacanciesInput]
+    [props, setValue, triggerValidation]
   );
 
   const onNotesToApproverChange = React.useCallback(
@@ -166,6 +166,20 @@ export const AbsenceDetails: React.FC<Props> = props => {
     return { part: values.dayPart };
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
 
+  const customDatesDisabled = props.disabledDates.map(({ date }) => {
+    return {
+      date,
+      buttonProps: { className: classes.dateDisabled },
+    };
+  });
+
+  const customAbsenceDates = props.absenceDates.map(date => {
+    return {
+      date,
+      buttonProps: { className: classes.absenceDate },
+    };
+  });
+
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -188,20 +202,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
           />
         </div>
 
-        <div className={classes.monthSwitcher}>
-          <IconButton onClick={viewPreviousMonth}>
-            <ChevronLeftIcon />
-          </IconButton>
-          <IconButton onClick={viewNextMonth}>
-            <ChevronRightIcon />
-          </IconButton>
-        </div>
-
-        <FiveWeekCalendar
-          startDate={props.currentMonth}
-          disabledDates={props.disabledDates.map(d => d.date)}
-          selectedDates={props.absenceDates}
-          onDateClicked={props.onToggleAbsenceDate}
+        <CustomCalendar
+          month={props.currentMonth}
+          monthNavigation
+          variant="month"
+          customDates={customDatesDisabled.concat(customAbsenceDates)}
+          onMonthChange={props.onSwitchMonth}
+          onSelectDates={dates => dates.forEach(props.onToggleAbsenceDate)}
         />
 
         {props.balanceUsageText && (
@@ -371,6 +378,24 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  dateDisabled: {
+    backgroundColor: theme.customColors.lightGray,
+    color: theme.palette.text.disabled,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
+      color: theme.palette.text.disabled,
+    },
+  },
+  absenceDate: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.customColors.white,
+    },
   },
 }));
 

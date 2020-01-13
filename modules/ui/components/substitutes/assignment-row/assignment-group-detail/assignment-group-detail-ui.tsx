@@ -1,10 +1,9 @@
-import { Grid, Typography, makeStyles, Button } from "@material-ui/core";
-import * as React from "react";
+import { makeStyles, Typography } from "@material-ui/core";
 import { formatIsoDateIfPossible } from "helpers/date";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { parseDayPortion } from "ui/components/helpers";
-import { DayIcon } from "ui/components/day-icon";
 import { TextButton } from "ui/components/text-button";
+import { DetailDayPartDisplay } from "ui/components/substitutes/detail-day-part-display";
 
 type Props = {
   locationName: string;
@@ -22,7 +21,6 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const dayPortionLabel = parseDayPortion(t, props.dayPortion);
   return (
     <div
       className={[
@@ -41,23 +39,13 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
         <Typography className={classes.text}>{props.locationName}</Typography>
       </div>
 
-      <div className={classes.dayPortion}>
-        <DayIcon
-          dayPortion={props.dayPortion}
-          startTime={props.startTimeLocal}
-          className={classes.smallDayIcon}
-        />
-
-        <Typography display="inline" className={classes.text}>
-          {`${formatIsoDateIfPossible(
-            props.startTimeLocal,
-            "h:mm aaa"
-          )} - ${formatIsoDateIfPossible(
-            props.endTimeLocal,
-            "h:mm aaa"
-          )} ${dayPortionLabel}`}
-        </Typography>
-      </div>
+      <DetailDayPartDisplay
+        dayPortion={props.dayPortion}
+        startTimeLocal={props.startTimeLocal}
+        endTimeLocal={props.endTimeLocal}
+        iconClassName={classes.smallDayIcon}
+        className={classes.dayPortion}
+      />
 
       {!props.forSpecificAssignment && (
         <TextButton
@@ -77,7 +65,6 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
 export const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
-    width: "100%",
     alignItems: "center",
     justifyContent: "space-between",
     marginLeft: theme.spacing(1),

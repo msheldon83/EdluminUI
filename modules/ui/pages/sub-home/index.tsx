@@ -23,7 +23,7 @@ import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { FiveWeekCalendar } from "ui/components/form/five-week-calendar";
+import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { Padding } from "ui/components/padding";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -239,6 +239,11 @@ export const SubHome: React.FC<Props> = props => {
       });
   };
 
+  const activeDates = uniqueWorkingDays.map(date => ({
+    date,
+    buttonProps: { className: classes.activeDate },
+  }));
+
   return (
     <>
       <Grid
@@ -267,25 +272,29 @@ export const SubHome: React.FC<Props> = props => {
               </Typography>
             </Section>
           ) : (
-            renderAssignments()
+            <>
+              {renderAssignments()}
+              <MuiLink
+                className={classes.viewAllAssignmentsLink}
+                component={Link}
+                to={SubScheduleRoute.generate(params)}
+              >
+                {t("View All")}
+              </MuiLink>
+            </>
           )}
-          <MuiLink
-            className={classes.viewAllAssignmentsLink}
-            component={Link}
-            to={SubScheduleRoute.generate(params)}
-          >
-            {t("View All")}
-          </MuiLink>
         </Grid>
         {!isMobile && (
           <Grid item xs={12} sm={6} lg={6}>
             <Section>
               <Padding bottom={6}>
-                <FiveWeekCalendar
-                  startDate={fromDate}
-                  disableWeekends={true}
-                  selectedDates={uniqueWorkingDays}
+                <CustomCalendar
+                  customDates={activeDates}
+                  month={fromDate}
                   contained={false}
+                  classes={{
+                    weekend: classes.weekendDate,
+                  }}
                 />
               </Padding>
             </Section>
@@ -408,5 +417,23 @@ const useStyles = makeStyles(theme => ({
     position: "relative",
     top: theme.typography.pxToRem(-40),
     left: theme.spacing(3),
+  },
+  activeDate: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.customColors.white,
+    },
+  },
+  weekendDate: {
+    backgroundColor: theme.customColors.lightGray,
+    color: theme.palette.text.disabled,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
+      color: theme.palette.text.disabled,
+    },
   },
 }));

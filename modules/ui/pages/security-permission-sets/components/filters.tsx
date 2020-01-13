@@ -39,6 +39,7 @@ export const Filters: React.FC<Props> = props => {
   const findRole = (value: React.ReactText) => {
     switch (value) {
       case "Administrator":
+        console.log("here");
         return OrgUserRole.Administrator;
       case "Employee":
         return OrgUserRole.Employee;
@@ -57,8 +58,6 @@ export const Filters: React.FC<Props> = props => {
   const onChangeRoles = useCallback(
     value => {
       if (value.value === OrgUserRole.Invalid) {
-        console.log("here");
-
         props.setRolesFilter([]);
       } else {
         props.setRolesFilter(value.value);
