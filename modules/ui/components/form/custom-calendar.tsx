@@ -15,6 +15,7 @@ import startOfMonth from "date-fns/startOfMonth";
 import endOfMonth from "date-fns/endOfMonth";
 import isSameDay from "date-fns/isSameDay";
 import getDay from "date-fns/getDay";
+import isWeekend from "date-fns/isWeekend";
 import { sortDates, inDateInterval } from "helpers/date";
 
 type CustomCalendarProps = {
@@ -29,6 +30,12 @@ type CustomCalendarProps = {
   variant?: "weeks" | "month";
   onMonthChange?: (date: Date) => void;
   monthNavigation?: boolean;
+  classes?: Classes;
+};
+
+type Classes = {
+  weekend?: string;
+  weekday?: string;
 };
 
 export const CustomCalendar = (props: CustomCalendarProps) => {
@@ -41,9 +48,10 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     onMonthChange = () => {},
     monthNavigation = false,
     variant = "weeks",
+    classes: customClasses = {},
   } = props;
 
-  const classes = useStyles({ contained, onSelectDates });
+  const classes = useStyles(props);
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [lastDateSelected, setLastDateSelected] = React.useState();
   const [mouseOverDate, setMouseOverDate] = React.useState();
@@ -177,10 +185,14 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
         ? buttonProps.className
         : "";
 
+      const dateIsWeekend = isWeekend(date)
+
       const classNames = clsx({
         [classes.dayButton]: true,
         [classes.dayInDateRange]: dateIsInSelectionRange(date),
         [classes.dayShiftPressed]: shiftPressed,
+        [customClasses.weekend ?? ""]: dateIsWeekend,
+        [customClasses.weekday ?? ""]: !dateIsWeekend
       });
 
       /*
