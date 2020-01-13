@@ -139,6 +139,27 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     setRequestAbsenceIsOpen(true);
   };
 
+  const DismissAndAcceptButtons = (
+    <>
+      <Grid item>
+        <Button
+          variant={isMobile ? "text" : "outlined"}
+          onClick={() => onDismissVacancy(vacancy.organization.id, vacancy.id)}
+        >
+          {t("Dismiss")}
+        </Button>
+      </Grid>
+      <Grid item>
+        <Button
+          variant="contained"
+          onClick={() => onAcceptVacancy(vacancy.organization.id, vacancy.id)}
+        >
+          {t("Accept")}
+        </Button>
+      </Grid>
+    </>
+  );
+
   return (
     <>
       <PageTitle title={t("Available assignment")} />
@@ -180,7 +201,7 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
                       forSingleJob={true}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid item xs={isMobile ? 12 : 6}>
                     {vacancy.notesToReplacement && (
                       <>
                         <Typography variant="h6">{t("Notes")}</Typography>
@@ -188,37 +209,18 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
                       </>
                     )}
                   </Grid>
-                  <Grid
-                    item
-                    container
-                    justify="flex-end"
-                    alignItems="flex-end"
-                    spacing={2}
-                    xs={6}
-                  >
-                    <Grid item>
-                      <Button
-                        variant={isMobile ? "text" : "outlined"}
-                        onClick={() =>
-                          onDismissVacancy(vacancy.organization.id, vacancy.id)
-                        }
-                      >
-                        {t("Dismiss")}
-                      </Button>
+                  {!isMobile && (
+                    <Grid
+                      item
+                      container
+                      justify="flex-end"
+                      alignItems="flex-end"
+                      spacing={2}
+                      xs={6}
+                    >
+                      {DismissAndAcceptButtons}
                     </Grid>
-                    {!isMobile && (
-                      <Grid item>
-                        <Button
-                          variant="contained"
-                          onClick={() =>
-                            onAcceptVacancy(vacancy.organization.id, vacancy.id)
-                          }
-                        >
-                          {t("Accept")}
-                        </Button>
-                      </Grid>
-                    )}
-                  </Grid>
+                  )}
                 </>
               )}
             </Grid>
@@ -227,17 +229,8 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
       </Grid>
       {isMobile && (
         <Section>
-          <Grid container justify="flex-end" alignItems="flex-end">
-            <Grid item>
-              <Button
-                variant="contained"
-                onClick={() =>
-                  onAcceptVacancy(vacancy.organization.id, vacancy.id)
-                }
-              >
-                {t("Accept")}
-              </Button>
-            </Grid>
+          <Grid container justify="space-between" alignItems="flex-end">
+            {DismissAndAcceptButtons}
           </Grid>
         </Section>
       )}

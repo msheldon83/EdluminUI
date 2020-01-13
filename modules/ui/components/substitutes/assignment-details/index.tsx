@@ -1,0 +1,87 @@
+import * as React from "react";
+import { useMemo } from "react";
+import { AssignmentDetailsUI } from "./assignment-details-ui";
+import { compact, groupBy } from "lodash-es";
+import { formatIsoDateIfPossible } from "helpers/date";
+
+type Detail = {
+  startTimeLocal?: string;
+  endTimeLocal?: string;
+  location?: {
+    name: string | null;
+  } | null;
+} | null;
+
+type AssignmentVacancy = {
+  organization: {
+    name: string;
+  };
+  position?: {
+    name: string;
+  } | null;
+  absence?: {
+    employee?: {
+      firstName: string;
+      lastName: string;
+    } | null;
+  } | null;
+  totalDayPortion: number;
+  // unfortunate that we have anys here.
+  startTimeLocal?: any;
+  endTimeLocal?: any;
+  startDate?: any;
+  endDate?: any;
+  details?: Detail[] | null;
+};
+
+type Props = {
+  vacancy: AssignmentVacancy;
+};
+
+export const AssignmentDetails: React.FC<Props> = props => {
+  const { vacancy } = props;
+
+  const employeeName = `${vacancy.absence!.employee!.firstName} ${
+    vacancy.absence!.employee!.lastName
+  }`;
+
+  const locationNames = useMemo(
+    () => compact(vacancy.details!.map(d => d!.location!.name)),
+    vacancy.details!
+  );
+
+  const multipleStarts =
+    Object.entries(
+      groupBy(props.vacancy.details, a =>
+        formatIsoDateIfPossible(a!.startTimeLocal, "h:mm aaa")
+      )
+    ).length > 1;
+  const multipleEndTimes =
+    Object.entries(
+      groupBy(props.vacancy.details, a =>
+        formatIsoDateIfPossible(a!.endTimeLocal, "h:mm aaa")
+      )
+    ).length > 1;
+  const multipleTimes = multipleStarts && multipleEndTimes;
+
+  const times = multipleTimes
+    ? { multipleTimes }
+    : {
+        multipleTimes,
+        endTime: vacancy.endTimeLocal,
+      };
+
+  return (
+    <AssignmentDetailsUI
+      {...times}
+      employeeName={employeeName}
+      organizationName={vacancy.organization.name}
+      startTime={vacancy.startTimeLocal}
+      dayPortion={vacancy.totalDayPortion}
+      startDate={vacancy.startDate}
+      endDate={vacancy.endDate}
+      locationNames={locationNames}
+      positionName={vacancy.position!.name}
+    />
+  );
+};
