@@ -12,11 +12,9 @@ type Props = {
     | ((
         permissions: OrgUserPermissions[],
         isSysAdmin: boolean,
-        orgId?: string,
-        data?: any[]
+        orgId?: string
       ) => boolean);
   orgId?: string;
-  data?: any[];
 };
 
 export const Can: React.FC<Props> = props => {
@@ -34,8 +32,7 @@ export const Can: React.FC<Props> = props => {
     canDoThis = props.do(
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
-      props?.orgId,
-      props?.data
+      props?.orgId
     );
   }
   return canDoThis ? <>{props.children}</> : null;

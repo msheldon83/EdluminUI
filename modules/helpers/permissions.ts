@@ -1,7 +1,7 @@
 import { OrgUserPermissions } from "reference-data/my-user-access";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Detail } from "ui/components/reports/daily-report/helpers";
-import { isPast } from "date-fns";
+import { isPast, isToday, isFuture } from "date-fns";
 
 export const can = (
   permissions: PermissionEnum[],
@@ -271,26 +271,27 @@ export const canViewSubSubPrefNavLink = (
 };
 
 /* admin home */
-export const canSwapSubs = (
+export const canAssignSub = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  absVacDetails?: Detail[]
+  absDate: Date
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
-  console.log(absVacDetails);
-  let inPast = false;
-  absVacDetails?.forEach(e => {
-    if (isPast(e.date)) {
-      inPast = true;
-    }
-  });
-  //if (
-  //!userPerms?.includes(PermissionEnum.) &&
-  //!userPerms?.includes(PermissionEnum.ExternalConnectionsView)
-  // ) {
-  // return false;
-  // }
+  if (
+    !isToday(absDate) &&
+    !isFuture(absDate) &&
+    (!userPerms?.includes(PermissionEnum.AbsVacAssign) ||
+      !userPerms?.includes(PermissionEnum.AbsVacEditPast))
+  ) {
+    return false;
+  } else if (
+    (isToday(absDate) || isFuture(absDate)) &&
+    !userPerms?.includes(PermissionEnum.AbsVacAssign)
+  ) {
+    return false;
+  }
+
   return true;
 };

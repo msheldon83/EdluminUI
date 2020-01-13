@@ -48,7 +48,8 @@ import {
   ShowErrors,
 } from "ui/components/error-helpers";
 import { Can } from "ui/components/auth/can";
-import { canSwapSubs } from "helpers/permissions";
+import { canAssignSub } from "helpers/permissions";
+import { OrgUserPermissions } from "reference-data/my-user-access";
 
 type Props = {
   orgId: string;
@@ -472,7 +473,7 @@ const displaySections = (
           </Grid>
         )}
         <Grid item>
-          {displaySwabSubsAction(selectedRows, swapSubs, t, orgId)}
+          {displaySwabSubsAction(selectedRows, swapSubs, t, orgId, date)}
         </Grid>
         <Grid item>
           <Print
@@ -521,7 +522,8 @@ const displaySwabSubsAction = (
   selectedRows: Detail[],
   swapSubs: (ignoreWarnings?: boolean) => Promise<void>,
   t: TFunction,
-  orgId: string
+  orgId: string,
+  absDate: Date
 ) => {
   if (selectedRows.length < 2) {
     return;
@@ -540,7 +542,14 @@ const displaySwabSubsAction = (
 
   if (selectedRows.length === 2) {
     return (
-      <Can do={canSwapSubs} data={selectedRows} orgId={orgId}>
+      <Can
+        do={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) => canAssignSub(permissions, isSysAdmin, orgId, absDate)}
+        orgId={orgId}
+      >
         button
       </Can>
     );
@@ -549,7 +558,14 @@ const displaySwabSubsAction = (
   // Button is wrapped in a span, because in this case the button will be disabled and Tooltip
   // needs its first descendant to be an active element
   return (
-    <Can do={canSwapSubs} data={selectedRows} orgId={orgId}>
+    <Can
+      do={(
+        permissions: OrgUserPermissions[],
+        isSysAdmin: boolean,
+        orgId?: string
+      ) => canAssignSub(permissions, isSysAdmin, orgId, absDate)}
+      orgId={orgId}
+    >
       <Tooltip
         title={t("Substitutes can only be swapped between 2 Absences")}
         placement="right"
