@@ -17,7 +17,7 @@ import * as React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { FiveWeekCalendar } from "../form/five-week-calendar";
+import { CustomCalendar } from "../form/custom-calendar";
 import { AssignedSub } from "./assigned-sub";
 import { getAbsenceDateRangeDisplayText } from "./date-helpers";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
@@ -117,6 +117,20 @@ export const View: React.FC<Props> = props => {
   const payCode = getPayCode(absence);
   const accountingCode = getAccountingCode(absence);
 
+  const customDatesDisabled = disabledDates.map(({ date }) => {
+    return {
+      date,
+      buttonProps: { className: classes.dateDisabled },
+    };
+  });
+
+  const customAbsenceDates = absenceDates.map(date => {
+    return {
+      date,
+      buttonProps: { className: classes.absenceDate },
+    };
+  });
+
   return (
     <div>
       <Grid container alignItems="flex-start" spacing={4}>
@@ -135,10 +149,9 @@ export const View: React.FC<Props> = props => {
             </div>
 
             <div className={classes.dates}>
-              <FiveWeekCalendar
-                startDate={parseISO(absence.startDate)}
-                disabledDates={disabledDates.map(d => d.date)}
-                selectedDates={absenceDates}
+              <CustomCalendar
+                month={parseISO(absence.startDate)}
+                customDates={customDatesDisabled.concat(customAbsenceDates)}
               />
             </div>
 
@@ -304,6 +317,24 @@ const useStyles = makeStyles(theme => ({
     fontWeight: "normal",
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
+  },
+  dateDisabled: {
+    backgroundColor: theme.customColors.lightGray,
+    color: theme.palette.text.disabled,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
+      color: theme.palette.text.disabled,
+    },
+  },
+  absenceDate: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.customColors.white,
+    },
   },
 }));
 
