@@ -481,6 +481,7 @@ export const Assignment: React.FC<Props> = props => {
                   </Grid>
                   <Grid item xs={2}>
                     <Select
+                      label={t("Pay Code")}
                       value={{
                         value: values.payCodeId,
                         label:
@@ -509,6 +510,7 @@ export const Assignment: React.FC<Props> = props => {
                   </Grid>
                   <Grid item xs={2}>
                     <Select
+                      label={t("Accounting Code")}
                       value={{
                         value: values.accountingCodeId,
                         label:
