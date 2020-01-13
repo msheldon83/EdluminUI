@@ -7,6 +7,7 @@ import {
   AccountingCode,
   PayCode,
   Vacancy,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
@@ -28,6 +29,7 @@ import {
   ReplacementEmployeeForVacancy,
 } from "./helpers";
 import { VacancyDetails } from "./vacancy-details";
+import { Can } from "../auth/can";
 
 type Props = {
   orgId: string;
@@ -182,6 +184,7 @@ export const View: React.FC<Props> = props => {
               <Paper className={classes.substituteDetailsSection}>
                 {replacementEmployeeInformation && (
                   <AssignedSub
+                    organizationId={props.orgId}
                     employeeId={replacementEmployeeInformation.employeeId}
                     employeeName={`${replacementEmployeeInformation.firstName} ${replacementEmployeeInformation.lastName}`}
                     subText={
@@ -214,20 +217,30 @@ export const View: React.FC<Props> = props => {
                         {props.isAdmin && (accountingCode || payCode) && (
                           <Grid item container className={classes.subCodes}>
                             {accountingCode && (
-                              <Grid item xs={payCode ? 6 : 12}>
-                                <Typography variant={"h6"}>
-                                  {t("Accounting code")}
-                                </Typography>
-                                {accountingCode.name}
-                              </Grid>
+                              <Can
+                                do={[PermissionEnum.AbsVacViewAccountCode]}
+                                orgId={props.orgId}
+                              >
+                                <Grid item xs={payCode ? 6 : 12}>
+                                  <Typography variant={"h6"}>
+                                    {t("Accounting code")}
+                                  </Typography>
+                                  {accountingCode.name}
+                                </Grid>
+                              </Can>
                             )}
                             {payCode && (
-                              <Grid item xs={accountingCode ? 6 : 12}>
-                                <Typography variant={"h6"}>
-                                  {t("Pay code")}
-                                </Typography>
-                                {payCode.name}
-                              </Grid>
+                              <Can
+                                do={[PermissionEnum.AbsVacViewPayCode]}
+                                orgId={props.orgId}
+                              >
+                                <Grid item xs={accountingCode ? 6 : 12}>
+                                  <Typography variant={"h6"}>
+                                    {t("Pay code")}
+                                  </Typography>
+                                  {payCode.name}
+                                </Grid>
+                              </Can>
                             )}
                           </Grid>
                         )}
