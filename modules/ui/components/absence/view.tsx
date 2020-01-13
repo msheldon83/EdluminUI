@@ -152,6 +152,7 @@ export const View: React.FC<Props> = props => {
               <CustomCalendar
                 month={parseISO(absence.startDate)}
                 customDates={customDatesDisabled.concat(customAbsenceDates)}
+                variant="month"
               />
             </div>
 
