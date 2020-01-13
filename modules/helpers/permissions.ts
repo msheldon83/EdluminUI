@@ -53,12 +53,12 @@ export const canViewAbsVacNavLink = (
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
 
-  /* if (
-    !userPerms?.includes(PermissionEnum) &&
-    !userPerms?.includes(PermissionEnum.VacancyVerify)
+  if (
+    !userPerms?.includes(PermissionEnum.AbsVacView) &&
+    !userPerms?.includes(PermissionEnum.AbsVacVerify)
   ) {
     return false;
-  }  */
+  }
 
   return true;
 };
@@ -69,9 +69,9 @@ export const canViewDailyReportNavLink = (
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
-  /* if (!userPerms?.includes(PermissionEnum.VacancyView)) {
+  if (!userPerms?.includes(PermissionEnum.AbsVacView)) {
     return false;
-  } */
+  }
 
   return true;
 };
@@ -82,9 +82,9 @@ export const canViewVerifyNavLink = (
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
-  /* if (!userPerms?.includes(PermissionEnum.VacancyVerify)) {
+  if (!userPerms?.includes(PermissionEnum.AbsVacVerify)) {
     return false;
-  } */
+  }
   return true;
 };
 export const canViewAnalyticsReportsNavLink = (
@@ -105,12 +105,12 @@ export const canViewSchoolsNavLink = (
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
-  /* if (
+  if (
     !userPerms?.includes(PermissionEnum.LocationView) &&
-    !userPerms?.includes(PermissionEnum.LocationView)
+    !userPerms?.includes(PermissionEnum.LocationGroupView)
   ) {
     return false;
-  } */
+  }
 
   return true;
 };
@@ -134,13 +134,13 @@ export const canViewPeopleNavLink = (
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
-  /* if (
+  if (
     !userPerms?.includes(PermissionEnum.EmployeeView) &&
     !userPerms?.includes(PermissionEnum.SubstituteView) &&
     !userPerms?.includes(PermissionEnum.AdminView)
   ) {
     return false;
-  } */
+  }
 
   return true;
 };
@@ -151,9 +151,9 @@ export const canViewCalendarsNavLink = (
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
-  /*  if (!userPerms?.includes(PermissionEnum.CalendarChangeView)) {
+  if (!userPerms?.includes(PermissionEnum.CalendarChangeView)) {
     return false;
-  } */
+  }
 
   return true;
 };
@@ -164,14 +164,14 @@ export const canViewConfigNavLink = (
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
-  /* if (
+  if (
     !userPerms?.includes(PermissionEnum.GeneralSettingsView) &&
     !userPerms?.includes(PermissionEnum.ScheduleSettingsView) &&
-    !userPerms?.includes(PermissionEnum.VacancyView) &&
+    !userPerms?.includes(PermissionEnum.AbsVacSettingsView) &&
     !userPerms?.includes(PermissionEnum.FinanceSettingsView)
   ) {
     return false;
-  } */
+  }
 
   return true;
 };
@@ -182,7 +182,12 @@ export const canViewSecurityNavLink = (
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
-  /* ß */
+  if (
+    !userPerms?.includes(PermissionEnum.PermissionSetView) &&
+    !userPerms?.includes(PermissionEnum.ExternalConnectionsView)
+  ) {
+    return false;
+  }
 
   return true;
 };
@@ -217,12 +222,9 @@ export const canViewPTOBalancesNavLink = (
 ) => {
   if (isSysAdmin) return true; //if org id was passed check if orgid is in list of orgs user has access to (admin)
   const userPerms = getUserPermissions(permissions, orgId);
-  /*if (
-    !userPerms?.includes(PermissionEnum.) &&
-    !userPerms?.includes(PermissionEnum.ExternalConnectionsView) 
-  ) {
+  if (!userPerms?.includes(PermissionEnum.EmployeeViewBalances)) {
     return false;
-  }*/
+  }
 
   return true;
 };
@@ -234,12 +236,9 @@ export const canViewEmpSubPrefNavLink = (
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
 
-  //if (
-  //!userPerms?.includes(PermissionEnum.employ) &&
-  //!userPerms?.includes(PermissionEnum.ExternalConnectionsView)
-  //) {
-  //  return false;
-  //}
+  if (!userPerms?.includes(PermissionEnum.EmployeeSaveFavoriteSubs)) {
+    return false;
+  }
 
   return true;
 };
