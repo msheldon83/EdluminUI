@@ -120,7 +120,7 @@ export const PeopleNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
     <Can do={canViewPeopleNavLink} orgId={props?.orgId}>
-      <NavLink title={t("People")} icon={<PeopleIcon />} {...props} />;
+      <NavLink title={t("People")} icon={<PeopleIcon />} {...props} />
     </Can>
   );
 };
