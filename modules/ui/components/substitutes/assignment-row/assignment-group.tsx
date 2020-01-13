@@ -1,9 +1,9 @@
 import { makeStyles } from "@material-ui/styles";
-import { formatIsoDateIfPossible } from "helpers/date";
-import { groupBy } from "lodash-es";
 import * as React from "react";
 import { useState } from "react";
 import { AssignmentVacancyDetails } from "../../../pages/sub-schedule/types";
+import { detailsHaveMultipleTimes } from "../assignment-details/helpers";
+import { ExpandOrCollapseIndicator } from "../expand-or-collapse-indicator";
 import { AssignmentGroupDetail } from "./assignment-group-detail/index";
 import { AssignmentRowUI } from "./assignment-row-ui";
 import { CancelDialog } from "./cancel-dialog";
@@ -77,19 +77,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
   so this should be the latest date for the vacancy */
   const endDate = lastVacancyDetail.endDate!;
 
-  const multipleStarts =
-    Object.entries(
-      groupBy(vacancyDetails, a =>
-        formatIsoDateIfPossible(a.startTimeLocal, "h:mm aaa")
-      )
-    ).length > 1;
-  const multipleEndTimes =
-    Object.entries(
-      groupBy(vacancyDetails, a =>
-        formatIsoDateIfPossible(a.endTimeLocal, "h:mm aaa")
-      )
-    ).length > 1;
-  const multipleTimes = multipleStarts && multipleEndTimes;
+  const multipleTimes = detailsHaveMultipleTimes(vacancyDetails);
 
   const times = multipleTimes
     ? { multipleTimes }

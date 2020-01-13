@@ -4,20 +4,15 @@ import {
   IconButton,
   makeStyles,
   Popper,
-  Typography,
 } from "@material-ui/core";
 import { ReceiptOutlined } from "@material-ui/icons";
-import { useIsMobile } from "hooks";
-import format from "date-fns/format";
-import isEqual from "date-fns/isEqual";
-import parseISO from "date-fns/parseISO";
 import { Vacancy } from "graphql/server-types.gen";
-import { formatIsoDateIfPossible } from "helpers/date";
+import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { AvailableJobDetail } from "./available-job-detail";
-import { DayIcon } from "ui/components/day-icon";
 import { ExpandOrCollapseIndicator } from "ui/components/substitutes/expand-or-collapse-indicator";
+import { AvailableJobDetail } from "./available-job-detail";
+import { AssignmentDetails } from "ui/components/substitutes/assignment-details";
 
 type Props = {
   vacancy: Pick<
@@ -43,7 +38,8 @@ type Props = {
 
 export const AvailableJob: React.FC<Props> = props => {
   const isMobile = useIsMobile();
-  const classes = useStyles({ isMobile });
+  const { forSingleJob } = props;
+  const classes = useStyles({ isMobile, forSingleJob });
   const { t } = useTranslation();
   const [expanded, setExpanded] = React.useState(false);
   const [notesAnchor, setNotesAnchor] = React.useState<null | HTMLElement>(
@@ -54,31 +50,7 @@ export const AvailableJob: React.FC<Props> = props => {
 
   const hasDetails = vacancy.details!.length > 1;
   const acceptButtonDisabled = hasDetails && !expanded;
-  const showDetails = (expanded || props.forSingleJob) && hasDetails;
-
-  const startDate = parseISO(vacancy.startDate);
-  const endDate = parseISO(vacancy.endDate);
-  let vacancyDates = format(startDate, "MMM d");
-  let vacancyDaysOfWeek = format(startDate, "EEEE");
-  if (!isEqual(startDate, endDate)) {
-    vacancyDaysOfWeek = `${format(startDate, "EEE")} - ${format(
-      endDate,
-      "EEE"
-    )}`;
-    if (startDate.getMonth() === endDate.getMonth()) {
-      vacancyDates = `${vacancyDates} - ${format(endDate, "d")}`;
-    } else {
-      vacancyDates = `${vacancyDates} - ${format(endDate, "MMM d")}`;
-    }
-  }
-
-  const locationNames = [
-    ...new Set(vacancy.details!.map(d => d!.location!.name)),
-  ];
-  const locationNameText =
-    locationNames.length > 1
-      ? `${locationNames[0]} +${locationNames.length - 1}`
-      : locationNames[0];
+  const showDetails = (expanded || forSingleJob) && hasDetails;
 
   const handleShowNotes = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -124,84 +96,43 @@ export const AvailableJob: React.FC<Props> = props => {
       >
         <div className={classes.container}>
           <div className={classes.infoContainer}>
-            <div className={classes.date}>
-              {isMobile ? (
-                <Typography variant="h6">{`${vacancyDates}, ${vacancyDaysOfWeek}`}</Typography>
-              ) : (
-                <>
-                  <Typography variant="h6">{vacancyDates}</Typography>
-                  <Typography className={classes.lightText}>
-                    {vacancyDaysOfWeek}
-                  </Typography>
-                </>
-              )}
-            </div>
-
-            <div className={classes.location}>
-              <Typography className={classes.text}>
-                {locationNameText ?? t("Unknown")}
-              </Typography>
-              <Typography className={classes.lightText}>
-                {vacancy.organization.name}
-              </Typography>
-            </div>
-
-            <div className={classes.position}>
-              <Typography className={classes.text}>
-                {vacancy.position!.name}
-              </Typography>
-              <Typography className={classes.lightText}>{`for ${
-                vacancy.absence!.employee!.firstName
-              } ${vacancy.absence!.employee!.lastName}`}</Typography>
-            </div>
-
-            <div className={classes.dayPartContainer}>
-              <DayIcon
-                dayPortion={vacancy.totalDayPortion}
-                startTime={vacancy.startTimeLocal}
-              />
-              <div className={classes.dayPart}>
-                <Typography className={classes.text}>
-                  {vacancy.payInfoSummary?.summaryLabel}
-                </Typography>
-                <Typography
-                  className={classes.lightText}
-                >{`${formatIsoDateIfPossible(
-                  vacancy.startTimeLocal,
-                  "h:mm aaa"
-                )} - ${formatIsoDateIfPossible(
-                  vacancy.endTimeLocal,
-                  "h:mm aaa"
-                )}`}</Typography>
-              </div>
-            </div>
+            <AssignmentDetails vacancy={vacancy} />
           </div>
 
           <div className={classes.actionContainer}>
-            <div className={classes.notes}>
-              {vacancy.notesToReplacement &&
-                renderNotesPopper(vacancy.notesToReplacement)}
-            </div>
+            {!forSingleJob && (
+              <>
+                <div className={classes.notes}>
+                  {vacancy.notesToReplacement &&
+                    renderNotesPopper(vacancy.notesToReplacement)}
+                </div>
 
-            <div className={classes.actionItem}>
-              <Button
-                onClick={() => handleDismiss()}
-                className={classes.lightUnderlineText}
-              >
-                {t("Dismiss")}
-              </Button>
-            </div>
-            <div className={classes.actionItem}>
-              <Button
-                variant="outlined"
-                disabled={acceptButtonDisabled}
-                onClick={() =>
-                  props.onAccept(vacancy.organization.id, vacancy.id)
-                }
-              >
-                {t("Accept")}
-              </Button>
-            </div>
+                <div
+                  className={[
+                    classes.actionItem,
+                    isMobile ? classes.mobileDismiss : "",
+                  ].join(" ")}
+                >
+                  <Button
+                    onClick={() => handleDismiss()}
+                    className={classes.lightUnderlineText}
+                  >
+                    {t("Dismiss")}
+                  </Button>
+                </div>
+                <div className={classes.actionItem}>
+                  <Button
+                    variant="outlined"
+                    disabled={acceptButtonDisabled}
+                    onClick={() =>
+                      props.onAccept(vacancy.organization.id, vacancy.id)
+                    }
+                  >
+                    {t("Accept")}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -221,7 +152,7 @@ export const AvailableJob: React.FC<Props> = props => {
           </div>
         )}
       </div>
-      {!props.forSingleJob && hasDetails && (
+      {!forSingleJob && hasDetails && (
         <ExpandOrCollapseIndicator
           isExpanded={expanded}
           className={classes.noBorder}
@@ -231,7 +162,8 @@ export const AvailableJob: React.FC<Props> = props => {
   );
 };
 
-type StyleProps = { isMobile: boolean };
+type StyleProps = { isMobile: boolean; forSingleJob?: boolean };
+
 export const useStyles = makeStyles(theme => ({
   noBorder: { border: "none" },
   paper: {
@@ -240,13 +172,6 @@ export const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.paper,
   },
 
-  text: {
-    fontSize: theme.typography.pxToRem(14),
-  },
-  lightText: {
-    fontSize: theme.typography.pxToRem(14),
-    color: theme.customColors.edluminSubText,
-  },
   lightUnderlineText: {
     fontSize: theme.typography.pxToRem(14),
     color: theme.customColors.edluminSubText,
@@ -264,7 +189,7 @@ export const useStyles = makeStyles(theme => ({
   },
 
   container: (props: StyleProps) => ({
-    padding: theme.spacing(2),
+    padding: props.forSingleJob ? 0 : theme.spacing(2),
     display: "flex",
     alignItems: props.isMobile ? "stretch" : "center",
     justifyContent: "space-between",
@@ -278,37 +203,26 @@ export const useStyles = makeStyles(theme => ({
 
   actionContainer: (props: StyleProps) => ({
     display: "flex",
-    justifyContent: "space-around",
+    justifyContent: props.isMobile ? "space-between" : "space-around",
     alignItems: "center",
     flex: 1,
-    flexDirection: props.isMobile ? ("column" as "column") : ("row" as "row"),
+    flexDirection: props.isMobile
+      ? ("column-reverse" as "column-reverse")
+      : ("row" as "row"),
   }),
   rowContainer: {
     display: "flex",
     flexDirection: "column",
   },
 
-  date: {
-    flex: 4,
-    padding: `0 ${theme.typography.pxToRem(4)}`,
-  },
-  location: { flex: 11, padding: `0 ${theme.typography.pxToRem(4)}` },
-  position: { flex: 7, padding: `0 ${theme.typography.pxToRem(4)}` },
-  subText: {
-    color: theme.customColors.edluminSubText,
-  },
-  dayPartContainer: {
-    display: "flex",
-    flex: 8,
-    padding: `0 ${theme.typography.pxToRem(4)}`,
-  },
-  dayPart: {
-    paddingLeft: theme.spacing(),
-  },
   actionItem: {
     flex: 2,
   },
-  notes: {
-    flex: 1,
+  mobileDismiss: {
+    display: "flex",
+    alignItems: "flex-end",
   },
+  notes: (props: StyleProps) => ({
+    flex: props.isMobile ? 0 : 1,
+  }),
 }));

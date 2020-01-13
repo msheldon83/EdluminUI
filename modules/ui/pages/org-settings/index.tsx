@@ -21,9 +21,10 @@ import { AccountingCodeRoute } from "ui/routes/accounting-code";
 import { PayCodeRoute } from "ui/routes/pay-code";
 import { ContractsRoute } from "ui/routes/contracts";
 import { Typography } from "@material-ui/core";
+import { Contacts, Tune, Loop } from "@material-ui/icons";
 
 //Create Routes for Pages
-export const OrgConfigPage: React.FC<{}> = props => {
+export const OrgSettingsPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(AdminChromeRoute);
 
@@ -112,20 +113,14 @@ export const OrgConfigPage: React.FC<{}> = props => {
     {
       name: t("Absence & Vacancy Rules"),
       icon: (
-        <img
-          className={classes.alignIcon}
-          src={require("ui/icons/absence-rules.svg")}
-        />
+        <Tune className={[classes.alignIcon, classes.alignMUIIcon].join(" ")} />
       ),
       route: AbsenceVacancyRulesRoute,
     },
     {
       name: t("Substitute Settings"),
       icon: (
-        <img
-          className={classes.alignIcon}
-          src={require("ui/icons/substitute-settings.svg")}
-        />
+        <Loop className={[classes.alignIcon, classes.alignMUIIcon].join(" ")} />
       ),
       route: SubstituteSettingsRoute,
     },
@@ -156,9 +151,8 @@ export const OrgConfigPage: React.FC<{}> = props => {
     {
       name: t("Position Types"),
       icon: (
-        <img
-          className={classes.alignIcon}
-          src={require("ui/icons/position-types.svg")}
+        <Contacts
+          className={[classes.alignIcon, classes.alignMUIIcon].join(" ")}
         />
       ),
       route: PositionTypeRoute,
@@ -177,7 +171,7 @@ export const OrgConfigPage: React.FC<{}> = props => {
 
   return (
     <>
-      <PageTitle title={t("Configuration")} />
+      <PageTitle title={t("Settings")} />
       <Typography className={classes.header} variant="h4">
         {t("General")}
       </Typography>
@@ -330,8 +324,12 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 400,
   },
   alignIcon: {
-    paddingLeft: theme.spacing(6),
-    paddingRight: theme.spacing(6),
-    paddingTop: theme.spacing(4),
+    marginLeft: theme.spacing(6),
+    marginRight: theme.spacing(6),
+    marginTop: theme.spacing(4),
+  },
+  alignMUIIcon: {
+    marginLeft: theme.spacing(5),
+    fontSize: theme.typography.pxToRem(53),
   },
 }));
