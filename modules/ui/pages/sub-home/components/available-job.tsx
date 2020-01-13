@@ -106,7 +106,12 @@ export const AvailableJob: React.FC<Props> = props => {
                     renderNotesPopper(vacancy.notesToReplacement)}
                 </div>
 
-                <div className={classes.actionItem}>
+                <div
+                  className={[
+                    classes.actionItem,
+                    isMobile ? classes.mobileDismiss : "",
+                  ].join(" ")}
+                >
                   <Button
                     onClick={() => handleDismiss()}
                     className={classes.lightUnderlineText}
@@ -211,7 +216,11 @@ export const useStyles = makeStyles(theme => ({
   actionItem: {
     flex: 2,
   },
-  notes: {
-    flex: 1,
+  mobileDismiss: {
+    display: "flex",
+    alignItems: "flex-end",
   },
+  notes: (props: StyleProps) => ({
+    flex: props.isMobile ? 0 : 1,
+  }),
 }));
