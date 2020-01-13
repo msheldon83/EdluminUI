@@ -2,8 +2,11 @@ import * as React from "react";
 import { makeStyles, Button, Typography } from "@material-ui/core";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import { useTranslation } from "react-i18next";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "../auth/can";
 
 type Props = {
+  organizationId: string;
   employeeId: number;
   employeeName: string;
   subText?: string;
@@ -34,22 +37,24 @@ export const AssignedSub: React.FC<Props> = props => {
       </div>
       <div>
         {props.onRemove && (
-          <Button
-            disabled={props.disableReplacementInteractions}
-            className={classes.removeButton}
-            variant="outlined"
-            onClick={() => {
-              if (props.onRemove) {
-                props.onRemove(
-                  props.employeeId,
-                  props.assignmentId,
-                  props.assignmentRowVersion
-                );
-              }
-            }}
-          >
-            {t("Remove")}
-          </Button>
+          <Can do={[PermissionEnum.AbsVacAssign]} orgId={props.organizationId}>
+            <Button
+              disabled={props.disableReplacementInteractions}
+              className={classes.removeButton}
+              variant="outlined"
+              onClick={() => {
+                if (props.onRemove) {
+                  props.onRemove(
+                    props.employeeId,
+                    props.assignmentId,
+                    props.assignmentRowVersion
+                  );
+                }
+              }}
+            >
+              {t("Remove")}
+            </Button>
+          </Can>
         )}
       </div>
     </div>
