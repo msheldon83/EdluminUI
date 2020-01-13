@@ -182,7 +182,7 @@ import {
 import { SubSignInRoute, SubSignInLoader } from "ui/routes/sub-sign-in";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { IfHasRole } from "./components/auth/if-has-role";
-import { AdminOrgRoute } from "./components/routing/admin-org-route";
+import { ProtectedRoute } from "./components/routing/protected-route";
 import {
   UnauthorizedRoute,
   UnauthorizedRoleRoute,
@@ -337,212 +337,212 @@ export function App() {
                                 component={UnauthorizedLoader}
                                 path={UnauthorizedRoleRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={AdminEditAbsenceLoader}
                                 path={AdminEditAbsenceRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={CreateAbsenceLoader}
                                 path={AdminCreateAbsenceRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={SelectEmployeeForCreateAbsenceLoader}
                                 path={
                                   AdminSelectEmployeeForCreateAbsenceRoute.path
                                 }
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 path={EmployeeAbsScheduleCalendarViewRoute.path}
                               >
                                 <EmployeeAbsScheduleLoader view="calendar" />
-                              </AdminOrgRoute>
+                              </ProtectedRoute>
 
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 path={EmployeeAbsScheduleListViewRoute.path}
                               >
                                 <EmployeeAbsScheduleLoader view="list" />
-                              </AdminOrgRoute>
-                              <AdminOrgRoute
+                              </ProtectedRoute>
+                              <ProtectedRoute
                                 component={EmployeeAbsScheduleLoader}
                                 path={EmployeeAbsScheduleRoute.path}
                               />
 
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 path={
                                   SubstituteAssignmentScheduleCalendarViewRoute.path
                                 }
                               >
                                 <SubstituteAssignmentScheduleLoader view="calendar" />
-                              </AdminOrgRoute>
+                              </ProtectedRoute>
 
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 path={
                                   SubstituteAssignmentScheduleListViewRoute.path
                                 }
                               >
                                 <SubstituteAssignmentScheduleLoader view="list" />
-                              </AdminOrgRoute>
-                              <AdminOrgRoute
+                              </ProtectedRoute>
+                              <ProtectedRoute
                                 component={SubstituteAssignmentScheduleLoader}
                                 path={SubstituteAssignmentScheduleRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={PeopleSubPoolEditLoader}
                                 path={PeopleSubPoolEditRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={PersonViewLoader}
                                 path={PersonViewRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={PeopleLoader}
                                 path={PeopleRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={OrgSettingsLoader}
                                 path={OrgSettingsRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={PositionTypeAddLoader}
                                 path={PositionTypeAddRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={PositionTypeEditSettingsLoader}
                                 path={PositionTypeEditSettingsRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={PositionTypeViewLoader}
                                 path={PositionTypeViewRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={PositionTypeLoader}
                                 path={PositionTypeRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={BellScheduleAddLoader}
                                 path={BellScheduleAddRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={BellScheduleViewLoader}
                                 path={BellScheduleViewRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={BellScheduleLoader}
                                 path={BellScheduleRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={VerifyLoader}
                                 path={VerifyRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={BellScheduleVariantsLoader}
                                 path={BellScheduleVariantsRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={AdminHomeLoader}
                                 path={AdminHomeRoute.path}
                                 exact
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={GeneralSettingsLoader}
                                 path={GeneralSettingsRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={CalendarChangeReasonLoader}
                                 path={CalendarChangeReasonRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={ReplacementAttributeLoader}
                                 path={ReplacementAttributeRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={AbsenceReasonLoader}
                                 path={AbsenceReasonRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={VacancyReasonLoader}
                                 path={VacancyReasonRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={AbsenceVacancyRulesLoader}
                                 path={AbsenceVacancyRulesRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={SubstituteSettingsLoader}
                                 path={SubstituteSettingsRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={AccountingCodeLoader}
                                 path={AccountingCodeRoute.path}
                               />
 
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={PayCodeLoader}
                                 path={PayCodeRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={AbsenceReasonAddLoader}
                                 path={AbsenceReasonAddRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={AbsenceReasonViewEditLoader}
                                 path={AbsenceReasonViewEditRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={AbsenceReasonLoader}
                                 path={AbsenceReasonRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={ContractsLoader}
                                 path={ContractsRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={LocationsLoader}
                                 path={LocationsRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={LocationGroupsLoader}
                                 path={LocationGroupsRoute.path}
                               />
-                              <AdminOrgRoute path={CalendarListViewRoute.path}>
+                              <ProtectedRoute path={CalendarListViewRoute.path}>
                                 <CalendarsLoader view="list" />
-                              </AdminOrgRoute>
+                              </ProtectedRoute>
 
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 path={CalendarCalendarViewRoute.path}
                               >
                                 <CalendarsLoader view="calendar" />
-                              </AdminOrgRoute>
+                              </ProtectedRoute>
 
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={CalendarsLoader}
                                 path={CalendarRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={SecurityUsersLoader}
                                 path={SecurityUsersRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={SecurityPermissionSetsAddLoader}
                                 path={SecurityPermissionSetsAddRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={SecurityPermissionSetsViewLoader}
                                 path={SecurityPermissionSetsViewRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={SecurityPermissionSetsLoader}
                                 path={SecurityPermissionSetsRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={SecurityPartnersLoader}
                                 path={SecurityPartnersRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={SecurityManagedOrganizationsLoader}
                                 path={SecurityManagedOrganizationsRoute.path}
                               />
-                              <AdminOrgRoute
+                              <ProtectedRoute
                                 component={DailyReportLoader}
                                 path={DailyReportRoute.path}
                               />
