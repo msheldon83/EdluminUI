@@ -2813,20 +2813,26 @@ type PayTypeRollup {
 
 type PermissionCategory {
   _info: [ReturnMessage]
-  id: String!
+  categoryId: String!
   displayName: String!
   settings: [PermissionSetting!]!
 }
 
 type PermissionCategoryIdentifier {
   _info: [ReturnMessage]
-  id: String!
+  categoryId: String!
   settings: [PermissionSettingIdentifier!]!
 }
 
 input PermissionCategoryIdentifierInput {
-  id: String!
+  categoryId: String!
   settings: [PermissionSettingIdentifierInput]
+}
+
+type PermissionDefinition {
+  _info: [ReturnMessage]
+  id: String!
+  categories: [PermissionCategory!]!
 }
 
 enum PermissionEnum {
@@ -2918,13 +2924,13 @@ enum PermissionEnum {
 
 type PermissionLevel {
   _info: [ReturnMessage]
-  id: String!
+  levelId: String!
   displayName: String!
   permissions: [PermissionEnum]!
 }
 
 type PermissionQueries {
-  all(role: OrgUserRole!): [PermissionCategory]!
+  definition(role: OrgUserRole!): PermissionDefinition!
 }
 
 type PermissionSet implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2973,19 +2979,19 @@ type PermissionSetQueries {
 
 type PermissionSetting {
   _info: [ReturnMessage]
-  id: String!
+  settingId: String!
   displayName: String!
   levels: [PermissionLevel!]!
 }
 
 type PermissionSettingIdentifier {
   _info: [ReturnMessage]
-  id: String!
+  settingId: String!
   levelId: String!
 }
 
 input PermissionSettingIdentifierInput {
-  id: String!
+  settingId: String!
   levelId: String!
 }
 
