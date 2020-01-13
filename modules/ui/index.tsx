@@ -180,12 +180,14 @@ import {
   EmployeePtoBalanceLoader,
 } from "./routes/employee-pto-balances";
 import { SubSignInRoute, SubSignInLoader } from "ui/routes/sub-sign-in";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { IfHasRole } from "./components/auth/if-has-role";
 import { ProtectedRoute } from "./components/routing/protected-route";
 import {
   UnauthorizedRoute,
-  UnauthorizedRoleRoute,
+  UnauthorizedAdminRoleRoute,
+  UnauthorizedEmployeeRoleRoute,
+  UnauthorizedSubstituteRoleRoute,
   UnauthorizedLoader,
 } from "./routes/unauthorized";
 
@@ -241,7 +243,7 @@ export function App() {
                         <Switch>
                           <Route
                             component={UnauthorizedLoader}
-                            path={UnauthorizedRoleRoute.path}
+                            path={UnauthorizedEmployeeRoleRoute.path}
                           />
                           <Route
                             component={EmployeeCreateAbsenceLoader}
@@ -257,6 +259,7 @@ export function App() {
                           <ProtectedRoute
                             component={EmployeePtoBalanceLoader}
                             path={EmployeePtoBalanceRoute.path}
+                            role={"employee"}
                           />
                           <Route path={EmployeeScheduleCalendarViewRoute.path}>
                             <EmployeeScheduleLoader view="calendar" />
@@ -284,7 +287,7 @@ export function App() {
                         <Switch>
                           <Route
                             component={UnauthorizedLoader}
-                            path={UnauthorizedRoleRoute.path}
+                            path={UnauthorizedSubstituteRoleRoute.path}
                           />
                           <Route path={SubScheduleCalendarViewRoute.path}>
                             <SubScheduleLoader view="calendar" />
@@ -335,42 +338,49 @@ export function App() {
                             <Switch>
                               <Route
                                 component={UnauthorizedLoader}
-                                path={UnauthorizedRoleRoute.path}
+                                path={UnauthorizedAdminRoleRoute.path}
                               />
                               <ProtectedRoute
                                 component={AdminEditAbsenceLoader}
                                 path={AdminEditAbsenceRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={CreateAbsenceLoader}
                                 path={AdminCreateAbsenceRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={SelectEmployeeForCreateAbsenceLoader}
                                 path={
                                   AdminSelectEmployeeForCreateAbsenceRoute.path
                                 }
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 path={EmployeeAbsScheduleCalendarViewRoute.path}
+                                role={"admin"}
                               >
                                 <EmployeeAbsScheduleLoader view="calendar" />
                               </ProtectedRoute>
 
                               <ProtectedRoute
                                 path={EmployeeAbsScheduleListViewRoute.path}
+                                role={"admin"}
                               >
                                 <EmployeeAbsScheduleLoader view="list" />
                               </ProtectedRoute>
                               <ProtectedRoute
                                 component={EmployeeAbsScheduleLoader}
                                 path={EmployeeAbsScheduleRoute.path}
+                                role={"admin"}
                               />
 
                               <ProtectedRoute
                                 path={
                                   SubstituteAssignmentScheduleCalendarViewRoute.path
                                 }
+                                role={"admin"}
                               >
                                 <SubstituteAssignmentScheduleLoader view="calendar" />
                               </ProtectedRoute>
@@ -379,137 +389,172 @@ export function App() {
                                 path={
                                   SubstituteAssignmentScheduleListViewRoute.path
                                 }
+                                role={"admin"}
                               >
                                 <SubstituteAssignmentScheduleLoader view="list" />
                               </ProtectedRoute>
                               <ProtectedRoute
                                 component={SubstituteAssignmentScheduleLoader}
                                 path={SubstituteAssignmentScheduleRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={PeopleSubPoolEditLoader}
                                 path={PeopleSubPoolEditRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={PersonViewLoader}
                                 path={PersonViewRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={PeopleLoader}
                                 path={PeopleRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={OrgSettingsLoader}
                                 path={OrgSettingsRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={PositionTypeAddLoader}
                                 path={PositionTypeAddRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={PositionTypeEditSettingsLoader}
                                 path={PositionTypeEditSettingsRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={PositionTypeViewLoader}
                                 path={PositionTypeViewRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={PositionTypeLoader}
                                 path={PositionTypeRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={BellScheduleAddLoader}
                                 path={BellScheduleAddRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={BellScheduleViewLoader}
                                 path={BellScheduleViewRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={BellScheduleLoader}
                                 path={BellScheduleRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={VerifyLoader}
                                 path={VerifyRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={BellScheduleVariantsLoader}
                                 path={BellScheduleVariantsRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={AdminHomeLoader}
                                 path={AdminHomeRoute.path}
+                                role={"admin"}
                                 exact
                               />
                               <ProtectedRoute
                                 component={GeneralSettingsLoader}
                                 path={GeneralSettingsRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={CalendarChangeReasonLoader}
                                 path={CalendarChangeReasonRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={ReplacementAttributeLoader}
                                 path={ReplacementAttributeRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={AbsenceReasonLoader}
                                 path={AbsenceReasonRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={VacancyReasonLoader}
                                 path={VacancyReasonRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={AbsenceVacancyRulesLoader}
                                 path={AbsenceVacancyRulesRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={SubstituteSettingsLoader}
                                 path={SubstituteSettingsRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={AccountingCodeLoader}
                                 path={AccountingCodeRoute.path}
+                                role={"admin"}
                               />
 
                               <ProtectedRoute
                                 component={PayCodeLoader}
                                 path={PayCodeRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={AbsenceReasonAddLoader}
                                 path={AbsenceReasonAddRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={AbsenceReasonViewEditLoader}
                                 path={AbsenceReasonViewEditRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={AbsenceReasonLoader}
                                 path={AbsenceReasonRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={ContractsLoader}
                                 path={ContractsRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={LocationsLoader}
                                 path={LocationsRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={LocationGroupsLoader}
                                 path={LocationGroupsRoute.path}
+                                role={"admin"}
                               />
-                              <ProtectedRoute path={CalendarListViewRoute.path}>
+                              <ProtectedRoute
+                                path={CalendarListViewRoute.path}
+                                role={"admin"}
+                              >
                                 <CalendarsLoader view="list" />
                               </ProtectedRoute>
 
                               <ProtectedRoute
                                 path={CalendarCalendarViewRoute.path}
+                                role={"admin"}
                               >
                                 <CalendarsLoader view="calendar" />
                               </ProtectedRoute>
@@ -517,34 +562,42 @@ export function App() {
                               <ProtectedRoute
                                 component={CalendarsLoader}
                                 path={CalendarRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={SecurityUsersLoader}
                                 path={SecurityUsersRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={SecurityPermissionSetsAddLoader}
                                 path={SecurityPermissionSetsAddRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={SecurityPermissionSetsViewLoader}
                                 path={SecurityPermissionSetsViewRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={SecurityPermissionSetsLoader}
                                 path={SecurityPermissionSetsRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={SecurityPartnersLoader}
                                 path={SecurityPartnersRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={SecurityManagedOrganizationsLoader}
                                 path={SecurityManagedOrganizationsRoute.path}
+                                role={"admin"}
                               />
                               <ProtectedRoute
                                 component={DailyReportLoader}
                                 path={DailyReportRoute.path}
+                                role={"admin"}
                               />
                             </Switch>
                           </Route>

@@ -7,17 +7,20 @@ import {
   Redirect,
 } from "react-router-dom";
 import { useRouteParams } from "ui/routes/definition";
-import { AdminChromeRoute, AppChromeRoute } from "ui/routes/app-chrome";
+import { AdminChromeRoute } from "ui/routes/app-chrome";
 import {
   UnauthorizedRoute,
-  UnauthorizedRoleRoute,
+  UnauthorizedAdminRoleRoute,
+  UnauthorizedEmployeeRoleRoute,
+  UnauthorizedSubstituteRoleRoute,
 } from "ui/routes/unauthorized";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { can } from "helpers/permissions";
 
 // Copied from https://stackoverflow.com/a/52366872 and tweaked
 
-interface AdminOrgRouteProps extends RouteProps {
+interface ProtectedRouteProps extends RouteProps {
+  role: "employee" | "substitute" | "admin";
   component?:
     | React.ComponentType<RouteComponentProps<any>>
     | React.ComponentType<any>;
@@ -25,11 +28,10 @@ interface AdminOrgRouteProps extends RouteProps {
 }
 type RenderComponent = (props: RouteComponentProps<any>) => React.ReactNode;
 
-export const ProtectedRoute: React.FC<AdminOrgRouteProps> = props => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = props => {
   const { component: Component, ...rest } = props;
   const adminRouteParams = useRouteParams(AdminChromeRoute);
   const adminInOrg = !isNaN(+adminRouteParams.organizationId);
-  const roleRouteParams = useRouteParams(AppChromeRoute);
 
   const userAccess = useMyUserAccess();
   if (!userAccess) {
@@ -66,7 +68,20 @@ export const ProtectedRoute: React.FC<AdminOrgRouteProps> = props => {
     return <Redirect to={UnauthorizedRoute.generate({})} />;
   }
   if (!hasAccessViaPermissions) {
-    return <Redirect to={UnauthorizedRoleRoute.generate(roleRouteParams)} />;
+    switch (props.role) {
+      case "admin":
+        return (
+          <Redirect
+            to={UnauthorizedAdminRoleRoute.generate({
+              organizationId: adminRouteParams.organizationId,
+            })}
+          />
+        );
+      case "employee":
+        return <Redirect to={UnauthorizedEmployeeRoleRoute.generate({})} />;
+      case "substitute":
+        return <Redirect to={UnauthorizedSubstituteRoleRoute.generate({})} />;
+    }
   }
 
   if (!Component) {
