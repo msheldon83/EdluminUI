@@ -105,7 +105,6 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
       // Keep list open if it's not a multi select
       if (!multiple) {
-        console.log("here");
         setListOpen(false);
       }
     },

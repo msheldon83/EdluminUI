@@ -175,12 +175,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
           <Typography>{t("Select a reason")}</Typography>
           <SelectNew
             value={{
-              value: values.absenceReason,
+              value: values.absenceReason ?? "",
               label:
                 absenceReasonOptions.find(a => a.value === values.absenceReason)
                   ?.label || "",
             }}
             onChange={onReasonChange}
+            multiple={false}
             options={absenceReasonOptions}
             inputStatus={errors.absenceReason ? "error" : undefined}
             validationMessage={errors.absenceReason?.message}
