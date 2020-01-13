@@ -5,6 +5,7 @@ import {
   Link,
   makeStyles,
   Tooltip,
+  Collapse,
 } from "@material-ui/core";
 import { Print } from "@material-ui/icons";
 import { format, isFuture, startOfToday } from "date-fns";
@@ -16,7 +17,7 @@ import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
 import { TFunction } from "i18next";
 import * as React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import {
@@ -43,6 +44,8 @@ import {
   DetailGroup,
   MapDailyReportDetails,
 } from "./helpers";
+import { FilterListButton } from "ui/components/filter-list-button";
+import { not } from "helpers";
 
 type Props = {
   orgId: string;
@@ -222,6 +225,11 @@ export const DailyReport: React.FC<Props> = props => {
     },
   });
 
+  const [showingFilters, setShowingFilters] = useState(false);
+  const toggleFilters = useCallback(() => setShowingFilters(not), [
+    setShowingFilters,
+  ]);
+
   const swapSubs = async (ignoreWarnings?: boolean) => {
     if (selectedRows.length !== 2) {
       return;
@@ -277,14 +285,40 @@ export const DailyReport: React.FC<Props> = props => {
 
   return (
     <Section className={classes.dailyReportContainer}>
-      <div className={classes.headerContainer}>
-        <SectionHeader title={props.header} className={classes.header} />
-        {props.showFilters && (
-          <>
-            <Filters orgId={props.orgId} setDate={props.setDate} />
-            <Divider />
-          </>
-        )}
+      <div
+        className={
+          isMobile ? classes.mobileHeadercontainer : classes.headerContainer
+        }
+      >
+        <Grid container>
+          <Grid item xs={6} md={12}>
+            <SectionHeader title={props.header} className={classes.header} />
+          </Grid>
+          {props.showFilters && (
+            <>
+              {isMobile && (
+                <Grid item xs={6} md={12}>
+                  <FilterListButton onClick={toggleFilters} />
+                </Grid>
+              )}
+              <Grid item xs={12}>
+                {isMobile ? (
+                  <>
+                    <Collapse in={showingFilters}>
+                      <Filters orgId={props.orgId} setDate={props.setDate} />
+                      <Divider />
+                    </Collapse>
+                  </>
+                ) : (
+                  <>
+                    <Filters orgId={props.orgId} setDate={props.setDate} />
+                    <Divider />
+                  </>
+                )}
+              </Grid>
+            </>
+          )}
+        </Grid>
         <Grid
           container
           spacing={4}
@@ -354,6 +388,10 @@ const useStyles = makeStyles(theme => ({
   headerContainer: {
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
+  },
+  mobileHeadercontainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
   header: {
     "@media print": {

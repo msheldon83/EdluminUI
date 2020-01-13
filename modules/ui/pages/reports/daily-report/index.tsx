@@ -52,7 +52,7 @@ export const DailyReportPage: React.FC<Props> = props => {
         orgId={params.organizationId}
         date={date}
         setDate={setDate}
-        header={t("Filter absences")}
+        header={t(isMobile ? "Absences" : "Filter absences")}
         showFilters={true}
         cards={["unfilled", "filled", "noSubRequired", "total"]}
       />
