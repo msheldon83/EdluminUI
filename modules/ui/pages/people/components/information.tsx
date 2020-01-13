@@ -212,8 +212,8 @@ export const Information: React.FC<Props> = props => {
                             value={permissionSetOptions.filter(
                               e => e.value && values.permissionSetId
                             )}
-                            multiple={false}
-                            onChange={(value: OptionType) => {
+                            multiple={true}
+                            onChange={(value: OptionType[]) => {
                               const id = [(value as OptionTypeBase).value];
                               setFieldValue("permissionSetId", id);
                             }}

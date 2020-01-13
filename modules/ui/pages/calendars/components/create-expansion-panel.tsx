@@ -60,7 +60,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
   );
 
   const contracts = useContracts(props.orgId);
-  const contractOptions: OptionType[] = contracts.map(c => {
+  const contractOptions = contracts.map(c => {
     return { label: c.name, value: parseInt(c.id) };
   });
 
@@ -257,7 +257,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                         setFieldValue("contracts", ids);
                       }}
                       options={contractOptions}
-                      multiple={false}
+                      multiple={true}
                       placeholder="Search for Contracts"
                     />
                   </Grid>
