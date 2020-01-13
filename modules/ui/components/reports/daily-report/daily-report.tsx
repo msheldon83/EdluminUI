@@ -412,6 +412,10 @@ const useStyles = makeStyles(theme => ({
   groupedDetailsContainer: {
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(0),
+      paddingRight: theme.spacing(0),
+    },
   },
   detailGroup: {
     marginTop: theme.spacing(2),
