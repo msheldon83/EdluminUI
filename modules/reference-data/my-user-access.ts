@@ -6,9 +6,10 @@ import { compact, uniq } from "lodash-es";
 type MyUserAccess = {
   me: UserAccess | null | undefined;
   permissionsByOrg: OrgUserPermissions[];
+  isSysAdmin: boolean;
 };
 
-type OrgUserPermissions = {
+export type OrgUserPermissions = {
   orgId: string;
   permissions: PermissionEnum[];
 };
@@ -45,5 +46,7 @@ export const useMyUserAccess = (): MyUserAccess | null => {
   return {
     me: userAccessQuery.data.userAccess?.me,
     permissionsByOrg,
+    isSysAdmin:
+      userAccessQuery.data.userAccess?.me?.isSystemAdministrator ?? false,
   };
 };
