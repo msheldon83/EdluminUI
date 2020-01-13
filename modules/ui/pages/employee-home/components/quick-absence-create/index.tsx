@@ -160,15 +160,8 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     [setValue, triggerValidation]
   );
 
-  const viewPreviousMonth = React.useCallback(() => {
-    const previousMonth = addMonths(state.viewingCalendarMonth, -1);
-    dispatch({ action: "switchMonth", month: previousMonth });
-  }, [state.viewingCalendarMonth]);
-
-  const viewNextMonth = React.useCallback(() => {
-    const nextMonth = addMonths(state.viewingCalendarMonth, 1);
-    dispatch({ action: "switchMonth", month: nextMonth });
-  }, [state.viewingCalendarMonth]);
+  const onMonthChange = (month: Date) =>
+    dispatch({ action: "switchMonth", month });
 
   const disabledDateObjs = useEmployeeDisabledDates(
     props.employeeId,
@@ -225,8 +218,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
           absenceReasonOptions={absenceReasonOptions}
           onAbsenceReasonChange={onReasonChange}
           absenceReasonError={errors.absenceReason}
-          viewPreviousMonth={viewPreviousMonth}
-          viewNextMonth={viewNextMonth}
+          onMonthChange={onMonthChange}
           absenceDates={state.absenceDates}
           currentMonth={state.viewingCalendarMonth}
           onToggleAbsenceDate={(d: Date) =>
