@@ -86,6 +86,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
           rowActions={rowActions}
           hideCheckbox={hideCheckbox}
           goToAbsenceEdit={goToAbsenceEdit}
+          isChecked={isChecked}
         />
       )}
     </>

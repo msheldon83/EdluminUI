@@ -3,6 +3,9 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { DailyReportDetail } from "./daily-report-detail";
 import { Detail } from "../helpers";
+import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
+import clsx from "clsx";
+import { useIsMobile } from "hooks";
 
 type Props = {
   details: Detail[];
@@ -18,6 +21,7 @@ type Props = {
 export const DailyReportDetailsGroup: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const {
     details,
     removeSub,
@@ -25,6 +29,7 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
     panelId,
     updateSelectedDetails,
   } = props;
+
   if (details.length === 0) {
     return <></>;
   }
@@ -46,17 +51,17 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
       />
     );
   });
+  const headerClasses = clsx({
+    [classes.detailHeader]: true,
+    [classes.mobileHeader]: isMobile,
+    [classes.detail]: !isMobile,
+  });
 
   // Include a Header above all of the details if there are details
   return (
     <>
       <DesktopOnly>
-        <Grid
-          item
-          xs={12}
-          container
-          className={[classes.detail, classes.detailHeader].join(" ")}
-        >
+        <Grid item xs={12} container className={headerClasses}>
           <Grid item xs={3} className={classes.detailEmployeeHeader}>
             {t("Employee")}
           </Grid>
@@ -78,9 +83,10 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
         </Grid>
       </DesktopOnly>
       <MobileOnly>
-        <div>
-          <div className={classes.detailEmployeeHeader}>{t("Employee")}</div>
-          <div>{t("Reason")}</div>
+        <div className={headerClasses}>
+          <div className={classes.checkboxSpacing} />
+          <div className={classes.headerItem}>{t("Employee")}</div>
+          <div className={classes.headerItem}>{t("Reason")}</div>
         </div>
       </MobileOnly>
       {detailsDisplay}
@@ -121,4 +127,12 @@ const useStyles = makeStyles(theme => ({
       paddingLeft: 0,
     },
   },
+  checkboxSpacing: { width: theme.typography.pxToRem(42), flexGrow: 0 },
+  mobileHeader: {
+    display: "flex",
+    width: "100%",
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+  },
+  headerItem: { flex: 1 },
 }));

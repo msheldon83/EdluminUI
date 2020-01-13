@@ -1,16 +1,14 @@
-import * as React from "react";
 import {
-  makeStyles,
   ExpansionPanel,
-  ExpansionPanelSummary,
   ExpansionPanelDetails,
+  ExpansionPanelSummary,
   Grid,
+  makeStyles,
 } from "@material-ui/core";
-import { DetailGroup, Detail } from "./helpers";
 import { ExpandMore } from "@material-ui/icons";
+import * as React from "react";
 import { DailyReportDetailsGroup } from "./detail-group";
-
-import { useIsMobile } from "hooks";
+import { Detail, DetailGroup } from "./helpers";
 
 type Props = {
   group: DetailGroup;
@@ -23,7 +21,6 @@ type Props = {
 };
 
 export const DailyReportSection: React.FC<Props> = props => {
-  const isMobile = useIsMobile();
   const classes = useStyles();
 
   const detailGroup = props.group;
@@ -85,32 +82,6 @@ export const DailyReportSection: React.FC<Props> = props => {
                       selectedDetails={props.selectedDetails}
                       details={s.details ?? []}
                     />
-                    {/* {isMobile ? (
-                      <MobileDailyReportDetailsGroup
-                        panelId={subGroupPanelId}
-                        removeSub={props.removeSub}
-                        updateSelectedDetails={props.updateSelectedDetails}
-                        selectedDetails={props.selectedDetails}
-                        details={s.details ?? []}
-                      />
-                    ) : (
-                      <DailyReportDetailsGroup
-                        panelId={subGroupPanelId}
-                        removeSub={props.removeSub}
-                        updateSelectedDetails={props.updateSelectedDetails}
-                        selectedDetails={props.selectedDetails}
-                        details={s.details ?? []}
-                      />
-                    )} */}
-                    {/* {getDetailsDisplay(
-                      s.details ?? [],
-                      subGroupPanelId,
-                      classes,
-                      t,
-                      props.selectedDetails,
-                      props.updateSelectedDetails,
-                      props.removeSub
-                    )} */}
                   </Grid>
                 </ExpansionPanelDetails>
               </ExpansionPanel>
@@ -125,32 +96,6 @@ export const DailyReportSection: React.FC<Props> = props => {
               selectedDetails={props.selectedDetails}
               details={detailGroup.details ?? []}
             />
-            {/* {isMobile ? (
-              <MobileDailyReportDetailsGroup
-                panelId={panelId}
-                removeSub={props.removeSub}
-                updateSelectedDetails={props.updateSelectedDetails}
-                selectedDetails={props.selectedDetails}
-                details={detailGroup.details ?? []}
-              />
-            ) : (
-              <DailyReportDetailsGroup
-                panelId={panelId}
-                removeSub={props.removeSub}
-                updateSelectedDetails={props.updateSelectedDetails}
-                selectedDetails={props.selectedDetails}
-                details={detailGroup.details ?? []}
-              />
-            )} */}
-            {/* {getDetailsDisplay(
-              detailGroup.details ?? [],
-              panelId,
-              classes,
-              t,
-              props.selectedDetails,
-              props.updateSelectedDetails,
-              props.removeSub
-            )} */}
           </Grid>
         )}
       </ExpansionPanelDetails>

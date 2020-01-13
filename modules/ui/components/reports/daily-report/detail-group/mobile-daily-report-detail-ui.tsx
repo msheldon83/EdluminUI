@@ -7,10 +7,10 @@ import {
   Tooltip,
   Collapse,
   IconButton,
+  Button,
 } from "@material-ui/core";
 import { Detail } from "../helpers";
 import clsx from "clsx";
-import { ActionMenu } from "ui/components/action-menu";
 import InfoIcon from "@material-ui/icons/Info";
 import { ExpandMore, ExpandLess } from "@material-ui/icons";
 import { useState, useCallback } from "react";
@@ -39,10 +39,25 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
   const toggleExpandDetails = useCallback(() => setIsShowingDetails(not), [
     setIsShowingDetails,
   ]);
+
+  const actionButtons = (
+    <div className={classes.actionButtons}>
+      {props.rowActions.map(a => (
+        <Button
+          key={a.name}
+          variant="outlined"
+          className={classes.button}
+          onClick={a.onClick}
+        >
+          {a.name}
+        </Button>
+      ))}
+    </div>
+  );
   return (
     <div className={[classes.container, props.className].join(" ")}>
       <div className={classes.group}>
-        <div className={classes.employeeSection}>
+        <div className={classes.checkboxSpacing}>
           <Checkbox
             color="primary"
             className={clsx({
@@ -54,34 +69,39 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
               props.updateSelectedDetails(props.detail, e.target.checked);
             }}
           />
-          <div>
-            {props.detail.type === "absence" ? (
-              <>
-                <div>{props.detail.employee?.name}</div>
-                <div className={classes.detailSubText}>
-                  {props.detail.position?.name}
-                </div>
-              </>
-            ) : (
-              <div>{props.detail.position?.name}</div>
-            )}
-          </div>
+        </div>
+        <div className={classes.item}>
+          {props.detail.type === "absence" ? (
+            <>
+              <div>{props.detail.employee?.name}</div>
+              <div className={classes.detailSubText}>
+                {props.detail.position?.name}
+              </div>
+            </>
+          ) : (
+            <div>{props.detail.position?.name}</div>
+          )}
         </div>
 
-        <div className={classes.absenceReason}>
-          <div>{props.detail.absenceReason}</div>
-          <div className={classes.detailSubText}>{props.detail.dateRange}</div>
-        </div>
-        <div className={classes.toggle}>
-          <IconButton onClick={toggleExpandDetails}>
-            {showingDetails ? <ExpandLess /> : <ExpandMore />}
-          </IconButton>
+        <div className={classes.itemContainer}>
+          <div className={classes.absenceReason}>
+            <div>{props.detail.absenceReason}</div>
+            <div className={classes.detailSubText}>
+              {props.detail.dateRange}
+            </div>
+          </div>
+          <div className={classes.toggle}>
+            <IconButton onClick={toggleExpandDetails}>
+              {showingDetails ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          </div>
         </div>
       </div>
 
       {showingDetails && (
         <Collapse in={showingDetails}>
-          <div className={classes.indentedGroup}>
+          <div className={classes.group}>
+            <div className={classes.checkboxSpacing} />
             <div className={classes.item}>
               <div>{props.detail.location?.name}</div>
               <div
@@ -93,7 +113,8 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             </div>
           </div>
 
-          <div className={classes.indentedGroup}>
+          <div className={classes.group}>
+            <div className={classes.checkboxSpacing} />
             <div className={classes.item}>
               {props.detail.state === "noSubRequired" && (
                 <div className={classes.detailSubText}>{t("Not required")}</div>
@@ -147,11 +168,9 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
               )}
             </div>
           </div>
+          {actionButtons}
         </Collapse>
       )}
-      {/* <div xs={1} className={classes.detailActionsSection}>
-        <ActionMenu options={rowActions} />
-      </div> */}
     </div>
   );
 };
@@ -159,20 +178,13 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   container: { display: "flex", width: "100%", flexDirection: "column" },
   group: { display: "flex", width: "100%" },
-  indentedGroup: {
-    display: "flex",
-    width: "100%",
-    paddingLeft: theme.typography.pxToRem(42),
-  },
-  employeeSection: {
-    display: "flex",
-    flex: 6,
-  },
+  checkboxSpacing: { width: theme.typography.pxToRem(42), flexGrow: 0 },
   absenceReason: {
     flex: 4,
   },
   toggle: { flex: 1 },
-  item: { flex: 6 },
+  item: { flex: 1 },
+  itemContainer: { flex: 1, display: "flex" },
   subWithPhone: {
     display: "flex",
     alignItems: "center",
@@ -186,11 +198,18 @@ const useStyles = makeStyles(theme => ({
   detailSubText: {
     color: theme.customColors.edluminSubText,
   },
-  detailActionsSection: {
-    textAlign: "right",
+
+  actionButtons: {
+    display: "flex",
+    justifyContent: "flex-end",
+    paddingTop: theme.spacing(2),
     "@media print": {
       display: "none",
     },
+  },
+  button: {
+    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(1),
   },
   action: {
     cursor: "pointer",
