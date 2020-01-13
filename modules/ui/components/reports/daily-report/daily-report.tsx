@@ -321,7 +321,7 @@ export const DailyReport: React.FC<Props> = props => {
         </Grid>
         <Grid
           container
-          spacing={4}
+          spacing={isMobile ? 2 : 4}
           justify="flex-start"
           className={classes.cardContainer}
         >
@@ -337,7 +337,7 @@ export const DailyReport: React.FC<Props> = props => {
             }
 
             return (
-              <Grid item key={i} xs={6} md={12}>
+              <Grid item key={i} xs={isMobile ? 6 : undefined}>
                 <GroupCard
                   cardType={c}
                   details={allDetails}
