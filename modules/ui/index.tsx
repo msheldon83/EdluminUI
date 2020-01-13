@@ -219,9 +219,10 @@ export function App() {
             <Route path={SubSignInRoute.path}>
               <IfAuthenticated>
                 <IfHasRole role={OrgUserRole.Administrator}>
-                  <Route
+                  <ProtectedRoute
                     component={SubSignInLoader}
                     path={SubSignInRoute.path}
+                    role={"admin"}
                   />
                 </IfHasRole>
               </IfAuthenticated>
