@@ -51,7 +51,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     classes: customClasses = {},
   } = props;
 
-  const classes = useStyles(props);
+  const classes = useStyles({ contained, onSelectDates });
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [lastDateSelected, setLastDateSelected] = React.useState();
   const [mouseOverDate, setMouseOverDate] = React.useState();
@@ -185,14 +185,14 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
         ? buttonProps.className
         : "";
 
-      const dateIsWeekend = isWeekend(date)
+      const dateIsWeekend = isWeekend(date);
 
       const classNames = clsx({
         [classes.dayButton]: true,
         [classes.dayInDateRange]: dateIsInSelectionRange(date),
         [classes.dayShiftPressed]: shiftPressed,
         [customClasses.weekend ?? ""]: dateIsWeekend,
-        [customClasses.weekday ?? ""]: !dateIsWeekend
+        [customClasses.weekday ?? ""]: !dateIsWeekend,
       });
 
       /*

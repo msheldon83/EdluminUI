@@ -7,7 +7,6 @@ import endOfYesterday from "date-fns/endOfYesterday";
 import addDays from "date-fns/addDays";
 import { DatePicker, DEFAULT_DATE_FORMAT } from "./date-picker";
 import { Calendar } from "./calendar";
-import { FiveWeekCalendar } from "./five-week-calendar";
 import { SingleMonthCalendar } from "./single-month-calendar";
 import { CustomCalendar, useToggleDatesList } from "./custom-calendar";
 
@@ -172,25 +171,6 @@ export const CalendarStory = () => {
 
 CalendarStory.story = {
   name: "Calendar",
-};
-
-export const FiveWeekCalendarStory = () => {
-  const classes = useStyles();
-  const today = new Date();
-
-  return (
-    <div className={classes.container}>
-      <FiveWeekCalendar
-        disableWeekends={boolean("disableWeekends", true)}
-        startDate={customDate("startDate", new Date())}
-        selectedDates={[today, addDays(today, 1), addDays(today, 2)]}
-      />
-    </div>
-  );
-};
-
-FiveWeekCalendarStory.story = {
-  name: "Five Week Calendar",
 };
 
 export const CustomCalendarStory = () => {
