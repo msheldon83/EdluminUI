@@ -33,19 +33,17 @@ export const AssignmentGroup: React.FC<Props> = props => {
   const vacancyDetails = props.vacancyDetails;
   const { onCancel } = props;
 
+  const assignment = vacancyDetails[0].assignment;
+
   const onCancelAllMutation = React.useCallback(
     () =>
-      onCancel(
-        vacancyDetails[0].assignment?.id ?? "",
-        vacancyDetails[0].assignment?.rowVersion ?? "",
-        undefined
-      ),
-    [onCancel, vacancyDetails[0].assignment]
+      onCancel(assignment?.id ?? "", assignment?.rowVersion ?? "", undefined),
+    [onCancel, assignment]
   );
 
   const vacancy =
     vacancyDetails[0].vacancy !== null && vacancyDetails[0].vacancy;
-  if (!vacancy || !vacancyDetails[0].assignment) return <></>;
+  if (!vacancy || !assignment) return <></>;
 
   const locationNames = [...new Set(vacancyDetails.map(a => a.location!.name))];
   const locationNameText =
@@ -61,7 +59,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
       ? `${orgNames[0]} +${orgNames.length - 1}`
       : orgNames[0];
 
-  const confirmationNumber = vacancyDetails[0].assignment.id;
+  const confirmationNumber = assignment.id;
   const employeeName = `${vacancy.absence?.employee?.firstName} ${vacancy.absence?.employee?.lastName}`;
   const positionName = vacancy.position?.name ?? "";
 
@@ -107,6 +105,9 @@ export const AssignmentGroup: React.FC<Props> = props => {
           organizationName={orgNameText}
           positionName={positionName}
           dayPortion={totalDayPortion}
+          payInfoLabel={
+            vacancyDetails[0].vacancy?.payInfoSummary?.summaryLabel ?? ""
+          }
           onCancel={onCancelClick}
           className={props.className}
           isAdmin={props.isAdmin}
@@ -117,6 +118,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
             {props.vacancyDetails.map((a, i) => (
               <AssignmentGroupDetail
                 dayPortion={a.dayPortion}
+                payInfoLabel={a.payInfo?.label ?? ""}
                 startTimeLocal={a.startTimeLocal ?? ""}
                 endTimeLocal={a.endTimeLocal ?? ""}
                 locationName={a.location?.name ?? ""}

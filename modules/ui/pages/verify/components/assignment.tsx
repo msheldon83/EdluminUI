@@ -21,6 +21,7 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { OptionTypeBase } from "react-select/src/types";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
+import { getPayLabel } from "ui/components/helpers";
 
 type Props = {
   vacancyDetail: Pick<
@@ -42,6 +43,7 @@ type Props = {
     | "payDurationOverride"
     | "actualDuration"
     | "payTypeId"
+    | "payInfo"
   >;
   shadeRow: boolean;
   onVerify: (verifyInput: VacancyDetailVerifyInput) => Promise<void>;
@@ -103,10 +105,12 @@ export const Assignment: React.FC<Props> = props => {
   // Build dropdown options list for the Day Conversions
   const dayConversionOptions = useMemo(() => {
     return [
-      ...props.vacancyDayConversions.map(a => ({
-        label: a.name,
-        value: a.name,
-      })),
+      ...props.vacancyDayConversions
+        .sort((a, b) => {return b.dayEquivalent - a.dayEquivalent})
+        .map(a => ({
+          label: a.name,
+          value: a.name,
+        })),
       {
         label: dayConversionHourlyName,
         value: AbsenceReasonTrackingTypeId.Hourly,
@@ -127,16 +131,12 @@ export const Assignment: React.FC<Props> = props => {
       );
       return;
     }
-
-    const matchByDayPortion = props.vacancyDayConversions.find(
-      x => x.dayEquivalent === vacancyDetail.dayPortion
-    );
-    if (matchByDayPortion) {
+    if (vacancyDetail.payInfo?.match) {
       setSelectedDayConversionName(
         dayConversionOptions.find(
           x =>
-            x.label === matchByDayPortion.name &&
-            x.value === matchByDayPortion.name
+            x.label === vacancyDetail.payInfo?.dayConversion?.name &&
+            x.value === vacancyDetail.payInfo?.dayConversion?.name
         )?.label
       );
       return;
@@ -151,9 +151,10 @@ export const Assignment: React.FC<Props> = props => {
     dayConversionOptions,
     vacancyDetail.dayPortion,
     vacancyDetail.payTypeId,
+    vacancyDetail.payInfo,
   ]);
 
-  // Get the current PayTypeId
+  // Get the current PayTypeId based on the current selectedDayConversion
   const payTypeId = useMemo(() => {
     const matchingDayConversion = props.vacancyDayConversions.find(
       x => x.name === selectedDayConversionName
@@ -163,29 +164,20 @@ export const Assignment: React.FC<Props> = props => {
       : AbsenceReasonTrackingTypeId.Hourly;
   }, [selectedDayConversionName, props.vacancyDayConversions]);
 
-  const daysInfo = useMemo(() => {
-    const dayEquivalent = props.vacancyDayConversions.find(
-      x => x.name === selectedDayConversionName
-    )?.dayEquivalent;
-    if (dayEquivalent) {
-      return dayEquivalent;
-    }
-
-    return vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
-      ? `${vacancyDetail.dayPortion.toFixed(1)}`
-      : `${vacancyDetail.dayPortion.toFixed(
-          1
-        )}/${vacancyDetail.totalDayPortion.toFixed(1)}`;
-  }, [selectedDayConversionName, props.vacancyDayConversions]);
-
-  const payInfo =
-    payTypeId === AbsenceReasonTrackingTypeId.Daily
-      ? `${daysInfo} ${t("Days")}`
-      : `${minutesToHours(
-          vacancyDetail.payDurationOverride ??
-            vacancyDetail.actualDuration ??
-            undefined
-        )} ${t("Hours")}`;
+  const payLabel = useMemo(() => 
+    getPayLabel(
+      vacancyDetail.payInfo?.match ?? false,
+      vacancyDetail.payInfo?.payTypeId ?? AbsenceReasonTrackingTypeId.Daily,
+      vacancyDetail.payInfo?.label ?? "",
+      vacancyDetail.dayPortion,
+      vacancyDetail.totalDayPortion,
+      t
+    ), [
+    vacancyDetail.dayPortion,
+    vacancyDetail.totalDayPortion,
+    vacancyDetail.payInfo,
+    t,
+  ]);
 
   const handlePayCodeOnBlur = async (payCodeId: string | undefined) => {
     if (currentPayCode?.id === payCodeId) {
@@ -364,7 +356,7 @@ export const Assignment: React.FC<Props> = props => {
                 )} - ${format(vacancyDetailEndTime, "h:mm aaa")}`}</Typography>
                 {!isActiveCard && (
                   <Typography className={classes.boldText}>
-                    {payInfo}
+                    {payLabel}
                   </Typography>
                 )}
               </Grid>
@@ -445,7 +437,7 @@ export const Assignment: React.FC<Props> = props => {
                   <Grid item xs={2}>
                     {payTypeId === AbsenceReasonTrackingTypeId.Daily ? (
                       <Typography className={classes.boldText}>
-                        {payInfo}
+                        {payLabel}
                       </Typography>
                     ) : (
                       <Input
