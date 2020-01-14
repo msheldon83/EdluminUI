@@ -4,6 +4,7 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { useMemo } from "react";
 import { can } from "helpers/permissions";
+import { useOrganizationId } from "core/org-context";
 
 type Props<T extends object> = TableProps<T> & {
   onRowAdd?: {
@@ -20,16 +21,12 @@ type Props<T extends object> = TableProps<T> & {
   };
   editableRows?: ((rowData: T) => boolean) | undefined;
   deletableRows?: ((rowData: T) => boolean) | undefined;
-  /** @description If any permission checking needs to
-   * be done within the use of this table, provide the
-   * Org Id if accessible so we check the right permissions
-   */
-  organizationId?: string;
 };
 
 export function EditableTable<T extends object>(props: Props<T>) {
   const { onRowAdd, onRowUpdate, onRowDelete, ...tableProps } = props;
   const userAccess = useMyUserAccess();
+  const organizationId = useOrganizationId();
 
   // Handle any permission checking to see if we can Add
   const onRowAddAction = useMemo(() => {
@@ -43,14 +40,14 @@ export function EditableTable<T extends object>(props: Props<T>) {
         props.onRowAdd.permissions,
         userAccess?.permissionsByOrg ?? [],
         userAccess?.isSysAdmin ?? false,
-        props.organizationId
+        organizationId
       )
     ) {
       return props.onRowAdd.action;
     }
 
     return undefined;
-  }, [props.onRowAdd, props.organizationId, userAccess]);
+  }, [props.onRowAdd, organizationId, userAccess]);
 
   // Handle any permission checking to see if we can Update
   const onRowUpdateAction = useMemo(() => {
@@ -64,14 +61,14 @@ export function EditableTable<T extends object>(props: Props<T>) {
         props.onRowUpdate.permissions,
         userAccess?.permissionsByOrg ?? [],
         userAccess?.isSysAdmin ?? false,
-        props.organizationId
+        organizationId
       )
     ) {
       return props.onRowUpdate.action;
     }
 
     return undefined;
-  }, [props.onRowUpdate, props.organizationId, userAccess]);
+  }, [props.onRowUpdate, organizationId, userAccess]);
 
   // Handle any permission checking to see if we can Delete
   const onRowDeleteAction = useMemo(() => {
@@ -85,14 +82,14 @@ export function EditableTable<T extends object>(props: Props<T>) {
         props.onRowDelete.permissions,
         userAccess?.permissionsByOrg ?? [],
         userAccess?.isSysAdmin ?? false,
-        props.organizationId
+        organizationId
       )
     ) {
       return props.onRowDelete.action;
     }
 
     return undefined;
-  }, [props.onRowDelete, props.organizationId, userAccess]);
+  }, [props.onRowDelete, organizationId, userAccess]);
 
   return (
     <Table
