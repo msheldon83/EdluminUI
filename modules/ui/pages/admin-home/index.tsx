@@ -142,7 +142,7 @@ export const AdminHome: React.FC<Props> = props => {
           </Button>
         </Grid>
       </Grid>
-      <Can do={[PermissionEnum.AbsVacVerify]} orgId={params.organizationId}>
+      <Can do={[PermissionEnum.AbsVacVerify]}>
         <DailyReport
           orgId={params.organizationId}
           date={date}
@@ -154,7 +154,7 @@ export const AdminHome: React.FC<Props> = props => {
           isHomePage={true}
         />
       </Can>
-      <Can do={[PermissionEnum.AbsVacVerify]} orgId={params.organizationId} not>
+      <Can do={[PermissionEnum.AbsVacVerify]} not>
         <DailyReport
           orgId={params.organizationId}
           date={date}

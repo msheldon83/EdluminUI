@@ -63,7 +63,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
         isSysAdmin: boolean,
         orgId?: string
       ) => canEditSub(permissions, isSysAdmin, orgId, props.detail.date),
-      orgId: adminParams.organizationId,
     },
   ];
   if (props.detail.state !== "noSubRequired") {
@@ -90,7 +89,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
             isSysAdmin: boolean,
             orgId?: string
           ) => canAssignSub(permissions, isSysAdmin, orgId, props.detail.date),
-      orgId: adminParams.organizationId,
     });
   }
 
@@ -106,7 +104,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
             ) =>
               canAssignSub(permissions, isSysAdmin, orgId, props.detail.date)
             }
-            orgId={adminParams.organizationId}
           >
             <Checkbox
               color="primary"
@@ -172,7 +169,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
             ) =>
               canAssignSub(permissions, isSysAdmin, orgId, props.detail.date)
             }
-            orgId={adminParams.organizationId}
           >
             <Link
               className={classes.action}

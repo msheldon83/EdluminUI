@@ -311,11 +311,7 @@ export const DailyReport: React.FC<Props> = props => {
             }
 
             return c === "awaitingVerification" ? (
-              <Can
-                do={[PermissionEnum.AbsVacVerify]}
-                orgId={props.orgId}
-                key={i}
-              >
+              <Can do={[PermissionEnum.AbsVacVerify]} key={i}>
                 <Grid item>
                   <GroupCard
                     cardType={c}
@@ -570,7 +566,6 @@ const displaySwabSubsAction = (
           isSysAdmin: boolean,
           orgId?: string
         ) => canAssignSub(permissions, isSysAdmin, orgId, absDate)}
-        orgId={orgId}
       >
         button
       </Can>
@@ -586,7 +581,6 @@ const displaySwabSubsAction = (
         isSysAdmin: boolean,
         orgId?: string
       ) => canAssignSub(permissions, isSysAdmin, orgId, absDate)}
-      orgId={orgId}
     >
       <Tooltip
         title={t("Substitutes can only be swapped between 2 Absences")}
