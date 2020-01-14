@@ -11,6 +11,8 @@ import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absen
 import { Link } from "react-router-dom";
 import { startOfToday } from "date-fns";
 import { useQueryParamIso } from "hooks/query-params";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {};
 
@@ -36,15 +38,17 @@ export const DailyReportPage: React.FC<Props> = props => {
           <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
         </Grid>
         <Grid item className={classes.action}>
-          <Button
-            variant="contained"
-            component={Link}
-            to={AdminSelectEmployeeForCreateAbsenceRoute.generate(
-              createAbsenceRouteParams
-            )}
-          >
-            {t("Create Absence")}
-          </Button>
+          <Can do={[PermissionEnum.AbsVacSave]} orgId={params.organizationId}>
+            <Button
+              variant="contained"
+              component={Link}
+              to={AdminSelectEmployeeForCreateAbsenceRoute.generate(
+                createAbsenceRouteParams
+              )}
+            >
+              {t("Create Absence")}
+            </Button>
+          </Can>
         </Grid>
       </Grid>
 
