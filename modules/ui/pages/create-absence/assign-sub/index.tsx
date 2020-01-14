@@ -279,6 +279,7 @@ export const AssignSub: React.FC<Props> = props => {
               }`}
               columns={columns}
               data={tableData}
+              organizationId={props.orgId}
               selection={false}
               style={{
                 boxShadow: "initial",
