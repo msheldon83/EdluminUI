@@ -22,6 +22,7 @@ import {
   CountryCode,
   OrgUserRole,
   OrgUserUpdateInput,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { PeopleGridItem } from "./people-grid-item";
 import * as yup from "yup";
@@ -38,6 +39,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { GetOrgUserLastLogin } from "../graphql/get-orguser-lastlogin.gen";
+import { Can } from "ui/components/auth/can";
 
 const editableSections = {
   information: "edit-information",
@@ -375,34 +377,36 @@ export const Information: React.FC<Props> = props => {
                       title={t("Username")}
                       description={props.loginEmail}
                     />
-                    <PeopleGridItem
-                      title={
-                        <span className={classes.resetPassword}>
-                          {t("Password")}{" "}
-                          <Tooltip
-                            title={
-                              <div className={classes.tooltip}>
-                                <Typography variant="body1">
-                                  Reset password will send the user an email
-                                  with a link to reset the password.
-                                </Typography>
-                              </div>
-                            }
-                            placement="right-start"
-                          >
-                            <InfoIcon
-                              color="primary"
-                              style={{ fontSize: "16px", marginLeft: "8px" }}
-                            />
-                          </Tooltip>
-                        </span>
-                      }
-                      description={
-                        <TextButton onClick={() => onResetPassword()}>
-                          {t("Reset Password")}
-                        </TextButton>
-                      }
-                    />
+                    <Can do={[PermissionEnum.UserResetPassword]}>
+                      <PeopleGridItem
+                        title={
+                          <span className={classes.resetPassword}>
+                            {t("Password")}{" "}
+                            <Tooltip
+                              title={
+                                <div className={classes.tooltip}>
+                                  <Typography variant="body1">
+                                    Reset password will send the user an email
+                                    with a link to reset the password.
+                                  </Typography>
+                                </div>
+                              }
+                              placement="right-start"
+                            >
+                              <InfoIcon
+                                color="primary"
+                                style={{ fontSize: "16px", marginLeft: "8px" }}
+                              />
+                            </Tooltip>
+                          </span>
+                        }
+                        description={
+                          <TextButton onClick={() => onResetPassword()}>
+                            {t("Reset Password")}
+                          </TextButton>
+                        }
+                      />
+                    </Can>
                   </Grid>
                   <Grid container item xs={6} spacing={2}>
                     <PeopleGridItem
