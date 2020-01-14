@@ -22,6 +22,8 @@ import { PayCodeRoute } from "ui/routes/pay-code";
 import { ContractsRoute } from "ui/routes/contracts";
 import { Typography } from "@material-ui/core";
 import { Contacts, Tune, Loop } from "@material-ui/icons";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 //Create Routes for Pages
 export const OrgSettingsPage: React.FC<{}> = props => {
@@ -172,117 +174,131 @@ export const OrgSettingsPage: React.FC<{}> = props => {
   return (
     <>
       <PageTitle title={t("Settings")} />
-      <Typography className={classes.header} variant="h4">
-        {t("General")}
-      </Typography>
-      <Grid
-        container
-        className={(classes.root, classes.padding)}
-        spacing={3}
-        item
-        xs={12}
+      <Can
+        do={[PermissionEnum.GeneralSettingsView]}
+        orgId={params.organizationId}
       >
-        {configGeneralRoutes.map((r, i) => {
-          return (
-            <Link
-              key={i}
-              to={r.route.generate(params)}
-              className={classes.textDecoration}
-            >
-              <Grid className={classes.paddingRight}>
-                <Paper className={classes.paper}>
-                  {r.icon}
-                  <div className={classes.paperTextBlock}>{t(r.name)}</div>
-                </Paper>
-              </Grid>
-            </Link>
-          );
-        })}
-      </Grid>
-
-      <Typography className={classes.header} variant="h4">
-        {t("Schedule")}
-      </Typography>
-      <Grid
-        container
-        className={(classes.root, classes.padding)}
-        spacing={3}
-        item
-        xs={12}
+        <Typography className={classes.header} variant="h4">
+          {t("General")}
+        </Typography>
+        <Grid
+          container
+          className={(classes.root, classes.padding)}
+          spacing={3}
+          item
+          xs={12}
+        >
+          {configGeneralRoutes.map((r, i) => {
+            return (
+              <Link
+                key={i}
+                to={r.route.generate(params)}
+                className={classes.textDecoration}
+              >
+                <Grid className={classes.paddingRight}>
+                  <Paper className={classes.paper}>
+                    {r.icon}
+                    <div className={classes.paperTextBlock}>{t(r.name)}</div>
+                  </Paper>
+                </Grid>
+              </Link>
+            );
+          })}
+        </Grid>
+      </Can>
+      <Can
+        do={[PermissionEnum.ScheduleSettingsView]}
+        orgId={params.organizationId}
       >
-        {configScheduleRoutes.map((r, i) => {
-          return (
-            <Link
-              key={i}
-              to={r.route.generate(params)}
-              className={classes.textDecoration}
-            >
-              <Grid className={classes.paddingRight}>
-                <Paper className={classes.paper}>
-                  {r.icon}
-                  <div className={classes.paperTextBlock}>{t(r.name)}</div>
-                </Paper>
-              </Grid>
-            </Link>
-          );
-        })}
-      </Grid>
-
-      <Typography className={classes.header} variant="h4">
-        {t("Absence & Vacancy")}
-      </Typography>
-      <Grid
-        container
-        className={(classes.root, classes.padding)}
-        spacing={3}
-        item
-        xs={12}
+        <Typography className={classes.header} variant="h4">
+          {t("Schedule")}
+        </Typography>
+        <Grid
+          container
+          className={(classes.root, classes.padding)}
+          spacing={3}
+          item
+          xs={12}
+        >
+          {configScheduleRoutes.map((r, i) => {
+            return (
+              <Link
+                key={i}
+                to={r.route.generate(params)}
+                className={classes.textDecoration}
+              >
+                <Grid className={classes.paddingRight}>
+                  <Paper className={classes.paper}>
+                    {r.icon}
+                    <div className={classes.paperTextBlock}>{t(r.name)}</div>
+                  </Paper>
+                </Grid>
+              </Link>
+            );
+          })}
+        </Grid>
+      </Can>
+      <Can do={[PermissionEnum.AbsVacView]} orgId={params.organizationId}>
+        <Typography className={classes.header} variant="h4">
+          {t("Absence & Vacancy")}
+        </Typography>
+        <Grid
+          container
+          className={(classes.root, classes.padding)}
+          spacing={3}
+          item
+          xs={12}
+        >
+          {configAbsenceVacancyRoutes.map((r, i) => {
+            return (
+              <Link
+                key={i}
+                to={r.route.generate(params)}
+                className={classes.textDecoration}
+              >
+                <Grid className={classes.paddingRight}>
+                  <Paper className={classes.paper}>
+                    {r.icon}
+                    <div className={classes.paperTextBlock}>{t(r.name)}</div>
+                  </Paper>
+                </Grid>
+              </Link>
+            );
+          })}
+        </Grid>
+      </Can>
+      <Can
+        do={[PermissionEnum.FinanceSettingsView]}
+        orgId={params.organizationId}
       >
-        {configAbsenceVacancyRoutes.map((r, i) => {
-          return (
-            <Link
-              key={i}
-              to={r.route.generate(params)}
-              className={classes.textDecoration}
-            >
-              <Grid className={classes.paddingRight}>
-                <Paper className={classes.paper}>
-                  {r.icon}
-                  <div className={classes.paperTextBlock}>{t(r.name)}</div>
-                </Paper>
-              </Grid>
-            </Link>
-          );
-        })}
-      </Grid>
-
-      <Typography className={classes.header} variant="h4">
-        {t("Finance & Administration")}
-      </Typography>
-      <Grid
-        container
-        className={(classes.root, classes.padding)}
-        spacing={3}
-        item
-        xs={12}
-      >
-        {configFinanceAdminRoutes.map((r, i) => {
-          return (
-            <Link
-              key={i}
-              to={r.route.generate(params)}
-              className={classes.textDecoration}
-            >
-              <Grid className={classes.paddingRight}>
-                <Paper className={classes.paper}>
-                  {r.icon}
-                  <div className={classes.paperTextBlock}>{t(r.name)}</div>
-                </Paper>
-              </Grid>
-            </Link>
-          );
-        })}
-      </Grid>
+        <Typography className={classes.header} variant="h4">
+          {t("Finance & Administration")}
+        </Typography>
+        <Grid
+          container
+          className={(classes.root, classes.padding)}
+          spacing={3}
+          item
+          xs={12}
+        >
+          {configFinanceAdminRoutes.map((r, i) => {
+            return (
+              <Link
+                key={i}
+                to={r.route.generate(params)}
+                className={classes.textDecoration}
+              >
+                <Grid className={classes.paddingRight}>
+                  <Paper className={classes.paper}>
+                    {r.icon}
+                    <div className={classes.paperTextBlock}>{t(r.name)}</div>
+                  </Paper>
+                </Grid>
+              </Link>
+            );
+          })}
+        </Grid>
+      </Can>
     </>
   );
 };

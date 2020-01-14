@@ -11,7 +11,11 @@ import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle"
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { Column } from "material-table";
-import { CalendarChange, CalendarDayType } from "graphql/server-types.gen";
+import {
+  CalendarChange,
+  CalendarDayType,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { Table } from "ui/components/table";
 import { compact } from "lodash-es";
 import { parseISO, format } from "date-fns";
@@ -29,6 +33,7 @@ import {
   CalendarListViewRoute,
   CalendarCalendarViewRoute,
 } from "ui/routes/calendar/calendar";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   view: "list" | "calendar";
@@ -173,12 +178,17 @@ export const Calendars: React.FC<Props> = props => {
             />
           )}
         </div>
-        <Section className={classes.container}>
-          <CreateExpansionPanel
-            refetchQuery={refectchCalendarChanges}
-            orgId={params.organizationId}
-          />
-        </Section>
+        <Can
+          do={[PermissionEnum.CalendarChangeSave]}
+          orgId={params.organizationId}
+        >
+          <Section className={classes.container}>
+            <CreateExpansionPanel
+              refetchQuery={refectchCalendarChanges}
+              orgId={params.organizationId}
+            />
+          </Section>
+        </Can>
         <div className={props.view === "calendar" ? classes.sticky : ""}>
           {props.view === "calendar" && (
             <Section className={classes.calendarchanges}>
