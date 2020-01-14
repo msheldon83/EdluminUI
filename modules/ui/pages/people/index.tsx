@@ -445,7 +445,6 @@ export const PeoplePage: React.FC<Props> = props => {
           title={`${peopleCount} ${
             peopleCount === 1 ? t("person") : t("people")
           }`}
-          organizationId={params.organizationId}
           columns={columns}
           data={tableData}
           selection={true}
