@@ -1,10 +1,10 @@
-import * as React from "react";
-import { Period, GetError } from "../../helpers";
 import { makeStyles } from "@material-ui/core";
-import { useTranslation } from "react-i18next";
 import { addMinutes, isValid } from "date-fns";
-import { TimeInput as TimeInputComponent } from "ui/components/form/time-input";
 import { FormikErrors } from "formik";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { FormikTimeInput } from "ui/components/form/formik-time-input";
+import { GetError, Period } from "../../helpers";
 
 type Props = {
   periods: Period[];
@@ -54,41 +54,20 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
             {!p.skipped && (
               <>
                 <div className={classes.timeInput}>
-                  <TimeInputComponent
+                  <FormikTimeInput
                     label=""
+                    name={`periods[${i}].startTime`}
                     value={p.startTime || undefined}
-                    onValidTime={time => {
-                      props.setFieldValue(`periods[${i}].startTime`, time);
-                    }}
-                    onChange={value => {
-                      props.setFieldValue(`periods[${i}].startTime`, value);
-                    }}
                     earliestTime={earliestStartTime}
                     inputStatus={startTimeError ? "error" : "default"}
                     validationMessage={startTimeError}
                   />
                 </div>
                 <div className={classes.timeInput}>
-                  <TimeInputComponent
+                  <FormikTimeInput
                     label=""
+                    name={`periods[${i}].endTime`}
                     value={p.endTime || undefined}
-                    onValidTime={time => {
-                      props.setFieldValue(`periods[${i}].endTime`, time);
-                      const nextPeriod = props.periods[i + 1];
-                      if (nextPeriod && !nextPeriod.startTime) {
-                        // Default the next Period's start time if not currently populated
-                        props.setFieldValue(
-                          `periods[${i + 1}].startTime`,
-                          addMinutes(
-                            new Date(time),
-                            props.travelDuration
-                          ).toISOString()
-                        );
-                      }
-                    }}
-                    onChange={value => {
-                      props.setFieldValue(`periods[${i}].endTime`, value);
-                    }}
                     earliestTime={p.startTime || earliestStartTime}
                     inputStatus={endTimeError ? "error" : "default"}
                     validationMessage={endTimeError}
