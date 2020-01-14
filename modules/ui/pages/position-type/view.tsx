@@ -23,8 +23,7 @@ import {
 import * as yup from "yup";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import { UpdatePositionType } from "./graphql/update-position-type.gen";
-import { GetAllPositionTypesWithinOrg } from "./graphql/position-types.gen";
-import { ReplacementCriteria } from "./replacement-criteria-config";
+import { ReplacementCriteria } from "./replacement-criteria";
 
 const editableSections = {
   name: "edit-name",
@@ -84,7 +83,6 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   }
 
   const replacementCriteria = positionType?.replacementCriteria;
-  console.log(replacementCriteria);
 
   if (enabled === null) {
     setEnabled(!positionType.expired);
