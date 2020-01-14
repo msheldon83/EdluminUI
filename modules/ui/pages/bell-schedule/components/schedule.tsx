@@ -1,36 +1,38 @@
 import {
   FormHelperText,
-  makeStyles,
   Grid,
+  makeStyles,
   Typography,
 } from "@material-ui/core";
+import { FormikValuesWatcher } from "atomic-object/forms/formik-watcher";
 import {
-  isBefore,
-  parseISO,
+  addMinutes,
   areIntervalsOverlapping,
-  isValid,
-  isDate,
   format,
+  isBefore,
+  isDate,
   isEqual,
+  isValid,
+  parseISO,
 } from "date-fns";
 import { Formik } from "formik";
 import { useIsMobile } from "hooks";
+import { TFunction } from "i18next";
+import { isArray } from "lodash-es";
 import * as React from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
-import { Period, AddPeriod } from "../helpers";
-import { isArray } from "lodash-es";
+import { AddPeriod, Period } from "../helpers";
 import { ScheduleActionColumn } from "./schedule-columns/schedule-action-column";
-import { ScheduleNamesColumn } from "./schedule-columns/schedule-names-column";
 import { ScheduleAfternoonColumn } from "./schedule-columns/schedule-afternoon-column";
-import { ScheduleMorningColumn } from "./schedule-columns/schedule-morning-column";
-import { ScheduleTimesColumn } from "./schedule-columns/schedule-times-column";
 import { ScheduleDurationColumn } from "./schedule-columns/schedule-duration-column";
-import { TFunction } from "i18next";
-import { useMemo } from "react";
+import { ScheduleMorningColumn } from "./schedule-columns/schedule-morning-column";
+import { ScheduleNamesColumn } from "./schedule-columns/schedule-names-column";
+import { ScheduleTimesColumn } from "./schedule-columns/schedule-times-column";
 
 type Props = {
   name?: string | null | undefined;
@@ -202,6 +204,29 @@ export const Schedule: React.FC<Props> = props => {
       >
         {({ handleSubmit, values, setFieldValue, submitForm, errors }) => (
           <form onSubmit={handleSubmit}>
+            <FormikValuesWatcher
+              onChange={(prev: { periods: Period[] }, next) => {
+                prev.periods.map((p, i) => {
+                  if (!next.periods[i]) return;
+                  const nextEnd = next.periods[i].endTime;
+                  const nextPeriod = next.periods[i + 1];
+                  if (
+                    nextEnd &&
+                    p.endTime !== nextEnd &&
+                    nextPeriod &&
+                    !nextPeriod.startTime
+                  ) {
+                    setFieldValue(
+                      `periods.${i + 1}.startTime` as any,
+                      addMinutes(
+                        new Date(nextEnd),
+                        travelDuration
+                      ).toISOString()
+                    );
+                  }
+                });
+              }}
+            />
             <Grid container justify="space-between" alignItems="center">
               <Grid item>
                 {props.name && <SectionHeader title={props.name} />}
@@ -254,9 +279,6 @@ export const Schedule: React.FC<Props> = props => {
                 <ScheduleTimesColumn
                   periods={values.periods}
                   travelDuration={travelDuration}
-                  setPeriods={(periods: Period[]) =>
-                    setPeriods(periods, setFieldValue)
-                  }
                   errors={errors}
                   setFieldValue={setFieldValue}
                   scheduleClasses={classes}

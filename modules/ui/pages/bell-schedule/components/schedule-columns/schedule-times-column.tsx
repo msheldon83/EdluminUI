@@ -9,7 +9,6 @@ import { GetError, Period } from "../../helpers";
 type Props = {
   periods: Period[];
   travelDuration: number;
-  setPeriods: (periods: Period[]) => void;
   setFieldValue: Function;
   errors: FormikErrors<{ periods: Period[] }>;
   scheduleClasses: any;
