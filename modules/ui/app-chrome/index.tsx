@@ -149,6 +149,7 @@ const useStyles = makeStyles(theme => ({
     flexDirection: "row",
     alignItems: "stretch",
     flexGrow: 1,
+    maxWidth: theme.typography.pxToRem(1440),
   },
   navWidthExpanded: {
     flexShrink: 0,
@@ -194,6 +195,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.typography.pxToRem(18),
   },
   leftPaddingExpanded: {
+    maxWidth: theme.typography.pxToRem(1440),
     paddingLeft: theme.typography.pxToRem(258),
     transition: theme.transitions.create("padding", {
       easing: theme.transitions.easing.sharp,
@@ -201,6 +203,7 @@ const useStyles = makeStyles(theme => ({
     }),
   },
   leftPaddingCompact: {
+    maxWidth: theme.typography.pxToRem(1440),
     paddingLeft: theme.spacing(7) + 1,
     [theme.breakpoints.up("sm")]: {
       paddingLeft: theme.spacing(9) + 1,
