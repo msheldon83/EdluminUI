@@ -38,7 +38,7 @@ export const DailyReportPage: React.FC<Props> = props => {
           <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
         </Grid>
         <Grid item className={classes.action}>
-          <Can do={[PermissionEnum.AbsVacSave]} orgId={params.organizationId}>
+          <Can do={[PermissionEnum.AbsVacSave]}>
             <Button
               variant="contained"
               component={Link}

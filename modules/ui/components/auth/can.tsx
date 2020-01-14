@@ -5,6 +5,7 @@ import {
 } from "reference-data/my-user-access";
 import { can as CanHelper } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { useOrganizationId } from "core/org-context";
 
 type Props = {
   do:
@@ -20,7 +21,8 @@ type Props = {
 
 export const Can: React.FC<Props> = props => {
   const userAccess = useMyUserAccess();
-  const { not = false } = props;
+  const contextOrgId = useOrganizationId();
+  const { orgId = contextOrgId, not = false } = props;
 
   let canDoThis = false;
   if (Array.isArray(props.do)) {
@@ -28,13 +30,13 @@ export const Can: React.FC<Props> = props => {
       props.do,
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
-      props?.orgId
+      orgId ?? undefined
     );
   } else {
     canDoThis = props.do(
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
-      props?.orgId
+      orgId ?? undefined
     );
   }
   return canDoThis === !not ? <>{props.children}</> : null;
