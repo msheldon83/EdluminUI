@@ -15,10 +15,12 @@ type Props = {
         orgId?: string
       ) => boolean);
   orgId?: string;
+  not?: boolean;
 };
 
 export const Can: React.FC<Props> = props => {
   const userAccess = useMyUserAccess();
+  const { not = false } = props;
 
   let canDoThis = false;
   if (Array.isArray(props.do)) {
@@ -35,5 +37,5 @@ export const Can: React.FC<Props> = props => {
       props?.orgId
     );
   }
-  return canDoThis ? <>{props.children}</> : null;
+  return canDoThis === !not ? <>{props.children}</> : null;
 };
