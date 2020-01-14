@@ -28,6 +28,14 @@ query GetEmployeesForOrg(
           primaryPosition {
             id
             name
+            positionType {
+              id
+              name
+              payCode {
+                id
+                name
+              }
+            }
           }
         }
       }
