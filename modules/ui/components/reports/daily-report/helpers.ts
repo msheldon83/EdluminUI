@@ -410,6 +410,7 @@ export const MapDailyReportDetails = (
           ),
           isMultiDay: a.details && a.details.length > 1,
           position: positionType,
+          positionType: positionType,
           location: location,
         } as Detail;
       });
