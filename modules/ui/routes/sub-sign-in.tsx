@@ -1,9 +1,8 @@
 import { asyncComponent } from "ui/async-component";
-import { defineRoute } from "./definition";
+import { defineSubRoute } from "./definition";
+import { AdminChromeRoute } from "./app-chrome";
 
-export const SubSignInRoute = defineRoute("/:organizationId(\\d+)/sub-signin", [
-  "organizationId",
-]);
+export const SubSignInRoute = defineSubRoute(AdminChromeRoute, "sub-signin");
 
 export const SubSignInLoader = asyncComponent({
   resolve: async () => {

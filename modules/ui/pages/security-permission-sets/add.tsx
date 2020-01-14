@@ -20,7 +20,7 @@ import {
 } from "ui/routes/security/permission-sets";
 import { PermissionSettings } from "./components/add-edit-permission-settings";
 import { usePermissionDefinitions } from "reference-data/permission-definitions";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { ActionButtons } from "ui/components/action-buttons";
@@ -64,6 +64,15 @@ export const PermissionSetAddPage: React.FC<{}> = props => {
       categories: [],
     }
   );
+  // If the selected Role changes, we need to clear out the current
+  // categories details on the PermissionSet in state
+  useEffect(() => {
+    setPermissionSet({
+      ...permissionSet,
+      categories: [],
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRole, setPermissionSet]);
 
   const renderBasicInfoStep = (
     setStep: React.Dispatch<React.SetStateAction<number>>
