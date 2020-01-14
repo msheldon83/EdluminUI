@@ -125,50 +125,42 @@ export const AdminNavLinks: React.FC<Props> = props => {
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
             route={AdminHomeRoute.generate(params)}
-            orgId={params.organizationId}
           />
           {/* TODO: For now we'll go directly to Absence Create */}
           <AbsenceNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
             route={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
-            orgId={params.organizationId}
           />
           <AnalyticsAndReportsNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
             route={adminTbd.generate(params)}
-            orgId={params.organizationId}
           />
           <SchoolsNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
             route={LocationsRoute.generate(params)}
-            orgId={params.organizationId}
           />
           <PeopleNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
             route={PeopleRoute.generate(params)}
-            orgId={params.organizationId}
           />
           <CalendarNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
             route={CalendarListViewRoute.generate(params)}
-            orgId={params.organizationId}
           />
           <SettingsNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
             route={OrgSettingsRoute.generate(params)}
-            orgId={params.organizationId}
           />
           <SecurityNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
             route={adminTbd.generate(params)}
-            orgId={params.organizationId}
           />
         </>
       )}
@@ -176,7 +168,6 @@ export const AdminNavLinks: React.FC<Props> = props => {
         <OrganizationsNavLink
           onClick={props.onClick}
           navBarExpanded={props.navBarExpanded}
-          orgId={params.organizationId}
           route={
             inOrg
               ? OrganizationsRoute.generate(params)
