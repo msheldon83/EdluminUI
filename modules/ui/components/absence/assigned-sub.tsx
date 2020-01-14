@@ -6,7 +6,6 @@ import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
 
 type Props = {
-  organizationId: string;
   employeeId: number;
   employeeName: string;
   subText?: string;
@@ -37,7 +36,7 @@ export const AssignedSub: React.FC<Props> = props => {
       </div>
       <div>
         {props.onRemove && (
-          <Can do={[PermissionEnum.AbsVacAssign]} orgId={props.organizationId}>
+          <Can do={[PermissionEnum.AbsVacAssign]}>
             <Button
               disabled={props.disableReplacementInteractions}
               className={classes.removeButton}
