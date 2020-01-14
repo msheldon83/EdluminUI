@@ -60,6 +60,10 @@ export type Detail = {
     id?: string;
     name: string;
   };
+  positionType?: {
+    id: string;
+    name: string;
+  };
   location?: {
     id?: string;
     name: string;
@@ -142,6 +146,16 @@ export const MapDailyReportDetails = (
                 name: a.vacancies[0].position.name,
               }
             : undefined,
+        positionType:
+          a.vacancies &&
+          a.vacancies[0] &&
+          a.vacancies[0].position &&
+          a.vacancies[0].position.positionType
+            ? {
+                id: a.vacancies[0].position.positionType.id,
+                name: a.vacancies[0].position.positionType.name,
+              }
+            : undefined,
         location:
           matchingVacancyDetail && matchingVacancyDetail.location
             ? {
@@ -198,6 +212,12 @@ export const MapDailyReportDetails = (
           ? {
               id: v.position.id,
               name: v.position.name,
+            }
+          : undefined,
+        positionType: v.position?.positionType
+          ? {
+              id: v.position?.positionType.id,
+              name: v.position?.positionType.name,
             }
           : undefined,
         location: vacancyDetail.location
@@ -264,6 +284,16 @@ export const MapDailyReportDetails = (
                 name: a.vacancies[0].position.name,
               }
             : undefined,
+        positionType:
+          a.vacancies &&
+          a.vacancies[0] &&
+          a.vacancies[0].position &&
+          a.vacancies[0].position.positionType
+            ? {
+                id: a.vacancies[0].position.positionType.id,
+                name: a.vacancies[0].position.positionType.name,
+              }
+            : undefined,
         location:
           matchingVacancyDetail && matchingVacancyDetail.location
             ? {
@@ -309,6 +339,12 @@ export const MapDailyReportDetails = (
           ? {
               id: v.position.id,
               name: v.position.name,
+            }
+          : undefined,
+        positionType: v.position?.positionType
+          ? {
+              id: v.position?.positionType.id,
+              name: v.position?.positionType.name,
             }
           : undefined,
         location: vacancyDetail.location
@@ -427,7 +463,7 @@ export const MapDailyReportDetails = (
       groups.forEach(g => {
         const detailsGroupedByPositionType = groupBy(
           g.details,
-          d => d.position?.name
+          d => d.positionType?.name
         );
         Object.entries(detailsGroupedByPositionType).forEach(([key, value]) => {
           if (g.subGroups) {
@@ -450,7 +486,7 @@ export const MapDailyReportDetails = (
     // Only grouping by the Position Type and not the fill status
     const detailsGroupedByPositionType = groupBy(
       filteredDetails,
-      d => d.position?.name
+      d => d.positionType?.name
     );
     Object.entries(detailsGroupedByPositionType).forEach(([key, value]) => {
       groups.push({
