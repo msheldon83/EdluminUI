@@ -18,6 +18,8 @@ import {
   PositionTypeViewRoute,
 } from "ui/routes/position-type";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 export const PositionTypePage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -104,15 +106,17 @@ export const PositionTypePage: React.FC<{}> = props => {
         <Grid item>
           <PageTitle title={t("Position Types")} />
         </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            component={Link}
-            to={PositionTypeAddRoute.generate(params)}
-          >
-            {t("Add Position Type")}
-          </Button>
-        </Grid>
+        <Can do={[PermissionEnum.FinanceSettingsSave]}>
+          <Grid item>
+            <Button
+              variant="contained"
+              component={Link}
+              to={PositionTypeAddRoute.generate(params)}
+            >
+              {t("Add Position Type")}
+            </Button>
+          </Grid>
+        </Can>
       </Grid>
       <Table
         title={`${positionTypesCount} ${t("Position Types")}`}
