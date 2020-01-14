@@ -57,6 +57,7 @@ export const AdminHome: React.FC<Props> = props => {
 
   // On load make sure the right data is
   // being shown based on the timeOfDay
+
   useEffect(() => {
     if (timeOfDay === "morning") {
       setSelectedCard("unfilled");
