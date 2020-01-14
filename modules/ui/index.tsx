@@ -110,6 +110,8 @@ import {
   PositionTypeRoute,
   PositionTypeViewLoader,
   PositionTypeViewRoute,
+  ReplacementCriteriaEditLoader,
+  ReplacementCriteriaEditRoute,
 } from "./routes/position-type";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import {
@@ -417,6 +419,11 @@ export function App() {
                               <ProtectedRoute
                                 component={OrgSettingsLoader}
                                 path={OrgSettingsRoute.path}
+                                role={"admin"}
+                              />
+                              <ProtectedRoute
+                                component={ReplacementCriteriaEditLoader}
+                                path={ReplacementCriteriaEditRoute.path}
                                 role={"admin"}
                               />
                               <ProtectedRoute

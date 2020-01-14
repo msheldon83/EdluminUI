@@ -4,7 +4,12 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
+import { useRouteParams } from "ui/routes/definition";
 import { Maybe, Endorsement } from "graphql/server-types.gen";
+import {
+  PositionTypeViewRoute,
+  ReplacementCriteriaEditRoute,
+} from "ui/routes/position-type";
 
 type Props = {
   editing: string | null;
@@ -19,6 +24,7 @@ type Props = {
 export const ReplacementCriteria: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
+  const params = useRouteParams(PositionTypeViewRoute);
 
   const replacementCriteria = props.replacementCriteria;
 
@@ -31,7 +37,9 @@ export const ReplacementCriteria: React.FC<Props> = props => {
             text: t("Edit"),
             visible: !props.editing,
             execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
+              const editSettingsUrl = ReplacementCriteriaEditRoute.generate(
+                params
+              );
               history.push(editSettingsUrl);
             },
           }}
