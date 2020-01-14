@@ -38,6 +38,7 @@ import { useTranslation } from "react-i18next";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { can } from "helpers/permissions";
+import { useOrganizationId } from "core/org-context";
 
 export type TableProps<T extends object> = {
   title: string;
@@ -46,11 +47,6 @@ export type TableProps<T extends object> = {
   selection?: boolean;
   selectionPermissions?: PermissionEnum[];
   actions?: TableAction<T>[];
-  /** @description If any permission checking needs to
-   * be done within the use of this table, provide the
-   * Org Id if accessible so we check the right permissions
-   */
-  organizationId?: string;
   onRowClick?: (event?: React.MouseEvent, rowData?: T) => void;
   isEditable?: boolean;
   /**
@@ -110,6 +106,7 @@ export function Table<T extends object>(props: TableProps<T>) {
   const theme = useTheme();
   const { t } = useTranslation();
   const userAccess = useMyUserAccess();
+  const organizationId = useOrganizationId();
   const [includeExpired, setIncludeExpired] = React.useState(false);
   const [data, setData] = React.useState(props.data);
 
@@ -130,11 +127,11 @@ export function Table<T extends object>(props: TableProps<T>) {
           c.permissions,
           userAccess?.permissionsByOrg ?? [],
           userAccess?.isSysAdmin ?? false,
-          props.organizationId
+          organizationId
         ),
       };
     });
-  }, [props.columns, props.organizationId, userAccess]);
+  }, [props.columns, organizationId, userAccess]);
 
   // Handle permission checks for selection if specified
   const selection = useMemo(() => {
@@ -149,14 +146,9 @@ export function Table<T extends object>(props: TableProps<T>) {
       props.selectionPermissions,
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
-      props.organizationId
+      organizationId
     );
-  }, [
-    props.selection,
-    props.selectionPermissions,
-    props.organizationId,
-    userAccess,
-  ]);
+  }, [props.selection, props.selectionPermissions, organizationId, userAccess]);
 
   // Handle any permission checks to determine if we need to hide any columns
   const allActions: TableAction<T>[] | undefined = useMemo(() => {
@@ -175,11 +167,11 @@ export function Table<T extends object>(props: TableProps<T>) {
           a.permissions,
           userAccess?.permissionsByOrg ?? [],
           userAccess?.isSysAdmin ?? false,
-          props.organizationId
+          organizationId
         ),
       };
     });
-  }, [props.actions, props.organizationId, userAccess]);
+  }, [props.actions, organizationId, userAccess]);
   const anyActionsVisible: boolean = useMemo(() => {
     return !!allActions?.find(a => !a.hidden);
   }, [allActions]);

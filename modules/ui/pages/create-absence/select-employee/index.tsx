@@ -61,7 +61,11 @@ export const SelectEmployee: React.FC<Props> = props => {
     GetEmployeesForOrg,
     r => r.orgUser?.paged?.totalCount,
     {
-      variables: { orgId: organizationId, name },
+      variables: {
+        orgId: organizationId,
+        name,
+        sortBy: [{ sortByPropertyName: "lastName", sortAscending: true }],
+      },
     }
   );
 

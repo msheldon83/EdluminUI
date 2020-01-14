@@ -7,7 +7,7 @@ export const can = (
   permissions: PermissionEnum[],
   userPermissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string | null | undefined
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(userPermissions, orgId);
@@ -32,7 +32,7 @@ const getFirstOrg = (permissions: OrgUserPermissions[]) => {
 
 const getUserPermissions = (
   permissions: OrgUserPermissions[],
-  orgId?: string
+  orgId?: string | null | undefined
 ) => {
   //if org id was passed check if orgid is in list of orgs user has access to (admin)
   if (orgId && !includesOrg(orgId, permissions)) {

@@ -17,6 +17,7 @@ import { EditableTable } from "ui/components/editable-table";
 import {
   AccountingCodeCreateInput,
   AccountingCodeUpdateInput,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import * as Yup from "yup";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -213,38 +214,47 @@ export const AccountingCode: React.FC<Props> = props => {
         title={`${accountingCodesCount} ${t("Accounting Codes")}`}
         columns={columns}
         data={formattedAccountingCodes}
-        onRowAdd={async newData => {
-          const newAccountingCode = {
-            ...accountingCode,
-            name: newData.name,
-            externalId: newData.externalId,
-            locationId:
-              newData.location === null
-                ? undefined
-                : parseInt(newData.location?.id),
-          };
-          const result = await addAccountingCode(newAccountingCode);
-          if (!result) throw Error("Preserve Row on error");
-          if (result) await getAccountingCodes.refetch();
+        onRowAdd={{
+          action: async newData => {
+            const newAccountingCode = {
+              ...accountingCode,
+              name: newData.name,
+              externalId: newData.externalId,
+              locationId:
+                newData.location === null
+                  ? undefined
+                  : parseInt(newData.location?.id),
+            };
+            const result = await addAccountingCode(newAccountingCode);
+            if (!result) throw Error("Preserve Row on error");
+            if (result) await getAccountingCodes.refetch();
+          },
+          permissions: [PermissionEnum.FinanceSettingsSave],
         }}
-        onRowUpdate={async newData => {
-          const updateAccountingCode = {
-            id: Number(newData.id),
-            rowVersion: newData.rowVersion,
-            name: newData.name,
-            externalId: newData.externalId,
-            locationId:
-              newData.location === null
-                ? undefined
-                : parseInt(newData.location?.id),
-          };
-          const result = await editAccountingCode(updateAccountingCode);
-          if (!result) throw Error("Preserve Row on error");
-          if (result) await getAccountingCodes.refetch();
+        onRowUpdate={{
+          action: async newData => {
+            const updateAccountingCode = {
+              id: Number(newData.id),
+              rowVersion: newData.rowVersion,
+              name: newData.name,
+              externalId: newData.externalId,
+              locationId:
+                newData.location === null
+                  ? undefined
+                  : parseInt(newData.location?.id),
+            };
+            const result = await editAccountingCode(updateAccountingCode);
+            if (!result) throw Error("Preserve Row on error");
+            if (result) await getAccountingCodes.refetch();
+          },
+          permissions: [PermissionEnum.FinanceSettingsSave],
         }}
-        onRowDelete={async oldData => {
-          await deleteAccountingCode(String(oldData.id));
-          getAccountingCodes.refetch();
+        onRowDelete={{
+          action: async oldData => {
+            await deleteAccountingCode(String(oldData.id));
+            await getAccountingCodes.refetch();
+          },
+          permissions: [PermissionEnum.FinanceSettingsDelete],
         }}
         options={{
           search: true,

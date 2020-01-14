@@ -4,7 +4,6 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { DayIcon } from "ui/components/day-icon";
-import { parseDayPortion } from "ui/components/helpers";
 import { parseISO, isEqual, format } from "date-fns";
 import { useMemo } from "react";
 
@@ -17,6 +16,7 @@ type Props = {
   positionName: string;
   employeeName: string;
   dayPortion: number;
+  payInfoLabel: string;
 } /* If there are various times within the vacancy, we
   do not want to give false information. However, we still need
   a startTime to determine which day icon to use.
@@ -51,10 +51,9 @@ export const AssignmentDetailsUI: React.FC<Props> = props => {
     }
   }
 
-  const locationNames = useMemo(
-    () => [...new Set(props.locationNames)],
-    props.locationNames
-  );
+  const locationNames = useMemo(() => [...new Set(props.locationNames)], [
+    props.locationNames,
+  ]);
   const locationNameText =
     locationNames.length > 1
       ? `${locationNames[0]} +${locationNames.length - 1}`
@@ -95,9 +94,7 @@ export const AssignmentDetailsUI: React.FC<Props> = props => {
       <div className={classes.dayPartContainer}>
         <DayIcon dayPortion={props.dayPortion} startTime={props.startTime} />
         <div className={classes.dayPart}>
-          <Typography className={classes.text}>{`${Math.round(
-            props.dayPortion
-          )} ${parseDayPortion(t, props.dayPortion)}`}</Typography>
+          <Typography className={classes.text}>{props.payInfoLabel}</Typography>
 
           <Typography className={classes.subText} noWrap>
             {props.multipleTimes
