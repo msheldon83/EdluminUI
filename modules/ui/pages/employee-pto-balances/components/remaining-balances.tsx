@@ -7,7 +7,10 @@ import { useHistory } from "react-router";
 import { GetAbsenceReasonBalances } from "../graphql/get-absencereasonbalances.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { SingleBalance } from "./single-balance";
-import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
+import {
+  AbsenceReasonTrackingTypeId,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 
 type Props = {
   employeeId: string;
@@ -47,6 +50,7 @@ export const RemainingBalances: React.FC<Props> = props => {
               const editSettingsUrl = "/"; //TODO figure out the URL for editing
               history.push(editSettingsUrl);
             },
+            permissions: [PermissionEnum.EmployeeSave],
           }}
         />
         <Grid container spacing={2} className={classes.container}>

@@ -3,7 +3,11 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
-import { OrgUserRole, OrgUserUpdateInput } from "graphql/server-types.gen";
+import {
+  OrgUserRole,
+  OrgUserUpdateInput,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { GetAdminById } from "../graphql/admin/get-admin-by-id.gen";
 import { UpdateAdmin } from "../graphql/admin/update-admin.gen";
 
@@ -61,6 +65,7 @@ export const AdminTab: React.FC<Props> = props => {
         setEditing={props.setEditing}
         selectedRole={props.selectedRole}
         onSaveOrgUser={onUpdateAdmin}
+        editPermissions={[PermissionEnum.AdminSave]}
       />
       <AccessControl
         editing={props.editing}

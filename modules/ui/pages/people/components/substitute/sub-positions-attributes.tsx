@@ -3,7 +3,13 @@ import { Typography, Grid, Button } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { Maybe, Endorsement, PositionType } from "graphql/server-types.gen";
+import {
+  Maybe,
+  Endorsement,
+  PositionType,
+  PermissionEnum,
+} from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   editing: string | null;
@@ -39,25 +45,27 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
               )}
             </Grid>
           </Grid>
-          <Grid
-            container
-            item
-            spacing={0}
-            xs={4}
-            justify="flex-end"
-            alignItems="flex-start"
-          >
-            <Button
-              variant="outlined"
-              hidden={!props.editing}
-              onClick={() => {
-                const editSettingsUrl = "/"; //TODO figure out the URL for editing
-                history.push(editSettingsUrl);
-              }}
+          <Can do={[PermissionEnum.SubstituteSave]}>
+            <Grid
+              container
+              item
+              spacing={0}
+              xs={4}
+              justify="flex-end"
+              alignItems="flex-start"
             >
-              {t("Edit")}
-            </Button>
-          </Grid>
+              <Button
+                variant="outlined"
+                hidden={!props.editing}
+                onClick={() => {
+                  const editSettingsUrl = "/"; //TODO figure out the URL for editing
+                  history.push(editSettingsUrl);
+                }}
+              >
+                {t("Edit")}
+              </Button>
+            </Grid>
+          </Can>
         </Grid>
       </Section>
     </>

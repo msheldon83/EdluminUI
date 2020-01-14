@@ -78,6 +78,7 @@ type Props = {
   selectedRole: OrgUserRole;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   onSaveOrgUser: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
+  editPermissions?: PermissionEnum[];
 };
 
 export const Information: React.FC<Props> = props => {
@@ -186,21 +187,26 @@ export const Information: React.FC<Props> = props => {
             <Section className={classes.customSection}>
               <SectionHeader
                 title={t("Information")}
-                action={
-                  props.editing === editableSections.information
-                    ? {
-                        text: t("Save"),
-                        visible: true,
-                        execute: submitForm,
-                      }
-                    : {
-                        text: t("Edit"),
-                        visible: !props.editing,
-                        execute: () => {
-                          props.setEditing(editableSections.information);
-                        },
-                      }
-                }
+                action={{
+                  text: t("Edit"),
+                  visible: !props.editing,
+                  execute: () => {
+                    props.setEditing(editableSections.information);
+                  },
+                  permissions: props.editPermissions,
+                }}
+                submit={{
+                  text: t("Save"),
+                  visible: props.editing === editableSections.information,
+                  execute: submitForm,
+                }}
+                cancel={{
+                  text: t("Cancel"),
+                  visible: props.editing === editableSections.information,
+                  execute: () => {
+                    props.setEditing(null);
+                  },
+                }}
               />
               <Grid container>
                 <Grid container item xs={8} component="dl" spacing={2}>

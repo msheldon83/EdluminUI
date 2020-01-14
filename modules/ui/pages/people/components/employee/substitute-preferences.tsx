@@ -4,7 +4,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { Maybe, Employee } from "graphql/server-types.gen";
+import { Maybe, Employee, PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   editing: string | null;
@@ -25,7 +25,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
     <>
       <Section>
         <SectionHeader
-          title={t("Subsitute preferences")}
+          title={t("Substitute preferences")}
           action={{
             text: t("Edit"),
             visible: !props.editing,
@@ -33,6 +33,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
               const editSettingsUrl = "/"; //TODO figure out the URL for editing
               history.push(editSettingsUrl);
             },
+            permissions: [PermissionEnum.EmployeeSave],
           }}
         />
         <Grid container spacing={2}>
