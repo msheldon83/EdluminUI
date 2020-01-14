@@ -22,6 +22,8 @@ import { FiltersByRole } from "./filters-by-role";
 import { Input } from "ui/components/form/input";
 import { ActiveInactiveFilter } from "ui/components/active-inactive-filter";
 import { Can } from "ui/components/auth/can";
+import { PermittedTab } from "ui/components/permitted-tab";
+import { canViewMultiplePeopleRoles } from "helpers/permissions";
 
 type Props = { className?: string };
 
@@ -90,28 +92,30 @@ export const PeopleFilters: React.FC<Props> = props => {
         onChange={updateRoleFilter}
         aria-label="people-role-filters"
       >
-        <Tab label={t("All")} value={""} className={classes.tab} />
-        <Can do={[PermissionEnum.EmployeeView]}>
-          <Tab
-            label={t("Employees")}
-            value={OrgUserRole.Employee}
-            className={classes.test}
-          />
-        </Can>
-        <Can do={[PermissionEnum.SubstituteView]}>
-          <Tab
-            label={t("Substitutes")}
-            value={OrgUserRole.ReplacementEmployee}
-            className={classes.tab}
-          />
-        </Can>
-        <Can do={[PermissionEnum.AdminView]}>
-          <Tab
-            label={t("Admins")}
-            value={OrgUserRole.Administrator}
-            className={classes.tab}
-          />
-        </Can>
+        <PermittedTab
+          label={t("All")}
+          value={""}
+          className={classes.tab}
+          permissions={canViewMultiplePeopleRoles}
+        />
+        <PermittedTab
+          label={t("Employees")}
+          value={OrgUserRole.Employee}
+          className={classes.tab}
+          permissions={[PermissionEnum.EmployeeView]}
+        />
+        <PermittedTab
+          label={t("Substitutes")}
+          value={OrgUserRole.ReplacementEmployee}
+          className={classes.tab}
+          permissions={[PermissionEnum.SubstituteView]}
+        />
+        <PermittedTab
+          label={t("Admins")}
+          value={OrgUserRole.Administrator}
+          className={classes.tab}
+          permissions={[PermissionEnum.AdminView]}
+        />
       </Tabs>
 
       <div className={classes.filterSection}>
