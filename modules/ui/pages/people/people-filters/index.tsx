@@ -95,7 +95,7 @@ export const PeopleFilters: React.FC<Props> = props => {
           <Tab
             label={t("Employees")}
             value={OrgUserRole.Employee}
-            className={classes.tab}
+            className={classes.test}
           />
         </Can>
         <Can do={[PermissionEnum.SubstituteView]}>
@@ -167,5 +167,8 @@ const useStyles = makeStyles(theme => ({
   label: {
     // color: theme.customColors.black,
     fontWeight: 500,
+  },
+  test: {
+    display: "none",
   },
 }));

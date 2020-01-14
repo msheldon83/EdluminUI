@@ -1,5 +1,9 @@
-import { Grid, makeStyles } from "@material-ui/core";
-import { Location, LocationGroup } from "graphql/server-types.gen";
+import { Grid, makeStyles, Typography } from "@material-ui/core";
+import {
+  Location,
+  LocationGroup,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -9,6 +13,7 @@ import { ActionButtons } from "ui/components/action-buttons";
 import { ChipInputAutoSuggest } from "ui/components/chip-input-autosuggest";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   locationIds: Array<number>;
@@ -51,6 +56,7 @@ export const Assign: React.FC<Props> = props => {
     .map((l: Pick<Location, "id" | "name">) => {
       return { text: l.name, value: l.id };
     });
+  console.log(defaultLocationSelections);
   const defaultLocationGroupSelections = locationGroups
     .filter((l: Pick<LocationGroup, "id">) =>
       props.locationGroupIds.includes(Number(l.id))
@@ -63,44 +69,66 @@ export const Assign: React.FC<Props> = props => {
     <Section>
       <SectionHeader title={t("Assigned to")} />
       <Grid container spacing={2} className={classes.assignSection}>
-        <Grid item xs={5}>
-          <ChipInputAutoSuggest
-            label={t("Schools")}
-            defaultSelections={defaultLocationSelections}
-            dataSource={locations.map((l: Pick<Location, "id" | "name">) => {
-              return { text: l.name, value: l.id };
-            })}
-            onChange={selections => {
-              setLocationIds(selections.map(s => Number(s.value)));
-            }}
-            fullWidth
-          />
-        </Grid>
-        <Grid item xs={5}>
-          <ChipInputAutoSuggest
-            label={t("Groups")}
-            defaultSelections={defaultLocationGroupSelections}
-            dataSource={locationGroups.map(
-              (l: Pick<LocationGroup, "id" | "name">) => {
+        <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+          <Grid item xs={5}>
+            <ChipInputAutoSuggest
+              label={t("Schools")}
+              defaultSelections={defaultLocationSelections}
+              dataSource={locations.map((l: Pick<Location, "id" | "name">) => {
                 return { text: l.name, value: l.id };
-              }
-            )}
-            onChange={selections => {
-              setLocationGroupIds(selections.map(s => Number(s.value)));
-            }}
-            fullWidth
-          />
-        </Grid>
+              })}
+              onChange={selections => {
+                setLocationIds(selections.map(s => Number(s.value)));
+              }}
+              fullWidth
+            />
+          </Grid>
+        </Can>
+        <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+          <Grid item xs={5}>
+            <Typography>{t("Schools")}</Typography>
+            <Typography>
+              {defaultLocationSelections.map(l => l.text).toString()}
+            </Typography>
+          </Grid>
+        </Can>
+        <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+          <Grid item xs={5}>
+            <ChipInputAutoSuggest
+              label={t("Groups")}
+              defaultSelections={defaultLocationGroupSelections}
+              dataSource={locationGroups.map(
+                (l: Pick<LocationGroup, "id" | "name">) => {
+                  return { text: l.name, value: l.id };
+                }
+              )}
+              onChange={selections => {
+                setLocationGroupIds(selections.map(s => Number(s.value)));
+              }}
+              fullWidth
+            />
+          </Grid>
+        </Can>
+        <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+          <Grid item xs={5}>
+            <Typography>{t("Groups")}</Typography>
+            <Typography>
+              {defaultLocationGroupSelections.map(l => l.text).toString()}
+            </Typography>
+          </Grid>
+        </Can>
       </Grid>
-      <ActionButtons
-        submit={{
-          text: props.submitLabel || t("Save"),
-          execute: () => {
-            props.onSubmit(locationIds, locationGroupIds);
-          },
-        }}
-        cancel={{ text: t("Cancel"), execute: props.onCancel }}
-      />
+      <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+        <ActionButtons
+          submit={{
+            text: props.submitLabel || t("Save"),
+            execute: () => {
+              props.onSubmit(locationIds, locationGroupIds);
+            },
+          }}
+          cancel={{ text: t("Cancel"), execute: props.onCancel }}
+        />
+      </Can>
     </Section>
   );
 };

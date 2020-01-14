@@ -1,10 +1,11 @@
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
   WorkDaySchedule,
   WorkDaySchedulePeriod,
   WorkDayScheduleUsage,
   WorkDayScheduleVariant,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
 import {
@@ -38,6 +39,7 @@ import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { parseISO, isEqual } from "date-fns";
 import { ShowErrors } from "ui/components/error-helpers";
+import { Can } from "ui/components/auth/can";
 
 const editableSections = {
   name: "edit-name",
@@ -448,62 +450,84 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
         </Link>
       </div>
       <PageTitle title={t("Bell Schedule")} withoutHeading />
-      <PageHeader
-        text={workDaySchedule.name}
-        label={t("Name")}
-        editable={editing === null}
-        onEdit={() => setEditing(editableSections.name)}
-        validationSchema={yup.object().shape({
-          value: yup.string().required(t("Name is required")),
-        })}
-        onSubmit={async (value: Maybe<string>) => {
-          await updateName(value!);
-          setEditing(null);
-        }}
-        onCancel={() => setEditing(null)}
-        actions={[
-          {
-            name: t("Change History"),
-            onClick: () => {},
-          },
-          {
-            name: enabled ? t("Inactivate") : t("Activate"),
-            onClick: async () => {
-              await enableDisableWorkDaySchedule(
-                !enabled,
-                workDaySchedule.rowVersion
-              );
-              setEnabled(!enabled);
+      <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+        <Typography variant="h1">{workDaySchedule.name}</Typography>
+      </Can>
+      <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+        <PageHeader
+          text={workDaySchedule.name}
+          label={t("Name")}
+          editable={editing === null}
+          onEdit={() => setEditing(editableSections.name)}
+          validationSchema={yup.object().shape({
+            value: yup.string().required(t("Name is required")),
+          })}
+          onSubmit={async (value: Maybe<string>) => {
+            await updateName(value!);
+            setEditing(null);
+          }}
+          onCancel={() => setEditing(null)}
+          actions={[
+            {
+              name: t("Change History"),
+              onClick: () => {},
             },
-          },
-          {
-            name: t("Delete"),
-            onClick: deleteWorkDaySchedule,
-          },
-        ]}
-        isInactive={!enabled}
-        inactiveDisplayText={t("This bell schedule is currently inactive.")}
-        onActivate={async () => {
-          await enableDisableWorkDaySchedule(true, workDaySchedule.rowVersion);
-          setEnabled(true);
-        }}
-      />
-      <PageHeader
-        text={workDaySchedule.externalId}
-        label={t("External ID")}
-        editable={editing === null}
-        onEdit={() => setEditing(editableSections.externalId)}
-        validationSchema={yup.object().shape({
-          value: yup.string().nullable(),
-        })}
-        onSubmit={async (value: Maybe<string>) => {
-          await updateExternalId(value);
-          setEditing(null);
-        }}
-        onCancel={() => setEditing(null)}
-        isSubHeader={true}
-        showLabel={true}
-      />
+            {
+              name: enabled ? t("Inactivate") : t("Activate"),
+              onClick: async () => {
+                await enableDisableWorkDaySchedule(
+                  !enabled,
+                  workDaySchedule.rowVersion
+                );
+                setEnabled(!enabled);
+              },
+            },
+            {
+              name: t("Delete"),
+              onClick: deleteWorkDaySchedule,
+            },
+          ]}
+          isInactive={!enabled}
+          inactiveDisplayText={t("This bell schedule is currently inactive.")}
+          onActivate={async () => {
+            await enableDisableWorkDaySchedule(
+              true,
+              workDaySchedule.rowVersion
+            );
+            setEnabled(true);
+          }}
+        />
+      </Can>
+      <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+        <Typography variant="h6">
+          {workDaySchedule.externalId ? (
+            `External ID: ${workDaySchedule.externalId}`
+          ) : (
+            <div>
+              <span>External ID: </span>
+              <span className={classes.valueMissing}>{t("Not Specified")}</span>
+            </div>
+          )}
+        </Typography>
+      </Can>
+      <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+        <PageHeader
+          text={workDaySchedule.externalId}
+          label={t("External ID")}
+          editable={editing === null}
+          onEdit={() => setEditing(editableSections.externalId)}
+          validationSchema={yup.object().shape({
+            value: yup.string().nullable(),
+          })}
+          onSubmit={async (value: Maybe<string>) => {
+            await updateExternalId(value);
+            setEditing(null);
+          }}
+          onCancel={() => setEditing(null)}
+          isSubHeader={true}
+          showLabel={true}
+        />
+      </Can>
       <div className={classes.content}>
         <Tabs steps={tabs} isWizard={false} />
       </div>
