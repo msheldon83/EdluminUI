@@ -110,10 +110,7 @@ export const MapDailyReportDetails = (
           : undefined,
         absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
         date: parseISO(absenceDetail.startDate),
-        dateRange: getRangeDisplayText(
-          absenceDetail.startDate,
-          absenceDetail.endDate
-        ),
+        dateRange: getRangeDisplayText(a.startDate, a.endDate),
         startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
@@ -185,10 +182,7 @@ export const MapDailyReportDetails = (
         vacancyRowVersion: v.rowVersion,
         vacancyId: v.id,
         date: parseISO(vacancyDetail.startDate),
-        dateRange: getRangeDisplayText(
-          vacancyDetail.startDate,
-          vacancyDetail.endDate
-        ),
+        dateRange: getRangeDisplayText(v.startDate, v.endDate),
         startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
@@ -260,10 +254,7 @@ export const MapDailyReportDetails = (
           : undefined,
         absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
         date: parseISO(absenceDetail.startDate),
-        dateRange: getRangeDisplayText(
-          absenceDetail.startDate,
-          absenceDetail.endDate
-        ),
+        dateRange: getRangeDisplayText(a.startDate, a.endDate),
         startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
@@ -322,10 +313,7 @@ export const MapDailyReportDetails = (
         vacancyRowVersion: v.rowVersion,
         vacancyId: v.id,
         date: parseISO(vacancyDetail.startDate),
-        dateRange: getRangeDisplayText(
-          vacancyDetail.startDate,
-          vacancyDetail.endDate
-        ),
+        dateRange: getRangeDisplayText(v.startDate, v.endDate),
         startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
@@ -413,10 +401,7 @@ export const MapDailyReportDetails = (
             : undefined,
           absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
           date: parseISO(absenceDetail.startDate),
-          dateRange: getRangeDisplayText(
-            absenceDetail.startDate,
-            absenceDetail.endDate
-          ),
+          dateRange: getRangeDisplayText(a.startDate, a.endDate),
           startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
           endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
           created: GetDateInYesterdayTodayTomorrowFormat(
