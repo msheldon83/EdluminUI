@@ -7,7 +7,7 @@ import {
   Tab,
   Tabs,
 } from "@material-ui/core";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { useDeferredState } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
@@ -21,6 +21,7 @@ import {
 import { FiltersByRole } from "./filters-by-role";
 import { Input } from "ui/components/form/input";
 import { ActiveInactiveFilter } from "ui/components/active-inactive-filter";
+import { Can } from "ui/components/auth/can";
 
 type Props = { className?: string };
 
@@ -90,21 +91,27 @@ export const PeopleFilters: React.FC<Props> = props => {
         aria-label="people-role-filters"
       >
         <Tab label={t("All")} value={""} className={classes.tab} />
-        <Tab
-          label={t("Employees")}
-          value={OrgUserRole.Employee}
-          className={classes.tab}
-        />
-        <Tab
-          label={t("Substitutes")}
-          value={OrgUserRole.ReplacementEmployee}
-          className={classes.tab}
-        />
-        <Tab
-          label={t("Admins")}
-          value={OrgUserRole.Administrator}
-          className={classes.tab}
-        />
+        <Can do={[PermissionEnum.EmployeeView]}>
+          <Tab
+            label={t("Employees")}
+            value={OrgUserRole.Employee}
+            className={classes.tab}
+          />
+        </Can>
+        <Can do={[PermissionEnum.SubstituteView]}>
+          <Tab
+            label={t("Substitutes")}
+            value={OrgUserRole.ReplacementEmployee}
+            className={classes.tab}
+          />
+        </Can>
+        <Can do={[PermissionEnum.AdminView]}>
+          <Tab
+            label={t("Admins")}
+            value={OrgUserRole.Administrator}
+            className={classes.tab}
+          />
+        </Can>
       </Tabs>
 
       <div className={classes.filterSection}>
