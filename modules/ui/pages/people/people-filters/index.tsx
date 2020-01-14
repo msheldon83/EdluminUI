@@ -172,7 +172,4 @@ const useStyles = makeStyles(theme => ({
     // color: theme.customColors.black,
     fontWeight: 500,
   },
-  test: {
-    display: "none",
-  },
 }));
