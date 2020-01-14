@@ -178,10 +178,7 @@ export const Calendars: React.FC<Props> = props => {
             />
           )}
         </div>
-        <Can
-          do={[PermissionEnum.CalendarChangeSave]}
-          orgId={params.organizationId}
-        >
+        <Can do={[PermissionEnum.CalendarChangeSave]}>
           <Section className={classes.container}>
             <CreateExpansionPanel
               refetchQuery={refectchCalendarChanges}
@@ -235,30 +232,39 @@ export const Calendars: React.FC<Props> = props => {
                 )}
                 {changesLoaded && (
                   <div>
-                    <Table
-                      selection={true}
-                      columns={columns}
-                      data={calendarChanges}
-                      title={""}
-                      actions={[
-                        {
-                          tooltip: t("Delete selected events"),
-                          icon: () => <DeleteIcon />,
-                          onClick: async (evt, data) => {
-                            if (Array.isArray(data)) {
-                              await Promise.all(
-                                data.map(cc => deleteCalendarChange(cc.id))
-                              );
-                            } else {
-                              await Promise.resolve(
-                                deleteCalendarChange(data.id)
-                              );
-                            }
-                            await getCalendarChanges.refetch();
+                    <Can do={[PermissionEnum.CalendarChangeDelete]}>
+                      <Table
+                        selection={true}
+                        columns={columns}
+                        data={calendarChanges}
+                        title={""}
+                        actions={[
+                          {
+                            tooltip: t("Delete selected events"),
+                            icon: () => <DeleteIcon />,
+                            onClick: async (evt, data) => {
+                              if (Array.isArray(data)) {
+                                await Promise.all(
+                                  data.map(cc => deleteCalendarChange(cc.id))
+                                );
+                              } else {
+                                await Promise.resolve(
+                                  deleteCalendarChange(data.id)
+                                );
+                              }
+                              await getCalendarChanges.refetch();
+                            },
                           },
-                        },
-                      ]}
-                    />
+                        ]}
+                      />
+                    </Can>
+                    <Can do={[PermissionEnum.CalendarChangeDelete]} not>
+                      <Table
+                        columns={columns}
+                        data={calendarChanges}
+                        title={""}
+                      />
+                    </Can>
 
                     <PaginationControls
                       pagination={pagination}
