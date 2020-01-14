@@ -8,6 +8,8 @@ import { LocationsRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationsUI } from "./ui";
 import { useState } from "react";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {};
 
@@ -28,15 +30,17 @@ export const Locations: React.FC<Props> = props => {
         className={classes.header}
       >
         <PageTitle title={t("Schools")} />
-        <Grid item>
-          <Button
-            variant="contained"
-            //component={Link}
-            //to={ROUTE_GOES_HERE.generate(params)} Generate correct Route for ADD
-          >
-            {t("Add School")}
-          </Button>
-        </Grid>
+        <Can do={[PermissionEnum.LocationSave]} orgId={params.organizationId}>
+          <Grid item>
+            <Button
+              variant="contained"
+              //component={Link}
+              //to={ROUTE_GOES_HERE.generate(params)} Generate correct Route for ADD
+            >
+              {t("Add School")}
+            </Button>
+          </Grid>
+        </Can>
       </Grid>
       <Section>
         <Filters
