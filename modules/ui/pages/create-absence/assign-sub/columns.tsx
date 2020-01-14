@@ -1,13 +1,12 @@
 import * as React from "react";
-import { Column } from "material-table";
-import { classes } from "istanbul-lib-coverage";
 import { Button, Theme } from "@material-ui/core";
 import { TFunction } from "i18next";
 import { FavoriteIcon } from "./icons/favorite-icon";
 import { QualifiedIcon } from "./icons/qualified-icon";
 import { AvailableIcon } from "./icons/available-icon";
 import { VisibleIcon } from "./icons/visible-icon";
-import { AccountCircleOutlined } from "@material-ui/icons";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { TableColumn } from "ui/components/table";
 
 export const getAssignSubColumns = (
   tableData: any[],
@@ -24,7 +23,7 @@ export const getAssignSubColumns = (
 ) => {
   //TODO: Custom sort handling for Star column, Qualified, Available, Visible
 
-  const columns: Column<typeof tableData[0]>[] = [
+  const columns: TableColumn<typeof tableData[0]>[] = [
     {
       title: isMobile ? "" : t("Favorite"),
       cellStyle: {
@@ -57,7 +56,11 @@ export const getAssignSubColumns = (
     },
   ];
   if (!isMobile) {
-    columns.push({ title: t("Primary phone"), field: "primaryPhone" });
+    columns.push({
+      title: t("Primary phone"),
+      field: "primaryPhone",
+      permissions: [PermissionEnum.SubstituteViewPhone],
+    });
   }
 
   // Only Admins see the Qualified and Available columns
@@ -115,6 +118,7 @@ export const getAssignSubColumns = (
     title: "",
     field: "actions",
     sorting: false,
+    permissions: [PermissionEnum.AbsVacAssign],
     render: (data: typeof tableData[0]) => (
       <Button
         variant="outlined"

@@ -10,7 +10,7 @@ import { AccountCircleOutlined, DeleteOutline } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { useIsMobile, usePrevious } from "hooks";
 import {
   useQueryParamIso,
@@ -68,12 +68,12 @@ export const PeoplePage: React.FC<Props> = props => {
         role,
         sortBy: [
           {
-            sortByPropertyName: "lastName", 
-            sortAscending: filters.lastNameSort === "asc"
-          }, 
+            sortByPropertyName: "lastName",
+            sortAscending: filters.lastNameSort === "asc",
+          },
           {
-            sortByPropertyName: "firstName", 
-            sortAscending: filters.firstNameSort === "asc"
+            sortByPropertyName: "firstName",
+            sortAscending: filters.firstNameSort === "asc",
           },
         ],
       },
@@ -261,8 +261,8 @@ export const PeoplePage: React.FC<Props> = props => {
       title: t("Last Name"),
       field: "lastName",
     },
-    { title: t("Primary Phone"), field: "phone", sorting: false, },
-    { title: t("External ID"), field: "externalId", sorting: false, },
+    { title: t("Primary Phone"), field: "phone", sorting: false },
+    { title: t("External ID"), field: "externalId", sorting: false },
     {
       title: t("Role"),
       field: "roles",
@@ -445,9 +445,11 @@ export const PeoplePage: React.FC<Props> = props => {
           title={`${peopleCount} ${
             peopleCount === 1 ? t("person") : t("people")
           }`}
+          organizationId={params.organizationId}
           columns={columns}
           data={tableData}
           selection={true}
+          selectionPermissions={[PermissionEnum.OrgUserInvite]}
           onRowClick={(event, orgUser) => {
             if (!orgUser) return;
             const newParams = {
@@ -470,6 +472,7 @@ export const PeoplePage: React.FC<Props> = props => {
 
                 await invite(compact(userIds), Number(params.organizationId));
               },
+              permissions: [PermissionEnum.OrgUserInvite],
             },
           ]}
         />
