@@ -81,7 +81,7 @@ export const SubstituteAssignmentsListView: React.FC<Props> = props => {
       props.limit
         ? groupAssignmentsByVacancy(assignments).slice(0, props.limit)
         : groupAssignmentsByVacancy(assignments),
-    [assignments]
+    [assignments, props.limit]
   );
   if (
     upcomingAssignments.state !== "DONE" &&

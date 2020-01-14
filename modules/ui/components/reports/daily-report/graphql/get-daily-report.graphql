@@ -43,6 +43,10 @@ query GetDailyReport(
           position {
             id
             name
+            positionType {
+              id
+              name
+            }
           }
           details {
             id
@@ -76,6 +80,10 @@ query GetDailyReport(
         position {
           id
           name
+          positionType {
+            id
+            name
+          }
         }
         details {
           id
@@ -130,6 +138,10 @@ query GetDailyReport(
           position {
             id
             name
+            positionType {
+              id
+              name
+            }
           }
           details {
             id
@@ -163,6 +175,10 @@ query GetDailyReport(
         position {
           id
           name
+          positionType {
+            id
+            name
+          }
         }
         details {
           id

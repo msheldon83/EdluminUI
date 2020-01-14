@@ -56,7 +56,7 @@ export const useQueryParamIso = <K extends string, T>(
 
 export const PaginationQueryParamDefaults = {
   page: "1",
-  limit: "10",
+  limit: "100",
 };
 export type PaginationSettings = {
   page: number;
