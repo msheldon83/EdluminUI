@@ -14,7 +14,6 @@ type Props = {};
 export const LocationGroups: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(LocationGroupsRoute);
 
   return (
     <>
@@ -26,10 +25,7 @@ export const LocationGroups: React.FC<Props> = props => {
         className={classes.header}
       >
         <PageTitle title={t("School Groups")} />
-        <Can
-          do={[PermissionEnum.LocationGroupSave]}
-          orgId={params.organizationId}
-        >
+        <Can do={[PermissionEnum.LocationGroupSave]}>
           <Grid item>
             <Button
               variant="contained"

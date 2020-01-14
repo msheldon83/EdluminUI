@@ -30,7 +30,7 @@ export const Locations: React.FC<Props> = props => {
         className={classes.header}
       >
         <PageTitle title={t("Schools")} />
-        <Can do={[PermissionEnum.LocationSave]} orgId={params.organizationId}>
+        <Can do={[PermissionEnum.LocationSave]}>
           <Grid item>
             <Button
               variant="contained"
