@@ -360,3 +360,51 @@ export const canViewMultiplePeopleRoles = (
   );
   return (roleViewPermissions?.length ?? 0) > 1;
 };
+
+export const canDeleteOrgUser = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  isAdmin: boolean,
+  isEmployee: boolean,
+  isReplacementEmployee: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) {
+    return true;
+  }
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  const canEditAdmin =
+    isAdmin && !!userPerms?.includes(PermissionEnum.AdminSave);
+  const canEditEmployee =
+    isEmployee && !!userPerms?.includes(PermissionEnum.EmployeeSave);
+  const canEditSubstitute =
+    isReplacementEmployee &&
+    !!userPerms?.includes(PermissionEnum.SubstituteSave);
+
+  return canEditAdmin || canEditEmployee || canEditSubstitute;
+};
+
+export const canEditOrgUser = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  isAdmin: boolean,
+  isEmployee: boolean,
+  isReplacementEmployee: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) {
+    return true;
+  }
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  const canDeleteAdmin =
+    isAdmin && !!userPerms?.includes(PermissionEnum.AdminDelete);
+  const canDeleteEmployee =
+    isEmployee && !!userPerms?.includes(PermissionEnum.EmployeeDelete);
+  const canDeleteSubstitute =
+    isReplacementEmployee &&
+    !!userPerms?.includes(PermissionEnum.SubstituteDelete);
+
+  return canDeleteAdmin || canDeleteEmployee || canDeleteSubstitute;
+};

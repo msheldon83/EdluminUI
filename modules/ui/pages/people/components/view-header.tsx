@@ -7,11 +7,13 @@ import {
 import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import Maybe from "graphql/tsutils/Maybe";
-import { OrgUserUpdateInput } from "graphql/server-types.gen";
+import { OrgUserUpdateInput, PermissionEnum } from "graphql/server-types.gen";
 import { useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { InviteSingleUser } from "../graphql/invite-single-user.gen";
 import { ShowErrors } from "ui/components/error-helpers";
+import { OrgUserPermissions } from "reference-data/my-user-access";
+import { canEditOrgUser, canDeleteOrgUser } from "helpers/permissions";
 
 const editableSections = {
   name: "edit-name",
@@ -32,6 +34,9 @@ type Props = {
     externalId?: string | null | undefined;
     inviteSent: boolean;
     isAccountSetup: boolean;
+    isAdmin: boolean;
+    isEmployee: boolean;
+    isReplacementEmployee: boolean;
   };
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   deleteOrgUser: () => Promise<unknown>;
@@ -128,6 +133,19 @@ export const PersonViewHeader: React.FC<Props> = props => {
                   active: !orgUser.active,
                 });
               },
+              permissions: (
+                permissions: OrgUserPermissions[],
+                isSysAdmin: boolean,
+                orgId?: string
+              ) =>
+                canEditOrgUser(
+                  permissions,
+                  isSysAdmin,
+                  orgUser.isAdmin,
+                  orgUser.isEmployee,
+                  orgUser.isReplacementEmployee,
+                  orgId
+                ),
             },
           ],
           ...(orgUser.userId
@@ -135,12 +153,26 @@ export const PersonViewHeader: React.FC<Props> = props => {
                 {
                   name: inviteSent ? t("Resend Invitation") : t("Invite"),
                   onClick: invite,
+                  permissions: [PermissionEnum.OrgUserInvite],
                 },
               ]
             : []),
           {
             name: t("Delete"),
             onClick: props.deleteOrgUser,
+            permissions: (
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canDeleteOrgUser(
+                permissions,
+                isSysAdmin,
+                orgUser.isAdmin,
+                orgUser.isEmployee,
+                orgUser.isReplacementEmployee,
+                orgId
+              ),
           },
         ]}
         isInactive={!orgUser.active}

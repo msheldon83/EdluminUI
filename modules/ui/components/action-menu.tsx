@@ -22,7 +22,6 @@ export type Option = {
         isSysAdmin: boolean,
         orgId?: string
       ) => boolean);
-  orgId?: string;
 };
 
 export const ActionMenu: React.FC<Props> = props => {
@@ -55,8 +54,22 @@ export const ActionMenu: React.FC<Props> = props => {
       >
         {props.options.map((option: Option, index: number) => {
           if (option.permissions) {
-            <Can do={option.permissions} key={index}>
+            return (
+              <Can do={option.permissions} key={index}>
+                <MenuItem
+                  onClick={event => {
+                    option.onClick(event);
+                    handleClose();
+                  }}
+                >
+                  {option.name}
+                </MenuItem>
+              </Can>
+            );
+          } else {
+            return (
               <MenuItem
+                key={index}
                 onClick={event => {
                   option.onClick(event);
                   handleClose();
@@ -64,17 +77,7 @@ export const ActionMenu: React.FC<Props> = props => {
               >
                 {option.name}
               </MenuItem>
-            </Can>;
-          } else {
-            <MenuItem
-              key={index}
-              onClick={event => {
-                option.onClick(event);
-                handleClose();
-              }}
-            >
-              {option.name}
-            </MenuItem>;
+            );
           }
         })}
       </Menu>
