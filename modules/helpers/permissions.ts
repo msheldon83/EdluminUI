@@ -344,3 +344,19 @@ export const canRemoveSub = (
 
   return true;
 };
+
+export const canViewMultiplePeopleRoles = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) return true;
+  const userPerms = getUserPermissions(permissions, orgId);
+  const roleViewPermissions = userPerms?.filter(
+    x =>
+      x === PermissionEnum.EmployeeView ||
+      x === PermissionEnum.SubstituteView ||
+      x === PermissionEnum.AdminView
+  );
+  return (roleViewPermissions?.length ?? 0) > 1;
+};
