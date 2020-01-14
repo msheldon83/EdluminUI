@@ -177,6 +177,9 @@ const useStyles = makeStyles(theme => ({
     },
   },
   contentView: {
+    [theme.breakpoints.up("md")]: {
+      width: "1px", // Prevent the content view from expanding past its allowed size
+    },
     flexGrow: 1,
     padding: theme.spacing(3),
     paddingBottom: theme.spacing(4),
