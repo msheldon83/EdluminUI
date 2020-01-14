@@ -262,7 +262,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
               disableReplacementInteractions={
                 props.disableReplacementInteractions
               }
-              organizationId={organizationId}
               employeeId={props.replacementEmployeeId}
               employeeName={props.replacementEmployeeName || ""}
               subText={props.arrangedSubText ?? t("pre-arranged")}

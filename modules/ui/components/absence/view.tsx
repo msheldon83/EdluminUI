@@ -184,7 +184,6 @@ export const View: React.FC<Props> = props => {
               <Paper className={classes.substituteDetailsSection}>
                 {replacementEmployeeInformation && (
                   <AssignedSub
-                    organizationId={props.orgId}
                     employeeId={replacementEmployeeInformation.employeeId}
                     employeeName={`${replacementEmployeeInformation.firstName} ${replacementEmployeeInformation.lastName}`}
                     subText={
@@ -219,7 +218,6 @@ export const View: React.FC<Props> = props => {
                             {accountingCode && (
                               <Can
                                 do={[PermissionEnum.AbsVacViewAccountCode]}
-                                orgId={props.orgId}
                               >
                                 <Grid item xs={payCode ? 6 : 12}>
                                   <Typography variant={"h6"}>
@@ -232,7 +230,6 @@ export const View: React.FC<Props> = props => {
                             {payCode && (
                               <Can
                                 do={[PermissionEnum.AbsVacViewPayCode]}
-                                orgId={props.orgId}
                               >
                                 <Grid item xs={accountingCode ? 6 : 12}>
                                   <Typography variant={"h6"}>

@@ -108,7 +108,6 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
           {hasAccountingCodeOptions && (
             <Can
               do={[PermissionEnum.AbsVacSaveAccountCode]}
-              orgId={props.organizationId}
             >
               <Grid item xs={hasPayCodeOptions ? 6 : 12}>
                 <Typography>{t("Accounting code")}</Typography>
@@ -132,7 +131,6 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
           {hasPayCodeOptions && (
             <Can
               do={[PermissionEnum.AbsVacSavePayCode]}
-              orgId={props.organizationId}
             >
               <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
                 <Typography>{t("Pay code")}</Typography>
@@ -178,7 +176,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 
       {hasVacancies && (
         <div className={classes.substituteActions}>
-          <Can do={[PermissionEnum.AbsVacAssign]} orgId={props.organizationId}>
+          <Can do={[PermissionEnum.AbsVacAssign]}>
             <Button
               variant="outlined"
               className={classes.preArrangeButton}
