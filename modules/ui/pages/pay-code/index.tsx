@@ -10,6 +10,7 @@ import { PageTitle } from "ui/components/page-title";
 import {
   PayCodeCreateInput,
   PayCodeUpdateInput,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -159,44 +160,53 @@ export const PayCode: React.FC<Props> = props => {
         title={`${payCodesCount} ${t("Pay Codes")}`}
         columns={columns}
         data={mappedData}
-        onRowAdd={async newData => {
-          const newPayCode = {
-            ...payCode,
-            name: newData.name,
-            externalId:
-              newData.externalId && newData.externalId.trim().length === 0
-                ? null
-                : newData.externalId,
-            description:
-              newData.description && newData.description.trim().length === 0
-                ? null
-                : newData.description,
-          };
-          const result = await create(newPayCode);
-          if (!result) throw Error("Preserve Row on error");
-          if (result) await getPayCodes.refetch();
+        onRowAdd={{
+          action: async newData => {
+            const newPayCode = {
+              ...payCode,
+              name: newData.name,
+              externalId:
+                newData.externalId && newData.externalId.trim().length === 0
+                  ? null
+                  : newData.externalId,
+              description:
+                newData.description && newData.description.trim().length === 0
+                  ? null
+                  : newData.description,
+            };
+            const result = await create(newPayCode);
+            if (!result) throw Error("Preserve Row on error");
+            if (result) await getPayCodes.refetch();
+          },
+          permissions: [PermissionEnum.FinanceSettingsSave],
         }}
-        onRowUpdate={async newData => {
-          const updatePayCode = {
-            id: Number(newData.id),
-            rowVersion: newData.rowVersion,
-            name: newData.name,
-            externalId:
-              newData.externalId && newData.externalId.trim().length === 0
-                ? null
-                : newData.externalId,
-            description:
-              newData.description && newData.description.trim().length === 0
-                ? null
-                : newData.description,
-          };
-          const result = await update(updatePayCode);
-          if (!result) throw Error("Preserve Row on error");
-          if (result) await getPayCodes.refetch();
+        onRowUpdate={{
+          action: async newData => {
+            const updatePayCode = {
+              id: Number(newData.id),
+              rowVersion: newData.rowVersion,
+              name: newData.name,
+              externalId:
+                newData.externalId && newData.externalId.trim().length === 0
+                  ? null
+                  : newData.externalId,
+              description:
+                newData.description && newData.description.trim().length === 0
+                  ? null
+                  : newData.description,
+            };
+            const result = await update(updatePayCode);
+            if (!result) throw Error("Preserve Row on error");
+            if (result) await getPayCodes.refetch();
+          },
+          permissions: [PermissionEnum.FinanceSettingsSave],
         }}
-        onRowDelete={async oldData => {
-          await deletePayCode(String(oldData.id));
-          getPayCodes.refetch();
+        onRowDelete={{
+          action: async oldData => {
+            await deletePayCode(String(oldData.id));
+            await getPayCodes.refetch();
+          },
+          permissions: [PermissionEnum.FinanceSettingsDelete],
         }}
         options={{
           search: true,

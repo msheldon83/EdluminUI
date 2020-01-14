@@ -10,6 +10,7 @@ import { PageTitle } from "ui/components/page-title";
 import {
   EndorsementCreateInput,
   EndorsementUpdateInput,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -191,46 +192,55 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         title={`${replacementEndorsementsCount} ${t("Replacement Attributes")}`}
         columns={columns}
         data={mappedData}
-        onRowAdd={async newData => {
-          const newReplacementEndorsement = {
-            ...replacementEndorsement,
-            name: newData.name,
-            externalId:
-              !newData.externalId || newData.externalId.trim().length === 0
-                ? null
-                : newData.externalId,
-            expires: newData.expires === undefined ? false : newData.expires,
-            description:
-              !newData.description || newData.description.trim().length === 0
-                ? null
-                : newData.description,
-          };
-          const result = await create(newReplacementEndorsement);
-          if (!result) throw Error("Preserve Row on error");
-          if (result) await getReplacementEndorsements.refetch();
+        onRowAdd={{
+          action: async newData => {
+            const newReplacementEndorsement = {
+              ...replacementEndorsement,
+              name: newData.name,
+              externalId:
+                !newData.externalId || newData.externalId.trim().length === 0
+                  ? null
+                  : newData.externalId,
+              expires: newData.expires === undefined ? false : newData.expires,
+              description:
+                !newData.description || newData.description.trim().length === 0
+                  ? null
+                  : newData.description,
+            };
+            const result = await create(newReplacementEndorsement);
+            if (!result) throw Error("Preserve Row on error");
+            if (result) await getReplacementEndorsements.refetch();
+          },
+          permissions: [PermissionEnum.AbsVacSettingsSave],
         }}
-        onRowUpdate={async newData => {
-          const updateReplacementEndorsement = {
-            id: Number(newData.id),
-            rowVersion: newData.rowVersion,
-            name: newData.name,
-            externalId:
-              !newData.externalId || newData.externalId.trim().length === 0
-                ? null
-                : newData.externalId,
-            expires: newData.expires,
-            description:
-              !newData.description || newData.description.trim().length === 0
-                ? null
-                : newData.description,
-          };
-          const result = await update(updateReplacementEndorsement);
-          if (!result) throw Error("Preserve Row on error");
-          if (result) await getReplacementEndorsements.refetch();
+        onRowUpdate={{
+          action: async newData => {
+            const updateReplacementEndorsement = {
+              id: Number(newData.id),
+              rowVersion: newData.rowVersion,
+              name: newData.name,
+              externalId:
+                !newData.externalId || newData.externalId.trim().length === 0
+                  ? null
+                  : newData.externalId,
+              expires: newData.expires,
+              description:
+                !newData.description || newData.description.trim().length === 0
+                  ? null
+                  : newData.description,
+            };
+            const result = await update(updateReplacementEndorsement);
+            if (!result) throw Error("Preserve Row on error");
+            if (result) await getReplacementEndorsements.refetch();
+          },
+          permissions: [PermissionEnum.AbsVacSettingsSave],
         }}
-        onRowDelete={async oldData => {
-          deleteReplacementEndorsement(String(oldData.id));
-          await getReplacementEndorsements.refetch();
+        onRowDelete={{
+          action: async oldData => {
+            deleteReplacementEndorsement(String(oldData.id));
+            await getReplacementEndorsements.refetch();
+          },
+          permissions: [PermissionEnum.AbsVacSettingsDelete],
         }}
         options={{
           search: true,
