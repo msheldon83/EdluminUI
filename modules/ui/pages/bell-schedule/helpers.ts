@@ -311,7 +311,7 @@ export const UpdatePeriodPlaceholders = (
   ) {
     periods[0].placeholder = t("Morning");
     periods[2].placeholder = t("Afternoon");
-  } else if (!halfDayBreakPeriod && periods.length === 2) {
+  } else if (periods.length === 2) {
     periods[0].placeholder = t("Morning");
     periods[1].placeholder = t("Afternoon");
   } else {
@@ -323,7 +323,7 @@ export const UpdatePeriodPlaceholders = (
     });
   }
 
-  if (halfDayBreakPeriod) {
+  if (halfDayBreakPeriod && periods.length !== 2) {
     halfDayBreakPeriod.placeholder = t("Lunch");
   }
 };
