@@ -55,7 +55,7 @@ export const ActionMenu: React.FC<Props> = props => {
       >
         {props.options.map((option: Option, index: number) => {
           if (option.permissions) {
-            <Can do={option.permissions} orgId={option.orgId} key={index}>
+            <Can do={option.permissions} key={index}>
               <MenuItem
                 onClick={event => {
                   option.onClick(event);
