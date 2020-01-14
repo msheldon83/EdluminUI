@@ -174,10 +174,7 @@ export const OrgSettingsPage: React.FC<{}> = props => {
   return (
     <>
       <PageTitle title={t("Settings")} />
-      <Can
-        do={[PermissionEnum.GeneralSettingsView]}
-        orgId={params.organizationId}
-      >
+      <Can do={[PermissionEnum.GeneralSettingsView]}>
         <Typography className={classes.header} variant="h4">
           {t("General")}
         </Typography>
@@ -206,10 +203,7 @@ export const OrgSettingsPage: React.FC<{}> = props => {
           })}
         </Grid>
       </Can>
-      <Can
-        do={[PermissionEnum.ScheduleSettingsView]}
-        orgId={params.organizationId}
-      >
+      <Can do={[PermissionEnum.ScheduleSettingsView]}>
         <Typography className={classes.header} variant="h4">
           {t("Schedule")}
         </Typography>
@@ -238,7 +232,7 @@ export const OrgSettingsPage: React.FC<{}> = props => {
           })}
         </Grid>
       </Can>
-      <Can do={[PermissionEnum.AbsVacView]} orgId={params.organizationId}>
+      <Can do={[PermissionEnum.AbsVacView]}>
         <Typography className={classes.header} variant="h4">
           {t("Absence & Vacancy")}
         </Typography>
@@ -267,10 +261,7 @@ export const OrgSettingsPage: React.FC<{}> = props => {
           })}
         </Grid>
       </Can>
-      <Can
-        do={[PermissionEnum.FinanceSettingsView]}
-        orgId={params.organizationId}
-      >
+      <Can do={[PermissionEnum.FinanceSettingsView]}>
         <Typography className={classes.header} variant="h4">
           {t("Finance & Administration")}
         </Typography>
