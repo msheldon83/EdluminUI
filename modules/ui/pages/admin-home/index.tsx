@@ -28,6 +28,8 @@ import { CardType } from "ui/components/reports/daily-report/helpers";
 import { useQueryParamIso } from "hooks/query-params";
 import { FilterQueryParams } from "ui/components/reports/daily-report/filters/filter-params";
 import { SubSignInRoute } from "ui/routes/sub-sign-in";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {};
 
@@ -140,16 +142,32 @@ export const AdminHome: React.FC<Props> = props => {
           </Button>
         </Grid>
       </Grid>
-      <DailyReport
-        orgId={params.organizationId}
-        date={date}
-        setDate={setDate}
-        header={salutation}
-        showFilters={false}
-        cards={["unfilled", "total", "awaitingVerification"]}
-        selectedCard={selectedCard}
-        isHomePage={true}
-      />
+      <Can do={[PermissionEnum.AbsVacVerify]} orgId={params.organizationId}>
+        <DailyReport
+          orgId={params.organizationId}
+          date={date}
+          setDate={setDate}
+          header={salutation}
+          showFilters={false}
+          cards={["unfilled", "total", "awaitingVerification"]}
+          selectedCard={selectedCard}
+          isHomePage={true}
+        />
+      </Can>
+      <Can do={[PermissionEnum.AbsVacVerify]} orgId={params.organizationId} not>
+        <DailyReport
+          orgId={params.organizationId}
+          date={date}
+          setDate={setDate}
+          header={salutation}
+          showFilters={false}
+          cards={["unfilled", "total"]}
+          selectedCard={
+            selectedCard === "awaitingVerification" ? "unfilled" : selectedCard
+          }
+          isHomePage={true}
+        />
+      </Can>
     </>
   );
 };
