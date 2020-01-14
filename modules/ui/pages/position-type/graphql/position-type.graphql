@@ -16,6 +16,24 @@ query GetPositionTypeById($id: ID!) {
         name
       }
       payTypeId
+      replacementCriteria {
+        mustHave {
+          id
+          name
+        }
+        mustNotHave {
+          id
+          name
+        }
+        preferToHave {
+          id
+          name
+        }
+        preferToNotHave {
+          id
+          name
+        }
+      }
     }
   }
 }

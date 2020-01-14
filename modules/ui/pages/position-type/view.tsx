@@ -24,6 +24,7 @@ import * as yup from "yup";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import { UpdatePositionType } from "./graphql/update-position-type.gen";
 import { GetAllPositionTypesWithinOrg } from "./graphql/position-types.gen";
+import { ReplacementCriteria } from "./replacement-criteria-config";
 
 const editableSections = {
   name: "edit-name",
@@ -81,6 +82,9 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     const listUrl = PositionTypeRoute.generate(params);
     return <Redirect to={listUrl} />;
   }
+
+  const replacementCriteria = positionType?.replacementCriteria;
+  console.log(replacementCriteria);
 
   if (enabled === null) {
     setEnabled(!positionType.expired);
@@ -246,13 +250,17 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           </Grid>
         </Grid>
       </Section>
+      <ReplacementCriteria
+        editing={editing}
+        replacementCriteria={replacementCriteria}
+      />
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
   content: {
-    marginTop: theme.spacing(2)
+    marginTop: theme.spacing(2),
   },
   valueMissing: {
     opacity: "0.6",
