@@ -7,6 +7,10 @@ import { useTranslation } from "react-i18next";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionMenu, Option } from "./action-menu";
 import { TextButton } from "./text-button";
+import { OrgUserPermissions } from "reference-data/my-user-access";
+import { useMemo } from "react";
+import { Can } from "./auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 export type FieldData = {
   key: string;
@@ -29,6 +33,13 @@ type Props = {
   isInactive?: boolean;
   inactiveDisplayText?: string | null | undefined;
   onActivate?: () => Promise<unknown>;
+  editPermissions?:
+    | PermissionEnum[]
+    | ((
+        permissions: OrgUserPermissions[],
+        isSysAdmin: boolean,
+        orgId?: string
+      ) => boolean);
 };
 
 export const PageHeaderMultiField: React.FC<Props> = props => {
@@ -36,6 +47,19 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [editing, setEditing] = React.useState(false);
+
+  const activateButton = useMemo(() => {
+    return (
+      <TextButton
+        className={classes.activateAction}
+        onClick={async () => {
+          await props.onActivate!();
+        }}
+      >
+        {t("Activate")}
+      </TextButton>
+    );
+  }, [props.onActivate, classes.activateAction, t]);
 
   const wrapper = (child: JSX.Element) => {
     return (
@@ -52,14 +76,11 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
             </Grid>
             {props.onActivate && (
               <Grid item>
-                <TextButton
-                  className={classes.activateAction}
-                  onClick={async () => {
-                    await props.onActivate!();
-                  }}
-                >
-                  {t("Activate")}
-                </TextButton>
+                {props.editPermissions ? (
+                  <Can do={props.editPermissions}>{activateButton}</Can>
+                ) : (
+                  activateButton
+                )}
               </Grid>
             )}
           </Grid>
@@ -94,6 +115,25 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
   );
 
   const label = props.showLabel ? <>{`${props.label}: `}</> : "";
+  const editButton = useMemo(() => {
+    return (
+      <Grid item>
+        <Edit
+          className={props.isSubHeader ? classes.smallAction : classes.action}
+          onClick={() => {
+            props.onEdit!();
+            setEditing(true);
+          }}
+        />
+      </Grid>
+    );
+  }, [
+    props.onEdit,
+    props.isSubHeader,
+    classes.action,
+    classes.smallAction,
+    setEditing,
+  ]);
 
   if (!editing) {
     return wrapper(
@@ -118,19 +158,12 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
               </Typography>
             )}
           </Grid>
-          {headerIsEditable && (
-            <Grid item>
-              <Edit
-                className={
-                  props.isSubHeader ? classes.smallAction : classes.action
-                }
-                onClick={() => {
-                  props.onEdit!();
-                  setEditing(true);
-                }}
-              />
-            </Grid>
-          )}
+          {headerIsEditable &&
+            (props.editPermissions ? (
+              <Can do={props.editPermissions}>{editButton}</Can>
+            ) : (
+              editButton
+            ))}
         </Grid>
       </Grid>
     );

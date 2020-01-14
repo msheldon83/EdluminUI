@@ -86,6 +86,20 @@ export const PersonViewHeader: React.FC<Props> = props => {
         label={t("Name")}
         editable={props.editing === null}
         onEdit={() => props.setEditing(editableSections.name)}
+        editPermissions={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) =>
+          canEditOrgUser(
+            permissions,
+            isSysAdmin,
+            orgUser.isAdmin,
+            orgUser.isEmployee,
+            orgUser.isReplacementEmployee,
+            orgId
+          )
+        }
         validationSchema={yup.object().shape({
           firstName: yup.string().required(t("First name is required")),
           middleName: yup.string().nullable(),
@@ -190,6 +204,20 @@ export const PersonViewHeader: React.FC<Props> = props => {
         label={t("External ID")}
         editable={props.editing === null}
         onEdit={() => props.setEditing(editableSections.externalId)}
+        editPermissions={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) =>
+          canEditOrgUser(
+            permissions,
+            isSysAdmin,
+            orgUser.isAdmin,
+            orgUser.isEmployee,
+            orgUser.isReplacementEmployee,
+            orgId
+          )
+        }
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
