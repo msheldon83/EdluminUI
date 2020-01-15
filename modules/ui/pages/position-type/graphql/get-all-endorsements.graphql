@@ -1,6 +1,6 @@
-query GetAllEndorsementsWithinOrg($orgId: ID) {
+query GetAllEndorsementsWithinOrg($orgId: ID, $searchText: String) {
   orgRef_Endorsement {
-    all(orgId: $orgId) {
+    all(orgId: $orgId, searchText: $searchText) {
       id
       name
     }

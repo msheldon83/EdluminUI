@@ -471,7 +471,7 @@ type AssignmentQueries {
 }
 
 enum AssignmentType {
-  INVALID
+  NONE
   CONTRACT_ASSIGNMENT
   LONG_TERM_ASSIGNMENT
   DAILY_ASSIGNMENT
@@ -2239,8 +2239,8 @@ type OrgRef_EndorsementMutations {
 
 type OrgRef_EndorsementQueries {
   byId(id: ID!): Endorsement
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Endorsement]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedEndorsement
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): [Endorsement]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): PagedEndorsement
 }
 
 type OrgRef_LabelMutations {
@@ -2795,7 +2795,7 @@ type PayInfo {
   match: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
   dayPortion: Decimal
-  hours: Int
+  hours: Decimal
 }
 
 type PayInfoSummary {
@@ -2813,20 +2813,26 @@ type PayTypeRollup {
 
 type PermissionCategory {
   _info: [ReturnMessage]
-  id: String!
+  categoryId: String!
   displayName: String!
   settings: [PermissionSetting!]!
 }
 
 type PermissionCategoryIdentifier {
   _info: [ReturnMessage]
-  id: String!
+  categoryId: String!
   settings: [PermissionSettingIdentifier!]!
 }
 
 input PermissionCategoryIdentifierInput {
-  id: String!
+  categoryId: String!
   settings: [PermissionSettingIdentifierInput]
+}
+
+type PermissionDefinition {
+  _info: [ReturnMessage]
+  id: String!
+  categories: [PermissionCategory!]!
 }
 
 enum PermissionEnum {
@@ -2918,13 +2924,13 @@ enum PermissionEnum {
 
 type PermissionLevel {
   _info: [ReturnMessage]
-  id: String!
+  levelId: String!
   displayName: String!
   permissions: [PermissionEnum]!
 }
 
 type PermissionQueries {
-  all(role: OrgUserRole!): [PermissionCategory]!
+  definition(role: OrgUserRole!): PermissionDefinition!
 }
 
 type PermissionSet implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2973,19 +2979,19 @@ type PermissionSetQueries {
 
 type PermissionSetting {
   _info: [ReturnMessage]
-  id: String!
+  settingId: String!
   displayName: String!
   levels: [PermissionLevel!]!
 }
 
 type PermissionSettingIdentifier {
   _info: [ReturnMessage]
-  id: String!
+  settingId: String!
   levelId: String!
 }
 
 input PermissionSettingIdentifierInput {
-  id: String!
+  settingId: String!
   levelId: String!
 }
 
@@ -3360,6 +3366,8 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   validUntil: DateTime
   expired: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
+  payCodeId: Int
+  payCode: PayCode
   replacementCriteria: ObjectReplacementCriteria
 }
 
@@ -3373,6 +3381,7 @@ input PositionTypeCreateInput {
   minAbsenceDurationMinutes: Int!
   defaultContractId: Int
   payTypeId: AbsenceReasonTrackingTypeId
+  payCodeId: Int
 }
 
 type PositionTypeMutations {
@@ -3401,6 +3410,7 @@ input PositionTypeUpdateInput {
   defaultContractId: Int
   expired: Boolean
   payTypeId: AbsenceReasonTrackingTypeId
+  payCodeId: Int
 }
 
 type QualifiedEmployeeCounts {
@@ -4345,6 +4355,8 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   permissions: [PermissionEnum]
   assignments: [Assignment]
   attributes: [EmployeeEndorsement]
+  payCodeId: Int
+  payCode: PayCode
   qualifiedPositionTypes: [PositionType]
   substitutePoolMembership: SubstitutePoolMembership
 }
@@ -4373,6 +4385,7 @@ input SubstituteInput {
   countryId: CountryCode
   phoneNumber: String
   inviteImmediately: Boolean
+  payCodeId: Int
   attributes: [SubstituteAttributeInput]
   relatedOrgIds: [Int]
 }
@@ -4779,6 +4792,7 @@ type VacancySubSearchQueryResult {
   totalLeadTimeMinutes: Int!
   minutesLeadTimeLeft: Int!
   percentLeadTimeLeft: Int!
+  payCodeId: Int
   isRejected: Boolean!
   isAvailable: Boolean!
   otherJobConflict: Boolean!

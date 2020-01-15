@@ -2,16 +2,19 @@ import * as React from "react";
 import { Typography, Grid, makeStyles } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { PageHeader } from "ui/components/page-header";
+import { Input } from "ui/components/form/input";
 import { Redirect, useHistory } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
 import { GetAllEndorsementsWithinOrg } from "ui/pages/position-type/graphql/get-all-endorsements.gen";
 import { useIsMobile } from "hooks";
 import { PageTitle } from "ui/components/page-title";
+import { useCallback, useEffect } from "react";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useRouteParams } from "ui/routes/definition";
 import { Maybe, Endorsement } from "graphql/server-types.gen";
+import { useDeferredState } from "hooks";
 import {
   ReplacementCriteriaEditRoute,
   PositionTypeRoute,
@@ -30,8 +33,25 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
     variables: { id: params.positionTypeId },
   });
 
+  const [
+    searchText,
+    pendingSearchText,
+    setPendingSearchText,
+  ] = useDeferredState<string | undefined>(undefined, 200);
+  useEffect(() => {
+    // props.setSearchText(searchText);
+  }, [searchText]);
+
+  const updateSearchText = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setPendingSearchText(event.target.value);
+    },
+    [setPendingSearchText]
+  );
+
+  //TODO: Add SearchText query to back-end
   const getAllEndorsements = useQueryBundle(GetAllEndorsementsWithinOrg, {
-    variables: { orgId: params.organizationId },
+    variables: { orgId: params.organizationId }, //, searchText: searchText },
   });
 
   if (
@@ -43,8 +63,6 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
 
   const positionType = getPositionType?.data?.positionType?.byId;
   const endorsements = getAllEndorsements?.data?.orgRef_Endorsement?.all;
-
-  console.log(endorsements);
 
   if (!positionType || !endorsements) {
     // Redirect the User back to the List page
@@ -97,6 +115,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
           <Grid item xs={12}>
             <Section>
               <SectionHeader title={t("Prefer that substitutes have")} />
+              <hr />
               <Grid item xs={12} sm={6} lg={6}>
                 {replacementCriteria?.preferToHave?.length === 0 ? (
                   <div>{t("Not defined")}</div>
@@ -111,6 +130,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
           <Grid item xs={12}>
             <Section>
               <SectionHeader title={t("Prefer that substitutes not have")} />
+              <hr />
               <Grid item xs={12} sm={6} lg={6}>
                 {replacementCriteria?.mustNotHave?.length === 0 ? (
                   <div>{t("Not defined")}</div>
@@ -125,6 +145,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
           <Grid item xs={12}>
             <Section>
               <SectionHeader title={t("Substitutes must not have")} />
+              <hr />
               <Grid item xs={12} sm={6} lg={6}>
                 {replacementCriteria?.preferToNotHave?.length === 0 ? (
                   <div>{t("Not defined")}</div>
@@ -141,6 +162,16 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
           <Grid item xs={12}>
             <Section>
               <SectionHeader title={t("Available Attributes")} />
+              <Grid item xs={12} sm={6} md={6} lg={6}>
+                <Input
+                  label={t("Attributes")}
+                  value={pendingSearchText}
+                  onChange={updateSearchText}
+                  placeholder={t("Search")}
+                  className={classes.label}
+                />
+              </Grid>
+              <hr />
               <Grid item xs={12} sm={6} lg={6}>
                 {endorsements?.length === 0 ? (
                   <div>{t("Not defined")}</div>
@@ -148,6 +179,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
                   endorsements?.map((n, i) => <div key={i}>{n?.name}</div>)
                 )}
               </Grid>
+              <hr />
             </Section>
           </Grid>
         </Grid>
@@ -162,5 +194,9 @@ const useStyles = makeStyles(theme => ({
   },
   rightPadding: {
     paddingRight: theme.spacing(4),
+  },
+  label: {
+    fontWeight: 500,
+    marginBottom: theme.typography.pxToRem(4),
   },
 }));
