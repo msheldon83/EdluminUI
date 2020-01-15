@@ -206,6 +206,10 @@ const getAbsence = (
     endTimeLocal: "2019-11-25T15:00:00",
     numDays: 5,
     employeeId: 1125,
+    employee: {
+      firstName: "john",
+      lastName: "smith",
+    },
     notesToApprover: notesToApprover,
     details: [
       {
