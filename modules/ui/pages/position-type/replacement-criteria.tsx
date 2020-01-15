@@ -3,6 +3,7 @@ import { Typography, Grid } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
+
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { Maybe, Endorsement } from "graphql/server-types.gen";

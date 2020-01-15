@@ -1,0 +1,8 @@
+query GetAllEndorsementsWithinOrg($orgId: ID) {
+  orgRef_Endorsement {
+    all(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}
