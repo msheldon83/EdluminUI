@@ -44,6 +44,7 @@ type Props = {
   route: string;
   navBarExpanded: boolean;
   onClick?: () => void;
+  orgId?: string;
 };
 
 export const HomeNavLink: React.FC<Props> = props => {
@@ -57,7 +58,7 @@ export const AbsenceNavLink: React.FC<Props> = props => {
   const paramsVerify = useRouteParams(VerifyRoute);
 
   return (
-    <Can do={canViewAbsVacNavLink}>
+    <Can do={canViewAbsVacNavLink} orgId={props.orgId}>
       <NavLink
         title={t("Absence & Vacancy")}
         icon={<SwapCallsIcon />}
@@ -80,7 +81,7 @@ export const AbsenceNavLink: React.FC<Props> = props => {
 export const AnalyticsAndReportsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewAnalyticsReportsNavLink}>
+    <Can do={canViewAnalyticsReportsNavLink} orgId={props.orgId}>
       <NavLink
         title={t("Analytics & Reports")}
         icon={<TimelineIcon />}
@@ -95,7 +96,7 @@ export const SchoolsNavLink: React.FC<Props> = props => {
   const paramsLocations = useRouteParams(LocationsRoute);
   const paramsGroups = useRouteParams(LocationGroupsRoute);
   return (
-    <Can do={canViewSchoolsNavLink}>
+    <Can do={canViewSchoolsNavLink} orgId={props.orgId}>
       <NavLink
         title={t("Schools")}
         icon={<LocationCityIcon />}
@@ -118,7 +119,7 @@ export const SchoolsNavLink: React.FC<Props> = props => {
 export const PeopleNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewPeopleNavLink}>
+    <Can do={canViewPeopleNavLink} orgId={props.orgId}>
       <NavLink title={t("People")} icon={<PeopleIcon />} {...props} />
     </Can>
   );
@@ -128,7 +129,7 @@ export const CalendarNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   return (
-    <Can do={canViewCalendarsNavLink}>
+    <Can do={canViewCalendarsNavLink} orgId={props.orgId}>
       <NavLink title={t("Calendars")} icon={<DateRangeIcon />} {...props} />
     </Can>
   );
@@ -137,7 +138,7 @@ export const CalendarNavLink: React.FC<Props> = props => {
 export const SettingsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewConfigNavLink}>
+    <Can do={canViewConfigNavLink} orgId={props.orgId}>
       <NavLink title={t("Settings")} icon={<SettingsIcon />} {...props} />
     </Can>
   );
@@ -154,7 +155,7 @@ export const SecurityNavLink: React.FC<Props> = props => {
     SecurityManagedOrganizationsRoute
   );
   return (
-    <Can do={canViewSecurityNavLink}>
+    <Can do={canViewSecurityNavLink} orgId={props.orgId}>
       <NavLink
         title={t("Security")}
         icon={<LockIcon />}
