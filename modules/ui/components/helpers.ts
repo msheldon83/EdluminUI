@@ -1,4 +1,5 @@
 import * as i18next from "i18next";
+import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 
 type Props = {
   firstName?: string;
@@ -35,18 +36,6 @@ export const boolToDisplay = (t: i18next.TFunction, bool?: boolean | null) => {
   return bool ? t("Yes") : t("No");
 };
 
-export const parseDayPortion = (t: i18next.TFunction, dayPortion: number) => {
-  if (dayPortion < 0.5) {
-    return t("Partial day (hourly)");
-  } else if (dayPortion === 0.5) {
-    return t("Half day");
-  } else if (dayPortion > 0.5 && dayPortion < 2) {
-    return t("Full day");
-  } else {
-    return t("Full days");
-  }
-};
-
 export const getBeginningOfSchoolYear = (date: Date) => {
   // School years are defined as july to june
   const july = 6; /* months start at 0 in js dates */
@@ -55,4 +44,25 @@ export const getBeginningOfSchoolYear = (date: Date) => {
     year -= 1;
   }
   return new Date(year, july);
+};
+
+export const getPayLabel = (
+  match: boolean,
+  payTypeId: AbsenceReasonTrackingTypeId,
+  initialLabel: string,
+  dayPortion: number,
+  totalDayPortion: number,
+  t: i18next.TFunction
+) => {
+  if (
+    match ||
+    payTypeId === AbsenceReasonTrackingTypeId.Hourly ||
+    dayPortion === totalDayPortion
+  ) {
+    return initialLabel;
+  } else {
+    return `${dayPortion.toFixed(1)}/${totalDayPortion.toFixed(1)} ${
+      totalDayPortion > 1 ? t("Days") : t("Day")
+    }`;
+  }
 };

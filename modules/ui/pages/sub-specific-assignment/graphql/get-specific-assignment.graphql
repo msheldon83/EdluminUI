@@ -13,6 +13,9 @@ query GetSpecificAssignment($id: ID!, $assignmentId: ID!) {
         startTimeLocal
         endTimeLocal
       }
+      payInfo {
+        label
+      }
       location {
         id
         name
@@ -27,6 +30,9 @@ query GetSpecificAssignment($id: ID!, $assignmentId: ID!) {
         organization {
           id
           name
+        }
+        payInfoSummary {
+          summaryLabel
         }
         absence {
           id

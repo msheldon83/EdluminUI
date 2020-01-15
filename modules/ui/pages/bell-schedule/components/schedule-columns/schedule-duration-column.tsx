@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 
 type Props = {
   periods: Period[];
-  travelDuration: number;
   scheduleClasses: any;
 };
 
@@ -31,8 +30,8 @@ export const ScheduleDurationColumn: React.FC<Props> = props => {
                 {GetPeriodDurationInMinutes(
                   p.startTime,
                   p.endTime,
-                  props.travelDuration,
-                  i < props.periods.length - 1,
+                  p.travelDuration,
+                  i < props.periods.length - 1 && p.travelDuration > 0,
                   t
                 )}
               </div>

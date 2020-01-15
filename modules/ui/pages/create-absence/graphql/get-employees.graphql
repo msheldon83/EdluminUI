@@ -3,6 +3,7 @@ query GetEmployeesForOrg(
   $limit: Int
   $offset: Int
   $name: String
+  $sortBy: [SortDetailsInput]
 ) {
   orgUser {
     paged(
@@ -11,6 +12,7 @@ query GetEmployeesForOrg(
       offset: $offset
       role: EMPLOYEE
       name: $name
+      sortBy: $sortBy
     ) {
       totalCount
       offset
@@ -26,6 +28,14 @@ query GetEmployeesForOrg(
           primaryPosition {
             id
             name
+            positionType {
+              id
+              name
+              payCode {
+                id
+                name
+              }
+            }
           }
         }
       }

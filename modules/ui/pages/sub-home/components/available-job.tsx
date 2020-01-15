@@ -27,6 +27,7 @@ type Props = {
     | "endDate"
     | "notesToReplacement"
     | "totalDayPortion"
+    | "payInfoSummary"
     | "details"
   >;
   onAccept: (orgId: string, vacancyId: string) => Promise<void>;
@@ -141,6 +142,7 @@ export const AvailableJob: React.FC<Props> = props => {
               <AvailableJobDetail
                 locationName={detail!.location!.name}
                 dayPortion={detail!.dayPortion}
+                payInfoLabel={detail!.payInfo!.label}
                 startTimeLocal={detail!.startTimeLocal ?? ""}
                 endTimeLocal={detail!.endTimeLocal ?? ""}
                 shadeRow={index % 2 != 1}
