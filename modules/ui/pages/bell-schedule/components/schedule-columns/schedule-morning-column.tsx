@@ -8,6 +8,8 @@ import {
   Droppable,
   Draggable,
 } from "react-beautiful-dnd";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   periods: Period[];
@@ -44,41 +46,52 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
                   periodClasses.push(props.scheduleClasses.skippedPeriod);
                 }
 
+                const endOfMorningDiv = (
+                  <div
+                    className={
+                      !p.isHalfDayMorningEnd ? props.scheduleClasses.hidden : ""
+                    }
+                  >
+                    <Chip
+                      tabIndex={-1}
+                      className={classes.endOfMorningChip}
+                      label={t("End of morning")}
+                    />
+                  </div>
+                );
+
                 return (
                   <div key={i} className={periodClasses.join(" ")}>
                     {!p.skipped && (
-                      <Draggable
-                        key={`${endOfMorningDragPrefix}${i}`}
-                        draggableId={`${endOfMorningDragPrefix}${i}`}
-                        index={i}
-                        isDragDisabled={!p.isHalfDayMorningEnd}
-                      >
-                        {(provided, snapshot) => {
-                          const { innerRef } = provided;
-                          return (
-                            <div
-                              ref={innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={classes.endOfMorning}
-                            >
-                              <div
-                                className={
-                                  !p.isHalfDayMorningEnd
-                                    ? props.scheduleClasses.hidden
-                                    : ""
-                                }
-                              >
-                                <Chip
-                                  tabIndex={-1}
-                                  className={classes.endOfMorningChip}
-                                  label={t("End of morning")}
-                                />
-                              </div>
-                            </div>
-                          );
-                        }}
-                      </Draggable>
+                      <>
+                        <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+                          <Draggable
+                            key={`${endOfMorningDragPrefix}${i}`}
+                            draggableId={`${endOfMorningDragPrefix}${i}`}
+                            index={i}
+                            isDragDisabled={!p.isHalfDayMorningEnd}
+                          >
+                            {(provided, snapshot) => {
+                              const { innerRef } = provided;
+                              return (
+                                <div
+                                  ref={innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className={classes.endOfMorning}
+                                >
+                                  {endOfMorningDiv}
+                                </div>
+                              );
+                            }}
+                          </Draggable>
+                        </Can>
+                        <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+                          <div className={classes.endOfMorning}>
+                            {endOfMorningDiv}
+                          </div>
+                        </Can>
+                      </>
                     )}
                   </div>
                 );

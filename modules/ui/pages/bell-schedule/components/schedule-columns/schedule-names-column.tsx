@@ -11,6 +11,8 @@ import {
 import { TFunction } from "i18next";
 import { DragHandle } from "@material-ui/icons";
 import { TextField as FormTextField } from "ui/components/form/text-field";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   periods: Period[];
@@ -52,49 +54,54 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
 
                   return (
                     <div key={i} className={periodClasses.join(" ")}>
-                      <Draggable
-                        key={`${nameDragPrefix}${i}`}
-                        draggableId={`${nameDragPrefix}${i}`}
-                        index={i}
-                        isDragDisabled={p.skipped}
-                      >
-                        {(provided, snapshot) => {
-                          const { innerRef } = provided;
-                          return (
-                            <div
-                              ref={innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={classes.draggableSection}
-                            >
-                              <div className={classes.nameInput}>
-                                {props.isStandard && (
-                                  <FormTextField
-                                    placeholder={p.placeholder}
-                                    value={p.name || ""}
-                                    name={`periods[${i}].name`}
-                                    variant="outlined"
-                                    onChange={(
-                                      e: React.ChangeEvent<HTMLInputElement>
-                                    ) => {
-                                      props.setFieldValue(
-                                        `periods[${i}].name`,
-                                        e.target.value
-                                      );
-                                    }}
-                                  />
-                                )}
-                                {!props.isStandard && p.name}
+                      <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+                        <Draggable
+                          key={`${nameDragPrefix}${i}`}
+                          draggableId={`${nameDragPrefix}${i}`}
+                          index={i}
+                          isDragDisabled={p.skipped}
+                        >
+                          {(provided, snapshot) => {
+                            const { innerRef } = provided;
+                            return (
+                              <div
+                                ref={innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={classes.draggableSection}
+                              >
+                                <div className={classes.nameInput}>
+                                  {props.isStandard && (
+                                    <FormTextField
+                                      placeholder={p.placeholder}
+                                      value={p.name || ""}
+                                      name={`periods[${i}].name`}
+                                      variant="outlined"
+                                      onChange={(
+                                        e: React.ChangeEvent<HTMLInputElement>
+                                      ) => {
+                                        props.setFieldValue(
+                                          `periods[${i}].name`,
+                                          e.target.value
+                                        );
+                                      }}
+                                    />
+                                  )}
+                                  {!props.isStandard && p.name}
+                                </div>
+                                <div className={classes.actionDiv}>
+                                  {props.periods.length > 1 && !p.skipped && (
+                                    <DragHandle />
+                                  )}
+                                </div>
                               </div>
-                              <div className={classes.actionDiv}>
-                                {props.periods.length > 1 && !p.skipped && (
-                                  <DragHandle />
-                                )}
-                              </div>
-                            </div>
-                          );
-                        }}
-                      </Draggable>
+                            );
+                          }}
+                        </Draggable>
+                      </Can>
+                      <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+                        <div className={classes.nameDisplay}>{p.name}</div>
+                      </Can>
                     </div>
                   );
                 })}
@@ -112,6 +119,9 @@ const useStyles = makeStyles(theme => ({
   nameInput: {
     width: theme.typography.pxToRem(200),
     margin: theme.spacing(),
+  },
+  nameDisplay: {
+    marginLeft: theme.spacing(2),
   },
   draggableSection: {
     display: "flex",

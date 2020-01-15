@@ -86,7 +86,7 @@ export const Assign: React.FC<Props> = props => {
         </Can>
         <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
           <Grid item xs={5}>
-            <Typography>{t("Schools")}</Typography>
+            <Typography variant={"h6"}>{t("Schools")}</Typography>
             <Typography>
               {defaultLocationSelections.map(l => l.text).toString()}
             </Typography>
@@ -111,7 +111,7 @@ export const Assign: React.FC<Props> = props => {
         </Can>
         <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
           <Grid item xs={5}>
-            <Typography>{t("Groups")}</Typography>
+            <Typography variant={"h6"}>{t("Groups")}</Typography>
             <Typography>
               {defaultLocationGroupSelections.map(l => l.text).toString()}
             </Typography>
