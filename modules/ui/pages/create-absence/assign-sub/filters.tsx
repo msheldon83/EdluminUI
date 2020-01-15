@@ -100,7 +100,6 @@ export const AssignSubFilters: React.FC<Props> = props => {
             <Grid item xs={12} md={3}>
               <InputLabel className={classes.label}>{t("Name")}</InputLabel>
               <TextField
-                className={classes.textField}
                 variant="outlined"
                 name={"name"}
                 value={pendingName ?? ""}
@@ -236,9 +235,6 @@ const useStyles = makeStyles(theme => ({
   label: {
     // color: theme.customColors.black,
     fontWeight: 500,
-  },
-  textField: {
-    marginTop: theme.spacing(2),
   },
 }));
 
