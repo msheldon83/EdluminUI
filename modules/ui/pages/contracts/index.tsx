@@ -7,6 +7,7 @@ import { PageTitle } from "ui/components/page-title";
 import { ContractsRoute } from "ui/routes/contracts";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
+import { UnderConstructionHeader } from "ui/components/under-construction";
 
 type Props = {};
 
@@ -27,6 +28,7 @@ export const Contracts: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={`${params.organizationId} ${t("Contracts")}`} />
+      <UnderConstructionHeader />
       {__DEV__ && (
         <Button
           variant="contained"
