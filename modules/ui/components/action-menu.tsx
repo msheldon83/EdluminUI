@@ -6,7 +6,12 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { makeStyles } from "@material-ui/core";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "./auth/can";
-import { OrgUserPermissions } from "reference-data/my-user-access";
+import {
+  OrgUserPermissions,
+  useMyUserAccess,
+} from "reference-data/my-user-access";
+import { can } from "helpers/permissions";
+import { useOrganizationId } from "core/org-context";
 
 type Props = {
   options: Array<Option>;
@@ -28,6 +33,8 @@ export const ActionMenu: React.FC<Props> = props => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const userAccess = useMyUserAccess();
+  const contextOrgId = useOrganizationId();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -37,7 +44,26 @@ export const ActionMenu: React.FC<Props> = props => {
     setAnchorEl(null);
   };
 
-  return (
+  const filteredOptions = props.options.filter(o => {
+    if (o.permissions) {
+      return Array.isArray(o.permissions)
+        ? can(
+            o.permissions,
+            userAccess?.permissionsByOrg ?? [],
+            userAccess?.isSysAdmin ?? false,
+            contextOrgId
+          )
+        : o.permissions(
+            userAccess?.permissionsByOrg ?? [],
+            userAccess?.isSysAdmin ?? false,
+            contextOrgId ?? undefined
+          );
+    }
+  });
+
+  return filteredOptions.length === 0 ? (
+    <></>
+  ) : (
     <div>
       <IconButton onClick={handleClick}>
         <MoreVertIcon />
@@ -52,33 +78,18 @@ export const ActionMenu: React.FC<Props> = props => {
           className: classes.paper,
         }}
       >
-        {props.options.map((option: Option, index: number) => {
-          if (option.permissions) {
-            return (
-              <Can do={option.permissions} key={index}>
-                <MenuItem
-                  onClick={event => {
-                    option.onClick(event);
-                    handleClose();
-                  }}
-                >
-                  {option.name}
-                </MenuItem>
-              </Can>
-            );
-          } else {
-            return (
-              <MenuItem
-                key={index}
-                onClick={event => {
-                  option.onClick(event);
-                  handleClose();
-                }}
-              >
-                {option.name}
-              </MenuItem>
-            );
-          }
+        {filteredOptions.map((option: Option, index: number) => {
+          return (
+            <MenuItem
+              key={index}
+              onClick={event => {
+                option.onClick(event);
+                handleClose();
+              }}
+            >
+              {option.name}
+            </MenuItem>
+          );
         })}
       </Menu>
     </div>
