@@ -567,7 +567,7 @@ const displaySwabSubsAction = (
           orgId?: string
         ) => canAssignSub(permissions, isSysAdmin, orgId, absDate)}
       >
-        button
+        {button}
       </Can>
     );
   }

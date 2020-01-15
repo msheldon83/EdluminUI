@@ -232,7 +232,7 @@ export const OrgSettingsPage: React.FC<{}> = props => {
           })}
         </Grid>
       </Can>
-      <Can do={[PermissionEnum.AbsVacView]}>
+      <Can do={[PermissionEnum.AbsVacSettingsView]}>
         <Typography className={classes.header} variant="h4">
           {t("Absence & Vacancy")}
         </Typography>
