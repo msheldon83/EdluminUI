@@ -33,7 +33,7 @@ export const Filters: React.FC<Props> = props => {
     { value: OrgUserRole.ReplacementEmployee, label: "Substitute" },
   ];
 
-  const findRole = (value: React.ReactText) => {
+  const findRole = (value: any) => {
     switch (value) {
       case "ADMINISTRATOR":
         return OrgUserRole.Administrator;
@@ -42,21 +42,22 @@ export const Filters: React.FC<Props> = props => {
       case "REPLACEMENT_EMPLOYEE":
         return OrgUserRole.ReplacementEmployee;
       default:
-        return OrgUserRole.Invalid;
+        return OrgUserRole.Any;
     }
   };
 
-  const selectedValue =
-    roleOptions.find(
-      e => e.label && props.rolesFilter.includes(findRole(e.value))
-    ) ?? roleOptions.find(e => e.value === OrgUserRole.Invalid);
+  const selectedValue = roleOptions.find(e =>
+    props.rolesFilter.length === 0
+      ? roleOptions.find(e => e.value === OrgUserRole.Invalid)
+      : props.rolesFilter.includes(findRole(e.value))
+  );
 
   const onChangeRoles = useCallback(
     value => {
       if (value.value === OrgUserRole.Invalid) {
         props.setRolesFilter([]);
       } else {
-        props.setRolesFilter(value.value);
+        props.setRolesFilter([value.value]);
       }
     },
     [props.setRolesFilter]
