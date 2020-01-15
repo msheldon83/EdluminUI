@@ -56,7 +56,7 @@ export const Assign: React.FC<Props> = props => {
     .map((l: Pick<Location, "id" | "name">) => {
       return { text: l.name, value: l.id };
     });
-  console.log(defaultLocationSelections);
+
   const defaultLocationGroupSelections = locationGroups
     .filter((l: Pick<LocationGroup, "id">) =>
       props.locationGroupIds.includes(Number(l.id))
