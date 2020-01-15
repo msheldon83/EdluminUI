@@ -18,6 +18,7 @@ import { SelectNew } from "ui/components/form/select-new";
 import { AbsenceDetailsFormData } from ".";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { Can } from "ui/components/auth/can";
+import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
 
 type Props = {
   setValue: SetValue;
@@ -191,7 +192,8 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
             onClick={() => setStep("edit")}
             disabled={props.disableEditingDatesAndTimes}
           >
-            {t("Edit")}
+            <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
+            <MobileOnly>{t("Edit Details")}</MobileOnly>
           </Button>
         </div>
       )}
