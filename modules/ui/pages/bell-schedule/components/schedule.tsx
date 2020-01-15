@@ -47,7 +47,7 @@ type Props = {
   onCancel: () => void;
 };
 
-const travelDuration = 5;
+const travelDuration = 0; // TODO:: Get this from Org Config once we built that out
 const minNumberOfPeriods = 1;
 
 export const Schedule: React.FC<Props> = props => {
@@ -111,6 +111,7 @@ export const Schedule: React.FC<Props> = props => {
               endTime: nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime,
               skipped: false,
               isEndOfDayPeriod: true,
+              travelDuration: 0,
             });
           }
 
@@ -278,7 +279,6 @@ export const Schedule: React.FC<Props> = props => {
               <div>
                 <ScheduleTimesColumn
                   periods={values.periods}
-                  travelDuration={travelDuration}
                   errors={errors}
                   setFieldValue={setFieldValue}
                   scheduleClasses={classes}
@@ -296,7 +296,6 @@ export const Schedule: React.FC<Props> = props => {
               <div>
                 <ScheduleDurationColumn
                   periods={values.periods}
-                  travelDuration={travelDuration}
                   scheduleClasses={classes}
                 />
               </div>
