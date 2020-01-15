@@ -54,12 +54,15 @@ export const getPayLabel = (
   totalDayPortion: number,
   t: i18next.TFunction
 ) => {
-  if (match || payTypeId === AbsenceReasonTrackingTypeId.Hourly) {
-    return initialLabel;
-  }
-  const daysInfo =
+  if (
+    match ||
+    payTypeId === AbsenceReasonTrackingTypeId.Hourly ||
     dayPortion === totalDayPortion
-      ? initialLabel
-      : `${dayPortion.toFixed(1)}/${totalDayPortion.toFixed(1)}`;
-  return `${daysInfo} ${totalDayPortion > 1 ? t("Days") : t("Day")}`;
+  ) {
+    return initialLabel;
+  } else {
+    return `${dayPortion.toFixed(1)}/${totalDayPortion.toFixed(1)} ${
+      totalDayPortion > 1 ? t("Days") : t("Day")
+    }`;
+  }
 };

@@ -250,12 +250,12 @@ export function App() {
                             path={UnauthorizedEmployeeRoleRoute.path}
                           />
                           <Route
-                            component={EmployeeCreateAbsenceLoader}
-                            path={EmployeeCreateAbsenceRoute.path}
-                          />
-                          <Route
                             component={CreateAbsenceConfirmationLoader}
                             path={CreateAbsenceConfirmationRoute.path}
+                          />
+                          <Route
+                            component={EmployeeCreateAbsenceLoader}
+                            path={EmployeeCreateAbsenceRoute.path}
                           />
                           <Route path={EmployeeEditAbsenceRoute.path}>
                             <AdminEditAbsenceLoader actingAsEmployee />

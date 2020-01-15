@@ -28,6 +28,7 @@ query GetVacancyDetails(
       payInfo {
         label
         match
+        payTypeId
         dayConversion {
           name
         }
