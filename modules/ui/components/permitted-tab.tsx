@@ -6,7 +6,7 @@ import {
 import { can as CanHelper } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { useOrganizationId } from "core/org-context";
-import { Tab, TabProps } from "@material-ui/core";
+import { Tab, TabProps, makeStyles } from "@material-ui/core";
 
 type Props = {
   permissions:
@@ -19,29 +19,36 @@ type Props = {
 } & TabProps;
 
 export const PermittedTab: React.FC<Props> = props => {
+  const classes = useStyles();
   const userAccess = useMyUserAccess();
   const orgId = useOrganizationId();
   const { permissions, ...tabProps } = props;
 
-  let renderTab = false;
+  let showTab = false;
   if (Array.isArray(permissions)) {
-    renderTab = CanHelper(
+    showTab = CanHelper(
       permissions,
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
       orgId ?? undefined
     );
   } else {
-    renderTab = permissions(
+    showTab = permissions(
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
       orgId ?? undefined
     );
   }
 
-  if (!renderTab) {
-    return null;
-  }
-
-  return <Tab {...tabProps} />;
+  return showTab ? (
+    <Tab {...tabProps} />
+  ) : (
+    <Tab {...tabProps} className={classes.hidden} />
+  );
 };
+
+const useStyles = makeStyles(theme => ({
+  hidden: {
+    display: "none",
+  },
+}));

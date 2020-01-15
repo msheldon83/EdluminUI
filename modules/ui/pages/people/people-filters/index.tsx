@@ -11,7 +11,7 @@ import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { useDeferredState } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FilterQueryParams,
@@ -82,8 +82,8 @@ export const PeopleFilters: React.FC<Props> = props => {
     [setPendingName]
   );
 
-  return (
-    <div className={`${props.className} ${classes.tabsContainer}`}>
+  const tabs = useMemo(() => {
+    return (
       <Tabs
         className={classes.tabs}
         value={isoFilters.roleFilter === null ? "" : isoFilters.roleFilter}
@@ -117,6 +117,12 @@ export const PeopleFilters: React.FC<Props> = props => {
           permissions={[PermissionEnum.AdminView]}
         />
       </Tabs>
+    );
+  }, [isoFilters.roleFilter, updateRoleFilter, classes.tabs, classes.tab, t]);
+
+  return (
+    <div className={`${props.className} ${classes.tabsContainer}`}>
+      {tabs}
 
       <div className={classes.filterSection}>
         <Grid container justify="space-between">
