@@ -33,7 +33,7 @@ type Props = {
   positionName?: string;
   disabledDates?: DisabledDate[];
   selectButtonText?: string;
-  onSelectReplacement: (replacementId: number, replacementName: string) => void;
+  onSelectReplacement: (replacementId: number, replacementName: string, payCode: string | undefined) => void;
   onCancel: () => void;
 };
 
@@ -155,14 +155,15 @@ export const AssignSub: React.FC<Props> = props => {
       isEmployeeFavorite: r.isFavoriteEmployee,
       isLocationPositionTypeFavorite: r.isFavoritePositionType,
       selectable: r.isSelectable,
+      payCodeId: r.payCodeId,
     }));
   }, [replacementEmployees]);
 
   const selectReplacementEmployee = async (
     replacementEmployeeId: number,
-    name: string
+    name: string, payCodeId: string | undefined,
   ) => {
-    props.onSelectReplacement(replacementEmployeeId, name);
+    props.onSelectReplacement(replacementEmployeeId, name, payCodeId);
   };
 
   const setSearch = (filters: ReplacementEmployeeFilters) => {

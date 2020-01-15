@@ -19,6 +19,7 @@ mutation UpdateWorkDaySchedule($workDaySchedule: WorkDayScheduleUpdateInput!) {
           startTime
           endTime
           periodDuration
+          travelDuration
           isHalfDayMorningEnd
           isHalfDayAfternoonStart
           sequence

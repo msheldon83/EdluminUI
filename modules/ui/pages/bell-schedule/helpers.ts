@@ -40,11 +40,13 @@ export type Period = {
   skipped: boolean;
   sequence?: number;
   isEndOfDayPeriod?: boolean;
+  travelDuration: number;
 };
 
 export const BuildPeriodsFromScheduleSettings = (
   settings: ScheduleSettings,
   useHalfDayBreaks: boolean,
+  travelDuration: number,
   t: TFunction
 ): Array<Period> => {
   const periods: Array<Period> = [];
@@ -56,12 +58,14 @@ export const BuildPeriodsFromScheduleSettings = (
       startTime: undefined,
       endTime: undefined,
       skipped: false,
+      travelDuration,
     });
     periods.push({
       placeholder: t("Afternoon"),
       startTime: undefined,
       endTime: undefined,
       skipped: false,
+      travelDuration,
     });
   } else {
     // Period Schedule
@@ -71,6 +75,7 @@ export const BuildPeriodsFromScheduleSettings = (
         startTime: undefined,
         endTime: undefined,
         skipped: false,
+        travelDuration,
       });
     }
   }
@@ -84,6 +89,7 @@ export const BuildPeriodsFromScheduleSettings = (
       endTime: undefined,
       isHalfDayAfternoonStart: true,
       skipped: false,
+      travelDuration,
     });
     periods[middleIndex - 1].isHalfDayMorningEnd = true;
   }
@@ -121,6 +127,7 @@ export const BuildPeriodsFromSchedule = (
         (variantPeriod?.isHalfDayAfternoonStart || false),
       skipped: false,
       isEndOfDayPeriod: p.isEndOfDayPeriod,
+      travelDuration: p.travelDuration,
     };
   });
 
@@ -291,6 +298,8 @@ export const AddPeriod = (
       startTime: defaultStartTime,
       endTime: undefined,
       skipped: false,
+      travelDuration:
+        previousPeriod && previousPeriod.endTime ? travelDuration : 0,
     },
   ];
 
@@ -311,7 +320,7 @@ export const UpdatePeriodPlaceholders = (
   ) {
     periods[0].placeholder = t("Morning");
     periods[2].placeholder = t("Afternoon");
-  } else if (!halfDayBreakPeriod && periods.length === 2) {
+  } else if (periods.length === 2) {
     periods[0].placeholder = t("Morning");
     periods[1].placeholder = t("Afternoon");
   } else {
@@ -323,7 +332,7 @@ export const UpdatePeriodPlaceholders = (
     });
   }
 
-  if (halfDayBreakPeriod) {
+  if (halfDayBreakPeriod && periods.length !== 2) {
     halfDayBreakPeriod.placeholder = t("Lunch");
   }
 };

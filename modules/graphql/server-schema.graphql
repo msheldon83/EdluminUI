@@ -471,7 +471,7 @@ type AssignmentQueries {
 }
 
 enum AssignmentType {
-  INVALID
+  NONE
   CONTRACT_ASSIGNMENT
   LONG_TERM_ASSIGNMENT
   DAILY_ASSIGNMENT
@@ -3366,6 +3366,8 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   validUntil: DateTime
   expired: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
+  payCodeId: Int
+  payCode: PayCode
   replacementCriteria: ObjectReplacementCriteria
 }
 
@@ -3379,6 +3381,7 @@ input PositionTypeCreateInput {
   minAbsenceDurationMinutes: Int!
   defaultContractId: Int
   payTypeId: AbsenceReasonTrackingTypeId
+  payCodeId: Int
 }
 
 type PositionTypeMutations {
@@ -3407,6 +3410,7 @@ input PositionTypeUpdateInput {
   defaultContractId: Int
   expired: Boolean
   payTypeId: AbsenceReasonTrackingTypeId
+  payCodeId: Int
 }
 
 type QualifiedEmployeeCounts {
@@ -4351,6 +4355,8 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   permissions: [PermissionEnum]
   assignments: [Assignment]
   attributes: [EmployeeEndorsement]
+  payCodeId: Int
+  payCode: PayCode
   qualifiedPositionTypes: [PositionType]
   substitutePoolMembership: SubstitutePoolMembership
 }
@@ -4379,6 +4385,7 @@ input SubstituteInput {
   countryId: CountryCode
   phoneNumber: String
   inviteImmediately: Boolean
+  payCodeId: Int
   attributes: [SubstituteAttributeInput]
   relatedOrgIds: [Int]
 }
@@ -4785,6 +4792,7 @@ type VacancySubSearchQueryResult {
   totalLeadTimeMinutes: Int!
   minutesLeadTimeLeft: Int!
   percentLeadTimeLeft: Int!
+  payCodeId: Int
   isRejected: Boolean!
   isAvailable: Boolean!
   otherJobConflict: Boolean!

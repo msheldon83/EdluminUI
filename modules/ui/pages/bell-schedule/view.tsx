@@ -197,6 +197,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
               ? matchingVariantPeriod.sequence
               : p!.sequence ?? 0,
           isEndOfDayPeriod: p!.name === endOfDayPeriodName,
+          travelDuration: matchingVariantPeriod?.travelDuration ?? 0,
         };
       }
     );

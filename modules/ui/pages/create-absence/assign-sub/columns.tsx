@@ -14,7 +14,8 @@ export const getAssignSubColumns = (
   selectTitle: string,
   selectReplacementEmployee: (
     replacementEmployeeId: number,
-    name: string
+    name: string,
+    payCodeId: string | undefined
   ) => Promise<void>,
   isMobile: boolean,
   theme: Theme,
@@ -127,7 +128,8 @@ export const getAssignSubColumns = (
         onClick={async () => {
           await selectReplacementEmployee(
             data.employeeId,
-            `${data.firstName} ${data.lastName}`
+            `${data.firstName} ${data.lastName}`,
+            data.payCodeId ? data.payCodeId.toString() : undefined
           );
         }}
       >

@@ -1,4 +1,6 @@
-mutation UpdateWorkDayScheduleVariant($workDayScheduleVariant: WorkDayScheduleVariantModifyInput!) {
+mutation UpdateWorkDayScheduleVariant(
+  $workDayScheduleVariant: WorkDayScheduleVariantModifyInput!
+) {
   workDaySchedule {
     modifyScheduleVariant(workDayScheduleVariant: $workDayScheduleVariant) {
       id
@@ -8,6 +10,7 @@ mutation UpdateWorkDayScheduleVariant($workDayScheduleVariant: WorkDayScheduleVa
         startTime
         endTime
         periodDuration
+        travelDuration
         isHalfDayMorningEnd
         isHalfDayAfternoonStart
         sequence

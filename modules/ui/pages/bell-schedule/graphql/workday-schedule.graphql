@@ -20,6 +20,7 @@ query GetWorkDayScheduleById($id: ID!) {
           startTime
           endTime
           periodDuration
+          travelDuration
           isHalfDayMorningEnd
           isHalfDayAfternoonStart
           sequence

@@ -1,4 +1,4 @@
-import { Grid, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles, TextField } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
@@ -114,6 +114,13 @@ export const PayCode: React.FC<Props> = props => {
       defaultSort: "asc",
       searchable: true,
       editable: "always",
+      editComponent: props => (
+        <TextField
+          fullWidth
+          value={props.value}
+          onChange={e => props.onChange(e.target.value)}
+        />
+      ),
     },
     {
       title: t("External Id"),
@@ -121,6 +128,13 @@ export const PayCode: React.FC<Props> = props => {
       searchable: true,
       hidden: isMobile,
       editable: "always",
+      editComponent: props => (
+        <TextField
+          fullWidth
+          value={props.value}
+          onChange={e => props.onChange(e.target.value)}
+        />
+      ),
     },
     {
       title: t("Description"),
@@ -128,6 +142,13 @@ export const PayCode: React.FC<Props> = props => {
       searchable: true,
       hidden: isMobile,
       editable: "always",
+      editComponent: props => (
+        <TextField
+          fullWidth
+          value={props.value}
+          onChange={e => props.onChange(e.target.value)}
+        />
+      ),
     },
   ];
 
