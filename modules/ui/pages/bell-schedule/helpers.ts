@@ -40,11 +40,13 @@ export type Period = {
   skipped: boolean;
   sequence?: number;
   isEndOfDayPeriod?: boolean;
+  travelDuration: number;
 };
 
 export const BuildPeriodsFromScheduleSettings = (
   settings: ScheduleSettings,
   useHalfDayBreaks: boolean,
+  travelDuration: number,
   t: TFunction
 ): Array<Period> => {
   const periods: Array<Period> = [];
@@ -56,12 +58,14 @@ export const BuildPeriodsFromScheduleSettings = (
       startTime: undefined,
       endTime: undefined,
       skipped: false,
+      travelDuration,
     });
     periods.push({
       placeholder: t("Afternoon"),
       startTime: undefined,
       endTime: undefined,
       skipped: false,
+      travelDuration,
     });
   } else {
     // Period Schedule
@@ -71,6 +75,7 @@ export const BuildPeriodsFromScheduleSettings = (
         startTime: undefined,
         endTime: undefined,
         skipped: false,
+        travelDuration,
       });
     }
   }
@@ -84,6 +89,7 @@ export const BuildPeriodsFromScheduleSettings = (
       endTime: undefined,
       isHalfDayAfternoonStart: true,
       skipped: false,
+      travelDuration,
     });
     periods[middleIndex - 1].isHalfDayMorningEnd = true;
   }
@@ -121,6 +127,7 @@ export const BuildPeriodsFromSchedule = (
         (variantPeriod?.isHalfDayAfternoonStart || false),
       skipped: false,
       isEndOfDayPeriod: p.isEndOfDayPeriod,
+      travelDuration: p.travelDuration,
     };
   });
 
@@ -291,6 +298,8 @@ export const AddPeriod = (
       startTime: defaultStartTime,
       endTime: undefined,
       skipped: false,
+      travelDuration:
+        previousPeriod && previousPeriod.endTime ? travelDuration : 0,
     },
   ];
 

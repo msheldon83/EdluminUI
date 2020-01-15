@@ -8,7 +8,6 @@ import { GetError, Period } from "../../helpers";
 
 type Props = {
   periods: Period[];
-  travelDuration: number;
   setFieldValue: Function;
   errors: FormikErrors<{ periods: Period[] }>;
   scheduleClasses: any;
@@ -34,11 +33,15 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
           i > 0 && props.periods[i - 1].endTime
             ? props.periods[i - 1].endTime
             : undefined;
+        const priorPeriodTravelDuration =
+          i > 0 && props.periods[i - 1].travelDuration
+            ? props.periods[i - 1].travelDuration
+            : 0;
         const earliestStartTime =
           priorPeriodEndTime && isValid(new Date(priorPeriodEndTime))
             ? addMinutes(
                 new Date(priorPeriodEndTime),
-                props.travelDuration
+                priorPeriodTravelDuration
               ).toISOString()
             : undefined;
 
