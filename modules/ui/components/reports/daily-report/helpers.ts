@@ -60,6 +60,10 @@ export type Detail = {
     id?: string;
     name: string;
   };
+  positionType?: {
+    id: string;
+    name: string;
+  };
   location?: {
     id?: string;
     name: string;
@@ -106,10 +110,7 @@ export const MapDailyReportDetails = (
           : undefined,
         absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
         date: parseISO(absenceDetail.startDate),
-        dateRange: getRangeDisplayText(
-          absenceDetail.startDate,
-          absenceDetail.endDate
-        ),
+        dateRange: getRangeDisplayText(a.startDate, a.endDate),
         startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
@@ -142,6 +143,16 @@ export const MapDailyReportDetails = (
                 name: a.vacancies[0].position.name,
               }
             : undefined,
+        positionType:
+          a.vacancies &&
+          a.vacancies[0] &&
+          a.vacancies[0].position &&
+          a.vacancies[0].position.positionType
+            ? {
+                id: a.vacancies[0].position.positionType.id,
+                name: a.vacancies[0].position.positionType.name,
+              }
+            : undefined,
         location:
           matchingVacancyDetail && matchingVacancyDetail.location
             ? {
@@ -171,10 +182,7 @@ export const MapDailyReportDetails = (
         vacancyRowVersion: v.rowVersion,
         vacancyId: v.id,
         date: parseISO(vacancyDetail.startDate),
-        dateRange: getRangeDisplayText(
-          vacancyDetail.startDate,
-          vacancyDetail.endDate
-        ),
+        dateRange: getRangeDisplayText(v.startDate, v.endDate),
         startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
@@ -198,6 +206,12 @@ export const MapDailyReportDetails = (
           ? {
               id: v.position.id,
               name: v.position.name,
+            }
+          : undefined,
+        positionType: v.position?.positionType
+          ? {
+              id: v.position?.positionType.id,
+              name: v.position?.positionType.name,
             }
           : undefined,
         location: vacancyDetail.location
@@ -240,10 +254,7 @@ export const MapDailyReportDetails = (
           : undefined,
         absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
         date: parseISO(absenceDetail.startDate),
-        dateRange: getRangeDisplayText(
-          absenceDetail.startDate,
-          absenceDetail.endDate
-        ),
+        dateRange: getRangeDisplayText(a.startDate, a.endDate),
         startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
@@ -262,6 +273,16 @@ export const MapDailyReportDetails = (
             ? {
                 id: a.vacancies[0].position.id,
                 name: a.vacancies[0].position.name,
+              }
+            : undefined,
+        positionType:
+          a.vacancies &&
+          a.vacancies[0] &&
+          a.vacancies[0].position &&
+          a.vacancies[0].position.positionType
+            ? {
+                id: a.vacancies[0].position.positionType.id,
+                name: a.vacancies[0].position.positionType.name,
               }
             : undefined,
         location:
@@ -292,10 +313,7 @@ export const MapDailyReportDetails = (
         vacancyRowVersion: v.rowVersion,
         vacancyId: v.id,
         date: parseISO(vacancyDetail.startDate),
-        dateRange: getRangeDisplayText(
-          vacancyDetail.startDate,
-          vacancyDetail.endDate
-        ),
+        dateRange: getRangeDisplayText(v.startDate, v.endDate),
         startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
         created: GetDateInYesterdayTodayTomorrowFormat(
@@ -309,6 +327,12 @@ export const MapDailyReportDetails = (
           ? {
               id: v.position.id,
               name: v.position.name,
+            }
+          : undefined,
+        positionType: v.position?.positionType
+          ? {
+              id: v.position?.positionType.id,
+              name: v.position?.positionType.name,
             }
           : undefined,
         location: vacancyDetail.location
@@ -377,10 +401,7 @@ export const MapDailyReportDetails = (
             : undefined,
           absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
           date: parseISO(absenceDetail.startDate),
-          dateRange: getRangeDisplayText(
-            absenceDetail.startDate,
-            absenceDetail.endDate
-          ),
+          dateRange: getRangeDisplayText(a.startDate, a.endDate),
           startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
           endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
           created: GetDateInYesterdayTodayTomorrowFormat(
@@ -389,6 +410,7 @@ export const MapDailyReportDetails = (
           ),
           isMultiDay: a.details && a.details.length > 1,
           position: positionType,
+          positionType: positionType,
           location: location,
         } as Detail;
       });
@@ -427,7 +449,7 @@ export const MapDailyReportDetails = (
       groups.forEach(g => {
         const detailsGroupedByPositionType = groupBy(
           g.details,
-          d => d.position?.name
+          d => d.positionType?.name
         );
         Object.entries(detailsGroupedByPositionType).forEach(([key, value]) => {
           if (g.subGroups) {
@@ -450,7 +472,7 @@ export const MapDailyReportDetails = (
     // Only grouping by the Position Type and not the fill status
     const detailsGroupedByPositionType = groupBy(
       filteredDetails,
-      d => d.position?.name
+      d => d.positionType?.name
     );
     Object.entries(detailsGroupedByPositionType).forEach(([key, value]) => {
       groups.push({

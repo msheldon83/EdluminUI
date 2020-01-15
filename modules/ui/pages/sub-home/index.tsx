@@ -117,6 +117,7 @@ export const SubHome: React.FC<Props> = props => {
         | "notesToReplacement"
         | "totalDayPortion"
         | "details"
+        | "payInfoSummary"
       >[],
     [getVacancies]
   );

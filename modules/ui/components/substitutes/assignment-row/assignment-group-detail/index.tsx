@@ -7,6 +7,7 @@ type Props = {
   startTimeLocal: string;
   endTimeLocal: string;
   dayPortion: number;
+  payInfoLabel: string;
   shadeRow: boolean;
   onCancel: () => void;
   className?: string;

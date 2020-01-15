@@ -37,6 +37,9 @@ query SubJobSearch(
             lastName
           }
         }
+        payInfoSummary {
+          summaryLabel
+        }
         startTimeLocal
         endTimeLocal
         startDate
@@ -48,6 +51,9 @@ query SubJobSearch(
           location {
             id
             name
+          }
+          payInfo {
+            label
           }
           startTimeLocal
           endTimeLocal

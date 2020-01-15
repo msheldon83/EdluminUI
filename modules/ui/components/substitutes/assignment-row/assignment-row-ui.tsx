@@ -14,6 +14,7 @@ type Props = {
   positionName: string;
   employeeName: string;
   dayPortion: number;
+  payInfoLabel: string;
   confirmationNumber: string;
   onCancel: () => void;
   isAdmin: boolean;

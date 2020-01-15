@@ -7,6 +7,7 @@ import {
 
 type Props = {
   locationName: string;
+  payInfoLabel: string;
   startTimeLocal: string;
   endTimeLocal: string;
   dayPortion: number;

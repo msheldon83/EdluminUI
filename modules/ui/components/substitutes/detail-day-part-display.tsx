@@ -3,12 +3,12 @@ import { formatIsoDateIfPossible } from "helpers/date";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { DayIcon } from "ui/components/day-icon";
-import { parseDayPortion } from "ui/components/helpers";
 
 type Props = {
   startTimeLocal: string;
   endTimeLocal: string;
   dayPortion: number;
+  payInfoLabel: string;
   iconClassName?: string;
   className?: string;
 };
@@ -16,8 +16,6 @@ type Props = {
 export const DetailDayPartDisplay: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-
-  const dayPortionLabel = parseDayPortion(t, props.dayPortion);
 
   return (
     <div className={[classes.dayPartContainer, props.className].join(" ")}>
@@ -30,10 +28,9 @@ export const DetailDayPartDisplay: React.FC<Props> = props => {
         {`${formatIsoDateIfPossible(
           props.startTimeLocal,
           "h:mm aaa"
-        )} - ${formatIsoDateIfPossible(
-          props.endTimeLocal,
-          "h:mm aaa"
-        )} ${dayPortionLabel}`}
+        )} - ${formatIsoDateIfPossible(props.endTimeLocal, "h:mm aaa")} ${
+          props.payInfoLabel
+        }`}
       </Typography>
     </div>
   );

@@ -15,7 +15,10 @@ export function usePermissionDefinitions(role: string | undefined) {
       permissionDefinitions.state === "DONE" &&
       permissionDefinitions.data?.permission
     ) {
-      return compact(permissionDefinitions.data.permission.all) ?? [];
+      return (
+        compact(permissionDefinitions.data.permission.definition.categories) ??
+        []
+      );
     }
     return [];
   }, [permissionDefinitions]);

@@ -8,6 +8,7 @@ type Props = {
   startTimeLocal: string;
   endTimeLocal: string;
   dayPortion: number;
+  payInfoLabel: string;
   shadeRow: boolean;
 };
 
@@ -34,6 +35,7 @@ export const AvailableJobDetailUI: React.FC<Props> = props => {
 
       <DetailDayPartDisplay
         dayPortion={props.dayPortion}
+        payInfoLabel={props.payInfoLabel}
         endTimeLocal={props.endTimeLocal}
         startTimeLocal={props.startTimeLocal}
         iconClassName={classes.dayPartIcon}
@@ -62,6 +64,7 @@ export const MobileAvailableJobDetailUI: React.FC<Props> = props => {
         </div>
         <DetailDayPartDisplay
           dayPortion={props.dayPortion}
+          payInfoLabel={props.payInfoLabel}
           endTimeLocal={props.endTimeLocal}
           startTimeLocal={props.startTimeLocal}
           iconClassName={classes.dayPartIcon}
