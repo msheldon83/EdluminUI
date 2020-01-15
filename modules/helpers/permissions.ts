@@ -277,6 +277,7 @@ export const canAssignSub = (
   absDate: Date
 ) => {
   if (isSysAdmin) return true;
+
   const userPerms = getUserPermissions(permissions, orgId);
   if (
     !isToday(absDate) &&
@@ -325,7 +326,6 @@ export const canRemoveSub = (
   orgId?: string,
   absDate: Date
 ) => {
-  console.log(permissions);
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
   if (
