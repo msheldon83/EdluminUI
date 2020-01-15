@@ -42,8 +42,18 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
   contractOptions.unshift({ label: "All Contracts", value: 0 });
 
   const contractValue = () => {
-    const value = props.contractValue == null ? 0 : props.contractValue;
-    return contractOptions.find((c: any) => c.value === value);
+    //const value = props.contractValue === undefined ? 0 : props.contractValue;
+    const value = contractOptions.find(
+      (c: any) => c.value === props.contractValue
+    );
+    return value;
+  };
+
+  const schoolValue = () => {
+    const value = schoolOptions.find(
+      (s: any) => s.value === props.schoolYearValue
+    );
+    return value;
   };
 
   return (
@@ -51,9 +61,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
       <div className={classes.select}>
         <SelectNew
           options={schoolOptions}
-          value={schoolOptions.find(
-            (s: any) => s.value == props.schoolYearValue
-          )}
+          value={schoolValue()}
           onChange={(e: OptionType) => {
             let selectedValue: any = null;
             if (e) {
@@ -66,7 +74,6 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
           multiple={false}
         />
       </div>
-
       <div className={[classes.select, classes.fromSelect].join(" ")}>
         <SelectNew
           options={contractOptions}
@@ -80,7 +87,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
                   : (e as OptionTypeBase).value;
             }
 
-            if (selectedValue == null) {
+            if (selectedValue === null || undefined) {
               props.setContract(undefined);
             } else {
               props.setContract(

@@ -209,11 +209,11 @@ export const Information: React.FC<Props> = props => {
                         props.editing === editableSections.information &&
                         !props.isSuperUser ? (
                           <SelectNew
-                            value={permissionSetOptions.filter(
+                            value={permissionSetOptions.find(
                               e => e.value && values.permissionSetId
                             )}
-                            multiple={true}
-                            onChange={(value: OptionType[]) => {
+                            multiple={false}
+                            onChange={(value: OptionType) => {
                               const id = [(value as OptionTypeBase).value];
                               setFieldValue("permissionSetId", id);
                             }}

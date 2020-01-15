@@ -112,7 +112,6 @@ export const ScheduleHeader: React.FC<Props> = props => {
           options={schoolYearOptions}
         />
       </div>
-
       {props.view === "list" && showFromPicker && (
         <div
           className={[classes.select, classes.fromSelect, classes.spacing].join(

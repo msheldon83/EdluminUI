@@ -144,10 +144,10 @@ export const AssignSubFilters: React.FC<Props> = props => {
                       const optionsMap = qualifiedOptionsMap.find(
                         m => m.optionValue === selectedValue
                       );
+
                       if (!optionsMap) {
                         return;
                       }
-
                       const updatedSearchOptions = {
                         ...searchFilter,
                         qualified: optionsMap.search,
