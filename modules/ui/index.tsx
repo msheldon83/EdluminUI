@@ -264,6 +264,7 @@ export function App() {
                             component={EmployeePtoBalanceLoader}
                             path={EmployeePtoBalanceRoute.path}
                             role={"employee"}
+                            permissions={[PermissionEnum.EmployeeViewBalances]}
                           />
                           <Route path={EmployeeScheduleCalendarViewRoute.path}>
                             <EmployeeScheduleLoader view="calendar" />
@@ -349,11 +350,13 @@ export function App() {
                                   component={AdminEditAbsenceLoader}
                                   path={AdminEditAbsenceRoute.path}
                                   role={"admin"}
+                                  permissions={[PermissionEnum.AbsVacView]}
                                 />
                                 <ProtectedRoute
                                   component={CreateAbsenceLoader}
                                   path={AdminCreateAbsenceRoute.path}
                                   role={"admin"}
+                                  permissions={[PermissionEnum.AbsVacSave]}
                                 />
                                 <ProtectedRoute
                                   component={
@@ -363,12 +366,14 @@ export function App() {
                                     AdminSelectEmployeeForCreateAbsenceRoute.path
                                   }
                                   role={"admin"}
+                                  permissions={[PermissionEnum.AbsVacSave]}
                                 />
                                 <ProtectedRoute
                                   path={
                                     EmployeeAbsScheduleCalendarViewRoute.path
                                   }
                                   role={"admin"}
+                                  permissions={[PermissionEnum.EmployeeView]}
                                 >
                                   <EmployeeAbsScheduleLoader view="calendar" />
                                 </ProtectedRoute>
@@ -376,6 +381,7 @@ export function App() {
                                 <ProtectedRoute
                                   path={EmployeeAbsScheduleListViewRoute.path}
                                   role={"admin"}
+                                  permissions={[PermissionEnum.EmployeeView]}
                                 >
                                   <EmployeeAbsScheduleLoader view="list" />
                                 </ProtectedRoute>
@@ -390,6 +396,7 @@ export function App() {
                                     SubstituteAssignmentScheduleCalendarViewRoute.path
                                   }
                                   role={"admin"}
+                                  permissions={[PermissionEnum.SubstituteView]}
                                 >
                                   <SubstituteAssignmentScheduleLoader view="calendar" />
                                 </ProtectedRoute>
@@ -399,6 +406,7 @@ export function App() {
                                     SubstituteAssignmentScheduleListViewRoute.path
                                   }
                                   role={"admin"}
+                                  permissions={[PermissionEnum.SubstituteView]}
                                 >
                                   <SubstituteAssignmentScheduleLoader view="list" />
                                 </ProtectedRoute>
@@ -406,71 +414,114 @@ export function App() {
                                   component={SubstituteAssignmentScheduleLoader}
                                   path={SubstituteAssignmentScheduleRoute.path}
                                   role={"admin"}
+                                  permissions={[PermissionEnum.SubstituteView]}
                                 />
                                 <ProtectedRoute
                                   component={PeopleSubPoolEditLoader}
                                   path={PeopleSubPoolEditRoute.path}
                                   role={"admin"}
+                                  permissions={[PermissionEnum.SubstituteView]}
                                 />
                                 <ProtectedRoute
                                   component={PersonViewLoader}
                                   path={PersonViewRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AdminView,
+                                    PermissionEnum.EmployeeView,
+                                    PermissionEnum.SubstituteView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={PeopleLoader}
                                   path={PeopleRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AdminView,
+                                    PermissionEnum.EmployeeView,
+                                    PermissionEnum.SubstituteView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={OrgSettingsLoader}
                                   path={OrgSettingsRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.GeneralSettingsView,
+                                    PermissionEnum.ScheduleSettingsView,
+                                    PermissionEnum.AbsVacSettingsView,
+                                    PermissionEnum.FinanceSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={PositionTypeAddLoader}
                                   path={PositionTypeAddRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.FinanceSettingsSave,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={PositionTypeEditSettingsLoader}
                                   path={PositionTypeEditSettingsRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.FinanceSettingsSave,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={PositionTypeViewLoader}
                                   path={PositionTypeViewRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.FinanceSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={PositionTypeLoader}
                                   path={PositionTypeRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.FinanceSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={BellScheduleAddLoader}
                                   path={BellScheduleAddRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.ScheduleSettingsSave,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={BellScheduleViewLoader}
                                   path={BellScheduleViewRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.ScheduleSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={BellScheduleLoader}
                                   path={BellScheduleRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.ScheduleSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={VerifyLoader}
                                   path={VerifyRoute.path}
                                   role={"admin"}
+                                  permissions={[PermissionEnum.AbsVacVerify]}
                                 />
                                 <ProtectedRoute
                                   component={BellScheduleVariantsLoader}
                                   path={BellScheduleVariantsRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.ScheduleSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={AdminHomeLoader}
@@ -482,81 +533,126 @@ export function App() {
                                   component={GeneralSettingsLoader}
                                   path={GeneralSettingsRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.GeneralSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={CalendarChangeReasonLoader}
                                   path={CalendarChangeReasonRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.ScheduleSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={ReplacementAttributeLoader}
                                   path={ReplacementAttributeRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AbsVacSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={AbsenceReasonLoader}
                                   path={AbsenceReasonRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AbsVacSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={VacancyReasonLoader}
                                   path={VacancyReasonRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AbsVacSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={AbsenceVacancyRulesLoader}
                                   path={AbsenceVacancyRulesRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AbsVacSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={SubstituteSettingsLoader}
                                   path={SubstituteSettingsRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AbsVacSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={AccountingCodeLoader}
                                   path={AccountingCodeRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.FinanceSettingsView,
+                                  ]}
                                 />
-
                                 <ProtectedRoute
                                   component={PayCodeLoader}
                                   path={PayCodeRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.FinanceSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={AbsenceReasonAddLoader}
                                   path={AbsenceReasonAddRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AbsVacSettingsSave,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={AbsenceReasonViewEditLoader}
                                   path={AbsenceReasonViewEditRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AbsVacSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={AbsenceReasonLoader}
                                   path={AbsenceReasonRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AbsVacSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={ContractsLoader}
                                   path={ContractsRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.FinanceSettingsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={LocationsLoader}
                                   path={LocationsRoute.path}
                                   role={"admin"}
+                                  permissions={[PermissionEnum.LocationView]}
                                 />
                                 <ProtectedRoute
                                   component={LocationGroupsLoader}
                                   path={LocationGroupsRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.LocationGroupView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   path={CalendarListViewRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.CalendarChangeView,
+                                  ]}
                                 >
                                   <CalendarsLoader view="list" />
                                 </ProtectedRoute>
@@ -564,6 +660,9 @@ export function App() {
                                 <ProtectedRoute
                                   path={CalendarCalendarViewRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.CalendarChangeView,
+                                  ]}
                                 >
                                   <CalendarsLoader view="calendar" />
                                 </ProtectedRoute>
@@ -572,6 +671,9 @@ export function App() {
                                   component={CalendarsLoader}
                                   path={CalendarRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.CalendarChangeView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={SecurityUsersLoader}
@@ -582,26 +684,41 @@ export function App() {
                                   component={SecurityPermissionSetsAddLoader}
                                   path={SecurityPermissionSetsAddRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.PermissionSetSave,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={SecurityPermissionSetsViewLoader}
                                   path={SecurityPermissionSetsViewRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.PermissionSetView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={SecurityPermissionSetsLoader}
                                   path={SecurityPermissionSetsRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.PermissionSetView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={SecurityPartnersLoader}
                                   path={SecurityPartnersRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.ExternalConnectionsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={SecurityManagedOrganizationsLoader}
                                   path={SecurityManagedOrganizationsRoute.path}
                                   role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.ExternalConnectionsView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={DailyReportLoader}
