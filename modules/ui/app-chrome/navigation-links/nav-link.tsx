@@ -14,6 +14,8 @@ import * as React from "react";
 import { useCallback, useMemo, useState } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import { SubNavLink } from "./sub-nav-link";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 type Props = SubNavItemType & {
   icon: JSX.Element;
@@ -27,6 +29,7 @@ type SubNavItemType = {
   onClick?: () => void;
   className?: string;
   exact?: boolean;
+  permissions?: PermissionEnum[];
 };
 
 export const NavLink: React.FC<Props> = props => {
@@ -125,13 +128,22 @@ export const NavLink: React.FC<Props> = props => {
           component="ul"
           className={subNavClasses}
         >
-          {subNavItems.map(subNavProps => (
-            <SubNavLink
-              key={subNavProps.route}
-              {...subNavProps}
-              setSubNavMatches={setSubNavMatchesCallback}
-            />
-          ))}
+          {subNavItems.map(subNavProps => {
+            return subNavProps?.permissions ? (
+              <Can do={subNavProps?.permissions} key={subNavProps.route}>
+                <SubNavLink
+                  {...subNavProps}
+                  setSubNavMatches={setSubNavMatchesCallback}
+                />
+              </Can>
+            ) : (
+              <SubNavLink
+                {...subNavProps}
+                key={subNavProps.route}
+                setSubNavMatches={setSubNavMatchesCallback}
+              />
+            );
+          })}
         </Collapse>
       )}
     </div>

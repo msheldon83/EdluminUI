@@ -6,6 +6,7 @@ import {
   AdminRootChromeRoute,
   AppChromeRoute,
 } from "ui/routes/app-chrome";
+import { SecurityUsersRoute } from "ui/routes/security/users";
 import { defineSubRoute, useRouteParams } from "ui/routes/definition";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { EmployeePtoBalanceRoute } from "ui/routes/employee-pto-balances";
@@ -166,7 +167,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           <SecurityNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
-            route={adminTbd.generate(params)}
+            route={SecurityUsersRoute.generate(params)}
             orgId={params.organizationId}
           />
         </>

@@ -38,6 +38,7 @@ import {
   canViewPTOBalancesNavLink,
   canViewEmpSubPrefNavLink,
 } from "helpers/permissions";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   className?: string;
@@ -66,10 +67,12 @@ export const AbsenceNavLink: React.FC<Props> = props => {
           {
             title: t("Daily Report"),
             route: DailyReportRoute.generate(paramsDailyReport),
+            permissions: [PermissionEnum.AbsVacView],
           },
           {
             title: t("Verify"),
             route: VerifyRoute.generate(paramsVerify),
+            permissions: [PermissionEnum.AbsVacVerify],
           },
         ]}
         {...props}
@@ -104,10 +107,12 @@ export const SchoolsNavLink: React.FC<Props> = props => {
           {
             title: t("Schools"),
             route: LocationsRoute.generate(paramsLocations),
+            permissions: [PermissionEnum.LocationView],
           },
           {
             title: t("School Groups"),
             route: LocationGroupsRoute.generate(paramsGroups),
+            permissions: [PermissionEnum.LocationGroupView],
           },
         ]}
         {...props}
@@ -169,16 +174,19 @@ export const SecurityNavLink: React.FC<Props> = props => {
             route: SecurityPermissionSetsRoute.generate(
               paramsSecurityPermissionSets
             ),
+            permissions: [PermissionEnum.PermissionSetView],
           },
           {
             title: t("Partners"),
             route: SecurityPartnersRoute.generate(paramsSecurityPartners),
+            permissions: [PermissionEnum.ExternalConnectionsView],
           },
           {
             title: t("Managed Organizations"),
             route: SecurityManagedOrganizationsRoute.generate(
               paramsSecurityManagedOrganizations
             ),
+            permissions: [PermissionEnum.ExternalConnectionsView],
           },
         ]}
         {...props}
