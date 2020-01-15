@@ -38,44 +38,50 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { GetOrgUserLastLogin } from "../graphql/get-orguser-lastlogin.gen";
+import { ActionButtons } from "../../../components/action-buttons";
 
-const editableSections = {
+export const editableSections = {
   information: "edit-information",
+};
+
+export type OrgUser = {
+  id?: string | number | null | undefined;
+  orgId?: number | null | undefined;
+  rowVersion?: string | null | undefined; // This is the row version of the employee, not of the orgUser.
+  firstName?: string;
+  lastName?: string;
+  email?: string | null | undefined;
+  address1?: string | null | undefined;
+  address2?: string | null | undefined;
+  city?: string | null | undefined;
+  state?: StateCode | null | undefined;
+  country?: CountryCode | null | undefined;
+  postalCode?: string | null | undefined;
+  phoneNumber?: string | null | undefined;
+  dateOfBirth?: Date | string | null | undefined;
 };
 
 type Props = {
   editing: string | null;
+  isCreate?: boolean;
   userId?: number | null | undefined;
   loginEmail?: string | null | undefined;
-  orgUser: {
-    id: string;
-    orgId: number;
-    rowVersion?: string | null | undefined; // This is the row version of the employee, not of the orgUser.
-    firstName: string;
-    lastName: string;
-    email: string;
-    address1?: string | null | undefined;
-    address2?: string | null | undefined;
-    city?: string | null | undefined;
-    state?: StateCode | null | undefined;
-    country?: CountryCode | null | undefined;
-    postalCode?: string | null | undefined;
-    phoneNumber?: string | null | undefined;
-    dateOfBirth?: string | null | undefined;
-    permissionSet?:
-      | {
-          id: string;
-          name: string;
-          orgUserRole?: OrgUserRole | null | undefined;
-        }
-      | null
-      | undefined;
-  };
-  orgUserRowVersion: string;
+  orgUser: OrgUser;
+  permissionSet?:
+    | {
+        id: string;
+        name: string;
+        orgUserRole?: OrgUserRole | null | undefined;
+      }
+    | null
+    | undefined;
+  orgUserRowVersion?: string;
   isSuperUser: boolean;
   selectedRole: OrgUserRole;
-  setEditing: React.Dispatch<React.SetStateAction<string | null>>;
-  onSaveOrgUser: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
+  setEditing?: React.Dispatch<React.SetStateAction<string | null>>;
+  onSaveOrgUser?: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
+  onSubmit?: (orgUser: OrgUser, permissionSetId: number) => void;
+  onCancel?: () => void;
 };
 
 export const Information: React.FC<Props> = props => {
@@ -98,6 +104,7 @@ export const Information: React.FC<Props> = props => {
 
   const getOrgUserLastLogin = useQueryBundle(GetOrgUserLastLogin, {
     variables: { id: props.orgUser.id },
+    skip: props.isCreate,
     onError: error => {
       // This shouldn't blow up the page
       console.error(error);
@@ -125,7 +132,7 @@ export const Information: React.FC<Props> = props => {
 
   const initials = getInitials(props.orgUser);
 
-  const permissionSets = usePermissionSets(orgUser.orgId.toString(), [
+  const permissionSets = usePermissionSets(orgUser.orgId!.toString(), [
     props.selectedRole,
   ]);
   const permissionSetOptions = permissionSets.map(ps => ({
@@ -134,8 +141,8 @@ export const Information: React.FC<Props> = props => {
   }));
 
   let permissions = props.isSuperUser ? t("Org Admin") : "";
-  if (orgUser.permissionSet) {
-    permissions = orgUser?.permissionSet?.name ?? t("No Permissions Defined");
+  if (props.permissionSet) {
+    permissions = props.permissionSet?.name ?? t("No Permissions Defined");
   }
 
   const stateOptions = USStates.map(s => ({
@@ -154,26 +161,41 @@ export const Information: React.FC<Props> = props => {
           state: orgUser.state ?? undefined,
           postalCode: orgUser.postalCode ?? "",
           dateOfBirth: orgUser.dateOfBirth
-            ? parseISO(orgUser.dateOfBirth)
+            ? parseISO(orgUser.dateOfBirth.toString())
             : undefined,
-          permissionSetId: orgUser.permissionSet?.id ?? "",
+          permissionSetId: props.permissionSet?.id ?? "",
         }}
         onSubmit={async (data, e) => {
-          await props.onSaveOrgUser({
-            id: Number(orgUser.id),
-            rowVersion: props.orgUserRowVersion,
-            email: data.email,
-            phoneNumber:
-              data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
-            dateOfBirth: isValid(data.dateOfBirth) ? data.dateOfBirth : null,
-            address1: data.address1.trim().length === 0 ? null : data.address1,
-            city: data.city.trim().length === 0 ? null : data.city,
-            stateId: data.state,
-            postalCode:
-              data.postalCode.trim().length === 0 ? null : data.postalCode,
-            countryId: data.state ? ("US" as CountryCode) : null,
-            // TODO: handle permission set update
-          });
+          if (props.isCreate) {
+             props.onSubmit!({
+              email: data.email,
+              phoneNumber:
+                data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
+              dateOfBirth: isValid(data.dateOfBirth) ? data.dateOfBirth : null,
+              address1: data.address1.trim().length === 0 ? null : data.address1,
+              city: data.city.trim().length === 0 ? null : data.city,
+              state: data.state,
+              postalCode:
+                data.postalCode.trim().length === 0 ? null : data.postalCode,
+              country: data.state ? ("US" as CountryCode) : null,
+             }, Number(data.permissionSetId));
+          } else {
+            await props.onSaveOrgUser!({
+              id: Number(orgUser.id),
+              rowVersion: props.orgUserRowVersion ?? "",
+              email: data.email,
+              phoneNumber:
+                data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
+              dateOfBirth: isValid(data.dateOfBirth) ? data.dateOfBirth : null,
+              address1: data.address1.trim().length === 0 ? null : data.address1,
+              city: data.city.trim().length === 0 ? null : data.city,
+              stateId: data.state,
+              postalCode:
+                data.postalCode.trim().length === 0 ? null : data.postalCode,
+              countryId: data.state ? ("US" as CountryCode) : null,
+              // TODO: handle permission set update
+            });
+          }          
         }}
         validationSchema={yup.object().shape({
           email: yup.string().required(t("Email is required")),
@@ -182,24 +204,26 @@ export const Information: React.FC<Props> = props => {
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
             <Section className={classes.customSection}>
-              <SectionHeader
-                title={t("Information")}
-                action={
-                  props.editing === editableSections.information
-                    ? {
-                        text: t("Save"),
-                        visible: true,
-                        execute: submitForm,
-                      }
-                    : {
-                        text: t("Edit"),
-                        visible: !props.editing,
-                        execute: () => {
-                          props.setEditing(editableSections.information);
-                        },
-                      }
-                }
-              />
+              {!props.isCreate && (
+                <SectionHeader
+                  title={t("Information")}
+                  action={
+                    props.editing === editableSections.information
+                      ? {
+                          text: t("Save"),
+                          visible: true,
+                          execute: submitForm,
+                        }
+                      : {
+                          text: t("Edit"),
+                          visible: !props.editing,
+                          execute: () => {
+                            props.setEditing!(editableSections.information);
+                          },
+                        }
+                  }
+                />
+              )}
               <Grid container>
                 <Grid container item xs={8} component="dl" spacing={2}>
                   <Grid container item xs={6} spacing={2}>
@@ -367,57 +391,64 @@ export const Information: React.FC<Props> = props => {
                       }
                     />
                   </Grid>
+                  {!props.isCreate && (
+                    <>
                   <Grid item xs={12}>
                     <Divider variant="fullWidth" className={classes.divider} />
-                  </Grid>
-                  <Grid container item xs={6} spacing={2}>
-                    <PeopleGridItem
-                      title={t("Username")}
-                      description={props.loginEmail}
-                    />
-                    <PeopleGridItem
-                      title={
-                        <span className={classes.resetPassword}>
-                          {t("Password")}{" "}
-                          <Tooltip
-                            title={
-                              <div className={classes.tooltip}>
-                                <Typography variant="body1">
-                                  Reset password will send the user an email
-                                  with a link to reset the password.
-                                </Typography>
-                              </div>
-                            }
-                            placement="right-start"
-                          >
-                            <InfoIcon
-                              color="primary"
-                              style={{ fontSize: "16px", marginLeft: "8px" }}
-                            />
-                          </Tooltip>
-                        </span>
-                      }
-                      description={
-                        <TextButton onClick={() => onResetPassword()}>
-                          {t("Reset Password")}
-                        </TextButton>
-                      }
-                    />
-                  </Grid>
-                  <Grid container item xs={6} spacing={2}>
-                    <PeopleGridItem
-                      title={t("Last Login")}
-                      description={
-                        formattedLoginTime ? (
-                          formattedLoginTime
-                        ) : (
-                          <span className={classes.notSpecified}>
-                            {t("Not Available")}
-                          </span>
-                        )
-                      }
-                    />
-                  </Grid>
+                  </Grid>                  
+                      <Grid container item xs={6} spacing={2}>
+                        <PeopleGridItem
+                          title={t("Username")}
+                          description={props.loginEmail}
+                        />
+                        <PeopleGridItem
+                          title={
+                            <span className={classes.resetPassword}>
+                              {t("Password")}{" "}
+                              <Tooltip
+                                title={
+                                  <div className={classes.tooltip}>
+                                    <Typography variant="body1">
+                                      Reset password will send the user an email
+                                      with a link to reset the password.
+                                    </Typography>
+                                  </div>
+                                }
+                                placement="right-start"
+                              >
+                                <InfoIcon
+                                  color="primary"
+                                  style={{
+                                    fontSize: "16px",
+                                    marginLeft: "8px",
+                                  }}
+                                />
+                              </Tooltip>
+                            </span>
+                          }
+                          description={
+                            <TextButton onClick={() => onResetPassword()}>
+                              {t("Reset Password")}
+                            </TextButton>
+                          }
+                        />
+                      </Grid>
+                      <Grid container item xs={6} spacing={2}>
+                        <PeopleGridItem
+                          title={t("Last Login")}
+                          description={
+                            formattedLoginTime ? (
+                              formattedLoginTime
+                            ) : (
+                              <span className={classes.notSpecified}>
+                                {t("Not Available")}
+                              </span>
+                            )
+                          }
+                        />
+                      </Grid>
+                    </>
+                  )}
                 </Grid>
                 <Grid container item spacing={2} xs={4}>
                   <Grid
@@ -431,7 +462,13 @@ export const Information: React.FC<Props> = props => {
                   </Grid>
                 </Grid>
               </Grid>
-            </Section>
+              {props.isCreate && (
+                <ActionButtons
+                  submit={{ text: t("Save"), execute: submitForm }}
+                  cancel={{ text: t("Cancel"), execute: props.onCancel! }}
+                />
+              )}              
+            </Section>            
           </form>
         )}
       </Formik>

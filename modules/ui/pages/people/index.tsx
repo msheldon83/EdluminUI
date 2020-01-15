@@ -2,9 +2,10 @@ import {
   Link,
   Popper,
   Fade,
-  Button,
   List,
   ListItemText,
+  Grid,
+  Button
 } from "@material-ui/core";
 import { AccountCircleOutlined, DeleteOutline } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
@@ -23,11 +24,12 @@ import * as React from "react";
 import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
+import { Link as ReactLink } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Table } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
-import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
+import { PeopleRoute, PersonViewRoute, AdminAddRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";
@@ -438,7 +440,26 @@ export const PeoplePage: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle title={t("People")} />
+      <Grid
+        container
+        alignItems="flex-start"
+        justify="space-between"
+        spacing={2}
+        className={classes.header}
+      >
+        <Grid item>
+          <PageTitle title={t("People")} />
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            component={ReactLink}
+            to={AdminAddRoute.generate(params)}
+          >
+            {t("Add Person")}
+          </Button>
+        </Grid>
+      </Grid>
       <PeopleFilters />
       <div className={classes.tableContainer}>
         <Table
@@ -500,5 +521,8 @@ const useStyles = makeStyles(theme => ({
   accountCell: {
     display: "flex",
     alignItems: "center",
+  },
+  header: {
+    marginBottom: theme.spacing(),
   },
 }));

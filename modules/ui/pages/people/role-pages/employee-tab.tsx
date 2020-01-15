@@ -62,6 +62,7 @@ export const EmployeeTab: React.FC<Props> = props => {
       <Information
         editing={props.editing}
         orgUser={employee}
+        permissionSet={employee.permissionSet}
         orgUserRowVersion={orgUser.rowVersion}
         userId={orgUser?.userId}
         loginEmail={orgUser?.loginEmail}

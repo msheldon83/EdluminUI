@@ -88,6 +88,8 @@ import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
 import {
   PeopleLoader,
   PeopleRoute,
+  AdminAddRoute,
+  AdminAddLoader,
   PersonViewLoader,
   PeopleSubPoolEditLoader,
   PeopleSubPoolEditRoute,
@@ -409,6 +411,11 @@ export function App() {
                               <ProtectedRoute
                                 component={PeopleSubPoolEditLoader}
                                 path={PeopleSubPoolEditRoute.path}
+                                role={"admin"}
+                              />
+                              <ProtectedRoute
+                                component={AdminAddLoader}
+                                path={AdminAddRoute.path}
                                 role={"admin"}
                               />
                               <ProtectedRoute

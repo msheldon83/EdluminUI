@@ -14,10 +14,21 @@ export type QueryParams = {
   active: boolean;
 };
 
+// Add Admin
+export const AdminAddRoute = defineSubRoute(PeopleRoute, "/add-admin");
+export const AdminAddLoader = asyncComponent({
+  resolve: async () => {
+    const AdminAddPage = (await import("ui/pages/people/components/admin/add"))
+      .AdminAddPage;
+    return AdminAddPage;
+  },
+  name: "AdminAddPage",
+});
+
+// View
 export const PersonViewRoute = defineSubRoute(PeopleRoute, "/:orgUserId", [
   "orgUserId",
 ]);
-
 export const PersonViewLoader = asyncComponent({
   resolve: async () => {
     const PersonViewPage = (await import("ui/pages/people/view"))
