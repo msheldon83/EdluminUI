@@ -117,7 +117,7 @@ export function Table<T extends object>(props: TableProps<T>) {
   // Handle any permission checks to determine if we need to hide any columns
   const allColumns: TableColumn<T>[] = useMemo(() => {
     return props.columns.map(c => {
-      if (!c.permissions) {
+      if (!c.permissions || c.hidden) {
         return c;
       }
 

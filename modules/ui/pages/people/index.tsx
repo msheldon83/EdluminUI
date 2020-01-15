@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
-import { Table } from "ui/components/table";
+import { Table, TableColumn } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
@@ -234,7 +234,7 @@ export const PeoplePage: React.FC<Props> = props => {
 
   const peopleCount = pagination.totalCount;
 
-  const columns: Column<typeof tableData[0]>[] = [
+  const columns: TableColumn<typeof tableData[0]>[] = [
     {
       cellStyle: {
         paddingRight: 0,
@@ -261,7 +261,21 @@ export const PeoplePage: React.FC<Props> = props => {
       title: t("Last Name"),
       field: "lastName",
     },
-    { title: t("Primary Phone"), field: "phone", sorting: false },
+    // Column to show on All, Employees, and Admins tabs, but not Substitutes
+    {
+      title: t("Primary Phone"),
+      field: "phone",
+      sorting: false,
+      hidden: filters.roleFilter === OrgUserRole.ReplacementEmployee,
+    },
+    // Column to potentially show on the Substitutes tab based on the permission
+    {
+      title: t("Primary Phone"),
+      field: "phone",
+      sorting: false,
+      hidden: filters.roleFilter !== OrgUserRole.ReplacementEmployee,
+      permissions: [PermissionEnum.SubstituteViewPhone],
+    },
     { title: t("External ID"), field: "externalId", sorting: false },
     {
       title: t("Role"),
