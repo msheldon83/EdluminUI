@@ -80,6 +80,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
             <Grid container spacing={2}>
               <Grid item xs={4} sm={2} lg={2}>
                 <Input
+                  value={values.firstName}
                   label={t("First name")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
@@ -100,6 +101,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={4} sm={2} lg={2}>
                 <Input
+                  value={values.middleName}
                   label={t("Middle name")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
@@ -115,6 +117,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={4} sm={2} lg={2}>
                 <Input
+                  value={values.lastName}
                   label={t("Last name")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
@@ -135,6 +138,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
                 <Input
+                  value={values.externalId}
                   label={t("External ID")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
@@ -148,6 +152,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
                 <Input
+                  value={values.email}
                   label={t("Login Email")}
                   InputComponent={FormTextField}
                   inputComponentProps={{

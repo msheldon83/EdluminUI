@@ -20,8 +20,7 @@ import { PhoneNumberInput } from "ui/components/form/phone-number-input";
 import {
   StateCode,
   CountryCode,
-  OrgUserRole,
-  OrgUserUpdateInput,
+  OrgUserRole
 } from "graphql/server-types.gen";
 import { PeopleGridItem } from "./people-grid-item";
 import * as yup from "yup";
@@ -47,7 +46,6 @@ export const editableSections = {
 export type OrgUser = {
   id?: string | number | null | undefined;
   orgId?: number | null | undefined;
-  rowVersion?: string | null | undefined; // This is the row version of the employee, not of the orgUser.
   firstName?: string;
   lastName?: string;
   email?: string | null | undefined;
@@ -59,6 +57,7 @@ export type OrgUser = {
   postalCode?: string | null | undefined;
   phoneNumber?: string | null | undefined;
   dateOfBirth?: Date | string | null | undefined;
+  permissionSet?: {id?: number | null | undefined } | null | undefined;
 };
 
 type Props = {
@@ -75,12 +74,10 @@ type Props = {
       }
     | null
     | undefined;
-  orgUserRowVersion?: string;
   isSuperUser: boolean;
   selectedRole: OrgUserRole;
   setEditing?: React.Dispatch<React.SetStateAction<string | null>>;
-  onSaveOrgUser?: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
-  onSubmit?: (orgUser: OrgUser, permissionSetId: number) => void;
+  onSubmit?: (orgUser: any) => Promise<unknown>;
   onCancel?: () => void;
 };
 
@@ -166,36 +163,26 @@ export const Information: React.FC<Props> = props => {
           permissionSetId: props.permissionSet?.id ?? "",
         }}
         onSubmit={async (data, e) => {
-          if (props.isCreate) {
-             props.onSubmit!({
-              email: data.email,
-              phoneNumber:
-                data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
-              dateOfBirth: isValid(data.dateOfBirth) ? data.dateOfBirth : null,
-              address1: data.address1.trim().length === 0 ? null : data.address1,
-              city: data.city.trim().length === 0 ? null : data.city,
-              state: data.state,
-              postalCode:
-                data.postalCode.trim().length === 0 ? null : data.postalCode,
-              country: data.state ? ("US" as CountryCode) : null,
-             }, Number(data.permissionSetId));
-          } else {
-            await props.onSaveOrgUser!({
-              id: Number(orgUser.id),
-              rowVersion: props.orgUserRowVersion ?? "",
-              email: data.email,
-              phoneNumber:
-                data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
-              dateOfBirth: isValid(data.dateOfBirth) ? data.dateOfBirth : null,
-              address1: data.address1.trim().length === 0 ? null : data.address1,
-              city: data.city.trim().length === 0 ? null : data.city,
-              stateId: data.state,
-              postalCode:
-                data.postalCode.trim().length === 0 ? null : data.postalCode,
-              countryId: data.state ? ("US" as CountryCode) : null,
-              // TODO: handle permission set update
-            });
-          }          
+            await props.onSubmit!(
+              {
+                email: data.email,
+                phoneNumber:
+                  data.phoneNumber.trim().length === 0
+                    ? null
+                    : data.phoneNumber,
+                dateOfBirth: isValid(data.dateOfBirth)
+                  ? data.dateOfBirth
+                  : null,
+                address1:
+                  data.address1.trim().length === 0 ? null : data.address1,
+                city: data.city.trim().length === 0 ? null : data.city,
+                state: data.state,
+                postalCode:
+                  data.postalCode.trim().length === 0 ? null : data.postalCode,
+                country: data.state ? ("US" as CountryCode) : null,
+                permissionSet: { id: Number(data.permissionSetId)}
+              }
+            );
         }}
         validationSchema={yup.object().shape({
           email: yup.string().required(t("Email is required")),
@@ -393,9 +380,12 @@ export const Information: React.FC<Props> = props => {
                   </Grid>
                   {!props.isCreate && (
                     <>
-                  <Grid item xs={12}>
-                    <Divider variant="fullWidth" className={classes.divider} />
-                  </Grid>                  
+                      <Grid item xs={12}>
+                        <Divider
+                          variant="fullWidth"
+                          className={classes.divider}
+                        />
+                      </Grid>
                       <Grid container item xs={6} spacing={2}>
                         <PeopleGridItem
                           title={t("Username")}
@@ -467,8 +457,8 @@ export const Information: React.FC<Props> = props => {
                   submit={{ text: t("Save"), execute: submitForm }}
                   cancel={{ text: t("Cancel"), execute: props.onCancel! }}
                 />
-              )}              
-            </Section>            
+              )}
+            </Section>
           </form>
         )}
       </Formik>

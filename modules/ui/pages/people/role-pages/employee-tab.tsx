@@ -4,9 +4,9 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
-import { OrgUserRole, OrgUserUpdateInput } from "graphql/server-types.gen";
+import { OrgUserRole, EmployeeInput } from "graphql/server-types.gen";
 import { GetEmployeeById } from "../graphql/employee/get-employee-by-id.gen";
-import { UpdateEmployee } from "../graphql/employee/update-employee.gen";
+import { SaveEmployee } from "../graphql/employee/save-employee.gen";
 
 import { UpcomingAbsences } from "../components/employee/upcoming-absences";
 import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
@@ -26,7 +26,7 @@ export const EmployeeTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
 
-  const [updateEmployee] = useMutationBundle(UpdateEmployee, {
+  const [updateEmployee] = useMutationBundle(SaveEmployee, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -47,10 +47,10 @@ export const EmployeeTab: React.FC<Props> = props => {
 
   const employee = orgUser.employee;
 
-  const onUpdateEmployee = async (updatedEmployee: OrgUserUpdateInput) => {
+  const onUpdateEmployee = async (orgUser: EmployeeInput) => {
     await updateEmployee({
       variables: {
-        orgUser: updatedEmployee,
+        employee: orgUser,
       },
     });
     props.setEditing(null);
@@ -63,13 +63,12 @@ export const EmployeeTab: React.FC<Props> = props => {
         editing={props.editing}
         orgUser={employee}
         permissionSet={employee.permissionSet}
-        orgUserRowVersion={orgUser.rowVersion}
         userId={orgUser?.userId}
         loginEmail={orgUser?.loginEmail}
         isSuperUser={false}
         setEditing={props.setEditing}
         selectedRole={props.selectedRole}
-        onSaveOrgUser={onUpdateEmployee}
+        onSubmit={onUpdateEmployee}
       />
       <Position
         editing={props.editing}

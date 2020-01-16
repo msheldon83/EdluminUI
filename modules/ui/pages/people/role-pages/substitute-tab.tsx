@@ -3,9 +3,9 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
-import { OrgUserRole, OrgUserUpdateInput } from "graphql/server-types.gen";
+import { OrgUserRole, SubstituteInput } from "graphql/server-types.gen";
 import { GetSubstituteById } from "../graphql/substitute/get-substitute-by-id.gen";
-import { UpdateSubstitute } from "../graphql/substitute/update-substitute.gen";
+import { SaveSubstitute } from "../graphql/substitute/save-substitute.gen";
 
 import { SubstitutePools } from "../components/substitute/substitute-pools";
 import { SubPositionsAttributes } from "../components/substitute/sub-positions-attributes";
@@ -40,7 +40,7 @@ export const SubstituteTab: React.FC<Props> = props => {
   let userIsAdmin = useIsAdmin();
   userIsAdmin = userIsAdmin === null ? false : userIsAdmin;
   const params = useRouteParams(PersonViewRoute);
-  const [updateSubstitute] = useMutationBundle(UpdateSubstitute, {
+  const [updateSubstitute] = useMutationBundle(SaveSubstitute, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -72,10 +72,10 @@ export const SubstituteTab: React.FC<Props> = props => {
 
   const substitute = orgUser.substitute;
 
-  const onUpdateSubstitute = async (updatedSubstitute: OrgUserUpdateInput) => {
+  const onUpdateSubstitute = async (orgUser: SubstituteInput) => {
     await updateSubstitute({
       variables: {
-        orgUser: updatedSubstitute,
+        substitute: orgUser,
       },
     });
     props.setEditing(null);
@@ -88,13 +88,12 @@ export const SubstituteTab: React.FC<Props> = props => {
         editing={props.editing}
         orgUser={substitute}
         permissionSet={substitute.permissionSet}
-        orgUserRowVersion={orgUser.rowVersion}
         userId={orgUser?.userId}
         loginEmail={orgUser?.loginEmail}
         isSuperUser={false}
         setEditing={props.setEditing}
         selectedRole={props.selectedRole}
-        onSaveOrgUser={onUpdateSubstitute}
+        onSubmit={onUpdateSubstitute}
       />
       <SubPositionsAttributes
         editing={props.editing}

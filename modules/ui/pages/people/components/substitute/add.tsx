@@ -1,6 +1,7 @@
-import { useMutationBundle } from "graphql/hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
+import { useEffect } from "react";
 import { PageTitle } from "ui/components/page-title";
 import {
   PeopleRoute,
@@ -15,6 +16,7 @@ import { SubstituteInput, OrgUserRole } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveSubstitute } from "../../graphql/substitute/save-substitute.gen";
+import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 
@@ -30,7 +32,9 @@ export const SubstituteAddPage: React.FC<{}> = props => {
     },
   });
   const [name, setName] = React.useState<string | null>(null);
+  const [initialStepNumber, setInitialStepNumber] = React.useState(0);
 
+  // Save a new substitute in state
   const [substitute, setSubstitute] = React.useState<SubstituteInput>({
     orgId: Number(params.organizationId),
     firstName: "",
@@ -39,6 +43,37 @@ export const SubstituteAddPage: React.FC<{}> = props => {
     externalId: null,
     email: "",
   });
+
+  const getOrgUser = useQueryBundle(GetOrgUserById, {
+    variables: { id: params.orgUserId },
+    skip: params.orgUserId === "add",
+  });
+
+  const orgUser =
+  getOrgUser.state === "LOADING"
+    ? undefined
+    : getOrgUser?.data?.orgUser?.byId;
+
+  useEffect(() => {
+    if (orgUser) {
+      setSubstitute({
+        ...substitute,
+        id: Number(orgUser.id),
+        orgId: Number(params.organizationId),
+        firstName: orgUser.firstName,
+        middleName: orgUser.middleName,
+        lastName: orgUser.lastName,
+        externalId: orgUser.externalId,
+        email: orgUser.email,
+      });
+      setInitialStepNumber(steps[1].stepNumber);
+    }      
+  }, [orgUser, params.organizationId]);
+
+  const handleCancel = () => {
+    const url = params.orgUserId === "add" ? PeopleRoute.generate(params) : PersonViewRoute.generate(params);
+    history.push(url);
+  };
 
   const renderBasicInfoStep = (
     setStep: React.Dispatch<React.SetStateAction<number>>
@@ -57,10 +92,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
           });
           setStep(steps[1].stepNumber);
         }}
-        onCancel={() => {
-          const url = PeopleRoute.generate(params);
-          history.push(url);
-        }}
+        onCancel={handleCancel}
         onNameChange={(firstName, lastName) => {
           firstName && lastName && setName(`${firstName} ${lastName}`);
         }}
@@ -78,7 +110,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
         isSuperUser={false}
         selectedRole={OrgUserRole.ReplacementEmployee}
         isCreate={true}
-        onSubmit={async (orgUser: OrgUser, permissionSetId: number) => {
+        onSubmit={async (orgUser: any) => {
           const newSubstitute = {
             ...substitute,
             email: orgUser.email,
@@ -89,17 +121,14 @@ export const SubstituteAddPage: React.FC<{}> = props => {
             postalCode: orgUser.postalCode,
             phoneNumber: orgUser.phoneNumber,
             dateOfBirth: orgUser.dateOfBirth,
-            permissionSet: { id: permissionSetId },
+            permissionSet: { id: orgUser.permissionSet.id },
           };
           setSubstitute(newSubstitute);
           const id = await create(newSubstitute);
           const viewParams = { ...params, orgUserId: id! };
           history.push(PersonViewRoute.generate(viewParams));
         }}
-        onCancel={() => {
-          const url = PeopleRoute.generate(params);
-          history.push(url);
-        }}
+        onCancel={handleCancel}
       />
     );
   };
@@ -125,13 +154,14 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       content: renderInformation,
     },
   ];
+  
   return (
     <>
       <div className={classes.header}>
         <PageTitle title={t("Create new Substitute")} />
         <Typography variant="h1">{name || ""}</Typography>
       </div>
-      <Tabs steps={steps} isWizard={true} showStepNumber={true}></Tabs>
+      <Tabs steps={steps} isWizard={true} showStepNumber={true} initialStepNumber={initialStepNumber}></Tabs>
     </>
   );
 };

@@ -15,7 +15,11 @@ export type QueryParams = {
 };
 
 // Add Admin
-export const AdminAddRoute = defineSubRoute(PeopleRoute, "/add-admin");
+export const AdminAddRoute = defineSubRoute(
+  PeopleRoute,
+  "/add-admin/:orgUserId",
+  ["orgUserId"]
+);
 export const AdminAddLoader = asyncComponent({
   resolve: async () => {
     const AdminAddPage = (await import("ui/pages/people/components/admin/add"))
@@ -26,7 +30,11 @@ export const AdminAddLoader = asyncComponent({
 });
 
 // Add Employee
-export const EmployeeAddRoute = defineSubRoute(PeopleRoute, "/add-employee");
+export const EmployeeAddRoute = defineSubRoute(
+  PeopleRoute,
+  "/add-employee/:orgUserId",
+  ["orgUserId"]
+);
 export const EmployeeAddLoader = asyncComponent({
   resolve: async () => {
     const EmployeeAddPage = (
@@ -40,7 +48,8 @@ export const EmployeeAddLoader = asyncComponent({
 // Add Substitute
 export const SubstituteAddRoute = defineSubRoute(
   PeopleRoute,
-  "/add-substitute"
+  "/add-substitute/:orgUserId",
+  ["orgUserId"]
 );
 export const SubstituteAddLoader = asyncComponent({
   resolve: async () => {

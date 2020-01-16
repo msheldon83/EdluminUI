@@ -2,19 +2,8 @@ mutation SaveEmployee($employee: EmployeeInput!) {
   orgUser {
     saveEmployee(employee: $employee) {
       id
-      rowVersion
       employee {
-        id
-        orgId
-        rowVersion
-        email
-        firstName
-        lastName
-        permissionSet {
-          id
-          name
-          orgUserRole
-        }
+        ...EmployeeDetails
       }
     }
   }

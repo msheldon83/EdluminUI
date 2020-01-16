@@ -3,9 +3,9 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
-import { OrgUserRole, OrgUserUpdateInput } from "graphql/server-types.gen";
+import { OrgUserRole, AdministratorInput } from "graphql/server-types.gen";
 import { GetAdminById } from "../graphql/admin/get-admin-by-id.gen";
-import { UpdateAdmin } from "../graphql/admin/update-admin.gen";
+import { SaveAdmin } from "../graphql/admin/save-administrator.gen";
 
 import { AccessControl } from "../components/admin/access-control";
 import { Information } from "../components/information";
@@ -20,7 +20,7 @@ type Props = {
 export const AdminTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
 
-  const [updateAdmin] = useMutationBundle(UpdateAdmin, {
+  const [updateAdmin] = useMutationBundle(SaveAdmin, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -39,10 +39,10 @@ export const AdminTab: React.FC<Props> = props => {
 
   const admin = orgUser.administrator;
 
-  const onUpdateAdmin = async (updatedAdmin: OrgUserUpdateInput) => {
+  const onUpdateAdmin = async (orgUser: AdministratorInput) => {
     await updateAdmin({
       variables: {
-        orgUser: updatedAdmin,
+        administrator: orgUser,
       },
     });
     props.setEditing(null);
@@ -55,13 +55,12 @@ export const AdminTab: React.FC<Props> = props => {
         editing={props.editing}
         orgUser={admin}
         permissionSet={admin.permissionSet}
-        orgUserRowVersion={orgUser.rowVersion}
         userId={orgUser?.userId}
         loginEmail={orgUser?.loginEmail}
         isSuperUser={admin?.isSuperUser ?? false}
         setEditing={props.setEditing}
         selectedRole={props.selectedRole}
-        onSaveOrgUser={onUpdateAdmin}
+        onSubmit={onUpdateAdmin}
       />
       <AccessControl
         editing={props.editing}

@@ -1,6 +1,7 @@
-import { useMutationBundle } from "graphql/hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
+import { useEffect } from "react";
 import { PageTitle } from "ui/components/page-title";
 import { PeopleRoute, AdminAddRoute, PersonViewRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
@@ -11,6 +12,7 @@ import { AdministratorInput, OrgUserRole } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveAdmin } from "../../graphql/admin/save-administrator.gen";
+import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 
@@ -25,9 +27,11 @@ export const AdminAddPage: React.FC<{}> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
-  const [name, setName] = React.useState<string | null>(null);
+  const [name, setName] = React.useState<string | null>(null); 
 
+  // Save a new admin in state
   const [admin, setAdmin] = React.useState<AdministratorInput>({
+    id: null,
     orgId: Number(params.organizationId),
     firstName: "",
     middleName: null,
@@ -39,6 +43,38 @@ export const AdminAddPage: React.FC<{}> = props => {
       allPositionTypeIdsInScope: true,
     }, // TODO: this is temporary until we build the component to set access control
   });
+
+  const getOrgUser = useQueryBundle(GetOrgUserById, 
+    {
+      variables: { id: params.orgUserId },
+      skip: params.orgUserId === "add",
+    });
+
+  const orgUser =
+  getOrgUser.state === "LOADING"
+    ? undefined
+    : getOrgUser?.data?.orgUser?.byId;
+
+  useEffect(() => {
+    if (orgUser) {
+      setAdmin({
+        ...admin,
+        id: Number(orgUser.id),
+        orgId: Number(params.organizationId),
+        firstName: orgUser.firstName,
+        middleName: orgUser.middleName,
+        lastName: orgUser.lastName,
+        externalId: orgUser.externalId,
+        email: orgUser.email,
+      });
+      setInitialStepNumber(steps[1].stepNumber);
+    }      
+  }, [orgUser, params.organizationId]);
+
+  const handleCancel = () => {
+    const url = params.orgUserId === "add" ? PeopleRoute.generate(params) : PersonViewRoute.generate(params);
+    history.push(url);
+  };
 
   const renderBasicInfoStep = (
     setStep: React.Dispatch<React.SetStateAction<number>>
@@ -57,10 +93,7 @@ export const AdminAddPage: React.FC<{}> = props => {
           });
           setStep(steps[1].stepNumber);
         }}
-        onCancel={() => {
-          const url = PeopleRoute.generate(params);
-          history.push(url);
-        }}
+        onCancel={handleCancel}
         onNameChange={(firstName, lastName) => {
           firstName && lastName && setName(`${firstName} ${lastName}`);
         }}
@@ -78,7 +111,7 @@ export const AdminAddPage: React.FC<{}> = props => {
         isSuperUser={false}
         selectedRole={OrgUserRole.Administrator}
         isCreate={true}
-        onSubmit={async (orgUser: OrgUser, permissionSetId: number) => {
+        onSubmit={async (orgUser: any) => {
           const newAdmin = {
             ...admin,
             email: orgUser.email,
@@ -89,17 +122,14 @@ export const AdminAddPage: React.FC<{}> = props => {
             postalCode: orgUser.postalCode,
             phoneNumber: orgUser.phoneNumber,
             dateOfBirth: orgUser.dateOfBirth,
-            permissionSet: { id: permissionSetId },
+            permissionSet: { id: orgUser.permissionSet.id },
           };
           setAdmin(newAdmin);
           const id = await create(newAdmin);
           const viewParams = { ...params, orgUserId: id! };
           history.push(PersonViewRoute.generate(viewParams));
         }}
-        onCancel={() => {
-          const url = PeopleRoute.generate(params);
-          history.push(url);
-        }}
+        onCancel={handleCancel}
       />
     );
   };
@@ -125,13 +155,15 @@ export const AdminAddPage: React.FC<{}> = props => {
       content: renderInformation,
     },
   ];
+  const [initialStepNumber, setInitialStepNumber] = React.useState(steps[0].stepNumber);
+
   return (
     <>
       <div className={classes.header}>
         <PageTitle title={t("Create new Administrator")} />
         <Typography variant="h1">{name || ""}</Typography>
       </div>
-      <Tabs steps={steps} isWizard={true} showStepNumber={true}></Tabs>
+      <Tabs steps={steps} isWizard={true} showStepNumber={true} initialStepNumber={initialStepNumber}></Tabs>
     </>
   );
 };

@@ -22,15 +22,33 @@ export const CreateButton: React.FC<{}> = props => {
         options={[
           {
             name: t("Create an Admin"),
-            onClick: () => history.push(AdminAddRoute.generate(params)),
+            onClick: () =>
+              history.push(
+                AdminAddRoute.generate({
+                  organizationId: params.organizationId,
+                  orgUserId: "new",
+                })
+              ),
           },
           {
             name: t("Create an Employee"),
-            onClick: () => history.push(EmployeeAddRoute.generate(params)),
+            onClick: () =>
+              history.push(
+                EmployeeAddRoute.generate({
+                  organizationId: params.organizationId,
+                  orgUserId: "new",
+                })
+              ),
           },
           {
             name: t("Create a Substitute"),
-            onClick: () => history.push(SubstituteAddRoute.generate(params)),
+            onClick: () =>
+              history.push(
+                SubstituteAddRoute.generate({
+                  organizationId: params.organizationId,
+                  orgUserId: "new",
+                })
+              ),
           },
         ]}
       />

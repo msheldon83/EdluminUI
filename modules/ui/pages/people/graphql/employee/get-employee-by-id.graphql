@@ -2,75 +2,11 @@ query GetEmployeeById($id: ID!) {
   orgUser {
     byId(id: $id) {
       id
+      externalId
       userId
       loginEmail
-      rowVersion
       employee {
-        id
-        orgId
-        rowVersion
-        email
-        firstName
-        lastName
-        address1
-        address2
-        city
-        state
-        postalCode
-        country
-        locations {
-          id
-          name
-        }
-        primaryPosition {
-          id
-          name
-          hoursPerFullWorkDay
-          needsReplacement
-          currentContract {
-            id
-            name
-          }
-          schedules {
-            id
-            name
-          }
-          replacementCriteria {
-            mustHave {
-              id
-              name
-            }
-            mustNotHave {
-              id
-              name
-            }
-            preferToHave {
-              id
-              name
-            }
-            preferToNotHave {
-              id
-              name
-            }
-          }
-        }
-        substitutePools {
-          blockedEmployees {
-            id
-            firstName
-            lastName
-          }
-          favoriteEmployees {
-            id
-            firstName
-            lastName
-          }
-        }
-        permissionSet {
-          id
-          name
-          orgUserRole
-        }
+        ...EmployeeDetails
       }
     }
   }
