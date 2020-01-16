@@ -11,7 +11,7 @@ import { AccountCircleOutlined, DeleteOutline } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { useIsMobile, usePrevious } from "hooks";
 import {
   useQueryParamIso,
@@ -27,7 +27,7 @@ import { useHistory } from "react-router";
 import { Link as ReactLink } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
-import { Table } from "ui/components/table";
+import { Table, TableColumn } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute, PersonViewRoute, AdminAddRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
@@ -71,12 +71,12 @@ export const PeoplePage: React.FC<Props> = props => {
         role,
         sortBy: [
           {
-            sortByPropertyName: "lastName", 
-            sortAscending: filters.lastNameSort === "asc"
-          }, 
+            sortByPropertyName: "lastName",
+            sortAscending: filters.lastNameSort === "asc",
+          },
           {
-            sortByPropertyName: "firstName", 
-            sortAscending: filters.firstNameSort === "asc"
+            sortByPropertyName: "firstName",
+            sortAscending: filters.firstNameSort === "asc",
           },
         ],
       },
@@ -237,7 +237,7 @@ export const PeoplePage: React.FC<Props> = props => {
 
   const peopleCount = pagination.totalCount;
 
-  const columns: Column<typeof tableData[0]>[] = [
+  const columns: TableColumn<typeof tableData[0]>[] = [
     {
       cellStyle: {
         paddingRight: 0,
@@ -264,8 +264,22 @@ export const PeoplePage: React.FC<Props> = props => {
       title: t("Last Name"),
       field: "lastName",
     },
-    { title: t("Primary Phone"), field: "phone", sorting: false, },
-    { title: t("External ID"), field: "externalId", sorting: false, },
+    // Column to show on All, Employees, and Admins tabs, but not Substitutes
+    {
+      title: t("Primary Phone"),
+      field: "phone",
+      sorting: false,
+      hidden: filters.roleFilter === OrgUserRole.ReplacementEmployee,
+    },
+    // Column to potentially show on the Substitutes tab based on the permission
+    {
+      title: t("Primary Phone"),
+      field: "phone",
+      sorting: false,
+      hidden: filters.roleFilter !== OrgUserRole.ReplacementEmployee,
+      permissions: [PermissionEnum.SubstituteViewPhone],
+    },
+    { title: t("External ID"), field: "externalId", sorting: false },
     {
       title: t("Role"),
       field: "roles",
@@ -464,6 +478,7 @@ export const PeoplePage: React.FC<Props> = props => {
           columns={columns}
           data={tableData}
           selection={true}
+          selectionPermissions={[PermissionEnum.OrgUserInvite]}
           onRowClick={(event, orgUser) => {
             if (!orgUser) return;
             const newParams = {
@@ -486,6 +501,7 @@ export const PeoplePage: React.FC<Props> = props => {
 
                 await invite(compact(userIds), Number(params.organizationId));
               },
+              permissions: [PermissionEnum.OrgUserInvite],
             },
           ]}
         />

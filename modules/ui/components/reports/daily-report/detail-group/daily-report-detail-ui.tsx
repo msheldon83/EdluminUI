@@ -5,6 +5,10 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMenu } from "ui/components/action-menu";
 import { Detail } from "../helpers";
+import { Can } from "ui/components/auth/can";
+import { canAssignSub } from "helpers/permissions";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 
 type Props = {
   detail: Detail;
@@ -18,7 +22,11 @@ type Props = {
   goToAbsenceEdit: (absenceId: string) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
-  rowActions: { name: string; onClick: () => void }[];
+  rowActions: {
+    name: string;
+    onClick: () => void;
+    permissions?: CanDo;
+  }[];
 };
 
 export const DailyReportDetailUI: React.FC<Props> = props => {
@@ -29,17 +37,27 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
     <Grid item xs={12} container className={props.className}>
       <Grid item xs={3} zeroMinWidth>
         <div className={classes.employeeSection}>
-          <Checkbox
-            color="primary"
-            className={clsx({
-              [classes.hidden]: props.hideCheckbox,
-              [classes.checkbox]: true,
-            })}
-            checked={props.isChecked}
-            onChange={e => {
-              props.updateSelectedDetails(props.detail, e.target.checked);
-            }}
-          />
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
+            }
+          >
+            <Checkbox
+              color="primary"
+              className={clsx({
+                [classes.hidden]: props.hideCheckbox,
+                [classes.checkbox]: true,
+              })}
+              checked={props.isChecked}
+              onChange={e => {
+                props.updateSelectedDetails(props.detail, e.target.checked);
+              }}
+            />
+          </Can>
           <div>
             {props.detail.type === "absence" ? (
               <>
@@ -84,12 +102,22 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           </div>
         )}
         {props.detail.state !== "noSubRequired" && !props.detail.substitute && (
-          <Link
-            className={classes.action}
-            onClick={() => props.goToAbsenceEdit(props.detail.id)}
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
+            }
           >
-            {t("Assign")}
-          </Link>
+            <Link
+              className={classes.action}
+              onClick={() => props.goToAbsenceEdit(props.detail.id)}
+            >
+              {t("Assign")}
+            </Link>
+          </Can>
         )}
         {props.detail.subStartTime && props.detail.subEndTime && (
           <div className={classes.detailSubText}>

@@ -4,6 +4,8 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AssignmentDetailsUI } from "ui/components/substitutes/assignment-details/assignment-details-ui";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   startDate: string;
@@ -55,18 +57,20 @@ export const AssignmentRowUI: React.FC<Props> = props => {
           </Typography>
         </div>
       )}
-      {!props.forSpecificAssignment && (
-        <Button
-          variant="outlined"
-          className={classes.cancel}
-          onClick={e => {
-            e.stopPropagation();
-            props.onCancel();
-          }}
-        >
-          {t("Cancel")}
-        </Button>
-      )}
+      <Can do={[PermissionEnum.AbsVacRemoveSub]}>
+        {!props.forSpecificAssignment && (
+          <Button
+            variant="outlined"
+            className={classes.cancel}
+            onClick={e => {
+              e.stopPropagation();
+              props.onCancel();
+            }}
+          >
+            {t("Cancel")}
+          </Button>
+        )}
+      </Can>
     </div>
   );
 };

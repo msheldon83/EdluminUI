@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Tab, Tabs, makeStyles, Paper } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
+import { PermittedTab } from "ui/components/permitted-tab";
 import {
   PersonViewRoute,
   AdminAddRoute,
@@ -63,24 +64,27 @@ export const RoleTabs: React.FC<Props> = props => {
           aria-label="person-role-selector"
         >
           {orgUser.isAdmin && (
-            <Tab
+            <PermittedTab
               label={t("Administrator")}
               value={OrgUserRole.Administrator}
               className={classes.selectableTab}
+              permissions={[PermissionEnum.AdminView]}
             />
           )}
           {orgUser.isEmployee && (
-            <Tab
+            <PermittedTab
               label={t("Employee")}
               value={OrgUserRole.Employee}
               className={classes.selectableTab}
+              permissions={[PermissionEnum.EmployeeView]}
             />
           )}
           {orgUser.isReplacementEmployee && (
-            <Tab
+            <PermittedTab
               label={t("Substitute")}
               value={OrgUserRole.ReplacementEmployee}
               className={classes.selectableTab}
+              permissions={[PermissionEnum.SubstituteView]}
             />
           )}
           <Tab
@@ -90,24 +94,27 @@ export const RoleTabs: React.FC<Props> = props => {
             disabled={true}
           />
           {!orgUser.isAdmin && (
-            <Tab
+            <PermittedTab
               label={t("Administrator")}
               value={OrgUserRole.Administrator}
               className={classes.selectableTab}
+              permissions={[PermissionEnum.AdminSave]}
             />
           )}
           {!orgUser.isEmployee && (
-            <Tab
+            <PermittedTab
               label={t("Employee")}
               value={OrgUserRole.Employee}
               className={classes.selectableTab}
+              permissions={[PermissionEnum.EmployeeSave]}
             />
           )}
           {!orgUser.isReplacementEmployee && (
-            <Tab
+            <PermittedTab
               label={t("Substitute")}
               value={OrgUserRole.ReplacementEmployee}
               className={classes.selectableTab}
+              permissions={[PermissionEnum.SubstituteSave]}
             />
           )}
         </Tabs>

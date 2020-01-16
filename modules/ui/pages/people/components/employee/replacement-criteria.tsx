@@ -4,7 +4,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { Maybe, Endorsement } from "graphql/server-types.gen";
+import { Maybe, Endorsement, PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   editing: string | null;
@@ -34,6 +34,7 @@ export const ReplacementCriteria: React.FC<Props> = props => {
               const editSettingsUrl = "/"; //TODO figure out the URL for editing
               history.push(editSettingsUrl);
             },
+            permissions: [PermissionEnum.EmployeeSave],
           }}
         />
         <Grid container spacing={2}>
@@ -74,7 +75,7 @@ export const ReplacementCriteria: React.FC<Props> = props => {
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">
-                {t("Prefer that subsitutes not have")}
+                {t("Prefer that substitutes not have")}
               </Typography>
               {replacementCriteria?.preferToNotHave?.length === 0 ? (
                 <div>{t("Not defined")}</div>

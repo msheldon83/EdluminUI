@@ -12,7 +12,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
 import { Input } from "ui/components/form/input";
-import { Select, SelectValueType } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -156,15 +156,14 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   <div className={classes.periodScheduleSubItems}>
                     <div>{t("Number of periods")}</div>
                     <div className={classes.periodOptions}>
-                      <Select
+                      <SelectNew
                         value={periodOptions.find(
                           (p: any) => p.value === values.periodNumberOfPeriods
                         )}
-                        label=""
                         options={periodOptions}
-                        isClearable={false}
+                        multiple={false}
                         disabled={isBasicSchedule}
-                        onChange={(e: SelectValueType) => {
+                        onChange={(e: OptionType) => {
                           //TODO: Once the select component is updated,
                           // can remove the Array checking
                           let selectedValue = null;

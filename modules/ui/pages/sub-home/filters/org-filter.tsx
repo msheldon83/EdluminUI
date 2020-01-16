@@ -41,7 +41,7 @@ export const DistrictFilter: React.FC<Props> = props => {
             onChange={onChangeOrganizations}
             options={organizationOptions}
             value={value}
-            multiple
+            multiple={true}
             placeholder="Search for districts"
           />
         </Grid>

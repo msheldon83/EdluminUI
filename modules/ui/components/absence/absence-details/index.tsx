@@ -25,7 +25,7 @@ import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail } from "ui/components/absence/types";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { Input } from "ui/components/form/input";
-import { Select } from "ui/components/form/select";
+import { SelectNew } from "ui/components/form/select-new";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
 
@@ -187,19 +187,18 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         <div className={classes.select}>
           <Typography>{t("Select a reason")}</Typography>
-          <Select
+          <SelectNew
             value={{
-              value: values.absenceReason,
+              value: values.absenceReason ?? "",
               label:
                 absenceReasonOptions.find(a => a.value === values.absenceReason)
                   ?.label || "",
             }}
             onChange={onReasonChange}
+            multiple={false}
             options={absenceReasonOptions}
-            isClearable={false}
             inputStatus={errors.absenceReason ? "error" : undefined}
             validationMessage={errors.absenceReason?.message}
-            // label={t("Reason")}
           />
         </div>
 

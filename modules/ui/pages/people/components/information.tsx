@@ -20,13 +20,14 @@ import { PhoneNumberInput } from "ui/components/form/phone-number-input";
 import {
   StateCode,
   CountryCode,
-  OrgUserRole
+  OrgUserRole,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { PeopleGridItem } from "./people-grid-item";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { Input } from "ui/components/form/input";
-import { Select, SelectValueType } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
@@ -37,6 +38,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { GetOrgUserLastLogin } from "../graphql/get-orguser-lastlogin.gen";
+import { Can } from "ui/components/auth/can";
 import { ActionButtons } from "../../../components/action-buttons";
 
 export const editableSections = {
@@ -57,7 +59,7 @@ export type OrgUser = {
   postalCode?: string | null | undefined;
   phoneNumber?: string | null | undefined;
   dateOfBirth?: Date | string | null | undefined;
-  permissionSet?: {id?: number | null | undefined } | null | undefined;
+  permissionSet?: { id?: number | null | undefined } | null | undefined;
 };
 
 type Props = {
@@ -79,6 +81,7 @@ type Props = {
   setEditing?: React.Dispatch<React.SetStateAction<string | null>>;
   onSubmit?: (orgUser: any) => Promise<unknown>;
   onCancel?: () => void;
+  editPermissions?: PermissionEnum[];
 };
 
 export const Information: React.FC<Props> = props => {
@@ -132,7 +135,7 @@ export const Information: React.FC<Props> = props => {
   const permissionSets = usePermissionSets(orgUser.orgId!.toString(), [
     props.selectedRole,
   ]);
-  const permissionSetOptions = permissionSets.map(ps => ({
+  const permissionSetOptions: OptionType[] = permissionSets.map(ps => ({
     label: ps.name,
     value: ps.id,
   }));
@@ -163,26 +166,19 @@ export const Information: React.FC<Props> = props => {
           permissionSetId: props.permissionSet?.id ?? "",
         }}
         onSubmit={async (data, e) => {
-            await props.onSubmit!(
-              {
-                email: data.email,
-                phoneNumber:
-                  data.phoneNumber.trim().length === 0
-                    ? null
-                    : data.phoneNumber,
-                dateOfBirth: isValid(data.dateOfBirth)
-                  ? data.dateOfBirth
-                  : null,
-                address1:
-                  data.address1.trim().length === 0 ? null : data.address1,
-                city: data.city.trim().length === 0 ? null : data.city,
-                state: data.state,
-                postalCode:
-                  data.postalCode.trim().length === 0 ? null : data.postalCode,
-                country: data.state ? ("US" as CountryCode) : null,
-                permissionSet: { id: Number(data.permissionSetId)}
-              }
-            );
+          await props.onSubmit!({
+            email: data.email,
+            phoneNumber:
+              data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
+            dateOfBirth: isValid(data.dateOfBirth) ? data.dateOfBirth : null,
+            address1: data.address1.trim().length === 0 ? null : data.address1,
+            city: data.city.trim().length === 0 ? null : data.city,
+            state: data.state,
+            postalCode:
+              data.postalCode.trim().length === 0 ? null : data.postalCode,
+            country: data.state ? ("US" as CountryCode) : null,
+            permissionSet: { id: Number(data.permissionSetId) },
+          });
         }}
         validationSchema={yup.object().shape({
           email: yup.string().required(t("Email is required")),
@@ -194,21 +190,26 @@ export const Information: React.FC<Props> = props => {
               {!props.isCreate && (
                 <SectionHeader
                   title={t("Information")}
-                  action={
-                    props.editing === editableSections.information
-                      ? {
-                          text: t("Save"),
-                          visible: true,
-                          execute: submitForm,
-                        }
-                      : {
-                          text: t("Edit"),
-                          visible: !props.editing,
-                          execute: () => {
-                            props.setEditing!(editableSections.information);
-                          },
-                        }
-                  }
+                  action={{
+                    text: t("Edit"),
+                    visible: !props.editing,
+                    execute: () => {
+                      props.setEditing(editableSections.information);
+                    },
+                    permissions: props.editPermissions,
+                  }}
+                  submit={{
+                    text: t("Save"),
+                    visible: props.editing === editableSections.information,
+                    execute: submitForm,
+                  }}
+                  cancel={{
+                    text: t("Cancel"),
+                    visible: props.editing === editableSections.information,
+                    execute: () => {
+                      props.setEditing(null);
+                    },
+                  }}
                 />
               )}
               <Grid container>
@@ -219,16 +220,16 @@ export const Information: React.FC<Props> = props => {
                       description={
                         props.editing === editableSections.information &&
                         !props.isSuperUser ? (
-                          <Select
-                            value={permissionSetOptions.filter(
+                          <SelectNew
+                            value={permissionSetOptions.find(
                               e => e.value && values.permissionSetId
                             )}
-                            onChange={value => {
+                            multiple={false}
+                            onChange={(value: OptionType) => {
                               const id = [(value as OptionTypeBase).value];
                               setFieldValue("permissionSetId", id);
                             }}
                             options={permissionSetOptions}
-                            isClearable={false}
                           />
                         ) : (
                           permissions
@@ -307,15 +308,16 @@ export const Information: React.FC<Props> = props => {
                             </Grid>
                             <Grid item xs={6}>
                               <div>{t("State")}</div>
-                              <Select
+                              <SelectNew
                                 value={{
-                                  value: values.state,
+                                  value: values.state ?? "",
                                   label:
                                     stateOptions.find(
                                       a => a.value === values.state
                                     )?.label || "",
                                 }}
-                                onChange={(e: SelectValueType) => {
+                                multiple={false}
+                                onChange={(e: OptionType) => {
                                   //TODO: Once the select component is updated,
                                   // can remove the Array checking
                                   let selectedValue = null;
@@ -332,7 +334,6 @@ export const Information: React.FC<Props> = props => {
                                   setFieldValue("state", selectedValue);
                                 }}
                                 options={stateOptions}
-                                isClearable={!!values.state}
                               />
                             </Grid>
                             <Grid item xs={6}>
@@ -391,37 +392,40 @@ export const Information: React.FC<Props> = props => {
                           title={t("Username")}
                           description={props.loginEmail}
                         />
-                        <PeopleGridItem
-                          title={
-                            <span className={classes.resetPassword}>
-                              {t("Password")}{" "}
-                              <Tooltip
-                                title={
-                                  <div className={classes.tooltip}>
-                                    <Typography variant="body1">
-                                      Reset password will send the user an email
-                                      with a link to reset the password.
-                                    </Typography>
-                                  </div>
-                                }
-                                placement="right-start"
-                              >
-                                <InfoIcon
-                                  color="primary"
-                                  style={{
-                                    fontSize: "16px",
-                                    marginLeft: "8px",
-                                  }}
-                                />
-                              </Tooltip>
-                            </span>
-                          }
-                          description={
-                            <TextButton onClick={() => onResetPassword()}>
-                              {t("Reset Password")}
-                            </TextButton>
-                          }
-                        />
+                        <Can do={[PermissionEnum.UserResetPassword]}>
+                          <PeopleGridItem
+                            title={
+                              <span className={classes.resetPassword}>
+                                {t("Password")}{" "}
+                                <Tooltip
+                                  title={
+                                    <div className={classes.tooltip}>
+                                      <Typography variant="body1">
+                                        {t(
+                                          "Reset password will send the user an email with a link to reset the password."
+                                        )}
+                                      </Typography>
+                                    </div>
+                                  }
+                                  placement="right-start"
+                                >
+                                  <InfoIcon
+                                    color="primary"
+                                    style={{
+                                      fontSize: "16px",
+                                      marginLeft: "8px",
+                                    }}
+                                  />
+                                </Tooltip>
+                              </span>
+                            }
+                            description={
+                              <TextButton onClick={() => onResetPassword()}>
+                                {t("Reset Password")}
+                              </TextButton>
+                            }
+                          />
+                        </Can>
                       </Grid>
                       <Grid container item xs={6} spacing={2}>
                         <PeopleGridItem

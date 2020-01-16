@@ -4,6 +4,8 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { TextButton } from "ui/components/text-button";
 import { DetailDayPartDisplay } from "ui/components/substitutes/detail-day-part-display";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   locationName: string;
@@ -48,18 +50,19 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
         iconClassName={classes.smallDayIcon}
         className={classes.dayPortion}
       />
-
-      {!props.forSpecificAssignment && (
-        <TextButton
-          className={classes.cancel}
-          onClick={event => {
-            event.stopPropagation();
-            props.onCancel();
-          }}
-        >
-          {t("Cancel")}
-        </TextButton>
-      )}
+      <Can do={[PermissionEnum.AbsVacRemoveSub]}>
+        {!props.forSpecificAssignment && (
+          <TextButton
+            className={classes.cancel}
+            onClick={event => {
+              event.stopPropagation();
+              props.onCancel();
+            }}
+          >
+            {t("Cancel")}
+          </TextButton>
+        )}
+      </Can>
     </div>
   );
 };
