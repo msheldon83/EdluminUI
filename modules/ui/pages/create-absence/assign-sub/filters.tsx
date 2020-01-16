@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { FilterListButton } from "ui/components/filter-list-button";
+import ObjectType from "@storybook/addon-knobs/dist/components/types/Object";
 
 type Props = {
   showQualifiedAndAvailable: boolean;
@@ -55,6 +56,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
     available: availableOptionsMap.find(a => a.isDefault)?.search,
     favoritesOnly: false,
   });
+
   const [name, pendingName, setPendingName] = useDeferredState(
     searchFilter.name,
     200
@@ -120,11 +122,14 @@ export const AssignSubFilters: React.FC<Props> = props => {
                     {t("Qualified")}
                   </InputLabel>
                   <SelectNew
-                    value={qualifiedOptions.find((o: any) => {
+                    value={qualifiedOptions.find(o => {
                       const optionsMap = qualifiedOptionsMap.find(
-                        m => m.search === searchFilter.qualified
+                        m => m.search === searchFilter?.qualified
                       );
-                      return o.value === optionsMap?.optionValue;
+                      return (
+                        (o.value === optionsMap?.optionValue) === undefined ??
+                        qualifiedOptions[0]
+                      );
                     })}
                     disabled={!!searchFilter?.name}
                     multiple={false}
@@ -162,9 +167,12 @@ export const AssignSubFilters: React.FC<Props> = props => {
                   <SelectNew
                     value={availableOptions.find((o: any) => {
                       const optionsMap = availableOptionsMap.find(
-                        m => m.search === searchFilter.available
+                        m => m.search === searchFilter?.available
                       );
-                      return o.value === optionsMap?.optionValue;
+                      return (
+                        (o.value === optionsMap?.optionValue) === undefined ??
+                        availableOptions[0]
+                      );
                     })}
                     disabled={!!searchFilter?.name}
                     options={availableOptions}
@@ -294,9 +302,10 @@ class AvailableOptions {
   }
 
   getOptionsForDropdown() {
-    const options = this.buildAvailableOptionsMap().map(o => {
-      return { value: o.optionValue, label: o.label };
-    });
+    const options: OptionType[] = this.buildAvailableOptionsMap().map(o => ({
+      value: o.optionValue,
+      label: o.label,
+    }));
     return options;
   }
 }
@@ -336,9 +345,10 @@ class QualifiedOptions {
   }
 
   getOptionsForDropdown() {
-    const options = this.buildQualifiedOptionsMap().map(o => {
-      return { value: o.optionValue, label: o.label };
-    });
+    const options: OptionType[] = this.buildQualifiedOptionsMap().map(o => ({
+      value: o.optionValue,
+      label: o.label,
+    }));
     return options;
   }
 }
