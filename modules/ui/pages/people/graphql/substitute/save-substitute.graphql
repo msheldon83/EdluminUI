@@ -1,0 +1,21 @@
+mutation SaveSubstitute($substitute: SubstituteInput!) {
+  orgUser {
+    saveSubstitute(substitute: $substitute) {
+      id
+      rowVersion
+      substitute {
+        id
+        orgId
+        rowVersion
+        email
+        firstName
+        lastName
+        permissionSet {
+          id
+          name
+          orgUserRole
+        }
+      }
+    }
+  }
+}

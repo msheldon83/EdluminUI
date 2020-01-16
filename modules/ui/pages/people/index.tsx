@@ -37,6 +37,7 @@ import { InviteUsers } from "./graphql/invite-users.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { AccessIcon } from "./components/access-icon";
+import { CreateButton } from "./components/create-button";
 
 type Props = {};
 
@@ -451,13 +452,7 @@ export const PeoplePage: React.FC<Props> = props => {
           <PageTitle title={t("People")} />
         </Grid>
         <Grid item>
-          <Button
-            variant="contained"
-            component={ReactLink}
-            to={AdminAddRoute.generate(params)}
-          >
-            {t("Add Person")}
-          </Button>
+          <CreateButton />
         </Grid>
       </Grid>
       <PeopleFilters />

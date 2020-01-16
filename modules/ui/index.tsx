@@ -90,6 +90,10 @@ import {
   PeopleRoute,
   AdminAddRoute,
   AdminAddLoader,
+  EmployeeAddRoute,
+  EmployeeAddLoader,
+  SubstituteAddRoute,
+  SubstituteAddLoader,
   PersonViewLoader,
   PeopleSubPoolEditLoader,
   PeopleSubPoolEditRoute,
@@ -416,6 +420,16 @@ export function App() {
                               <ProtectedRoute
                                 component={AdminAddLoader}
                                 path={AdminAddRoute.path}
+                                role={"admin"}
+                              />
+                              <ProtectedRoute
+                                component={EmployeeAddLoader}
+                                path={EmployeeAddRoute.path}
+                                role={"admin"}
+                              />
+                              <ProtectedRoute
+                                component={SubstituteAddLoader}
+                                path={SubstituteAddRoute.path}
                                 role={"admin"}
                               />
                               <ProtectedRoute

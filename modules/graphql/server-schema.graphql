@@ -1225,6 +1225,31 @@ input EmployeeEndorsementUpdateInput {
   expirationDate: Date
 }
 
+input EmployeeInput {
+  id: Int
+  orgId: Int
+  email: String
+  active: Boolean
+  externalId: String
+  permissionSet: LocatorInput
+  firstName: String!
+  middleName: String
+  lastName: String!
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  postalCode: String
+  stateId: StateCode
+  countryId: CountryCode
+  phoneNumber: String
+  inviteImmediately: Boolean
+  position: PositionInput
+  substitutePreferences: SubstitutePreferencesInput
+  timeOffBalances: [TimeOffBalancesInput]
+  relatedOrgIds: [Int]
+}
+
 input EmployeeInterestInVacancyInput {
   vacancyId: ID
   employeeId: Int!
@@ -2239,8 +2264,8 @@ type OrgRef_EndorsementMutations {
 
 type OrgRef_EndorsementQueries {
   byId(id: ID!): Endorsement
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Endorsement]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedEndorsement
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): [Endorsement]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): PagedEndorsement
 }
 
 type OrgRef_LabelMutations {
@@ -2364,6 +2389,7 @@ type OrgUserMutations {
   removeRelatedOrg(orgUserId: Int!, relatedOrgId: Int!): OrgUser
   saveAdministrator(administrator: AdministratorInput!): OrgUser
   saveSubstitute(substitute: SubstituteInput!): OrgUser
+  saveEmployee(employee: EmployeeInput!): OrgUser
 }
 
 type OrgUserQueries {
@@ -2795,7 +2821,7 @@ type PayInfo {
   match: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
   dayPortion: Decimal
-  hours: Int
+  hours: Decimal
 }
 
 type PayInfoSummary {
@@ -3056,6 +3082,19 @@ input PositionCreateInput {
   hoursPerFullWorkDay: Decimal
 }
 
+input PositionInput {
+  orgId: Int!
+  id: Int
+  externalId: String
+  positionType: LocatorInput
+  contract: LocatorInput
+  title: String
+  hoursPerFullWorkDay: Decimal
+  needsReplacement: NeedsReplacement
+  schedules: [PositionScheduleInput]
+  replacementCriteria: ReplacementCriteriaInput
+}
+
 type PositionQueries {
   byId(id: ID!): Position
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Position]
@@ -3180,6 +3219,20 @@ type PositionScheduleDateDetail {
   isQuarterDayEarlyAfternoonEnd: Boolean!
   isQuarterDayLateAfternoonStart: Boolean!
   location: Location
+}
+
+input PositionScheduleInput {
+  items: [PositionScheduleItemInput]
+  daysOfTheWeek: [DayOfWeek]
+}
+
+input PositionScheduleItemInput {
+  location: LocatorInput
+  bellSchedule: LocatorInput
+  startPeriod: LocatorInput
+  endPeriod: LocatorInput
+  startTime: Seconds
+  endTime: Seconds
 }
 
 type PositionScheduleMutations {
@@ -3819,6 +3872,14 @@ input ReplacementCriteriaCreateInput {
   objectKey: Int!
 }
 
+input ReplacementCriteriaInput {
+  orgId: Int!
+  mustHave: LocatorInput
+  shouldHave: LocatorInput
+  shouldNotHave: LocatorInput
+  mustNotHave: LocatorInput
+}
+
 type ReplacementCriteriaMutations {
   create(replacementCriteria: ReplacementCriteriaCreateInput!): ReplacementCriteria
   update(replacementCriteria: ReplacementCriteriaUpdateInput!): ReplacementCriteria
@@ -4418,6 +4479,11 @@ type SubstitutePoolMembership {
   blockedFromPositionTypes: [PositionType]
 }
 
+input SubstitutePreferencesInput {
+  favoriteSubstitutes: LocatorInput
+  blockedSubstitutes: LocatorInput
+}
+
 input SwapVacancyAssignmentsInput {
   firstVacancyId: Int!
   firstVacancyRowVersion: String!
@@ -4429,6 +4495,12 @@ input SwapVacancyAssignmentsInput {
 type TestTypeDef {
   _info: [ReturnMessage]
   test: String
+}
+
+input TimeOffBalancesInput {
+  absenceReason: LocatorInput
+  asOf: Date
+  balance: Decimal
 }
 
 enum TimeZone {

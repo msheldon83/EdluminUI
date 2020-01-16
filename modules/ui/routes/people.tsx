@@ -25,6 +25,33 @@ export const AdminAddLoader = asyncComponent({
   name: "AdminAddPage",
 });
 
+// Add Employee
+export const EmployeeAddRoute = defineSubRoute(PeopleRoute, "/add-employee");
+export const EmployeeAddLoader = asyncComponent({
+  resolve: async () => {
+    const EmployeeAddPage = (
+      await import("ui/pages/people/components/employee/add")
+    ).EmployeeAddPage;
+    return EmployeeAddPage;
+  },
+  name: "EmployeeAddPage",
+});
+
+// Add Substitute
+export const SubstituteAddRoute = defineSubRoute(
+  PeopleRoute,
+  "/add-substitute"
+);
+export const SubstituteAddLoader = asyncComponent({
+  resolve: async () => {
+    const SubstituteAddPage = (
+      await import("ui/pages/people/components/substitute/add")
+    ).SubstituteAddPage;
+    return SubstituteAddPage;
+  },
+  name: "SubstituteAddPage",
+});
+
 // View
 export const PersonViewRoute = defineSubRoute(PeopleRoute, "/:orgUserId", [
   "orgUserId",

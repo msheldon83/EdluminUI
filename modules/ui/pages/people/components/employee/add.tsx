@@ -2,42 +2,42 @@ import { useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
-import { PeopleRoute, AdminAddRoute, PersonViewRoute } from "ui/routes/people";
+import {
+  PeopleRoute,
+  EmployeeAddRoute,
+  PersonViewRoute,
+} from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { AddBasicInfo } from "../add-basic-info";
 import { useHistory } from "react-router";
 import { Information, editableSections, OrgUser } from "../information";
-import { AdministratorInput, OrgUserRole } from "graphql/server-types.gen";
+import { EmployeeInput, OrgUserRole } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
-import { SaveAdmin } from "../../graphql/admin/save-administrator.gen";
+import { SaveEmployee } from "../../graphql/employee/save-employee.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 
-export const AdminAddPage: React.FC<{}> = props => {
+export const EmployeeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
-  const params = useRouteParams(AdminAddRoute);
+  const params = useRouteParams(EmployeeAddRoute);
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
-  const [createAdmin] = useMutationBundle(SaveAdmin, {
+  const [createEmployee] = useMutationBundle(SaveEmployee, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
   });
   const [name, setName] = React.useState<string | null>(null);
 
-  const [admin, setAdmin] = React.useState<AdministratorInput>({
+  const [employee, setEmployee] = React.useState<EmployeeInput>({
     orgId: Number(params.organizationId),
     firstName: "",
     middleName: null,
     lastName: "",
     externalId: null,
     email: "",
-    accessControl: {
-      allLocationIdsInScope: true,
-      allPositionTypeIdsInScope: true,
-    }, // TODO: this is temporary until we build the component to set access control
   });
 
   const renderBasicInfoStep = (
@@ -45,10 +45,10 @@ export const AdminAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <AddBasicInfo
-        orgUser={admin}
+        orgUser={employee}
         onSubmit={(firstName, lastName, email, middleName, externalId) => {
-          setAdmin({
-            ...admin,
+          setEmployee({
+            ...employee,
             firstName: firstName,
             middleName: middleName,
             email: email,
@@ -73,14 +73,14 @@ export const AdminAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <Information
-        orgUser={admin}
+        orgUser={employee}
         editing={editableSections.information}
         isSuperUser={false}
-        selectedRole={OrgUserRole.Administrator}
+        selectedRole={OrgUserRole.Employee}
         isCreate={true}
         onSubmit={async (orgUser: OrgUser, permissionSetId: number) => {
-          const newAdmin = {
-            ...admin,
+          const newEmployee = {
+            ...employee,
             email: orgUser.email,
             address1: orgUser.address1,
             city: orgUser.city,
@@ -91,8 +91,8 @@ export const AdminAddPage: React.FC<{}> = props => {
             dateOfBirth: orgUser.dateOfBirth,
             permissionSet: { id: permissionSetId },
           };
-          setAdmin(newAdmin);
-          const id = await create(newAdmin);
+          setEmployee(newEmployee);
+          const id = await create(newEmployee);
           const viewParams = { ...params, orgUserId: id! };
           history.push(PersonViewRoute.generate(viewParams));
         }}
@@ -104,13 +104,13 @@ export const AdminAddPage: React.FC<{}> = props => {
     );
   };
 
-  const create = async (administrator: AdministratorInput) => {
-    const result = await createAdmin({
+  const create = async (employee: EmployeeInput) => {
+    const result = await createEmployee({
       variables: {
-        administrator,
+        employee,
       },
     });
-    return result?.data?.orgUser?.saveAdministrator?.id;
+    return result?.data?.orgUser?.saveEmployee?.id;
   };
 
   const steps: Array<Step> = [
@@ -128,7 +128,7 @@ export const AdminAddPage: React.FC<{}> = props => {
   return (
     <>
       <div className={classes.header}>
-        <PageTitle title={t("Create new Administrator")} />
+        <PageTitle title={t("Create new Employee")} />
         <Typography variant="h1">{name || ""}</Typography>
       </div>
       <Tabs steps={steps} isWizard={true} showStepNumber={true}></Tabs>

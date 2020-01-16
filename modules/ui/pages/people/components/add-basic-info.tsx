@@ -18,7 +18,6 @@ type Props = {
     externalId?: string | null | undefined;
     email?: string | null | undefined;
   };
-  namePlaceholder: string;
   onSubmit: (
     firstName: string,
     lastName: string,
