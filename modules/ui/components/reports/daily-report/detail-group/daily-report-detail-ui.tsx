@@ -6,9 +6,9 @@ import { useTranslation } from "react-i18next";
 import { ActionMenu } from "ui/components/action-menu";
 import { Detail } from "../helpers";
 import { Can } from "ui/components/auth/can";
-import { OrgUserPermissions } from "reference-data/my-user-access";
 import { canAssignSub } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 
 type Props = {
   detail: Detail;
@@ -25,13 +25,7 @@ type Props = {
   rowActions: {
     name: string;
     onClick: () => void;
-    permissions?:
-      | PermissionEnum[]
-      | ((
-          permissions: OrgUserPermissions[],
-          isSysAdmin: boolean,
-          orgId?: string
-        ) => boolean);
+    permissions?: CanDo;
   }[];
 };
 

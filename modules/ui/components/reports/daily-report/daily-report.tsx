@@ -52,7 +52,7 @@ import {
 } from "./helpers";
 import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
-import { OrgUserPermissions } from "reference-data/my-user-access";
+import { OrgUserPermissions } from "ui/components/auth/types";
 
 type Props = {
   orgId: string;

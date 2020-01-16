@@ -7,10 +7,9 @@ import { useTranslation } from "react-i18next";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionMenu, Option } from "./action-menu";
 import { TextButton } from "./text-button";
-import { OrgUserPermissions } from "reference-data/my-user-access";
 import { useMemo } from "react";
 import { Can } from "./auth/can";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { CanDo } from "./auth/types";
 
 export type FieldData = {
   key: string;
@@ -33,13 +32,7 @@ type Props = {
   isInactive?: boolean;
   inactiveDisplayText?: string | null | undefined;
   onActivate?: () => Promise<unknown>;
-  editPermissions?:
-    | PermissionEnum[]
-    | ((
-        permissions: OrgUserPermissions[],
-        isSysAdmin: boolean,
-        orgId?: string
-      ) => boolean);
+  editPermissions?: CanDo;
 };
 
 export const PageHeaderMultiField: React.FC<Props> = props => {

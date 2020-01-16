@@ -1,7 +1,6 @@
-import { OrgUserPermissions } from "reference-data/my-user-access";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { Detail } from "ui/components/reports/daily-report/helpers";
 import { isPast, isToday, isFuture } from "date-fns";
+import { OrgUserPermissions } from "ui/components/auth/types";
 
 export const can = (
   permissions: PermissionEnum[],

@@ -1,21 +1,12 @@
 import * as React from "react";
-import {
-  useMyUserAccess,
-  OrgUserPermissions,
-} from "reference-data/my-user-access";
+import { useMyUserAccess } from "reference-data/my-user-access";
 import { can as CanHelper } from "helpers/permissions";
-import { PermissionEnum } from "graphql/server-types.gen";
 import { useOrganizationId } from "core/org-context";
 import { Tab, TabProps, makeStyles } from "@material-ui/core";
+import { CanDo } from "./auth/types";
 
 type Props = {
-  permissions:
-    | PermissionEnum[]
-    | ((
-        permissions: OrgUserPermissions[],
-        isSysAdmin: boolean,
-        orgId?: string
-      ) => boolean);
+  permissions: CanDo;
 } & TabProps;
 
 export const PermittedTab: React.FC<Props> = props => {

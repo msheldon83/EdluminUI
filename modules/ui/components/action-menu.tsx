@@ -4,14 +4,10 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { makeStyles } from "@material-ui/core";
-import { PermissionEnum } from "graphql/server-types.gen";
-import { Can } from "./auth/can";
-import {
-  OrgUserPermissions,
-  useMyUserAccess,
-} from "reference-data/my-user-access";
+import { useMyUserAccess } from "reference-data/my-user-access";
 import { can } from "helpers/permissions";
 import { useOrganizationId } from "core/org-context";
+import { CanDo } from "./auth/types";
 
 type Props = {
   options: Array<Option>;
@@ -20,13 +16,7 @@ type Props = {
 export type Option = {
   name: string;
   onClick: (event: React.MouseEvent) => void;
-  permissions?:
-    | PermissionEnum[]
-    | ((
-        permissions: OrgUserPermissions[],
-        isSysAdmin: boolean,
-        orgId?: string
-      ) => boolean);
+  permissions?: CanDo;
 };
 
 export const ActionMenu: React.FC<Props> = props => {
