@@ -34,14 +34,12 @@ import { OrgSettingsRoute } from "ui/routes/org-settings";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { LocationsRoute } from "ui/routes/locations";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
+import { tbd, adminTbd } from "ui/routes/tbd";
 
 type Props = {
   navBarExpanded: boolean;
   onClick?: () => void;
 };
-
-const tbd = defineSubRoute(AppChromeRoute, "tbd");
-const adminTbd = defineSubRoute(AdminChromeRoute, "tbd");
 
 export const AutoSwitchingNavLinks: React.FC<Props> = props => {
   return (

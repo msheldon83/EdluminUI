@@ -1,10 +1,9 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { EmployeeAbsenceDetail } from "../types";
-import { Grid, makeStyles, Typography, Button, Chip } from "@material-ui/core";
+import { Grid, makeStyles, Button, Chip } from "@material-ui/core";
 import { isEqual, format } from "date-fns";
 import { DayIcon } from "ui/components/day-icon";
-import { parseDayPortion } from "ui/components/helpers";
 import { Link } from "react-router-dom";
 import {
   EmployeeEditAbsenceRoute,
@@ -34,14 +33,24 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
         "MMM d"
       )}`;
 
+  const dayPortionLabel = React.useMemo(() => {
+    const dayPortion = props.absence.totalDayPortion;
+    if (dayPortion < 0.5) {
+      return t("Partial day (hourly)");
+    } else if (dayPortion === 0.5) {
+      return t("Half day");
+    } else if (dayPortion > 0.5 && dayPortion < 2) {
+      return t("Full day");
+    } else {
+      return t("Full days");
+    }
+  }, [props.absence.totalDayPortion, t]);
+
   const dayPortionNumberDisplay = Math.round(props.absence.totalDayPortion);
   const dayPortionDisplay =
     dayPortionNumberDisplay >= 1
-      ? `${dayPortionNumberDisplay} ${parseDayPortion(
-          t,
-          props.absence.totalDayPortion
-        )}`
-      : parseDayPortion(t, props.absence.totalDayPortion);
+      ? `${dayPortionNumberDisplay} ${dayPortionLabel}`
+      : dayPortionLabel;
 
   return (
     <>

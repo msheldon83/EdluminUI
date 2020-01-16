@@ -4,6 +4,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
+import { UnderConstructionHeader } from "ui/components/under-construction";
 
 type Props = {};
 
@@ -17,6 +18,7 @@ export const SubPreferences: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={t("Preferences")} />
+      <UnderConstructionHeader />
     </>
   );
 };

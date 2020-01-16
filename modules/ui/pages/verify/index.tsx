@@ -16,7 +16,7 @@ export const VerifyPage: React.FC<{}> = props => {
 
   return (
     <>
-      <PageTitle title={t("Verify subsitute assignments")} />
+      <PageTitle title={t("Verify substitute assignments")} />
       <Section>
         <Filters
           showVerified={showVerified}

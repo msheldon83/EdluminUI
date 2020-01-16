@@ -13,6 +13,13 @@ mutation VerifyVacancyDetail($vacancyDetail: VacancyDetailVerifyInput!) {
       actualDuration
       payDurationOverride
       payTypeId
+      payInfo {
+        label
+        match
+        dayConversion {
+          name
+        }
+      }
       accountingCodeAllocations {
         id
         allocation

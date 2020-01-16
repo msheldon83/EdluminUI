@@ -9,9 +9,9 @@ query GetPermissionSetById($id: ID!) {
       orgUserRole
       permissionSet
       categories {
-        id
+        categoryId
         settings {
-          id
+          settingId
           levelId
         }
       }

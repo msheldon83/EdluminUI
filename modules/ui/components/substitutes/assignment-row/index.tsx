@@ -62,6 +62,7 @@ export const AssignmentRow: React.FC<Props> = props => {
         organizationName={organizationName}
         positionName={positionName}
         dayPortion={a.dayPortion}
+        payInfoLabel={a.payInfo?.label ?? ""}
         onCancel={onCancelClick}
         className={props.className}
         isAdmin={props.isAdmin}

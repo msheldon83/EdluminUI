@@ -18,6 +18,9 @@ query GetAllVacancies {
           lastName
         }
       }
+      payInfoSummary {
+        summaryLabel
+      }
       startTimeLocal
       endTimeLocal
       startDate
@@ -33,6 +36,9 @@ query GetAllVacancies {
         startTimeLocal
         endTimeLocal
         dayPortion
+        payInfo {
+          label
+        }
       }
     }
   }

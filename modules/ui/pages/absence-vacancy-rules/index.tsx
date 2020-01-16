@@ -7,6 +7,7 @@ import { PageTitle } from "ui/components/page-title";
 import { AbsenceVacancyRulesRoute } from "ui/routes/absence-vacancy/rules";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
+import { UnderConstructionHeader } from "ui/components/under-construction";
 
 type Props = {};
 
@@ -29,6 +30,7 @@ export const AbsenceVacancyRules: React.FC<Props> = props => {
       <PageTitle
         title={`${params.organizationId} ${t("Absence & Vacancy Rules")}`}
       />
+      <UnderConstructionHeader />
       {__DEV__ && (
         <Button
           variant="contained"

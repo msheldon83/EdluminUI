@@ -1,13 +1,10 @@
+import { Checkbox, Grid, Link, makeStyles, Tooltip } from "@material-ui/core";
+import InfoIcon from "@material-ui/icons/Info";
+import clsx from "clsx";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles, Grid, Checkbox, Link, Tooltip } from "@material-ui/core";
-import { Detail } from "./helpers";
-import clsx from "clsx";
 import { ActionMenu } from "ui/components/action-menu";
-import InfoIcon from "@material-ui/icons/Info";
-import { useHistory } from "react-router";
-import { useRouteParams } from "ui/routes/definition";
-import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { Detail } from "../helpers";
 
 type Props = {
   detail: Detail;
@@ -18,58 +15,15 @@ type Props = {
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
+  goToAbsenceEdit: (absenceId: string) => void;
+  hideCheckbox: boolean;
+  isChecked: boolean;
+  rowActions: { name: string; onClick: () => void }[];
 };
 
-export const DailyReportDetail: React.FC<Props> = props => {
+export const DailyReportDetailUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const history = useHistory();
-  const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
-
-  const isChecked = !!props.selectedDetails.find(
-    d => d.detailId === props.detail.detailId && d.type === props.detail.type
-  );
-  const existingUnfilledSelection = !!props.selectedDetails.find(
-    d => d.state === "unfilled"
-  );
-  const hideCheckbox =
-    props.detail.isMultiDay ||
-    props.detail.state === "noSubRequired" ||
-    (!isChecked &&
-      existingUnfilledSelection &&
-      props.detail.state === "unfilled");
-
-  const goToAbsenceEdit = (absenceId: string) => {
-    const url = AdminEditAbsenceRoute.generate({
-      ...absenceEditParams,
-      absenceId,
-    });
-    history.push(url, {
-      returnUrl: `${history.location.pathname}${history.location.search}`,
-    });
-  };
-
-  const rowActions = [
-    {
-      name: t("Edit"),
-      onClick: () => goToAbsenceEdit(props.detail.id),
-    },
-  ];
-  if (props.detail.state !== "noSubRequired") {
-    rowActions.push({
-      name: props.detail.substitute ? t("Remove Sub") : t("Assign Sub"),
-      onClick: async () => {
-        if (props.detail.substitute) {
-          await props.removeSub(
-            props.detail.assignmentId,
-            props.detail.assignmentRowVersion
-          );
-        } else {
-          goToAbsenceEdit(props.detail.id);
-        }
-      },
-    });
-  }
 
   return (
     <Grid item xs={12} container className={props.className}>
@@ -78,10 +32,10 @@ export const DailyReportDetail: React.FC<Props> = props => {
           <Checkbox
             color="primary"
             className={clsx({
-              [classes.hidden]: hideCheckbox,
+              [classes.hidden]: props.hideCheckbox,
               [classes.checkbox]: true,
             })}
-            checked={isChecked}
+            checked={props.isChecked}
             onChange={e => {
               props.updateSelectedDetails(props.detail, e.target.checked);
             }}
@@ -132,7 +86,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
         {props.detail.state !== "noSubRequired" && !props.detail.substitute && (
           <Link
             className={classes.action}
-            onClick={() => goToAbsenceEdit(props.detail.id)}
+            onClick={() => props.goToAbsenceEdit(props.detail.id)}
           >
             {t("Assign")}
           </Link>
@@ -148,7 +102,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
           {props.detail.type === "absence" ? (
             <Link
               className={classes.action}
-              onClick={() => goToAbsenceEdit(props.detail.id)}
+              onClick={() => props.goToAbsenceEdit(props.detail.id)}
             >{`#${props.detail.id}`}</Link>
           ) : (
             `#V${props.detail.id}`
@@ -161,7 +115,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
         )}
       </Grid>
       <Grid item xs={1} className={classes.detailActionsSection}>
-        <ActionMenu options={rowActions} />
+        <ActionMenu options={props.rowActions} />
       </Grid>
     </Grid>
   );

@@ -75,6 +75,7 @@ type Props = {
   initialStartHour?: Date;
   initialEndHour?: Date;
   initialNeedsReplacement?: boolean;
+  payCodeId?: string | null;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -104,6 +105,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     dayPart: props.initialDayPart,
     hourlyStartTime: props.initialStartHour,
     hourlyEndTime: props.initialEndHour,
+    payCode: props.payCodeId ?? undefined,
   };
 
   const {
@@ -323,10 +325,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const onCancel = React.useCallback(() => setStep("absence"), [setStep]);
 
   const onAssignSub = React.useCallback(
-    (replacementId: number, replacementName: string) => {
+    (replacementId: number, replacementName: string, payCodeId: string | undefined) => {
       /* eslint-disable @typescript-eslint/no-floating-promises */
       setValue("replacementEmployeeId", replacementId);
       setValue("replacementEmployeeName", replacementName);
+      if (payCodeId) {
+        setValue("payCode", payCodeId);
+      }      
       /* eslint-enable @typescript-eslint/no-floating-promises */
       setStep("absence");
     },

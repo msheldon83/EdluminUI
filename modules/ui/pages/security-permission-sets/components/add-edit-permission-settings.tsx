@@ -47,11 +47,11 @@ export const PermissionSettings: React.FC<Props> = props => {
     const updatedCategories: PermissionCategoryIdentifierInput[] = permissionDefinitions.map(
       c => {
         return {
-          id: c.id,
+          categoryId: c.categoryId,
           settings: c.settings.map(s => {
             return {
-              id: s.id,
-              levelId: s.levels[0]?.id,
+              settingId: s.settingId,
+              levelId: s.levels[0]?.levelId,
             };
           }),
         };
@@ -69,8 +69,8 @@ export const PermissionSettings: React.FC<Props> = props => {
     settingId: string
   ): string | undefined => {
     const levelId = categories
-      ?.find(c => c.id === categoryId)
-      ?.settings?.find(s => s?.id === settingId)?.levelId;
+      ?.find(c => c.categoryId === categoryId)
+      ?.settings?.find(s => s?.settingId === settingId)?.levelId;
     return levelId;
   };
 
@@ -82,10 +82,12 @@ export const PermissionSettings: React.FC<Props> = props => {
     const updatedCategories = [...categories];
 
     // Find the Category and add if missing
-    let matchingCategory = updatedCategories.find(c => c.id === categoryId);
+    let matchingCategory = updatedCategories.find(
+      c => c.categoryId === categoryId
+    );
     if (!matchingCategory) {
       matchingCategory = {
-        id: categoryId,
+        categoryId,
         settings: [],
       };
       updatedCategories.push(matchingCategory);
@@ -98,11 +100,11 @@ export const PermissionSettings: React.FC<Props> = props => {
 
     // Find the Setting and add if missing
     let matchingSetting = matchingCategory.settings?.find(
-      s => s?.id === settingId
+      s => s?.settingId === settingId
     );
     if (!matchingSetting) {
       matchingSetting = {
-        id: settingId,
+        settingId,
         levelId: levelId,
       };
       matchingCategory.settings.push(matchingSetting);
@@ -115,7 +117,7 @@ export const PermissionSettings: React.FC<Props> = props => {
   return (
     <>
       {props.permissionDefinitions.map(pd => {
-        const categoryId = pd.id;
+        const categoryId = pd.categoryId;
         return (
           <ExpansionPanel defaultExpanded={true} key={categoryId}>
             <ExpansionPanelSummary
@@ -132,7 +134,7 @@ export const PermissionSettings: React.FC<Props> = props => {
                   <Divider />
                 </Grid>
                 {pd.settings.map((s, sIndex) => {
-                  const settingId = s.id;
+                  const settingId = s.settingId;
                   const settingClass = [];
                   if (sIndex % 2 === 1) {
                     settingClass.push(classes.alternatingItem);
@@ -140,7 +142,7 @@ export const PermissionSettings: React.FC<Props> = props => {
 
                   // Construct Level Options
                   const levelOptions = s.levels.map(l => {
-                    return { value: l.id, label: l.displayName };
+                    return { value: l.levelId, label: l.displayName };
                   });
                   const matchedLevelId = getSelectedLevel(
                     categoryId,
@@ -156,7 +158,7 @@ export const PermissionSettings: React.FC<Props> = props => {
                       xs={12}
                       container
                       alignItems="center"
-                      key={s.id}
+                      key={s.settingId}
                       className={settingClass.join(" ")}
                     >
                       <Grid item xs={4} className={classes.settingLabel}>

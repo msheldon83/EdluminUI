@@ -1,0 +1,138 @@
+import { Grid, makeStyles } from "@material-ui/core";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { DailyReportDetail } from "./daily-report-detail";
+import { Detail } from "../helpers";
+import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
+import clsx from "clsx";
+import { useIsMobile } from "hooks";
+
+type Props = {
+  details: Detail[];
+  panelId: string;
+  selectedDetails: Detail[];
+  updateSelectedDetails: (detail: Detail, add: boolean) => void;
+  removeSub: (
+    assignmentId?: string,
+    assignmentRowVersion?: string
+  ) => Promise<void>;
+};
+
+export const DailyReportDetailsGroup: React.FC<Props> = props => {
+  const classes = useStyles();
+  const { t } = useTranslation();
+  const isMobile = useIsMobile();
+  const {
+    details,
+    removeSub,
+    selectedDetails,
+    panelId,
+    updateSelectedDetails,
+  } = props;
+
+  if (details.length === 0) {
+    return <></>;
+  }
+
+  const detailsDisplay = details.map((d, i) => {
+    const className = [
+      classes.detail,
+      i % 2 == 1 ? classes.shadedRow : undefined,
+    ].join(" ");
+
+    return (
+      <DailyReportDetail
+        detail={d}
+        className={className}
+        selectedDetails={selectedDetails}
+        updateSelectedDetails={updateSelectedDetails}
+        removeSub={removeSub}
+        key={`${panelId}-${i}`}
+      />
+    );
+  });
+  const headerClasses = clsx({
+    [classes.detailHeader]: true,
+    [classes.mobileHeader]: isMobile,
+    [classes.detail]: !isMobile,
+  });
+
+  // Include a Header above all of the details if there are details
+  return (
+    <>
+      <DesktopOnly>
+        <Grid item xs={12} container className={headerClasses}>
+          <Grid item xs={3} className={classes.detailEmployeeHeader}>
+            {t("Employee")}
+          </Grid>
+          <Grid item xs={2}>
+            {t("Reason")}
+          </Grid>
+          <Grid item xs={2}>
+            {t("Location")}
+          </Grid>
+          <Grid item xs={1}>
+            {t("Created")}
+          </Grid>
+          <Grid item xs={2}>
+            {t("Substitute")}
+          </Grid>
+          <Grid item xs={1}>
+            {t("Conf#")}
+          </Grid>
+        </Grid>
+      </DesktopOnly>
+      <MobileOnly>
+        <div className={headerClasses}>
+          <div className={classes.checkboxSpacing} />
+          <div className={classes.headerItem}>{t("Employee")}</div>
+          <div className={classes.headerItem}>{t("Reason")}</div>
+        </div>
+      </MobileOnly>
+      {detailsDisplay}
+    </>
+  );
+};
+
+const useStyles = makeStyles(theme => ({
+  shadedRow: {
+    background: theme.customColors.lightGray,
+    borderTop: `1px solid ${theme.customColors.medLightGray}`,
+    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
+  },
+  detail: {
+    paddingLeft: theme.spacing(4),
+    paddingTop: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+    "@media print": {
+      paddingLeft: theme.spacing(),
+      paddingTop: 0,
+      paddingRight: 0,
+      paddingBottom: 0,
+    },
+  },
+  detailHeader: {
+    color: theme.customColors.edluminSubText,
+    background: theme.customColors.lightGray,
+    borderBottom: `1px solid ${theme.customColors.medLightGray}`,
+  },
+  detailEmployeeHeader: {
+    paddingLeft: theme.spacing(5),
+    "@media print": {
+      paddingLeft: 0,
+    },
+  },
+  checkboxSpacing: { width: theme.typography.pxToRem(42), flexGrow: 0 },
+  mobileHeader: {
+    display: "flex",
+    width: "100%",
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+  },
+  headerItem: { flex: 1 },
+}));

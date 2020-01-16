@@ -25,6 +25,14 @@ query GetVacancyDetails(
       actualDuration
       payDurationOverride
       payTypeId
+      payInfo {
+        label
+        match
+        payTypeId
+        dayConversion {
+          name
+        }
+      }
       accountingCodeAllocations {
         id
         allocation
@@ -71,6 +79,9 @@ query GetVacancyDetails(
             dayPortion
             dayPartId
           }
+        }
+        payInfoSummary {
+          summaryLabel
         }
         position {
           id

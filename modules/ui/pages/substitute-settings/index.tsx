@@ -7,6 +7,7 @@ import { PageTitle } from "ui/components/page-title";
 import { SubstituteSettingsRoute } from "ui/routes/substitute-settings";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
+import { UnderConstructionHeader } from "ui/components/under-construction";
 
 type Props = {};
 
@@ -29,6 +30,7 @@ export const SubstituteSettings: React.FC<Props> = props => {
       <PageTitle
         title={`${params.organizationId} ${t("Substitute Settings")}`}
       />
+      <UnderConstructionHeader />
       {__DEV__ && (
         <Button
           variant="contained"

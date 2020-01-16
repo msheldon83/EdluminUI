@@ -22,6 +22,8 @@ export const FormikTimeInput: React.FC<Props> = props => {
     field.value ? convertStringToDate(field.value)?.toISOString() : undefined
   );
 
+  React.useEffect(() => setTime(field.value), [setTime, field.value]);
+
   return (
     <TimeInput
       label={props.label || ""}

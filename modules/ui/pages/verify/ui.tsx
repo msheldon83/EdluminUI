@@ -194,6 +194,7 @@ export const VerifyUI: React.FC<Props> = props => {
     | "verifiedAtLocal"
     | "payDurationOverride"
     | "actualDuration"
+    | "payInfo"
   >[];
 
   const payCodes = usePayCodes(params.organizationId);

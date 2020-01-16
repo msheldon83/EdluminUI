@@ -63,11 +63,7 @@ export const RequestAbsenceDialog: React.FC<Props> = props => {
       ? t("Double-checking a few things")
       : t("Thanks for waiting");
   const waitingSubTitle =
-    seconds < 4
-      ? t("this will take a moment")
-      : seconds < 8
-      ? t("you can never be too sure")
-      : t("almost done...");
+    seconds < 8 ? t("this will take a moment") : t("almost done...");
 
   const wasEmployeeAssigned = (wasEmployeeAssignedToJob.state === "LOADING" ||
   wasEmployeeAssignedToJob.state === "UPDATING"

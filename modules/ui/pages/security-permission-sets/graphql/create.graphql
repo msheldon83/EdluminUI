@@ -9,9 +9,9 @@ mutation CreatePermissionSet($permissionSet: PermissionSetCreateInput!) {
       orgUserRole
       permissionSet
       categories {
-        id
+        categoryId
         settings {
-          id
+          settingId
           levelId
         }
       }

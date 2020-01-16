@@ -6,11 +6,10 @@ import { useTranslation } from "react-i18next";
 import {
   VacancyDetail,
   AbsenceReasonTrackingTypeId,
-  DayConversion,
 } from "graphql/server-types.gen";
 import { parseISO, format } from "date-fns";
-import { minutesToHours } from "ui/components/helpers";
 import clsx from "clsx";
+import { getPayLabel } from "ui/components/helpers";
 
 type Props = {
   vacancyDetail: Pick<
@@ -22,15 +21,9 @@ type Props = {
     | "vacancy"
     | "dayPortion"
     | "totalDayPortion"
-    | "actualDuration"
-    | "payDurationOverride"
-    | "payTypeId"
+    | "payInfo"
   >;
   shadeRow: boolean;
-  vacancyDayConversions: Pick<
-    DayConversion,
-    "name" | "maxMinutes" | "dayEquivalent"
-  >[];
 };
 
 export const VacancyDetailRow: React.FC<Props> = props => {
@@ -42,72 +35,23 @@ export const VacancyDetailRow: React.FC<Props> = props => {
   const vacancyDetailStartTime = parseISO(vacancyDetail.startTimeLocal);
   const vacancyDetailEndTime = parseISO(vacancyDetail.endTimeLocal);
 
-  // Make sure the dayConversionName is initially set
-  const dayConversionName = useMemo(() => {
-    if (
-      !vacancyDetail.dayPortion ||
-      vacancyDetail.payTypeId === AbsenceReasonTrackingTypeId.Hourly
-    ) {
-      return props.vacancyDayConversions.find(
-        x => x.name === AbsenceReasonTrackingTypeId.Hourly
-      )?.name;
-    }
-
-    const matchByDayPortion = props.vacancyDayConversions.find(
-      x => x.dayEquivalent === vacancyDetail.dayPortion
-    );
-    if (matchByDayPortion) {
-      return props.vacancyDayConversions.find(
-        x => x.name === matchByDayPortion.name
-      )?.name;
-    }
-    return props.vacancyDayConversions.find(
-      x => x.name === AbsenceReasonTrackingTypeId.Hourly
-    )?.name;
-  }, [
-    props.vacancyDayConversions,
-    vacancyDetail.dayPortion,
-    vacancyDetail.payTypeId,
-  ]);
-
-  // Get the current PayTypeId
-  const payTypeId = useMemo(() => {
-    const matchingDayConversion = props.vacancyDayConversions.find(
-      x => x.name === dayConversionName
-    );
-    return matchingDayConversion
-      ? AbsenceReasonTrackingTypeId.Daily
-      : AbsenceReasonTrackingTypeId.Hourly;
-  }, [dayConversionName, props.vacancyDayConversions]);
-
-  const daysInfo = useMemo(() => {
-    const dayEquivalent = props.vacancyDayConversions.find(
-      x => x.name === dayConversionName
-    )?.dayEquivalent;
-    if (dayEquivalent) {
-      return dayEquivalent;
-    }
-
-    return vacancyDetail.dayPortion === vacancyDetail.totalDayPortion
-      ? `${vacancyDetail.dayPortion.toFixed(1)}`
-      : `${vacancyDetail.dayPortion.toFixed(
-          1
-        )}/${vacancyDetail.totalDayPortion.toFixed(1)}`;
-  }, [
-    dayConversionName,
-    props.vacancyDayConversions,
-    vacancyDetail.dayPortion,
-    vacancyDetail.totalDayPortion,
-  ]);
-
-  const payInfo =
-    payTypeId === AbsenceReasonTrackingTypeId.Daily
-      ? `${daysInfo} ${t("Days")}`
-      : `${minutesToHours(
-          vacancyDetail.payDurationOverride ??
-            vacancyDetail.actualDuration ??
-            undefined
-        )} ${t("Hours")}`;
+  const payLabel = useMemo(
+    () =>
+      getPayLabel(
+        vacancyDetail.payInfo?.match ?? false,
+        vacancyDetail.payInfo?.payTypeId ?? AbsenceReasonTrackingTypeId.Daily,
+        vacancyDetail.payInfo?.label ?? "",
+        vacancyDetail.dayPortion,
+        vacancyDetail.totalDayPortion,
+        t
+      ),
+    [
+      vacancyDetail.dayPortion,
+      vacancyDetail.totalDayPortion,
+      vacancyDetail.payInfo,
+      t,
+    ]
+  );
 
   return (
     <Grid
@@ -133,7 +77,7 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           vacancyDetailStartTime,
           "h:mm aaa"
         )} - ${format(vacancyDetailEndTime, "h:mm aaa")}`}</div>
-        <div className={classes.lightText}>{`${payInfo}`}</div>
+        <div className={classes.lightText}>{`${payLabel}`}</div>
       </Grid>
       <Grid item xs={3}>
         <div

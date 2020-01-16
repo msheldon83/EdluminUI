@@ -10,6 +10,7 @@ type Props = {
   startTimeLocal: string;
   endTimeLocal: string;
   dayPortion: number;
+  payInfoLabel: string;
   shadeRow: boolean;
   onCancel: () => void;
   className?: string;
@@ -41,6 +42,7 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
 
       <DetailDayPartDisplay
         dayPortion={props.dayPortion}
+        payInfoLabel={props.payInfoLabel}
         startTimeLocal={props.startTimeLocal}
         endTimeLocal={props.endTimeLocal}
         iconClassName={classes.smallDayIcon}

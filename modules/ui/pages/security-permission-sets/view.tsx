@@ -134,12 +134,12 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
     // sending back to the server.
     const filteredCategoryObjects = categories.map(c => {
       return {
-        id: c.id,
+        categoryId: c.categoryId,
         settings: !c.settings
           ? []
           : c.settings.map(s => {
               return {
-                id: s!.id,
+                settingId: s!.settingId,
                 levelId: s!.levelId,
               };
             }),
