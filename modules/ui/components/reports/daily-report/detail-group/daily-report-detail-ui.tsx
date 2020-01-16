@@ -8,6 +8,7 @@ import { Detail } from "../helpers";
 import { Can } from "ui/components/auth/can";
 import { OrgUserPermissions } from "reference-data/my-user-access";
 import { canAssignSub } from "helpers/permissions";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   detail: Detail;
