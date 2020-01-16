@@ -12,6 +12,7 @@ fragment SubstituteDetails on Substitute {
   state
   postalCode
   country
+  dateOfBirth
   attributes {
     id
     endorsement {
