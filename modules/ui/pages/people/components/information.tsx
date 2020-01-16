@@ -38,6 +38,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { GetOrgUserLastLogin } from "../graphql/get-orguser-lastlogin.gen";
+import { DatePicker } from "ui/components/form/date-picker";
 
 const editableSections = {
   information: "edit-information",
@@ -143,6 +144,8 @@ export const Information: React.FC<Props> = props => {
     value: s.enumValue,
   }));
 
+  const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
   return (
     <>
       <Formik
@@ -175,9 +178,113 @@ export const Information: React.FC<Props> = props => {
             // TODO: handle permission set update
           });
         }}
-        validationSchema={yup.object().shape({
-          email: yup.string().required(t("Email is required")),
+        validationSchema={yup.object({
+          permissionSetId: yup.string().required(t("Permission is required")),
+          email: yup.string().email(t("Invalid Email Address")),
+          phoneNumber: yup
+            .string()
+            .matches(phoneRegExp, t("Phone Number Is Not Valid")),
+          dateOfBirth: yup.date(),
+          postalCode: yup
+            .number()
+            .min(5)
+            .notRequired()
+            .test("address1", t("Postal Code is required"), function(value) {
+              if (!!value) return true;
+
+              if (!!this.resolve(yup.ref("address1"))) {
+                return this.createError({
+                  message: "Postal Code is required when an address is entered",
+                });
+              }
+              if (!!this.resolve(yup.ref("city"))) {
+                return this.createError({
+                  message: "Postal Code is required when a city is entered",
+                });
+              }
+              if (!!this.resolve(yup.ref("state"))) {
+                return this.createError({
+                  message: "Postal Code is required when a state is choosen",
+                });
+              }
+              return true;
+            }),
+          address1: yup
+            .string()
+            .notRequired()
+            .test("city", t("Address is required"), function(value) {
+              const sibling = this.resolve(yup.ref("city"));
+              if (!!value) return true;
+
+              if (!!this.resolve(yup.ref("city"))) {
+                return this.createError({
+                  message: "Address is required when a city is entered",
+                });
+              }
+              if (!!this.resolve(yup.ref("state"))) {
+                return this.createError({
+                  message: "Address is required when a state is choosen",
+                });
+              }
+              if (!!this.resolve(yup.ref("postalCode"))) {
+                return this.createError({
+                  message: "Address is required when a postal code is choosen",
+                });
+              }
+              return true;
+            }),
+          city: yup
+            .string()
+            .notRequired()
+            .test("address1", t("City is required"), function(value) {
+              if (!!value) return true;
+
+              if (!!this.resolve(yup.ref("address1"))) {
+                return this.createError({
+                  message: "City is required when an address is entered",
+                });
+              }
+              if (!!this.resolve(yup.ref("state"))) {
+                return this.createError({
+                  message: "City is required when a state is choosen",
+                });
+              }
+              if (!!this.resolve(yup.ref("postalCode"))) {
+                return this.createError({
+                  message: "City is required when a postal code is choosen",
+                });
+              }
+              return true;
+            }),
+          state: yup
+            .string()
+            .notRequired()
+            .test("address1", t("State is required"), function(value) {
+              const sibling = this.resolve(yup.ref("address1"));
+              if (!!value) return true;
+
+              if (!!this.resolve(yup.ref("address1"))) {
+                return this.createError({
+                  message: "State is required when an address is entered",
+                });
+              }
+              if (!!this.resolve(yup.ref("city"))) {
+                return this.createError({
+                  message: "State is required when a city is entered",
+                });
+              }
+              if (!!this.resolve(yup.ref("postalCode"))) {
+                return this.createError({
+                  message: "State is required when a postal code is choosen",
+                });
+              }
+              return true;
+            }),
         })}
+
+        /*{yup.object().shape({
+          email: yup.string().required(t("Email is required")),
+        })}*/
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
@@ -355,11 +462,13 @@ export const Information: React.FC<Props> = props => {
                       title={t("Date of Birth")}
                       description={
                         props.editing === editableSections.information ? (
-                          <DateInput
-                            value={values.dateOfBirth}
-                            label={""}
-                            onChange={e => setFieldValue("dateOfBirth", e)}
-                            onValidDate={e => setFieldValue("dateOfBirth", e)}
+                          <DatePicker
+                            variant={"single-hidden"}
+                            startDate={values.dateOfBirth ?? ""}
+                            onChange={e =>
+                              setFieldValue("dateOfBirth", e.startDate)
+                            }
+                            startLabel={""}
                           />
                         ) : (
                           formattedBirthDate
