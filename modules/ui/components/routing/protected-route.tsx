@@ -36,11 +36,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = props => {
     return <></>;
   }
 
-  const isSysAdmin = userAccess.me?.isSystemAdministrator ?? false;
   let hasAccessToOrg = true;
   let hasAccessViaPermissions = true;
   // Only do further access checks if the current User is NOT a Sys Admin
-  if (!isSysAdmin) {
+  if (!userAccess.isSysAdmin) {
     // If we have an Org Id available to us, check that first
     if (organizationId) {
       const orgUsers = userAccess.me?.user?.orgUsers ?? [];
@@ -56,7 +55,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = props => {
       hasAccessViaPermissions = can(
         props.permissions,
         userAccess.permissionsByOrg,
-        isSysAdmin,
+        userAccess.isSysAdmin,
         organizationId
       );
     }
