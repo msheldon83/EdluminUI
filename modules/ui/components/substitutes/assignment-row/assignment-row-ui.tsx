@@ -43,43 +43,44 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   return (
-    <div
-      className={[
-        classes.container,
-        isMobile ? classes.mobile : "",
-        props.className,
-      ].join(" ")}
-    >
-      <AssignmentDetailsUI {...props} locationNames={[props.locationName]} />
+    <div className={[classes.container, props.className].join(" ")}>
+      <div className={classes.infoContainer}>
+        <AssignmentDetailsUI {...props} locationNames={[props.locationName]} />
+      </div>
 
       {!props.forSpecificAssignment && (
-        <>
+        <div className={classes.actionContainer}>
           <div className={classes.notes}>
             {props.notesToReplacement && (
               <NotesPopper notes={props.notesToReplacement} />
             )}
           </div>
-          <div className={classes.confNumber}>
+          <div
+            className={[
+              classes.actionItem,
+              isMobile ? classes.mobileConf : "",
+            ].join(" ")}
+          >
             <Typography className={classes.bold} noWrap>
               #C{props.confirmationNumber}
             </Typography>
           </div>
-        </>
+          <Can do={[PermissionEnum.AbsVacRemoveSub]}>
+            <div className={classes.actionItem}>
+              <Button
+                variant="outlined"
+                className={classes.cancel}
+                onClick={e => {
+                  e.stopPropagation();
+                  props.onCancel();
+                }}
+              >
+                {t("Cancel")}
+              </Button>
+            </div>
+          </Can>
+        </div>
       )}
-      <Can do={[PermissionEnum.AbsVacRemoveSub]}>
-        {!props.forSpecificAssignment && (
-          <Button
-            variant="outlined"
-            className={classes.cancel}
-            onClick={e => {
-              e.stopPropagation();
-              props.onCancel();
-            }}
-          >
-            {t("Cancel")}
-          </Button>
-        )}
-      </Can>
     </div>
   );
 };
@@ -91,10 +92,9 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  mobile: {
-    flexDirection: "column",
-    alignItems: "flex-start",
+    [theme.breakpoints.down("sm")]: {
+      alignItems: "stretch",
+    },
   },
 
   bold: {
@@ -106,6 +106,28 @@ const useStyles = makeStyles(theme => ({
       flex: 0,
     },
   },
-  confNumber: { flex: 4, padding: `0 ${theme.typography.pxToRem(4)}` },
+  actionItem: { flex: 2, padding: `0 ${theme.typography.pxToRem(4)}` },
   cancel: { color: theme.customColors.darkRed },
+  infoContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    flex: 3,
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+    },
+  },
+  actionContainer: {
+    display: "flex",
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "space-around",
+    [theme.breakpoints.down("sm")]: {
+      justifyContent: "space-between",
+      flexDirection: "column-reverse",
+    },
+  },
+  mobileConf: {
+    display: "flex",
+    alignItems: "flex-end",
+  },
 }));
