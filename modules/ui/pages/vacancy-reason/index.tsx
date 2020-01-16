@@ -7,6 +7,7 @@ import { PageTitle } from "ui/components/page-title";
 import { VacancyReasonRoute } from "ui/routes/vacancy-reason";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
+import { UnderConstructionHeader } from "ui/components/under-construction";
 
 type Props = {};
 
@@ -27,6 +28,7 @@ export const VacancyReason: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={`${params.organizationId} ${t("Vacancy Reasons")}`} />
+      <UnderConstructionHeader />
       {__DEV__ && (
         <Button
           variant="contained"

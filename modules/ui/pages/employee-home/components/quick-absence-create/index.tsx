@@ -1,5 +1,11 @@
 import { makeStyles } from "@material-ui/core";
-import { addMonths, isBefore, startOfDay, startOfMonth } from "date-fns";
+import {
+  addMonths,
+  isBefore,
+  startOfDay,
+  startOfMonth,
+  isSameDay,
+} from "date-fns";
 import { useMutationBundle } from "graphql/hooks";
 import {
   AbsenceCreateInput,
@@ -28,7 +34,7 @@ import { CreateAbsenceConfirmationRoute } from "ui/routes/create-absence";
 import { QuickAbsenceCreateUI } from "./quick-create-absence-ui";
 import { quickCreateAbsenceReducer, QuickCreateAbsenceState } from "./state";
 import { useSnackbar } from "hooks/use-snackbar";
-import { size } from "lodash-es";
+import { size, some } from "lodash-es";
 
 type QuickCreateAbsenceFormData = {
   absenceReason: string;
@@ -167,6 +173,14 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     props.employeeId,
     state.viewingCalendarMonth
   );
+  React.useEffect(() => {
+    const conflictingDates = disabledDateObjs
+      .map(dis => dis.date)
+      .filter(dis => some(state.absenceDates, ad => isSameDay(ad, dis)));
+    if (conflictingDates.length > 0) {
+      dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
+    }
+  }, [disabledDateObjs]);
 
   const disabledDates = useMemo(() => disabledDateObjs.map(d => d.date), [
     disabledDateObjs,
