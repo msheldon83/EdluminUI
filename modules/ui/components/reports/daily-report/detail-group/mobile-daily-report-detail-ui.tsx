@@ -8,6 +8,7 @@ import {
   Collapse,
   IconButton,
   Button,
+  useMediaQuery,
 } from "@material-ui/core";
 import { Detail } from "../helpers";
 import clsx from "clsx";
@@ -41,7 +42,9 @@ type Props = {
 export const MobileDailyReportDetailUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [showingDetails, setIsShowingDetails] = useState(false);
+  const isPrinting = useMediaQuery("@media print");
+  const [showingDetailsState, setIsShowingDetails] = useState(false);
+  const showingDetails = isPrinting || showingDetailsState;
 
   const toggleExpandDetails = useCallback(() => setIsShowingDetails(not), [
     setIsShowingDetails,
@@ -227,7 +230,7 @@ const useStyles = makeStyles(theme => ({
   absenceReason: {
     flex: 4,
   },
-  toggle: { flex: 1 },
+  toggle: { flex: 1, "@media print": { display: "none" } },
   item: { flex: 1 },
   itemContainer: { flex: 1, display: "flex" },
   subWithPhone: {
