@@ -1,18 +1,27 @@
 import { PermissionEnum } from "graphql/server-types.gen";
 import { isPast, isToday, isFuture } from "date-fns";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, CanDo } from "ui/components/auth/types";
 
 export const can = (
-  permissions: PermissionEnum[],
+  canDo: CanDo,
   userPermissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string | null | undefined
 ) => {
+  // Sys Admins rule the world
   if (isSysAdmin) return true;
+
+  // We were provided a permission check function so execute it
+  if (!Array.isArray(canDo)) {
+    return canDo(userPermissions, isSysAdmin, orgId ?? undefined);
+  }
+
+  // We were provided a list of permissions to check
+  // Make sure the User has at least one of the permissions in at least one of their Orgs
   const userPerms = getUserPermissions(userPermissions, orgId);
   if (!userPerms === undefined) return false;
   return userPerms!.some((el: any) => {
-    return permissions.includes(el);
+    return canDo.includes(el);
   });
 };
 

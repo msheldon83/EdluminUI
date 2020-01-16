@@ -15,20 +15,11 @@ export const Can: React.FC<Props> = props => {
   const contextOrgId = useOrganizationId();
   const { orgId = contextOrgId, not = false } = props;
 
-  let canDoThis = false;
-  if (Array.isArray(props.do)) {
-    canDoThis = CanHelper(
-      props.do,
-      userAccess?.permissionsByOrg ?? [],
-      userAccess?.isSysAdmin ?? false,
-      orgId ?? undefined
-    );
-  } else {
-    canDoThis = props.do(
-      userAccess?.permissionsByOrg ?? [],
-      userAccess?.isSysAdmin ?? false,
-      orgId ?? undefined
-    );
-  }
+  const canDoThis = CanHelper(
+    props.do,
+    userAccess?.permissionsByOrg ?? [],
+    userAccess?.isSysAdmin ?? false,
+    orgId ?? undefined
+  );
   return canDoThis === !not ? <>{props.children}</> : null;
 };

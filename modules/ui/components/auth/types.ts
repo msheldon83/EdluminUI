@@ -10,5 +10,5 @@ export type CanDo =
   | ((
       permissions: OrgUserPermissions[],
       isSysAdmin: boolean,
-      orgId?: string
+      orgId?: string | undefined
     ) => boolean);

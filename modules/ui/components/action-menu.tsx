@@ -36,18 +36,12 @@ export const ActionMenu: React.FC<Props> = props => {
 
   const filteredOptions = props.options.filter(o => {
     if (o.permissions) {
-      return Array.isArray(o.permissions)
-        ? can(
-            o.permissions,
-            userAccess?.permissionsByOrg ?? [],
-            userAccess?.isSysAdmin ?? false,
-            contextOrgId
-          )
-        : o.permissions(
-            userAccess?.permissionsByOrg ?? [],
-            userAccess?.isSysAdmin ?? false,
-            contextOrgId ?? undefined
-          );
+      return can(
+        o.permissions,
+        userAccess?.permissionsByOrg ?? [],
+        userAccess?.isSysAdmin ?? false,
+        contextOrgId ?? undefined
+      );
     }
   });
 
