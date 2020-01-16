@@ -271,10 +271,10 @@ export const canViewSubSubPrefNavLink = (
 
 /* admin home */
 export const canAssignSub = (
+  absDate: Date,
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string,
-  absDate: Date
+  orgId?: string
 ) => {
   if (isSysAdmin) return true;
 
@@ -296,11 +296,11 @@ export const canAssignSub = (
   return true;
 };
 
-export const canEditSub = (
+export const canEditAbsence = (
+  absDate: Date,
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string,
-  absDate: Date
+  orgId?: string
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
@@ -321,10 +321,10 @@ export const canEditSub = (
 };
 
 export const canRemoveSub = (
+  absDate: Date,
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string,
-  absDate: Date
+  orgId?: string
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId);
@@ -361,7 +361,7 @@ export const canViewMultiplePeopleRoles = (
   return (roleViewPermissions?.length ?? 0) > 1;
 };
 
-export const canDeleteOrgUser = (
+export const canEditOrgUser = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   isAdmin: boolean,
@@ -385,7 +385,7 @@ export const canDeleteOrgUser = (
   return canEditAdmin || canEditEmployee || canEditSubstitute;
 };
 
-export const canEditOrgUser = (
+export const canDeleteOrgUser = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   isAdmin: boolean,

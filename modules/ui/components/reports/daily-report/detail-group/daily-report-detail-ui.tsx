@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { ActionMenu } from "ui/components/action-menu";
 import { Detail } from "../helpers";
 import { Can } from "ui/components/auth/can";
+import { OrgUserPermissions } from "reference-data/my-user-access";
+import { canAssignSub } from "helpers/permissions";
 
 type Props = {
   detail: Detail;
@@ -46,7 +48,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
               isSysAdmin: boolean,
               orgId?: string
             ) =>
-              canAssignSub(permissions, isSysAdmin, orgId, props.detail.date)
+              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
             }
           >
             <Checkbox
@@ -111,7 +113,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
               isSysAdmin: boolean,
               orgId?: string
             ) =>
-              canAssignSub(permissions, isSysAdmin, orgId, props.detail.date)
+              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
             }
           >
             <Link

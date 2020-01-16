@@ -8,7 +8,11 @@ import { Detail } from "../helpers";
 import { DailyReportDetailUI } from "./daily-report-detail-ui";
 import { MobileDailyReportDetailUI } from "./mobile-daily-report-detail-ui";
 import { OrgUserPermissions } from "reference-data/my-user-access";
-import { canRemoveSub, canAssignSub } from "helpers/permissions";
+import {
+  canRemoveSub,
+  canAssignSub,
+  canEditAbsence,
+} from "helpers/permissions";
 
 type Props = {
   detail: Detail;
@@ -58,7 +62,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
         permissions: OrgUserPermissions[],
         isSysAdmin: boolean,
         orgId?: string
-      ) => canEditSub(permissions, isSysAdmin, orgId, props.detail.date),
+      ) => canEditAbsence(props.detail.date, permissions, isSysAdmin, orgId),
     },
   ];
   if (props.detail.state !== "noSubRequired") {
@@ -79,12 +83,12 @@ export const DailyReportDetail: React.FC<Props> = props => {
             permissions: OrgUserPermissions[],
             isSysAdmin: boolean,
             orgId?: string
-          ) => canRemoveSub(permissions, isSysAdmin, orgId, props.detail.date)
+          ) => canRemoveSub(props.detail.date, permissions, isSysAdmin, orgId)
         : (
             permissions: OrgUserPermissions[],
             isSysAdmin: boolean,
             orgId?: string
-          ) => canAssignSub(permissions, isSysAdmin, orgId, props.detail.date),
+          ) => canAssignSub(props.detail.date, permissions, isSysAdmin, orgId),
     });
   }
 

@@ -91,7 +91,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
               isSysAdmin: boolean,
               orgId?: string
             ) =>
-              canAssignSub(permissions, isSysAdmin, orgId, props.detail.date)
+              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
             }
           >
             <Checkbox
@@ -181,10 +181,10 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                       orgId?: string
                     ) =>
                       canAssignSub(
+                        props.detail.date,
                         permissions,
                         isSysAdmin,
-                        orgId,
-                        props.detail.date
+                        orgId
                       )
                     }
                   >

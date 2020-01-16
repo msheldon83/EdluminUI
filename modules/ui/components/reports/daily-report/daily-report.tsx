@@ -9,7 +9,10 @@ import {
 } from "@material-ui/core";
 import { format, isFuture, startOfToday } from "date-fns";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
-import { DailyReport as DailyReportType } from "graphql/server-types.gen";
+import {
+  DailyReport as DailyReportType,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { not } from "helpers";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
@@ -42,34 +45,11 @@ import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-co
 import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
 import { GroupCard } from "./group-card";
 import {
-  DailyReport as DailyReportType,
-  VacancyDetailCount,
-  PermissionEnum,
-} from "graphql/server-types.gen";
-import { SectionHeader } from "ui/components/section-header";
-import {
   CardType,
   Detail,
   DetailGroup,
   MapDailyReportDetails,
 } from "./helpers";
-import { GroupCard } from "./group-card";
-import { TFunction } from "i18next";
-import { format, isFuture, startOfToday } from "date-fns";
-import { DailyReportSection } from "./daily-report-section";
-import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
-import { useDialog, RenderFunctionsType } from "hooks/use-dialog";
-import { CancelAssignment } from "./graphql/cancel-assignment.gen";
-import { useSnackbar } from "hooks/use-snackbar";
-import { Print } from "@material-ui/icons";
-import { VerifyUI } from "ui/pages/verify/ui";
-import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
-import { useRouteParams } from "ui/routes/definition";
-import { useHistory } from "react-router";
-import {
-  ShowIgnoreAndContinueOrError,
-  ShowErrors,
-} from "ui/components/error-helpers";
 import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
 import { OrgUserPermissions } from "reference-data/my-user-access";
@@ -481,7 +461,7 @@ const useStyles = makeStyles(theme => ({
 
 const displaySections = (
   groupedDetails: DetailGroup[],
-  selectedCard?: CardType | undefined,
+  selectedCard: CardType | undefined,
   classes: any,
   t: TFunction,
   clearSelectedCard: () => void,
@@ -548,7 +528,9 @@ const displaySections = (
             </Link>
           </Grid>
         )}
-        <Grid item>{displaySwabSubsAction(selectedRows, swapSubs, t, orgId, date)}</Grid>
+        <Grid item>
+          {displaySwabSubsAction(selectedRows, swapSubs, t, orgId, date)}
+        </Grid>
         <DesktopOnly>
           <Grid item>
             <PrintPageButton />
@@ -620,7 +602,7 @@ const displaySwabSubsAction = (
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
           orgId?: string
-        ) => canAssignSub(permissions, isSysAdmin, orgId, absDate)}
+        ) => canAssignSub(absDate, permissions, isSysAdmin, orgId)}
       >
         {button}
       </Can>
@@ -635,7 +617,7 @@ const displaySwabSubsAction = (
         permissions: OrgUserPermissions[],
         isSysAdmin: boolean,
         orgId?: string
-      ) => canAssignSub(permissions, isSysAdmin, orgId, absDate)}
+      ) => canAssignSub(absDate, permissions, isSysAdmin, orgId)}
     >
       <Tooltip
         title={t("Substitutes can only be swapped between 2 Absences")}
