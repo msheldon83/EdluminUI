@@ -79,7 +79,7 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                     />
                   </div>
                 </Can>
-                <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+                <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
                   <div className={classes.timeDisplay}>
                     {p.startTime ? format(parseISO(p.startTime), "h:mm a") : ""}
                   </div>

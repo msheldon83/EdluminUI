@@ -196,7 +196,7 @@ export const PermissionSettings: React.FC<Props> = props => {
                               }}
                             />
                           </Can>
-                          <Can do={[PermissionEnum.PermissionSetSave]} not>
+                          <Can not do={[PermissionEnum.PermissionSetSave]}>
                             {selectedLevel.label}
                           </Can>
                         </div>
