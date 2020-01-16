@@ -54,9 +54,8 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
     <div className={classes.actionButtons}>
       {props.rowActions.map(a =>
         a.permissions ? (
-          <Can do={a.permissions}>
+          <Can do={a.permissions} key={a.name}>
             <Button
-              key={a.name}
               variant="outlined"
               className={classes.button}
               onClick={a.onClick}

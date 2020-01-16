@@ -41,6 +41,9 @@ export const MobileOrganizationSwitcherBarUI: React.FC<Props> = props => {
 };
 const useStyles = makeStyles(theme => ({
   bottomBar: {
+    "@media print": {
+      display: "none",
+    },
     bottom: 0,
     top: "auto",
     background: theme.customColors.lightBlue,
