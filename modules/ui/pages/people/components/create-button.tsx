@@ -9,6 +9,13 @@ import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { MenuButton } from "ui/components/menu-button";
+import { PermissionEnum } from "graphql/server-types.gen";
+import {
+  canCreateAdmin,
+  canCreateEmployee,
+  canCreateSubstitute,
+} from "helpers/permissions";
+import { OrgUserPermissions } from "ui/components/auth/types";
 
 export const CreateButton: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -18,18 +25,8 @@ export const CreateButton: React.FC<{}> = props => {
   return (
     <div>
       <MenuButton
-        selectedIndex={1}
+        selectedIndex={0}
         options={[
-          {
-            name: t("Create an Admin"),
-            onClick: () =>
-              history.push(
-                AdminAddRoute.generate({
-                  organizationId: params.organizationId,
-                  orgUserId: "new",
-                })
-              ),
-          },
           {
             name: t("Create an Employee"),
             onClick: () =>
@@ -39,6 +36,11 @@ export const CreateButton: React.FC<{}> = props => {
                   orgUserId: "new",
                 })
               ),
+            permissions: (
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) => canCreateEmployee(permissions, isSysAdmin, orgId),
           },
           {
             name: t("Create a Substitute"),
@@ -49,6 +51,26 @@ export const CreateButton: React.FC<{}> = props => {
                   orgUserId: "new",
                 })
               ),
+            permissions: (
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) => canCreateSubstitute(permissions, isSysAdmin, orgId),
+          },
+          {
+            name: t("Create an Admin"),
+            onClick: () =>
+              history.push(
+                AdminAddRoute.generate({
+                  organizationId: params.organizationId,
+                  orgUserId: "new",
+                })
+              ),
+            permissions: (
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) => canCreateAdmin(permissions, isSysAdmin, orgId),
           },
         ]}
       />

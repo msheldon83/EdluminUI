@@ -2,6 +2,10 @@ import * as React from "react";
 import { Button, ButtonGroup, Menu, MenuItem } from "@material-ui/core";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { makeStyles } from "@material-ui/core";
+import { useMyUserAccess } from "reference-data/my-user-access";
+import { can } from "helpers/permissions";
+import { useOrganizationId } from "core/org-context";
+import { CanDo } from "./auth/types";
 
 type Props = {
   options: Array<Option>;
@@ -11,13 +15,18 @@ type Props = {
 export type Option = {
   name: string;
   onClick: (event: React.MouseEvent) => void;
+  permissions?: CanDo;
 };
 
 export const MenuButton: React.FC<Props> = props => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const [selectedIndex, setSelectedIndex] = React.useState(props.selectedIndex ?? 0);
+  const userAccess = useMyUserAccess();
+  const contextOrgId = useOrganizationId();
+  const [selectedIndex, setSelectedIndex] = React.useState(
+    props.selectedIndex ?? 0
+  );
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -26,6 +35,17 @@ export const MenuButton: React.FC<Props> = props => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const filteredOptions = props.options.filter(o => {
+    if (o.permissions) {
+      return can(
+        o.permissions,
+        userAccess?.permissionsByOrg ?? [],
+        userAccess?.isSysAdmin ?? false,
+        contextOrgId ?? undefined
+      );
+    }
+  });
 
   return (
     <div>
@@ -55,7 +75,7 @@ export const MenuButton: React.FC<Props> = props => {
           className: classes.paper,
         }}
       >
-        {props.options.map((option: Option, index: number) => (
+        {filteredOptions.map((option: Option, index: number) => (
           <MenuItem
             key={index}
             onClick={event => {

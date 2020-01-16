@@ -194,7 +194,7 @@ export const Information: React.FC<Props> = props => {
                     text: t("Edit"),
                     visible: !props.editing,
                     execute: () => {
-                      props.setEditing(editableSections.information);
+                      props.setEditing!(editableSections.information);
                     },
                     permissions: props.editPermissions,
                   }}
@@ -207,7 +207,7 @@ export const Information: React.FC<Props> = props => {
                     text: t("Cancel"),
                     visible: props.editing === editableSections.information,
                     execute: () => {
-                      props.setEditing(null);
+                      props.setEditing!(null);
                     },
                   }}
                 />

@@ -7,7 +7,7 @@ import {
   Grid,
   Button
 } from "@material-ui/core";
-import { AccountCircleOutlined, DeleteOutline } from "@material-ui/icons";
+import { AccountCircleOutlined } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
@@ -19,12 +19,10 @@ import {
   PaginationParams,
 } from "hooks/query-params";
 import { compact, isEqual, flatMap } from "lodash-es";
-import { Column } from "material-table";
 import * as React from "react";
 import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { Link as ReactLink } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Table, TableColumn } from "ui/components/table";
@@ -38,6 +36,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { AccessIcon } from "./components/access-icon";
 import { CreateButton } from "./components/create-button";
+import { Can } from "ui/components/auth/can";
 
 type Props = {};
 
@@ -465,9 +464,11 @@ export const PeoplePage: React.FC<Props> = props => {
         <Grid item>
           <PageTitle title={t("People")} />
         </Grid>
+        <Can do={[PermissionEnum.AdminSave, PermissionEnum.EmployeeSave, PermissionEnum.SubstituteSave]}>
         <Grid item>
           <CreateButton />
         </Grid>
+        </Can>
       </Grid>
       <PeopleFilters />
       <div className={classes.tableContainer}>

@@ -405,3 +405,42 @@ export const canDeleteOrgUser = (
 
   return canDeleteAdmin || canDeleteEmployee || canDeleteSubstitute;
 };
+
+export const canCreateAdmin = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) {
+    return true;
+  }
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  return !!userPerms?.includes(PermissionEnum.AdminSave);
+};
+
+export const canCreateEmployee = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) {
+    return true;
+  }
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  return !!userPerms?.includes(PermissionEnum.EmployeeSave);
+};
+
+export const canCreateSubstitute = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) {
+    return true;
+  }
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  return !!userPerms?.includes(PermissionEnum.SubstituteSave);
+};
