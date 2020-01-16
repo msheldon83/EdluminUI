@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { usePayCodes } from "reference-data/pay-codes";
 import { VacancyDetails } from "ui/components/absence/vacancy-details";
-import { Select } from "ui/components/form/select";
+import { SelectNew } from "ui/components/form/select-new";
 import { AbsenceDetailsFormData } from ".";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { Can } from "ui/components/auth/can";
@@ -106,14 +106,12 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
       {isAdmin && (hasAccountingCodeOptions || hasPayCodeOptions) && (
         <Grid item container spacing={4} className={classes.subCodes}>
           {hasAccountingCodeOptions && (
-            <Can
-              do={[PermissionEnum.AbsVacSaveAccountCode]}
-            >
+            <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
               <Grid item xs={hasPayCodeOptions ? 6 : 12}>
                 <Typography>{t("Accounting code")}</Typography>
-                <Select
+                <SelectNew
                   value={{
-                    value: values.accountingCode,
+                    value: values.accountingCode ?? "",
                     label:
                       accountingCodeOptions.find(
                         a => a.value === values.accountingCode
@@ -121,7 +119,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                   }}
                   onChange={onAccountingCodeChange}
                   options={accountingCodeOptions}
-                  isClearable={!!values.accountingCode}
+                  multiple={false}
                   inputStatus={errors.accountingCode ? "error" : undefined}
                   validationMessage={errors.accountingCode?.message}
                 />
@@ -129,21 +127,19 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
             </Can>
           )}
           {hasPayCodeOptions && (
-            <Can
-              do={[PermissionEnum.AbsVacSavePayCode]}
-            >
+            <Can do={[PermissionEnum.AbsVacSavePayCode]}>
               <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
                 <Typography>{t("Pay code")}</Typography>
-                <Select
+                <SelectNew
                   value={{
-                    value: values.payCode,
+                    value: values.payCode ?? "",
                     label:
                       payCodeOptions.find(a => a.value === values.payCode)
                         ?.label || "",
                   }}
                   onChange={onPayCodeChange}
                   options={payCodeOptions}
-                  isClearable={!!values.payCode}
+                  multiple={false}
                   inputStatus={errors.payCode ? "error" : undefined}
                   validationMessage={errors.payCode?.message}
                 />

@@ -42,7 +42,7 @@ export const SchoolFilter: React.FC<Props> = props => {
           onChange={onChangeLocations}
           value={value}
           options={locationOptions}
-          multiple
+          multiple={true}
           placeholder="Search for schools"
         />
       </Grid>

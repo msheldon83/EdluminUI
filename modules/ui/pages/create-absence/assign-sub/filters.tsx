@@ -18,7 +18,7 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select";
-import { Select, SelectValueType } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { FilterListButton } from "ui/components/filter-list-button";
 
 type Props = {
@@ -55,6 +55,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
     available: availableOptionsMap.find(a => a.isDefault)?.search,
     favoritesOnly: false,
   });
+
   const [name, pendingName, setPendingName] = useDeferredState(
     searchFilter.name,
     200
@@ -99,7 +100,6 @@ export const AssignSubFilters: React.FC<Props> = props => {
             <Grid item xs={12} md={3}>
               <InputLabel className={classes.label}>{t("Name")}</InputLabel>
               <TextField
-                className={classes.textField}
                 variant="outlined"
                 name={"name"}
                 value={pendingName ?? ""}
@@ -120,18 +120,20 @@ export const AssignSubFilters: React.FC<Props> = props => {
                   <InputLabel className={classes.label}>
                     {t("Qualified")}
                   </InputLabel>
-                  <Select
-                    value={qualifiedOptions.find((o: any) => {
+                  <SelectNew
+                    value={qualifiedOptions.find(o => {
                       const optionsMap = qualifiedOptionsMap.find(
-                        m => m.search === searchFilter.qualified
+                        m => m.search === searchFilter?.qualified
                       );
-                      return o.value === optionsMap?.optionValue;
+                      return (
+                        (o.value === optionsMap?.optionValue) === undefined ??
+                        qualifiedOptions[0]
+                      );
                     })}
-                    label=""
                     disabled={!!searchFilter?.name}
+                    multiple={false}
                     options={qualifiedOptions}
-                    isClearable={false}
-                    onChange={(e: SelectValueType) => {
+                    onChange={(e: OptionType) => {
                       let selectedValue: string | null = null;
                       if (e) {
                         if (Array.isArray(e)) {
@@ -145,10 +147,10 @@ export const AssignSubFilters: React.FC<Props> = props => {
                       const optionsMap = qualifiedOptionsMap.find(
                         m => m.optionValue === selectedValue
                       );
+
                       if (!optionsMap) {
                         return;
                       }
-
                       const updatedSearchOptions = {
                         ...searchFilter,
                         qualified: optionsMap.search,
@@ -161,18 +163,20 @@ export const AssignSubFilters: React.FC<Props> = props => {
                   <InputLabel className={classes.label}>
                     {t("Available")}
                   </InputLabel>
-                  <Select
+                  <SelectNew
                     value={availableOptions.find((o: any) => {
                       const optionsMap = availableOptionsMap.find(
-                        m => m.search === searchFilter.available
+                        m => m.search === searchFilter?.available
                       );
-                      return o.value === optionsMap?.optionValue;
+                      return (
+                        (o.value === optionsMap?.optionValue) === undefined ??
+                        availableOptions[0]
+                      );
                     })}
-                    label=""
                     disabled={!!searchFilter?.name}
                     options={availableOptions}
-                    isClearable={false}
-                    onChange={(e: SelectValueType) => {
+                    multiple={false}
+                    onChange={(e: OptionType) => {
                       let selectedValue: string | null = null;
                       if (e) {
                         if (Array.isArray(e)) {
@@ -181,7 +185,6 @@ export const AssignSubFilters: React.FC<Props> = props => {
                           selectedValue = (e as OptionTypeBase).value;
                         }
                       }
-
                       // Get the appropriate array from the availableOptionsMap
                       const optionsMap = availableOptionsMap.find(
                         m => m.optionValue === selectedValue
@@ -189,7 +192,6 @@ export const AssignSubFilters: React.FC<Props> = props => {
                       if (!optionsMap) {
                         return;
                       }
-
                       const updatedSearchOptions = {
                         ...searchFilter,
                         available: optionsMap.search,
@@ -202,17 +204,16 @@ export const AssignSubFilters: React.FC<Props> = props => {
             )}
             <Grid item xs={12} md={2}>
               <InputLabel className={classes.label}>{t("Show")}</InputLabel>
-              <Select
+              <SelectNew
                 value={showOptions.find(
                   (s: any) =>
                     (searchFilter.favoritesOnly && s.value === "true") ||
                     (!searchFilter.favoritesOnly && s.value === "false")
                 )}
-                label=""
                 disabled={!!searchFilter?.name}
                 options={showOptions}
-                isClearable={false}
-                onChange={(e: SelectValueType) => {
+                multiple={false}
+                onChange={(e: OptionType) => {
                   let selectedValue: string | null = null;
                   if (e) {
                     if (Array.isArray(e)) {
@@ -221,7 +222,6 @@ export const AssignSubFilters: React.FC<Props> = props => {
                       selectedValue = (e as OptionTypeBase).value;
                     }
                   }
-
                   const updatedSearchOptions = {
                     ...searchFilter,
                     favoritesOnly: selectedValue === "true",
@@ -241,9 +241,6 @@ const useStyles = makeStyles(theme => ({
   label: {
     // color: theme.customColors.black,
     fontWeight: 500,
-  },
-  textField: {
-    marginTop: theme.spacing(2),
   },
 }));
 
@@ -304,9 +301,10 @@ class AvailableOptions {
   }
 
   getOptionsForDropdown() {
-    const options = this.buildAvailableOptionsMap().map(o => {
-      return { value: o.optionValue, label: o.label };
-    });
+    const options: OptionType[] = this.buildAvailableOptionsMap().map(o => ({
+      value: o.optionValue,
+      label: o.label,
+    }));
     return options;
   }
 }
@@ -346,9 +344,10 @@ class QualifiedOptions {
   }
 
   getOptionsForDropdown() {
-    const options = this.buildQualifiedOptionsMap().map(o => {
-      return { value: o.optionValue, label: o.label };
-    });
+    const options: OptionType[] = this.buildQualifiedOptionsMap().map(o => ({
+      value: o.optionValue,
+      label: o.label,
+    }));
     return options;
   }
 }

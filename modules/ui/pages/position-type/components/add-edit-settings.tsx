@@ -19,7 +19,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
 import { Input } from "ui/components/form/input";
-import { Select, SelectValueType } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -280,13 +280,12 @@ export const Settings: React.FC<Props> = props => {
               ].join(" ")}
             >
               <div>{t("Default contract")}</div>
-              <Select
+              <SelectNew
                 value={contractOptions.find(
                   (c: any) => c.value === values.defaultContractId
                 )}
-                label=""
                 options={contractOptions}
-                onChange={(e: SelectValueType) => {
+                onChange={(e: OptionType) => {
                   //TODO: Once the select component is updated,
                   // can remove the Array checking
                   let selectedValue = null;
@@ -299,6 +298,7 @@ export const Settings: React.FC<Props> = props => {
                   }
                   setFieldValue("defaultContractId", selectedValue);
                 }}
+                multiple={false}
               />
               <FormHelperText>
                 {t(
@@ -349,14 +349,13 @@ export const Settings: React.FC<Props> = props => {
               ].join(" ")}
             >
               <div>{t("Pay Type")}</div>
-              <Select
+              <SelectNew
                 value={payTypeOptions.find(
                   (c: any) => c.value === values.payTypeId
                 )}
-                label=""
                 options={payTypeOptions}
-                isClearable={false}
-                onChange={(e: SelectValueType) => {
+                multiple={false}
+                onChange={(e: OptionType) => {
                   //TODO: Once the select component is updated,
                   // can remove the Array checking
                   let selectedValue = null;
