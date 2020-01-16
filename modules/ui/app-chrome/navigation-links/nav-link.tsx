@@ -66,7 +66,7 @@ export const NavLink: React.FC<Props> = props => {
 
   // When the nav bar is collapsed, bubble up selected state to top level item
   const displayAsMatching = useMemo(
-    () => matches || (!props.navBarExpanded && subNavActive),
+    () => (!subNavActive && matches) || (!props.navBarExpanded && subNavActive),
     [props.navBarExpanded, subNavActive, matches]
   );
 

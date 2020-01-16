@@ -11,34 +11,35 @@ import PeopleIcon from "@material-ui/icons/People";
 import SettingsIcon from "@material-ui/icons/Settings";
 import SwapCallsIcon from "@material-ui/icons/SwapCalls";
 import TimelineIcon from "@material-ui/icons/Timeline";
-import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { NavLink } from "./nav-link";
-import { useRouteParams } from "ui/routes/definition";
-import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
-import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
-import { LocationsRoute } from "ui/routes/locations";
-import { LocationGroupsRoute } from "ui/routes/location-groups";
-import { CalendarThisYearRoute } from "ui/routes/calendar/this-year";
-import { CalendarPastYearsRoute } from "ui/routes/calendar/past-years";
-import { SecurityUsersRoute } from "ui/routes/security/users";
-import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
-import { SecurityPartnersRoute } from "ui/routes/security/partners";
-import { SecurityManagedOrganizationsRoute } from "ui/routes/security/managed-organizations";
-import { Can } from "ui/components/auth/can";
 import {
-  canViewCalendarsNavLink,
   canViewAbsVacNavLink,
   canViewAnalyticsReportsNavLink,
-  canViewSchoolsNavLink,
-  canViewPeopleNavLink,
+  canViewCalendarsNavLink,
   canViewConfigNavLink,
-  canViewSecurityNavLink,
-  canViewOrganizationsNavLink,
-  canViewPTOBalancesNavLink,
   canViewEmpSubPrefNavLink,
+  canViewPeopleNavLink,
+  canViewPTOBalancesNavLink,
+  canViewSchoolsNavLink,
+  canViewSecurityNavLink,
 } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { Can } from "ui/components/auth/can";
+import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
+import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
+import {
+  AdminCreateAbsenceRoute,
+  AdminSelectEmployeeForCreateAbsenceRoute,
+} from "ui/routes/create-absence";
+import { useRouteParams } from "ui/routes/definition";
+import { LocationGroupsRoute } from "ui/routes/location-groups";
+import { LocationsRoute } from "ui/routes/locations";
+import { SecurityManagedOrganizationsRoute } from "ui/routes/security/managed-organizations";
+import { SecurityPartnersRoute } from "ui/routes/security/partners";
+import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
+import { SecurityUsersRoute } from "ui/routes/security/users";
+import { NavLink } from "./nav-link";
 
 type Props = {
   className?: string;
@@ -57,6 +58,7 @@ export const AbsenceNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   const paramsDailyReport = useRouteParams(DailyReportRoute);
   const paramsVerify = useRouteParams(VerifyRoute);
+  const paramsCreate = useRouteParams(AdminCreateAbsenceRoute);
 
   return (
     <Can do={canViewAbsVacNavLink} orgId={props.orgId}>
@@ -64,6 +66,13 @@ export const AbsenceNavLink: React.FC<Props> = props => {
         title={t("Absence & Vacancy")}
         icon={<SwapCallsIcon />}
         subNavItems={[
+          {
+            title: t("Create Absence"),
+            route: AdminSelectEmployeeForCreateAbsenceRoute.generate(
+              paramsCreate
+            ),
+            permissions: [PermissionEnum.AbsVacSave],
+          },
           {
             title: t("Daily Report"),
             route: DailyReportRoute.generate(paramsDailyReport),
