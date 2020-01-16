@@ -15,6 +15,10 @@ import InfoIcon from "@material-ui/icons/Info";
 import { ExpandMore, ExpandLess } from "@material-ui/icons";
 import { useState, useCallback } from "react";
 import { not } from "helpers";
+import { OrgUserPermissions } from "reference-data/my-user-access";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { canAssignSub } from "helpers/permissions";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   detail: Detail;
@@ -28,7 +32,17 @@ type Props = {
   goToAbsenceEdit: (absenceId: string) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
-  rowActions: { name: string; onClick: () => void }[];
+  rowActions: {
+    name: string;
+    onClick: () => void;
+    permissions?:
+      | PermissionEnum[]
+      | ((
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) => boolean);
+  }[];
 };
 
 export const MobileDailyReportDetailUI: React.FC<Props> = props => {
@@ -42,33 +56,56 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
 
   const actionButtons = (
     <div className={classes.actionButtons}>
-      {props.rowActions.map(a => (
-        <Button
-          key={a.name}
-          variant="outlined"
-          className={classes.button}
-          onClick={a.onClick}
-        >
-          {a.name}
-        </Button>
-      ))}
+      {props.rowActions.map(a =>
+        a.permissions ? (
+          <Can do={a.permissions}>
+            <Button
+              key={a.name}
+              variant="outlined"
+              className={classes.button}
+              onClick={a.onClick}
+            >
+              {a.name}
+            </Button>
+          </Can>
+        ) : (
+          <Button
+            key={a.name}
+            variant="outlined"
+            className={classes.button}
+            onClick={a.onClick}
+          >
+            {a.name}
+          </Button>
+        )
+      )}
     </div>
   );
   return (
     <div className={[classes.container, props.className].join(" ")}>
       <div className={classes.group}>
         <div className={classes.checkboxSpacing}>
-          <Checkbox
-            color="primary"
-            className={clsx({
-              [classes.hidden]: props.hideCheckbox,
-              [classes.checkbox]: true,
-            })}
-            checked={props.isChecked}
-            onChange={e => {
-              props.updateSelectedDetails(props.detail, e.target.checked);
-            }}
-          />
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canAssignSub(permissions, isSysAdmin, orgId, props.detail.date)
+            }
+          >
+            <Checkbox
+              color="primary"
+              className={clsx({
+                [classes.hidden]: props.hideCheckbox,
+                [classes.checkbox]: true,
+              })}
+              checked={props.isChecked}
+              onChange={e => {
+                props.updateSelectedDetails(props.detail, e.target.checked);
+              }}
+            />
+          </Can>
         </div>
         <div className={classes.item}>
           {props.detail.type === "absence" ? (
@@ -137,12 +174,27 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                 )}
               {props.detail.state !== "noSubRequired" &&
                 !props.detail.substitute && (
-                  <Link
-                    className={classes.action}
-                    onClick={() => props.goToAbsenceEdit(props.detail.id)}
+                  <Can
+                    do={(
+                      permissions: OrgUserPermissions[],
+                      isSysAdmin: boolean,
+                      orgId?: string
+                    ) =>
+                      canAssignSub(
+                        permissions,
+                        isSysAdmin,
+                        orgId,
+                        props.detail.date
+                      )
+                    }
                   >
-                    {t("Assign")}
-                  </Link>
+                    <Link
+                      className={classes.action}
+                      onClick={() => props.goToAbsenceEdit(props.detail.id)}
+                    >
+                      {t("Assign")}
+                    </Link>
+                  </Can>
                 )}
               {props.detail.subStartTime && props.detail.subEndTime && (
                 <div className={classes.detailSubText}>

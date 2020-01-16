@@ -7,6 +7,8 @@ import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { Detail } from "../helpers";
 import { DailyReportDetailUI } from "./daily-report-detail-ui";
 import { MobileDailyReportDetailUI } from "./mobile-daily-report-detail-ui";
+import { OrgUserPermissions } from "reference-data/my-user-access";
+import { canRemoveSub, canAssignSub } from "helpers/permissions";
 
 type Props = {
   detail: Detail;
@@ -52,6 +54,11 @@ export const DailyReportDetail: React.FC<Props> = props => {
     {
       name: t("Edit"),
       onClick: () => goToAbsenceEdit(props.detail.id),
+      permissions: (
+        permissions: OrgUserPermissions[],
+        isSysAdmin: boolean,
+        orgId?: string
+      ) => canEditSub(permissions, isSysAdmin, orgId, props.detail.date),
     },
   ];
   if (props.detail.state !== "noSubRequired") {
@@ -67,6 +74,17 @@ export const DailyReportDetail: React.FC<Props> = props => {
           goToAbsenceEdit(props.detail.id);
         }
       },
+      permissions: props.detail.substitute
+        ? (
+            permissions: OrgUserPermissions[],
+            isSysAdmin: boolean,
+            orgId?: string
+          ) => canRemoveSub(permissions, isSysAdmin, orgId, props.detail.date)
+        : (
+            permissions: OrgUserPermissions[],
+            isSysAdmin: boolean,
+            orgId?: string
+          ) => canAssignSub(permissions, isSysAdmin, orgId, props.detail.date),
     });
   }
 
