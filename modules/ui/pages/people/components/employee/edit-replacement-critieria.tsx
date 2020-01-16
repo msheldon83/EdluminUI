@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Typography, Grid, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { PageHeader } from "ui/components/page-header";
 import { Input } from "ui/components/form/input";
@@ -22,7 +22,7 @@ import {
 
 type Props = {};
 
-export const ReplacementCriteriaEdit: React.FC<Props> = props => {
+export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const classes = useStyles();
@@ -51,7 +51,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
 
   //TODO: Add SearchText query to back-end
   const getAllEndorsements = useQueryBundle(GetAllEndorsementsWithinOrg, {
-    variables: { orgId: params.organizationId }, //, searchText: searchText },
+    variables: { orgId: params.organizationId, searchText: searchText },
   });
 
   if (
@@ -81,6 +81,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
   return (
     <>
       <SectionHeader
+        className={classes.leftPadding}
         title={t(employee?.firstName + " " + employee?.lastName)}
       />
       <PageTitle title={t("Replacement Criteria")} withoutHeading={!isMobile} />
@@ -175,6 +176,8 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
                   className={classes.label}
                 />
               </Grid>
+              <div className={classes.fontColorGrey}>Add selected to:</div>
+
               <hr />
               <Grid item xs={12} sm={6} lg={6}>
                 {endorsements?.length === 0 ? (
@@ -197,10 +200,16 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(4),
   },
   rightPadding: {
-    paddingRight: theme.spacing(4),
+    paddingRight: theme.spacing(3),
+  },
+  leftPadding: {
+    paddingLeft: theme.spacing(1),
   },
   label: {
     fontWeight: 500,
     marginBottom: theme.typography.pxToRem(4),
+  },
+  fontColorGrey: {
+    color: theme.customColors.appBackgroundGray,
   },
 }));

@@ -434,7 +434,9 @@ export function App() {
                                   permissions={[PermissionEnum.SubstituteView]}
                                 />
                                 <ProtectedRoute
-                                  component={PeopleReplacementCriteriaEditLoader}
+                                  component={
+                                    PeopleReplacementCriteriaEditLoader
+                                  }
                                   path={PeopleReplacementCriteriaEditRoute.path}
                                   role={"admin"}
                                   permissions={[PermissionEnum.EmployeeView]}
@@ -471,6 +473,14 @@ export function App() {
                                   ]}
                                 />
                                 <ProtectedRoute
+                                  component={ReplacementCriteriaEditLoader}
+                                  path={ReplacementCriteriaEditRoute.path}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.FinanceSettingsView,
+                                  ]}
+                                />
+                                <ProtectedRoute
                                   component={PositionTypeAddLoader}
                                   path={PositionTypeAddRoute.path}
                                   role={"admin"}
@@ -502,12 +512,7 @@ export function App() {
                                     PermissionEnum.FinanceSettingsView,
                                   ]}
                                 />
-                                <ProtectedRoute
-                                  component={ReplacementCriteriaEditLoader}
-                                  path={ReplacementCriteriaEditRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.FinanceSettingsView]}
-                                />
+
                                 <ProtectedRoute
                                   component={BellScheduleAddLoader}
                                   path={BellScheduleAddRoute.path}

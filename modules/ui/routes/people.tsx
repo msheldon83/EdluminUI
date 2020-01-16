@@ -83,14 +83,14 @@ export const PeopleReplacementCriteriaEditRoute = defineSubRoute(
 
 export const PeopleReplacementCriteriaEditLoader = asyncComponent({
   resolve: async () => {
-    const ReplacementCriteriaEdit = (
+    const PeopleReplacementCriteriaEdit = (
       await import(
         "ui/pages/people/components/employee/edit-replacement-critieria"
       )
-    ).ReplacementCriteriaEdit;
-    return ReplacementCriteriaEdit;
+    ).PeopleReplacementCriteriaEdit;
+    return PeopleReplacementCriteriaEdit;
   },
-  name: "ReplacementCriteriaEditSettingsPage",
+  name: "PeopleReplacementCriteriaEditSettingsPage",
 });
 
 /***** substitute assignment schedule *****/
