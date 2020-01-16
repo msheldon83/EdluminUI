@@ -141,11 +141,13 @@ export const View: React.FC<Props> = props => {
             <Typography variant="h5">{t("Absence Details")}</Typography>
           </Grid>
           <Grid item xs={12} className={classes.absenceDetailsSection}>
-            <div>
-              <Typography variant="h6">
-                {`${absence.employee?.firstName} ${absence.employee?.lastName}`}
-              </Typography>
-            </div>
+            {absence.employee && (
+              <div>
+                <Typography variant="h6">
+                  {`${absence.employee.firstName} ${absence.employee.lastName}`}
+                </Typography>
+              </div>
+            )}
 
             <div>
               {getAbsenceReasonListDisplay(

@@ -207,8 +207,8 @@ const getAbsence = (
     numDays: 5,
     employeeId: 1125,
     employee: {
-      firstName: "john",
-      lastName: "smith",
+      firstName: "John",
+      lastName: "Smith",
     },
     notesToApprover: notesToApprover,
     details: [
