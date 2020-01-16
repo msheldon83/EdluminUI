@@ -7,6 +7,7 @@ import { PageTitle } from "ui/components/page-title";
 import { SecurityManagedOrganizationsRoute } from "ui/routes/security/managed-organizations";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
+import { UnderConstructionHeader } from "ui/components/under-construction";
 
 type Props = {};
 
@@ -31,6 +32,7 @@ export const SecurityManagedOrganizations: React.FC<Props> = props => {
           "Security Managed Organizations"
         )}`}
       />
+      <UnderConstructionHeader />
       {__DEV__ && (
         <Button
           variant="contained"

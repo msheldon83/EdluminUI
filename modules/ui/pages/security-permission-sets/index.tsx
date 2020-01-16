@@ -11,8 +11,9 @@ import {
   SecurityPermissionSetsRoute,
   SecurityPermissionSetsAddRoute,
 } from "ui/routes/security/permission-sets";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { Link } from "react-router-dom";
+import { Can } from "ui/components/auth/can";
 
 type Props = {};
 
@@ -33,15 +34,17 @@ export const SecurityPermissionSets: React.FC<Props> = props => {
         className={classes.header}
       >
         <PageTitle title={t("Permission Sets")} />
-        <Grid item>
-          <Button
-            variant="contained"
-            component={Link}
-            to={SecurityPermissionSetsAddRoute.generate(params)}
-          >
-            {t("Add Permission Set")}
-          </Button>
-        </Grid>
+        <Can do={[PermissionEnum.PermissionSetSave]}>
+          <Grid item>
+            <Button
+              variant="contained"
+              component={Link}
+              to={SecurityPermissionSetsAddRoute.generate(params)}
+            >
+              {t("Add Permission Set")}
+            </Button>
+          </Grid>
+        </Can>
       </Grid>
       <Section>
         <Filters

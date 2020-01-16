@@ -6,6 +6,7 @@ import {
   AdminRootChromeRoute,
   AppChromeRoute,
 } from "ui/routes/app-chrome";
+import { SecurityUsersRoute } from "ui/routes/security/users";
 import { defineSubRoute, useRouteParams } from "ui/routes/definition";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { EmployeePtoBalanceRoute } from "ui/routes/employee-pto-balances";
@@ -34,14 +35,12 @@ import { OrgSettingsRoute } from "ui/routes/org-settings";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { LocationsRoute } from "ui/routes/locations";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
+import { tbd, adminTbd } from "ui/routes/tbd";
 
 type Props = {
   navBarExpanded: boolean;
   onClick?: () => void;
 };
-
-const tbd = defineSubRoute(AppChromeRoute, "tbd");
-const adminTbd = defineSubRoute(AdminChromeRoute, "tbd");
 
 export const AutoSwitchingNavLinks: React.FC<Props> = props => {
   return (
@@ -125,7 +124,6 @@ export const AdminNavLinks: React.FC<Props> = props => {
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
             route={AdminHomeRoute.generate(params)}
-            orgId={params.organizationId}
           />
           {/* TODO: For now we'll go directly to Absence Create */}
           <AbsenceNavLink
@@ -167,7 +165,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           <SecurityNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
-            route={adminTbd.generate(params)}
+            route={SecurityUsersRoute.generate(params)}
             orgId={params.organizationId}
           />
         </>
@@ -176,7 +174,6 @@ export const AdminNavLinks: React.FC<Props> = props => {
         <OrganizationsNavLink
           onClick={props.onClick}
           navBarExpanded={props.navBarExpanded}
-          orgId={params.organizationId}
           route={
             inOrg
               ? OrganizationsRoute.generate(params)

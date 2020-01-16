@@ -7,11 +7,13 @@ import {
 import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import Maybe from "graphql/tsutils/Maybe";
-import { OrgUserUpdateInput } from "graphql/server-types.gen";
+import { OrgUserUpdateInput, PermissionEnum } from "graphql/server-types.gen";
 import { useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { InviteSingleUser } from "../graphql/invite-single-user.gen";
 import { ShowErrors } from "ui/components/error-helpers";
+import { canEditOrgUser, canDeleteOrgUser } from "helpers/permissions";
+import { OrgUserPermissions } from "ui/components/auth/types";
 
 const editableSections = {
   name: "edit-name",
@@ -32,6 +34,9 @@ type Props = {
     externalId?: string | null | undefined;
     inviteSent: boolean;
     isAccountSetup: boolean;
+    isAdmin: boolean;
+    isEmployee: boolean;
+    isReplacementEmployee: boolean;
   };
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   deleteOrgUser: () => Promise<unknown>;
@@ -81,6 +86,20 @@ export const PersonViewHeader: React.FC<Props> = props => {
         label={t("Name")}
         editable={props.editing === null}
         onEdit={() => props.setEditing(editableSections.name)}
+        editPermissions={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) =>
+          canEditOrgUser(
+            permissions,
+            isSysAdmin,
+            orgUser.isAdmin,
+            orgUser.isEmployee,
+            orgUser.isReplacementEmployee,
+            orgId
+          )
+        }
         validationSchema={yup.object().shape({
           firstName: yup.string().required(t("First name is required")),
           middleName: yup.string().nullable(),
@@ -128,6 +147,19 @@ export const PersonViewHeader: React.FC<Props> = props => {
                   active: !orgUser.active,
                 });
               },
+              permissions: (
+                permissions: OrgUserPermissions[],
+                isSysAdmin: boolean,
+                orgId?: string
+              ) =>
+                canEditOrgUser(
+                  permissions,
+                  isSysAdmin,
+                  orgUser.isAdmin,
+                  orgUser.isEmployee,
+                  orgUser.isReplacementEmployee,
+                  orgId
+                ),
             },
           ],
           ...(orgUser.userId
@@ -135,12 +167,26 @@ export const PersonViewHeader: React.FC<Props> = props => {
                 {
                   name: inviteSent ? t("Resend Invitation") : t("Invite"),
                   onClick: invite,
+                  permissions: [PermissionEnum.OrgUserInvite],
                 },
               ]
             : []),
           {
             name: t("Delete"),
             onClick: props.deleteOrgUser,
+            permissions: (
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canDeleteOrgUser(
+                permissions,
+                isSysAdmin,
+                orgUser.isAdmin,
+                orgUser.isEmployee,
+                orgUser.isReplacementEmployee,
+                orgId
+              ),
           },
         ]}
         isInactive={!orgUser.active}
@@ -158,6 +204,20 @@ export const PersonViewHeader: React.FC<Props> = props => {
         label={t("External ID")}
         editable={props.editing === null}
         onEdit={() => props.setEditing(editableSections.externalId)}
+        editPermissions={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) =>
+          canEditOrgUser(
+            permissions,
+            isSysAdmin,
+            orgUser.isAdmin,
+            orgUser.isEmployee,
+            orgUser.isReplacementEmployee,
+            orgId
+          )
+        }
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}

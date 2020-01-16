@@ -33,6 +33,8 @@ import { ScheduleDurationColumn } from "./schedule-columns/schedule-duration-col
 import { ScheduleMorningColumn } from "./schedule-columns/schedule-morning-column";
 import { ScheduleNamesColumn } from "./schedule-columns/schedule-names-column";
 import { ScheduleTimesColumn } from "./schedule-columns/schedule-times-column";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   name?: string | null | undefined;
@@ -246,15 +248,17 @@ export const Schedule: React.FC<Props> = props => {
 
             <div className={classes.scheduleContainer}>
               <div>
-                <ScheduleActionColumn
-                  periods={values.periods}
-                  isStandard={props.isStandard}
-                  minNumberOfPeriods={minNumberOfPeriods}
-                  setPeriods={(periods: Period[]) =>
-                    setPeriods(periods, setFieldValue)
-                  }
-                  scheduleClasses={classes}
-                />
+                <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+                  <ScheduleActionColumn
+                    periods={values.periods}
+                    isStandard={props.isStandard}
+                    minNumberOfPeriods={minNumberOfPeriods}
+                    setPeriods={(periods: Period[]) =>
+                      setPeriods(periods, setFieldValue)
+                    }
+                    scheduleClasses={classes}
+                  />
+                </Can>
               </div>
               <div>
                 <ScheduleNamesColumn
@@ -301,30 +305,32 @@ export const Schedule: React.FC<Props> = props => {
               </div>
             </div>
             {displayEndOfDay(values.periods, t, classes)}
-            <ActionButtons
-              submit={{
-                text: props.submitLabel || t("Save"),
-                execute: submitForm,
-              }}
-              cancel={{ text: t("Cancel"), execute: props.onCancel }}
-              additionalActions={
-                props.isStandard
-                  ? [
-                      {
-                        text: t("Add Row"),
-                        execute: () => {
-                          const updatedPeriods = AddPeriod(
-                            values.periods,
-                            travelDuration,
-                            t
-                          );
-                          setFieldValue("periods", updatedPeriods);
+            <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+              <ActionButtons
+                submit={{
+                  text: props.submitLabel || t("Save"),
+                  execute: submitForm,
+                }}
+                cancel={{ text: t("Cancel"), execute: props.onCancel }}
+                additionalActions={
+                  props.isStandard
+                    ? [
+                        {
+                          text: t("Add Row"),
+                          execute: () => {
+                            const updatedPeriods = AddPeriod(
+                              values.periods,
+                              travelDuration,
+                              t
+                            );
+                            setFieldValue("periods", updatedPeriods);
+                          },
                         },
-                      },
-                    ]
-                  : []
-              }
-            />
+                      ]
+                    : []
+                }
+              />
+            </Can>
           </form>
         )}
       </Formik>

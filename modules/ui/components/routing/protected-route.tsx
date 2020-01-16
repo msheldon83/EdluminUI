@@ -6,8 +6,6 @@ import {
   RouteComponentProps,
   Redirect,
 } from "react-router-dom";
-import { useRouteParams } from "ui/routes/definition";
-import { AdminChromeRoute } from "ui/routes/app-chrome";
 import {
   UnauthorizedRoute,
   UnauthorizedAdminRoleRoute,
@@ -16,6 +14,7 @@ import {
 } from "ui/routes/unauthorized";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { can } from "helpers/permissions";
+import { useOrganizationId } from "core/org-context";
 
 // Copied from https://stackoverflow.com/a/52366872 and tweaked
 
@@ -30,24 +29,22 @@ type RenderComponent = (props: RouteComponentProps<any>) => React.ReactNode;
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = props => {
   const { component: Component, ...rest } = props;
-  const adminRouteParams = useRouteParams(AdminChromeRoute);
-  const adminInOrg = !isNaN(+adminRouteParams.organizationId);
+  const organizationId = useOrganizationId();
 
   const userAccess = useMyUserAccess();
   if (!userAccess) {
     return <></>;
   }
 
-  const isSysAdmin = userAccess.me?.isSystemAdministrator ?? false;
   let hasAccessToOrg = true;
   let hasAccessViaPermissions = true;
   // Only do further access checks if the current User is NOT a Sys Admin
-  if (!isSysAdmin) {
+  if (!userAccess.isSysAdmin) {
     // If we have an Org Id available to us, check that first
-    if (adminInOrg) {
+    if (organizationId) {
       const orgUsers = userAccess.me?.user?.orgUsers ?? [];
       const matchingOrgUser = orgUsers.find(
-        ou => ou?.orgId === Number(adminRouteParams.organizationId)
+        ou => ou?.orgId === Number(organizationId)
       );
       hasAccessToOrg = !!matchingOrgUser?.isAdmin;
     }
@@ -58,8 +55,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = props => {
       hasAccessViaPermissions = can(
         props.permissions,
         userAccess.permissionsByOrg,
-        isSysAdmin,
-        adminRouteParams.organizationId
+        userAccess.isSysAdmin,
+        organizationId
       );
     }
   }
@@ -73,7 +70,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = props => {
         return (
           <Redirect
             to={UnauthorizedAdminRoleRoute.generate({
-              organizationId: adminRouteParams.organizationId,
+              organizationId: organizationId ?? "",
             })}
           />
         );

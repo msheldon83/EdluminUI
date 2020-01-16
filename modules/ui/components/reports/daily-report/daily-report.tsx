@@ -1,52 +1,58 @@
-import * as React from "react";
 import {
-  Grid,
-  makeStyles,
-  Divider,
-  Link,
   Button,
+  Collapse,
+  Divider,
+  Grid,
+  Link,
+  makeStyles,
   Tooltip,
 } from "@material-ui/core";
-import { useScreenSize } from "hooks";
-import { useTranslation } from "react-i18next";
-import { useState, useMemo, useEffect } from "react";
-import { useQueryParamIso } from "hooks/query-params";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetDailyReport } from "./graphql/get-daily-report.gen";
-import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
-import { GetTotalAwaitingVerificationCountForSchoolYear } from "./graphql/get-total-awaiting-verification-count-school-year.gen";
-import { FilterQueryParams } from "./filters/filter-params";
-import { Filters } from "./filters/index";
-import { Section } from "ui/components/section";
+import { format, isFuture, startOfToday } from "date-fns";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
   DailyReport as DailyReportType,
-  VacancyDetailCount,
+  PermissionEnum,
 } from "graphql/server-types.gen";
-import { SectionHeader } from "ui/components/section-header";
-import {
-  Detail,
-  MapDailyReportDetails,
-  CardType,
-  DailyReportDetails,
-  DetailGroup,
-} from "./helpers";
-import { GroupCard } from "./group-card";
-import { TFunction } from "i18next";
-import { format, isFuture, startOfToday } from "date-fns";
-import { DailyReportSection } from "./daily-report-section";
-import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
-import { useDialog, RenderFunctionsType } from "hooks/use-dialog";
-import { CancelAssignment } from "./graphql/cancel-assignment.gen";
+import { not } from "helpers";
+import { useIsMobile } from "hooks";
+import { useQueryParamIso } from "hooks/query-params";
+import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
-import { Print } from "@material-ui/icons";
+import { TFunction } from "i18next";
+import * as React from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router";
+import {
+  ShowErrors,
+  ShowIgnoreAndContinueOrError,
+} from "ui/components/error-helpers";
+import { FilterListButton } from "ui/components/filter-list-button";
+import { DesktopOnly } from "ui/components/mobile-helpers";
+import { PrintPageButton } from "ui/components/print-page-button";
+import { Section } from "ui/components/section";
+import { SectionHeader } from "ui/components/section-header";
 import { VerifyUI } from "ui/pages/verify/ui";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 import { useRouteParams } from "ui/routes/definition";
-import { useHistory } from "react-router";
+import { DailyReportSection } from "./daily-report-section";
+import { FilterQueryParams } from "./filters/filter-params";
+import { Filters } from "./filters/index";
+import { CancelAssignment } from "./graphql/cancel-assignment.gen";
+import { GetDailyReport } from "./graphql/get-daily-report.gen";
+import { GetTotalAwaitingVerificationCountForSchoolYear } from "./graphql/get-total-awaiting-verification-count-school-year.gen";
+import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
+import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
+import { GroupCard } from "./group-card";
 import {
-  ShowIgnoreAndContinueOrError,
-  ShowErrors,
-} from "ui/components/error-helpers";
+  CardType,
+  Detail,
+  DetailGroup,
+  MapDailyReportDetails,
+} from "./helpers";
+import { Can } from "ui/components/auth/can";
+import { canAssignSub } from "helpers/permissions";
+import { OrgUserPermissions } from "ui/components/auth/types";
 
 type Props = {
   orgId: string;
@@ -62,7 +68,7 @@ type Props = {
 export const DailyReport: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const history = useHistory();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
@@ -226,6 +232,11 @@ export const DailyReport: React.FC<Props> = props => {
     },
   });
 
+  const [showingFilters, setShowingFilters] = useState(false);
+  const toggleFilters = useCallback(() => setShowingFilters(not), [
+    setShowingFilters,
+  ]);
+
   const swapSubs = async (ignoreWarnings?: boolean) => {
     if (selectedRows.length !== 2) {
       return;
@@ -281,17 +292,43 @@ export const DailyReport: React.FC<Props> = props => {
 
   return (
     <Section className={classes.dailyReportContainer}>
-      <div className={classes.headerContainer}>
-        <SectionHeader title={props.header} className={classes.header} />
-        {props.showFilters && (
-          <>
-            <Filters orgId={props.orgId} setDate={props.setDate} />
-            <Divider />
-          </>
-        )}
+      <div
+        className={
+          isMobile ? classes.mobileHeadercontainer : classes.headerContainer
+        }
+      >
+        <Grid container>
+          <Grid item xs={6} md={12}>
+            <SectionHeader title={props.header} className={classes.header} />
+          </Grid>
+          {props.showFilters && (
+            <>
+              {isMobile && (
+                <Grid item xs={6} md={12} className={classes.noPrint}>
+                  <FilterListButton onClick={toggleFilters} />
+                </Grid>
+              )}
+              <Grid item xs={12}>
+                {isMobile ? (
+                  <>
+                    <Collapse in={showingFilters}>
+                      <Filters orgId={props.orgId} setDate={props.setDate} />
+                      <Divider />
+                    </Collapse>
+                  </>
+                ) : (
+                  <>
+                    <Filters orgId={props.orgId} setDate={props.setDate} />
+                    <Divider />
+                  </>
+                )}
+              </Grid>
+            </>
+          )}
+        </Grid>
         <Grid
           container
-          spacing={4}
+          spacing={isMobile ? 2 : 4}
           justify="flex-start"
           className={classes.cardContainer}
         >
@@ -306,8 +343,25 @@ export const DailyReport: React.FC<Props> = props => {
               totalOverride = awaitingVerificationCount ?? 0;
             }
 
-            return (
-              <Grid item key={i}>
+            return c === "awaitingVerification" ? (
+              <Can do={[PermissionEnum.AbsVacVerify]} key={i}>
+                <Grid item xs={isMobile ? 6 : undefined}>
+                  <GroupCard
+                    cardType={c}
+                    details={allDetails}
+                    countOverride={countOverride}
+                    totalOverride={totalOverride}
+                    onClick={(c: CardType) => {
+                      setSelectedCard(c === "total" ? undefined : c);
+                    }}
+                    activeCard={selectedCard}
+                    showPercentInLabel={c !== "awaitingVerification"}
+                    showFractionCount={false}
+                  />
+                </Grid>
+              </Can>
+            ) : (
+              <Grid item key={i} xs={isMobile ? 6 : undefined}>
                 <GroupCard
                   cardType={c}
                   details={allDetails}
@@ -317,7 +371,7 @@ export const DailyReport: React.FC<Props> = props => {
                     setSelectedCard(c === "total" ? undefined : c);
                   }}
                   activeCard={selectedCard}
-                  showPercentInLabel={c !== "awaitingVerification"}
+                  showPercentInLabel={true}
                   showFractionCount={props.isHomePage && c === "unfilled"}
                 />
               </Grid>
@@ -342,7 +396,8 @@ export const DailyReport: React.FC<Props> = props => {
           history.push(url, {
             selectedDateTab: "older",
           });
-        }
+        },
+        props.orgId
       )}
     </Section>
   );
@@ -358,6 +413,10 @@ const useStyles = makeStyles(theme => ({
   headerContainer: {
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
+  },
+  mobileHeadercontainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
   header: {
     "@media print": {
@@ -378,6 +437,10 @@ const useStyles = makeStyles(theme => ({
   groupedDetailsContainer: {
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(0),
+      paddingRight: theme.spacing(0),
+    },
   },
   detailGroup: {
     marginTop: theme.spacing(2),
@@ -391,17 +454,14 @@ const useStyles = makeStyles(theme => ({
   action: {
     cursor: "pointer",
   },
-  print: {
-    color: "#9E9E9E",
-    "@media print": {
-      display: "none",
-    },
+  noPrint: {
+    "@media print": { display: "none" },
   },
 }));
 
 const displaySections = (
   groupedDetails: DetailGroup[],
-  selectedCard?: CardType | undefined,
+  selectedCard: CardType | undefined,
   classes: any,
   t: TFunction,
   clearSelectedCard: () => void,
@@ -414,7 +474,8 @@ const displaySections = (
   ) => Promise<void>,
   date: Date,
   setDate: (date: Date) => void,
-  verifyOlderAction: () => void
+  verifyOlderAction: () => void,
+  orgId: string
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -467,13 +528,14 @@ const displaySections = (
             </Link>
           </Grid>
         )}
-        <Grid item>{displaySwabSubsAction(selectedRows, swapSubs, t)}</Grid>
         <Grid item>
-          <Print
-            className={[classes.action, classes.print].join(" ")}
-            onClick={window.print}
-          />
+          {displaySwabSubsAction(selectedRows, swapSubs, t, orgId, date)}
         </Grid>
+        <DesktopOnly>
+          <Grid item>
+            <PrintPageButton />
+          </Grid>
+        </DesktopOnly>
       </Grid>
       {selectedCard === "awaitingVerification" ? (
         <div className={classes.verifyContainer}>
@@ -514,7 +576,9 @@ const displaySections = (
 const displaySwabSubsAction = (
   selectedRows: Detail[],
   swapSubs: (ignoreWarnings?: boolean) => Promise<void>,
-  t: TFunction
+  t: TFunction,
+  orgId: string,
+  absDate: Date
 ) => {
   if (selectedRows.length < 2) {
     return;
@@ -532,17 +596,35 @@ const displaySwabSubsAction = (
   );
 
   if (selectedRows.length === 2) {
-    return button;
+    return (
+      <Can
+        do={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) => canAssignSub(absDate, permissions, isSysAdmin, orgId)}
+      >
+        {button}
+      </Can>
+    );
   }
 
   // Button is wrapped in a span, because in this case the button will be disabled and Tooltip
   // needs its first descendant to be an active element
   return (
-    <Tooltip
-      title={t("Substitutes can only be swapped between 2 Absences")}
-      placement="right"
+    <Can
+      do={(
+        permissions: OrgUserPermissions[],
+        isSysAdmin: boolean,
+        orgId?: string
+      ) => canAssignSub(absDate, permissions, isSysAdmin, orgId)}
     >
-      <span>{button}</span>
-    </Tooltip>
+      <Tooltip
+        title={t("Substitutes can only be swapped between 2 Absences")}
+        placement="right"
+      >
+        <span>{button}</span>
+      </Tooltip>
+    </Can>
   );
 };

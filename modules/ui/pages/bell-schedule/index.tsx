@@ -19,6 +19,8 @@ import { useRouteParams } from "ui/routes/definition";
 import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import { GetAllWorkDaySchedulesWithinOrg } from "./graphql/workday-schedules.gen";
 import { PaginationControls } from "ui/components/pagination-controls";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 export const BellSchedulePage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -110,15 +112,17 @@ export const BellSchedulePage: React.FC<{}> = props => {
         <Grid item>
           <PageTitle title={t("Bell Schedules")} />
         </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            component={Link}
-            to={BellScheduleAddRoute.generate(params)}
-          >
-            {t("Add Bell Schedule")}
-          </Button>
-        </Grid>
+        <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+          <Grid item>
+            <Button
+              variant="contained"
+              component={Link}
+              to={BellScheduleAddRoute.generate(params)}
+            >
+              {t("Add Bell Schedule")}
+            </Button>
+          </Grid>
+        </Can>
       </Grid>
       <Table
         title={`${workDaySchedulesCount} ${

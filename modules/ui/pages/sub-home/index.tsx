@@ -16,7 +16,12 @@ import {
   usePagedQueryBundle,
   useQueryBundle,
 } from "graphql/hooks";
-import { OrgUser, Vacancy, VacancyDetail } from "graphql/server-types.gen";
+import {
+  OrgUser,
+  Vacancy,
+  VacancyDetail,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
@@ -42,6 +47,7 @@ import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
 import { RequestVacancy } from "./graphql/request-vacancy.gen";
 import { SubJobSearch } from "./graphql/sub-job-search.gen";
+import { Can } from "ui/components/auth/can";
 
 type Props = {};
 
@@ -302,54 +308,58 @@ export const SubHome: React.FC<Props> = props => {
           </Grid>
         )}
       </Grid>
+      <Can do={[PermissionEnum.AbsVacAssign]}>
+        <Section className={classes.wrapper}>
+          <Grid container spacing={2} className={classes.header}>
+            <Typography variant="h5" className={classes.availableJobsTitle}>
+              {t("Available Jobs")}
+            </Typography>
 
-      <Section className={classes.wrapper}>
-        <Grid container spacing={2} className={classes.header}>
-          <Typography variant="h5" className={classes.availableJobsTitle}>
-            {t("Available Jobs")}
-          </Typography>
+            {isMobile ? (
+              <div className={classes.jobButtons}>
+                <Button
+                  variant="outlined"
+                  startIcon={<FilterList />}
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  {t("Filters")}
+                </Button>
+                <IconButton onClick={onRefreshVacancies}>
+                  <RefreshIcon />
+                </IconButton>
+              </div>
+            ) : (
+              <div className={classes.jobButtons}>
+                <Button variant="outlined" onClick={onRefreshVacancies}>
+                  {t("Refresh")}
+                </Button>
+              </div>
+            )}
+          </Grid>
 
-          {isMobile ? (
-            <div className={classes.jobButtons}>
-              <Button
-                variant="outlined"
-                startIcon={<FilterList />}
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                {t("Filters")}
-              </Button>
-              <IconButton onClick={onRefreshVacancies}>
-                <RefreshIcon />
-              </IconButton>
-            </div>
-          ) : (
-            <div className={classes.jobButtons}>
-              <Button variant="outlined" onClick={onRefreshVacancies}>
-                {t("Refresh")}
-              </Button>
-            </div>
-          )}
-        </Grid>
-        {showFilters && <Filters />}
-        <div>
-          <Divider className={classes.header} />
-          {getVacancies.state === "LOADING" ? (
-            <Typography variant="h5">{t("Loading Available Jobs")}</Typography>
-          ) : vacancies.length === 0 ? (
-            <Typography variant="h5">{t("No Jobs Available")}</Typography>
-          ) : (
-            sortedVacancies.map((vacancy, index) => (
-              <AvailableJob
-                vacancy={vacancy}
-                shadeRow={index % 2 != 0}
-                onDismiss={onDismissVacancy}
-                key={index}
-                onAccept={onAcceptVacancy}
-              />
-            ))
-          )}
-        </div>
-      </Section>
+          {showFilters && <Filters />}
+          <div>
+            <Divider className={classes.header} />
+            {getVacancies.state === "LOADING" ? (
+              <Typography variant="h5">
+                {t("Loading Available Jobs")}
+              </Typography>
+            ) : vacancies.length === 0 ? (
+              <Typography variant="h5">{t("No Jobs Available")}</Typography>
+            ) : (
+              sortedVacancies.map((vacancy, index) => (
+                <AvailableJob
+                  vacancy={vacancy}
+                  shadeRow={index % 2 != 0}
+                  onDismiss={onDismissVacancy}
+                  key={index}
+                  onAccept={onAcceptVacancy}
+                />
+              ))
+            )}
+          </div>
+        </Section>
+      </Can>
 
       <RequestAbsenceDialog
         open={requestAbsenceIsOpen}

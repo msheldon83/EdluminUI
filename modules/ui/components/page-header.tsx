@@ -9,6 +9,10 @@ import { useTranslation } from "react-i18next";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionMenu, Option } from "./action-menu";
 import { TextButton } from "./text-button";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { useMemo } from "react";
+import { Can } from "./auth/can";
+import { CanDo } from "./auth/types";
 
 type Props = {
   text: string | null | undefined;
@@ -24,6 +28,7 @@ type Props = {
   isInactive?: boolean;
   inactiveDisplayText?: string | null | undefined;
   onActivate?: () => Promise<unknown>;
+  editPermissions?: CanDo;
 };
 
 export const PageHeader: React.FC<Props> = props => {
@@ -31,6 +36,19 @@ export const PageHeader: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [editing, setEditing] = React.useState(false);
+
+  const activateButton = useMemo(() => {
+    return (
+      <TextButton
+        className={classes.activateAction}
+        onClick={async () => {
+          await props.onActivate!();
+        }}
+      >
+        {t("Activate")}
+      </TextButton>
+    );
+  }, [props.onActivate, classes.activateAction, t]);
 
   const wrapper = (child: JSX.Element) => {
     return (
@@ -47,14 +65,11 @@ export const PageHeader: React.FC<Props> = props => {
             </Grid>
             {props.onActivate && (
               <Grid item>
-                <TextButton
-                  className={classes.activateAction}
-                  onClick={async () => {
-                    await props.onActivate!();
-                  }}
-                >
-                  {t("Activate")}
-                </TextButton>
+                {props.editPermissions ? (
+                  <Can do={props.editPermissions}>{activateButton}</Can>
+                ) : (
+                  activateButton
+                )}
               </Grid>
             )}
           </Grid>
@@ -89,6 +104,30 @@ export const PageHeader: React.FC<Props> = props => {
   );
 
   const label = props.showLabel ? <>{`${props.label}: `}</> : "";
+  const editButton = useMemo(() => {
+    return (
+      <Grid item style={{ paddingLeft: 0 }}>
+        <Edit
+          className={clsx({
+            [classes.action]: !props.isSubHeader,
+            [classes.smallAction]: props.isSubHeader,
+            [classes.editIcon]: true,
+          })}
+          onClick={() => {
+            props.onEdit!();
+            setEditing(true);
+          }}
+        />
+      </Grid>
+    );
+  }, [
+    props.onEdit,
+    props.isSubHeader,
+    classes.action,
+    classes.smallAction,
+    classes.editIcon,
+    setEditing,
+  ]);
 
   if (!editing) {
     return wrapper(
@@ -113,21 +152,12 @@ export const PageHeader: React.FC<Props> = props => {
               </Typography>
             )}
           </Grid>
-          {headerIsEditable && (
-            <Grid item style={{ paddingLeft: 0 }}>
-              <Edit
-                className={clsx({
-                  [classes.action]: !props.isSubHeader,
-                  [classes.smallAction]: props.isSubHeader,
-                  [classes.editIcon]: true,
-                })}
-                onClick={() => {
-                  props.onEdit!();
-                  setEditing(true);
-                }}
-              />
-            </Grid>
-          )}
+          {headerIsEditable &&
+            (props.editPermissions ? (
+              <Can do={props.editPermissions}>{editButton}</Can>
+            ) : (
+              editButton
+            ))}
         </Grid>
       </Grid>
     );

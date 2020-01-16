@@ -23,6 +23,8 @@ import {
 import * as yup from "yup";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import { UpdatePositionType } from "./graphql/update-position-type.gen";
+import { GetAllPositionTypesWithinOrg } from "./graphql/position-types.gen";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { ReplacementCriteria } from "./replacement-criteria";
 
 const editableSections = {
@@ -125,6 +127,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         label={t("Name")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.name)}
+        editPermissions={[PermissionEnum.FinanceSettingsSave]}
         validationSchema={yup.object().shape({
           value: yup.string().required(t("Name is required")),
         })}
@@ -147,10 +150,12 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               );
               setEnabled(!enabled);
             },
+            permissions: [PermissionEnum.FinanceSettingsSave],
           },
           {
             name: t("Delete"),
             onClick: deletePositionType,
+            permissions: [PermissionEnum.FinanceSettingsDelete],
           },
         ]}
         isInactive={!enabled}
@@ -165,6 +170,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         label={t("External ID")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
+        editPermissions={[PermissionEnum.FinanceSettingsSave]}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
@@ -189,6 +195,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               );
               history.push(editSettingsUrl);
             },
+            permissions: [PermissionEnum.FinanceSettingsSave],
           }}
         />
         <Grid container spacing={2}>

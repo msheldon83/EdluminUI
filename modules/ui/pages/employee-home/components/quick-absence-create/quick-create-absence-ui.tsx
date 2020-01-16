@@ -19,7 +19,7 @@ import {
   DayPartValue,
 } from "ui/components/absence/day-part-field";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
-import { Select } from "ui/components/form/select";
+import { SelectNew } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
 import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
 
@@ -157,16 +157,16 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     <>
       <div className={classes.select}>
         <Typography>{t("Select a reason")}</Typography>
-        <Select
+        <SelectNew
           value={{
-            value: absenceReason,
+            value: absenceReason ?? "",
             label:
               absenceReasonOptions.find(a => a.value === absenceReason)
                 ?.label || "",
           }}
           onChange={onAbsenceReasonChange}
           options={absenceReasonOptions}
-          isClearable={false}
+          multiple={false}
           inputStatus={absenceReasonError ? "error" : undefined}
           validationMessage={absenceReasonError?.message}
         />

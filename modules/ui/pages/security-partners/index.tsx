@@ -7,6 +7,7 @@ import { PageTitle } from "ui/components/page-title";
 import { SecurityPartnersRoute } from "ui/routes/security/partners";
 import { useRouteParams } from "ui/routes/definition";
 import { Button } from "@material-ui/core";
+import { UnderConstructionHeader } from "ui/components/under-construction";
 
 type Props = {};
 
@@ -27,6 +28,7 @@ export const SecurityPartners: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={`${params.organizationId} ${t("Security Partners")}`} />
+      <UnderConstructionHeader />
       {__DEV__ && (
         <Button
           variant="contained"

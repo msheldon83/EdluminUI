@@ -16,27 +16,22 @@ type Props = { role: string };
 export const QuickCreateButton: React.FC<Props> = props => {
   const iconButtonClasses = useIconButtonClasses();
   const params = useRouteParams(AdminChromeRoute);
-  const adminInOrg = !isNaN(+params.organizationId);
-  const showQuickCreate =
-    props.role === "employee" || (props.role === "admin" && adminInOrg);
 
   return (
     <>
-      <Can do={[PermissionEnum.AbsVacSave]} orgId={params.organizationId}>
-        {showQuickCreate && (
-          <IconButton
-            edge="end"
-            classes={iconButtonClasses}
-            component={Link}
-            to={
-              props.role === "admin"
-                ? AdminSelectEmployeeForCreateAbsenceRoute.generate(params)
-                : EmployeeCreateAbsenceRoute.generate({ role: props.role })
-            }
-          >
-            <AddToPhotosIcon />
-          </IconButton>
-        )}
+      <Can do={[PermissionEnum.AbsVacSave]}>
+        <IconButton
+          edge="end"
+          classes={iconButtonClasses}
+          component={Link}
+          to={
+            props.role === "admin"
+              ? AdminSelectEmployeeForCreateAbsenceRoute.generate(params)
+              : EmployeeCreateAbsenceRoute.generate({ role: props.role })
+          }
+        >
+          <AddToPhotosIcon />
+        </IconButton>
       </Can>
     </>
   );

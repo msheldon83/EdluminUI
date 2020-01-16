@@ -11,6 +11,7 @@ import { useRouteParams } from "ui/routes/definition";
 import {
   WorkDayScheduleVariantTypeCreateInput,
   WorkDayScheduleVariantTypeUpdateInput,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 import { Column } from "material-table";
@@ -189,51 +190,62 @@ export const BellScheduleVariants: React.FC<Props> = props => {
         columns={columns}
         data={mappedData}
         editableRows={v => !v.isStandard}
-        deletableRows={v => !v.isStandard}      
-        onRowAdd={async newData => {
-          const newWorkDayScheduleVariantType = {
-            ...workDayScheduleVariantType,
-            name: newData.name,
-            externalId:
-              !newData.externalId || newData.externalId.trim().length === 0
-                ? null
-                : newData.externalId,
-            description:
-              !newData.description || newData.description.trim().length === 0
-                ? null
-                : newData.description,
-          };
-          const result = await create(newWorkDayScheduleVariantType);
-          if (!result) throw Error("Preserve Row on error");
-          if (result) await getAllWorkDayScheduleVariantTypes.refetch();
+        deletableRows={v => !v.isStandard}
+        onRowAdd={{
+          action: async newData => {
+            const newWorkDayScheduleVariantType = {
+              ...workDayScheduleVariantType,
+              name: newData.name,
+              externalId:
+                !newData.externalId || newData.externalId.trim().length === 0
+                  ? null
+                  : newData.externalId,
+              description:
+                !newData.description || newData.description.trim().length === 0
+                  ? null
+                  : newData.description,
+            };
+            const result = await create(newWorkDayScheduleVariantType);
+            if (!result) throw Error("Preserve Row on error");
+            if (result) await getAllWorkDayScheduleVariantTypes.refetch();
+          },
+          permissions: [PermissionEnum.ScheduleSettingsSave],
         }}
-        onRowUpdate={async newData => {
-          const updateWorkDayScheduleVariantType = {
-            id: Number(newData.id),
-            rowVersion: newData.rowVersion,
-            name: newData.name,
-            externalId:
-              !newData.externalId || newData.externalId.trim().length === 0
-                ? null
-                : newData.externalId,
-            isStandard: newData.isStandard,
-            description:
-              !newData.description || newData.description.trim().length === 0
-                ? null
-                : newData.description,
-          };
-          const result = await update(updateWorkDayScheduleVariantType);
-          if (!result) throw Error("Preserve Row on error");
-          if (result) await getAllWorkDayScheduleVariantTypes.refetch();
+        onRowUpdate={{
+          action: async newData => {
+            const updateWorkDayScheduleVariantType = {
+              id: Number(newData.id),
+              rowVersion: newData.rowVersion,
+              name: newData.name,
+              externalId:
+                !newData.externalId || newData.externalId.trim().length === 0
+                  ? null
+                  : newData.externalId,
+              isStandard: newData.isStandard,
+              description:
+                !newData.description || newData.description.trim().length === 0
+                  ? null
+                  : newData.description,
+            };
+            const result = await update(updateWorkDayScheduleVariantType);
+            if (!result) throw Error("Preserve Row on error");
+            if (result) await getAllWorkDayScheduleVariantTypes.refetch();
+          },
+          permissions: [PermissionEnum.ScheduleSettingsSave],
         }}
-        onRowDelete={async oldData => {
-          if (oldData.isStandard) {
-            const errors = ["The standard schedule variant cannot be removed."];
-            ShowGenericErrors({ errors }, openSnackbar);
-            return;
-          }
-          deleteWorkDayScheduleVariantType(String(oldData.id));
-          await getAllWorkDayScheduleVariantTypes.refetch();
+        onRowDelete={{
+          action: async oldData => {
+            if (oldData.isStandard) {
+              const errors = [
+                "The standard schedule variant cannot be removed.",
+              ];
+              ShowGenericErrors({ errors }, openSnackbar);
+              return;
+            }
+            deleteWorkDayScheduleVariantType(String(oldData.id));
+            await getAllWorkDayScheduleVariantTypes.refetch();
+          },
+          permissions: [PermissionEnum.ScheduleSettingsDelete],
         }}
         options={{
           search: true,

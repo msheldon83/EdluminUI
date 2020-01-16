@@ -6,13 +6,14 @@ import { PageTitle } from "ui/components/page-title";
 import { LocationGroupsRoute } from "ui/routes/location-groups";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationGroupsUI } from "./ui";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {};
 
 export const LocationGroups: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(LocationGroupsRoute);
 
   return (
     <>
@@ -24,15 +25,17 @@ export const LocationGroups: React.FC<Props> = props => {
         className={classes.header}
       >
         <PageTitle title={t("School Groups")} />
-        <Grid item>
-          <Button
-            variant="contained"
-            //component={Link}
-            //to={ROUTE_GOES_HERE.generate(params)} Generate correct Route for ADD
-          >
-            {t("Add School Group")}
-          </Button>
-        </Grid>
+        <Can do={[PermissionEnum.LocationGroupSave]}>
+          <Grid item>
+            <Button
+              variant="contained"
+              //component={Link}
+              //to={ROUTE_GOES_HERE.generate(params)} Generate correct Route for ADD
+            >
+              {t("Add School Group")}
+            </Button>
+          </Grid>
+        </Can>
       </Grid>
       <LocationGroupsUI />
     </>
