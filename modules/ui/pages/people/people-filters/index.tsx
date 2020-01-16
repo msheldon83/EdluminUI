@@ -21,15 +21,17 @@ import {
 import { FiltersByRole } from "./filters-by-role";
 import { Input } from "ui/components/form/input";
 import { ActiveInactiveFilter } from "ui/components/active-inactive-filter";
-import { Can } from "ui/components/auth/can";
-import { PermittedTab } from "ui/components/permitted-tab";
-import { canViewMultiplePeopleRoles } from "helpers/permissions";
+import { canViewMultiplePeopleRoles, can } from "helpers/permissions";
+import { useMyUserAccess } from "reference-data/my-user-access";
+import { useOrganizationId } from "core/org-context";
 
 type Props = { className?: string };
 
 export const PeopleFilters: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const userAccess = useMyUserAccess();
+  const contextOrgId = useOrganizationId();
 
   const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
   const [name, pendingName, setPendingName] = useDeferredState(
@@ -55,7 +57,10 @@ export const PeopleFilters: React.FC<Props> = props => {
   }, [name]); // eslint-disable-line
 
   const updateRoleFilter = React.useCallback(
-    (event: React.ChangeEvent<{}>, newRoleFilter: FilterRole | "") => {
+    (
+      event: React.ChangeEvent<{}> | undefined,
+      newRoleFilter: FilterRole | ""
+    ) => {
       const roleFilter = newRoleFilter === "" ? null : newRoleFilter;
       let filters: RoleSpecificFilters;
       switch (roleFilter) {
@@ -82,47 +87,111 @@ export const PeopleFilters: React.FC<Props> = props => {
     [setPendingName]
   );
 
+  const filteredTabs: {
+    label: string;
+    value: "" | FilterRole;
+  }[] = useMemo(() => {
+    const tabs: {
+      label: string;
+      value: "" | FilterRole;
+    }[] = [];
+    // All tab
+    if (
+      can(
+        canViewMultiplePeopleRoles,
+        userAccess?.permissionsByOrg ?? [],
+        userAccess?.isSysAdmin ?? false,
+        contextOrgId ?? undefined
+      )
+    ) {
+      tabs.push({ label: t("All"), value: "" });
+    }
+    // Employees
+    if (
+      can(
+        [PermissionEnum.EmployeeView],
+        userAccess?.permissionsByOrg ?? [],
+        userAccess?.isSysAdmin ?? false,
+        contextOrgId ?? undefined
+      )
+    ) {
+      tabs.push({
+        label: t("Employees"),
+        value: OrgUserRole.Employee,
+      });
+    }
+    // Substitutes
+    if (
+      can(
+        [PermissionEnum.SubstituteView],
+        userAccess?.permissionsByOrg ?? [],
+        userAccess?.isSysAdmin ?? false,
+        contextOrgId ?? undefined
+      )
+    ) {
+      tabs.push({
+        label: t("Substitutes"),
+        value: OrgUserRole.ReplacementEmployee,
+      });
+    }
+    // Admins
+    if (
+      can(
+        [PermissionEnum.AdminView],
+        userAccess?.permissionsByOrg ?? [],
+        userAccess?.isSysAdmin ?? false,
+        contextOrgId ?? undefined
+      )
+    ) {
+      tabs.push({
+        label: t("Admins"),
+        value: OrgUserRole.Administrator,
+      });
+    }
+    return tabs;
+  }, [userAccess, contextOrgId, t]);
+
+  useEffect(() => {
+    if (filteredTabs && filteredTabs.length > 0 && !isoFilters.roleFilter) {
+      updateRoleFilter(undefined, filteredTabs[0].value);
+    }
+  }, [filteredTabs, isoFilters.roleFilter, updateRoleFilter]);
+
   const tabs = useMemo(() => {
     return (
       <Tabs
         className={classes.tabs}
-        value={isoFilters.roleFilter === null ? "" : isoFilters.roleFilter}
+        value={
+          isoFilters.roleFilter === null
+            ? filteredTabs[0]?.value ?? ""
+            : isoFilters.roleFilter
+        }
         indicatorColor="primary"
         textColor="primary"
         onChange={updateRoleFilter}
         aria-label="people-role-filters"
       >
-        <PermittedTab
-          label={t("All")}
-          value={""}
-          className={classes.tab}
-          permissions={canViewMultiplePeopleRoles}
-        />
-        <PermittedTab
-          label={t("Employees")}
-          value={OrgUserRole.Employee}
-          className={classes.tab}
-          permissions={[PermissionEnum.EmployeeView]}
-        />
-        <PermittedTab
-          label={t("Substitutes")}
-          value={OrgUserRole.ReplacementEmployee}
-          className={classes.tab}
-          permissions={[PermissionEnum.SubstituteView]}
-        />
-        <PermittedTab
-          label={t("Admins")}
-          value={OrgUserRole.Administrator}
-          className={classes.tab}
-          permissions={[PermissionEnum.AdminView]}
-        />
+        {filteredTabs.map((t, i) => (
+          <Tab
+            key={i}
+            label={t.label}
+            value={t.value}
+            className={classes.tab}
+          />
+        ))}
       </Tabs>
     );
-  }, [isoFilters.roleFilter, updateRoleFilter, classes.tabs, classes.tab, t]);
+  }, [
+    isoFilters.roleFilter,
+    updateRoleFilter,
+    filteredTabs,
+    classes.tabs,
+    classes.tab,
+  ]);
 
   return (
     <div className={`${props.className} ${classes.tabsContainer}`}>
-      {tabs}
+      {filteredTabs.length > 0 && tabs}
 
       <div className={classes.filterSection}>
         <Grid container justify="space-between">
