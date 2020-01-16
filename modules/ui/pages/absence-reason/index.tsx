@@ -19,6 +19,8 @@ import { DeleteAbsenceReason } from "ui/pages/absence-reason/graphql/delete-abse
 import { GetAllAbsenceReasonsWithinOrg } from "ui/pages/absence-reason/graphql/get-absence-reasons.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { Button, Grid, makeStyles } from "@material-ui/core";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 export const AbsenceReason: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -86,15 +88,17 @@ export const AbsenceReason: React.FC<{}> = props => {
         <Grid item>
           <PageTitle title={t("Absence Reasons")} />
         </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            component={Link}
-            to={AbsenceReasonAddRoute.generate(params)}
-          >
-            {t("Add Absence Reason")}
-          </Button>
-        </Grid>
+        <Can do={[PermissionEnum.AbsVacSettingsSave]}>
+          <Grid item>
+            <Button
+              variant="contained"
+              component={Link}
+              to={AbsenceReasonAddRoute.generate(params)}
+            >
+              {t("Add Absence Reason")}
+            </Button>
+          </Grid>
+        </Can>
       </Grid>
       <Table
         title={`${absenceReasonsCount} ${t("Absence Reasons")}`}

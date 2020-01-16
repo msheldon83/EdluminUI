@@ -10,6 +10,7 @@ import {
 import {
   PermissionCategoryIdentifierInput,
   PermissionCategory,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -18,6 +19,7 @@ import { OptionTypeBase } from "react-select/src/types";
 import { Select, SelectValueType } from "ui/components/form/select";
 import { useMemo, useState, useEffect } from "react";
 import { ExpandMore } from "@material-ui/icons";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   orgId: string;
@@ -61,6 +63,7 @@ export const PermissionSettings: React.FC<Props> = props => {
     await props.onChange(updatedCategories);
   };
   if (!categories || categories.length === 0) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     seedPermissionCategories(props.permissionDefinitions);
   }
 
@@ -166,31 +169,36 @@ export const PermissionSettings: React.FC<Props> = props => {
                       </Grid>
                       <Grid item xs={8}>
                         <div className={classes.levelSelect}>
-                          <Select
-                            value={selectedLevel}
-                            label=""
-                            options={levelOptions}
-                            isClearable={false}
-                            onChange={async (e: SelectValueType) => {
-                              //TODO: Once the select component is updated,
-                              // can remove the Array checking
-                              let selectedValue = null;
-                              if (e) {
-                                if (Array.isArray(e)) {
-                                  selectedValue = (e as Array<
-                                    OptionTypeBase
-                                  >)[0].value;
-                                } else {
-                                  selectedValue = (e as OptionTypeBase).value;
+                          <Can do={[PermissionEnum.PermissionSetSave]}>
+                            <Select
+                              value={selectedLevel}
+                              label=""
+                              options={levelOptions}
+                              isClearable={false}
+                              onChange={async (e: SelectValueType) => {
+                                //TODO: Once the select component is updated,
+                                // can remove the Array checking
+                                let selectedValue = null;
+                                if (e) {
+                                  if (Array.isArray(e)) {
+                                    selectedValue = (e as Array<
+                                      OptionTypeBase
+                                    >)[0].value;
+                                  } else {
+                                    selectedValue = (e as OptionTypeBase).value;
+                                  }
                                 }
-                              }
-                              await updateCategorySelections(
-                                categoryId,
-                                settingId,
-                                selectedValue
-                              );
-                            }}
-                          />
+                                await updateCategorySelections(
+                                  categoryId,
+                                  settingId,
+                                  selectedValue
+                                );
+                              }}
+                            />
+                          </Can>
+                          <Can not do={[PermissionEnum.PermissionSetSave]}>
+                            {selectedLevel.label}
+                          </Can>
                         </div>
                       </Grid>
                     </Grid>

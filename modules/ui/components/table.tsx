@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import clsx from "clsx";
 import {
   makeStyles,
@@ -12,6 +12,8 @@ import MaterialTable, {
   MTableBodyRow,
   MTableCell,
   MTableToolbar,
+  Column,
+  Action,
 } from "material-table";
 import { useTheme } from "@material-ui/core/styles";
 import { MaterialTableProps } from "material-table";
@@ -33,14 +35,19 @@ import SaveAlt from "@material-ui/icons/SaveAlt";
 import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
 import { useTranslation } from "react-i18next";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { useMyUserAccess } from "reference-data/my-user-access";
+import { can } from "helpers/permissions";
+import { useOrganizationId } from "core/org-context";
 
 export type TableProps<T extends object> = {
   title: string;
   data: Array<T>;
+  columns: TableColumn<T>[];
   selection?: boolean;
-  paging?: boolean;
+  selectionPermissions?: PermissionEnum[];
+  actions?: TableAction<T>[];
   onRowClick?: (event?: React.MouseEvent, rowData?: T) => void;
-  onEdit?: Function;
   isEditable?: boolean;
   /**
    * @deprecated This is temporary functionality, we're going to create
@@ -57,7 +64,15 @@ export type TableProps<T extends object> = {
   expiredRowCheck?: (rowData: T) => boolean;
   style?: React.CSSProperties;
   backgroundFillForAlternatingRows?: boolean;
-} & Pick<MaterialTableProps<T>, "options" | "columns" | "actions" | "editable">;
+} & Pick<MaterialTableProps<T>, "options" | "editable">;
+
+export type TableColumn<T extends object> = {
+  permissions?: PermissionEnum[];
+} & Column<T>;
+
+type TableAction<T extends object> = {
+  permissions?: PermissionEnum[];
+} & Action<T>;
 
 /* cf 2019-10-22 - this lint warning isn't helpful here, as these are icons: */
 /* eslint-disable react/display-name */
@@ -90,6 +105,8 @@ export function Table<T extends object>(props: TableProps<T>) {
   const classes = useStyles();
   const theme = useTheme();
   const { t } = useTranslation();
+  const userAccess = useMyUserAccess();
+  const organizationId = useOrganizationId();
   const [includeExpired, setIncludeExpired] = React.useState(false);
   const [data, setData] = React.useState(props.data);
 
@@ -97,27 +114,67 @@ export function Table<T extends object>(props: TableProps<T>) {
     setData(props.data);
   }, [props.data]);
 
-  const allColumns: MaterialTableProps<T>["columns"] = props.columns;
-  if (props.onEdit) {
-    allColumns.push({
-      field: "actions",
-      title: "",
-      sorting: false,
-      render: (rowData: T) => {
-        const editOption = () => {
-          return (
-            <Edit
-              className={classes.action}
-              onClick={() => {
-                props.onEdit!(rowData);
-              }}
-            />
-          );
-        };
-        return editOption();
-      },
+  // Handle any permission checks to determine if we need to hide any columns
+  const allColumns: TableColumn<T>[] = useMemo(() => {
+    return props.columns.map(c => {
+      if (!c.permissions || c.hidden) {
+        return c;
+      }
+
+      return {
+        ...c,
+        hidden: !can(
+          c.permissions,
+          userAccess?.permissionsByOrg ?? [],
+          userAccess?.isSysAdmin ?? false,
+          organizationId
+        ),
+      };
     });
-  }
+  }, [props.columns, organizationId, userAccess]);
+
+  // Handle permission checks for selection if specified
+  const selection = useMemo(() => {
+    if (!props.selection) {
+      return false;
+    }
+    if (!props.selectionPermissions) {
+      return props.selection;
+    }
+
+    return can(
+      props.selectionPermissions,
+      userAccess?.permissionsByOrg ?? [],
+      userAccess?.isSysAdmin ?? false,
+      organizationId
+    );
+  }, [props.selection, props.selectionPermissions, organizationId, userAccess]);
+
+  // Handle any permission checks to determine if we need to hide any columns
+  const allActions: TableAction<T>[] | undefined = useMemo(() => {
+    if (!props.actions) {
+      return undefined;
+    }
+
+    return props.actions.map(a => {
+      if (!a.permissions) {
+        return a;
+      }
+
+      return {
+        ...a,
+        hidden: !can(
+          a.permissions,
+          userAccess?.permissionsByOrg ?? [],
+          userAccess?.isSysAdmin ?? false,
+          organizationId
+        ),
+      };
+    });
+  }, [props.actions, organizationId, userAccess]);
+  const anyActionsVisible: boolean = useMemo(() => {
+    return !!allActions?.find(a => !a.hidden);
+  }, [allActions]);
 
   const tableIsEditable = props.isEditable;
   const showIncludeExpiredSetting = props.showIncludeExpired;
@@ -177,11 +234,7 @@ export function Table<T extends object>(props: TableProps<T>) {
       onRowClick={props.onRowClick}
       options={{
         addRowPosition: "first",
-        search: false,
-        selection: props.selection,
-        paging: props.paging,
-        pageSize: 10,
-        pageSizeOptions: [10, 25, 50, 100],
+        selection: selection,
         headerStyle: {
           color: theme.customColors.darkGray,
           fontSize: theme.typography.pxToRem(15),
@@ -192,10 +245,12 @@ export function Table<T extends object>(props: TableProps<T>) {
         rowStyle: {
           color: theme.customColors.darkGray,
         },
+        search: false,
+        paging: false,
         ...props.options,
       }}
       style={props.style}
-      actions={props.actions}
+      actions={anyActionsVisible ? allActions : undefined}
       components={{
         Container: props => <div className={classes.container} {...props} />,
         Row: props => {

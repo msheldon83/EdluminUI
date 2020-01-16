@@ -38,6 +38,7 @@ import {
   canViewPTOBalancesNavLink,
   canViewEmpSubPrefNavLink,
 } from "helpers/permissions";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   className?: string;
@@ -58,7 +59,7 @@ export const AbsenceNavLink: React.FC<Props> = props => {
   const paramsVerify = useRouteParams(VerifyRoute);
 
   return (
-    <Can do={canViewAbsVacNavLink} orgId={props?.orgId}>
+    <Can do={canViewAbsVacNavLink} orgId={props.orgId}>
       <NavLink
         title={t("Absence & Vacancy")}
         icon={<SwapCallsIcon />}
@@ -66,10 +67,12 @@ export const AbsenceNavLink: React.FC<Props> = props => {
           {
             title: t("Daily Report"),
             route: DailyReportRoute.generate(paramsDailyReport),
+            permissions: [PermissionEnum.AbsVacView],
           },
           {
             title: t("Verify"),
             route: VerifyRoute.generate(paramsVerify),
+            permissions: [PermissionEnum.AbsVacVerify],
           },
         ]}
         {...props}
@@ -81,7 +84,7 @@ export const AbsenceNavLink: React.FC<Props> = props => {
 export const AnalyticsAndReportsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewAnalyticsReportsNavLink} orgId={props?.orgId}>
+    <Can do={canViewAnalyticsReportsNavLink} orgId={props.orgId}>
       <NavLink
         title={t("Analytics & Reports")}
         icon={<TimelineIcon />}
@@ -96,7 +99,7 @@ export const SchoolsNavLink: React.FC<Props> = props => {
   const paramsLocations = useRouteParams(LocationsRoute);
   const paramsGroups = useRouteParams(LocationGroupsRoute);
   return (
-    <Can do={canViewSchoolsNavLink} orgId={props?.orgId}>
+    <Can do={canViewSchoolsNavLink} orgId={props.orgId}>
       <NavLink
         title={t("Schools")}
         icon={<LocationCityIcon />}
@@ -104,10 +107,12 @@ export const SchoolsNavLink: React.FC<Props> = props => {
           {
             title: t("Schools"),
             route: LocationsRoute.generate(paramsLocations),
+            permissions: [PermissionEnum.LocationView],
           },
           {
             title: t("School Groups"),
             route: LocationGroupsRoute.generate(paramsGroups),
+            permissions: [PermissionEnum.LocationGroupView],
           },
         ]}
         {...props}
@@ -119,7 +124,7 @@ export const SchoolsNavLink: React.FC<Props> = props => {
 export const PeopleNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewPeopleNavLink} orgId={props?.orgId}>
+    <Can do={canViewPeopleNavLink} orgId={props.orgId}>
       <NavLink title={t("People")} icon={<PeopleIcon />} {...props} />
     </Can>
   );
@@ -129,7 +134,7 @@ export const CalendarNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   return (
-    <Can do={canViewCalendarsNavLink} orgId={props?.orgId}>
+    <Can do={canViewCalendarsNavLink} orgId={props.orgId}>
       <NavLink title={t("Calendars")} icon={<DateRangeIcon />} {...props} />
     </Can>
   );
@@ -138,7 +143,7 @@ export const CalendarNavLink: React.FC<Props> = props => {
 export const SettingsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewConfigNavLink} orgId={props?.orgId}>
+    <Can do={canViewConfigNavLink} orgId={props.orgId}>
       <NavLink title={t("Settings")} icon={<SettingsIcon />} {...props} />
     </Can>
   );
@@ -155,7 +160,7 @@ export const SecurityNavLink: React.FC<Props> = props => {
     SecurityManagedOrganizationsRoute
   );
   return (
-    <Can do={canViewSecurityNavLink} orgId={props?.orgId}>
+    <Can do={canViewSecurityNavLink} orgId={props.orgId}>
       <NavLink
         title={t("Security")}
         icon={<LockIcon />}
@@ -169,16 +174,19 @@ export const SecurityNavLink: React.FC<Props> = props => {
             route: SecurityPermissionSetsRoute.generate(
               paramsSecurityPermissionSets
             ),
+            permissions: [PermissionEnum.PermissionSetView],
           },
           {
             title: t("Partners"),
             route: SecurityPartnersRoute.generate(paramsSecurityPartners),
+            permissions: [PermissionEnum.ExternalConnectionsView],
           },
           {
             title: t("Managed Organizations"),
             route: SecurityManagedOrganizationsRoute.generate(
               paramsSecurityManagedOrganizations
             ),
+            permissions: [PermissionEnum.ExternalConnectionsView],
           },
         ]}
         {...props}
@@ -197,7 +205,7 @@ export const MyScheduleNavLink: React.FC<Props> = props => {
 export const PTOBalancesNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewPTOBalancesNavLink} orgId={props?.orgId}>
+    <Can do={canViewPTOBalancesNavLink}>
       <NavLink
         title={t("PTO Balances")}
         icon={<AccountBalanceWalletIcon />}
@@ -210,7 +218,7 @@ export const PTOBalancesNavLink: React.FC<Props> = props => {
 export const SubPreferencesNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <Can do={canViewEmpSubPrefNavLink} orgId={props?.orgId}>
+    <Can do={canViewEmpSubPrefNavLink}>
       <NavLink
         title={t("Sub Preferences")}
         icon={<SettingsIcon />}

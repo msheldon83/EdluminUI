@@ -7,11 +7,11 @@ import {
   Tab,
   Tabs,
 } from "@material-ui/core";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { useDeferredState } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FilterQueryParams,
@@ -21,6 +21,9 @@ import {
 import { FiltersByRole } from "./filters-by-role";
 import { Input } from "ui/components/form/input";
 import { ActiveInactiveFilter } from "ui/components/active-inactive-filter";
+import { Can } from "ui/components/auth/can";
+import { PermittedTab } from "ui/components/permitted-tab";
+import { canViewMultiplePeopleRoles } from "helpers/permissions";
 
 type Props = { className?: string };
 
@@ -79,8 +82,8 @@ export const PeopleFilters: React.FC<Props> = props => {
     [setPendingName]
   );
 
-  return (
-    <div className={`${props.className} ${classes.tabsContainer}`}>
+  const tabs = useMemo(() => {
+    return (
       <Tabs
         className={classes.tabs}
         value={isoFilters.roleFilter === null ? "" : isoFilters.roleFilter}
@@ -89,23 +92,37 @@ export const PeopleFilters: React.FC<Props> = props => {
         onChange={updateRoleFilter}
         aria-label="people-role-filters"
       >
-        <Tab label={t("All")} value={""} className={classes.tab} />
-        <Tab
+        <PermittedTab
+          label={t("All")}
+          value={""}
+          className={classes.tab}
+          permissions={canViewMultiplePeopleRoles}
+        />
+        <PermittedTab
           label={t("Employees")}
           value={OrgUserRole.Employee}
           className={classes.tab}
+          permissions={[PermissionEnum.EmployeeView]}
         />
-        <Tab
+        <PermittedTab
           label={t("Substitutes")}
           value={OrgUserRole.ReplacementEmployee}
           className={classes.tab}
+          permissions={[PermissionEnum.SubstituteView]}
         />
-        <Tab
+        <PermittedTab
           label={t("Admins")}
           value={OrgUserRole.Administrator}
           className={classes.tab}
+          permissions={[PermissionEnum.AdminView]}
         />
       </Tabs>
+    );
+  }, [isoFilters.roleFilter, updateRoleFilter, classes.tabs, classes.tab, t]);
+
+  return (
+    <div className={`${props.className} ${classes.tabsContainer}`}>
+      {tabs}
 
       <div className={classes.filterSection}>
         <Grid container justify="space-between">

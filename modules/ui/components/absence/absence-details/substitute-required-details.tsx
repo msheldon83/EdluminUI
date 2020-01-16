@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Errors, SetValue, TriggerValidation } from "forms";
-import { Vacancy } from "graphql/server-types.gen";
+import { Vacancy, PermissionEnum } from "graphql/server-types.gen";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,6 +17,7 @@ import { VacancyDetails } from "ui/components/absence/vacancy-details";
 import { SelectNew } from "ui/components/form/select-new";
 import { AbsenceDetailsFormData } from ".";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   setValue: SetValue;
@@ -105,41 +106,45 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
       {isAdmin && (hasAccountingCodeOptions || hasPayCodeOptions) && (
         <Grid item container spacing={4} className={classes.subCodes}>
           {hasAccountingCodeOptions && (
-            <Grid item xs={hasPayCodeOptions ? 6 : 12}>
-              <Typography>{t("Accounting code")}</Typography>
-              <SelectNew
-                value={{
-                  value: values.accountingCode ?? "",
-                  label:
-                    accountingCodeOptions.find(
-                      a => a.value === values.accountingCode
-                    )?.label || "",
-                }}
-                multiple={false}
-                onChange={onAccountingCodeChange}
-                options={accountingCodeOptions}
-                inputStatus={errors.accountingCode ? "error" : undefined}
-                validationMessage={errors.accountingCode?.message}
-              />
-            </Grid>
+            <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
+              <Grid item xs={hasPayCodeOptions ? 6 : 12}>
+                <Typography>{t("Accounting code")}</Typography>
+                <SelectNew
+                  value={{
+                    value: values.accountingCode ?? "",
+                    label:
+                      accountingCodeOptions.find(
+                        a => a.value === values.accountingCode
+                      )?.label || "",
+                  }}
+                  onChange={onAccountingCodeChange}
+                  options={accountingCodeOptions}
+                  multiple={false}
+                  inputStatus={errors.accountingCode ? "error" : undefined}
+                  validationMessage={errors.accountingCode?.message}
+                />
+              </Grid>
+            </Can>
           )}
           {hasPayCodeOptions && (
-            <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
-              <Typography>{t("Pay code")}</Typography>
-              <SelectNew
-                value={{
-                  value: values.payCode ?? "",
-                  label:
-                    payCodeOptions.find(a => a.value === values.payCode)
-                      ?.label || "",
-                }}
-                multiple={false}
-                onChange={onPayCodeChange}
-                options={payCodeOptions}
-                inputStatus={errors.payCode ? "error" : undefined}
-                validationMessage={errors.payCode?.message}
-              />
-            </Grid>
+            <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+              <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
+                <Typography>{t("Pay code")}</Typography>
+                <SelectNew
+                  value={{
+                    value: values.payCode ?? "",
+                    label:
+                      payCodeOptions.find(a => a.value === values.payCode)
+                        ?.label || "",
+                  }}
+                  onChange={onPayCodeChange}
+                  options={payCodeOptions}
+                  multiple={false}
+                  inputStatus={errors.payCode ? "error" : undefined}
+                  validationMessage={errors.payCode?.message}
+                />
+              </Grid>
+            </Can>
           )}
         </Grid>
       )}
@@ -167,17 +172,19 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 
       {hasVacancies && (
         <div className={classes.substituteActions}>
-          <Button
-            variant="outlined"
-            className={classes.preArrangeButton}
-            onClick={() => setStep("preAssignSub")}
-            disabled={
-              props.disableReplacementInteractions ||
-              props.replacementEmployeeId !== undefined
-            }
-          >
-            {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
-          </Button>
+          <Can do={[PermissionEnum.AbsVacAssign]}>
+            <Button
+              variant="outlined"
+              className={classes.preArrangeButton}
+              onClick={() => setStep("preAssignSub")}
+              disabled={
+                props.disableReplacementInteractions ||
+                props.replacementEmployeeId !== undefined
+              }
+            >
+              {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
+            </Button>
+          </Can>
 
           <Button
             variant="outlined"

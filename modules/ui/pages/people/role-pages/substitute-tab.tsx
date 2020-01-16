@@ -3,7 +3,11 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
-import { OrgUserRole, OrgUserUpdateInput } from "graphql/server-types.gen";
+import {
+  OrgUserRole,
+  OrgUserUpdateInput,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { GetSubstituteById } from "../graphql/substitute/get-substitute-by-id.gen";
 import { UpdateSubstitute } from "../graphql/substitute/update-substitute.gen";
 
@@ -94,6 +98,7 @@ export const SubstituteTab: React.FC<Props> = props => {
         setEditing={props.setEditing}
         selectedRole={props.selectedRole}
         onSaveOrgUser={onUpdateSubstitute}
+        editPermissions={[PermissionEnum.SubstituteSave]}
       />
       <SubPositionsAttributes
         editing={props.editing}

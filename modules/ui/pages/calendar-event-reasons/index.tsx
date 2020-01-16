@@ -11,6 +11,7 @@ import { PageTitle } from "ui/components/page-title";
 import {
   CalendarChangeReasonCreateInput,
   CalendarChangeReasonUpdateInput,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -208,46 +209,55 @@ export const CalendarChangeReason: React.FC<Props> = props => {
         title={`${CalendarChangeReasonsCount} ${t("Calendar Event Reasons")}`}
         columns={columns}
         data={mappedData}
-        onRowAdd={async newData => {
-          const newCalendarChangeReason = {
-            ...calendarChangeReason,
-            name: newData.name,
-            description:
-              newData.description && newData.description.trim().length === 0
-                ? null
-                : newData.description,
-            workDayScheduleVariantTypeId:
-              newData.workDayScheduleVariantTypeId === null
-                ? undefined
-                : newData.workDayScheduleVariantTypeId,
-            calendarDayTypeId: newData.calendarDayTypeId,
-          };
-          const result = await create(newCalendarChangeReason);
-          if (!result) throw Error("Preserve Row on error");
-          if (result) await getCalendarChangeReasons.refetch();
+        onRowAdd={{
+          action: async newData => {
+            const newCalendarChangeReason = {
+              ...calendarChangeReason,
+              name: newData.name,
+              description:
+                newData.description && newData.description.trim().length === 0
+                  ? null
+                  : newData.description,
+              workDayScheduleVariantTypeId:
+                newData.workDayScheduleVariantTypeId === null
+                  ? undefined
+                  : newData.workDayScheduleVariantTypeId,
+              calendarDayTypeId: newData.calendarDayTypeId,
+            };
+            const result = await create(newCalendarChangeReason);
+            if (!result) throw Error("Preserve Row on error");
+            if (result) await getCalendarChangeReasons.refetch();
+          },
+          permissions: [PermissionEnum.ScheduleSettingsSave],
         }}
-        onRowUpdate={async newData => {
-          const updateCalendarChangeReason = {
-            id: Number(newData.id),
-            rowVersion: newData.rowVersion,
-            name: newData.name,
-            description:
-              newData.description && newData.description.trim().length === 0
-                ? null
-                : newData.description,
-            workDayScheduleVariantTypeId:
-              newData.workDayScheduleVariantTypeId === null
-                ? undefined
-                : newData.workDayScheduleVariantTypeId,
-            calendarDayTypeId: newData.calendarDayTypeId,
-          };
-          const result = await update(updateCalendarChangeReason);
-          if (!result) throw Error("Preserve Row on error");
-          if (result) await getCalendarChangeReasons.refetch();
+        onRowUpdate={{
+          action: async newData => {
+            const updateCalendarChangeReason = {
+              id: Number(newData.id),
+              rowVersion: newData.rowVersion,
+              name: newData.name,
+              description:
+                newData.description && newData.description.trim().length === 0
+                  ? null
+                  : newData.description,
+              workDayScheduleVariantTypeId:
+                newData.workDayScheduleVariantTypeId === null
+                  ? undefined
+                  : newData.workDayScheduleVariantTypeId,
+              calendarDayTypeId: newData.calendarDayTypeId,
+            };
+            const result = await update(updateCalendarChangeReason);
+            if (!result) throw Error("Preserve Row on error");
+            if (result) await getCalendarChangeReasons.refetch();
+          },
+          permissions: [PermissionEnum.ScheduleSettingsSave],
         }}
-        onRowDelete={async oldData => {
-          await deleteCalendarChangeReasons(String(oldData.id));
-          getCalendarChangeReasons.refetch();
+        onRowDelete={{
+          action: async oldData => {
+            await deleteCalendarChangeReasons(String(oldData.id));
+            await getCalendarChangeReasons.refetch();
+          },
+          permissions: [PermissionEnum.ScheduleSettingsDelete],
         }}
         options={{
           search: true,

@@ -1,10 +1,12 @@
 import { makeStyles } from "@material-ui/core";
-import { addMinutes, isValid } from "date-fns";
+import { addMinutes, isValid, parseISO, format } from "date-fns";
 import { FormikErrors } from "formik";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { GetError, Period } from "../../helpers";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   periods: Period[];
@@ -55,26 +57,36 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
             )}
             {!p.skipped && (
               <>
-                <div className={classes.timeInput}>
-                  <FormikTimeInput
-                    label=""
-                    name={`periods[${i}].startTime`}
-                    value={p.startTime || undefined}
-                    earliestTime={earliestStartTime}
-                    inputStatus={startTimeError ? "error" : "default"}
-                    validationMessage={startTimeError}
-                  />
-                </div>
-                <div className={classes.timeInput}>
-                  <FormikTimeInput
-                    label=""
-                    name={`periods[${i}].endTime`}
-                    value={p.endTime || undefined}
-                    earliestTime={p.startTime || earliestStartTime}
-                    inputStatus={endTimeError ? "error" : "default"}
-                    validationMessage={endTimeError}
-                  />
-                </div>
+                <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+                  <div className={classes.timeInput}>
+                    <FormikTimeInput
+                      label=""
+                      name={`periods[${i}].startTime`}
+                      value={p.startTime || undefined}
+                      earliestTime={earliestStartTime}
+                      inputStatus={startTimeError ? "error" : "default"}
+                      validationMessage={startTimeError}
+                    />
+                  </div>
+                  <div className={classes.timeInput}>
+                    <FormikTimeInput
+                      label=""
+                      name={`periods[${i}].endTime`}
+                      value={p.endTime || undefined}
+                      earliestTime={p.startTime || earliestStartTime}
+                      inputStatus={endTimeError ? "error" : "default"}
+                      validationMessage={endTimeError}
+                    />
+                  </div>
+                </Can>
+                <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
+                  <div className={classes.timeDisplay}>
+                    {p.startTime ? format(parseISO(p.startTime), "h:mm a") : ""}
+                  </div>
+                  <div className={classes.timeDisplay}>
+                    {p.endTime ? format(parseISO(p.endTime), "h:mm a") : ""}
+                  </div>
+                </Can>
               </>
             )}
           </div>
@@ -88,6 +100,9 @@ const useStyles = makeStyles(theme => ({
   timeInput: {
     width: theme.typography.pxToRem(100),
     margin: theme.spacing(),
+  },
+  timeDisplay: {
+    width: theme.typography.pxToRem(100),
   },
   skippedDiv: {
     flexGrow: 2,
