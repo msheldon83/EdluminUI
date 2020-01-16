@@ -74,6 +74,25 @@ export const PeopleSubPoolEditLoader = asyncComponent({
   name: "SubPool",
 });
 
+//Edit Replacement Criteria
+export const PeopleReplacementCriteriaEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-replacement-criteria",
+  []
+);
+
+export const PeopleReplacementCriteriaEditLoader = asyncComponent({
+  resolve: async () => {
+    const ReplacementCriteriaEdit = (
+      await import(
+        "ui/pages/people/components/employee/edit-replacement-critieria"
+      )
+    ).ReplacementCriteriaEdit;
+    return ReplacementCriteriaEdit;
+  },
+  name: "ReplacementCriteriaEditSettingsPage",
+});
+
 /***** substitute assignment schedule *****/
 
 export const SubstituteAssignmentScheduleRoute = defineSubRoute(

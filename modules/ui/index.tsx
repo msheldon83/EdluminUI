@@ -91,6 +91,8 @@ import {
   PersonViewLoader,
   PeopleSubPoolEditLoader,
   PeopleSubPoolEditRoute,
+  PeopleReplacementCriteriaEditLoader,
+  PeopleReplacementCriteriaEditRoute,
   PersonViewRoute,
   EmployeeAbsScheduleLoader,
   EmployeeAbsScheduleRoute,
@@ -432,6 +434,12 @@ export function App() {
                                   permissions={[PermissionEnum.SubstituteView]}
                                 />
                                 <ProtectedRoute
+                                  component={PeopleReplacementCriteriaEditLoader}
+                                  path={PeopleReplacementCriteriaEditRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.EmployeeView]}
+                                />
+                                <ProtectedRoute
                                   component={PersonViewLoader}
                                   path={PersonViewRoute.path}
                                   role={"admin"}
@@ -493,6 +501,12 @@ export function App() {
                                   permissions={[
                                     PermissionEnum.FinanceSettingsView,
                                   ]}
+                                />
+                                <ProtectedRoute
+                                  component={ReplacementCriteriaEditLoader}
+                                  path={ReplacementCriteriaEditRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.FinanceSettingsView]}
                                 />
                                 <ProtectedRoute
                                   component={BellScheduleAddLoader}
