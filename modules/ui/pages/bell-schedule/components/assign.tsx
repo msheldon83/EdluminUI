@@ -84,7 +84,7 @@ export const Assign: React.FC<Props> = props => {
             />
           </Grid>
         </Can>
-        <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+        <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
           <Grid item xs={5}>
             <Typography variant={"h6"}>{t("Schools")}</Typography>
             <Typography>
@@ -109,7 +109,7 @@ export const Assign: React.FC<Props> = props => {
             />
           </Grid>
         </Can>
-        <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+        <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
           <Grid item xs={5}>
             <Typography variant={"h6"}>{t("Groups")}</Typography>
             <Typography>

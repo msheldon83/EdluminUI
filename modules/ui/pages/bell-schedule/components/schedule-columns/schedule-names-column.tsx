@@ -99,7 +99,7 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                           }}
                         </Draggable>
                       </Can>
-                      <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+                      <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
                         <div className={classes.nameDisplay}>{p.name}</div>
                       </Can>
                     </div>

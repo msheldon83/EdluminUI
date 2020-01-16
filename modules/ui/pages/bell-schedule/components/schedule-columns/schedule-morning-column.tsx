@@ -86,7 +86,7 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
                             }}
                           </Draggable>
                         </Can>
-                        <Can do={[PermissionEnum.ScheduleSettingsSave]} not>
+                        <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
                           <div className={classes.endOfMorning}>
                             {endOfMorningDiv}
                           </div>

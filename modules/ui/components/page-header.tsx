@@ -10,9 +10,9 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionMenu, Option } from "./action-menu";
 import { TextButton } from "./text-button";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { OrgUserPermissions } from "reference-data/my-user-access";
 import { useMemo } from "react";
 import { Can } from "./auth/can";
+import { CanDo } from "./auth/types";
 
 type Props = {
   text: string | null | undefined;
@@ -28,13 +28,7 @@ type Props = {
   isInactive?: boolean;
   inactiveDisplayText?: string | null | undefined;
   onActivate?: () => Promise<unknown>;
-  editPermissions?:
-    | PermissionEnum[]
-    | ((
-        permissions: OrgUserPermissions[],
-        isSysAdmin: boolean,
-        orgId?: string
-      ) => boolean);
+  editPermissions?: CanDo;
 };
 
 export const PageHeader: React.FC<Props> = props => {

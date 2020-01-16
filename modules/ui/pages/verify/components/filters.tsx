@@ -7,7 +7,7 @@ import {
   InputLabel,
   makeStyles,
 } from "@material-ui/core";
-import { OptionType, Select } from "ui/components/form/select";
+import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useLocations } from "reference-data/locations";
 import { useCallback, useMemo } from "react";
 
@@ -49,13 +49,13 @@ export const Filters: React.FC<Props> = props => {
       >
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <InputLabel className={classes.label}>{t("Schools")}</InputLabel>
-          <Select
+          <SelectNew
             onChange={onChangeLocations}
             options={locationOptions}
             value={locationOptions.filter(
               e => e.value && props.locationsFilter.includes(Number(e.value))
             )}
-            multi
+            multiple
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3}>

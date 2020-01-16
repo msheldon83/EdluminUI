@@ -7,12 +7,12 @@ import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { Detail } from "../helpers";
 import { DailyReportDetailUI } from "./daily-report-detail-ui";
 import { MobileDailyReportDetailUI } from "./mobile-daily-report-detail-ui";
-import { OrgUserPermissions } from "reference-data/my-user-access";
 import {
   canRemoveSub,
   canAssignSub,
   canEditAbsence,
 } from "helpers/permissions";
+import { OrgUserPermissions } from "ui/components/auth/types";
 
 type Props = {
   detail: Detail;

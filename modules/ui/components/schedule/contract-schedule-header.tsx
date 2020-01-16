@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Select, SelectValueType } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { OptionTypeBase } from "react-select/src/types";
 import { makeStyles } from "@material-ui/core";
 import { useAllSchoolYears } from "reference-data/school-years";
@@ -42,20 +42,27 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
   contractOptions.unshift({ label: "All Contracts", value: 0 });
 
   const contractValue = () => {
-    const value = props.contractValue == null ? 0 : props.contractValue;
-    return contractOptions.find((c: any) => c.value === value);
+    //const value = props.contractValue === undefined ? 0 : props.contractValue;
+    const value = contractOptions.find(
+      (c: any) => c.value === props.contractValue
+    );
+    return value;
+  };
+
+  const schoolValue = () => {
+    const value = schoolOptions.find(
+      (s: any) => s.value === props.schoolYearValue
+    );
+    return value;
   };
 
   return (
     <>
       <div className={classes.select}>
-        <Select
-          withDropdownIndicator
+        <SelectNew
           options={schoolOptions}
-          value={schoolOptions.find(
-            (s: any) => s.value == props.schoolYearValue
-          )}
-          onChange={(e: SelectValueType) => {
+          value={schoolValue()}
+          onChange={(e: OptionType) => {
             let selectedValue: any = null;
             if (e) {
               selectedValue = (e as OptionTypeBase).value;
@@ -64,16 +71,14 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
               schoolYears.find(sy => sy.id === selectedValue.toString())
             );
           }}
-          isClearable={false}
+          multiple={false}
         />
       </div>
-
       <div className={[classes.select, classes.fromSelect].join(" ")}>
-        <Select
-          withDropdownIndicator
+        <SelectNew
           options={contractOptions}
           value={contractValue()}
-          onChange={(e: SelectValueType) => {
+          onChange={(e: OptionType) => {
             let selectedValue: any = null;
             if (e) {
               selectedValue =
@@ -82,7 +87,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
                   : (e as OptionTypeBase).value;
             }
 
-            if (selectedValue == null) {
+            if (!selectedValue) {
               props.setContract(undefined);
             } else {
               props.setContract(
@@ -90,7 +95,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
               );
             }
           }}
-          isClearable={false}
+          multiple={false}
         />
       </div>
     </>

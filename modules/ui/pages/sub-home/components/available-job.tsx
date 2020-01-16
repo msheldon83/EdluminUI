@@ -124,9 +124,10 @@ export const AvailableJob: React.FC<Props> = props => {
                   <Button
                     variant="outlined"
                     disabled={acceptButtonDisabled}
-                    onClick={() =>
-                      props.onAccept(vacancy.organization.id, vacancy.id)
-                    }
+                    onClick={async e => {
+                      e.stopPropagation();
+                      await props.onAccept(vacancy.organization.id, vacancy.id);
+                    }}
                   >
                     {t("Accept")}
                   </Button>

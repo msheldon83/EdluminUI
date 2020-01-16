@@ -12,8 +12,8 @@ import { useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { InviteSingleUser } from "../graphql/invite-single-user.gen";
 import { ShowErrors } from "ui/components/error-helpers";
-import { OrgUserPermissions } from "reference-data/my-user-access";
 import { canEditOrgUser, canDeleteOrgUser } from "helpers/permissions";
+import { OrgUserPermissions } from "ui/components/auth/types";
 
 const editableSections = {
   name: "edit-name",

@@ -45,7 +45,7 @@ export const TimeFilter: React.FC<Props> = props => {
           onChange={onChangeTimes}
           value={value}
           options={timeOptions}
-          multiple
+          multiple={true}
           placeholder="Search for times"
         />
       </Grid>

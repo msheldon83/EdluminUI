@@ -15,10 +15,9 @@ import InfoIcon from "@material-ui/icons/Info";
 import { ExpandMore, ExpandLess } from "@material-ui/icons";
 import { useState, useCallback } from "react";
 import { not } from "helpers";
-import { OrgUserPermissions } from "reference-data/my-user-access";
-import { PermissionEnum } from "graphql/server-types.gen";
 import { canAssignSub } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
+import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 
 type Props = {
   detail: Detail;
@@ -35,13 +34,7 @@ type Props = {
   rowActions: {
     name: string;
     onClick: () => void;
-    permissions?:
-      | PermissionEnum[]
-      | ((
-          permissions: OrgUserPermissions[],
-          isSysAdmin: boolean,
-          orgId?: string
-        ) => boolean);
+    permissions?: CanDo;
   }[];
 };
 

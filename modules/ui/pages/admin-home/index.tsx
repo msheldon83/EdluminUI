@@ -154,7 +154,7 @@ export const AdminHome: React.FC<Props> = props => {
           isHomePage={true}
         />
       </Can>
-      <Can do={[PermissionEnum.AbsVacVerify]} not>
+      <Can not do={[PermissionEnum.AbsVacVerify]}>
         <DailyReport
           orgId={params.organizationId}
           date={date}

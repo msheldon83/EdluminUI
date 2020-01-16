@@ -28,7 +28,7 @@ import { PeopleGridItem } from "./people-grid-item";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { Input } from "ui/components/form/input";
-import { Select, SelectValueType } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
@@ -131,7 +131,7 @@ export const Information: React.FC<Props> = props => {
   const permissionSets = usePermissionSets(orgUser.orgId.toString(), [
     props.selectedRole,
   ]);
-  const permissionSetOptions = permissionSets.map(ps => ({
+  const permissionSetOptions: OptionType[] = permissionSets.map(ps => ({
     label: ps.name,
     value: ps.id,
   }));
@@ -216,16 +216,16 @@ export const Information: React.FC<Props> = props => {
                       description={
                         props.editing === editableSections.information &&
                         !props.isSuperUser ? (
-                          <Select
-                            value={permissionSetOptions.filter(
+                          <SelectNew
+                            value={permissionSetOptions.find(
                               e => e.value && values.permissionSetId
                             )}
-                            onChange={value => {
+                            multiple={false}
+                            onChange={(value: OptionType) => {
                               const id = [(value as OptionTypeBase).value];
                               setFieldValue("permissionSetId", id);
                             }}
                             options={permissionSetOptions}
-                            isClearable={false}
                           />
                         ) : (
                           permissions
@@ -304,15 +304,16 @@ export const Information: React.FC<Props> = props => {
                             </Grid>
                             <Grid item xs={6}>
                               <div>{t("State")}</div>
-                              <Select
+                              <SelectNew
                                 value={{
-                                  value: values.state,
+                                  value: values.state ?? "",
                                   label:
                                     stateOptions.find(
                                       a => a.value === values.state
                                     )?.label || "",
                                 }}
-                                onChange={(e: SelectValueType) => {
+                                multiple={false}
+                                onChange={(e: OptionType) => {
                                   //TODO: Once the select component is updated,
                                   // can remove the Array checking
                                   let selectedValue = null;
@@ -329,7 +330,6 @@ export const Information: React.FC<Props> = props => {
                                   setFieldValue("state", selectedValue);
                                 }}
                                 options={stateOptions}
-                                isClearable={!!values.state}
                               />
                             </Grid>
                             <Grid item xs={6}>
@@ -392,8 +392,9 @@ export const Information: React.FC<Props> = props => {
                               title={
                                 <div className={classes.tooltip}>
                                   <Typography variant="body1">
-                                    Reset password will send the user an email
-                                    with a link to reset the password.
+                                    {t(
+                                      "Reset password will send the user an email with a link to reset the password."
+                                    )}
                                   </Typography>
                                 </div>
                               }

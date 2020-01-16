@@ -1,47 +1,44 @@
-import { OrgUserPermissions } from "reference-data/my-user-access";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { Detail } from "ui/components/reports/daily-report/helpers";
 import { isPast, isToday, isFuture } from "date-fns";
+import { OrgUserPermissions, CanDo } from "ui/components/auth/types";
+import { flatMap, uniq } from "lodash-es";
 
 export const can = (
-  permissions: PermissionEnum[],
+  canDo: CanDo,
   userPermissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string | null | undefined
 ) => {
+  // Sys Admins rule the world
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(userPermissions, orgId);
-  if (!userPerms === undefined) return false;
-  return userPerms!.some((el: any) => {
-    return permissions.includes(el);
-  });
-};
 
-const includesOrg = (orgId: string, permissions: OrgUserPermissions[]) => {
-  if (!permissions) return false;
-  return !!permissions.find(p => p.orgId === orgId);
-};
-
-const getFirstOrg = (permissions: OrgUserPermissions[]) => {
-  if (permissions && permissions.length > 0) {
-    return permissions[0].orgId;
-  } else {
-    return null;
+  // We were provided a permission check function so execute it
+  if (!Array.isArray(canDo)) {
+    return canDo(userPermissions, isSysAdmin, orgId ?? undefined);
   }
+
+  // We were provided a list of permissions to check
+  // Make sure the User has at least one of the permissions in at least one of their Orgs
+  const userPerms = getUserPermissions(userPermissions, orgId);
+  return userPerms.some((el: any) => {
+    return canDo.includes(el);
+  });
 };
 
 const getUserPermissions = (
   permissions: OrgUserPermissions[],
   orgId?: string | null | undefined
-) => {
-  //if org id was passed check if orgid is in list of orgs user has access to (admin)
-  if (orgId && !includesOrg(orgId, permissions)) {
-    return [];
+): PermissionEnum[] => {
+  if (orgId) {
+    // If org id was passed, return permissions for that Org
+    // Will return an empty list if we can't find the Org Id in OrgUserPermissions
+    return permissions.find(e => e.orgId == orgId)?.permissions ?? [];
   }
-  const currentOrg = orgId || getFirstOrg(permissions);
-  if (!currentOrg) return [];
 
-  return permissions.find(e => e.orgId == currentOrg)?.permissions;
+  // When we don't have an Org Id, return a list of all of the
+  // permissions that the User has across Organizations
+  const allPermissions = uniq(flatMap(permissions.map(p => p.permissions)));
+  return allPermissions;
 };
 
 /* admin left nav helpers */

@@ -5,7 +5,7 @@ import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocations } from "reference-data/locations";
 import { usePositionTypes } from "reference-data/position-types";
-import { OptionType, Select } from "ui/components/form/select";
+import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import {
@@ -61,24 +61,24 @@ export const PositionTypeAndLocationFilters: React.FC<Props> = props => {
         <InputLabel className={classes.label}>
           {props.positionTypeLabel}
         </InputLabel>
-        <Select
+        <SelectNew
           onChange={onChangePositionType}
           options={positionTypesOptions}
           value={positionTypesOptions.filter(
             e => e.value && props.positionTypes.includes(Number(e.value))
           )}
-          multi
+          multiple
         />
       </Grid>
       <Grid item md={3}>
         <InputLabel className={classes.label}>{props.locationLabel}</InputLabel>
-        <Select
+        <SelectNew
           onChange={onChangeLocations}
           options={locationOptions}
           value={locationOptions.filter(
             e => e.value && props.locations.includes(Number(e.value))
           )}
-          multi
+          multiple
         />
       </Grid>
     </>

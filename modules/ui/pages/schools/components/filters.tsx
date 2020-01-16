@@ -2,7 +2,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
 import { Input } from "ui/components/form/input";
-import { OptionType, Select } from "ui/components/form/select";
+import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useCallback, useMemo, useEffect } from "react";
 import { useLocationGroups } from "reference-data/location-groups";
 import { useDeferredState } from "hooks";
@@ -83,11 +83,11 @@ export const Filters: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <InputLabel className={classes.label}>{t("Group")}</InputLabel>
-          <Select
-            isClearable={false}
+          <SelectNew
             onChange={onChangeGroup}
             options={locationGroupOptions}
             value={selectedValue}
+            multiple={false}
           />
         </Grid>
       </Grid>
