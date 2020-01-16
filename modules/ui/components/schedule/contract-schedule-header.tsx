@@ -87,7 +87,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
                   : (e as OptionTypeBase).value;
             }
 
-            if (selectedValue === null || undefined) {
+            if (!selectedValue) {
               props.setContract(undefined);
             } else {
               props.setContract(

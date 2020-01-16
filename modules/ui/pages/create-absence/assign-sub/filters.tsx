@@ -20,7 +20,6 @@ import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { FilterListButton } from "ui/components/filter-list-button";
-import ObjectType from "@storybook/addon-knobs/dist/components/types/Object";
 
 type Props = {
   showQualifiedAndAvailable: boolean;
