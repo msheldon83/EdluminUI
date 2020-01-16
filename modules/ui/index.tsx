@@ -190,6 +190,7 @@ import {
   UnauthorizedSubstituteRoleRoute,
   UnauthorizedLoader,
 } from "./routes/unauthorized";
+import { tbd, TbdLoader, adminTbd } from "./routes/tbd";
 import { AdminRouteOrganizationContextProvider } from "core/org-context";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -240,6 +241,9 @@ export function App() {
                     {/* Protected routes go here */}
 
                     <Route component={ProfileLoader} path={ProfileRoute.path} />
+
+                    {/* Page under construction */}
+                    <Route component={TbdLoader} path={tbd.path} />
 
                     {/* Employee routes go here */}
                     <Route path={EmployeeChromeRoute.path}>
@@ -331,6 +335,9 @@ export function App() {
                       <IfHasRole role={OrgUserRole.Administrator}>
                         {/* Admin routes go here*/}
                         <Switch>
+                          {/* Admin page under construction */}
+                          <Route component={TbdLoader} path={adminTbd.path} />
+
                           {/*We will need to figure out how to prevent non admin users from accessing this route */}
                           <Route exact path={AdminRootChromeRoute.path}>
                             <OrganizationsLoader redirectIfOneOrg />

@@ -1,30 +1,32 @@
+import { Button, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import clsx from "clsx";
+import { useIsMobile } from "hooks";
+import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
-import { useRouteParams } from "ui/routes/definition";
+import { Link } from "react-router-dom";
+import { DateStepperHeader } from "ui/components/date-stepper-header";
+import { MobileActionBar } from "ui/components/mobile-action-bar";
+import { PrintPageButton } from "ui/components/print-page-button";
 import { DailyReport } from "ui/components/reports/daily-report/daily-report";
 import { FilterQueryParams } from "ui/components/reports/daily-report/filters/filter-params";
-import { Grid, Button } from "@material-ui/core";
-import { DateStepperHeader } from "ui/components/date-stepper-header";
+import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
-import { Link } from "react-router-dom";
+import { useRouteParams } from "ui/routes/definition";
 import { startOfToday } from "date-fns";
-import { useQueryParamIso } from "hooks/query-params";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {};
 
-export const DailyReportPage: React.FC<Props> = props => {
+export const DailyReportPage: React.FC<Props> = () => {
   const classes = useStyles();
   const { t } = useTranslation();
   const params = useRouteParams(DailyReportRoute);
   const [filters] = useQueryParamIso(FilterQueryParams);
   const [date, setDate] = React.useState(new Date(filters.date));
-  const createAbsenceRouteParams = useRouteParams(
-    AdminSelectEmployeeForCreateAbsenceRoute
-  );
+  const isMobile = useIsMobile();
 
   return (
     <>
@@ -32,34 +34,48 @@ export const DailyReportPage: React.FC<Props> = props => {
         container
         justify="space-between"
         alignItems="center"
-        className={classes.header}
+        className={clsx(classes.header, isMobile && classes.mobileHeader)}
       >
         <Grid item>
           <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
         </Grid>
-        <Grid item className={classes.action}>
-          <Can do={[PermissionEnum.AbsVacSave]}>
-            <Button
-              variant="contained"
-              component={Link}
-              to={AdminSelectEmployeeForCreateAbsenceRoute.generate(
-                createAbsenceRouteParams
-              )}
-            >
-              {t("Create Absence")}
-            </Button>
-          </Can>
-        </Grid>
+        {!isMobile && (
+          <Grid item className={classes.action}>
+            <Can do={[PermissionEnum.AbsVacSave]}>
+              <Button
+                variant="contained"
+                component={Link}
+                to={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
+              >
+                {t("Create Absence")}
+              </Button>
+            </Can>
+          </Grid>
+        )}
       </Grid>
 
       <DailyReport
         orgId={params.organizationId}
         date={date}
         setDate={setDate}
-        header={t("Filter absences")}
+        header={t(isMobile ? "Absences" : "Filter absences")}
         showFilters={true}
         cards={["unfilled", "filled", "noSubRequired", "total"]}
       />
+      <MobileActionBar>
+        <div className={classes.mobileBar}>
+          <PrintPageButton />
+          <Can do={[PermissionEnum.AbsVacSave]}>
+            <Button
+              variant="contained"
+              component={Link}
+              to={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
+            >
+              {t("Create Absence")}
+            </Button>
+          </Can>
+        </div>
+      </MobileActionBar>
     </>
   );
 };
@@ -71,9 +87,20 @@ const useStyles = makeStyles(theme => ({
       marginBottom: theme.spacing(),
     },
   },
+  mobileHeader: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
   action: {
     "@media print": {
       display: "none",
     },
+  },
+  mobileBar: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 }));

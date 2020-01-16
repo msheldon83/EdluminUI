@@ -1,4 +1,12 @@
-import { Divider, Drawer, Grid, List, makeStyles } from "@material-ui/core";
+import {
+  Divider,
+  Drawer,
+  Grid,
+  List,
+  makeStyles,
+  Button,
+  Link as MUILink,
+} from "@material-ui/core";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { EdluminLogo } from "ui/components/edlumin-logo";
@@ -9,6 +17,9 @@ import { ProfileRoute } from "ui/routes/profile";
 import { AutoSwitchingNavLinks } from "../navigation-links/role-nav-links";
 import { RoleSwitcher } from "../role-switcher";
 import { MobileSearchBar } from "./mobile-search";
+import { useAuth0 } from "auth/auth0";
+import { ExitToApp, HelpOutline } from "@material-ui/icons";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   expanded: boolean;
@@ -18,6 +29,8 @@ type Props = {
 export const MobileNavigationSideBar: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(AppChromeRoute);
+  const auth0 = useAuth0();
+  const { t } = useTranslation();
 
   return (
     <Drawer
@@ -50,6 +63,26 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
           navBarExpanded={props.expanded}
         />
       </List>
+
+      <Grid container justify="space-between" className={classes.userItems}>
+        <Button
+          color="inherit"
+          startIcon={<ExitToApp />}
+          onClick={auth0.logout}
+        >
+          {t("Sign Out")}
+        </Button>
+
+        <Button
+          color="inherit"
+          startIcon={<HelpOutline />}
+          component={MUILink}
+          target={"_blank"}
+          href={"https://help.redroverk12.com"}
+        >
+          {t("Help")}
+        </Button>
+      </Grid>
       <EdluminLogo />
     </Drawer>
   );
@@ -79,5 +112,11 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(1),
     paddingLeft: theme.spacing(1),
     flexGrow: 1,
+  },
+  userItems: {
+    paddingTop: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    color: theme.customColors.white,
   },
 }));

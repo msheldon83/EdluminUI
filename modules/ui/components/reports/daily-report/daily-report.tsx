@@ -1,23 +1,46 @@
-import * as React from "react";
 import {
-  Grid,
-  makeStyles,
-  Divider,
-  Link,
   Button,
+  Collapse,
+  Divider,
+  Grid,
+  Link,
+  makeStyles,
   Tooltip,
 } from "@material-ui/core";
-import { useScreenSize } from "hooks";
-import { useTranslation } from "react-i18next";
-import { useState, useMemo, useEffect } from "react";
+import { format, isFuture, startOfToday } from "date-fns";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { DailyReport as DailyReportType } from "graphql/server-types.gen";
+import { not } from "helpers";
+import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetDailyReport } from "./graphql/get-daily-report.gen";
-import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
-import { GetTotalAwaitingVerificationCountForSchoolYear } from "./graphql/get-total-awaiting-verification-count-school-year.gen";
+import { useDialog } from "hooks/use-dialog";
+import { useSnackbar } from "hooks/use-snackbar";
+import { TFunction } from "i18next";
+import * as React from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router";
+import {
+  ShowErrors,
+  ShowIgnoreAndContinueOrError,
+} from "ui/components/error-helpers";
+import { FilterListButton } from "ui/components/filter-list-button";
+import { DesktopOnly } from "ui/components/mobile-helpers";
+import { PrintPageButton } from "ui/components/print-page-button";
+import { Section } from "ui/components/section";
+import { SectionHeader } from "ui/components/section-header";
+import { VerifyUI } from "ui/pages/verify/ui";
+import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
+import { useRouteParams } from "ui/routes/definition";
+import { DailyReportSection } from "./daily-report-section";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
-import { Section } from "ui/components/section";
+import { CancelAssignment } from "./graphql/cancel-assignment.gen";
+import { GetDailyReport } from "./graphql/get-daily-report.gen";
+import { GetTotalAwaitingVerificationCountForSchoolYear } from "./graphql/get-total-awaiting-verification-count-school-year.gen";
+import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
+import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
+import { GroupCard } from "./group-card";
 import {
   DailyReport as DailyReportType,
   VacancyDetailCount,
@@ -25,11 +48,10 @@ import {
 } from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
 import {
-  Detail,
-  MapDailyReportDetails,
   CardType,
-  DailyReportDetails,
+  Detail,
   DetailGroup,
+  MapDailyReportDetails,
 } from "./helpers";
 import { GroupCard } from "./group-card";
 import { TFunction } from "i18next";
@@ -66,7 +88,7 @@ type Props = {
 export const DailyReport: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
+  const isMobile = useIsMobile();
   const history = useHistory();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
@@ -230,6 +252,11 @@ export const DailyReport: React.FC<Props> = props => {
     },
   });
 
+  const [showingFilters, setShowingFilters] = useState(false);
+  const toggleFilters = useCallback(() => setShowingFilters(not), [
+    setShowingFilters,
+  ]);
+
   const swapSubs = async (ignoreWarnings?: boolean) => {
     if (selectedRows.length !== 2) {
       return;
@@ -285,17 +312,43 @@ export const DailyReport: React.FC<Props> = props => {
 
   return (
     <Section className={classes.dailyReportContainer}>
-      <div className={classes.headerContainer}>
-        <SectionHeader title={props.header} className={classes.header} />
-        {props.showFilters && (
-          <>
-            <Filters orgId={props.orgId} setDate={props.setDate} />
-            <Divider />
-          </>
-        )}
+      <div
+        className={
+          isMobile ? classes.mobileHeadercontainer : classes.headerContainer
+        }
+      >
+        <Grid container>
+          <Grid item xs={6} md={12}>
+            <SectionHeader title={props.header} className={classes.header} />
+          </Grid>
+          {props.showFilters && (
+            <>
+              {isMobile && (
+                <Grid item xs={6} md={12} className={classes.noPrint}>
+                  <FilterListButton onClick={toggleFilters} />
+                </Grid>
+              )}
+              <Grid item xs={12}>
+                {isMobile ? (
+                  <>
+                    <Collapse in={showingFilters}>
+                      <Filters orgId={props.orgId} setDate={props.setDate} />
+                      <Divider />
+                    </Collapse>
+                  </>
+                ) : (
+                  <>
+                    <Filters orgId={props.orgId} setDate={props.setDate} />
+                    <Divider />
+                  </>
+                )}
+              </Grid>
+            </>
+          )}
+        </Grid>
         <Grid
           container
-          spacing={4}
+          spacing={isMobile ? 2 : 4}
           justify="flex-start"
           className={classes.cardContainer}
         >
@@ -312,7 +365,7 @@ export const DailyReport: React.FC<Props> = props => {
 
             return c === "awaitingVerification" ? (
               <Can do={[PermissionEnum.AbsVacVerify]} key={i}>
-                <Grid item>
+                <Grid item xs={isMobile ? 6 : undefined}>
                   <GroupCard
                     cardType={c}
                     details={allDetails}
@@ -328,7 +381,7 @@ export const DailyReport: React.FC<Props> = props => {
                 </Grid>
               </Can>
             ) : (
-              <Grid item key={i}>
+              <Grid item key={i} xs={isMobile ? 6 : undefined}>
                 <GroupCard
                   cardType={c}
                   details={allDetails}
@@ -381,6 +434,10 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
   },
+  mobileHeadercontainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
   header: {
     "@media print": {
       display: "none",
@@ -400,6 +457,10 @@ const useStyles = makeStyles(theme => ({
   groupedDetailsContainer: {
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(0),
+      paddingRight: theme.spacing(0),
+    },
   },
   detailGroup: {
     marginTop: theme.spacing(2),
@@ -413,11 +474,8 @@ const useStyles = makeStyles(theme => ({
   action: {
     cursor: "pointer",
   },
-  print: {
-    color: "#9E9E9E",
-    "@media print": {
-      display: "none",
-    },
+  noPrint: {
+    "@media print": { display: "none" },
   },
 }));
 
@@ -490,15 +548,12 @@ const displaySections = (
             </Link>
           </Grid>
         )}
-        <Grid item>
-          {displaySwabSubsAction(selectedRows, swapSubs, t, orgId, date)}
-        </Grid>
-        <Grid item>
-          <Print
-            className={[classes.action, classes.print].join(" ")}
-            onClick={window.print}
-          />
-        </Grid>
+        <Grid item>{displaySwabSubsAction(selectedRows, swapSubs, t, orgId, date)}</Grid>
+        <DesktopOnly>
+          <Grid item>
+            <PrintPageButton />
+          </Grid>
+        </DesktopOnly>
       </Grid>
       {selectedCard === "awaitingVerification" ? (
         <div className={classes.verifyContainer}>

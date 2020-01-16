@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select";
 import { Select, SelectValueType } from "ui/components/form/select";
+import { FilterListButton } from "ui/components/filter-list-button";
 
 type Props = {
   showQualifiedAndAvailable: boolean;
@@ -88,9 +89,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
       {isMobile && (
         <Grid item xs={12} container justify="flex-end">
           <Grid item>
-            <Button variant="outlined" color="primary" onClick={toggleFilters}>
-              <FilterListIcon /> {t("Filter List")}
-            </Button>
+            <FilterListButton onClick={toggleFilters} />
           </Grid>
         </Grid>
       )}

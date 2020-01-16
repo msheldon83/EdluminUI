@@ -119,6 +119,9 @@ export const GroupCard: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   cardRoot: {
     width: theme.typography.pxToRem(250),
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+    },
   },
   cardSelection: {
     cursor: "pointer",
