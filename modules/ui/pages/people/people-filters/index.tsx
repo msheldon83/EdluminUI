@@ -87,6 +87,7 @@ export const PeopleFilters: React.FC<Props> = props => {
     [setPendingName]
   );
 
+  // Build the available role tabs based on permissions
   const filteredTabs: {
     label: string;
     value: "" | FilterRole;
@@ -95,17 +96,6 @@ export const PeopleFilters: React.FC<Props> = props => {
       label: string;
       value: "" | FilterRole;
     }[] = [];
-    // All tab
-    if (
-      can(
-        canViewMultiplePeopleRoles,
-        userAccess?.permissionsByOrg ?? [],
-        userAccess?.isSysAdmin ?? false,
-        contextOrgId ?? undefined
-      )
-    ) {
-      tabs.push({ label: t("All"), value: "" });
-    }
     // Employees
     if (
       can(
@@ -148,11 +138,24 @@ export const PeopleFilters: React.FC<Props> = props => {
         value: OrgUserRole.Administrator,
       });
     }
+
+    // Add the All tab in if we have more than 1 Role tab
+    if (tabs.length > 1) {
+      tabs.splice(0, 0, { label: t("All"), value: "" });
+    }
+
     return tabs;
   }, [userAccess, contextOrgId, t]);
 
+  // If only have 1 Role tab, we have to default the filters
+  // to those that match that Role.
   useEffect(() => {
-    if (filteredTabs && filteredTabs.length > 0 && !isoFilters.roleFilter) {
+    if (
+      filteredTabs &&
+      filteredTabs.length > 0 &&
+      filteredTabs[0].value != "" &&
+      !isoFilters.roleFilter
+    ) {
       updateRoleFilter(undefined, filteredTabs[0].value);
     }
   }, [filteredTabs, isoFilters.roleFilter, updateRoleFilter]);
