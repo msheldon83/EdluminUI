@@ -392,8 +392,9 @@ export const Information: React.FC<Props> = props => {
                               title={
                                 <div className={classes.tooltip}>
                                   <Typography variant="body1">
-                                    Reset password will send the user an email
-                                    with a link to reset the password.
+                                    {t(
+                                      "Reset password will send the user an email with a link to reset the password."
+                                    )}
                                   </Typography>
                                 </div>
                               }
