@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { AssignmentDetailsUI } from "ui/components/substitutes/assignment-details/assignment-details-ui";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { NotesPopper } from "../notes-popper";
 
 type Props = {
   startDate: string;
@@ -18,6 +19,7 @@ type Props = {
   dayPortion: number;
   payInfoLabel: string;
   confirmationNumber: string;
+  notesToReplacement?: string;
   onCancel: () => void;
   isAdmin: boolean;
   forSpecificAssignment?: boolean;
@@ -51,11 +53,18 @@ export const AssignmentRowUI: React.FC<Props> = props => {
       <AssignmentDetailsUI {...props} locationNames={[props.locationName]} />
 
       {!props.forSpecificAssignment && (
-        <div className={classes.confNumber}>
-          <Typography className={classes.bold} noWrap>
-            #C{props.confirmationNumber}
-          </Typography>
-        </div>
+        <>
+          <div className={classes.notes}>
+            {props.notesToReplacement && (
+              <NotesPopper notes={props.notesToReplacement} />
+            )}
+          </div>
+          <div className={classes.confNumber}>
+            <Typography className={classes.bold} noWrap>
+              #C{props.confirmationNumber}
+            </Typography>
+          </div>
+        </>
       )}
       <Can do={[PermissionEnum.AbsVacRemoveSub]}>
         {!props.forSpecificAssignment && (
@@ -90,6 +99,12 @@ const useStyles = makeStyles(theme => ({
 
   bold: {
     fontWeight: 500,
+  },
+  notes: {
+    flex: 1,
+    [theme.breakpoints.down("sm")]: {
+      flex: 0,
+    },
   },
   confNumber: { flex: 4, padding: `0 ${theme.typography.pxToRem(4)}` },
   cancel: { color: theme.customColors.darkRed },
