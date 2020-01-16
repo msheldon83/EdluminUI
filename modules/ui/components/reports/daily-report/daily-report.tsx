@@ -9,7 +9,10 @@ import {
 } from "@material-ui/core";
 import { format, isFuture, startOfToday } from "date-fns";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
-import { DailyReport as DailyReportType } from "graphql/server-types.gen";
+import {
+  DailyReport as DailyReportType,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { not } from "helpers";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
@@ -47,6 +50,9 @@ import {
   DetailGroup,
   MapDailyReportDetails,
 } from "./helpers";
+import { Can } from "ui/components/auth/can";
+import { canAssignSub } from "helpers/permissions";
+import { OrgUserPermissions } from "ui/components/auth/types";
 
 type Props = {
   orgId: string;
@@ -337,7 +343,24 @@ export const DailyReport: React.FC<Props> = props => {
               totalOverride = awaitingVerificationCount ?? 0;
             }
 
-            return (
+            return c === "awaitingVerification" ? (
+              <Can do={[PermissionEnum.AbsVacVerify]} key={i}>
+                <Grid item xs={isMobile ? 6 : undefined}>
+                  <GroupCard
+                    cardType={c}
+                    details={allDetails}
+                    countOverride={countOverride}
+                    totalOverride={totalOverride}
+                    onClick={(c: CardType) => {
+                      setSelectedCard(c === "total" ? undefined : c);
+                    }}
+                    activeCard={selectedCard}
+                    showPercentInLabel={c !== "awaitingVerification"}
+                    showFractionCount={false}
+                  />
+                </Grid>
+              </Can>
+            ) : (
               <Grid item key={i} xs={isMobile ? 6 : undefined}>
                 <GroupCard
                   cardType={c}
@@ -348,7 +371,7 @@ export const DailyReport: React.FC<Props> = props => {
                     setSelectedCard(c === "total" ? undefined : c);
                   }}
                   activeCard={selectedCard}
-                  showPercentInLabel={c !== "awaitingVerification"}
+                  showPercentInLabel={true}
                   showFractionCount={props.isHomePage && c === "unfilled"}
                 />
               </Grid>
@@ -373,7 +396,8 @@ export const DailyReport: React.FC<Props> = props => {
           history.push(url, {
             selectedDateTab: "older",
           });
-        }
+        },
+        props.orgId
       )}
     </Section>
   );
@@ -437,7 +461,7 @@ const useStyles = makeStyles(theme => ({
 
 const displaySections = (
   groupedDetails: DetailGroup[],
-  selectedCard?: CardType | undefined,
+  selectedCard: CardType | undefined,
   classes: any,
   t: TFunction,
   clearSelectedCard: () => void,
@@ -450,7 +474,8 @@ const displaySections = (
   ) => Promise<void>,
   date: Date,
   setDate: (date: Date) => void,
-  verifyOlderAction: () => void
+  verifyOlderAction: () => void,
+  orgId: string
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -503,7 +528,9 @@ const displaySections = (
             </Link>
           </Grid>
         )}
-        <Grid item>{displaySwabSubsAction(selectedRows, swapSubs, t)}</Grid>
+        <Grid item>
+          {displaySwabSubsAction(selectedRows, swapSubs, t, orgId, date)}
+        </Grid>
         <DesktopOnly>
           <Grid item>
             <PrintPageButton />
@@ -549,7 +576,9 @@ const displaySections = (
 const displaySwabSubsAction = (
   selectedRows: Detail[],
   swapSubs: (ignoreWarnings?: boolean) => Promise<void>,
-  t: TFunction
+  t: TFunction,
+  orgId: string,
+  absDate: Date
 ) => {
   if (selectedRows.length < 2) {
     return;
@@ -567,17 +596,35 @@ const displaySwabSubsAction = (
   );
 
   if (selectedRows.length === 2) {
-    return button;
+    return (
+      <Can
+        do={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) => canAssignSub(absDate, permissions, isSysAdmin, orgId)}
+      >
+        {button}
+      </Can>
+    );
   }
 
   // Button is wrapped in a span, because in this case the button will be disabled and Tooltip
   // needs its first descendant to be an active element
   return (
-    <Tooltip
-      title={t("Substitutes can only be swapped between 2 Absences")}
-      placement="right"
+    <Can
+      do={(
+        permissions: OrgUserPermissions[],
+        isSysAdmin: boolean,
+        orgId?: string
+      ) => canAssignSub(absDate, permissions, isSysAdmin, orgId)}
     >
-      <span>{button}</span>
-    </Tooltip>
+      <Tooltip
+        title={t("Substitutes can only be swapped between 2 Absences")}
+        placement="right"
+      >
+        <span>{button}</span>
+      </Tooltip>
+    </Can>
   );
 };

@@ -4,6 +4,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { Chip } from "@material-ui/core";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 const editableSections = {
   accessControl: "edit-access-control",
@@ -29,23 +30,28 @@ export const AccessControl: React.FC<Props> = props => {
       <Section>
         <SectionHeader
           title={t("Access Control")}
-          action={
-            props.editing === editableSections.accessControl
-              ? {
-                  text: t("Save"),
-                  visible: true,
-                  execute: () => {
-                    props.setEditing(null);
-                  },
-                }
-              : {
-                  text: t("Edit"),
-                  visible: !props.editing,
-                  execute: () => {
-                    props.setEditing(editableSections.accessControl);
-                  },
-                }
-          }
+          action={{
+            text: t("Edit"),
+            visible: !props.editing,
+            execute: () => {
+              props.setEditing(editableSections.accessControl);
+            },
+            permissions: [PermissionEnum.AdminSave],
+          }}
+          cancel={{
+            text: t("Cancel"),
+            visible: props.editing === editableSections.accessControl,
+            execute: () => {
+              props.setEditing(null);
+            },
+          }}
+          submit={{
+            text: t("Save"),
+            visible: props.editing === editableSections.accessControl,
+            execute: () => {
+              props.setEditing(null);
+            },
+          }}
         />
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={8}>

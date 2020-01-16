@@ -14,6 +14,9 @@ import { FilterQueryParams } from "ui/components/reports/daily-report/filters/fi
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
+import { startOfToday } from "date-fns";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {};
 
@@ -38,13 +41,15 @@ export const DailyReportPage: React.FC<Props> = () => {
         </Grid>
         {!isMobile && (
           <Grid item className={classes.action}>
-            <Button
-              variant="contained"
-              component={Link}
-              to={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
-            >
-              {t("Create Absence")}
-            </Button>
+            <Can do={[PermissionEnum.AbsVacSave]}>
+              <Button
+                variant="contained"
+                component={Link}
+                to={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
+              >
+                {t("Create Absence")}
+              </Button>
+            </Can>
           </Grid>
         )}
       </Grid>
@@ -60,13 +65,15 @@ export const DailyReportPage: React.FC<Props> = () => {
       <MobileActionBar>
         <div className={classes.mobileBar}>
           <PrintPageButton />
-          <Button
-            variant="contained"
-            component={Link}
-            to={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
-          >
-            {t("Create Absence")}
-          </Button>
+          <Can do={[PermissionEnum.AbsVacSave]}>
+            <Button
+              variant="contained"
+              component={Link}
+              to={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
+            >
+              {t("Create Absence")}
+            </Button>
+          </Can>
         </div>
       </MobileActionBar>
     </>

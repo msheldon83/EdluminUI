@@ -12,6 +12,7 @@ import {
   Location,
   LocationGroup,
   PositionType,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { PeopleSubPoolEditRoute, PersonViewRoute } from "ui/routes/people";
 
@@ -79,6 +80,7 @@ export const SubstitutePools: React.FC<Props> = props => {
               const editSettingsUrl = PeopleSubPoolEditRoute.generate(params);
               history.push(editSettingsUrl);
             },
+            permissions: [PermissionEnum.SubstituteSave],
           }}
         />
         <Grid container spacing={2}>

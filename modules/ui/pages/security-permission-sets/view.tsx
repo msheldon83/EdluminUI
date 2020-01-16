@@ -17,6 +17,7 @@ import { UpdatePermissionSet } from "./graphql/update.gen";
 import {
   PermissionCategoryIdentifierInput,
   OrgUserRole,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import {
   SecurityPermissionSetsViewRoute,
@@ -177,6 +178,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         label={t("Name")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.name)}
+        editPermissions={[PermissionEnum.PermissionSetSave]}
         validationSchema={yup.object().shape({
           value: yup.string().required(t("Name is required")),
         })}
@@ -193,6 +195,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
           {
             name: t("Delete"),
             onClick: deletePermissionSet,
+            permissions: [PermissionEnum.PermissionSetDelete],
           },
         ]}
       />
@@ -201,6 +204,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         label={t("External ID")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
+        editPermissions={[PermissionEnum.PermissionSetSave]}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
@@ -217,6 +221,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         label={t("Description")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.description)}
+        editPermissions={[PermissionEnum.PermissionSetSave]}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}

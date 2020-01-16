@@ -4,7 +4,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { NeedsReplacement } from "graphql/server-types.gen";
+import { NeedsReplacement, PermissionEnum } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
 
 const editableSections = {
@@ -30,23 +30,28 @@ export const Position: React.FC<Props> = props => {
       <Section>
         <SectionHeader
           title={t("Position")}
-          action={
-            props.editing === editableSections.empPosition
-              ? {
-                  text: t("Save"),
-                  visible: true,
-                  execute: () => {
-                    props.setEditing(null);
-                  },
-                }
-              : {
-                  text: t("Edit"),
-                  visible: !props.editing,
-                  execute: () => {
-                    props.setEditing(editableSections.empPosition);
-                  },
-                }
-          }
+          action={{
+            text: t("Edit"),
+            visible: !props.editing,
+            execute: () => {
+              props.setEditing(editableSections.empPosition);
+            },
+            permissions: [PermissionEnum.EmployeeSave],
+          }}
+          submit={{
+            text: t("Save"),
+            visible: props.editing === editableSections.empPosition,
+            execute: () => {
+              props.setEditing(null);
+            },
+          }}
+          cancel={{
+            text: t("Cancel"),
+            visible: props.editing === editableSections.empPosition,
+            execute: () => {
+              props.setEditing(null);
+            },
+          }}
         />
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={8}>

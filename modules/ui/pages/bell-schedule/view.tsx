@@ -1,10 +1,11 @@
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
   WorkDaySchedule,
   WorkDaySchedulePeriod,
   WorkDayScheduleUsage,
   WorkDayScheduleVariant,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
 import {
@@ -36,7 +37,6 @@ import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import { UpdateWorkDayScheduleVariant } from "./graphql/update-workday-schedule-variant.gen";
 import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
 import { useSnackbar } from "hooks/use-snackbar";
-import { parseISO, isEqual } from "date-fns";
 import { ShowErrors } from "ui/components/error-helpers";
 
 const editableSections = {
@@ -454,6 +454,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
         label={t("Name")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.name)}
+        editPermissions={[PermissionEnum.ScheduleSettingsSave]}
         validationSchema={yup.object().shape({
           value: yup.string().required(t("Name is required")),
         })}
@@ -476,10 +477,12 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
               );
               setEnabled(!enabled);
             },
+            permissions: [PermissionEnum.ScheduleSettingsSave],
           },
           {
             name: t("Delete"),
             onClick: deleteWorkDaySchedule,
+            permissions: [PermissionEnum.ScheduleSettingsDelete],
           },
         ]}
         isInactive={!enabled}
@@ -494,6 +497,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
         label={t("External ID")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
+        editPermissions={[PermissionEnum.ScheduleSettingsSave]}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
