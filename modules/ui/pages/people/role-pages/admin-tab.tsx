@@ -46,7 +46,10 @@ export const AdminTab: React.FC<Props> = props => {
   const onUpdateAdmin = async (orgUser: AdministratorInput) => {
     await updateAdmin({
       variables: {
-        administrator: orgUser,
+        administrator: {
+          ...orgUser,
+          id: Number(props.orgUserId),
+        },
       },
     });
     props.setEditing(null);

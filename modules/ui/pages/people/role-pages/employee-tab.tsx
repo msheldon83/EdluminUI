@@ -54,7 +54,10 @@ export const EmployeeTab: React.FC<Props> = props => {
   const onUpdateEmployee = async (orgUser: EmployeeInput) => {
     await updateEmployee({
       variables: {
-        employee: orgUser,
+        employee: {
+          ...orgUser,
+          id: Number(props.orgUserId),
+        },
       },
     });
     props.setEditing(null);

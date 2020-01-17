@@ -79,7 +79,10 @@ export const SubstituteTab: React.FC<Props> = props => {
   const onUpdateSubstitute = async (orgUser: SubstituteInput) => {
     await updateSubstitute({
       variables: {
-        substitute: orgUser,
+        substitute: {
+          ...orgUser,
+          id: Number(props.orgUserId),
+        },
       },
     });
     props.setEditing(null);
