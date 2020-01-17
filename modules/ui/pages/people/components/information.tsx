@@ -168,6 +168,8 @@ export const Information: React.FC<Props> = props => {
           permissionSetId: orgUser.permissionSet?.id ?? "",
         }}
         onSubmit={async (data, e) => {
+          const permissionSets: number[] = [];
+          permissionSets.push(parseInt(data.permissionSetId));
           await props.onSaveOrgUser({
             id: Number(orgUser.id),
             rowVersion: props.orgUserRowVersion,
@@ -184,6 +186,7 @@ export const Information: React.FC<Props> = props => {
               data.postalCode.trim().length === 0 ? null : data.postalCode,
             countryId: data.state ? ("US" as CountryCode) : null,
             // TODO: handle permission set update
+            permissionSetIds: permissionSets,
           });
         }}
         validationSchema={yup.object({
