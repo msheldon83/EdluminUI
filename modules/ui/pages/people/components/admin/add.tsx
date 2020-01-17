@@ -27,7 +27,7 @@ export const AdminAddPage: React.FC<{}> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
-  const [name, setName] = React.useState<string | null>(null); 
+  const [name, setName] = React.useState<string | null>(null);
 
   // Save a new admin in state
   const [admin, setAdmin] = React.useState<AdministratorInput>({
@@ -44,16 +44,15 @@ export const AdminAddPage: React.FC<{}> = props => {
     }, // TODO: this is temporary until we build the component to set access control
   });
 
-  const getOrgUser = useQueryBundle(GetOrgUserById, 
-    {
-      variables: { id: params.orgUserId },
-      skip: params.orgUserId === "add",
-    });
+  const getOrgUser = useQueryBundle(GetOrgUserById, {
+    variables: { id: params.orgUserId },
+    skip: params.orgUserId === "new",
+  });
 
   const orgUser =
-  getOrgUser.state === "LOADING"
-    ? undefined
-    : getOrgUser?.data?.orgUser?.byId;
+    getOrgUser.state === "LOADING"
+      ? undefined
+      : getOrgUser?.data?.orgUser?.byId;
 
   useEffect(() => {
     if (orgUser) {
@@ -68,11 +67,14 @@ export const AdminAddPage: React.FC<{}> = props => {
         email: orgUser.email,
       });
       setInitialStepNumber(steps[1].stepNumber);
-    }      
-  }, [orgUser, params.organizationId]);
+    }
+  }, [admin, orgUser, params.organizationId, steps]);
 
   const handleCancel = () => {
-    const url = params.orgUserId === "add" ? PeopleRoute.generate(params) : PersonViewRoute.generate(params);
+    const url =
+      params.orgUserId === "new"
+        ? PeopleRoute.generate(params)
+        : PersonViewRoute.generate(params);
     history.push(url);
   };
 
@@ -117,8 +119,8 @@ export const AdminAddPage: React.FC<{}> = props => {
             email: orgUser.email,
             address1: orgUser.address1,
             city: orgUser.city,
-            stateId: orgUser.state,
-            countryId: orgUser.country,
+            state: orgUser.state,
+            country: orgUser.country,
             postalCode: orgUser.postalCode,
             phoneNumber: orgUser.phoneNumber,
             dateOfBirth: orgUser.dateOfBirth,
@@ -126,8 +128,10 @@ export const AdminAddPage: React.FC<{}> = props => {
           };
           setAdmin(newAdmin);
           const id = await create(newAdmin);
-          const viewParams = { ...params, orgUserId: id! };
-          history.push(PersonViewRoute.generate(viewParams));
+          if (id) {
+            const viewParams = { ...params, orgUserId: id };
+            history.push(PersonViewRoute.generate(viewParams));
+          }
         }}
         onCancel={handleCancel}
       />
@@ -155,7 +159,9 @@ export const AdminAddPage: React.FC<{}> = props => {
       content: renderInformation,
     },
   ];
-  const [initialStepNumber, setInitialStepNumber] = React.useState(steps[0].stepNumber);
+  const [initialStepNumber, setInitialStepNumber] = React.useState(
+    steps[0].stepNumber
+  );
 
   return (
     <>
@@ -163,7 +169,12 @@ export const AdminAddPage: React.FC<{}> = props => {
         <PageTitle title={t("Create new Administrator")} />
         <Typography variant="h1">{name || ""}</Typography>
       </div>
-      <Tabs steps={steps} isWizard={true} showStepNumber={true} initialStepNumber={initialStepNumber}></Tabs>
+      <Tabs
+        steps={steps}
+        isWizard={true}
+        showStepNumber={true}
+        initialStepNumber={initialStepNumber}
+      ></Tabs>
     </>
   );
 };

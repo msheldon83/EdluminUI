@@ -43,16 +43,16 @@ export const EmployeeAddPage: React.FC<{}> = props => {
     externalId: null,
     email: "",
   });
-  
+
   const getOrgUser = useQueryBundle(GetOrgUserById, {
     variables: { id: params.orgUserId },
-    skip: params.orgUserId === "add",
+    skip: params.orgUserId === "new",
   });
 
   const orgUser =
-  getOrgUser.state === "LOADING"
-    ? undefined
-    : getOrgUser?.data?.orgUser?.byId;
+    getOrgUser.state === "LOADING"
+      ? undefined
+      : getOrgUser?.data?.orgUser?.byId;
 
   useEffect(() => {
     if (orgUser) {
@@ -67,11 +67,14 @@ export const EmployeeAddPage: React.FC<{}> = props => {
         email: orgUser.email,
       });
       setInitialStepNumber(steps[1].stepNumber);
-    }      
-  }, [orgUser, params.organizationId]); 
+    }
+  }, [employee, orgUser, params.organizationId, steps]);
 
   const handleCancel = () => {
-    const url = params.orgUserId === "add" ? PeopleRoute.generate(params) : PersonViewRoute.generate(params);
+    const url =
+      params.orgUserId === "new"
+        ? PeopleRoute.generate(params)
+        : PersonViewRoute.generate(params);
     history.push(url);
   };
 
@@ -125,8 +128,10 @@ export const EmployeeAddPage: React.FC<{}> = props => {
           };
           setEmployee(newEmployee);
           const id = await create(newEmployee);
-          const viewParams = { ...params, orgUserId: id! };
-          history.push(PersonViewRoute.generate(viewParams));
+          if (id) {
+            const viewParams = { ...params, orgUserId: id };
+            history.push(PersonViewRoute.generate(viewParams));
+          }
         }}
         onCancel={handleCancel}
       />
@@ -154,7 +159,9 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       content: renderInformation,
     },
   ];
-  const [initialStepNumber, setInitialStepNumber] = React.useState(steps[0].stepNumber);
+  const [initialStepNumber, setInitialStepNumber] = React.useState(
+    steps[0].stepNumber
+  );
 
   return (
     <>
@@ -162,7 +169,12 @@ export const EmployeeAddPage: React.FC<{}> = props => {
         <PageTitle title={t("Create new Employee")} />
         <Typography variant="h1">{name || ""}</Typography>
       </div>
-      <Tabs steps={steps} isWizard={true} showStepNumber={true} initialStepNumber={initialStepNumber}></Tabs>
+      <Tabs
+        steps={steps}
+        isWizard={true}
+        showStepNumber={true}
+        initialStepNumber={initialStepNumber}
+      ></Tabs>
     </>
   );
 };

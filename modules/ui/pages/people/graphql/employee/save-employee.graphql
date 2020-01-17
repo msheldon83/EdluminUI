@@ -2,6 +2,9 @@ mutation SaveEmployee($employee: EmployeeInput!) {
   orgUser {
     saveEmployee(employee: $employee) {
       id
+      externalId
+      userId
+      loginEmail
       employee {
         ...EmployeeDetails
       }

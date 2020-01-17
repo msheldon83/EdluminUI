@@ -46,13 +46,13 @@ export const SubstituteAddPage: React.FC<{}> = props => {
 
   const getOrgUser = useQueryBundle(GetOrgUserById, {
     variables: { id: params.orgUserId },
-    skip: params.orgUserId === "add",
+    skip: params.orgUserId === "new",
   });
 
   const orgUser =
-  getOrgUser.state === "LOADING"
-    ? undefined
-    : getOrgUser?.data?.orgUser?.byId;
+    getOrgUser.state === "LOADING"
+      ? undefined
+      : getOrgUser?.data?.orgUser?.byId;
 
   useEffect(() => {
     if (orgUser) {
@@ -67,11 +67,14 @@ export const SubstituteAddPage: React.FC<{}> = props => {
         email: orgUser.email,
       });
       setInitialStepNumber(steps[1].stepNumber);
-    }      
-  }, [orgUser, params.organizationId]);
+    }
+  }, [orgUser, params.organizationId, steps, substitute]);
 
   const handleCancel = () => {
-    const url = params.orgUserId === "add" ? PeopleRoute.generate(params) : PersonViewRoute.generate(params);
+    const url =
+      params.orgUserId === "new"
+        ? PeopleRoute.generate(params)
+        : PersonViewRoute.generate(params);
     history.push(url);
   };
 
@@ -125,8 +128,10 @@ export const SubstituteAddPage: React.FC<{}> = props => {
           };
           setSubstitute(newSubstitute);
           const id = await create(newSubstitute);
-          const viewParams = { ...params, orgUserId: id! };
-          history.push(PersonViewRoute.generate(viewParams));
+          if (id) {
+            const viewParams = { ...params, orgUserId: id };
+            history.push(PersonViewRoute.generate(viewParams));
+          }
         }}
         onCancel={handleCancel}
       />
@@ -154,14 +159,19 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       content: renderInformation,
     },
   ];
-  
+
   return (
     <>
       <div className={classes.header}>
         <PageTitle title={t("Create new Substitute")} />
         <Typography variant="h1">{name || ""}</Typography>
       </div>
-      <Tabs steps={steps} isWizard={true} showStepNumber={true} initialStepNumber={initialStepNumber}></Tabs>
+      <Tabs
+        steps={steps}
+        isWizard={true}
+        showStepNumber={true}
+        initialStepNumber={initialStepNumber}
+      ></Tabs>
     </>
   );
 };
