@@ -145,6 +145,9 @@ const useStyles = makeStyles(theme => ({
     padding: `0 ${theme.typography.pxToRem(24)} ${theme.typography.pxToRem(
       18
     )}`,
+    [theme.breakpoints.down("sm")]: {
+      padding: 0,
+    },
   },
   sticky: {
     position: "sticky",

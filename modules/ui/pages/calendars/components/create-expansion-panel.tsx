@@ -19,7 +19,7 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionButtons } from "../../../components/action-buttons";
 import { GetAllCalendarChangeReasonsWithinOrg } from "ui/pages/calendar-event-reasons/graphql/get-calendar-event-reasons.gen";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
-import { Select, SelectValueType, OptionType } from "ui/components/form/select";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import {
   SelectNew as SelectMulti,
   OptionType as OptionMulti,
@@ -257,7 +257,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                         setFieldValue("contracts", ids);
                       }}
                       options={contractOptions}
-                      multiple
+                      multiple={true}
                       placeholder="Search for Contracts"
                     />
                   </Grid>
@@ -298,16 +298,16 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
 
                   <Grid item xs={4}>
                     <Typography>{t("Reason")}</Typography>
-                    <Select
+                    <SelectNew
                       options={changeReasonOptions}
                       value={{
-                        value: values.changeReason,
+                        value: values.changeReason ?? "",
                         label:
                           changeReasonOptions.find(
                             (a: any) => a.value === values.changeReason
                           )?.label || "",
                       }}
-                      onChange={async (e: SelectValueType) => {
+                      onChange={async (e: OptionType) => {
                         let selectedValue = null;
                         if (e) {
                           selectedValue = (e as OptionTypeBase).value;
@@ -315,7 +315,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                         setSelectedChangeReason(selectedValue);
                         setFieldValue("changeReason", selectedValue);
                       }}
-                      isClearable={false}
+                      multiple={false}
                     />
                   </Grid>
                 </Grid>

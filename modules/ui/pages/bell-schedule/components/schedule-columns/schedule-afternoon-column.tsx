@@ -8,6 +8,8 @@ import {
   Droppable,
   Draggable,
 } from "react-beautiful-dnd";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   periods: Period[];
@@ -45,41 +47,54 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
                     periodClasses.push(props.scheduleClasses.skippedPeriod);
                   }
 
+                  const startOfAfternoonDiv = (
+                    <div
+                      className={
+                        !p.isHalfDayAfternoonStart
+                          ? props.scheduleClasses.hidden
+                          : ""
+                      }
+                    >
+                      <Chip
+                        tabIndex={-1}
+                        className={classes.startOfAfternoonChip}
+                        label={t("Start of afternoon")}
+                      />
+                    </div>
+                  );
+
                   return (
                     <div key={i} className={periodClasses.join(" ")}>
                       {!p.skipped && (
-                        <Draggable
-                          key={`${startOfAfternoonDragPrefix}${i}`}
-                          draggableId={`${startOfAfternoonDragPrefix}${i}`}
-                          index={i}
-                          isDragDisabled={!p.isHalfDayAfternoonStart}
-                        >
-                          {(provided, snapshot) => {
-                            const { innerRef } = provided;
-                            return (
-                              <div
-                                ref={innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={classes.startOfAfternoon}
-                              >
-                                <div
-                                  className={
-                                    !p.isHalfDayAfternoonStart
-                                      ? props.scheduleClasses.hidden
-                                      : ""
-                                  }
-                                >
-                                  <Chip
-                                    tabIndex={-1}
-                                    className={classes.startOfAfternoonChip}
-                                    label={t("Start of afternoon")}
-                                  />
-                                </div>
-                              </div>
-                            );
-                          }}
-                        </Draggable>
+                        <>
+                          <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+                            <Draggable
+                              key={`${startOfAfternoonDragPrefix}${i}`}
+                              draggableId={`${startOfAfternoonDragPrefix}${i}`}
+                              index={i}
+                              isDragDisabled={!p.isHalfDayAfternoonStart}
+                            >
+                              {(provided, snapshot) => {
+                                const { innerRef } = provided;
+                                return (
+                                  <div
+                                    ref={innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    className={classes.startOfAfternoon}
+                                  >
+                                    {startOfAfternoonDiv}
+                                  </div>
+                                );
+                              }}
+                            </Draggable>
+                          </Can>
+                          <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
+                            <div className={classes.startOfAfternoon}>
+                              {startOfAfternoonDiv}
+                            </div>
+                          </Can>
+                        </>
                       )}
                     </div>
                   );

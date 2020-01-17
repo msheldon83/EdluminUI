@@ -4,7 +4,11 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
-import { OrgUserRole, OrgUserUpdateInput } from "graphql/server-types.gen";
+import {
+  OrgUserRole,
+  OrgUserUpdateInput,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { GetEmployeeById } from "../graphql/employee/get-employee-by-id.gen";
 import { UpdateEmployee } from "../graphql/employee/update-employee.gen";
 
@@ -73,7 +77,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         setEditing={props.setEditing}
         selectedRole={props.selectedRole}
         onSaveOrgUser={onUpdateEmployee}
-        onCancel={onCancelEmployee}
+        editPermissions={[PermissionEnum.EmployeeSave]}
       />
       <Position
         editing={props.editing}

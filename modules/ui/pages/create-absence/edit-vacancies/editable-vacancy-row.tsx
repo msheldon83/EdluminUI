@@ -79,7 +79,6 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
         <Grid item xs={3} className={classes.vacancyBlockItem}>
           <FormikSelect
             name={`${fieldNamePrefix}.locationId`}
-            isClearable={false}
             options={locationMenuOptions}
           />
         </Grid>

@@ -10,70 +10,7 @@ query GetSubstituteById($id: ID!) {
         name
       }
       substitute {
-        id
-        orgId
-        rowVersion
-        email
-        firstName
-        lastName
-        address1
-        address2
-        city
-        state
-        postalCode
-        country
-        attributes {
-          id
-          endorsement {
-            id
-            name
-          }
-        }
-        qualifiedPositionTypes {
-          id
-          name
-        }
-        substitutePoolMembership {
-          blockedFromEmployees {
-            id
-            firstName
-            lastName
-          }
-          favoriteForEmployees {
-            id
-            firstName
-            lastName
-          }
-          blockedFromPositionTypes {
-            id
-            name
-          }
-          favoriteForPositionTypes {
-            id
-            name
-          }
-          blockedFromLocationGroups {
-            id
-            name
-          }
-          favoriteForLocationGroups {
-            id
-            name
-          }
-          blockedFromLocations {
-            id
-            name
-          }
-          favoriteForLocations {
-            id
-            name
-          }
-        }
-        permissionSet {
-          id
-          name
-          orgUserRole
-        }
+        ...SubstituteDetails
       }
     }
   }

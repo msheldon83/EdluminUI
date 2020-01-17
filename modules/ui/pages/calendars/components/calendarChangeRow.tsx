@@ -1,10 +1,11 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
 import { Button, Typography } from "@material-ui/core";
-import { CalendarChange } from "graphql/server-types.gen";
+import { CalendarChange, PermissionEnum } from "graphql/server-types.gen";
 import { parseISO, format } from "date-fns";
 import { useContracts } from "reference-data/contracts";
 import { useTranslation } from "react-i18next";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   calendarChange: CalendarChange;
@@ -82,18 +83,20 @@ export const CalendarChangeRow: React.FC<Props> = props => {
       <div className={classes.contracts}>
         <Typography className={classes.mainText}>{contractLabel}</Typography>
       </div>
-      <div className={classes.delete}>
-        <Button
-          variant="outlined"
-          className={classes.delete}
-          onClick={e => {
-            e.stopPropagation();
-            props.onDelete(props.calendarChange.id);
-          }}
-        >
-          {t("Delete")}
-        </Button>
-      </div>
+      <Can do={[PermissionEnum.CalendarChangeDelete]}>
+        <div className={classes.delete}>
+          <Button
+            variant="outlined"
+            className={classes.delete}
+            onClick={e => {
+              e.stopPropagation();
+              props.onDelete(props.calendarChange.id);
+            }}
+          >
+            {t("Delete")}
+          </Button>
+        </div>
+      </Can>
     </div>
   );
 };

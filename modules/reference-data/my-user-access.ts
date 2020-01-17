@@ -1,17 +1,13 @@
 import { GetMyUserAccess } from "./get-my-user-access.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { UserAccess, PermissionEnum } from "graphql/server-types.gen";
+import { UserAccess } from "graphql/server-types.gen";
 import { compact, uniq } from "lodash-es";
+import { OrgUserPermissions } from "ui/components/auth/types";
 
 type MyUserAccess = {
   me: UserAccess | null | undefined;
   permissionsByOrg: OrgUserPermissions[];
   isSysAdmin: boolean;
-};
-
-export type OrgUserPermissions = {
-  orgId: string;
-  permissions: PermissionEnum[];
 };
 
 export const useMyUserAccess = (): MyUserAccess | null => {

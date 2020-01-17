@@ -1,6 +1,7 @@
 import * as React from "react";
-import { makeStyles, Typography } from "@material-ui/core";
-import { Grid, Button } from "@material-ui/core";
+import { makeStyles, Typography, Grid, Button } from "@material-ui/core";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "./auth/can";
 
 type Props = {
   title: string;
@@ -14,6 +15,7 @@ type Action = {
   text: string;
   visible: boolean;
   execute: Function;
+  permissions?: PermissionEnum[];
 };
 
 export const SectionHeader: React.FC<Props> = props => {
@@ -36,20 +38,32 @@ export const SectionHeader: React.FC<Props> = props => {
         </Typography>
       </Grid>
       <Grid item>
-        {props.action && props.action.visible && (
-          <Button
-            className={classes.button}
-            variant="outlined"
-            onClick={() => props.action!.execute()}
-          >
-            {props.action.text}
-          </Button>
-        )}
+        {props.action &&
+          props.action.visible &&
+          (props.action.permissions ? (
+            <Can do={props.action.permissions}>
+              <Button
+                variant="outlined"
+                onClick={() => props.action!.execute()}
+                className={classes.actionButon}
+              >
+                {props.action.text}
+              </Button>
+            </Can>
+          ) : (
+            <Button
+              variant="outlined"
+              onClick={() => props.action!.execute()}
+              className={classes.actionButon}
+            >
+              {props.action.text}
+            </Button>
+          ))}
         {props.cancel && props.cancel.visible && (
           <Button
             variant="outlined"
             onClick={() => props.cancel!.execute()}
-            className={classes.button}
+            className={classes.actionButon}
           >
             {props.cancel.text}
           </Button>
@@ -58,7 +72,7 @@ export const SectionHeader: React.FC<Props> = props => {
           <Button
             variant="contained"
             onClick={() => props.submit!.execute()}
-            className={classes.button}
+            className={classes.actionButon}
           >
             {props.submit.text}
           </Button>
@@ -77,8 +91,7 @@ const useStyles = makeStyles(theme => ({
   title: {
     marginBottom: theme.spacing(1),
   },
-  button: {
-    marginLeft: "5px",
-    marginRight: "5px",
+  actionButon: {
+    marginLeft: theme.spacing(2),
   },
 }));

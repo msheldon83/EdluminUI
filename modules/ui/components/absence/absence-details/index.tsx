@@ -14,7 +14,12 @@ import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay } from "date-fns";
 import { addMonths } from "date-fns/esm";
 import { Errors, SetValue, TriggerValidation } from "forms";
-import { DayPart, NeedsReplacement, Vacancy } from "graphql/server-types.gen";
+import {
+  DayPart,
+  NeedsReplacement,
+  Vacancy,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
 import { useMemo } from "react";
@@ -25,9 +30,10 @@ import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail } from "ui/components/absence/types";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { Input } from "ui/components/form/input";
-import { Select } from "ui/components/form/select";
+import { SelectNew } from "ui/components/form/select-new";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
+import { Can } from "ui/components/auth/can";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -187,19 +193,18 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         <div className={classes.select}>
           <Typography>{t("Select a reason")}</Typography>
-          <Select
+          <SelectNew
             value={{
-              value: values.absenceReason,
+              value: values.absenceReason ?? "",
               label:
                 absenceReasonOptions.find(a => a.value === values.absenceReason)
                   ?.label || "",
             }}
             onChange={onReasonChange}
+            multiple={false}
             options={absenceReasonOptions}
-            isClearable={false}
             inputStatus={errors.absenceReason ? "error" : undefined}
             validationMessage={errors.absenceReason?.message}
-            // label={t("Reason")}
           />
         </div>
 
@@ -324,9 +329,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
               {t("Cancel")}
             </Button>
           )}
-          <Button type="submit" variant="contained">
-            {props.saveLabel ?? t("Create")}
-          </Button>
+          <Can do={[PermissionEnum.AbsVacSave]}>
+            <Button type="submit" variant="contained">
+              {props.saveLabel ?? t("Create")}
+            </Button>
+          </Can>
         </div>
       </Grid>
     </Grid>

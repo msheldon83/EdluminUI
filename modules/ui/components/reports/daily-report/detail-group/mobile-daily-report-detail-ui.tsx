@@ -8,6 +8,7 @@ import {
   Collapse,
   IconButton,
   Button,
+  useMediaQuery,
 } from "@material-ui/core";
 import { Detail } from "../helpers";
 import clsx from "clsx";
@@ -15,6 +16,9 @@ import InfoIcon from "@material-ui/icons/Info";
 import { ExpandMore, ExpandLess } from "@material-ui/icons";
 import { useState, useCallback } from "react";
 import { not } from "helpers";
+import { canAssignSub } from "helpers/permissions";
+import { Can } from "ui/components/auth/can";
+import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 
 type Props = {
   detail: Detail;
@@ -28,13 +32,19 @@ type Props = {
   goToAbsenceEdit: (absenceId: string) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
-  rowActions: { name: string; onClick: () => void }[];
+  rowActions: {
+    name: string;
+    onClick: () => void;
+    permissions?: CanDo;
+  }[];
 };
 
 export const MobileDailyReportDetailUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [showingDetails, setIsShowingDetails] = useState(false);
+  const isPrinting = useMediaQuery("@media print");
+  const [showingDetailsState, setIsShowingDetails] = useState(false);
+  const showingDetails = isPrinting || showingDetailsState;
 
   const toggleExpandDetails = useCallback(() => setIsShowingDetails(not), [
     setIsShowingDetails,
@@ -42,33 +52,55 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
 
   const actionButtons = (
     <div className={classes.actionButtons}>
-      {props.rowActions.map(a => (
-        <Button
-          key={a.name}
-          variant="outlined"
-          className={classes.button}
-          onClick={a.onClick}
-        >
-          {a.name}
-        </Button>
-      ))}
+      {props.rowActions.map(a =>
+        a.permissions ? (
+          <Can do={a.permissions} key={a.name}>
+            <Button
+              variant="outlined"
+              className={classes.button}
+              onClick={a.onClick}
+            >
+              {a.name}
+            </Button>
+          </Can>
+        ) : (
+          <Button
+            key={a.name}
+            variant="outlined"
+            className={classes.button}
+            onClick={a.onClick}
+          >
+            {a.name}
+          </Button>
+        )
+      )}
     </div>
   );
   return (
     <div className={[classes.container, props.className].join(" ")}>
       <div className={classes.group}>
         <div className={classes.checkboxSpacing}>
-          <Checkbox
-            color="primary"
-            className={clsx({
-              [classes.hidden]: props.hideCheckbox,
-              [classes.checkbox]: true,
-            })}
-            checked={props.isChecked}
-            onChange={e => {
-              props.updateSelectedDetails(props.detail, e.target.checked);
-            }}
-          />
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
+            }
+          >
+            <Checkbox
+              color="primary"
+              className={clsx({
+                [classes.hidden]: props.hideCheckbox,
+                [classes.checkbox]: true,
+              })}
+              checked={props.isChecked}
+              onChange={e => {
+                props.updateSelectedDetails(props.detail, e.target.checked);
+              }}
+            />
+          </Can>
         </div>
         <div className={classes.item}>
           {props.detail.type === "absence" ? (
@@ -137,12 +169,27 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                 )}
               {props.detail.state !== "noSubRequired" &&
                 !props.detail.substitute && (
-                  <Link
-                    className={classes.action}
-                    onClick={() => props.goToAbsenceEdit(props.detail.id)}
+                  <Can
+                    do={(
+                      permissions: OrgUserPermissions[],
+                      isSysAdmin: boolean,
+                      orgId?: string
+                    ) =>
+                      canAssignSub(
+                        props.detail.date,
+                        permissions,
+                        isSysAdmin,
+                        orgId
+                      )
+                    }
                   >
-                    {t("Assign")}
-                  </Link>
+                    <Link
+                      className={classes.action}
+                      onClick={() => props.goToAbsenceEdit(props.detail.id)}
+                    >
+                      {t("Assign")}
+                    </Link>
+                  </Can>
                 )}
               {props.detail.subStartTime && props.detail.subEndTime && (
                 <div className={classes.detailSubText}>
@@ -182,7 +229,7 @@ const useStyles = makeStyles(theme => ({
   absenceReason: {
     flex: 4,
   },
-  toggle: { flex: 1 },
+  toggle: { flex: 1, "@media print": { display: "none" } },
   item: { flex: 1 },
   itemContainer: { flex: 1, display: "flex" },
   subWithPhone: {

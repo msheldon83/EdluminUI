@@ -9,6 +9,8 @@ import {
   EmployeeEditAbsenceRoute,
   AdminEditAbsenceRoute,
 } from "ui/routes/edit-absence";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   absence: EmployeeAbsenceDetail;
@@ -65,9 +67,11 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
             <div className={classes.detailText}>
               {props.absence.substitute?.name}
             </div>
-            <div className={classes.subText}>
-              {props.absence.substitute?.phoneNumber}
-            </div>
+            <Can do={[PermissionEnum.SubstituteViewPhone]}>
+              <div className={classes.subText}>
+                {props.absence.substitute?.phoneNumber}
+              </div>
+            </Can>
           </>
         )}
         {!props.absence.substitute && props.absence.subRequired && (
@@ -109,21 +113,23 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
           </Link>
         </div>
       </Grid>
-      {props.cancelAbsence && (
-        <Grid item xs={2} className={classes.cancelButtonContainer}>
-          <Button
-            variant="outlined"
-            onClick={async () =>
-              await props.cancelAbsence!(props.absence.id).then(
-                props.handleAfterCancel!()
-              )
-            }
-            className={classes.cancelButton}
-          >
-            {t("Cancel")}
-          </Button>
-        </Grid>
-      )}
+      <Can do={[PermissionEnum.AbsVacDelete]}>
+        {props.cancelAbsence && (
+          <Grid item xs={2} className={classes.cancelButtonContainer}>
+            <Button
+              variant="outlined"
+              onClick={async () =>
+                await props.cancelAbsence!(props.absence.id).then(
+                  props.handleAfterCancel!()
+                )
+              }
+              className={classes.cancelButton}
+            >
+              {t("Cancel")}
+            </Button>
+          </Grid>
+        )}
+      </Can>
     </>
   );
 };

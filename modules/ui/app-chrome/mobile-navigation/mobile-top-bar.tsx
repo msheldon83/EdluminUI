@@ -18,7 +18,7 @@ export const MobileTopBar: React.FC<Props> = props => {
   const pageTitleContext = usePageTitleContext();
   return (
     <>
-      <AppBar position="sticky">
+      <AppBar position="sticky" className={classes.mobileAppBar}>
         <LoadingStateIndicator />
         <Toolbar classes={mobileToolbarClasses}>
           <IconButton
@@ -52,6 +52,9 @@ const useIconButtonStyles = makeStyles(theme => ({
 }));
 
 const useStyles = makeStyles(theme => ({
+  mobileAppBar: {
+    "@media print": { display: "none" },
+  },
   pageTitle: {
     color: theme.customColors.white,
     fontSize: theme.typography.pxToRem(20),
