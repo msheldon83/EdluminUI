@@ -49,6 +49,10 @@ export const AdminTab: React.FC<Props> = props => {
     await getAdmin.refetch();
   };
 
+  const onCancelAdmin = () => {
+    props.setEditing(null);
+  };
+
   return (
     <>
       <Information
@@ -61,6 +65,7 @@ export const AdminTab: React.FC<Props> = props => {
         setEditing={props.setEditing}
         selectedRole={props.selectedRole}
         onSaveOrgUser={onUpdateAdmin}
+        onCancel={onCancelAdmin}
       />
       <AccessControl
         editing={props.editing}

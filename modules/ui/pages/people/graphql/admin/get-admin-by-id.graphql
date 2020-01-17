@@ -9,6 +9,12 @@ query GetAdminById($id: ID!) {
         id
         orgId
         rowVersion
+        dateOfBirth
+        address1
+        city
+        state
+        postalCode
+        phoneNumber
         email
         firstName
         lastName

@@ -81,6 +81,9 @@ export const SubstituteTab: React.FC<Props> = props => {
     props.setEditing(null);
     await getSubstitute.refetch();
   };
+  const onCancelSub = () => {
+    props.setEditing(null);
+  };
 
   return (
     <>
@@ -94,6 +97,7 @@ export const SubstituteTab: React.FC<Props> = props => {
         setEditing={props.setEditing}
         selectedRole={props.selectedRole}
         onSaveOrgUser={onUpdateSubstitute}
+        onCancel={onCancelSub}
       />
       <SubPositionsAttributes
         editing={props.editing}

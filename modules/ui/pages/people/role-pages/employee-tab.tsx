@@ -57,6 +57,10 @@ export const EmployeeTab: React.FC<Props> = props => {
     await getEmployee.refetch();
   };
 
+  const onCancelEmployee = () => {
+    props.setEditing(null);
+  };
+
   return (
     <>
       <Information
@@ -69,6 +73,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         setEditing={props.setEditing}
         selectedRole={props.selectedRole}
         onSaveOrgUser={onUpdateEmployee}
+        onCancel={onCancelEmployee}
       />
       <Position
         editing={props.editing}

@@ -37,17 +37,29 @@ export const SectionHeader: React.FC<Props> = props => {
       </Grid>
       <Grid item>
         {props.action && props.action.visible && (
-          <Button variant="outlined" onClick={() => props.action!.execute()}>
+          <Button
+            className={classes.button}
+            variant="outlined"
+            onClick={() => props.action!.execute()}
+          >
             {props.action.text}
           </Button>
         )}
         {props.cancel && props.cancel.visible && (
-          <Button variant="outlined" onClick={() => props.cancel!.execute()}>
+          <Button
+            variant="outlined"
+            onClick={() => props.cancel!.execute()}
+            className={classes.button}
+          >
             {props.cancel.text}
           </Button>
         )}
         {props.submit && props.submit.visible && (
-          <Button variant="contained" onClick={() => props.submit!.execute()}>
+          <Button
+            variant="contained"
+            onClick={() => props.submit!.execute()}
+            className={classes.button}
+          >
             {props.submit.text}
           </Button>
         )}
@@ -64,5 +76,9 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     marginBottom: theme.spacing(1),
+  },
+  button: {
+    marginLeft: "5px",
+    marginRight: "5px",
   },
 }));

@@ -77,6 +77,7 @@ type Props = {
   selectedRole: OrgUserRole;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   onSaveOrgUser: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
+  onCancel: Function;
 };
 
 export const Information: React.FC<Props> = props => {
@@ -144,7 +145,13 @@ export const Information: React.FC<Props> = props => {
     value: s.enumValue,
   }));
 
-  const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+
+  const cleanPhoneNumber = (phoneNumber: string) => {
+    console.log(phoneNumber);
+    console.log(phoneNumber.replace(/\D/g, ""));
+    return phoneNumber.replace(/\D/g, "");
+  };
 
   return (
     <>
@@ -167,7 +174,9 @@ export const Information: React.FC<Props> = props => {
             rowVersion: props.orgUserRowVersion,
             email: data.email,
             phoneNumber:
-              data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
+              data.phoneNumber.trim().length === 0
+                ? null
+                : cleanPhoneNumber(data.phoneNumber),
             dateOfBirth: isValid(data.dateOfBirth) ? data.dateOfBirth : null,
             address1: data.address1.trim().length === 0 ? null : data.address1,
             city: data.city.trim().length === 0 ? null : data.city,
@@ -194,17 +203,19 @@ export const Information: React.FC<Props> = props => {
 
               if (!!this.resolve(yup.ref("address1"))) {
                 return this.createError({
-                  message: "Postal Code is required when an address is entered",
+                  message: t(
+                    "Postal Code is required when an address is entered"
+                  ),
                 });
               }
               if (!!this.resolve(yup.ref("city"))) {
                 return this.createError({
-                  message: "Postal Code is required when a city is entered",
+                  message: t("Postal Code is required when a city is entered"),
                 });
               }
               if (!!this.resolve(yup.ref("state"))) {
                 return this.createError({
-                  message: "Postal Code is required when a state is choosen",
+                  message: t("Postal Code is required when a state is choosen"),
                 });
               }
               return true;
@@ -218,17 +229,19 @@ export const Information: React.FC<Props> = props => {
 
               if (!!this.resolve(yup.ref("city"))) {
                 return this.createError({
-                  message: "Address is required when a city is entered",
+                  message: t("Address is required when a city is entered"),
                 });
               }
               if (!!this.resolve(yup.ref("state"))) {
                 return this.createError({
-                  message: "Address is required when a state is choosen",
+                  message: t("Address is required when a state is choosen"),
                 });
               }
               if (!!this.resolve(yup.ref("postalCode"))) {
                 return this.createError({
-                  message: "Address is required when a postal code is choosen",
+                  message: t(
+                    "Address is required when a postal code is choosen"
+                  ),
                 });
               }
               return true;
@@ -241,17 +254,17 @@ export const Information: React.FC<Props> = props => {
 
               if (!!this.resolve(yup.ref("address1"))) {
                 return this.createError({
-                  message: "City is required when an address is entered",
+                  message: t("City is required when an address is entered"),
                 });
               }
               if (!!this.resolve(yup.ref("state"))) {
                 return this.createError({
-                  message: "City is required when a state is choosen",
+                  message: t("City is required when a state is choosen"),
                 });
               }
               if (!!this.resolve(yup.ref("postalCode"))) {
                 return this.createError({
-                  message: "City is required when a postal code is choosen",
+                  message: t("City is required when a postal code is choosen"),
                 });
               }
               return true;
@@ -265,32 +278,33 @@ export const Information: React.FC<Props> = props => {
 
               if (!!this.resolve(yup.ref("address1"))) {
                 return this.createError({
-                  message: "State is required when an address is entered",
+                  message: t("State is required when an address is entered"),
                 });
               }
               if (!!this.resolve(yup.ref("city"))) {
                 return this.createError({
-                  message: "State is required when a city is entered",
+                  message: t("State is required when a city is entered"),
                 });
               }
               if (!!this.resolve(yup.ref("postalCode"))) {
                 return this.createError({
-                  message: "State is required when a postal code is choosen",
+                  message: t("State is required when a postal code is choosen"),
                 });
               }
               return true;
             }),
         })}
-
-        /*{yup.object().shape({
-          email: yup.string().required(t("Email is required")),
-        })}*/
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
             <Section className={classes.customSection}>
               <SectionHeader
                 title={t("Information")}
+                cancel={{
+                  text: t("Cancel"),
+                  visible: props.editing === editableSections.information,
+                  execute: props.onCancel,
+                }}
                 action={
                   props.editing === editableSections.information
                     ? {
