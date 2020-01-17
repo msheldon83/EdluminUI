@@ -333,11 +333,11 @@ export const Information: React.FC<Props> = props => {
                         !props.isSuperUser ? (
                           <SelectNew
                             value={permissionSetOptions.find(
-                              e => e.value && values.permissionSetId
+                              e => e.value && e.value === values.permissionSetId
                             )}
                             multiple={false}
                             onChange={(value: OptionType) => {
-                              const id = [(value as OptionTypeBase).value];
+                              const id = (value as OptionTypeBase).value;
                               setFieldValue("permissionSetId", id);
                             }}
                             options={permissionSetOptions}
