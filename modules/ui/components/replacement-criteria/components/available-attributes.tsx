@@ -8,11 +8,11 @@ import { useCallback, useEffect } from "react";
 import { SectionHeader } from "ui/components/section-header";
 
 type Props = {
-  data: Endorsement[];
+  attributes: Attribute[];
   remove?: void;
 };
 
-type Endorsement = {
+export type Attribute = {
   id: string;
   name: string;
 };
@@ -39,32 +39,30 @@ export const AvailableAttributes: React.FC<Props> = props => {
 
   return (
     <>
-      <Grid container item xs={6} component="dl" spacing={2}>
-        <Grid item xs={12}>
-          <Section>
-            <SectionHeader title={t("Available Attributes")} />
-            <Grid item xs={12} sm={6} md={6} lg={6}>
-              <Input
-                label={t("Attributes")}
-                value={pendingSearchText}
-                onChange={updateSearchText}
-                placeholder={t("Search")}
-                className={classes.label}
-              />
-            </Grid>
-            <div className={classes.fontColorGrey}>Add selected to:</div>
+      <Grid item xs={12}>
+        <Section>
+          <SectionHeader title={t("Available Attributes")} />
+          <Grid item xs={12} sm={6} md={6} lg={6}>
+            <Input
+              label={t("Attributes")}
+              value={pendingSearchText}
+              onChange={updateSearchText}
+              placeholder={t("Search")}
+              className={classes.label}
+            />
+          </Grid>
+          <div className={classes.fontColorGrey}>Add selected to:</div>
 
-            <hr />
-            <Grid item xs={12} sm={6} lg={6}>
-              {props.data?.length === 0 ? (
-                <div>{t("Not defined")}</div>
-              ) : (
-                props.data?.map((n, i) => <div key={i}>{n?.name}</div>)
-              )}
-            </Grid>
-            <hr />
-          </Section>
-        </Grid>
+          <hr />
+          <Grid item xs={12} sm={6} lg={6}>
+            {props.attributes?.length === 0 ? (
+              <div>{t("Not defined")}</div>
+            ) : (
+              props.attributes?.map((n, i) => <div key={i}>{n?.name}</div>)
+            )}
+          </Grid>
+          <hr />
+        </Section>
       </Grid>
     </>
   );

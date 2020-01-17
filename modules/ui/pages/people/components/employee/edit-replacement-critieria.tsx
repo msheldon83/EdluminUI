@@ -1,19 +1,14 @@
 import * as React from "react";
-import { Grid, makeStyles } from "@material-ui/core";
-import { Section } from "ui/components/section";
-import { PageHeader } from "ui/components/page-header";
+import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { Redirect, useHistory } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetEmployeeById } from "ui/pages/people/graphql/employee/get-employee-by-id.gen";
-import { GetAllEndorsementsWithinOrg } from "ui/pages/position-type/graphql/get-all-endorsements.gen";
-import { PageTitle } from "ui/components/page-title";
 import { useCallback, useEffect } from "react";
 import { SectionHeader } from "ui/components/section-header";
 import { ReplacementCriteriaUI } from "ui/components/replacement-criteria/index";
 import { useRouteParams } from "ui/routes/definition";
 import { Maybe, Endorsement } from "graphql/server-types.gen";
-import { useDeferredState } from "hooks";
 import {
   PeopleReplacementCriteriaEditRoute,
   PersonViewRoute,
@@ -31,53 +26,45 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     variables: { id: params.orgUserId },
   });
 
-  const [
-    searchText,
-    pendingSearchText,
-    setPendingSearchText,
-  ] = useDeferredState<string | undefined>(undefined, 200);
-  useEffect(() => {
-    // props.setSearchText(searchText);
-  }, [searchText]);
-
-  const updateSearchText = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPendingSearchText(event.target.value);
-    },
-    [setPendingSearchText]
-  );
-
-  const getAllEndorsements = useQueryBundle(GetAllEndorsementsWithinOrg, {
-    variables: { orgId: params.organizationId, searchText: searchText },
-  });
-
-  if (
-    getEmployee.state === "LOADING" ||
-    getAllEndorsements.state === "LOADING"
-  ) {
+  if (getEmployee.state === "LOADING") {
     return <></>;
   }
 
   const employee = getEmployee?.data?.orgUser?.byId?.employee;
   const position = employee?.primaryPosition;
-  const endorsements = getAllEndorsements?.data?.orgRef_Endorsement?.all;
+  const postionType = position?.positionType;
 
-  if (!position || !endorsements) {
+  if (!employee) {
     const listUrl = PersonViewRoute.generate(params);
     return <Redirect to={listUrl} />;
   }
 
+  //Add Criteria Mutations
+
+  //Remove Criteria Mutations
+
   //Get Replacement Criteria
   const replacementCriteria = position?.replacementCriteria;
-
-  //Add Criteria
-
-  //Remove Criteria
-
-  //component for 4 sections
-  //label
-  //list of criteria
-  //remove function
+  const mustHave =
+    replacementCriteria?.mustHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+    })) ?? [];
+  const preferToHave =
+    replacementCriteria?.preferToHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+    })) ?? [];
+  const preferNotToHave =
+    replacementCriteria?.preferToNotHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+    })) ?? [];
+  const mustNotHave =
+    replacementCriteria?.mustNotHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+    })) ?? [];
 
   return (
     <>
@@ -85,7 +72,15 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
         className={classes.leftPadding}
         title={t(employee?.firstName + " " + employee?.lastName)}
       />
-      <ReplacementCriteriaUI />
+      <ReplacementCriteriaUI
+        mustHave={mustHave}
+        preferToHave={preferToHave}
+        preferToNotHave={preferNotToHave}
+        mustNotHave={mustNotHave}
+        positionName={position?.name ?? postionType?.name}
+        orgId={params.organizationId}
+        positionId={position?.id}
+      />
     </>
   );
 };

@@ -124,7 +124,7 @@ export const PeopleSubPoolEditLoader = asyncComponent({
 //Edit Replacement Criteria
 export const PeopleReplacementCriteriaEditRoute = defineSubRoute(
   PersonViewRoute,
-  "/edit-replacement-criteria",
+  "/replacement-criteria",
   []
 );
 

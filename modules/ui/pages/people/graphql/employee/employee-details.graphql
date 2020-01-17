@@ -26,6 +26,10 @@ fragment EmployeeDetails on Employee {
     name
     hoursPerFullWorkDay
     needsReplacement
+    positionType {
+      id
+      name
+    }
     currentContract {
       id
       name

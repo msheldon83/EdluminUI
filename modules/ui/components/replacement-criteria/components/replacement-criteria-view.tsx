@@ -6,7 +6,7 @@ import { SectionHeader } from "ui/components/section-header";
 
 type Props = {
   label: string;
-  data: Endorsement[];
+  attributes: Endorsement[];
   remove?: void;
 };
 
@@ -27,10 +27,10 @@ export const ReplacementCriteriaView: React.FC<Props> = props => {
           <SectionHeader title={t(props.label)} />
           <hr />
           <Grid item xs={12} sm={6} lg={6}>
-            {props.data?.length === 0 ? (
+            {props.attributes?.length === 0 ? (
               <div>{t("Not defined")}</div>
             ) : (
-              props.data?.map((n, i) => <div key={i}>{n?.name}</div>)
+              props.attributes?.map((n, i) => <div key={i}>{n?.name}</div>)
             )}
           </Grid>
         </Section>

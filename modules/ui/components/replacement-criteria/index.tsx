@@ -3,22 +3,29 @@ import { PageTitle } from "ui/components/page-title";
 import { Grid, makeStyles } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { PageHeader } from "ui/components/page-header";
+import { GetAllEndorsementsWithinOrg } from "ui/pages/position-type/graphql/get-all-endorsements.gen";
 import { useIsMobile } from "hooks";
+import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useDeferredState } from "hooks";
 import { ReplacementCriteriaView } from "./components/replacement-criteria-view";
 import { Qualified } from "./components/qualified";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { AvailableAttributes } from "./components/available-attributes";
+import { GetQualifiedEmployeeCountsWithinOrg } from "./graphql/get-qualified-employee-counts.gen";
 
 type Props = {
-  mustHave: attribute[];
-  preferToHave: attribute[];
-  preferToNotHave: attribute[];
-  mustNotHave: attribute[];
-  availableAttributes: attribute[];
-  name: string;
+  mustHave: Attribute[];
+  preferToHave: Attribute[];
+  preferToNotHave: Attribute[];
+  mustNotHave: Attribute[];
+  availableAttributes?: Attribute[];
+  positionName: string | undefined;
+  orgId: string;
+  positionId: string | undefined;
 };
 
-type attribute = {
+export type Attribute = {
   name: string;
   id: string;
   remove?: () => void;
@@ -30,11 +37,60 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const classes = useStyles();
 
+  const [
+    searchText,
+    pendingSearchText,
+    setPendingSearchText,
+  ] = useDeferredState<string | undefined>(undefined, 200);
+  useEffect(() => {
+    // props.setSearchText(searchText);
+  }, [searchText]);
+
+  const updateSearchText = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setPendingSearchText(event.target.value);
+    },
+    [setPendingSearchText]
+  );
+
+  //Query qualified numbers
+  const getQualifiedNumbers = useQueryBundle(
+    GetQualifiedEmployeeCountsWithinOrg,
+    {
+      variables: {
+        orgId: props.orgId,
+        positionId: Number(props.positionId),
+      },
+    }
+  );
+
+  const getAllEndorsements = useQueryBundle(GetAllEndorsementsWithinOrg, {
+    variables: { orgId: props.orgId, searchText: searchText },
+  });
+
+  if (
+    getAllEndorsements.state === "LOADING" ||
+    getQualifiedNumbers.state === "LOADING"
+  ) {
+    return <></>;
+  }
+
+  const qualifiedCounts =
+    getQualifiedNumbers?.data?.position?.qualifiedEmployeeCounts;
+
+  console.log(getQualifiedNumbers);
+
+  const attributes =
+    getAllEndorsements?.data?.orgRef_Endorsement?.all?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+    })) ?? [];
+
   return (
     <>
       <PageTitle title={t("Replacement Criteria")} withoutHeading={!isMobile} />
       <PageHeader
-        text={t("Replacement Criteria - " + props.name)}
+        text={t("Replacement Criteria - " + props.positionName)}
         label={t("Name")}
       />
       <Grid container className={classes.topPadding}>
@@ -47,32 +103,31 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
         >
           <Grid item xs={12}>
             <Qualified
-              highlyQualified={1}
-              minimallyQualified={2}
+              highlyQualified={qualifiedCounts?.numFullyQualified}
+              minimallyQualified={qualifiedCounts?.numMinimallyQualified}
               label={"thnig"}
             />
           </Grid>
-
           <ReplacementCriteriaView
-            data={props?.mustHave}
+            attributes={props?.mustHave}
             label={t("Substitutes must have")}
           />
           <ReplacementCriteriaView
-            data={props?.preferToHave}
+            attributes={props?.preferToHave}
             label={t("Prefer that substitutes have")}
           />
           <ReplacementCriteriaView
-            data={props?.preferToNotHave}
+            attributes={props?.preferToNotHave}
             label={t("Substitutes must not have")}
           />
           <ReplacementCriteriaView
-            data={props?.mustNotHave}
+            attributes={props?.mustNotHave}
             label={t("Prefer that substitutes not have")}
           />
         </Grid>
         <Grid container item xs={6} component="dl" spacing={2}>
           <Grid item xs={12}>
-            <AvailableAttributes data={props.availableAttributes} />
+            <AvailableAttributes attributes={attributes} />
           </Grid>
         </Grid>
       </Grid>

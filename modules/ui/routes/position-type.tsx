@@ -69,7 +69,7 @@ export const PositionTypeEditSettingsLoader = asyncComponent({
 // Replacement Criteria Edit Page
 export const ReplacementCriteriaEditRoute = defineSubRoute(
   PositionTypeViewRoute,
-  "/edit-replacement-criteria",
+  "/replacement-criteria",
   []
 );
 

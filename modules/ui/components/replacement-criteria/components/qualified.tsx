@@ -7,8 +7,8 @@ import { SectionHeader } from "ui/components/section-header";
 
 type Props = {
   label: string;
-  minimallyQualified: number;
-  highlyQualified: number;
+  minimallyQualified: number | undefined;
+  highlyQualified: number | undefined;
   remove?: void;
 };
 
@@ -16,14 +16,31 @@ export const Qualified: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
+  const minimallyQualified =
+    props.minimallyQualified === undefined
+      ? "Not Defined"
+      : props.minimallyQualified.toString();
+
+  const highlyQualified =
+    props.highlyQualified === undefined
+      ? "Not Defined"
+      : props.highlyQualified.toString();
+
   return (
     <>
-      <Grid container item xs={6} spacing={2} className={classes.rightPadding}>
-        <Grid item xs={12}>
-          <Section>
-            <SectionHeader title={t(props.label)} />
-          </Section>
-        </Grid>
+      <Grid item xs={12}>
+        <Section>
+          <Grid container>
+            <Grid item xs={6}>
+              <SectionHeader title={t(minimallyQualified)} />
+              <div>minimally qualified substitutes</div>
+            </Grid>
+            <Grid item xs={6}>
+              <SectionHeader title={t(highlyQualified)} />
+              <div>highly qualified substitutes</div>
+            </Grid>
+          </Grid>
+        </Section>
       </Grid>
     </>
   );
