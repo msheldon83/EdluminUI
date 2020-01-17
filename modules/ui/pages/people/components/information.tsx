@@ -59,7 +59,7 @@ export type OrgUser = {
   postalCode?: string | null | undefined;
   phoneNumber?: string | null | undefined;
   dateOfBirth?: Date | string | null | undefined;
-  permissionSet?: { id?: number | null | undefined } | null | undefined;
+  permissionSet?: { id?: string | null | undefined } | null | undefined;
 };
 
 type Props = {
