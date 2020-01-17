@@ -66,9 +66,9 @@ export const AdminAddPage: React.FC<{}> = props => {
         externalId: orgUser.externalId,
         email: orgUser.email,
       });
-      setInitialStepNumber(steps[1].stepNumber);
+      setInitialStepNumber(1);
     }
-  }, [admin, orgUser, params.organizationId, steps]);
+  }, [admin, orgUser, params.organizationId]);
 
   const handleCancel = () => {
     const url =

@@ -66,9 +66,9 @@ export const EmployeeAddPage: React.FC<{}> = props => {
         externalId: orgUser.externalId,
         email: orgUser.email,
       });
-      setInitialStepNumber(steps[1].stepNumber);
+      setInitialStepNumber(1);
     }
-  }, [employee, orgUser, params.organizationId, steps]);
+  }, [employee, orgUser, params.organizationId]);
 
   const handleCancel = () => {
     const url =

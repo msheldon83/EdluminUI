@@ -66,9 +66,9 @@ export const SubstituteAddPage: React.FC<{}> = props => {
         externalId: orgUser.externalId,
         email: orgUser.email,
       });
-      setInitialStepNumber(steps[1].stepNumber);
+      setInitialStepNumber(1);
     }
-  }, [orgUser, params.organizationId, steps, substitute]);
+  }, [orgUser, params.organizationId, substitute]);
 
   const handleCancel = () => {
     const url =
