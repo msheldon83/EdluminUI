@@ -14,7 +14,7 @@ type Props = {
     assignmentId: string,
     rowVersion: string,
     vacancyDetailIds?: string[]
-  ) => void;
+  ) => Promise<unknown>;
   className?: string;
   isAdmin: boolean;
   forSpecificAssignment?: boolean;
@@ -35,11 +35,14 @@ export const AssignmentGroup: React.FC<Props> = props => {
 
   const assignment = vacancyDetails[0].assignment;
 
-  const onCancelAllMutation = React.useCallback(
-    () =>
-      onCancel(assignment?.id ?? "", assignment?.rowVersion ?? "", undefined),
-    [onCancel, assignment]
-  );
+  const onCancelAllMutation = React.useCallback(async () => {
+    await onCancel(
+      assignment?.id ?? "",
+      assignment?.rowVersion ?? "",
+      undefined
+    );
+    onCloseDialog();
+  }, [onCancel, assignment]);
 
   const vacancy =
     vacancyDetails[0].vacancy !== null && vacancyDetails[0].vacancy;
@@ -107,6 +110,9 @@ export const AssignmentGroup: React.FC<Props> = props => {
           dayPortion={totalDayPortion}
           payInfoLabel={
             vacancyDetails[0].vacancy?.payInfoSummary?.summaryLabel ?? ""
+          }
+          notesToReplacement={
+            vacancyDetails[0].vacancy?.notesToReplacement ?? undefined
           }
           onCancel={onCancelClick}
           className={props.className}

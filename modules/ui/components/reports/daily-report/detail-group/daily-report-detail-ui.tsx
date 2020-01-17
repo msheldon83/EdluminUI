@@ -1,5 +1,5 @@
 import { Checkbox, Grid, Link, makeStyles, Tooltip } from "@material-ui/core";
-import InfoIcon from "@material-ui/icons/Info";
+/* import InfoIcon from "@material-ui/icons/Info"; */
 import clsx from "clsx";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -9,6 +9,7 @@ import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
+import PermDeviceInformationIcon from "@material-ui/icons/PermDeviceInformation";
 
 type Props = {
   detail: Detail;
@@ -95,7 +96,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
             {props.detail.substitute.phone && (
               <div className={classes.subPhoneInfoIcon}>
                 <Tooltip title={props.detail.substitute.phone} placement="top">
-                  <InfoIcon color="primary" />
+                  <PermDeviceInformationIcon color="primary" />
                 </Tooltip>
               </div>
             )}
