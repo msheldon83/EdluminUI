@@ -54,6 +54,8 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       ? undefined
       : getOrgUser?.data?.orgUser?.byId;
 
+  // Cannot include "substitute" in the list of dependencies because we are
+  // also setting it here which results in an infinite render loop
   useEffect(() => {
     if (orgUser) {
       setSubstitute({
@@ -68,7 +70,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       });
       setInitialStepNumber(1);
     }
-  }, [orgUser, params.organizationId, substitute]);
+  }, [orgUser, params.organizationId]);
 
   const handleCancel = () => {
     const url =
