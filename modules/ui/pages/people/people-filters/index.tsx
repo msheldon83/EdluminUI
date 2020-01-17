@@ -150,12 +150,7 @@ export const PeopleFilters: React.FC<Props> = props => {
   // If only have 1 Role tab, we have to default the filters
   // to those that match that Role.
   useEffect(() => {
-    if (
-      filteredTabs &&
-      filteredTabs.length > 0 &&
-      filteredTabs[0].value != "" &&
-      !isoFilters.roleFilter
-    ) {
+    if (filteredTabs && filteredTabs.length === 1 && !isoFilters.roleFilter) {
       updateRoleFilter(undefined, filteredTabs[0].value);
     }
   }, [filteredTabs, isoFilters.roleFilter, updateRoleFilter]);
