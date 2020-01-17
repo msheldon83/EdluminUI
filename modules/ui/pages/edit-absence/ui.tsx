@@ -52,6 +52,7 @@ type Props = {
   actingAsEmployee?: boolean;
   organizationId: string;
   needsReplacement: NeedsReplacement;
+  notesToApprover?: string;
   userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
@@ -137,6 +138,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         : undefined,
     notesToReplacement:
       props.initialVacancies[0]?.notesToReplacement ?? undefined,
+    notesToApprover: props.notesToApprover,
   };
 
   const {

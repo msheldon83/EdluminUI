@@ -28,6 +28,7 @@ import { Input } from "ui/components/form/input";
 import { SelectNew } from "ui/components/form/select-new";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
+import { NoteField } from "./notes-field";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -38,6 +39,7 @@ export type AbsenceDetailsFormData = {
   payCode?: string;
   hourlyStartTime?: Date;
   hourlyEndTime?: Date;
+  notesToApprover?: string;
   notesToReplacement?: string;
 };
 
@@ -83,7 +85,6 @@ type Props = {
 
 export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
-  const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
   const history = useHistory();
   const {
@@ -239,11 +240,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
           <Typography className={classes.subText}>
             {t("Can be seen by the administrator and the employee.")}
           </Typography>
-          <Input
-            multiline
-            rows="6"
+
+          <NoteField
             onChange={onNotesToApproverChange}
-            classes={textFieldClasses}
+            name={"notesToApprover"}
+            isSubmitted={props.isSubmitted}
+            initialAbsenceCreation={props.initialAbsenceCreation}
+            value={values.notesToApprover}
           />
         </div>
       </Grid>
@@ -401,11 +404,5 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.main,
       color: theme.customColors.white,
     },
-  },
-}));
-
-const useTextFieldClasses = makeStyles(theme => ({
-  multiline: {
-    padding: theme.spacing(1),
   },
 }));

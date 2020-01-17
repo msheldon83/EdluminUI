@@ -161,6 +161,7 @@ export const EditAbsence: React.FC<Props> = props => {
       employeeId={employee.id.toString()}
       rowVersion={data.rowVersion}
       needsReplacement={needsSub ? NeedsReplacement.Yes : NeedsReplacement.No}
+      notesToApprover={data.notesToApprover ?? undefined}
       userIsAdmin={userIsAdmin}
       positionId={
         position?.id ?? employee.primaryPositionId?.toString() ?? undefined
