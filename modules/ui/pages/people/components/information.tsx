@@ -46,10 +46,10 @@ export const editableSections = {
 };
 
 export type OrgUser = {
-  id?: string | number | null | undefined;
-  orgId?: number | null | undefined;
-  firstName?: string;
-  lastName?: string;
+  id?: string | null | undefined;
+  orgId?: string | null | undefined;
+  firstName?: string | null | undefined;
+  lastName?: string | null | undefined;
   email?: string | null | undefined;
   address1?: string | null | undefined;
   address2?: string | null | undefined;
@@ -185,7 +185,7 @@ export const Information: React.FC<Props> = props => {
             postalCode:
               data.postalCode.trim().length === 0 ? null : data.postalCode,
             country: data.state ? ("US" as CountryCode) : null,
-            permissionSet: { id: Number(data.permissionSetId) },
+            permissionSet: { id: data.permissionSetId },
           });
         }}
         validationSchema={yup.object({

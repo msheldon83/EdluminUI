@@ -36,7 +36,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
 
   // Save a new substitute in state
   const [substitute, setSubstitute] = React.useState<SubstituteInput>({
-    orgId: Number(params.organizationId),
+    orgId: params.organizationId,
     firstName: "",
     middleName: null,
     lastName: "",
@@ -60,8 +60,8 @@ export const SubstituteAddPage: React.FC<{}> = props => {
     if (orgUser) {
       setSubstitute({
         ...substitute,
-        id: Number(orgUser.id),
-        orgId: Number(params.organizationId),
+        id: orgUser.id,
+        orgId: params.organizationId,
         firstName: orgUser.firstName,
         middleName: orgUser.middleName,
         lastName: orgUser.lastName,

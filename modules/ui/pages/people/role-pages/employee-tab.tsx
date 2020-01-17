@@ -56,7 +56,7 @@ export const EmployeeTab: React.FC<Props> = props => {
       variables: {
         employee: {
           ...orgUser,
-          id: Number(props.orgUserId),
+          id: props.orgUserId,
         },
       },
     });

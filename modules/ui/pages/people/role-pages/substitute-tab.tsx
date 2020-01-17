@@ -81,7 +81,7 @@ export const SubstituteTab: React.FC<Props> = props => {
       variables: {
         substitute: {
           ...orgUser,
-          id: Number(props.orgUserId),
+          id: props.orgUserId,
         },
       },
     });

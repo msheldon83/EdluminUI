@@ -48,7 +48,7 @@ export const AdminTab: React.FC<Props> = props => {
       variables: {
         administrator: {
           ...orgUser,
-          id: Number(props.orgUserId),
+          id: props.orgUserId,
         },
       },
     });
