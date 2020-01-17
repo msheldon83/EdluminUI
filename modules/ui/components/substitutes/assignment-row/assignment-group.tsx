@@ -111,6 +111,9 @@ export const AssignmentGroup: React.FC<Props> = props => {
           payInfoLabel={
             vacancyDetails[0].vacancy?.payInfoSummary?.summaryLabel ?? ""
           }
+          notesToReplacement={
+            vacancyDetails[0].vacancy?.notesToReplacement ?? undefined
+          }
           onCancel={onCancelClick}
           className={props.className}
           isAdmin={props.isAdmin}
