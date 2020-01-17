@@ -2,11 +2,12 @@ import {
   Link,
   Popper,
   Fade,
-  Button,
   List,
   ListItemText,
+  Grid,
+  Button
 } from "@material-ui/core";
-import { AccountCircleOutlined, DeleteOutline } from "@material-ui/icons";
+import { AccountCircleOutlined } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
@@ -18,7 +19,6 @@ import {
   PaginationParams,
 } from "hooks/query-params";
 import { compact, isEqual, flatMap } from "lodash-es";
-import { Column } from "material-table";
 import * as React from "react";
 import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -27,7 +27,7 @@ import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Table, TableColumn } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
-import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
+import { PeopleRoute, PersonViewRoute, AdminAddRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";
@@ -35,6 +35,8 @@ import { InviteUsers } from "./graphql/invite-users.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { AccessIcon } from "./components/access-icon";
+import { CreateButton } from "./components/create-button";
+import { Can } from "ui/components/auth/can";
 
 type Props = {};
 
@@ -452,7 +454,22 @@ export const PeoplePage: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle title={t("People")} />
+      <Grid
+        container
+        alignItems="flex-start"
+        justify="space-between"
+        spacing={2}
+        className={classes.header}
+      >
+        <Grid item>
+          <PageTitle title={t("People")} />
+        </Grid>
+        <Can do={[PermissionEnum.AdminSave, PermissionEnum.EmployeeSave, PermissionEnum.SubstituteSave]}>
+        <Grid item>
+          <CreateButton />
+        </Grid>
+        </Can>
+      </Grid>
       <PeopleFilters />
       <div className={classes.tableContainer}>
         <Table
@@ -516,5 +533,8 @@ const useStyles = makeStyles(theme => ({
   accountCell: {
     display: "flex",
     alignItems: "center",
+  },
+  header: {
+    marginBottom: theme.spacing(),
   },
 }));

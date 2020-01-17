@@ -2,10 +2,18 @@ query GetOrgUserById($id: ID!) {
   orgUser {
     byId(id: $id) {
       id
-      userId
-      orgId
-      rowVersion
       externalId
+      userId
+      rowVersion
+      orgId
+      email
+      address1
+      city
+      state
+      country
+      postalCode
+      dateOfBirth
+      phoneNumber
       firstName
       middleName
       lastName

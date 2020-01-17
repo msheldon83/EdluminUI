@@ -1,10 +1,12 @@
 import * as React from "react";
+import { useEffect } from "react";
 import { makeStyles, Tabs, Tab, Paper } from "@material-ui/core";
 
 type Props = {
   steps: Array<Step>;
   isWizard?: boolean;
   showStepNumber?: boolean;
+  initialStepNumber?: number;
 };
 export type Step = {
   stepNumber: number;
@@ -17,8 +19,10 @@ export type Step = {
 
 export const TabbedHeader: React.FC<Props> = props => {
   const classes = useStyles();
+  const initialStepNumber = props.initialStepNumber;
+  const steps = props.steps;
   const [currentStepNumber, setStep] = React.useState(
-    props.steps[0].stepNumber
+    initialStepNumber ?? steps[0].stepNumber
   );
   const handleStepChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     if (props.isWizard && newValue > currentStepNumber) {
@@ -28,21 +32,30 @@ export const TabbedHeader: React.FC<Props> = props => {
     setStep(newValue);
   };
 
-  const currentStep = props.steps.find(s => s.stepNumber === currentStepNumber);
+  // Don't add a dependency for "steps" here, because if the consumer doesn't
+  // memoize the "steps" they are providing and something out there causes a rerender
+  // the steps being passed into here will be reinstantiated and this will fire
+  // which means you won't be able to change steps
+  useEffect(() => {
+    setStep(initialStepNumber ?? steps[0].stepNumber);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialStepNumber]);
+
+  const currentStep = steps.find(s => s.stepNumber === currentStepNumber);
 
   const goToNextStep = () => {
     if (!currentStep) {
       return;
     }
 
-    const currentStepIndex = props.steps.indexOf(currentStep);
-    if (currentStepIndex + 1 >= props.steps.length) {
+    const currentStepIndex = steps.indexOf(currentStep);
+    if (currentStepIndex + 1 >= steps.length) {
       // This is the last step
       return;
     }
 
-    setStep(props.steps[currentStepIndex+1].stepNumber);
-  }
+    setStep(steps[currentStepIndex + 1].stepNumber);
+  };
 
   return (
     <>
@@ -53,7 +66,7 @@ export const TabbedHeader: React.FC<Props> = props => {
           textColor="primary"
           onChange={handleStepChange}
         >
-          {props.steps.map((s, i) => {
+          {steps.map((s, i) => {
             return props.showStepNumber ? (
               <Tab key={i} label={`${s.stepNumber + 1}. ${s.name}`} />
             ) : (

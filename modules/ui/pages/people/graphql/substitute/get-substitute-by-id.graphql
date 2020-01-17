@@ -2,9 +2,9 @@ query GetSubstituteById($id: ID!) {
   orgUser {
     byId(id: $id) {
       id
+      externalId
       userId
       loginEmail
-      rowVersion
       relatedOrganizations {
         id
         name
