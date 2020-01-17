@@ -3,6 +3,14 @@ import { Tab, Tabs, makeStyles, Paper } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { PermittedTab } from "ui/components/permitted-tab";
+import {
+  PersonViewRoute,
+  AdminAddRoute,
+  EmployeeAddRoute,
+  SubstituteAddRoute,
+} from "ui/routes/people";
+import { useRouteParams } from "ui/routes/definition";
+import { useHistory } from "react-router";
 
 type Props = {
   orgUser: {
@@ -18,6 +26,8 @@ export const RoleTabs: React.FC<Props> = props => {
   const orgUser = props.orgUser;
   const { t } = useTranslation();
   const classes = useStyles();
+  const params = useRouteParams(PersonViewRoute);
+  const history = useHistory();
 
   const updateRoleTab = (
     event: React.ChangeEvent<{}>,
@@ -26,17 +36,17 @@ export const RoleTabs: React.FC<Props> = props => {
     switch (newSelectedRole) {
       case OrgUserRole.Employee:
         if (!orgUser.isEmployee) {
-          // TODO Send user to a create screen
+          history.push(EmployeeAddRoute.generate(params));
         }
         break;
       case OrgUserRole.Administrator:
         if (!orgUser.isAdmin) {
-          // TODO Send user to a create screen
+          history.push(AdminAddRoute.generate(params));
         }
         break;
       case OrgUserRole.ReplacementEmployee:
         if (!orgUser.isReplacementEmployee) {
-          // TODO Send user to a create screen
+          history.push(SubstituteAddRoute.generate(params));
         }
         break;
     }

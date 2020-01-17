@@ -88,6 +88,12 @@ import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
 import {
   PeopleLoader,
   PeopleRoute,
+  AdminAddRoute,
+  AdminAddLoader,
+  EmployeeAddRoute,
+  EmployeeAddLoader,
+  SubstituteAddRoute,
+  SubstituteAddLoader,
   PersonViewLoader,
   PeopleSubPoolEditLoader,
   PeopleSubPoolEditRoute,
@@ -428,6 +434,30 @@ export function App() {
                                   path={PeopleSubPoolEditRoute.path}
                                   role={"admin"}
                                   permissions={[PermissionEnum.SubstituteView]}
+                                />
+                                <ProtectedRoute
+                                  component={AdminAddLoader}
+                                  path={AdminAddRoute.path}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AdminSave
+                                  ]}
+                                />
+                                <ProtectedRoute
+                                  component={EmployeeAddLoader}
+                                  path={EmployeeAddRoute.path}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.EmployeeSave
+                                  ]}
+                                />
+                                <ProtectedRoute
+                                  component={SubstituteAddLoader}
+                                  path={SubstituteAddRoute.path}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.SubstituteSave
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={PersonViewLoader}

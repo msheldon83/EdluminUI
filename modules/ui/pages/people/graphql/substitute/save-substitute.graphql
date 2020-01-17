@@ -1,0 +1,11 @@
+mutation SaveSubstitute($substitute: SubstituteInput!) {
+  orgUser {
+    saveSubstitute(substitute: $substitute) {
+      id
+      externalId
+      substitute {
+        ...SubstituteDetails
+      }
+    }
+  }
+}
