@@ -23,12 +23,12 @@ export const minutesToHours = (mins?: number, decimalPlaces = 2) => {
   return hours;
 };
 
-export const hoursToMinutes = (hours?: number) => {
+export const hoursToMinutes = (hours?: number, decimalPlaces = 0) => {
   if (!hours) {
     return null;
   }
 
-  const mins = hours * 60;
+  const mins = (hours * 60).toFixed(decimalPlaces);
   return mins;
 };
 

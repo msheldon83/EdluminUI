@@ -1,18 +1,22 @@
 fragment SubstituteDetails on Substitute {
   id
   orgId
-  rowVersion
   email
-  phoneNumber
-  firstName
-  lastName
   address1
-  address2
   city
   state
-  postalCode
   country
+  postalCode
   dateOfBirth
+  phoneNumber
+  firstName
+  middleName
+  lastName
+  permissionSet {
+    id
+    name
+    orgUserRole
+  }
   attributes {
     id
     endorsement {
@@ -59,10 +63,5 @@ fragment SubstituteDetails on Substitute {
       id
       name
     }
-  }
-  permissionSet {
-    id
-    name
-    orgUserRole
   }
 }

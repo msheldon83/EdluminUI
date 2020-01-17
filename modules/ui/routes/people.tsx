@@ -14,10 +14,57 @@ export type QueryParams = {
   active: boolean;
 };
 
+// Add Admin
+export const AdminAddRoute = defineSubRoute(
+  PeopleRoute,
+  "/add-admin/:orgUserId",
+  ["orgUserId"]
+);
+export const AdminAddLoader = asyncComponent({
+  resolve: async () => {
+    const AdminAddPage = (await import("ui/pages/people/components/admin/add"))
+      .AdminAddPage;
+    return AdminAddPage;
+  },
+  name: "AdminAddPage",
+});
+
+// Add Employee
+export const EmployeeAddRoute = defineSubRoute(
+  PeopleRoute,
+  "/add-employee/:orgUserId",
+  ["orgUserId"]
+);
+export const EmployeeAddLoader = asyncComponent({
+  resolve: async () => {
+    const EmployeeAddPage = (
+      await import("ui/pages/people/components/employee/add")
+    ).EmployeeAddPage;
+    return EmployeeAddPage;
+  },
+  name: "EmployeeAddPage",
+});
+
+// Add Substitute
+export const SubstituteAddRoute = defineSubRoute(
+  PeopleRoute,
+  "/add-substitute/:orgUserId",
+  ["orgUserId"]
+);
+export const SubstituteAddLoader = asyncComponent({
+  resolve: async () => {
+    const SubstituteAddPage = (
+      await import("ui/pages/people/components/substitute/add")
+    ).SubstituteAddPage;
+    return SubstituteAddPage;
+  },
+  name: "SubstituteAddPage",
+});
+
+// View
 export const PersonViewRoute = defineSubRoute(PeopleRoute, "/:orgUserId", [
   "orgUserId",
 ]);
-
 export const PersonViewLoader = asyncComponent({
   resolve: async () => {
     const PersonViewPage = (await import("ui/pages/people/view"))

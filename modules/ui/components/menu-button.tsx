@@ -1,8 +1,6 @@
 import * as React from "react";
-import IconButton from "@material-ui/core/IconButton";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
+import { Button, ButtonGroup, Menu, MenuItem } from "@material-ui/core";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { makeStyles } from "@material-ui/core";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { can } from "helpers/permissions";
@@ -11,6 +9,7 @@ import { CanDo } from "./auth/types";
 
 type Props = {
   options: Array<Option>;
+  selectedIndex?: number;
 };
 
 export type Option = {
@@ -19,12 +18,15 @@ export type Option = {
   permissions?: CanDo;
 };
 
-export const ActionMenu: React.FC<Props> = props => {
+export const MenuButton: React.FC<Props> = props => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const userAccess = useMyUserAccess();
   const contextOrgId = useOrganizationId();
+  const [selectedIndex, setSelectedIndex] = React.useState(
+    props.selectedIndex ?? 0
+  );
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -47,13 +49,24 @@ export const ActionMenu: React.FC<Props> = props => {
     );
   });
 
-  return filteredOptions.length === 0 ? (
-    <></>
-  ) : (
+  return (
     <div>
-      <IconButton onClick={handleClick}>
-        <MoreVertIcon />
-      </IconButton>
+      <ButtonGroup variant="contained" color="primary">
+        <Button onClick={props.options[selectedIndex].onClick}>
+          {props.options[selectedIndex].name}
+        </Button>
+        <Button
+          color="primary"
+          size="small"
+          aria-controls={open ? "split-button-menu" : undefined}
+          aria-expanded={open ? "true" : undefined}
+          aria-label="toggle button"
+          aria-haspopup="menu"
+          onClick={handleClick}
+        >
+          <ArrowDropDownIcon />
+        </Button>
+      </ButtonGroup>
       <Menu
         anchorEl={anchorEl}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
@@ -64,19 +77,17 @@ export const ActionMenu: React.FC<Props> = props => {
           className: classes.paper,
         }}
       >
-        {filteredOptions.map((option: Option, index: number) => {
-          return (
-            <MenuItem
-              key={index}
-              onClick={event => {
-                option.onClick(event);
-                handleClose();
-              }}
-            >
-              {option.name}
-            </MenuItem>
-          );
-        })}
+        {filteredOptions.map((option: Option, index: number) => (
+          <MenuItem
+            key={index}
+            onClick={event => {
+              option.onClick(event);
+              handleClose();
+            }}
+          >
+            {option.name}
+          </MenuItem>
+        ))}
       </Menu>
     </div>
   );

@@ -14,7 +14,12 @@ import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay } from "date-fns";
 import { addMonths } from "date-fns/esm";
 import { Errors, SetValue, TriggerValidation } from "forms";
-import { DayPart, NeedsReplacement, Vacancy } from "graphql/server-types.gen";
+import {
+  DayPart,
+  NeedsReplacement,
+  Vacancy,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
 import { useMemo } from "react";
@@ -28,6 +33,7 @@ import { Input } from "ui/components/form/input";
 import { SelectNew } from "ui/components/form/select-new";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
+import { Can } from "ui/components/auth/can";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -323,9 +329,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
               {t("Cancel")}
             </Button>
           )}
-          <Button type="submit" variant="contained">
-            {props.saveLabel ?? t("Create")}
-          </Button>
+          <Can do={[PermissionEnum.AbsVacSave]}>
+            <Button type="submit" variant="contained">
+              {props.saveLabel ?? t("Create")}
+            </Button>
+          </Can>
         </div>
       </Grid>
     </Grid>

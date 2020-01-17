@@ -10,7 +10,7 @@ type Props = {
     assignmentId: string,
     rowVersion: string,
     vacancyDetailIds?: string[]
-  ) => void;
+  ) => Promise<unknown>;
   className?: string;
   isAdmin: boolean;
   forSpecificAssignment?: boolean;
@@ -32,15 +32,14 @@ export const AssignmentRow: React.FC<Props> = props => {
   const locationName = a?.location?.name ?? "";
   const onCancelClick = () => setIsCancelDialogOpen(true);
   const onCloseDialog = () => setIsCancelDialogOpen(false);
-  const onCancelMutation = useCallback(
-    () =>
-      onCancel(
-        a.assignment?.id ?? "",
-        a.assignment?.rowVersion ?? "",
-        undefined
-      ),
-    [onCancel, a.assignment]
-  );
+  const onCancelMutation = useCallback(async () => {
+    await onCancel(
+      a.assignment?.id ?? "",
+      a.assignment?.rowVersion ?? "",
+      undefined
+    );
+    onCloseDialog();
+  }, [onCancel, a.assignment]);
 
   return (
     <>
@@ -63,6 +62,7 @@ export const AssignmentRow: React.FC<Props> = props => {
         positionName={positionName}
         dayPortion={a.dayPortion}
         payInfoLabel={a.payInfo?.label ?? ""}
+        notesToReplacement={a.vacancy?.notesToReplacement ?? undefined}
         onCancel={onCancelClick}
         className={props.className}
         isAdmin={props.isAdmin}

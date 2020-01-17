@@ -377,7 +377,6 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
-  email: String!
   dateOfBirth: Date
   address1: String
   address2: String
@@ -385,9 +384,10 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
   state: StateCode
   postalCode: String
   country: CountryCode
+  active: Boolean!
+  email: String!
   phoneNumber: String
   formattedPhone: String
-  active: Boolean!
   firstName: String!
   middleName: String
   lastName: String!
@@ -412,8 +412,8 @@ input AdministratorInput {
   address2: String
   city: String
   postalCode: String
-  stateId: StateCode
-  countryId: CountryCode
+  state: StateCode
+  country: CountryCode
   phoneNumber: String
   inviteImmediately: Boolean
   isSuperUser: Boolean
@@ -1142,7 +1142,6 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  email: String!
   dateOfBirth: Date
   address1: String
   address2: String
@@ -1150,9 +1149,10 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   state: StateCode
   postalCode: String
   country: CountryCode
+  active: Boolean!
+  email: String!
   phoneNumber: String
   formattedPhone: String
-  active: Boolean!
   firstName: String!
   middleName: String
   lastName: String!
@@ -1223,6 +1223,31 @@ input EmployeeEndorsementUpdateInput {
   id: Int!
   endorsementDate: Date
   expirationDate: Date
+}
+
+input EmployeeInput {
+  id: Int
+  orgId: Int
+  email: String
+  active: Boolean
+  externalId: String
+  permissionSet: LocatorInput
+  firstName: String!
+  middleName: String
+  lastName: String!
+  dateOfBirth: Date
+  address1: String
+  address2: String
+  city: String
+  postalCode: String
+  state: StateCode
+  country: CountryCode
+  phoneNumber: String
+  inviteImmediately: Boolean
+  position: PositionInput
+  substitutePreferences: SubstitutePreferencesInput
+  timeOffBalances: [TimeOffBalancesInput]
+  relatedOrgIds: [Int]
 }
 
 input EmployeeInterestInVacancyInput {
@@ -1480,9 +1505,6 @@ enum EventType {
   ORGANIZATION_USER_RELATIONSHIP_REMOVED
   ACCESS_GRANTED
   ACCESS_UPDATED
-  PERMISSION_PROFILE_CREATED
-  PERMISSION_PROFILE_UPDATED
-  PERMISSION_PROFILE_DELETED
   SCHOOL_YEAR_CREATED
   SCHOOL_YEAR_UPDATED
   SCHOOL_YEAR_DELETED
@@ -1607,15 +1629,6 @@ enum EventType {
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
-  SHIPMENT_FILE_CREATED
-  SHIPMENT_FILE_UPDATED
-  SHIPMENT_FILE_DELETED
-  EXTERNAL_SHIPMENT_FILE_RECEIVED
-  PARSED_INVOICE_RECEIVED
-  INVOICE_CREATED_FROM_SHIPMENT_FILE
-  PARSING_SUBMISSION_PERMANENT_FAILURE
-  PARSEABLE_FILE_RECEIVED
-  RE_SUBMIT_SHIPMENT_FILE_FOR_PARSING_REQUEST
   BRANDING_CREATED
   BRANDING_UPDATED
   BRANDING_DELETED
@@ -1623,10 +1636,6 @@ enum EventType {
   CUSTOM_FIELD_UPDATED
   CUSTOM_FIELD_DELETED
   CUSTOM_FIELD_VALID_UNTIL_UPDATED
-  EMAIL_RECEIVED
-  EXTERNAL_FILE_CREATED
-  EXTERNAL_FILE_UPDATED
-  EXTERNAL_FILE_DELETED
   SAVED_VIEW_CREATED
   SAVED_VIEW_UPDATED
   SAVED_VIEW_DELETED
@@ -2293,7 +2302,6 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
-  email: String!
   dateOfBirth: Date
   address1: String
   address2: String
@@ -2301,9 +2309,10 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   state: StateCode
   postalCode: String
   country: CountryCode
+  active: Boolean!
+  email: String
   phoneNumber: String
   formattedPhone: String
-  active: Boolean!
   firstName: String!
   middleName: String
   lastName: String!
@@ -2364,6 +2373,7 @@ type OrgUserMutations {
   removeRelatedOrg(orgUserId: Int!, relatedOrgId: Int!): OrgUser
   saveAdministrator(administrator: AdministratorInput!): OrgUser
   saveSubstitute(substitute: SubstituteInput!): OrgUser
+  saveEmployee(employee: EmployeeInput!): OrgUser
 }
 
 type OrgUserQueries {
@@ -3056,6 +3066,19 @@ input PositionCreateInput {
   hoursPerFullWorkDay: Decimal
 }
 
+input PositionInput {
+  orgId: Int!
+  id: Int
+  externalId: String
+  positionType: LocatorInput
+  contract: LocatorInput
+  title: String
+  hoursPerFullWorkDay: Decimal
+  needsReplacement: NeedsReplacement
+  schedules: [PositionScheduleInput]
+  replacementCriteria: ReplacementCriteriaInput
+}
+
 type PositionQueries {
   byId(id: ID!): Position
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Position]
@@ -3180,6 +3203,20 @@ type PositionScheduleDateDetail {
   isQuarterDayEarlyAfternoonEnd: Boolean!
   isQuarterDayLateAfternoonStart: Boolean!
   location: Location
+}
+
+input PositionScheduleInput {
+  items: [PositionScheduleItemInput]
+  daysOfTheWeek: [DayOfWeek]
+}
+
+input PositionScheduleItemInput {
+  location: LocatorInput
+  bellSchedule: LocatorInput
+  startPeriod: LocatorInput
+  endPeriod: LocatorInput
+  startTime: Seconds
+  endTime: Seconds
 }
 
 type PositionScheduleMutations {
@@ -3819,6 +3856,14 @@ input ReplacementCriteriaCreateInput {
   objectKey: Int!
 }
 
+input ReplacementCriteriaInput {
+  orgId: Int!
+  mustHave: LocatorInput
+  shouldHave: LocatorInput
+  shouldNotHave: LocatorInput
+  mustNotHave: LocatorInput
+}
+
 type ReplacementCriteriaMutations {
   create(replacementCriteria: ReplacementCriteriaCreateInput!): ReplacementCriteria
   update(replacementCriteria: ReplacementCriteriaUpdateInput!): ReplacementCriteria
@@ -4333,7 +4378,6 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  email: String!
   dateOfBirth: Date
   address1: String
   address2: String
@@ -4341,9 +4385,10 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   state: StateCode
   postalCode: String
   country: CountryCode
+  active: Boolean!
+  email: String
   phoneNumber: String
   formattedPhone: String
-  active: Boolean!
   firstName: String!
   middleName: String
   lastName: String!
@@ -4381,8 +4426,8 @@ input SubstituteInput {
   address2: String
   city: String
   postalCode: String
-  stateId: StateCode
-  countryId: CountryCode
+  state: StateCode
+  country: CountryCode
   phoneNumber: String
   inviteImmediately: Boolean
   payCodeId: Int
@@ -4418,6 +4463,11 @@ type SubstitutePoolMembership {
   blockedFromPositionTypes: [PositionType]
 }
 
+input SubstitutePreferencesInput {
+  favoriteSubstitutes: LocatorInput
+  blockedSubstitutes: LocatorInput
+}
+
 input SwapVacancyAssignmentsInput {
   firstVacancyId: Int!
   firstVacancyRowVersion: String!
@@ -4429,6 +4479,12 @@ input SwapVacancyAssignmentsInput {
 type TestTypeDef {
   _info: [ReturnMessage]
   test: String
+}
+
+input TimeOffBalancesInput {
+  absenceReason: LocatorInput
+  asOf: Date
+  balance: Decimal
 }
 
 enum TimeZone {

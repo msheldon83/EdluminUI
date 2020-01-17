@@ -67,9 +67,11 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
             <div className={classes.detailText}>
               {props.absence.substitute?.name}
             </div>
-            <div className={classes.subText}>
-              {props.absence.substitute?.phoneNumber}
-            </div>
+            <Can do={[PermissionEnum.SubstituteViewPhone]}>
+              <div className={classes.subText}>
+                {props.absence.substitute?.phoneNumber}
+              </div>
+            </Can>
           </>
         )}
         {!props.absence.substitute && props.absence.subRequired && (

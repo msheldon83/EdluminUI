@@ -1,6 +1,6 @@
-query GetEmployeeById($id: ID!) {
+mutation SaveEmployee($employee: EmployeeInput!) {
   orgUser {
-    byId(id: $id) {
+    saveEmployee(employee: $employee) {
       id
       externalId
       userId

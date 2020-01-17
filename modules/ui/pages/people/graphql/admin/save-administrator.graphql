@@ -1,6 +1,6 @@
-query GetAdminById($id: ID!) {
+mutation SaveAdmin($administrator: AdministratorInput!) {
   orgUser {
-    byId(id: $id) {
+    saveAdministrator(administrator: $administrator) {
       id
       externalId
       userId

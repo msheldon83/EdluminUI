@@ -6,7 +6,7 @@ import {
   useMutationBundle,
   useQueryBundle,
 } from "graphql/hooks";
-import { CalendarDayType } from "graphql/server-types.gen";
+import { CalendarDayType, PermissionEnum } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import * as React from "react";
@@ -28,6 +28,7 @@ import { Section } from "ui/components/section";
 import { ScheduledAbsences } from "../../components/employee/components/scheduled-absences";
 import { QuickAbsenceCreate } from "./components/quick-absence-create";
 import { ScheduleCalendar } from "./components/schedule-calendar";
+import { Can } from "ui/components/auth/can";
 
 type Props = {};
 
@@ -116,15 +117,17 @@ export const EmployeeHome: React.FC<Props> = props => {
         {`${t("Welcome")}, ${employee?.firstName}`}
       </Typography>
       <Grid container spacing={2} className={classes.content}>
-        <Grid item md={6} xs={12}>
-          <QuickAbsenceCreate
-            employeeId={employee!.id}
-            organizationId={employee!.orgId.toString()}
-            defaultReplacementNeeded={
-              employee?.primaryPosition?.needsReplacement
-            }
-          />
-        </Grid>
+        <Can do={[PermissionEnum.AbsVacSave]}>
+          <Grid item md={6} xs={12}>
+            <QuickAbsenceCreate
+              employeeId={employee!.id}
+              organizationId={employee!.orgId.toString()}
+              defaultReplacementNeeded={
+                employee?.primaryPosition?.needsReplacement
+              }
+            />
+          </Grid>
+        </Can>
         <Grid item md={6} xs={12}>
           <ScheduleCalendar
             startDate={startDate}
