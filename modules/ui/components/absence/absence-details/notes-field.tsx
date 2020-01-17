@@ -25,12 +25,12 @@ export const NoteField: React.FC<Props> = props => {
   const [isEditingNotes, setIsEditingNotes] = React.useState(false);
 
   React.useEffect(() => {
-    const emptyNotes = isEmpty(words(props.value));
     if (props.isSubmitted) {
       setIsEditingNotes(false);
     }
+    const emptyNotes = isEmpty(words(props.value));
     if (emptyNotes) setIsEditingNotes(true);
-  }, [props.isSubmitted]);
+  }, [props.isSubmitted, props.value]);
 
   return (
     <>
