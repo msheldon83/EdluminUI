@@ -8,6 +8,7 @@ import {
   DayConversion,
   PayCode,
   AccountingCode,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
@@ -22,6 +23,7 @@ import { OptionTypeBase } from "react-select/src/types";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
 import { getPayLabel } from "ui/components/helpers";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   vacancyDetail: Pick<
@@ -106,7 +108,9 @@ export const Assignment: React.FC<Props> = props => {
   const dayConversionOptions = useMemo(() => {
     return [
       ...props.vacancyDayConversions
-        .sort((a, b) => {return b.dayEquivalent - a.dayEquivalent})
+        .sort((a, b) => {
+          return b.dayEquivalent - a.dayEquivalent;
+        })
         .map(a => ({
           label: a.name,
           value: a.name,
@@ -164,20 +168,23 @@ export const Assignment: React.FC<Props> = props => {
       : AbsenceReasonTrackingTypeId.Hourly;
   }, [selectedDayConversionName, props.vacancyDayConversions]);
 
-  const payLabel = useMemo(() => 
-    getPayLabel(
-      vacancyDetail.payInfo?.match ?? false,
-      vacancyDetail.payInfo?.payTypeId ?? AbsenceReasonTrackingTypeId.Daily,
-      vacancyDetail.payInfo?.label ?? "",
+  const payLabel = useMemo(
+    () =>
+      getPayLabel(
+        vacancyDetail.payInfo?.match ?? false,
+        vacancyDetail.payInfo?.payTypeId ?? AbsenceReasonTrackingTypeId.Daily,
+        vacancyDetail.payInfo?.label ?? "",
+        vacancyDetail.dayPortion,
+        vacancyDetail.totalDayPortion,
+        t
+      ),
+    [
       vacancyDetail.dayPortion,
       vacancyDetail.totalDayPortion,
-      t
-    ), [
-    vacancyDetail.dayPortion,
-    vacancyDetail.totalDayPortion,
-    vacancyDetail.payInfo,
-    t,
-  ]);
+      vacancyDetail.payInfo,
+      t,
+    ]
+  );
 
   const handlePayCodeOnBlur = async (payCodeId: string | undefined) => {
     if (currentPayCode?.id === payCodeId) {
@@ -253,7 +260,7 @@ export const Assignment: React.FC<Props> = props => {
       doVerify: null,
       dayPortion: dayConversion?.dayEquivalent ?? dayPortion,
       payDurationOverride: !dayConversion
-        ? hoursToMinutes(payDurationOverrideHours ?? undefined)
+        ? Number(hoursToMinutes(payDurationOverrideHours ?? undefined))
         : null,
       payTypeId: dayConversion
         ? AbsenceReasonTrackingTypeId.Daily
@@ -298,7 +305,9 @@ export const Assignment: React.FC<Props> = props => {
             dayPortion: data.dayPortion,
             payDurationOverride:
               payTypeId === AbsenceReasonTrackingTypeId.Hourly
-                ? hoursToMinutes(data.payDurationOverrideHours ?? undefined)
+                ? Number(
+                    hoursToMinutes(data.payDurationOverrideHours ?? undefined)
+                  )
                 : null,
             payTypeId: payTypeId,
             doVerify: notVerified,
@@ -407,129 +416,161 @@ export const Assignment: React.FC<Props> = props => {
                 >
                   <Grid item xs={2}></Grid>
                   <Grid item xs={2}>
-                    <SelectNew
-                      value={dayConversionOptions.find(
-                        a => a.label === selectedDayConversionName
-                      )}
-                      onChange={async (e: OptionType) => {
-                        //TODO: Once the select component is updated,
-                        // can remove the Array checking
-                        let selectedLabel: string | undefined = undefined;
-                        if (e) {
-                          if (Array.isArray(e)) {
-                            selectedLabel = (e as Array<OptionTypeBase>)[0]
-                              .label;
-                          } else {
-                            selectedLabel = (e as OptionTypeBase).label;
+                    <Can do={[PermissionEnum.AbsVacSave]}>
+                      <SelectNew
+                        value={dayConversionOptions.find(
+                          a => a.label === selectedDayConversionName
+                        )}
+                        onChange={async (e: OptionType) => {
+                          //TODO: Once the select component is updated,
+                          // can remove the Array checking
+                          let selectedLabel: string | undefined = undefined;
+                          if (e) {
+                            if (Array.isArray(e)) {
+                              selectedLabel = (e as Array<OptionTypeBase>)[0]
+                                .label;
+                            } else {
+                              selectedLabel = (e as OptionTypeBase).label;
+                            }
                           }
-                        }
-                        setSelectedDayConversionName(selectedLabel);
-                        await handleDaysUpdate(
-                          values.dayPortion,
-                          values.payDurationOverrideHours,
-                          selectedLabel
-                        );
-                      }}
-                      options={dayConversionOptions}
-                      multiple={false}
-                    />
+                          setSelectedDayConversionName(selectedLabel);
+                          await handleDaysUpdate(
+                            values.dayPortion,
+                            values.payDurationOverrideHours,
+                            selectedLabel
+                          );
+                        }}
+                        options={dayConversionOptions}
+                        multiple={false}
+                      />
+                    </Can>
+                    <Can not do={[PermissionEnum.AbsVacSave]}>
+                      <Typography className={classes.boldText}>
+                        {selectedDayConversionName}
+                      </Typography>
+                    </Can>
                   </Grid>
+
                   <Grid item xs={2}>
                     {payTypeId === AbsenceReasonTrackingTypeId.Daily ? (
                       <Typography className={classes.boldText}>
                         {payLabel}
                       </Typography>
                     ) : (
-                      <Input
-                        value={values.payDurationOverrideHours ?? ""}
-                        InputComponent={FormTextField}
-                        inputComponentProps={{
-                          name: "payDurationOverrideHours",
-                          margin: "normal",
-                          label: t("Hours"),
-                          fullWidth: true,
-                        }}
-                        onChange={(
-                          event: React.ChangeEvent<HTMLInputElement>
-                        ) => {
-                          setFieldValue(
-                            "payDurationOverrideHours",
-                            event.target.value
-                              ? event.target.value
-                              : minutesToHours(
-                                  vacancyDetail.actualDuration ?? undefined
-                                )
-                          );
-                        }}
-                        onBlur={() =>
-                          handleDaysUpdate(
-                            values.dayPortion,
-                            values.payDurationOverrideHours,
-                            selectedDayConversionName
-                          )
-                        }
-                      />
+                      <>
+                        <Can do={[PermissionEnum.AbsVacSave]}>
+                          <Input
+                            value={values.payDurationOverrideHours ?? ""}
+                            InputComponent={FormTextField}
+                            inputComponentProps={{
+                              name: "payDurationOverrideHours",
+                              margin: "normal",
+                              label: t("Hours"),
+                              fullWidth: true,
+                            }}
+                            onChange={(
+                              event: React.ChangeEvent<HTMLInputElement>
+                            ) => {
+                              setFieldValue(
+                                "payDurationOverrideHours",
+                                event.target.value
+                                  ? event.target.value
+                                  : minutesToHours(
+                                      vacancyDetail.actualDuration ?? undefined
+                                    )
+                              );
+                            }}
+                            onBlur={() =>
+                              handleDaysUpdate(
+                                values.dayPortion,
+                                values.payDurationOverrideHours,
+                                selectedDayConversionName
+                              )
+                            }
+                          />
+                        </Can>
+                        <Can not do={[PermissionEnum.AbsVacSave]}>
+                          <Typography className={classes.boldText}>
+                            {payLabel}
+                          </Typography>
+                        </Can>
+                      </>
                     )}
                   </Grid>
                   <Grid item xs={2}>
-                    <SelectNew
-                      label={t("Pay Code")}
-                      value={{
-                        value: values.payCodeId ?? "",
-                        label:
-                          props.payCodeOptions.find(
-                            a => a.value === values.payCodeId
-                          )?.label || "",
-                      }}
-                      onChange={(e: OptionType) => {
-                        //TODO: Once the select component is updated,
-                        // can remove the Array checking
-                        let selectedValue = null;
-                        if (e) {
-                          if (Array.isArray(e)) {
-                            selectedValue = (e as Array<OptionTypeBase>)[0]
-                              .value;
-                          } else {
-                            selectedValue = (e as OptionTypeBase).value;
+                    <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+                      <SelectNew
+                        label={t("Pay Code")}
+                        value={{
+                          value: values.payCodeId ?? "",
+                          label:
+                            props.payCodeOptions.find(
+                              a => a.value === values.payCodeId
+                            )?.label || "",
+                        }}
+                        onChange={(e: OptionType) => {
+                          //TODO: Once the select component is updated,
+                          // can remove the Array checking
+                          let selectedValue = null;
+                          if (e) {
+                            if (Array.isArray(e)) {
+                              selectedValue = (e as Array<OptionTypeBase>)[0]
+                                .value;
+                            } else {
+                              selectedValue = (e as OptionTypeBase).value;
+                            }
                           }
-                        }
-                        setFieldValue("payCodeId", selectedValue);
-                      }}
-                      multiple={false}
-                      options={props.payCodeOptions}
-                      onBlur={() => handlePayCodeOnBlur(values.payCodeId)}
-                    />
+                          setFieldValue("payCodeId", selectedValue);
+                        }}
+                        multiple={false}
+                        options={props.payCodeOptions}
+                        onBlur={() => handlePayCodeOnBlur(values.payCodeId)}
+                      />
+                    </Can>
+                    <Can not do={[PermissionEnum.AbsVacSavePayCode]}>
+                      <Typography
+                        className={classes.boldText}
+                      >{`Pay: ${currentPayCode?.name ?? t("N/A")}`}</Typography>
+                    </Can>
                   </Grid>
                   <Grid item xs={2}>
-                    <SelectNew
-                      label={t("Accounting Code")}
-                      value={{
-                        value: values.accountingCodeId ?? "",
-                        label:
-                          accountingCodeOptions.find(
-                            a => a.value === values.accountingCodeId
-                          )?.label || "",
-                      }}
-                      onChange={(e: OptionType) => {
-                        //TODO: Once the select component is updated,
-                        // can remove the Array checking
-                        let selectedValue = null;
-                        if (e) {
-                          if (Array.isArray(e)) {
-                            selectedValue = (e as Array<OptionTypeBase>)[0]
-                              .value;
-                          } else {
-                            selectedValue = (e as OptionTypeBase).value;
+                    <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
+                      <SelectNew
+                        label={t("Accounting Code")}
+                        value={{
+                          value: values.accountingCodeId ?? "",
+                          label:
+                            accountingCodeOptions.find(
+                              a => a.value === values.accountingCodeId
+                            )?.label || "",
+                        }}
+                        onChange={(e: OptionType) => {
+                          //TODO: Once the select component is updated,
+                          // can remove the Array checking
+                          let selectedValue = null;
+                          if (e) {
+                            if (Array.isArray(e)) {
+                              selectedValue = (e as Array<OptionTypeBase>)[0]
+                                .value;
+                            } else {
+                              selectedValue = (e as OptionTypeBase).value;
+                            }
                           }
+                          setFieldValue("accountingCodeId", selectedValue);
+                        }}
+                        options={accountingCodeOptions}
+                        onBlur={() =>
+                          handleAccountingCodeOnBlur(values.accountingCodeId)
                         }
-                        setFieldValue("accountingCodeId", selectedValue);
-                      }}
-                      options={accountingCodeOptions}
-                      onBlur={() =>
-                        handleAccountingCodeOnBlur(values.accountingCodeId)
-                      }
-                      multiple={false}
-                    />
+                        multiple={false}
+                      />
+                    </Can>
+                    <Can not do={[PermissionEnum.AbsVacSaveAccountCode]}>
+                      <Typography
+                        className={classes.boldText}
+                      >{`Acct: ${currentAccountingCode?.name ??
+                        t("N/A")}`}</Typography>
+                    </Can>
                   </Grid>
                   <Grid item xs={2}></Grid>
                 </Grid>
@@ -542,17 +583,21 @@ export const Assignment: React.FC<Props> = props => {
                 >
                   <Grid item xs={4}></Grid>
                   <Grid item xs={6}>
-                    <Input
-                      value={values.verifyComments}
-                      InputComponent={FormTextField}
-                      inputComponentProps={{
-                        name: "verifyComments",
-                        margin: "normal",
-                        fullWidth: true,
-                        placeholder: t("Comments"),
-                      }}
-                      onBlur={() => handleCommentsOnBlur(values.verifyComments)}
-                    />
+                    <Can do={[PermissionEnum.AbsVacSave]}>
+                      <Input
+                        value={values.verifyComments}
+                        InputComponent={FormTextField}
+                        inputComponentProps={{
+                          name: "verifyComments",
+                          margin: "normal",
+                          fullWidth: true,
+                          placeholder: t("Comments"),
+                        }}
+                        onBlur={() =>
+                          handleCommentsOnBlur(values.verifyComments)
+                        }
+                      />
+                    </Can>
                   </Grid>
                   <Grid item xs={2}>
                     <Button

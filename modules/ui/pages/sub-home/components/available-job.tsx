@@ -1,18 +1,12 @@
-import {
-  Button,
-  Fade,
-  IconButton,
-  makeStyles,
-  Popper,
-} from "@material-ui/core";
-import { ReceiptOutlined } from "@material-ui/icons";
+import { Button, makeStyles } from "@material-ui/core";
 import { Vacancy } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { ExpandOrCollapseIndicator } from "ui/components/substitutes/expand-or-collapse-indicator";
-import { AvailableJobDetail } from "./available-job-detail";
 import { AssignmentDetails } from "ui/components/substitutes/assignment-details";
+import { ExpandOrCollapseIndicator } from "ui/components/substitutes/expand-or-collapse-indicator";
+import { NotesPopper } from "ui/components/substitutes/notes-popper";
+import { AvailableJobDetail } from "./available-job-detail";
 
 type Props = {
   vacancy: Pick<
@@ -42,9 +36,6 @@ export const AvailableJob: React.FC<Props> = props => {
   const classes = useStyles({ isMobile, forSingleJob });
   const { t } = useTranslation();
   const [expanded, setExpanded] = React.useState(false);
-  const [notesAnchor, setNotesAnchor] = React.useState<null | HTMLElement>(
-    null
-  );
 
   const vacancy = props.vacancy;
 
@@ -52,38 +43,9 @@ export const AvailableJob: React.FC<Props> = props => {
   const acceptButtonDisabled = hasDetails && !expanded;
   const showDetails = (expanded || forSingleJob) && hasDetails;
 
-  const handleShowNotes = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation();
-    setNotesAnchor(notesAnchor ? null : event.currentTarget);
-  };
-  const notesOpen = Boolean(notesAnchor);
-  const notesId = notesOpen ? "notes-popper" : undefined;
-
   const handleDismiss = async () => {
     await props.onDismiss(vacancy.organization.id, vacancy.id);
     setExpanded(false);
-  };
-
-  const renderNotesPopper = (notes: string) => {
-    return (
-      <>
-        <IconButton id={notesId} onClick={handleShowNotes}>
-          <ReceiptOutlined />
-        </IconButton>
-        <Popper
-          transition
-          open={notesOpen}
-          anchorEl={notesAnchor}
-          placement="bottom-end"
-        >
-          {({ TransitionProps }) => (
-            <Fade {...TransitionProps} timeout={150}>
-              <div className={classes.paper}>{notes}</div>
-            </Fade>
-          )}
-        </Popper>
-      </>
-    );
   };
 
   return (
@@ -103,8 +65,9 @@ export const AvailableJob: React.FC<Props> = props => {
             {!forSingleJob && (
               <>
                 <div className={classes.notes}>
-                  {vacancy.notesToReplacement &&
-                    renderNotesPopper(vacancy.notesToReplacement)}
+                  {vacancy.notesToReplacement && (
+                    <NotesPopper notes={vacancy.notesToReplacement} />
+                  )}
                 </div>
 
                 <div
