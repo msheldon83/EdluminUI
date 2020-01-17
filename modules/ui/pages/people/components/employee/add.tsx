@@ -54,6 +54,8 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       ? undefined
       : getOrgUser?.data?.orgUser?.byId;
 
+  // Cannot include "employee" in the list of dependencies because we are
+  // also setting it here which results in an infinite render loop
   useEffect(() => {
     if (orgUser) {
       setEmployee({
@@ -68,7 +70,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       });
       setInitialStepNumber(1);
     }
-  }, [employee, orgUser, params.organizationId]);
+  }, [orgUser, params.organizationId]);
 
   const handleCancel = () => {
     const url =
