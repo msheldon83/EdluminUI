@@ -19,6 +19,7 @@ import { AbsenceDetailsFormData } from ".";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { Can } from "ui/components/auth/can";
 import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
+import { TextButton } from "ui/components/text-button";
 
 type Props = {
   setValue: SetValue;
@@ -36,12 +37,22 @@ type Props = {
   disableReplacementInteractions?: boolean;
   locationIds?: number[];
   disableEditingDatesAndTimes?: boolean;
+  isSubmitted: boolean;
+  initialAbsenceCreation: boolean;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
+
+  const [isEditingNotes, setIsEditingNotes] = React.useState(false);
+
+  React.useEffect(() => {
+    if (props.isSubmitted) {
+      setIsEditingNotes(false);
+    }
+  }, [props.isSubmitted]);
 
   const {
     setStep,
@@ -159,16 +170,29 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
         >
           {t("Can be seen by the substitute, administrator and employee.")}
         </Typography>
-        <TextField
-          name="notesToReplacement"
-          multiline
-          rows="6"
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          onChange={onNotesToReplacementChange}
-          InputProps={{ classes: textFieldClasses }}
-        />
+
+        {isEditingNotes || props.initialAbsenceCreation ? (
+          <TextField
+            name="notesToReplacement"
+            value={values.notesToReplacement}
+            multiline
+            rows="6"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            onChange={onNotesToReplacementChange}
+            InputProps={{ classes: textFieldClasses }}
+          />
+        ) : (
+          <div className={classes.readonlyNotes}>
+            <Typography display="inline">
+              {values.notesToReplacement}
+            </Typography>
+            <TextButton onClick={() => setIsEditingNotes(true)}>
+              {t("Edit")}
+            </TextButton>
+          </div>
+        )}
       </div>
 
       {hasVacancies && (
@@ -212,6 +236,7 @@ const useStyles = makeStyles(theme => ({
   notesForReplacement: {
     paddingTop: theme.spacing(3),
   },
+  readonlyNotes: { paddingTop: theme.spacing(2) },
   subCodes: {
     paddingTop: theme.spacing(2),
   },

@@ -38,6 +38,7 @@ export type AbsenceDetailsFormData = {
   payCode?: string;
   hourlyStartTime?: Date;
   hourlyEndTime?: Date;
+  notesToReplacement?: string;
 };
 
 type Props = {
@@ -76,6 +77,8 @@ type Props = {
     assignmentRowVersion?: string
   ) => void;
   returnUrl?: string;
+  isSubmitted: boolean;
+  initialAbsenceCreation: boolean;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -306,6 +309,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 replacementEmployeeId={props.replacementEmployeeId}
                 replacementEmployeeName={props.replacementEmployeeName}
                 locationIds={props.locationIds}
+                isSubmitted={props.isSubmitted}
+                initialAbsenceCreation={props.initialAbsenceCreation}
               />
             )}
           </div>
