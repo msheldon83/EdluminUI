@@ -37,14 +37,16 @@ export const MenuButton: React.FC<Props> = props => {
   };
 
   const filteredOptions = props.options.filter(o => {
-    if (o.permissions) {
-      return can(
-        o.permissions,
-        userAccess?.permissionsByOrg ?? [],
-        userAccess?.isSysAdmin ?? false,
-        contextOrgId ?? undefined
-      );
+    if (!o.permissions) {
+      return true;
     }
+
+    return can(
+      o.permissions,
+      userAccess?.permissionsByOrg ?? [],
+      userAccess?.isSysAdmin ?? false,
+      contextOrgId ?? undefined
+    );
   });
 
   return (

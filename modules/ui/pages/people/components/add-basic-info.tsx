@@ -153,7 +153,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
               <Grid item xs={12} sm={6} lg={6}>
                 <Input
                   value={values.email}
-                  label={t("Login Email")}
+                  label={t("Email")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     name: "email",
