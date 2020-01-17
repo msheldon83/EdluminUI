@@ -32,9 +32,14 @@ export const TabbedHeader: React.FC<Props> = props => {
     setStep(newValue);
   };
 
+  // Don't add a dependency for "steps" here, because if the consumer doesn't
+  // memoize the "steps" they are providing and something out there causes a rerender
+  // the steps being passed into here will be reinstantiated and this will fire
+  // which means you won't be able to change steps
   useEffect(() => {
     setStep(initialStepNumber ?? steps[0].stepNumber);
-  }, [initialStepNumber, steps]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialStepNumber]);
 
   const currentStep = steps.find(s => s.stepNumber === currentStepNumber);
 
