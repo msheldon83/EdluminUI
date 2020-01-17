@@ -7,6 +7,7 @@ import {
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { TextButton } from "ui/components/text-button";
+import { isEmpty, words } from "lodash-es";
 
 type Props = {
   name: string;
@@ -14,7 +15,7 @@ type Props = {
   onChange: (event: any) => Promise<void>;
   initialAbsenceCreation: boolean;
   isSubmitted: boolean;
-} & TextFieldProps;
+};
 
 export const NoteField: React.FC<Props> = props => {
   const classes = useStyles();
@@ -24,9 +25,11 @@ export const NoteField: React.FC<Props> = props => {
   const [isEditingNotes, setIsEditingNotes] = React.useState(false);
 
   React.useEffect(() => {
+    const emptyNotes = isEmpty(words(props.value));
     if (props.isSubmitted) {
       setIsEditingNotes(false);
     }
+    if (emptyNotes) setIsEditingNotes(true);
   }, [props.isSubmitted]);
 
   return (
@@ -42,7 +45,6 @@ export const NoteField: React.FC<Props> = props => {
           fullWidth
           onChange={props.onChange}
           InputProps={{ classes: textFieldClasses }}
-          // {...props}
         />
       ) : (
         <div className={classes.readonlyNotes}>

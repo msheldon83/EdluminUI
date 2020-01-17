@@ -2,14 +2,11 @@ import {
   Button,
   Checkbox,
   Grid,
-  IconButton,
   makeStyles,
   Paper,
   Typography,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay } from "date-fns";
 import { addMonths } from "date-fns/esm";
@@ -24,11 +21,10 @@ import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail } from "ui/components/absence/types";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
-import { Input } from "ui/components/form/input";
 import { SelectNew } from "ui/components/form/select-new";
 import { DayPartField, DayPartValue } from "../day-part-field";
-import { SubstituteRequiredDetails } from "./substitute-required-details";
 import { NoteField } from "./notes-field";
+import { SubstituteRequiredDetails } from "./substitute-required-details";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
