@@ -32,7 +32,6 @@ import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
-import { DateInput } from "ui/components/form/date-picker";
 import { usePermissionSets } from "reference-data/permission-sets";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { ShowErrors } from "ui/components/error-helpers";
@@ -150,8 +149,6 @@ export const Information: React.FC<Props> = props => {
   const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
   const cleanPhoneNumber = (phoneNumber: string) => {
-    console.log(phoneNumber);
-    console.log(phoneNumber.replace(/\D/g, ""));
     return phoneNumber.replace(/\D/g, "");
   };
 
@@ -388,6 +385,21 @@ export const Information: React.FC<Props> = props => {
                         )
                       }
                     />
+                    {props.editing === editableSections.information && (
+                      <PeopleGridItem
+                        title={t("Date of Birth")}
+                        description={
+                          <DatePicker
+                            variant={"single-hidden"}
+                            startDate={values.dateOfBirth ?? ""}
+                            onChange={e =>
+                              setFieldValue("dateOfBirth", e.startDate)
+                            }
+                            startLabel={""}
+                          />
+                        }
+                      />
+                    )}
                   </Grid>
                   <Grid container item xs={6} spacing={2}>
                     <PeopleGridItem
@@ -474,23 +486,14 @@ export const Information: React.FC<Props> = props => {
                         )
                       }
                     />
-                    <PeopleGridItem
-                      title={t("Date of Birth")}
-                      description={
-                        props.editing === editableSections.information ? (
-                          <DatePicker
-                            variant={"single-hidden"}
-                            startDate={values.dateOfBirth ?? ""}
-                            onChange={e =>
-                              setFieldValue("dateOfBirth", e.startDate)
-                            }
-                            startLabel={""}
-                          />
-                        ) : (
-                          formattedBirthDate
-                        )
-                      }
-                    />
+                    {props.editing !== editableSections.information && (
+                      <Grid item className={classes.label}>
+                        <Typography variant="h6">
+                          {t("Date of Birth")}
+                        </Typography>
+                        <Typography>{formattedBirthDate}</Typography>
+                      </Grid>
+                    )}
                   </Grid>
                   <Grid item xs={12}>
                     <Divider variant="fullWidth" className={classes.divider} />
@@ -593,5 +596,8 @@ const useStyles = makeStyles(theme => ({
   },
   tooltipTitle: {
     paddingBottom: theme.spacing(1),
+  },
+  label: {
+    padding: theme.spacing(1),
   },
 }));

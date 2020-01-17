@@ -10,6 +10,8 @@ query GetEmployeeById($id: ID!) {
         orgId
         rowVersion
         email
+        phoneNumber
+        dateOfBirth
         firstName
         lastName
         address1
