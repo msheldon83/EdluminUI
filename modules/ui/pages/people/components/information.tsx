@@ -200,21 +200,21 @@ export const Information: React.FC<Props> = props => {
             .min(5)
             .notRequired()
             .test("address1", t("Postal Code is required"), function(value) {
-              if (!!value) return true;
+              if (value) return true;
 
-              if (!!this.resolve(yup.ref("address1"))) {
+              if (this.resolve(yup.ref("address1"))) {
                 return this.createError({
                   message: t(
                     "Postal Code is required when an address is entered"
                   ),
                 });
               }
-              if (!!this.resolve(yup.ref("city"))) {
+              if (this.resolve(yup.ref("city"))) {
                 return this.createError({
                   message: t("Postal Code is required when a city is entered"),
                 });
               }
-              if (!!this.resolve(yup.ref("state"))) {
+              if (this.resolve(yup.ref("state"))) {
                 return this.createError({
                   message: t("Postal Code is required when a state is choosen"),
                 });
@@ -226,19 +226,19 @@ export const Information: React.FC<Props> = props => {
             .notRequired()
             .test("city", t("Address is required"), function(value) {
               const sibling = this.resolve(yup.ref("city"));
-              if (!!value) return true;
+              if (value) return true;
 
-              if (!!this.resolve(yup.ref("city"))) {
+              if (this.resolve(yup.ref("city"))) {
                 return this.createError({
                   message: t("Address is required when a city is entered"),
                 });
               }
-              if (!!this.resolve(yup.ref("state"))) {
+              if (this.resolve(yup.ref("state"))) {
                 return this.createError({
                   message: t("Address is required when a state is choosen"),
                 });
               }
-              if (!!this.resolve(yup.ref("postalCode"))) {
+              if (this.resolve(yup.ref("postalCode"))) {
                 return this.createError({
                   message: t(
                     "Address is required when a postal code is choosen"
@@ -251,19 +251,19 @@ export const Information: React.FC<Props> = props => {
             .string()
             .notRequired()
             .test("address1", t("City is required"), function(value) {
-              if (!!value) return true;
+              if (value) return true;
 
-              if (!!this.resolve(yup.ref("address1"))) {
+              if (this.resolve(yup.ref("address1"))) {
                 return this.createError({
                   message: t("City is required when an address is entered"),
                 });
               }
-              if (!!this.resolve(yup.ref("state"))) {
+              if (this.resolve(yup.ref("state"))) {
                 return this.createError({
                   message: t("City is required when a state is choosen"),
                 });
               }
-              if (!!this.resolve(yup.ref("postalCode"))) {
+              if (this.resolve(yup.ref("postalCode"))) {
                 return this.createError({
                   message: t("City is required when a postal code is choosen"),
                 });
@@ -275,19 +275,19 @@ export const Information: React.FC<Props> = props => {
             .notRequired()
             .test("address1", t("State is required"), function(value) {
               const sibling = this.resolve(yup.ref("address1"));
-              if (!!value) return true;
+              if (value) return true;
 
-              if (!!this.resolve(yup.ref("address1"))) {
+              if (this.resolve(yup.ref("address1"))) {
                 return this.createError({
                   message: t("State is required when an address is entered"),
                 });
               }
-              if (!!this.resolve(yup.ref("city"))) {
+              if (this.resolve(yup.ref("city"))) {
                 return this.createError({
                   message: t("State is required when a city is entered"),
                 });
               }
-              if (!!this.resolve(yup.ref("postalCode"))) {
+              if (this.resolve(yup.ref("postalCode"))) {
                 return this.createError({
                   message: t("State is required when a postal code is choosen"),
                 });
