@@ -1,6 +1,9 @@
 import { makeStyles } from "@material-ui/styles";
 import { Formik } from "formik";
-import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
+import {
+  AbsenceReasonTrackingTypeId,
+  AssignmentType,
+} from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { pick } from "lodash-es";
 import * as React from "react";
@@ -12,19 +15,27 @@ import { PageHeader } from "ui/components/page-header";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { RadioGroup, Radio, FormControlLabel } from "@material-ui/core";
+import {
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  Typography,
+} from "@material-ui/core";
 
 type Props = {
-  id: string;
   name: string;
-  rowVersion: string;
   description?: string;
   allowNegativeBalance: boolean;
-  expired: boolean;
-  validUntil: string;
   isBucket: boolean;
+  appliesToAssignmentTypes?: AssignmentType;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
-  onSubmit: () => Promise<void>;
+  onSubmit: (updatedValues: {
+    allowNegativeBalance: boolean;
+    isBucket: boolean;
+    description?: string;
+    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
+    appliesToAssignmentTypes?: AssignmentType;
+  }) => Promise<void>;
   onCancel: () => void;
 };
 
@@ -34,15 +45,11 @@ export const AbsenceReasonEditSettingsUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
 
   const initialValues = pick(props, [
-    "id",
-    "name",
-    "rowVersion",
     "description",
     "allowNegativeBalance",
-    "expired",
-    "validUntil",
     "isBucket",
     "absenceReasonTrackingTypeId",
+    "appliesToAssignmentTypes",
   ]);
 
   return (
@@ -66,6 +73,48 @@ export const AbsenceReasonEditSettingsUI: React.FC<Props> = props => {
                 }}
               />
 
+              <Typography variant="h6" className={classes.label}>
+                {t("What types of assignments does this reason apply to?")}
+              </Typography>
+              <RadioGroup
+                aria-label="appliesToAssignmentTypes"
+                name="appliesToAssignmentTypes"
+                value={values.appliesToAssignmentTypes}
+                onChange={e => {
+                  setFieldValue("appliesToAssignmentTypes", e.target.value);
+                }}
+                row={!isMobile}
+                // className={classes.useForEmployeesSubItems}
+              >
+                <FormControlLabel
+                  value={AssignmentType.ContractAssignment}
+                  control={<Radio color="primary" />}
+                  label={t("Contract Assignment")}
+                  labelPlacement="end"
+                />
+                <FormControlLabel
+                  value={AssignmentType.DailyAssignment}
+                  control={<Radio color="primary" />}
+                  label={t("Daily Assignment")}
+                  labelPlacement="end"
+                />
+                <FormControlLabel
+                  value={AssignmentType.LongTermAssignment}
+                  control={<Radio color="primary" />}
+                  label={t("Long Term Assignment")}
+                  labelPlacement="end"
+                />
+                <FormControlLabel
+                  value={AssignmentType.None}
+                  control={<Radio color="primary" />}
+                  label={t("None")}
+                  labelPlacement="end"
+                />
+              </RadioGroup>
+
+              <Typography variant="h6" className={classes.label}>
+                {t("How should the balances for this reason be tracked?")}
+              </Typography>
               <RadioGroup
                 aria-label="absenceReasonTrackingTypeId"
                 name="absenceReasonTrackingTypeId"
@@ -90,6 +139,61 @@ export const AbsenceReasonEditSettingsUI: React.FC<Props> = props => {
                 />
               </RadioGroup>
 
+              <Typography variant="h6" className={classes.label}>
+                {t("Does this absence reason allow negative balances?")}
+              </Typography>
+              <RadioGroup
+                aria-label="allowNegativeBalances"
+                name="allowNegativeBalances"
+                value={values.allowNegativeBalance}
+                onChange={e => {
+                  setFieldValue(
+                    "allowNegativeBalance",
+                    e.target.value === "true"
+                  );
+                }}
+                row={!isMobile}
+              >
+                <FormControlLabel
+                  value={false}
+                  control={<Radio color="primary" />}
+                  label={t("No")}
+                  labelPlacement="end"
+                />
+                <FormControlLabel
+                  value={true}
+                  control={<Radio color="primary" />}
+                  label={t("Yes")}
+                  labelPlacement="end"
+                />
+              </RadioGroup>
+
+              <Typography variant="h6" className={classes.label}>
+                {t("Is this absence reason a bucket?")}
+              </Typography>
+              <RadioGroup
+                aria-label="isBucket"
+                name="isBucket"
+                value={values.isBucket}
+                onChange={e => {
+                  setFieldValue("isBucket", e.target.value === "true");
+                }}
+                row={!isMobile}
+              >
+                <FormControlLabel
+                  value={false}
+                  control={<Radio color="primary" />}
+                  label={t("No")}
+                  labelPlacement="end"
+                />
+                <FormControlLabel
+                  value={true}
+                  control={<Radio color="primary" />}
+                  label={t("Yes")}
+                  labelPlacement="end"
+                />
+              </RadioGroup>
+
               <ActionButtons
                 submit={{ text: t("Save"), execute: submitForm }}
                 cancel={{ text: t("Cancel"), execute: props.onCancel }}
@@ -104,4 +208,7 @@ export const AbsenceReasonEditSettingsUI: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   content: { marginTop: theme.spacing(2) },
+  label: {
+    marginTop: theme.spacing(4),
+  },
 }));

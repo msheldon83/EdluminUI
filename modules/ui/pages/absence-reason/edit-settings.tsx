@@ -21,6 +21,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
       absenceReasonId: params.absenceReasonId,
     },
   });
+
   if (result.state !== "DONE" && result.state !== "UPDATING") {
     return <></>;
   }
@@ -39,10 +40,13 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
       absenceReasonTrackingTypeId={
         absenceReason.absenceReasonTrackingTypeId || undefined
       }
-      // onSubmit={() => console.log("submit")}
-      // onCancel={() => {
-      //   history.push(AbsenceReasonViewEditRoute.generate(params)());
-      // }}
+      appliesToAssignmentTypes={
+        absenceReason.appliesToAssignmentTypes || undefined
+      }
+      onSubmit={async v => console.log("submit", v)}
+      onCancel={() => {
+        history.push(AbsenceReasonViewEditRoute.generate(params));
+      }}
     />
   );
 };
