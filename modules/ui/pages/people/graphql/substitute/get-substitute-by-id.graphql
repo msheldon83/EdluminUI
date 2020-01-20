@@ -33,6 +33,7 @@ query GetSubstituteById($id: ID!) {
           endorsement {
             id
             name
+            expires
           }
           expirationDate
         }
