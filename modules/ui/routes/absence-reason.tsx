@@ -16,13 +16,6 @@ export const AbsenceReasonLoader = asyncComponent({
   name: "AbsenceReason",
 });
 
-// View/Edit
-export const AbsenceReasonViewRoute = defineSubRoute(
-  AbsenceReasonRoute,
-  "/:absenceReasonId",
-  ["absenceReasonId"]
-);
-
 // Add
 export const AbsenceReasonAddRoute = defineSubRoute(
   AbsenceReasonRoute,
@@ -39,10 +32,17 @@ export const AbsenceReasonAddLoader = asyncComponent({
   name: "AbsenceReasonAddPage",
 });
 
-// Edit Settings
+// View/Edit
 export const AbsenceReasonViewEditRoute = defineSubRoute(
-  AbsenceReasonViewRoute,
-  "/view",
+  AbsenceReasonRoute,
+  "/:absenceReasonId",
+  ["absenceReasonId"]
+);
+
+// Edit Settings
+export const AbsenceReasonEditSettingsRoute = defineSubRoute(
+  AbsenceReasonViewEditRoute,
+  "/edit-settings",
   []
 );
 

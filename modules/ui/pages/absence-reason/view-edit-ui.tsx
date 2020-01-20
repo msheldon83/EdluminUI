@@ -32,6 +32,10 @@ type Props = {
   validUntil: string;
   isBucket: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
+  updateNameOrExternalId: (values: {
+    name?: string | null;
+    externalId?: string | null;
+  }) => Promise<any>;
 };
 
 export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
@@ -41,10 +45,6 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
   const params = useRouteParams(AbsenceReasonViewEditRoute);
   const [editing, setEditing] = useState<string | null>(null);
   /* const [enabled, setEnabled] = useState<boolean | null>(null); */
-
-  const updateName = useCallback(async (name: string | null | undefined) => {
-    console.log("hi", name);
-  }, []);
 
   const translateTracking = useCallback(
     (v: AbsenceReasonTrackingTypeId | undefined) => {
@@ -93,7 +93,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
           .shape({ value: yup.string().required(t("Name is required")) })}
         onCancel={() => setEditing(null)}
         onSubmit={async value => {
-          await updateName(value);
+          await props.updateNameOrExternalId({ name: value });
           setEditing(null);
         }}
         actions={[
@@ -119,6 +119,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
           .object()
           .shape({ value: yup.string().nullable() })}
         onSubmit={async v => {
+          await props.updateNameOrExternalId({ externalId: v });
           setEditing(null);
         }}
         onCancel={() => setEditing(null)}
