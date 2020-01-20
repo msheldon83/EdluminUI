@@ -6,9 +6,10 @@ import { useIsMobile } from "hooks";
 import {
   AbsenceReasonRoute,
   AbsenceReasonViewEditRoute,
+  AbsenceReasonEditSettingsRoute,
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { PageHeader } from "ui/components/page-header";
 import { useState, useCallback } from "react";
 import {
@@ -42,6 +43,8 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+
+  const history = useHistory();
   const params = useRouteParams(AbsenceReasonViewEditRoute);
   const [editing, setEditing] = useState<string | null>(null);
   /* const [enabled, setEnabled] = useState<boolean | null>(null); */
@@ -127,7 +130,20 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
         showLabel
       />
       <Section className={classes.content}>
-        <SectionHeader title={t("Settings")} />
+        <SectionHeader
+          title={t("Settings")}
+          action={{
+            text: t("Edit"),
+            visible: !editing,
+            execute: () => {
+              const editSettingsUrl = AbsenceReasonEditSettingsRoute.generate(
+                params
+              );
+              history.push(editSettingsUrl);
+            },
+            permissions: [PermissionEnum.FinanceSettingsSave],
+          }}
+        />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <Typography variant="h6">{t("Description")}</Typography>
