@@ -48,7 +48,7 @@ export const AdminTab: React.FC<Props> = props => {
       variables: {
         administrator: {
           ...admin,
-          id: Number(orgUser.id),
+          id: props.orgUserId,
         },
       },
     });
@@ -77,7 +77,7 @@ export const AdminTab: React.FC<Props> = props => {
       <AccessControl
         editing={props.editing}
         setEditing={props.setEditing}
-        orgId={orgUser.orgId}
+        orgId={orgUser.orgId.toString()}
         locations={admin?.accessControl?.locations ?? []}
         locationGroups={admin?.accessControl?.locationGroups ?? []}
         positionTypes={admin?.accessControl?.positionTypes ?? []}
@@ -87,6 +87,9 @@ export const AdminTab: React.FC<Props> = props => {
         allPositionTypeIdsInScope={
           admin?.accessControl?.allPositionTypeIdsInScope ?? false
         }
+        locationIds={admin?.accessControl?.locationIds ?? []}
+        locationGroupIds={admin?.accessControl?.locationGroupIds ?? []}
+        positionTypeIds={admin?.accessControl?.positionTypeIds ?? []}
         isSuperUser={admin?.isSuperUser ?? false}
         permissionSet={admin.permissionSet}
         onSubmit={onUpdateAdmin}

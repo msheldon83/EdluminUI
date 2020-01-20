@@ -7,7 +7,44 @@ query GetAdminById($id: ID!) {
       userId
       loginEmail
       administrator {
-        ...AdminDetails
+        id
+        orgId
+        email
+        address1
+        city
+        state
+        country
+        postalCode
+        dateOfBirth
+        phoneNumber
+        firstName
+        middleName
+        lastName
+        isSuperUser
+        permissionSet {
+          id
+          name
+          orgUserRole
+        }
+        accessControl {
+          allLocationIdsInScope
+          allPositionTypeIdsInScope
+          locationIds
+          locationGroupIds
+          positionTypeIds
+          locations {
+            id
+            name
+          }
+          locationGroups {
+            id
+            name
+          }
+          positionTypes {
+            id
+            name
+          }
+        }
       }
     }
   }
