@@ -591,14 +591,6 @@ export function App() {
                                   ]}
                                 />
                                 <ProtectedRoute
-                                  component={AbsenceReasonLoader}
-                                  path={AbsenceReasonRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
                                   component={VacancyReasonLoader}
                                   path={VacancyReasonRoute.path}
                                   role={"admin"}
