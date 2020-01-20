@@ -2,6 +2,7 @@ query GetAdminById($id: ID!) {
   orgUser {
     byId(id: $id) {
       id
+      orgId
       externalId
       userId
       loginEmail

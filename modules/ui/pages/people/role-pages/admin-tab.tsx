@@ -43,12 +43,12 @@ export const AdminTab: React.FC<Props> = props => {
 
   const admin = orgUser.administrator;
 
-  const onUpdateAdmin = async (adminInput: AdministratorInput) => {
+  const onUpdateAdmin = async (admin: AdministratorInput) => {
     await updateAdmin({
       variables: {
         administrator: {
-          ...adminInput,
-          id: props.orgUserId,
+          ...admin,
+          id: Number(orgUser.id),
         },
       },
     });
@@ -77,6 +77,7 @@ export const AdminTab: React.FC<Props> = props => {
       <AccessControl
         editing={props.editing}
         setEditing={props.setEditing}
+        orgId={orgUser.orgId}
         locations={admin?.accessControl?.locations ?? []}
         locationGroups={admin?.accessControl?.locationGroups ?? []}
         positionTypes={admin?.accessControl?.positionTypes ?? []}
@@ -87,6 +88,8 @@ export const AdminTab: React.FC<Props> = props => {
           admin?.accessControl?.allPositionTypeIdsInScope ?? false
         }
         isSuperUser={admin?.isSuperUser ?? false}
+        permissionSet={admin.permissionSet}
+        onSubmit={onUpdateAdmin}
       />
     </>
   );
