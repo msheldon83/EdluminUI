@@ -1,9 +1,7 @@
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { Grid, makeStyles } from "@material-ui/core";
-import { Section } from "ui/components/section";
 import { PageHeader } from "ui/components/page-header";
-import { GetAllEndorsementsWithinOrg } from "ui/pages/position-type/graphql/get-all-endorsements.gen";
 import { useIsMobile } from "hooks";
 import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,6 +21,10 @@ type Props = {
   positionName: string | undefined;
   orgId: string;
   positionId: string | undefined;
+  handleMust: (ids: string[]) => Promise<void>;
+  handleMustNot: (ids: string[]) => Promise<void>;
+  handlePrefer: (ids: string[]) => Promise<void>;
+  handlePreferNot: (ids: string[]) => Promise<void>;
 };
 
 export type Attribute = {
@@ -37,22 +39,6 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const classes = useStyles();
 
-  const [
-    searchText,
-    pendingSearchText,
-    setPendingSearchText,
-  ] = useDeferredState<string | undefined>(undefined, 200);
-  useEffect(() => {
-    // props.setSearchText(searchText);
-  }, [searchText]);
-
-  const updateSearchText = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPendingSearchText(event.target.value);
-    },
-    [setPendingSearchText]
-  );
-
   //Query qualified numbers
   const getQualifiedNumbers = useQueryBundle(
     GetQualifiedEmployeeCountsWithinOrg,
@@ -64,27 +50,12 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
     }
   );
 
-  const getAllEndorsements = useQueryBundle(GetAllEndorsementsWithinOrg, {
-    variables: { orgId: props.orgId, searchText: searchText },
-  });
-
-  if (
-    getAllEndorsements.state === "LOADING" ||
-    getQualifiedNumbers.state === "LOADING"
-  ) {
+  if (getQualifiedNumbers.state === "LOADING") {
     return <></>;
   }
 
   const qualifiedCounts =
     getQualifiedNumbers?.data?.position?.qualifiedEmployeeCounts;
-
-  console.log(getQualifiedNumbers);
-
-  const attributes =
-    getAllEndorsements?.data?.orgRef_Endorsement?.all?.map(e => ({
-      name: e?.name ?? "",
-      id: e?.id ?? "",
-    })) ?? [];
 
   return (
     <>
@@ -105,29 +76,38 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
             <Qualified
               highlyQualified={qualifiedCounts?.numFullyQualified}
               minimallyQualified={qualifiedCounts?.numMinimallyQualified}
-              label={"thnig"}
             />
           </Grid>
           <ReplacementCriteriaView
-            attributes={props?.mustHave}
+            attributes={props.mustHave}
             label={t("Substitutes must have")}
+            remove={props.handleMust}
           />
           <ReplacementCriteriaView
-            attributes={props?.preferToHave}
+            attributes={props.preferToHave}
             label={t("Prefer that substitutes have")}
+            remove={props.handlePrefer}
           />
           <ReplacementCriteriaView
-            attributes={props?.preferToNotHave}
+            attributes={props.preferToNotHave}
             label={t("Substitutes must not have")}
+            remove={props.handleMustNot}
           />
           <ReplacementCriteriaView
-            attributes={props?.mustNotHave}
+            attributes={props.mustNotHave}
             label={t("Prefer that substitutes not have")}
+            remove={props.handlePreferNot}
           />
         </Grid>
         <Grid container item xs={6} component="dl" spacing={2}>
           <Grid item xs={12}>
-            <AvailableAttributes attributes={attributes} />
+            <AvailableAttributes
+              orgId={props.orgId}
+              handleMust={props.handleMust}
+              handleMustNot={props.handleMustNot}
+              handlePrefer={props.handlePrefer}
+              handlePreferNot={props.handlePreferNot}
+            />
           </Grid>
         </Grid>
       </Grid>

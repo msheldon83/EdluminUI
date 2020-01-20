@@ -398,15 +398,15 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
 }
 
 input AdministratorInput {
-  id: Int
-  orgId: Int
+  id: ID
+  orgId: ID
   email: String
   active: Boolean
   externalId: String
   permissionSet: LocatorInput
-  firstName: String!
+  firstName: String
   middleName: String
-  lastName: String!
+  lastName: String
   dateOfBirth: Date
   address1: String
   address2: String
@@ -418,7 +418,7 @@ input AdministratorInput {
   inviteImmediately: Boolean
   isSuperUser: Boolean
   accessControl: AccessControInput
-  relatedOrgIds: [Int]
+  relatedOrgIds: [ID]
 }
 
 input AdminScopeLocationRulesInput {
@@ -1195,15 +1195,7 @@ type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
   employeeId: Int!
   expirationDate: Date
   endorsementId: Int!
-  endorsement: Endorsement
-}
-
-input EmployeeEndorsementCreateInput {
-  orgId: Int!
-  employeeId: Int!
-  endorsementId: Int!
-  endorsementDate: Date
-  expirationDate: Date
+  endorsement: Endorsement!
 }
 
 input EmployeeEndorsementInput {
@@ -1213,28 +1205,16 @@ input EmployeeEndorsementInput {
   expirationDate: Date
 }
 
-type EmployeeEndorsementMutations {
-  create(employeeEndorsement: EmployeeEndorsementCreateInput!): EmployeeEndorsement
-  update(employeeEndorsement: EmployeeEndorsementUpdateInput!): EmployeeEndorsement
-  delete(employeeEndorsementId: Int!): Boolean
-}
-
-input EmployeeEndorsementUpdateInput {
-  id: Int!
-  endorsementDate: Date
-  expirationDate: Date
-}
-
 input EmployeeInput {
-  id: Int
-  orgId: Int
+  id: ID
+  orgId: ID
   email: String
   active: Boolean
   externalId: String
   permissionSet: LocatorInput
-  firstName: String!
+  firstName: String
   middleName: String
-  lastName: String!
+  lastName: String
   dateOfBirth: Date
   address1: String
   address2: String
@@ -1247,7 +1227,7 @@ input EmployeeInput {
   position: PositionInput
   substitutePreferences: SubstitutePreferencesInput
   timeOffBalances: [TimeOffBalancesInput]
-  relatedOrgIds: [Int]
+  relatedOrgIds: [ID]
 }
 
 input EmployeeInterestInVacancyInput {
@@ -1481,6 +1461,11 @@ enum EventType {
   USER_TIME_ZONE_UPDATED
   INVITES_FOR_USERS_SCHEDULED
   USER_INVITED
+  USER_STOP_SMS_RECEIVED
+  USER_START_SMS_RECEIVED
+  USER_PAUSE_SMS_RECEIVED
+  USER_RESUME_SMS_RECEIVED
+  USER_INVALID_SMS_NUMBER_RECEIVED
   ORGANIZATION_CREATED
   ORGANIZATION_UPDATED
   ORGANIZATION_DELETED
@@ -1505,6 +1490,7 @@ enum EventType {
   ORGANIZATION_USER_RELATIONSHIP_REMOVED
   ACCESS_GRANTED
   ACCESS_UPDATED
+  ORGANIZATION_USER_RELATIONSHIP_UPDATED
   SCHOOL_YEAR_CREATED
   SCHOOL_YEAR_UPDATED
   SCHOOL_YEAR_DELETED
@@ -1570,9 +1556,6 @@ enum EventType {
   ABSENCE_REASON_BALANCE_UPDATED
   ABSENCE_REASON_BALANCE_DELETED
   ABSENCE_REASON_BALANCE_DEDUCTED
-  EMPLOYEE_ENDORSEMENT_CREATED
-  EMPLOYEE_ENDORSEMENT_UPDATED
-  EMPLOYEE_ENDORSEMENT_DELETED
   REPLACEMENT_POOL_CONFIG_CREATED
   REPLACEMENT_POOL_CONFIG_UPDATED
   REPLACEMENT_POOL_CONFIG_DELETED
@@ -1864,7 +1847,7 @@ input LocationUpdateInput {
 }
 
 input LocatorInput {
-  id: Int
+  id: ID
   externalId: String
 }
 
@@ -1888,7 +1871,6 @@ type Mutation {
   contract: ContractMutations
   contractSchedule: ContractScheduleMutations
   customField: CustomFieldMutations
-  employeeEndorsement: EmployeeEndorsementMutations
   employee: EmployeeMutations
   eventQueue: EventQueueMutations
   locationGroup: LocationGroupMutations
@@ -3067,7 +3049,7 @@ input PositionCreateInput {
 }
 
 input PositionInput {
-  orgId: Int!
+  orgId: ID
   id: Int
   externalId: String
   positionType: LocatorInput
@@ -3857,11 +3839,11 @@ input ReplacementCriteriaCreateInput {
 }
 
 input ReplacementCriteriaInput {
-  orgId: Int!
-  mustHave: LocatorInput
-  shouldHave: LocatorInput
-  shouldNotHave: LocatorInput
-  mustNotHave: LocatorInput
+  orgId: ID
+  mustHave: [LocatorInput]
+  shouldHave: [LocatorInput]
+  shouldNotHave: [LocatorInput]
+  mustNotHave: [LocatorInput]
 }
 
 type ReplacementCriteriaMutations {
@@ -4399,10 +4381,10 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   permissionSet: PermissionSet
   permissions: [PermissionEnum]
   assignments: [Assignment]
-  attributes: [EmployeeEndorsement]
+  attributes: [EmployeeEndorsement!]!
   payCodeId: Int
   payCode: PayCode
-  qualifiedPositionTypes: [PositionType]
+  qualifiedPositionTypes: [PositionType!]!
   substitutePoolMembership: SubstitutePoolMembership
 }
 
@@ -4412,15 +4394,15 @@ input SubstituteAttributeInput {
 }
 
 input SubstituteInput {
-  id: Int
-  orgId: Int
+  id: ID
+  orgId: ID
   email: String
   active: Boolean
   externalId: String
   permissionSet: LocatorInput
-  firstName: String!
+  firstName: String
   middleName: String
-  lastName: String!
+  lastName: String
   dateOfBirth: Date
   address1: String
   address2: String
@@ -4430,9 +4412,9 @@ input SubstituteInput {
   country: CountryCode
   phoneNumber: String
   inviteImmediately: Boolean
-  payCodeId: Int
+  payCodeId: ID
   attributes: [SubstituteAttributeInput]
-  relatedOrgIds: [Int]
+  relatedOrgIds: [ID]
 }
 
 type SubstitutePool {
@@ -4464,8 +4446,8 @@ type SubstitutePoolMembership {
 }
 
 input SubstitutePreferencesInput {
-  favoriteSubstitutes: LocatorInput
-  blockedSubstitutes: LocatorInput
+  favoriteSubstitutes: [LocatorInput]
+  blockedSubstitutes: [LocatorInput]
 }
 
 input SwapVacancyAssignmentsInput {

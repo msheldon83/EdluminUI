@@ -6,10 +6,8 @@ import { PageHeader } from "ui/components/page-header";
 import { SectionHeader } from "ui/components/section-header";
 
 type Props = {
-  label: string;
   minimallyQualified: number | undefined;
   highlyQualified: number | undefined;
-  remove?: void;
 };
 
 export const Qualified: React.FC<Props> = props => {
@@ -32,12 +30,18 @@ export const Qualified: React.FC<Props> = props => {
         <Section>
           <Grid container>
             <Grid item xs={6}>
-              <SectionHeader title={t(minimallyQualified)} />
-              <div>minimally qualified substitutes</div>
+              <SectionHeader
+                title={t(minimallyQualified)}
+                className={classes.bottomMargin}
+              />
+              <div>{t("minimally qualified substitutes")}</div>
             </Grid>
             <Grid item xs={6}>
-              <SectionHeader title={t(highlyQualified)} />
-              <div>highly qualified substitutes</div>
+              <SectionHeader
+                title={t(highlyQualified)}
+                className={classes.bottomMargin}
+              />
+              <div>{t("highly qualified substitutes")}</div>
             </Grid>
           </Grid>
         </Section>
@@ -49,5 +53,8 @@ export const Qualified: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   rightPadding: {
     paddingRight: theme.spacing(3),
+  },
+  bottomMargin: {
+    marginBottom: theme.spacing(-1),
   },
 }));
