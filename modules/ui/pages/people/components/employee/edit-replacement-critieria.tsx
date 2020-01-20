@@ -33,6 +33,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
   });
 
   const updateMustHave = async (mustHaveInput: string[]) => {
+    if (mustHaveInput.length === 0) return;
     await updateEmployee({
       variables: {
         employee: {
@@ -45,9 +46,11 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
         },
       },
     });
+    await getEmployee.refetch();
   };
 
   const updateMustNot = async (mustNotInput: string[]) => {
+    if (mustNotInput.length === 0) return;
     await updateEmployee({
       variables: {
         employee: {
@@ -60,9 +63,11 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
         },
       },
     });
+    await getEmployee.refetch();
   };
 
   const updatePreferHave = async (shouldHaveInput: string[]) => {
+    if (shouldHaveInput.length === 0) return;
     await updateEmployee({
       variables: {
         employee: {
@@ -75,9 +80,11 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
         },
       },
     });
+    await getEmployee.refetch();
   };
 
   const updatePreferNotHave = async (shouldNotHaveInput: string[]) => {
+    if (shouldNotHaveInput.length === 0) return;
     await updateEmployee({
       variables: {
         employee: {
@@ -90,6 +97,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
         },
       },
     });
+    await getEmployee.refetch();
   };
 
   const getEmployee = useQueryBundle(GetEmployeeById, {

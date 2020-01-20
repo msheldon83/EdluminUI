@@ -118,18 +118,14 @@ export const AvailableAttributes: React.FC<Props> = props => {
               <div>{t("Not defined")}</div>
             ) : (
               attributes?.map((n, i) => (
-                <>
-                  <Grid item xs={12} sm={12} lg={12}>
-                    <Checkbox
-                      onChange={e => addEndorsement(n?.id, e.target.checked)}
-                      checked={endorsementIds.includes(n?.id)}
-                      color="primary"
-                    />
-                    <div key={i} className={classes.inlineBlock}>
-                      {n?.name}
-                    </div>
-                  </Grid>
-                </>
+                <Grid item xs={12} sm={12} lg={12} key={i}>
+                  <Checkbox
+                    onChange={e => addEndorsement(n.id, e.target.checked)}
+                    checked={endorsementIds.includes(n.id)}
+                    color="primary"
+                  />
+                  <div className={classes.inlineBlock}>{n.name}</div>
+                </Grid>
               ))
             )}
           </Grid>
