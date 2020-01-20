@@ -2,14 +2,11 @@ import {
   Button,
   Checkbox,
   Grid,
-  IconButton,
   makeStyles,
   Paper,
   Typography,
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay } from "date-fns";
 import { addMonths } from "date-fns/esm";
@@ -29,9 +26,9 @@ import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail } from "ui/components/absence/types";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
-import { Input } from "ui/components/form/input";
 import { SelectNew } from "ui/components/form/select-new";
 import { DayPartField, DayPartValue } from "../day-part-field";
+import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
 import { Can } from "ui/components/auth/can";
 
@@ -44,6 +41,8 @@ export type AbsenceDetailsFormData = {
   payCode?: string;
   hourlyStartTime?: Date;
   hourlyEndTime?: Date;
+  notesToApprover?: string;
+  notesToReplacement?: string;
 };
 
 type Props = {
@@ -82,11 +81,12 @@ type Props = {
     assignmentRowVersion?: string
   ) => void;
   returnUrl?: string;
+  isSubmitted: boolean;
+  initialAbsenceCreation: boolean;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
-  const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
   const history = useHistory();
   const {
@@ -242,11 +242,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
           <Typography className={classes.subText}>
             {t("Can be seen by the administrator and the employee.")}
           </Typography>
-          <Input
-            multiline
-            rows="6"
+
+          <NoteField
             onChange={onNotesToApproverChange}
-            classes={textFieldClasses}
+            name={"notesToApprover"}
+            isSubmitted={props.isSubmitted}
+            initialAbsenceCreation={props.initialAbsenceCreation}
+            value={values.notesToApprover}
           />
         </div>
       </Grid>
@@ -312,6 +314,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 replacementEmployeeId={props.replacementEmployeeId}
                 replacementEmployeeName={props.replacementEmployeeName}
                 locationIds={props.locationIds}
+                isSubmitted={props.isSubmitted}
+                initialAbsenceCreation={props.initialAbsenceCreation}
               />
             )}
           </div>
@@ -404,11 +408,5 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.main,
       color: theme.customColors.white,
     },
-  },
-}));
-
-const useTextFieldClasses = makeStyles(theme => ({
-  multiline: {
-    padding: theme.spacing(1),
   },
 }));

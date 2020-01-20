@@ -12,21 +12,24 @@ import { Input } from "ui/components/form/input";
 
 type Props = {
   orgUser: {
-    firstName: string;
+    firstName?: string | null | undefined;
     middleName?: string | null | undefined;
-    lastName: string;
+    lastName?: string | null | undefined;
     externalId?: string | null | undefined;
     email?: string | null | undefined;
   };
   onSubmit: (
-    firstName: string,
-    lastName: string,
+    firstName: string | null | undefined,
+    lastName: string | null | undefined,
     email: string,
     middleName?: string | null | undefined,
     externalId?: string | null | undefined
   ) => void;
   onCancel: () => void;
-  onNameChange: (firstName: string, lastName: string) => void;
+  onNameChange: (
+    firstName: string | null | undefined,
+    lastName: string | null | undefined
+  ) => void;
 };
 
 export const AddBasicInfo: React.FC<Props> = props => {

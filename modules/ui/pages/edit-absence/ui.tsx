@@ -52,6 +52,7 @@ type Props = {
   actingAsEmployee?: boolean;
   organizationId: string;
   needsReplacement: NeedsReplacement;
+  notesToApprover?: string;
   userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
@@ -135,6 +136,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       props.dayPart === DayPart.Hourly
         ? parseISO(props.endTimeLocal)
         : undefined,
+    notesToReplacement:
+      props.initialVacancies[0]?.notesToReplacement ?? undefined,
+    notesToApprover: props.notesToApprover,
   };
 
   const {
@@ -144,6 +148,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     getValues,
     errors,
     triggerValidation,
+    formState,
   } = useForm<EditAbsenceFormData>({
     defaultValues: initialFormData,
   });
@@ -457,6 +462,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               onRemoveReplacement={props.cancelAssignments}
               locationIds={props.locationIds}
               returnUrl={returnUrl}
+              isSubmitted={formState.isSubmitted}
+              initialAbsenceCreation={false}
             />
           </Section>
         </form>

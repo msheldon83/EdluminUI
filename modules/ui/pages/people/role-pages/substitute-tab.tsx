@@ -76,14 +76,20 @@ export const SubstituteTab: React.FC<Props> = props => {
 
   const substitute = orgUser.substitute;
 
-  const onUpdateSubstitute = async (orgUser: SubstituteInput) => {
+  const onUpdateSubstitute = async (subInput: SubstituteInput) => {
     await updateSubstitute({
       variables: {
-        substitute: orgUser,
+        substitute: {
+          ...subInput,
+          id: props.orgUserId,
+        },
       },
     });
     props.setEditing(null);
     await getSubstitute.refetch();
+  };
+  const onCancelSub = () => {
+    props.setEditing(null);
   };
 
   return (
