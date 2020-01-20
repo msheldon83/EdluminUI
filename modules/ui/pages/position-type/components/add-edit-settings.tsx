@@ -93,7 +93,7 @@ export const Settings: React.FC<Props> = props => {
         label: t("Hourly"),
       },
     ];
-  }, []);
+  }, [t]);
 
   const getAllActiveContracts = useQueryBundle(GetAllActiveContracts, {
     variables: { orgId: props.orgId },

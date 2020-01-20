@@ -16,21 +16,22 @@ import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { usePermissionSets } from "reference-data/permission-sets";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Formik } from "formik";
+import * as yup from "yup";
 import { OptionTypeBase } from "react-select/src/types";
 import { PeopleGridItem } from "../people-grid-item";
 import { usePositionTypes } from "reference-data/position-types";
 import { useLocationGroups } from "reference-data/location-groups";
 import { useLocations } from "reference-data/locations";
+import { ActionButtons } from "../../../../components/action-buttons";
 
 const editableSections = {
   accessControl: "edit-access-control",
 };
 
-export type AdminAccessControl = {};
-
 type Props = {
   editing: string | null;
-  setEditing: React.Dispatch<React.SetStateAction<string | null>>;
+  setEditing?: React.Dispatch<React.SetStateAction<string | null>>;
+  isCreate?: boolean;
   orgId: string;
   locations: Array<{ name: string } | null>;
   locationIds: Array<string | null> | null | undefined;
@@ -50,6 +51,7 @@ type Props = {
     | null
     | undefined;
   onSubmit: (admin: any) => Promise<unknown>;
+  onCancel: () => void;
 };
 
 export const AccessControl: React.FC<Props> = props => {
@@ -122,43 +124,81 @@ export const AccessControl: React.FC<Props> = props => {
                   allPositionTypeIdsInScope: data.allPositionTypeIdsInScope,
                   locations: data.allLocationIdsInScope
                     ? null
-                    : data.locationIds.map(l => ({id: l})),
+                    : data.locationIds.map(l => ({ id: l })),
                   locationGroups: data.allLocationIdsInScope
                     ? null
-                    : data.locationGroupIds.map(l => ({id: l})),
+                    : data.locationGroupIds.map(l => ({ id: l })),
                   positionTypes: data.allPositionTypeIdsInScope
                     ? null
-                    : data.positionTypeIds.map(l => ({id: l})),
+                    : data.positionTypeIds.map(l => ({ id: l })),
                 },
           });
         }}
+        validationSchema={yup.object({
+          isSuperUser: yup.boolean(),
+          permissionSetId: yup.string().when("isSuperUser", {
+            is: true,
+            then: yup.string().nullable(),
+            otherwise: yup
+              .string()
+              .nullable()
+              .required(t("A permission set is required")),
+          }),
+          allLocationIdsInScope: yup.boolean(),
+          allPositionTypeIdsInScope: yup.boolean(),
+          positionTypeIds: yup
+            .array(yup.string())
+            .when("allPositionTypeIdsInScope", {
+              is: true,
+              then: yup.array(yup.string()).nullable(),
+              otherwise: yup
+                .array(yup.string())
+                .nullable()
+                .required(t("A position types is required")),
+            }),
+          locationGroupIds: yup.array(yup.string()).nullable(),
+          locationIds: yup
+            .array(yup.string())
+            .when(["allLocationIdsInScope", "locationGroupIds"], {
+              is: (allLocationIdsInScope, locationGroupIds) =>
+                allLocationIdsInScope ||
+                (!allLocationIdsInScope && locationGroupIds.length > 0),
+              then: yup.array(yup.string()).nullable(),
+              otherwise: yup
+                .array(yup.string())
+                .nullable()
+                .required(t("A location or location group is required")),
+            }),
+        })}
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
             <Section>
-              <SectionHeader
-                title={t("Access Control")}
-                action={{
-                  text: t("Edit"),
-                  visible: !props.editing,
-                  execute: () => {
-                    props.setEditing(editableSections.accessControl);
-                  },
-                  permissions: [PermissionEnum.AdminSave],
-                }}
-                cancel={{
-                  text: t("Cancel"),
-                  visible: editingThis,
-                  execute: () => {
-                    props.setEditing(null);
-                  },
-                }}
-                submit={{
-                  text: t("Save"),
-                  visible: editingThis,
-                  execute: submitForm,
-                }}
-              />
+              {!props.isCreate && (
+                <SectionHeader
+                  title={t("Access Control")}
+                  action={{
+                    text: t("Edit"),
+                    visible: !props.editing,
+                    execute: () => {
+                      props.setEditing!(editableSections.accessControl);
+                    },
+                    permissions: [PermissionEnum.AdminSave],
+                  }}
+                  cancel={{
+                    text: t("Cancel"),
+                    visible: editingThis,
+                    execute: () => {
+                      props.onCancel();
+                    },
+                  }}
+                  submit={{
+                    text: t("Save"),
+                    visible: editingThis,
+                    execute: submitForm,
+                  }}
+                />
+              )}
               <Grid container spacing={2}>
                 <Grid container item spacing={2} xs={8}>
                   {props.isSuperUser && !editingThis && (
@@ -197,14 +237,20 @@ export const AccessControl: React.FC<Props> = props => {
                             editingThis ? (
                               <SelectNew
                                 value={permissionSetOptions.find(
-                                  e => e.value && values.permissionSetId
+                                  e =>
+                                    e.value &&
+                                    e.value === values.permissionSetId
                                 )}
                                 multiple={false}
                                 onChange={(value: OptionType) => {
-                                  const id = [(value as OptionTypeBase).value];
+                                  const id = (value as OptionTypeBase).value;
                                   setFieldValue("permissionSetId", id);
                                 }}
                                 options={permissionSetOptions}
+                                inputStatus={
+                                  errors.permissionSetId ? "error" : undefined
+                                }
+                                validationMessage={errors.permissionSetId}
                               />
                             ) : (
                               permissions
@@ -314,6 +360,14 @@ export const AccessControl: React.FC<Props> = props => {
                                         )
                                     )}
                                     multiple={true}
+                                    inputStatus={
+                                      errors.locationIds ? "error" : undefined
+                                    }
+                                    validationMessage={
+                                      Array.isArray(errors.locationIds)
+                                        ? errors.locationIds[0]
+                                        : errors.locationIds
+                                    }
                                   />
                                 </div>
                               </>
@@ -385,6 +439,14 @@ export const AccessControl: React.FC<Props> = props => {
                                       )
                                   )}
                                   multiple={true}
+                                  inputStatus={
+                                    errors.positionTypeIds ? "error" : undefined
+                                  }
+                                  validationMessage={
+                                    Array.isArray(errors.positionTypeIds)
+                                      ? errors.positionTypeIds[0]
+                                      : errors.positionTypeIds
+                                  }
                                 />
                               </>
                             )}
@@ -395,6 +457,12 @@ export const AccessControl: React.FC<Props> = props => {
                   )}
                 </Grid>
               </Grid>
+              {props.isCreate && (
+                <ActionButtons
+                  submit={{ text: t("Save"), execute: submitForm }}
+                  cancel={{ text: t("Cancel"), execute: props.onCancel }}
+                />
+              )}
             </Section>
           </form>
         )}

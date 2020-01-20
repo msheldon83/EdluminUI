@@ -73,6 +73,7 @@ export const AdminTab: React.FC<Props> = props => {
         selectedRole={props.selectedRole}
         editPermissions={[PermissionEnum.AdminSave]}
         onSubmit={onUpdateAdmin}
+        onCancel={onCancelAdmin}
       />
       <AccessControl
         editing={props.editing}
@@ -93,6 +94,7 @@ export const AdminTab: React.FC<Props> = props => {
         isSuperUser={admin?.isSuperUser ?? false}
         permissionSet={admin.permissionSet}
         onSubmit={onUpdateAdmin}
+        onCancel={onCancelAdmin}
       />
     </>
   );
