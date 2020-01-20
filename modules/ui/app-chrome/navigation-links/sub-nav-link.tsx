@@ -19,7 +19,8 @@ export const SubNavLink: React.FC<Props> = props => {
     setSubNavMatches: setSubNavActive,
     ...linkProps
   } = props;
-  const matches = useRouteMatch({ exact: true, path: route }) !== null && route;
+  const matches =
+    useRouteMatch({ exact: false, path: route }) !== null && route;
   const classes = useStyles();
 
   useEffect(() => {
