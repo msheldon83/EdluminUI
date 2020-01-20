@@ -18,7 +18,7 @@ type Action = {
   permissions?: PermissionEnum[];
 };
 
-export const -SectionHeader: React.FC<Props> = props => {
+export const SectionHeader: React.FC<Props> = props => {
   const { titleClassName = "" } = props;
   const classes = useStyles();
 

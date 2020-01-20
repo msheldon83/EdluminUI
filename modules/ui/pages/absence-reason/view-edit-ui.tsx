@@ -11,15 +11,19 @@ import { useRouteParams } from "ui/routes/definition";
 import { Link } from "react-router-dom";
 import { PageHeader } from "ui/components/page-header";
 import { useState, useCallback } from "react";
-import { PermissionEnum } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  AbsenceReasonTrackingTypeId,
+} from "graphql/server-types.gen";
 import * as yup from "yup";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { Grid, Typography } from "@material-ui/core";
+import { format, parseISO } from "date-fns";
 
 type Props = {
   id: string;
-  externalId: string;
+  externalId?: string;
   name: string;
   rowVersion: string;
   description?: string;
@@ -27,7 +31,7 @@ type Props = {
   expired: boolean;
   validUntil: string;
   isBucket: boolean;
-  absenceReasonTrackingTypeId?: string;
+  absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
 };
 
 export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
@@ -36,11 +40,39 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const params = useRouteParams(AbsenceReasonViewEditRoute);
   const [editing, setEditing] = useState<string | null>(null);
-  const [enabled, setEnabled] = useState<boolean | null>(null);
+  /* const [enabled, setEnabled] = useState<boolean | null>(null); */
 
-  const updateName = useCallback((name: string | null | undefined) => {
+  const updateName = useCallback(async (name: string | null | undefined) => {
     console.log("hi", name);
   }, []);
+
+  const translateTracking = useCallback(
+    (v: AbsenceReasonTrackingTypeId | undefined) => {
+      switch (v) {
+        case AbsenceReasonTrackingTypeId.Daily:
+          return t("Daily");
+        case AbsenceReasonTrackingTypeId.Hourly:
+          return t("Hourly");
+        case AbsenceReasonTrackingTypeId.Invalid:
+          return t("Invalid");
+      }
+      return "";
+    },
+    [t]
+  );
+
+  const displayBool = useCallback(
+    (b: boolean | undefined | null) => {
+      switch (b) {
+        case true:
+          return t("Yes");
+        case false:
+          return t("No");
+      }
+      return "";
+    },
+    [t]
+  );
 
   return (
     <>
@@ -93,12 +125,47 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
         isSubHeader
         showLabel
       />
-      <Section>
+      <Section className={classes.content}>
         <SectionHeader title={t("Settings")} />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <Typography variant="h6">{t("Description")}</Typography>
             <Typography variant="body1">{props.description}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">{t("Tracking Type")}</Typography>
+            <Typography variant="body1">
+              {translateTracking(props.absenceReasonTrackingTypeId)}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">
+              {t("Allows negative balances")}
+            </Typography>
+            <Typography variant="body1">
+              {displayBool(props.allowNegativeBalance)}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">{t("Is bucket?")}</Typography>
+            <Typography variant="body1">
+              {displayBool(props.isBucket)}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">{t("Expired")}</Typography>
+            <Typography variant="body1">
+              {displayBool(props.expired)}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">{t("Valid Until")}</Typography>
+            <Typography variant="body1">
+              {format(parseISO(props.validUntil), "MMMM d, yyyy")}
+            </Typography>
           </Grid>
         </Grid>
       </Section>
@@ -107,6 +174,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  content: { marginTop: theme.spacing(2) },
   link: {
     color: theme.customColors.blue,
     "&:visited": {

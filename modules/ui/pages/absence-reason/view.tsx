@@ -29,6 +29,7 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
       <AbsenceReasonViewEditUI
         rowVersion={absenceReason.rowVersion}
         name={absenceReason.name}
+        externalId={absenceReason.externalId || undefined}
         description={absenceReason.description || undefined}
         allowNegativeBalance={absenceReason.allowNegativeBalance}
         expired={absenceReason.expired}
