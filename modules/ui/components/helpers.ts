@@ -2,8 +2,8 @@ import * as i18next from "i18next";
 import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 
 type Props = {
-  firstName?: string;
-  lastName?: string;
+  firstName?: string | null | undefined;
+  lastName?: string | null | undefined;
 };
 
 export const getInitials = (props: Props) => {

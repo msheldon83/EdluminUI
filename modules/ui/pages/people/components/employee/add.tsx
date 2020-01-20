@@ -36,7 +36,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
   // Save a new employee in state
   const [employee, setEmployee] = React.useState<EmployeeInput>({
     id: null,
-    orgId: Number(params.organizationId),
+    orgId: params.organizationId,
     firstName: "",
     middleName: null,
     lastName: "",
@@ -60,8 +60,8 @@ export const EmployeeAddPage: React.FC<{}> = props => {
     if (orgUser) {
       setEmployee({
         ...employee,
-        id: Number(orgUser.id),
-        orgId: Number(params.organizationId),
+        id: orgUser.id,
+        orgId: params.organizationId,
         firstName: orgUser.firstName,
         middleName: orgUser.middleName,
         lastName: orgUser.lastName,

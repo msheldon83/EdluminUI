@@ -31,13 +31,13 @@ import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
-import { DateInput } from "ui/components/form/date-picker";
 import { usePermissionSets } from "reference-data/permission-sets";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
 import { GetOrgUserLastLogin } from "../graphql/get-orguser-lastlogin.gen";
+import { DatePicker } from "ui/components/form/date-picker";
 import { Can } from "ui/components/auth/can";
 import { ActionButtons } from "../../../components/action-buttons";
 
@@ -46,10 +46,10 @@ export const editableSections = {
 };
 
 export type OrgUser = {
-  id?: string | number | null | undefined;
-  orgId?: number | null | undefined;
-  firstName?: string;
-  lastName?: string;
+  id?: string | null | undefined;
+  orgId?: string | null | undefined;
+  firstName?: string | null | undefined;
+  lastName?: string | null | undefined;
   email?: string | null | undefined;
   address1?: string | null | undefined;
   address2?: string | null | undefined;
@@ -59,7 +59,7 @@ export type OrgUser = {
   postalCode?: string | null | undefined;
   phoneNumber?: string | null | undefined;
   dateOfBirth?: Date | string | null | undefined;
-  permissionSet?: { id?: number | null | undefined } | null | undefined;
+  permissionSet?: { id?: string | null | undefined } | null | undefined;
 };
 
 type Props = {
@@ -150,6 +150,12 @@ export const Information: React.FC<Props> = props => {
     value: s.enumValue,
   }));
 
+  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+
+  const cleanPhoneNumber = (phoneNumber: string) => {
+    return phoneNumber.replace(/\D/g, "");
+  };
+
   return (
     <>
       <Formik
@@ -169,7 +175,9 @@ export const Information: React.FC<Props> = props => {
           await props.onSubmit!({
             email: data.email,
             phoneNumber:
-              data.phoneNumber.trim().length === 0 ? null : data.phoneNumber,
+              data.phoneNumber.trim().length === 0
+                ? null
+                : cleanPhoneNumber(data.phoneNumber),
             dateOfBirth: isValid(data.dateOfBirth) ? data.dateOfBirth : null,
             address1: data.address1.trim().length === 0 ? null : data.address1,
             city: data.city.trim().length === 0 ? null : data.city,
@@ -177,11 +185,115 @@ export const Information: React.FC<Props> = props => {
             postalCode:
               data.postalCode.trim().length === 0 ? null : data.postalCode,
             country: data.state ? ("US" as CountryCode) : null,
-            permissionSet: { id: Number(data.permissionSetId) },
+            permissionSet: { id: data.permissionSetId },
           });
         }}
-        validationSchema={yup.object().shape({
-          email: yup.string().required(t("Email is required")),
+        validationSchema={yup.object({
+          permissionSetId: yup.string().required(t("Permission is required")),
+          email: yup.string().email(t("Invalid Email Address")),
+          phoneNumber: yup
+            .string()
+            .matches(phoneRegExp, t("Phone Number Is Not Valid")),
+          dateOfBirth: yup.date(),
+          postalCode: yup
+            .number()
+            .min(5)
+            .notRequired()
+            .test("address1", t("Postal Code is required"), function(value) {
+              if (value) return true;
+
+              if (this.resolve(yup.ref("address1"))) {
+                return this.createError({
+                  message: t(
+                    "Postal Code is required when an address is entered"
+                  ),
+                });
+              }
+              if (this.resolve(yup.ref("city"))) {
+                return this.createError({
+                  message: t("Postal Code is required when a city is entered"),
+                });
+              }
+              if (this.resolve(yup.ref("state"))) {
+                return this.createError({
+                  message: t("Postal Code is required when a state is choosen"),
+                });
+              }
+              return true;
+            }),
+          address1: yup
+            .string()
+            .notRequired()
+            .test("city", t("Address is required"), function(value) {
+              const sibling = this.resolve(yup.ref("city"));
+              if (value) return true;
+
+              if (this.resolve(yup.ref("city"))) {
+                return this.createError({
+                  message: t("Address is required when a city is entered"),
+                });
+              }
+              if (this.resolve(yup.ref("state"))) {
+                return this.createError({
+                  message: t("Address is required when a state is choosen"),
+                });
+              }
+              if (this.resolve(yup.ref("postalCode"))) {
+                return this.createError({
+                  message: t(
+                    "Address is required when a postal code is choosen"
+                  ),
+                });
+              }
+              return true;
+            }),
+          city: yup
+            .string()
+            .notRequired()
+            .test("address1", t("City is required"), function(value) {
+              if (value) return true;
+
+              if (this.resolve(yup.ref("address1"))) {
+                return this.createError({
+                  message: t("City is required when an address is entered"),
+                });
+              }
+              if (this.resolve(yup.ref("state"))) {
+                return this.createError({
+                  message: t("City is required when a state is choosen"),
+                });
+              }
+              if (this.resolve(yup.ref("postalCode"))) {
+                return this.createError({
+                  message: t("City is required when a postal code is choosen"),
+                });
+              }
+              return true;
+            }),
+          state: yup
+            .string()
+            .notRequired()
+            .test("address1", t("State is required"), function(value) {
+              const sibling = this.resolve(yup.ref("address1"));
+              if (value) return true;
+
+              if (this.resolve(yup.ref("address1"))) {
+                return this.createError({
+                  message: t("State is required when an address is entered"),
+                });
+              }
+              if (this.resolve(yup.ref("city"))) {
+                return this.createError({
+                  message: t("State is required when a city is entered"),
+                });
+              }
+              if (this.resolve(yup.ref("postalCode"))) {
+                return this.createError({
+                  message: t("State is required when a postal code is choosen"),
+                });
+              }
+              return true;
+            }),
         })}
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
@@ -222,11 +334,11 @@ export const Information: React.FC<Props> = props => {
                         !props.isSuperUser ? (
                           <SelectNew
                             value={permissionSetOptions.find(
-                              e => e.value && values.permissionSetId
+                              e => e.value && e.value === values.permissionSetId
                             )}
                             multiple={false}
                             onChange={(value: OptionType) => {
-                              const id = [(value as OptionTypeBase).value];
+                              const id = (value as OptionTypeBase).value;
                               setFieldValue("permissionSetId", id);
                             }}
                             options={permissionSetOptions}
@@ -277,6 +389,21 @@ export const Information: React.FC<Props> = props => {
                         )
                       }
                     />
+                    {props.editing === editableSections.information && (
+                      <PeopleGridItem
+                        title={t("Date of Birth")}
+                        description={
+                          <DatePicker
+                            variant={"single-hidden"}
+                            startDate={values.dateOfBirth ?? ""}
+                            onChange={e =>
+                              setFieldValue("dateOfBirth", e.startDate)
+                            }
+                            startLabel={""}
+                          />
+                        }
+                      />
+                    )}
                   </Grid>
                   <Grid container item xs={6} spacing={2}>
                     <PeopleGridItem
@@ -363,21 +490,14 @@ export const Information: React.FC<Props> = props => {
                         )
                       }
                     />
-                    <PeopleGridItem
-                      title={t("Date of Birth")}
-                      description={
-                        props.editing === editableSections.information ? (
-                          <DateInput
-                            value={values.dateOfBirth}
-                            label={""}
-                            onChange={e => setFieldValue("dateOfBirth", e)}
-                            onValidDate={e => setFieldValue("dateOfBirth", e)}
-                          />
-                        ) : (
-                          formattedBirthDate
-                        )
-                      }
-                    />
+                    {props.editing !== editableSections.information && (
+                      <Grid item className={classes.label}>
+                        <Typography variant="h6">
+                          {t("Date of Birth")}
+                        </Typography>
+                        <Typography>{formattedBirthDate}</Typography>
+                      </Grid>
+                    )}
                   </Grid>
                   {!props.isCreate && (
                     <>
@@ -496,5 +616,8 @@ const useStyles = makeStyles(theme => ({
   },
   tooltipTitle: {
     paddingBottom: theme.spacing(1),
+  },
+  label: {
+    padding: theme.spacing(1),
   },
 }));

@@ -19,7 +19,10 @@ export const SubNavLink: React.FC<Props> = props => {
     setSubNavMatches: setSubNavActive,
     ...linkProps
   } = props;
-  const matches = useRouteMatch({ exact: true, path: route }) !== null && route;
+
+  // exact is false to allow for the higlighted state on sub routes
+  const matches =
+    useRouteMatch({ exact: false, path: route }) !== null && route;
   const classes = useStyles();
 
   useEffect(() => {

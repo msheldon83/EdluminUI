@@ -115,6 +115,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     getValues,
     errors,
     triggerValidation,
+    formState,
   } = useForm<CreateAbsenceFormData>({
     defaultValues: initialFormData,
   });
@@ -325,13 +326,17 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const onCancel = React.useCallback(() => setStep("absence"), [setStep]);
 
   const onAssignSub = React.useCallback(
-    (replacementId: number, replacementName: string, payCodeId: string | undefined) => {
+    (
+      replacementId: number,
+      replacementName: string,
+      payCodeId: string | undefined
+    ) => {
       /* eslint-disable @typescript-eslint/no-floating-promises */
       setValue("replacementEmployeeId", replacementId);
       setValue("replacementEmployeeName", replacementName);
       if (payCodeId) {
         setValue("payCode", payCodeId);
-      }      
+      }
       /* eslint-enable @typescript-eslint/no-floating-promises */
       setStep("absence");
     },
@@ -393,6 +398,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 replacementEmployeeId={formValues.replacementEmployeeId}
                 replacementEmployeeName={formValues.replacementEmployeeName}
                 onRemoveReplacement={removePrearrangedReplacementEmployee}
+                isSubmitted={formState.isSubmitted}
+                initialAbsenceCreation={true}
               />
             </Section>
           </>

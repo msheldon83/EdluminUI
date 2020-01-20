@@ -1,24 +1,18 @@
-import {
-  Button,
-  Chip,
-  Grid,
-  makeStyles,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
 import { Errors, SetValue, TriggerValidation } from "forms";
-import { Vacancy, PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, Vacancy } from "graphql/server-types.gen";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { usePayCodes } from "reference-data/pay-codes";
 import { VacancyDetails } from "ui/components/absence/vacancy-details";
-import { SelectNew } from "ui/components/form/select-new";
-import { AbsenceDetailsFormData } from ".";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { Can } from "ui/components/auth/can";
+import { SelectNew } from "ui/components/form/select-new";
 import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
+import { AbsenceDetailsFormData } from ".";
+import { NoteField } from "./notes-field";
 
 type Props = {
   setValue: SetValue;
@@ -36,11 +30,12 @@ type Props = {
   disableReplacementInteractions?: boolean;
   locationIds?: number[];
   disableEditingDatesAndTimes?: boolean;
+  isSubmitted: boolean;
+  initialAbsenceCreation: boolean;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
   const classes = useStyles();
-  const textFieldClasses = useTextFieldClasses();
   const { t } = useTranslation();
 
   const {
@@ -159,15 +154,12 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
         >
           {t("Can be seen by the substitute, administrator and employee.")}
         </Typography>
-        <TextField
-          name="notesToReplacement"
-          multiline
-          rows="6"
-          variant="outlined"
-          margin="normal"
-          fullWidth
+        <NoteField
           onChange={onNotesToReplacementChange}
-          InputProps={{ classes: textFieldClasses }}
+          name={"notesToReplacement"}
+          isSubmitted={props.isSubmitted}
+          initialAbsenceCreation={props.initialAbsenceCreation}
+          value={values.notesToReplacement}
         />
       </div>
 
@@ -212,6 +204,7 @@ const useStyles = makeStyles(theme => ({
   notesForReplacement: {
     paddingTop: theme.spacing(3),
   },
+  readonlyNotes: { paddingTop: theme.spacing(2) },
   subCodes: {
     paddingTop: theme.spacing(2),
   },
@@ -220,11 +213,5 @@ const useStyles = makeStyles(theme => ({
   },
   substituteActions: {
     marginTop: theme.spacing(2),
-  },
-}));
-
-const useTextFieldClasses = makeStyles(theme => ({
-  multiline: {
-    padding: theme.spacing(1),
   },
 }));
