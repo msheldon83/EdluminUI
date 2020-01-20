@@ -10,6 +10,11 @@ import {
   PermissionEnum,
 } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
+import {
+  PersonViewRoute,
+  PeopleSubPositionsAttributesEditRoute,
+} from "ui/routes/people";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
   editing: string | null;
@@ -20,6 +25,7 @@ type Props = {
 export const SubPositionsAttributes: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
+  const params = useRouteParams(PersonViewRoute);
 
   return (
     <>
@@ -58,7 +64,9 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
                 variant="outlined"
                 hidden={!props.editing}
                 onClick={() => {
-                  const editSettingsUrl = "/"; //TODO figure out the URL for editing
+                  const editSettingsUrl = PeopleSubPositionsAttributesEditRoute.generate(
+                    params
+                  );
                   history.push(editSettingsUrl);
                 }}
               >
