@@ -32,7 +32,7 @@ export const AdminAddPage: React.FC<{}> = props => {
   // Save a new admin in state
   const [admin, setAdmin] = React.useState<AdministratorInput>({
     id: null,
-    orgId: Number(params.organizationId),
+    orgId: params.organizationId,
     firstName: "",
     middleName: null,
     lastName: "",
@@ -60,8 +60,8 @@ export const AdminAddPage: React.FC<{}> = props => {
     if (orgUser) {
       setAdmin({
         ...admin,
-        id: Number(orgUser.id),
-        orgId: Number(params.organizationId),
+        id: orgUser.id,
+        orgId: params.organizationId,
         firstName: orgUser.firstName,
         middleName: orgUser.middleName,
         lastName: orgUser.lastName,
