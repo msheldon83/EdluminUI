@@ -76,11 +76,11 @@ export const SubstituteTab: React.FC<Props> = props => {
 
   const substitute = orgUser.substitute;
 
-  const onUpdateSubstitute = async (orgUser: SubstituteInput) => {
+  const onUpdateSubstitute = async (subInput: SubstituteInput) => {
     await updateSubstitute({
       variables: {
         substitute: {
-          ...orgUser,
+          ...subInput,
           id: props.orgUserId,
         },
       },
