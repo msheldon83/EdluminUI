@@ -6,7 +6,7 @@ import { Column } from "material-table";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
-import { LocationsRoute } from "ui/routes/locations";
+import { LocationsRoute, LocationsViewRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllLocationsWithinOrg } from "./graphql/get-all-locations.gen";
 import { useIsMobile } from "hooks";
@@ -60,7 +60,7 @@ export const LocationsUI: React.FC<Props> = props => {
 
   const locations = compact(getLocations?.data?.location?.all ?? []);
   const locationsCount = locations.length;
-
+  console.log(locations);
   return (
     <>
       <Section>
@@ -73,9 +73,9 @@ export const LocationsUI: React.FC<Props> = props => {
             if (!location) return;
             const newParams = {
               ...params,
-              location: location.id,
+              locationId: location.id,
             };
-            // history.push(NEW_ROUTE_HERE.generate(newParams)); TODO: Create Route for Permission Set View
+            history.push(LocationsViewRoute.generate(newParams));
           }}
         />
       </Section>
