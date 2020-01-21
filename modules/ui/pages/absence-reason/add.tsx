@@ -9,7 +9,7 @@ import {
   AbsenceReasonAddRoute,
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
 
 type Props = {};
 
@@ -29,18 +29,16 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle title={`${params.organizationId} ${t("Schools")}`} />
-      {__DEV__ && (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            setTriggerError(true);
-          }}
-        >
-          Trigger Error
-        </Button>
-      )}
+      <div className={classes.header}>
+        <PageTitle title={t("Create new absence reason")} />
+        <Typography variant="h1">
+          {name || (
+            <span className={classes.placeholder}>
+              {t("Professional Development")}
+            </span>
+          )}
+        </Typography>
+      </div>
     </>
   );
 };
@@ -49,5 +47,12 @@ const useStyles = makeStyles(theme => ({
   filters: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+  },
+  header: {
+    marginBottom: theme.spacing(2),
+  },
+  placeholder: {
+    opacity: "0.2",
+    filter: "alpha(opacity = 20)",
   },
 }));

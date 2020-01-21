@@ -1,25 +1,31 @@
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import {
+  AbsenceReasonTrackingTypeId,
+  AssignmentType,
+} from "graphql/server-types.gen";
 import * as React from "react";
+import { useCallback } from "react";
+import { useHistory } from "react-router";
+import { PageHeader } from "ui/components/page-header";
+import { PageTitle } from "ui/components/page-title";
 import {
   AbsenceReasonEditSettingsRoute,
   AbsenceReasonViewEditRoute,
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
-import { AbsenceReasonEditSettingsUI } from "./edit-settings-ui";
+import { AbsenceReasonSettings } from "./absence-reason-settings";
 import { GetAbsenceReason } from "./graphql/get-absence-reason.gen";
-import { useHistory } from "react-router";
-import { useCallback } from "react";
-import {
-  AbsenceReasonTrackingTypeId,
-  AssignmentType,
-} from "graphql/server-types.gen";
 import { UpdateAbsenceReason } from "./graphql/update-absence-reason.gen";
+import { useTranslation } from "react-i18next";
+import { useIsMobile } from "hooks";
 
 type Props = {};
 
 export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
   const params = useRouteParams(AbsenceReasonEditSettingsRoute);
   const history = useHistory();
+  const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   const result = useQueryBundle(GetAbsenceReason, {
     fetchPolicy: "cache-and-network",
@@ -73,21 +79,25 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
   const absenceReason = result.data.orgRef_AbsenceReason?.byId!;
 
   return (
-    <AbsenceReasonEditSettingsUI
-      name={absenceReason.name}
-      description={absenceReason.description || undefined}
-      allowNegativeBalance={absenceReason.allowNegativeBalance}
-      isBucket={absenceReason.isBucket}
-      absenceReasonTrackingTypeId={
-        absenceReason.absenceReasonTrackingTypeId || undefined
-      }
-      appliesToAssignmentTypes={
-        absenceReason.appliesToAssignmentTypes || undefined
-      }
-      onSubmit={updateAbsenceReason}
-      onCancel={() => {
-        history.push(AbsenceReasonViewEditRoute.generate(params));
-      }}
-    />
+    <>
+      <PageTitle title={t("Absence Reason")} withoutHeading={!isMobile} />
+      <PageHeader text={absenceReason.name} label={t("Name")} />
+
+      <AbsenceReasonSettings
+        description={absenceReason.description || undefined}
+        allowNegativeBalance={absenceReason.allowNegativeBalance}
+        isBucket={absenceReason.isBucket}
+        absenceReasonTrackingTypeId={
+          absenceReason.absenceReasonTrackingTypeId || undefined
+        }
+        appliesToAssignmentTypes={
+          absenceReason.appliesToAssignmentTypes || undefined
+        }
+        onSubmit={updateAbsenceReason}
+        onCancel={() => {
+          history.push(AbsenceReasonViewEditRoute.generate(params));
+        }}
+      />
+    </>
   );
 };
