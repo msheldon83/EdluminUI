@@ -1192,16 +1192,16 @@ type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  employeeId: Int!
+  employeeId: ID!
   expirationDate: Date
-  endorsementId: Int!
+  endorsementId: ID!
   endorsement: Endorsement!
 }
 
 input EmployeeEndorsementInput {
-  orgId: Int!
-  employeeId: Int!
-  endorsementId: Int!
+  orgId: ID!
+  employeeId: ID!
+  endorsementId: ID!
   expirationDate: Date
 }
 
@@ -1242,7 +1242,7 @@ type EmployeeMutations {
   delete(employeeId: Int!): Boolean
   addEndorsement(endorsement: EmployeeEndorsementInput!): Employee
   changeEndorsement(endorsement: EmployeeEndorsementInput!): Employee
-  removeEndorsement(employeeId: Int!, endorsementId: Int!): Employee
+  removeEndorsement(employeeId: ID!, endorsementId: ID!): Employee
 }
 
 type EmployeeQualifiedResult {
