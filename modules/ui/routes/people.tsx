@@ -136,6 +136,19 @@ export const PeopleSubPoolEditLoader = asyncComponent({
   name: "SubPool",
 });
 
+//Edit Sub Related Orgs
+export const PeopleSubRelatedOrgsEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-sub-orgs"
+);
+export const PeopleSubRelatedOrgsEditLoader = asyncComponent({
+  resolve: async () => {
+    const SubRelatedOrgsEditPage = (await import("ui/pages/sub-related-orgs")).SubRelatedOrgsEditPage;
+    return SubRelatedOrgsEditPage;
+  },
+  name: "SubRelatedOrgs",
+});
+
 /***** substitute assignment schedule *****/
 
 export const SubstituteAssignmentScheduleRoute = defineSubRoute(
