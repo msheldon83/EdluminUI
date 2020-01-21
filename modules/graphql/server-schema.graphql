@@ -1205,6 +1205,18 @@ input EmployeeEndorsementInput {
   expirationDate: Date
 }
 
+type EmployeeEndorsementMutations {
+  create(employeeEndorsement: EmployeeEndorsementCreateInput!): EmployeeEndorsement
+  update(employeeEndorsement: EmployeeEndorsementUpdateInput!): EmployeeEndorsement
+  delete(employeeEndorsementId: Int!): Boolean
+}
+
+input EmployeeEndorsementUpdateInput {
+  id: Int!
+  endorsementDate: Date
+  expirationDate: Date
+}
+
 input EmployeeInput {
   id: ID
   orgId: ID

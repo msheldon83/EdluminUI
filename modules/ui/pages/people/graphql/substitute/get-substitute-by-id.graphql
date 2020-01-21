@@ -3,6 +3,7 @@ query GetSubstituteById($id: ID!) {
     byId(id: $id) {
       id
       externalId
+      orgId
       userId
       loginEmail
       relatedOrganizations {
