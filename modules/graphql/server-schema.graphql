@@ -1195,15 +1195,7 @@ type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
   employeeId: Int!
   expirationDate: Date
   endorsementId: Int!
-  endorsement: Endorsement
-}
-
-input EmployeeEndorsementCreateInput {
-  orgId: Int!
-  employeeId: Int!
-  endorsementId: Int!
-  endorsementDate: Date
-  expirationDate: Date
+  endorsement: Endorsement!
 }
 
 input EmployeeEndorsementInput {
@@ -1576,9 +1568,6 @@ enum EventType {
   ABSENCE_REASON_BALANCE_UPDATED
   ABSENCE_REASON_BALANCE_DELETED
   ABSENCE_REASON_BALANCE_DEDUCTED
-  EMPLOYEE_ENDORSEMENT_CREATED
-  EMPLOYEE_ENDORSEMENT_UPDATED
-  EMPLOYEE_ENDORSEMENT_DELETED
   REPLACEMENT_POOL_CONFIG_CREATED
   REPLACEMENT_POOL_CONFIG_UPDATED
   REPLACEMENT_POOL_CONFIG_DELETED
@@ -1894,7 +1883,6 @@ type Mutation {
   contract: ContractMutations
   contractSchedule: ContractScheduleMutations
   customField: CustomFieldMutations
-  employeeEndorsement: EmployeeEndorsementMutations
   employee: EmployeeMutations
   eventQueue: EventQueueMutations
   locationGroup: LocationGroupMutations
@@ -2329,7 +2317,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   isAdmin: Boolean!
   permissionSets: [PermissionSet]
   permissionSetIds: [Int!]
-  relatedOrgIds: [Int]
+  relatedOrgIds: [ID]
   relatedOrganizations: [Organization]
   employee: Employee
   substitute: Substitute
@@ -2374,9 +2362,9 @@ type OrgUserLastLogin {
 type OrgUserMutations {
   create(orgUser: OrgUserCreateInput!): OrgUser
   update(orgUser: OrgUserUpdateInput!): OrgUser
-  delete(orgUserId: Int!): Boolean
-  addRelatedOrg(orgUserId: Int!, relatedOrgId: Int!): OrgUser
-  removeRelatedOrg(orgUserId: Int!, relatedOrgId: Int!): OrgUser
+  delete(orgUserId: ID!): Boolean
+  addRelatedOrg(orgUserId: ID!, relatedOrgId: ID!): OrgUser
+  removeRelatedOrg(orgUserId: ID!, relatedOrgId: ID!): OrgUser
   saveAdministrator(administrator: AdministratorInput!): OrgUser
   saveSubstitute(substitute: SubstituteInput!): OrgUser
   saveEmployee(employee: EmployeeInput!): OrgUser
@@ -4405,10 +4393,10 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   permissionSet: PermissionSet
   permissions: [PermissionEnum]
   assignments: [Assignment]
-  attributes: [EmployeeEndorsement]
+  attributes: [EmployeeEndorsement!]!
   payCodeId: Int
   payCode: PayCode
-  qualifiedPositionTypes: [PositionType]
+  qualifiedPositionTypes: [PositionType!]!
   substitutePoolMembership: SubstitutePoolMembership
 }
 
@@ -4470,8 +4458,8 @@ type SubstitutePoolMembership {
 }
 
 input SubstitutePreferencesInput {
-  favoriteSubstitutes: LocatorInput
-  blockedSubstitutes: LocatorInput
+  favoriteSubstitutes: [LocatorInput]
+  blockedSubstitutes: [LocatorInput]
 }
 
 input SwapVacancyAssignmentsInput {

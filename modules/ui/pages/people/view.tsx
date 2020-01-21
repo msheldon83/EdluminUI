@@ -42,7 +42,7 @@ export const PersonViewPage: React.FC<{}> = props => {
   const deleteOrgUser = React.useCallback(async () => {
     await deleteOrgUserMutation({
       variables: {
-        orgUserId: Number(params.orgUserId),
+        orgUserId: params.orgUserId,
       },
     });
     history.push(PeopleRoute.generate(params));
