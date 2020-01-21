@@ -73,9 +73,7 @@ export const AccessControl: React.FC<Props> = props => {
   const locationOptions: OptionType[] = useMemo(
     () =>
       locations
-        .filter(
-          l => !locationGroupsSelected.includes(l.locationGroupId.toString())
-        )
+        .filter(l => !locationGroupsSelected.includes(l.locationGroupId ?? "0"))
         .map(p => ({ label: p.name, value: p.id })),
     [locations, locationGroupsSelected]
   );

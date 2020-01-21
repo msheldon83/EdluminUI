@@ -35,6 +35,7 @@ query GetAdminById($id: ID!) {
           locations {
             id
             name
+            locationGroupId
           }
           locationGroups {
             id
