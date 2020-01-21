@@ -1,5 +1,5 @@
 import { makeStyles } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
+import { useIsMobile, useDeferredState } from "hooks";
 import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
@@ -58,9 +58,12 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
   const [endorsementSearchText, setEndorsementSearchText] = useState<
     string | undefined
   >(undefined);
-  const [attributesAssigned, setAttributesAssigned] = useState<Attribute[]>(
-    props.currentAttributes
-  );
+  const [
+    attributesAssigned,
+    pendingAttributesAssigned,
+    setPendingAttributesAssigned,
+  ] = useDeferredState(props.currentAttributes, 500);
+
   const [positionTypeQualifications, setPositionTypeQualifications] = useState<
     GetPositionTypeQualifications.GetQualificationsFromEndorsements
   >({
@@ -96,35 +99,16 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
 
   // Keep certain state variables in sync with props
   useEffect(() => {
-    setAttributesAssigned(props.currentAttributes);
-  }, [props.currentAttributes]);
-
-  // const qualifiedPositionTypes = useMemo(() => {
-  //   if (
-  //     positionTypesQualificationsResponse.state === "DONE" &&
-  //     positionTypesQualificationsResponse.data.positionType
-  //   ) {
-  //     return compact(positionTypesQualificationsResponse.data.positionType.getQualificationsFromEndorsements.qualifiedPositionTypes) ?? [];
-  //   }
-  //   return [];
-  // }, [positionTypesQualificationsResponse]);
-  // const unqualifiedPositionTypes = useMemo(() => {
-  //   if (
-  //     positionTypesQualificationsResponse.state === "DONE" &&
-  //     positionTypesQualificationsResponse.data.positionType
-  //   ) {
-  //     return compact(positionTypesQualificationsResponse.data.positionType.getQualificationsFromEndorsements.unqualifiedPositionTypes) ?? [];
-  //   }
-  //   return [];
-  // }, [positionTypesQualificationsResponse]);
+    setPendingAttributesAssigned(props.currentAttributes);
+  }, [props.currentAttributes, setPendingAttributesAssigned]);
 
   // Determine which endorsements/attribute the Sub doesn't have yet
   const missingEndorsements = useMemo(
     () =>
       allEndorsements.filter(
-        e => !attributesAssigned.find(c => c.endorsementId === e.id)
+        e => !pendingAttributesAssigned.find(c => c.endorsementId === e.id)
       ),
-    [attributesAssigned, allEndorsements]
+    [pendingAttributesAssigned, allEndorsements]
   );
 
   // Filter the endorsements/attributes based on User search text input
@@ -164,14 +148,43 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
             </Typography>
             {positionTypeQualifications.unqualifiedPositionTypes.length ===
             0 ? (
-              <div className={classes.allOrNoneRow}>{t("None")}</div>
+              <div className={classes.greyedOutText}>{t("None")}</div>
             ) : (
               positionTypeQualifications.unqualifiedPositionTypes.map(
                 (p, i) => {
+                  const mustHaves = p.replacementCriteria?.mustHave ?? [];
+                  const mustNotHaves = p.replacementCriteria?.mustNotHave ?? [];
+
                   return (
-                    <div key={i} className={getRowClasses(classes, i)}>
-                      {p.name}
-                    </div>
+                    <Grid
+                      container
+                      item
+                      xs={12}
+                      key={i}
+                      className={getRowClasses(classes, i)}
+                    >
+                      <Grid item xs={6}>
+                        {p.name}
+                      </Grid>
+                      <Grid item xs={6}>
+                        {mustHaves.length > 0 && (
+                          <div>
+                            <span className={classes.greyedOutText}>
+                              {t("Needs")}:
+                            </span>{" "}
+                            {mustHaves.map(m => m!.name).join(", ")}
+                          </div>
+                        )}
+                        {mustNotHaves.length > 0 && (
+                          <div>
+                            <span className={classes.greyedOutText}>
+                              {t("Can't have")}:
+                            </span>{" "}
+                            {mustNotHaves.map(m => m!.name).join(", ")}
+                          </div>
+                        )}
+                      </Grid>
+                    </Grid>
                   );
                 }
               )
@@ -185,9 +198,9 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
             <Typography variant="h5" className={classes.sectionHeader}>
               {t("Selected attributes")}
             </Typography>
-            {attributesAssigned.length === 0 ? (
+            {pendingAttributesAssigned.length === 0 ? (
               <Grid container item xs={12}>
-                <div className={classes.allOrNoneRow}>{t("None")}</div>
+                <div className={classes.greyedOutText}>{t("None")}</div>
               </Grid>
             ) : (
               <>
@@ -199,7 +212,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                     {t("Expires")}
                   </Grid>
                 </Grid>
-                {attributesAssigned.map((a, i) => {
+                {pendingAttributesAssigned.map((a, i) => {
                   return (
                     <Grid
                       container
@@ -216,7 +229,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                       </Grid>
                       <Grid item xs={4}>
                         {!a.expires ? (
-                          <div className={classes.allOrNoneRow}>
+                          <div className={classes.greyedOutText}>
                             {t("Does not expire")}
                           </div>
                         ) : (
@@ -228,7 +241,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                                 const expirationDate = e.startDate as Date;
 
                                 const updatedAttributesAssigned = [
-                                  ...attributesAssigned,
+                                  ...pendingAttributesAssigned,
                                 ];
                                 const attributeToUpdate = updatedAttributesAssigned.find(
                                   u => u.endorsementId === a.endorsementId
@@ -252,7 +265,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                                     if (attributeToUpdate) {
                                       attributeToUpdate.expirationDate = expirationDate;
                                     }
-                                    setAttributesAssigned(
+                                    setPendingAttributesAssigned(
                                       updatedAttributesAssigned
                                     );
                                   }
@@ -272,8 +285,8 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                               a.endorsementId
                             );
                             if (result) {
-                              setAttributesAssigned([
-                                ...attributesAssigned.filter(
+                              setPendingAttributesAssigned([
+                                ...pendingAttributesAssigned.filter(
                                   u => u.endorsementId !== a.endorsementId
                                 ),
                               ]);
@@ -304,7 +317,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
             </div>
             <Grid container item xs={12}>
               {!!endorsementSearchText && filteredEndorsements.length === 0 && (
-                <div className={classes.allOrNoneRow}>
+                <div className={classes.greyedOutText}>
                   {t("No attributes found")}
                 </div>
               )}
@@ -323,8 +336,8 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                         onClick={async () => {
                           const result = await props.addAttribute(e.id);
                           if (result) {
-                            setAttributesAssigned([
-                              ...attributesAssigned,
+                            setPendingAttributesAssigned([
+                              ...pendingAttributesAssigned,
                               {
                                 endorsementId: e.id,
                                 name: e.name,
@@ -352,7 +365,7 @@ const useStyles = makeStyles(theme => ({
   sectionHeader: {
     marginBottom: theme.spacing(2),
   },
-  allOrNoneRow: {
+  greyedOutText: {
     color: theme.customColors.edluminSubText,
   },
   row: {
