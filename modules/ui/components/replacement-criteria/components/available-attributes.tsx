@@ -38,14 +38,16 @@ export const AvailableAttributes: React.FC<Props> = props => {
     [setPendingSearchText]
   );
 
-  const addEndorsement = (id: string, checked: boolean) => () => {
-    if (checked) endorsementIds.push(id);
-    else {
+  const addEndorsement = (id: string, checked: boolean) => {
+    if (checked) {
+      endorsementIds.push(id);
+    } else {
       const index = endorsementIds.indexOf(id);
       if (index > -1) {
         endorsementIds.splice(index, 1);
       }
     }
+    console.log(endorsementIds);
   };
 
   const getAllEndorsements = useQueryBundle(GetAllEndorsementsWithinOrg, {
