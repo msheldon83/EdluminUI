@@ -3,15 +3,14 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { Typography, Grid, Link } from "@material-ui/core";
-import { useHistory } from "react-router";
+import { Typography } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { PersonViewRoute } from "ui/routes/people";
 import { PageTitle } from "ui/components/page-title";
 import { GetSubstituteById } from "../people/graphql/substitute/get-substitute-by-id.gen";
 import {
   SubPositionTypesAndAttributesEdit,
-  Attributes,
+  Attribute,
 } from "./components/position-types-attributes";
 import { useMemo, useCallback } from "react";
 import { ShowErrors } from "ui/components/error-helpers";
@@ -24,7 +23,6 @@ type Props = {};
 
 export const SubPositionsAttributes: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
   const classes = useStyles();
   const isMobile = useIsMobile();
   const params = useRouteParams(PersonViewRoute);
@@ -40,7 +38,7 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       ? undefined
       : getSubstituteById?.data?.orgUser?.byId?.substitute;
 
-  const currentAttributes: Attributes[] = useMemo(() => {
+  const currentAttributes: Attribute[] = useMemo(() => {
     if (!substitute?.attributes) {
       return [];
     }
@@ -75,7 +73,7 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       });
       return !!response?.data;
     },
-    [addEmployeeEndorsement]
+    [addEmployeeEndorsement, params.organizationId, params.orgUserId]
   );
 
   const [updateEmployeeEndorsement] = useMutationBundle(
@@ -101,7 +99,7 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       });
       return !!response?.data;
     },
-    [updateEmployeeEndorsement]
+    [updateEmployeeEndorsement, params.organizationId, params.orgUserId]
   );
 
   const [removeEmployeeEndorsement] = useMutationBundle(
@@ -123,7 +121,7 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       });
       return !!response?.data;
     },
-    [removeEmployeeEndorsement]
+    [removeEmployeeEndorsement, params.orgUserId]
   );
 
   if (getSubstituteById.state === "LOADING") {

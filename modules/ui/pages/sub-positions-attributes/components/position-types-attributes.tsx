@@ -19,13 +19,13 @@ import {
 } from "graphql/server-types.gen";
 import { Input } from "ui/components/form/input";
 import { DatePicker } from "ui/components/form/date-picker";
-import { isDate } from "date-fns";
+import { isDate, isBefore, differenceInDays } from "date-fns";
 
 type Props = {
   organizationId: string;
   orgUserId?: string;
   qualifiedPositionTypes: Pick<PositionType, "id" | "name">[];
-  currentAttributes: Attributes[];
+  currentAttributes: Attribute[];
   addAttribute: (endorsementId: string) => Promise<boolean>;
   updateAttribute: (
     endorsementId: string,
@@ -34,7 +34,7 @@ type Props = {
   removeAttribute: (endorsementId: string) => Promise<boolean>;
 };
 
-export type Attributes = {
+export type Attribute = {
   endorsementId: string;
   name: string;
   expirationDate?: Date | null | undefined;
@@ -53,7 +53,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
   const [endorsementSearchText, setEndorsementSearchText] = useState<
     string | undefined
   >(undefined);
-  const [attributesAssigned, setAttributesAssigned] = useState<Attributes[]>(
+  const [attributesAssigned, setAttributesAssigned] = useState<Attribute[]>(
     props.currentAttributes
   );
 
@@ -169,6 +169,10 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                   <div className={classes.currentAttributeColumn}>
                     <div className={classes.rowHeader}>{t("Expires")}</div>
                     {attributesAssigned.map((a, i) => {
+                      const expired = attributeIsExpired(a);
+                      const closeToExpiration =
+                        !expired && attributeIsCloseToExpiring(a);
+
                       return (
                         <div key={i} className={getRowClasses(classes, i)}>
                           <div className={classes.updateAttributeItems}>
@@ -364,4 +368,22 @@ const getRowClasses = (classes: any, index: number): string => {
   }
 
   return rowClasses.join(" ");
+};
+
+const attributeIsExpired = (attribute: Attribute): boolean => {
+  if (!attribute.expirationDate) {
+    return false;
+  }
+
+  const result = isBefore(attribute.expirationDate, new Date());
+  return result;
+};
+
+const attributeIsCloseToExpiring = (attribute: Attribute): boolean => {
+  if (!attribute.expirationDate) {
+    return false;
+  }
+
+  const result = differenceInDays(new Date(), attribute.expirationDate) <= 30;
+  return result;
 };
