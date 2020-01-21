@@ -19,6 +19,7 @@ import {
   FormControlLabel,
   Typography,
 } from "@material-ui/core";
+import * as yup from "yup";
 
 type Props = {
   description?: string;
@@ -52,7 +53,14 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
   return (
     <Section className={classes.content}>
       <SectionHeader title={t("Settings")} />
-      <Formik initialValues={initialValues} onSubmit={props.onSubmit}>
+      <Formik
+        initialValues={initialValues}
+        onSubmit={props.onSubmit}
+        validationSchema={yup.object().shape({
+          isBucket: yup.boolean(),
+          allowNegativeBalances: yup.boolean(),
+        })}
+      >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
             <Input

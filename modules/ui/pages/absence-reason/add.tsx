@@ -81,11 +81,6 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
     [createAbsenceReason, basicInfo, params, history]
   );
 
-  const [triggerError, setTriggerError] = React.useState(false);
-  if (triggerError) {
-    throw Error("error!");
-  }
-
   const steps: Array<Step> = [
     {
       stepNumber: 0,
@@ -141,7 +136,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
       <div className={classes.header}>
         <PageTitle title={t("Create new absence reason")} />
         <Typography variant="h1">
-          {name || (
+          {basicInfo?.name || (
             <span className={classes.placeholder}>{namePlaceholder}</span>
           )}
         </Typography>
