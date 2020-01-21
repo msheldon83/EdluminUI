@@ -21,6 +21,8 @@ type Props = {
     assignmentRowVersion?: string
   ) => Promise<void>;
   goToAbsenceEdit: (absenceId: string) => void;
+  goToEmployeeView: (employeeId: string | undefined) => void;
+  goToLocationView: (locationId: string | undefined) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
   rowActions: {
@@ -62,7 +64,16 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           <div>
             {props.detail.type === "absence" ? (
               <>
-                <div>{props.detail.employee?.name}</div>
+                <div>
+                  <Link
+                    className={classes.action}
+                    onClick={() =>
+                      props.goToEmployeeView(props.detail.employee?.id)
+                    }
+                  >
+                    {props.detail.employee?.name}
+                  </Link>
+                </div>
                 <div className={classes.detailSubText}>
                   {props.detail.position?.name}
                 </div>
@@ -78,7 +89,14 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
         <div className={classes.detailSubText}>{props.detail.dateRange}</div>
       </Grid>
       <Grid item xs={2} zeroMinWidth>
-        <div>{props.detail.location?.name}</div>
+        <div>
+          <Link
+            className={classes.action}
+            onClick={() => props.goToLocationView(props.detail.location?.id)}
+          >
+            {props.detail.location?.name}
+          </Link>
+        </div>
         <div
           className={classes.detailSubText}
         >{`${props.detail.startTime} - ${props.detail.endTime}`}</div>

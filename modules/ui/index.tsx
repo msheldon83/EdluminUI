@@ -132,7 +132,12 @@ import {
   LocationGroupsLoader,
   LocationGroupsRoute,
 } from "./routes/location-groups";
-import { LocationsLoader, LocationsRoute } from "./routes/locations";
+import {
+  LocationsLoader,
+  LocationsRoute,
+  LocationViewLoader,
+  LocationViewRoute,
+} from "./routes/locations";
 import {
   SecurityManagedOrganizationsLoader,
   SecurityManagedOrganizationsRoute,
@@ -686,6 +691,12 @@ export function App() {
                                   permissions={[
                                     PermissionEnum.FinanceSettingsView,
                                   ]}
+                                />
+                                <ProtectedRoute
+                                  component={LocationViewLoader}
+                                  path={LocationViewRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.LocationView]}
                                 />
                                 <ProtectedRoute
                                   component={LocationsLoader}

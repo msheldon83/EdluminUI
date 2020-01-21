@@ -11,3 +11,17 @@ export const LocationsLoader = asyncComponent({
   },
   name: "Locations",
 });
+
+// View
+export const LocationViewRoute = defineSubRoute(
+  LocationsRoute,
+  "/:locationId",
+  ["locationId"]
+);
+export const LocationViewLoader = asyncComponent({
+  resolve: async () => {
+    const LocationViewPage = (await import("ui/pages/schools/index")).Locations;
+    return LocationViewPage;
+  },
+  name: "LocationViewPage",
+});
