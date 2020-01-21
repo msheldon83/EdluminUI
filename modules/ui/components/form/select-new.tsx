@@ -24,6 +24,9 @@ export type SelectProps<T extends boolean> = {
   validationMessage?: string | undefined;
   className?: string;
 
+  // Will skip sorting the options
+  ignoreSort?: boolean;
+
   // This should never be used if it's a multi-select
   withResetValue?: T extends true ? false : boolean;
 
@@ -46,7 +49,6 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   const {
     label,
     multiple = false,
-    options,
     value = multiple ? [] : undefined,
     onChange = () => {},
     name,
@@ -59,6 +61,10 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     withResetValue = multiple ? false : true,
     className,
   } = props;
+
+  const options = props.ignoreSort
+    ? props.options
+    : props.options.sort((a, b) => (a.label > b.label ? 1 : -1));
 
   const [showAllChips, setShowAllChips] = React.useState(false);
   const [hasOverflow, setHasOverFlow] = React.useState(false);
