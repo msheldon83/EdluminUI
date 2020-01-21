@@ -108,7 +108,22 @@ export const EmployeeAbsScheduleLoader = asyncComponent({
   name: "EmployeeAbsSchedulePage",
 });
 
-//Edit Sub Pools
+/**** substitute edit pages ****/
+
+export const PeopleSubPositionsAttributesEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-positions-attributes"
+);
+export const PeopleSubPositionsAttributesEditLoader = asyncComponent({
+  resolve: async () => {
+    const SubPositionsAttributes = (
+      await import("ui/pages/sub-positions-attributes")
+    ).SubPositionsAttributes;
+    return SubPositionsAttributes;
+  },
+  name: "SubPositionsAttributes",
+});
+
 export const PeopleSubPoolEditRoute = defineSubRoute(
   PersonViewRoute,
   "/edit-sub-pools"

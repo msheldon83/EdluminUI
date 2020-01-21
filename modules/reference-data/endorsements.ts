@@ -3,10 +3,14 @@ import { GetEndorsements } from "./get-endorsements.gen";
 import { compact } from "lodash-es";
 import { useMemo } from "react";
 
-export function useEndorsements(orgId: string) {
+export function useEndorsements(
+  orgId: string,
+  includeExpired = false,
+  searchText: string | undefined = undefined
+) {
   const endorsements = useQueryBundle(GetEndorsements, {
     fetchPolicy: "cache-first",
-    variables: { orgId },
+    variables: { orgId, includeExpired, searchText },
   });
 
   return useMemo(() => {

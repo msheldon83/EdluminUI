@@ -1,0 +1,15 @@
+mutation UpdateEmployeeEndorsement(
+  $employeeEndorsementInput: EmployeeEndorsementInput!
+) {
+  employee {
+    changeEndorsement(endorsement: $employeeEndorsementInput) {
+      id
+      rowVersion
+      endorsements {
+        id
+        endorsementId
+        expirationDate
+      }
+    }
+  }
+}

@@ -1,8 +1,17 @@
-query GetEndorsements($orgId: ID!) {
+query GetEndorsements(
+  $orgId: ID!
+  $includeExpired: Boolean
+  $searchText: String
+) {
   orgRef_Endorsement {
-    all(orgId: $orgId) {
+    all(
+      orgId: $orgId
+      includeExpired: $includeExpired
+      searchText: $searchText
+    ) {
       id
       name
+      expires
     }
   }
 }
