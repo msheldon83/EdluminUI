@@ -3413,12 +3413,19 @@ type PositionTypeMutations {
   delete(positionTypeId: Int!): Boolean
 }
 
+type PositionTypeQualifications {
+  _info: [ReturnMessage]
+  qualifiedPositionTypes: [PositionType!]!
+  unqualifiedPositionTypes: [PositionType!]!
+}
+
 type PositionTypeQueries {
   byId(id: ID!): PositionType
   all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [PositionType]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedPositionType
   qualifiedEmployeeCounts(orgId: ID!, limit: Int, offset: Int, positionTypeId: Int!, name: String): QualifiedEmployeeCounts
   qualifiedEmployees(orgId: ID!, limit: Int, offset: Int, positionTypeId: Int!, name: String): PagedEmployeeQualifiedResult
+  getQualificationsFromEndorsements(orgId: ID!, endorsementIds: [ID!]!): PositionTypeQualifications!
 }
 
 input PositionTypeUpdateInput {
