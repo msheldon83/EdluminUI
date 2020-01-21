@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { CancelAssignment } from "ui/components/absence/graphql/cancel-assignment.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
+import { isValid } from "date-fns";
 
 type Props = {
   userId?: string;
@@ -41,7 +42,7 @@ export const SubstituteAssignmentsListView: React.FC<Props> = props => {
       toDate: props.endDate,
       includeCompletedToday: true,
     },
-    skip: !props.userId,
+    skip: !props.userId || !isValid(props.startDate) || !isValid(props.endDate),
   });
 
   const assignments = useMemo(() => {
