@@ -15,6 +15,7 @@ import { useState, useCallback } from "react";
 import {
   PermissionEnum,
   AbsenceReasonTrackingTypeId,
+  AssignmentType,
 } from "graphql/server-types.gen";
 import * as yup from "yup";
 import { Section } from "ui/components/section";
@@ -33,6 +34,7 @@ type Props = {
   validUntil: string;
   isBucket: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
+  appliesToAssignmentTypes?: AssignmentType;
   updateNameOrExternalId: (values: {
     name?: string | null;
     externalId?: string | null;
@@ -47,7 +49,6 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
   const history = useHistory();
   const params = useRouteParams(AbsenceReasonViewEditRoute);
   const [editing, setEditing] = useState<string | null>(null);
-  /* const [enabled, setEnabled] = useState<boolean | null>(null); */
 
   const translateTracking = useCallback(
     (v: AbsenceReasonTrackingTypeId | undefined) => {
@@ -60,6 +61,24 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
           return t("Invalid");
       }
       return "";
+    },
+    [t]
+  );
+
+  const translateAssignmentType = useCallback(
+    (v: AssignmentType | undefined) => {
+      switch (v) {
+        case AssignmentType.ContractAssignment:
+          return t("Contract Assignment");
+        case AssignmentType.DailyAssignment:
+          return t("Daily Assignment");
+        case AssignmentType.LongTermAssignment:
+          return t("Long Term Assignment");
+        case AssignmentType.None:
+          return t("None");
+        default:
+          return "";
+      }
     },
     [t]
   );
@@ -153,6 +172,14 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
             <Typography variant="h6">{t("Tracking Type")}</Typography>
             <Typography variant="body1">
               {translateTracking(props.absenceReasonTrackingTypeId)}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">
+              {t("Applies to Assignment Types")}
+            </Typography>
+            <Typography variant="body1">
+              {translateAssignmentType(props.appliesToAssignmentTypes)}
             </Typography>
           </Grid>
 

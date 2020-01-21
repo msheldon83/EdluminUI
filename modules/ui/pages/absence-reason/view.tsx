@@ -56,6 +56,9 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
       absenceReasonTrackingTypeId={
         absenceReason.absenceReasonTrackingTypeId || undefined
       }
+      appliesToAssignmentTypes={
+        absenceReason.appliesToAssignmentTypes || undefined
+      }
       id={absenceReason.id}
       updateNameOrExternalId={updateAbsenceReason}
     />

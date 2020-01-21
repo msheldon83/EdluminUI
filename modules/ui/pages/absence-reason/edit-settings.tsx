@@ -1,4 +1,4 @@
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import * as React from "react";
 import {
   AbsenceReasonEditSettingsRoute,
@@ -8,6 +8,12 @@ import { useRouteParams } from "ui/routes/definition";
 import { AbsenceReasonEditSettingsUI } from "./edit-settings-ui";
 import { GetAbsenceReason } from "./graphql/get-absence-reason.gen";
 import { useHistory } from "react-router";
+import { useCallback } from "react";
+import {
+  AbsenceReasonTrackingTypeId,
+  AssignmentType,
+} from "graphql/server-types.gen";
+import { UpdateAbsenceReason } from "./graphql/update-absence-reason.gen";
 
 type Props = {};
 
@@ -22,6 +28,45 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
     },
   });
 
+  const [mutation] = useMutationBundle(UpdateAbsenceReason);
+
+  const updateAbsenceReason = useCallback(
+    async (updatedValues: {
+      allowNegativeBalance: boolean;
+      isBucket: boolean;
+      description?: string;
+      absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
+      appliesToAssignmentTypes?: AssignmentType;
+    }) => {
+      if (result.state !== "DONE") {
+        return;
+      }
+      const reason = result.data.orgRef_AbsenceReason?.byId!;
+      const {
+        allowNegativeBalance,
+        isBucket,
+        description,
+        appliesToAssignmentTypes,
+        absenceReasonTrackingTypeId: absenceReasonTrackingId,
+      } = updatedValues;
+      await mutation({
+        variables: {
+          absenceReason: {
+            id: Number(reason.id),
+            rowVersion: reason.rowVersion,
+            allowNegativeBalance,
+            isBucket,
+            description,
+            appliesToAssignmentTypes,
+            absenceReasonTrackingId,
+          },
+        },
+      });
+      history.push(AbsenceReasonViewEditRoute.generate(params));
+    },
+    [result, history, params]
+  );
+
   if (result.state !== "DONE" && result.state !== "UPDATING") {
     return <></>;
   }
@@ -29,13 +74,9 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
 
   return (
     <AbsenceReasonEditSettingsUI
-      id={absenceReason.id}
       name={absenceReason.name}
-      rowVersion={absenceReason.rowVersion}
       description={absenceReason.description || undefined}
       allowNegativeBalance={absenceReason.allowNegativeBalance}
-      expired={absenceReason.expired}
-      validUntil={absenceReason.validUntil}
       isBucket={absenceReason.isBucket}
       absenceReasonTrackingTypeId={
         absenceReason.absenceReasonTrackingTypeId || undefined
@@ -43,7 +84,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
       appliesToAssignmentTypes={
         absenceReason.appliesToAssignmentTypes || undefined
       }
-      onSubmit={async v => console.log("submit", v)}
+      onSubmit={updateAbsenceReason}
       onCancel={() => {
         history.push(AbsenceReasonViewEditRoute.generate(params));
       }}
