@@ -1205,18 +1205,6 @@ input EmployeeEndorsementInput {
   expirationDate: Date
 }
 
-type EmployeeEndorsementMutations {
-  create(employeeEndorsement: EmployeeEndorsementCreateInput!): EmployeeEndorsement
-  update(employeeEndorsement: EmployeeEndorsementUpdateInput!): EmployeeEndorsement
-  delete(employeeEndorsementId: Int!): Boolean
-}
-
-input EmployeeEndorsementUpdateInput {
-  id: Int!
-  endorsementDate: Date
-  expirationDate: Date
-}
-
 input EmployeeInput {
   id: ID
   orgId: ID
@@ -2130,16 +2118,16 @@ type OrganizationRelationship implements ModelObjectInterface & OrgObjectInterfa
   changedLocal: DateTime
   deletedLocal: DateTime
   relationshipType: OrganizationRelationshipType
-  relatesToOrganizationId: Int!
-  permissionSetId: Int
+  relatesToOrganizationId: ID
+  permissionSetId: ID
   relatesToOrganization: BasicOrganization
 }
 
 input OrganizationRelationshipCreateInput {
-  orgId: Int!
-  relatesToOrgId: Int!
+  orgId: ID
+  relatesToOrgId: ID
   relationshipType: OrganizationRelationshipType
-  permissionSetId: Int
+  permissionSetId: ID
 }
 
 type OrganizationRelationshipMutations {
@@ -2161,9 +2149,9 @@ enum OrganizationRelationshipType {
 }
 
 input OrganizationRelationshipUpdateInput {
-  orgId: Int!
-  relatesToOrgId: Int!
-  permissionSetId: Int
+  orgId: ID
+  relatesToOrgId: ID
+  permissionSetId: ID
 }
 
 enum OrganizationType {
