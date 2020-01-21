@@ -102,7 +102,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
       return [];
     }
 
-    if (!!endorsementSearchText) {
+    if (endorsementSearchText) {
       return missingEndorsements.filter(e =>
         e.name.toLowerCase().includes(endorsementSearchText.toLowerCase())
       );
