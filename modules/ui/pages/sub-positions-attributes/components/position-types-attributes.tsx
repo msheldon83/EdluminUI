@@ -215,7 +215,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                                 if (result) {
                                   setAttributesAssigned([
                                     ...attributesAssigned.filter(
-                                      a => a.endorsementId !== a.endorsementId
+                                      u => u.endorsementId !== a.endorsementId
                                     ),
                                   ]);
                                 }
