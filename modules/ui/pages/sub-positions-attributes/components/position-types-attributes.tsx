@@ -3,7 +3,7 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { Typography, Grid, Link } from "@material-ui/core";
+import { Typography, Grid, Link, Tooltip } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { PersonViewRoute } from "ui/routes/people";
@@ -17,6 +17,7 @@ import { Input } from "ui/components/form/input";
 import { DatePicker } from "ui/components/form/date-picker";
 import { isDate, isBefore, differenceInDays, isSameDay } from "date-fns";
 import { Warning, ErrorOutline } from "@material-ui/icons";
+import { TFunction } from "i18next";
 
 type Props = {
   organizationId: string;
@@ -149,100 +150,106 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
               {t("Selected attributes")}
             </Typography>
             {attributesAssigned.length === 0 ? (
-              <div className={classes.allOrNoneRow}>{t("None")}</div>
+              <Grid container item xs={12}>
+                <div className={classes.allOrNoneRow}>{t("None")}</div>
+              </Grid>
             ) : (
               <>
-                <div className={classes.currentAttributeRow}>
-                  <div className={classes.currentAttributeColumn}>
-                    <div className={classes.rowHeader}>{t("Name")}</div>
-                    {attributesAssigned.map((a, i) => {
-                      return (
-                        <div key={i} className={getRowClasses(classes, i)}>
-                          {a.name}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className={classes.currentAttributeColumn}>
-                    <div className={classes.rowHeader}>{t("Expires")}</div>
-                    {attributesAssigned.map((a, i) => {
-                      return (
-                        <div key={i} className={getRowClasses(classes, i)}>
-                          <div className={classes.updateAttributeItems}>
-                            {!a.expires ? (
-                              <div className={classes.allOrNoneRow}>
-                                {t("Does not expire")}
-                              </div>
-                            ) : (
-                              <DatePicker
-                                variant={"single-hidden"}
-                                startDate={a.expirationDate ?? ""}
-                                onChange={async e => {
-                                  if (isDate(e.startDate)) {
-                                    const expirationDate = e.startDate as Date;
-
-                                    const updatedAttributesAssigned = [
-                                      ...attributesAssigned,
-                                    ];
-                                    const attributeToUpdate = updatedAttributesAssigned.find(
-                                      u => u.endorsementId === a.endorsementId
-                                    );
-
-                                    // Only make the call to the server if our expiration date
-                                    // has actually changed
-                                    if (
-                                      attributeToUpdate &&
-                                      (!attributeToUpdate.expirationDate ||
-                                        !isSameDay(
-                                          expirationDate,
-                                          attributeToUpdate.expirationDate
-                                        ))
-                                    ) {
-                                      const result = await props.updateAttribute(
-                                        a.endorsementId,
-                                        expirationDate
-                                      );
-                                      if (result) {
-                                        if (attributeToUpdate) {
-                                          attributeToUpdate.expirationDate = expirationDate;
-                                        }
-                                        setAttributesAssigned(
-                                          updatedAttributesAssigned
-                                        );
-                                      }
-                                    }
-                                  }
-                                }}
-                                startLabel={""}
-                                endAdornment={getDatePickerAdornment(
-                                  a,
-                                  classes
-                                )}
-                              />
-                            )}
-                            <Link
-                              className={classes.removeAction}
-                              onClick={async () => {
-                                const result = await props.removeAttribute(
-                                  a.endorsementId
-                                );
-                                if (result) {
-                                  setAttributesAssigned([
-                                    ...attributesAssigned.filter(
-                                      u => u.endorsementId !== a.endorsementId
-                                    ),
-                                  ]);
-                                }
-                              }}
-                            >
-                              {t("Remove")}
-                            </Link>
+                <Grid container item xs={12} className={classes.row}>
+                  <Grid item xs={6}>
+                    {t("Name")}
+                  </Grid>
+                  <Grid item xs={6}>
+                    {t("Expires")}
+                  </Grid>
+                </Grid>
+                {attributesAssigned.map((a, i) => {
+                  return (
+                    <Grid
+                      container
+                      item
+                      alignItems="center"
+                      xs={12}
+                      key={i}
+                      className={`${getRowClasses(classes, i)} ${
+                        classes.selectedAttributeRow
+                      }`}
+                    >
+                      <Grid item xs={6}>
+                        {a.name}
+                      </Grid>
+                      <Grid item xs={4}>
+                        {!a.expires ? (
+                          <div className={classes.allOrNoneRow}>
+                            {t("Does not expire")}
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                        ) : (
+                          <DatePicker
+                            variant={"single-hidden"}
+                            startDate={a.expirationDate ?? ""}
+                            onChange={async e => {
+                              if (isDate(e.startDate)) {
+                                const expirationDate = e.startDate as Date;
+
+                                const updatedAttributesAssigned = [
+                                  ...attributesAssigned,
+                                ];
+                                const attributeToUpdate = updatedAttributesAssigned.find(
+                                  u => u.endorsementId === a.endorsementId
+                                );
+
+                                // Only make the call to the server if our expiration date
+                                // has actually changed
+                                if (
+                                  attributeToUpdate &&
+                                  (!attributeToUpdate.expirationDate ||
+                                    !isSameDay(
+                                      expirationDate,
+                                      attributeToUpdate.expirationDate
+                                    ))
+                                ) {
+                                  const result = await props.updateAttribute(
+                                    a.endorsementId,
+                                    expirationDate
+                                  );
+                                  if (result) {
+                                    if (attributeToUpdate) {
+                                      attributeToUpdate.expirationDate = expirationDate;
+                                    }
+                                    setAttributesAssigned(
+                                      updatedAttributesAssigned
+                                    );
+                                  }
+                                }
+                              }
+                            }}
+                            startLabel={""}
+                            endAdornment={getDatePickerAdornment(a, classes, t)}
+                          />
+                        )}
+                      </Grid>
+                      <Grid item xs={2} className={classes.removeSection}>
+                        <Link
+                          className={classes.removeAction}
+                          onClick={async () => {
+                            const result = await props.removeAttribute(
+                              a.endorsementId
+                            );
+                            if (result) {
+                              setAttributesAssigned([
+                                ...attributesAssigned.filter(
+                                  u => u.endorsementId !== a.endorsementId
+                                ),
+                              ]);
+                            }
+                          }}
+                        >
+                          {t("Remove")}
+                        </Link>
+                      </Grid>
+                    </Grid>
+                  );
+                })}
               </>
             )}
           </Section>
@@ -312,12 +319,12 @@ const useStyles = makeStyles(theme => ({
   allOrNoneRow: {
     color: theme.customColors.edluminSubText,
   },
-  rowHeader: {
-    padding: theme.spacing(),
-  },
   row: {
     width: "100%",
     padding: theme.spacing(),
+  },
+  selectedAttributeRow: {
+    minHeight: theme.typography.pxToRem(56),
   },
   firstRow: {
     borderTop: `${theme.typography.pxToRem(1)} solid ${
@@ -333,18 +340,6 @@ const useStyles = makeStyles(theme => ({
       theme.customColors.medLightGray
     }`,
   },
-  currentAttributeRow: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-  },
-  currentAttributeColumn: {
-    flexGrow: 1,
-  },
-  updateAttributeItems: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
   availableAttributeRow: {
     width: "100%",
     display: "flex",
@@ -353,6 +348,9 @@ const useStyles = makeStyles(theme => ({
   addAction: {
     cursor: "pointer",
     textDecoration: "underline",
+  },
+  removeSection: {
+    textAlign: "right",
   },
   removeAction: {
     cursor: "pointer",
@@ -388,17 +386,32 @@ const getRowClasses = (classes: any, index: number): string => {
 
 const getDatePickerAdornment = (
   attribute: Attribute,
-  classes: any
+  classes: any,
+  t: TFunction
 ): React.ReactNode | undefined => {
+  const dayWindowForWarning = 30;
   const expired = attributeIsExpired(attribute);
-  const closeToExpiration = !expired && attributeIsCloseToExpiring(attribute);
+  const closeToExpiration =
+    !expired && attributeIsCloseToExpiring(attribute, dayWindowForWarning);
 
   if (expired) {
-    return <ErrorOutline className={classes.expired} />;
+    return (
+      <Tooltip title={t("Attribute is expired")}>
+        <ErrorOutline className={classes.expired} />
+      </Tooltip>
+    );
   }
 
   if (closeToExpiration) {
-    return <Warning className={classes.warning} />;
+    return (
+      <Tooltip
+        title={t("Attribute will expire within {{dayWindowForWarning}} days", {
+          dayWindowForWarning,
+        })}
+      >
+        <Warning className={classes.warning} />
+      </Tooltip>
+    );
   }
 
   return undefined;
@@ -413,11 +426,16 @@ const attributeIsExpired = (attribute: Attribute): boolean => {
   return result;
 };
 
-const attributeIsCloseToExpiring = (attribute: Attribute): boolean => {
+const attributeIsCloseToExpiring = (
+  attribute: Attribute,
+  dayWindowForWarning: number
+): boolean => {
   if (!attribute.expirationDate) {
     return false;
   }
 
-  const result = differenceInDays(attribute.expirationDate, new Date()) <= 30;
+  const result =
+    differenceInDays(attribute.expirationDate, new Date()) <=
+    dayWindowForWarning;
   return result;
 };
