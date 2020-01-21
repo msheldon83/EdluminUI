@@ -25,6 +25,7 @@ type Props = {
   handleMustNot: (ids: string[]) => Promise<void>;
   handlePrefer: (ids: string[]) => Promise<void>;
   handlePreferNot: (ids: string[]) => Promise<void>;
+  endorsementsIgnored: { name: string; id: string }[];
 };
 
 export type Attribute = {
@@ -107,6 +108,7 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
               handleMustNot={props.handleMustNot}
               handlePrefer={props.handlePrefer}
               handlePreferNot={props.handlePreferNot}
+              endorsementsIgnored={props.endorsementsIgnored}
             />
           </Grid>
         </Grid>

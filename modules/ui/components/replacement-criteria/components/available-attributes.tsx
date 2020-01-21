@@ -16,6 +16,7 @@ type Props = {
   handleMustNot: (ids: string[]) => Promise<void>;
   handlePrefer: (ids: string[]) => Promise<void>;
   handlePreferNot: (ids: string[]) => Promise<void>;
+  endorsementsIgnored: { name: string; id: string }[];
 };
 
 export const AvailableAttributes: React.FC<Props> = props => {
@@ -38,18 +39,7 @@ export const AvailableAttributes: React.FC<Props> = props => {
     [setPendingSearchText]
   );
 
-  const addEndorsement = (id: string, checked: boolean) => {
-    if (checked) {
-      endorsementIds.push(id);
-    } else {
-      const index = endorsementIds.indexOf(id);
-      if (index > -1) {
-        endorsementIds.splice(index, 1);
-      }
-    }
-    console.log(endorsementIds);
-  };
-
+  //TODO: Handle Ignoring Endorsements Prop.
   const getAllEndorsements = useQueryBundle(GetAllEndorsementsWithinOrg, {
     variables: { orgId: props.orgId, searchText: searchText },
   });
@@ -63,6 +53,20 @@ export const AvailableAttributes: React.FC<Props> = props => {
       name: e?.name ?? "",
       id: e?.id ?? "",
     })) ?? [];
+
+  const addEndorsement = (id: string, checked: boolean) => {
+    if (checked) {
+      setEndorsementIds([...endorsementIds, id]);
+    } else {
+      setEndorsementIds([...endorsementIds].filter(e => e !== id));
+    }
+  };
+
+  const checkedValue = (id: string) => {
+    if (endorsementIds.includes(id)) {
+      return true;
+    } else return false;
+  };
 
   return (
     <>
@@ -123,7 +127,7 @@ export const AvailableAttributes: React.FC<Props> = props => {
                 <Grid item xs={12} sm={12} lg={12} key={i}>
                   <Checkbox
                     onChange={e => addEndorsement(n.id, e.target.checked)}
-                    checked={endorsementIds.includes(n.id)}
+                    checked={checkedValue(n.id)}
                     color="primary"
                   />
                   <div className={classes.inlineBlock}>{n.name}</div>
