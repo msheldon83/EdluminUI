@@ -328,7 +328,7 @@ export const DailyReport: React.FC<Props> = props => {
         </Grid>
         <Grid
           container
-          spacing={isMobile ? 2 : 4}
+          spacing={isMobile ? 2 : 2}
           justify="flex-start"
           className={classes.cardContainer}
         >
