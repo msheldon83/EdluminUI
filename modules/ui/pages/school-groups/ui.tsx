@@ -6,7 +6,10 @@ import { Column } from "material-table";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
-import { LocationGroupsRoute } from "ui/routes/location-groups";
+import {
+  LocationGroupsRoute,
+  LocationGroupViewRoute,
+} from "ui/routes/location-groups";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllLocationGroupsWithinOrg } from "./graphql/get-all-location-groups.gen";
 import { useIsMobile } from "hooks";
@@ -61,9 +64,9 @@ export const LocationGroupsUI: React.FC<Props> = props => {
             if (!locationGroup) return;
             const newParams = {
               ...params,
-              locationGroup: locationGroup.id,
+              locationGroupId: locationGroup.id,
             };
-            // history.push(NEW_ROUTE_HERE.generate(newParams)); TODO: Create Route for Permission Set View
+            history.push(LocationGroupViewRoute.generate(newParams));
           }}
         />
       </Section>

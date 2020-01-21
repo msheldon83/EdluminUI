@@ -311,11 +311,11 @@ input AccessControInput {
 
 type AccessControl {
   _info: [ReturnMessage]
-  locationIds: [Int]
+  locationIds: [ID]
   locations: [Location]
-  locationGroupIds: [Int]
+  locationGroupIds: [ID]
   locationGroups: [LocationGroup]
-  positionTypeIds: [Int]
+  positionTypeIds: [ID]
   positionTypes: [PositionType]
   derivedAdminLocations: [Location]
   derivedAdminPositionTypes: [PositionType]
@@ -1276,37 +1276,13 @@ type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
   employeeId: Int!
   expirationDate: Date
   endorsementId: Int!
-  endorsement: Endorsement
-}
-
-input EmployeeEndorsementCreateInput {
-  orgId: Int!
-  employeeId: Int!
-  endorsementId: Int!
-  endorsementDate: Date
-  expirationDate: Date
+  endorsement: Endorsement!
 }
 
 input EmployeeEndorsementInput {
   orgId: Int!
   employeeId: Int!
   endorsementId: Int!
-  expirationDate: Date
-}
-
-type EmployeeEndorsementMutations {
-  create(
-    employeeEndorsement: EmployeeEndorsementCreateInput!
-  ): EmployeeEndorsement
-  update(
-    employeeEndorsement: EmployeeEndorsementUpdateInput!
-  ): EmployeeEndorsement
-  delete(employeeEndorsementId: Int!): Boolean
-}
-
-input EmployeeEndorsementUpdateInput {
-  id: Int!
-  endorsementDate: Date
   expirationDate: Date
 }
 
@@ -1626,6 +1602,7 @@ enum EventType {
   ORGANIZATION_USER_RELATIONSHIP_REMOVED
   ACCESS_GRANTED
   ACCESS_UPDATED
+  ORGANIZATION_USER_RELATIONSHIP_UPDATED
   SCHOOL_YEAR_CREATED
   SCHOOL_YEAR_UPDATED
   SCHOOL_YEAR_DELETED
@@ -1691,9 +1668,6 @@ enum EventType {
   ABSENCE_REASON_BALANCE_UPDATED
   ABSENCE_REASON_BALANCE_DELETED
   ABSENCE_REASON_BALANCE_DEDUCTED
-  EMPLOYEE_ENDORSEMENT_CREATED
-  EMPLOYEE_ENDORSEMENT_UPDATED
-  EMPLOYEE_ENDORSEMENT_DELETED
   REPLACEMENT_POOL_CONFIG_CREATED
   REPLACEMENT_POOL_CONFIG_UPDATED
   REPLACEMENT_POOL_CONFIG_DELETED
@@ -1887,6 +1861,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   phoneNumber: String
   formattedPhone: String
   locationGroup: LocationGroup
+  substitutePreferences: SubstitutePreferences
   address1: String
   address2: String
   city: String
@@ -1898,12 +1873,12 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
 }
 
 input LocationCreateInput {
-  orgId: Int!
+  orgId: ID!
   name: String!
   externalId: String
   address: AddressInput
   timeZoneId: TimeZone
-  locationGroupId: Int!
+  locationGroupId: ID
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
   phoneNumber: String
@@ -1927,10 +1902,11 @@ type LocationGroup implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
+  substitutePreferences: SubstitutePreferences
 }
 
 input LocationGroupCreateInput {
-  orgId: Int!
+  orgId: ID!
   name: String!
   description: String
   replacementStartOffsetMinutes: Int
@@ -1940,7 +1916,7 @@ input LocationGroupCreateInput {
 type LocationGroupMutations {
   create(locationGroup: LocationGroupCreateInput!): LocationGroup
   update(locationGroup: LocationGroupUpdateInput!): LocationGroup
-  delete(locationGroupId: Int!): Boolean
+  delete(locationGroupId: ID!): Boolean
 }
 
 type LocationGroupQueries {
@@ -1956,18 +1932,19 @@ type LocationGroupQueries {
 }
 
 input LocationGroupUpdateInput {
-  id: Int!
+  id: ID!
   rowVersion: String!
   name: String
   description: String
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
+  substitutePreferences: SubstitutePreferencesInput
 }
 
 type LocationMutations {
   create(location: LocationCreateInput!): Location
   update(location: LocationUpdateInput!): Location
-  delete(locationId: Int!): Boolean
+  delete(locationId: ID!): Boolean
 }
 
 type LocationQueries {
@@ -1993,17 +1970,18 @@ type LocationQueries {
 }
 
 input LocationUpdateInput {
-  id: Int!
+  id: ID!
   rowVersion: String!
   name: String
   externalId: String
   address: AddressInput
   timeZoneId: TimeZone
   expired: Boolean
-  locationGroupId: Int!
+  locationGroupId: ID
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
   phoneNumber: String
+  substitutePreferences: SubstitutePreferencesInput
 }
 
 input LocatorInput {
@@ -2031,7 +2009,6 @@ type Mutation {
   contract: ContractMutations
   contractSchedule: ContractScheduleMutations
   customField: CustomFieldMutations
-  employeeEndorsement: EmployeeEndorsementMutations
   employee: EmployeeMutations
   eventQueue: EventQueueMutations
   locationGroup: LocationGroupMutations
@@ -2599,7 +2576,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   isAdmin: Boolean!
   permissionSets: [PermissionSet]
   permissionSetIds: [Int!]
-  relatedOrgIds: [Int]
+  relatedOrgIds: [ID]
   relatedOrganizations: [Organization]
   employee: Employee
   substitute: Substitute
@@ -4238,10 +4215,10 @@ input ReplacementCriteriaCreateInput {
 
 input ReplacementCriteriaInput {
   orgId: ID
-  mustHave: LocatorInput
-  shouldHave: LocatorInput
-  shouldNotHave: LocatorInput
-  mustNotHave: LocatorInput
+  mustHave: [LocatorInput]
+  shouldHave: [LocatorInput]
+  shouldNotHave: [LocatorInput]
+  mustNotHave: [LocatorInput]
 }
 
 type ReplacementCriteriaMutations {
@@ -4837,10 +4814,10 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   permissionSet: PermissionSet
   permissions: [PermissionEnum]
   assignments: [Assignment]
-  attributes: [EmployeeEndorsement]
+  attributes: [EmployeeEndorsement!]!
   payCodeId: Int
   payCode: PayCode
-  qualifiedPositionTypes: [PositionType]
+  qualifiedPositionTypes: [PositionType!]!
   substitutePoolMembership: SubstitutePoolMembership
 }
 
@@ -4901,9 +4878,17 @@ type SubstitutePoolMembership {
   blockedFromPositionTypes: [PositionType]
 }
 
+type SubstitutePreferences {
+  _info: [ReturnMessage]
+  favoriteSubstituteIds: [ID]
+  favoriteSubstitutes: [Employee]
+  blockedSubstituteIds: [ID]
+  blockedSubstitutes: [Employee]
+}
+
 input SubstitutePreferencesInput {
-  favoriteSubstitutes: LocatorInput
-  blockedSubstitutes: LocatorInput
+  favoriteSubstitutes: [LocatorInput]
+  blockedSubstitutes: [LocatorInput]
 }
 
 input SwapVacancyAssignmentsInput {

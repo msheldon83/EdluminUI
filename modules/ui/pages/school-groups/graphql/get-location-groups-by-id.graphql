@@ -1,16 +1,9 @@
-query GetLocationById($locationId: ID!) {
-  location {
-    byId(id: $locationId) {
+query GetLocationGroupById($locationGroupId: ID!) {
+  locationGroup {
+    byId(id: $locationGroupId) {
       id
       name
       externalId
-      address1
-      address2
-      city
-      stateName
-      postalCode
-      phoneNumber
-      formattedPhone
       rowVersion
       substitutePreferences {
         blockedSubstitutes {
@@ -25,10 +18,6 @@ query GetLocationById($locationId: ID!) {
           middleName
           lastName
         }
-      }
-      locationGroup {
-        id
-        name
       }
     }
   }

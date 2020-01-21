@@ -10,6 +10,11 @@ export const LocationsViewRoute = defineSubRoute(
   ["locationId"]
 );
 
+export const LocationsSubPrefRoute = defineSubRoute(
+  LocationsViewRoute,
+  "/substitute-preferences"
+);
+
 export const LocationsLoader = asyncComponent({
   resolve: async () => {
     const LocationsPage = (await import("ui/pages/schools/index")).Locations;
@@ -25,4 +30,14 @@ export const LocationsViewLoader = asyncComponent({
     return LocationsViewPage;
   },
   name: "LocationsViewPage",
+});
+
+export const LocationsSubPrefLoader = asyncComponent({
+  resolve: async () => {
+    const LocationsSubPrefPage = (
+      await import("ui/pages/schools/substitute-preferences")
+    ).LocationsSubstitutePreferencePage;
+    return LocationsSubPrefPage;
+  },
+  name: "LocationsSubPrefPage",
 });
