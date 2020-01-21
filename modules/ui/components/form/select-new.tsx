@@ -76,7 +76,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
       scrollHeight: 0,
     };
 
-    if (element === null || !element) {
+    if (!element) {
       return;
     }
 
@@ -125,6 +125,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   const containerClasses = clsx({
     [classes.selectContainer]: true,
     [classes.selectContainerDisabled]: disabled,
+    active: listOpen,
   });
 
   const {
@@ -247,6 +248,11 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 const useStyles = makeStyles(theme => ({
   selectContainer: {
     position: "relative",
+    zIndex: 1,
+
+    "&.active": {
+      zIndex: 2,
+    },
   },
   selectContainerDisabled: {
     pointerEvents: "none",
@@ -275,25 +281,25 @@ const useStyles = makeStyles(theme => ({
     zIndex: 2,
   },
   listbox: {
-    fontSize: theme.typography.pxToRem(14),
-    lineHeight: theme.typography.pxToRem(32),
-    color: theme.customColors.edluminSubText,
-    top: "calc(100% - 2px)",
-    margin: 0,
-    zIndex: 1,
-    position: "absolute",
-    listStyle: "none",
     backgroundColor: theme.palette.background.paper,
-    overflow: "auto",
-    maxHeight: 200,
-    width: "100%",
     border: `1px solid ${theme.palette.text.primary}`,
-    borderTopWidth: 0,
     borderRadius: `0 0 ${theme.typography.pxToRem(
       4
     )} ${theme.typography.pxToRem(4)}`,
+    borderTopWidth: 0,
+    color: theme.customColors.edluminSubText,
+    fontSize: theme.typography.pxToRem(14),
+    lineHeight: theme.typography.pxToRem(32),
+    listStyle: "none",
+    margin: 0,
+    maxHeight: 200,
+    overflow: "auto",
     padding: 0,
     paddingBottom: theme.spacing(1.5),
+    position: "absolute",
+    top: "calc(100% - 2px)",
+    width: "100%",
+    zIndex: 1,
 
     "& li": {
       paddingLeft: theme.spacing(1.5),
