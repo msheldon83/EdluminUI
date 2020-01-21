@@ -53,6 +53,7 @@ export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
             params
           )}
           listViewRoute={EmployeeAbsScheduleListViewRoute.generate(params)}
+          isAdmin={true}
         />
       )}
     </div>
