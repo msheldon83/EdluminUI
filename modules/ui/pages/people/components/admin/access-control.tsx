@@ -148,27 +148,32 @@ export const AccessControl: React.FC<Props> = props => {
           allPositionTypeIdsInScope: yup.boolean(),
           positionTypeIds: yup
             .array(yup.string())
-            .when("allPositionTypeIdsInScope", {
-              is: true,
+            .when(["allPositionTypeIdsInScope", "isSuperUser"], {
+              is: (allPositionTypeIdsInScope, isSuperUser) =>
+                allPositionTypeIdsInScope || isSuperUser,
               then: yup.array(yup.string()).nullable(),
               otherwise: yup
                 .array(yup.string())
                 .nullable()
-                .required(t("A position types is required")),
+                .required(t("A position type selection is required")),
             }),
           locationGroupIds: yup.array(yup.string()).nullable(),
           locationIds: yup
             .array(yup.string())
-            .when(["allLocationIdsInScope", "locationGroupIds"], {
-              is: (allLocationIdsInScope, locationGroupIds) =>
-                allLocationIdsInScope ||
-                (!allLocationIdsInScope && locationGroupIds.length > 0),
-              then: yup.array(yup.string()).nullable(),
-              otherwise: yup
-                .array(yup.string())
-                .nullable()
-                .required(t("A location or location group is required")),
-            }),
+            .when(
+              ["allLocationIdsInScope", "locationGroupIds", "isSuperUser"],
+              {
+                is: (allLocationIdsInScope, locationGroupIds, isSuperUser) =>
+                  allLocationIdsInScope ||
+                  isSuperUser ||
+                  (!allLocationIdsInScope && locationGroupIds.length > 0),
+                then: yup.array(yup.string()).nullable(),
+                otherwise: yup
+                  .array(yup.string())
+                  .nullable()
+                  .required(t("A location or location group is required")),
+              }
+            ),
         })}
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
