@@ -170,6 +170,7 @@ export const Information: React.FC<Props> = props => {
             ? parseISO(orgUser.dateOfBirth.toString())
             : undefined,
           permissionSetId: props.permissionSet?.id ?? "",
+          orgUserRole: props.selectedRole,
         }}
         onSubmit={async (data, e) => {
           await props.onSubmit!({
@@ -185,11 +186,19 @@ export const Information: React.FC<Props> = props => {
             postalCode:
               data.postalCode.trim().length === 0 ? null : data.postalCode,
             country: data.state ? ("US" as CountryCode) : null,
-            permissionSet: { id: data.permissionSetId },
+            permissionSet: data.permissionSetId && { id: data.permissionSetId },
           });
         }}
         validationSchema={yup.object({
-          permissionSetId: yup.string().required(t("Permission is required")),
+          orgUserRole: yup.string(),
+          permissionSetId: yup.string().when("orgUserRole", {
+            is: OrgUserRole.Administrator,
+            then: yup.string().nullable(),
+            otherwise: yup
+              .string()
+              .nullable()
+              .required(t("Permission Set is required")),
+          }),
           email: yup.string().email(t("Invalid Email Address")),
           phoneNumber: yup
             .string()
@@ -327,27 +336,33 @@ export const Information: React.FC<Props> = props => {
               <Grid container>
                 <Grid container item xs={8} component="dl" spacing={2}>
                   <Grid container item xs={6} spacing={2}>
-                    <PeopleGridItem
-                      title={t("Permissions")}
-                      description={
-                        props.editing === editableSections.information &&
-                        !props.isSuperUser ? (
-                          <SelectNew
-                            value={permissionSetOptions.find(
-                              e => e.value && e.value === values.permissionSetId
-                            )}
-                            multiple={false}
-                            onChange={(value: OptionType) => {
-                              const id = (value as OptionTypeBase).value;
-                              setFieldValue("permissionSetId", id);
-                            }}
-                            options={permissionSetOptions}
-                          />
-                        ) : (
-                          permissions
-                        )
-                      }
-                    />
+                    {props.selectedRole !== OrgUserRole.Administrator && (
+                      <PeopleGridItem
+                        title={t("Permissions")}
+                        description={
+                          props.editing === editableSections.information &&
+                          !props.isSuperUser ? (
+                            <SelectNew
+                              value={permissionSetOptions.find(
+                                e => e.value && e.value === values.permissionSetId
+                              )}
+                              multiple={false}
+                              onChange={(value: OptionType) => {
+                                const id = (value as OptionTypeBase).value;
+                                setFieldValue("permissionSetId", id);
+                              }}
+                              options={permissionSetOptions}
+                              inputStatus={
+                                errors.permissionSetId ? "error" : undefined
+                              }
+                              validationMessage={errors.permissionSetId}
+                            />
+                          ) : (
+                            permissions
+                          )
+                        }
+                      />
+                    )}
                     <PeopleGridItem
                       title={t("Email")}
                       description={
@@ -578,7 +593,7 @@ export const Information: React.FC<Props> = props => {
               </Grid>
               {props.isCreate && (
                 <ActionButtons
-                  submit={{ text: t("Save"), execute: submitForm }}
+                  submit={{ text: t("Next"), execute: submitForm }}
                   cancel={{ text: t("Cancel"), execute: props.onCancel! }}
                 />
               )}

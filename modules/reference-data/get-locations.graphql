@@ -3,6 +3,7 @@ query GetLocations($orgId: ID, $orgIds: [ID]) {
     all(orgId: $orgId, orgIds: $orgIds) {
       id
       name
+      locationGroupId
     }
   }
 }
