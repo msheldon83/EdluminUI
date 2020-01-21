@@ -67,9 +67,9 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       const response = await addEmployeeEndorsement({
         variables: {
           employeeEndorsementInput: {
-            orgId: Number(params.organizationId),
-            employeeId: Number(params.orgUserId),
-            endorsementId: Number(endorsementId),
+            orgId: params.organizationId,
+            employeeId: params.orgUserId,
+            endorsementId,
           },
         },
       });
@@ -92,9 +92,9 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       const response = await updateEmployeeEndorsement({
         variables: {
           employeeEndorsementInput: {
-            orgId: Number(params.organizationId),
-            employeeId: Number(params.orgUserId),
-            endorsementId: Number(endorsementId),
+            orgId: params.organizationId,
+            employeeId: params.orgUserId,
+            endorsementId,
             expirationDate,
           },
         },
@@ -117,8 +117,8 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
     async (endorsementId: string) => {
       const response = await removeEmployeeEndorsement({
         variables: {
-          employeeId: Number(params.orgUserId),
-          endorsementId: Number(endorsementId),
+          employeeId: params.orgUserId,
+          endorsementId,
         },
       });
       return !!response?.data;
