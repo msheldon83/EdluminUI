@@ -280,10 +280,10 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 const useStyles = makeStyles(theme => ({
   selectContainer: {
     position: "relative",
-    zIndex: 1,
+    zIndex: 100,
 
     "&.active": {
-      zIndex: 2,
+      zIndex: 200,
     },
   },
   selectContainerDisabled: {
@@ -310,7 +310,7 @@ const useStyles = makeStyles(theme => ({
   arrowDownIcon: {
     color: theme.customColors.edluminSubText,
     cursor: "pointer",
-    zIndex: 2,
+    zIndex: 200,
   },
   listbox: {
     backgroundColor: theme.palette.background.paper,
@@ -331,7 +331,7 @@ const useStyles = makeStyles(theme => ({
     position: "absolute",
     top: "calc(100% - 2px)",
     width: "100%",
-    zIndex: 1,
+    zIndex: 100,
   },
   optionItem: {
     paddingLeft: theme.spacing(1.5),
