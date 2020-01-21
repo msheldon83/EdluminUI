@@ -31,6 +31,7 @@ type DatePickerProps = {
   disableDates?: Array<Date>;
   onMonthChange?: DatePickerOnMonthChange;
   variant?: "single" | "single-hidden" | "range" | "extended-range";
+  endAdornment?: React.ReactNode;
 };
 
 export type DatePickerOnChange = (dates: {
@@ -48,6 +49,7 @@ export const DatePicker = (props: DatePickerProps) => {
     startLabel,
     endLabel,
     dateFormat,
+    endAdornment,
     disableDates = [],
     variant = "range",
   } = props;
@@ -336,6 +338,7 @@ export const DatePicker = (props: DatePickerProps) => {
             ref={startDateInputRef}
             onFocus={handleStartDateFocus}
             dateFormat={dateFormat}
+            endAdornment={endAdornment}
           />
         </div>
         {renderEndDate()}
@@ -375,6 +378,7 @@ type DateInputProps = {
   onFocus?: () => void;
   onBlur?: () => void;
   dateFormat?: string;
+  endAdornment?: React.ReactNode;
 };
 
 export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
@@ -384,6 +388,7 @@ export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
     onValidDate,
     onChange,
     onFocus,
+    endAdornment,
     onBlur = () => {},
     dateFormat = DEFAULT_DATE_FORMAT,
   } = props;
@@ -415,6 +420,7 @@ export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
       onBlur={handleOnBlur}
       onFocus={onFocus}
       ref={ref}
+      endAdornment={endAdornment}
     />
   );
 });
