@@ -108,6 +108,10 @@ import {
   SubstituteAssignmentScheduleRoute,
   SubstituteAssignmentScheduleCalendarViewRoute,
   SubstituteAssignmentScheduleListViewRoute,
+  PeopleSubRelatedOrgsEditRoute,
+  PeopleSubRelatedOrgsEditLoader,
+  PeopleSubPositionsAttributesEditRoute,
+  PeopleSubPositionsAttributesEditLoader,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -434,6 +438,12 @@ export function App() {
                                   permissions={[PermissionEnum.SubstituteView]}
                                 />
                                 <ProtectedRoute
+                                  component={PeopleSubRelatedOrgsEditLoader}
+                                  path={PeopleSubRelatedOrgsEditRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.SubstituteSave]}
+                                />
+                                <ProtectedRoute
                                   component={PeopleSubPoolEditLoader}
                                   path={PeopleSubPoolEditRoute.path}
                                   role={"admin"}
@@ -448,28 +458,32 @@ export function App() {
                                   permissions={[PermissionEnum.EmployeeView]}
                                 />
                                 <ProtectedRoute
+                                  component={
+                                    PeopleSubPositionsAttributesEditLoader
+                                  }
+                                  path={
+                                    PeopleSubPositionsAttributesEditRoute.path
+                                  }
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.SubstituteSave]}
+                                />
+                                <ProtectedRoute
                                   component={AdminAddLoader}
                                   path={AdminAddRoute.path}
                                   role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AdminSave
-                                  ]}
+                                  permissions={[PermissionEnum.AdminSave]}
                                 />
                                 <ProtectedRoute
                                   component={EmployeeAddLoader}
                                   path={EmployeeAddRoute.path}
                                   role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.EmployeeSave
-                                  ]}
+                                  permissions={[PermissionEnum.EmployeeSave]}
                                 />
                                 <ProtectedRoute
                                   component={SubstituteAddLoader}
                                   path={SubstituteAddRoute.path}
                                   role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.SubstituteSave
-                                  ]}
+                                  permissions={[PermissionEnum.SubstituteSave]}
                                 />
                                 <ProtectedRoute
                                   component={PersonViewLoader}

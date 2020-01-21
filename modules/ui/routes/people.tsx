@@ -108,7 +108,22 @@ export const EmployeeAbsScheduleLoader = asyncComponent({
   name: "EmployeeAbsSchedulePage",
 });
 
-//Edit Sub Pools
+/**** substitute edit pages ****/
+
+export const PeopleSubPositionsAttributesEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-positions-attributes"
+);
+export const PeopleSubPositionsAttributesEditLoader = asyncComponent({
+  resolve: async () => {
+    const SubPositionsAttributes = (
+      await import("ui/pages/sub-positions-attributes")
+    ).SubPositionsAttributes;
+    return SubPositionsAttributes;
+  },
+  name: "SubPositionsAttributes",
+});
+
 export const PeopleSubPoolEditRoute = defineSubRoute(
   PersonViewRoute,
   "/edit-sub-pools"
@@ -138,6 +153,19 @@ export const PeopleReplacementCriteriaEditLoader = asyncComponent({
     return PeopleReplacementCriteriaEdit;
   },
   name: "PeopleReplacementCriteriaEditSettingsPage",
+});
+
+//Edit Sub Related Orgs
+export const PeopleSubRelatedOrgsEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-sub-orgs"
+);
+export const PeopleSubRelatedOrgsEditLoader = asyncComponent({
+  resolve: async () => {
+    const SubRelatedOrgsEditPage = (await import("ui/pages/sub-related-orgs")).SubRelatedOrgsEditPage;
+    return SubRelatedOrgsEditPage;
+  },
+  name: "SubRelatedOrgs",
 });
 
 /***** substitute assignment schedule *****/

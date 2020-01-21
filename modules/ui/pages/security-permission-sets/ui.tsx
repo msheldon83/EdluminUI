@@ -51,7 +51,6 @@ export const PermissionSetUI: React.FC<Props> = props => {
     {
       title: t("Role"),
       field: "orgUserRole",
-      type: "string",
       searchable: false,
       hidden: isMobile,
       lookup: orgUserRoles,

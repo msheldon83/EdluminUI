@@ -43,11 +43,11 @@ export const AdminTab: React.FC<Props> = props => {
 
   const admin = orgUser.administrator;
 
-  const onUpdateAdmin = async (adminInput: AdministratorInput) => {
+  const onUpdateAdmin = async (admin: AdministratorInput) => {
     await updateAdmin({
       variables: {
         administrator: {
-          ...adminInput,
+          ...admin,
           id: props.orgUserId,
         },
       },
@@ -73,10 +73,12 @@ export const AdminTab: React.FC<Props> = props => {
         selectedRole={props.selectedRole}
         editPermissions={[PermissionEnum.AdminSave]}
         onSubmit={onUpdateAdmin}
+        onCancel={onCancelAdmin}
       />
       <AccessControl
         editing={props.editing}
         setEditing={props.setEditing}
+        orgId={orgUser.orgId.toString()}
         locations={admin?.accessControl?.locations ?? []}
         locationGroups={admin?.accessControl?.locationGroups ?? []}
         positionTypes={admin?.accessControl?.positionTypes ?? []}
@@ -86,7 +88,13 @@ export const AdminTab: React.FC<Props> = props => {
         allPositionTypeIdsInScope={
           admin?.accessControl?.allPositionTypeIdsInScope ?? false
         }
+        locationIds={admin?.accessControl?.locationIds ?? []}
+        locationGroupIds={admin?.accessControl?.locationGroupIds ?? []}
+        positionTypeIds={admin?.accessControl?.positionTypeIds ?? []}
         isSuperUser={admin?.isSuperUser ?? false}
+        permissionSet={admin.permissionSet}
+        onSubmit={onUpdateAdmin}
+        onCancel={onCancelAdmin}
       />
     </>
   );

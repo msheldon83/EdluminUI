@@ -3,6 +3,7 @@ query GetEmployeeById($id: ID!) {
     byId(id: $id) {
       id
       externalId
+      orgId
       userId
       loginEmail
       employee {

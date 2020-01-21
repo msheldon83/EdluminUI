@@ -7,7 +7,8 @@ import { PeopleRoute, AdminAddRoute, PersonViewRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { AddBasicInfo } from "../add-basic-info";
 import { useHistory } from "react-router";
-import { Information, editableSections, OrgUser } from "../information";
+import { Information, editableSections } from "../information";
+import { AccessControl } from "./access-control";
 import { AdministratorInput, OrgUserRole } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
@@ -15,6 +16,7 @@ import { SaveAdmin } from "../../graphql/admin/save-administrator.gen";
 import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import { SaveEmployee } from "../../graphql/employee/save-employee.gen";
 
 export const AdminAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -68,7 +70,7 @@ export const AdminAddPage: React.FC<{}> = props => {
         externalId: orgUser.externalId,
         email: orgUser.email,
       });
-      setInitialStepNumber(1);
+      setInitialStepNumber(2);
     }
   }, [orgUser, params.organizationId]);
 
@@ -126,7 +128,36 @@ export const AdminAddPage: React.FC<{}> = props => {
             postalCode: orgUser.postalCode,
             phoneNumber: orgUser.phoneNumber,
             dateOfBirth: orgUser.dateOfBirth,
-            permissionSet: { id: orgUser.permissionSet.id },
+          };
+          setAdmin(newAdmin);
+          setStep(steps[2].stepNumber);
+        }}
+        onCancel={handleCancel}
+      />
+    );
+  };
+
+  const renderAccessControl = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    return (
+      <AccessControl
+        editing={"edit-access-control"}
+        orgId={params.organizationId}
+        locations={[]}
+        locationGroups={[]}
+        positionTypes={[]}
+        allLocationIdsInScope={false}
+        allPositionTypeIdsInScope={false}
+        locationIds={[]}
+        locationGroupIds={[]}
+        positionTypeIds={[]}
+        isSuperUser={false}
+        isCreate={true}
+        onSubmit={async (orgUser: any) => {
+          const newAdmin = {
+            ...admin,
+            ...orgUser
           };
           setAdmin(newAdmin);
           const id = await create(newAdmin);
@@ -160,6 +191,11 @@ export const AdminAddPage: React.FC<{}> = props => {
       name: t("General Settings"),
       content: renderInformation,
     },
+    {
+      stepNumber: 2,
+      name: t("Access Control"),
+      content: renderAccessControl,
+    }
   ];
   const [initialStepNumber, setInitialStepNumber] = React.useState(
     steps[0].stepNumber
