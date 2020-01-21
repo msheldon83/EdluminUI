@@ -8,21 +8,28 @@ import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { PersonViewRoute } from "ui/routes/people";
 import { useEndorsements } from "reference-data/endorsements";
-import { GetAllPositionTypesWithReplacementCriteria } from "../graphql/get-all-position-types.gen";
-import { compact } from "lodash-es";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { Section } from "ui/components/section";
-import { PositionType } from "graphql/server-types.gen";
+import {
+  PositionType,
+  PositionTypeQualifications,
+} from "graphql/server-types.gen";
 import { Input } from "ui/components/form/input";
 import { DatePicker } from "ui/components/form/date-picker";
-import { isDate, isBefore, differenceInDays, isSameDay } from "date-fns";
+import {
+  isDate,
+  isBefore,
+  differenceInDays,
+  isSameDay,
+  isPast,
+} from "date-fns";
 import { Warning, ErrorOutline } from "@material-ui/icons";
 import { TFunction } from "i18next";
+import { GetPositionTypeQualifications } from "../graphql/get-position-type-qualifications.gen";
 
 type Props = {
   organizationId: string;
   orgUserId?: string;
-  qualifiedPositionTypes: Pick<PositionType, "id" | "name">[];
   currentAttributes: Attribute[];
   addAttribute: (endorsementId: string) => Promise<boolean>;
   updateAttribute: (
@@ -54,36 +61,62 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
   const [attributesAssigned, setAttributesAssigned] = useState<Attribute[]>(
     props.currentAttributes
   );
+  const [positionTypeQualifications, setPositionTypeQualifications] = useState<
+    GetPositionTypeQualifications.GetQualificationsFromEndorsements
+  >({
+    qualifiedPositionTypes: [],
+    unqualifiedPositionTypes: [],
+  });
+
+  // Get Position Type Qualifications based off of current attributes
+  const positionTypesQualificationsResponse = useQueryBundle(
+    GetPositionTypeQualifications,
+    {
+      fetchPolicy: "cache-first",
+      variables: {
+        orgId: props.organizationId,
+        endorsementIds: attributesAssigned
+          .filter(a => !a.expirationDate || !isPast(a.expirationDate))
+          .map(a => a.endorsementId),
+      },
+    }
+  );
+  // Keep Position Type qualifications in state to avoid losing data in UI while calling the server
+  useEffect(() => {
+    if (
+      positionTypesQualificationsResponse.state === "DONE" &&
+      positionTypesQualificationsResponse.data.positionType
+    ) {
+      setPositionTypeQualifications(
+        positionTypesQualificationsResponse.data.positionType
+          .getQualificationsFromEndorsements
+      );
+    }
+  }, [positionTypesQualificationsResponse]);
 
   // Keep certain state variables in sync with props
   useEffect(() => {
     setAttributesAssigned(props.currentAttributes);
   }, [props.currentAttributes]);
 
-  // Get all of the Position Types in the Org
-  const positionTypeResponse = useQueryBundle(
-    GetAllPositionTypesWithReplacementCriteria,
-    {
-      fetchPolicy: "cache-first",
-      variables: { orgId: props.organizationId },
-    }
-  );
-  const allPositionTypes = useMemo(() => {
-    if (
-      positionTypeResponse.state === "DONE" &&
-      positionTypeResponse.data.positionType
-    ) {
-      return compact(positionTypeResponse.data.positionType.all) ?? [];
-    }
-    return [];
-  }, [positionTypeResponse]);
-
-  // Determine which Position Types the Sub isn't currently qualified for
-  const unqualifiedPositionTypes = useMemo(() => {
-    return allPositionTypes.filter(
-      p => !props.qualifiedPositionTypes.find(q => q?.id === p.id)
-    );
-  }, [props.qualifiedPositionTypes, allPositionTypes]);
+  // const qualifiedPositionTypes = useMemo(() => {
+  //   if (
+  //     positionTypesQualificationsResponse.state === "DONE" &&
+  //     positionTypesQualificationsResponse.data.positionType
+  //   ) {
+  //     return compact(positionTypesQualificationsResponse.data.positionType.getQualificationsFromEndorsements.qualifiedPositionTypes) ?? [];
+  //   }
+  //   return [];
+  // }, [positionTypesQualificationsResponse]);
+  // const unqualifiedPositionTypes = useMemo(() => {
+  //   if (
+  //     positionTypesQualificationsResponse.state === "DONE" &&
+  //     positionTypesQualificationsResponse.data.positionType
+  //   ) {
+  //     return compact(positionTypesQualificationsResponse.data.positionType.getQualificationsFromEndorsements.unqualifiedPositionTypes) ?? [];
+  //   }
+  //   return [];
+  // }, [positionTypesQualificationsResponse]);
 
   // Determine which endorsements/attribute the Sub doesn't have yet
   const missingEndorsements = useMemo(
@@ -117,7 +150,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
             <Typography variant="h5" className={classes.sectionHeader}>
               {t("Qualified for position types")}
             </Typography>
-            {props.qualifiedPositionTypes.map((p, i) => {
+            {positionTypeQualifications.qualifiedPositionTypes.map((p, i) => {
               return (
                 <div key={i} className={getRowClasses(classes, i)}>
                   {p.name}
@@ -129,16 +162,19 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
             <Typography variant="h5" className={classes.sectionHeader}>
               {t("Not qualified for position types")}
             </Typography>
-            {unqualifiedPositionTypes.length === 0 ? (
+            {positionTypeQualifications.unqualifiedPositionTypes.length ===
+            0 ? (
               <div className={classes.allOrNoneRow}>{t("None")}</div>
             ) : (
-              unqualifiedPositionTypes.map((p, i) => {
-                return (
-                  <div key={i} className={getRowClasses(classes, i)}>
-                    {p.name}
-                  </div>
-                );
-              })
+              positionTypeQualifications.unqualifiedPositionTypes.map(
+                (p, i) => {
+                  return (
+                    <div key={i} className={getRowClasses(classes, i)}>
+                      {p.name}
+                    </div>
+                  );
+                }
+              )
             )}
           </Grid>
         </Grid>

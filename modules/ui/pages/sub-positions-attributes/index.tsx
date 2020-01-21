@@ -146,7 +146,6 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       <SubPositionTypesAndAttributesEdit
         organizationId={params.organizationId}
         orgUserId={params.orgUserId}
-        qualifiedPositionTypes={substitute?.qualifiedPositionTypes ?? []}
         currentAttributes={currentAttributes}
         addAttribute={addAttribute}
         updateAttribute={updateAttribute}
