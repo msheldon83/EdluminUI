@@ -106,6 +106,8 @@ import {
   SubstituteAssignmentScheduleRoute,
   SubstituteAssignmentScheduleCalendarViewRoute,
   SubstituteAssignmentScheduleListViewRoute,
+  PeopleSubRelatedOrgsEditRoute,
+  PeopleSubRelatedOrgsEditLoader,
   PeopleSubPositionsAttributesEditRoute,
   PeopleSubPositionsAttributesEditLoader,
 } from "./routes/people";
@@ -430,6 +432,12 @@ export function App() {
                                   path={SubstituteAssignmentScheduleRoute.path}
                                   role={"admin"}
                                   permissions={[PermissionEnum.SubstituteView]}
+                                />
+                                <ProtectedRoute
+                                  component={PeopleSubRelatedOrgsEditLoader}
+                                  path={PeopleSubRelatedOrgsEditRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.SubstituteSave]}
                                 />
                                 <ProtectedRoute
                                   component={PeopleSubPoolEditLoader}

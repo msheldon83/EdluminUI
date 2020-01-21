@@ -34,6 +34,7 @@ mutation SaveAdmin($administrator: AdministratorInput!) {
           locations {
             id
             name
+            locationGroupId
           }
           locationGroups {
             id

@@ -27,7 +27,7 @@ import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Table, TableColumn } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
-import { PeopleRoute, PersonViewRoute, AdminAddRoute } from "ui/routes/people";
+import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
 import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";

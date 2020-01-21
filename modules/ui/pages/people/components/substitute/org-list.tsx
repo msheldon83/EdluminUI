@@ -5,6 +5,11 @@ import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Maybe, Organization, PermissionEnum } from "graphql/server-types.gen";
+import {
+  PeopleSubRelatedOrgsEditRoute,
+  PersonViewRoute,
+} from "ui/routes/people";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
   editing: string | null;
@@ -14,6 +19,7 @@ type Props = {
 export const OrganizationList: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
+  const params = useRouteParams(PersonViewRoute);
 
   const orgs = props?.orgs;
 
@@ -24,9 +30,11 @@ export const OrganizationList: React.FC<Props> = props => {
           title={t("Districts")}
           action={{
             text: t("Edit"),
-            visible: !props.editing,
+            visible: false, // !props.editing, // TODO: Remove this comment when we are ready to finish the edit page
             execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
+              const editSettingsUrl = PeopleSubRelatedOrgsEditRoute.generate(
+                params
+              );
               history.push(editSettingsUrl);
             },
             permissions: [PermissionEnum.SubstituteSave],
@@ -36,7 +44,7 @@ export const OrganizationList: React.FC<Props> = props => {
           <Grid container item spacing={2} xs={4}>
             <Grid item xs={12} sm={6} lg={6}>
               {orgs?.length === 0 ? (
-                <div>{t("Not defined")}</div>
+                <div>{t("No related districts")}</div>
               ) : (
                 orgs?.map((n, i) => <div key={i}>{n?.name}</div>)
               )}
