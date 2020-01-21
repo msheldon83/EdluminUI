@@ -12,14 +12,11 @@ import { GetAllPositionTypesWithReplacementCriteria } from "../graphql/get-all-p
 import { compact } from "lodash-es";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { Section } from "ui/components/section";
-import {
-  EmployeeEndorsement,
-  PositionType,
-  Endorsement,
-} from "graphql/server-types.gen";
+import { PositionType } from "graphql/server-types.gen";
 import { Input } from "ui/components/form/input";
 import { DatePicker } from "ui/components/form/date-picker";
-import { isDate, isBefore, differenceInDays } from "date-fns";
+import { isDate, isBefore, differenceInDays, isSameDay } from "date-fns";
+import { Warning, ErrorOutline } from "@material-ui/icons";
 
 type Props = {
   organizationId: string;
@@ -169,10 +166,6 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                   <div className={classes.currentAttributeColumn}>
                     <div className={classes.rowHeader}>{t("Expires")}</div>
                     {attributesAssigned.map((a, i) => {
-                      const expired = attributeIsExpired(a);
-                      const closeToExpiration =
-                        !expired && attributeIsCloseToExpiring(a);
-
                       return (
                         <div key={i} className={getRowClasses(classes, i)}>
                           <div className={classes.updateAttributeItems}>
@@ -186,28 +179,45 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                                 startDate={a.expirationDate ?? ""}
                                 onChange={async e => {
                                   if (isDate(e.startDate)) {
-                                    const startDate = e.startDate as Date;
-                                    const result = await props.updateAttribute(
-                                      a.endorsementId,
-                                      startDate
+                                    const expirationDate = e.startDate as Date;
+
+                                    const updatedAttributesAssigned = [
+                                      ...attributesAssigned,
+                                    ];
+                                    const attributeToUpdate = updatedAttributesAssigned.find(
+                                      u => u.endorsementId === a.endorsementId
                                     );
-                                    if (result) {
-                                      const updatedAttributesAssigned = [
-                                        ...attributesAssigned,
-                                      ];
-                                      const attributeToUpdate = updatedAttributesAssigned.find(
-                                        u => u.endorsementId === a.endorsementId
+
+                                    // Only make the call to the server if our expiration date
+                                    // has actually changed
+                                    if (
+                                      attributeToUpdate &&
+                                      (!attributeToUpdate.expirationDate ||
+                                        !isSameDay(
+                                          expirationDate,
+                                          attributeToUpdate.expirationDate
+                                        ))
+                                    ) {
+                                      const result = await props.updateAttribute(
+                                        a.endorsementId,
+                                        expirationDate
                                       );
-                                      if (attributeToUpdate) {
-                                        attributeToUpdate.expirationDate = startDate;
+                                      if (result) {
+                                        if (attributeToUpdate) {
+                                          attributeToUpdate.expirationDate = expirationDate;
+                                        }
+                                        setAttributesAssigned(
+                                          updatedAttributesAssigned
+                                        );
                                       }
-                                      setAttributesAssigned(
-                                        updatedAttributesAssigned
-                                      );
                                     }
                                   }
                                 }}
                                 startLabel={""}
+                                endAdornment={getDatePickerAdornment(
+                                  a,
+                                  classes
+                                )}
                               />
                             )}
                             <Link
@@ -356,6 +366,12 @@ const useStyles = makeStyles(theme => ({
     width: "50%",
     marginBottom: theme.spacing(2),
   },
+  warning: {
+    color: theme.customColors.warning,
+  },
+  expired: {
+    color: theme.customColors.darkRed,
+  },
 }));
 
 const getRowClasses = (classes: any, index: number): string => {
@@ -368,6 +384,24 @@ const getRowClasses = (classes: any, index: number): string => {
   }
 
   return rowClasses.join(" ");
+};
+
+const getDatePickerAdornment = (
+  attribute: Attribute,
+  classes: any
+): React.ReactNode | undefined => {
+  const expired = attributeIsExpired(attribute);
+  const closeToExpiration = !expired && attributeIsCloseToExpiring(attribute);
+
+  if (expired) {
+    return <ErrorOutline className={classes.expired} />;
+  }
+
+  if (closeToExpiration) {
+    return <Warning className={classes.warning} />;
+  }
+
+  return undefined;
 };
 
 const attributeIsExpired = (attribute: Attribute): boolean => {
@@ -384,6 +418,6 @@ const attributeIsCloseToExpiring = (attribute: Attribute): boolean => {
     return false;
   }
 
-  const result = differenceInDays(new Date(), attribute.expirationDate) <= 30;
+  const result = differenceInDays(attribute.expirationDate, new Date()) <= 30;
   return result;
 };

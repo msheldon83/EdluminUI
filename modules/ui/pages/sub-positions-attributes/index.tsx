@@ -19,6 +19,7 @@ import { RemoveEmployeeEndorsement } from "ui/components/employee/graphql/remove
 import { UpdateEmployeeEndorsement } from "ui/components/employee/graphql/update-endorsement.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { Link } from "react-router-dom";
+import { parseISO } from "date-fns";
 
 type Props = {};
 
@@ -48,7 +49,7 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       return {
         endorsementId: a.endorsement.id,
         name: a.endorsement.name,
-        expirationDate: a.expirationDate,
+        expirationDate: a.expirationDate ? parseISO(a.expirationDate) : null,
         expires: a.endorsement.expires,
       };
     });
