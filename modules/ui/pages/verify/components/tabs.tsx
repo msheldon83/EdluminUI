@@ -99,6 +99,8 @@ const useStyles = makeStyles(theme => ({
     textTransform: "uppercase",
     fontWeight: "bold",
     minWidth: theme.typography.pxToRem(150),
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
   },
   tabLabel: {
     display: "flex",
