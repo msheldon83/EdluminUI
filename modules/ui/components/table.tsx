@@ -41,7 +41,7 @@ import { can } from "helpers/permissions";
 import { useOrganizationId } from "core/org-context";
 
 export type TableProps<T extends object> = {
-  title: string;
+  title?: string;
   data: Array<T>;
   columns: TableColumn<T>[];
   selection?: boolean;
@@ -227,7 +227,13 @@ export function Table<T extends object>(props: TableProps<T>) {
   return (
     <MaterialTable
       icons={tableIcons}
-      title={<div className={classes.tableTitle}>{props.title}</div>}
+      title={
+        props.title ? (
+          <div className={classes.tableTitle}>{props.title}</div>
+        ) : (
+          ""
+        )
+      }
       columns={allColumns}
       data={data}
       editable={props.editable}

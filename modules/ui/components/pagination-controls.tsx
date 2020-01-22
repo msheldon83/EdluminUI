@@ -41,10 +41,15 @@ export const PaginationControls: React.FC<Props> = props => {
 
   return (
     <div className={classes.container}>
-      <Typography className={classes.label}>{t("Rows per page")}</Typography>
+      <Typography className={classes.label} color="secondary">
+        {t("Rows per page")}
+      </Typography>
       <Select
         value={resultsPerPage}
         onChange={evt => setResultsPerPage(Number(evt.target.value))}
+        classes={{
+          root: classes.selectRoot,
+        }}
       >
         {options.map(n => (
           <MenuItem key={n} value={n}>
@@ -52,7 +57,7 @@ export const PaginationControls: React.FC<Props> = props => {
           </MenuItem>
         ))}
       </Select>
-      <Typography className={classes.label}>
+      <Typography color="secondary" className={classes.label}>
         {startIndex}-{endIndex} {t("of")} {totalCount}
       </Typography>
       <IconButton
@@ -60,14 +65,14 @@ export const PaginationControls: React.FC<Props> = props => {
         onClick={previousPage}
         disabled={currentPage <= 1}
       >
-        <NavigateBeforeIcon />
+        <NavigateBeforeIcon color="secondary" />
       </IconButton>
       <IconButton
         size="small"
         onClick={nextPage}
         disabled={currentPage >= totalPages}
       >
-        <NavigateNextIcon />
+        <NavigateNextIcon color="secondary" />
       </IconButton>
     </div>
   );
@@ -81,9 +86,16 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
+
+    "& > *:not(button + button)": {
+      marginLeft: theme.spacing(4),
+    },
   },
   label: {
     marginRight: theme.spacing(2),
     marginLeft: theme.spacing(2),
+  },
+  selectRoot: {
+    color: theme.palette.secondary.main,
   },
 }));
