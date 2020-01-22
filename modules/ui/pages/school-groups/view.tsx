@@ -65,8 +65,14 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
             favoriteHeading={t("Favorites")}
             blockedHeading={t("Blocked")}
             heading={t("Substitute Preferences")}
-            preferredLists={locationGroup.substitutePreferences}
+            favoriteSubstitutes={
+              locationGroup.substitutePreferences.favoriteSubstitutes
+            }
+            blockedSubstitutes={
+              locationGroup.substitutePreferences.blockedSubstitutes
+            }
             editRoute={LocationGroupSubPrefRoute.generate(params)}
+            editing={false}
           ></SubstitutePrefCard>
         )}
       </div>

@@ -53,13 +53,13 @@ fragment EmployeeDetails on Employee {
       }
     }
   }
-  substitutePools {
-    blockedEmployees {
+  substitutePreferences {
+    blockedSubstitutes {
       id
       firstName
       lastName
     }
-    favoriteEmployees {
+    favoriteSubstitutes {
       id
       firstName
       lastName

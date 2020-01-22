@@ -1250,7 +1250,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   employmentHistories: [EmploymentHistory]
   endorsements: [EmployeeEndorsement]
   locations: [Location]
-  substitutePools: SubstitutePool
+  substitutePreferences: SubstitutePreferences
 }
 
 input EmployeeCreateInput {
@@ -1273,16 +1273,16 @@ type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  employeeId: Int!
+  employeeId: ID!
   expirationDate: Date
-  endorsementId: Int!
+  endorsementId: ID!
   endorsement: Endorsement!
 }
 
 input EmployeeEndorsementInput {
-  orgId: Int!
-  employeeId: Int!
-  endorsementId: Int!
+  orgId: ID!
+  employeeId: ID!
+  endorsementId: ID!
   expirationDate: Date
 }
 
@@ -1323,7 +1323,7 @@ type EmployeeMutations {
   delete(employeeId: Int!): Boolean
   addEndorsement(endorsement: EmployeeEndorsementInput!): Employee
   changeEndorsement(endorsement: EmployeeEndorsementInput!): Employee
-  removeEndorsement(employeeId: Int!, endorsementId: Int!): Employee
+  removeEndorsement(employeeId: ID!, endorsementId: ID!): Employee
 }
 
 type EmployeeQualifiedResult {
@@ -3746,6 +3746,12 @@ type PositionTypeMutations {
   delete(positionTypeId: Int!): Boolean
 }
 
+type PositionTypeQualifications {
+  _info: [ReturnMessage]
+  qualifiedPositionTypes: [PositionType!]!
+  unqualifiedPositionTypes: [PositionType!]!
+}
+
 type PositionTypeQueries {
   byId(id: ID!): PositionType
   all(
@@ -3776,6 +3782,10 @@ type PositionTypeQueries {
     positionTypeId: Int!
     name: String
   ): PagedEmployeeQualifiedResult
+  getQualificationsFromEndorsements(
+    orgId: ID!
+    endorsementIds: [ID!]!
+  ): PositionTypeQualifications!
 }
 
 input PositionTypeUpdateInput {
@@ -4848,14 +4858,6 @@ input SubstituteInput {
   payCodeId: ID
   attributes: [SubstituteAttributeInput]
   relatedOrgIds: [ID]
-}
-
-type SubstitutePool {
-  _info: [ReturnMessage]
-  favoriteEmployeeIds: [Int]
-  favoriteEmployees: [Employee]
-  blockedEmployeeIds: [Int]
-  blockedEmployees: [Employee]
 }
 
 type SubstitutePoolMembership {

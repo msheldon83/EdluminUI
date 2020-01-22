@@ -4,12 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import {
-  Maybe,
-  Employee,
-  PermissionEnum,
-  SubstitutePreferences,
-} from "graphql/server-types.gen";
+import { Maybe, Employee, PermissionEnum } from "graphql/server-types.gen";
 
 import { useRouteParams } from "ui/routes/definition";
 
@@ -17,16 +12,23 @@ type Props = {
   favoriteHeading: string;
   blockedHeading: string;
   heading: string;
-  preferredLists?: SubstitutePreferences | null;
+  preferredLists?: any | null;
+  blockedSubstitutes?: any[] | null;
+  favoriteSubstitutes?: any[] | null;
   editRoute: string;
+  editing: boolean;
 };
 
 export const SubstitutePrefCard: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
 
-  const favoriteSubstitutes = props.preferredLists?.favoriteSubstitutes;
-  const blockedSubstitutes = props.preferredLists?.blockedSubstitutes;
+  const favoriteEmployees = props.favoriteSubstitutes
+    ? props.favoriteSubstitutes
+    : [];
+  const blockedEmployees = props.blockedSubstitutes
+    ? props.blockedSubstitutes
+    : [];
 
   return (
     <>
@@ -35,7 +37,7 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
           title={t(props.heading)}
           action={{
             text: t("Edit"),
-            visible: true,
+            visible: !props.editing,
             execute: () => {
               history.push(props.editRoute);
             },
@@ -45,13 +47,13 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
 
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={4}>
-            {favoriteSubstitutes && (
+            {favoriteEmployees && (
               <Grid item xs={12} sm={6} lg={6}>
                 <Typography variant="h6">{t("Favorites")}</Typography>
-                {favoriteSubstitutes.length === 0 ? (
+                {favoriteEmployees.length === 0 ? (
                   <div>{t("Not defined")}</div>
                 ) : (
-                  favoriteSubstitutes.map((n, i) => (
+                  favoriteEmployees.map((n: Employee, i: number) => (
                     <div key={i}>{n?.firstName + " " + n?.lastName}</div>
                   ))
                 )}
@@ -59,13 +61,13 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
             )}
           </Grid>
           <Grid container item spacing={2} xs={4}>
-            {blockedSubstitutes && (
+            {blockedEmployees && (
               <Grid item xs={12} sm={6} lg={6}>
                 <Typography variant="h6">{t("Blocked")}</Typography>
-                {blockedSubstitutes.length === 0 ? (
+                {blockedEmployees.length === 0 ? (
                   <div>{t("Not defined")}</div>
                 ) : (
-                  blockedSubstitutes.map((n, i) => (
+                  blockedEmployees.map((n: Employee, i: number) => (
                     <div key={i}>{n?.firstName + " " + n?.lastName}</div>
                   ))
                 )}
