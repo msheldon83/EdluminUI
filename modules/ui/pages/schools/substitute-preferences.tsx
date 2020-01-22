@@ -3,14 +3,14 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetLocationById } from "./graphql/get-location-by-id.gen";
 import { UpdateLocation } from "./graphql/update-location.gen";
 import { useRouteParams } from "ui/routes/definition";
-import { LocationsSubPrefRoute } from "ui/routes/locations";
+import { LocationSubPrefRoute } from "ui/routes/locations";
 import { useTranslation } from "react-i18next";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
 
-export const LocationsSubstitutePreferencePage: React.FC<{}> = props => {
-  const params = useRouteParams(LocationsSubPrefRoute);
+export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
+  const params = useRouteParams(LocationSubPrefRoute);
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
 

@@ -137,10 +137,10 @@ import {
 import {
   LocationsLoader,
   LocationsRoute,
-  LocationsViewLoader,
-  LocationsViewRoute,
-  LocationsSubPrefLoader,
-  LocationsSubPrefRoute,
+  LocationViewLoader,
+  LocationViewRoute,
+  LocationSubPrefLoader,
+  LocationSubPrefRoute,
 } from "./routes/locations";
 import {
   SecurityManagedOrganizationsLoader,
@@ -696,14 +696,14 @@ export function App() {
                                   ]}
                                 />
                                 <ProtectedRoute
-                                  component={LocationsSubPrefLoader}
-                                  path={LocationsSubPrefRoute.path}
+                                  component={LocationSubPrefLoader}
+                                  path={LocationSubPrefRoute.path}
                                   role={"admin"}
                                   permissions={[PermissionEnum.LocationSave]}
                                 />
                                 <ProtectedRoute
-                                  component={LocationsViewLoader}
-                                  path={LocationsViewRoute.path}
+                                  component={LocationViewLoader}
+                                  path={LocationViewRoute.path}
                                   role={"admin"}
                                   permissions={[PermissionEnum.LocationView]}
                                 />

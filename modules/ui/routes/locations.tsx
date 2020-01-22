@@ -4,14 +4,14 @@ import { defineSubRoute } from "./definition";
 
 export const LocationsRoute = defineSubRoute(AdminChromeRoute, "/locations");
 
-export const LocationsViewRoute = defineSubRoute(
+export const LocationViewRoute = defineSubRoute(
   LocationsRoute,
   "/:locationId",
   ["locationId"]
 );
 
-export const LocationsSubPrefRoute = defineSubRoute(
-  LocationsViewRoute,
+export const LocationSubPrefRoute = defineSubRoute(
+  LocationViewRoute,
   "/substitute-preferences"
 );
 
@@ -23,21 +23,21 @@ export const LocationsLoader = asyncComponent({
   name: "Locations",
 });
 
-export const LocationsViewLoader = asyncComponent({
+export const LocationViewLoader = asyncComponent({
   resolve: async () => {
-    const LocationsViewPage = (await import("ui/pages/schools/view"))
-      .LocationsViewPage;
-    return LocationsViewPage;
+    const LocationViewPage = (await import("ui/pages/schools/view"))
+      .LocationViewPage;
+    return LocationViewPage;
   },
-  name: "LocationsViewPage",
+  name: "LocationViewPage",
 });
 
-export const LocationsSubPrefLoader = asyncComponent({
+export const LocationSubPrefLoader = asyncComponent({
   resolve: async () => {
-    const LocationsSubPrefPage = (
+    const LocationSubPrefPage = (
       await import("ui/pages/schools/substitute-preferences")
-    ).LocationsSubstitutePreferencePage;
-    return LocationsSubPrefPage;
+    ).LocationSubstitutePreferencePage;
+    return LocationSubPrefPage;
   },
   name: "LocationsSubPrefPage",
 });

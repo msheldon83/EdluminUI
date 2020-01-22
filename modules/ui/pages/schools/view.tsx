@@ -4,17 +4,17 @@ import { LocationsInformation } from "./components/information";
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
 import { GetLocationById } from "./graphql/get-location-by-id.gen";
 import { useRouteParams } from "ui/routes/definition";
-import { LocationsViewRoute } from "ui/routes/locations";
+import { LocationViewRoute } from "ui/routes/locations";
 import { useTranslation } from "react-i18next";
 import { Location as Loc, PermissionEnum } from "graphql/server-types.gen";
 import { PageHeader } from "ui/components/page-header";
 import { makeStyles } from "@material-ui/core";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { can } from "helpers/permissions";
-import { LocationsSubPrefRoute } from "ui/routes/locations";
+import { LocationSubPrefRoute } from "ui/routes/locations";
 
-export const LocationsViewPage: React.FC<{}> = props => {
-  const params = useRouteParams(LocationsViewRoute);
+export const LocationViewPage: React.FC<{}> = props => {
+  const params = useRouteParams(LocationViewRoute);
   const { t } = useTranslation();
   const classes = useStyles();
 
@@ -62,7 +62,7 @@ export const LocationsViewPage: React.FC<{}> = props => {
             blockedHeading={t("Blocked")}
             heading={t("Substitute Preferences")}
             preferredLists={location.substitutePreferences}
-            editRoute={LocationsSubPrefRoute.generate(params)}
+            editRoute={LocationSubPrefRoute.generate(params)}
           ></SubstitutePrefCard>
         )}
       </div>

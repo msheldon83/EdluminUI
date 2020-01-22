@@ -6,7 +6,7 @@ import { Column } from "material-table";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { compact } from "lodash-es";
-import { LocationsRoute, LocationsViewRoute } from "ui/routes/locations";
+import { LocationsRoute, LocationViewRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllLocationsWithinOrg } from "./graphql/get-all-locations.gen";
 import { useIsMobile } from "hooks";
@@ -74,7 +74,7 @@ export const LocationsUI: React.FC<Props> = props => {
               ...params,
               locationId: location.id,
             };
-            history.push(LocationsViewRoute.generate(newParams));
+            history.push(LocationViewRoute.generate(newParams));
           }}
         />
       </Section>
