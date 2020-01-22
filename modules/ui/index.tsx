@@ -99,6 +99,8 @@ import {
   PersonViewLoader,
   PeopleSubPoolEditLoader,
   PeopleSubPoolEditRoute,
+  PeopleReplacementCriteriaEditLoader,
+  PeopleReplacementCriteriaEditRoute,
   PersonViewRoute,
   EmployeeAbsScheduleLoader,
   EmployeeAbsScheduleRoute,
@@ -124,6 +126,8 @@ import {
   PositionTypeRoute,
   PositionTypeViewLoader,
   PositionTypeViewRoute,
+  ReplacementCriteriaEditLoader,
+  ReplacementCriteriaEditRoute,
 } from "./routes/position-type";
 import { ProfileLoader, ProfileRoute } from "./routes/profile";
 import {
@@ -474,6 +478,14 @@ export function App() {
                                 />
                                 <ProtectedRoute
                                   component={
+                                    PeopleReplacementCriteriaEditLoader
+                                  }
+                                  path={PeopleReplacementCriteriaEditRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.EmployeeSave]}
+                                />
+                                <ProtectedRoute
+                                  component={
                                     PeopleSubPositionsAttributesEditLoader
                                   }
                                   path={
@@ -532,6 +544,14 @@ export function App() {
                                   ]}
                                 />
                                 <ProtectedRoute
+                                  component={ReplacementCriteriaEditLoader}
+                                  path={ReplacementCriteriaEditRoute.path}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.FinanceSettingsSave,
+                                  ]}
+                                />
+                                <ProtectedRoute
                                   component={PositionTypeAddLoader}
                                   path={PositionTypeAddRoute.path}
                                   role={"admin"}
@@ -563,6 +583,7 @@ export function App() {
                                     PermissionEnum.FinanceSettingsView,
                                   ]}
                                 />
+
                                 <ProtectedRoute
                                   component={BellScheduleAddLoader}
                                   path={BellScheduleAddRoute.path}

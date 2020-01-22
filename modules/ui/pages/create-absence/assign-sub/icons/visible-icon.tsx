@@ -2,10 +2,11 @@ import * as React from "react";
 import { makeStyles, Tooltip } from "@material-ui/core";
 import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { useTranslation } from "react-i18next";
+import { format, isValid, parseISO } from "date-fns";
 
 type Props = {
   visible: boolean;
-  visibleOn?: Date | null | undefined;
+  visibleOn?: string | null | undefined;
 };
 
 export const VisibleIcon: React.FC<Props> = props => {
@@ -20,8 +21,10 @@ export const VisibleIcon: React.FC<Props> = props => {
     return <VisibilityOff className={classes.icon} />;
   }
 
+  const iso = parseISO(props.visibleOn);
+  const date = isValid(iso) && format(iso, "MMM d, yyyy h:mm aa");
   return (
-    <Tooltip title={`${t("Visible on")} ${props.visibleOn}`}>
+    <Tooltip title={`${t("Visible on")} ${date}`}>
       <img src={require("ui/icons/visibility_time.svg")} />
     </Tooltip>
   );

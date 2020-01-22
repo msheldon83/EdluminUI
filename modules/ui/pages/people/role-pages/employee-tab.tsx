@@ -11,7 +11,6 @@ import {
 } from "graphql/server-types.gen";
 import { GetEmployeeById } from "../graphql/employee/get-employee-by-id.gen";
 import { SaveEmployee } from "../graphql/employee/save-employee.gen";
-
 import { UpcomingAbsences } from "../components/employee/upcoming-absences";
 import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
 import { Position } from "../components/employee/position";
