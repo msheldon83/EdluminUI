@@ -1,0 +1,24 @@
+query GetLocationGroupById($locationGroupId: ID!) {
+  locationGroup {
+    byId(id: $locationGroupId) {
+      id
+      name
+      externalId
+      rowVersion
+      substitutePreferences {
+        blockedSubstitutes {
+          id
+          firstName
+          middleName
+          lastName
+        }
+        favoriteSubstitutes {
+          id
+          firstName
+          middleName
+          lastName
+        }
+      }
+    }
+  }
+}
