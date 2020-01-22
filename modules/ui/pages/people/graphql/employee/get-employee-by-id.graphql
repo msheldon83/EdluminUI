@@ -65,13 +65,13 @@ query GetEmployeeById($id: ID!) {
             }
           }
         }
-        substitutePools {
-          blockedEmployees {
+        substitutePreferences {
+          blockedSubstitutes {
             id
             firstName
             lastName
           }
-          favoriteEmployees {
+          favoriteSubstitutes {
             id
             firstName
             lastName

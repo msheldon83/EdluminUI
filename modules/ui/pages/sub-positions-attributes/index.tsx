@@ -67,9 +67,9 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       const response = await addEmployeeEndorsement({
         variables: {
           employeeEndorsementInput: {
-            orgId: Number(params.organizationId),
-            employeeId: Number(params.orgUserId),
-            endorsementId: Number(endorsementId),
+            orgId: params.organizationId,
+            employeeId: params.orgUserId,
+            endorsementId: endorsementId,
           },
         },
       });
