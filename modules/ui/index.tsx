@@ -699,7 +699,7 @@ export function App() {
                                   component={LocationsSubPrefLoader}
                                   path={LocationsSubPrefRoute.path}
                                   role={"admin"}
-                                  permissions={[PermissionEnum.LocationView]}
+                                  permissions={[PermissionEnum.LocationSave]}
                                 />
                                 <ProtectedRoute
                                   component={LocationsViewLoader}
@@ -718,7 +718,7 @@ export function App() {
                                   path={LocationGroupSubPrefRoute.path}
                                   role={"admin"}
                                   permissions={[
-                                    PermissionEnum.LocationGroupView,
+                                    PermissionEnum.LocationGroupSave,
                                   ]}
                                 />
                                 <ProtectedRoute
