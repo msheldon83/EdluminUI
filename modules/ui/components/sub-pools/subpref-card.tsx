@@ -46,7 +46,7 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
         />
 
         <Grid container spacing={2}>
-          <Grid container item spacing={2} xs={4}>
+          <Grid container item spacing={2} xs={5}>
             {favoriteEmployees && (
               <Grid item xs={12} sm={6} lg={6}>
                 <Typography variant="h6">{t("Favorites")}</Typography>
@@ -60,7 +60,7 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
               </Grid>
             )}
           </Grid>
-          <Grid container item spacing={2} xs={4}>
+          <Grid container item spacing={2} xs={5}>
             {blockedEmployees && (
               <Grid item xs={12} sm={6} lg={6}>
                 <Typography variant="h6">{t("Blocked")}</Typography>

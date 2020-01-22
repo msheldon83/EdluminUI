@@ -19,47 +19,45 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
     fetchPolicy: "cache-first",
   });
 
-  const onRemoveFavoriteEmployee = async (emp: any) => {
-    const filteredFavorites = employee.substitutePools?.favoriteEmployees.filter(
+  const onRemoveFavoriteSubstitute = async (sub: any) => {
+    const filteredFavorites = employee.substitutePreferences?.favoriteSubstitutes.filter(
       (u: any) => {
-        return u.id !== emp.id;
+        return u.id !== sub.id;
       }
     );
     return updatePreferences(
       filteredFavorites,
-      employee.substitutePools?.blockedEmployees
+      employee.substitutePreferences?.blockedSubstitutes
     );
   };
 
-  const onRemoveBlockedEmployee = async (emp: any) => {
-    const filteredBlocked = employee.substitutePools?.blockedEmployees.filter(
+  const onRemoveBlockedSubstitute = async (sub: any) => {
+    const filteredBlocked = employee.substitutePreferences?.blockedSubstitutes.filter(
       (u: any) => {
-        return u.id !== emp.id;
+        return u.id !== sub.id;
       }
     );
     return updatePreferences(
-      employee.substitutePools?.favoriteEmployees,
+      employee.substitutePreferences?.favoriteSubstitutes,
       filteredBlocked
     );
   };
 
-  const onAddEmployee = async (emp: any) => {
-    console.log(employee.substitutePools?.favoriteEmployees);
-    console.log(emp);
-    employee.substitutePools?.favoriteEmployees.push(emp);
+  const onAddSubstitute = async (sub: any) => {
+    employee.substitutePreferences?.favoriteSubstitutes.push(sub);
 
     return updatePreferences(
-      employee.substitutePools?.favoriteEmployees,
-      employee.substitutePools?.blockedEmployees
+      employee.substitutePreferences?.favoriteSubstitutes,
+      employee.substitutePreferences?.blockedSubstitutes
     );
   };
 
-  const onBlockEmployee = async (emp: any) => {
-    employee.substitutePools?.blockedEmployees.push(emp);
+  const onBlockSubstitute = async (sub: any) => {
+    employee.substitutePreferences?.blockedSubstitutes.push(sub);
 
     return updatePreferences(
-      employee.substitutePools?.favoriteEmployees,
-      employee.substitutePools?.blockedEmployees
+      employee.substitutePreferences?.favoriteSubstitutes,
+      employee.substitutePreferences?.blockedSubstitutes
     );
   };
 
@@ -74,9 +72,9 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
     const updatedEmployee: any = {
       id: employee.id,
       rowVersion: employee.rowVersion,
-      substitutePools: {
-        favoriteEmployees: neweFavs,
-        blockedEmployees: neweBlocked,
+      substitutePreferences: {
+        favoriteSubstitutes: neweFavs,
+        blockedSubstitutes: neweBlocked,
       },
     };
     const result = await updateEmployee({
@@ -106,16 +104,16 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
         searchHeading={"All Substitutes"}
-        favoriteEmployees={employee.substitutePools?.favoriteEmployees}
-        blockedEmployees={employee.substitutePools?.blockedEmployees}
+        favoriteEmployees={employee.substitutePreferences?.favoriteSubstitutes}
+        blockedEmployees={employee.substitutePreferences?.blockedSubstitutes}
         heading={t("Substitute Preferences")}
         subHeading={`${employee.firstName ?? ""} ${employee.middleName ??
           ""} ${employee.lastName ?? ""}`}
         orgId={params.organizationId}
-        onRemoveFavoriteEmployee={onRemoveFavoriteEmployee}
-        onRemoveBlockedEmployee={onRemoveBlockedEmployee}
-        onAddFavoriteEmployee={onAddEmployee}
-        onBlockEmployee={onBlockEmployee}
+        onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
+        onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
+        onAddFavoriteEmployee={onAddSubstitute}
+        onBlockEmployee={onBlockSubstitute}
       ></SubstitutePreferences>
     </>
   );
