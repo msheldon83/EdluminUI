@@ -89,7 +89,7 @@ export const AvailableAttributes: React.FC<Props> = props => {
               className={classes.label}
             />
           </Grid>
-          <div className={classes.fontColorGrey}>Add selected to:</div>
+          <div className={classes.fontColorGrey}>{t("Add selected to:")}</div>
           <Grid item xs={12} sm={6} md={6} lg={6}>
             <TextButton
               color="primary"
@@ -100,7 +100,7 @@ export const AvailableAttributes: React.FC<Props> = props => {
                 }
               }}
             >
-              Substitutes must have
+              {t("Substitutes must have")}
             </TextButton>
           </Grid>
           <Grid item xs={12} sm={6} md={6} lg={6}>
@@ -113,7 +113,7 @@ export const AvailableAttributes: React.FC<Props> = props => {
                 }
               }}
             >
-              Prefer that substitutes have
+              {t("Prefer that substitutes have")}
             </TextButton>
           </Grid>
           <Grid item xs={12} sm={6} md={6} lg={6}>
@@ -126,7 +126,7 @@ export const AvailableAttributes: React.FC<Props> = props => {
                 }
               }}
             >
-              Prefer that substitutes not have
+              {t("Prefer that substitutes not have")}
             </TextButton>
           </Grid>
 
@@ -140,7 +140,7 @@ export const AvailableAttributes: React.FC<Props> = props => {
                 }
               }}
             >
-              Substitutes must not have
+              {t("Substitutes must not have")}
             </TextButton>
           </Grid>
           <Grid item xs={12} sm={12} lg={12}>
@@ -162,7 +162,7 @@ export const AvailableAttributes: React.FC<Props> = props => {
                     checked={checkedValue(n.id)}
                     color="primary"
                   />
-                  <div className={classes.inlineBlock}>{n.name}</div>
+                  <div className={classes.inlineBlock}>{t(n.name)}</div>
                 </div>
               ))
             )}

@@ -41,7 +41,7 @@ export const ReplacementCriteriaView: React.FC<Props> = props => {
                     i
                   )}`}
                 >
-                  <div>{n.name}</div>
+                  <div>{t(n.name)}</div>
                   <div>
                     <TextButton
                       className={classes.link}
