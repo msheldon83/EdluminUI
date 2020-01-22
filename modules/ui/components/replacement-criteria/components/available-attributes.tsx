@@ -163,7 +163,7 @@ export const AvailableAttributes: React.FC<Props> = props => {
               {t("Substitutes must not have")}
             </TextButton>
           </Grid>
-          <Grid item xs={12} sm={12}>
+          <Grid item xs={12} sm={12} className={classes.topPadding}>
             {attributes?.length === 0 ? (
               <div className={classes.allOrNoneRow}>
                 {t("No Attributes created yet")}
@@ -228,6 +228,9 @@ const useStyles = makeStyles(theme => ({
   },
   row: {
     width: "100%",
+  },
+  topPadding: {
+    paddingTop: theme.spacing(3),
   },
 }));
 
