@@ -1,32 +1,33 @@
 import { makeStyles } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
+import { useIsMobile, useDeferredState } from "hooks";
 import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { Typography, Grid, Link } from "@material-ui/core";
+import { Typography, Grid, Link, Tooltip } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { PersonViewRoute } from "ui/routes/people";
 import { useEndorsements } from "reference-data/endorsements";
-import { GetAllPositionTypesWithReplacementCriteria } from "../graphql/get-all-position-types.gen";
-import { compact } from "lodash-es";
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Section } from "ui/components/section";
-import {
-  EmployeeEndorsement,
-  PositionType,
-  Endorsement,
-} from "graphql/server-types.gen";
 import { Input } from "ui/components/form/input";
 import { DatePicker } from "ui/components/form/date-picker";
-import { isDate } from "date-fns";
+import {
+  isDate,
+  isBefore,
+  differenceInDays,
+  isSameDay,
+  isPast,
+} from "date-fns";
+import { Warning, ErrorOutline } from "@material-ui/icons";
+import { TFunction } from "i18next";
+import { GetPositionTypeQualifications } from "../graphql/get-position-type-qualifications.gen";
 
 type Props = {
   organizationId: string;
   orgUserId?: string;
-  qualifiedPositionTypes: Pick<PositionType, "id" | "name">[];
-  currentAttributes: Attributes[];
-  addAttribute: (endorsementId: string) => Promise<boolean>;
+  currentAttributes: Attribute[];
+  addAttribute: (attribute: Attribute) => Promise<boolean>;
   updateAttribute: (
     endorsementId: string,
     expirationDate?: Date | undefined
@@ -34,7 +35,7 @@ type Props = {
   removeAttribute: (endorsementId: string) => Promise<boolean>;
 };
 
-export type Attributes = {
+export type Attribute = {
   endorsementId: string;
   name: string;
   expirationDate?: Date | null | undefined;
@@ -53,47 +54,57 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
   const [endorsementSearchText, setEndorsementSearchText] = useState<
     string | undefined
   >(undefined);
-  const [attributesAssigned, setAttributesAssigned] = useState<Attributes[]>(
-    props.currentAttributes
+  const [
+    attributesAssigned,
+    pendingAttributesAssigned,
+    setPendingAttributesAssigned,
+  ] = useDeferredState(props.currentAttributes, 500);
+
+  const [positionTypeQualifications, setPositionTypeQualifications] = useState<
+    GetPositionTypeQualifications.GetQualificationsFromEndorsements
+  >({
+    qualifiedPositionTypes: [],
+    unqualifiedPositionTypes: [],
+  });
+
+  // Get Position Type Qualifications based off of current attributes
+  const positionTypesQualificationsResponse = useQueryBundle(
+    GetPositionTypeQualifications,
+    {
+      fetchPolicy: "cache-first",
+      variables: {
+        orgId: props.organizationId,
+        endorsementIds: attributesAssigned
+          .filter(a => !a.expirationDate || !isPast(a.expirationDate))
+          .map(a => a.endorsementId),
+      },
+    }
   );
+  // Keep Position Type qualifications in state to avoid losing data in UI while calling the server
+  useEffect(() => {
+    if (
+      positionTypesQualificationsResponse.state === "DONE" &&
+      positionTypesQualificationsResponse.data.positionType
+    ) {
+      setPositionTypeQualifications(
+        positionTypesQualificationsResponse.data.positionType
+          .getQualificationsFromEndorsements
+      );
+    }
+  }, [positionTypesQualificationsResponse]);
 
   // Keep certain state variables in sync with props
   useEffect(() => {
-    setAttributesAssigned(props.currentAttributes);
-  }, [props.currentAttributes]);
-
-  // Get all of the Position Types in the Org
-  const positionTypeResponse = useQueryBundle(
-    GetAllPositionTypesWithReplacementCriteria,
-    {
-      fetchPolicy: "cache-first",
-      variables: { orgId: props.organizationId },
-    }
-  );
-  const allPositionTypes = useMemo(() => {
-    if (
-      positionTypeResponse.state === "DONE" &&
-      positionTypeResponse.data.positionType
-    ) {
-      return compact(positionTypeResponse.data.positionType.all) ?? [];
-    }
-    return [];
-  }, [positionTypeResponse]);
-
-  // Determine which Position Types the Sub isn't currently qualified for
-  const unqualifiedPositionTypes = useMemo(() => {
-    return allPositionTypes.filter(
-      p => !props.qualifiedPositionTypes.find(q => q?.id === p.id)
-    );
-  }, [props.qualifiedPositionTypes, allPositionTypes]);
+    setPendingAttributesAssigned(props.currentAttributes);
+  }, [props.currentAttributes, setPendingAttributesAssigned]);
 
   // Determine which endorsements/attribute the Sub doesn't have yet
   const missingEndorsements = useMemo(
     () =>
       allEndorsements.filter(
-        e => !attributesAssigned.find(c => c.endorsementId === e.id)
+        e => !pendingAttributesAssigned.find(c => c.endorsementId === e.id)
       ),
-    [attributesAssigned, allEndorsements]
+    [pendingAttributesAssigned, allEndorsements]
   );
 
   // Filter the endorsements/attributes based on User search text input
@@ -119,7 +130,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
             <Typography variant="h5" className={classes.sectionHeader}>
               {t("Qualified for position types")}
             </Typography>
-            {props.qualifiedPositionTypes.map((p, i) => {
+            {positionTypeQualifications.qualifiedPositionTypes.map((p, i) => {
               return (
                 <div key={i} className={getRowClasses(classes, i)}>
                   {p.name}
@@ -131,16 +142,48 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
             <Typography variant="h5" className={classes.sectionHeader}>
               {t("Not qualified for position types")}
             </Typography>
-            {unqualifiedPositionTypes.length === 0 ? (
-              <div className={classes.allOrNoneRow}>{t("None")}</div>
+            {positionTypeQualifications.unqualifiedPositionTypes.length ===
+            0 ? (
+              <div className={classes.greyedOutText}>{t("None")}</div>
             ) : (
-              unqualifiedPositionTypes.map((p, i) => {
-                return (
-                  <div key={i} className={getRowClasses(classes, i)}>
-                    {p.name}
-                  </div>
-                );
-              })
+              positionTypeQualifications.unqualifiedPositionTypes.map(
+                (p, i) => {
+                  const mustHaves = p.replacementCriteria?.mustHave ?? [];
+                  const mustNotHaves = p.replacementCriteria?.mustNotHave ?? [];
+
+                  return (
+                    <Grid
+                      container
+                      item
+                      xs={12}
+                      key={i}
+                      className={getRowClasses(classes, i)}
+                    >
+                      <Grid item xs={6}>
+                        {p.name}
+                      </Grid>
+                      <Grid item xs={6}>
+                        {mustHaves.length > 0 && (
+                          <div>
+                            <span className={classes.greyedOutText}>
+                              {t("Needs")}:
+                            </span>{" "}
+                            {mustHaves.map(m => m!.name).join(", ")}
+                          </div>
+                        )}
+                        {mustNotHaves.length > 0 && (
+                          <div>
+                            <span className={classes.greyedOutText}>
+                              {t("Can't have")}:
+                            </span>{" "}
+                            {mustNotHaves.map(m => m!.name).join(", ")}
+                          </div>
+                        )}
+                      </Grid>
+                    </Grid>
+                  );
+                }
+              )
             )}
           </Grid>
         </Grid>
@@ -151,84 +194,107 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
             <Typography variant="h5" className={classes.sectionHeader}>
               {t("Selected attributes")}
             </Typography>
-            {attributesAssigned.length === 0 ? (
-              <div className={classes.allOrNoneRow}>{t("None")}</div>
+            {pendingAttributesAssigned.length === 0 ? (
+              <Grid container item xs={12}>
+                <div className={classes.greyedOutText}>{t("None")}</div>
+              </Grid>
             ) : (
               <>
-                <div className={classes.currentAttributeRow}>
-                  <div className={classes.currentAttributeColumn}>
-                    <div className={classes.rowHeader}>{t("Name")}</div>
-                    {attributesAssigned.map((a, i) => {
-                      return (
-                        <div key={i} className={getRowClasses(classes, i)}>
-                          {a.name}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className={classes.currentAttributeColumn}>
-                    <div className={classes.rowHeader}>{t("Expires")}</div>
-                    {attributesAssigned.map((a, i) => {
-                      return (
-                        <div key={i} className={getRowClasses(classes, i)}>
-                          <div className={classes.updateAttributeItems}>
-                            {!a.expires ? (
-                              <div className={classes.allOrNoneRow}>
-                                {t("Does not expire")}
-                              </div>
-                            ) : (
-                              <DatePicker
-                                variant={"single-hidden"}
-                                startDate={a.expirationDate ?? ""}
-                                onChange={async e => {
-                                  if (isDate(e.startDate)) {
-                                    const startDate = e.startDate as Date;
-                                    const result = await props.updateAttribute(
-                                      a.endorsementId,
-                                      startDate
-                                    );
-                                    if (result) {
-                                      const updatedAttributesAssigned = [
-                                        ...attributesAssigned,
-                                      ];
-                                      const attributeToUpdate = updatedAttributesAssigned.find(
-                                        u => u.endorsementId === a.endorsementId
-                                      );
-                                      if (attributeToUpdate) {
-                                        attributeToUpdate.expirationDate = startDate;
-                                      }
-                                      setAttributesAssigned(
-                                        updatedAttributesAssigned
-                                      );
-                                    }
-                                  }
-                                }}
-                                startLabel={""}
-                              />
-                            )}
-                            <Link
-                              className={classes.removeAction}
-                              onClick={async () => {
-                                const result = await props.removeAttribute(
-                                  a.endorsementId
-                                );
-                                if (result) {
-                                  setAttributesAssigned([
-                                    ...attributesAssigned.filter(
-                                      u => u.endorsementId !== a.endorsementId
-                                    ),
-                                  ]);
-                                }
-                              }}
-                            >
-                              {t("Remove")}
-                            </Link>
+                <Grid container item xs={12} className={classes.row}>
+                  <Grid item xs={6}>
+                    {t("Name")}
+                  </Grid>
+                  <Grid item xs={6}>
+                    {t("Expires")}
+                  </Grid>
+                </Grid>
+                {pendingAttributesAssigned.map((a, i) => {
+                  return (
+                    <Grid
+                      container
+                      item
+                      alignItems="center"
+                      xs={12}
+                      key={i}
+                      className={`${getRowClasses(classes, i)} ${
+                        classes.selectedAttributeRow
+                      }`}
+                    >
+                      <Grid item xs={6}>
+                        {a.name}
+                      </Grid>
+                      <Grid item xs={4}>
+                        {!a.expires ? (
+                          <div className={classes.greyedOutText}>
+                            {t("Does not expire")}
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                        ) : (
+                          <DatePicker
+                            variant={"single-hidden"}
+                            startDate={a.expirationDate ?? ""}
+                            onChange={async e => {
+                              if (isDate(e.startDate)) {
+                                const expirationDate = e.startDate as Date;
+
+                                const updatedAttributesAssigned = [
+                                  ...pendingAttributesAssigned,
+                                ];
+                                const attributeToUpdate = updatedAttributesAssigned.find(
+                                  u => u.endorsementId === a.endorsementId
+                                );
+
+                                // Only make the call to the server if our
+                                // expiration date has actually changed
+                                if (
+                                  attributeToUpdate &&
+                                  (!attributeToUpdate.expirationDate ||
+                                    !isSameDay(
+                                      expirationDate,
+                                      attributeToUpdate.expirationDate
+                                    ))
+                                ) {
+                                  const result = await props.updateAttribute(
+                                    a.endorsementId,
+                                    expirationDate
+                                  );
+                                  if (result) {
+                                    if (attributeToUpdate) {
+                                      attributeToUpdate.expirationDate = expirationDate;
+                                    }
+                                    setPendingAttributesAssigned(
+                                      updatedAttributesAssigned
+                                    );
+                                  }
+                                }
+                              }
+                            }}
+                            startLabel={""}
+                            endAdornment={getDatePickerAdornment(a, classes, t)}
+                          />
+                        )}
+                      </Grid>
+                      <Grid item xs={2} className={classes.removeSection}>
+                        <Link
+                          className={classes.removeAction}
+                          onClick={async () => {
+                            const result = await props.removeAttribute(
+                              a.endorsementId
+                            );
+                            if (result) {
+                              setPendingAttributesAssigned([
+                                ...pendingAttributesAssigned.filter(
+                                  u => u.endorsementId !== a.endorsementId
+                                ),
+                              ]);
+                            }
+                          }}
+                        >
+                          {t("Remove")}
+                        </Link>
+                      </Grid>
+                    </Grid>
+                  );
+                })}
               </>
             )}
           </Section>
@@ -247,7 +313,7 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
             </div>
             <Grid container item xs={12}>
               {!!endorsementSearchText && filteredEndorsements.length === 0 && (
-                <div className={classes.allOrNoneRow}>
+                <div className={classes.greyedOutText}>
                   {t("No attributes found")}
                 </div>
               )}
@@ -264,15 +330,16 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                       <Link
                         className={classes.addAction}
                         onClick={async () => {
-                          const result = await props.addAttribute(e.id);
+                          const attributeObj = {
+                            endorsementId: e.id,
+                            name: e.name,
+                            expires: e.expires,
+                          };
+                          const result = await props.addAttribute(attributeObj);
                           if (result) {
-                            setAttributesAssigned([
-                              ...attributesAssigned,
-                              {
-                                endorsementId: e.id,
-                                name: e.name,
-                                expires: e.expires,
-                              },
+                            setPendingAttributesAssigned([
+                              ...pendingAttributesAssigned,
+                              attributeObj,
                             ]);
                           }
                         }}
@@ -295,15 +362,15 @@ const useStyles = makeStyles(theme => ({
   sectionHeader: {
     marginBottom: theme.spacing(2),
   },
-  allOrNoneRow: {
+  greyedOutText: {
     color: theme.customColors.edluminSubText,
-  },
-  rowHeader: {
-    padding: theme.spacing(),
   },
   row: {
     width: "100%",
     padding: theme.spacing(),
+  },
+  selectedAttributeRow: {
+    minHeight: theme.typography.pxToRem(56),
   },
   firstRow: {
     borderTop: `${theme.typography.pxToRem(1)} solid ${
@@ -319,18 +386,6 @@ const useStyles = makeStyles(theme => ({
       theme.customColors.medLightGray
     }`,
   },
-  currentAttributeRow: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-  },
-  currentAttributeColumn: {
-    flexGrow: 1,
-  },
-  updateAttributeItems: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
   availableAttributeRow: {
     width: "100%",
     display: "flex",
@@ -339,6 +394,9 @@ const useStyles = makeStyles(theme => ({
   addAction: {
     cursor: "pointer",
     textDecoration: "underline",
+  },
+  removeSection: {
+    textAlign: "right",
   },
   removeAction: {
     cursor: "pointer",
@@ -352,6 +410,12 @@ const useStyles = makeStyles(theme => ({
     width: "50%",
     marginBottom: theme.spacing(2),
   },
+  warning: {
+    color: theme.customColors.warning,
+  },
+  expired: {
+    color: theme.customColors.darkRed,
+  },
 }));
 
 const getRowClasses = (classes: any, index: number): string => {
@@ -364,4 +428,60 @@ const getRowClasses = (classes: any, index: number): string => {
   }
 
   return rowClasses.join(" ");
+};
+
+const getDatePickerAdornment = (
+  attribute: Attribute,
+  classes: any,
+  t: TFunction
+): React.ReactNode | undefined => {
+  const dayWindowForWarning = 30;
+  const expired = attributeIsExpired(attribute);
+  const closeToExpiration =
+    !expired && attributeIsCloseToExpiring(attribute, dayWindowForWarning);
+
+  if (expired) {
+    return (
+      <Tooltip title={t("Attribute is expired")}>
+        <ErrorOutline className={classes.expired} />
+      </Tooltip>
+    );
+  }
+
+  if (closeToExpiration) {
+    return (
+      <Tooltip
+        title={t("Attribute will expire within {{dayWindowForWarning}} days", {
+          dayWindowForWarning,
+        })}
+      >
+        <Warning className={classes.warning} />
+      </Tooltip>
+    );
+  }
+
+  return undefined;
+};
+
+const attributeIsExpired = (attribute: Attribute): boolean => {
+  if (!attribute.expirationDate) {
+    return false;
+  }
+
+  const result = isBefore(attribute.expirationDate, new Date());
+  return result;
+};
+
+const attributeIsCloseToExpiring = (
+  attribute: Attribute,
+  dayWindowForWarning: number
+): boolean => {
+  if (!attribute.expirationDate) {
+    return false;
+  }
+
+  const result =
+    differenceInDays(attribute.expirationDate, new Date()) <=
+    dayWindowForWarning;
+  return result;
 };

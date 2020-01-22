@@ -1,4 +1,4 @@
-mutation RemoveEmployeeEndorsement($employeeId: Int!, $endorsementId: Int!) {
+mutation RemoveEmployeeEndorsement($employeeId: ID!, $endorsementId: ID!) {
   employee {
     removeEndorsement(employeeId: $employeeId, endorsementId: $endorsementId) {
       id

@@ -58,10 +58,29 @@ export const PositionTypeEditSettingsRoute = defineSubRoute(
 
 export const PositionTypeEditSettingsLoader = asyncComponent({
   resolve: async () => {
-    const PositionTypeEditSettingsPage = (await import(
-      "ui/pages/position-type/edit-settings"
-    )).PositionTypeEditSettingsPage;
+    const PositionTypeEditSettingsPage = (
+      await import("ui/pages/position-type/edit-settings")
+    ).PositionTypeEditSettingsPage;
     return PositionTypeEditSettingsPage;
   },
   name: "PositionTypeEditSettingsPage",
+});
+
+// Replacement Criteria Edit Page
+export const ReplacementCriteriaEditRoute = defineSubRoute(
+  PositionTypeViewRoute,
+  "/replacement-criteria",
+  []
+);
+
+export const ReplacementCriteriaEditLoader = asyncComponent({
+  resolve: async () => {
+    const ReplacementCriteriaEdit = (
+      await import(
+        "ui/pages/position-type/components/edit-replacement-criteria"
+      )
+    ).ReplacementCriteriaEdit;
+    return ReplacementCriteriaEdit;
+  },
+  name: "ReplacementCriteriaEditSettingsPage",
 });

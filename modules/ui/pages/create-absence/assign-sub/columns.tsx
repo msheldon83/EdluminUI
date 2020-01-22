@@ -1,15 +1,34 @@
-import * as React from "react";
 import { Button, Theme } from "@material-ui/core";
+import {
+  PermissionEnum,
+  VacancyQualification,
+  VacancyAvailability,
+} from "graphql/server-types.gen";
 import { TFunction } from "i18next";
+import * as React from "react";
+import { TableColumn } from "ui/components/table";
+import { AvailableIcon } from "./icons/available-icon";
 import { FavoriteIcon } from "./icons/favorite-icon";
 import { QualifiedIcon } from "./icons/qualified-icon";
-import { AvailableIcon } from "./icons/available-icon";
 import { VisibleIcon } from "./icons/visible-icon";
-import { PermissionEnum } from "graphql/server-types.gen";
-import { TableColumn } from "ui/components/table";
+
+export type AssignSubColumn = {
+  employeeId: number;
+  firstName: string;
+  lastName: string;
+  primaryPhone?: string | null;
+  qualified: VacancyQualification;
+  available: VacancyAvailability;
+  visible: boolean;
+  visibleOn?: string | null;
+  isEmployeeFavorite: boolean;
+  isLocationPositionTypeFavorite: boolean;
+  selectable: boolean;
+  payCodeId?: number | null;
+};
 
 export const getAssignSubColumns = (
-  tableData: any[],
+  tableData: AssignSubColumn[],
   isAdmin: boolean,
   selectTitle: string,
   selectReplacementEmployee: (
