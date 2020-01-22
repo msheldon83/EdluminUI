@@ -1,12 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  Grid,
-  makeStyles,
-  Paper,
-  Typography,
-} from "@material-ui/core";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { Button, Grid, makeStyles, Paper, Typography } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay } from "date-fns";
 import { addMonths } from "date-fns/esm";
@@ -144,13 +136,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [setValue]
   );
 
-  const onNeedsReplacementChange = React.useCallback(
-    event => {
-      onSubstituteWantedChange(event.target.checked);
-    },
-    [onSubstituteWantedChange]
-  );
-
   const viewPreviousMonth = React.useCallback(() => {
     const previousMonth = addMonths(props.currentMonth, -1);
     onSwitchMonth(previousMonth);
@@ -264,63 +249,44 @@ export const AbsenceDetails: React.FC<Props> = props => {
           )}
         </Typography>
 
-        <Paper>
-          {props.replacementEmployeeId && (
-            <AssignedSub
-              disableReplacementInteractions={
-                props.disableReplacementInteractions
-              }
-              employeeId={props.replacementEmployeeId}
-              employeeName={props.replacementEmployeeName || ""}
-              subText={props.arrangedSubText ?? t("pre-arranged")}
-              onRemove={props.onRemoveReplacement}
-            />
-          )}
-          <div className={classes.container}>
-            {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
-              <FormControlLabel
-                label={t("Requires a substitute")}
-                control={
-                  <Checkbox
-                    checked={wantsReplacement}
-                    onChange={onNeedsReplacementChange}
-                    color="primary"
-                  />
-                }
-              />
-            ) : (
-              <Typography className={classes.substituteRequiredText}>
-                {needsReplacement === NeedsReplacement.Yes
-                  ? t("Requires a substitute")
-                  : t("No substitute required")}
-              </Typography>
-            )}
+        {props.replacementEmployeeId && (
+          <AssignedSub
+            disableReplacementInteractions={
+              props.disableReplacementInteractions
+            }
+            employeeId={props.replacementEmployeeId}
+            employeeName={props.replacementEmployeeName || ""}
+            subText={props.arrangedSubText ?? t("pre-arranged")}
+            onRemove={props.onRemoveReplacement}
+          />
+        )}
 
-            {wantsReplacement && (
-              <SubstituteRequiredDetails
-                disableReplacementInteractions={
-                  props.disableReplacementInteractions
-                }
-                disableEditingDatesAndTimes={props.disableEditingDatesAndTimes}
-                setValue={setValue}
-                vacancies={props.vacancies}
-                setStep={props.setStep}
-                organizationId={organizationId}
-                triggerValidation={triggerValidation}
-                values={values}
-                errors={errors}
-                isAdmin={!!isAdmin}
-                arrangeSubButtonTitle={props.arrangeSubButtonTitle}
-                disabledDates={props.disabledDates}
-                replacementEmployeeId={props.replacementEmployeeId}
-                replacementEmployeeName={props.replacementEmployeeName}
-                locationIds={props.locationIds}
-                isSubmitted={props.isSubmitted}
-                initialAbsenceCreation={props.initialAbsenceCreation}
-              />
-            )}
-          </div>
-        </Paper>
+        <div className={classes.container}>
+          <SubstituteRequiredDetails
+            disableReplacementInteractions={
+              props.disableReplacementInteractions
+            }
+            disableEditingDatesAndTimes={props.disableEditingDatesAndTimes}
+            setValue={setValue}
+            vacancies={props.vacancies}
+            setStep={props.setStep}
+            organizationId={organizationId}
+            triggerValidation={triggerValidation}
+            values={values}
+            errors={errors}
+            isAdmin={!!isAdmin}
+            arrangeSubButtonTitle={props.arrangeSubButtonTitle}
+            disabledDates={props.disabledDates}
+            replacementEmployeeId={props.replacementEmployeeId}
+            replacementEmployeeName={props.replacementEmployeeName}
+            locationIds={props.locationIds}
+            isSubmitted={props.isSubmitted}
+            initialAbsenceCreation={props.initialAbsenceCreation}
+            needsReplacement={needsReplacement}
+            wantsReplacement={wantsReplacement}
+            onSubstituteWantedChange={onSubstituteWantedChange}
+          />
+        </div>
       </Grid>
 
       <Grid item xs={12}>
@@ -362,15 +328,17 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(4),
   },
   subText: {
-    color: theme.customColors.darkGray,
+    color: theme.customColors.edluminSubText,
   },
   substituteDetailsTitle: { paddingBottom: theme.typography.pxToRem(3) },
   substituteDetailsSubtitle: { paddingBottom: theme.typography.pxToRem(1) },
   container: {
+    marginTop: theme.spacing(2),
     padding: theme.spacing(2),
-  },
-  substituteRequiredText: {
-    fontStyle: "italic",
+    border: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
+    borderRadius: theme.typography.pxToRem(4),
   },
   notesForApprover: {
     paddingTop: theme.spacing(3),

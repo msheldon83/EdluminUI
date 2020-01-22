@@ -1,6 +1,17 @@
-import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
+import {
+  Button,
+  Grid,
+  makeStyles,
+  Typography,
+  FormControlLabel,
+  Checkbox,
+} from "@material-ui/core";
 import { Errors, SetValue, TriggerValidation } from "forms";
-import { PermissionEnum, Vacancy } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  Vacancy,
+  NeedsReplacement,
+} from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
 import { useMemo } from "react";
@@ -32,6 +43,9 @@ type Props = {
   disableEditingDatesAndTimes?: boolean;
   isSubmitted: boolean;
   initialAbsenceCreation: boolean;
+  needsReplacement: NeedsReplacement;
+  wantsReplacement: boolean;
+  onSubstituteWantedChange: (wanted: boolean) => void;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -48,6 +62,9 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     isAdmin,
     values,
     triggerValidation,
+    needsReplacement,
+    wantsReplacement,
+    onSubstituteWantedChange,
   } = props;
   const hasVacancies = !!(props.vacancies && props.vacancies.length);
 
@@ -91,103 +108,138 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     [setValue, triggerValidation]
   );
 
+  const onNeedsReplacementChange = React.useCallback(
+    event => {
+      onSubstituteWantedChange(event.target.checked);
+    },
+    [onSubstituteWantedChange]
+  );
+
   return (
     <>
-      <VacancyDetails
-        vacancies={vacancies}
-        disabledDates={props.disabledDates}
-        equalWidthDetails
-      />
-
-      {isAdmin && (hasAccountingCodeOptions || hasPayCodeOptions) && (
-        <Grid item container spacing={4} className={classes.subCodes}>
-          {hasAccountingCodeOptions && (
-            <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
-              <Grid item xs={hasPayCodeOptions ? 6 : 12}>
-                <Typography>{t("Accounting code")}</Typography>
-                <SelectNew
-                  value={{
-                    value: values.accountingCode ?? "",
-                    label:
-                      accountingCodeOptions.find(
-                        a => a.value === values.accountingCode
-                      )?.label || "",
-                  }}
-                  onChange={onAccountingCodeChange}
-                  options={accountingCodeOptions}
-                  multiple={false}
-                  inputStatus={errors.accountingCode ? "error" : undefined}
-                  validationMessage={errors.accountingCode?.message}
-                />
-              </Grid>
-            </Can>
-          )}
-          {hasPayCodeOptions && (
-            <Can do={[PermissionEnum.AbsVacSavePayCode]}>
-              <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
-                <Typography>{t("Pay code")}</Typography>
-                <SelectNew
-                  value={{
-                    value: values.payCode ?? "",
-                    label:
-                      payCodeOptions.find(a => a.value === values.payCode)
-                        ?.label || "",
-                  }}
-                  onChange={onPayCodeChange}
-                  options={payCodeOptions}
-                  multiple={false}
-                  inputStatus={errors.payCode ? "error" : undefined}
-                  validationMessage={errors.payCode?.message}
-                />
-              </Grid>
-            </Can>
-          )}
-        </Grid>
+      {wantsReplacement && (
+        <div className={classes.vacancyDetails}>
+          <VacancyDetails
+            vacancies={vacancies}
+            disabledDates={props.disabledDates}
+            equalWidthDetails
+          />
+        </div>
       )}
 
-      <div className={classes.notesForReplacement}>
-        <Typography variant="h6">{t("Notes for substitute")}</Typography>
-        <Typography
-          className={[classes.subText, classes.substituteDetailsSubtitle].join(
-            " "
-          )}
-        >
-          {t("Can be seen by the substitute, administrator and employee.")}
-        </Typography>
-        <NoteField
-          onChange={onNotesToReplacementChange}
-          name={"notesToReplacement"}
-          isSubmitted={props.isSubmitted}
-          initialAbsenceCreation={props.initialAbsenceCreation}
-          value={values.notesToReplacement}
+      {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
+        <FormControlLabel
+          label={t("Requires a substitute")}
+          control={
+            <Checkbox
+              checked={wantsReplacement}
+              onChange={onNeedsReplacementChange}
+              color="primary"
+            />
+          }
         />
-      </div>
+      ) : (
+        <Typography className={classes.substituteRequiredText}>
+          {needsReplacement === NeedsReplacement.Yes
+            ? t("Requires a substitute")
+            : t("No substitute required")}
+        </Typography>
+      )}
 
-      {hasVacancies && (
-        <div className={classes.substituteActions}>
-          <Can do={[PermissionEnum.AbsVacAssign]}>
-            <Button
-              variant="outlined"
-              className={classes.preArrangeButton}
-              onClick={() => setStep("preAssignSub")}
-              disabled={
-                props.disableReplacementInteractions ||
-                props.replacementEmployeeId !== undefined
-              }
+      {wantsReplacement && (
+        <>
+          {isAdmin && (hasAccountingCodeOptions || hasPayCodeOptions) && (
+            <Grid item container spacing={4} className={classes.subCodes}>
+              {hasAccountingCodeOptions && (
+                <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
+                  <Grid item xs={hasPayCodeOptions ? 6 : 12}>
+                    <Typography>{t("Accounting code")}</Typography>
+                    <SelectNew
+                      value={{
+                        value: values.accountingCode ?? "",
+                        label:
+                          accountingCodeOptions.find(
+                            a => a.value === values.accountingCode
+                          )?.label || "",
+                      }}
+                      onChange={onAccountingCodeChange}
+                      options={accountingCodeOptions}
+                      multiple={false}
+                      inputStatus={errors.accountingCode ? "error" : undefined}
+                      validationMessage={errors.accountingCode?.message}
+                    />
+                  </Grid>
+                </Can>
+              )}
+              {hasPayCodeOptions && (
+                <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+                  <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
+                    <Typography>{t("Pay code")}</Typography>
+                    <SelectNew
+                      value={{
+                        value: values.payCode ?? "",
+                        label:
+                          payCodeOptions.find(a => a.value === values.payCode)
+                            ?.label || "",
+                      }}
+                      onChange={onPayCodeChange}
+                      options={payCodeOptions}
+                      multiple={false}
+                      inputStatus={errors.payCode ? "error" : undefined}
+                      validationMessage={errors.payCode?.message}
+                    />
+                  </Grid>
+                </Can>
+              )}
+            </Grid>
+          )}
+
+          <div className={classes.notesForReplacement}>
+            <Typography variant="h6">{t("Notes for substitute")}</Typography>
+            <Typography
+              className={[
+                classes.subText,
+                classes.substituteDetailsSubtitle,
+              ].join(" ")}
             >
-              {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
-            </Button>
-          </Can>
+              {t("Can be seen by the substitute, administrator and employee.")}
+            </Typography>
+            <NoteField
+              onChange={onNotesToReplacementChange}
+              name={"notesToReplacement"}
+              isSubmitted={props.isSubmitted}
+              initialAbsenceCreation={props.initialAbsenceCreation}
+              value={values.notesToReplacement}
+            />
+          </div>
 
-          <Button
-            variant="outlined"
-            onClick={() => setStep("edit")}
-            disabled={props.disableEditingDatesAndTimes}
-          >
-            <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
-            <MobileOnly>{t("Edit Details")}</MobileOnly>
-          </Button>
-        </div>
+          {hasVacancies && (
+            <div className={classes.substituteActions}>
+              <Can do={[PermissionEnum.AbsVacAssign]}>
+                <Button
+                  variant="outlined"
+                  className={classes.preArrangeButton}
+                  onClick={() => setStep("preAssignSub")}
+                  disabled={
+                    props.disableReplacementInteractions ||
+                    props.replacementEmployeeId !== undefined
+                  }
+                >
+                  {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
+                </Button>
+              </Can>
+
+              <Button
+                variant="outlined"
+                onClick={() => setStep("edit")}
+                disabled={props.disableEditingDatesAndTimes}
+              >
+                <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
+                <MobileOnly>{t("Edit Details")}</MobileOnly>
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </>
   );
@@ -195,7 +247,10 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   subText: {
-    color: theme.customColors.darkGray,
+    color: theme.customColors.edluminSubText,
+  },
+  vacancyDetails: {
+    marginBottom: theme.spacing(),
   },
   substituteDetailsSubtitle: { paddingBottom: theme.typography.pxToRem(1) },
   container: {
@@ -213,5 +268,8 @@ const useStyles = makeStyles(theme => ({
   },
   substituteActions: {
     marginTop: theme.spacing(2),
+  },
+  substituteRequiredText: {
+    fontStyle: "italic",
   },
 }));
