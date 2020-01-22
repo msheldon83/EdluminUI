@@ -131,12 +131,18 @@ import {
 import {
   LocationGroupsLoader,
   LocationGroupsRoute,
+  LocationGroupViewLoader,
+  LocationGroupViewRoute,
+  LocationGroupSubPrefLoader,
+  LocationGroupSubPrefRoute,
 } from "./routes/location-groups";
 import {
   LocationsLoader,
   LocationsRoute,
   LocationViewLoader,
   LocationViewRoute,
+  LocationSubPrefLoader,
+  LocationSubPrefRoute,
 } from "./routes/locations";
 import {
   SecurityManagedOrganizationsLoader,
@@ -693,6 +699,12 @@ export function App() {
                                   ]}
                                 />
                                 <ProtectedRoute
+                                  component={LocationSubPrefLoader}
+                                  path={LocationSubPrefRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.LocationSave]}
+                                />
+                                <ProtectedRoute
                                   component={LocationViewLoader}
                                   path={LocationViewRoute.path}
                                   role={"admin"}
@@ -703,6 +715,22 @@ export function App() {
                                   path={LocationsRoute.path}
                                   role={"admin"}
                                   permissions={[PermissionEnum.LocationView]}
+                                />
+                                <ProtectedRoute
+                                  component={LocationGroupSubPrefLoader}
+                                  path={LocationGroupSubPrefRoute.path}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.LocationGroupSave,
+                                  ]}
+                                />
+                                <ProtectedRoute
+                                  component={LocationGroupViewLoader}
+                                  path={LocationGroupViewRoute.path}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.LocationGroupView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={LocationGroupsLoader}
