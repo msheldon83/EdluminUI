@@ -23,6 +23,9 @@ export type SelectProps<T extends boolean> = {
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
 
+  // This should never be used if it's a multi-select
+  withResetValue?: T extends true ? false : boolean;
+
   // TODO: implement
   native?: boolean;
 };
@@ -33,6 +36,7 @@ export type OptionType = {
 };
 
 const TAG_CHIP_CONTAINER_HEIGHT = 36;
+const RESET_LABEL = "-";
 
 export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   const classes = useStyles();
@@ -51,6 +55,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     inputStatus = "default",
     validationMessage,
     placeholder,
+    withResetValue = multiple ? false : true,
   } = props;
 
   const [showAllChips, setShowAllChips] = React.useState(false);
@@ -64,10 +69,29 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   const selectedChipsRef = React.useRef(null);
 
   // Operate on the options entry
-  const getOptionLabel = (option: OptionType): string => option.label;
+  const getOptionLabel = (option: OptionType): string => {
+    switch (option.label) {
+      case RESET_LABEL: {
+        return "";
+      }
+      default: {
+        return option.label;
+      }
+    }
+  };
+
   const getOptionValue = (option: OptionType): string | number => option.value;
   const getOptionSelected = (option: OptionType, value: OptionType) =>
     getOptionValue(option) === getOptionValue(value);
+
+  const optionsWithReset = withResetValue
+    ? ([
+        {
+          label: RESET_LABEL,
+          value: "",
+        },
+      ] as Array<OptionType>).concat(options)
+    : options;
 
   // Determine if the multi select display has over flow
   React.useEffect(() => {
@@ -76,7 +100,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
       scrollHeight: 0,
     };
 
-    if (element === null || !element) {
+    if (!element) {
       return;
     }
 
@@ -100,15 +124,15 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     getOptionSelected,
     multiple,
     value,
-    onChange: (e, value) => {
-      onChange(value);
+    onChange: (e, selection) => {
+      onChange(selection);
 
       // Keep list open if it's not a multi select
       if (!multiple) {
         setListOpen(false);
       }
     },
-    options,
+    options: optionsWithReset,
     getOptionLabel,
     open: listOpen,
   });
@@ -125,6 +149,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   const containerClasses = clsx({
     [classes.selectContainer]: true,
     [classes.selectContainerDisabled]: disabled,
+    active: listOpen,
   });
 
   const {
@@ -171,14 +196,22 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
           {listOpen && !disabled ? (
             <ul className={classes.listbox} {...getListboxProps()}>
-              {groupedOptions.map((option, index) => (
-                <li
-                  {...getOptionProps({ option, index })}
-                  key={getOptionValue(option)}
-                >
-                  {option.label}
-                </li>
-              ))}
+              {groupedOptions.map((option, index) => {
+                const itemClasses = clsx({
+                  [classes.optionItem]: true,
+                  [classes.resetLabel]: option.label === RESET_LABEL,
+                });
+
+                return (
+                  <li
+                    {...getOptionProps({ option, index })}
+                    className={itemClasses}
+                    key={getOptionValue(option)}
+                  >
+                    {option.label}
+                  </li>
+                );
+              })}
             </ul>
           ) : null}
         </div>
@@ -247,6 +280,11 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 const useStyles = makeStyles(theme => ({
   selectContainer: {
     position: "relative",
+    zIndex: 100,
+
+    "&.active": {
+      zIndex: 200,
+    },
   },
   selectContainerDisabled: {
     pointerEvents: "none",
@@ -272,41 +310,47 @@ const useStyles = makeStyles(theme => ({
   arrowDownIcon: {
     color: theme.customColors.edluminSubText,
     cursor: "pointer",
-    zIndex: 2,
+    zIndex: 200,
   },
   listbox: {
-    fontSize: theme.typography.pxToRem(14),
-    lineHeight: theme.typography.pxToRem(32),
-    color: theme.customColors.edluminSubText,
-    top: "calc(100% - 2px)",
-    margin: 0,
-    zIndex: 1,
-    position: "absolute",
-    listStyle: "none",
     backgroundColor: theme.palette.background.paper,
-    overflow: "auto",
-    maxHeight: 200,
-    width: "100%",
     border: `1px solid ${theme.palette.text.primary}`,
-    borderTopWidth: 0,
     borderRadius: `0 0 ${theme.typography.pxToRem(
       4
     )} ${theme.typography.pxToRem(4)}`,
+    borderTopWidth: 0,
+    color: theme.customColors.edluminSubText,
+    fontSize: theme.typography.pxToRem(14),
+    lineHeight: theme.typography.pxToRem(32),
+    listStyle: "none",
+    margin: 0,
+    maxHeight: 200,
+    overflow: "auto",
     padding: 0,
     paddingBottom: theme.spacing(1.5),
+    position: "absolute",
+    top: "calc(100% - 2px)",
+    width: "100%",
+    zIndex: 100,
+  },
+  optionItem: {
+    paddingLeft: theme.spacing(1.5),
+    paddingRight: theme.spacing(1.5),
 
-    "& li": {
-      paddingLeft: theme.spacing(1.5),
-      paddingRight: theme.spacing(1.5),
-    },
-
-    '& li[data-focus="true"]': {
+    "&:hover": {
       color: theme.palette.text.primary,
       cursor: "pointer",
     },
-    '& li[aria-selected="true"]': {
+    '&[aria-selected="true"]': {
       color: theme.palette.text.primary,
-      cursor: "pointer",
+      cursor: "default",
+    },
+  },
+  resetLabel: {
+    color: theme.customColors.edluminSubText,
+
+    '&[aria-selected="true"]': {
+      color: theme.customColors.edluminSubText,
     },
   },
   showAllButton: {

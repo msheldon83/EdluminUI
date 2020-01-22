@@ -1855,7 +1855,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   name: String!
   timeZoneId: TimeZone
   address: Address
-  locationGroupId: Int!
+  locationGroupId: ID!
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
   phoneNumber: String
@@ -2257,16 +2257,16 @@ type OrganizationRelationship implements ModelObjectInterface & OrgObjectInterfa
   changedLocal: DateTime
   deletedLocal: DateTime
   relationshipType: OrganizationRelationshipType
-  relatesToOrganizationId: Int!
-  permissionSetId: Int
+  relatesToOrganizationId: ID
+  permissionSetId: ID
   relatesToOrganization: BasicOrganization
 }
 
 input OrganizationRelationshipCreateInput {
-  orgId: Int!
-  relatesToOrgId: Int!
+  orgId: ID
+  relatesToOrgId: ID
   relationshipType: OrganizationRelationshipType
-  permissionSetId: Int
+  permissionSetId: ID
 }
 
 type OrganizationRelationshipMutations {
@@ -2302,9 +2302,9 @@ enum OrganizationRelationshipType {
 }
 
 input OrganizationRelationshipUpdateInput {
-  orgId: Int!
-  relatesToOrgId: Int!
-  permissionSetId: Int
+  orgId: ID
+  relatesToOrgId: ID
+  permissionSetId: ID
 }
 
 enum OrganizationType {
@@ -2621,9 +2621,9 @@ type OrgUserLastLogin {
 type OrgUserMutations {
   create(orgUser: OrgUserCreateInput!): OrgUser
   update(orgUser: OrgUserUpdateInput!): OrgUser
-  delete(orgUserId: Int!): Boolean
-  addRelatedOrg(orgUserId: Int!, relatedOrgId: Int!): OrgUser
-  removeRelatedOrg(orgUserId: Int!, relatedOrgId: Int!): OrgUser
+  delete(orgUserId: ID!): Boolean
+  addRelatedOrg(orgUserId: ID!, relatedOrgId: ID!): OrgUser
+  removeRelatedOrg(orgUserId: ID!, relatedOrgId: ID!): OrgUser
   saveAdministrator(administrator: AdministratorInput!): OrgUser
   saveSubstitute(substitute: SubstituteInput!): OrgUser
   saveEmployee(employee: EmployeeInput!): OrgUser
@@ -4880,9 +4880,7 @@ type SubstitutePoolMembership {
 
 type SubstitutePreferences {
   _info: [ReturnMessage]
-  favoriteSubstituteIds: [ID]
   favoriteSubstitutes: [Employee]
-  blockedSubstituteIds: [ID]
   blockedSubstitutes: [Employee]
 }
 

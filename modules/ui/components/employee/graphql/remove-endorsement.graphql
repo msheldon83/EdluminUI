@@ -1,0 +1,13 @@
+mutation RemoveEmployeeEndorsement($employeeId: Int!, $endorsementId: Int!) {
+  employee {
+    removeEndorsement(employeeId: $employeeId, endorsementId: $endorsementId) {
+      id
+      rowVersion
+      endorsements {
+        id
+        endorsementId
+        expirationDate
+      }
+    }
+  }
+}

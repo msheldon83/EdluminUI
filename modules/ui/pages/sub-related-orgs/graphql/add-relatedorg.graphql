@@ -1,0 +1,8 @@
+mutation AddRelatedOrg($orgUserId: ID!, $relatedOrgId: ID!) {
+  orgUser {
+    addRelatedOrg(orgUserId: $orgUserId, relatedOrgId: $relatedOrgId) {
+      id
+      relatedOrgIds
+    }
+  }
+}

@@ -290,6 +290,11 @@ export const Assignment: React.FC<Props> = props => {
           ),
         }}
         onSubmit={async (data, e) => {
+          // Find the matching day conversion
+          const dayConversion = props.vacancyDayConversions.find(
+            x => x.name === selectedDayConversionName
+          );
+
           await props.onVerify({
             vacancyDetailId: vacancyDetail.id,
             payCodeId: data.payCodeId ? Number(data.payCodeId) : null,
@@ -302,14 +307,15 @@ export const Assignment: React.FC<Props> = props => {
                   },
                 ]
               : [],
-            dayPortion: data.dayPortion,
-            payDurationOverride:
-              payTypeId === AbsenceReasonTrackingTypeId.Hourly
-                ? Number(
-                    hoursToMinutes(data.payDurationOverrideHours ?? undefined)
-                  )
-                : null,
-            payTypeId: payTypeId,
+            dayPortion: dayConversion?.dayEquivalent ?? data.dayPortion,
+            payTypeId: dayConversion
+              ? AbsenceReasonTrackingTypeId.Daily
+              : AbsenceReasonTrackingTypeId.Hourly,
+            payDurationOverride: !dayConversion
+              ? Number(
+                  hoursToMinutes(data.payDurationOverrideHours ?? undefined)
+                )
+              : null,
             doVerify: notVerified,
           });
         }}
@@ -327,8 +333,9 @@ export const Assignment: React.FC<Props> = props => {
             <Grid
               container
               justify="space-between"
-              alignItems="center"
+              alignItems="flex-start"
               spacing={2}
+              className={classes.container}
             >
               <Grid item xs={2}>
                 <Typography className={classes.lightText}>
@@ -348,7 +355,7 @@ export const Assignment: React.FC<Props> = props => {
                   vacancyDetail.assignment!.employee!.firstName
                 } ${vacancyDetail.assignment!.employee!.lastName}`}</Typography>
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 <Typography className={classes.lightText}>
                   {`${getDisplayName(
                     "dayPart",
@@ -390,7 +397,7 @@ export const Assignment: React.FC<Props> = props => {
                     t("N/A")}`}</Typography>
                 )}
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={1}>
                 {!isActiveCard && (
                   <Button
                     variant={isActiveCard ? "contained" : "outlined"}
@@ -412,7 +419,10 @@ export const Assignment: React.FC<Props> = props => {
                   justify="space-between"
                   alignItems="center"
                   spacing={2}
-                  className={props.shadeRow ? classes.shadedRow : undefined}
+                  className={[
+                    props.shadeRow ? classes.shadedRow : undefined,
+                    classes.container,
+                  ].join(" ")}
                 >
                   <Grid item xs={2}></Grid>
                   <Grid item xs={2}>
@@ -442,6 +452,7 @@ export const Assignment: React.FC<Props> = props => {
                         }}
                         options={dayConversionOptions}
                         multiple={false}
+                        withResetValue={false}
                       />
                     </Can>
                     <Can not do={[PermissionEnum.AbsVacSave]}>
@@ -451,7 +462,7 @@ export const Assignment: React.FC<Props> = props => {
                     </Can>
                   </Grid>
 
-                  <Grid item xs={2}>
+                  <Grid item xs={3}>
                     {payTypeId === AbsenceReasonTrackingTypeId.Daily ? (
                       <Typography className={classes.boldText}>
                         {payLabel}
@@ -572,17 +583,20 @@ export const Assignment: React.FC<Props> = props => {
                         t("N/A")}`}</Typography>
                     </Can>
                   </Grid>
-                  <Grid item xs={2}></Grid>
+                  <Grid item xs={1}></Grid>
                 </Grid>
                 <Grid
                   container
                   justify="space-between"
                   alignItems="center"
                   spacing={2}
-                  className={props.shadeRow ? classes.shadedRow : undefined}
+                  className={[
+                    props.shadeRow ? classes.shadedRow : undefined,
+                    classes.container,
+                  ].join(" ")}
                 >
                   <Grid item xs={4}></Grid>
-                  <Grid item xs={6}>
+                  <Grid item xs={7}>
                     <Can do={[PermissionEnum.AbsVacSave]}>
                       <Input
                         value={values.verifyComments}
@@ -599,7 +613,7 @@ export const Assignment: React.FC<Props> = props => {
                       />
                     </Can>
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={1}>
                     <Button
                       variant={isActiveCard ? "contained" : "outlined"}
                       type="submit"
@@ -643,4 +657,5 @@ export const useStyles = makeStyles(theme => ({
     opacity: 1,
     marginBottom: theme.spacing(1),
   },
+  container: { width: "100%" },
 }));

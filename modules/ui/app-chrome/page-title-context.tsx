@@ -7,21 +7,23 @@ type PageTitleContext = {
   showIn: "menu-bar" | "page-content";
   title?: string;
   supplyTitle: (title: string) => () => void;
+  supplyOrganizationId: (id: string) => () => void;
 };
 
 const PageTitleContext = React.createContext<PageTitleContext>({
   showIn: "page-content",
   supplyTitle: () => () => {},
+  supplyOrganizationId: () => () => {},
 });
 
-type PageTitleState = {};
 export const PageTitleProvider: React.FC<{}> = props => {
   const screenSize = useScreenSize();
-  const [title, setTitle] = useState<string | undefined>(undefined);
+  const [title, setTitle] = useState<string>();
+  const [organizationId, setOrganizationId] = useState<string>();
 
   useEffect(() => {
-    document.title = compact([title, "RedRover"]).join(" - ");
-  }, [title]);
+    document.title = compact([title, organizationId, "RedRover"]).join(" - ");
+  }, [title, organizationId]);
   /*
   the logic for supplyTitle might have race conditions.
   probably unlikely to encounter in normal use?
@@ -40,10 +42,26 @@ export const PageTitleProvider: React.FC<{}> = props => {
     },
     [setTitle]
   );
+  const supplyOrganizationId = useCallback(
+    (organizationId: string) => {
+      setOrganizationId(organizationId);
+      return () => {
+        setOrganizationId(currentOrganizationId => {
+          if (organizationId === currentOrganizationId) {
+            return undefined;
+          }
+          return currentOrganizationId;
+        });
+      };
+    },
+    [setOrganizationId]
+  );
+
   const ctx: PageTitleContext = useMemo(
     () => ({
       showIn: screenSize === "mobile" ? "menu-bar" : "page-content",
       supplyTitle,
+      supplyOrganizationId,
       title,
     }),
     [screenSize, supplyTitle, title]

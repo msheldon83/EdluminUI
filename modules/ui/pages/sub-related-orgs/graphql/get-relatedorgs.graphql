@@ -1,0 +1,12 @@
+query GetRelatedOrgs($orgId: ID!) {
+  organizationRelationship {
+    all(orgId: $orgId) {
+      id
+      orgId
+      organization {
+        id
+        name
+      }
+    }
+  }
+}

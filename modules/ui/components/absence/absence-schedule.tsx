@@ -20,7 +20,6 @@ import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
 import { ScheduledAbsences } from "ui/components/employee/components/scheduled-absences";
 import { CalendarView } from "ui/pages/employee-schedule/components/calendar-view";
 import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
-import { useIsAdmin } from "reference-data/is-admin";
 
 type Props = {
   view: "list" | "calendar";
@@ -30,13 +29,12 @@ type Props = {
   cancelAbsence?: (absenceId: string) => Promise<void>;
   calendarViewRoute: string;
   listViewRoute: string;
+  isAdmin: boolean;
 };
 
 export const AbsenceSchedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const tempUserIsAdmin = useIsAdmin();
-  const userIsAdmin = tempUserIsAdmin === null ? undefined : tempUserIsAdmin;
 
   const getOrgUsers = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
@@ -104,7 +102,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
           <Grid item>
             <PageTitle title={t(props.pageTitle)} />
           </Grid>
-          {!userIsAdmin && (
+          {!props.isAdmin && (
             <Grid item>
               <Button
                 variant="outlined"
@@ -125,7 +123,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                     cancelAbsence={props.cancelAbsence}
                     handleAfterCancel={handleAfterCancel}
                     orgId={props.orgId}
-                    isAdmin={userIsAdmin}
+                    isAdmin={props.isAdmin}
                   />
                 )}
               </Section>
@@ -173,7 +171,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                   getAbsenceSchedule.state === "UPDATING"
                 }
                 orgId={props.orgId}
-                isAdmin={userIsAdmin}
+                isAdmin={props.isAdmin}
               />
             </Grid>
           )}

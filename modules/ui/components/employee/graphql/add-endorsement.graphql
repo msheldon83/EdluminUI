@@ -1,0 +1,15 @@
+mutation AddEmployeeEndorsement(
+  $employeeEndorsementInput: EmployeeEndorsementInput!
+) {
+  employee {
+    addEndorsement(endorsement: $employeeEndorsementInput) {
+      id
+      rowVersion
+      endorsements {
+        id
+        endorsementId
+        expirationDate
+      }
+    }
+  }
+}
