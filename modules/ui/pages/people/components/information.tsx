@@ -200,9 +200,18 @@ export const Information: React.FC<Props> = props => {
               .required(t("Permission Set is required")),
           }),
           email: yup.string().email(t("Invalid Email Address")),
-          phoneNumber: yup
-            .string()
-            .matches(phoneRegExp, t("Phone Number Is Not Valid")),
+          phoneNumber: yup.string().when("orgUserRole", {
+            is: OrgUserRole.ReplacementEmployee,
+            then: yup
+              .string()
+              .nullable()
+              .required(t("Phone Number is required"))
+              .matches(phoneRegExp, t("Phone Number Is Not Valid")),
+            otherwise: yup
+              .string()
+              .nullable()
+              .matches(phoneRegExp, t("Phone Number Is Not Valid")),
+          }),
           dateOfBirth: yup.date(),
           postalCode: yup
             .number()
@@ -344,7 +353,8 @@ export const Information: React.FC<Props> = props => {
                           !props.isSuperUser ? (
                             <SelectNew
                               value={permissionSetOptions.find(
-                                e => e.value && e.value === values.permissionSetId
+                                e =>
+                                  e.value && e.value === values.permissionSetId
                               )}
                               multiple={false}
                               onChange={(value: OptionType) => {
@@ -356,6 +366,7 @@ export const Information: React.FC<Props> = props => {
                                 errors.permissionSetId ? "error" : undefined
                               }
                               validationMessage={errors.permissionSetId}
+                              withResetValue={false}
                             />
                           ) : (
                             permissions

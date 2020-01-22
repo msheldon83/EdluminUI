@@ -3,15 +3,14 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { Typography, Grid, Link } from "@material-ui/core";
-import { useHistory } from "react-router";
+import { Typography } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { PersonViewRoute } from "ui/routes/people";
 import { PageTitle } from "ui/components/page-title";
 import { GetSubstituteById } from "../people/graphql/substitute/get-substitute-by-id.gen";
 import {
   SubPositionTypesAndAttributesEdit,
-  Attributes,
+  Attribute,
 } from "./components/position-types-attributes";
 import { useMemo, useCallback } from "react";
 import { ShowErrors } from "ui/components/error-helpers";
@@ -19,12 +18,13 @@ import { AddEmployeeEndorsement } from "ui/components/employee/graphql/add-endor
 import { RemoveEmployeeEndorsement } from "ui/components/employee/graphql/remove-endorsement.gen";
 import { UpdateEmployeeEndorsement } from "ui/components/employee/graphql/update-endorsement.gen";
 import { useSnackbar } from "hooks/use-snackbar";
+import { Link } from "react-router-dom";
+import { parseISO } from "date-fns";
 
 type Props = {};
 
 export const SubPositionsAttributes: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
   const classes = useStyles();
   const isMobile = useIsMobile();
   const params = useRouteParams(PersonViewRoute);
@@ -40,7 +40,7 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       ? undefined
       : getSubstituteById?.data?.orgUser?.byId?.substitute;
 
-  const currentAttributes: Attributes[] = useMemo(() => {
+  const currentAttributes: Attribute[] = useMemo(() => {
     if (!substitute?.attributes) {
       return [];
     }
@@ -49,7 +49,7 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       return {
         endorsementId: a.endorsement.id,
         name: a.endorsement.name,
-        expirationDate: a.expirationDate,
+        expirationDate: a.expirationDate ? parseISO(a.expirationDate) : null,
         expires: a.endorsement.expires,
       };
     });
@@ -63,19 +63,19 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
   });
 
   const addAttribute = useCallback(
-    async (endorsementId: string) => {
+    async (attribute: Attribute) => {
       const response = await addEmployeeEndorsement({
         variables: {
           employeeEndorsementInput: {
             orgId: params.organizationId,
             employeeId: params.orgUserId,
-            endorsementId: endorsementId,
+            endorsementId: attribute.endorsementId,
           },
         },
       });
       return !!response?.data;
     },
-    [addEmployeeEndorsement]
+    [addEmployeeEndorsement, params.organizationId, params.orgUserId]
   );
 
   const [updateEmployeeEndorsement] = useMutationBundle(
@@ -92,16 +92,16 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
       const response = await updateEmployeeEndorsement({
         variables: {
           employeeEndorsementInput: {
-            orgId: Number(params.organizationId),
-            employeeId: Number(params.orgUserId),
-            endorsementId: Number(endorsementId),
+            orgId: params.organizationId,
+            employeeId: params.orgUserId,
+            endorsementId,
             expirationDate,
           },
         },
       });
       return !!response?.data;
     },
-    [updateEmployeeEndorsement]
+    [updateEmployeeEndorsement, params.organizationId, params.orgUserId]
   );
 
   const [removeEmployeeEndorsement] = useMutationBundle(
@@ -117,13 +117,13 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
     async (endorsementId: string) => {
       const response = await removeEmployeeEndorsement({
         variables: {
-          employeeId: Number(params.orgUserId),
-          endorsementId: Number(endorsementId),
+          employeeId: params.orgUserId,
+          endorsementId,
         },
       });
       return !!response?.data;
     },
-    [removeEmployeeEndorsement]
+    [removeEmployeeEndorsement, params.orgUserId]
   );
 
   if (getSubstituteById.state === "LOADING") {
@@ -134,12 +134,18 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
 
   return (
     <>
-      <Typography variant="h5">{fullName}</Typography>
+      <div className={classes.headerLink}>
+        <Typography variant="h5">{fullName}</Typography>
+        <div className={classes.linkPadding}>
+          <Link to={PersonViewRoute.generate(params)} className={classes.link}>
+            {t("Return to details")}
+          </Link>
+        </div>
+      </div>
       <PageTitle title={t("Position types & Attributes")} />
       <SubPositionTypesAndAttributesEdit
         organizationId={params.organizationId}
         orgUserId={params.orgUserId}
-        qualifiedPositionTypes={substitute?.qualifiedPositionTypes ?? []}
         currentAttributes={currentAttributes}
         addAttribute={addAttribute}
         updateAttribute={updateAttribute}
@@ -149,4 +155,19 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({}));
+const useStyles = makeStyles(theme => ({
+  headerLink: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
+  },
+  linkPadding: {
+    paddingRight: theme.spacing(2),
+  },
+}));
