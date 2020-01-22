@@ -290,6 +290,11 @@ export const Assignment: React.FC<Props> = props => {
           ),
         }}
         onSubmit={async (data, e) => {
+          // Find the matching day conversion
+          const dayConversion = props.vacancyDayConversions.find(
+            x => x.name === selectedDayConversionName
+          );
+
           await props.onVerify({
             vacancyDetailId: vacancyDetail.id,
             payCodeId: data.payCodeId ? Number(data.payCodeId) : null,
@@ -302,14 +307,15 @@ export const Assignment: React.FC<Props> = props => {
                   },
                 ]
               : [],
-            dayPortion: data.dayPortion,
-            payDurationOverride:
-              payTypeId === AbsenceReasonTrackingTypeId.Hourly
-                ? Number(
-                    hoursToMinutes(data.payDurationOverrideHours ?? undefined)
-                  )
-                : null,
-            payTypeId: payTypeId,
+            dayPortion: dayConversion?.dayEquivalent ?? data.dayPortion,
+            payTypeId: dayConversion
+              ? AbsenceReasonTrackingTypeId.Daily
+              : AbsenceReasonTrackingTypeId.Hourly,
+            payDurationOverride: !dayConversion
+              ? Number(
+                  hoursToMinutes(data.payDurationOverrideHours ?? undefined)
+                )
+              : null,
             doVerify: notVerified,
           });
         }}
@@ -446,6 +452,7 @@ export const Assignment: React.FC<Props> = props => {
                         }}
                         options={dayConversionOptions}
                         multiple={false}
+                        withResetValue={false}
                       />
                     </Can>
                     <Can not do={[PermissionEnum.AbsVacSave]}>
