@@ -397,7 +397,10 @@ export const DailyReport: React.FC<Props> = props => {
             selectedDateTab: "older",
           });
         },
-        props.orgId
+        props.orgId,
+        async () => {
+          await getTotalAwaitingVerificationCount.refetch();
+        },
       )}
     </Section>
   );
@@ -475,7 +478,8 @@ const displaySections = (
   date: Date,
   setDate: (date: Date) => void,
   verifyOlderAction: () => void,
-  orgId: string
+  orgId: string,
+  updateVerificationCount: () => Promise<void>,
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -546,6 +550,7 @@ const displaySections = (
             date={date}
             setDate={setDate}
             olderAction={verifyOlderAction}
+            onUpdateCount={updateVerificationCount}
           />
         </div>
       ) : (
