@@ -12,7 +12,6 @@ type Props = {
   favoriteHeading: string;
   blockedHeading: string;
   heading: string;
-  preferredLists?: any | null;
   blockedSubstitutes?: any[] | null;
   favoriteSubstitutes?: any[] | null;
   editRoute: string;
