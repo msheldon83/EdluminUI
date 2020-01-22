@@ -110,7 +110,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
                     setPendingName(event.target.value);
                   }
                 }}
-                placeholder={t("Search for first or last name")}
+                placeholder={t("Search for last name")}
                 fullWidth
               />
             </Grid>
@@ -121,15 +121,18 @@ export const AssignSubFilters: React.FC<Props> = props => {
                     {t("Qualified")}
                   </InputLabel>
                   <SelectNew
-                    value={qualifiedOptions.find(o => {
-                      const optionsMap = qualifiedOptionsMap.find(
-                        m => m.search === searchFilter?.qualified
-                      );
-                      return (
-                        (o.value === optionsMap?.optionValue) === undefined ??
-                        qualifiedOptions[0]
-                      );
-                    })}
+                    value={
+                      searchFilter?.name
+                        ? undefined
+                        : qualifiedOptions.find(o => {
+                            const optionsMap = qualifiedOptionsMap.find(
+                              m =>
+                                JSON.stringify(m.search) ==
+                                JSON.stringify(searchFilter?.qualified)
+                            );
+                            return o.value === optionsMap?.optionValue;
+                          })
+                    }
                     disabled={!!searchFilter?.name}
                     multiple={false}
                     options={qualifiedOptions}
@@ -164,15 +167,18 @@ export const AssignSubFilters: React.FC<Props> = props => {
                     {t("Available")}
                   </InputLabel>
                   <SelectNew
-                    value={availableOptions.find((o: any) => {
-                      const optionsMap = availableOptionsMap.find(
-                        m => m.search === searchFilter?.available
-                      );
-                      return (
-                        (o.value === optionsMap?.optionValue) === undefined ??
-                        availableOptions[0]
-                      );
-                    })}
+                    value={
+                      searchFilter?.name
+                        ? undefined
+                        : availableOptions.find((o: any) => {
+                            const optionsMap = availableOptionsMap.find(
+                              m =>
+                                JSON.stringify(m.search) ==
+                                JSON.stringify(searchFilter?.available)
+                            );
+                            return o.value === optionsMap?.optionValue;
+                          })
+                    }
                     disabled={!!searchFilter?.name}
                     options={availableOptions}
                     multiple={false}
@@ -205,11 +211,15 @@ export const AssignSubFilters: React.FC<Props> = props => {
             <Grid item xs={12} md={2}>
               <InputLabel className={classes.label}>{t("Show")}</InputLabel>
               <SelectNew
-                value={showOptions.find(
-                  (s: any) =>
-                    (searchFilter.favoritesOnly && s.value === "true") ||
-                    (!searchFilter.favoritesOnly && s.value === "false")
-                )}
+                value={
+                  searchFilter?.name
+                    ? undefined
+                    : showOptions.find(
+                        (s: any) =>
+                          (searchFilter.favoritesOnly && s.value === "true") ||
+                          (!searchFilter.favoritesOnly && s.value === "false")
+                      )
+                }
                 disabled={!!searchFilter?.name}
                 options={showOptions}
                 multiple={false}

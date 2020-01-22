@@ -42,7 +42,6 @@ export const LocationsUI: React.FC<Props> = props => {
     {
       title: t("Group"),
       field: "locationGroup.name",
-      type: "string",
       searchable: false,
       hidden: isMobile,
     },
