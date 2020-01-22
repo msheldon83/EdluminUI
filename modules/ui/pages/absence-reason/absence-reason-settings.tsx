@@ -1,9 +1,6 @@
 import { makeStyles } from "@material-ui/styles";
 import { Formik } from "formik";
-import {
-  AbsenceReasonTrackingTypeId,
-  AssignmentType,
-} from "graphql/server-types.gen";
+import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { pick } from "lodash-es";
 import * as React from "react";
@@ -25,16 +22,15 @@ type Props = {
   description?: string;
   allowNegativeBalance: boolean;
   // isBucket: boolean;
-  // appliesToAssignmentTypes?: AssignmentType;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   onSubmit: (updatedValues: {
     allowNegativeBalance: boolean;
     // isBucket: boolean;
     description?: string;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
-    // appliesToAssignmentTypes?: AssignmentType;
   }) => Promise<void>;
   onCancel: () => void;
+  className?: string;
 };
 
 export const AbsenceReasonSettings: React.FC<Props> = props => {
@@ -50,7 +46,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
   ]);
 
   return (
-    <Section className={classes.content}>
+    <Section className={props.className}>
       <SectionHeader title={t("Settings")} />
       <Formik
         initialValues={initialValues}
@@ -169,7 +165,6 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  content: { marginTop: theme.spacing(2) },
   label: {
     marginTop: theme.spacing(4),
   },

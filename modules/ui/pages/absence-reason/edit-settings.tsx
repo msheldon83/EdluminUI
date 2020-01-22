@@ -15,6 +15,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { AbsenceReasonSettings } from "./absence-reason-settings";
 import { GetAbsenceReason } from "./graphql/get-absence-reason.gen";
 import { UpdateAbsenceReason } from "./graphql/update-absence-reason.gen";
+import { makeStyles } from "@material-ui/styles";
 
 type Props = {};
 
@@ -23,6 +24,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
   const history = useHistory();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+  const classes = useStyles();
 
   const result = useQueryBundle(GetAbsenceReason, {
     fetchPolicy: "cache-and-network",
@@ -85,7 +87,14 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
         onCancel={() => {
           history.push(AbsenceReasonViewEditRoute.generate(params));
         }}
+        className={classes.content}
       />
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  content: {
+    marginTop: theme.spacing(2),
+  },
+}));
