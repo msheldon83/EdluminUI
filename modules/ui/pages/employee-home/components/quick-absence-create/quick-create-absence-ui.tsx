@@ -1,10 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  IconButton,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Button, Checkbox, makeStyles, Typography } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { min, startOfDay } from "date-fns";
 import { formatISO } from "date-fns/esm";
@@ -32,8 +26,9 @@ type Props = {
   absenceReasonError?: FieldError;
   currentMonth: Date;
   onMonthChange: (date: Date) => void;
-  absenceDates: Date[];
+  selectedAbsenceDates: Date[];
   disabledDates: Date[];
+  existingAbsenceDates: Date[];
   onToggleAbsenceDate: (date: Date) => void;
   selectedDayPart: DayPart | undefined;
   onDayPartChange: (value: DayPart | undefined) => void;
@@ -58,8 +53,9 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     absenceReasonOptions,
     onAbsenceReasonChange,
     absenceReasonError,
-    absenceDates,
+    selectedAbsenceDates,
     disabledDates,
+    existingAbsenceDates,
     onToggleAbsenceDate,
     currentMonth,
     selectedDayPart,
@@ -77,7 +73,7 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     onMonthChange,
   } = props;
 
-  const startDate = startOfDay(min(absenceDates));
+  const startDate = startOfDay(min(selectedAbsenceDates));
   const selectedDayPartValue: DayPartValue = useMemo(() => {
     const part = { part: selectedDayPart };
     if (selectedDayPart === DayPart.Hourly) {
@@ -116,7 +112,9 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     params.set("absenceReason", absenceReason);
     params.set(
       "dates",
-      absenceDates.map(d => formatISO(d, { representation: "date" })).join(",")
+      selectedAbsenceDates
+        .map(d => formatISO(d, { representation: "date" }))
+        .join(",")
     );
     params.set("dayPart", selectedDayPart || "");
     params.set("needsReplacement", wantsReplacement.toString());
@@ -132,26 +130,58 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
   }, [
     history,
     absenceReason,
-    absenceDates,
+    selectedAbsenceDates,
     selectedDayPart,
     wantsReplacement,
     hourlyStartTime,
     hourlyEndTime,
   ]);
 
-  const customDatesDisabled = disabledDates.map(date => {
-    return {
-      date,
-      buttonProps: { className: classes.dateDisabled },
-    };
-  });
+  const customDatesDisabled = useMemo(
+    () =>
+      disabledDates.map(date => {
+        return {
+          date,
+          buttonProps: { className: classes.dateDisabled },
+        };
+      }),
+    [disabledDates]
+  );
 
-  const customAbsenceDates = absenceDates.map(date => {
-    return {
-      date,
-      buttonProps: { className: classes.absenceDate },
-    };
-  });
+  const customExistingAbsenceDates = useMemo(
+    () =>
+      existingAbsenceDates.map(date => {
+        return {
+          date,
+          buttonProps: { className: classes.existingDate },
+        };
+      }),
+    [existingAbsenceDates]
+  );
+
+  const customSelectedAbsenceDates = useMemo(
+    () =>
+      selectedAbsenceDates.map(date => {
+        return {
+          date,
+          buttonProps: { className: classes.selectedAbsenceDate },
+        };
+      }),
+    [selectedAbsenceDates]
+  );
+
+  const customDates = useMemo(
+    () => [
+      ...customDatesDisabled,
+      ...customExistingAbsenceDates,
+      ...customSelectedAbsenceDates,
+    ],
+    [
+      customDatesDisabled,
+      customExistingAbsenceDates,
+      customSelectedAbsenceDates,
+    ]
+  );
 
   return (
     <>
@@ -176,7 +206,7 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
         month={currentMonth}
         monthNavigation
         onMonthChange={onMonthChange}
-        customDates={customDatesDisabled.concat(customAbsenceDates)}
+        customDates={customDates}
         onSelectDates={dates => dates.forEach(onToggleAbsenceDate)}
         variant="month"
       />
@@ -260,7 +290,17 @@ const useStyles = makeStyles(theme => ({
       color: theme.palette.text.disabled,
     },
   },
-  absenceDate: {
+
+  existingDate: {
+    backgroundColor: theme.customColors.lightBlue,
+    color: theme.palette.text.disabled,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.lightBlue,
+      color: theme.palette.text.disabled,
+    },
+  },
+  selectedAbsenceDate: {
     backgroundColor: theme.palette.primary.main,
     color: theme.customColors.white,
 
