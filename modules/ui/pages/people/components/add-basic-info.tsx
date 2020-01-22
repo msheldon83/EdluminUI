@@ -54,7 +54,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
           .nullable()
           .required(t("Last name is required")),
         middleName: Yup.string().nullable(),
-        externalId: Yup.string().nullable(),
+        externalId: Yup.string()
+          .nullable()
+          .required(t("External ID is required")),
         email: Yup.string()
           .nullable()
           .required(t("Email is required")),

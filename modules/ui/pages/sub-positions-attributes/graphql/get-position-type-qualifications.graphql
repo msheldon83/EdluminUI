@@ -1,0 +1,53 @@
+query GetPositionTypeQualifications($orgId: ID!, $endorsementIds: [ID!]!) {
+  positionType {
+    getQualificationsFromEndorsements(
+      orgId: $orgId
+      endorsementIds: $endorsementIds
+    ) {
+      qualifiedPositionTypes {
+        id
+        name
+        replacementCriteria {
+          mustHave {
+            id
+            name
+          }
+          mustNotHave {
+            id
+            name
+          }
+          preferToHave {
+            id
+            name
+          }
+          preferToNotHave {
+            id
+            name
+          }
+        }
+      }
+      unqualifiedPositionTypes {
+        id
+        name
+        replacementCriteria {
+          mustHave {
+            id
+            name
+          }
+          mustNotHave {
+            id
+            name
+          }
+          preferToHave {
+            id
+            name
+          }
+          preferToNotHave {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}
