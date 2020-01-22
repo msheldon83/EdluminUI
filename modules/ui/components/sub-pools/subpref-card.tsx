@@ -10,7 +10,7 @@ import {
   PermissionEnum,
   SubstitutePreferences,
 } from "graphql/server-types.gen";
-import { LocationsSubPrefRoute } from "ui/routes/locations";
+
 import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
   blockedHeading: string;
   heading: string;
   preferredLists?: SubstitutePreferences | null;
-  routeParams: any;
+  editRoute: string;
 };
 
 export const SubstitutePrefCard: React.FC<Props> = props => {
@@ -37,7 +37,7 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
             text: t("Edit"),
             visible: true,
             execute: () => {
-              history.push(LocationsSubPrefRoute.generate(props.routeParams));
+              history.push(props.editRoute);
             },
             permissions: [PermissionEnum.LocationSave],
           }}

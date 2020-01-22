@@ -11,6 +11,7 @@ import { PageHeader } from "ui/components/page-header";
 import { makeStyles } from "@material-ui/core";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { can } from "helpers/permissions";
+import { LocationGroupSubPrefRoute } from "ui/routes/location-groups";
 
 export const LocationGroupViewPage: React.FC<{}> = props => {
   const params = useRouteParams(LocationGroupViewRoute);
@@ -59,18 +60,13 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
         editable={true}
       ></PageHeader>
       <div className={classes.content}>
-        {location && (
-          <LocationGroupInformation
-            locationGroup={locationGroup}
-          ></LocationGroupInformation>
-        )}
-        {location && (
+        {locationGroup && (
           <SubstitutePrefCard
             favoriteHeading={t("Favorites")}
             blockedHeading={t("Blocked")}
             heading={t("Substitute Preferences")}
             preferredLists={locationGroup.substitutePreferences}
-            routeParams={params}
+            editRoute={LocationGroupSubPrefRoute.generate(params)}
           ></SubstitutePrefCard>
         )}
       </div>

@@ -5,17 +5,13 @@ import { UpdateLocationGroup } from "./graphql/update-location-group.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationGroupSubPrefRoute } from "ui/routes/location-groups";
 import { useTranslation } from "react-i18next";
-import { SubPoolCard } from "ui/components/sub-pools/subpoolcard";
-import { SubstitutePicker } from "ui/components/sub-pools/substitute-picker";
-import { Grid, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
-import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
+import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
 
 export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
   const params = useRouteParams(LocationGroupSubPrefRoute);
   const { t } = useTranslation();
-  const classes = useStyles();
   const { openSnackbar } = useSnackbar();
 
   const getLocationGroup = useQueryBundle(GetLocationGroupById, {
@@ -106,44 +102,24 @@ export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
     getLocationGroup?.data?.locationGroup?.byId ?? undefined;
   return (
     <>
-      <Typography variant="h5">{locationGroup.name}</Typography>
-      <Typography variant="h1">{t("Substitute Preferences")}</Typography>
-      <Grid container spacing={2} className={classes.content}>
-        <Grid item md={6} xs={12}>
-          <SubPoolCard
-            title={t("Favorite Substitutes")}
-            blocked={false}
-            orgUsers={locationGroup.substitutePreferences.favoriteSubstitutes}
-            onRemove={onRemoveFavoriteSubstitute}
-          ></SubPoolCard>
-        </Grid>
-        <Grid item md={6} xs={12}>
-          <SubPoolCard
-            title={t("Blocked Substitutes")}
-            blocked={true}
-            orgUsers={locationGroup.substitutePreferences.blockedSubstitutes}
-            onRemove={onRemoveBlockedSubstitute}
-          ></SubPoolCard>
-        </Grid>
-        <Grid item xs={12}>
-          <SubstitutePicker
-            orgId={params.organizationId}
-            title={"All Substitutes"}
-            locationId={locationGroup.id}
-            onAdd={onAddSubstitute}
-            onBlock={onBlockSubstitute}
-            takenSubstitutes={locationGroup.substitutePreferences.favoriteSubstitutes.concat(
-              locationGroup.substitutePreferences.blockedSubstitutes
-            )}
-          ></SubstitutePicker>
-        </Grid>
-      </Grid>
+      <SubstitutePreferences
+        favoriteHeading={t("Favorite Substitutes")}
+        blockedHeading={t("Blocked Substitutes")}
+        searchHeading={"All Substitutes"}
+        favoriteEmployees={
+          locationGroup.substitutePreferences.favoriteSubstitutes
+        }
+        blockedEmployees={
+          locationGroup.substitutePreferences.blockedSubstitutes
+        }
+        heading={t("Substitute Preferences")}
+        subHeading={locationGroup.name}
+        orgId={params.organizationId}
+        onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
+        onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
+        onAddFavoriteEmployee={onAddSubstitute}
+        onBlockEmployee={onBlockSubstitute}
+      ></SubstitutePreferences>
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  content: {
-    marginTop: theme.spacing(2),
-  },
-}));

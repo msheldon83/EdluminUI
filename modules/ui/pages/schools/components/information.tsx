@@ -49,23 +49,28 @@ export const LocationsInformation: React.FC<Props> = props => {
           permissions: [PermissionEnum.LocationSave],
         }}
       />
-      <Grid container>
+      <Grid container spacing={2}>
         <Grid container item xs={12} spacing={2}>
           <Typography variant="h6">{t("Address")}</Typography>
         </Grid>
-        <Grid container item xs={12} spacing={2} className={classes.label}>
-          {`${props.location.address1 ?? ""} ${props.location.address2 ?? ""}`}
+        <Grid container item xs={12} className={classes.label}>
+          <Typography>
+            {`${props.location.address1 ?? ""} ${props.location.address2 ??
+              ""}`}
+          </Typography>
         </Grid>
-        <Grid container item xs={12} spacing={2} className={classes.label}>
-          {`${props.location.city ?? ""}, ${props.location.stateName ?? ""} $
-            ${props.location.postalCode ?? ""}`}
+        <Grid container item xs={12} className={classes.label}>
+          <Typography>
+            {`${props.location.city ?? ""}, ${props.location.stateName ??
+              ""} ${props.location.postalCode ?? ""}`}
+          </Typography>
         </Grid>
 
         <Grid container item xs={12} spacing={2} className={classes.label}>
           <Typography variant="h6">{t("Phone")}</Typography>
         </Grid>
         <Grid container item xs={12} spacing={2} className={classes.label}>
-          {`${props.location.formattedPhone ?? ""}`}
+          <Typography>{`${props.location.formattedPhone ?? ""}`}</Typography>
         </Grid>
       </Grid>
     </Section>
@@ -79,6 +84,6 @@ const useStyles = makeStyles(theme => ({
     )} ${theme.typography.pxToRem(4)}`,
   },
   label: {
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
   },
 }));

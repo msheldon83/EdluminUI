@@ -11,6 +11,7 @@ import { PageHeader } from "ui/components/page-header";
 import { makeStyles } from "@material-ui/core";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { can } from "helpers/permissions";
+import { LocationsSubPrefRoute } from "ui/routes/locations";
 
 export const LocationsViewPage: React.FC<{}> = props => {
   const params = useRouteParams(LocationsViewRoute);
@@ -61,7 +62,7 @@ export const LocationsViewPage: React.FC<{}> = props => {
             blockedHeading={t("Blocked")}
             heading={t("Substitute Preferences")}
             preferredLists={location.substitutePreferences}
-            routeParams={params}
+            editRoute={LocationsSubPrefRoute.generate(params)}
           ></SubstitutePrefCard>
         )}
       </div>

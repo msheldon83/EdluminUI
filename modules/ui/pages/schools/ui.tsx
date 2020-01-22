@@ -60,7 +60,7 @@ export const LocationsUI: React.FC<Props> = props => {
 
   const locations = compact(getLocations?.data?.location?.all ?? []);
   const locationsCount = locations.length;
-  console.log(locations);
+
   return (
     <>
       <Section>

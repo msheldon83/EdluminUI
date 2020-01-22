@@ -27,7 +27,6 @@ import { useEffect, useMemo } from "react";
 type Props = {
   title: string;
   orgId: string;
-  locationId: number;
   onAdd: (orgUser: any) => void;
   onBlock: (orgUser: any) => void;
   takenSubstitutes: any[];
@@ -77,7 +76,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
       variables: {
         ...isoFilters,
         orgId: props.orgId,
-        locations: [props.locationId],
+        //locations: [props.locationId], -Not sure if we need to filter this list by location
         role: [OrgUserRole.ReplacementEmployee],
         sortBy: [
           {
