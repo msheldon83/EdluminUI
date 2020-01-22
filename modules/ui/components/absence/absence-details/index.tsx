@@ -205,6 +205,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             options={absenceReasonOptions}
             inputStatus={errors.absenceReason ? "error" : undefined}
             validationMessage={errors.absenceReason?.message}
+            withResetValue={false}
           />
         </div>
 
