@@ -1,51 +1,71 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
-import { PageTitle } from "ui/components/page-title";
 import {
-  AbsenceReasonRoute,
   AbsenceReasonViewEditRoute,
+  AbsenceReasonRoute,
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
+import { GetAbsenceReason } from "./graphql/get-absence-reason.gen";
+import { UpdateAbsenceReason } from "./graphql/update-absence-reason.gen";
+import { AbsenceReasonViewEditUI } from "./view-edit-ui";
+import { DeleteAbsenceReason } from "./graphql/delete-absence-reason.gen";
+import { useHistory } from "react-router";
 
 export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
-  const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
-  const classes = useStyles();
-  const isMobile = useIsMobile();
   const params = useRouteParams(AbsenceReasonViewEditRoute);
+  const history = useHistory();
+  const [updateAbsenceReasonMutation] = useMutationBundle(UpdateAbsenceReason);
 
-  const [triggerError, setTriggerError] = React.useState(false);
+  const [deleteAbsenceReason] = useMutationBundle(DeleteAbsenceReason, {
+    variables: { absenceReasonId: Number(params.absenceReasonId) },
+  });
 
-  if (triggerError) {
-    throw Error("error!");
+  const deleteAbsenceReasonCallback = React.useCallback(async () => {
+    await deleteAbsenceReason();
+    history.push(AbsenceReasonRoute.generate(params));
+  }, [deleteAbsenceReason, params, history]);
+
+  const result = useQueryBundle(GetAbsenceReason, {
+    fetchPolicy: "cache-and-network",
+    variables: {
+      absenceReasonId: params.absenceReasonId,
+    },
+  });
+  if (result.state !== "DONE" && result.state !== "UPDATING") {
+    return <></>;
   }
 
+  const absenceReason = result.data.orgRef_AbsenceReason?.byId!;
+
+  const updateAbsenceReason = (values: {
+    name?: string | null;
+    externalId?: string | null;
+  }) =>
+    updateAbsenceReasonMutation({
+      variables: {
+        absenceReason: {
+          id: Number(absenceReason.id),
+          rowVersion: absenceReason.rowVersion,
+          isBucket: absenceReason.isBucket,
+          allowNegativeBalance: absenceReason.allowNegativeBalance,
+          ...values,
+        },
+      },
+    });
+
   return (
-    <>
-      <PageTitle title={`${params.organizationId} ${t("Schools")}`} />
-      {__DEV__ && (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            setTriggerError(true);
-          }}
-        >
-          Trigger Error
-        </Button>
-      )}
-    </>
+    <AbsenceReasonViewEditUI
+      rowVersion={absenceReason.rowVersion}
+      name={absenceReason.name}
+      externalId={absenceReason.externalId || undefined}
+      description={absenceReason.description || undefined}
+      allowNegativeBalance={absenceReason.allowNegativeBalance}
+      absenceReasonTrackingTypeId={
+        absenceReason.absenceReasonTrackingTypeId || undefined
+      }
+      id={absenceReason.id}
+      updateNameOrExternalId={updateAbsenceReason}
+      onDelete={deleteAbsenceReasonCallback}
+    />
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}));
