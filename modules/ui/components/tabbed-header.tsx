@@ -13,7 +13,7 @@ export type Step = {
   name: string;
   content: (
     setStep: React.Dispatch<React.SetStateAction<number>>,
-    goToNextStep: Function
+    goToNextStep: () => void
   ) => JSX.Element;
 };
 
