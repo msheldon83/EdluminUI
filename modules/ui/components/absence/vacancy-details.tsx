@@ -34,7 +34,7 @@ export const VacancyDetails: React.FC<Props> = props => {
     .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
 
   return (
-    <Grid container spacing={2} ref={props.gridRef || null}>
+    <Grid container ref={props.gridRef || null}>
       {props.showHeader && (
         <Grid item xs={12}>
           <VacancySummaryHeader
@@ -66,11 +66,28 @@ export const VacancyDetails: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  details: {
+    padding: theme.spacing(2),
+  },
   scheduleText: {
     color: theme.customColors.edluminSubText,
   },
   vacancyBlockItem: {
     marginTop: theme.spacing(0.5),
+  },
+  vacancyDetailsHeader: {
+    backgroundColor: theme.customColors.lightGray,
+    color: theme.customColors.edluminSubText,
+    borderBottom: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
+    paddingTop: theme.spacing(),
+    paddingBottom: theme.spacing(),
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+  },
+  subScheduleLocation: {
+    marginLeft: theme.spacing(2),
   },
 }));
 
@@ -88,7 +105,7 @@ const getVacancyDetailsDisplay = (
 
   return (
     <>
-      <Grid item container xs={12} alignItems="center">
+      <Grid item container xs={12} className={classes.vacancyDetailsHeader}>
         <Grid item xs={equalWidthDetails ? 6 : 4}>
           {t("Absence")}
         </Grid>
@@ -96,46 +113,51 @@ const getVacancyDetailsDisplay = (
           {t("Substitute schedule")}
         </Grid>
       </Grid>
-      {groupedDetails.map((g, detailsIndex) => {
-        const allDates = g.detailItems.map(di => di.date);
+      <div className={classes.details}>
+        {groupedDetails.map((g, detailsIndex) => {
+          const allDates = g.detailItems.map(di => di.date);
 
-        return (
-          <Grid key={detailsIndex} item container xs={12} alignItems="center">
-            <Grid item xs={12}>
-              <Typography variant="h6">
-                {getAbsenceDateRangeDisplayText(allDates, disabledDates)}
-              </Typography>
-            </Grid>
-            <Grid
-              item
-              xs={equalWidthDetails ? 6 : 4}
-              className={classes.vacancyBlockItem}
-            >
-              {g.absenceStartTime && g.absenceEndTime && (
-                <div>
-                  {`${format(g.absenceStartTime, "h:mm a")} - ${format(
-                    g.absenceEndTime,
-                    "h:mm a"
-                  )}`}
-                </div>
-              )}
-            </Grid>
-            <Grid
-              item
-              xs={equalWidthDetails ? 6 : 8}
-              className={classes.vacancyBlockItem}
-            >
-              {g.simpleDetailItems!.map((d, i) => {
-                return (
-                  <div key={i}>
-                    {`${d.startTime} - ${d.endTime}`} {d.locationName}
+          return (
+            <Grid key={detailsIndex} item container xs={12}>
+              <Grid item xs={12}>
+                <Typography variant="h6">
+                  {getAbsenceDateRangeDisplayText(allDates, disabledDates)}
+                </Typography>
+              </Grid>
+              <Grid
+                item
+                xs={equalWidthDetails ? 6 : 4}
+                className={classes.vacancyBlockItem}
+              >
+                {g.absenceStartTime && g.absenceEndTime && (
+                  <div>
+                    {`${format(g.absenceStartTime, "h:mm a")} - ${format(
+                      g.absenceEndTime,
+                      "h:mm a"
+                    )}`}
                   </div>
-                );
-              })}
+                )}
+              </Grid>
+              <Grid
+                item
+                xs={equalWidthDetails ? 6 : 8}
+                className={classes.vacancyBlockItem}
+              >
+                {g.simpleDetailItems!.map((d, i) => {
+                  return (
+                    <div key={i}>
+                      {`${d.startTime} - ${d.endTime}`}
+                      <span className={classes.subScheduleLocation}>
+                        {d.locationName}
+                      </span>
+                    </div>
+                  );
+                })}
+              </Grid>
             </Grid>
-          </Grid>
-        );
-      })}
+          );
+        })}
+      </div>
     </>
   );
 };

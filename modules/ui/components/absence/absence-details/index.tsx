@@ -261,7 +261,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           />
         )}
 
-        <div className={classes.container}>
+        <div className={classes.subDetailsContainer}>
           <SubstituteRequiredDetails
             disableReplacementInteractions={
               props.disableReplacementInteractions
@@ -332,9 +332,8 @@ const useStyles = makeStyles(theme => ({
   },
   substituteDetailsTitle: { paddingBottom: theme.typography.pxToRem(3) },
   substituteDetailsSubtitle: { paddingBottom: theme.typography.pxToRem(1) },
-  container: {
+  subDetailsContainer: {
     marginTop: theme.spacing(2),
-    padding: theme.spacing(2),
     border: `${theme.typography.pxToRem(1)} solid ${
       theme.customColors.medLightGray
     }`,

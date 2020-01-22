@@ -126,120 +126,126 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
         </div>
       )}
 
-      {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
-        <FormControlLabel
-          label={t("Requires a substitute")}
-          control={
-            <Checkbox
-              checked={wantsReplacement}
-              onChange={onNeedsReplacementChange}
-              color="primary"
-            />
-          }
-        />
-      ) : (
-        <Typography className={classes.substituteRequiredText}>
-          {needsReplacement === NeedsReplacement.Yes
-            ? t("Requires a substitute")
-            : t("No substitute required")}
-        </Typography>
-      )}
+      <div className={classes.content}>
+        {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
+          <FormControlLabel
+            label={t("Requires a substitute")}
+            control={
+              <Checkbox
+                checked={wantsReplacement}
+                onChange={onNeedsReplacementChange}
+                color="primary"
+              />
+            }
+          />
+        ) : (
+          <Typography className={classes.substituteRequiredText}>
+            {needsReplacement === NeedsReplacement.Yes
+              ? t("Requires a substitute")
+              : t("No substitute required")}
+          </Typography>
+        )}
 
-      {wantsReplacement && (
-        <>
-          {isAdmin && (hasAccountingCodeOptions || hasPayCodeOptions) && (
-            <Grid item container spacing={4} className={classes.subCodes}>
-              {hasAccountingCodeOptions && (
-                <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
-                  <Grid item xs={hasPayCodeOptions ? 6 : 12}>
-                    <Typography>{t("Accounting code")}</Typography>
-                    <SelectNew
-                      value={{
-                        value: values.accountingCode ?? "",
-                        label:
-                          accountingCodeOptions.find(
-                            a => a.value === values.accountingCode
-                          )?.label || "",
-                      }}
-                      onChange={onAccountingCodeChange}
-                      options={accountingCodeOptions}
-                      multiple={false}
-                      inputStatus={errors.accountingCode ? "error" : undefined}
-                      validationMessage={errors.accountingCode?.message}
-                    />
-                  </Grid>
+        {wantsReplacement && (
+          <>
+            {isAdmin && (hasAccountingCodeOptions || hasPayCodeOptions) && (
+              <Grid item container spacing={4} className={classes.subCodes}>
+                {hasAccountingCodeOptions && (
+                  <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
+                    <Grid item xs={hasPayCodeOptions ? 6 : 12}>
+                      <Typography>{t("Accounting code")}</Typography>
+                      <SelectNew
+                        value={{
+                          value: values.accountingCode ?? "",
+                          label:
+                            accountingCodeOptions.find(
+                              a => a.value === values.accountingCode
+                            )?.label || "",
+                        }}
+                        onChange={onAccountingCodeChange}
+                        options={accountingCodeOptions}
+                        multiple={false}
+                        inputStatus={
+                          errors.accountingCode ? "error" : undefined
+                        }
+                        validationMessage={errors.accountingCode?.message}
+                      />
+                    </Grid>
+                  </Can>
+                )}
+                {hasPayCodeOptions && (
+                  <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+                    <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
+                      <Typography>{t("Pay code")}</Typography>
+                      <SelectNew
+                        value={{
+                          value: values.payCode ?? "",
+                          label:
+                            payCodeOptions.find(a => a.value === values.payCode)
+                              ?.label || "",
+                        }}
+                        onChange={onPayCodeChange}
+                        options={payCodeOptions}
+                        multiple={false}
+                        inputStatus={errors.payCode ? "error" : undefined}
+                        validationMessage={errors.payCode?.message}
+                      />
+                    </Grid>
+                  </Can>
+                )}
+              </Grid>
+            )}
+
+            <div className={classes.notesForReplacement}>
+              <Typography variant="h6">{t("Notes for substitute")}</Typography>
+              <Typography
+                className={[
+                  classes.subText,
+                  classes.substituteDetailsSubtitle,
+                ].join(" ")}
+              >
+                {t(
+                  "Can be seen by the substitute, administrator and employee."
+                )}
+              </Typography>
+              <NoteField
+                onChange={onNotesToReplacementChange}
+                name={"notesToReplacement"}
+                isSubmitted={props.isSubmitted}
+                initialAbsenceCreation={props.initialAbsenceCreation}
+                value={values.notesToReplacement}
+              />
+            </div>
+
+            {hasVacancies && (
+              <div className={classes.substituteActions}>
+                <Can do={[PermissionEnum.AbsVacAssign]}>
+                  <Button
+                    variant="outlined"
+                    className={classes.preArrangeButton}
+                    onClick={() => setStep("preAssignSub")}
+                    disabled={
+                      props.disableReplacementInteractions ||
+                      props.replacementEmployeeId !== undefined
+                    }
+                  >
+                    {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
+                  </Button>
                 </Can>
-              )}
-              {hasPayCodeOptions && (
-                <Can do={[PermissionEnum.AbsVacSavePayCode]}>
-                  <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
-                    <Typography>{t("Pay code")}</Typography>
-                    <SelectNew
-                      value={{
-                        value: values.payCode ?? "",
-                        label:
-                          payCodeOptions.find(a => a.value === values.payCode)
-                            ?.label || "",
-                      }}
-                      onChange={onPayCodeChange}
-                      options={payCodeOptions}
-                      multiple={false}
-                      inputStatus={errors.payCode ? "error" : undefined}
-                      validationMessage={errors.payCode?.message}
-                    />
-                  </Grid>
-                </Can>
-              )}
-            </Grid>
-          )}
 
-          <div className={classes.notesForReplacement}>
-            <Typography variant="h6">{t("Notes for substitute")}</Typography>
-            <Typography
-              className={[
-                classes.subText,
-                classes.substituteDetailsSubtitle,
-              ].join(" ")}
-            >
-              {t("Can be seen by the substitute, administrator and employee.")}
-            </Typography>
-            <NoteField
-              onChange={onNotesToReplacementChange}
-              name={"notesToReplacement"}
-              isSubmitted={props.isSubmitted}
-              initialAbsenceCreation={props.initialAbsenceCreation}
-              value={values.notesToReplacement}
-            />
-          </div>
-
-          {hasVacancies && (
-            <div className={classes.substituteActions}>
-              <Can do={[PermissionEnum.AbsVacAssign]}>
                 <Button
                   variant="outlined"
-                  className={classes.preArrangeButton}
-                  onClick={() => setStep("preAssignSub")}
-                  disabled={
-                    props.disableReplacementInteractions ||
-                    props.replacementEmployeeId !== undefined
-                  }
+                  onClick={() => setStep("edit")}
+                  disabled={props.disableEditingDatesAndTimes}
                 >
-                  {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
+                  <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
+                  <MobileOnly>{t("Edit Details")}</MobileOnly>
                 </Button>
-              </Can>
-
-              <Button
-                variant="outlined"
-                onClick={() => setStep("edit")}
-                disabled={props.disableEditingDatesAndTimes}
-              >
-                <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
-                <MobileOnly>{t("Edit Details")}</MobileOnly>
-              </Button>
-            </div>
-          )}
-        </>
-      )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </>
   );
 };
@@ -247,6 +253,11 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   subText: {
     color: theme.customColors.edluminSubText,
+  },
+  content: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   },
   vacancyDetails: {
     marginBottom: theme.spacing(),
