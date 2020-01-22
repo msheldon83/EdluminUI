@@ -136,6 +136,25 @@ export const PeopleSubPoolEditLoader = asyncComponent({
   name: "SubPool",
 });
 
+//Edit Replacement Criteria
+export const PeopleReplacementCriteriaEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/replacement-criteria",
+  []
+);
+
+export const PeopleReplacementCriteriaEditLoader = asyncComponent({
+  resolve: async () => {
+    const PeopleReplacementCriteriaEdit = (
+      await import(
+        "ui/pages/people/components/employee/edit-replacement-critieria"
+      )
+    ).PeopleReplacementCriteriaEdit;
+    return PeopleReplacementCriteriaEdit;
+  },
+  name: "PeopleReplacementCriteriaEditSettingsPage",
+});
+
 //Edit Sub Related Orgs
 export const PeopleSubRelatedOrgsEditRoute = defineSubRoute(
   PersonViewRoute,
