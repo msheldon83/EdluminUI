@@ -1,0 +1,16 @@
+mutation updateAbsenceReason($absenceReason: AbsenceReasonUpdateInput!) {
+  orgRef_AbsenceReason {
+    update(absenceReason: $absenceReason) {
+      id
+      rowVersion
+      externalId
+      name
+      description
+      expired
+      isBucket
+      appliesToAssignmentTypes
+      absenceReasonTrackingTypeId
+      allowNegativeBalance
+    }
+  }
+}

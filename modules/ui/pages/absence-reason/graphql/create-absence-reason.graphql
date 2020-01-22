@@ -1,0 +1,20 @@
+mutation CreateAbsenceReason($absenceReason: AbsenceReasonCreateInput!) {
+  orgRef_AbsenceReason {
+    create(absenceReason: $absenceReason) {
+      id
+      externalId
+      rowVersion
+      name
+      description
+      validUntil
+      appliesToAssignmentTypes
+      absenceReasonTrackingTypeId
+      allowNegativeBalance
+      isBucket
+      appliesToAssignmentTypes
+      limitPerDay
+      prioritySequence
+      expired
+    }
+  }
+}

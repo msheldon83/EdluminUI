@@ -23,6 +23,8 @@ import {
   AbsenceReasonAddLoader,
   AbsenceReasonViewEditRoute,
   AbsenceReasonViewEditLoader,
+  AbsenceReasonEditSettingsRoute,
+  AbsenceReasonEditSettingsLoader,
 } from "./routes/absence-reason";
 import {
   AccountingCodeLoader,
@@ -133,8 +135,19 @@ import {
 import {
   LocationGroupsLoader,
   LocationGroupsRoute,
+  LocationGroupViewLoader,
+  LocationGroupViewRoute,
+  LocationGroupSubPrefLoader,
+  LocationGroupSubPrefRoute,
 } from "./routes/location-groups";
-import { LocationsLoader, LocationsRoute } from "./routes/locations";
+import {
+  LocationsLoader,
+  LocationsRoute,
+  LocationViewLoader,
+  LocationViewRoute,
+  LocationSubPrefLoader,
+  LocationSubPrefRoute,
+} from "./routes/locations";
 import {
   SecurityManagedOrganizationsLoader,
   SecurityManagedOrganizationsRoute,
@@ -626,14 +639,6 @@ export function App() {
                                   ]}
                                 />
                                 <ProtectedRoute
-                                  component={AbsenceReasonLoader}
-                                  path={AbsenceReasonRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
                                   component={VacancyReasonLoader}
                                   path={VacancyReasonRoute.path}
                                   role={"admin"}
@@ -682,6 +687,14 @@ export function App() {
                                   ]}
                                 />
                                 <ProtectedRoute
+                                  component={AbsenceReasonEditSettingsLoader}
+                                  path={AbsenceReasonEditSettingsRoute.path}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AbsVacSettingsSave,
+                                  ]}
+                                />
+                                <ProtectedRoute
                                   component={AbsenceReasonViewEditLoader}
                                   path={AbsenceReasonViewEditRoute.path}
                                   role={"admin"}
@@ -689,6 +702,7 @@ export function App() {
                                     PermissionEnum.AbsVacSettingsView,
                                   ]}
                                 />
+
                                 <ProtectedRoute
                                   component={AbsenceReasonLoader}
                                   path={AbsenceReasonRoute.path}
@@ -706,10 +720,38 @@ export function App() {
                                   ]}
                                 />
                                 <ProtectedRoute
+                                  component={LocationSubPrefLoader}
+                                  path={LocationSubPrefRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.LocationSave]}
+                                />
+                                <ProtectedRoute
+                                  component={LocationViewLoader}
+                                  path={LocationViewRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.LocationView]}
+                                />
+                                <ProtectedRoute
                                   component={LocationsLoader}
                                   path={LocationsRoute.path}
                                   role={"admin"}
                                   permissions={[PermissionEnum.LocationView]}
+                                />
+                                <ProtectedRoute
+                                  component={LocationGroupSubPrefLoader}
+                                  path={LocationGroupSubPrefRoute.path}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.LocationGroupSave,
+                                  ]}
+                                />
+                                <ProtectedRoute
+                                  component={LocationGroupViewLoader}
+                                  path={LocationGroupViewRoute.path}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.LocationGroupView,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={LocationGroupsLoader}

@@ -1,0 +1,35 @@
+query GetLocationById($locationId: ID!) {
+  location {
+    byId(id: $locationId) {
+      id
+      name
+      externalId
+      address1
+      address2
+      city
+      stateName
+      postalCode
+      phoneNumber
+      formattedPhone
+      rowVersion
+      substitutePreferences {
+        blockedSubstitutes {
+          id
+          firstName
+          middleName
+          lastName
+        }
+        favoriteSubstitutes {
+          id
+          firstName
+          middleName
+          lastName
+        }
+      }
+      locationGroup {
+        id
+        name
+      }
+    }
+  }
+}
