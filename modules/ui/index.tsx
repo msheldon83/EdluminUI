@@ -455,7 +455,7 @@ export function App() {
                                   }
                                   path={PeopleReplacementCriteriaEditRoute.path}
                                   role={"admin"}
-                                  permissions={[PermissionEnum.EmployeeView]}
+                                  permissions={[PermissionEnum.EmployeeSave]}
                                 />
                                 <ProtectedRoute
                                   component={
@@ -521,7 +521,7 @@ export function App() {
                                   path={ReplacementCriteriaEditRoute.path}
                                   role={"admin"}
                                   permissions={[
-                                    PermissionEnum.FinanceSettingsView,
+                                    PermissionEnum.FinanceSettingsSave,
                                   ]}
                                 />
                                 <ProtectedRoute

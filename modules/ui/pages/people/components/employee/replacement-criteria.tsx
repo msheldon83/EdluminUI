@@ -42,7 +42,7 @@ export const ReplacementCriteria: React.FC<Props> = props => {
               );
               history.push(editSettingsUrl);
             },
-            permissions: [PermissionEnum.EmployeeView],
+            permissions: [PermissionEnum.EmployeeSave],
           }}
         />
         <Grid container spacing={2}>

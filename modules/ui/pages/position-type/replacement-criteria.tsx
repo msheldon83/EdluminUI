@@ -5,7 +5,7 @@ import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
-import { Maybe, Endorsement } from "graphql/server-types.gen";
+import { Maybe, Endorsement, PermissionEnum } from "graphql/server-types.gen";
 import {
   PositionTypeViewRoute,
   ReplacementCriteriaEditRoute,
@@ -42,6 +42,7 @@ export const ReplacementCriteria: React.FC<Props> = props => {
               );
               history.push(editSettingsUrl);
             },
+            permissions: [PermissionEnum.FinanceSettingsSave],
           }}
         />
         <Grid container spacing={2}>

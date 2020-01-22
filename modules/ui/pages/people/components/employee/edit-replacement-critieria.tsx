@@ -171,7 +171,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     <>
       <SectionHeader
         className={classes.leftPadding}
-        title={t(employee?.firstName + " " + employee?.lastName)}
+        title={employee?.firstName + " " + employee?.lastName}
       />
       <ReplacementCriteriaUI
         mustHave={mustHave}

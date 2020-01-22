@@ -16,12 +16,12 @@ export const Qualified: React.FC<Props> = props => {
 
   const minimallyQualified =
     props.minimallyQualified === undefined
-      ? "Not Defined"
+      ? t("Not Defined")
       : props.minimallyQualified.toString();
 
   const highlyQualified =
     props.highlyQualified === undefined
-      ? "Not Defined"
+      ? t("Not Defined")
       : props.highlyQualified.toString();
 
   return (
@@ -31,14 +31,14 @@ export const Qualified: React.FC<Props> = props => {
           <Grid container>
             <Grid item xs={6}>
               <SectionHeader
-                title={t(minimallyQualified)}
+                title={minimallyQualified}
                 className={classes.bottomMargin}
               />
               <div>{t("minimally qualified substitutes")}</div>
             </Grid>
             <Grid item xs={6}>
               <SectionHeader
-                title={t(highlyQualified)}
+                title={highlyQualified}
                 className={classes.bottomMargin}
               />
               <div>{t("highly qualified substitutes")}</div>

@@ -28,8 +28,8 @@ export const ReplacementCriteriaView: React.FC<Props> = props => {
     <>
       <Grid item xs={12}>
         <Section>
-          <SectionHeader title={t(props.label)} />
-          <Grid item xs={12} sm={12} lg={12}>
+          <SectionHeader title={props.label} />
+          <Grid item xs={12}>
             {props.attributes?.length === 0 ? (
               <div className={classes.allOrNoneRow}>{t("No Attributes")}</div>
             ) : (
@@ -41,7 +41,7 @@ export const ReplacementCriteriaView: React.FC<Props> = props => {
                     i
                   )}`}
                 >
-                  <div>{t(n.name)}</div>
+                  <div>{n.name}</div>
                   <div>
                     <TextButton
                       className={classes.link}

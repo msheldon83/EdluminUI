@@ -6,7 +6,7 @@ import { Input } from "ui/components/form/input";
 import { Redirect, useHistory } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
-import { GetAllEndorsementsWithinOrg } from "ui/pages/position-type/graphql/get-all-endorsements.gen";
+import { useEndorsements } from "reference-data/endorsements";
 import { useIsMobile } from "hooks";
 import { PageTitle } from "ui/components/page-title";
 import { useCallback, useEffect } from "react";
@@ -38,9 +38,6 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
     pendingSearchText,
     setPendingSearchText,
   ] = useDeferredState<string | undefined>(undefined, 200);
-  useEffect(() => {
-    // props.setSearchText(searchText);
-  }, [searchText]);
 
   const updateSearchText = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,19 +47,17 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
   );
 
   //TODO: Add SearchText query to back-end
-  const getAllEndorsements = useQueryBundle(GetAllEndorsementsWithinOrg, {
-    variables: { orgId: params.organizationId }, //, searchText: searchText },
-  });
+  const endorsements = useEndorsements(
+    params.organizationId,
+    false,
+    searchText
+  );
 
-  if (
-    getPositionType.state === "LOADING" ||
-    getAllEndorsements.state === "LOADING"
-  ) {
+  if (getPositionType.state === "LOADING") {
     return <></>;
   }
 
   const positionType = getPositionType?.data?.positionType?.byId;
-  const endorsements = getAllEndorsements?.data?.orgRef_Endorsement?.all;
 
   if (!positionType || !endorsements) {
     // Redirect the User back to the List page
@@ -81,7 +76,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
     <>
       <PageTitle title={t("Replacement Criteria")} withoutHeading={!isMobile} />
       <PageHeader
-        text={t("Replacement Criteria - " + positionType.name)}
+        text={t("Replacement Criteria - ") + positionType.name}
         label={t("Name")}
       />
       <Grid container className={classes.topPadding}>
@@ -101,7 +96,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
             <Section>
               <SectionHeader title={t("Substitutes must have")} />
               <hr />
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={12} sm={6}>
                 {replacementCriteria?.mustHave?.length === 0 ? (
                   <div>{t("Not defined")}</div>
                 ) : (
@@ -116,7 +111,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
             <Section>
               <SectionHeader title={t("Prefer that substitutes have")} />
               <hr />
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={12} sm={6}>
                 {replacementCriteria?.preferToHave?.length === 0 ? (
                   <div>{t("Not defined")}</div>
                 ) : (
@@ -131,7 +126,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
             <Section>
               <SectionHeader title={t("Prefer that substitutes not have")} />
               <hr />
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={12} sm={6}>
                 {replacementCriteria?.mustNotHave?.length === 0 ? (
                   <div>{t("Not defined")}</div>
                 ) : (
@@ -146,7 +141,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
             <Section>
               <SectionHeader title={t("Substitutes must not have")} />
               <hr />
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={12} sm={6}>
                 {replacementCriteria?.preferToNotHave?.length === 0 ? (
                   <div>{t("Not defined")}</div>
                 ) : (
@@ -162,7 +157,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
           <Grid item xs={12}>
             <Section>
               <SectionHeader title={t("Available Attributes")} />
-              <Grid item xs={12} sm={6} md={6} lg={6}>
+              <Grid item xs={12} sm={6}>
                 <Input
                   label={t("Attributes")}
                   value={pendingSearchText}
@@ -172,7 +167,7 @@ export const ReplacementCriteriaEdit: React.FC<Props> = props => {
                 />
               </Grid>
               <hr />
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={12} sm={6}>
                 {endorsements?.length === 0 ? (
                   <div>{t("Not defined")}</div>
                 ) : (

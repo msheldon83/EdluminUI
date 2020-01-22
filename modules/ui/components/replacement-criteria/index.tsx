@@ -61,7 +61,7 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
     <>
       <PageTitle title={t("Replacement Criteria")} withoutHeading={!isMobile} />
       <PageHeader
-        text={t("Replacement Criteria - " + props.positionName)}
+        text={t("Replacement Criteria - ") + props.positionName}
         label={t("Name")}
       />
       <Grid container className={classes.topPadding}>
