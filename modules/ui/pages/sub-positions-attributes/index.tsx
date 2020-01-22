@@ -63,13 +63,13 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
   });
 
   const addAttribute = useCallback(
-    async (endorsementId: string) => {
+    async (attribute: Attribute) => {
       const response = await addEmployeeEndorsement({
         variables: {
           employeeEndorsementInput: {
             orgId: params.organizationId,
             employeeId: params.orgUserId,
-            endorsementId,
+            endorsementId: attribute.endorsementId,
           },
         },
       });

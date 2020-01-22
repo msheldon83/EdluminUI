@@ -8,12 +8,8 @@ import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { PersonViewRoute } from "ui/routes/people";
 import { useEndorsements } from "reference-data/endorsements";
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Section } from "ui/components/section";
-import {
-  PositionType,
-  PositionTypeQualifications,
-} from "graphql/server-types.gen";
 import { Input } from "ui/components/form/input";
 import { DatePicker } from "ui/components/form/date-picker";
 import {
@@ -31,7 +27,7 @@ type Props = {
   organizationId: string;
   orgUserId?: string;
   currentAttributes: Attribute[];
-  addAttribute: (endorsementId: string) => Promise<boolean>;
+  addAttribute: (attribute: Attribute) => Promise<boolean>;
   updateAttribute: (
     endorsementId: string,
     expirationDate?: Date | undefined
@@ -247,8 +243,8 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                                   u => u.endorsementId === a.endorsementId
                                 );
 
-                                // Only make the call to the server if our expiration date
-                                // has actually changed
+                                // Only make the call to the server if our
+                                // expiration date has actually changed
                                 if (
                                   attributeToUpdate &&
                                   (!attributeToUpdate.expirationDate ||
@@ -334,15 +330,16 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                       <Link
                         className={classes.addAction}
                         onClick={async () => {
-                          const result = await props.addAttribute(e.id);
+                          const attributeObj = {
+                            endorsementId: e.id,
+                            name: e.name,
+                            expires: e.expires,
+                          };
+                          const result = await props.addAttribute(attributeObj);
                           if (result) {
                             setPendingAttributesAssigned([
                               ...pendingAttributesAssigned,
-                              {
-                                endorsementId: e.id,
-                                name: e.name,
-                                expires: e.expires,
-                              },
+                              attributeObj,
                             ]);
                           }
                         }}
