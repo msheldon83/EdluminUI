@@ -19,6 +19,7 @@ type Props = {
   equalWidthDetails?: boolean;
   gridRef?: React.RefObject<HTMLDivElement>;
   disabledDates?: DisabledDate[];
+  detailsClassName?: string;
 };
 
 export const VacancyDetails: React.FC<Props> = props => {
@@ -44,23 +45,25 @@ export const VacancyDetails: React.FC<Props> = props => {
           />
         </Grid>
       )}
-      {sortedVacancies.map((v, i) => {
-        if (v.details && v.details.length) {
-          const projectedDetails = projectVacancyDetailsFromVacancies([v]);
+      <div className={props.detailsClassName}>
+        {sortedVacancies.map((v, i) => {
+          if (v.details && v.details.length) {
+            const projectedDetails = projectVacancyDetailsFromVacancies([v]);
 
-          return (
-            <Fragment key={i}>
-              {getVacancyDetailsDisplay(
-                projectedDetails,
-                props.equalWidthDetails || false,
-                t,
-                classes,
-                props.disabledDates
-              )}
-            </Fragment>
-          );
-        }
-      })}
+            return (
+              <Fragment key={i}>
+                {getVacancyDetailsDisplay(
+                  projectedDetails,
+                  props.equalWidthDetails || false,
+                  t,
+                  classes,
+                  props.disabledDates
+                )}
+              </Fragment>
+            );
+          }
+        })}
+      </div>
     </Grid>
   );
 };
