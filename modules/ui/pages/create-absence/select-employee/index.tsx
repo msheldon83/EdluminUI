@@ -116,23 +116,27 @@ export const SelectEmployee: React.FC<Props> = props => {
       <Typography variant="h5">{t("Select an employee")}</Typography>
       <PageTitle title={t("Create absence")} />
       <Section>
-        <div className={classes.nameFieldContainer}>
-          <Input
-            label={t("Name")}
-            value={pendingName}
-            onChange={e => setPendingName(e.target.value)}
-          />
+        <div className={classes.nameFieldRow}>
+          <div className={classes.nameFieldContainer}>
+            <Input
+              label={t("Name")}
+              value={pendingName}
+              onChange={e => setPendingName(e.target.value)}
+            />
+          </div>
+        </div>
+        <Table
+          title={`${pagination.totalCount} ${
+            pagination.totalCount === 1 ? t("Person") : t("People")
+          }`}
+          columns={columns}
+          data={tableData}
+          onRowClick={selectEmployee}
+        />
+        <div className={classes.pagination}>
+          <PaginationControls pagination={pagination} />
         </div>
       </Section>
-      <Table
-        title={`${pagination.totalCount} ${
-          pagination.totalCount === 1 ? t("Person") : t("People")
-        }`}
-        columns={columns}
-        data={tableData}
-        onRowClick={selectEmployee}
-      />
-      <PaginationControls pagination={pagination} />
     </>
   );
 };
@@ -140,5 +144,12 @@ export const SelectEmployee: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   nameFieldContainer: {
     width: theme.typography.pxToRem(262),
+  },
+  nameFieldRow: {
+    borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
+    paddingBottom: theme.spacing(3),
+  },
+  pagination: {
+    padding: `${theme.spacing(8)} 0`,
   },
 }));
