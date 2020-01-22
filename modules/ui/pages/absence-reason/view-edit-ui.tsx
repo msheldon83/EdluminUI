@@ -1,27 +1,25 @@
-import * as React from "react";
+import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { PageTitle } from "ui/components/page-title";
-import { useTranslation } from "react-i18next";
-import { useIsMobile } from "hooks";
 import {
-  AbsenceReasonRoute,
-  AbsenceReasonViewEditRoute,
-  AbsenceReasonEditSettingsRoute,
-} from "ui/routes/absence-reason";
-import { useRouteParams } from "ui/routes/definition";
+  AbsenceReasonTrackingTypeId,
+  PermissionEnum,
+} from "graphql/server-types.gen";
+import { useIsMobile } from "hooks";
+import * as React from "react";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import { PageHeader } from "ui/components/page-header";
-import { useState, useCallback } from "react";
-import {
-  PermissionEnum,
-  AbsenceReasonTrackingTypeId,
-  AssignmentType,
-} from "graphql/server-types.gen";
-import * as yup from "yup";
+import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { Grid, Typography } from "@material-ui/core";
-import { format, parseISO } from "date-fns";
+import {
+  AbsenceReasonEditSettingsRoute,
+  AbsenceReasonRoute,
+  AbsenceReasonViewEditRoute,
+} from "ui/routes/absence-reason";
+import { useRouteParams } from "ui/routes/definition";
+import * as yup from "yup";
 
 type Props = {
   id: string;
@@ -30,11 +28,7 @@ type Props = {
   rowVersion: string;
   description?: string;
   allowNegativeBalance: boolean;
-  expired: boolean;
-  validUntil: string;
-  isBucket: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
-  appliesToAssignmentTypes?: AssignmentType;
   updateNameOrExternalId: (values: {
     name?: string | null;
     externalId?: string | null;
@@ -61,24 +55,6 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
           return t("Invalid");
       }
       return "";
-    },
-    [t]
-  );
-
-  const translateAssignmentType = useCallback(
-    (v: AssignmentType | undefined) => {
-      switch (v) {
-        case AssignmentType.ContractAssignment:
-          return t("Contract Assignment");
-        case AssignmentType.DailyAssignment:
-          return t("Daily Assignment");
-        case AssignmentType.LongTermAssignment:
-          return t("Long Term Assignment");
-        case AssignmentType.None:
-          return t("None");
-        default:
-          return "";
-      }
     },
     [t]
   );
@@ -174,41 +150,11 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
               {translateTracking(props.absenceReasonTrackingTypeId)}
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="h6">
-              {t("Applies to Assignment Types")}
-            </Typography>
-            <Typography variant="body1">
-              {translateAssignmentType(props.appliesToAssignmentTypes)}
-            </Typography>
-          </Grid>
 
           <Grid item xs={12} sm={6}>
-            <Typography variant="h6">
-              {t("Allows negative balances")}
-            </Typography>
+            <Typography variant="h6">{t("Allow negative balances")}</Typography>
             <Typography variant="body1">
               {displayBool(props.allowNegativeBalance)}
-            </Typography>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <Typography variant="h6">{t("Is bucket?")}</Typography>
-            <Typography variant="body1">
-              {displayBool(props.isBucket)}
-            </Typography>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <Typography variant="h6">{t("Expired")}</Typography>
-            <Typography variant="body1">
-              {displayBool(props.expired)}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="h6">{t("Valid Until")}</Typography>
-            <Typography variant="body1">
-              {format(parseISO(props.validUntil), "MMMM d, yyyy")}
             </Typography>
           </Grid>
         </Grid>

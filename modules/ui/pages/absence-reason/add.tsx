@@ -39,19 +39,15 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
   const settingsOnSubmit = useCallback(
     async (updatedValues: {
       allowNegativeBalance: boolean;
-      isBucket: boolean;
       description?: string;
       absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
-      appliesToAssignmentTypes?: AssignmentType;
     }) => {
       if (!basicInfo) {
         return;
       }
       const {
         allowNegativeBalance,
-        isBucket,
         absenceReasonTrackingTypeId: absenceReasonTrackingId,
-        appliesToAssignmentTypes,
         description,
       } = updatedValues;
 
@@ -61,9 +57,9 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
             orgId: Number(params.organizationId),
             ...basicInfo,
             allowNegativeBalance,
-            isBucket,
+            isBucket: false,
             absenceReasonTrackingId,
-            appliesToAssignmentTypes,
+            appliesToAssignmentTypes: AssignmentType.ContractAssignment,
             description,
           },
         },
@@ -117,9 +113,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
         return (
           <AbsenceReasonSettings
             allowNegativeBalance={false}
-            isBucket={false}
             absenceReasonTrackingTypeId={AbsenceReasonTrackingTypeId.Hourly}
-            appliesToAssignmentTypes={AssignmentType.ContractAssignment}
             description={""}
             onSubmit={settingsOnSubmit}
             onCancel={() => {

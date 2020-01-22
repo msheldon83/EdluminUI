@@ -1,10 +1,9 @@
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
-import {
-  AbsenceReasonTrackingTypeId,
-  AssignmentType,
-} from "graphql/server-types.gen";
+import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
+import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageHeader } from "ui/components/page-header";
 import { PageTitle } from "ui/components/page-title";
@@ -16,8 +15,6 @@ import { useRouteParams } from "ui/routes/definition";
 import { AbsenceReasonSettings } from "./absence-reason-settings";
 import { GetAbsenceReason } from "./graphql/get-absence-reason.gen";
 import { UpdateAbsenceReason } from "./graphql/update-absence-reason.gen";
-import { useTranslation } from "react-i18next";
-import { useIsMobile } from "hooks";
 
 type Props = {};
 
@@ -39,10 +36,8 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
   const updateAbsenceReason = useCallback(
     async (updatedValues: {
       allowNegativeBalance: boolean;
-      isBucket: boolean;
       description?: string;
       absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
-      appliesToAssignmentTypes?: AssignmentType;
     }) => {
       if (result.state !== "DONE") {
         return;
@@ -50,9 +45,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
       const reason = result.data.orgRef_AbsenceReason?.byId!;
       const {
         allowNegativeBalance,
-        isBucket,
         description,
-        appliesToAssignmentTypes,
         absenceReasonTrackingTypeId: absenceReasonTrackingId,
       } = updatedValues;
       await mutation({
@@ -61,9 +54,8 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
             id: Number(reason.id),
             rowVersion: reason.rowVersion,
             allowNegativeBalance,
-            isBucket,
+            isBucket: false,
             description,
-            appliesToAssignmentTypes,
             absenceReasonTrackingId,
           },
         },
@@ -86,12 +78,8 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
       <AbsenceReasonSettings
         description={absenceReason.description || undefined}
         allowNegativeBalance={absenceReason.allowNegativeBalance}
-        isBucket={absenceReason.isBucket}
         absenceReasonTrackingTypeId={
           absenceReason.absenceReasonTrackingTypeId || undefined
-        }
-        appliesToAssignmentTypes={
-          absenceReason.appliesToAssignmentTypes || undefined
         }
         onSubmit={updateAbsenceReason}
         onCancel={() => {

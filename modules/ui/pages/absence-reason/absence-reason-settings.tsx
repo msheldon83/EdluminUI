@@ -24,15 +24,15 @@ import * as yup from "yup";
 type Props = {
   description?: string;
   allowNegativeBalance: boolean;
-  isBucket: boolean;
-  appliesToAssignmentTypes?: AssignmentType;
+  // isBucket: boolean;
+  // appliesToAssignmentTypes?: AssignmentType;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   onSubmit: (updatedValues: {
     allowNegativeBalance: boolean;
-    isBucket: boolean;
+    // isBucket: boolean;
     description?: string;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
-    appliesToAssignmentTypes?: AssignmentType;
+    // appliesToAssignmentTypes?: AssignmentType;
   }) => Promise<void>;
   onCancel: () => void;
 };
@@ -45,9 +45,8 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
   const initialValues = pick(props, [
     "description",
     "allowNegativeBalance",
-    "isBucket",
+    // "isBucket",
     "absenceReasonTrackingTypeId",
-    "appliesToAssignmentTypes",
   ]);
 
   return (
@@ -57,7 +56,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
         initialValues={initialValues}
         onSubmit={props.onSubmit}
         validationSchema={yup.object().shape({
-          isBucket: yup.boolean(),
+          // isBucket: yup.boolean(),
           allowNegativeBalances: yup.boolean(),
         })}
       >
@@ -75,45 +74,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
             />
 
             <Typography variant="h6" className={classes.label}>
-              {t("What types of assignments does this reason apply to?")}
-            </Typography>
-            <RadioGroup
-              aria-label="appliesToAssignmentTypes"
-              name="appliesToAssignmentTypes"
-              value={values.appliesToAssignmentTypes || ""}
-              onChange={e => {
-                setFieldValue("appliesToAssignmentTypes", e.target.value);
-              }}
-              row={!isMobile}
-            >
-              <FormControlLabel
-                value={AssignmentType.ContractAssignment}
-                control={<Radio color="primary" />}
-                label={t("Contract Assignment")}
-                labelPlacement="end"
-              />
-              <FormControlLabel
-                value={AssignmentType.DailyAssignment}
-                control={<Radio color="primary" />}
-                label={t("Daily Assignment")}
-                labelPlacement="end"
-              />
-              <FormControlLabel
-                value={AssignmentType.LongTermAssignment}
-                control={<Radio color="primary" />}
-                label={t("Long Term Assignment")}
-                labelPlacement="end"
-              />
-              <FormControlLabel
-                value={AssignmentType.None}
-                control={<Radio color="primary" />}
-                label={t("None")}
-                labelPlacement="end"
-              />
-            </RadioGroup>
-
-            <Typography variant="h6" className={classes.label}>
-              {t("How should the balances for this reason be tracked?")}
+              {t("How is this absence reason tracked?")}
             </Typography>
             <RadioGroup
               aria-label="absenceReasonTrackingTypeId"
@@ -139,7 +100,9 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
             </RadioGroup>
 
             <Typography variant="h6" className={classes.label}>
-              {t("Does this absence reason allow negative balances?")}
+              {t(
+                "Should a balance for this absence reason be allowed to go negative?"
+              )}
             </Typography>
             <RadioGroup
               aria-label="allowNegativeBalances"
@@ -167,8 +130,9 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
               />
             </RadioGroup>
 
-            <Typography variant="h6" className={classes.label}>
-              {t("Is this absence reason a bucket?")}
+            {/* 1.22.20 ML - Hide until we have absence reason buckets */}
+            {/* <Typography variant="h6" className={classes.label}>
+              {t("Is this reason used to hold a category balance?")}
             </Typography>
             <RadioGroup
               aria-label="isBucket"
@@ -191,7 +155,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
                 label={t("Yes")}
                 labelPlacement="end"
               />
-            </RadioGroup>
+            </RadioGroup> */}
 
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}
