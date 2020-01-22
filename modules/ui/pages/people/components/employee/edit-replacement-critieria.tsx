@@ -6,6 +6,7 @@ import { Redirect } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetEmployeeById } from "ui/pages/people/graphql/employee/get-employee-by-id.gen";
 import { SectionHeader } from "ui/components/section-header";
+import { useMemo, useCallback } from "react";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { ReplacementCriteriaUI } from "ui/components/replacement-criteria/index";
@@ -30,6 +31,99 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     variables: { id: params.orgUserId },
   });
 
+  //Mutations
+  const updateMustHave = useCallback(
+    async (mustHaveInput: string[]) => {
+      const result = await updateEmployee({
+        variables: {
+          employee: {
+            id: employee?.id,
+            position: {
+              replacementCriteria: {
+                mustHave: mustHaveInput.map(l => ({ id: l })),
+              },
+            },
+          },
+        },
+      });
+      if (result) {
+        await getEmployee.refetch();
+        return true;
+      }
+      return false;
+    },
+    [updateEmployee]
+  );
+
+  const updateMustNot = useCallback(
+    async (mustNotInput: string[]) => {
+      const result = await updateEmployee({
+        variables: {
+          employee: {
+            id: employee?.id,
+            position: {
+              replacementCriteria: {
+                mustNotHave: mustNotInput.map(l => ({ id: l })),
+              },
+            },
+          },
+        },
+      });
+      if (result) {
+        await getEmployee.refetch();
+        return true;
+      }
+      return false;
+    },
+    [updateEmployee]
+  );
+
+  const updatePreferHave = useCallback(
+    async (shouldHaveInput: string[]) => {
+      const result = await updateEmployee({
+        variables: {
+          employee: {
+            id: employee?.id,
+            position: {
+              replacementCriteria: {
+                shouldHave: shouldHaveInput.map(l => ({ id: l })),
+              },
+            },
+          },
+        },
+      });
+      if (result) {
+        await getEmployee.refetch();
+        return true;
+      }
+      return false;
+    },
+    [updateEmployee]
+  );
+
+  const updatePreferNotHave = useCallback(
+    async (shouldNotHaveInput: string[]) => {
+      const result = await updateEmployee({
+        variables: {
+          employee: {
+            id: employee?.id,
+            position: {
+              replacementCriteria: {
+                shouldNotHave: shouldNotHaveInput.map(l => ({ id: l })),
+              },
+            },
+          },
+        },
+      });
+      if (result) {
+        await getEmployee.refetch();
+        return true;
+      }
+      return false;
+    },
+    [updateEmployee]
+  );
+
   if (getEmployee.state === "LOADING") {
     return <></>;
   }
@@ -42,91 +136,6 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     const listUrl = PersonViewRoute.generate(params);
     return <Redirect to={listUrl} />;
   }
-
-  //Mutations
-  const updateMustHave = async (mustHaveInput: string[]) => {
-    if (mustHaveInput.length === 0) {
-      return;
-    }
-    const result = await updateEmployee({
-      variables: {
-        employee: {
-          id: employee?.id,
-          position: {
-            replacementCriteria: {
-              mustHave: mustHaveInput.map(l => ({ id: l })),
-            },
-          },
-        },
-      },
-    });
-    if (result) {
-      await getEmployee.refetch();
-    }
-  };
-
-  const updateMustNot = async (mustNotInput: string[]) => {
-    if (mustNotInput.length === 0) {
-      return;
-    }
-    const result = await updateEmployee({
-      variables: {
-        employee: {
-          id: employee?.id,
-          position: {
-            replacementCriteria: {
-              mustNotHave: mustNotInput.map(l => ({ id: l })),
-            },
-          },
-        },
-      },
-    });
-    if (result) {
-      await getEmployee.refetch();
-    }
-  };
-
-  const updatePreferHave = async (shouldHaveInput: string[]) => {
-    if (shouldHaveInput.length === 0) {
-      return;
-    }
-    const result = await updateEmployee({
-      variables: {
-        employee: {
-          id: employee?.id,
-          position: {
-            replacementCriteria: {
-              shouldHave: shouldHaveInput.map(l => ({ id: l })),
-            },
-          },
-        },
-      },
-    });
-    if (result) {
-      await getEmployee.refetch();
-    }
-  };
-
-  const updatePreferNotHave = async (shouldNotHaveInput: string[]) => {
-    if (shouldNotHaveInput.length === 0) {
-      return;
-    }
-    const result = await updateEmployee({
-      variables: {
-        employee: {
-          id: employee?.id,
-          position: {
-            replacementCriteria: {
-              shouldNotHave: shouldNotHaveInput.map(l => ({ id: l })),
-            },
-          },
-        },
-      },
-    });
-    if (result) {
-      await getEmployee.refetch();
-    }
-  };
 
   //Get Replacement Criteria
   const replacementCriteria = position?.replacementCriteria;
@@ -151,6 +160,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       id: e?.id ?? "",
     })) ?? [];
 
+  //Endorsements to Ignore
   const endorsementsIgnored = mustHave.concat(
     preferToHave,
     preferNotToHave,

@@ -3,13 +3,12 @@ import { PageTitle } from "ui/components/page-title";
 import { Grid, makeStyles } from "@material-ui/core";
 import { PageHeader } from "ui/components/page-header";
 import { useIsMobile } from "hooks";
-import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useDeferredState } from "hooks";
 import { ReplacementCriteriaView } from "./components/replacement-criteria-view";
 import { Qualified } from "./components/qualified";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useQueryBundle } from "graphql/hooks";
 import { AvailableAttributes } from "./components/available-attributes";
+
 import { GetQualifiedEmployeeCountsWithinOrg } from "./graphql/get-qualified-employee-counts.gen";
 
 type Props = {
@@ -21,11 +20,11 @@ type Props = {
   positionName: string | undefined;
   orgId: string;
   positionId: string | undefined;
-  handleMust: (ids: string[]) => Promise<void>;
-  handleMustNot: (ids: string[]) => Promise<void>;
-  handlePrefer: (ids: string[]) => Promise<void>;
-  handlePreferNot: (ids: string[]) => Promise<void>;
-  endorsementsIgnored: { name: string; id: string }[];
+  handleMust: (ids: string[]) => Promise<boolean>;
+  handleMustNot: (ids: string[]) => Promise<boolean>;
+  handlePrefer: (ids: string[]) => Promise<boolean>;
+  handlePreferNot: (ids: string[]) => Promise<boolean>;
+  endorsementsIgnored: { id: string; name: string }[];
 };
 
 export type Attribute = {
@@ -91,13 +90,13 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
           />
           <ReplacementCriteriaView
             attributes={props.preferToNotHave}
-            label={t("Substitutes must not have")}
-            remove={props.handleMustNot}
+            label={t("Prefer that substitutes not have")}
+            remove={props.handlePreferNot}
           />
           <ReplacementCriteriaView
             attributes={props.mustNotHave}
-            label={t("Prefer that substitutes not have")}
-            remove={props.handlePreferNot}
+            label={t("Substitutes must not have")}
+            remove={props.handleMustNot}
           />
         </Grid>
         <Grid container item xs={6} component="dl" spacing={2}>
@@ -122,6 +121,6 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(4),
   },
   rightPadding: {
-    paddingRight: theme.spacing(3),
+    marginRight: theme.spacing(3),
   },
 }));
