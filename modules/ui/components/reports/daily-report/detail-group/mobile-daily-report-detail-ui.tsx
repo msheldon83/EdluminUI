@@ -19,6 +19,7 @@ import { not } from "helpers";
 import { canAssignSub } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
 import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   detail: Detail;
@@ -108,14 +109,19 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.type === "absence" ? (
             <>
               <div>
-                <Link
-                  className={classes.action}
-                  onClick={() =>
-                    props.goToEmployeeView(props.detail.employee?.id)
-                  }
-                >
+                <Can do={[PermissionEnum.EmployeeView]}>
+                  <Link
+                    className={classes.action}
+                    onClick={() =>
+                      props.goToEmployeeView(props.detail.employee?.id)
+                    }
+                  >
+                    {props.detail.employee?.name}
+                  </Link>
+                </Can>
+                <Can not do={[PermissionEnum.EmployeeView]}>
                   {props.detail.employee?.name}
-                </Link>
+                </Can>
               </div>
               <div className={classes.detailSubText}>
                 {props.detail.position?.name}
@@ -147,14 +153,19 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <div className={classes.checkboxSpacing} />
             <div className={classes.item}>
               <div>
-                <Link
-                  className={classes.action}
-                  onClick={() =>
-                    props.goToLocationView(props.detail.location?.id)
-                  }
-                >
+                <Can do={[PermissionEnum.LocationView]}>
+                  <Link
+                    className={classes.action}
+                    onClick={() =>
+                      props.goToLocationView(props.detail.location?.id)
+                    }
+                  >
+                    {props.detail.location?.name}
+                  </Link>
+                </Can>
+                <Can not do={[PermissionEnum.LocationView]}>
                   {props.detail.location?.name}
-                </Link>
+                </Can>
               </div>
               <div
                 className={classes.detailSubText}
