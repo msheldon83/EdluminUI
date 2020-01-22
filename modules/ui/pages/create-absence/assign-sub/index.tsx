@@ -1,26 +1,25 @@
-import { Collapse, Divider, Link, Typography, Button } from "@material-ui/core";
+import { Button, Collapse, Divider, Link, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
-import { SetValue } from "forms";
 import { useQueryBundle } from "graphql/hooks";
 import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useIsMobile } from "hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
-import { useEffect, useMemo, useCallback } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
 import { VacancyDetails } from "../../../components/absence/vacancy-details";
-import { getAssignSubColumns } from "./columns";
+import { AssignSubColumn, getAssignSubColumns } from "./columns";
 import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
 } from "./filters";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 type Props = {
   orgId: string;
@@ -33,7 +32,11 @@ type Props = {
   positionName?: string;
   disabledDates?: DisabledDate[];
   selectButtonText?: string;
-  onSelectReplacement: (replacementId: number, replacementName: string, payCode: string | undefined) => void;
+  onSelectReplacement: (
+    replacementId: number,
+    replacementName: string,
+    payCode: string | undefined
+  ) => void;
   onCancel: () => void;
 };
 
@@ -142,7 +145,8 @@ export const AssignSub: React.FC<Props> = props => {
     );
     if (qResults) replacementEmployees = qResults;
   }
-  const tableData = useMemo(() => {
+
+  const tableData: AssignSubColumn[] = useMemo(() => {
     return replacementEmployees.map(r => ({
       employeeId: r.employeeId,
       firstName: r.firstName,
@@ -161,7 +165,8 @@ export const AssignSub: React.FC<Props> = props => {
 
   const selectReplacementEmployee = async (
     replacementEmployeeId: number,
-    name: string, payCodeId: string | undefined,
+    name: string,
+    payCodeId: string | undefined
   ) => {
     props.onSelectReplacement(replacementEmployeeId, name, payCodeId);
   };

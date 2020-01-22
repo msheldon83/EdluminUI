@@ -1,0 +1,8 @@
+mutation UpdateLocationGroup($locationGroup: LocationGroupUpdateInput!) {
+  locationGroup {
+    update(locationGroup: $locationGroup) {
+      id
+      name
+    }
+  }
+}

@@ -1,0 +1,20 @@
+query GetAbsenceReason($absenceReasonId: ID!) {
+  orgRef_AbsenceReason {
+    byId(id: $absenceReasonId) {
+      id
+      externalId
+      rowVersion
+      name
+      description
+      validUntil
+      appliesToAssignmentTypes
+      absenceReasonTrackingTypeId
+      allowNegativeBalance
+      isBucket
+      appliesToAssignmentTypes
+      limitPerDay
+      prioritySequence
+      expired
+    }
+  }
+}

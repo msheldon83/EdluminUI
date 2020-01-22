@@ -3,8 +3,13 @@ import { Typography, Grid } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
+import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
 import { Maybe, Endorsement, PermissionEnum } from "graphql/server-types.gen";
+import {
+  PersonViewRoute,
+  PeopleReplacementCriteriaEditRoute,
+} from "ui/routes/people";
 
 type Props = {
   editing: string | null;
@@ -19,6 +24,7 @@ type Props = {
 export const ReplacementCriteria: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
+  const params = useRouteParams(PersonViewRoute);
 
   const replacementCriteria = props.replacementCriteria;
 
@@ -31,7 +37,9 @@ export const ReplacementCriteria: React.FC<Props> = props => {
             text: t("Edit"),
             visible: !props.editing,
             execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
+              const editSettingsUrl = PeopleReplacementCriteriaEditRoute.generate(
+                params
+              );
               history.push(editSettingsUrl);
             },
             permissions: [PermissionEnum.EmployeeSave],
