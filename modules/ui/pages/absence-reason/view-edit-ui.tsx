@@ -33,6 +33,7 @@ type Props = {
     name?: string | null;
     externalId?: string | null;
   }) => Promise<any>;
+  onDelete: () => void;
 };
 
 export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
@@ -102,7 +103,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
 
           {
             name: t("Delete"),
-            onClick: () => {},
+            onClick: props.onDelete,
             permissions: [PermissionEnum.AbsVacSettingsDelete],
           },
         ]}
@@ -136,7 +137,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
               );
               history.push(editSettingsUrl);
             },
-            permissions: [PermissionEnum.FinanceSettingsSave],
+            permissions: [PermissionEnum.AbsVacSettingsSave],
           }}
         />
         <Grid container spacing={2}>

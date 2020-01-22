@@ -1,15 +1,29 @@
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import * as React from "react";
-import { AbsenceReasonViewEditRoute } from "ui/routes/absence-reason";
+import {
+  AbsenceReasonViewEditRoute,
+  AbsenceReasonRoute,
+} from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAbsenceReason } from "./graphql/get-absence-reason.gen";
 import { UpdateAbsenceReason } from "./graphql/update-absence-reason.gen";
 import { AbsenceReasonViewEditUI } from "./view-edit-ui";
+import { DeleteAbsenceReason } from "./graphql/delete-absence-reason.gen";
+import { useHistory } from "react-router";
 
 export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
   const params = useRouteParams(AbsenceReasonViewEditRoute);
-
+  const history = useHistory();
   const [updateAbsenceReasonMutation] = useMutationBundle(UpdateAbsenceReason);
+
+  const [deleteAbsenceReason] = useMutationBundle(DeleteAbsenceReason, {
+    variables: { absenceReasonId: Number(params.absenceReasonId) },
+  });
+
+  const deleteAbsenceReasonCallback = React.useCallback(async () => {
+    await deleteAbsenceReason();
+    history.push(AbsenceReasonRoute.generate(params));
+  }, [deleteAbsenceReason, params, history]);
 
   const result = useQueryBundle(GetAbsenceReason, {
     fetchPolicy: "cache-and-network",
@@ -51,6 +65,7 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
       }
       id={absenceReason.id}
       updateNameOrExternalId={updateAbsenceReason}
+      onDelete={deleteAbsenceReasonCallback}
     />
   );
 };

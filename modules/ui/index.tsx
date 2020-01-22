@@ -647,7 +647,7 @@ export function App() {
                                   path={AbsenceReasonViewEditRoute.path}
                                   role={"admin"}
                                   permissions={[
-                                    PermissionEnum.AbsVacSettingsSave,
+                                    PermissionEnum.AbsVacSettingsView,
                                   ]}
                                 />
 
