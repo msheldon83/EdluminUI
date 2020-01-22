@@ -105,7 +105,6 @@ export const AvailableAttributes: React.FC<Props> = props => {
                 if (props.existingMust.length !== 0) {
                   props.existingMust.map(e => endorsementIds.push(e.id));
                 }
-
                 const result = await props.handleMust(endorsementIds);
                 if (result) {
                   clearEndorsements();
@@ -122,7 +121,6 @@ export const AvailableAttributes: React.FC<Props> = props => {
                 if (props.existingPrefer.length !== 0) {
                   props.existingPrefer.map(e => endorsementIds.push(e.id));
                 }
-
                 const result = await props.handlePrefer(endorsementIds);
                 if (result) {
                   clearEndorsements();
@@ -230,7 +228,6 @@ const useStyles = makeStyles(theme => ({
   },
   row: {
     width: "100%",
-    padding: theme.spacing(),
   },
 }));
 
