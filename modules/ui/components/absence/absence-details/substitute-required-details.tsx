@@ -122,7 +122,6 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
           <VacancyDetails
             vacancies={vacancies}
             disabledDates={props.disabledDates}
-            equalWidthDetails
           />
         </div>
       )}

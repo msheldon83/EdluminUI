@@ -10,6 +10,7 @@ import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { getAbsenceDateRangeDisplayText } from "./date-helpers";
 import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
 import { VacancyDetail } from "./types";
+import { format } from "date-fns";
 
 type Props = {
   vacancies: Vacancy[];
@@ -43,17 +44,20 @@ export const VacancyDetails: React.FC<Props> = props => {
           />
         </Grid>
       )}
-      {sortedVacancies.map(v => {
+      {sortedVacancies.map((v, i) => {
         if (v.details && v.details.length) {
           const projectedDetails = projectVacancyDetailsFromVacancies([v]);
-          console.log(projectedDetails);
 
-          return getVacancyDetailsDisplay(
-            projectedDetails,
-            props.equalWidthDetails || false,
-            t,
-            classes,
-            props.disabledDates
+          return (
+            <Fragment key={i}>
+              {getVacancyDetailsDisplay(
+                projectedDetails,
+                props.equalWidthDetails || false,
+                t,
+                classes,
+                props.disabledDates
+              )}
+            </Fragment>
           );
         }
       })}
@@ -82,46 +86,56 @@ const getVacancyDetailsDisplay = (
     return null;
   }
 
-  console.log(groupedDetails);
-
-  return groupedDetails.map((g, detailsIndex) => {
-    const allDates = g.detailItems.map(di => di.date);
-
-    return (
-      <Grid key={detailsIndex} item container xs={12} alignItems="center">
-        <Grid item xs={equalWidthDetails ? 6 : 2}>
-          <Typography variant="h6">
-            {getAbsenceDateRangeDisplayText(allDates, disabledDates)}
-          </Typography>
+  return (
+    <>
+      <Grid item container xs={12} alignItems="center">
+        <Grid item xs={equalWidthDetails ? 6 : 4}>
+          {t("Absence")}
         </Grid>
-        <Grid
-          item
-          xs={equalWidthDetails ? 6 : 10}
-          className={classes.scheduleText}
-        >
-          {`${t("Schedule")} ${g.schedule}`}
+        <Grid item xs={equalWidthDetails ? 6 : 8}>
+          {t("Substitute schedule")}
         </Grid>
-        {g.simpleDetailItems!.map((d, i) => {
-          return (
-            <Fragment key={i}>
-              <Grid
-                item
-                xs={equalWidthDetails ? 6 : 2}
-                className={classes.vacancyBlockItem}
-              >
-                {`${d.startTime} - ${d.endTime}`}
-              </Grid>
-              <Grid
-                item
-                xs={equalWidthDetails ? 6 : 10}
-                className={classes.vacancyBlockItem}
-              >
-                {d.locationName}
-              </Grid>
-            </Fragment>
-          );
-        })}
       </Grid>
-    );
-  });
+      {groupedDetails.map((g, detailsIndex) => {
+        const allDates = g.detailItems.map(di => di.date);
+
+        return (
+          <Grid key={detailsIndex} item container xs={12} alignItems="center">
+            <Grid item xs={12}>
+              <Typography variant="h6">
+                {getAbsenceDateRangeDisplayText(allDates, disabledDates)}
+              </Typography>
+            </Grid>
+            <Grid
+              item
+              xs={equalWidthDetails ? 6 : 4}
+              className={classes.vacancyBlockItem}
+            >
+              {g.absenceStartTime && g.absenceEndTime && (
+                <div>
+                  {`${format(g.absenceStartTime, "h:mm a")} - ${format(
+                    g.absenceEndTime,
+                    "h:mm a"
+                  )}`}
+                </div>
+              )}
+            </Grid>
+            <Grid
+              item
+              xs={equalWidthDetails ? 6 : 8}
+              className={classes.vacancyBlockItem}
+            >
+              {g.simpleDetailItems!.map((d, i) => {
+                return (
+                  <div key={i}>
+                    {`${d.startTime} - ${d.endTime}`} {d.locationName}
+                  </div>
+                );
+              })}
+            </Grid>
+          </Grid>
+        );
+      })}
+    </>
+  );
 };

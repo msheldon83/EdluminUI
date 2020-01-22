@@ -13,7 +13,15 @@ import {
   map,
   isEmpty,
 } from "lodash-es";
-import { isAfter, isWithinInterval, format, isSameDay } from "date-fns";
+import {
+  isAfter,
+  isWithinInterval,
+  format,
+  isSameDay,
+  parseISO,
+  isEqual,
+  isBefore,
+} from "date-fns";
 import { convertStringToDate } from "helpers/date";
 import { TFunction } from "i18next";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
@@ -120,8 +128,8 @@ export type AbsenceDetailsGroup = DetailsGroup<AbsenceDetailsItem> & {
 
 export type VacancyDetailsGroup = DetailsGroup<VacancyDetailsItem> & {
   schedule?: string;
-  absenceStartTime?: string;
-  absenceEndTime?: string;
+  absenceStartTime?: Date;
+  absenceEndTime?: Date;
 };
 
 type DetailsItem = {
@@ -277,10 +285,17 @@ export const getVacancyDetailsGrouping = (
   vacancyDetails: VacancyDetail[]
 ): VacancyDetailsGroup[] => {
   // Put the details in order by start date and time
-  // const sortedVacancyDetails = vacancyDetails
-  //   .slice()
-  //   .sort((a, b) => convertStringToDate(a.startTime) - convertStringToDate(b.startTime));
-  const sortedVacancyDetails = vacancyDetails;
+  const sortedVacancyDetails = vacancyDetails.slice().sort((a, b) => {
+    const startTimeAsDateA = parseISO(a.startTime);
+    const startTimeAsDateB = parseISO(b.startTime);
+
+    if (isEqual(startTimeAsDateA, startTimeAsDateB)) {
+      // Fairly unlikely to occur
+      return 0;
+    }
+
+    return isBefore(startTimeAsDateA, startTimeAsDateB) ? -1 : 1;
+  });
 
   // Group all of the details that are on the same day together
   const detailsGroupedByStartDate = groupBy(sortedVacancyDetails, d => {
@@ -340,8 +355,12 @@ export const getVacancyDetailsGrouping = (
       detailsGroupings.push({
         startDate: new Date(`${key} 00:00`),
         detailItems: convertVacancyDetailsToDetailsItem(keyAsDate, value),
-        absenceStartTime: value[0]?.absenceStartTime,
-        absenceEndTime: value[0]?.absenceEndTime,
+        absenceStartTime: value[0]?.absenceStartTime
+          ? parseISO(value[0]?.absenceStartTime)
+          : undefined,
+        absenceEndTime: value[0]?.absenceEndTime
+          ? parseISO(value[0]?.absenceEndTime)
+          : undefined,
       });
     }
   });
