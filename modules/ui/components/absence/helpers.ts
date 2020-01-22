@@ -3,7 +3,6 @@ import {
   Absence,
   AbsenceDetail,
   Maybe,
-  VacancyDetail,
   AbsenceDetailCreateInput,
 } from "graphql/server-types.gen";
 import {
@@ -17,8 +16,8 @@ import {
 import { isAfter, isWithinInterval, format, isSameDay } from "date-fns";
 import { convertStringToDate } from "helpers/date";
 import { TFunction } from "i18next";
-import { DateStepperHeader } from "../date-stepper-header";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
+import { VacancyDetail } from "./types";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -121,6 +120,8 @@ export type AbsenceDetailsGroup = DetailsGroup<AbsenceDetailsItem> & {
 
 export type VacancyDetailsGroup = DetailsGroup<VacancyDetailsItem> & {
   schedule?: string;
+  absenceStartTime?: string;
+  absenceEndTime?: string;
 };
 
 type DetailsItem = {
@@ -273,16 +274,17 @@ const convertAbsenceDetailsToDetailsItem = (
 };
 
 export const getVacancyDetailsGrouping = (
-  vacancyDetails: Maybe<VacancyDetail>[]
+  vacancyDetails: VacancyDetail[]
 ): VacancyDetailsGroup[] => {
   // Put the details in order by start date and time
-  const sortedVacancyDetails = vacancyDetails
-    .slice()
-    .sort((a, b) => a!.startTimeLocal - b!.startTimeLocal);
+  // const sortedVacancyDetails = vacancyDetails
+  //   .slice()
+  //   .sort((a, b) => convertStringToDate(a.startTime) - convertStringToDate(b.startTime));
+  const sortedVacancyDetails = vacancyDetails;
 
   // Group all of the details that are on the same day together
   const detailsGroupedByStartDate = groupBy(sortedVacancyDetails, d => {
-    return d!.startDate;
+    return d.date;
   });
 
   const detailsGroupings: VacancyDetailsGroup[] = [];
@@ -338,6 +340,8 @@ export const getVacancyDetailsGrouping = (
       detailsGroupings.push({
         startDate: new Date(`${key} 00:00`),
         detailItems: convertVacancyDetailsToDetailsItem(keyAsDate, value),
+        absenceStartTime: value[0]?.absenceStartTime,
+        absenceEndTime: value[0]?.absenceEndTime,
       });
     }
   });
@@ -408,11 +412,11 @@ export const getVacancyDetailsGrouping = (
 
 const convertVacancyDetailsToDetailsItem = (
   date: Date,
-  details: Maybe<VacancyDetail>[]
+  details: VacancyDetail[]
 ): DetailsItemByDate<VacancyDetailsItem>[] => {
   const detailItems = details.map(v => {
-    const startTime = convertStringToDate(v!.startTimeLocal);
-    const endTime = convertStringToDate(v!.endTimeLocal);
+    const startTime = convertStringToDate(v.startTime);
+    const endTime = convertStringToDate(v.endTime);
     if (!startTime || !endTime) {
       return;
     }
@@ -421,8 +425,8 @@ const convertVacancyDetailsToDetailsItem = (
       date: date,
       startTime: format(startTime, "h:mm a"),
       endTime: format(endTime, "h:mm a"),
-      locationId: v!.locationId,
-      locationName: v!.location?.name,
+      locationId: v.locationId,
+      locationName: v.locationName,
     };
   });
   const populatedItems = detailItems.filter(

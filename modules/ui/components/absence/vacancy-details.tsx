@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Vacancy, VacancyDetail, Maybe } from "graphql/server-types.gen";
+import { Vacancy } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { Fragment } from "react";
@@ -8,6 +8,8 @@ import { TFunction } from "i18next";
 import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { getAbsenceDateRangeDisplayText } from "./date-helpers";
+import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
+import { VacancyDetail } from "./types";
 
 type Props = {
   vacancies: Vacancy[];
@@ -43,8 +45,11 @@ export const VacancyDetails: React.FC<Props> = props => {
       )}
       {sortedVacancies.map(v => {
         if (v.details && v.details.length) {
+          const projectedDetails = projectVacancyDetailsFromVacancies([v]);
+          console.log(projectedDetails);
+
           return getVacancyDetailsDisplay(
-            v.details,
+            projectedDetails,
             props.equalWidthDetails || false,
             t,
             classes,
@@ -66,7 +71,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const getVacancyDetailsDisplay = (
-  vacancyDetails: Maybe<VacancyDetail>[],
+  vacancyDetails: VacancyDetail[],
   equalWidthDetails: boolean,
   t: TFunction,
   classes: any,
@@ -76,6 +81,8 @@ const getVacancyDetailsDisplay = (
   if (groupedDetails === null || !groupedDetails.length) {
     return null;
   }
+
+  console.log(groupedDetails);
 
   return groupedDetails.map((g, detailsIndex) => {
     const allDates = g.detailItems.map(di => di.date);

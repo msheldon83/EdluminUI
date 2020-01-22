@@ -18,8 +18,6 @@ export const VacancySummaryHeader: React.FC<Props> = props => {
     .slice()
     .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
 
-  const firstVacancy = sortedVacancies[0];
-  const lastVacancy = sortedVacancies[sortedVacancies.length - 1];
   const totalVacancyDays = sortedVacancies.reduce((total, v) => {
     return v.numDays ? total + v.numDays : total;
   }, 0);
