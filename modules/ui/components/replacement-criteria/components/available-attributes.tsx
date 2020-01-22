@@ -8,7 +8,6 @@ import { Section } from "ui/components/section";
 import { PeopleRoute } from "ui/routes/people";
 import { useCallback, useMemo } from "react";
 import { useRouteParams } from "ui/routes/definition";
-import { useQueryBundle } from "graphql/hooks";
 import { useDeferredState } from "hooks";
 import { SectionHeader } from "ui/components/section-header";
 
@@ -19,6 +18,10 @@ type Props = {
   handlePrefer: (ids: string[]) => Promise<boolean>;
   handlePreferNot: (ids: string[]) => Promise<boolean>;
   endorsementsIgnored: { id: string; name: string }[];
+  existingMust: { id: string; name: string }[];
+  existingMustNot: { id: string; name: string }[];
+  existingPrefer: { id: string; name: string }[];
+  existingPreferNot: { id: string; name: string }[];
 };
 
 export const AvailableAttributes: React.FC<Props> = props => {
@@ -34,7 +37,7 @@ export const AvailableAttributes: React.FC<Props> = props => {
 
   const [endorsementIds, setEndorsementIds] = React.useState<string[]>([]);
 
-  const updateSearchText = React.useCallback(
+  const updateSearchText = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setPendingSearchText(event.target.value);
     },
@@ -99,6 +102,10 @@ export const AvailableAttributes: React.FC<Props> = props => {
             <TextButton
               color="primary"
               onClick={async () => {
+                if (props.existingMust.length !== 0) {
+                  props.existingMust.map(e => endorsementIds.push(e.id));
+                }
+
                 const result = await props.handleMust(endorsementIds);
                 if (result) {
                   clearEndorsements();
@@ -112,6 +119,10 @@ export const AvailableAttributes: React.FC<Props> = props => {
             <TextButton
               color="primary"
               onClick={async () => {
+                if (props.existingPrefer.length !== 0) {
+                  props.existingPrefer.map(e => endorsementIds.push(e.id));
+                }
+
                 const result = await props.handlePrefer(endorsementIds);
                 if (result) {
                   clearEndorsements();
@@ -125,6 +136,9 @@ export const AvailableAttributes: React.FC<Props> = props => {
             <TextButton
               color="primary"
               onClick={async () => {
+                if (props.existingPreferNot.length !== 0) {
+                  props.existingPreferNot.map(e => endorsementIds.push(e.id));
+                }
                 const result = await props.handlePreferNot(endorsementIds);
                 if (result) {
                   clearEndorsements();
@@ -139,6 +153,9 @@ export const AvailableAttributes: React.FC<Props> = props => {
             <TextButton
               color="primary"
               onClick={async () => {
+                if (props.existingMustNot.length !== 0) {
+                  props.existingMustNot.map(e => endorsementIds.push(e.id));
+                }
                 const result = await props.handleMustNot(endorsementIds);
                 if (result) {
                   clearEndorsements();

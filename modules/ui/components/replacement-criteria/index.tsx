@@ -24,6 +24,10 @@ type Props = {
   handleMustNot: (ids: string[]) => Promise<boolean>;
   handlePrefer: (ids: string[]) => Promise<boolean>;
   handlePreferNot: (ids: string[]) => Promise<boolean>;
+  existingMust: { id: string; name: string }[];
+  existingMustNot: { id: string; name: string }[];
+  existingPrefer: { id: string; name: string }[];
+  existingPreferNot: { id: string; name: string }[];
   endorsementsIgnored: { id: string; name: string }[];
 };
 
@@ -108,6 +112,10 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
               handlePrefer={props.handlePrefer}
               handlePreferNot={props.handlePreferNot}
               endorsementsIgnored={props.endorsementsIgnored}
+              existingMust={props.existingMust}
+              existingMustNot={props.existingMustNot}
+              existingPrefer={props.existingPrefer}
+              existingPreferNot={props.existingPreferNot}
             />
           </Grid>
         </Grid>

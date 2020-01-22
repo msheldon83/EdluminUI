@@ -2,7 +2,6 @@ import * as React from "react";
 import { Grid, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
-import { PageHeader } from "ui/components/page-header";
 import { SectionHeader } from "ui/components/section-header";
 
 type Props = {

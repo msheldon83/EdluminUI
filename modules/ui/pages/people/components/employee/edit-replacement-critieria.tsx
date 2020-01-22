@@ -6,7 +6,7 @@ import { Redirect } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetEmployeeById } from "ui/pages/people/graphql/employee/get-employee-by-id.gen";
 import { SectionHeader } from "ui/components/section-header";
-import { useMemo, useCallback } from "react";
+import { useCallback } from "react";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { ReplacementCriteriaUI } from "ui/components/replacement-criteria/index";
@@ -185,6 +185,10 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
         handleMustNot={updateMustNot}
         handlePrefer={updatePreferHave}
         handlePreferNot={updatePreferNotHave}
+        existingMust={mustHave}
+        existingMustNot={mustNotHave}
+        existingPrefer={preferToHave}
+        existingPreferNot={preferNotToHave}
         endorsementsIgnored={endorsementsIgnored}
       />
     </>
