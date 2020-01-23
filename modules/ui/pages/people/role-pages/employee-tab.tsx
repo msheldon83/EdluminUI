@@ -113,12 +113,14 @@ export const EmployeeTab: React.FC<Props> = props => {
         favoriteHeading={t("Favorites")}
         blockedHeading={t("Blocked")}
         heading={t("Substitute Preferences")}
-        favoriteSubstitutes={
-          employee?.substitutePreferences?.favoriteSubstitutes
-        }
-        blockedSubstitutes={employee?.substitutePreferences?.blockedSubstitutes}
+        favoriteSubstitutes={employee.substitutePreferences.favoriteSubstitutes}
+        blockedSubstitutes={employee.substitutePreferences.blockedSubstitutes}
         editRoute={EmployeeSubstitutePreferenceRoute.generate(params)}
         editing={props.editing ? true : false}
+        editPermission={[
+          PermissionEnum.EmployeeSaveBlockedSubs,
+          PermissionEnum.EmployeeSaveFavoriteSubs,
+        ]}
       />
       <UpcomingAbsences
         employeeId={employee.id}

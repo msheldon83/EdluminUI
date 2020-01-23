@@ -5,12 +5,15 @@ import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "../auth/can";
 
 type Props = {
   title: string;
   orgUsers: any[];
   blocked: boolean;
   onRemove: (orgUser: any) => void;
+  removePermission: PermissionEnum[];
 };
 
 export const SubPoolCard: React.FC<Props> = props => {
@@ -29,7 +32,7 @@ export const SubPoolCard: React.FC<Props> = props => {
         >
           {props.orgUsers.length === 0 ? (
             <Grid item xs={12}>
-              <Typography>{t("Non Defined")}</Typography>
+              <Typography>{t("Not Defined")}</Typography>
             </Grid>
           ) : (
             props.orgUsers.map((user, i) => {
@@ -42,12 +45,14 @@ export const SubPoolCard: React.FC<Props> = props => {
               return (
                 <Grid item className={className} xs={12} key={i}>
                   <Typography className={classes.userName}>{name}</Typography>
-                  <TextButton
-                    className={classes.actionLink}
-                    onClick={() => props.onRemove(user)}
-                  >
-                    {t("Remove")}
-                  </TextButton>
+                  <Can do={props.removePermission}>
+                    <TextButton
+                      className={classes.actionLink}
+                      onClick={() => props.onRemove(user)}
+                    >
+                      {t("Remove")}
+                    </TextButton>
+                  </Can>
                 </Grid>
               );
             })

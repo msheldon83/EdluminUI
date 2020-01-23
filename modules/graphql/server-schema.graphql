@@ -1250,7 +1250,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   employmentHistories: [EmploymentHistory]
   endorsements: [EmployeeEndorsement]
   locations: [Location]
-  substitutePreferences: SubstitutePreferences
+  substitutePreferences: SubstitutePreferences!
 }
 
 input EmployeeCreateInput {
@@ -1861,7 +1861,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   phoneNumber: String
   formattedPhone: String
   locationGroup: LocationGroup
-  substitutePreferences: SubstitutePreferences
+  substitutePreferences: SubstitutePreferences!
   address1: String
   address2: String
   city: String
@@ -1902,7 +1902,7 @@ type LocationGroup implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
-  substitutePreferences: SubstitutePreferences
+  substitutePreferences: SubstitutePreferences!
 }
 
 input LocationGroupCreateInput {
@@ -3738,6 +3738,7 @@ input PositionTypeCreateInput {
   defaultContractId: Int
   payTypeId: AbsenceReasonTrackingTypeId
   payCodeId: Int
+  replacementCriteria: ReplacementCriteriaInput
 }
 
 type PositionTypeMutations {
@@ -3801,6 +3802,7 @@ input PositionTypeUpdateInput {
   expired: Boolean
   payTypeId: AbsenceReasonTrackingTypeId
   payCodeId: Int
+  replacementCriteria: ReplacementCriteriaInput
 }
 
 type QualifiedEmployeeCounts {
@@ -4882,8 +4884,8 @@ type SubstitutePoolMembership {
 
 type SubstitutePreferences {
   _info: [ReturnMessage]
-  favoriteSubstitutes: [Employee]
-  blockedSubstitutes: [Employee]
+  favoriteSubstitutes: [Employee!]!
+  blockedSubstitutes: [Employee!]!
 }
 
 input SubstitutePreferencesInput {

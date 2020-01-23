@@ -8,6 +8,7 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetEmployeeById } from "./graphql/employee/get-employee-by-id.gen";
 import { SaveEmployee } from "./graphql/employee/save-employee.gen";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   const params = useRouteParams(EmployeeSubstitutePreferenceRoute);
@@ -82,7 +83,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         employee: updatedEmployee,
       },
     });
-    if (result === undefined) return false;
+    if (!result?.data) return false;
     await getEmployee.refetch();
     return true;
   };
@@ -114,6 +115,10 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}
         onBlockEmployee={onBlockSubstitute}
+        removeBlockedPermission={[PermissionEnum.EmployeeSaveBlockedSubs]}
+        removeFavoritePermission={[PermissionEnum.EmployeeSaveFavoriteSubs]}
+        addToBlockedPermission={[PermissionEnum.EmployeeSaveBlockedSubs]}
+        addToFavoritePermission={[PermissionEnum.EmployeeSaveFavoriteSubs]}
       ></SubstitutePreferences>
     </>
   );

@@ -401,11 +401,7 @@ export function App() {
                                 >
                                   <EmployeeSubstitutePreferenceLoader />
                                 </ProtectedRoute>
-                                <ProtectedRoute
-                                  component={EmployeeAbsScheduleLoader}
-                                  path={EmployeeAbsScheduleRoute.path}
-                                  role={"admin"}
-                                />
+
                                 <ProtectedRoute
                                   component={
                                     SelectEmployeeForCreateAbsenceLoader

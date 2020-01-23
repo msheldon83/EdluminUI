@@ -69,6 +69,7 @@ export const LocationViewPage: React.FC<{}> = props => {
             }
             editRoute={LocationSubPrefRoute.generate(params)}
             editing={false}
+            editPermission={[PermissionEnum.LocationSave]}
           ></SubstitutePrefCard>
         )}
       </div>

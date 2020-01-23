@@ -12,10 +12,11 @@ type Props = {
   favoriteHeading: string;
   blockedHeading: string;
   heading: string;
-  blockedSubstitutes?: any[] | null;
-  favoriteSubstitutes?: any[] | null;
+  blockedSubstitutes: Pick<Employee, "id" | "firstName" | "lastName">[];
+  favoriteSubstitutes: Pick<Employee, "id" | "firstName" | "lastName">[];
   editRoute: string;
   editing: boolean;
+  editPermission: PermissionEnum[];
 };
 
 export const SubstitutePrefCard: React.FC<Props> = props => {
@@ -40,7 +41,7 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
             execute: () => {
               history.push(props.editRoute);
             },
-            permissions: [PermissionEnum.LocationSave],
+            permissions: props.editPermission,
           }}
         />
 
@@ -52,8 +53,8 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
                 {favoriteEmployees.length === 0 ? (
                   <div>{t("Not defined")}</div>
                 ) : (
-                  favoriteEmployees.map((n: Employee, i: number) => (
-                    <div key={i}>{n?.firstName + " " + n?.lastName}</div>
+                  favoriteEmployees.map((n, i) => (
+                    <div key={i}>{n.firstName + " " + n.lastName}</div>
                   ))
                 )}
               </Grid>
@@ -66,8 +67,8 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
                 {blockedEmployees.length === 0 ? (
                   <div>{t("Not defined")}</div>
                 ) : (
-                  blockedEmployees.map((n: Employee, i: number) => (
-                    <div key={i}>{n?.firstName + " " + n?.lastName}</div>
+                  blockedEmployees.map((n, i) => (
+                    <div key={i}>{n.firstName + " " + n.lastName}</div>
                   ))
                 )}
               </Grid>
