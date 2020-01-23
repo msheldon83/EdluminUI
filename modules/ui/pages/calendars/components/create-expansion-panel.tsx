@@ -227,7 +227,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                 >
                   <Grid item xs={12}>
                     <FormControlLabel
-                      checked={enableAllContracts}
+                      checked={values.applyToAll}
                       control={
                         <Checkbox
                           onChange={e => {
@@ -253,7 +253,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   <Grid item xs={4}>
                     <SelectMulti
                       name={"contracts"}
-                      disabled={enableAllContracts}
+                      disabled={values.applyToAll}
                       label={"Contracts"}
                       value={contractValue}
                       onChange={(value: OptionType[]) => {
@@ -271,7 +271,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   <Grid item xs={2}>
                     <DatePicker
                       variant={"single-hidden"}
-                      startDate={values.fromDate}
+                      startDate={new Date(values.fromDate)}
                       onChange={({ startDate }) => {
                         const startDateAsDate =
                           typeof startDate === "string"
@@ -289,7 +289,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   <Grid item xs={2}>
                     <DatePicker
                       variant={"single-hidden"}
-                      startDate={values.toDate}
+                      startDate={new Date(values.toDate)}
                       onChange={({ startDate }) => {
                         const startDateAsDate =
                           typeof startDate === "string"
@@ -335,6 +335,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   <Grid item xs={4}></Grid>
                   <Grid item xs={8}>
                     <Input
+                      value={values.notes}
                       label={t("Note")}
                       InputComponent={FormTextField}
                       onChange={(
