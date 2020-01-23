@@ -244,6 +244,7 @@ export const PeoplePage: React.FC<Props> = props => {
           ? theme.typography.pxToRem(40)
           : theme.typography.pxToRem(70),
       },
+      sorting: false,
       render: o => (
         <div className={classes.accountCell}>
           <AccountCircleOutlined />
@@ -258,10 +259,12 @@ export const PeoplePage: React.FC<Props> = props => {
     {
       title: t("First Name"),
       field: "firstName",
+      sorting: false,
     },
     {
       title: t("Last Name"),
       field: "lastName",
+      sorting: false,
     },
     // Column to show on All, Employees, and Admins tabs, but not Substitutes
     {
