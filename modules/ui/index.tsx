@@ -114,6 +114,8 @@ import {
   PeopleSubRelatedOrgsEditLoader,
   PeopleSubPositionsAttributesEditRoute,
   PeopleSubPositionsAttributesEditLoader,
+  EmployeeSubstitutePreferenceRoute,
+  EmployeeSubstitutePreferenceLoader,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -392,6 +394,14 @@ export function App() {
                                   role={"admin"}
                                   permissions={[PermissionEnum.AbsVacSave]}
                                 />
+                                <ProtectedRoute
+                                  path={EmployeeSubstitutePreferenceRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.EmployeeSave]}
+                                >
+                                  <EmployeeSubstitutePreferenceLoader />
+                                </ProtectedRoute>
+
                                 <ProtectedRoute
                                   component={
                                     SelectEmployeeForCreateAbsenceLoader

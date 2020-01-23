@@ -34,13 +34,8 @@ export const DateTabs: React.FC<Props> = props => {
   };
 
   return (
-    <Grid
-      container
-      justify="space-between"
-      alignItems="center"
-      className={classes.container}
-    >
-      <Grid item>
+    <div className={classes.container}>
+      <div>
         <Tabs
           value={format(props.selectedDateTab, "P")}
           indicatorColor="primary"
@@ -75,8 +70,8 @@ export const DateTabs: React.FC<Props> = props => {
             );
           })}
         </Tabs>
-      </Grid>
-      <Grid item>
+      </div>
+      <div>
         {props.showLinkToVerify && (
           <Link
             to={VerifyRoute.generate(verifyRouteParams)}
@@ -85,8 +80,8 @@ export const DateTabs: React.FC<Props> = props => {
             {t("Advanced view")}
           </Link>
         )}
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   );
 };
 
@@ -94,11 +89,17 @@ const useStyles = makeStyles(theme => ({
   container: {
     backgroundColor: theme.customColors.white,
     border: `1px solid ${theme.customColors.sectionBorder}`,
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   tab: {
     textTransform: "uppercase",
     fontWeight: "bold",
-    minWidth: theme.typography.pxToRem(150),
+    minWidth: theme.typography.pxToRem(145),
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
   },
   tabLabel: {
     display: "flex",

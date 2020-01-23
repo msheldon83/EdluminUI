@@ -162,7 +162,8 @@ export const PeopleSubRelatedOrgsEditRoute = defineSubRoute(
 );
 export const PeopleSubRelatedOrgsEditLoader = asyncComponent({
   resolve: async () => {
-    const SubRelatedOrgsEditPage = (await import("ui/pages/sub-related-orgs")).SubRelatedOrgsEditPage;
+    const SubRelatedOrgsEditPage = (await import("ui/pages/sub-related-orgs"))
+      .SubRelatedOrgsEditPage;
     return SubRelatedOrgsEditPage;
   },
   name: "SubRelatedOrgs",
@@ -192,4 +193,21 @@ export const SubstituteAssignmentScheduleLoader = asyncComponent({
     return SubstituteAssignmentSchedulePage;
   },
   name: "EmployeeAbsSchedulePage",
+});
+
+/***** employee sub preferences *****/
+
+export const EmployeeSubstitutePreferenceRoute = defineSubRoute(
+  PersonViewRoute,
+  "/substitute-preferences"
+);
+
+export const EmployeeSubstitutePreferenceLoader = asyncComponent({
+  resolve: async () => {
+    const EmployeeSubstitutePreferencePage = (
+      await import("ui/pages/people/employee-substitute-preferences")
+    ).EmployeeSubstitutePreferencePage;
+    return EmployeeSubstitutePreferencePage;
+  },
+  name: "EmployeeSubstitutePreferencePage",
 });
