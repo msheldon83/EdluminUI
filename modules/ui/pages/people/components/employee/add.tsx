@@ -12,13 +12,18 @@ import { useRouteParams } from "ui/routes/definition";
 import { AddBasicInfo } from "../add-basic-info";
 import { useHistory } from "react-router";
 import { Information, editableSections, OrgUser } from "../information";
-import { EmployeeInput, OrgUserRole } from "graphql/server-types.gen";
+import {
+  EmployeeInput,
+  OrgUserRole,
+  PositionInput,
+} from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveEmployee } from "../../graphql/employee/save-employee.gen";
 import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import { PositionEditUI } from "ui/pages/employee-position/ui";
 
 export const EmployeeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -70,7 +75,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       });
       setInitialStepNumber(1);
     }
-  }, [orgUser, params.organizationId]);
+  }, [employee, orgUser, params.organizationId]);
 
   const handleCancel = () => {
     const url =
@@ -129,6 +134,25 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             permissionSet: { id: orgUser.permissionSet.id },
           };
           setEmployee(newEmployee);
+          setStep(steps[2].stepNumber);
+        }}
+        onCancel={handleCancel}
+      />
+    );
+  };
+
+  const renderPosition = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    return (
+      <PositionEditUI
+        submitLabel={t("Save")} // TODO: Change this label to "Next" if we add another step
+        onSave={async (position: PositionInput) => {
+          const newEmployee = {
+            ...employee,
+            position,
+          };
+          setEmployee(newEmployee);
           const id = await create(newEmployee);
           if (id) {
             const viewParams = { ...params, orgUserId: id };
@@ -159,6 +183,11 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       stepNumber: 1,
       name: t("General Settings"),
       content: renderInformation,
+    },
+    {
+      stepNumber: 2,
+      name: t("Position"),
+      content: renderPosition,
     },
   ];
   const [initialStepNumber, setInitialStepNumber] = React.useState(

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Typography, makeStyles } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { GetEmployeePosition } from "./graphql/get-employee-position.gen";
 import { SaveEmployeePosition } from "./graphql/save-employee-position.gen";
-import { EmployeeInput } from "graphql/server-types.gen";
+import { PositionInput } from "graphql/server-types.gen";
 import { useHistory } from "react-router";
 
 type Props = {};
@@ -25,7 +25,10 @@ export const EmployeePosition: React.FC<Props> = props => {
   const params = useRouteParams(PeopleEmployeePositionEditRoute);
   const classes = useStyles();
   const history = useHistory();
-  const [positionTypeName, setPositionTypeName] = useState<string | null>(null);
+
+  const [positionTypeName, setPositionTypeName] = useState<string | undefined>(
+    undefined
+  );
 
   const [saveEmployeePosition] = useMutationBundle(SaveEmployeePosition, {
     onError: error => {
@@ -44,16 +47,33 @@ export const EmployeePosition: React.FC<Props> = props => {
       ? undefined
       : getEmployeePosition?.data?.orgUser?.byId;
 
-  if (getEmployeePosition.state === "LOADING" || !orgUser?.employee) {
+  useEffect(
+    () =>
+      setPositionTypeName(
+        orgUser?.employee?.primaryPosition?.positionType?.name
+      ),
+    [orgUser]
+  );
+
+  if (
+    getEmployeePosition.state === "LOADING" ||
+    !orgUser?.employee?.primaryPosition
+  ) {
     return <></>;
   }
 
   const position = orgUser.employee.primaryPosition;
 
-  const handleSave = async (employee: EmployeeInput) => {
+  const handleSave = async (positionInput: PositionInput) => {
     await saveEmployeePosition({
       variables: {
-        employee,
+        employee: {
+          id: orgUser.id,
+          position: {
+            ...positionInput,
+            id: Number(position.id),
+          },
+        },
       },
     });
   };
@@ -69,7 +89,9 @@ export const EmployeePosition: React.FC<Props> = props => {
   return (
     <>
       <div className={classes.header}>
-        <PageTitle title={`${orgUser?.firstName} ${orgUser?.lastName}`} />
+        <div className={classes.name}>
+          {`${orgUser?.firstName} ${orgUser?.lastName}`}
+        </div>
         <Typography variant="h1">{positionTypeLabel}</Typography>
       </div>
       <PositionEditUI
@@ -77,12 +99,16 @@ export const EmployeePosition: React.FC<Props> = props => {
         onSave={handleSave}
         onCancel={handleCancel}
         submitLabel={t("Save")}
+        setPositionTypeName={setPositionTypeName}
       />
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  name: {
+    fontSize: theme.typography.pxToRem(24),
+  },
   header: {
     marginBottom: theme.spacing(2),
   },
