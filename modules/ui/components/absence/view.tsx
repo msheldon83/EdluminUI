@@ -318,24 +318,6 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
   },
-  dateDisabled: {
-    backgroundColor: theme.customColors.lightGray,
-    color: theme.palette.text.disabled,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
-      color: theme.palette.text.disabled,
-    },
-  },
-  absenceDate: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.customColors.white,
-    },
-  },
 }));
 
 /* TODO: Currently we are assuming that there is only 1 Absence Reason in

@@ -232,32 +232,4 @@ const useStyles = makeStyles(theme => ({
   additionalButton: {
     marginRight: theme.spacing(3),
   },
-  dateDisabled: {
-    backgroundColor: theme.customColors.lightGray,
-    color: theme.palette.text.disabled,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
-      color: theme.palette.text.disabled,
-    },
-  },
-
-  existingDate: {
-    backgroundColor: theme.customColors.lightBlue,
-    color: theme.palette.text.disabled,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.lightBlue,
-      color: theme.palette.text.disabled,
-    },
-  },
-  selectedAbsenceDate: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.customColors.white,
-    },
-  },
 }));
