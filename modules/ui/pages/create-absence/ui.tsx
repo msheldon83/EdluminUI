@@ -46,6 +46,7 @@ import {
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
+import { MessageBar } from "./message-bar";
 import { VacancyDetail } from "../../components/absence/types";
 import { AssignSub } from "./assign-sub/index";
 import { Confirmation } from "./confirmation";
@@ -368,6 +369,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
               </>
             )}
             <Section className={classes.absenceDetails}>
+              <MessageBar message={"temp things!"} />
               <AbsenceDetails
                 currentMonth={state.viewingCalendarMonth}
                 onSwitchMonth={d =>
