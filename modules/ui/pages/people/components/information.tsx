@@ -182,7 +182,7 @@ export const Information: React.FC<Props> = props => {
             dateOfBirth: isValid(data.dateOfBirth) ? data.dateOfBirth : null,
             address1: data.address1.trim().length === 0 ? null : data.address1,
             city: data.city.trim().length === 0 ? null : data.city,
-            state: data.state,
+            state: data.state ?? null,
             postalCode:
               data.postalCode.trim().length === 0 ? null : data.postalCode,
             country: data.state ? ("US" as CountryCode) : null,
@@ -215,6 +215,7 @@ export const Information: React.FC<Props> = props => {
           dateOfBirth: yup.date(),
           postalCode: yup
             .number()
+            .nullable()
             .min(5)
             .notRequired()
             .test("address1", t("Postal Code is required"), function(value) {
@@ -241,6 +242,7 @@ export const Information: React.FC<Props> = props => {
             }),
           address1: yup
             .string()
+            .nullable()
             .notRequired()
             .test("city", t("Address is required"), function(value) {
               const sibling = this.resolve(yup.ref("city"));
@@ -267,6 +269,7 @@ export const Information: React.FC<Props> = props => {
             }),
           city: yup
             .string()
+            .nullable()
             .notRequired()
             .test("address1", t("City is required"), function(value) {
               if (value) return true;
@@ -290,6 +293,7 @@ export const Information: React.FC<Props> = props => {
             }),
           state: yup
             .string()
+            .nullable()
             .notRequired()
             .test("address1", t("State is required"), function(value) {
               const sibling = this.resolve(yup.ref("address1"));
@@ -499,6 +503,18 @@ export const Information: React.FC<Props> = props => {
                                   id: "postalCode",
                                 }}
                               />
+                            </Grid>
+                            <Grid item xs={6}>
+                              <TextButton
+                                onClick={() => {
+                                  setFieldValue("address1", "");
+                                  setFieldValue("city", "");
+                                  setFieldValue("postalCode", "");
+                                  setFieldValue("state", null);
+                                }}
+                              >
+                                {t("Clear address")}
+                              </TextButton>
                             </Grid>
                           </Grid>
                         ) : !orgUser.address1 ? (
