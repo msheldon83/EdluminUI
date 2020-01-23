@@ -17,7 +17,8 @@ export type EditAbsenceActions =
   | { action: "setNeedsReplacement"; to: boolean }
   | { action: "toggleDate"; date: Date }
   | { action: "setVacanciesInput"; input: undefined | VacancyDetail[] }
-  | { action: "removeAbsenceDates"; dates: Date[] };
+  | { action: "removeAbsenceDates"; dates: Date[] }
+  | { action: "resetAfterSave" };
 
 export const editAbsenceReducer: Reducer<
   EditAbsenceState,
@@ -58,6 +59,9 @@ export const editAbsenceReducer: Reducer<
           isSameDay
         ),
       };
+    }
+    case "resetAfterSave": {
+      return { ...prev, customizedVacanciesInput: undefined };
     }
   }
 };

@@ -374,9 +374,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         status: "success",
         autoHideDuration: 5000,
       });
-      if (returnUrl) {
-        history.push(returnUrl);
-      }
     }
   };
   const onSelectReplacement = useCallback(
@@ -412,6 +409,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         <form
           onSubmit={handleSubmit(async data => {
             await update(data);
+            dispatch({ action: "resetAfterSave" });
           })}
         >
           <div className={classes.titleContainer}>
