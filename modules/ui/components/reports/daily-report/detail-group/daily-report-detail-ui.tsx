@@ -21,6 +21,8 @@ type Props = {
     assignmentRowVersion?: string
   ) => Promise<void>;
   goToAbsenceEdit: (absenceId: string) => void;
+  goToEmployeeView: (employeeId: string | undefined) => void;
+  goToLocationView: (locationId: string | undefined) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
   rowActions: {
@@ -35,98 +37,129 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
   const classes = useStyles();
 
   return (
-    <Grid item xs={12} container className={props.className}>
-      <Grid item xs={3} zeroMinWidth>
-        <div className={classes.employeeSection}>
-          <Can
-            do={(
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string
-            ) =>
-              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
-            }
-          >
-            <Checkbox
-              color="primary"
-              className={clsx({
-                [classes.hidden]: props.hideCheckbox,
-                [classes.checkbox]: true,
-              })}
-              checked={props.isChecked}
-              onChange={e => {
-                props.updateSelectedDetails(props.detail, e.target.checked);
-              }}
-            />
-          </Can>
+    <div className={[classes.container, props.className].join(" ")}>
+      <Can
+        do={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) => canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)}
+      >
+        <Checkbox
+          color="primary"
+          className={clsx({
+            [classes.hidden]: props.hideCheckbox,
+            [classes.checkbox]: true,
+          })}
+          checked={props.isChecked}
+          onChange={e => {
+            props.updateSelectedDetails(props.detail, e.target.checked);
+          }}
+        />
+      </Can>
+      <div className={classes.locationSection}>
+        <div>
+          {props.detail.type === "absence" ? (
+            <>
+              <div>
+                <Can do={[PermissionEnum.EmployeeView]}>
+                  <Link
+                    className={classes.action}
+                    onClick={() =>
+                      props.goToEmployeeView(props.detail.employee?.id)
+                    }
+                  >
+                    {props.detail.employee?.name}
+                  </Link>
+                </Can>
+                <Can not do={[PermissionEnum.EmployeeView]}>
+                  {props.detail.employee?.name}
+                </Can>
+              </div>
+              <div className={classes.detailSubText}>
+                {props.detail.position?.name}
+              </div>
+            </>
+          ) : (
+            <div>{props.detail.position?.name}</div>
+          )}
+        </div>
+      </div>
+      <div className={classes.reasonSection}>
+        <div>
+          <div>{props.detail.absenceReason}</div>
+          <div className={classes.detailSubText}>{props.detail.dateRange}</div>
+        </div>
+      </div>
+      <div className={classes.locationSection}>
+        <div>
           <div>
-            {props.detail.type === "absence" ? (
-              <>
-                <div>{props.detail.employee?.name}</div>
-                <div className={classes.detailSubText}>
-                  {props.detail.position?.name}
-                </div>
-              </>
-            ) : (
-              <div>{props.detail.position?.name}</div>
-            )}
+            <Can do={[PermissionEnum.LocationView]}>
+              <Link
+                className={classes.action}
+                onClick={() =>
+                  props.goToLocationView(props.detail.location?.id)
+                }
+              >
+                {props.detail.location?.name}
+              </Link>
+            </Can>
+            <Can not do={[PermissionEnum.LocationView]}>
+              {props.detail.location?.name}
+            </Can>
+          </div>
+          <div className={classes.detailSubText}>
+            {`${props.detail.startTime} - ${props.detail.endTime}`}
           </div>
         </div>
-      </Grid>
-      <Grid item xs={2} zeroMinWidth>
-        <div>{props.detail.absenceReason}</div>
-        <div className={classes.detailSubText}>{props.detail.dateRange}</div>
-      </Grid>
-      <Grid item xs={2} zeroMinWidth>
-        <div>{props.detail.location?.name}</div>
-        <div
-          className={classes.detailSubText}
-        >{`${props.detail.startTime} - ${props.detail.endTime}`}</div>
-      </Grid>
-      <Grid item xs={1}>
-        <div>{props.detail.created}</div>
-      </Grid>
-      <Grid item xs={2} zeroMinWidth>
-        {props.detail.state === "noSubRequired" && (
-          <div className={classes.detailSubText}>{t("Not required")}</div>
-        )}
-        {props.detail.state !== "noSubRequired" && props.detail.substitute && (
-          <div className={classes.subWithPhone}>
-            <div>{props.detail.substitute.name}</div>
-            {props.detail.substitute.phone && (
-              <div className={classes.subPhoneInfoIcon}>
-                <Tooltip title={props.detail.substitute.phone} placement="top">
-                  <PermDeviceInformationIcon color="primary" />
-                </Tooltip>
-              </div>
-            )}
-          </div>
-        )}
-        {props.detail.state !== "noSubRequired" && !props.detail.substitute && (
-          <Can
-            do={(
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string
-            ) =>
-              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
-            }
-          >
-            <Link
-              className={classes.action}
-              onClick={() => props.goToAbsenceEdit(props.detail.id)}
+      </div>
+      <div className={classes.date}>{props.detail.created}</div>
+      <div className={classes.substituteSection}>
+        <div>
+          {props.detail.state === "noSubRequired" && (
+            <div className={classes.detailSubText}>{t("Not required")}</div>
+          )}
+          {props.detail.state !== "noSubRequired" && props.detail.substitute && (
+            <div className={classes.subWithPhone}>
+              <div>{props.detail.substitute.name}</div>
+              {props.detail.substitute.phone && (
+                <div className={classes.subPhoneInfoIcon}>
+                  <Tooltip
+                    title={props.detail.substitute.phone}
+                    placement="top"
+                  >
+                    <PermDeviceInformationIcon color="primary" />
+                  </Tooltip>
+                </div>
+              )}
+            </div>
+          )}
+          {props.detail.state !== "noSubRequired" && !props.detail.substitute && (
+            <Can
+              do={(
+                permissions: OrgUserPermissions[],
+                isSysAdmin: boolean,
+                orgId?: string
+              ) =>
+                canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
+              }
             >
-              {t("Assign")}
-            </Link>
-          </Can>
-        )}
-        {props.detail.subStartTime && props.detail.subEndTime && (
-          <div className={classes.detailSubText}>
-            {`${props.detail.subStartTime} - ${props.detail.subEndTime}`}
-          </div>
-        )}
-      </Grid>
-      <Grid item xs={1} zeroMinWidth>
+              <Link
+                className={classes.action}
+                onClick={() => props.goToAbsenceEdit(props.detail.id)}
+              >
+                {t("Assign")}
+              </Link>
+            </Can>
+          )}
+          {props.detail.subStartTime && props.detail.subEndTime && (
+            <div className={classes.detailSubText}>
+              {`${props.detail.subStartTime} - ${props.detail.subEndTime}`}
+            </div>
+          )}
+        </div>
+      </div>
+      <div>
         <div>
           {props.detail.type === "absence" ? (
             <Link
@@ -142,17 +175,43 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
             className={classes.detailSubText}
           >{`#C${props.detail.assignmentId}`}</div>
         )}
-      </Grid>
-      <Grid item xs={1} className={classes.detailActionsSection}>
+      </div>
+      <div>
         <ActionMenu options={props.rowActions} />
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  container: {
+    padding: theme.spacing(2),
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-between",
+    [theme.breakpoints.down("sm")]: {
+      alignItems: "stretch",
+    },
+  },
   employeeSection: {
     display: "flex",
+    flex: 7,
+  },
+  locationSection: {
+    display: "flex",
+    flex: 7,
+  },
+  reasonSection: {
+    display: "flex",
+    flex: 4,
+  },
+  substituteSection: {
+    display: "flex",
+    flex: 6,
+  },
+  date: {
+    flex: 4,
   },
   subWithPhone: {
     display: "flex",

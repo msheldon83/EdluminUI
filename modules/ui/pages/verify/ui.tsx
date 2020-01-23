@@ -46,6 +46,7 @@ type Props = {
   date?: Date;
   setDate?: (date: Date) => void;
   olderAction?: () => void;
+  onUpdateCount?: () => Promise<void>;
 };
 
 export const VerifyUI: React.FC<Props> = props => {
@@ -239,6 +240,9 @@ export const VerifyUI: React.FC<Props> = props => {
       await getAssignmentCounts.refetch();
       await getVacancyDetails.refetch();
       setVerifiedId(null);
+      if (props.onUpdateCount) {
+        await props.onUpdateCount();
+      }
     }
   };
 

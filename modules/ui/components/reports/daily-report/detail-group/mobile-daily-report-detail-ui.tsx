@@ -19,6 +19,7 @@ import { not } from "helpers";
 import { canAssignSub } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
 import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   detail: Detail;
@@ -30,6 +31,8 @@ type Props = {
     assignmentRowVersion?: string
   ) => Promise<void>;
   goToAbsenceEdit: (absenceId: string) => void;
+  goToEmployeeView: (employeeId: string | undefined) => void;
+  goToLocationView: (locationId: string | undefined) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
   rowActions: {
@@ -105,7 +108,21 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
         <div className={classes.item}>
           {props.detail.type === "absence" ? (
             <>
-              <div>{props.detail.employee?.name}</div>
+              <div>
+                <Can do={[PermissionEnum.EmployeeView]}>
+                  <Link
+                    className={classes.action}
+                    onClick={() =>
+                      props.goToEmployeeView(props.detail.employee?.id)
+                    }
+                  >
+                    {props.detail.employee?.name}
+                  </Link>
+                </Can>
+                <Can not do={[PermissionEnum.EmployeeView]}>
+                  {props.detail.employee?.name}
+                </Can>
+              </div>
               <div className={classes.detailSubText}>
                 {props.detail.position?.name}
               </div>
@@ -135,7 +152,21 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
           <div className={classes.group}>
             <div className={classes.checkboxSpacing} />
             <div className={classes.item}>
-              <div>{props.detail.location?.name}</div>
+              <div>
+                <Can do={[PermissionEnum.LocationView]}>
+                  <Link
+                    className={classes.action}
+                    onClick={() =>
+                      props.goToLocationView(props.detail.location?.id)
+                    }
+                  >
+                    {props.detail.location?.name}
+                  </Link>
+                </Can>
+                <Can not do={[PermissionEnum.LocationView]}>
+                  {props.detail.location?.name}
+                </Can>
+              </div>
               <div
                 className={classes.detailSubText}
               >{`${props.detail.startTime} - ${props.detail.endTime}`}</div>

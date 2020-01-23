@@ -61,26 +61,14 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
   return (
     <>
       <DesktopOnly>
-        <Grid item xs={12} container className={headerClasses}>
-          <Grid item xs={3} className={classes.detailEmployeeHeader}>
-            {t("Employee")}
-          </Grid>
-          <Grid item xs={2}>
-            {t("Reason")}
-          </Grid>
-          <Grid item xs={2}>
-            {t("Location")}
-          </Grid>
-          <Grid item xs={1}>
-            {t("Created")}
-          </Grid>
-          <Grid item xs={2}>
-            {t("Substitute")}
-          </Grid>
-          <Grid item xs={1}>
-            {t("Conf#")}
-          </Grid>
-        </Grid>
+        <div className={headerClasses}>
+          <div className={classes.employeeSection}>{t("Employee")}</div>
+          <div className={classes.reasonSection}>{t("Reason")}</div>
+          <div className={classes.locationSection}>{t("Location")}</div>
+          <div className={classes.date}>{t("Created")}</div>
+          <div className={classes.substituteSection}>{t("Substitute")}</div>
+          <div className={classes.confirmationNumber}>{t("Conf#")}</div>
+        </div>
       </DesktopOnly>
       <MobileOnly>
         <div className={headerClasses}>
@@ -95,15 +83,41 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  employeeSection: {
+    display: "flex",
+    flex: 7,
+    paddingLeft: theme.spacing(5),
+    "@media print": {
+      paddingLeft: 0,
+    },
+  },
+  locationSection: {
+    display: "flex",
+    flex: 7,
+  },
+  reasonSection: {
+    display: "flex",
+    flex: 4,
+  },
+  substituteSection: {
+    display: "flex",
+    flex: 6,
+  },
+  date: {
+    flex: 4,
+  },
+  confirmationNumber: {
+    paddingRight: theme.spacing(8),
+  },
   shadedRow: {
     background: theme.customColors.lightGray,
     borderTop: `1px solid ${theme.customColors.medLightGray}`,
     borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
   detail: {
-    paddingLeft: theme.spacing(4),
+    paddingLeft: theme.spacing(1),
     paddingTop: theme.spacing(2),
-    paddingRight: theme.spacing(2),
+    paddingRight: theme.spacing(1),
     paddingBottom: theme.spacing(2),
     [theme.breakpoints.down("sm")]: {
       paddingLeft: 0,
@@ -114,6 +128,13 @@ const useStyles = makeStyles(theme => ({
       paddingTop: 0,
       paddingRight: 0,
       paddingBottom: 0,
+    },
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-between",
+    [theme.breakpoints.down("sm")]: {
+      alignItems: "stretch",
     },
   },
   detailHeader: {
