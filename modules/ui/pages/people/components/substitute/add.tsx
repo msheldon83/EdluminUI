@@ -19,6 +19,12 @@ import { SaveSubstitute } from "../../graphql/substitute/save-substitute.gen";
 import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import {
+  Attribute,
+  SubPositionTypesAndAttributesEdit,
+} from "ui/pages/sub-positions-attributes/components/position-types-attributes";
+import { ActionButtons } from "ui/components/action-buttons";
+import { Section } from "ui/components/section";
 
 export const SubstituteAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -43,6 +49,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
     externalId: null,
     email: "",
   });
+  const [subAttributes, setSubAttributes] = React.useState<Attribute[]>([]);
 
   const getOrgUser = useQueryBundle(GetOrgUserById, {
     variables: { id: params.orgUserId },
@@ -70,6 +77,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       });
       setInitialStepNumber(1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgUser, params.organizationId]);
 
   const handleCancel = () => {
@@ -81,7 +89,8 @@ export const SubstituteAddPage: React.FC<{}> = props => {
   };
 
   const renderBasicInfoStep = (
-    setStep: React.Dispatch<React.SetStateAction<number>>
+    setStep: React.Dispatch<React.SetStateAction<number>>,
+    goToNextStep: () => void
   ) => {
     return (
       <AddBasicInfo
@@ -95,7 +104,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
             lastName: lastName,
             externalId: externalId,
           });
-          setStep(steps[1].stepNumber);
+          goToNextStep();
         }}
         onCancel={handleCancel}
         onNameChange={(firstName, lastName) => {
@@ -106,7 +115,8 @@ export const SubstituteAddPage: React.FC<{}> = props => {
   };
 
   const renderInformation = (
-    setStep: React.Dispatch<React.SetStateAction<number>>
+    setStep: React.Dispatch<React.SetStateAction<number>>,
+    goToNextStep: () => void
   ) => {
     return (
       <Information
@@ -129,21 +139,85 @@ export const SubstituteAddPage: React.FC<{}> = props => {
             permissionSet: { id: orgUser.permissionSet.id },
           };
           setSubstitute(newSubstitute);
-          const id = await create(newSubstitute);
-          if (id) {
-            const viewParams = { ...params, orgUserId: id };
-            history.push(PersonViewRoute.generate(viewParams));
-          }
+          goToNextStep();
         }}
         onCancel={handleCancel}
       />
     );
   };
 
-  const create = async (substitute: SubstituteInput) => {
+  const renderPositionTypesAndAttributes = (
+    setStep: React.Dispatch<React.SetStateAction<number>>,
+    goToNextStep: () => void
+  ) => {
+    return (
+      <Section>
+        <SubPositionTypesAndAttributesEdit
+          organizationId={params.organizationId}
+          orgUserId={params.orgUserId}
+          currentAttributes={subAttributes}
+          addAttribute={async (attribute: Attribute) => {
+            setSubAttributes([...subAttributes, attribute]);
+            return true;
+          }}
+          updateAttribute={async (
+            endorsementId: string,
+            expirationDate?: Date | undefined
+          ) => {
+            const updatedSubAttributes = [...subAttributes];
+            const attributeToUpdate = updatedSubAttributes.find(
+              u => u.endorsementId === endorsementId
+            );
+            if (attributeToUpdate) {
+              attributeToUpdate.expirationDate = expirationDate;
+              setSubAttributes(updatedSubAttributes);
+            }
+            return true;
+          }}
+          removeAttribute={async (endorsementId: string) => {
+            setSubAttributes([
+              ...subAttributes.filter(a => a.endorsementId !== endorsementId),
+            ]);
+            return true;
+          }}
+        />
+        <ActionButtons
+          submit={{
+            text: t("Save"),
+            execute: async () => {
+              const id = await create(substitute, subAttributes);
+              if (id) {
+                const viewParams = { ...params, orgUserId: id };
+                history.push(PersonViewRoute.generate(viewParams));
+              }
+            },
+          }}
+          cancel={{
+            text: t("Cancel"),
+            execute: handleCancel,
+          }}
+        />
+      </Section>
+    );
+  };
+
+  const create = async (
+    substitute: SubstituteInput,
+    attributes: Attribute[]
+  ) => {
     const result = await createSubstitute({
       variables: {
-        substitute,
+        substitute: {
+          ...substitute,
+          attributes: attributes.map(a => {
+            return {
+              attribute: {
+                id: a.endorsementId,
+              },
+              expires: a.expirationDate ?? undefined,
+            };
+          }),
+        },
       },
     });
     return result?.data?.orgUser?.saveSubstitute?.id;
@@ -159,6 +233,11 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       stepNumber: 1,
       name: t("General Settings"),
       content: renderInformation,
+    },
+    {
+      stepNumber: 2,
+      name: t("Position Types & Attributes"),
+      content: renderPositionTypesAndAttributes,
     },
   ];
 

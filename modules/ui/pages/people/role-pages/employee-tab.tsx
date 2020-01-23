@@ -15,8 +15,13 @@ import { UpcomingAbsences } from "../components/employee/upcoming-absences";
 import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
 import { Position } from "../components/employee/position";
 import { ReplacementCriteria } from "../components/employee/replacement-criteria";
-import { SubstitutePreferences } from "../components/employee/substitute-preferences";
+import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
 import { Information } from "../components/information";
+import {
+  EmployeeSubstitutePreferenceRoute,
+  PersonViewRoute,
+} from "ui/routes/people";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
   editing: string | null;
@@ -28,6 +33,7 @@ type Props = {
 export const EmployeeTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
+  const params = useRouteParams(PersonViewRoute);
 
   const [updateEmployee] = useMutationBundle(SaveEmployee, {
     onError: error => {
@@ -103,9 +109,18 @@ export const EmployeeTab: React.FC<Props> = props => {
         editing={props.editing}
         replacementCriteria={employee.primaryPosition?.replacementCriteria}
       />
-      <SubstitutePreferences
-        editing={props.editing}
-        substitutePools={employee.substitutePools}
+      <SubstitutePrefCard
+        favoriteHeading={t("Favorites")}
+        blockedHeading={t("Blocked")}
+        heading={t("Substitute Preferences")}
+        favoriteSubstitutes={employee.substitutePreferences.favoriteSubstitutes}
+        blockedSubstitutes={employee.substitutePreferences.blockedSubstitutes}
+        editRoute={EmployeeSubstitutePreferenceRoute.generate(params)}
+        editing={props.editing ? true : false}
+        editPermission={[
+          PermissionEnum.EmployeeSaveBlockedSubs,
+          PermissionEnum.EmployeeSaveFavoriteSubs,
+        ]}
       />
       <UpcomingAbsences
         employeeId={employee.id}
