@@ -45,7 +45,7 @@ export const View: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const absenceReasons = useAbsenceReasons(props.orgId);
 
-  const absence = useMemo(() => props.absence, [props.absence]);
+  const absence = props.absence;
   const absenceStartDate = useMemo(() => new Date(absence.startDate), [
     absence.startDate,
   ]);
@@ -91,25 +91,6 @@ export const View: React.FC<Props> = props => {
       });
     },
   });
-
-  // In order to appropriately show the Absence times alongside the Sub Vacancy Details
-  // we have to make sure each Vacancy has a populated Absence property to match
-  // against in <VacancyDetails />. Instead of having the server return the Absence, and
-  // then the Vacancies and then the Absence again on each Vacancy, we can just manifest
-  // that information here and pass into <VacancyDetails />.
-  const vacancies = useMemo(() => {
-    if (!absence) {
-      return [];
-    }
-
-    const a = absence;
-    return (absence.vacancies?.map(v => {
-      return {
-        ...v,
-        absence: a,
-      };
-    }) ?? []) as Vacancy[];
-  }, [absence]);
 
   if (!absence) {
     return null;
@@ -234,7 +215,7 @@ export const View: React.FC<Props> = props => {
                 {absence.vacancies && (
                   <>
                     <VacancyDetails
-                      vacancies={vacancies}
+                      vacancies={absence.vacancies as Vacancy[]}
                       equalWidthDetails
                       disabledDates={disabledDates}
                     />
