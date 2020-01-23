@@ -56,11 +56,11 @@ export const DailyReportDetail: React.FC<Props> = props => {
     });
   };
 
-  const goToEmployeeView = (employeeId: string | undefined) => {
-    if (employeeId) {
+  const goToPersonView = (orgUserId: string | undefined) => {
+    if (orgUserId) {
       const url = PersonViewRoute.generate({
         organizationId: absenceEditParams.organizationId,
-        orgUserId: employeeId,
+        orgUserId,
       });
       history.push(url, {
         returnUrl: `${history.location.pathname}${history.location.search}`,
@@ -126,7 +126,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
           rowActions={rowActions}
           hideCheckbox={hideCheckbox}
           goToAbsenceEdit={goToAbsenceEdit}
-          goToEmployeeView={goToEmployeeView}
+          goToPersonView={goToPersonView}
           goToLocationView={goToLocationView}
           isChecked={isChecked}
         />
@@ -136,7 +136,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
           rowActions={rowActions}
           hideCheckbox={hideCheckbox}
           goToAbsenceEdit={goToAbsenceEdit}
-          goToEmployeeView={goToEmployeeView}
+          goToPersonView={goToPersonView}
           goToLocationView={goToLocationView}
           isChecked={isChecked}
         />

@@ -21,7 +21,7 @@ type Props = {
     assignmentRowVersion?: string
   ) => Promise<void>;
   goToAbsenceEdit: (absenceId: string) => void;
-  goToEmployeeView: (employeeId: string | undefined) => void;
+  goToPersonView: (orgUserId: string | undefined) => void;
   goToLocationView: (locationId: string | undefined) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
@@ -66,7 +66,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                   <Link
                     className={classes.action}
                     onClick={() =>
-                      props.goToEmployeeView(props.detail.employee?.id)
+                      props.goToPersonView(props.detail.employee?.id)
                     }
                   >
                     {props.detail.employee?.name}
@@ -126,7 +126,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                   <Link
                     className={classes.action}
                     onClick={() =>
-                      props.goToEmployeeView(props.detail.substitute?.id)
+                      props.goToPersonView(props.detail.substitute?.id)
                     }
                   >
                     {props.detail.substitute.name}
