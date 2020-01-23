@@ -26,6 +26,8 @@ export const VacancyDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
+  const { detailsClassName = classes.fullWidth } = props;
+
   if (!props.vacancies || !props.vacancies.length) {
     return <></>;
   }
@@ -45,7 +47,7 @@ export const VacancyDetails: React.FC<Props> = props => {
           />
         </Grid>
       )}
-      <div className={props.detailsClassName}>
+      <div className={detailsClassName}>
         {sortedVacancies.map((v, i) => {
           if (v.details && v.details.length) {
             const projectedDetails = projectVacancyDetailsFromVacancies([v]);
@@ -69,6 +71,9 @@ export const VacancyDetails: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  fullWidth: {
+    width: "100%",
+  },
   details: {
     padding: theme.spacing(2),
   },

@@ -2,8 +2,7 @@ import * as React from "react";
 import { Typography } from "@material-ui/core";
 import { Vacancy } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
-import { getAbsenceDateRangeDisplayText } from "./date-helpers";
-import { convertStringToDate } from "helpers/date";
+import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "./date-helpers";
 import { flatMap, compact } from "lodash-es";
 import { parseISO } from "date-fns";
 
@@ -31,7 +30,7 @@ export const VacancySummaryHeader: React.FC<Props> = props => {
     flatMap(sortedVacancies.map(sv => sv.details!.map(d => d?.startDate)))
   );
   const allDates = allDateStrings.map(d => parseISO(d));
-  let headerText = getAbsenceDateRangeDisplayText(
+  let headerText = getAbsenceDateRangeDisplayTextWithDayOfWeek(
     allDates,
     props.disabledDates
   );
