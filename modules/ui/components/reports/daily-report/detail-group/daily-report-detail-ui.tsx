@@ -121,7 +121,21 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           )}
           {props.detail.state !== "noSubRequired" && props.detail.substitute && (
             <div className={classes.subWithPhone}>
-              <div>{props.detail.substitute.name}</div>
+              <div>
+                <Can do={[PermissionEnum.SubstituteView]}>
+                  <Link
+                    className={classes.action}
+                    onClick={() =>
+                      props.goToEmployeeView(props.detail.substitute?.id)
+                    }
+                  >
+                    {props.detail.substitute.name}
+                  </Link>
+                </Can>
+                <Can not do={[PermissionEnum.EmployeeView]}>
+                  {props.detail.substitute.name}
+                </Can>
+              </div>
               {props.detail.substitute.phone && (
                 <div className={classes.subPhoneInfoIcon}>
                   <Tooltip
