@@ -1,0 +1,28 @@
+mutation SaveEmployeePosition($employee: EmployeeInput!) {
+  orgUser {
+    saveEmployee(employee: $employee) {
+      id
+      employee {
+        id
+        primaryPosition {
+          id
+          name
+          hoursPerFullWorkDay
+          needsReplacement
+          positionType {
+            id
+            name
+          }
+          currentContract {
+            id
+            name
+          }
+          schedules {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}

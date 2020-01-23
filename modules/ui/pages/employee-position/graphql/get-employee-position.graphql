@@ -1,0 +1,30 @@
+query GetEmployeePosition($id: ID!) {
+  orgUser {
+    byId(id: $id) {
+      id
+      firstName
+      lastName
+      employee {
+        id
+        primaryPosition {
+          id
+          name
+          hoursPerFullWorkDay
+          needsReplacement
+          positionType {
+            id
+            name
+          }
+          currentContract {
+            id
+            name
+          }
+          schedules {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}
