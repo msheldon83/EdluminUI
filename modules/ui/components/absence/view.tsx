@@ -309,6 +309,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(),
   },
   substituteDetailsSection: {
+    width: "100%",
     marginTop: theme.spacing(2),
     border: `${theme.typography.pxToRem(1)} solid ${
       theme.customColors.medLightGray
