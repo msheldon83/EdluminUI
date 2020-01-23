@@ -26,10 +26,7 @@ export const NavigationSideBar: React.FC<Props> = props => {
           }`,
         }}
       >
-        <EdluminLogo
-          titleClassName={classes.spacing}
-          className={classes.margin}
-        />
+        <EdluminLogo showSmallLogo={!props.expanded} />
 
         <RoleSwitcher expanded={props.expanded} />
         <Divider className={classes.divider} />

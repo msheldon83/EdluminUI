@@ -1,9 +1,12 @@
 import * as React from "react";
-import { Grid, makeStyles, Typography } from "@material-ui/core";
-import EmojiObjectsOutlinedIcon from "@material-ui/icons/EmojiObjectsOutlined";
+import { Grid, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 
-type Props = { className?: string; titleClassName?: string };
+type Props = {
+  className?: string;
+  showSmallLogo?: boolean;
+};
+
 export const EdluminLogo: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
@@ -15,22 +18,30 @@ export const EdluminLogo: React.FC<Props> = props => {
       alignItems="center"
       wrap="nowrap"
     >
-      <EmojiObjectsOutlinedIcon fontSize="large" className={classes.logo} />
-      <Typography
-        display="inline"
-        variant={"h5"}
-        className={`${classes.productTitle} ${props.titleClassName}`}
-      >
-        {t("RedRover")}
-      </Typography>
+      {props.showSmallLogo ? (
+        <img
+          src={require("ui/icons/red-rover-minor-logo.svg")}
+          className={classes.minorLogo}
+        />
+      ) : (
+        <img
+          src={require("ui/icons/red-rover-major-logo.svg")}
+          className={classes.majorLogo}
+        />
+      )}
     </Grid>
   );
 };
 
 const useStyles = makeStyles(theme => ({
   container: {
-    padding: theme.spacing(0, 2),
     ...theme.mixins.toolbar,
+  },
+  majorLogo: {
+    width: theme.typography.pxToRem(225),
+  },
+  minorLogo: {
+    width: theme.typography.pxToRem(70),
   },
   logo: {
     color: theme.customColors.marigold,
