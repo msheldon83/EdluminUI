@@ -154,6 +154,7 @@ export const AssignSub: React.FC<Props> = props => {
       primaryPhone: r.phoneNumber,
       qualified: r.levelQualified,
       available: r.levelAvailable,
+      isAvailableToSubWhenSearching: r.isAvailableToSubWhenSearching,
       visible: r.isVisible,
       visibleOn: r.visibleAtLocal,
       isEmployeeFavorite: r.isFavoriteEmployee,
