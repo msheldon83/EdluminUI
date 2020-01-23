@@ -86,8 +86,6 @@ export const Calendars: React.FC<Props> = props => {
     [calendarChanges]
   );
 
-  console.log(calendarChanges);
-
   /*might want to put list into its own component.  Also make table editable for delete reasons.  Add paginatation.*/
 
   const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(

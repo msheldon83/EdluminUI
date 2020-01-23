@@ -64,7 +64,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
     return { label: c.name, value: parseInt(c.id) };
   });
 
-  const [enableAllContracts, setEnableAllContracts] = React.useState(false);
+  const [enableAllContracts, setEnableAllContracts] = React.useState(true);
   const [selectedChangeReason, setSelectedChangeReason] = React.useState();
   const [selectedContracts, setselectedContracts] = React.useState();
   const [selectedToDate, setSelectedToDate] = React.useState(today);
@@ -97,8 +97,6 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
   };
 
   const create = async (calendarChange: CalendarChangeCreateInput) => {
-    console.log(calendarChange);
-
     if (
       isBefore(
         parseISO(calendarChange.startDate),
@@ -188,7 +186,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
               setSelectedToDate(today);
               setSelectedFromDate(today);
               setselectedContracts([]);
-              setEnableAllContracts(false);
+              setEnableAllContracts(true);
               setSelectedChangeReason(changeReasonOptions[0].value);
               formProps.setFieldValue("notes", "");
               setPanelOpened(false);
@@ -221,11 +219,11 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
               <form className={classes.form} onSubmit={handleSubmit}>
                 <Grid
                   container
-                  justify="space-between"
+                  justify="flex-start"
                   alignItems="center"
                   spacing={2}
                 >
-                  <Grid item xs={12}>
+                  <Grid item xs={3}>
                     <FormControlLabel
                       checked={values.applyToAll}
                       control={
@@ -243,14 +241,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       label={t("Apply To All Contracts")}
                     />
                   </Grid>
-                </Grid>
-                <Grid
-                  container
-                  justify="space-between"
-                  alignItems="center"
-                  spacing={2}
-                >
-                  <Grid item xs={4}>
+                  <Grid item xs={3}>
                     <SelectMulti
                       name={"contracts"}
                       disabled={values.applyToAll}
@@ -268,7 +259,14 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       placeholder="Search for Contracts"
                     />
                   </Grid>
-                  <Grid item xs={2}>
+                </Grid>
+                <Grid
+                  container
+                  justify="flex-start"
+                  alignItems="center"
+                  spacing={2}
+                >
+                  <Grid item xs={3}>
                     <DatePicker
                       variant={"single-hidden"}
                       startDate={new Date(values.fromDate)}
@@ -286,7 +284,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       startLabel={t("From")}
                     />
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={3}>
                     <DatePicker
                       variant={"single-hidden"}
                       startDate={new Date(values.toDate)}
@@ -302,8 +300,14 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       startLabel={t("To")}
                     />
                   </Grid>
-
-                  <Grid item xs={4}>
+                </Grid>
+                <Grid
+                  container
+                  justify="flex-start"
+                  alignItems="center"
+                  spacing={2}
+                >
+                  <Grid item xs={3}>
                     <Typography>{t("Reason")}</Typography>
                     <SelectNew
                       options={changeReasonOptions}
@@ -325,15 +329,8 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       multiple={false}
                     />
                   </Grid>
-                </Grid>
-                <Grid
-                  container
-                  justify="space-between"
-                  alignItems="center"
-                  spacing={2}
-                >
-                  <Grid item xs={4}></Grid>
-                  <Grid item xs={8}>
+
+                  <Grid item xs={6}>
                     <Input
                       value={values.notes}
                       label={t("Note")}
