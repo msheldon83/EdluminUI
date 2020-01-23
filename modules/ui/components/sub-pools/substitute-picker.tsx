@@ -9,7 +9,7 @@ import {
 import { PaginationControls } from "ui/components/pagination-controls";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { GetAllPeopleForOrg } from "ui/pages/people/graphql/get-all-people-for-org.gen";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { compact, remove } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
@@ -23,6 +23,7 @@ import {
   RoleSpecificFilters,
 } from "ui/pages/people/people-filters/filter-params";
 import { useEffect, useMemo } from "react";
+import { Can } from "../auth/can";
 
 type Props = {
   title: string;
@@ -30,6 +31,8 @@ type Props = {
   onAdd: (orgUser: any) => void;
   onBlock: (orgUser: any) => void;
   takenSubstitutes: any[];
+  addToFavoritePermission: PermissionEnum[];
+  addToBlockedPermission: PermissionEnum[];
 };
 
 export const SubstitutePicker: React.FC<Props> = props => {
@@ -151,18 +154,22 @@ export const SubstitutePicker: React.FC<Props> = props => {
             return (
               <Grid item className={className} xs={12} key={i}>
                 <Typography className={classes.userName}>{name}</Typography>
-                <TextButton
-                  className={classes.blockActionLink}
-                  onClick={() => props.onBlock(user)}
-                >
-                  {t("Block")}
-                </TextButton>
-                <TextButton
-                  className={classes.addActionLink}
-                  onClick={() => props.onAdd(user)}
-                >
-                  {t("Add")}
-                </TextButton>
+                <Can do={props.addToBlockedPermission}>
+                  <TextButton
+                    className={classes.blockActionLink}
+                    onClick={() => props.onBlock(user)}
+                  >
+                    {t("Block")}
+                  </TextButton>
+                </Can>
+                <Can do={props.addToFavoritePermission}>
+                  <TextButton
+                    className={classes.addActionLink}
+                    onClick={() => props.onAdd(user)}
+                  >
+                    {t("Add")}
+                  </TextButton>
+                </Can>
               </Grid>
             );
           })}

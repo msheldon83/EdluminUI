@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
   const params = useRouteParams(LocationSubPrefRoute);
@@ -84,7 +85,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         location: updatedLocation,
       },
     });
-    if (result === undefined) return false;
+    if (!result?.data) return false;
     await getLocation.refetch();
     return true;
   };
@@ -114,6 +115,10 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}
         onBlockEmployee={onBlockSubstitute}
+        removeBlockedPermission={[PermissionEnum.LocationSave]}
+        removeFavoritePermission={[PermissionEnum.LocationSave]}
+        addToBlockedPermission={[PermissionEnum.LocationSave]}
+        addToFavoritePermission={[PermissionEnum.LocationSave]}
       ></SubstitutePreferences>
     </>
   );
