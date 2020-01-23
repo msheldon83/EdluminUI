@@ -18,7 +18,7 @@ import {
 } from "graphql/server-types.gen";
 import { Table } from "ui/components/table";
 import { compact } from "lodash-es";
-import { parseISO, format } from "date-fns";
+import { parseISO, format, isBefore } from "date-fns";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { CalendarDayTypes } from "reference-data/calendar-day-type";
@@ -78,6 +78,16 @@ export const Calendars: React.FC<Props> = props => {
       ? []
       : compact(getCalendarChanges?.data?.calendarChange?.paged?.results ?? []);
 
+  const sortedCalendarChanges = useMemo(
+    () =>
+      calendarChanges.sort(
+        (a, b) => +new Date(a.startDate) - +new Date(b.startDate)
+      ),
+    [calendarChanges]
+  );
+
+  console.log(calendarChanges);
+
   /*might want to put list into its own component.  Also make table editable for delete reasons.  Add paginatation.*/
 
   const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(
@@ -117,6 +127,7 @@ export const Calendars: React.FC<Props> = props => {
               parseISO(o.endDate),
               "MMM d, yyyy"
             )}`,
+      sorting: false,
     },
     {
       title: t("Type"),
@@ -136,16 +147,19 @@ export const Calendars: React.FC<Props> = props => {
                 o.calendarChangeReason?.workDayScheduleVariantType?.id
             )?.name;
       },
+      sorting: false,
     },
     {
       title: t("Reason"),
       field: "calendarChangeReason.name",
       searchable: false,
+      sorting: false,
     },
     {
       title: t("Note"),
       field: "description",
       searchable: false,
+      sorting: false,
     },
     {
       title: t("Contract"),
@@ -159,6 +173,7 @@ export const Calendars: React.FC<Props> = props => {
         }
         return contracts?.join(",");
       },
+      sorting: false,
     },
   ];
 
@@ -238,7 +253,7 @@ export const Calendars: React.FC<Props> = props => {
                         PermissionEnum.CalendarChangeDelete,
                       ]}
                       columns={columns}
-                      data={calendarChanges}
+                      data={sortedCalendarChanges}
                       title={""}
                       actions={[
                         {

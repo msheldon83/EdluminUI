@@ -28,7 +28,7 @@ import { DatePicker } from "ui/components/form/date-picker";
 import { useContracts } from "reference-data/contracts";
 import { useMemo } from "react";
 import { OptionTypeBase } from "react-select/src/types";
-import { parseISO, format } from "date-fns";
+import { parseISO, format, isBefore } from "date-fns";
 import { CreateCalendarChange } from "../graphql/create-calendar-change.gen";
 import { CalendarChangeCreateInput } from "graphql/server-types.gen";
 import { ShowErrors } from "ui/components/error-helpers";
@@ -97,7 +97,14 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
   };
 
   const create = async (calendarChange: CalendarChangeCreateInput) => {
-    if (calendarChange.startDate > calendarChange.endDate) {
+    console.log(calendarChange);
+
+    if (
+      isBefore(
+        parseISO(calendarChange.startDate),
+        parseISO(calendarChange.endDate)
+      )
+    ) {
       openSnackbar({
         message: t("The from date has to be before the to date."),
         dismissable: true,
