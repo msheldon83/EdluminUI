@@ -74,7 +74,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
     expect(result).toBe("November 28 - December 3, 2019");
   });
 
-  it("Display multiple non-contiguous dates across months", () => {
+  it("Display multiple non-contiguous dates across months (1)", () => {
     const disabledDates: DisabledDate[] = [
       { date: startOfDay(new Date("11/29/2019")), type: "absence" },
     ];
@@ -85,6 +85,17 @@ describe("getAbsenceDateRangeDisplayText", () => {
 
     const result = getAbsenceDateRangeDisplayText(allDays, disabledDates);
     expect(result).toBe("November 28,30 - December 3, 2019");
+  });
+
+  it("Display multiple non-contiguous dates across months (2)", () => {
+    const allDays = [
+      startOfDay(new Date("1/20/2020")),
+      startOfDay(new Date("1/30/2020")),
+      startOfDay(new Date("2/6/2020")),
+    ];
+
+    const result = getAbsenceDateRangeDisplayText(allDays);
+    expect(result).toBe("January 20,30, February 6, 2020");
   });
 
   it("Display multiple non-contiguous dates across months (overly complex scenario)", () => {
@@ -238,7 +249,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
     expect(result).toBe("Thu-Tue, Nov 28 - Dec 3");
   });
 
-  it("Display multiple non-contiguous dates across months", () => {
+  it("Display multiple non-contiguous dates across months (1)", () => {
     const disabledDates: DisabledDate[] = [
       { date: startOfDay(new Date("11/29/2019")), type: "absence" },
     ];
@@ -252,6 +263,17 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       disabledDates
     );
     expect(result).toBe("Thu,Sat-Tue, Nov 28,30 - Dec 3");
+  });
+
+  it("Display multiple non-contiguous dates across months (2)", () => {
+    const allDays = [
+      startOfDay(new Date("1/20/2020")),
+      startOfDay(new Date("1/30/2020")),
+      startOfDay(new Date("2/6/2020")),
+    ];
+
+    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
+    expect(result).toBe("Mon,Thu,Thu, Jan 20,30, Feb 6");
   });
 
   it("Display multiple non-contiguous dates across months (overly complex scenario)", () => {

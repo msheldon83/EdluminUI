@@ -33,6 +33,15 @@ export const getAbsenceDateRangeDisplayText = (
       currentYear = interval.start.getFullYear();
       currentMonth = format(interval.start, monthFormat);
     }
+    if (currentMonth !== format(interval.start, monthFormat)) {
+      // New interval crosses into a new Month from the previous interval
+      overallDateRangeDisplay += ` ${format(
+        interval.start,
+        `${monthFormat}`
+      )} `;
+
+      currentMonth = format(interval.start, monthFormat);
+    }
 
     if (currentYear !== interval.end.getFullYear()) {
       // Current interval crosses a year boundary
@@ -51,11 +60,13 @@ export const getAbsenceDateRangeDisplayText = (
       currentMonth = format(interval.end, monthFormat);
     } else if (interval.start.getDate() === interval.end.getDate()) {
       overallDateRangeDisplay += `${format(interval.start, "d")},`;
+      currentMonth = format(interval.end, monthFormat);
     } else {
       overallDateRangeDisplay += `${format(interval.start, "d")}-${format(
         interval.end,
         "d"
       )},`;
+      currentMonth = format(interval.end, monthFormat);
     }
   });
 
@@ -96,6 +107,15 @@ export const getAbsenceDateRangeDisplayTextWithDayOfWeek = (
       currentYear = interval.start.getFullYear();
       currentMonth = format(interval.start, monthFormat);
     }
+    if (currentMonth !== format(interval.start, monthFormat)) {
+      // New interval crosses into a new Month from the previous interval
+      overallDateRangeDisplay += ` ${format(
+        interval.start,
+        `${monthFormat}`
+      )} `;
+
+      currentMonth = format(interval.start, monthFormat);
+    }
 
     if (currentYear !== interval.end.getFullYear()) {
       // Current interval crosses a year boundary
@@ -125,6 +145,7 @@ export const getAbsenceDateRangeDisplayTextWithDayOfWeek = (
     } else if (interval.start.getDate() === interval.end.getDate()) {
       overallDateRangeDisplay += `${format(interval.start, "d")},`;
       overallDayOfWeekDisplay += `${format(interval.start, dayOfWeekFormat)},`;
+      currentMonth = format(interval.end, monthFormat);
     } else {
       overallDateRangeDisplay += `${format(interval.start, "d")}-${format(
         interval.end,
@@ -134,6 +155,7 @@ export const getAbsenceDateRangeDisplayTextWithDayOfWeek = (
         interval.start,
         dayOfWeekFormat
       )}-${format(interval.end, dayOfWeekFormat)},`;
+      currentMonth = format(interval.end, monthFormat);
     }
   });
 
