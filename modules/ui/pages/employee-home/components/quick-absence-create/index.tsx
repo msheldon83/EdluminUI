@@ -21,6 +21,7 @@ import {
   createAbsenceDetailInput,
   getAbsenceDates,
   TranslateAbsenceErrorCodeToMessage,
+  getCannotCreateAbsenceDates,
 } from "ui/components/absence/helpers";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { Section } from "ui/components/section";
@@ -169,25 +170,19 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     state.viewingCalendarMonth
   );
 
+  const disabledDates = useMemo(
+    () => getCannotCreateAbsenceDates(disabledDateObjs),
+    [disabledDateObjs]
+  );
+
   React.useEffect(() => {
-    const conflictingDates = disabledDateObjs
-      .filter(dis => dis.type === "nonWorkDay")
-      .map(dis => dis.date)
-      .filter(dis =>
-        some(state.selectedAbsenceDates, ad => isSameDay(ad, dis))
-      );
+    const conflictingDates = disabledDates.filter(dis =>
+      some(state.selectedAbsenceDates, ad => isSameDay(ad, dis))
+    );
     if (conflictingDates.length > 0) {
       dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
     }
   }, [disabledDateObjs]);
-
-  const disabledDates = useMemo(
-    () =>
-      disabledDateObjs
-        .filter(dis => dis.type === "nonWorkDay")
-        .map(d => d.date),
-    [disabledDateObjs]
-  );
 
   const onDayPartChange = React.useCallback(
     async (value: DayPart | undefined) => await setValue("dayPart", value),

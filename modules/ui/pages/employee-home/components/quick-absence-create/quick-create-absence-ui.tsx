@@ -154,6 +154,7 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
       </div>
 
       <CreateAbsenceCalendar
+        monthNavigation
         employeeId={props.employeeId}
         currentMonth={currentMonth}
         onMonthChange={onMonthChange}

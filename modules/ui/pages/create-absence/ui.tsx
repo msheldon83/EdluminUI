@@ -35,6 +35,7 @@ import {
   createAbsenceDetailInput,
   getAbsenceDates,
   TranslateAbsenceErrorCodeToMessage,
+  getCannotCreateAbsenceDates,
 } from "ui/components/absence/helpers";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
@@ -171,15 +172,19 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "accountingCode", type: "custom" });
   register({ name: "payCode", type: "custom" });
 
-  const disabledDates = useEmployeeDisabledDates(
+  const disabledDatesObjs = useEmployeeDisabledDates(
     state.employeeId,
     state.viewingCalendarMonth
   );
+  const disabledDates = useMemo(
+    () => getCannotCreateAbsenceDates(disabledDatesObjs),
+    [disabledDatesObjs]
+  );
+
   React.useEffect(() => {
-    const conflictingDates = disabledDates
-      .filter(dis => dis.type === "nonWorkDay")
-      .map(dis => dis.date)
-      .filter(dis => some(state.absenceDates, ad => isSameDay(ad, dis)));
+    const conflictingDates = disabledDates.filter(dis =>
+      some(state.absenceDates, ad => isSameDay(ad, dis))
+    );
     if (conflictingDates.length > 0) {
       dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
     }
@@ -483,17 +488,14 @@ export const buildAbsenceCreateInput = (
   organizationId: number,
   employeeId: number,
   positionId: number,
-  disabledDates: DisabledDate[],
+  disabledDates: Date[],
   needsReplacement: boolean,
   vacancyDetails?: VacancyDetail[]
 ): AbsenceCreateInput | null => {
   if (!formValues.absenceReason || !formValues.dayPart) {
     return null;
   }
-  const dates = getAbsenceDates(
-    absenceDates,
-    disabledDates.map(d => d.date)
-  );
+  const dates = getAbsenceDates(absenceDates, disabledDates);
 
   if (!dates) return null;
 

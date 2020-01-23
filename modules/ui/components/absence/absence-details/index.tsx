@@ -63,7 +63,7 @@ type Props = {
   vacancies: Vacancy[];
   locationIds?: number[];
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
-  disabledDates: DisabledDate[];
+  disabledDates: Date[];
   balanceUsageText?: string;
   setVacanciesInput: (input: VacancyDetail[] | undefined) => void;
   /** default: pre-arrange */
@@ -184,6 +184,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </div>
 
         <CreateAbsenceCalendar
+          monthNavigation
           selectedAbsenceDates={props.absenceDates}
           employeeId={props.employeeId}
           currentMonth={props.currentMonth}

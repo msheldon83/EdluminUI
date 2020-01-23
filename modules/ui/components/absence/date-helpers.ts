@@ -1,10 +1,9 @@
 import { getContiguousDateIntervals } from "helpers/date";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { format } from "date-fns";
 
 export const getAbsenceDateRangeDisplayText = (
   allDates: Date[],
-  disabledDates?: DisabledDate[]
+  disabledDates?: Date[]
 ): string | null => {
   if (allDates.length === 0) {
     return null;
@@ -12,7 +11,7 @@ export const getAbsenceDateRangeDisplayText = (
 
   const intervals = getContiguousDateIntervals(
     allDates,
-    disabledDates ? disabledDates.map(d => d.date) : undefined
+    disabledDates ?? undefined
   );
 
   if (intervals.length === 0) {

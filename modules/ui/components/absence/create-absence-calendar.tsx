@@ -4,14 +4,20 @@ import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-
 import * as React from "react";
 import { useMemo } from "react";
 import { CustomCalendar } from "../form/custom-calendar";
+import { getCannotCreateAbsenceDates } from "./helpers";
 
 type Props = {
   selectedAbsenceDates: Date[];
   employeeId: string;
   currentMonth: Date;
-  onMonthChange: (date: Date) => void;
-  onSelectDates: (dates: Array<Date>) => void;
-};
+} & (
+  | { monthNavigation: false }
+  | {
+      monthNavigation: true;
+      onMonthChange: (date: Date) => void;
+      onSelectDates: (dates: Array<Date>) => void;
+    }
+);
 
 export const CreateAbsenceCalendar: React.FC<Props> = props => {
   const { selectedAbsenceDates } = props;
@@ -23,15 +29,12 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
 
   const customDatesDisabled = useMemo(
     () =>
-      disabledDateObjs
-        .filter(dis => dis.type === "nonWorkDay")
-        .map(d => d.date)
-        .map(date => {
-          return {
-            date,
-            buttonProps: { className: classes.dateDisabled },
-          };
-        }),
+      getCannotCreateAbsenceDates(disabledDateObjs).map(date => {
+        return {
+          date,
+          buttonProps: { className: classes.dateDisabled },
+        };
+      }),
     [disabledDateObjs, classes.dateDisabled]
   );
 
@@ -76,10 +79,9 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
 
   return (
     <CustomCalendar
-      monthNavigation
       variant="month"
-      {...props}
       month={props.currentMonth}
+      {...props}
       customDates={customDates}
     />
   );
