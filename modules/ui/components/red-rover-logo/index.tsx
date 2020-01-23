@@ -7,7 +7,7 @@ type Props = {
   showSmallLogo?: boolean;
 };
 
-export const EdluminLogo: React.FC<Props> = props => {
+export const RedRoverLogo: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
