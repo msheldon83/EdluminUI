@@ -129,7 +129,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
 
   const employee = (getEmployee.state === "LOADING" ||
   getEmployee.state === "UPDATING"
-    ? []
+    ? undefined
     : getEmployee.data?.orgUser?.byId?.employee) as Pick<
     Employee,
     "id" | "orgId" | "firstName" | "lastName" | "primaryPosition"

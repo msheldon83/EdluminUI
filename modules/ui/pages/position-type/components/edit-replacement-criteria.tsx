@@ -6,6 +6,7 @@ import { UpdatePositionType } from "ui/pages/position-type/graphql/update-positi
 import { GetQualifiedPositionTypeCountsWithinOrg } from "ui/components/replacement-criteria/graphql/get-qualified-position-type-counts.gen";
 import { useCallback } from "react";
 import { useSnackbar } from "hooks/use-snackbar";
+import { PositionType } from "graphql/server-types.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { ReplacementCriteriaUI } from "ui/components/replacement-criteria/index";
 import { useRouteParams } from "ui/routes/definition";
@@ -30,6 +31,13 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     variables: { id: params.positionTypeId },
   });
 
+  const positionType = (getPositionType.state === "LOADING"
+    ? undefined
+    : getPositionType.data?.positionType?.byId) as Pick<
+    PositionType,
+    "id" | "orgId" | "name" | "rowVersion" | "replacementCriteria"
+  >;
+
   //Query qualified numbers
   const getQualifiedNumbers = useQueryBundle(
     GetQualifiedPositionTypeCountsWithinOrg,
@@ -47,7 +55,8 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       const result = await updatePositionType({
         variables: {
           positionType: {
-            id: params.positionTypeId,
+            id: Number(params.positionTypeId),
+            rowVersion: positionType?.rowVersion,
             replacementCriteria: {
               mustHave: mustHaveInput.map(l => ({ id: l })),
             },
@@ -60,7 +69,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updatePositionType]
+    [updatePositionType, getPositionType, positionType]
   );
 
   const updateMustNot = useCallback(
@@ -68,7 +77,8 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       const result = await updatePositionType({
         variables: {
           positionType: {
-            id: params.positionTypeId,
+            id: Number(params.positionTypeId),
+            rowVersion: positionType?.rowVersion,
             replacementCriteria: {
               mustNotHave: mustNotInput.map(l => ({ id: l })),
             },
@@ -81,7 +91,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updatePositionType]
+    [updatePositionType, getPositionType, positionType]
   );
 
   const updatePreferHave = useCallback(
@@ -89,7 +99,8 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       const result = await updatePositionType({
         variables: {
           positionType: {
-            id: params.positionTypeId,
+            id: Number(params.positionTypeId),
+            rowVersion: positionType?.rowVersion,
             replacementCriteria: {
               shouldHave: shouldHaveInput.map(l => ({ id: l })),
             },
@@ -102,7 +113,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updatePositionType]
+    [updatePositionType, getPositionType, positionType]
   );
 
   const updatePreferNotHave = useCallback(
@@ -110,7 +121,8 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       const result = await updatePositionType({
         variables: {
           positionType: {
-            id: params.positionTypeId,
+            id: Number(params.positionTypeId),
+            rowVersion: positionType?.rowVersion,
             replacementCriteria: {
               shouldNotHave: shouldNotHaveInput.map(l => ({ id: l })),
             },
@@ -123,7 +135,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updatePositionType]
+    [updatePositionType, getPositionType, positionType]
   );
 
   if (
@@ -132,8 +144,6 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
   ) {
     return <></>;
   }
-
-  const positionType = getPositionType?.data?.positionType?.byId;
 
   const qualifiedCounts =
     getQualifiedNumbers?.data?.positionType?.qualifiedEmployeeCounts;
