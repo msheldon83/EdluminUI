@@ -1,24 +1,24 @@
-import * as React from "react";
-import { Theme } from "@material-ui/core/styles/createMuiTheme";
-import { makeStyles } from "@material-ui/core/styles";
-import clsx from "clsx";
 import Button, { ButtonProps } from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
-import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
+import { makeStyles } from "@material-ui/core/styles";
+import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
+import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
+import clsx from "clsx";
 import addDays from "date-fns/addDays";
 import addMonths from "date-fns/addMonths";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
-import format from "date-fns/format";
-import startOfWeek from "date-fns/startOfWeek";
-import startOfMonth from "date-fns/startOfMonth";
 import endOfMonth from "date-fns/endOfMonth";
-import isSameDay from "date-fns/isSameDay";
+import format from "date-fns/format";
 import getDay from "date-fns/getDay";
+import isSameDay from "date-fns/isSameDay";
 import isWeekend from "date-fns/isWeekend";
-import { sortDates, inDateInterval } from "helpers/date";
+import startOfMonth from "date-fns/startOfMonth";
+import startOfWeek from "date-fns/startOfWeek";
+import { inDateInterval, sortDates } from "helpers/date";
+import * as React from "react";
 
-type CustomCalendarProps = {
+export type CustomCalendarProps = {
   contained?: boolean;
   style?: React.CSSProperties;
   onSelectDates?: (dates: Array<Date>) => void;

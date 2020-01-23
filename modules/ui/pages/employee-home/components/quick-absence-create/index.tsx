@@ -1,11 +1,5 @@
 import { makeStyles } from "@material-ui/core";
-import {
-  addMonths,
-  isBefore,
-  startOfDay,
-  startOfMonth,
-  isSameDay,
-} from "date-fns";
+import { isBefore, isSameDay, startOfDay, startOfMonth } from "date-fns";
 import { useMutationBundle } from "graphql/hooks";
 import {
   AbsenceCreateInput,
@@ -14,6 +8,8 @@ import {
 } from "graphql/server-types.gen";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { useDialog } from "hooks/use-dialog";
+import { useSnackbar } from "hooks/use-snackbar";
+import { size, some } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import useForm from "react-hook-form";
@@ -33,8 +29,6 @@ import { CreateAbsence } from "ui/pages/create-absence/graphql/create.gen";
 import { CreateAbsenceConfirmationRoute } from "ui/routes/create-absence";
 import { QuickAbsenceCreateUI } from "./quick-create-absence-ui";
 import { quickCreateAbsenceReducer, QuickCreateAbsenceState } from "./state";
-import { useSnackbar } from "hooks/use-snackbar";
-import { size, some } from "lodash-es";
 
 type QuickCreateAbsenceFormData = {
   absenceReason: string;
@@ -175,13 +169,9 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     state.viewingCalendarMonth
   );
 
-  const existingAbsenceDates = useMemo(
-    () => disabledDateObjs.filter(d => d.type === "absence").map(d => d.date),
-    [disabledDateObjs]
-  );
-
   React.useEffect(() => {
     const conflictingDates = disabledDateObjs
+      .filter(dis => dis.type === "nonWorkDay")
       .map(dis => dis.date)
       .filter(dis =>
         some(state.selectedAbsenceDates, ad => isSameDay(ad, dis))
@@ -251,8 +241,6 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
           onToggleAbsenceDate={(d: Date) =>
             dispatch({ action: "toggleDate", date: d })
           }
-          disabledDates={disabledDates}
-          existingAbsenceDates={existingAbsenceDates}
           selectedDayPart={formValues.dayPart}
           onDayPartChange={onDayPartChange}
           startTimeError={errors.startTimeError}

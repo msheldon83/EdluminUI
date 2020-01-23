@@ -9,13 +9,12 @@ import {
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay } from "date-fns";
-import { addMonths } from "date-fns/esm";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import {
   DayPart,
   NeedsReplacement,
-  Vacancy,
   PermissionEnum,
+  Vacancy,
 } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
@@ -25,12 +24,12 @@ import { useHistory } from "react-router";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail } from "ui/components/absence/types";
-import { CustomCalendar } from "ui/components/form/custom-calendar";
+import { Can } from "ui/components/auth/can";
 import { SelectNew } from "ui/components/form/select-new";
+import { CreateAbsenceCalendar } from "../create-absence-calendar";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
-import { Can } from "ui/components/auth/can";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -151,16 +150,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [onSubstituteWantedChange]
   );
 
-  const viewPreviousMonth = React.useCallback(() => {
-    const previousMonth = addMonths(props.currentMonth, -1);
-    onSwitchMonth(previousMonth);
-  }, [props.currentMonth, onSwitchMonth]);
-
-  const viewNextMonth = React.useCallback(() => {
-    const nextMonth = addMonths(props.currentMonth, 1);
-    onSwitchMonth(nextMonth);
-  }, [props.currentMonth, onSwitchMonth]);
-
   const dayPartValue: DayPartValue = React.useMemo(() => {
     if (values.dayPart === DayPart.Hourly) {
       return {
@@ -171,20 +160,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     }
     return { part: values.dayPart };
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
-
-  const customDatesDisabled = props.disabledDates.map(({ date }) => {
-    return {
-      date,
-      buttonProps: { className: classes.dateDisabled },
-    };
-  });
-
-  const customAbsenceDates = props.absenceDates.map(date => {
-    return {
-      date,
-      buttonProps: { className: classes.absenceDate },
-    };
-  });
 
   return (
     <Grid container>
@@ -208,12 +183,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
           />
         </div>
 
-        <CustomCalendar
-          month={props.currentMonth}
-          monthNavigation
-          variant="month"
-          customDates={customDatesDisabled.concat(customAbsenceDates)}
-          onMonthChange={props.onSwitchMonth}
+        <CreateAbsenceCalendar
+          selectedAbsenceDates={props.absenceDates}
+          employeeId={props.employeeId}
+          currentMonth={props.currentMonth}
+          onMonthChange={onSwitchMonth}
           onSelectDates={dates => dates.forEach(props.onToggleAbsenceDate)}
         />
 

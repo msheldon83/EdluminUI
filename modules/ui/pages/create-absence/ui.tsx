@@ -13,7 +13,6 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
   Absence,
   AbsenceCreateInput,
-  AbsenceDetailCreateInput,
   AbsenceVacancyInput,
   DayPart,
   NeedsReplacement,
@@ -26,22 +25,16 @@ import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
 import { useDialog } from "hooks/use-dialog";
-import {
-  compact,
-  differenceWith,
-  flatMap,
-  isEmpty,
-  some,
-  size,
-} from "lodash-es";
+import { useSnackbar } from "hooks/use-snackbar";
+import { compact, flatMap, size, some } from "lodash-es";
 import * as React from "react";
 import { useCallback, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
 import {
-  TranslateAbsenceErrorCodeToMessage,
   createAbsenceDetailInput,
   getAbsenceDates,
+  TranslateAbsenceErrorCodeToMessage,
 } from "ui/components/absence/helpers";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
@@ -56,7 +49,6 @@ import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { projectVacancyDetails } from "./project-vacancy-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {
   firstName: string;
@@ -185,6 +177,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   );
   React.useEffect(() => {
     const conflictingDates = disabledDates
+      .filter(dis => dis.type === "nonWorkDay")
       .map(dis => dis.date)
       .filter(dis => some(state.absenceDates, ad => isSameDay(ad, dis)));
     if (conflictingDates.length > 0) {

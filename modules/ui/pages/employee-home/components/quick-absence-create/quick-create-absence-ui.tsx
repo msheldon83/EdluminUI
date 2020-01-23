@@ -8,11 +8,11 @@ import { useMemo } from "react";
 import { FieldError } from "react-hook-form/dist/types";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
+import { CreateAbsenceCalendar } from "ui/components/absence/create-absence-calendar";
 import {
   DayPartField,
   DayPartValue,
 } from "ui/components/absence/day-part-field";
-import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { SelectNew } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
 import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
@@ -27,8 +27,6 @@ type Props = {
   currentMonth: Date;
   onMonthChange: (date: Date) => void;
   selectedAbsenceDates: Date[];
-  disabledDates: Date[];
-  existingAbsenceDates: Date[];
   onToggleAbsenceDate: (date: Date) => void;
   selectedDayPart: DayPart | undefined;
   onDayPartChange: (value: DayPart | undefined) => void;
@@ -54,8 +52,7 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     onAbsenceReasonChange,
     absenceReasonError,
     selectedAbsenceDates,
-    disabledDates,
-    existingAbsenceDates,
+
     onToggleAbsenceDate,
     currentMonth,
     selectedDayPart,
@@ -137,52 +134,6 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     hourlyEndTime,
   ]);
 
-  const customDatesDisabled = useMemo(
-    () =>
-      disabledDates.map(date => {
-        return {
-          date,
-          buttonProps: { className: classes.dateDisabled },
-        };
-      }),
-    [disabledDates]
-  );
-
-  const customExistingAbsenceDates = useMemo(
-    () =>
-      existingAbsenceDates.map(date => {
-        return {
-          date,
-          buttonProps: { className: classes.existingDate },
-        };
-      }),
-    [existingAbsenceDates]
-  );
-
-  const customSelectedAbsenceDates = useMemo(
-    () =>
-      selectedAbsenceDates.map(date => {
-        return {
-          date,
-          buttonProps: { className: classes.selectedAbsenceDate },
-        };
-      }),
-    [selectedAbsenceDates]
-  );
-
-  const customDates = useMemo(
-    () => [
-      ...customDatesDisabled,
-      ...customExistingAbsenceDates,
-      ...customSelectedAbsenceDates,
-    ],
-    [
-      customDatesDisabled,
-      customExistingAbsenceDates,
-      customSelectedAbsenceDates,
-    ]
-  );
-
   return (
     <>
       <div className={classes.select}>
@@ -202,13 +153,12 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
         />
       </div>
 
-      <CustomCalendar
-        month={currentMonth}
-        monthNavigation
+      <CreateAbsenceCalendar
+        employeeId={props.employeeId}
+        currentMonth={currentMonth}
         onMonthChange={onMonthChange}
-        customDates={customDates}
+        selectedAbsenceDates={props.selectedAbsenceDates}
         onSelectDates={dates => dates.forEach(onToggleAbsenceDate)}
-        variant="month"
       />
 
       <DayPartField
