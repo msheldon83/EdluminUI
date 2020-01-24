@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { SectionHeader } from "ui/components/section-header";
 
 type Props = {
-  absenceErrors: ApolloError | null;
+  apolloErrors: ApolloError | null;
   errorBannerOpen: boolean;
   title: string;
   setErrorBannerOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -24,13 +24,13 @@ export const ErrorBanner: React.FC<Props> = props => {
   const classes = useStyles();
 
   const warnings =
-    props.absenceErrors?.graphQLErrors.filter(
+    props.apolloErrors?.graphQLErrors.filter(
       e => e.extensions?.data?.severity === "Warn"
     ) ?? [];
   const warningsOnly =
-    warnings.length === props.absenceErrors?.graphQLErrors.length;
+    warnings.length === props.apolloErrors?.graphQLErrors.length;
 
-  const messages = props.absenceErrors?.graphQLErrors.map((e, i) => {
+  const messages = props.apolloErrors?.graphQLErrors.map((e, i) => {
     const errorMessage = props.translateCodeToMessage
       ? TranslateAbsenceErrorCodeToMessage(e.extensions?.data?.code, t) ??
         e.extensions?.data?.text ??
