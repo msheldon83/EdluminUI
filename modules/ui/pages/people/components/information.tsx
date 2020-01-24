@@ -99,7 +99,7 @@ export const Information: React.FC<Props> = props => {
   const onResetPassword = async () => {
     await resetPassword({
       variables: {
-        resetPasswordInput: { id: Number(props.userId), orgId: orgUser.orgId },
+        resetPasswordInput: { id: Number(props.userId), orgId: Number(orgUser.orgId) },
       },
     });
   };
