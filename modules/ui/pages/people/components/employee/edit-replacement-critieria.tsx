@@ -134,10 +134,6 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     Employee,
     "id" | "orgId" | "firstName" | "lastName" | "primaryPosition"
   >;
-  const positionId =
-    getEmployee.state === "LOADING" || getEmployee.state === "UPDATING"
-      ? undefined
-      : getEmployee?.data?.orgUser?.byId?.employee?.primaryPosition?.id;
 
   const position = employee?.primaryPosition;
 
@@ -147,7 +143,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     {
       variables: {
         orgId: params.organizationId,
-        positionId: Number(positionId),
+        positionId: Number(position?.id),
       },
       skip: !position?.id,
     }
