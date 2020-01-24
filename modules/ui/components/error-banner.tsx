@@ -6,6 +6,7 @@ import { TFunction } from "i18next";
 import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
 import { useTranslation } from "react-i18next";
 import { SectionHeader } from "ui/components/section-header";
+import { compact, uniq } from "lodash-es";
 
 type Props = {
   apolloErrors: ApolloError | null;
@@ -30,17 +31,21 @@ export const ErrorBanner: React.FC<Props> = props => {
   const warningsOnly =
     warnings.length === props.apolloErrors?.graphQLErrors.length;
 
-  const messages = props.apolloErrors?.graphQLErrors.map((e, i) => {
-    const errorMessage = props.translateCodeToMessage
-      ? TranslateAbsenceErrorCodeToMessage(e.extensions?.data?.code, t) ??
-        e.extensions?.data?.text ??
-        e.extensions?.data?.code
-      : e.extensions?.data?.text ?? e.extensions?.data?.code;
-    if (!errorMessage) {
-      return null;
-    }
-    return errorMessage;
-  });
+  const messages = uniq(
+    compact(
+      props.apolloErrors?.graphQLErrors.map((e, i) => {
+        const errorMessage = props.translateCodeToMessage
+          ? TranslateAbsenceErrorCodeToMessage(e.extensions?.data?.code, t) ??
+            e.extensions?.data?.text ??
+            e.extensions?.data?.code
+          : e.extensions?.data?.text ?? e.extensions?.data?.code;
+        if (!errorMessage) {
+          return null;
+        }
+        return errorMessage;
+      })
+    )
+  );
 
   return (
     <>
