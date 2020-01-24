@@ -53,16 +53,19 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
       variables: { orgId: props.orgId, includeExpired: false },
     }
   );
-  const changeReasonOptions = getCalendarChangeReasons?.data?.orgRef_CalendarChangeReason?.all.map(
-    (cr: any) => {
-      return { label: cr.name, value: cr.id };
-    }
+  const changeReasonOptions = useMemo(
+    () =>
+      getCalendarChangeReasons?.data?.orgRef_CalendarChangeReason?.all.map(
+        (cr: any) => ({ label: cr.name, value: cr.id })
+      ),
+    [getCalendarChangeReasons]
   );
 
   const contracts = useContracts(props.orgId);
-  const contractOptions = contracts.map(c => {
-    return { label: c.name, value: parseInt(c.id) };
-  });
+  const contractOptions = useMemo(
+    () => contracts.map(c => ({ label: c.name, value: parseInt(c.id) })),
+    [contracts]
+  );
 
   const [enableAllContracts, setEnableAllContracts] = React.useState(true);
   const [selectedChangeReason, setSelectedChangeReason] = React.useState();
@@ -133,7 +136,10 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
       });
       return false;
     }
-    if (calendarChange.contractIds == undefined) {
+    if (
+      !calendarChange.affectsAllContracts &&
+      calendarChange.contractIds == undefined
+    ) {
       openSnackbar({
         message: t("Select a contract or choose, Apply To All Contracts."),
         dismissable: true,
