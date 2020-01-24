@@ -55,7 +55,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     organizationId: props.organizationId,
     viewingCalendarMonth: startOfMonth(new Date()),
     needsReplacement: props.defaultReplacementNeeded !== NeedsReplacement.No,
-    selectedAbsenceDates: [startOfDay(new Date())],
+    selectedAbsenceDates: [],
   });
 
   const [state, dispatch] = React.useReducer(
