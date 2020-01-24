@@ -49,9 +49,7 @@ export const ErrorBanner: React.FC<Props> = props => {
 
   return (
     <>
-      {props.errorBannerOpen === false ? (
-        <div></div>
-      ) : (
+      {props.errorBannerOpen && (
         <div>
           <Grid container>
             <Grid item xs={12}>
