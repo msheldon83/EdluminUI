@@ -97,11 +97,23 @@ export const Information: React.FC<Props> = props => {
     },
   });
   const onResetPassword = async () => {
-    await resetPassword({
+    const response = await resetPassword({
       variables: {
-        resetPasswordInput: { id: Number(props.userId), orgId: Number(orgUser.orgId) },
+        resetPasswordInput: {
+          id: Number(props.userId),
+          orgId: Number(orgUser.orgId),
+        },
       },
     });
+    const result = response?.data?.user?.resetPassword;
+    if (result) {
+      openSnackbar({
+        message: t("Reset password email has been sent"),
+        dismissable: true,
+        status: "success",
+        autoHideDuration: 5000,
+      });
+    }
   };
 
   const getOrgUserLastLogin = useQueryBundle(GetOrgUserLastLogin, {
