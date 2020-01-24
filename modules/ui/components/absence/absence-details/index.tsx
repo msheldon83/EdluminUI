@@ -1,13 +1,12 @@
 import { Button, Grid, makeStyles, Paper, Typography } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay } from "date-fns";
-import { addMonths } from "date-fns/esm";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import {
   DayPart,
   NeedsReplacement,
-  Vacancy,
   PermissionEnum,
+  Vacancy,
 } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
@@ -17,12 +16,12 @@ import { useHistory } from "react-router";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail } from "ui/components/absence/types";
-import { CustomCalendar } from "ui/components/form/custom-calendar";
+import { Can } from "ui/components/auth/can";
 import { SelectNew } from "ui/components/form/select-new";
+import { CreateAbsenceCalendar } from "../create-absence-calendar";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
-import { Can } from "ui/components/auth/can";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -56,7 +55,7 @@ type Props = {
   vacancies: Vacancy[];
   locationIds?: number[];
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
-  disabledDates: DisabledDate[];
+  disabledDates: Date[];
   balanceUsageText?: string;
   setVacanciesInput: (input: VacancyDetail[] | undefined) => void;
   /** default: pre-arrange */
@@ -136,16 +135,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [setValue]
   );
 
-  const viewPreviousMonth = React.useCallback(() => {
-    const previousMonth = addMonths(props.currentMonth, -1);
-    onSwitchMonth(previousMonth);
-  }, [props.currentMonth, onSwitchMonth]);
-
-  const viewNextMonth = React.useCallback(() => {
-    const nextMonth = addMonths(props.currentMonth, 1);
-    onSwitchMonth(nextMonth);
-  }, [props.currentMonth, onSwitchMonth]);
-
   const dayPartValue: DayPartValue = React.useMemo(() => {
     if (values.dayPart === DayPart.Hourly) {
       return {
@@ -156,20 +145,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     }
     return { part: values.dayPart };
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
-
-  const customDatesDisabled = props.disabledDates.map(({ date }) => {
-    return {
-      date,
-      buttonProps: { className: classes.dateDisabled },
-    };
-  });
-
-  const customAbsenceDates = props.absenceDates.map(date => {
-    return {
-      date,
-      buttonProps: { className: classes.absenceDate },
-    };
-  });
 
   return (
     <Grid container>
@@ -194,12 +169,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
           />
         </div>
 
-        <CustomCalendar
-          month={props.currentMonth}
+        <CreateAbsenceCalendar
           monthNavigation
-          variant="month"
-          customDates={customDatesDisabled.concat(customAbsenceDates)}
-          onMonthChange={props.onSwitchMonth}
+          selectedAbsenceDates={props.absenceDates}
+          employeeId={props.employeeId}
+          currentMonth={props.currentMonth}
+          onMonthChange={onSwitchMonth}
           onSelectDates={dates => dates.forEach(props.onToggleAbsenceDate)}
         />
 
@@ -358,23 +333,5 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  dateDisabled: {
-    backgroundColor: theme.customColors.lightGray,
-    color: theme.palette.text.disabled,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
-      color: theme.palette.text.disabled,
-    },
-  },
-  absenceDate: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.customColors.white,
-    },
   },
 }));

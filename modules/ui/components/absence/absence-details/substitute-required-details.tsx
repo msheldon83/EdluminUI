@@ -12,7 +12,6 @@ import {
   Vacancy,
   NeedsReplacement,
 } from "graphql/server-types.gen";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -37,7 +36,7 @@ type Props = {
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
   arrangeSubButtonTitle?: string;
-  disabledDates?: DisabledDate[];
+  disabledDates?: Date[];
   disableReplacementInteractions?: boolean;
   locationIds?: number[];
   disableEditingDatesAndTimes?: boolean;

@@ -18,7 +18,7 @@ type Props = {
   showHeader?: boolean;
   equalWidthDetails?: boolean;
   gridRef?: React.RefObject<HTMLDivElement>;
-  disabledDates?: DisabledDate[];
+  disabledDates?: Date[];
   detailsClassName?: string;
 };
 
@@ -104,7 +104,7 @@ const getVacancyDetailsDisplay = (
   equalWidthDetails: boolean,
   t: TFunction,
   classes: any,
-  disabledDates?: DisabledDate[]
+  disabledDates?: Date[]
 ) => {
   const groupedDetails = getVacancyDetailsGrouping(vacancyDetails);
   if (groupedDetails === null || !groupedDetails.length) {

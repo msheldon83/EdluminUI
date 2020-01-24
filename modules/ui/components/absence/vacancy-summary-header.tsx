@@ -1,15 +1,14 @@
-import * as React from "react";
 import { Typography } from "@material-ui/core";
-import { Vacancy } from "graphql/server-types.gen";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
-import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "./date-helpers";
-import { flatMap, compact } from "lodash-es";
 import { parseISO } from "date-fns";
+import { Vacancy } from "graphql/server-types.gen";
+import { compact, flatMap } from "lodash-es";
+import * as React from "react";
+import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "./date-helpers";
 
 type Props = {
   positionName?: string | null;
   vacancies: Vacancy[];
-  disabledDates?: DisabledDate[];
+  disabledDates?: Date[];
 };
 
 export const VacancySummaryHeader: React.FC<Props> = props => {
