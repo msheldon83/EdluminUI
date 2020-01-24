@@ -80,6 +80,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           <FormikSelect
             name={`${fieldNamePrefix}.locationId`}
             options={locationMenuOptions}
+            withResetValue={false}
           />
         </Grid>
         {props.showRemoveButton && (

@@ -6,7 +6,9 @@ import {
   OptionType,
 } from "ui/components/form/select-new";
 
-type Props = Required<Pick<SelectProps<false>, "options" | "name">>;
+type Props = Required<
+  Pick<SelectProps<false>, "options" | "name" | "withResetValue">
+>;
 
 export const FormikSelect: React.FC<Props> = props => {
   const [field, meta] = useField(props.name);
