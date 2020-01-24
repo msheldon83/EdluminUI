@@ -55,10 +55,7 @@ export const EmployeePosition: React.FC<Props> = props => {
     [orgUser]
   );
 
-  if (
-    getEmployeePosition.state === "LOADING" ||
-    !orgUser?.employee?.primaryPosition
-  ) {
+  if (getEmployeePosition.state === "LOADING" || !orgUser?.employee) {
     return <></>;
   }
 
@@ -71,7 +68,7 @@ export const EmployeePosition: React.FC<Props> = props => {
           id: orgUser.id,
           position: {
             ...positionInput,
-            id: Number(position.id),
+            id: position?.id,
           },
         },
       },
