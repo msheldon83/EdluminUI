@@ -28,7 +28,10 @@ import { useCallback, useMemo, useReducer } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
-import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
+import {
+  TranslateAbsenceErrorCodeToMessage,
+  getCannotCreateAbsenceDates,
+} from "ui/components/absence/helpers";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -44,6 +47,7 @@ import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 
 type Props = {
   firstName: string;
@@ -213,18 +217,18 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     const absenceDays = Object.keys(props.absenceDetailsIdsByDate).map(d =>
       parseISO(d)
     );
-    const remaining = differenceWith(
-      disabledDatesQuery.map(d => d.date),
+
+    return differenceWith(
+      getCannotCreateAbsenceDates(disabledDatesQuery),
       absenceDays,
       isSameDay
     );
-    return disabledDatesQuery.filter(d => remaining.find(r => r === d.date));
   }, [disabledDatesQuery, props.absenceDetailsIdsByDate]);
 
   React.useEffect(() => {
-    const conflictingDates = disabledDates
-      .map(dis => dis.date)
-      .filter(dis => some(state.absenceDates, ad => isSameDay(ad, dis)));
+    const conflictingDates = disabledDates.filter(dis =>
+      some(state.absenceDates, ad => isSameDay(ad, dis))
+    );
     if (conflictingDates.length > 0) {
       dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
     }
@@ -371,9 +375,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         status: "success",
         autoHideDuration: 5000,
       });
-      if (returnUrl) {
-        history.push(returnUrl);
-      }
     }
   };
   const onSelectReplacement = useCallback(
@@ -403,12 +404,20 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   return (
     <>
+      {returnUrl && (
+        <div className={classes.linkPadding}>
+          <Link to={returnUrl} className={classes.link}>
+            {t("Return to previous page")}
+          </Link>
+        </div>
+      )}
       <PageTitle title={t("Edit Absence")} withoutHeading />
 
       {step === "absence" && (
         <form
           onSubmit={handleSubmit(async data => {
             await update(data);
+            dispatch({ action: "resetAfterSave" });
           })}
         >
           <div className={classes.titleContainer}>
@@ -486,6 +495,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           existingVacancy
           employeeName={name}
           orgId={props.organizationId}
+          absenceId={props.absenceId}
           vacancies={projectedVacancies || props.initialVacancies}
           userIsAdmin={props.userIsAdmin}
           employeeId={props.employeeId}
@@ -517,7 +527,7 @@ const buildAbsenceUpdateInput = (
   absenceDates: Date[],
   absenceDetailsIdsByDate: Record<string, string>,
   formValues: EditAbsenceFormData,
-  disabledDates: DisabledDate[],
+  disabledDates: Date[],
   state: EditAbsenceState,
   vacancyDetails: VacancyDetail[]
 ): AbsenceUpdateInput => {
@@ -526,7 +536,7 @@ const buildAbsenceUpdateInput = (
   }
 
   const dates = differenceWith(absenceDates, disabledDates, (a, b) =>
-    isSameDay(a, b.date)
+    isSameDay(a, b)
   );
 
   const vDetails =
@@ -603,4 +613,13 @@ const useStyles = makeStyles(theme => ({
   },
   title: { flexGrow: 1 },
   confirmationNumber: {},
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
+  },
+  linkPadding: {
+    paddingBottom: theme.typography.pxToRem(15),
+  },
 }));

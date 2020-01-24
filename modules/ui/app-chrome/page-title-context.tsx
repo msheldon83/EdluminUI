@@ -2,6 +2,8 @@ import * as React from "react";
 import { useMemo, useState, useCallback, useContext, useEffect } from "react";
 import { useScreenSize } from "hooks";
 import { compact } from "lodash-es";
+import { useQueryBundle } from "graphql/hooks";
+import { GetOrganizationName } from "./organization-switcher-bar/GetOrganizationName.gen";
 
 type PageTitleContext = {
   showIn: "menu-bar" | "page-content";
@@ -21,9 +23,18 @@ export const PageTitleProvider: React.FC<{}> = props => {
   const [title, setTitle] = useState<string>();
   const [organizationId, setOrganizationId] = useState<string>();
 
+  const org = useQueryBundle(GetOrganizationName, {
+    variables: { id: organizationId },
+    fetchPolicy: "cache-only",
+  });
+  const organizationName =
+    org.state === "DONE" || org.state === "UPDATING"
+      ? org.data.organization?.byId?.name
+      : "";
   useEffect(() => {
-    document.title = compact([title, organizationId, "RedRover"]).join(" - ");
-  }, [title, organizationId]);
+    document.title = compact([title, organizationName, "RedRover"]).join(" - ");
+  }, [title, organizationName]);
+
   /*
   the logic for supplyTitle might have race conditions.
   probably unlikely to encounter in normal use?
