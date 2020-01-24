@@ -34,12 +34,11 @@ import { AbsenceDetails } from "ui/components/absence/absence-details";
 import {
   createAbsenceDetailInput,
   getAbsenceDates,
-  TranslateAbsenceErrorCodeToMessage,
   getCannotCreateAbsenceDates,
 } from "ui/components/absence/helpers";
-import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
+import { ErrorBanner } from "ui/components/error-banner";
 import { VacancyDetail } from "../../components/absence/types";
 import { AssignSub } from "./assign-sub/index";
 import { Confirmation } from "./confirmation";
@@ -50,6 +49,7 @@ import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { projectVacancyDetails } from "./project-vacancy-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
+import { ApolloError } from "apollo-client";
 
 type Props = {
   firstName: string;
@@ -128,18 +128,15 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     }
   }, [t, errors, snackbar, formErrorShown]);
 
+  const [errorBannerOpen, setErrorBannerOpen] = useState(false);
+  const [absenceErrors, setAbsenceErrors] = useState<ApolloError | null>(null);
+
   const formValues = getValues();
 
   const [createAbsence] = useMutationBundle(CreateAbsence, {
     onError: error => {
-      ShowIgnoreAndContinueOrError(
-        error,
-        openDialog,
-        t("There was an issue creating the absence"),
-        async () => await create(formValues, true),
-        t,
-        TranslateAbsenceErrorCodeToMessage
-      );
+      setAbsenceErrors(error);
+      setErrorBannerOpen(true);
     },
   });
 
@@ -366,6 +363,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
               </>
             )}
             <Section className={classes.absenceDetails}>
+              <ErrorBanner
+                errorBannerOpen={errorBannerOpen}
+                title={t("There was an issue creating the absence")}
+                apolloErrors={absenceErrors}
+                setErrorBannerOpen={setErrorBannerOpen}
+                continueAction={async () => await create(formValues, true)}
+              />
               <AbsenceDetails
                 currentMonth={state.viewingCalendarMonth}
                 onSwitchMonth={d =>
