@@ -31,7 +31,10 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("12/23/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(allDays, disabledDates);
+    const result = getAbsenceDateRangeDisplayText(
+      allDays,
+      disabledDates.map(d => d.date)
+    );
     expect(result).toBe("December 16-17,19-20,23, 2019");
   });
 
@@ -58,7 +61,10 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("11/29/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(allDays, disabledDates);
+    const result = getAbsenceDateRangeDisplayText(
+      allDays,
+      disabledDates.map(d => d.date)
+    );
     expect(result).toBe("November 18-19,21,23-26,29, 2019");
   });
 
@@ -80,7 +86,10 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("12/3/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(allDays, disabledDates);
+    const result = getAbsenceDateRangeDisplayText(
+      allDays,
+      disabledDates.map(d => d.date)
+    );
     expect(result).toBe("November 28,30 - December 3, 2019");
   });
 
@@ -99,7 +108,10 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("12/12/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(allDays, disabledDates);
+    const result = getAbsenceDateRangeDisplayText(
+      allDays,
+      disabledDates.map(d => d.date)
+    );
     expect(result).toBe(
       "November 18-19,21,23-26,29 - December 2,4-5,7-9,11-12, 2019"
     );
@@ -134,7 +146,10 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("1/6/2020")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(allDays, disabledDates);
+    const result = getAbsenceDateRangeDisplayText(
+      allDays,
+      disabledDates.map(d => d.date)
+    );
     expect(result).toBe("December 23-24,26,28, 2019 - January 1,3-6, 2020");
   });
 
@@ -155,7 +170,10 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("1/3/2020")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(allDays, disabledDates);
+    const result = getAbsenceDateRangeDisplayText(
+      allDays,
+      disabledDates.map(d => d.date)
+    );
     expect(result).toBe("December 23, 2019 - January 1,3, 2020");
   });
 });
