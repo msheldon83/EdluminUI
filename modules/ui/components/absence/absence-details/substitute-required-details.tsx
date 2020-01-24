@@ -1,7 +1,6 @@
 import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import { PermissionEnum, Vacancy } from "graphql/server-types.gen";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,7 +25,7 @@ type Props = {
   replacementEmployeeId?: number;
   replacementEmployeeName?: string;
   arrangeSubButtonTitle?: string;
-  disabledDates?: DisabledDate[];
+  disabledDates?: Date[];
   disableReplacementInteractions?: boolean;
   locationIds?: number[];
   disableEditingDatesAndTimes?: boolean;
