@@ -3,13 +3,14 @@ import { Grid, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 
 type Props = {
+  size?: "small" | "large";
   className?: string;
-  showSmallLogo?: boolean;
 };
 
 export const RedRoverLogo: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const { size = "large" } = props;
 
   return (
     <Grid
@@ -18,7 +19,7 @@ export const RedRoverLogo: React.FC<Props> = props => {
       alignItems="center"
       wrap="nowrap"
     >
-      {props.showSmallLogo ? (
+      {size === "small" ? (
         <img
           src={require("ui/icons/red-rover-minor-logo.svg")}
           className={classes.minorLogo}

@@ -26,7 +26,7 @@ export const NavigationSideBar: React.FC<Props> = props => {
           }`,
         }}
       >
-        <RedRoverLogo showSmallLogo={!props.expanded} />
+        <RedRoverLogo size={props.expanded ? "large" : "small"} />
 
         <RoleSwitcher expanded={props.expanded} />
         <Divider className={classes.divider} />
