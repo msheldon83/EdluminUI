@@ -79,7 +79,7 @@ export const ReplacementCriteriaEditLoader = asyncComponent({
       await import(
         "ui/pages/position-type/components/edit-replacement-criteria"
       )
-    ).ReplacementCriteriaEdit;
+    ).PeopleReplacementCriteriaEdit;
     return ReplacementCriteriaEdit;
   },
   name: "ReplacementCriteriaEditSettingsPage",

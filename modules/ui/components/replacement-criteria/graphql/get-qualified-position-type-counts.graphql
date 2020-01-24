@@ -1,0 +1,11 @@
+query GetQualifiedPositionTypeCountsWithinOrg(
+  $orgId: ID!
+  $positionTypeId: Int!
+) {
+  positionType {
+    qualifiedEmployeeCounts(orgId: $orgId, positionTypeId: $positionTypeId) {
+      numFullyQualified
+      numMinimallyQualified
+    }
+  }
+}
