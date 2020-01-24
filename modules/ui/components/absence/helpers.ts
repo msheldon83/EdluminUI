@@ -19,6 +19,7 @@ import { convertStringToDate } from "helpers/date";
 import { TFunction } from "i18next";
 import { DateStepperHeader } from "../date-stepper-header";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
+import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -502,3 +503,7 @@ export const getAbsenceDates = (
   }
   return dates;
 };
+
+// Answers the question, "on which days can I not create an absence?"
+export const getCannotCreateAbsenceDates = (disabledDates: DisabledDate[]) =>
+  disabledDates.filter(d => d.type === "nonWorkDay").map(d => d.date);

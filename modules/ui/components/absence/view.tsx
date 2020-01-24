@@ -6,20 +6,19 @@ import {
   AbsenceReason,
   AccountingCode,
   PayCode,
-  Vacancy,
   PermissionEnum,
+  Vacancy,
 } from "graphql/server-types.gen";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { useScreenSize } from "hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { some } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { CustomCalendar } from "../form/custom-calendar";
+import { Can } from "../auth/can";
 import { AssignedSub } from "./assigned-sub";
+import { CreateAbsenceCalendar } from "./create-absence-calendar";
 import { getAbsenceDateRangeDisplayText } from "./date-helpers";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import {
@@ -27,9 +26,9 @@ import {
   getAbsenceDetailsGrouping,
   getReplacementEmployeeForVacancy,
   ReplacementEmployeeForVacancy,
+  getCannotCreateAbsenceDates,
 } from "./helpers";
 import { VacancyDetails } from "./vacancy-details";
-import { Can } from "../auth/can";
 
 type Props = {
   orgId: string;
@@ -41,7 +40,6 @@ type Props = {
 export const View: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
   const { openSnackbar } = useSnackbar();
   const absenceReasons = useAbsenceReasons(props.orgId);
 
@@ -62,8 +60,8 @@ export const View: React.FC<Props> = props => {
 
   const disabledDates = useMemo(
     () =>
-      allDisabled.filter(
-        disabled => !some(absenceDates, ad => isSameDay(ad, disabled.date))
+      getCannotCreateAbsenceDates(allDisabled).filter(
+        disabled => !some(absenceDates, ad => isSameDay(ad, disabled))
       ),
     [absenceDates, allDisabled]
   );
@@ -119,20 +117,6 @@ export const View: React.FC<Props> = props => {
   const payCode = getPayCode(absence);
   const accountingCode = getAccountingCode(absence);
 
-  const customDatesDisabled = disabledDates.map(({ date }) => {
-    return {
-      date,
-      buttonProps: { className: classes.dateDisabled },
-    };
-  });
-
-  const customAbsenceDates = absenceDates.map(date => {
-    return {
-      date,
-      buttonProps: { className: classes.absenceDate },
-    };
-  });
-
   return (
     <div>
       <Grid container alignItems="flex-start" spacing={4}>
@@ -159,10 +143,11 @@ export const View: React.FC<Props> = props => {
             </div>
 
             <div className={classes.dates}>
-              <CustomCalendar
-                month={parseISO(absence.startDate)}
-                customDates={customDatesDisabled.concat(customAbsenceDates)}
-                variant="month"
+              <CreateAbsenceCalendar
+                monthNavigation={false}
+                currentMonth={parseISO(absence.startDate)}
+                selectedAbsenceDates={absenceDates}
+                employeeId={absence.employeeId.toString()}
               />
             </div>
 
@@ -224,9 +209,7 @@ export const View: React.FC<Props> = props => {
                         {props.isAdmin && (accountingCode || payCode) && (
                           <Grid item container className={classes.subCodes}>
                             {accountingCode && (
-                              <Can
-                                do={[PermissionEnum.AbsVacViewAccountCode]}
-                              >
+                              <Can do={[PermissionEnum.AbsVacViewAccountCode]}>
                                 <Grid item xs={payCode ? 6 : 12}>
                                   <Typography variant={"h6"}>
                                     {t("Accounting code")}
@@ -236,9 +219,7 @@ export const View: React.FC<Props> = props => {
                               </Can>
                             )}
                             {payCode && (
-                              <Can
-                                do={[PermissionEnum.AbsVacViewPayCode]}
-                              >
+                              <Can do={[PermissionEnum.AbsVacViewPayCode]}>
                                 <Grid item xs={accountingCode ? 6 : 12}>
                                   <Typography variant={"h6"}>
                                     {t("Pay code")}
@@ -337,24 +318,6 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
   },
-  dateDisabled: {
-    backgroundColor: theme.customColors.lightGray,
-    color: theme.palette.text.disabled,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
-      color: theme.palette.text.disabled,
-    },
-  },
-  absenceDate: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.customColors.white,
-    },
-  },
 }));
 
 /* TODO: Currently we are assuming that there is only 1 Absence Reason in
@@ -364,7 +327,7 @@ const useStyles = makeStyles(theme => ({
 const getAbsenceReasonListDisplay = (
   absence: Absence,
   absenceReasons: Pick<AbsenceReason, "id" | "name">[],
-  disabledDates: DisabledDate[],
+  disabledDates: Date[],
   classes: any
 ) => {
   const detailsGrouping = getAbsenceDetailsGrouping(absence);

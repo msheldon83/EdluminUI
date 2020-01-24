@@ -8,7 +8,7 @@ export type QuickCreateAbsenceState = {
   organizationId: string;
   viewingCalendarMonth: Date;
   needsReplacement: boolean;
-  absenceDates: Date[];
+  selectedAbsenceDates: Date[];
 };
 
 export type QuickCreateAbsenceActions =
@@ -30,25 +30,28 @@ export const quickCreateAbsenceReducer: Reducer<
     }
     case "toggleDate": {
       const date = startOfDay(action.date);
-      if (find(prev.absenceDates, d => isSameDay(d, date))) {
+      if (find(prev.selectedAbsenceDates, d => isSameDay(d, date))) {
         return {
           ...prev,
           vacanciesInput: undefined,
-          absenceDates: filter(prev.absenceDates, d => !isSameDay(d, date)),
+          selectedAbsenceDates: filter(
+            prev.selectedAbsenceDates,
+            d => !isSameDay(d, date)
+          ),
         };
       } else {
         return {
           ...prev,
           vacanciesInput: undefined,
-          absenceDates: [...prev.absenceDates, date],
+          selectedAbsenceDates: [...prev.selectedAbsenceDates, date],
         };
       }
     }
     case "removeAbsenceDates": {
       return {
         ...prev,
-        absenceDates: differenceWith(
-          prev.absenceDates,
+        selectedAbsenceDates: differenceWith(
+          prev.selectedAbsenceDates,
           action.dates,
           isSameDay
         ),

@@ -29,7 +29,7 @@ type Props = {
   onChangedVacancies: (data: VacancyDetail[]) => void;
   employeeId: string;
   setStep: (s: "absence") => void;
-  disabledDates?: DisabledDate[];
+  disabledDates?: Date[];
 };
 
 type EditVacancyFormData = {
