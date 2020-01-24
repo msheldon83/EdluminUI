@@ -28,7 +28,7 @@ import { DatePicker } from "ui/components/form/date-picker";
 import { useContracts } from "reference-data/contracts";
 import { useMemo } from "react";
 import { OptionTypeBase } from "react-select/src/types";
-import { parseISO, format } from "date-fns";
+import { parseISO, format, isBefore } from "date-fns";
 import { CreateCalendarChange } from "../graphql/create-calendar-change.gen";
 import { CalendarChangeCreateInput } from "graphql/server-types.gen";
 import { ShowErrors } from "ui/components/error-helpers";
@@ -53,23 +53,33 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
       variables: { orgId: props.orgId, includeExpired: false },
     }
   );
-  const changeReasonOptions = getCalendarChangeReasons?.data?.orgRef_CalendarChangeReason?.all.map(
-    (cr: any) => {
-      return { label: cr.name, value: cr.id };
-    }
+  const changeReasonOptions = useMemo(
+    () =>
+      getCalendarChangeReasons?.data?.orgRef_CalendarChangeReason?.all.map(
+        (cr: any) => ({ label: cr.name, value: cr.id })
+      ),
+    [getCalendarChangeReasons]
   );
 
   const contracts = useContracts(props.orgId);
-  const contractOptions = contracts.map(c => {
-    return { label: c.name, value: parseInt(c.id) };
-  });
+  const contractOptions = useMemo(
+    () => contracts.map(c => ({ label: c.name, value: parseInt(c.id) })),
+    [contracts]
+  );
 
-  const [enableAllContracts, setEnableAllContracts] = React.useState(false);
+  const [enableAllContracts, setEnableAllContracts] = React.useState(true);
   const [selectedChangeReason, setSelectedChangeReason] = React.useState();
   const [selectedContracts, setselectedContracts] = React.useState();
   const [selectedToDate, setSelectedToDate] = React.useState(today);
   const [selectedFromDate, setSelectedFromDate] = React.useState(today);
   const [panelOpened, setPanelOpened] = React.useState(false);
+
+  const selectedToDateAsDate = useMemo(() => new Date(selectedToDate), [
+    selectedToDate,
+  ]);
+  const selectedFromDateAsDate = useMemo(() => new Date(selectedFromDate), [
+    selectedFromDate,
+  ]);
 
   const contractValue = contractOptions.filter(
     e => e.value && selectedContracts?.includes(Number(e.value))
@@ -97,7 +107,12 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
   };
 
   const create = async (calendarChange: CalendarChangeCreateInput) => {
-    if (calendarChange.startDate > calendarChange.endDate) {
+    if (
+      isBefore(
+        parseISO(calendarChange.startDate),
+        parseISO(calendarChange.endDate)
+      )
+    ) {
       openSnackbar({
         message: t("The from date has to be before the to date."),
         dismissable: true,
@@ -128,7 +143,10 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
       });
       return false;
     }
-    if (calendarChange.contractIds == undefined) {
+    if (
+      !calendarChange.affectsAllContracts &&
+      calendarChange.contractIds == undefined
+    ) {
       openSnackbar({
         message: t("Select a contract or choose, Apply To All Contracts."),
         dismissable: true,
@@ -181,7 +199,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
               setSelectedToDate(today);
               setSelectedFromDate(today);
               setselectedContracts([]);
-              setEnableAllContracts(false);
+              setEnableAllContracts(true);
               setSelectedChangeReason(changeReasonOptions[0].value);
               formProps.setFieldValue("notes", "");
               setPanelOpened(false);
@@ -193,7 +211,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                 startDate: data.fromDate,
                 endDate: data.toDate,
                 calendarChangeReasonId: data.changeReason,
-                contractIds: data.contracts,
+                contractIds: data.contracts ?? [],
                 affectsAllContracts: data.applyToAll,
               };
 
@@ -214,13 +232,13 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
               <form className={classes.form} onSubmit={handleSubmit}>
                 <Grid
                   container
-                  justify="space-between"
+                  justify="flex-start"
                   alignItems="center"
                   spacing={2}
                 >
-                  <Grid item xs={12}>
+                  <Grid item xs={3}>
                     <FormControlLabel
-                      checked={enableAllContracts}
+                      checked={values.applyToAll}
                       control={
                         <Checkbox
                           onChange={e => {
@@ -236,17 +254,10 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       label={t("Apply To All Contracts")}
                     />
                   </Grid>
-                </Grid>
-                <Grid
-                  container
-                  justify="space-between"
-                  alignItems="center"
-                  spacing={2}
-                >
-                  <Grid item xs={4}>
+                  <Grid item xs={3}>
                     <SelectMulti
                       name={"contracts"}
-                      disabled={enableAllContracts}
+                      disabled={values.applyToAll}
                       label={"Contracts"}
                       value={contractValue}
                       onChange={(value: OptionType[]) => {
@@ -261,28 +272,35 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       placeholder="Search for Contracts"
                     />
                   </Grid>
-                  <Grid item xs={2}>
+                </Grid>
+                <Grid
+                  container
+                  justify="flex-start"
+                  alignItems="center"
+                  spacing={2}
+                >
+                  <Grid item xs={3}>
                     <DatePicker
                       variant={"single-hidden"}
-                      startDate={values.fromDate}
+                      startDate={selectedFromDateAsDate}
                       onChange={({ startDate }) => {
-                        const startDateAsDate =
+                        const fromDateAsDate =
                           typeof startDate === "string"
                             ? startDate
                             : format(startDate, "MMM d, yyyy").toString();
 
-                        setSelectedFromDate(startDateAsDate);
-                        setFieldValue("fromDate", startDateAsDate);
-                        setSelectedToDate(startDateAsDate);
-                        setFieldValue("toDate", startDateAsDate);
+                        setSelectedFromDate(fromDateAsDate);
+                        setFieldValue("fromDate", fromDateAsDate);
+                        setSelectedToDate(fromDateAsDate);
+                        setFieldValue("toDate", fromDateAsDate);
                       }}
                       startLabel={t("From")}
                     />
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={3}>
                     <DatePicker
                       variant={"single-hidden"}
-                      startDate={values.toDate}
+                      startDate={selectedToDateAsDate}
                       onChange={({ startDate }) => {
                         const startDateAsDate =
                           typeof startDate === "string"
@@ -295,8 +313,14 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       startLabel={t("To")}
                     />
                   </Grid>
-
-                  <Grid item xs={4}>
+                </Grid>
+                <Grid
+                  container
+                  justify="flex-start"
+                  alignItems="center"
+                  spacing={2}
+                >
+                  <Grid item xs={3}>
                     <Typography>{t("Reason")}</Typography>
                     <SelectNew
                       options={changeReasonOptions}
@@ -318,16 +342,10 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       multiple={false}
                     />
                   </Grid>
-                </Grid>
-                <Grid
-                  container
-                  justify="space-between"
-                  alignItems="center"
-                  spacing={2}
-                >
-                  <Grid item xs={4}></Grid>
-                  <Grid item xs={8}>
+
+                  <Grid item xs={6}>
                     <Input
+                      value={values.notes}
                       label={t("Note")}
                       InputComponent={FormTextField}
                       onChange={(
