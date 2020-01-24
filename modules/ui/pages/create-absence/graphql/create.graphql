@@ -1,7 +1,100 @@
 mutation CreateAbsence($absence: AbsenceCreateInput!) {
   absence {
     create(absence: $absence) {
-      ...FullAbsenceDetails
+      id
+      rowVersion
+      details {
+        id
+        actualDuration
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        dayPartId
+        reasonUsages {
+          id
+          amount
+          sequence
+          absenceReasonTrackingTypeId
+          absenceReasonId
+        }
+      }
+      employeeId
+      organization {
+        id
+      }
+      startDate
+      endDate
+      startTimeLocal
+      endTimeLocal
+      notesToApprover
+      numDays
+      totalDuration
+      totalDayPortion
+      employee {
+        id
+        firstName
+        lastName
+      }
+      vacancies {
+        id
+        startDate
+        endDate
+        startTimeLocal
+        endTimeLocal
+        numDays
+        rowVersion
+        notesToReplacement
+        positionId
+        position {
+          id
+          positionTypeId
+          name
+          needsReplacement
+        }
+        details {
+          id
+          startDate
+          endDate
+          startTimeLocal
+          endTimeLocal
+          locationId
+          location {
+            id
+            name
+          }
+          payCodeId
+          assignment {
+            id
+            rowVersion
+            employee {
+              id
+              firstName
+              lastName
+            }
+          }
+          accountingCodeAllocations {
+            id
+            accountingCode {
+              id
+              name
+              description
+              externalId
+            }
+            allocation
+          }
+        }
+        absence {
+          startDate
+          endDate
+          details {
+            startDate
+            endDate
+            startTimeLocal
+            endTimeLocal
+          }
+        }
+      }
       createdUtc
       changedUtc
     }

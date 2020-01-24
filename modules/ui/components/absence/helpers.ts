@@ -3,7 +3,6 @@ import {
   Absence,
   AbsenceDetail,
   Maybe,
-  VacancyDetail,
   AbsenceDetailCreateInput,
 } from "graphql/server-types.gen";
 import {
@@ -14,12 +13,20 @@ import {
   map,
   isEmpty,
 } from "lodash-es";
-import { isAfter, isWithinInterval, format, isSameDay } from "date-fns";
+import {
+  isAfter,
+  isWithinInterval,
+  format,
+  isSameDay,
+  parseISO,
+  isEqual,
+  isBefore,
+} from "date-fns";
 import { convertStringToDate } from "helpers/date";
 import { TFunction } from "i18next";
-import { DateStepperHeader } from "../date-stepper-header";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
+import { VacancyDetail } from "./types";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -122,6 +129,8 @@ export type AbsenceDetailsGroup = DetailsGroup<AbsenceDetailsItem> & {
 
 export type VacancyDetailsGroup = DetailsGroup<VacancyDetailsItem> & {
   schedule?: string;
+  absenceStartTime?: Date;
+  absenceEndTime?: Date;
 };
 
 type DetailsItem = {
@@ -274,16 +283,24 @@ const convertAbsenceDetailsToDetailsItem = (
 };
 
 export const getVacancyDetailsGrouping = (
-  vacancyDetails: Maybe<VacancyDetail>[]
+  vacancyDetails: VacancyDetail[]
 ): VacancyDetailsGroup[] => {
   // Put the details in order by start date and time
-  const sortedVacancyDetails = vacancyDetails
-    .slice()
-    .sort((a, b) => a!.startTimeLocal - b!.startTimeLocal);
+  const sortedVacancyDetails = vacancyDetails.slice().sort((a, b) => {
+    const startTimeAsDateA = parseISO(a.startTime);
+    const startTimeAsDateB = parseISO(b.startTime);
+
+    if (isEqual(startTimeAsDateA, startTimeAsDateB)) {
+      // Fairly unlikely to occur
+      return 0;
+    }
+
+    return isBefore(startTimeAsDateA, startTimeAsDateB) ? -1 : 1;
+  });
 
   // Group all of the details that are on the same day together
   const detailsGroupedByStartDate = groupBy(sortedVacancyDetails, d => {
-    return d!.startDate;
+    return d.date;
   });
 
   const detailsGroupings: VacancyDetailsGroup[] = [];
@@ -339,6 +356,12 @@ export const getVacancyDetailsGrouping = (
       detailsGroupings.push({
         startDate: new Date(`${key} 00:00`),
         detailItems: convertVacancyDetailsToDetailsItem(keyAsDate, value),
+        absenceStartTime: value[0]?.absenceStartTime
+          ? parseISO(value[0]?.absenceStartTime)
+          : undefined,
+        absenceEndTime: value[0]?.absenceEndTime
+          ? parseISO(value[0]?.absenceEndTime)
+          : undefined,
       });
     }
   });
@@ -409,11 +432,11 @@ export const getVacancyDetailsGrouping = (
 
 const convertVacancyDetailsToDetailsItem = (
   date: Date,
-  details: Maybe<VacancyDetail>[]
+  details: VacancyDetail[]
 ): DetailsItemByDate<VacancyDetailsItem>[] => {
   const detailItems = details.map(v => {
-    const startTime = convertStringToDate(v!.startTimeLocal);
-    const endTime = convertStringToDate(v!.endTimeLocal);
+    const startTime = convertStringToDate(v.startTime);
+    const endTime = convertStringToDate(v.endTime);
     if (!startTime || !endTime) {
       return;
     }
@@ -422,8 +445,8 @@ const convertVacancyDetailsToDetailsItem = (
       date: date,
       startTime: format(startTime, "h:mm a"),
       endTime: format(endTime, "h:mm a"),
-      locationId: v!.locationId,
-      locationName: v!.location?.name,
+      locationId: v.locationId,
+      locationName: v.locationName,
     };
   });
   const populatedItems = detailItems.filter(
