@@ -117,12 +117,10 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   return (
     <>
       {wantsReplacement && (
-        <div className={classes.vacancyDetails}>
-          <VacancyDetails
-            vacancies={vacancies}
-            disabledDates={props.disabledDates}
-          />
-        </div>
+        <VacancyDetails
+          vacancies={vacancies}
+          disabledDates={props.disabledDates}
+        />
       )}
 
       <div className={classes.content}>
@@ -257,9 +255,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),
-  },
-  vacancyDetails: {
-    marginBottom: theme.spacing(),
+    paddingTop: theme.spacing(),
   },
   substituteDetailsSubtitle: { paddingBottom: theme.typography.pxToRem(1) },
   container: {
