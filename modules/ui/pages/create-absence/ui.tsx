@@ -34,7 +34,6 @@ import { AbsenceDetails } from "ui/components/absence/absence-details";
 import {
   createAbsenceDetailInput,
   getAbsenceDates,
-  TranslateAbsenceErrorCodeToMessage,
   getCannotCreateAbsenceDates,
 } from "ui/components/absence/helpers";
 import { PageTitle } from "ui/components/page-title";
@@ -50,7 +49,6 @@ import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { projectVacancyDetails } from "./project-vacancy-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-import { useSnackbar } from "hooks/use-snackbar";
 import { ApolloError } from "apollo-client";
 
 type Props = {
