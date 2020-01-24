@@ -26,6 +26,7 @@ import {
   getAbsenceDetailsGrouping,
   getReplacementEmployeeForVacancy,
   ReplacementEmployeeForVacancy,
+  getCannotCreateAbsenceDates,
 } from "./helpers";
 import { VacancyDetails } from "./vacancy-details";
 
@@ -59,10 +60,9 @@ export const View: React.FC<Props> = props => {
 
   const disabledDates = useMemo(
     () =>
-      allDisabled
-        .filter(d => d.type === "nonWorkDay")
-        .map(dis => dis.date)
-        .filter(disabled => !some(absenceDates, ad => isSameDay(ad, disabled))),
+      getCannotCreateAbsenceDates(allDisabled).filter(
+        disabled => !some(absenceDates, ad => isSameDay(ad, disabled))
+      ),
     [absenceDates, allDisabled]
   );
 

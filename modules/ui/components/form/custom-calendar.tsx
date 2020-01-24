@@ -18,7 +18,7 @@ import startOfWeek from "date-fns/startOfWeek";
 import { inDateInterval, sortDates } from "helpers/date";
 import * as React from "react";
 
-export type CustomCalendarProps = {
+type CustomCalendarProps = {
   contained?: boolean;
   style?: React.CSSProperties;
   onSelectDates?: (dates: Array<Date>) => void;

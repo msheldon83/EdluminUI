@@ -9,10 +9,7 @@ export const getAbsenceDateRangeDisplayText = (
     return null;
   }
 
-  const intervals = getContiguousDateIntervals(
-    allDates,
-    disabledDates ?? undefined
-  );
+  const intervals = getContiguousDateIntervals(allDates, disabledDates);
 
   if (intervals.length === 0) {
     return null;
