@@ -132,7 +132,7 @@ export const Information: React.FC<Props> = props => {
 
   const formattedLoginTime = formatIsoDateIfPossible(
     lastLogin ? lastLogin : null,
-    "MMM d, yyyy h:m a"
+    "MMM d, yyyy h:mm a"
   );
 
   const formattedBirthDate = formatIsoDateIfPossible(

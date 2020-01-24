@@ -22,6 +22,7 @@ import {
 
 type Props = {
   orgId: string;
+  absenceId?: string;
   existingVacancy?: boolean;
   vacancies: Vacancy[];
   userIsAdmin: boolean;
@@ -154,8 +155,8 @@ export const AssignSub: React.FC<Props> = props => {
       qualified: r.levelQualified,
       available: r.levelAvailable,
       isAvailableToSubWhenSearching: r.isAvailableToSubWhenSearching,
-      visible: r.isVisible,
-      visibleOn: r.visibleAtLocal,
+      availableToSubWhenSearchingAtUtc: r.availableToSubWhenSearchingAtUtc,
+      availableToSubWhenSearchingAtLocal: r.availableToSubWhenSearchingAtLocal,
       isEmployeeFavorite: r.isFavoriteEmployee,
       isLocationPositionTypeFavorite: r.isFavoritePositionType,
       selectable: r.isSelectable,
@@ -255,10 +256,19 @@ export const AssignSub: React.FC<Props> = props => {
             <Typography variant="h1">{props.employeeName}</Typography>
           )}
         </div>
-        <div>
-          <Button variant="outlined" onClick={props.onCancel}>
-            {t("Back to Absence Details")}
-          </Button>
+        <div className={classes.confAndReturnContainer}>
+          <div>
+            <Button variant="outlined" onClick={props.onCancel}>
+              {t("Back to Absence Details")}
+            </Button>
+          </div>
+          <div>
+            {props.absenceId && (
+              <Typography variant="h6">
+                {t("Confirmation")} #{props.absenceId}
+              </Typography>
+            )}
+          </div>
         </div>
       </div>
       <Section>
@@ -306,7 +316,12 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
+  },
+  confAndReturnContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
   },
   vacancyDetails: {
     marginBottom: theme.spacing(3),

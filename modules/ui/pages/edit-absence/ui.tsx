@@ -47,6 +47,7 @@ import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 
 type Props = {
   firstName: string;
@@ -374,9 +375,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         status: "success",
         autoHideDuration: 5000,
       });
-      if (returnUrl) {
-        history.push(returnUrl);
-      }
     }
   };
   const onSelectReplacement = useCallback(
@@ -406,12 +404,20 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   return (
     <>
+      {returnUrl && (
+        <div className={classes.linkPadding}>
+          <Link to={returnUrl} className={classes.link}>
+            {t("Return to previous page")}
+          </Link>
+        </div>
+      )}
       <PageTitle title={t("Edit Absence")} withoutHeading />
 
       {step === "absence" && (
         <form
           onSubmit={handleSubmit(async data => {
             await update(data);
+            dispatch({ action: "resetAfterSave" });
           })}
         >
           <div className={classes.titleContainer}>
@@ -489,6 +495,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           existingVacancy
           employeeName={name}
           orgId={props.organizationId}
+          absenceId={props.absenceId}
           vacancies={projectedVacancies || props.initialVacancies}
           userIsAdmin={props.userIsAdmin}
           employeeId={props.employeeId}
@@ -606,4 +613,13 @@ const useStyles = makeStyles(theme => ({
   },
   title: { flexGrow: 1 },
   confirmationNumber: {},
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
+  },
+  linkPadding: {
+    paddingBottom: theme.typography.pxToRem(15),
+  },
 }));
