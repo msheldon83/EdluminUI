@@ -20,8 +20,8 @@ export type AssignSubColumn = {
   qualified: VacancyQualification;
   available: VacancyAvailability;
   isAvailableToSubWhenSearching: boolean;
-  visible: boolean;
-  visibleOn?: string | null;
+  availableToSubWhenSearchingAtUtc?: string | null;
+  availableToSubWhenSearchingAtLocal?: string | null;
   isEmployeeFavorite: boolean;
   isLocationPositionTypeFavorite: boolean;
   selectable: boolean;
@@ -124,8 +124,12 @@ export const getAssignSubColumns = (
         return (
           <VisibleIcon
             isAvailableToSubWhenSearching={data.isAvailableToSubWhenSearching}
-            visible={data.visible}
-            visibleOn={data.visibleOn}
+            availableToSubWhenSearchingAtUtc={
+              data.availableToSubWhenSearchingAtUtc
+            }
+            availableToSubWhenSearchingAtLocal={
+              data.availableToSubWhenSearchingAtLocal
+            }
           />
         );
       },
