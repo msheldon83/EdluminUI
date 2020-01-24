@@ -141,9 +141,11 @@ export const PositionEditUI: React.FC<Props> = props => {
                       )}
                       multiple={false}
                       onChange={(value: OptionType) => {
-                        const id = (value as OptionTypeBase).value;
+                        const id = (value as OptionTypeBase).value.toString();
+                        console.log(id);
                         setFieldValue("positionTypeId", id);
                         const pt = positionTypes.find(x => x.id === id);
+                        console.log(pt);
                         if (pt?.needsReplacement) {
                           setFieldValue(
                             "needsReplacement",
@@ -151,10 +153,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                           );
                         }
                         if (pt?.defaultContractId) {
-                          setFieldValue(
-                            "contractId",
-                            pt.defaultContractId.toString()
-                          );
+                          setFieldValue("contractId", pt.defaultContractId);
                         }
                         if (props.setPositionTypeName) {
                           props.setPositionTypeName(value.label);

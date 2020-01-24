@@ -1169,7 +1169,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   employmentHistories: [EmploymentHistory]
   endorsements: [EmployeeEndorsement]
   locations: [Location]
-  substitutePreferences: SubstitutePreferences
+  substitutePreferences: SubstitutePreferences!
 }
 
 input EmployeeCreateInput {
@@ -1749,7 +1749,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   phoneNumber: String
   formattedPhone: String
   locationGroup: LocationGroup
-  substitutePreferences: SubstitutePreferences
+  substitutePreferences: SubstitutePreferences!
   address1: String
   address2: String
   city: String
@@ -1790,7 +1790,7 @@ type LocationGroup implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
-  substitutePreferences: SubstitutePreferences
+  substitutePreferences: SubstitutePreferences!
 }
 
 input LocationGroupCreateInput {
@@ -3384,7 +3384,7 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   forPermanentPositions: Boolean!
   needsReplacement: NeedsReplacement
   minAbsenceDurationMinutes: Int!
-  defaultContractId: Int
+  defaultContractId: ID
   defaultContract: Contract
   validUntil: DateTime
   expired: Boolean!
@@ -3396,15 +3396,15 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
 
 input PositionTypeCreateInput {
   name: String!
-  orgId: Int!
+  orgId: ID
   forStaffAugmentation: Boolean!
   forPermanentPositions: Boolean!
   externalId: String
   needsReplacement: NeedsReplacement
   minAbsenceDurationMinutes: Int!
-  defaultContractId: Int
+  defaultContractId: ID
   payTypeId: AbsenceReasonTrackingTypeId
-  payCodeId: Int
+  payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
 }
 
@@ -3430,7 +3430,7 @@ type PositionTypeQueries {
 }
 
 input PositionTypeUpdateInput {
-  id: Int!
+  id: ID!
   rowVersion: String!
   name: String
   forStaffAugmentation: Boolean
@@ -3438,10 +3438,10 @@ input PositionTypeUpdateInput {
   externalId: String
   needsReplacement: NeedsReplacement
   minAbsenceDurationMinutes: Int
-  defaultContractId: Int
+  defaultContractId: ID
   expired: Boolean
   payTypeId: AbsenceReasonTrackingTypeId
-  payCodeId: Int
+  payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
 }
 
@@ -4452,8 +4452,8 @@ type SubstitutePoolMembership {
 
 type SubstitutePreferences {
   _info: [ReturnMessage]
-  favoriteSubstitutes: [Employee]
-  blockedSubstitutes: [Employee]
+  favoriteSubstitutes: [Employee!]!
+  blockedSubstitutes: [Employee!]!
 }
 
 input SubstitutePreferencesInput {

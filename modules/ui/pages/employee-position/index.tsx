@@ -1,7 +1,6 @@
 import * as React from "react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Typography, makeStyles } from "@material-ui/core";
-import { PageTitle } from "ui/components/page-title";
 import { useTranslation } from "react-i18next";
 import { PositionEditUI } from "./ui";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
