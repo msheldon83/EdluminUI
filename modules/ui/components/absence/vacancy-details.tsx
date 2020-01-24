@@ -15,7 +15,7 @@ type Props = {
   showHeader?: boolean;
   equalWidthDetails?: boolean;
   gridRef?: React.RefObject<HTMLDivElement>;
-  disabledDates?: DisabledDate[];
+  disabledDates?: Date[];
 };
 
 export const VacancyDetails: React.FC<Props> = props => {
@@ -70,7 +70,7 @@ const getVacancyDetailsDisplay = (
   equalWidthDetails: boolean,
   t: TFunction,
   classes: any,
-  disabledDates?: DisabledDate[]
+  disabledDates?: Date[]
 ) => {
   const groupedDetails = getVacancyDetailsGrouping(vacancyDetails);
   if (groupedDetails === null || !groupedDetails.length) {
