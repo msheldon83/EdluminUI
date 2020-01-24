@@ -9,17 +9,14 @@ import { Qualified } from "./components/qualified";
 import { useQueryBundle } from "graphql/hooks";
 import { AvailableAttributes } from "./components/available-attributes";
 
-import { GetQualifiedEmployeeCountsWithinOrg } from "./graphql/get-qualified-employee-counts.gen";
-
 type Props = {
   mustHave: Attribute[];
   preferToHave: Attribute[];
   preferToNotHave: Attribute[];
   mustNotHave: Attribute[];
   availableAttributes?: Attribute[];
-  positionName: string | undefined;
+  title: string | undefined;
   orgId: string;
-  positionId: string | undefined;
   handleMust: (ids: string[]) => Promise<boolean>;
   handleMustNot: (ids: string[]) => Promise<boolean>;
   handlePrefer: (ids: string[]) => Promise<boolean>;
@@ -29,6 +26,8 @@ type Props = {
   existingPrefer: { id: string; name: string }[];
   existingPreferNot: { id: string; name: string }[];
   endorsementsIgnored: { id: string; name: string }[];
+  numMinimallyQualified?: number | undefined;
+  numFullyQualified?: number | undefined;
 };
 
 export type Attribute = {
@@ -43,29 +42,11 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const classes = useStyles();
 
-  //Query qualified numbers
-  const getQualifiedNumbers = useQueryBundle(
-    GetQualifiedEmployeeCountsWithinOrg,
-    {
-      variables: {
-        orgId: props.orgId,
-        positionId: Number(props.positionId),
-      },
-    }
-  );
-
-  if (getQualifiedNumbers.state === "LOADING") {
-    return <></>;
-  }
-
-  const qualifiedCounts =
-    getQualifiedNumbers?.data?.position?.qualifiedEmployeeCounts;
-
   return (
     <>
       <PageTitle title={t("Replacement Criteria")} withoutHeading={!isMobile} />
       <PageHeader
-        text={t("Replacement Criteria - ") + props.positionName}
+        text={t("Replacement Criteria - ") + props.title}
         label={t("Name")}
       />
       <Grid container className={classes.topPadding}>
@@ -78,8 +59,8 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
         >
           <Grid item xs={12}>
             <Qualified
-              highlyQualified={qualifiedCounts?.numFullyQualified}
-              minimallyQualified={qualifiedCounts?.numMinimallyQualified}
+              highlyQualified={props.numFullyQualified}
+              minimallyQualified={props.numMinimallyQualified}
             />
           </Grid>
           <ReplacementCriteriaView
