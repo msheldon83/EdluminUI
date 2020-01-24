@@ -3,7 +3,6 @@ import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
 import { useQueryBundle } from "graphql/hooks";
 import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useIsMobile } from "hooks";
@@ -30,7 +29,7 @@ type Props = {
   employeeId?: string;
   positionId?: string;
   positionName?: string;
-  disabledDates?: DisabledDate[];
+  disabledDates?: Date[];
   selectButtonText?: string;
   onSelectReplacement: (
     replacementId: number,
