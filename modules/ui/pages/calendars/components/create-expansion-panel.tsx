@@ -74,6 +74,13 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
   const [selectedFromDate, setSelectedFromDate] = React.useState(today);
   const [panelOpened, setPanelOpened] = React.useState(false);
 
+  const selectedToDateAsDate = useMemo(() => new Date(selectedToDate), [
+    selectedToDate,
+  ]);
+  const selectedFromDateAsDate = useMemo(() => new Date(selectedFromDate), [
+    selectedFromDate,
+  ]);
+
   const contractValue = contractOptions.filter(
     e => e.value && selectedContracts?.includes(Number(e.value))
   );
@@ -204,7 +211,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                 startDate: data.fromDate,
                 endDate: data.toDate,
                 calendarChangeReasonId: data.changeReason,
-                contractIds: data.contracts,
+                contractIds: data.contracts ?? [],
                 affectsAllContracts: data.applyToAll,
               };
 
@@ -275,17 +282,17 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   <Grid item xs={3}>
                     <DatePicker
                       variant={"single-hidden"}
-                      startDate={new Date(values.fromDate)}
+                      startDate={selectedFromDateAsDate}
                       onChange={({ startDate }) => {
-                        const startDateAsDate =
+                        const fromDateAsDate =
                           typeof startDate === "string"
                             ? startDate
                             : format(startDate, "MMM d, yyyy").toString();
 
-                        setSelectedFromDate(startDateAsDate);
-                        setFieldValue("fromDate", startDateAsDate);
-                        setSelectedToDate(startDateAsDate);
-                        setFieldValue("toDate", startDateAsDate);
+                        setSelectedFromDate(fromDateAsDate);
+                        setFieldValue("fromDate", fromDateAsDate);
+                        setSelectedToDate(fromDateAsDate);
+                        setFieldValue("toDate", fromDateAsDate);
                       }}
                       startLabel={t("From")}
                     />
@@ -293,7 +300,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   <Grid item xs={3}>
                     <DatePicker
                       variant={"single-hidden"}
-                      startDate={new Date(values.toDate)}
+                      startDate={selectedToDateAsDate}
                       onChange={({ startDate }) => {
                         const startDateAsDate =
                           typeof startDate === "string"
