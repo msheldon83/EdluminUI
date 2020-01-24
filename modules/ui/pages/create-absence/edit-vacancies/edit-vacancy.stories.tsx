@@ -50,6 +50,9 @@ const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
         },
       },
     ],
+    absence: {
+      details: [],
+    },
   },
 ];
 

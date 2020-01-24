@@ -541,7 +541,8 @@ const buildAbsenceUpdateInput = (
 
   const vDetails =
     vacancyDetails?.map(v => ({
-      ...v,
+      date: v.date,
+      locationId: v.locationId,
       startTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
       ),

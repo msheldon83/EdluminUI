@@ -20,6 +20,7 @@ import {
 } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
 import { GetEmployeesForOrg } from "../graphql/get-employees.gen";
+import clsx from "clsx";
 
 type Props = {};
 
@@ -73,6 +74,7 @@ export const SelectEmployee: React.FC<Props> = props => {
   if (employees.state === "DONE" || employees.state === "UPDATING") {
     results = compact(employees.data.orgUser?.paged?.results ?? []);
   }
+  const isLoading = employees.state === "LOADING";
 
   const tableData: Row[] = React.useMemo(() => {
     return (results || []).map(orgUser => ({
@@ -125,16 +127,27 @@ export const SelectEmployee: React.FC<Props> = props => {
             />
           </div>
         </div>
-        <Table
-          title={`${pagination.totalCount} ${
-            pagination.totalCount === 1 ? t("Person") : t("People")
-          }`}
-          columns={columns}
-          data={tableData}
-          onRowClick={selectEmployee}
-        />
-        <div className={classes.pagination}>
-          <PaginationControls pagination={pagination} />
+        {isLoading && (
+          <Typography variant="h5" className={classes.loading}>
+            {t("Loading employees...")}
+          </Typography>
+        )}
+        <div
+          className={clsx({
+            [classes.hidden]: isLoading,
+          })}
+        >
+          <Table
+            title={`${pagination.totalCount} ${
+              pagination.totalCount === 1 ? t("Person") : t("People")
+            }`}
+            columns={columns}
+            data={tableData}
+            onRowClick={selectEmployee}
+          />
+          <div className={classes.pagination}>
+            <PaginationControls pagination={pagination} />
+          </div>
         </div>
       </Section>
     </>
@@ -151,5 +164,12 @@ const useStyles = makeStyles(theme => ({
   },
   pagination: {
     padding: `${theme.spacing(8)} 0`,
+  },
+  loading: {
+    marginTop: theme.spacing(2),
+    marginLeft: theme.spacing(),
+  },
+  hidden: {
+    visibility: "hidden",
   },
 }));

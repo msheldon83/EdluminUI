@@ -2,6 +2,7 @@ import { HookQueryResult } from "graphql/hooks";
 import { GetProjectedAbsenceUsageQueryVariables } from "./graphql/get-projected-absence-usage.gen";
 import { GetProjectedVacanciesQuery } from "./graphql/get-projected-vacancies.gen";
 import { VacancyDetail } from "../../components/absence/types";
+import { Vacancy, Maybe } from "graphql/server-types.gen";
 
 export const projectVacancyDetails = (
   getProjectedVacancies: HookQueryResult<
@@ -22,18 +23,38 @@ export const projectVacancyDetails = (
     return [];
   }
   const vacancies = getProjectedVacancies.data.absence?.projectedVacancies;
+  return projectVacancyDetailsFromVacancies(vacancies);
+};
+
+export const projectVacancyDetailsFromVacancies = (
+  vacancies: Partial<Vacancy | null>[] | null | undefined
+) => {
   if (!vacancies || vacancies.length < 1) {
     return [];
   }
+  const absenceDetails = vacancies[0]?.absence?.details;
   return (vacancies[0]?.details ?? [])
-    .map(d => ({
-      date: d?.startDate,
-      locationId: d?.locationId,
-      startTime: d?.startTimeLocal,
-      endTime: d?.endTimeLocal,
-    }))
+    .map(d => {
+      // Find a matching Absence Detail record if available
+      const absenceDetail = absenceDetails?.find(
+        ad => ad?.startDate === d?.startDate
+      );
+
+      return {
+        date: d?.startDate,
+        locationId: d?.locationId,
+        startTime: d?.startTimeLocal,
+        endTime: d?.endTimeLocal,
+        locationName: d?.location?.name,
+        absenceStartTime: absenceDetail?.startTimeLocal,
+        absenceEndTime: absenceDetail?.endTimeLocal,
+      } as VacancyDetail;
+    })
     .filter(
       (detail): detail is VacancyDetail =>
-        detail.locationId && detail.date && detail.startTime && detail.endTime
+        !!detail.locationId &&
+        !!detail.date &&
+        !!detail.startTime &&
+        !!detail.endTime
     );
 };

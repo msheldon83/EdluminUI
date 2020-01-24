@@ -196,7 +196,8 @@ const notesToApprover =
 const getAbsence = (
   absenceReasonId: string,
   includeVacancies: boolean,
-  complexAbsence: boolean
+  complexAbsence: boolean,
+  includePreArrangedSub: boolean
 ) => {
   let absence = {
     id: "123456789",
@@ -295,6 +296,27 @@ const getAbsence = (
         ? (complexVacancies as Maybe<Vacancy>[])
         : (simpleVacancies as Maybe<Vacancy>[]),
     };
+
+    if (includePreArrangedSub && absence.vacancies) {
+      absence.vacancies = absence.vacancies?.map(v => {
+        return {
+          ...v,
+          details: v?.details?.map(d => {
+            return {
+              ...d,
+              assignment: {
+                id: 1234,
+                employee: {
+                  id: 1234,
+                  firstName: "Luke",
+                  lastName: "Skywalker",
+                },
+              },
+            };
+          }),
+        } as Maybe<Vacancy>;
+      });
+    }
   }
 
   console.log("absence", absence);
@@ -338,7 +360,7 @@ export const AsAdminWithAllInformation = () => {
       <Route path={AdminCreateAbsenceRoute.path}>
         <Confirmation
           orgId={"1000"}
-          absence={getAbsence("1", true, true)}
+          absence={getAbsence("1", true, true, true)}
           isAdmin={true}
         />
       </Route>
@@ -372,7 +394,7 @@ export const AsAdminWithSimpleAbsence = () => {
       <Route path={AdminCreateAbsenceRoute.path}>
         <Confirmation
           orgId={"1000"}
-          absence={getAbsence("1", true, false)}
+          absence={getAbsence("1", true, false, false)}
           isAdmin={true}
         />
       </Route>
@@ -405,7 +427,7 @@ export const AsAdminWithMinimumInformation = () => {
       <Route path={AdminCreateAbsenceRoute.path}>
         <Confirmation
           orgId={"1000"}
-          absence={getAbsence("2", false, false)}
+          absence={getAbsence("2", false, false, false)}
           isAdmin={true}
         />
       </Route>
