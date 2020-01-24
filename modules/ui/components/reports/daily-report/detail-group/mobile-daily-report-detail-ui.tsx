@@ -236,11 +236,13 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                     </Link>
                   </Can>
                 )}
-              {props.detail.subStartTime && props.detail.subEndTime && (
-                <div className={classes.detailSubText}>
-                  {`${props.detail.subStartTime} - ${props.detail.subEndTime}`}
-                </div>
-              )}
+              {props.detail.subTimes.map((st, i) => {
+                return (
+                  <div className={classes.detailSubText} key={i}>
+                    {`${st.startTime} - ${st.endTime}`}
+                  </div>
+                );
+              })}
             </div>
             <div className={classes.item}>
               <div>
