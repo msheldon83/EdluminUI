@@ -24,10 +24,10 @@ import { GetPositionTypes } from "./graphql/get-positiontypes.gen";
 type Props = {
   position?:
     | {
-        positionType?: { id: string } | null | undefined;
+        positionTypeId?: string | null | undefined;
         name?: string | null | undefined;
         needsReplacement?: NeedsReplacement | null | undefined;
-        currentContract?: { id: string } | null | undefined;
+        currentContractId?: string | null | undefined;
         hoursPerFullWorkDay?: number | null | undefined;
       }
     | null
@@ -85,11 +85,11 @@ export const PositionEditUI: React.FC<Props> = props => {
     <>
       <Formik
         initialValues={{
-          positionTypeId: position?.positionType?.id ?? "",
+          positionTypeId: position?.positionTypeId ?? "",
           title: position?.name ?? "",
           needsReplacement: position?.needsReplacement ?? NeedsReplacement.Yes,
-          contractId: position?.currentContract?.id ?? "",
-          hoursPerFullWorkDay: position?.hoursPerFullWorkDay,
+          contractId: position?.currentContractId ?? "",
+          hoursPerFullWorkDay: position?.hoursPerFullWorkDay ?? "",
         }}
         onSubmit={async (data, e) => {
           await props.onSave({
@@ -97,7 +97,10 @@ export const PositionEditUI: React.FC<Props> = props => {
             title: data.title,
             needsReplacement: data.needsReplacement,
             contract: { id: data.contractId },
-            hoursPerFullWorkDay: data.hoursPerFullWorkDay,
+            hoursPerFullWorkDay:
+              +data.hoursPerFullWorkDay === 0
+                ? undefined
+                : data.hoursPerFullWorkDay,
           });
         }}
         validationSchema={yup.object({
@@ -136,16 +139,18 @@ export const PositionEditUI: React.FC<Props> = props => {
                   <Grid item xs={4}>
                     <Typography>{t("Position Type")}</Typography>
                     <SelectNew
-                      value={positionTypeOptions.find(
-                        e => e.value && e.value === values.positionTypeId
-                      )}
+                      value={{
+                        value: values.positionTypeId,
+                        label:
+                          positionTypeOptions.find(
+                            e => e.value && e.value === values.positionTypeId
+                          )?.label || "",
+                      }}
                       multiple={false}
                       onChange={(value: OptionType) => {
                         const id = (value as OptionTypeBase).value.toString();
-                        console.log(id);
                         setFieldValue("positionTypeId", id);
                         const pt = positionTypes.find(x => x.id === id);
-                        console.log(pt);
                         if (pt?.needsReplacement) {
                           setFieldValue(
                             "needsReplacement",
@@ -199,9 +204,13 @@ export const PositionEditUI: React.FC<Props> = props => {
                   <Grid item xs={4}>
                     <Typography>{t("Contract")}</Typography>
                     <SelectNew
-                      value={contractOptions.find(
-                        e => e.value && e.value === values.contractId
-                      )}
+                      value={{
+                        value: values.contractId,
+                        label:
+                          contractOptions.find(
+                            e => e.value && e.value === values.contractId
+                          )?.label || "",
+                      }}
                       multiple={false}
                       onChange={(value: OptionType) => {
                         const id = (value as OptionTypeBase).value;

@@ -68,6 +68,7 @@ export const EmployeePosition: React.FC<Props> = props => {
           position: {
             ...positionInput,
             id: position?.id,
+            orgId: params.organizationId,
           },
         },
       },

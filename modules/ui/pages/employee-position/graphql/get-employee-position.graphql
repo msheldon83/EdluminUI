@@ -11,14 +11,12 @@ query GetEmployeePosition($id: ID!) {
           name
           hoursPerFullWorkDay
           needsReplacement
+          positionTypeId
           positionType {
             id
             name
           }
-          currentContract {
-            id
-            name
-          }
+          currentContractId
           schedules {
             id
             name
