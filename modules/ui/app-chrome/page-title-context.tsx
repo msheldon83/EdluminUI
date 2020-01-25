@@ -25,9 +25,10 @@ export const PageTitleProvider: React.FC<{}> = props => {
 
   const org = useQueryBundle(GetOrganizationName, {
     variables: { id: organizationId },
-    fetchPolicy: "cache-only",
+    fetchPolicy: "cache-first",
     skip: !organizationId,
   });
+
   const organizationName =
     org.state === "DONE" || org.state === "UPDATING"
       ? org.data.organization?.byId?.name
