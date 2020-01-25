@@ -1,13 +1,13 @@
 import * as React from "react";
-import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { Grid, makeStyles, Typography, Divider } from "@material-ui/core";
 import { useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { usePositionTypes } from "reference-data/position-types";
+import { useLocations } from "reference-data/locations";
 import { useContracts } from "reference-data/contracts";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { ActionButtons } from "ui/components/action-buttons";
@@ -20,6 +20,8 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { PeopleRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { GetPositionTypes } from "./graphql/get-positiontypes.gen";
+import { ScheduleUI } from "./components/schedule";
+import { Period, Schedule, buildNewSchedule, buildNewPeriod } from "./components/helpers";
 
 type Props = {
   position?:
@@ -72,6 +74,22 @@ export const PositionEditUI: React.FC<Props> = props => {
     [contracts]
   );
 
+  const locations = useLocations(params.organizationId);
+  const locationOptions: OptionType[] = useMemo(
+    () => locations.map(p => ({ label: p.name, value: p.id })),
+    [locations]
+  );
+
+  const bellSchedules = useContracts(params.organizationId);
+  const bellScheduleOptions: OptionType[] = useMemo(
+    () => {
+      const options = bellSchedules.map(p => ({ label: p.name, value: p.id }));
+      options.push({label: t("Custom"), value: "custom"});
+      return options;
+    },
+    [bellSchedules]
+  );
+
   const needsReplacementOptions: OptionType[] = useMemo(
     () => [
       { label: t("Yes"), value: NeedsReplacement.Yes },
@@ -80,6 +98,8 @@ export const PositionEditUI: React.FC<Props> = props => {
     ],
     [t]
   );
+
+  const [positionSchedule, setPositionSchedule] = useState<Schedule[]>([buildNewSchedule()]);
 
   return (
     <>
@@ -90,6 +110,7 @@ export const PositionEditUI: React.FC<Props> = props => {
           needsReplacement: position?.needsReplacement ?? NeedsReplacement.Yes,
           contractId: position?.currentContractId ?? "",
           hoursPerFullWorkDay: position?.hoursPerFullWorkDay ?? "",
+          schedules: positionSchedule,
         }}
         onSubmit={async (data, e) => {
           await props.onSave({
@@ -236,6 +257,43 @@ export const PositionEditUI: React.FC<Props> = props => {
                     />
                   </Grid>
                 </Grid>
+                <Grid item xs={10}>
+                  <Divider className={classes.divider} />
+                </Grid>
+                <Grid item xs={10}>
+                {values.schedules.map((schedule: Schedule, i) => {
+                  return (
+                    <>
+                      {i != 0 && (<Divider key={`divider-schedule-${i}`} className={classes.divider} />)}
+                      <ScheduleUI 
+                        key={`schedule-${i}`}  
+                        index={i}
+                        multipleSchedules={values.schedules.length > 1}
+                        lastSchedule={i === values.schedules.length - 1}
+                        onDelete={() => {
+                          positionSchedule.splice(i, 1);
+                          setFieldValue("schedules", positionSchedule);
+                        }}
+                        schedule={schedule}
+                        locationOptions={locationOptions}
+                        bellScheduleOptions={bellScheduleOptions}
+                        onCheckScheduleVaries={() => {
+                          positionSchedule.push(buildNewSchedule());                        
+                          setFieldValue("schedules", positionSchedule);
+                        }}
+                        onRemoveSchool={(index) => {
+                          positionSchedule[i].periods.splice(index, 1);
+                          setFieldValue("schedules", positionSchedule);
+                        }}
+                        onAddSchool={() => {
+                          positionSchedule[i].periods.push(buildNewPeriod());
+                          setFieldValue("schedules", positionSchedule);
+                        }}
+                      />
+                    </>
+                  );
+                })} 
+                </Grid>
               </Grid>
               <ActionButtons
                 submit={{ text: props.submitLabel, execute: submitForm }}
@@ -257,4 +315,8 @@ const useStyles = makeStyles(theme => ({
     marginBottom: 0,
   },
   cancel: { color: theme.customColors.darkRed },
+  divider: {
+    color: theme.customColors.gray,
+    marginBottom: theme.spacing(2),
+  }
 }));

@@ -20,6 +20,13 @@ query GetEmployeePosition($id: ID!) {
           schedules {
             id
             name
+            periods {
+              id
+              locationId
+            }
+            variants {
+              id
+            }
           }
         }
       }
