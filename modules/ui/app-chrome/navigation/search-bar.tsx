@@ -5,11 +5,9 @@ import SearchIcon from "@material-ui/icons/Search";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useDeferredState } from "hooks";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { GetSearchResultsByConfirmationId } from "ui/app-chrome/graphql/get-search-results-by-confirmation-id.gen";
-import { Input } from "ui/components/form/input";
-
 import CircularProgress from "@material-ui/core/CircularProgress";
 import CloseIcon from "@material-ui/icons/Close";
 import { format, parseISO } from "date-fns";
@@ -21,10 +19,6 @@ import {
   EmployeeEditAbsenceRoute,
 } from "ui/routes/edit-absence";
 import { useHistory } from "react-router";
-
-/*import Autocomplete from "@material-ui/lab/Autocomplete";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import TextField from "@material-ui/core/TextField";*/
 
 type Props = {
   className?: string;
