@@ -92,7 +92,7 @@ export const AssignSub: React.FC<Props> = props => {
   }
 
   // Vacancy Details collapse configuration
-  const collapsedVacancyDetailsHeight = 150;
+  const collapsedVacancyDetailsHeight = 200;
   const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
     number | null
   >(null);
@@ -197,6 +197,7 @@ export const AssignSub: React.FC<Props> = props => {
             gridRef={vacancyDetailsRef}
             showHeader
             disabledDates={props.disabledDates}
+            detailsClassName={classes.vacancyDetailsTable}
           />
         </Collapse>
         {showViewAllDetails && (
@@ -325,6 +326,12 @@ const useStyles = makeStyles(theme => ({
   },
   vacancyDetails: {
     marginBottom: theme.spacing(3),
+  },
+  vacancyDetailsTable: {
+    width: "50%",
+    border: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
   },
   viewAllDetails: {
     cursor: "pointer",
