@@ -1,0 +1,34 @@
+query GetSearchResultsByConfirmationId(
+  $orgId: ID!
+  $confirmationId: String!
+  $isSysAdmin: Boolean!
+) {
+  absence {
+    byConfirmationId(
+      orgId: $orgId
+      confirmationId: $confirmationId
+      isSysAdmin: $isSysAdmin
+    ) {
+      absenceId
+      objectTypeId
+      objectTypeName
+      orgId
+      createdUtc
+      employeeId
+      employeeFirstName
+      employeeMiddleName
+      employeeLastName
+      absenceStartTimeLocal
+      absenceEndTimeLocal
+      absenceStartTimeUtc
+      absenceEndTimeUtc
+      absNumDays
+      assignmentId
+      assignmentCreatedUtc
+      subId
+      subFirstName
+      subMiddleName
+      subLastName
+    }
+  }
+}
