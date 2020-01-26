@@ -6,7 +6,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { CalendarRoute } from "ui/routes/calendar/calendar";
 import { Section } from "ui/components/section";
 import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule-header";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
@@ -35,6 +35,7 @@ import {
 } from "ui/routes/calendar/calendar";
 import { Can } from "ui/components/auth/can";
 import { EditableTable } from "ui/components/editable-table";
+import { UpdateCalendarChange } from "./graphql/update-calendar-change.gen";
 
 type Props = {
   view: "list" | "calendar";
@@ -91,6 +92,39 @@ export const Calendars: React.FC<Props> = props => {
 
   const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(
     params.organizationId
+  );
+
+  const [updateCalendarChangeMutation] = useMutationBundle(
+    UpdateCalendarChange
+  );
+  const updateCalendarChange = useCallback(
+    async (updatedValues: {
+      calendarChangeId: string;
+      rowVersion: string;
+      description?: string | null;
+      contractIds: number[];
+      affectsAllContracts: boolean;
+    }) => {
+      const {
+        rowVersion,
+        calendarChangeId,
+        contractIds,
+        affectsAllContracts,
+        description,
+      } = updatedValues;
+      await updateCalendarChangeMutation({
+        variables: {
+          calendarChange: {
+            id: Number(calendarChangeId),
+            rowVersion,
+            contractIds,
+            affectsAllContracts,
+            description,
+          },
+        },
+      });
+    },
+    [updateCalendarChangeMutation]
   );
 
   const [deleteCalendarChangeMutation] = useMutationBundle(
@@ -256,7 +290,19 @@ export const Calendars: React.FC<Props> = props => {
                       data={sortedCalendarChanges}
                       title={""}
                       onRowUpdate={{
-                        action: (newData, oldData) => console.log(newData),
+                        action: async (newData, oldData) => {
+                          console.log(newData);
+                          const contractIds = compact(
+                            newData.changedContracts?.map(c => Number(c?.id))
+                          ); // move to the callback?
+                          if (!newData.id) return;
+                          const data = {
+                            calendarChangeId: newData.id,
+                            contractIds,
+                            ...newData,
+                          };
+                          await updateCalendarChange(data);
+                        },
                         permissions: [PermissionEnum.CalendarChangeSave],
                       }}
                       actions={[
