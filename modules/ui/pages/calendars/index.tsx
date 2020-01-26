@@ -34,6 +34,7 @@ import {
   CalendarCalendarViewRoute,
 } from "ui/routes/calendar/calendar";
 import { Can } from "ui/components/auth/can";
+import { EditableTable } from "ui/components/editable-table";
 
 type Props = {
   view: "list" | "calendar";
@@ -158,6 +159,7 @@ export const Calendars: React.FC<Props> = props => {
       field: "description",
       searchable: false,
       sorting: false,
+      editable: "onUpdate",
     },
     {
       title: t("Contract"),
@@ -245,7 +247,7 @@ export const Calendars: React.FC<Props> = props => {
                 )}
                 {changesLoaded && (
                   <div>
-                    <Table
+                    <EditableTable
                       selection={true}
                       selectionPermissions={[
                         PermissionEnum.CalendarChangeDelete,
@@ -253,6 +255,10 @@ export const Calendars: React.FC<Props> = props => {
                       columns={columns}
                       data={sortedCalendarChanges}
                       title={""}
+                      onRowUpdate={{
+                        action: (newData, oldData) => console.log(newData),
+                        permissions: [PermissionEnum.CalendarChangeSave],
+                      }}
                       actions={[
                         {
                           tooltip: t("Delete selected events"),
