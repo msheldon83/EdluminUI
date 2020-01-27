@@ -1,7 +1,6 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core";
 import { SaveEmployee } from "ui/pages/people/graphql/employee/save-employee.gen";
-import { useTranslation } from "react-i18next";
 import { Redirect } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetEmployeeById } from "ui/pages/people/graphql/employee/get-employee-by-id.gen";
@@ -155,7 +154,10 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       ? undefined
       : getQualifiedNumbers?.data?.position?.qualifiedEmployeeCounts;
 
-  if (!employee) {
+  if (
+    getEmployee.state === "DONE" &&
+    !getEmployee.data.orgUser?.byId?.employee
+  ) {
     const listUrl = PersonViewRoute.generate(params);
     return <Redirect to={listUrl} />;
   }
