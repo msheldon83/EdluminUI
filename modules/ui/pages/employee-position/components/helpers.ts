@@ -3,16 +3,17 @@ import { DayOfWeek } from "graphql/server-types.gen";
 export type Period = {
   locationId: string;
   bellScheduleId: string | null | undefined;
-  startTime: string;
-  endTime: string;
-  startPeriodId?: string;
-  endPeriodId?: string;
+  startTime?: string | null | undefined;
+  endTime?: string | null | undefined;
+  startPeriodId?: string | null | undefined;
+  endPeriodId?: string | null | undefined;
   allDay: boolean;
 };
 
 export type Schedule = {
+  id?: string | null | undefined;
   periods: Period[];
-  daysOfTheWeek: DayOfWeek[];
+  daysOfTheWeek: Array<DayOfWeek>;
 };
 
 export const buildNewSchedule = (

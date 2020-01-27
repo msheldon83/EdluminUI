@@ -45,6 +45,7 @@ type Props = {
       }
     | null
     | undefined;
+  positionSchedule?: Schedule[] | null | undefined;
   onSave: (position: PositionInput) => Promise<unknown>;
   onCancel: () => void;
   submitLabel: string;
@@ -114,7 +115,7 @@ export const PositionEditUI: React.FC<Props> = props => {
     [t]
   );
 
-  const [positionSchedule, setPositionSchedule] = useState<Schedule[]>([
+  const [positionSchedule, setPositionSchedule] = useState<Schedule[]>(props.positionSchedule ?? [
     buildNewSchedule(true, true),
   ]);
 

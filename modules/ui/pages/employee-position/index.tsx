@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Typography, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { PositionEditUI } from "./ui";
@@ -15,6 +15,13 @@ import { GetEmployeePosition } from "./graphql/get-employee-position.gen";
 import { SaveEmployeePosition } from "./graphql/save-employee-position.gen";
 import { PositionInput } from "graphql/server-types.gen";
 import { useHistory } from "react-router";
+import {
+  Period,
+  Schedule,
+  buildNewSchedule,
+  buildNewPeriod,
+} from "./components/helpers";
+import { compact } from "lodash-es";
 
 type Props = {};
 
@@ -83,6 +90,21 @@ export const EmployeePosition: React.FC<Props> = props => {
     ? `${t("Position")} - ${positionTypeName}`
     : t("Position");
 
+  const positionSchedules = compact(position?.schedules) ?? [];
+  const positionSchedule = positionSchedules.map(ps => ({
+    id: ps.id,
+    periods: ps.items.map(p => ({
+      locationId: p.location.id,
+      bellScheduleId: p.bellSchedule?.id,
+      startTime: p.startTime,
+      endTime: p.endTime,
+      allDay: p.isAllDay,
+      startPeriodId: p.startPeriod?.id,
+      endPeriodId: p.endPeriod?.id,
+    })),
+    daysOfTheWeek: ps.daysOfTheWeek,
+  }));
+
   return (
     <>
       <div className={classes.header}>
@@ -93,6 +115,9 @@ export const EmployeePosition: React.FC<Props> = props => {
       </div>
       <PositionEditUI
         position={position}
+        positionSchedule={
+          positionSchedule.length > 0 ? positionSchedule : undefined
+        }
         onSave={handleSave}
         onCancel={handleCancel}
         submitLabel={t("Save")}
