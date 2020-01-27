@@ -99,23 +99,25 @@ export const Calendars: React.FC<Props> = props => {
   );
   const updateCalendarChange = useCallback(
     async (updatedValues: {
-      calendarChangeId: string;
+      id: string;
       rowVersion: string;
       description?: string | null;
-      contractIds: number[];
+      changedContracts?: { id?: string }[];
       affectsAllContracts: boolean;
     }) => {
       const {
+        id,
         rowVersion,
-        calendarChangeId,
-        contractIds,
+        changedContracts,
         affectsAllContracts,
         description,
       } = updatedValues;
+      const contractIds = compact(changedContracts?.map(c => Number(c?.id)));
+      if (!id) return;
       await updateCalendarChangeMutation({
         variables: {
           calendarChange: {
-            id: Number(calendarChangeId),
+            id: Number(id),
             rowVersion,
             contractIds,
             affectsAllContracts,
@@ -161,6 +163,7 @@ export const Calendars: React.FC<Props> = props => {
               "MMM d, yyyy"
             )}`,
       sorting: false,
+      editable: "never",
     },
     {
       title: t("Type"),
@@ -181,12 +184,14 @@ export const Calendars: React.FC<Props> = props => {
             )?.name;
       },
       sorting: false,
+      editable: "never",
     },
     {
       title: t("Reason"),
       field: "calendarChangeReason.name",
       searchable: false,
       sorting: false,
+      editable: "never",
     },
     {
       title: t("Note"),
@@ -208,6 +213,7 @@ export const Calendars: React.FC<Props> = props => {
         return contracts?.join(",");
       },
       sorting: false,
+      editable: "never",
     },
   ];
 
@@ -290,19 +296,8 @@ export const Calendars: React.FC<Props> = props => {
                       data={sortedCalendarChanges}
                       title={""}
                       onRowUpdate={{
-                        action: async (newData, oldData) => {
-                          console.log(newData);
-                          const contractIds = compact(
-                            newData.changedContracts?.map(c => Number(c?.id))
-                          ); // move to the callback?
-                          if (!newData.id) return;
-                          const data = {
-                            calendarChangeId: newData.id,
-                            contractIds,
-                            ...newData,
-                          };
-                          await updateCalendarChange(data);
-                        },
+                        action: async (newData, oldData) =>
+                          await updateCalendarChange(newData),
                         permissions: [PermissionEnum.CalendarChangeSave],
                       }}
                       actions={[
