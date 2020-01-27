@@ -27,7 +27,6 @@ import * as React from "react";
 import { useCallback, useMemo, useReducer } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
 import {
@@ -77,6 +76,8 @@ type Props = {
   absenceDates: Date[];
   cancelAssignments: () => void;
   refetchAbsence: () => Promise<unknown>;
+  onDelete: () => void;
+  returnUrl?: string;
 };
 
 type EditAbsenceFormData = {
@@ -104,7 +105,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
-  const history = useHistory();
+
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
 
@@ -334,10 +335,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     (useProjectedInformation && projectedVacancyDetails) ||
     props.initialVacancyDetails;
 
-  const returnUrl: string | undefined = useMemo(() => {
-    return history.location.state?.returnUrl;
-  }, [history.location.state]);
-
   const update = async (
     data: EditAbsenceFormData,
     ignoreWarnings?: boolean
@@ -367,7 +364,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     const absence = result?.data?.absence?.update as Absence;
     if (absence) {
       openSnackbar({
-        message: returnUrl
+        message: props.returnUrl
           ? t("Absence #{{absenceId}} has been updated", {
               absenceId: absence.id,
             })
@@ -405,9 +402,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   return (
     <>
-      {returnUrl && (
+      {props.returnUrl && (
         <div className={classes.linkPadding}>
-          <Link to={returnUrl} className={classes.link}>
+          <Link to={props.returnUrl} className={classes.link}>
             {t("Return to previous page")}
           </Link>
         </div>
@@ -439,7 +436,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 options={[
                   {
                     name: t("Delete"),
-                    onClick: () => console.log("Delete"),
+                    onClick: () => props.onDelete(),
                     permissions: [PermissionEnum.AbsVacDelete],
                   },
                 ]}
@@ -485,7 +482,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               replacementEmployeeName={props.replacementEmployeeName}
               onRemoveReplacement={props.cancelAssignments}
               locationIds={props.locationIds}
-              returnUrl={returnUrl}
+              returnUrl={props.returnUrl}
               isSubmitted={formState.isSubmitted}
               initialAbsenceCreation={false}
             />

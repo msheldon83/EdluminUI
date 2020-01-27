@@ -14,6 +14,8 @@ import { VacancyDetail } from "../../components/absence/types";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { EditAbsenceUI } from "./ui";
+import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
+import { useHistory } from "react-router";
 
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 
@@ -21,6 +23,7 @@ type Props = { actingAsEmployee?: boolean };
 export const EditAbsence: React.FC<Props> = props => {
   const params = useRouteParams(AdminEditAbsenceRoute);
   const userIsAdmin = useIsAdmin();
+  const history = useHistory();
 
   const absence = useQueryBundle(GetAbsence, {
     variables: {
@@ -44,6 +47,20 @@ export const EditAbsence: React.FC<Props> = props => {
   }, [employeeInfo]);
 
   const locationIds = employee?.locations?.map(l => Number(l?.id));
+
+  const returnUrl: string | undefined = useMemo(() => {
+    return history.location.state?.returnUrl;
+  }, [history.location.state]);
+
+  const [deleteAbsence] = useMutationBundle(DeleteAbsence);
+  const onDeleteAbsence = React.useCallback(async () => {
+    const result = await deleteAbsence({
+      variables: {
+        absenceId: Number(params.absenceId),
+      },
+    });
+    if (result) returnUrl && history.push(returnUrl); //console.log("DELETED", params.absenceId);
+  }, [params.absenceId, deleteAbsence, returnUrl]);
 
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
   const cancelAssignments = React.useCallback(async () => {
@@ -187,6 +204,7 @@ export const EditAbsence: React.FC<Props> = props => {
       endTimeLocal={data.endTimeLocal}
       cancelAssignments={cancelAssignments}
       refetchAbsence={absence.refetch}
+      onDelete={onDeleteAbsence}
     />
   );
 };
