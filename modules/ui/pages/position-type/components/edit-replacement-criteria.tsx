@@ -25,13 +25,15 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
+    refetchQueries: ["GetQualifiedPositionTypeCountsWithinOrg"],
   });
 
   const getPositionType = useQueryBundle(GetPositionTypeById, {
     variables: { id: params.positionTypeId },
   });
 
-  const positionType = (getPositionType.state === "LOADING"
+  const positionType = (getPositionType.state === "LOADING" ||
+  getPositionType.state === "UPDATING"
     ? undefined
     : getPositionType.data?.positionType?.byId) as Pick<
     PositionType,
@@ -69,7 +71,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updatePositionType, params.positionTypeId, positionType, getPositionType]
+    [updatePositionType, getPositionType, positionType, params.positionTypeId]
   );
 
   const updateMustNot = useCallback(
@@ -91,7 +93,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updatePositionType, params.positionTypeId, positionType, getPositionType]
+    [updatePositionType, getPositionType, positionType, params.positionTypeId]
   );
 
   const updatePreferHave = useCallback(
@@ -113,7 +115,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updatePositionType, params.positionTypeId, positionType, getPositionType]
+    [updatePositionType, getPositionType, positionType, params.positionTypeId]
   );
 
   const updatePreferNotHave = useCallback(
@@ -135,20 +137,20 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updatePositionType, params.positionTypeId, positionType, getPositionType]
+    [updatePositionType, getPositionType, positionType, params.positionTypeId]
   );
 
-  if (
-    getPositionType.state === "LOADING" ||
-    getQualifiedNumbers.state === "LOADING"
-  ) {
+  if (getPositionType.state === "LOADING") {
     return <></>;
   }
 
   const qualifiedCounts =
-    getQualifiedNumbers?.data?.positionType?.qualifiedEmployeeCounts;
+    getQualifiedNumbers.state === "LOADING" ||
+    getQualifiedNumbers.state === "UPDATING"
+      ? undefined
+      : getQualifiedNumbers?.data?.positionType?.qualifiedEmployeeCounts;
 
-  if (!positionType) {
+  if (getPositionType.state === "DONE" && !positionType) {
     const listUrl = PositionTypeRoute.generate(params);
     return <Redirect to={listUrl} />;
   }

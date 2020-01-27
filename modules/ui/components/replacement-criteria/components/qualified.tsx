@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles, CircularProgress } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -12,40 +12,38 @@ type Props = {
 export const Qualified: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-
-  const minimallyQualified =
-    props.minimallyQualified === undefined
-      ? t("Not Defined")
-      : props.minimallyQualified.toString();
-
-  const highlyQualified =
-    props.highlyQualified === undefined
-      ? t("Not Defined")
-      : props.highlyQualified.toString();
+  const { minimallyQualified, highlyQualified } = props;
 
   return (
-    <>
-      <Grid item xs={12}>
-        <Section>
-          <Grid container>
-            <Grid item xs={6}>
+    <Grid item xs={12}>
+      <Section>
+        <Grid container>
+          <Grid item xs={6}>
+            {minimallyQualified === undefined ? (
+              <CircularProgress size={27} />
+            ) : (
               <SectionHeader
-                title={minimallyQualified}
+                title={minimallyQualified.toString()}
                 className={classes.bottomMargin}
               />
-              <div>{t("minimally qualified substitutes")}</div>
-            </Grid>
-            <Grid item xs={6}>
-              <SectionHeader
-                title={highlyQualified}
-                className={classes.bottomMargin}
-              />
-              <div>{t("highly qualified substitutes")}</div>
-            </Grid>
+            )}
+
+            <div>{t("minimally qualified substitutes")}</div>
           </Grid>
-        </Section>
-      </Grid>
-    </>
+          <Grid item xs={6}>
+            {highlyQualified === undefined ? (
+              <CircularProgress size={27} />
+            ) : (
+              <SectionHeader
+                title={highlyQualified.toString()}
+                className={classes.bottomMargin}
+              />
+            )}
+            <div>{t("highly qualified substitutes")}</div>
+          </Grid>
+        </Grid>
+      </Section>
+    </Grid>
   );
 };
 
