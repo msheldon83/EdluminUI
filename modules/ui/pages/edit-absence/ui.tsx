@@ -497,7 +497,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           orgId={props.organizationId}
           absenceId={props.absenceId}
           vacancies={projectedVacancies || props.initialVacancies}
-          userIsAdmin={props.userIsAdmin}
+          userIsAdmin={!props.actingAsEmployee && props.userIsAdmin}
           employeeId={props.employeeId}
           positionId={props.positionId}
           positionName={props.positionName}
