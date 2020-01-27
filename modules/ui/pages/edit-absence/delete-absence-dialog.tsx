@@ -34,12 +34,9 @@ export const DeleteDialog: React.FC<Props> = props => {
         </Typography>
         {props.replacementEmployeeName && (
           <Typography className={classes.removeSub}>
-            {t(
-              "The associated assignment filled by {{replacement}} will be canceled.",
-              {
-                replacement: props.replacementEmployeeName,
-              }
-            )}
+            {t("The assignment filled by {{replacement}} will be cancelled.", {
+              replacement: props.replacementEmployeeName,
+            })}
           </Typography>
         )}
       </DialogContent>
