@@ -76,6 +76,7 @@ export const EmployeeHome: React.FC<Props> = props => {
         status: "error",
       });
     },
+    refetchQueries: ["GetEmployeeAbsenceSchedule"],
   });
 
   const disabledDates = useMemo(
@@ -101,9 +102,6 @@ export const EmployeeHome: React.FC<Props> = props => {
         absenceId: Number(absenceId),
       },
     });
-    //if (result) {
-    //await getAbsenceSchedule.refetch();
-    //}
   };
 
   const handleAfterAbsense = async () => {
