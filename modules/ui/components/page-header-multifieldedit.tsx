@@ -5,7 +5,7 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "ui/components/form/input";
-import { CrossFade } from "ui/components/CrossFade";
+import { CrossFade } from "ui/components/cross-fade";
 import { Margin } from "ui/components/margin";
 import { Padding } from "ui/components/padding";
 import { ActionMenu, Option } from "./action-menu";

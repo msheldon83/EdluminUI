@@ -6,7 +6,10 @@ import Maybe from "graphql/tsutils/Maybe";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { TextField as FormTextField } from "ui/components/form/text-field";
+import { Input } from "ui/components/form/input";
+import { Margin } from "ui/components/margin";
+import { Padding } from "ui/components/padding";
+import { CrossFade } from "ui/components/cross-fade";
 import { ActionMenu, Option } from "./action-menu";
 import { TextButton } from "./text-button";
 import { PermissionEnum } from "graphql/server-types.gen";
@@ -129,7 +132,8 @@ export const PageHeader: React.FC<Props> = props => {
     setEditing,
   ]);
 
-  if (!editing) {
+  // not editing
+  const renderViewMode = () => {
     return wrapper(
       <Grid item xs={10}>
         <Grid
@@ -161,56 +165,64 @@ export const PageHeader: React.FC<Props> = props => {
         </Grid>
       </Grid>
     );
-  }
+  };
 
-  return wrapper(
-    <Formik
-      initialValues={{ value: props.text || "" }}
-      onSubmit={async (data: { value: Maybe<string> }, meta) => {
-        if (props.onSubmit) {
-          const valueToSend =
-            data.value && data.value.trim().length === 0 ? null : data.value;
-          await props.onSubmit(valueToSend);
-        }
-        setEditing(false);
-      }}
-      validationSchema={props.validationSchema || null}
-    >
-      {({ handleSubmit, submitForm }) => (
-        <form onSubmit={handleSubmit}>
-          <Grid container alignItems="center" spacing={2}>
-            <Grid item>
-              <FormTextField
-                label={props.label}
-                name="value"
-                margin={isMobile ? "normal" : "none"}
-                variant="outlined"
-                fullWidth
-              />
-            </Grid>
-            <Grid item>
-              <Clear
-                className={
-                  props.isSubHeader ? classes.smallAction : classes.action
-                }
-                onClick={() => {
-                  setEditing(false);
-                  props.onCancel!();
-                }}
-              />
-            </Grid>
-            <Grid item>
-              <Check
-                className={
-                  props.isSubHeader ? classes.smallAction : classes.action
-                }
-                onClick={submitForm}
-              />
-            </Grid>
-          </Grid>
-        </form>
-      )}
-    </Formik>
+  const renderEditMode = () => {
+    return wrapper(
+      <Formik
+        initialValues={{ value: props.text || "" }}
+        onSubmit={async (data: { value: Maybe<string> }, meta) => {
+          if (props.onSubmit) {
+            const valueToSend =
+              data.value && data.value.trim().length === 0 ? null : data.value;
+            await props.onSubmit(valueToSend);
+          }
+          setEditing(false);
+        }}
+        validationSchema={props.validationSchema || null}
+      >
+        {({ handleSubmit, submitForm }) => (
+          <form onSubmit={handleSubmit}>
+            <Margin bottom={2}>
+              <Grid container alignItems="center" spacing={2}>
+                <Grid item>
+                  <Input label={props.label} name="value" fullWidth />
+                </Grid>
+                <Padding top={4}>
+                  <Grid item>
+                    <Clear
+                      className={
+                        props.isSubHeader ? classes.smallAction : classes.action
+                      }
+                      onClick={() => {
+                        setEditing(false);
+                        props.onCancel!();
+                      }}
+                    />
+                  </Grid>
+                </Padding>
+                <Padding top={4}>
+                  <Grid item>
+                    <Check
+                      className={
+                        props.isSubHeader ? classes.smallAction : classes.action
+                      }
+                      onClick={submitForm}
+                    />
+                  </Grid>
+                </Padding>
+              </Grid>
+            </Margin>
+          </form>
+        )}
+      </Formik>
+    );
+  };
+
+  return (
+    <CrossFade fadeKey={editing.toString()}>
+      {editing ? renderEditMode() : renderViewMode()}
+    </CrossFade>
   );
 };
 
