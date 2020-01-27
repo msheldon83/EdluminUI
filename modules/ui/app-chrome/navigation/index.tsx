@@ -1,6 +1,6 @@
 import { Divider, Drawer, List, makeStyles } from "@material-ui/core";
 import * as React from "react";
-import { EdluminLogo } from "ui/components/edlumin-logo";
+import { RedRoverLogo } from "ui/components/red-rover-logo";
 import { AutoSwitchingNavLinks } from "../navigation-links/role-nav-links";
 import { RoleSwitcher } from "../role-switcher";
 
@@ -26,10 +26,7 @@ export const NavigationSideBar: React.FC<Props> = props => {
           }`,
         }}
       >
-        <EdluminLogo
-          titleClassName={classes.spacing}
-          className={classes.margin}
-        />
+        <RedRoverLogo size={props.expanded ? "large" : "small"} />
 
         <RoleSwitcher expanded={props.expanded} />
         <Divider className={classes.divider} />
