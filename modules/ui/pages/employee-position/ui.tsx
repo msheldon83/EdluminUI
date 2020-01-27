@@ -3,7 +3,6 @@ import { Grid, makeStyles, Typography, Divider } from "@material-ui/core";
 import { useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
 import { useMemo, useState } from "react";
-import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -27,7 +26,6 @@ import { GetPositionTypes } from "./graphql/get-positiontypes.gen";
 import { GetBellSchedules } from "./graphql/get-bell-schedules.gen";
 import { ScheduleUI } from "./components/schedule";
 import {
-  Period,
   Schedule,
   buildNewSchedule,
   buildNewPeriod,
@@ -40,7 +38,7 @@ type Props = {
         positionTypeId?: string | null | undefined;
         title?: string | null | undefined;
         needsReplacement?: NeedsReplacement | null | undefined;
-        currentContractId?: string | null | undefined;
+        contractId?: string | null | undefined;
         hoursPerFullWorkDay?: number | null | undefined;
       }
     | null
@@ -101,7 +99,10 @@ export const PositionEditUI: React.FC<Props> = props => {
       ? getBellSchedules.data.workDaySchedule?.all ?? []
       : [];
   const bellScheduleOptions: OptionType[] = useMemo(() => {
-    const options = bellSchedules.map(p => ({ label: p?.name ?? "", value: p?.id ?? "" }));
+    const options = bellSchedules.map(p => ({
+      label: p?.name ?? "",
+      value: p?.id ?? "",
+    }));
     options.push({ label: t("Custom"), value: "custom" });
     return options;
   }, [bellSchedules, t]);
@@ -115,9 +116,9 @@ export const PositionEditUI: React.FC<Props> = props => {
     [t]
   );
 
-  const [positionSchedule, setPositionSchedule] = useState<Schedule[]>(props.positionSchedule ?? [
-    buildNewSchedule(true, true),
-  ]);
+  const [positionSchedule, setPositionSchedule] = useState<Schedule[]>(
+    props.positionSchedule ?? [buildNewSchedule(true, true)]
+  );
 
   return (
     <>
@@ -126,7 +127,7 @@ export const PositionEditUI: React.FC<Props> = props => {
           positionTypeId: position?.positionTypeId ?? "",
           title: position?.title ?? "",
           needsReplacement: position?.needsReplacement ?? NeedsReplacement.Yes,
-          contractId: position?.currentContractId ?? "",
+          contractId: position?.contractId ?? "",
           hoursPerFullWorkDay: position?.hoursPerFullWorkDay ?? "",
           schedules: positionSchedule,
         }}
@@ -328,6 +329,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                             setFieldValue("schedules", positionSchedule);
                           }}
                           onAddSchool={() => {
+                            positionSchedule[i].periods[0].allDay = false;
                             positionSchedule[i].periods.push(
                               buildNewPeriod(false)
                             );

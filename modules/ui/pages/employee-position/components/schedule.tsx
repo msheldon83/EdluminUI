@@ -2,18 +2,15 @@ import * as React from "react";
 import {
   Grid,
   makeStyles,
-  Typography,
   FormControlLabel,
   Divider,
   Checkbox,
 } from "@material-ui/core";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
-import { OptionTypeBase } from "react-select/src/types";
-import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { PeriodUI } from "./period";
-import { Period, Schedule, buildNewPeriod } from "./helpers";
+import { Schedule } from "./helpers";
 import { DayOfWeek } from "graphql/server-types.gen";
 import { DayOfWeekCheckBox } from "./day-of-week";
 
@@ -79,7 +76,7 @@ export const ScheduleUI: React.FC<Props> = props => {
               {days.map((day, i) => {
                 return (
                   <DayOfWeekCheckBox
-                    key={i}
+                    key={`dayOfWeek${i}`}
                     dayOfWeek={day}
                     scheduleDaysOfWeek={props.schedule.daysOfTheWeek}
                     disabledDaysOfWeek={props.disabledDaysOfWeek}
@@ -92,10 +89,10 @@ export const ScheduleUI: React.FC<Props> = props => {
           <Grid item xs={12}>
             {periods.map((p, i) => {
               return (
-                <>
-                  {i != 0 && <Divider key={i} className={classes.divider} />}
+                <div key={`div-schedule${props.index}period${i}`}>
+                  {i != 0 && <Divider key={`schedule${props.index}period${i}-divider`} className={classes.divider} />}
                   <PeriodUI
-                    key={i}
+                    key={`schedule${props.index}period${i}`}
                     index={i}
                     locationOptions={props.locationOptions}
                     bellScheduleOptions={props.bellScheduleOptions}
@@ -111,7 +108,7 @@ export const ScheduleUI: React.FC<Props> = props => {
                     onChangeStartPeriod={props.onChangeStartPeriod}
                     onChangeEndPeriod={props.onChangeEndPeriod}
                   />
-                </>
+                </div>
               );
             })}
           </Grid>

@@ -150,7 +150,10 @@ export const EmployeeAddPage: React.FC<{}> = props => {
         onSave={async (position: PositionInput) => {
           const newEmployee = {
             ...employee,
-            position,
+            position: {
+              ...position,
+              orgId: params.organizationId,
+            },
           };
           setEmployee(newEmployee);
           const id = await create(newEmployee);

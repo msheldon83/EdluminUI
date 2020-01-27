@@ -13,14 +13,10 @@ import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
-import { Period, Schedule, buildNewSchedule } from "./helpers";
+import { Period } from "./helpers";
 import { GetBellSchedulePeriods } from "../graphql/get-bell-schedule-periods.gen";
 import { format } from "date-fns";
-import {
-  midnightTime,
-  secondsSinceMidnight,
-  timeStampToIso,
-} from "helpers/time";
+import { midnightTime } from "helpers/time";
 
 type Props = {
   index: number;

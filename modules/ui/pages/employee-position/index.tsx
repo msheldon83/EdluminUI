@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Typography, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { PositionEditUI } from "./ui";
@@ -15,12 +15,6 @@ import { GetEmployeePosition } from "./graphql/get-employee-position.gen";
 import { SaveEmployeePosition } from "./graphql/save-employee-position.gen";
 import { PositionInput } from "graphql/server-types.gen";
 import { useHistory } from "react-router";
-import {
-  Period,
-  Schedule,
-  buildNewSchedule,
-  buildNewPeriod,
-} from "./components/helpers";
 import { compact } from "lodash-es";
 
 type Props = {};
