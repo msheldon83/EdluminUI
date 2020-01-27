@@ -335,7 +335,7 @@ export const Settings: React.FC<Props> = props => {
                 />
                 <FormHelperText className={classes.formHelperText}>
                   {t(
-                    "The shortest time (in hh:mm) that an employee with this position can be absent."
+                    "The shortest time (in minutes) that an employee with this position can be absent."
                   )}
                 </FormHelperText>
               </div>

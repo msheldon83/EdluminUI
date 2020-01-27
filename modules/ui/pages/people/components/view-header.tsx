@@ -85,9 +85,6 @@ export const PersonViewHeader: React.FC<Props> = props => {
     }
   }, [inviteUser, orgUser, setInviteSent, inviteSent, openSnackbar, t]);
 
-  console.log("Selected Role:" + props.selectedRole);
-  console.log("ID:" + props.orgUser.id);
-
   return (
     <>
       <PageHeaderMultiField
