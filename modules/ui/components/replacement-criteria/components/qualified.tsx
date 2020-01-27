@@ -19,25 +19,25 @@ export const Qualified: React.FC<Props> = props => {
       <Section>
         <Grid container>
           <Grid item xs={6}>
-            {minimallyQualified !== undefined ? (
+            {minimallyQualified === undefined ? (
+              <CircularProgress size={27} />
+            ) : (
               <SectionHeader
                 title={minimallyQualified.toString()}
                 className={classes.bottomMargin}
               />
-            ) : (
-              <CircularProgress size={28} />
             )}
 
             <div>{t("minimally qualified substitutes")}</div>
           </Grid>
           <Grid item xs={6}>
-            {highlyQualified !== undefined ? (
+            {highlyQualified === undefined ? (
+              <CircularProgress size={27} />
+            ) : (
               <SectionHeader
                 title={highlyQualified.toString()}
                 className={classes.bottomMargin}
               />
-            ) : (
-              <CircularProgress size={28} />
             )}
             <div>{t("highly qualified substitutes")}</div>
           </Grid>
