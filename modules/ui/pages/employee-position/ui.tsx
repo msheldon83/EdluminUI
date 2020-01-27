@@ -13,7 +13,11 @@ import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { ActionButtons } from "ui/components/action-buttons";
 import * as yup from "yup";
 import { Formik } from "formik";
-import { PositionInput, NeedsReplacement, DayOfWeek } from "graphql/server-types.gen";
+import {
+  PositionInput,
+  NeedsReplacement,
+  DayOfWeek,
+} from "graphql/server-types.gen";
 import { OptionTypeBase } from "react-select/src/types";
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
@@ -21,7 +25,12 @@ import { PeopleRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { GetPositionTypes } from "./graphql/get-positiontypes.gen";
 import { ScheduleUI } from "./components/schedule";
-import { Period, Schedule, buildNewSchedule, buildNewPeriod } from "./components/helpers";
+import {
+  Period,
+  Schedule,
+  buildNewSchedule,
+  buildNewPeriod,
+} from "./components/helpers";
 import { flatMap } from "lodash-es";
 
 type Props = {
@@ -82,14 +91,11 @@ export const PositionEditUI: React.FC<Props> = props => {
   );
 
   const bellSchedules = useContracts(params.organizationId);
-  const bellScheduleOptions: OptionType[] = useMemo(
-    () => {
-      const options = bellSchedules.map(p => ({ label: p.name, value: p.id }));
-      options.push({label: t("Custom"), value: "custom"});
-      return options;
-    },
-    [bellSchedules, t]
-  );
+  const bellScheduleOptions: OptionType[] = useMemo(() => {
+    const options = bellSchedules.map(p => ({ label: p.name, value: p.id }));
+    options.push({ label: t("Custom"), value: "custom" });
+    return options;
+  }, [bellSchedules, t]);
 
   const needsReplacementOptions: OptionType[] = useMemo(
     () => [
@@ -100,7 +106,9 @@ export const PositionEditUI: React.FC<Props> = props => {
     [t]
   );
 
-  const [positionSchedule, setPositionSchedule] = useState<Schedule[]>([buildNewSchedule(true)]);
+  const [positionSchedule, setPositionSchedule] = useState<Schedule[]>([
+    buildNewSchedule(true, true),
+  ]);
 
   return (
     <>
@@ -262,52 +270,102 @@ export const PositionEditUI: React.FC<Props> = props => {
                   <Divider className={classes.divider} />
                 </Grid>
                 <Grid item xs={10}>
-                {values.schedules.map((schedule: Schedule, i) => {
-                  const otherSchedules = values.schedules.filter((s, index) => {if (index !== i) { return s;}});
-                  const disabledDaysOfWeek = flatMap(otherSchedules, (s => s.daysOfTheWeek) ?? []) ?? [];
+                  {values.schedules.map((schedule: Schedule, i) => {
+                    const otherSchedules = values.schedules.filter(
+                      (s, index) => {
+                        if (index !== i) {
+                          return s;
+                        }
+                      }
+                    );
+                    const disabledDaysOfWeek =
+                      flatMap(otherSchedules, (s => s.daysOfTheWeek) ?? []) ??
+                      [];
 
-                  return (
-                    <>
-                      {i != 0 && (<Divider key={`divider-schedule-${i}`} className={classes.divider} />)}
-                      <ScheduleUI 
-                        key={`schedule-${i}`}  
-                        index={i}
-                        multipleSchedules={values.schedules.length > 1}
-                        lastSchedule={i === values.schedules.length - 1}
-                        onDelete={() => {
-                          positionSchedule.splice(i, 1);
-                          setFieldValue("schedules", positionSchedule);
-                        }}
-                        schedule={schedule}
-                        locationOptions={locationOptions}
-                        bellScheduleOptions={bellScheduleOptions}
-                        onCheckScheduleVaries={() => {
-                          positionSchedule.push(buildNewSchedule(false));                        
-                          setFieldValue("schedules", positionSchedule);
-                        }}
-                        onRemoveSchool={(index) => {
-                          positionSchedule[i].periods.splice(index, 1);
-                          setFieldValue("schedules", positionSchedule);
-                        }}
-                        onAddSchool={() => {
-                          positionSchedule[i].periods.push(buildNewPeriod());
-                          setFieldValue("schedules", positionSchedule);
-                        }}
-                        disabledDaysOfWeek={disabledDaysOfWeek}
-                        onCheckDayOfWeek={(dow: DayOfWeek) => {
-                          const dayIndex = schedule.daysOfTheWeek.indexOf(dow);
-                          if (dayIndex != -1) {
-                            schedule.daysOfTheWeek.splice(dayIndex, 1);
-                          } else {
-                            schedule.daysOfTheWeek.push(dow);
-                          }
-                          positionSchedule[i] = schedule;
-                          setFieldValue("schedules", positionSchedule);
-                        }}
-                      />
-                    </>
-                  );
-                })} 
+                    return (
+                      <>
+                        {i != 0 && (
+                          <Divider
+                            key={`divider-schedule-${i}`}
+                            className={classes.divider}
+                          />
+                        )}
+                        <ScheduleUI
+                          key={`schedule-${i}`}
+                          index={i}
+                          multipleSchedules={values.schedules.length > 1}
+                          lastSchedule={i === values.schedules.length - 1}
+                          onDelete={() => {
+                            positionSchedule.splice(i, 1);
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                          schedule={schedule}
+                          locationOptions={locationOptions}
+                          bellScheduleOptions={bellScheduleOptions}
+                          onCheckScheduleVaries={() => {
+                            positionSchedule.push(
+                              buildNewSchedule(false, true)
+                            );
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                          onAddSchedule={() => {
+                            positionSchedule.push(
+                              buildNewSchedule(false, true)
+                            );
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                          onRemoveSchool={index => {
+                            positionSchedule[i].periods.splice(index, 1);
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                          onAddSchool={() => {
+                            positionSchedule[i].periods.push(
+                              buildNewPeriod(false)
+                            );
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                          disabledDaysOfWeek={disabledDaysOfWeek}
+                          onCheckDayOfWeek={(dow: DayOfWeek) => {
+                            const dayIndex = schedule.daysOfTheWeek.indexOf(
+                              dow
+                            );
+                            if (dayIndex != -1) {
+                              schedule.daysOfTheWeek.splice(dayIndex, 1);
+                            } else {
+                              schedule.daysOfTheWeek.push(dow);
+                            }
+                            positionSchedule[i] = schedule;
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                          onChangeLocation={(
+                            locationId: string,
+                            index: number
+                          ) => {
+                            positionSchedule[i].periods[
+                              index
+                            ].locationId = locationId;
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                          onChangeBellSchedule={(
+                            bellScheduleId: string,
+                            index: number
+                          ) => {
+                            positionSchedule[i].periods[
+                              index
+                            ].bellScheduleId = bellScheduleId;
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                          onCheckAllDay={() => {
+                            positionSchedule[
+                              i
+                            ].periods[0].allDay = !positionSchedule[i]
+                              .periods[0].allDay;
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                        />
+                      </>
+                    );
+                  })}
                 </Grid>
               </Grid>
               <ActionButtons
@@ -333,5 +391,5 @@ const useStyles = makeStyles(theme => ({
   divider: {
     color: theme.customColors.gray,
     marginBottom: theme.spacing(2),
-  }
+  },
 }));

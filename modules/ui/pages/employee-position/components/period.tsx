@@ -17,13 +17,12 @@ type Props = {
   index: number;
   locationOptions: OptionType[];
   bellScheduleOptions: OptionType[];
-  allDay: boolean;
-  allDayDisabled: boolean;
   period: Period;
   lastPeriod: boolean;
-  onChangeLocation?: (locationId: string) => void;
-  onChangeBellSchedule?: (bellScheduleId: string) => void;
-  onCheckAllDay?: (checked: boolean) => void;
+  disableAllDay: boolean;
+  onChangeLocation: (locationId: string, index: number) => void;
+  onChangeBellSchedule: (bellScheduleId: string, index: number) => void;
+  onCheckAllDay: () => void;
   onAddSchool: () => void;
   onRemoveSchool: (periodNumber: number) => void;
   scheduleNumber: string;
@@ -33,6 +32,7 @@ export const PeriodUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const period = props.period;
   const classes = useStyles();
+  const index = props.index;
 
   return (
     <>
@@ -50,7 +50,7 @@ export const PeriodUI: React.FC<Props> = props => {
             multiple={false}
             onChange={(value: OptionType) => {
               const id = (value as OptionTypeBase).value.toString();
-              props.onChangeLocation(id);
+              props.onChangeLocation(id, index);
             }}
             options={props.locationOptions}
             withResetValue={false}
@@ -69,7 +69,7 @@ export const PeriodUI: React.FC<Props> = props => {
             multiple={false}
             onChange={(value: OptionType) => {
               const id = (value as OptionTypeBase).value.toString();
-              props.onChangeBellSchedule(id);
+              props.onChangeBellSchedule(id, index);
             }}
             options={props.bellScheduleOptions}
             withResetValue={false}
@@ -83,6 +83,7 @@ export const PeriodUI: React.FC<Props> = props => {
               name={`periods[${props.index}].startTime`}
               value={period.startTime || undefined}
               //earliestTime={earliestStartTime}
+              disabled={period.allDay || period.bellScheduleId === "custom"}
             />
           </Grid>
           <Grid item xs={6}>
@@ -91,6 +92,7 @@ export const PeriodUI: React.FC<Props> = props => {
               label=""
               name={`periods[${props.index}].endTime`}
               value={period.startTime || undefined}
+              disabled={period.allDay || period.bellScheduleId === "custom"}
               //earliestTime={earliestStartTime}
             />
           </Grid>
@@ -100,9 +102,9 @@ export const PeriodUI: React.FC<Props> = props => {
             control={
               <Checkbox
                 color="primary"
-                checked={props.allDay}
-                onChange={e => props.onCheckAllDay(!props.allDay)}
-                disabled={props.allDayDisabled}
+                checked={period.allDay}
+                onChange={e => props.onCheckAllDay()}
+                disabled={props.disableAllDay}
               />
             }
             label={t("All Day")}

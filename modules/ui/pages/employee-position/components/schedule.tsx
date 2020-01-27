@@ -23,6 +23,7 @@ type Props = {
   lastSchedule: boolean;
   onDelete: () => void;
   onCheckScheduleVaries: () => void;
+  onAddSchedule: () => void;
   schedule: Schedule;
   locationOptions: OptionType[];
   bellScheduleOptions: OptionType[];
@@ -30,6 +31,9 @@ type Props = {
   onRemoveSchool: (periodNumber: number) => void;
   disabledDaysOfWeek: DayOfWeek[];
   onCheckDayOfWeek: (dow: DayOfWeek) => void;
+  onChangeLocation: (locationId: string, index: number) => void;
+  onChangeBellSchedule: (bellScheduleId: string, index: number) => void;
+  onCheckAllDay: () => void;
 };
 
 export const ScheduleUI: React.FC<Props> = props => {
@@ -93,20 +97,22 @@ export const ScheduleUI: React.FC<Props> = props => {
                     index={i}
                     locationOptions={props.locationOptions}
                     bellScheduleOptions={props.bellScheduleOptions}
-                    allDay={periods.length === 1}
-                    allDayDisabled={periods.length > 1}
+                    disableAllDay={periods.length > 1}
                     period={p}
                     lastPeriod={periods.length === i + 1}
                     onRemoveSchool={props.onRemoveSchool}
                     onAddSchool={props.onAddSchool}
                     scheduleNumber={scheduleNumber}
+                    onChangeLocation={props.onChangeLocation}
+                    onChangeBellSchedule={props.onChangeBellSchedule}
+                    onCheckAllDay={props.onCheckAllDay}
                   />
                 </>
               );
             })}
           </Grid>
         </Grid>
-        {props.index === 0 && (
+        {props.index === 0 ? (
           <Grid item>
             <FormControlLabel
               control={
@@ -122,6 +128,12 @@ export const ScheduleUI: React.FC<Props> = props => {
               }
               label={t("Schedule varies by day of the week")}
             />
+          </Grid>
+        ) : (
+          <Grid item>
+            <TextButton color="primary" onClick={() => props.onAddSchedule()}>
+              {t("Add another schedule")}
+            </TextButton>
           </Grid>
         )}
       </Grid>
