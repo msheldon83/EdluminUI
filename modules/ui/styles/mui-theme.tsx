@@ -43,8 +43,8 @@ const themeColors: Theme["customColors"] = {
   sectionBorder: "#d2d0d0",
   marigold: "#FFB946",
 
-  edluminSlate: "#2B3648",
-  edluminLightSlate: "#56657F",
+  edluminSlate: "#050039",
+  edluminLightSlate: "#38336C",
   edluminSubText: "#9E9E9E",
   darkRed: "#C62828",
 
