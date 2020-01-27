@@ -15,6 +15,7 @@ import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { PeriodUI } from "./period";
 import { Period, Schedule, buildNewPeriod } from "./helpers";
 import { DayOfWeek } from "graphql/server-types.gen";
+import { DayOfWeekCheckBox } from "./day-of-week";
 
 type Props = {
   index: number;
@@ -27,6 +28,8 @@ type Props = {
   bellScheduleOptions: OptionType[];
   onAddSchool: () => void;
   onRemoveSchool: (periodNumber: number) => void;
+  disabledDaysOfWeek: DayOfWeek[];
+  onCheckDayOfWeek: (dow: DayOfWeek) => void;
 };
 
 export const ScheduleUI: React.FC<Props> = props => {
@@ -35,7 +38,8 @@ export const ScheduleUI: React.FC<Props> = props => {
   const scheduleNumber = ` #${props.index + 1}`;
 
   const periods = props.schedule.periods;
-  const daysOfTheWeek = props.schedule.daysOfTheWeek;
+
+  const days = Object.values(DayOfWeek);
 
   return (
     <>
@@ -66,118 +70,17 @@ export const ScheduleUI: React.FC<Props> = props => {
         >
           <Grid item xs={12}>
             <div className={classes.daysOfWeekContainer}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={
-                      daysOfTheWeek.find(x => x === DayOfWeek.Sunday)
-                        ? true
-                        : false
-                    }
-                    onChange={e => {
-                      console.log(e.target.checked);
-                    }}
+              {days.map((day, i) => {
+                return (
+                  <DayOfWeekCheckBox
+                    key={i}
+                    dayOfWeek={day}
+                    scheduleDaysOfWeek={props.schedule.daysOfTheWeek}
+                    disabledDaysOfWeek={props.disabledDaysOfWeek}
+                    onCheckDayOfWeek={props.onCheckDayOfWeek}
                   />
-                }
-                label={t("Sunday")}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={
-                      daysOfTheWeek.find(x => x === DayOfWeek.Monday)
-                        ? true
-                        : false
-                    }
-                    onChange={e => {
-                      console.log(e.target.checked);
-                    }}
-                  />
-                }
-                label={t("Monday")}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={
-                      daysOfTheWeek.find(x => x === DayOfWeek.Tuesday)
-                        ? true
-                        : false
-                    }
-                    onChange={e => {
-                      console.log(e.target.checked);
-                    }}
-                  />
-                }
-                label={t("Tuesday")}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={
-                      daysOfTheWeek.find(x => x === DayOfWeek.Wednesday)
-                        ? true
-                        : false
-                    }
-                    onChange={e => {
-                      console.log(e.target.checked);
-                    }}
-                  />
-                }
-                label={t("Wednesday")}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={
-                      daysOfTheWeek.find(x => x === DayOfWeek.Thursday)
-                        ? true
-                        : false
-                    }
-                    onChange={e => {
-                      console.log(e.target.checked);
-                    }}
-                  />
-                }
-                label={t("Thursday")}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={
-                      daysOfTheWeek.find(x => x === DayOfWeek.Friday)
-                        ? true
-                        : false
-                    }
-                    onChange={e => {
-                      console.log(e.target.checked);
-                    }}
-                  />
-                }
-                label={t("Friday")}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={
-                      daysOfTheWeek.find(x => x === DayOfWeek.Saturday)
-                        ? true
-                        : false
-                    }
-                    onChange={e => {
-                      console.log(e.target.checked);
-                    }}
-                  />
-                }
-                label={t("Saturday")}
-              />
+                );
+              })}
             </div>
           </Grid>
           <Grid item xs={12}>

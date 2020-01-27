@@ -14,16 +14,10 @@ export type Schedule = {
   daysOfTheWeek: DayOfWeek[];
 };
 
-export const buildNewSchedule = (): Schedule => {
+export const buildNewSchedule = (daysSelected: boolean): Schedule => {
   return {
     periods: [buildNewPeriod()],
-    daysOfTheWeek: [
-      DayOfWeek.Monday,
-      DayOfWeek.Tuesday,
-      DayOfWeek.Wednesday,
-      DayOfWeek.Thursday,
-      DayOfWeek.Friday,
-    ],
+    daysOfTheWeek: buildDaysOfTheWeek(daysSelected),
   };
 };
 
@@ -34,4 +28,18 @@ export const buildNewPeriod = (): Period => {
     startTime: "8:30 AM",
     endTime: "3:30 PM",
   };
+};
+
+const buildDaysOfTheWeek = (defaultSelected: boolean): DayOfWeek[] => {
+  if (defaultSelected) {
+    return [
+      DayOfWeek.Monday,
+      DayOfWeek.Tuesday,
+      DayOfWeek.Wednesday,
+      DayOfWeek.Thursday,
+      DayOfWeek.Friday,
+    ];
+  } else {
+    return [];
+  }
 };

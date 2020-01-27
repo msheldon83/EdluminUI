@@ -13,7 +13,7 @@ import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { ActionButtons } from "ui/components/action-buttons";
 import * as yup from "yup";
 import { Formik } from "formik";
-import { PositionInput, NeedsReplacement } from "graphql/server-types.gen";
+import { PositionInput, NeedsReplacement, DayOfWeek } from "graphql/server-types.gen";
 import { OptionTypeBase } from "react-select/src/types";
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
@@ -22,6 +22,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { GetPositionTypes } from "./graphql/get-positiontypes.gen";
 import { ScheduleUI } from "./components/schedule";
 import { Period, Schedule, buildNewSchedule, buildNewPeriod } from "./components/helpers";
+import { flatMap } from "lodash-es";
 
 type Props = {
   position?:
@@ -87,7 +88,7 @@ export const PositionEditUI: React.FC<Props> = props => {
       options.push({label: t("Custom"), value: "custom"});
       return options;
     },
-    [bellSchedules]
+    [bellSchedules, t]
   );
 
   const needsReplacementOptions: OptionType[] = useMemo(
@@ -99,7 +100,7 @@ export const PositionEditUI: React.FC<Props> = props => {
     [t]
   );
 
-  const [positionSchedule, setPositionSchedule] = useState<Schedule[]>([buildNewSchedule()]);
+  const [positionSchedule, setPositionSchedule] = useState<Schedule[]>([buildNewSchedule(true)]);
 
   return (
     <>
@@ -262,6 +263,11 @@ export const PositionEditUI: React.FC<Props> = props => {
                 </Grid>
                 <Grid item xs={10}>
                 {values.schedules.map((schedule: Schedule, i) => {
+                  const otherSchedules = values.schedules.filter((s, index) => {if (index !== i) { return s;}});
+                  const disabledDaysOfWeek = flatMap(otherSchedules, (s => s.daysOfTheWeek) ?? []) ?? [];
+
+                  console.log(otherSchedules);
+
                   return (
                     <>
                       {i != 0 && (<Divider key={`divider-schedule-${i}`} className={classes.divider} />)}
@@ -278,7 +284,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                         locationOptions={locationOptions}
                         bellScheduleOptions={bellScheduleOptions}
                         onCheckScheduleVaries={() => {
-                          positionSchedule.push(buildNewSchedule());                        
+                          positionSchedule.push(buildNewSchedule(false));                        
                           setFieldValue("schedules", positionSchedule);
                         }}
                         onRemoveSchool={(index) => {
@@ -287,6 +293,17 @@ export const PositionEditUI: React.FC<Props> = props => {
                         }}
                         onAddSchool={() => {
                           positionSchedule[i].periods.push(buildNewPeriod());
+                          setFieldValue("schedules", positionSchedule);
+                        }}
+                        disabledDaysOfWeek={disabledDaysOfWeek}
+                        onCheckDayOfWeek={(dow: DayOfWeek) => {
+                          const dayIndex = schedule.daysOfTheWeek.indexOf(dow);
+                          if (dayIndex != -1) {
+                            schedule.daysOfTheWeek.splice(dayIndex, 1);
+                          } else {
+                            schedule.daysOfTheWeek.push(dow);
+                          }
+                          positionSchedule[i] = schedule;
                           setFieldValue("schedules", positionSchedule);
                         }}
                       />
