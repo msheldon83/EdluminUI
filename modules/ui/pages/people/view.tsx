@@ -15,7 +15,6 @@ import { UpdateOrgUser } from "./graphql/update-orguser.gen";
 import { OrgUserUpdateInput } from "graphql/server-types.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-
 import { AdminTab } from "./role-pages/admin-tab";
 import { EmployeeTab } from "./role-pages/employee-tab";
 import { SubstituteTab } from "./role-pages/substitute-tab";
@@ -97,6 +96,8 @@ export const PersonViewPage: React.FC<{}> = props => {
         setEditing={setEditing}
         deleteOrgUser={deleteOrgUser}
         onSaveOrgUser={onUpdateOrgUser}
+        selectedRole={selectedRole ?? defaultSelectedRole}
+        orgId={params.organizationId}
       />
       <div className={classes.content}>
         <RoleTabs
