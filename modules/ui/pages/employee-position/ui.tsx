@@ -28,7 +28,7 @@ type Props = {
   position?:
     | {
         positionTypeId?: string | null | undefined;
-        name?: string | null | undefined;
+        title?: string | null | undefined;
         needsReplacement?: NeedsReplacement | null | undefined;
         currentContractId?: string | null | undefined;
         hoursPerFullWorkDay?: number | null | undefined;
@@ -107,7 +107,7 @@ export const PositionEditUI: React.FC<Props> = props => {
       <Formik
         initialValues={{
           positionTypeId: position?.positionTypeId ?? "",
-          title: position?.name ?? "",
+          title: position?.title ?? "",
           needsReplacement: position?.needsReplacement ?? NeedsReplacement.Yes,
           contractId: position?.currentContractId ?? "",
           hoursPerFullWorkDay: position?.hoursPerFullWorkDay ?? "",
@@ -265,8 +265,6 @@ export const PositionEditUI: React.FC<Props> = props => {
                 {values.schedules.map((schedule: Schedule, i) => {
                   const otherSchedules = values.schedules.filter((s, index) => {if (index !== i) { return s;}});
                   const disabledDaysOfWeek = flatMap(otherSchedules, (s => s.daysOfTheWeek) ?? []) ?? [];
-
-                  console.log(otherSchedules);
 
                   return (
                     <>

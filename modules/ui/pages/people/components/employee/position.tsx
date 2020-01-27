@@ -19,7 +19,7 @@ const editableSections = {
 type Props = {
   editing: string | null;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
-  positionName: string | null | undefined;
+  positionTitle: string | null | undefined;
   needsReplacement: Maybe<NeedsReplacement>;
   hoursPerFullWorkDay: number | null | undefined;
   contractName: string | null | undefined;
@@ -65,7 +65,7 @@ export const Position: React.FC<Props> = props => {
           <Grid container item spacing={2} xs={8}>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Position")}</Typography>
-              <div>{props.positionName ?? t("Not available")}</div>
+              <div>{props.positionTitle ?? t("Not available")}</div>
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Location")}</Typography>

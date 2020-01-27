@@ -3021,17 +3021,17 @@ type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
-  name: String!
+  title: String!
   startDate: Date
   endDate: Date
   positionTypeId: ID
   positionType: PositionType
   currentEmployeeId: ID
-  currentContractId: ID
-  currentContract: Contract
+  contractId: ID
+  contract: Contract
+  hoursPerFullWorkDay: Decimal
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
-  hoursPerFullWorkDay: Decimal
   replacementCriteria: ObjectReplacementCriteria
   schedules: [PositionSchedule]
   locationIds: [ID]
@@ -3085,11 +3085,11 @@ type PositionSchedule implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+  rowVersion: String
   name: String!
   positionId: Int!
-  rowVersion: String
-  periods: [PositionSchedulePeriod]
-  variants: [PositionScheduleVariant]
+  items: [PositionScheduleItem]
+  daysOfTheWeek: [DayOfWeek]
 }
 
 input PositionScheduleCreateInput {
@@ -3196,6 +3196,16 @@ input PositionScheduleInput {
   daysOfTheWeek: [DayOfWeek]
 }
 
+type PositionScheduleItem {
+  _info: [ReturnMessage]
+  location: Location!
+  bellSchedule: WorkDaySchedule
+  startPeriod: WorkDaySchedulePeriod
+  endPeriod: WorkDaySchedulePeriod
+  startTime: Seconds
+  endTime: Seconds
+}
+
 input PositionScheduleItemInput {
   location: LocatorInput
   bellSchedule: LocatorInput
@@ -3212,31 +3222,6 @@ type PositionScheduleMutations {
   modifyScheduleVariant(positionScheduleVariant: PositionScheduleVariantModifyInput!): PositionScheduleVariant
   deleteScheduleVariant(positionScheduleVariant: PositionScheduleVariantDeleteInput!): Boolean
   createSimple(positionSchedule: PositionScheduleCreateSimpleInputTypeDef!): PositionSchedule
-}
-
-type PositionSchedulePeriod implements ModelObjectInterface & OrgObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  orgId: Int!
-  organization: Organization!
-  createdLocal: DateTime
-  changedLocal: DateTime
-  deletedLocal: DateTime
-  positionId: Int!
-  positionScheduleId: Int!
-  sequence: Int
-  name: String!
-  description: String
-  room: String
-  needsReplacement: Boolean!
-  deductFromAbsenceBalance: Boolean!
-  locationId: Int!
-  workDayScheduleId: Int
-  workDaySchedulePeriodId: Int
 }
 
 input PositionSchedulePeriodInput {

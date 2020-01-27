@@ -8,7 +8,7 @@ query GetEmployeePosition($id: ID!) {
         id
         primaryPosition {
           id
-          name
+          title
           hoursPerFullWorkDay
           needsReplacement
           positionTypeId
@@ -16,17 +16,10 @@ query GetEmployeePosition($id: ID!) {
             id
             name
           }
-          currentContractId
+          contractId
           schedules {
             id
             name
-            periods {
-              id
-              locationId
-            }
-            variants {
-              id
-            }
           }
         }
       }

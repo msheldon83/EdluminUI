@@ -83,7 +83,7 @@ export const SelectEmployee: React.FC<Props> = props => {
       firstName: orgUser.firstName,
       lastName: orgUser.lastName,
       phone: orgUser.phoneNumber,
-      position: orgUser.employee?.primaryPosition?.name,
+      position: orgUser.employee?.primaryPosition?.title,
     }));
   }, [results]);
 

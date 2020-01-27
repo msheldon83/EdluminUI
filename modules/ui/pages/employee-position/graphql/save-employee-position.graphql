@@ -6,21 +6,14 @@ mutation SaveEmployeePosition($employee: EmployeeInput!) {
         id
         primaryPosition {
           id
-          name
+          title
           hoursPerFullWorkDay
           needsReplacement
           positionType {
             id
             name
           }
-          currentContract {
-            id
-            name
-          }
-          schedules {
-            id
-            name
-          }
+          contractId
         }
       }
     }

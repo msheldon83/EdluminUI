@@ -85,7 +85,7 @@ query GetVacancyDetails(
         }
         position {
           id
-          name
+          title
           positionType {
             id
             payTypeId
