@@ -25,8 +25,10 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
 
   const [updateEmployee] = useMutationBundle(SaveEmployee, {
     onError: error => {
+      console.log(error);
       ShowErrors(error, openSnackbar);
     },
+    refetchQueries: ["GetEmployeeById"],
   });
 
   const getEmployee = useQueryBundle(GetEmployeeById, {
@@ -155,7 +157,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       ? undefined
       : getQualifiedNumbers?.data?.position?.qualifiedEmployeeCounts;
 
-  if (!employee) {
+  if (getEmployee.state === "DONE" && !employee) {
     const listUrl = PersonViewRoute.generate(params);
     return <Redirect to={listUrl} />;
   }
