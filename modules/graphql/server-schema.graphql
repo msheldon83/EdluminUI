@@ -3088,8 +3088,8 @@ type PositionSchedule implements ModelObjectInterface & OrgObjectInterface {
   rowVersion: String
   name: String!
   positionId: Int!
-  items: [PositionScheduleItem]
-  daysOfTheWeek: [DayOfWeek]
+  items: [PositionScheduleItem!]!
+  daysOfTheWeek: [DayOfWeek!]!
 }
 
 input PositionScheduleCreateInput {
@@ -3202,6 +3202,7 @@ type PositionScheduleItem {
   bellSchedule: WorkDaySchedule
   startPeriod: WorkDaySchedulePeriod
   endPeriod: WorkDaySchedulePeriod
+  isAllDay: Boolean!
   startTime: Seconds
   endTime: Seconds
 }
@@ -5007,6 +5008,7 @@ type WorkDaySchedulePeriod implements ModelObjectInterface {
   name: String!
   description: String
   workDayScheduleId: Int!
+  standardPeriod: WorkDayScheduleVariantPeriod
 }
 
 input WorkDaySchedulePeriodInput {

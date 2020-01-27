@@ -24,6 +24,7 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { PeopleRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { GetPositionTypes } from "./graphql/get-positiontypes.gen";
+import { GetBellSchedules } from "./graphql/get-bell-schedules.gen";
 import { ScheduleUI } from "./components/schedule";
 import {
   Period,
@@ -90,9 +91,16 @@ export const PositionEditUI: React.FC<Props> = props => {
     [locations]
   );
 
-  const bellSchedules = useContracts(params.organizationId);
+  const getBellSchedules = useQueryBundle(GetBellSchedules, {
+    fetchPolicy: "cache-first",
+    variables: { orgId: params.organizationId },
+  });
+  const bellSchedules =
+    getBellSchedules.state != "LOADING"
+      ? getBellSchedules.data.workDaySchedule?.all ?? []
+      : [];
   const bellScheduleOptions: OptionType[] = useMemo(() => {
-    const options = bellSchedules.map(p => ({ label: p.name, value: p.id }));
+    const options = bellSchedules.map(p => ({ label: p?.name ?? "", value: p?.id ?? "" }));
     options.push({ label: t("Custom"), value: "custom" });
     return options;
   }, [bellSchedules, t]);
@@ -360,6 +368,24 @@ export const PositionEditUI: React.FC<Props> = props => {
                               i
                             ].periods[0].allDay = !positionSchedule[i]
                               .periods[0].allDay;
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                          onChangeStartPeriod={(
+                            startPeriodId: string,
+                            index: number
+                          ) => {
+                            positionSchedule[i].periods[
+                              index
+                            ].startPeriodId = startPeriodId;
+                            setFieldValue("schedules", positionSchedule);
+                          }}
+                          onChangeEndPeriod={(
+                            endPeriodId: string,
+                            index: number
+                          ) => {
+                            positionSchedule[i].periods[
+                              index
+                            ].endPeriodId = endPeriodId;
                             setFieldValue("schedules", positionSchedule);
                           }}
                         />

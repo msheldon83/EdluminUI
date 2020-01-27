@@ -6,12 +6,21 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@material-ui/core";
+import { useQueryBundle } from "graphql/hooks";
+import { useMemo } from "react";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { Period, Schedule, buildNewSchedule } from "./helpers";
+import { GetBellSchedulePeriods } from "../graphql/get-bell-schedule-periods.gen";
+import { format } from "date-fns";
+import {
+  midnightTime,
+  secondsSinceMidnight,
+  timeStampToIso,
+} from "helpers/time";
 
 type Props = {
   index: number;
@@ -22,6 +31,8 @@ type Props = {
   disableAllDay: boolean;
   onChangeLocation: (locationId: string, index: number) => void;
   onChangeBellSchedule: (bellScheduleId: string, index: number) => void;
+  onChangeStartPeriod: (startPeriodId: string, index: number) => void;
+  onChangeEndPeriod: (endPeriodId: string, index: number) => void;
   onCheckAllDay: () => void;
   onAddSchool: () => void;
   onRemoveSchool: (periodNumber: number) => void;
@@ -33,6 +44,65 @@ export const PeriodUI: React.FC<Props> = props => {
   const period = props.period;
   const classes = useStyles();
   const index = props.index;
+
+  const getPeriods = useQueryBundle(GetBellSchedulePeriods, {
+    variables: {
+      id: period.bellScheduleId,
+    },
+    skip: !period.bellScheduleId || period.bellScheduleId === "custom",
+  });
+  const periods =
+    getPeriods.state != "LOADING"
+      ? getPeriods.data.workDaySchedule?.byId?.periods ?? []
+      : [];
+  const periodStartOptions: OptionType[] = useMemo(
+    () =>
+      periods.map(p => ({
+        label: `${p?.name} (${format(
+          midnightTime().setSeconds(p?.standardPeriod?.startTime),
+          "h:mm a"
+        )})`,
+        value: p?.id ?? "",
+      })),
+    [periods]
+  );
+
+  const periodEndOptions: OptionType[] = useMemo(
+    () =>
+      periods.map(p => ({
+        label: `${p?.name} (${format(
+          midnightTime().setSeconds(p?.standardPeriod?.endTime),
+          "h:mm a"
+        )})`,
+        value: p?.id ?? "",
+      })),
+    [periods]
+  );
+
+  const startPeriodSelected =
+    period.bellScheduleId && period.bellScheduleId !== "custom"
+      ? period.allDay
+        ? periodStartOptions[0]
+        : {
+            value: period.startPeriodId ?? "",
+            label:
+              periodStartOptions.find(
+                e => e.value && e.value === period.startPeriodId
+              )?.label || "",
+          }
+      : { value: "", label: "" };
+  const endPeriodSelected =
+    period.bellScheduleId && period.bellScheduleId !== "custom"
+      ? period.allDay
+        ? periodEndOptions[periodEndOptions.length - 1]
+        : {
+            value: period.endPeriodId ?? "",
+            label:
+              periodEndOptions.find(
+                e => e.value && e.value === period.endPeriodId
+              )?.label || "",
+          }
+      : { value: "", label: "" };
 
   return (
     <>
@@ -76,40 +146,75 @@ export const PeriodUI: React.FC<Props> = props => {
           />
         </Grid>
         <Grid container item xs={6} spacing={2} alignItems="center">
-          <Grid item xs={6}>
-            <Typography>{t("Starting")}</Typography>
-            <FormikTimeInput
-              label=""
-              name={`periods[${props.index}].startTime`}
-              value={period.startTime || undefined}
-              //earliestTime={earliestStartTime}
-              disabled={period.allDay || period.bellScheduleId === "custom"}
+          {period.bellScheduleId === "custom" ? (
+            <>
+              <Grid item xs={6}>
+                <Typography>{t("Starting")}</Typography>
+                <FormikTimeInput
+                  label=""
+                  name={`periods[${props.index}].startTime`}
+                  value={period.startTime || undefined}
+                  disabled={period.allDay}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Typography>{t("Ending")}</Typography>
+                <FormikTimeInput
+                  label=""
+                  name={`periods[${props.index}].endTime`}
+                  value={period.endTime || undefined}
+                  disabled={period.allDay}
+                />
+              </Grid>
+            </>
+          ) : (
+            <>
+              <Grid item xs={6}>
+                <Typography>{t("Starting")}</Typography>
+                <SelectNew
+                  value={startPeriodSelected}
+                  multiple={false}
+                  onChange={(value: OptionType) => {
+                    const id = (value as OptionTypeBase).value.toString();
+                    props.onChangeStartPeriod(id, index);
+                  }}
+                  options={periodStartOptions}
+                  withResetValue={false}
+                  disabled={!period.bellScheduleId || period.allDay}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Typography>{t("Ending")}</Typography>
+                <SelectNew
+                  value={endPeriodSelected}
+                  multiple={false}
+                  onChange={(value: OptionType) => {
+                    const id = (value as OptionTypeBase).value.toString();
+                    props.onChangeEndPeriod(id, index);
+                  }}
+                  options={periodEndOptions}
+                  withResetValue={false}
+                  disabled={!period.bellScheduleId || period.allDay}
+                />
+              </Grid>
+            </>
+          )}
+        </Grid>
+        {period.bellScheduleId !== "custom" && (
+          <Grid item>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={period.allDay}
+                  onChange={e => props.onCheckAllDay()}
+                  disabled={props.disableAllDay}
+                />
+              }
+              label={t("All Day")}
             />
           </Grid>
-          <Grid item xs={6}>
-            <Typography>{t("Ending")}</Typography>
-            <FormikTimeInput
-              label=""
-              name={`periods[${props.index}].endTime`}
-              value={period.startTime || undefined}
-              disabled={period.allDay || period.bellScheduleId === "custom"}
-              //earliestTime={earliestStartTime}
-            />
-          </Grid>
-        </Grid>
-        <Grid item>
-          <FormControlLabel
-            control={
-              <Checkbox
-                color="primary"
-                checked={period.allDay}
-                onChange={e => props.onCheckAllDay()}
-                disabled={props.disableAllDay}
-              />
-            }
-            label={t("All Day")}
-          />
-        </Grid>
+        )}
         <Grid container item xs={12} spacing={2}>
           {props.index != 0 && (
             <Grid item>

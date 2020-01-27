@@ -33,6 +33,8 @@ type Props = {
   onCheckDayOfWeek: (dow: DayOfWeek) => void;
   onChangeLocation: (locationId: string, index: number) => void;
   onChangeBellSchedule: (bellScheduleId: string, index: number) => void;
+  onChangeStartPeriod: (startPeriodId: string, index: number) => void;
+  onChangeEndPeriod: (endPeriodId: string, index: number) => void;
   onCheckAllDay: () => void;
 };
 
@@ -106,6 +108,8 @@ export const ScheduleUI: React.FC<Props> = props => {
                     onChangeLocation={props.onChangeLocation}
                     onChangeBellSchedule={props.onChangeBellSchedule}
                     onCheckAllDay={props.onCheckAllDay}
+                    onChangeStartPeriod={props.onChangeStartPeriod}
+                    onChangeEndPeriod={props.onChangeEndPeriod}
                   />
                 </>
               );

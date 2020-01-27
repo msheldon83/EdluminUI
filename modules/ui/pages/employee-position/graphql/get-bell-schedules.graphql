@@ -1,0 +1,8 @@
+query GetBellSchedules($orgId: ID) {
+  workDaySchedule {
+    all(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}
