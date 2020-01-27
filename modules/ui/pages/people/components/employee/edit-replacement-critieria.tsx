@@ -18,7 +18,6 @@ import { PersonViewRoute } from "ui/routes/people";
 type Props = {};
 
 export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PersonViewRoute);
@@ -27,6 +26,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
+    refetchQueries: ["GetQualifiedEmployeeCountsWithinOrg"],
   });
 
   const getEmployee = useQueryBundle(GetEmployeeById, {

@@ -25,6 +25,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
+    refetchQueries: ["GetQualifiedEmployeeCountsWithinOrg"],
   });
 
   const getPositionType = useQueryBundle(GetPositionTypeById, {
