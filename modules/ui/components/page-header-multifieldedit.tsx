@@ -4,7 +4,10 @@ import { Formik } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { TextField as FormTextField } from "ui/components/form/text-field";
+import { Input } from "ui/components/form/input";
+import { CrossFade } from "ui/components/CrossFade";
+import { Margin } from "ui/components/margin";
+import { Padding } from "ui/components/padding";
 import { ActionMenu, Option } from "./action-menu";
 import { TextButton } from "./text-button";
 import { useMemo } from "react";
@@ -128,7 +131,75 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
     setEditing,
   ]);
 
-  if (!editing) {
+  const renderEditMode = () => {
+    return wrapper(
+      <Formik
+        initialValues={{ fields: props.fields || [] }}
+        onSubmit={async (data: { fields: Array<FieldData> }, meta) => {
+          if (props.onSubmit) {
+            const valuesToSend =
+              data.fields &&
+              data.fields.map(v => ({
+                key: v.key,
+                value: v.value && v.value.trim().length === 0 ? null : v.value,
+                label: v.label,
+              }));
+            await props.onSubmit(valuesToSend);
+          }
+          setEditing(false);
+        }}
+        // TODO figure out why validation isn't working
+        //validationSchema={props.validationSchema || null}
+      >
+        {({ handleSubmit, submitForm, values, setFieldValue }) => (
+          <form onSubmit={handleSubmit}>
+            <Margin bottom={2}>
+              <Grid container alignItems="center" spacing={2}>
+                {values.fields.map((field: FieldData, index: number) => (
+                  <Grid item key={field.key}>
+                    <Input
+                      name={field.key}
+                      label={field.label}
+                      value={field.value ? field.value : ""}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        field.value = e.target.value;
+                        setFieldValue("fields", values.fields);
+                      }}
+                    />
+                  </Grid>
+                ))}
+                <Padding top={4}>
+                  <Grid item>
+                    <Clear
+                      className={
+                        props.isSubHeader ? classes.smallAction : classes.action
+                      }
+                      onClick={() => {
+                        setEditing(false);
+                        props.onCancel!();
+                      }}
+                    />
+                  </Grid>
+                </Padding>
+                <Padding top={4}>
+                  <Grid item>
+                    <Check
+                      className={
+                        props.isSubHeader ? classes.smallAction : classes.action
+                      }
+                      onClick={submitForm}
+                    />
+                  </Grid>
+                </Padding>
+              </Grid>
+            </Margin>
+          </form>
+        )}
+      </Formik>
+    );
+  };
+
+  const renderViewMode = () => {
     return wrapper(
       <Grid item xs={10}>
         <Grid
@@ -160,69 +231,12 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
         </Grid>
       </Grid>
     );
-  }
+  };
 
-  return wrapper(
-    <Formik
-      initialValues={{ fields: props.fields || [] }}
-      onSubmit={async (data: { fields: Array<FieldData> }, meta) => {
-        if (props.onSubmit) {
-          const valuesToSend =
-            data.fields &&
-            data.fields.map(v => ({
-              key: v.key,
-              value: v.value && v.value.trim().length === 0 ? null : v.value,
-              label: v.label,
-            }));
-          await props.onSubmit(valuesToSend);
-        }
-        setEditing(false);
-      }}
-      // TODO figure out why validation isn't working
-      //validationSchema={props.validationSchema || null}
-    >
-      {({ handleSubmit, submitForm, values, setFieldValue }) => (
-        <form onSubmit={handleSubmit}>
-          <Grid container alignItems="center" spacing={2}>
-            <Grid item>
-              {values.fields.map((field: FieldData, index: number) => (
-                <FormTextField
-                  key={index}
-                  name={field.key}
-                  label={field.label}
-                  value={field.value ? field.value : ""}
-                  margin={isMobile ? "normal" : "none"}
-                  variant="outlined"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    field.value = e.target.value;
-                    setFieldValue("fields", values.fields);
-                  }}
-                />
-              ))}
-            </Grid>
-            <Grid item>
-              <Clear
-                className={
-                  props.isSubHeader ? classes.smallAction : classes.action
-                }
-                onClick={() => {
-                  setEditing(false);
-                  props.onCancel!();
-                }}
-              />
-            </Grid>
-            <Grid item>
-              <Check
-                className={
-                  props.isSubHeader ? classes.smallAction : classes.action
-                }
-                onClick={submitForm}
-              />
-            </Grid>
-          </Grid>
-        </form>
-      )}
-    </Formik>
+  return (
+    <CrossFade fadeKey={editing.toString()}>
+      {editing ? renderEditMode() : renderViewMode()}
+    </CrossFade>
   );
 };
 
