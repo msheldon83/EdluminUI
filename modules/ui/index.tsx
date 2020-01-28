@@ -221,6 +221,14 @@ import {
 } from "./routes/unauthorized";
 import { tbd, TbdLoader, adminTbd } from "./routes/tbd";
 import { AdminRouteOrganizationContextProvider } from "core/org-context";
+import {
+  AdminMobileSearchLoader,
+  AdminMobileSearchRoute,
+  EmpMobileSearchRoute,
+  EmployeeMobileSearchLoader,
+  SubMobileSearchRoute,
+  SubstituteMobileSearchLoader,
+} from "ui/routes/mobile-search";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -309,6 +317,10 @@ export function App() {
                             <EmployeeScheduleLoader view="list" />
                           </Route>
                           <Route
+                            path={EmpMobileSearchRoute.path}
+                            component={EmployeeMobileSearchLoader}
+                          />
+                          <Route
                             component={EmployeeHomeLoader}
                             path={EmployeeHomeRoute.path}
                           />
@@ -348,6 +360,10 @@ export function App() {
                           <Route
                             component={SubSpecificAssignmentLoader}
                             path={SubSpecificAssignmentRoute.path}
+                          />
+                          <Route
+                            path={SubMobileSearchRoute.path}
+                            component={SubstituteMobileSearchLoader}
                           />
                           <Route
                             component={SubHomeLoader}
@@ -843,6 +859,12 @@ export function App() {
                                   permissions={[
                                     PermissionEnum.ExternalConnectionsView,
                                   ]}
+                                />
+                                <ProtectedRoute
+                                  path={AdminMobileSearchRoute.path}
+                                  component={AdminMobileSearchLoader}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.AbsVacView]}
                                 />
                                 <ProtectedRoute
                                   component={DailyReportLoader}

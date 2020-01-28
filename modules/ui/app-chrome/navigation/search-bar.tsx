@@ -197,7 +197,7 @@ export const SearchBar: React.FC<Props> = props => {
                   : `Absence #${r.absenceId}`;
                 const subHeading = `${format(
                   parseISO(r.absenceStartTimeUtc),
-                  "ddd, MMM d, yyyy"
+                  "EEE, MMM d, yyyy"
                 )}`;
                 const empName = `${r.employeeFirstName} ${r.employeeLastName}`;
                 const subName = `${r.subFirstName} ${r.subLastName}`;
@@ -228,12 +228,14 @@ export const SearchBar: React.FC<Props> = props => {
                         })}
                       </div>
                       <div>
-                        <span className={classes.label}>on</span>
+                        <span className={classes.label}>{t("on")}</span>
                         <span className={classes.data}>{subHeading}</span>
-                        <span className={classes.label}>for</span>
+                        <span className={classes.label}>{t("for")}</span>
                         <span className={classes.data}>{empName}</span>
                         {r.assignmentId && (
-                          <span className={classes.label}>filled by</span>
+                          <span className={classes.label}>
+                            {t("filled by")}
+                          </span>
                         )}
                         {r.assignmentId && <span>{subName}</span>}
                       </div>

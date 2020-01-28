@@ -16,7 +16,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { ProfileRoute } from "ui/routes/profile";
 import { AutoSwitchingNavLinks } from "../navigation-links/role-nav-links";
 import { RoleSwitcher } from "../role-switcher";
-import { MobileSearchBar } from "./mobile-search";
+
 import { useAuth0 } from "auth/auth0";
 import { ExitToApp, HelpOutline } from "@material-ui/icons";
 import { useTranslation } from "react-i18next";
@@ -54,9 +54,7 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
       </Grid>
       <RoleSwitcher expanded />
       <Divider className={classes.divider} />
-      <div className={classes.searchBar}>
-        <MobileSearchBar />
-      </div>
+
       <List className={classes.list}>
         <AutoSwitchingNavLinks
           onClick={props.collapse}
