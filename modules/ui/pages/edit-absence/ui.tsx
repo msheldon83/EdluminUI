@@ -1,5 +1,5 @@
 import { makeStyles, Typography } from "@material-ui/core";
-import { format, formatISO, isSameDay, parseISO, isPast } from "date-fns";
+import { format, formatISO, isPast, isSameDay, parseISO } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
@@ -9,13 +9,13 @@ import {
   AbsenceVacancyInput,
   DayPart,
   NeedsReplacement,
+  PermissionEnum,
   Vacancy,
 } from "graphql/server-types.gen";
 import {
   AbsenceReasonUsageData,
   computeAbsenceUsageText,
 } from "helpers/absence/computeAbsenceUsageText";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
@@ -27,11 +27,13 @@ import * as React from "react";
 import { useCallback, useMemo, useReducer } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
 import {
-  TranslateAbsenceErrorCodeToMessage,
   getCannotCreateAbsenceDates,
+  TranslateAbsenceErrorCodeToMessage,
 } from "ui/components/absence/helpers";
+import { ActionMenu } from "ui/components/action-menu";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -46,8 +48,6 @@ import { AssignVacancy } from "./graphql/assign-vacancy.gen";
 import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-import { useHistory } from "react-router";
-import { Link } from "react-router-dom";
 
 type Props = {
   firstName: string;
@@ -76,6 +76,8 @@ type Props = {
   absenceDates: Date[];
   cancelAssignments: () => void;
   refetchAbsence: () => Promise<unknown>;
+  onDelete: () => void;
+  returnUrl?: string;
 };
 
 type EditAbsenceFormData = {
@@ -103,7 +105,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
-  const history = useHistory();
+
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
 
@@ -333,10 +335,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     (useProjectedInformation && projectedVacancyDetails) ||
     props.initialVacancyDetails;
 
-  const returnUrl: string | undefined = useMemo(() => {
-    return history.location.state?.returnUrl;
-  }, [history.location.state]);
-
   const update = async (
     data: EditAbsenceFormData,
     ignoreWarnings?: boolean
@@ -366,7 +364,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     const absence = result?.data?.absence?.update as Absence;
     if (absence) {
       openSnackbar({
-        message: returnUrl
+        message: props.returnUrl
           ? t("Absence #{{absenceId}} has been updated", {
               absenceId: absence.id,
             })
@@ -404,9 +402,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   return (
     <>
-      {returnUrl && (
+      {props.returnUrl && (
         <div className={classes.linkPadding}>
-          <Link to={returnUrl} className={classes.link}>
+          <Link to={props.returnUrl} className={classes.link}>
             {t("Return to previous page")}
           </Link>
         </div>
@@ -431,10 +429,24 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 </>
               )}
             </div>
-            <div className={classes.confirmationNumber}>
-              <Typography variant="h6">
-                {t("Confirmation")} #{props.absenceId}
-              </Typography>
+
+            <div className={classes.headerMenu}>
+              <ActionMenu
+                className={classes.actionMenu}
+                options={[
+                  {
+                    name: t("Delete"),
+                    onClick: () => props.onDelete(),
+                    permissions: [PermissionEnum.AbsVacDelete],
+                  },
+                ]}
+              />
+
+              <div className={classes.confirmationNumber}>
+                <Typography variant="h6">
+                  {t("Confirmation")} #{props.absenceId}
+                </Typography>
+              </div>
             </div>
           </div>
 
@@ -470,7 +482,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               replacementEmployeeName={props.replacementEmployeeName}
               onRemoveReplacement={props.cancelAssignments}
               locationIds={props.locationIds}
-              returnUrl={returnUrl}
+              returnUrl={props.returnUrl}
               isSubmitted={formState.isSubmitted}
               initialAbsenceCreation={false}
             />
@@ -614,6 +626,15 @@ const useStyles = makeStyles(theme => ({
   },
   title: { flexGrow: 1 },
   confirmationNumber: {},
+  headerMenu: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+  actionMenu: {
+    display: "flex",
+    justifyContent: "flex-end",
+  },
   link: {
     color: theme.customColors.blue,
     "&:visited": {
