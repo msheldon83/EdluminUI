@@ -15,7 +15,7 @@ export const getInitials = (props: Props) => {
 };
 
 export const minutesToHours = (mins?: number, decimalPlaces = 2) => {
-  if (!mins) {
+  if (mins === undefined) {
     return null;
   }
 
