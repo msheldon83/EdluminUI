@@ -6,7 +6,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { CalendarRoute } from "ui/routes/calendar/calendar";
 import { Section } from "ui/components/section";
 import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule-header";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
@@ -34,6 +34,8 @@ import {
   CalendarCalendarViewRoute,
 } from "ui/routes/calendar/calendar";
 import { Can } from "ui/components/auth/can";
+import { EditableTable } from "ui/components/editable-table";
+import { UpdateCalendarChange } from "./graphql/update-calendar-change.gen";
 
 type Props = {
   view: "list" | "calendar";
@@ -92,6 +94,41 @@ export const Calendars: React.FC<Props> = props => {
     params.organizationId
   );
 
+  const [updateCalendarChangeMutation] = useMutationBundle(
+    UpdateCalendarChange
+  );
+  const updateCalendarChange = useCallback(
+    async (updatedValues: {
+      id: string;
+      rowVersion: string;
+      description?: string | null;
+      changedContracts?: { id?: string }[];
+      affectsAllContracts: boolean;
+    }) => {
+      const {
+        id,
+        rowVersion,
+        changedContracts,
+        affectsAllContracts,
+        description,
+      } = updatedValues;
+      const contractIds = compact(changedContracts?.map(c => Number(c?.id)));
+      if (!id) return;
+      await updateCalendarChangeMutation({
+        variables: {
+          calendarChange: {
+            id: Number(id),
+            rowVersion,
+            contractIds,
+            affectsAllContracts,
+            description,
+          },
+        },
+      });
+    },
+    [updateCalendarChangeMutation]
+  );
+
   const [deleteCalendarChangeMutation] = useMutationBundle(
     DeleteCalendarChange
   );
@@ -126,6 +163,7 @@ export const Calendars: React.FC<Props> = props => {
               "MMM d, yyyy"
             )}`,
       sorting: false,
+      editable: "never",
     },
     {
       title: t("Type"),
@@ -146,18 +184,21 @@ export const Calendars: React.FC<Props> = props => {
             )?.name;
       },
       sorting: false,
+      editable: "never",
     },
     {
       title: t("Reason"),
       field: "calendarChangeReason.name",
       searchable: false,
       sorting: false,
+      editable: "never",
     },
     {
       title: t("Note"),
       field: "description",
       searchable: false,
       sorting: false,
+      editable: "onUpdate",
     },
     {
       title: t("Contract"),
@@ -172,6 +213,7 @@ export const Calendars: React.FC<Props> = props => {
         return contracts?.join(",");
       },
       sorting: false,
+      editable: "never",
     },
   ];
 
@@ -245,7 +287,7 @@ export const Calendars: React.FC<Props> = props => {
                 )}
                 {changesLoaded && (
                   <div>
-                    <Table
+                    <EditableTable
                       selection={true}
                       selectionPermissions={[
                         PermissionEnum.CalendarChangeDelete,
@@ -253,6 +295,11 @@ export const Calendars: React.FC<Props> = props => {
                       columns={columns}
                       data={sortedCalendarChanges}
                       title={""}
+                      onRowUpdate={{
+                        action: async (newData, oldData) =>
+                          await updateCalendarChange(newData),
+                        permissions: [PermissionEnum.CalendarChangeSave],
+                      }}
                       actions={[
                         {
                           tooltip: t("Delete selected events"),
