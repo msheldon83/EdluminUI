@@ -1,0 +1,5 @@
+mutation DeleteAbsence($absenceId: Int!) {
+  absence {
+    delete(absenceId: $absenceId)
+  }
+}

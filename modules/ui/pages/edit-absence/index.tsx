@@ -5,7 +5,7 @@ import { NeedsReplacement } from "graphql/server-types.gen";
 import { AbsenceReasonUsageData } from "helpers/absence/computeAbsenceUsageText";
 import { compact, flatMap, isNil, sortBy, uniqBy } from "lodash-es";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useIsAdmin } from "reference-data/is-admin";
 import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
 import { useRouteParams } from "ui/routes/definition";
@@ -14,6 +14,11 @@ import { VacancyDetail } from "../../components/absence/types";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { EditAbsenceUI } from "./ui";
+import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
+import { useHistory } from "react-router";
+import { useTranslation } from "react-i18next";
+import { useSnackbar } from "hooks/use-snackbar";
+import { DeleteDialog } from "./delete-absence-dialog";
 
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 
@@ -21,6 +26,10 @@ type Props = { actingAsEmployee?: boolean };
 export const EditAbsence: React.FC<Props> = props => {
   const params = useRouteParams(AdminEditAbsenceRoute);
   const userIsAdmin = useIsAdmin();
+  const history = useHistory();
+  const { openSnackbar } = useSnackbar();
+  const { t } = useTranslation();
+  const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
   const absence = useQueryBundle(GetAbsence, {
     variables: {
@@ -44,6 +53,57 @@ export const EditAbsence: React.FC<Props> = props => {
   }, [employeeInfo]);
 
   const locationIds = employee?.locations?.map(l => Number(l?.id));
+
+  const returnUrl: string | undefined = useMemo(() => {
+    return history.location.state?.returnUrl;
+  }, [history.location.state]);
+
+  const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
+    onError: error => {
+      openSnackbar({
+        message: error.graphQLErrors.map((e, i) => {
+          const errorMessage =
+            e.extensions?.data?.text ?? e.extensions?.data?.code;
+          if (!errorMessage) {
+            return null;
+          }
+          return <div key={i}>{errorMessage}</div>;
+        }),
+        dismissable: true,
+        status: "error",
+      });
+    },
+  });
+
+  const onClickDelete = React.useCallback(() => setDialogIsOpen(true), [
+    setDialogIsOpen,
+  ]);
+  const onDeleteAbsence = React.useCallback(async () => {
+    const result = await deleteAbsence({
+      variables: {
+        absenceId: Number(params.absenceId),
+      },
+    });
+    setDialogIsOpen(false);
+    if (result) {
+      returnUrl && history.push(returnUrl);
+      openSnackbar({
+        message: t("Absence #{{absenceId}} has been deleted", {
+          absenceId: params.absenceId,
+        }),
+        dismissable: true,
+        status: "success",
+        autoHideDuration: 5000,
+      });
+    }
+  }, [
+    params.absenceId,
+    deleteAbsence,
+    history,
+    openSnackbar,
+    t,
+    setDialogIsOpen,
+  ]);
 
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
   const cancelAssignments = React.useCallback(async () => {
@@ -155,38 +215,47 @@ export const EditAbsence: React.FC<Props> = props => {
   }
 
   return (
-    <EditAbsenceUI
-      firstName={employee.firstName}
-      lastName={employee.lastName}
-      employeeId={employee.id.toString()}
-      rowVersion={data.rowVersion}
-      needsReplacement={needsSub ? NeedsReplacement.Yes : NeedsReplacement.No}
-      notesToApprover={data.notesToApprover ?? undefined}
-      userIsAdmin={userIsAdmin}
-      positionId={
-        position?.id ?? employee.primaryPositionId?.toString() ?? undefined
-      }
-      positionName={position?.title ?? employee.primaryPosition?.title}
-      organizationId={data.organization.id}
-      absenceReasonId={reasonUsage?.absenceReasonId}
-      absenceId={data.id}
-      absenceDates={absenceDates}
-      dayPart={dayPart}
-      locationIds={locationIds}
-      initialVacancyDetails={initialVacancyDetails}
-      /* cf 2019-12-06 -
+    <>
+      <DeleteDialog
+        onDelete={onDeleteAbsence}
+        onClose={() => setDialogIsOpen(false)}
+        open={dialogIsOpen}
+        replacementEmployeeName={replacementEmployeeName}
+      />
+      <EditAbsenceUI
+        firstName={employee.firstName}
+        lastName={employee.lastName}
+        employeeId={employee.id.toString()}
+        rowVersion={data.rowVersion}
+        needsReplacement={needsSub ? NeedsReplacement.Yes : NeedsReplacement.No}
+        notesToApprover={data.notesToApprover ?? undefined}
+        userIsAdmin={userIsAdmin}
+        positionId={
+          position?.id ?? employee.primaryPositionId?.toString() ?? undefined
+        }
+        positionName={position?.title ?? employee.primaryPosition?.title}
+        organizationId={data.organization.id}
+        absenceReasonId={reasonUsage?.absenceReasonId}
+        absenceId={data.id}
+        absenceDates={absenceDates}
+        dayPart={dayPart}
+        locationIds={locationIds}
+        initialVacancyDetails={initialVacancyDetails}
+        /* cf 2019-12-06 -
       it is impossible to satisfy the graphql type Vacancy, because it is impossible to
       satisfy the graphql type Organization, because it is infinitely recursive.  */
-      initialVacancies={vacancies as any}
-      initialAbsenceUsageData={processedUsage}
-      absenceDetailsIdsByDate={absenceDetailsIdsByDate}
-      replacementEmployeeId={replacementEmployeeId}
-      replacementEmployeeName={replacementEmployeeName}
-      actingAsEmployee={props.actingAsEmployee}
-      startTimeLocal={data.startTimeLocal}
-      endTimeLocal={data.endTimeLocal}
-      cancelAssignments={cancelAssignments}
-      refetchAbsence={absence.refetch}
-    />
+        initialVacancies={vacancies as any}
+        initialAbsenceUsageData={processedUsage}
+        absenceDetailsIdsByDate={absenceDetailsIdsByDate}
+        replacementEmployeeId={replacementEmployeeId}
+        replacementEmployeeName={replacementEmployeeName}
+        actingAsEmployee={props.actingAsEmployee}
+        startTimeLocal={data.startTimeLocal}
+        endTimeLocal={data.endTimeLocal}
+        cancelAssignments={cancelAssignments}
+        refetchAbsence={absence.refetch}
+        onDelete={onClickDelete}
+      />
+    </>
   );
 };

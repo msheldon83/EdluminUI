@@ -409,7 +409,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         {step === "preAssignSub" && (
           <AssignSub
             orgId={props.organizationId}
-            userIsAdmin={props.userIsAdmin}
+            userIsAdmin={!props.actingAsEmployee && props.userIsAdmin}
             employeeName={name}
             employeeId={state.employeeId}
             positionId={props.positionId}
