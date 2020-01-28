@@ -180,7 +180,7 @@ export const BellScheduleVariants: React.FC<Props> = props => {
         className={classes.header}
       >
         <Grid item>
-          <PageTitle title={t("Bell Schedule Variants")} />
+          <PageTitle title={t("Bell Schedule Variations")} />
         </Grid>
       </Grid>
       <EditableTable

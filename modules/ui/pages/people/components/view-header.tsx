@@ -12,8 +12,13 @@ import { useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { InviteSingleUser } from "../graphql/invite-single-user.gen";
 import { ShowErrors } from "ui/components/error-helpers";
+import { useRouteParams } from "ui/routes/definition";
+import { useHistory } from "react-router";
 import { canEditOrgUser, canDeleteOrgUser } from "helpers/permissions";
 import { OrgUserPermissions } from "ui/components/auth/types";
+import { OptionType } from "ui/components/form/select-new";
+import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
+import { OrgUserRole } from "graphql/server-types.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -38,6 +43,8 @@ type Props = {
     isEmployee: boolean;
     isReplacementEmployee: boolean;
   };
+  selectedRole?: OrgUserRole | null;
+  orgId: string;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   deleteOrgUser: () => Promise<unknown>;
   onSaveOrgUser: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
@@ -45,6 +52,7 @@ type Props = {
 
 export const PersonViewHeader: React.FC<Props> = props => {
   const orgUser = props.orgUser;
+  const history = useHistory();
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
   const [inviteSent, setInviteSent] = React.useState(
@@ -134,6 +142,23 @@ export const PersonViewHeader: React.FC<Props> = props => {
         onCancel={() => props.setEditing(null)}
         actions={[
           ...[
+            ...(props.selectedRole === OrgUserRole.Employee
+              ? [
+                  {
+                    name: t("Create Absence"),
+                    onClick: () => {
+                      history.push(
+                        AdminCreateAbsenceRoute.generate({
+                          organizationId: props.orgId,
+                          employeeId: props.orgUser.id,
+                        })
+                      );
+                    },
+                    permissions: [PermissionEnum.AbsVacSave],
+                  },
+                ]
+              : []),
+
             {
               name: t("Change History"),
               onClick: () => {},
