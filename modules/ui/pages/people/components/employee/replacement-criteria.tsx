@@ -49,7 +49,8 @@ export const ReplacementCriteria: React.FC<Props> = props => {
           <Grid container item spacing={2} xs={8}>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Substitutes must have")}</Typography>
-              {replacementCriteria?.mustHave?.length === 0 ? (
+              {replacementCriteria === undefined ||
+              replacementCriteria?.mustHave?.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
                 replacementCriteria?.mustHave?.map((n, i) => (
@@ -61,7 +62,8 @@ export const ReplacementCriteria: React.FC<Props> = props => {
               <Typography variant="h6">
                 {t("Prefer that substitutes have")}
               </Typography>
-              {replacementCriteria?.preferToHave?.length === 0 ? (
+              {replacementCriteria === undefined ||
+              replacementCriteria?.preferToHave?.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
                 replacementCriteria?.preferToHave?.map((n, i) => (
@@ -73,7 +75,8 @@ export const ReplacementCriteria: React.FC<Props> = props => {
               <Typography variant="h6">
                 {t("Substitutes must not have")}
               </Typography>
-              {replacementCriteria?.mustNotHave?.length === 0 ? (
+              {replacementCriteria === undefined ||
+              replacementCriteria?.mustNotHave?.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
                 replacementCriteria?.mustNotHave?.map((n, i) => (
@@ -85,7 +88,8 @@ export const ReplacementCriteria: React.FC<Props> = props => {
               <Typography variant="h6">
                 {t("Prefer that substitutes not have")}
               </Typography>
-              {replacementCriteria?.preferToNotHave?.length === 0 ? (
+              {replacementCriteria === undefined ||
+              replacementCriteria?.preferToNotHave?.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
                 replacementCriteria?.preferToNotHave?.map((n, i) => (
