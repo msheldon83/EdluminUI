@@ -85,6 +85,21 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   }
 
   const replacementCriteria = positionType?.replacementCriteria;
+  const minimumDuration = minutesToHours(
+    positionType.minAbsenceDurationMinutes,
+    2
+  );
+
+  const displayMinimumDuration = (d: number | null) => {
+    if (!d) {
+      return t("No Minimum");
+    }
+    return d === 1
+      ? t("1 hour")
+      : t("{{hours}} hours", {
+          hours: d,
+        });
+  };
 
   if (enabled === null) {
     setEnabled(!positionType.expired);
@@ -224,12 +239,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
             <Typography variant="h6">
               {t("Minimum absence duration")}
             </Typography>
-            <div>
-              {`${minutesToHours(
-                positionType.minAbsenceDurationMinutes,
-                2
-              )} hour(s)`}
-            </div>
+            <div>{displayMinimumDuration(minimumDuration)}</div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
             <Typography variant="h6">{t("Default Contract")}</Typography>
