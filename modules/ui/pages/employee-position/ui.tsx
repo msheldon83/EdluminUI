@@ -31,6 +31,11 @@ import {
   buildNewPeriod,
 } from "./components/helpers";
 import { flatMap } from "lodash-es";
+import {
+  midnightTime,
+  secondsSinceMidnight,
+  timeStampToIso,
+} from "helpers/time";
 
 type Props = {
   position?:
@@ -132,6 +137,23 @@ export const PositionEditUI: React.FC<Props> = props => {
           schedules: positionSchedule,
         }}
         onSubmit={async (data, e) => {
+          const schedules = data.schedules.map(s => ({
+            items: s.periods.map(p => ({
+              location: { id: p.locationId },
+              bellSchedule:
+                p.bellScheduleId != "custom" ? { id: p.bellScheduleId } : null,
+              startPeriod:
+                !p.startTime && p.startPeriodId
+                  ? { id: p.startPeriodId }
+                  : null,
+              endPeriod:
+                !p.endTime && p.endPeriodId ? { id: p.endPeriodId } : null,
+              startTime: p.startTime ? secondsSinceMidnight(p.startTime) : null,
+              endTime: p.endTime ? secondsSinceMidnight(p.endTime) : null,
+            })),
+            daysOfTheWeek: s.daysOfTheWeek,
+          }));
+
           await props.onSave({
             positionType: { id: data.positionTypeId },
             title: data.title,
@@ -141,6 +163,7 @@ export const PositionEditUI: React.FC<Props> = props => {
               +data.hoursPerFullWorkDay === 0
                 ? undefined
                 : data.hoursPerFullWorkDay,
+            schedules,
           });
         }}
         validationSchema={yup.object({
@@ -364,6 +387,24 @@ export const PositionEditUI: React.FC<Props> = props => {
                             positionSchedule[i].periods[
                               index
                             ].bellScheduleId = bellScheduleId;
+                            if (
+                              positionSchedule[i].periods[index].allDay &&
+                              bellScheduleId !== "custom"
+                            ) {
+                              const bellSchedule = bellSchedules.find(
+                                x => x?.id === bellScheduleId
+                              );
+                              positionSchedule[i].periods[index].startPeriodId =
+                                bellSchedule!.periods![0]!.id ?? undefined;
+                              positionSchedule[i].periods[index].endPeriodId =
+                                bellSchedule!.periods![
+                                  bellSchedule!.periods!.length - 1
+                                ]!.id ?? undefined;
+                              positionSchedule[i].periods[
+                                index
+                              ].startTime = null;
+                              positionSchedule[i].periods[index].endTime = null;
+                            }
                             setFieldValue("schedules", positionSchedule);
                           }}
                           onCheckAllDay={() => {
@@ -380,6 +421,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                             positionSchedule[i].periods[
                               index
                             ].startPeriodId = startPeriodId;
+                            positionSchedule[i].periods[index].startTime = null;
                             setFieldValue("schedules", positionSchedule);
                           }}
                           onChangeEndPeriod={(
@@ -389,6 +431,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                             positionSchedule[i].periods[
                               index
                             ].endPeriodId = endPeriodId;
+                            positionSchedule[i].periods[index].endTime = null;
                             setFieldValue("schedules", positionSchedule);
                           }}
                         />

@@ -3212,8 +3212,8 @@ input PositionScheduleItemInput {
   bellSchedule: LocatorInput
   startPeriod: LocatorInput
   endPeriod: LocatorInput
-  startTime: Seconds
-  endTime: Seconds
+  startTime: Int
+  endTime: Int
 }
 
 type PositionScheduleMutations {

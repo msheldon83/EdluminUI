@@ -3,6 +3,15 @@ query GetBellSchedules($orgId: ID) {
     all(orgId: $orgId) {
       id
       name
+      periods {
+        id
+        name
+        standardPeriod {
+          id
+          startTime
+          endTime
+        }
+      }
     }
   }
 }

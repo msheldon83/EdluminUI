@@ -16,6 +16,11 @@ import { SaveEmployeePosition } from "./graphql/save-employee-position.gen";
 import { PositionInput } from "graphql/server-types.gen";
 import { useHistory } from "react-router";
 import { compact } from "lodash-es";
+import {
+  midnightTime,
+  secondsSinceMidnight,
+  timeStampToIso,
+} from "helpers/time";
 
 type Props = {};
 
@@ -89,9 +94,14 @@ export const EmployeePosition: React.FC<Props> = props => {
     id: ps.id,
     periods: ps.items.map(p => ({
       locationId: p.location.id,
-      bellScheduleId: p.bellSchedule?.id,
-      startTime: p.startTime,
-      endTime: p.endTime,
+      bellScheduleId:
+        (!p.bellSchedule && p.startTime && p.endTime)
+          ? "custom"
+          : p.bellSchedule?.id,
+      startTime: p.startTime ? timeStampToIso(
+        midnightTime().setSeconds(p.startTime)) : undefined,
+      endTime: p.endTime ? timeStampToIso(
+        midnightTime().setSeconds(p.endTime)) : undefined,
       allDay: p.isAllDay,
       startPeriodId: p.startPeriod?.id,
       endPeriodId: p.endPeriod?.id,

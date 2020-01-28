@@ -102,6 +102,7 @@ export const ScheduleUI: React.FC<Props> = props => {
                     onRemoveSchool={props.onRemoveSchool}
                     onAddSchool={props.onAddSchool}
                     scheduleNumber={scheduleNumber}
+                    scheduleIndex={props.index}
                     onChangeLocation={props.onChangeLocation}
                     onChangeBellSchedule={props.onChangeBellSchedule}
                     onCheckAllDay={props.onCheckAllDay}

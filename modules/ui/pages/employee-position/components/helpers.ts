@@ -30,8 +30,6 @@ export const buildNewPeriod = (allDay: boolean): Period => {
   return {
     locationId: "",
     bellScheduleId: null,
-    startTime: "8:30 AM",
-    endTime: "3:30 PM",
     allDay: allDay,
   };
 };

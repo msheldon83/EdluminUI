@@ -7,7 +7,7 @@ import {
   Checkbox,
 } from "@material-ui/core";
 import { useQueryBundle } from "graphql/hooks";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
@@ -20,6 +20,7 @@ import { midnightTime } from "helpers/time";
 
 type Props = {
   index: number;
+  scheduleIndex: number;
   locationOptions: OptionType[];
   bellScheduleOptions: OptionType[];
   period: Period;
@@ -75,30 +76,42 @@ export const PeriodUI: React.FC<Props> = props => {
     [periods]
   );
 
-  const startPeriodSelected =
-    period.bellScheduleId && period.bellScheduleId !== "custom"
-      ? period.allDay
-        ? periodStartOptions[0]
-        : {
-            value: period.startPeriodId ?? "",
-            label:
-              periodStartOptions.find(
-                e => e.value && e.value === period.startPeriodId
-              )?.label || "",
-          }
-      : { value: "", label: "" };
-  const endPeriodSelected =
-    period.bellScheduleId && period.bellScheduleId !== "custom"
-      ? period.allDay
-        ? periodEndOptions[periodEndOptions.length - 1]
-        : {
-            value: period.endPeriodId ?? "",
-            label:
-              periodEndOptions.find(
-                e => e.value && e.value === period.endPeriodId
-              )?.label || "",
-          }
-      : { value: "", label: "" };
+  const startPeriodSelected = useMemo(
+    () =>
+      period.bellScheduleId && period.bellScheduleId !== "custom"
+        ? period.allDay
+          ? periodStartOptions[0]
+          : {
+              value: period.startPeriodId ?? "",
+              label:
+                periodStartOptions.find(
+                  e => e.value && e.value === period.startPeriodId
+                )?.label || "",
+            }
+        : { value: "", label: "" },
+    [
+      period.bellScheduleId,
+      periodStartOptions,
+      period.startPeriodId,
+      period.allDay,
+    ]
+  );
+
+  const endPeriodSelected = useMemo(
+    () =>
+      period.bellScheduleId && period.bellScheduleId !== "custom"
+        ? period.allDay
+          ? periodEndOptions[periodEndOptions.length - 1]
+          : {
+              value: period.endPeriodId ?? "",
+              label:
+                periodEndOptions.find(
+                  e => e.value && e.value === period.endPeriodId
+                )?.label || "",
+            }
+        : { value: "", label: "" },
+    [period.bellScheduleId, periodEndOptions, period.endPeriodId, period.allDay]
+  );
 
   return (
     <>
@@ -148,18 +161,16 @@ export const PeriodUI: React.FC<Props> = props => {
                 <Typography>{t("Starting")}</Typography>
                 <FormikTimeInput
                   label=""
-                  name={`periods[${props.index}].startTime`}
+                  name={`schedules[${props.scheduleIndex}].periods[${props.index}].startTime`}
                   value={period.startTime || undefined}
-                  disabled={period.allDay}
                 />
               </Grid>
               <Grid item xs={6}>
                 <Typography>{t("Ending")}</Typography>
                 <FormikTimeInput
                   label=""
-                  name={`periods[${props.index}].endTime`}
+                  name={`schedules[${props.scheduleIndex}]periods[${props.index}].endTime`}
                   value={period.endTime || undefined}
-                  disabled={period.allDay}
                 />
               </Grid>
             </>
