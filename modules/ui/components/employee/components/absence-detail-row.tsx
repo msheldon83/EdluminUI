@@ -14,7 +14,7 @@ import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   absence: EmployeeAbsenceDetail;
-  cancelAbsence?: (absenceId: string) => Promise<void>;
+  cancelAbsence?: () => void;
   showAbsenceChip?: boolean;
   handleAfterCancel?: Function;
   isAdmin?: boolean;
@@ -117,11 +117,7 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
           <Grid item xs={2} className={classes.cancelButtonContainer}>
             <Button
               variant="outlined"
-              onClick={async () =>
-                await props.cancelAbsence!(props.absence.id).then(
-                  props.handleAfterCancel!()
-                )
-              }
+              onClick={props.cancelAbsence}
               className={classes.cancelButton}
             >
               {t("Cancel")}

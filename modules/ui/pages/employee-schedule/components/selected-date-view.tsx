@@ -114,11 +114,12 @@ const displayAbsenceDayInformation = (
 ) => {
   return absenceDays.map((a, i) => {
     const day = a.rawData as EmployeeAbsenceDetail;
+    const cancel = async () => cancelAbsence && (await cancelAbsence(day.id));
     return (
       <Grid item container xs={12} spacing={4} key={i}>
         <AbsenceDetailRow
           absence={day}
-          cancelAbsence={cancelAbsence}
+          cancelAbsence={cancel}
           handleAfterCancel={handleAfterCancel}
           showAbsenceChip={true}
           isAdmin={isAdmin}
