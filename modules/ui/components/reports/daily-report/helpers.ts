@@ -424,6 +424,7 @@ export const MapDailyReportDetails = (
           position: positionType,
           positionType: positionType,
           location: location,
+          subTimes: [],
         } as Detail;
       });
     }
