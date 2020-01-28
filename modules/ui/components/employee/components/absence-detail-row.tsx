@@ -96,22 +96,21 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
         </div>
       </Grid>
       <Grid item xs={1}>
-        <div className={classes.detailText}>
-          <Link
-            to={
-              props.isAdmin
-                ? AdminEditAbsenceRoute.generate({
-                    absenceId: props.absence.id,
-                    organizationId: props.orgId!,
-                  })
-                : EmployeeEditAbsenceRoute.generate({
-                    absenceId: props.absence.id,
-                  })
-            }
-          >
-            {`#${props.absence.id}`}
-          </Link>
-        </div>
+        <Link
+          to={
+            props.isAdmin
+              ? AdminEditAbsenceRoute.generate({
+                  absenceId: props.absence.id,
+                  organizationId: props.orgId!,
+                })
+              : EmployeeEditAbsenceRoute.generate({
+                  absenceId: props.absence.id,
+                })
+          }
+          className={classes.detailText}
+        >
+          {`#${props.absence.id}`}
+        </Link>
       </Grid>
       <Can do={[PermissionEnum.AbsVacDelete]}>
         {props.cancelAbsence && (
@@ -137,6 +136,7 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   detailText: {
     fontWeight: "bold",
+    color: theme.customColors.black,
   },
   subText: {
     color: theme.customColors.edluminSubText,
