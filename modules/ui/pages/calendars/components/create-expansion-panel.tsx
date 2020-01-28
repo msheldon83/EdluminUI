@@ -183,7 +183,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
           }}
           expandIcon={<ExpandMoreIcon />}
         >
-          <Typography variant="h5">New Event</Typography>
+          <Typography variant="h5">{t("New Event")}</Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <Formik
@@ -257,8 +257,8 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   <Grid item xs={3}>
                     <SelectMulti
                       name={"contracts"}
-                      disabled={values.applyToAll}
-                      label={"Contracts"}
+                      disabled={enableAllContracts}
+                      label={t("Contracts")}
                       value={contractValue}
                       onChange={(value: OptionType[]) => {
                         const ids: number[] = value
@@ -269,7 +269,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       }}
                       options={contractOptions}
                       multiple={true}
-                      placeholder="Search for Contracts"
+                      placeholder={t("Search for Contracts")}
                     />
                   </Grid>
                 </Grid>
