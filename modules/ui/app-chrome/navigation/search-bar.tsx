@@ -1,4 +1,10 @@
-import { makeStyles, Grid, Typography, IconButton } from "@material-ui/core";
+import {
+  makeStyles,
+  Grid,
+  Typography,
+  IconButton,
+  ClickAwayListener,
+} from "@material-ui/core";
 import InputBase from "@material-ui/core/InputBase";
 import { fade } from "@material-ui/core/styles";
 import SearchIcon from "@material-ui/icons/Search";
@@ -19,6 +25,8 @@ import {
   EmployeeEditAbsenceRoute,
 } from "ui/routes/edit-absence";
 import { useHistory } from "react-router";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   className?: string;
@@ -48,7 +56,12 @@ export const SearchBar: React.FC<Props> = props => {
     : orgId;
   /****************************************************** */
 
-  const [searchFilter, updateSearchFilter] = React.useState();
+  const [open, setOpen] = React.useState(false);
+  const [searchFilter, updateSearchFilter] = React.useState<{
+    confirmationId: string | undefined;
+  }>({
+    confirmationId: "",
+  });
 
   const [loading, updateLoading] = React.useState(false);
 
@@ -56,16 +69,16 @@ export const SearchBar: React.FC<Props> = props => {
     confirmationId,
     pendingConfirmationId,
     setPendingConfirmationId,
-  ] = useDeferredState(searchFilter, 200);
+  ] = useDeferredState<string | undefined>("", 200);
 
   useEffect(() => {
-    if (confirmationId !== searchFilter) {
+    if (confirmationId !== searchFilter.confirmationId) {
       setPendingConfirmationId(searchFilter.confirmationId);
     }
   }, [searchFilter]);
 
   useEffect(() => {
-    if (confirmationId !== searchFilter) {
+    if (confirmationId !== searchFilter.confirmationId) {
       updateSearchFilter({ confirmationId });
     }
   }, [confirmationId]);
@@ -93,10 +106,13 @@ export const SearchBar: React.FC<Props> = props => {
     updateLoading(false);
   }
   const results =
-    searchResults.state === "DONE"
+    searchResults.state === "DONE" || searchResults.state === "UPDATING"
       ? searchResults?.data?.absence?.byConfirmationId
       : [];
 
+  if (searchResults.state === "DONE" && !open) {
+    setOpen(true);
+  }
   const handleOnClick = (absId: string) => {
     onClose();
     if (params.role === "admin") {
@@ -121,94 +137,113 @@ export const SearchBar: React.FC<Props> = props => {
       })
     );
   };
+  const handleClickAway = () => {
+    onClose();
+  };
 
   const onClose = () => {
-    setPendingConfirmationId(undefined);
-    results.splice(0, results.length);
+    setPendingConfirmationId("");
+    results?.splice(0, results?.length);
+    setOpen(false);
   };
 
   return (
-    <div className={`${classes.search} ${props.className}`}>
-      <div className={classes.searchIcon}>
-        <SearchIcon />
-      </div>
-      <InputBase
-        placeholder={t("search", "Search")}
-        classes={inputClasses}
-        inputProps={{ "aria-label": "search" }}
-        value={pendingConfirmationId}
-        onChange={updateSearch}
-        endAdornment={
-          results.length !== 0 && loading === false ? (
-            <React.Fragment>
-              <IconButton
-                key="close"
-                aria-label="close"
-                color="inherit"
-                onClick={onClose}
-              >
-                <CloseIcon />
-              </IconButton>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              {loading ? <CircularProgress color="inherit" size={20} /> : null}
-            </React.Fragment>
-          )
-        }
-      />
-      {results && results.length !== 0 && (
-        <Grid className={classes.resultContainer} container spacing={2}>
-          {results.map((r: any, i) => {
-            const heading: string = r.assignmentId
-              ? `Absence #${r.absenceId} (Assignment #${r.assignmentId})`
-              : `Absence #${r.absenceId}`;
-            const subHeading = `${format(
-              parseISO(r.absenceStartTimeUtc),
-              "ddd, MMM d, yyyy"
-            )}`;
-            const empName = `${r.employeeFirstName} ${r.employeeLastName}`;
-            const subName = `${r.subFirstName} ${r.subLastName}`;
-
-            const arr = heading.split(searchFilter.confirmationId);
-            const newArr = arr.map((a, i) => {
-              return i == arr.length - 1 ? (
-                a
+    <Can do={[PermissionEnum.AbsVacView]}>
+      <ClickAwayListener onClickAway={handleClickAway}>
+        <div className={`${classes.search} ${props.className}`}>
+          <div className={classes.searchIcon}>
+            <SearchIcon />
+          </div>
+          <InputBase
+            placeholder={t("search", "Search")}
+            classes={inputClasses}
+            inputProps={{ "aria-label": "search" }}
+            value={pendingConfirmationId}
+            onChange={updateSearch}
+            endAdornment={
+              results?.length !== 0 && loading === false ? (
+                <React.Fragment>
+                  <IconButton
+                    key="close"
+                    aria-label="close"
+                    color="inherit"
+                    onClick={onClose}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </React.Fragment>
               ) : (
-                <div key={i} className={classes.inlineBlock}>
-                  {a}
-                  <span className={classes.highlight}>
-                    {searchFilter.confirmationId}
-                  </span>
-                </div>
-              );
-            });
+                <React.Fragment>
+                  {loading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                </React.Fragment>
+              )
+            }
+          />
 
-            return (
-              <Grid className={classes.resultItem} item xs={12} key={i}>
-                <div onClick={() => handleOnClick(r.absenceId)}>
-                  <div className={classes.header}>
-                    {newArr.map(a => {
-                      return a;
-                    })}
-                  </div>
-                  <div>
-                    <span className={classes.label}>on</span>
-                    <span className={classes.data}>{subHeading}</span>
-                    <span className={classes.label}>for</span>
-                    <span className={classes.data}>{empName}</span>
-                    {r.assignmentId && (
-                      <span className={classes.label}>filled by</span>
-                    )}
-                    {r.assignmentId && <span>{subName}</span>}
-                  </div>
-                </div>
-              </Grid>
-            );
-          })}
-        </Grid>
-      )}
-    </div>
+          {results && open && (
+            <Grid className={classes.resultContainer} container spacing={2}>
+              {results.length == 0 && (
+                <Grid className={classes.resultItem} item xs={12}>
+                  <Typography align="center">No Results</Typography>
+                </Grid>
+              )}
+              {results.map((r: any, i) => {
+                const heading: string = r.assignmentId
+                  ? `Absence #${r.absenceId} (Assignment #${r.assignmentId})`
+                  : `Absence #${r.absenceId}`;
+                const subHeading = `${format(
+                  parseISO(r.absenceStartTimeUtc),
+                  "ddd, MMM d, yyyy"
+                )}`;
+                const empName = `${r.employeeFirstName} ${r.employeeLastName}`;
+                const subName = `${r.subFirstName} ${r.subLastName}`;
+
+                const arr =
+                  searchFilter.confirmationId === undefined
+                    ? []
+                    : heading.split(searchFilter.confirmationId);
+                const newArr = arr.map((a, i) => {
+                  return i == arr.length - 1 ? (
+                    a
+                  ) : (
+                    <div key={i} className={classes.inlineBlock}>
+                      {a}
+                      <span className={classes.highlight}>
+                        {searchFilter.confirmationId}
+                      </span>
+                    </div>
+                  );
+                });
+
+                return (
+                  <Grid className={classes.resultItem} item xs={12} key={i}>
+                    <div onClick={() => handleOnClick(r.absenceId)}>
+                      <div className={classes.header}>
+                        {newArr.map(a => {
+                          return a;
+                        })}
+                      </div>
+                      <div>
+                        <span className={classes.label}>on</span>
+                        <span className={classes.data}>{subHeading}</span>
+                        <span className={classes.label}>for</span>
+                        <span className={classes.data}>{empName}</span>
+                        {r.assignmentId && (
+                          <span className={classes.label}>filled by</span>
+                        )}
+                        {r.assignmentId && <span>{subName}</span>}
+                      </div>
+                    </div>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
+        </div>
+      </ClickAwayListener>
+    </Can>
   );
 };
 
@@ -235,11 +270,16 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     justifyContent: "center",
   },
+
   resultContainer: {
     position: "fixed",
     marginTop: "2px",
-    boxShadow: "-5px 5px 5px 0px rgba(0,0,0,0.24)",
+    boxShadow: "5px 5px 5px 0px rgba(0,0,0,0.24)",
     cursor: "pointer",
+    width: "50%",
+    overflow: "hidden",
+    borderBottomRightRadius: "10px",
+    borderBottomLeftRadius: "10px",
   },
   resultItem: {
     backgroundColor: theme.customColors.white,
