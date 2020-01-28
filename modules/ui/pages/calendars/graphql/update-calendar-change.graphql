@@ -1,0 +1,9 @@
+mutation UpdateCalendarChange($calendarChange: CalendarChangeUpdateInput!) {
+  calendarChange {
+    update(calendarChange: $calendarChange) {
+      id
+      rowVersion
+      description
+    }
+  }
+}

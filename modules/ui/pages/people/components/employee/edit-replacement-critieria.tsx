@@ -1,7 +1,6 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core";
 import { SaveEmployee } from "ui/pages/people/graphql/employee/save-employee.gen";
-import { useTranslation } from "react-i18next";
 import { Redirect } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetEmployeeById } from "ui/pages/people/graphql/employee/get-employee-by-id.gen";
@@ -18,7 +17,6 @@ import { PersonViewRoute } from "ui/routes/people";
 type Props = {};
 
 export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PersonViewRoute);
@@ -27,7 +25,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
-    refetchQueries: ["GetEmployeeById"],
+    refetchQueries: ["GetQualifiedEmployeeCountsWithinOrg"],
   });
 
   const getEmployee = useQueryBundle(GetEmployeeById, {
