@@ -5,14 +5,17 @@ import {
   FormControlLabel,
   Divider,
   Checkbox,
+  IconButton,
 } from "@material-ui/core";
 import { OptionType } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { PeriodUI } from "./period";
-import { Schedule } from "./helpers";
+import { Schedule, Period } from "./helpers";
 import { DayOfWeek } from "graphql/server-types.gen";
 import { DayOfWeekCheckBox } from "./day-of-week";
+import InfoIcon from "@material-ui/icons/Info";
+import { FormikErrors } from "formik";
 
 type Props = {
   index: number;
@@ -33,6 +36,7 @@ type Props = {
   onChangeStartPeriod: (startPeriodId: string, index: number) => void;
   onChangeEndPeriod: (endPeriodId: string, index: number) => void;
   onCheckAllDay: () => void;
+  errors: FormikErrors<{ schedules: Schedule[] }>;
 };
 
 export const ScheduleUI: React.FC<Props> = props => {
@@ -90,7 +94,12 @@ export const ScheduleUI: React.FC<Props> = props => {
             {periods.map((p, i) => {
               return (
                 <div key={`div-schedule${props.index}period${i}`}>
-                  {i != 0 && <Divider key={`schedule${props.index}period${i}-divider`} className={classes.divider} />}
+                  {i != 0 && (
+                    <Divider
+                      key={`schedule${props.index}period${i}-divider`}
+                      className={classes.divider}
+                    />
+                  )}
                   <PeriodUI
                     key={`schedule${props.index}period${i}`}
                     index={i}
@@ -108,6 +117,7 @@ export const ScheduleUI: React.FC<Props> = props => {
                     onCheckAllDay={props.onCheckAllDay}
                     onChangeStartPeriod={props.onChangeStartPeriod}
                     onChangeEndPeriod={props.onChangeEndPeriod}
+                    errors={props.errors}
                   />
                 </div>
               );
@@ -116,6 +126,7 @@ export const ScheduleUI: React.FC<Props> = props => {
         </Grid>
         {props.index === 0 ? (
           <Grid item>
+            <div className={classes.daysOfWeekContainer}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -130,6 +141,17 @@ export const ScheduleUI: React.FC<Props> = props => {
               }
               label={t("Schedule varies by day of the week")}
             />
+            <IconButton
+                  onClick={() => {
+                    window.open(
+                      "https://help.redroverk12.com/hc/en-us/articles/360038845372",
+                      "_blank"
+                    );
+                  }}
+                >
+                  <InfoIcon />
+                </IconButton>
+                </div>
           </Grid>
         ) : (
           <Grid item>

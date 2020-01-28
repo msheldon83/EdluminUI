@@ -36,6 +36,16 @@ import {
   secondsSinceMidnight,
   timeStampToIso,
 } from "helpers/time";
+import {
+  addMinutes,
+  areIntervalsOverlapping,
+  format,
+  isBefore,
+  isDate,
+  isEqual,
+  isValid,
+  parseISO,
+} from "date-fns";
 
 type Props = {
   position?:
@@ -184,7 +194,62 @@ export const PositionEditUI: React.FC<Props> = props => {
             .nullable()
             .required(t("A contract must be selected")),
           hoursPerFullWorkDay: yup.number().nullable(),
-        })}
+          schedules: yup.array().of(
+            yup
+            .object()
+            .nullable()
+            .shape({
+              periods: yup.array().of(
+                yup
+                  .object()
+                  .shape({
+                    locationId: yup
+                      .string()
+                      .nullable()
+                      .required(t("Location is required")),
+                    bellScheduleId: yup
+                      .string()
+                      .nullable()
+                      .required(t("Bell schedule is required")),
+                    startTime: yup.string().when("bellScheduleId", {
+                      is: (val) => val === "custom",
+                      then: yup.string().required(t("Required")),
+                    }),
+                    endTime: yup.string().when("bellScheduleId", {
+                      is: (val) => val === "custom",
+                      then: yup.string().required(t("Required")),
+                    }),
+                    startPeriodId: yup.string().when("bellScheduleId", {
+                      is: (val) => val !== "custom",
+                      then: yup.string().required(t("Required")),
+                    }),
+                    endPeriodId: yup.string().when("bellScheduleId", {
+                      is: (val) => val !== "custom",
+                      then: yup.string().required(t("Required")),
+                    }),
+                  })
+                  .test({
+                    name: "endBeforeStartCheck",
+                    test: function test(value) {
+                      if (
+                        isBefore(
+                          parseISO(value.endTime),
+                          parseISO(value.startTime)
+                        )
+                      ) {
+                        return new yup.ValidationError(
+                          t("End Time before Start Time"),
+                          null,
+                          `${this.path}.endTime`
+                        );
+                      }
+
+                      return true;
+                    },
+                  })
+              ),
+            }),
+        )})}
       >
         {({
           values,
@@ -326,6 +391,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                         <ScheduleUI
                           key={`schedule-${i}`}
                           index={i}
+                          errors={errors}
                           multipleSchedules={values.schedules.length > 1}
                           lastSchedule={i === values.schedules.length - 1}
                           onDelete={() => {

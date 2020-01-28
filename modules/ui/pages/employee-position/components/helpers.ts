@@ -47,3 +47,30 @@ const buildDaysOfTheWeek = (defaultSelected: boolean): DayOfWeek[] => {
     return [];
   }
 };
+
+export const GetError = (
+  errors: any,
+  fieldName: string,
+  periodIndex: number,
+  scheduleIndex: number
+) => {
+  if (!errors.schedules || !errors.schedules[scheduleIndex]) {
+    return undefined;
+  }
+
+  if (!errors.schedules[scheduleIndex].periods[periodIndex]) {
+    return undefined;
+  }
+
+  const periodError = errors.schedules[scheduleIndex].periods[periodIndex];
+  if (!periodError) {
+    return undefined;
+  }
+
+  if (!periodError[fieldName]) {
+    return undefined;
+  }
+
+  const errorMessage: string = periodError[fieldName];
+  return errorMessage;
+};

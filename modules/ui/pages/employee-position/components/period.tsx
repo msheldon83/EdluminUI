@@ -13,10 +13,11 @@ import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
-import { Period } from "./helpers";
+import { Period, Schedule, GetError } from "./helpers";
 import { GetBellSchedulePeriods } from "../graphql/get-bell-schedule-periods.gen";
 import { format } from "date-fns";
 import { midnightTime } from "helpers/time";
+import { FormikErrors } from "formik";
 
 type Props = {
   index: number;
@@ -34,6 +35,7 @@ type Props = {
   onAddSchool: () => void;
   onRemoveSchool: (periodNumber: number) => void;
   scheduleNumber: string;
+  errors: FormikErrors<{ schedules: Schedule[] }>;
 };
 
 export const PeriodUI: React.FC<Props> = props => {
@@ -113,6 +115,13 @@ export const PeriodUI: React.FC<Props> = props => {
     [period.bellScheduleId, periodEndOptions, period.endPeriodId, period.allDay]
   );
 
+  const locationError = GetError(props.errors, "locationId", index, props.scheduleIndex);
+  const bellScheduleError = GetError(props.errors, "bellScheduleId", index, props.scheduleIndex);
+  const startTimeError = GetError(props.errors, "startTime", index, props.scheduleIndex);
+  const endTimeError = GetError(props.errors, "endTime", index, props.scheduleIndex);
+  const startPeriodIdError = GetError(props.errors, "startPeriodId", index, props.scheduleIndex);
+  const endPeriodIdError = GetError(props.errors, "endPeriodId", index, props.scheduleIndex);
+
   return (
     <>
       <Grid container spacing={2}>
@@ -133,6 +142,8 @@ export const PeriodUI: React.FC<Props> = props => {
             }}
             options={props.locationOptions}
             withResetValue={false}
+            inputStatus={locationError ? "error" : "default"}
+            validationMessage={locationError}
           />
         </Grid>
         <Grid item xs={6}>
@@ -152,6 +163,8 @@ export const PeriodUI: React.FC<Props> = props => {
             }}
             options={props.bellScheduleOptions}
             withResetValue={false}
+            inputStatus={bellScheduleError ? "error" : "default"}
+            validationMessage={bellScheduleError}
           />
         </Grid>
         <Grid container item xs={6} spacing={2} alignItems="center">
@@ -163,6 +176,8 @@ export const PeriodUI: React.FC<Props> = props => {
                   label=""
                   name={`schedules[${props.scheduleIndex}].periods[${props.index}].startTime`}
                   value={period.startTime || undefined}
+                  inputStatus={startTimeError ? "error" : "default"}
+                  validationMessage={startTimeError}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -171,6 +186,8 @@ export const PeriodUI: React.FC<Props> = props => {
                   label=""
                   name={`schedules[${props.scheduleIndex}]periods[${props.index}].endTime`}
                   value={period.endTime || undefined}
+                  inputStatus={endTimeError ? "error" : "default"}
+                  validationMessage={endTimeError}
                 />
               </Grid>
             </>
@@ -188,6 +205,8 @@ export const PeriodUI: React.FC<Props> = props => {
                   options={periodStartOptions}
                   withResetValue={false}
                   disabled={!period.bellScheduleId || period.allDay}
+                  inputStatus={startPeriodIdError ? "error" : "default"}
+                  validationMessage={startPeriodIdError}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -202,6 +221,8 @@ export const PeriodUI: React.FC<Props> = props => {
                   options={periodEndOptions}
                   withResetValue={false}
                   disabled={!period.bellScheduleId || period.allDay}
+                  inputStatus={endPeriodIdError ? "error" : "default"}
+                  validationMessage={endPeriodIdError}
                 />
               </Grid>
             </>
