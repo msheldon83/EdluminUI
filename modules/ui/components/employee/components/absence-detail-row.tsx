@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { EmployeeAbsenceDetail } from "../types";
-import { Grid, makeStyles, Button, Chip } from "@material-ui/core";
+import { Grid, makeStyles, Button, Chip, Tooltip } from "@material-ui/core";
 import { isEqual, format } from "date-fns";
 import { DayIcon } from "ui/components/day-icon";
 import { Link } from "react-router-dom";
@@ -53,6 +53,23 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
     dayPortionNumberDisplay >= 1
       ? `${dayPortionNumberDisplay} ${dayPortionLabel}`
       : dayPortionLabel;
+
+  const employeeCancelWhileSubAssigned =
+    !props.isAdmin && !!props.absence.substitute;
+
+  const cancelButton = (
+    <Button
+      variant="outlined"
+      onClick={employeeCancelWhileSubAssigned ? undefined : props.cancelAbsence}
+      className={[
+        classes.cancelButton,
+        employeeCancelWhileSubAssigned ? classes.disabledButton : "",
+      ].join(" ")}
+      disableTouchRipple={employeeCancelWhileSubAssigned}
+    >
+      {t("Cancel")}
+    </Button>
+  );
 
   return (
     <>
@@ -115,13 +132,18 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
       <Can do={[PermissionEnum.AbsVacDelete]}>
         {props.cancelAbsence && (
           <Grid item xs={2} className={classes.cancelButtonContainer}>
-            <Button
-              variant="outlined"
-              onClick={props.cancelAbsence}
-              className={classes.cancelButton}
-            >
-              {t("Cancel")}
-            </Button>
+            {employeeCancelWhileSubAssigned ? (
+              <Tooltip
+                title={t(
+                  "Absences with assigned substitutes may not be cancelled"
+                )}
+                placement={"top"}
+              >
+                {cancelButton}
+              </Tooltip>
+            ) : (
+              cancelButton
+            )}
           </Grid>
         )}
       </Can>
@@ -148,5 +170,8 @@ const useStyles = makeStyles(theme => ({
   },
   cancelButton: {
     color: theme.palette.error.main,
+  },
+  disabledButton: {
+    opacity: 0.7,
   },
 }));
