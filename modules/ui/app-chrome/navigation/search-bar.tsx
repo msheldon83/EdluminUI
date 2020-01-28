@@ -61,7 +61,7 @@ export const SearchBar: React.FC<Props> = props => {
 
   const [open, setOpen] = React.useState(false);
   const [searchFilter, updateSearchFilter] = React.useState<{
-    confirmationId: string | undefined;
+    confirmationId: any;
   }>({
     confirmationId: "",
   });
@@ -72,7 +72,7 @@ export const SearchBar: React.FC<Props> = props => {
     confirmationId,
     pendingConfirmationId,
     setPendingConfirmationId,
-  ] = useDeferredState<string | undefined>("", 200);
+  ] = useDeferredState<any>("", 200);
 
   useEffect(() => {
     if (confirmationId !== searchFilter.confirmationId) {
