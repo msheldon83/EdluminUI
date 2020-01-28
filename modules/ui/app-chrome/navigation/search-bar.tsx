@@ -43,17 +43,20 @@ export const SearchBar: React.FC<Props> = props => {
 
   /**** This is some crazy logic to get the org id because it is not available in the route yet. */
   /**** We are assuming if the user is not an admin that they only have access to one org */
-  let orgId = "0";
+  let orgIds: string[] | null = [];
   if (userAccess != null) {
-    if (userAccess.isSysAdmin) {
-      orgId = "0";
+    if (window.location.pathname.includes("admin")) {
+      orgIds.push(window.location.pathname.split("/")[2]);
     } else {
-      orgId = userAccess?.permissionsByOrg[0].orgId;
+      if (userAccess.isSysAdmin) {
+        orgIds = null;
+      } else {
+        orgIds = userAccess?.permissionsByOrg.map(o => {
+          return o.orgId;
+        });
+      }
     }
   }
-  orgId = window.location.pathname.includes("admin")
-    ? window.location.pathname.split("/")[2]
-    : orgId;
   /****************************************************** */
 
   const [open, setOpen] = React.useState(false);
@@ -95,8 +98,7 @@ export const SearchBar: React.FC<Props> = props => {
     fetchPolicy: "cache-first",
     variables: {
       ...searchFilter,
-      orgId: orgId,
-      isSysAdmin: userAccess?.isSysAdmin,
+      orgIds: orgIds,
     },
     skip:
       confirmationId == undefined || userAccess == null || confirmationId == "",

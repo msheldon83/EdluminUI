@@ -124,9 +124,8 @@ type AbsenceQueries {
   ): DailyReport
   subSignInReport(orgId: ID!, date: Date!, locationIds: [Int]): [VacancyDetail]
   byConfirmationId(
-    orgId: ID!
+    orgIds: [ID]
     confirmationId: String!
-    isSysAdmin: Boolean!
   ): [ConfirmationNumberQueryResultTypeDef]
 }
 

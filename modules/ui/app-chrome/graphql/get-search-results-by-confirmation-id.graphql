@@ -1,14 +1,9 @@
 query GetSearchResultsByConfirmationId(
-  $orgId: ID!
+  $orgIds: [ID]
   $confirmationId: String!
-  $isSysAdmin: Boolean!
 ) {
   absence {
-    byConfirmationId(
-      orgId: $orgId
-      confirmationId: $confirmationId
-      isSysAdmin: $isSysAdmin
-    ) {
+    byConfirmationId(orgIds: $orgIds, confirmationId: $confirmationId) {
       absenceId
       objectTypeId
       objectTypeName
