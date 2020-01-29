@@ -21,13 +21,12 @@ export const NavigationSideBar: React.FC<Props> = props => {
         variant={"permanent"}
         className={props.expanded ? classes.drawerOpen : classes.drawerClose}
         classes={{
-          paper: `${classes.drawer} ${
+          paper: `${classes.marginTop} ${classes.drawer} ${
             props.expanded ? classes.drawerOpen : classes.drawerClose
           }`,
         }}
       >
         <RedRoverLogo size={props.expanded ? "large" : "small"} />
-
         <RoleSwitcher expanded={props.expanded} />
         <Divider className={classes.divider} />
         <List className={classes.list}>
@@ -47,6 +46,9 @@ const useStyles = makeStyles(theme => ({
   drawer: {
     background: theme.customColors.edluminSlate,
     flexShrink: 0,
+  },
+  marginTop: {
+    marginTop: theme.typography.pxToRem(34),
   },
   drawerOpen: {
     width: theme.typography.pxToRem(258),
