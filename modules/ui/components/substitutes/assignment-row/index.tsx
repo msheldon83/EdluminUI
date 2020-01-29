@@ -27,7 +27,7 @@ export const AssignmentRow: React.FC<Props> = props => {
 
   const confirmationNumber = a.assignment?.id ?? "";
   const employeeName = `${a.vacancy?.absence?.employee?.firstName} ${a.vacancy?.absence?.employee?.lastName}`;
-  const positionName = a?.vacancy?.position?.name ?? "";
+  const positionName = a?.vacancy?.position?.title ?? "";
   const organizationName = a?.vacancy?.organization?.name;
   const locationName = a?.location?.name ?? "";
   const onCancelClick = () => setIsCancelDialogOpen(true);

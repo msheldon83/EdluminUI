@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { EdluminLogo } from "ui/components/edlumin-logo";
+import { RedRoverLogo } from "ui/components/red-rover-logo";
 import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
 import { AppChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
@@ -81,7 +81,7 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
           {t("Help")}
         </Button>
       </Grid>
-      <EdluminLogo />
+      <RedRoverLogo />
     </Drawer>
   );
 };

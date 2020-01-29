@@ -1,21 +1,12 @@
-import {
-  Button,
-  Checkbox,
-  Grid,
-  makeStyles,
-  Paper,
-  Typography,
-} from "@material-ui/core";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { Button, Grid, makeStyles, Paper, Typography } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay } from "date-fns";
-import { addMonths } from "date-fns/esm";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import {
   DayPart,
   NeedsReplacement,
-  Vacancy,
   PermissionEnum,
+  Vacancy,
 } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
@@ -25,12 +16,12 @@ import { useHistory } from "react-router";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail } from "ui/components/absence/types";
-import { CustomCalendar } from "ui/components/form/custom-calendar";
+import { Can } from "ui/components/auth/can";
 import { SelectNew } from "ui/components/form/select-new";
+import { CreateAbsenceCalendar } from "../create-absence-calendar";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
-import { Can } from "ui/components/auth/can";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -64,7 +55,7 @@ type Props = {
   vacancies: Vacancy[];
   locationIds?: number[];
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
-  disabledDates: DisabledDate[];
+  disabledDates: Date[];
   balanceUsageText?: string;
   setVacanciesInput: (input: VacancyDetail[] | undefined) => void;
   /** default: pre-arrange */
@@ -144,23 +135,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [setValue]
   );
 
-  const onNeedsReplacementChange = React.useCallback(
-    event => {
-      onSubstituteWantedChange(event.target.checked);
-    },
-    [onSubstituteWantedChange]
-  );
-
-  const viewPreviousMonth = React.useCallback(() => {
-    const previousMonth = addMonths(props.currentMonth, -1);
-    onSwitchMonth(previousMonth);
-  }, [props.currentMonth, onSwitchMonth]);
-
-  const viewNextMonth = React.useCallback(() => {
-    const nextMonth = addMonths(props.currentMonth, 1);
-    onSwitchMonth(nextMonth);
-  }, [props.currentMonth, onSwitchMonth]);
-
   const dayPartValue: DayPartValue = React.useMemo(() => {
     if (values.dayPart === DayPart.Hourly) {
       return {
@@ -171,20 +145,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     }
     return { part: values.dayPart };
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
-
-  const customDatesDisabled = props.disabledDates.map(({ date }) => {
-    return {
-      date,
-      buttonProps: { className: classes.dateDisabled },
-    };
-  });
-
-  const customAbsenceDates = props.absenceDates.map(date => {
-    return {
-      date,
-      buttonProps: { className: classes.absenceDate },
-    };
-  });
 
   return (
     <Grid container>
@@ -205,15 +165,16 @@ export const AbsenceDetails: React.FC<Props> = props => {
             options={absenceReasonOptions}
             inputStatus={errors.absenceReason ? "error" : undefined}
             validationMessage={errors.absenceReason?.message}
+            withResetValue={false}
           />
         </div>
 
-        <CustomCalendar
-          month={props.currentMonth}
+        <CreateAbsenceCalendar
           monthNavigation
-          variant="month"
-          customDates={customDatesDisabled.concat(customAbsenceDates)}
-          onMonthChange={props.onSwitchMonth}
+          selectedAbsenceDates={props.absenceDates}
+          employeeId={props.employeeId}
+          currentMonth={props.currentMonth}
+          onMonthChange={onSwitchMonth}
           onSelectDates={dates => dates.forEach(props.onToggleAbsenceDate)}
         />
 
@@ -263,63 +224,44 @@ export const AbsenceDetails: React.FC<Props> = props => {
           )}
         </Typography>
 
-        <Paper>
-          {props.replacementEmployeeId && (
-            <AssignedSub
-              disableReplacementInteractions={
-                props.disableReplacementInteractions
-              }
-              employeeId={props.replacementEmployeeId}
-              employeeName={props.replacementEmployeeName || ""}
-              subText={props.arrangedSubText ?? t("pre-arranged")}
-              onRemove={props.onRemoveReplacement}
-            />
-          )}
-          <div className={classes.container}>
-            {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
-              <FormControlLabel
-                label={t("Requires a substitute")}
-                control={
-                  <Checkbox
-                    checked={wantsReplacement}
-                    onChange={onNeedsReplacementChange}
-                    color="primary"
-                  />
-                }
-              />
-            ) : (
-              <Typography className={classes.substituteRequiredText}>
-                {needsReplacement === NeedsReplacement.Yes
-                  ? t("Requires a substitute")
-                  : t("No substitute required")}
-              </Typography>
-            )}
+        {props.replacementEmployeeId && (
+          <AssignedSub
+            disableReplacementInteractions={
+              props.disableReplacementInteractions
+            }
+            employeeId={props.replacementEmployeeId}
+            employeeName={props.replacementEmployeeName || ""}
+            subText={props.arrangedSubText ?? t("pre-arranged")}
+            onRemove={props.onRemoveReplacement}
+          />
+        )}
 
-            {wantsReplacement && (
-              <SubstituteRequiredDetails
-                disableReplacementInteractions={
-                  props.disableReplacementInteractions
-                }
-                disableEditingDatesAndTimes={props.disableEditingDatesAndTimes}
-                setValue={setValue}
-                vacancies={props.vacancies}
-                setStep={props.setStep}
-                organizationId={organizationId}
-                triggerValidation={triggerValidation}
-                values={values}
-                errors={errors}
-                isAdmin={!!isAdmin}
-                arrangeSubButtonTitle={props.arrangeSubButtonTitle}
-                disabledDates={props.disabledDates}
-                replacementEmployeeId={props.replacementEmployeeId}
-                replacementEmployeeName={props.replacementEmployeeName}
-                locationIds={props.locationIds}
-                isSubmitted={props.isSubmitted}
-                initialAbsenceCreation={props.initialAbsenceCreation}
-              />
-            )}
-          </div>
-        </Paper>
+        <div className={classes.subDetailsContainer}>
+          <SubstituteRequiredDetails
+            disableReplacementInteractions={
+              props.disableReplacementInteractions
+            }
+            disableEditingDatesAndTimes={props.disableEditingDatesAndTimes}
+            setValue={setValue}
+            vacancies={props.vacancies}
+            setStep={props.setStep}
+            organizationId={organizationId}
+            triggerValidation={triggerValidation}
+            values={values}
+            errors={errors}
+            isAdmin={!!isAdmin}
+            arrangeSubButtonTitle={props.arrangeSubButtonTitle}
+            disabledDates={props.disabledDates}
+            replacementEmployeeId={props.replacementEmployeeId}
+            replacementEmployeeName={props.replacementEmployeeName}
+            locationIds={props.locationIds}
+            isSubmitted={props.isSubmitted}
+            initialAbsenceCreation={props.initialAbsenceCreation}
+            needsReplacement={needsReplacement}
+            wantsReplacement={wantsReplacement}
+            onSubstituteWantedChange={onSubstituteWantedChange}
+          />
+        </div>
       </Grid>
 
       <Grid item xs={12}>
@@ -361,15 +303,16 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(4),
   },
   subText: {
-    color: theme.customColors.darkGray,
+    color: theme.customColors.edluminSubText,
   },
   substituteDetailsTitle: { paddingBottom: theme.typography.pxToRem(3) },
   substituteDetailsSubtitle: { paddingBottom: theme.typography.pxToRem(1) },
-  container: {
-    padding: theme.spacing(2),
-  },
-  substituteRequiredText: {
-    fontStyle: "italic",
+  subDetailsContainer: {
+    marginTop: theme.spacing(2),
+    border: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
+    borderRadius: theme.typography.pxToRem(4),
   },
   notesForApprover: {
     paddingTop: theme.spacing(3),
@@ -390,23 +333,5 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  dateDisabled: {
-    backgroundColor: theme.customColors.lightGray,
-    color: theme.palette.text.disabled,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
-      color: theme.palette.text.disabled,
-    },
-  },
-  absenceDate: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.customColors.white,
-    },
   },
 }));

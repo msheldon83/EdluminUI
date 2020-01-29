@@ -6,6 +6,11 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { NeedsReplacement, PermissionEnum } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
+import { useRouteParams } from "ui/routes/definition";
+import {
+  PersonViewRoute,
+  PeopleEmployeePositionEditRoute,
+} from "ui/routes/people";
 
 const editableSections = {
   empPosition: "edit-employee-position",
@@ -14,7 +19,7 @@ const editableSections = {
 type Props = {
   editing: string | null;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
-  positionName: string | null | undefined;
+  positionTitle: string | null | undefined;
   needsReplacement: Maybe<NeedsReplacement>;
   hoursPerFullWorkDay: number | null | undefined;
   contractName: string | null | undefined;
@@ -24,6 +29,8 @@ type Props = {
 
 export const Position: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const params = useRouteParams(PersonViewRoute);
+  const history = useHistory();
 
   return (
     <>
@@ -35,6 +42,7 @@ export const Position: React.FC<Props> = props => {
             visible: !props.editing,
             execute: () => {
               props.setEditing(editableSections.empPosition);
+              history.push(PeopleEmployeePositionEditRoute.generate(params));
             },
             permissions: [PermissionEnum.EmployeeSave],
           }}
@@ -57,7 +65,7 @@ export const Position: React.FC<Props> = props => {
           <Grid container item spacing={2} xs={8}>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Position")}</Typography>
-              <div>{props.positionName ?? t("Not available")}</div>
+              <div>{props.positionTitle ?? t("Not available")}</div>
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Location")}</Typography>

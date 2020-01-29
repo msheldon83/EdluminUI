@@ -105,6 +105,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
     <Provider>
       <AssignSub
         orgId={"1006"}
+        absenceId={"1000575"}
         userIsAdmin={true}
         existingVacancy
         employeeName={"Mary Smith"}
@@ -314,6 +315,7 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
         onSelectReplacement={() => {}}
         onCancel={() => {}}
         orgId={"1006"}
+        absenceId={"1000579"}
         userIsAdmin={false}
         existingVacancy
         employeeName={"Mary Smith"}
@@ -371,6 +373,7 @@ export const PrearrangeSubAsAdmin = () => {
         onSelectReplacement={() => {}}
         onCancel={() => {}}
         orgId={"1006"}
+        absenceId={"1000535"}
         userIsAdmin={true}
         employeeName={"Mary Smith"}
         positionId={"1"}
@@ -427,6 +430,7 @@ export const PrearrangeSubAsEmployee = () => {
         onSelectReplacement={() => {}}
         onCancel={() => {}}
         orgId={"1006"}
+        absenceId={"1000225"}
         userIsAdmin={false}
         employeeName={"Mary Smith"}
         positionId={"1"}

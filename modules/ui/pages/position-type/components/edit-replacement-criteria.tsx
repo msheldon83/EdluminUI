@@ -1,197 +1,211 @@
 import * as React from "react";
-import { Typography, Grid, makeStyles } from "@material-ui/core";
-import { Section } from "ui/components/section";
-import { PageHeader } from "ui/components/page-header";
-import { Input } from "ui/components/form/input";
-import { Redirect, useHistory } from "react-router";
+import { Redirect } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
-import { useEndorsements } from "reference-data/endorsements";
-import { useIsMobile } from "hooks";
-import { PageTitle } from "ui/components/page-title";
-import { useCallback, useEffect } from "react";
-import { SectionHeader } from "ui/components/section-header";
-import { useTranslation } from "react-i18next";
+import { UpdatePositionType } from "ui/pages/position-type/graphql/update-position-type.gen";
+import { GetQualifiedPositionTypeCountsWithinOrg } from "ui/components/replacement-criteria/graphql/get-qualified-position-type-counts.gen";
+import { useCallback } from "react";
+import { useSnackbar } from "hooks/use-snackbar";
+import { PositionType } from "graphql/server-types.gen";
+import { ShowErrors } from "ui/components/error-helpers";
+import { ReplacementCriteriaUI } from "ui/components/replacement-criteria/index";
 import { useRouteParams } from "ui/routes/definition";
-import { Maybe, Endorsement } from "graphql/server-types.gen";
-import { useDeferredState } from "hooks";
 import {
-  ReplacementCriteriaEditRoute,
+  PositionTypeViewRoute,
   PositionTypeRoute,
 } from "ui/routes/position-type";
 
 type Props = {};
 
-export const ReplacementCriteriaEdit: React.FC<Props> = props => {
-  const { t } = useTranslation();
-  const history = useHistory();
-  const classes = useStyles();
-  const isMobile = useIsMobile();
-  const params = useRouteParams(ReplacementCriteriaEditRoute);
+export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
+  const { openSnackbar } = useSnackbar();
+  const params = useRouteParams(PositionTypeViewRoute);
+
+  const [updatePositionType] = useMutationBundle(UpdatePositionType, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+    refetchQueries: ["GetQualifiedPositionTypeCountsWithinOrg"],
+  });
 
   const getPositionType = useQueryBundle(GetPositionTypeById, {
     variables: { id: params.positionTypeId },
   });
 
-  const [
-    searchText,
-    pendingSearchText,
-    setPendingSearchText,
-  ] = useDeferredState<string | undefined>(undefined, 200);
+  const positionType = (getPositionType.state === "LOADING" ||
+  getPositionType.state === "UPDATING"
+    ? undefined
+    : getPositionType.data?.positionType?.byId) as Pick<
+    PositionType,
+    "id" | "orgId" | "name" | "rowVersion" | "replacementCriteria"
+  >;
 
-  const updateSearchText = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPendingSearchText(event.target.value);
-    },
-    [setPendingSearchText]
+  //Query qualified numbers
+  const getQualifiedNumbers = useQueryBundle(
+    GetQualifiedPositionTypeCountsWithinOrg,
+    {
+      variables: {
+        orgId: params.organizationId,
+        positionTypeId: Number(params.positionTypeId),
+      },
+    }
   );
 
-  //TODO: Add SearchText query to back-end
-  const endorsements = useEndorsements(
-    params.organizationId,
-    false,
-    searchText
+  //Mutations
+  const updateMustHave = useCallback(
+    async (mustHaveInput: string[]) => {
+      const result = await updatePositionType({
+        variables: {
+          positionType: {
+            id: params.positionTypeId,
+            rowVersion: positionType?.rowVersion,
+            replacementCriteria: {
+              mustHave: mustHaveInput.map(l => ({ id: l })),
+            },
+          },
+        },
+      });
+      if (result) {
+        await getPositionType.refetch();
+        return true;
+      }
+      return false;
+    },
+    [updatePositionType, getPositionType, positionType, params.positionTypeId]
+  );
+
+  const updateMustNot = useCallback(
+    async (mustNotInput: string[]) => {
+      const result = await updatePositionType({
+        variables: {
+          positionType: {
+            id: params.positionTypeId,
+            rowVersion: positionType?.rowVersion,
+            replacementCriteria: {
+              mustNotHave: mustNotInput.map(l => ({ id: l })),
+            },
+          },
+        },
+      });
+      if (result) {
+        await getPositionType.refetch();
+        return true;
+      }
+      return false;
+    },
+    [updatePositionType, getPositionType, positionType, params.positionTypeId]
+  );
+
+  const updatePreferHave = useCallback(
+    async (shouldHaveInput: string[]) => {
+      const result = await updatePositionType({
+        variables: {
+          positionType: {
+            id: params.positionTypeId,
+            rowVersion: positionType?.rowVersion,
+            replacementCriteria: {
+              shouldHave: shouldHaveInput.map(l => ({ id: l })),
+            },
+          },
+        },
+      });
+      if (result) {
+        await getPositionType.refetch();
+        return true;
+      }
+      return false;
+    },
+    [updatePositionType, getPositionType, positionType, params.positionTypeId]
+  );
+
+  const updatePreferNotHave = useCallback(
+    async (shouldNotHaveInput: string[]) => {
+      const result = await updatePositionType({
+        variables: {
+          positionType: {
+            id: params.positionTypeId,
+            rowVersion: positionType?.rowVersion,
+            replacementCriteria: {
+              shouldNotHave: shouldNotHaveInput.map(l => ({ id: l })),
+            },
+          },
+        },
+      });
+      if (result) {
+        await getPositionType.refetch();
+        return true;
+      }
+      return false;
+    },
+    [updatePositionType, getPositionType, positionType, params.positionTypeId]
   );
 
   if (getPositionType.state === "LOADING") {
     return <></>;
   }
 
-  const positionType = getPositionType?.data?.positionType?.byId;
+  const qualifiedCounts =
+    getQualifiedNumbers.state === "LOADING" ||
+    getQualifiedNumbers.state === "UPDATING"
+      ? undefined
+      : getQualifiedNumbers?.data?.positionType?.qualifiedEmployeeCounts;
 
-  if (!positionType || !endorsements) {
-    // Redirect the User back to the List page
+  if (getPositionType.state === "DONE" && !positionType) {
     const listUrl = PositionTypeRoute.generate(params);
     return <Redirect to={listUrl} />;
   }
 
   //Get Replacement Criteria
   const replacementCriteria = positionType?.replacementCriteria;
+  const mustHave =
+    replacementCriteria?.mustHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+    })) ?? [];
+  const preferToHave =
+    replacementCriteria?.preferToHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+    })) ?? [];
+  const preferNotToHave =
+    replacementCriteria?.preferToNotHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+    })) ?? [];
+  const mustNotHave =
+    replacementCriteria?.mustNotHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+    })) ?? [];
 
-  //Add Criteria
-
-  //Remove Criteria
+  //Endorsements to Ignore
+  const endorsementsIgnored = mustHave.concat(
+    preferToHave,
+    preferNotToHave,
+    mustNotHave
+  );
 
   return (
     <>
-      <PageTitle title={t("Replacement Criteria")} withoutHeading={!isMobile} />
-      <PageHeader
-        text={t("Replacement Criteria - ") + positionType.name}
-        label={t("Name")}
+      <ReplacementCriteriaUI
+        mustHave={mustHave}
+        preferToHave={preferToHave}
+        preferToNotHave={preferNotToHave}
+        mustNotHave={mustNotHave}
+        title={positionType?.name}
+        orgId={params.organizationId}
+        handleMust={updateMustHave}
+        handleMustNot={updateMustNot}
+        handlePrefer={updatePreferHave}
+        handlePreferNot={updatePreferNotHave}
+        existingMust={mustHave}
+        existingMustNot={mustNotHave}
+        existingPrefer={preferToHave}
+        existingPreferNot={preferNotToHave}
+        endorsementsIgnored={endorsementsIgnored}
+        numMinimallyQualified={qualifiedCounts?.numMinimallyQualified}
+        numFullyQualified={qualifiedCounts?.numFullyQualified}
       />
-      <Grid container className={classes.topPadding}>
-        <Grid
-          container
-          item
-          xs={6}
-          spacing={2}
-          className={classes.rightPadding}
-        >
-          <Grid item xs={12}>
-            <Section>
-              <SectionHeader title={t("Minimally/Highly Qualified")} />
-            </Section>
-          </Grid>
-          <Grid item xs={12}>
-            <Section>
-              <SectionHeader title={t("Substitutes must have")} />
-              <hr />
-              <Grid item xs={12} sm={6}>
-                {replacementCriteria?.mustHave?.length === 0 ? (
-                  <div>{t("Not defined")}</div>
-                ) : (
-                  replacementCriteria?.mustHave?.map((n, i) => (
-                    <div key={i}>{n?.name}</div>
-                  ))
-                )}
-              </Grid>
-            </Section>
-          </Grid>
-          <Grid item xs={12}>
-            <Section>
-              <SectionHeader title={t("Prefer that substitutes have")} />
-              <hr />
-              <Grid item xs={12} sm={6}>
-                {replacementCriteria?.preferToHave?.length === 0 ? (
-                  <div>{t("Not defined")}</div>
-                ) : (
-                  replacementCriteria?.preferToHave?.map((n, i) => (
-                    <div key={i}>{n?.name}</div>
-                  ))
-                )}
-              </Grid>
-            </Section>
-          </Grid>
-          <Grid item xs={12}>
-            <Section>
-              <SectionHeader title={t("Prefer that substitutes not have")} />
-              <hr />
-              <Grid item xs={12} sm={6}>
-                {replacementCriteria?.mustNotHave?.length === 0 ? (
-                  <div>{t("Not defined")}</div>
-                ) : (
-                  replacementCriteria?.mustNotHave?.map((n, i) => (
-                    <div key={i}>{n?.name}</div>
-                  ))
-                )}
-              </Grid>
-            </Section>
-          </Grid>
-          <Grid item xs={12}>
-            <Section>
-              <SectionHeader title={t("Substitutes must not have")} />
-              <hr />
-              <Grid item xs={12} sm={6}>
-                {replacementCriteria?.preferToNotHave?.length === 0 ? (
-                  <div>{t("Not defined")}</div>
-                ) : (
-                  replacementCriteria?.preferToNotHave?.map((n, i) => (
-                    <div key={i}>{n?.name}</div>
-                  ))
-                )}
-              </Grid>
-            </Section>
-          </Grid>
-        </Grid>
-        <Grid container item xs={6} component="dl" spacing={2}>
-          <Grid item xs={12}>
-            <Section>
-              <SectionHeader title={t("Available Attributes")} />
-              <Grid item xs={12} sm={6}>
-                <Input
-                  label={t("Attributes")}
-                  value={pendingSearchText}
-                  onChange={updateSearchText}
-                  placeholder={t("Search")}
-                  className={classes.label}
-                />
-              </Grid>
-              <hr />
-              <Grid item xs={12} sm={6}>
-                {endorsements?.length === 0 ? (
-                  <div>{t("Not defined")}</div>
-                ) : (
-                  endorsements?.map((n, i) => <div key={i}>{n?.name}</div>)
-                )}
-              </Grid>
-              <hr />
-            </Section>
-          </Grid>
-        </Grid>
-      </Grid>
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  topPadding: {
-    paddingTop: theme.spacing(4),
-  },
-  rightPadding: {
-    paddingRight: theme.spacing(4),
-  },
-  label: {
-    fontWeight: 500,
-    marginBottom: theme.typography.pxToRem(4),
-  },
-}));

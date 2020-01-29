@@ -64,7 +64,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
 
   const confirmationNumber = assignment.id;
   const employeeName = `${vacancy.absence?.employee?.firstName} ${vacancy.absence?.employee?.lastName}`;
-  const positionName = vacancy.position?.name ?? "";
+  const positionName = vacancy.position?.title ?? "";
 
   let totalDayPortion = 0;
   vacancyDetails.map(a => (totalDayPortion += a.dayPortion));

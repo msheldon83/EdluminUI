@@ -13,7 +13,6 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
   Absence,
   AbsenceCreateInput,
-  AbsenceDetailCreateInput,
   AbsenceVacancyInput,
   DayPart,
   NeedsReplacement,
@@ -26,26 +25,20 @@ import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
 import { useDialog } from "hooks/use-dialog";
-import {
-  compact,
-  differenceWith,
-  flatMap,
-  isEmpty,
-  some,
-  size,
-} from "lodash-es";
+import { useSnackbar } from "hooks/use-snackbar";
+import { compact, flatMap, size, some } from "lodash-es";
 import * as React from "react";
 import { useCallback, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetails } from "ui/components/absence/absence-details";
 import {
-  TranslateAbsenceErrorCodeToMessage,
   createAbsenceDetailInput,
   getAbsenceDates,
+  getCannotCreateAbsenceDates,
 } from "ui/components/absence/helpers";
-import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
+import { ErrorBanner } from "ui/components/error-banner";
 import { VacancyDetail } from "../../components/absence/types";
 import { AssignSub } from "./assign-sub/index";
 import { Confirmation } from "./confirmation";
@@ -56,7 +49,7 @@ import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { projectVacancyDetails } from "./project-vacancy-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-import { useSnackbar } from "hooks/use-snackbar";
+import { ApolloError } from "apollo-client";
 
 type Props = {
   firstName: string;
@@ -135,18 +128,15 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     }
   }, [t, errors, snackbar, formErrorShown]);
 
+  const [errorBannerOpen, setErrorBannerOpen] = useState(false);
+  const [absenceErrors, setAbsenceErrors] = useState<ApolloError | null>(null);
+
   const formValues = getValues();
 
   const [createAbsence] = useMutationBundle(CreateAbsence, {
     onError: error => {
-      ShowIgnoreAndContinueOrError(
-        error,
-        openDialog,
-        t("There was an issue creating the absence"),
-        async () => await create(formValues, true),
-        t,
-        TranslateAbsenceErrorCodeToMessage
-      );
+      setAbsenceErrors(error);
+      setErrorBannerOpen(true);
     },
   });
 
@@ -179,14 +169,19 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "accountingCode", type: "custom" });
   register({ name: "payCode", type: "custom" });
 
-  const disabledDates = useEmployeeDisabledDates(
+  const disabledDatesObjs = useEmployeeDisabledDates(
     state.employeeId,
     state.viewingCalendarMonth
   );
+  const disabledDates = useMemo(
+    () => getCannotCreateAbsenceDates(disabledDatesObjs),
+    [disabledDatesObjs]
+  );
+
   React.useEffect(() => {
-    const conflictingDates = disabledDates
-      .map(dis => dis.date)
-      .filter(dis => some(state.absenceDates, ad => isSameDay(ad, dis)));
+    const conflictingDates = disabledDates.filter(dis =>
+      some(state.absenceDates, ad => isSameDay(ad, dis))
+    );
     if (conflictingDates.length > 0) {
       dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
     }
@@ -368,6 +363,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
               </>
             )}
             <Section className={classes.absenceDetails}>
+              <ErrorBanner
+                errorBannerOpen={errorBannerOpen}
+                title={t("There was an issue creating the absence")}
+                apolloErrors={absenceErrors}
+                setErrorBannerOpen={setErrorBannerOpen}
+                continueAction={async () => await create(formValues, true)}
+              />
               <AbsenceDetails
                 currentMonth={state.viewingCalendarMonth}
                 onSwitchMonth={d =>
@@ -407,7 +409,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         {step === "preAssignSub" && (
           <AssignSub
             orgId={props.organizationId}
-            userIsAdmin={props.userIsAdmin}
+            userIsAdmin={!props.actingAsEmployee && props.userIsAdmin}
             employeeName={name}
             employeeId={state.employeeId}
             positionId={props.positionId}
@@ -458,9 +460,8 @@ const initialState = (props: Props): CreateAbsenceState => {
     props.initialNeedsReplacement === undefined
       ? props.needsReplacement !== NeedsReplacement.No
       : props.initialNeedsReplacement;
-  let absenceDates = props.initialDates || [];
-  if (absenceDates.length < 1) absenceDates = [startOfDay(new Date())];
-  const viewingCalendarMonth = startOfMonth(min(absenceDates));
+  const absenceDates = props.initialDates || [];
+  const viewingCalendarMonth = startOfMonth(new Date());
   return {
     employeeId: props.employeeId,
     organizationId: props.organizationId,
@@ -490,17 +491,14 @@ export const buildAbsenceCreateInput = (
   organizationId: number,
   employeeId: number,
   positionId: number,
-  disabledDates: DisabledDate[],
+  disabledDates: Date[],
   needsReplacement: boolean,
   vacancyDetails?: VacancyDetail[]
 ): AbsenceCreateInput | null => {
   if (!formValues.absenceReason || !formValues.dayPart) {
     return null;
   }
-  const dates = getAbsenceDates(
-    absenceDates,
-    disabledDates.map(d => d.date)
-  );
+  const dates = getAbsenceDates(absenceDates, disabledDates);
 
   if (!dates) return null;
 
@@ -529,7 +527,8 @@ export const buildAbsenceCreateInput = (
 
   const vDetails =
     vacancyDetails?.map(v => ({
-      ...v,
+      date: v.date,
+      locationId: v.locationId,
       startTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
       ),

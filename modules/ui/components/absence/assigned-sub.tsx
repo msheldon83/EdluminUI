@@ -70,6 +70,10 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "#ECF9F3",
     marginTop: theme.spacing(),
     marginBottom: theme.spacing(),
+    border: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
+    borderRadius: theme.typography.pxToRem(4),
   },
   details: {
     display: "flex",

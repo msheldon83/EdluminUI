@@ -114,7 +114,7 @@ export const GetPositionScheduleDates = (
       >;
 
       return {
-        position: p.position?.name ?? "",
+        position: p.position?.title ?? "",
         date: parseISO(detail.startDate),
         startTime: format(parseISO(detail.startTimeLocal), "h:mm a"),
         endTime: format(parseISO(detail.endTimeLocal), "h:mm a"),

@@ -135,6 +135,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
                     }
                     disabled={!!searchFilter?.name}
                     multiple={false}
+                    withResetValue={false}
                     options={qualifiedOptions}
                     onChange={(e: OptionType) => {
                       let selectedValue: string | null = null;
@@ -182,6 +183,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
                     disabled={!!searchFilter?.name}
                     options={availableOptions}
                     multiple={false}
+                    withResetValue={false}
                     onChange={(e: OptionType) => {
                       let selectedValue: string | null = null;
                       if (e) {
@@ -223,6 +225,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
                 disabled={!!searchFilter?.name}
                 options={showOptions}
                 multiple={false}
+                withResetValue={false}
                 onChange={(e: OptionType) => {
                   let selectedValue: string | null = null;
                   if (e) {

@@ -23,7 +23,7 @@ query GetFilledAbsences($orgId: ID!, $date: Date!, $locationIds: [Int]) {
         }
         position {
           id
-          name
+          title
         }
         payInfoSummary {
           summaryLabel

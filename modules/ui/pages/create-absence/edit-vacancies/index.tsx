@@ -18,7 +18,7 @@ import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import * as yup from "yup";
 import { isBefore, parseISO, isValid, areIntervalsOverlapping } from "date-fns";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
-import { getAbsenceDateRangeDisplayText } from "ui/components/absence/date-helpers";
+import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "ui/components/absence/date-helpers";
 
 type Props = {
   details: VacancyDetail[];
@@ -29,7 +29,7 @@ type Props = {
   onChangedVacancies: (data: VacancyDetail[]) => void;
   employeeId: string;
   setStep: (s: "absence") => void;
-  disabledDates?: DisabledDate[];
+  disabledDates?: Date[];
 };
 
 type EditVacancyFormData = {
@@ -172,7 +172,7 @@ export const EditVacancies: React.FC<Props> = props => {
             >
               <Grid item>
                 <Typography variant="h5">
-                  {getAbsenceDateRangeDisplayText(
+                  {getAbsenceDateRangeDisplayTextWithDayOfWeek(
                     props.details.map(d => parseISO(d.date)),
                     props.disabledDates
                   )}

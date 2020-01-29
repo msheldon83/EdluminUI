@@ -69,8 +69,7 @@ export const PositionTypeEditSettingsLoader = asyncComponent({
 // Replacement Criteria Edit Page
 export const ReplacementCriteriaEditRoute = defineSubRoute(
   PositionTypeViewRoute,
-  "/replacement-criteria",
-  []
+  "/replacement-criteria"
 );
 
 export const ReplacementCriteriaEditLoader = asyncComponent({
@@ -79,7 +78,7 @@ export const ReplacementCriteriaEditLoader = asyncComponent({
       await import(
         "ui/pages/position-type/components/edit-replacement-criteria"
       )
-    ).ReplacementCriteriaEdit;
+    ).PeopleReplacementCriteriaEdit;
     return ReplacementCriteriaEdit;
   },
   name: "ReplacementCriteriaEditSettingsPage",
