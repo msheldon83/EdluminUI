@@ -30,12 +30,19 @@ import {
   SchoolsNavLink,
   SecurityNavLink,
   SubPreferencesNavLink,
+  MobileSearchNavLink,
 } from "./custom-nav-links";
 import { OrgSettingsRoute } from "ui/routes/org-settings";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { LocationsRoute } from "ui/routes/locations";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
 import { tbd, adminTbd } from "ui/routes/tbd";
+import { useIsMobile } from "hooks";
+import {
+  AdminMobileSearchRoute,
+  SubMobileSearchRoute,
+  EmpMobileSearchRoute,
+} from "ui/routes/mobile-search";
 
 type Props = {
   navBarExpanded: boolean;
@@ -63,8 +70,16 @@ export const AutoSwitchingNavLinks: React.FC<Props> = props => {
 
 export const EmployeeNavLinks: React.FC<Props> = props => {
   const params = { role: "employee" };
+  const isMobile = useIsMobile();
   return (
     <>
+      {isMobile && (
+        <MobileSearchNavLink
+          onClick={props.onClick}
+          navBarExpanded={props.navBarExpanded}
+          route={EmpMobileSearchRoute.generate(params)}
+        />
+      )}
       <HomeNavLink
         onClick={props.onClick}
         navBarExpanded={props.navBarExpanded}
@@ -91,8 +106,16 @@ export const EmployeeNavLinks: React.FC<Props> = props => {
 
 export const SubstituteNavLinks: React.FC<Props> = props => {
   const params = { role: "substitute" };
+  const isMobile = useIsMobile();
   return (
     <>
+      {isMobile && (
+        <MobileSearchNavLink
+          onClick={props.onClick}
+          navBarExpanded={props.navBarExpanded}
+          route={SubMobileSearchRoute.generate(params)}
+        />
+      )}
       <HomeNavLink
         onClick={props.onClick}
         navBarExpanded={props.navBarExpanded}
@@ -116,10 +139,18 @@ export const AdminNavLinks: React.FC<Props> = props => {
   const params = useRouteParams(AdminChromeRoute);
   const showOrgs = useIsSystemAdminOrAdminInMultipleOrgs();
   const inOrg = !isNaN(+params.organizationId);
+  const isMobile = useIsMobile();
   return (
     <>
       {inOrg && (
         <>
+          {isMobile && (
+            <MobileSearchNavLink
+              onClick={props.onClick}
+              navBarExpanded={props.navBarExpanded}
+              route={AdminMobileSearchRoute.generate(params)}
+            />
+          )}
           <HomeNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}

@@ -1,0 +1,29 @@
+query GetSearchResultsByConfirmationId(
+  $orgIds: [ID]
+  $confirmationId: String!
+) {
+  absence {
+    byConfirmationId(orgIds: $orgIds, confirmationId: $confirmationId) {
+      absenceId
+      objectTypeId
+      objectTypeName
+      orgId
+      createdUtc
+      employeeId
+      employeeFirstName
+      employeeMiddleName
+      employeeLastName
+      absenceStartTimeLocal
+      absenceEndTimeLocal
+      absenceStartTimeUtc
+      absenceEndTimeUtc
+      absNumDays
+      assignmentId
+      assignmentCreatedUtc
+      subId
+      subFirstName
+      subMiddleName
+      subLastName
+    }
+  }
+}

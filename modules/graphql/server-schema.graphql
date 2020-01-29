@@ -96,7 +96,10 @@ type AbsenceQueries {
   projectedAbsence(absence: AbsenceCreateInput!, ignoreAbsenceId: Int): Absence
   dailyReport(orgId: ID!, date: Date!, locationIds: [Int], positionTypeIds: [Int]): DailyReport
   subSignInReport(orgId: ID!, date: Date!, locationIds: [Int]): [VacancyDetail]
-  byConfirmationId(orgIds: [ID], confirmationId: String!): [ConfirmationNumberQueryResultTypeDef]
+  byConfirmationId(
+    orgIds: [ID]
+    confirmationId: String!
+  ): [ConfirmationNumberQueryResultTypeDef]
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {

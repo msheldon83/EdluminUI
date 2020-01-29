@@ -40,6 +40,7 @@ import { SecurityPartnersRoute } from "ui/routes/security/partners";
 import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
 import { SecurityUsersRoute } from "ui/routes/security/users";
 import { NavLink } from "./nav-link";
+import SearchIcon from "@material-ui/icons/Search";
 
 type Props = {
   className?: string;
@@ -47,6 +48,14 @@ type Props = {
   navBarExpanded: boolean;
   onClick?: () => void;
   orgId?: string;
+};
+export const MobileSearchNavLink: React.FC<Props> = props => {
+  const { t } = useTranslation();
+  return (
+    <Can do={[PermissionEnum.AbsVacView]} orgId={props.orgId}>
+      <NavLink title={t("Search")} icon={<SearchIcon />} {...props} />
+    </Can>
+  );
 };
 
 export const HomeNavLink: React.FC<Props> = props => {
