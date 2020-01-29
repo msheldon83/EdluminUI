@@ -33,9 +33,7 @@ export const PositionTypeAndLocationFilters: React.FC<Props> = props => {
 
   const onChangePositionType = useCallback(
     (value /* OptionType[] */) => {
-      const ids: number[] = value
-        ? value.map((v: OptionType) => Number(v.value))
-        : [];
+      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
       updateFilters({ positionTypes: ids });
     },
     [updateFilters]
@@ -48,9 +46,7 @@ export const PositionTypeAndLocationFilters: React.FC<Props> = props => {
   );
   const onChangeLocations = useCallback(
     (value /* OptionType[] */) => {
-      const ids: number[] = value
-        ? value.map((v: OptionType) => Number(v.value))
-        : [];
+      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
       updateFilters({ locations: ids });
     },
     [updateFilters]
@@ -65,7 +61,7 @@ export const PositionTypeAndLocationFilters: React.FC<Props> = props => {
           onChange={onChangePositionType}
           options={positionTypesOptions}
           value={positionTypesOptions.filter(
-            e => e.value && props.positionTypes.includes(Number(e.value))
+            e => e.value && props.positionTypes.includes(e.value.toString())
           )}
           multiple
         />
@@ -76,7 +72,7 @@ export const PositionTypeAndLocationFilters: React.FC<Props> = props => {
           onChange={onChangeLocations}
           options={locationOptions}
           value={locationOptions.filter(
-            e => e.value && props.locations.includes(Number(e.value))
+            e => e.value && props.locations.includes(e.value.toString())
           )}
           multiple
         />

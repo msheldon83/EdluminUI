@@ -20,8 +20,8 @@ export const PositionTypeFilter: React.FC<Props> = props => {
   );
   const onChangePositionTypes = useCallback(
     (value: OptionType[]) => {
-      const ids: number[] = value
-        ? value.map((v: OptionType) => Number(v.value))
+      const ids: string[] = value
+        ? value.map((v: OptionType) => v.value.toString())
         : [];
       updateFilters({ positionTypeIds: ids });
     },
@@ -29,7 +29,7 @@ export const PositionTypeFilter: React.FC<Props> = props => {
   );
 
   const value = positionTypeOptions.filter(
-    e => e.value && props.positionTypeIds.includes(Number(e.value))
+    e => e.value && props.positionTypeIds.includes(e.value.toString())
   );
 
   return (

@@ -32,11 +32,8 @@ export const SubSignInPage: React.FC<Props> = props => {
 
   const locations = useLocations(params.organizationId);
   useEffect(() => {
-    if (
-      (isNaN(filterParams.location) || filterParams.location === 0) &&
-      locations.length > 0
-    ) {
-      updateFilterParams({ location: Number(locations[0].id) });
+    if (!filterParams.location && locations.length > 0) {
+      updateFilterParams({ location: locations[0].id });
     }
   }, [locations, updateFilterParams, filterParams.location]);
 
@@ -60,7 +57,7 @@ export const SubSignInPage: React.FC<Props> = props => {
       } else {
         id = value.value;
       }
-      updateFilterParams({ location: Number(id) });
+      updateFilterParams({ location: id.toString() });
     },
     [updateFilterParams]
   );
@@ -71,7 +68,7 @@ export const SubSignInPage: React.FC<Props> = props => {
       date,
       locationIds: [filterParams.location],
     },
-    skip: isNaN(filterParams.location),
+    skip: !filterParams.location,
   });
 
   const vacancyDetails = useMemo(

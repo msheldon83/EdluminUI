@@ -98,7 +98,7 @@ export const EmployeeHome: React.FC<Props> = props => {
   const cancelAbsence = async (absenceId: string) => {
     const result = await deleteAbsence({
       variables: {
-        absenceId: Number(absenceId),
+        absenceId: absenceId,
       },
     });
     //if (result) {

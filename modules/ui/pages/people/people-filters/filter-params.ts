@@ -48,13 +48,13 @@ export type RoleSpecificFilters =
 
 export type ReplacementEmployeeQueryFilters = {
   roleFilter: OrgUserRole.ReplacementEmployee;
-  endorsements: number[];
+  endorsements: string[];
 };
 
 export type PositionTypesAndLocationsQueryFilters = {
   roleFilter: OrgUserRole.Employee | OrgUserRole.Administrator;
-  positionTypes: number[];
-  locations: number[];
+  positionTypes: string[];
+  locations: string[];
 };
 
 // export type AdminQueryFilters = {
@@ -117,22 +117,18 @@ const to = (o: PeopleFilters): RoleSpecificFilters => {
     case OrgUserRole.Administrator:
       return {
         roleFilter: o.roleFilter,
-        positionTypes: stringToNumberArray(o.positionTypes),
-        locations: stringToNumberArray(o.locations),
+        positionTypes: o.positionTypes.split(","),
+        locations: o.locations.split(","),
       };
     case OrgUserRole.ReplacementEmployee:
       return {
         roleFilter: OrgUserRole.ReplacementEmployee,
-        endorsements: stringToNumberArray(o.endorsements),
+        endorsements: o.endorsements.split(","),
       };
     case "":
     default:
       return { roleFilter: null };
   }
-};
-
-const stringToNumberArray = (s: string): number[] => {
-  return s === "" ? [] : s.split(",").map(e => Number(e));
 };
 
 const from = (o: RoleSpecificFilters) => {

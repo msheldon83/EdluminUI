@@ -1,8 +1,8 @@
 query SubJobSearch(
   $id: ID!
-  $orgIds: [Int]
-  $locationIds: [Int]
-  $positionTypeIds: [Int]
+  $orgIds: [ID]
+  $locationIds: [ID]
+  $positionTypeIds: [ID]
   $limit: Int
   $offset: Int
 ) {

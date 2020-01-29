@@ -53,7 +53,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
       await mutation({
         variables: {
           absenceReason: {
-            id: Number(reason.id),
+            id:reason.id,
             rowVersion: reason.rowVersion,
             allowNegativeBalance,
             isBucket: false,

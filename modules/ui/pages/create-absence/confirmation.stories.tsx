@@ -42,14 +42,14 @@ const complexVacancies = [
     numDays: 5,
     notesToReplacement:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-    positionId: 1,
+    positionId: "1",
     details: [
       {
         startDate: "2019-11-18",
         startTimeLocal: "2019-11-18T08:00:00",
         endDate: "2019-11-18",
         endTimeLocal: "2019-11-18T12:00:00",
-        locationId: 1,
+        locationId: "1",
         location: {
           name: "Evans Elementary School",
         },
@@ -60,7 +60,7 @@ const complexVacancies = [
         startTimeLocal: "2019-11-18T12:15:00",
         endDate: "2019-11-18",
         endTimeLocal: "2019-11-18T15:00:00",
-        locationId: 2,
+        locationId: "2",
         location: {
           name: "Brook Elementary School",
         },
@@ -71,7 +71,7 @@ const complexVacancies = [
         startTimeLocal: "2019-11-19T08:00:00",
         endDate: "2019-11-19",
         endTimeLocal: "2019-11-19T12:00:00",
-        locationId: 1,
+        locationId: "1",
         location: {
           name: "Evans Elementary School",
         },
@@ -82,7 +82,7 @@ const complexVacancies = [
         startTimeLocal: "2019-11-19T12:15:00",
         endDate: "2019-11-19",
         endTimeLocal: "2019-11-19T15:00:00",
-        locationId: 2,
+        locationId: "2",
         location: {
           name: "Brook Elementary School",
         },
@@ -93,7 +93,7 @@ const complexVacancies = [
         startTimeLocal: "2019-11-21T08:00:00",
         endDate: "2019-11-21",
         endTimeLocal: "2019-11-21T12:00:00",
-        locationId: 1,
+        locationId: "1",
         location: {
           name: "Evans Elementary School",
         },
@@ -104,7 +104,7 @@ const complexVacancies = [
         startTimeLocal: "2019-11-21T12:15:00",
         endDate: "2019-11-21",
         endTimeLocal: "2019-11-21T15:00:00",
-        locationId: 2,
+        locationId: "2",
         location: {
           name: "Brook Elementary School",
         },
@@ -115,7 +115,7 @@ const complexVacancies = [
         startTimeLocal: "2019-11-22T08:00:00",
         endDate: "2019-11-22",
         endTimeLocal: "2019-11-22T15:00:00",
-        locationId: 3,
+        locationId: "3",
         location: {
           name: "Haven Elementary School",
         },
@@ -126,7 +126,7 @@ const complexVacancies = [
         startTimeLocal: "2019-11-25T08:00:00",
         endDate: "2019-11-25",
         endTimeLocal: "2019-11-25T12:00:00",
-        locationId: 1,
+        locationId: "1",
         location: {
           name: "Evans Elementary School",
         },
@@ -137,7 +137,7 @@ const complexVacancies = [
         startTimeLocal: "2019-11-25T12:15:00",
         endDate: "2019-11-25",
         endTimeLocal: "2019-11-25T15:00:00",
-        locationId: 2,
+        locationId: "2",
         location: {
           name: "Brook Elementary School",
         },
@@ -156,19 +156,19 @@ const simpleVacancies = [
     numDays: 1,
     notesToReplacement:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-    positionId: 1,
+    positionId: "1",
     details: [
       {
         startDate: "2019-11-18",
         startTimeLocal: "2019-11-18T08:00:00",
         endDate: "2019-11-18",
         endTimeLocal: "2019-11-18T15:00:00",
-        locationId: 1,
+        locationId: "1",
         location: {
           name: "Evans Elementary School",
         },
         assignment: {
-          employeeId: 1,
+          employeeId: "1",
           employee: {
             firstName: "Luke",
             lastName: "Skywalker",
@@ -206,7 +206,7 @@ const getAbsence = (
     endDate: "2019-11-25",
     endTimeLocal: "2019-11-25T15:00:00",
     numDays: 5,
-    employeeId: 1125,
+    employeeId: "1125",
     employee: {
       firstName: "John",
       lastName: "Smith",
@@ -305,9 +305,9 @@ const getAbsence = (
             return {
               ...d,
               assignment: {
-                id: 1234,
+                id: "1234",
                 employee: {
-                  id: 1234,
+                  id: "1234",
                   firstName: "Luke",
                   lastName: "Skywalker",
                 },

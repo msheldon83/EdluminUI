@@ -41,7 +41,7 @@ import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conv
 
 type Props = {
   showVerified: boolean;
-  locationsFilter: number[];
+  locationsFilter: string[];
   showLinkToVerify?: boolean;
   date?: Date;
   setDate?: (date: Date) => void;

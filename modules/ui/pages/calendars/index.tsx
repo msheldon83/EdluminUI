@@ -61,8 +61,8 @@ export const Calendars: React.FC<Props> = props => {
     {
       variables: {
         orgId: params.organizationId,
-        schoolYearId: parseInt(schoolYear?.id),
-        contractId: parseInt(contract?.id),
+        schoolYearId: schoolYear?.id,
+        contractId: contract?.id,
       },
       fetchPolicy: "cache-and-network",
     }
@@ -112,12 +112,12 @@ export const Calendars: React.FC<Props> = props => {
         affectsAllContracts,
         description,
       } = updatedValues;
-      const contractIds = compact(changedContracts?.map(c => Number(c?.id)));
+      const contractIds = compact(changedContracts?.map(c => c?.id ?? ""));
       if (!id) return;
       await updateCalendarChangeMutation({
         variables: {
           calendarChange: {
-            id: Number(id),
+            id: id,
             rowVersion,
             contractIds,
             affectsAllContracts,
@@ -136,7 +136,7 @@ export const Calendars: React.FC<Props> = props => {
   const deleteCalendarChange = (calendarChangeId: string) => {
     return deleteCalendarChangeMutation({
       variables: {
-        calendarChangeId: Number(calendarChangeId),
+        calendarChangeId: calendarChangeId,
       },
     });
   };
