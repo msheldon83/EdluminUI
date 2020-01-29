@@ -41,30 +41,17 @@ export const SearchBar: React.FC<Props> = props => {
   const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
   const history = useHistory();
 
-  /**** This is some crazy logic to get the org id because it is not available in the route yet. */
-  /**** We are assuming if the user is not an admin that they only have access to one org */
-  let orgIds: string[] | null = [];
-  if (userAccess != null) {
-    if (window.location.pathname.includes("admin")) {
-      orgIds.push(window.location.pathname.split("/")[2]);
-    } else {
-      if (userAccess.isSysAdmin) {
-        orgIds = null;
-      } else {
-        orgIds = userAccess?.permissionsByOrg.map(o => {
-          return o.orgId;
-        });
-      }
-    }
-  }
-  /****************************************************** */
+  /**** Because this component is not under an AdminRouteOrganizationContextProvider */
+  /****  we need to do this to grab the org id. */
+  /**** Our Logic is if the user is in the admin context of a specific org, */
+  /**** we will send that org.  For every other context we will not send orgs and allow */
+  /**** the server to decide which orgs the user has access to */
 
-  const [open, setOpen] = React.useState(false);
-  const [searchFilter, updateSearchFilter] = React.useState<{
-    confirmationId: any;
-  }>({
-    confirmationId: "",
-  });
+  const orgIds: string[] | undefined =
+    window.location.pathname.includes("admin") &&
+    window.location.pathname.split("/")[2]
+      ? [window.location.pathname.split("/")[2]]
+      : undefined;
 
   const [loading, updateLoading] = React.useState(false);
 
@@ -74,22 +61,10 @@ export const SearchBar: React.FC<Props> = props => {
     setPendingConfirmationId,
   ] = useDeferredState<any>("", 200);
 
-  useEffect(() => {
-    if (confirmationId !== searchFilter.confirmationId) {
-      setPendingConfirmationId(searchFilter.confirmationId);
-    }
-  }, [searchFilter]);
-
-  useEffect(() => {
-    if (confirmationId !== searchFilter.confirmationId) {
-      updateSearchFilter({ confirmationId });
-    }
-  }, [confirmationId]);
-
   const updateSearch = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPendingConfirmationId(event.target.value);
       updateLoading(event.target.value !== "" ? true : false);
+      setPendingConfirmationId(event.target.value);
     },
     [setPendingConfirmationId]
   );
@@ -97,24 +72,24 @@ export const SearchBar: React.FC<Props> = props => {
   const searchResults = useQueryBundle(GetSearchResultsByConfirmationId, {
     fetchPolicy: "cache-first",
     variables: {
-      ...searchFilter,
-      orgIds: orgIds,
+      confirmationId,
+      orgIds,
     },
     skip:
       confirmationId == undefined || userAccess == null || confirmationId == "",
   });
 
-  if (searchResults.state === "DONE" && loading === true) {
-    updateLoading(false);
-  }
+  useEffect(() => {
+    if (searchResults.state === "DONE" && loading) {
+      updateLoading(false);
+    }
+  }, [searchResults, loading, setPendingConfirmationId]);
+
   const results =
     searchResults.state === "DONE" || searchResults.state === "UPDATING"
       ? searchResults?.data?.absence?.byConfirmationId
       : [];
 
-  if (searchResults.state === "DONE" && !open) {
-    setOpen(true);
-  }
   const handleOnClick = (absId: string) => {
     onClose();
     if (params.role === "admin") {
@@ -145,8 +120,6 @@ export const SearchBar: React.FC<Props> = props => {
 
   const onClose = () => {
     setPendingConfirmationId("");
-    results?.splice(0, results?.length);
-    setOpen(false);
   };
 
   return (
@@ -157,7 +130,7 @@ export const SearchBar: React.FC<Props> = props => {
             <SearchIcon />
           </div>
           <InputBase
-            placeholder={t("search", "Search")}
+            placeholder={t("Search")}
             classes={inputClasses}
             inputProps={{ "aria-label": "search" }}
             value={pendingConfirmationId}
@@ -183,18 +156,19 @@ export const SearchBar: React.FC<Props> = props => {
               )
             }
           />
-
-          {results && open && (
+          {results && results.length > 0 && (
             <Grid className={classes.resultContainer} container spacing={2}>
               {results.length == 0 && (
                 <Grid className={classes.resultItem} item xs={12}>
-                  <Typography align="center">No Results</Typography>
+                  <Typography align="center">{t("No Results")}</Typography>
                 </Grid>
               )}
               {results.map((r: any, i) => {
                 const heading: string = r.assignmentId
-                  ? `Absence #${r.absenceId} (Assignment #${r.assignmentId})`
-                  : `Absence #${r.absenceId}`;
+                  ? `${t("Absence")} #${r.absenceId} (${t("Assignment")} #${
+                      r.assignmentId
+                    })`
+                  : `${t("Absence")} #${r.absenceId}`;
                 const subHeading = `${format(
                   parseISO(r.absenceStartTimeUtc),
                   "EEE, MMM d, yyyy"
@@ -203,9 +177,9 @@ export const SearchBar: React.FC<Props> = props => {
                 const subName = `${r.subFirstName} ${r.subLastName}`;
 
                 const arr =
-                  searchFilter.confirmationId === undefined
+                  confirmationId === undefined
                     ? []
-                    : heading.split(searchFilter.confirmationId);
+                    : heading.split(confirmationId);
                 const newArr = arr.map((a, i) => {
                   return i == arr.length - 1 ? (
                     a
@@ -213,7 +187,7 @@ export const SearchBar: React.FC<Props> = props => {
                     <div key={i} className={classes.inlineBlock}>
                       {a}
                       <span className={classes.highlight}>
-                        {searchFilter.confirmationId}
+                        {confirmationId}
                       </span>
                     </div>
                   );
@@ -277,13 +251,13 @@ const useStyles = makeStyles(theme => ({
 
   resultContainer: {
     position: "fixed",
-    marginTop: "2px",
+    marginTop: theme.typography.pxToRem(2),
     boxShadow: "5px 5px 5px 0px rgba(0,0,0,0.24)",
     cursor: "pointer",
     width: "50%",
     overflow: "hidden",
-    borderBottomRightRadius: "10px",
-    borderBottomLeftRadius: "10px",
+    borderBottomRightRadius: theme.typography.pxToRem(10),
+    borderBottomLeftRadius: theme.typography.pxToRem(10),
   },
   resultItem: {
     backgroundColor: theme.customColors.white,
@@ -306,7 +280,7 @@ const useStyles = makeStyles(theme => ({
   },
   header: {
     fontWeight: "bold",
-    fontSize: "16px",
+    fontSize: theme.typography.pxToRem(16),
   },
   highlight: {
     backgroundColor: theme.customColors.gray,

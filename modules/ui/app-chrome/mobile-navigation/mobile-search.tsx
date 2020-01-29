@@ -21,6 +21,7 @@ import { fade } from "@material-ui/core/styles";
 import { useDeferredState } from "hooks";
 import { GetSearchResultsByConfirmationId } from "ui/app-chrome/graphql/get-search-results-by-confirmation-id.gen";
 import { useTranslation } from "react-i18next";
+import { useOrganizationId } from "core/org-context";
 
 type Props = { className?: string; role: string };
 
@@ -31,31 +32,21 @@ export const MobileSearchBar: React.FC<Props> = props => {
   const params = useRouteParams(AppChromeRoute);
   const history = useHistory();
   const { t } = useTranslation();
+  const contextOrgId = useOrganizationId();
 
-  /**** This is some crazy logic to get the org id because it is not available in the route yet. */
-  /**** We are assuming if the user is not an admin that they only have access to one org */
-  let orgIds: string[] | null = [];
-  if (userAccess != null) {
-    if (window.location.pathname.includes("admin")) {
-      orgIds.push(window.location.pathname.split("/")[2]);
-    } else {
-      if (userAccess.isSysAdmin) {
-        orgIds = null;
-      } else {
-        orgIds = userAccess?.permissionsByOrg.map(o => {
-          return o.orgId;
-        });
-      }
-    }
-  }
-  /****************************************************** */
+  /**** If the user is in the admin context of a specific org, */
+  /**** we will send that org.  For every other context we will not send orgs and allow */
+  /**** the server to decide which orgs the user has access to */
+  const orgIds: string[] | undefined = !contextOrgId
+    ? undefined
+    : [contextOrgId];
 
-  const [open, setOpen] = React.useState(false);
+  /*const [open, setOpen] = React.useState(false);
   const [searchFilter, updateSearchFilter] = React.useState<{
     confirmationId: any;
   }>({
     confirmationId: "",
-  });
+  });*/
 
   const [loading, updateLoading] = React.useState(false);
 
@@ -65,22 +56,22 @@ export const MobileSearchBar: React.FC<Props> = props => {
     setPendingConfirmationId,
   ] = useDeferredState<any>("", 200);
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (confirmationId !== searchFilter.confirmationId) {
       setPendingConfirmationId(searchFilter.confirmationId);
     }
-  }, [searchFilter]);
+  }, [searchFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (confirmationId !== searchFilter.confirmationId) {
       updateSearchFilter({ confirmationId });
     }
-  }, [confirmationId]);
-
+  }, [confirmationId]); // eslint-disable-line react-hooks/exhaustive-deps
+*/
   const updateSearch = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPendingConfirmationId(event.target.value);
       updateLoading(event.target.value !== "" ? true : false);
+      setPendingConfirmationId(event.target.value);
     },
     [setPendingConfirmationId]
   );
@@ -88,24 +79,23 @@ export const MobileSearchBar: React.FC<Props> = props => {
   const searchResults = useQueryBundle(GetSearchResultsByConfirmationId, {
     fetchPolicy: "cache-first",
     variables: {
-      ...searchFilter,
-      orgIds: orgIds,
+      confirmationId,
+      orgIds,
     },
     skip:
       confirmationId == undefined || userAccess == null || confirmationId == "",
   });
 
-  if (searchResults.state === "DONE" && loading === true) {
-    updateLoading(false);
-  }
+  useEffect(() => {
+    if (searchResults.state === "DONE" && loading) {
+      updateLoading(false);
+    }
+  }, [searchResults, loading, setPendingConfirmationId]);
+
   const results =
     searchResults.state === "DONE" || searchResults.state === "UPDATING"
       ? searchResults?.data?.absence?.byConfirmationId
       : [];
-
-  if (searchResults.state === "DONE" && !open) {
-    setOpen(true);
-  }
 
   const handleOnClick = (absId: string) => {
     onClose();
@@ -134,8 +124,6 @@ export const MobileSearchBar: React.FC<Props> = props => {
 
   const onClose = () => {
     setPendingConfirmationId("");
-    results?.splice(0, results?.length);
-    setOpen(false);
   };
 
   return (
@@ -146,7 +134,7 @@ export const MobileSearchBar: React.FC<Props> = props => {
             <SearchIcon />
           </div>
           <InputBase
-            placeholder={t("search", "Search")}
+            placeholder={t("Search")}
             classes={inputClasses}
             inputProps={{ "aria-label": "search" }}
             value={pendingConfirmationId}
@@ -174,17 +162,19 @@ export const MobileSearchBar: React.FC<Props> = props => {
           />
         </div>
 
-        {results && open && (
+        {results && results.length > 0 && (
           <Grid className={classes.resultContainer} container spacing={2}>
             {results.length == 0 && (
               <Grid className={classes.resultItem} item xs={12}>
-                <Typography align="center">No Results</Typography>
+                <Typography align="center">{t("No Results")}</Typography>
               </Grid>
             )}
             {results.map((r: any, i) => {
               const heading: string = r.assignmentId
-                ? `Absence #${r.absenceId} (Assignment #${r.assignmentId})`
-                : `Absence #${r.absenceId}`;
+                ? `${t("Absence")} #${r.absenceId} (${t("Assignment")} #${
+                    r.assignmentId
+                  })`
+                : `${t("Absence")} #${r.absenceId}`;
               const subHeading = `${format(
                 parseISO(r.absenceStartTimeUtc),
                 "EEE, MMM d, yyyy"
@@ -193,18 +183,16 @@ export const MobileSearchBar: React.FC<Props> = props => {
               const subName = `${r.subFirstName} ${r.subLastName}`;
 
               const arr =
-                searchFilter.confirmationId === undefined
+                confirmationId === undefined
                   ? []
-                  : heading.split(searchFilter.confirmationId);
+                  : heading.split(confirmationId);
               const newArr = arr.map((a, i) => {
                 return i == arr.length - 1 ? (
                   a
                 ) : (
                   <div key={i} className={classes.inlineBlock}>
                     {a}
-                    <span className={classes.highlight}>
-                      {searchFilter.confirmationId}
-                    </span>
+                    <span className={classes.highlight}>{confirmationId}</span>
                   </div>
                 );
               });
@@ -256,7 +244,7 @@ const useStyles = makeStyles(theme => ({
     color: "inherit",
     opacity: 0.7,
     width: theme.spacing(7),
-    height: "36px",
+    height: theme.typography.pxToRem(36),
     position: "absolute",
     pointerEvents: "none",
     display: "flex",
@@ -266,7 +254,7 @@ const useStyles = makeStyles(theme => ({
 
   resultContainer: {
     cursor: "pointer",
-    marginTop: "2px",
+    marginTop: theme.typography.pxToRem(2),
   },
   resultItem: {
     backgroundColor: theme.customColors.white,
@@ -276,11 +264,7 @@ const useStyles = makeStyles(theme => ({
     borderBottom: `${theme.typography.pxToRem(1)} solid ${
       theme.customColors.medLightGray
     }`,
-    paddingLeft: "20px !important",
-    paddingRight: "20px !important",
-    paddingTop: "20px !important",
-    paddingBottom: "20px !important",
-    cursor: "pointer",
+    padding: `${theme.typography.pxToRem(20)} !important`,
   },
   label: {
     color: theme.customColors.darkGray,
@@ -294,7 +278,7 @@ const useStyles = makeStyles(theme => ({
   },
   header: {
     fontWeight: "bold",
-    fontSize: "16px",
+    fontSize: theme.typography.pxToRem(16),
   },
   highlight: {
     backgroundColor: theme.customColors.gray,
