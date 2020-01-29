@@ -35,7 +35,6 @@ export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
   const handleOnBlur = () => {
     let date = createDate(value);
 
-    console.log("---------input date", date, "valid", isValid(date));
     if (isValid(date)) {
       onValidDate(date);
     } else {
