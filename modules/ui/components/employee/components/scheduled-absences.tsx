@@ -1,17 +1,14 @@
+import { Grid, makeStyles, Typography } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles, Grid, Button, Typography } from "@material-ui/core";
-import { SectionHeader } from "ui/components/section-header";
 import { EmployeeAbsenceDetail } from "ui/components/employee/types";
+import { SectionHeader } from "ui/components/section-header";
 import { AbsenceDetailRow } from "./absence-detail-row";
-import { CancelDialog } from "ui/components/substitutes/assignment-row/cancel-dialog";
-import { useCallback } from "react";
 
 type Props = {
   header?: string;
   absences: EmployeeAbsenceDetail[];
   cancelAbsence?: (absenceId: string) => Promise<void>;
-  handleAfterAbsence?: Function;
   isLoading: boolean;
   orgId?: string;
   isAdmin?: boolean;
@@ -20,11 +17,6 @@ type Props = {
 export const ScheduledAbsences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
-
-  const onClickCancel = useCallback(() => setDialogIsOpen(true), [
-    setDialogIsOpen,
-  ]);
 
   const wrapper = (children: React.ReactFragment) => {
     return (
@@ -55,19 +47,9 @@ export const ScheduledAbsences: React.FC<Props> = props => {
 
         return (
           <Grid item container xs={12} key={i} className={className}>
-            <CancelDialog
-              open={dialogIsOpen}
-              onClose={() => setDialogIsOpen(false)}
-              onCancel={() => {
-                props.cancelAbsence && props.cancelAbsence(a.id);
-                setDialogIsOpen(false);
-              }}
-            />
-
             <AbsenceDetailRow
               absence={a}
-              cancelAbsence={onClickCancel}
-              handleAfterCancel={props.handleAfterAbsence}
+              cancelAbsence={props.cancelAbsence}
               orgId={props.orgId}
               isAdmin={props.isAdmin}
             />

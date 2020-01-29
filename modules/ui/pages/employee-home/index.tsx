@@ -107,10 +107,6 @@ export const EmployeeHome: React.FC<Props> = props => {
           ?.employeeAbsenceSchedule as GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]);
   const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
 
-  const handleAfterAbsense = async () => {
-    await getAbsenceSchedule.refetch();
-  };
-
   return (
     <>
       <PageTitle title={t("Home")} withoutHeading />
@@ -144,7 +140,6 @@ export const EmployeeHome: React.FC<Props> = props => {
                 (a: EmployeeAbsenceDetail) => isAfter(a.startTimeLocal, today)
               )}
               cancelAbsence={cancelAbsence}
-              handleAfterAbsence={handleAfterAbsense}
               isLoading={
                 getAbsenceSchedule.state === "LOADING" ||
                 getAbsenceSchedule.state === "UPDATING"

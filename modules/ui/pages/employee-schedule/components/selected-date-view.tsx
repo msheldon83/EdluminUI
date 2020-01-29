@@ -1,22 +1,21 @@
-import * as React from "react";
-import { useTranslation, composeInitialProps } from "react-i18next";
-import { Grid, makeStyles, Typography, Chip } from "@material-ui/core";
-import {
-  ScheduleDate,
-  PositionScheduleDate,
-  EmployeeAbsenceDetail,
-  ContractDate,
-} from "ui/components/employee/types";
+import { Chip, Grid, makeStyles, Typography } from "@material-ui/core";
 import { format, isSameDay } from "date-fns";
-import { useMemo } from "react";
-import { AbsenceDetailRow } from "ui/components/employee/components/absence-detail-row";
 import { TFunction } from "i18next";
+import * as React from "react";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { AbsenceDetailRow } from "ui/components/employee/components/absence-detail-row";
+import {
+  ContractDate,
+  EmployeeAbsenceDetail,
+  PositionScheduleDate,
+  ScheduleDate,
+} from "ui/components/employee/types";
 
 type Props = {
   selectedDate: Date;
   scheduleDates: ScheduleDate[];
   cancelAbsence?: (absenceId: string) => Promise<void>;
-  handleAfterCancel?: Function;
   isAdmin?: boolean;
   orgId?: string;
 };
@@ -54,7 +53,6 @@ export const SelectedDateView: React.FC<Props> = props => {
       {displayAbsenceDayInformation(
         absenceDays,
         props.cancelAbsence,
-        props.handleAfterCancel,
         props.isAdmin,
         props.orgId
       )}
@@ -108,7 +106,6 @@ const displayInstructionalDayInformation = (
 const displayAbsenceDayInformation = (
   absenceDays: ScheduleDate[],
   cancelAbsence?: (absenceId: string) => Promise<void>,
-  handleAfterCancel?: Function,
   isAdmin?: boolean,
   orgId?: string
 ) => {
@@ -120,7 +117,6 @@ const displayAbsenceDayInformation = (
         <AbsenceDetailRow
           absence={day}
           cancelAbsence={cancel}
-          handleAfterCancel={handleAfterCancel}
           showAbsenceChip={true}
           isAdmin={isAdmin}
           orgId={orgId}

@@ -87,10 +87,6 @@ export const AbsenceSchedule: React.FC<Props> = props => {
 
   const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
 
-  const handleAfterCancel = async () => {
-    await getAbsenceSchedule.refetch();
-  };
-
   if (!currentSchoolYear) {
     return <></>;
   }
@@ -121,7 +117,6 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                     scheduleDates={selectedScheduleDates}
                     selectedDate={selectedScheduleDates[0].date}
                     cancelAbsence={props.cancelAbsence}
-                    handleAfterCancel={handleAfterCancel}
                     orgId={props.orgId}
                     isAdmin={props.isAdmin}
                   />
@@ -165,7 +160,6 @@ export const AbsenceSchedule: React.FC<Props> = props => {
               <ScheduledAbsences
                 absences={employeeAbsenceDetails}
                 cancelAbsence={props.cancelAbsence}
-                handleAfterAbsence={handleAfterCancel}
                 isLoading={
                   getAbsenceSchedule.state === "LOADING" ||
                   getAbsenceSchedule.state === "UPDATING"
