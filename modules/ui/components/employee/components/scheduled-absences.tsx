@@ -11,7 +11,7 @@ type Props = {
   cancelAbsence?: (absenceId: string) => Promise<void>;
   isLoading: boolean;
   orgId?: string;
-  isAdmin?: boolean;
+  actingAsEmployee?: boolean;
 };
 
 export const ScheduledAbsences: React.FC<Props> = props => {
@@ -51,7 +51,7 @@ export const ScheduledAbsences: React.FC<Props> = props => {
               absence={a}
               cancelAbsence={props.cancelAbsence}
               orgId={props.orgId}
-              isAdmin={props.isAdmin}
+              actingAsEmployee={props.actingAsEmployee}
             />
           </Grid>
         );

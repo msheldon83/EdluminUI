@@ -16,7 +16,7 @@ type Props = {
   selectedDate: Date;
   scheduleDates: ScheduleDate[];
   cancelAbsence?: (absenceId: string) => Promise<void>;
-  isAdmin?: boolean;
+  actingAsEmployee?: boolean;
   orgId?: string;
 };
 
@@ -53,7 +53,7 @@ export const SelectedDateView: React.FC<Props> = props => {
       {displayAbsenceDayInformation(
         absenceDays,
         props.cancelAbsence,
-        props.isAdmin,
+        props.actingAsEmployee,
         props.orgId
       )}
       {displayInstructionalDayInformation(allInstructionalDays, classes)}
@@ -106,7 +106,7 @@ const displayInstructionalDayInformation = (
 const displayAbsenceDayInformation = (
   absenceDays: ScheduleDate[],
   cancelAbsence?: (absenceId: string) => Promise<void>,
-  isAdmin?: boolean,
+  actingAsEmployee?: boolean,
   orgId?: string
 ) => {
   return absenceDays.map((a, i) => {
@@ -118,7 +118,7 @@ const displayAbsenceDayInformation = (
           absence={day}
           cancelAbsence={cancel}
           showAbsenceChip={true}
-          isAdmin={isAdmin}
+          actingAsEmployee={actingAsEmployee}
           orgId={orgId}
         />
       </Grid>

@@ -144,7 +144,7 @@ export const EmployeeHome: React.FC<Props> = props => {
                 getAbsenceSchedule.state === "LOADING" ||
                 getAbsenceSchedule.state === "UPDATING"
               }
-              isAdmin={false}
+              actingAsEmployee={true}
             />
           </Section>
         </Grid>

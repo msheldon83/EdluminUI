@@ -79,7 +79,7 @@ export const UpcomingAbsences: React.FC<Props> = props => {
             getAbsenceSchedule.state === "UPDATING"
           }
           orgId={props.orgId}
-          isAdmin={userIsAdmin}
+          actingAsEmployee={false}
         />
       </Section>
     </>

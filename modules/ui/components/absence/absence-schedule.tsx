@@ -29,7 +29,7 @@ type Props = {
   cancelAbsence?: (absenceId: string) => Promise<void>;
   calendarViewRoute: string;
   listViewRoute: string;
-  isAdmin: boolean;
+  actingAsEmployee: boolean;
 };
 
 export const AbsenceSchedule: React.FC<Props> = props => {
@@ -100,7 +100,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
           <Grid item>
             <PageTitle title={t(props.pageTitle)} />
           </Grid>
-          {!props.isAdmin && (
+          {props.actingAsEmployee && (
             <Grid item>
               <Button
                 variant="outlined"
@@ -120,7 +120,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                     selectedDate={selectedScheduleDates[0].date}
                     cancelAbsence={props.cancelAbsence}
                     orgId={props.orgId}
-                    isAdmin={props.isAdmin}
+                    actingAsEmployee={props.actingAsEmployee}
                   />
                 )}
               </Section>
@@ -164,7 +164,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                 cancelAbsence={props.cancelAbsence}
                 isLoading={getAbsenceSchedule.state === "LOADING"}
                 orgId={props.orgId}
-                isAdmin={props.isAdmin}
+                actingAsEmployee={props.actingAsEmployee}
               />
             </Grid>
           )}

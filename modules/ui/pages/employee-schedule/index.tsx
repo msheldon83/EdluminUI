@@ -61,7 +61,7 @@ export const EmployeeSchedule: React.FC<Props> = props => {
           cancelAbsence={cancelAbsence}
           calendarViewRoute={EmployeeScheduleCalendarViewRoute.generate(params)}
           listViewRoute={EmployeeScheduleListViewRoute.generate(params)}
-          isAdmin={false}
+          actingAsEmployee={true}
         />
       )}
     </div>
