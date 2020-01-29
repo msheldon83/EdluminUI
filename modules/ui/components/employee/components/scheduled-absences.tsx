@@ -1,18 +1,17 @@
+import { Grid, makeStyles, Typography } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles, Grid, Button, Typography } from "@material-ui/core";
-import { SectionHeader } from "ui/components/section-header";
 import { EmployeeAbsenceDetail } from "ui/components/employee/types";
+import { SectionHeader } from "ui/components/section-header";
 import { AbsenceDetailRow } from "./absence-detail-row";
 
 type Props = {
   header?: string;
   absences: EmployeeAbsenceDetail[];
   cancelAbsence?: (absenceId: string) => Promise<void>;
-  handleAfterAbsence?: Function;
   isLoading: boolean;
   orgId?: string;
-  isAdmin?: boolean;
+  actingAsEmployee?: boolean;
 };
 
 export const ScheduledAbsences: React.FC<Props> = props => {
@@ -47,13 +46,12 @@ export const ScheduledAbsences: React.FC<Props> = props => {
         ].join(" ");
 
         return (
-          <Grid item container xs={12} key={i} className={className}>
+          <Grid item container xs={12} key={a.id} className={className}>
             <AbsenceDetailRow
               absence={a}
               cancelAbsence={props.cancelAbsence}
-              handleAfterCancel={props.handleAfterAbsence}
               orgId={props.orgId}
-              isAdmin={props.isAdmin}
+              actingAsEmployee={props.actingAsEmployee}
             />
           </Grid>
         );
