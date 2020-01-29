@@ -27,6 +27,7 @@ query GetEmployeePosition($id: ID!) {
               startTime
               location {
                 id
+                locationGroupId
               }
               startPeriod {
                 id

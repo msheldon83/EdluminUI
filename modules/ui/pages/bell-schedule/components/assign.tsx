@@ -16,13 +16,13 @@ import { SectionHeader } from "ui/components/section-header";
 import { Can } from "ui/components/auth/can";
 
 type Props = {
-  locationIds: Array<number>;
-  locationGroupIds: Array<number>;
+  locationIds: Array<string>;
+  locationGroupIds: Array<string>;
   organizationId: string;
   submitLabel?: string;
   onSubmit: (
-    locationIds: Array<number>,
-    locationGroupIds: Array<number>
+    locationIds: Array<string>,
+    locationGroupIds: Array<string>
   ) => void;
   onCancel: () => void;
 };
@@ -31,10 +31,10 @@ export const Assign: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
-  const [locationIds, setLocationIds] = React.useState<Array<number>>(
+  const [locationIds, setLocationIds] = React.useState<Array<string>>(
     props.locationIds
   );
-  const [locationGroupIds, setLocationGroupIds] = React.useState<Array<number>>(
+  const [locationGroupIds, setLocationGroupIds] = React.useState<Array<string>>(
     props.locationGroupIds
   );
   const locations = useLocations(props.organizationId);
@@ -50,16 +50,14 @@ export const Assign: React.FC<Props> = props => {
   }
 
   const defaultLocationSelections = locations
-    .filter((l: Pick<Location, "id">) =>
-      props.locationIds.includes(Number(l.id))
-    )
+    .filter((l: Pick<Location, "id">) => props.locationIds.includes(l.id))
     .map((l: Pick<Location, "id" | "name">) => {
       return { text: l.name, value: l.id };
     });
 
   const defaultLocationGroupSelections = locationGroups
     .filter((l: Pick<LocationGroup, "id">) =>
-      props.locationGroupIds.includes(Number(l.id))
+      props.locationGroupIds.includes(l.id)
     )
     .map((l: Pick<LocationGroup, "id" | "name">) => {
       return { text: l.name, value: l.id };
@@ -78,7 +76,7 @@ export const Assign: React.FC<Props> = props => {
                 return { text: l.name, value: l.id };
               })}
               onChange={selections => {
-                setLocationIds(selections.map(s => Number(s.value)));
+                setLocationIds(selections.map(s => s.value));
               }}
               fullWidth
             />
@@ -103,7 +101,7 @@ export const Assign: React.FC<Props> = props => {
                 }
               )}
               onChange={selections => {
-                setLocationGroupIds(selections.map(s => Number(s.value)));
+                setLocationGroupIds(selections.map(s => s.value));
               }}
               fullWidth
             />

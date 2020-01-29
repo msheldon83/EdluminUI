@@ -25,6 +25,7 @@ mutation SaveEmployeePosition($employee: EmployeeInput!) {
               startTime
               location {
                 id
+                locationGroupId
               }
               startPeriod {
                 id

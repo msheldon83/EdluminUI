@@ -257,8 +257,8 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
         locationGroupIds={[]}
         organizationId={params.organizationId}
         onSubmit={async (
-          locationIds: Array<number>,
-          locationGroupIds: Array<number>
+          locationIds: Array<string>,
+          locationGroupIds: Array<string>
         ) => {
           // Convert to Work Day Schedule to send to server
           const workDaySchedule = buildWorkDayScheduleCreateInput(

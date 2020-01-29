@@ -94,6 +94,7 @@ export const EmployeePosition: React.FC<Props> = props => {
     id: ps.id,
     periods: ps.items.map(p => ({
       locationId: p.location.id,
+      locationGroupId: p.location.locationGroupId,
       bellScheduleId:
         (!p.bellSchedule && p.startTime && p.endTime)
           ? "custom"

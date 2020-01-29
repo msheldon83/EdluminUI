@@ -19,11 +19,27 @@ import { format } from "date-fns";
 import { midnightTime } from "helpers/time";
 import { FormikErrors } from "formik";
 
+export type BellSchedule = {
+  id: string;
+  name: string;
+  usages:
+    | Array<
+        | {
+            locationId?: string | null | undefined;
+            locationGroupId?: string | null | undefined;
+          }
+        | null
+        | undefined
+      >
+    | null
+    | undefined;
+};
+
 type Props = {
   index: number;
   scheduleIndex: number;
   locationOptions: OptionType[];
-  bellScheduleOptions: OptionType[];
+  bellSchedules: Array<BellSchedule | null | undefined>;
   period: Period;
   lastPeriod: boolean;
   disableAllDay: boolean;
@@ -43,6 +59,26 @@ export const PeriodUI: React.FC<Props> = props => {
   const period = props.period;
   const classes = useStyles();
   const index = props.index;
+
+  const bellScheduleOptions: OptionType[] = useMemo(() => {
+    const bellSchedules = props.bellSchedules?.filter(x =>
+      x?.usages?.some(u => {
+        if (
+          u?.locationId === period.locationId ||
+          u?.locationGroupId === period.locationGroupId
+        ) {
+          return true;
+        }
+      })
+    );
+
+    const options = bellSchedules.map(p => ({
+      label: p?.name ?? "",
+      value: p?.id ?? "",
+    }));
+    options.push({ label: t("Custom"), value: "custom" });
+    return options;
+  }, [props.bellSchedules, t, period.locationId, period.locationGroupId]);
 
   const getPeriods = useQueryBundle(GetBellSchedulePeriods, {
     variables: {
@@ -115,12 +151,42 @@ export const PeriodUI: React.FC<Props> = props => {
     [period.bellScheduleId, periodEndOptions, period.endPeriodId, period.allDay]
   );
 
-  const locationError = GetError(props.errors, "locationId", index, props.scheduleIndex);
-  const bellScheduleError = GetError(props.errors, "bellScheduleId", index, props.scheduleIndex);
-  const startTimeError = GetError(props.errors, "startTime", index, props.scheduleIndex);
-  const endTimeError = GetError(props.errors, "endTime", index, props.scheduleIndex);
-  const startPeriodIdError = GetError(props.errors, "startPeriodId", index, props.scheduleIndex);
-  const endPeriodIdError = GetError(props.errors, "endPeriodId", index, props.scheduleIndex);
+  const locationError = GetError(
+    props.errors,
+    "locationId",
+    index,
+    props.scheduleIndex
+  );
+  const bellScheduleError = GetError(
+    props.errors,
+    "bellScheduleId",
+    index,
+    props.scheduleIndex
+  );
+  const startTimeError = GetError(
+    props.errors,
+    "startTime",
+    index,
+    props.scheduleIndex
+  );
+  const endTimeError = GetError(
+    props.errors,
+    "endTime",
+    index,
+    props.scheduleIndex
+  );
+  const startPeriodIdError = GetError(
+    props.errors,
+    "startPeriodId",
+    index,
+    props.scheduleIndex
+  );
+  const endPeriodIdError = GetError(
+    props.errors,
+    "endPeriodId",
+    index,
+    props.scheduleIndex
+  );
 
   return (
     <>
@@ -152,7 +218,7 @@ export const PeriodUI: React.FC<Props> = props => {
             value={{
               value: period.bellScheduleId ?? "",
               label:
-                props.bellScheduleOptions.find(
+                bellScheduleOptions.find(
                   e => e.value && e.value === period.bellScheduleId
                 )?.label || "",
             }}
@@ -161,7 +227,7 @@ export const PeriodUI: React.FC<Props> = props => {
               const id = (value as OptionTypeBase).value.toString();
               props.onChangeBellSchedule(id, index);
             }}
-            options={props.bellScheduleOptions}
+            options={bellScheduleOptions}
             withResetValue={false}
             inputStatus={bellScheduleError ? "error" : "default"}
             validationMessage={bellScheduleError}

@@ -375,12 +375,12 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     setStep: React.Dispatch<React.SetStateAction<number>>,
     goToNextStep: Function
   ) => {
-    const locationIds: Array<number> = workDaySchedule.usages
+    const locationIds: Array<string> = workDaySchedule.usages
       ? workDaySchedule.usages
           .filter(u => u && u.locationId)
           .map((u: Maybe<WorkDayScheduleUsage>) => u!.locationId!)
       : [];
-    const locationGroupIds: Array<number> = workDaySchedule.usages
+    const locationGroupIds: Array<string> = workDaySchedule.usages
       ? workDaySchedule.usages
           .filter(u => u && u.locationGroupId)
           .map((u: Maybe<WorkDayScheduleUsage>) => u!.locationGroupId!)
@@ -401,8 +401,8 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   };
 
   const updateLocationAssigments = async (
-    locationIds: Array<number>,
-    locationGroupIds: Array<number>
+    locationIds: Array<string>,
+    locationGroupIds: Array<string>
   ) => {
     await updateWorkDaySchedule({
       variables: {

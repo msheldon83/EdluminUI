@@ -10,7 +10,7 @@ import {
 import { OptionType } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
-import { PeriodUI } from "./period";
+import { PeriodUI, BellSchedule } from "./period";
 import { Schedule, Period } from "./helpers";
 import { DayOfWeek } from "graphql/server-types.gen";
 import { DayOfWeekCheckBox } from "./day-of-week";
@@ -26,7 +26,7 @@ type Props = {
   onAddSchedule: () => void;
   schedule: Schedule;
   locationOptions: OptionType[];
-  bellScheduleOptions: OptionType[];
+  bellSchedules: Array<BellSchedule | null | undefined>;
   onAddSchool: () => void;
   onRemoveSchool: (periodNumber: number) => void;
   disabledDaysOfWeek: DayOfWeek[];
@@ -104,7 +104,7 @@ export const ScheduleUI: React.FC<Props> = props => {
                     key={`schedule${props.index}period${i}`}
                     index={i}
                     locationOptions={props.locationOptions}
-                    bellScheduleOptions={props.bellScheduleOptions}
+                    bellSchedules={props.bellSchedules}
                     disableAllDay={periods.length > 1}
                     period={p}
                     lastPeriod={periods.length === i + 1}
@@ -127,31 +127,31 @@ export const ScheduleUI: React.FC<Props> = props => {
         {props.index === 0 ? (
           <Grid item>
             <div className={classes.daysOfWeekContainer}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  color="primary"
-                  checked={props.multipleSchedules}
-                  onChange={e => {
-                    if (!props.multipleSchedules) {
-                      props.onCheckScheduleVaries();
-                    }
-                  }}
-                />
-              }
-              label={t("Schedule varies by day of the week")}
-            />
-            <IconButton
-                  onClick={() => {
-                    window.open(
-                      "https://help.redroverk12.com/hc/en-us/articles/360038845372",
-                      "_blank"
-                    );
-                  }}
-                >
-                  <InfoIcon />
-                </IconButton>
-                </div>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    checked={props.multipleSchedules}
+                    onChange={e => {
+                      if (!props.multipleSchedules) {
+                        props.onCheckScheduleVaries();
+                      }
+                    }}
+                  />
+                }
+                label={t("Schedule varies by day of the week")}
+              />
+              <IconButton
+                onClick={() => {
+                  window.open(
+                    "https://help.redroverk12.com/hc/en-us/articles/360038845372",
+                    "_blank"
+                  );
+                }}
+              >
+                <InfoIcon />
+              </IconButton>
+            </div>
           </Grid>
         ) : (
           <Grid item>

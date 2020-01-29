@@ -19,8 +19,8 @@ export type BellSchedule = {
   externalId?: string | null | undefined;
   standard: Variant | undefined;
   variants: Variant[];
-  locationIds: number[] | undefined;
-  locationGroupIds: number[] | undefined;
+  locationIds: string[] | undefined;
+  locationGroupIds: string[] | undefined;
 };
 
 export type Variant = {

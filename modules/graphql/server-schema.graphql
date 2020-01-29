@@ -96,6 +96,7 @@ type AbsenceQueries {
   projectedAbsence(absence: AbsenceCreateInput!, ignoreAbsenceId: Int): Absence
   dailyReport(orgId: ID!, date: Date!, locationIds: [Int], positionTypeIds: [Int]): DailyReport
   subSignInReport(orgId: ID!, date: Date!, locationIds: [Int]): [VacancyDetail]
+  byConfirmationId(orgIds: [ID], confirmationId: String!): [ConfirmationNumberQueryResultTypeDef]
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -757,6 +758,30 @@ type ChangeLogTypeDef {
   _info: [ReturnMessage]
   messages: String!
   changes: String!
+}
+
+type ConfirmationNumberQueryResultTypeDef {
+  _info: [ReturnMessage]
+  absenceId: Int!
+  objectTypeId: ObjectType!
+  objectTypeName: String!
+  orgId: Int!
+  createdUtc: DateTime
+  employeeId: Int!
+  employeeFirstName: String!
+  employeeMiddleName: String
+  employeeLastName: String!
+  absenceStartTimeLocal: DateTime
+  absenceEndTimeLocal: DateTime
+  absenceStartTimeUtc: DateTime
+  absenceEndTimeUtc: DateTime
+  absNumDays: Short
+  assignmentId: Int
+  assignmentCreatedUtc: DateTime
+  subId: Int
+  subFirstName: String
+  subMiddleName: String
+  subLastName: String
 }
 
 type Contract implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -3034,8 +3059,32 @@ type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   isStaffAugmentation: Boolean!
   replacementCriteria: ObjectReplacementCriteria
   schedules: [PositionSchedule]
+  accountingCodeAllocations: [PositionAccountingCode]
   locationIds: [ID]
   locations: [Location]
+}
+
+type PositionAccountingCode implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: Int!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  positionId: ID!
+  accountingCodeId: ID!
+  accountingCode: AccountingCode
+  allocation: Decimal!
+}
+
+input PositionAccountingCodeInput {
+  accountingCodeId: ID!
+  allocation: Decimal!
 }
 
 input PositionCreateInput {
@@ -3063,6 +3112,7 @@ input PositionInput {
   needsReplacement: NeedsReplacement
   schedules: [PositionScheduleInput]
   replacementCriteria: ReplacementCriteriaInput
+  accountingCodeAllocations: PositionAccountingCodeInput
 }
 
 type PositionQueries {
@@ -4983,8 +5033,8 @@ input WorkDayScheduleCreateInput {
   externalId: String
   workDayPatternId: Int
   periods: [WorkDaySchedulePeriodInput]
-  locationIds: [Int]
-  locationGroupIds: [Int]
+  locationIds: [ID]
+  locationGroupIds: [ID]
   standardSchedule: WorkDayScheduleVariantInput
   additionalVariants: [WorkDayScheduleVariantInput]
 }
@@ -5019,8 +5069,8 @@ input WorkDaySchedulePeriodInput {
 
 type WorkDayScheduleQueries {
   byId(id: ID!): WorkDaySchedule
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): [WorkDaySchedule]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): PagedWorkDaySchedule
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String, locationIds: [ID], locationGroupIds: [ID]): [WorkDaySchedule]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String, locationIds: [ID], locationGroupIds: [ID]): PagedWorkDaySchedule
 }
 
 input WorkDayScheduleUpdateInput {
@@ -5029,11 +5079,11 @@ input WorkDayScheduleUpdateInput {
   name: String
   description: String
   externalId: String
-  workDayPatternId: Int
+  workDayPatternId: ID
   expired: Boolean
   periods: [WorkDaySchedulePeriodInput]
-  locationIds: [Int]
-  locationGroupIds: [Int]
+  locationIds: [ID]
+  locationGroupIds: [ID]
   standardSchedule: WorkDayScheduleVariantInput
 }
 
@@ -5050,9 +5100,9 @@ type WorkDayScheduleUsage implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   workDayScheduleId: Int!
-  workDayId: Int
-  locationId: Int
-  locationGroupId: Int
+  workDayId: ID
+  locationId: ID
+  locationGroupId: ID
   workDay: WorkDay
   location: Location
   locationGroup: LocationGroup

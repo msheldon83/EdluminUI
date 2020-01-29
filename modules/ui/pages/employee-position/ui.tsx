@@ -113,15 +113,7 @@ export const PositionEditUI: React.FC<Props> = props => {
     getBellSchedules.state != "LOADING"
       ? getBellSchedules.data.workDaySchedule?.all ?? []
       : [];
-  const bellScheduleOptions: OptionType[] = useMemo(() => {
-    const options = bellSchedules.map(p => ({
-      label: p?.name ?? "",
-      value: p?.id ?? "",
-    }));
-    options.push({ label: t("Custom"), value: "custom" });
-    return options;
-  }, [bellSchedules, t]);
-
+  
   const needsReplacementOptions: OptionType[] = useMemo(
     () => [
       { label: t("Yes"), value: NeedsReplacement.Yes },
@@ -400,7 +392,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                           }}
                           schedule={schedule}
                           locationOptions={locationOptions}
-                          bellScheduleOptions={bellScheduleOptions}
+                          bellSchedules={bellSchedules}
                           onCheckScheduleVaries={() => {
                             positionSchedule.push(
                               buildNewSchedule(false, true)
@@ -441,9 +433,13 @@ export const PositionEditUI: React.FC<Props> = props => {
                             locationId: string,
                             index: number
                           ) => {
+                            const locationGroupId = locations.find(x => x.id === locationId)?.locationGroupId ?? "";
                             positionSchedule[i].periods[
                               index
                             ].locationId = locationId;
+                            positionSchedule[i].periods[
+                              index
+                            ].locationGroupId = locationGroupId;
                             setFieldValue("schedules", positionSchedule);
                           }}
                           onChangeBellSchedule={(
