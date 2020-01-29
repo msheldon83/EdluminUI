@@ -45,6 +45,7 @@ export const OrganizationSwitcherBarUI: React.FC<Props> = props => {
     </AppBar>
   );
 };
+
 const useStyles = makeStyles(theme => ({
   bottomBar: {
     bottom: 0,

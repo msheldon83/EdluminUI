@@ -44,6 +44,9 @@ export const AppChrome: React.FunctionComponent = props => {
     return (
       <LoadingStateProvider>
         <PageTitleProvider>
+          <Route path={AdminChromeRoute.path}>
+            <OrganizationSwitcherBar />
+          </Route>
           <div className={classes.outer}>
             <MobileTopBar expandDrawer={expand} />
             <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
@@ -61,9 +64,6 @@ export const AppChrome: React.FunctionComponent = props => {
                 </DialogProvider>
               </SnackbarProvider>
             </div>
-            <Route path={AdminChromeRoute.path}>
-              <OrganizationSwitcherBar />
-            </Route>
           </div>
         </PageTitleProvider>
       </LoadingStateProvider>
@@ -72,6 +72,15 @@ export const AppChrome: React.FunctionComponent = props => {
     return (
       <LoadingStateProvider>
         <PageTitleProvider>
+          <Route path={AdminChromeRoute.path}>
+            <OrganizationSwitcherBar
+              contentClassName={
+                expanded
+                  ? classes.leftPaddingExpanded
+                  : classes.leftPaddingCompact
+              }
+            />
+          </Route>
           <div className={classes.outer}>
             <TopBar
               contentClassName={
@@ -119,15 +128,6 @@ export const AppChrome: React.FunctionComponent = props => {
                 </DialogProvider>
               </SnackbarProvider>
             </div>
-            <Route path={AdminChromeRoute.path}>
-              <OrganizationSwitcherBar
-                contentClassName={
-                  expanded
-                    ? classes.leftPaddingExpanded
-                    : classes.leftPaddingCompact
-                }
-              />
-            </Route>
           </div>
         </PageTitleProvider>
       </LoadingStateProvider>
