@@ -73,13 +73,7 @@ export const AppChrome: React.FunctionComponent = props => {
       <LoadingStateProvider>
         <PageTitleProvider>
           <Route path={AdminChromeRoute.path}>
-            <OrganizationSwitcherBar
-            // contentClassName={
-            //   expanded
-            //     ? classes.leftPaddingExpanded
-            //     : classes.leftPaddingCompact
-            // }
-            />
+            <OrganizationSwitcherBar />
           </Route>
           <div className={classes.outer}>
             <TopBar
