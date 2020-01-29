@@ -107,18 +107,6 @@ export const EmployeeHome: React.FC<Props> = props => {
           ?.employeeAbsenceSchedule as GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]);
   const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
 
-  const cancelAbsence = async (absenceId: string) => {
-    const result = await deleteAbsence({
-      variables: {
-        absenceId: Number(absenceId),
-      },
-    });
-  };
-
-  const handleAfterAbsense = async () => {
-    await getAbsenceSchedule.refetch();
-  };
-
   return (
     <>
       <PageTitle title={t("Home")} withoutHeading />
