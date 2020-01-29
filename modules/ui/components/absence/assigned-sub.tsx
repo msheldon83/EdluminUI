@@ -34,6 +34,11 @@ export const AssignedSub: React.FC<Props> = props => {
           )}
         </div>
       </div>
+      {props.assignmentId === undefined ? (
+        <></>
+      ) : (
+        <div>{t("#C") + props.assignmentId}</div>
+      )}
       <div>
         {props.onRemove && (
           <Can do={[PermissionEnum.AbsVacAssign]}>

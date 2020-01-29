@@ -153,6 +153,10 @@ export const EditAbsence: React.FC<Props> = props => {
   const vacancy = vacancies[0];
   const needsSub = !!vacancy;
   const position = vacancy?.position;
+
+  const vacancyDetails = compact(vacancy?.details ?? []);
+  const assignmentId = vacancyDetails[0]?.assignment?.id;
+
   // @ts-ignore
   const details = data?.details ?? [];
   const detail = details[0];
@@ -218,6 +222,7 @@ export const EditAbsence: React.FC<Props> = props => {
       <EditAbsenceUI
         firstName={employee.firstName}
         lastName={employee.lastName}
+        assignmentId={assignmentId}
         employeeId={employee.id}
         rowVersion={data.rowVersion}
         needsReplacement={needsSub ? NeedsReplacement.Yes : NeedsReplacement.No}

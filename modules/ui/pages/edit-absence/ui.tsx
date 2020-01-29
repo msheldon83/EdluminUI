@@ -62,6 +62,7 @@ type Props = {
   positionName?: string;
   absenceReasonId: string;
   absenceId: string;
+  assignmentId?: string;
   dayPart?: DayPart;
   initialVacancyDetails: VacancyDetail[];
   initialVacancies: Vacancy[];
@@ -456,6 +457,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               onToggleAbsenceDate={onToggleAbsenceDate}
               saveLabel={t("Save")}
               setStep={setStep}
+              assignmentId={props.assignmentId}
               disabledDates={disabledDates}
               isAdmin={props.userIsAdmin}
               needsReplacement={props.needsReplacement}

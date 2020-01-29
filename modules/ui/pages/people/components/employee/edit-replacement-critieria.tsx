@@ -126,8 +126,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     [updateEmployee]
   );
 
-  const employee = (getEmployee.state === "LOADING" ||
-  getEmployee.state === "UPDATING"
+  const employee = (getEmployee.state === "LOADING"
     ? undefined
     : getEmployee.data?.orgUser?.byId?.employee) as Pick<
     Employee,
@@ -149,15 +148,11 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
   );
 
   const qualifiedCounts =
-    getQualifiedNumbers.state === "LOADING" ||
-    getQualifiedNumbers.state === "UPDATING"
+    getQualifiedNumbers.state === "LOADING" || getEmployee.state === "UPDATING"
       ? undefined
       : getQualifiedNumbers?.data?.position?.qualifiedEmployeeCounts;
 
-  if (
-    getEmployee.state === "DONE" &&
-    !getEmployee.data.orgUser?.byId?.employee
-  ) {
+  if (getEmployee.state === "DONE" && !employee) {
     const listUrl = PersonViewRoute.generate(params);
     return <Redirect to={listUrl} />;
   }
