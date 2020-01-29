@@ -211,21 +211,21 @@ export const PositionEditUI: React.FC<Props> = props => {
                       .string()
                       .nullable()
                       .required(t("Bell schedule is required")),
-                    startTime: yup.string().when("bellScheduleId", {
+                    startTime: yup.string().nullable().when("bellScheduleId", {
                       is: (val) => val === "custom",
-                      then: yup.string().required(t("Required")),
+                      then: yup.string().nullable().required(t("Required")),
                     }),
-                    endTime: yup.string().when("bellScheduleId", {
+                    endTime: yup.string().nullable().when("bellScheduleId", {
                       is: (val) => val === "custom",
-                      then: yup.string().required(t("Required")),
+                      then: yup.string().nullable().required(t("Required")),
                     }),
-                    startPeriodId: yup.string().when("bellScheduleId", {
+                    startPeriodId: yup.string().nullable().when("bellScheduleId", {
                       is: (val) => val !== "custom",
-                      then: yup.string().required(t("Required")),
+                      then: yup.string().nullable().required(t("Required")),
                     }),
-                    endPeriodId: yup.string().when("bellScheduleId", {
+                    endPeriodId: yup.string().nullable().when("bellScheduleId", {
                       is: (val) => val !== "custom",
-                      then: yup.string().required(t("Required")),
+                      then: yup.string().nullable().required(t("Required")),
                     }),
                   })
                   .test({
