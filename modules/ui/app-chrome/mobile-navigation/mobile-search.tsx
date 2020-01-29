@@ -41,13 +41,6 @@ export const MobileSearchBar: React.FC<Props> = props => {
     ? undefined
     : [contextOrgId];
 
-  /*const [open, setOpen] = React.useState(false);
-  const [searchFilter, updateSearchFilter] = React.useState<{
-    confirmationId: any;
-  }>({
-    confirmationId: "",
-  });*/
-
   const [loading, updateLoading] = React.useState(false);
 
   const [
@@ -56,18 +49,6 @@ export const MobileSearchBar: React.FC<Props> = props => {
     setPendingConfirmationId,
   ] = useDeferredState<any>("", 200);
 
-  /*useEffect(() => {
-    if (confirmationId !== searchFilter.confirmationId) {
-      setPendingConfirmationId(searchFilter.confirmationId);
-    }
-  }, [searchFilter]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (confirmationId !== searchFilter.confirmationId) {
-      updateSearchFilter({ confirmationId });
-    }
-  }, [confirmationId]); // eslint-disable-line react-hooks/exhaustive-deps
-*/
   const updateSearch = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       updateLoading(event.target.value !== "" ? true : false);
