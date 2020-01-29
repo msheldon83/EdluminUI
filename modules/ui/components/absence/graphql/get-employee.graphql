@@ -10,7 +10,7 @@ query GetEmployee($employeeId: ID!) {
       }
       primaryPosition {
         id
-        name
+        title
         needsReplacement
         positionType {
           id

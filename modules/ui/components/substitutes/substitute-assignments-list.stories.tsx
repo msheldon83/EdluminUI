@@ -76,7 +76,7 @@ export const Page = () => {
                 },
                 position: {
                   id: "1057",
-                  name: "Music Teacher",
+                  title: "Music Teacher",
                   __typename: "Position",
                 },
                 notesToReplacement:
@@ -127,7 +127,7 @@ export const Page = () => {
                 },
                 position: {
                   id: "1058",
-                  name: "Music Teacher",
+                  title: "Music Teacher",
                   __typename: "Position",
                 },
                 notesToReplacement:

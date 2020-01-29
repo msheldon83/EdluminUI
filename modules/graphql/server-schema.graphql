@@ -1160,7 +1160,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   isShadowEmployee: Boolean!
   shadowEmployeeId: Int
   shadowEmployee: Employee
-  primaryPositionId: Int
+  primaryPositionId: ID
   primaryPosition: Position
   permissionSet: PermissionSet
   permissions: [PermissionEnum]
@@ -3021,20 +3021,20 @@ type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
-  name: String!
+  title: String!
   startDate: Date
   endDate: Date
-  positionTypeId: Int!
+  positionTypeId: ID
   positionType: PositionType
-  currentEmployeeId: Int
-  currentContractId: Int!
-  currentContract: Contract
+  currentEmployeeId: ID
+  contractId: ID
+  contract: Contract
+  hoursPerFullWorkDay: Decimal
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
-  hoursPerFullWorkDay: Decimal
   replacementCriteria: ObjectReplacementCriteria
   schedules: [PositionSchedule]
-  locationIds: [Int]
+  locationIds: [ID]
   locations: [Location]
 }
 
@@ -3054,7 +3054,7 @@ input PositionCreateInput {
 
 input PositionInput {
   orgId: ID
-  id: Int
+  id: ID
   externalId: String
   positionType: LocatorInput
   contract: LocatorInput
@@ -3085,11 +3085,11 @@ type PositionSchedule implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+  rowVersion: String
   name: String!
   positionId: Int!
-  rowVersion: String
-  periods: [PositionSchedulePeriod]
-  variants: [PositionScheduleVariant]
+  items: [PositionScheduleItem!]!
+  daysOfTheWeek: [DayOfWeek!]!
 }
 
 input PositionScheduleCreateInput {
@@ -3196,13 +3196,24 @@ input PositionScheduleInput {
   daysOfTheWeek: [DayOfWeek]
 }
 
+type PositionScheduleItem {
+  _info: [ReturnMessage]
+  location: Location!
+  bellSchedule: WorkDaySchedule
+  startPeriod: WorkDaySchedulePeriod
+  endPeriod: WorkDaySchedulePeriod
+  isAllDay: Boolean!
+  startTime: Seconds
+  endTime: Seconds
+}
+
 input PositionScheduleItemInput {
   location: LocatorInput
   bellSchedule: LocatorInput
   startPeriod: LocatorInput
   endPeriod: LocatorInput
-  startTime: Seconds
-  endTime: Seconds
+  startTime: Int
+  endTime: Int
 }
 
 type PositionScheduleMutations {
@@ -3212,31 +3223,6 @@ type PositionScheduleMutations {
   modifyScheduleVariant(positionScheduleVariant: PositionScheduleVariantModifyInput!): PositionScheduleVariant
   deleteScheduleVariant(positionScheduleVariant: PositionScheduleVariantDeleteInput!): Boolean
   createSimple(positionSchedule: PositionScheduleCreateSimpleInputTypeDef!): PositionSchedule
-}
-
-type PositionSchedulePeriod implements ModelObjectInterface & OrgObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  orgId: Int!
-  organization: Organization!
-  createdLocal: DateTime
-  changedLocal: DateTime
-  deletedLocal: DateTime
-  positionId: Int!
-  positionScheduleId: Int!
-  sequence: Int
-  name: String!
-  description: String
-  room: String
-  needsReplacement: Boolean!
-  deductFromAbsenceBalance: Boolean!
-  locationId: Int!
-  workDayScheduleId: Int
-  workDaySchedulePeriodId: Int
 }
 
 input PositionSchedulePeriodInput {
@@ -3384,7 +3370,7 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   forPermanentPositions: Boolean!
   needsReplacement: NeedsReplacement
   minAbsenceDurationMinutes: Int!
-  defaultContractId: Int
+  defaultContractId: ID
   defaultContract: Contract
   validUntil: DateTime
   expired: Boolean!
@@ -3396,15 +3382,15 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
 
 input PositionTypeCreateInput {
   name: String!
-  orgId: Int!
+  orgId: ID
   forStaffAugmentation: Boolean!
   forPermanentPositions: Boolean!
   externalId: String
   needsReplacement: NeedsReplacement
   minAbsenceDurationMinutes: Int!
-  defaultContractId: Int
+  defaultContractId: ID
   payTypeId: AbsenceReasonTrackingTypeId
-  payCodeId: Int
+  payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
 }
 
@@ -3430,7 +3416,7 @@ type PositionTypeQueries {
 }
 
 input PositionTypeUpdateInput {
-  id: Int!
+  id: ID!
   rowVersion: String!
   name: String
   forStaffAugmentation: Boolean
@@ -3438,10 +3424,10 @@ input PositionTypeUpdateInput {
   externalId: String
   needsReplacement: NeedsReplacement
   minAbsenceDurationMinutes: Int
-  defaultContractId: Int
+  defaultContractId: ID
   expired: Boolean
   payTypeId: AbsenceReasonTrackingTypeId
-  payCodeId: Int
+  payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
 }
 
@@ -5022,6 +5008,7 @@ type WorkDaySchedulePeriod implements ModelObjectInterface {
   name: String!
   description: String
   workDayScheduleId: Int!
+  standardPeriod: WorkDayScheduleVariantPeriod
 }
 
 input WorkDaySchedulePeriodInput {

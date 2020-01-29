@@ -49,7 +49,7 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
         position {
           id
           positionTypeId
-          name
+          title
           needsReplacement
         }
         details {

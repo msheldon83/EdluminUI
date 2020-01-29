@@ -8,7 +8,7 @@ query GetAllVacancies {
       }
       position {
         id
-        name
+        title
       }
       absence {
         id
