@@ -7,8 +7,10 @@ import {
 } from "@material-ui/core";
 import { HighlightOff } from "@material-ui/icons";
 import { formatDateIfPossible } from "helpers/date";
+import { useAccountingCodes } from "reference-data/accounting-codes";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useMemo, useEffect, useState } from "react";
 import { FormikSelect } from "ui/components/form/formik-select";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
@@ -19,8 +21,8 @@ import { startOfDay, parseISO } from "date-fns";
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
   payCodeOptions: { label: string; value: number }[];
-  accountCodeOptions?: string[];
   keyPrefix: string;
+  orgId: string;
   values: VacancyDetail;
   className?: string;
   showRemoveButton: boolean;
@@ -38,10 +40,14 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     label: loc.name,
   }));
 
-  // const accountingCodeMenuOptions = props.accountCodeOptions.map(loc => ({
-  //   value: Number(loc.id),
-  //   label: loc.name,
-  // }));
+  const locationIds = props.locationOptions.map(l => Number(l.id));
+
+  //Accounting Codes
+  const accountingCodes = useAccountingCodes(props.orgId, locationIds);
+  const accountingCodeOptions = useMemo(
+    () => accountingCodes.map(a => ({ label: a.name, value: a.id })),
+    [accountingCodes]
+  );
 
   const fieldNamePrefix = props.keyPrefix;
 
@@ -83,27 +89,43 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             />
           </Grid>
         </Grid>
-        <Grid item xs={3} className={classes.vacancyBlockItem}>
+        <Grid
+          item
+          xs={3}
+          className={(classes.vacancyBlockItem, classes.spacing)}
+        >
+          {t("School")}
           <FormikSelect
             name={`${fieldNamePrefix}.locationId`}
             options={locationMenuOptions}
+            //onChange={()=> }
             withResetValue={false}
           />
         </Grid>
-        <Grid item xs={2} className={classes.vacancyBlockItem}>
+        <Grid
+          item
+          xs={3}
+          className={(classes.vacancyBlockItem, classes.spacing)}
+        >
+          {t("Pay Code")}
           <FormikSelect
             name={`${fieldNamePrefix}.payCodeId`}
             options={props.payCodeOptions}
             withResetValue={false}
           />
         </Grid>
-        {/* <Grid item xs={2} className={classes.vacancyBlockItem}>
+        <Grid
+          item
+          xs={2}
+          className={(classes.vacancyBlockItem, classes.spacing)}
+        >
+          {t("Accounting Code")}
           <FormikSelect
-            name={`${fieldNamePrefix}.accountingId`}
-            options={accountingCodeMenuOptions}
+            name={`${fieldNamePrefix}.accountingCodeId`}
+            options={accountingCodeOptions}
             withResetValue={false}
           />
-        </Grid> */}
+        </Grid>
         {props.showRemoveButton && (
           <Grid item>
             <IconButton onClick={props.onRemoveRow}>
@@ -130,5 +152,9 @@ const useStyles = makeStyles(theme => ({
   },
   timeInput: {
     marginRight: theme.spacing(1),
+  },
+  spacing: {
+    marginBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
   },
 }));

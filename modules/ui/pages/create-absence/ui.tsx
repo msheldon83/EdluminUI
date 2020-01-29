@@ -1,13 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import {
-  format,
-  isBefore,
-  isSameDay,
-  min,
-  startOfDay,
-  startOfMonth,
-} from "date-fns";
+import { format, isBefore, isSameDay, startOfMonth } from "date-fns";
 import { useForm } from "forms";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
@@ -19,7 +12,6 @@ import {
   Vacancy,
 } from "graphql/server-types.gen";
 import { computeAbsenceUsageText } from "helpers/absence/computeAbsenceUsageText";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
@@ -74,7 +66,6 @@ type Props = {
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { openDialog } = useDialog();
   const [absence, setAbsence] = useState<Absence>();
   const [step, setStep] = useQueryParamIso(StepParams);
 
