@@ -70,7 +70,7 @@ export const VacancyDetailRow: React.FC<Props> = props => {
         } ${vacancyDetail.vacancy?.absence?.employee?.lastName}`}</div>
         <div
           className={classes.lightText}
-        >{`${vacancyDetail.vacancy?.position?.name}`}</div>
+        >{`${vacancyDetail.vacancy?.position?.title}`}</div>
       </Grid>
       <Grid item xs={3}>
         <div className={classes.timeText}>{`${format(

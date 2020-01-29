@@ -50,6 +50,34 @@ const buildEnumMap = (t: i18next.TFunction) => {
       name: "orgUserRole.REPLACEMENT_EMPLOYEE",
       displayName: t("Substitute"),
     },
+    {
+      name: "dayOfWeek.SUNDAY",
+      displayName: t("Sunday"),
+    },
+    {
+      name: "dayOfWeek.MONDAY",
+      displayName: t("Monday"),
+    },
+    {
+      name: "dayOfWeek.TUESDAY",
+      displayName: t("Tuesday"),
+    },
+    {
+      name: "dayOfWeek.WEDNESDAY",
+      displayName: t("Wednesday"),
+    },
+    {
+      name: "dayOfWeek.THURSDAY",
+      displayName: t("Thursday"),
+    },
+    {
+      name: "dayOfWeek.FRIDAY",
+      displayName: t("Friday"),
+    },
+    {
+      name: "dayOfWeek.SATURDAY",
+      displayName: t("Saturday"),
+    },
   ];
   return enumMap;
 };

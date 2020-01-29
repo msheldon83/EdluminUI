@@ -149,7 +149,7 @@ export const AssignmentCard: React.FC<Props> = props => {
           {vacancyDetail.location!.name}
         </Typography>
         <Typography className={classes.text}>{`${
-          vacancyDetail.vacancy!.position!.name
+          vacancyDetail.vacancy!.position!.title
         } for ${vacancyDetail.vacancy!.absence!.employee!.firstName} ${
           vacancyDetail.vacancy!.absence!.employee!.lastName
         }`}</Typography>

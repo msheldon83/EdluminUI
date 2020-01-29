@@ -35,7 +35,7 @@ query GetMyUserAccess {
             primaryPositionId
             primaryPosition {
               id
-              name
+              title
               needsReplacement
             }
             permissions

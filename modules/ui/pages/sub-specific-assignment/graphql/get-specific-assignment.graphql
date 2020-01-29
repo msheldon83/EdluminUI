@@ -44,7 +44,7 @@ query GetSpecificAssignment($id: ID!, $assignmentId: ID!) {
         }
         position {
           id
-          name
+          title
         }
         notesToReplacement
       }

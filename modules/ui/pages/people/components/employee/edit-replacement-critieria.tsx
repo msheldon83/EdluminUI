@@ -205,7 +205,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
         preferToHave={preferToHave}
         preferToNotHave={preferNotToHave}
         mustNotHave={mustNotHave}
-        title={position?.name ?? postionType?.name}
+        title={position?.title ?? postionType?.name}
         orgId={params.organizationId}
         handleMust={updateMustHave}
         handleMustNot={updateMustNot}

@@ -31,14 +31,14 @@ query GetEmployeeById($id: ID!) {
         }
         primaryPosition {
           id
-          name
+          title
           hoursPerFullWorkDay
           needsReplacement
           positionType {
             id
             name
           }
-          currentContract {
+          contract {
             id
             name
           }

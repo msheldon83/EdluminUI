@@ -124,11 +124,11 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                 </Can>
               </div>
               <div className={classes.detailSubText}>
-                {props.detail.position?.name}
+                {props.detail.position?.title}
               </div>
             </>
           ) : (
-            <div>{props.detail.position?.name}</div>
+            <div>{props.detail.position?.title}</div>
           )}
         </div>
 

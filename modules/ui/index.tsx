@@ -101,6 +101,8 @@ import {
   PeopleSubPoolEditRoute,
   PeopleReplacementCriteriaEditLoader,
   PeopleReplacementCriteriaEditRoute,
+  PeopleEmployeePositionEditLoader,
+  PeopleEmployeePositionEditRoute,
   PersonViewRoute,
   EmployeeAbsScheduleLoader,
   EmployeeAbsScheduleRoute,
@@ -470,7 +472,7 @@ export function App() {
                                   component={PeopleSubPoolEditLoader}
                                   path={PeopleSubPoolEditRoute.path}
                                   role={"admin"}
-                                  permissions={[PermissionEnum.SubstituteView]}
+                                  permissions={[PermissionEnum.SubstituteSave]}
                                 />
                                 <ProtectedRoute
                                   component={
@@ -489,6 +491,12 @@ export function App() {
                                   }
                                   role={"admin"}
                                   permissions={[PermissionEnum.SubstituteSave]}
+                                />
+                                <ProtectedRoute
+                                  component={PeopleEmployeePositionEditLoader}
+                                  path={PeopleEmployeePositionEditRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.EmployeeSave]}
                                 />
                                 <ProtectedRoute
                                   component={AdminAddLoader}

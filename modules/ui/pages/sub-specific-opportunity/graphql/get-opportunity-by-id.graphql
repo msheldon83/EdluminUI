@@ -8,7 +8,7 @@ query GetVacancyById($id: ID!, $vacancyId: ID!) {
       }
       position {
         id
-        name
+        title
       }
       absence {
         id
