@@ -22,7 +22,7 @@ export const OrganizationSwitcherBarUI: React.FC<Props> = props => {
   const toolbarClasses = useToolbarClasses();
 
   return (
-    <AppBar position="sticky" className={classes.bottomBar}>
+    <AppBar position="sticky" className={classes.topBar}>
       <Toolbar classes={toolbarClasses}>
         <div className={props.contentClassName}>
           <Grid container alignItems="center" justify="space-between">
@@ -45,11 +45,10 @@ export const OrganizationSwitcherBarUI: React.FC<Props> = props => {
     </AppBar>
   );
 };
-
 const useStyles = makeStyles(theme => ({
-  bottomBar: {
-    bottom: 0,
-    top: "auto",
+  topBar: {
+    top: 0,
+    paddingLeft: "-225px",
     background: theme.customColors.lightBlue,
     "@media print": {
       display: "none",

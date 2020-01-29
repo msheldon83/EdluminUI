@@ -74,11 +74,11 @@ export const AppChrome: React.FunctionComponent = props => {
         <PageTitleProvider>
           <Route path={AdminChromeRoute.path}>
             <OrganizationSwitcherBar
-              contentClassName={
-                expanded
-                  ? classes.leftPaddingExpanded
-                  : classes.leftPaddingCompact
-              }
+            // contentClassName={
+            //   expanded
+            //     ? classes.leftPaddingExpanded
+            //     : classes.leftPaddingCompact
+            // }
             />
           </Route>
           <div className={classes.outer}>
@@ -151,6 +151,7 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     maxWidth: theme.typography.pxToRem(1440),
   },
+
   navWidthExpanded: {
     flexShrink: 0,
     width: theme.typography.pxToRem(258),

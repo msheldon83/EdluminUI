@@ -48,7 +48,7 @@ const useStyles = makeStyles(theme => ({
     flexShrink: 0,
   },
   marginTop: {
-    marginTop: "34px",
+    marginTop: theme.typography.pxToRem(34),
   },
   drawerOpen: {
     width: theme.typography.pxToRem(258),
