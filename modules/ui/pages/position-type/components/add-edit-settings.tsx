@@ -36,9 +36,9 @@ type Props = {
     minAbsenceDurationMinutes: number;
     payTypeId?: AbsenceReasonTrackingTypeId | undefined | null;
     needsReplacement?: NeedsReplacement | undefined | null;
-    defaultContractId?: number | undefined | null;
+    defaultContractId?: string | undefined | null;
     defaultContract?: {
-      id: number;
+      id: string;
       name: string;
     };
   };
@@ -49,7 +49,7 @@ type Props = {
     forStaffAugmentation: boolean,
     minAbsenceDurationMinutes: number,
     payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
-    defaultContractId: number | undefined | null
+    defaultContractId: string | undefined | null
   ) => Promise<unknown>;
   onCancel: () => void;
 };
@@ -60,13 +60,13 @@ const buildContractOptions = (
 ) => {
   // Format the contracts as dropdown options
   const contractOptions = contracts.map(c => {
-    return { value: Number(c.id), label: c.name };
+    return { value: c.id, label: c.name };
   });
 
   // Handle if the current Position Type is associated with an Expired Contract
   if (
     positionType.defaultContract &&
-    !contracts.find(c => Number(c.id) === positionType.defaultContractId)
+    !contracts.find(c => c.id === positionType.defaultContractId)
   ) {
     contractOptions.push({
       value: positionType.defaultContract.id,
@@ -335,7 +335,7 @@ export const Settings: React.FC<Props> = props => {
                 />
                 <FormHelperText className={classes.formHelperText}>
                   {t(
-                    "The shortest time (in hh:mm) that an employee with this position can be absent."
+                    "The shortest time (in minutes) that an employee with this position can be absent."
                   )}
                 </FormHelperText>
               </div>

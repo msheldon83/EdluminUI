@@ -1,4 +1,4 @@
-import { format, parseISO, isEqual } from "date-fns";
+import { format, parseISO, isEqual, isSameDay, isBefore } from "date-fns";
 import {
   AbsenceDetail,
   VacancyDetail,
@@ -52,13 +52,15 @@ export type Detail = {
     name: string;
     phone: string;
   };
-  subStartTime?: string;
-  subEndTime?: string;
+  subTimes: {
+    startTime: string;
+    endTime: string;
+  }[];
   assignmentId?: string;
   assignmentRowVersion?: string;
   position?: {
     id?: string;
-    name: string;
+    title: string;
   };
   positionType?: {
     id: string;
@@ -89,10 +91,12 @@ export const MapDailyReportDetails = (
 
     return a.details.map(d => {
       const absenceDetail = d as AbsenceDetail;
-      const matchingVacancyDetail = getMatchingVacancyDetail(
+      const matchingVacancyDetails = getMatchingVacancyDetails(
         absenceDetail,
         a.vacancies
       );
+      const assignment = matchingVacancyDetails[0]?.assignment;
+      const location = matchingVacancyDetails[0]?.location;
 
       return {
         id: a.id,
@@ -100,8 +104,8 @@ export const MapDailyReportDetails = (
         state: "filled",
         type: "absence",
         absenceRowVersion: a.rowVersion,
-        vacancyRowVersion: matchingVacancyDetail?.vacancyRowVersion,
-        vacancyId: matchingVacancyDetail?.vacancyId,
+        vacancyRowVersion: matchingVacancyDetails[0]?.vacancyRowVersion,
+        vacancyId: matchingVacancyDetails[0]?.vacancyId,
         employee: a.employee
           ? {
               id: a.employee.id,
@@ -118,29 +122,28 @@ export const MapDailyReportDetails = (
           "MMM d h:mm a"
         ),
         isMultiDay: a.details && a.details.length > 1,
-        substitute:
-          matchingVacancyDetail &&
-          matchingVacancyDetail.assignment &&
-          matchingVacancyDetail.assignment.employee
-            ? {
-                id: matchingVacancyDetail.assignment.employee.id,
-                name: `${matchingVacancyDetail.assignment.employee.firstName} ${matchingVacancyDetail.assignment.employee.lastName}`,
-                phone: matchingVacancyDetail.assignment.employee.formattedPhone,
-              }
-            : undefined,
-        subStartTime: matchingVacancyDetail
-          ? format(parseISO(matchingVacancyDetail.startTimeLocal), "h:mm a")
+        substitute: assignment?.employee
+          ? {
+              id: assignment.employee.id,
+              name: `${assignment.employee.firstName} ${assignment.employee.lastName}`,
+              phone: assignment.employee.formattedPhone,
+            }
           : undefined,
-        subEndTime: matchingVacancyDetail
-          ? format(parseISO(matchingVacancyDetail.endTimeLocal), "h:mm a")
-          : undefined,
-        assignmentId: matchingVacancyDetail?.assignment?.id,
-        assignmentRowVersion: matchingVacancyDetail?.assignment?.rowVersion,
+        subTimes: !matchingVacancyDetails
+          ? []
+          : matchingVacancyDetails.map(mvd => {
+              return {
+                startTime: format(parseISO(mvd.startTimeLocal), "h:mm a"),
+                endTime: format(parseISO(mvd.endTimeLocal), "h:mm a"),
+              };
+            }),
+        assignmentId: assignment?.id,
+        assignmentRowVersion: assignment?.rowVersion,
         position:
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
                 id: a.vacancies[0].position.id,
-                name: a.vacancies[0].position.name,
+                name: a.vacancies[0].position.title,
               }
             : undefined,
         positionType:
@@ -153,13 +156,12 @@ export const MapDailyReportDetails = (
                 name: a.vacancies[0].position.positionType.name,
               }
             : undefined,
-        location:
-          matchingVacancyDetail && matchingVacancyDetail.location
-            ? {
-                id: matchingVacancyDetail.location.id,
-                name: matchingVacancyDetail.location.name,
-              }
-            : undefined,
+        location: location
+          ? {
+              id: location.id,
+              name: location.name,
+            }
+          : undefined,
       } as Detail;
     });
   });
@@ -198,14 +200,18 @@ export const MapDailyReportDetails = (
                 phone: vacancyDetail.assignment.employee.formattedPhone,
               }
             : undefined,
-        subStartTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
-        subEndTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
+        subTimes: [
+          {
+            startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
+            endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
+          },
+        ],
         assignmentId: vacancyDetail?.assignment?.id,
         assignmentRowVersion: vacancyDetail?.assignment?.rowVersion,
         position: v.position
           ? {
               id: v.position.id,
-              name: v.position.name,
+              name: v.position.title,
             }
           : undefined,
         positionType: v.position?.positionType
@@ -233,10 +239,11 @@ export const MapDailyReportDetails = (
 
     return a.details.map(d => {
       const absenceDetail = d as AbsenceDetail;
-      const matchingVacancyDetail = getMatchingVacancyDetail(
+      const matchingVacancyDetails = getMatchingVacancyDetails(
         absenceDetail,
         a.vacancies
       );
+      const location = matchingVacancyDetails[0]?.location;
 
       return {
         id: a.id,
@@ -244,8 +251,8 @@ export const MapDailyReportDetails = (
         state: "unfilled",
         type: "absence",
         absenceRowVersion: a.rowVersion,
-        vacancyRowVersion: matchingVacancyDetail?.vacancyRowVersion,
-        vacancyId: matchingVacancyDetail?.vacancyId,
+        vacancyRowVersion: matchingVacancyDetails[0]?.vacancyRowVersion,
+        vacancyId: matchingVacancyDetails[0]?.vacancyId,
         employee: a.employee
           ? {
               id: a.employee.id,
@@ -261,18 +268,20 @@ export const MapDailyReportDetails = (
           a.createdLocal,
           "MMM d h:mm a"
         ),
-        subStartTime: matchingVacancyDetail
-          ? format(parseISO(matchingVacancyDetail.startTimeLocal), "h:mm a")
-          : undefined,
-        subEndTime: matchingVacancyDetail
-          ? format(parseISO(matchingVacancyDetail.endTimeLocal), "h:mm a")
-          : undefined,
+        subTimes: !matchingVacancyDetails
+          ? []
+          : matchingVacancyDetails.map(mvd => {
+              return {
+                startTime: format(parseISO(mvd.startTimeLocal), "h:mm a"),
+                endTime: format(parseISO(mvd.endTimeLocal), "h:mm a"),
+              };
+            }),
         isMultiDay: a.details && a.details.length > 1,
         position:
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
                 id: a.vacancies[0].position.id,
-                name: a.vacancies[0].position.name,
+                name: a.vacancies[0].position.title,
               }
             : undefined,
         positionType:
@@ -285,13 +294,12 @@ export const MapDailyReportDetails = (
                 name: a.vacancies[0].position.positionType.name,
               }
             : undefined,
-        location:
-          matchingVacancyDetail && matchingVacancyDetail.location
-            ? {
-                id: matchingVacancyDetail.location.id,
-                name: matchingVacancyDetail.location.name,
-              }
-            : undefined,
+        location: location
+          ? {
+              id: location.id,
+              name: location.name,
+            }
+          : undefined,
       } as Detail;
     });
   });
@@ -320,13 +328,17 @@ export const MapDailyReportDetails = (
           v.createdLocal,
           "MMM d h:mm a"
         ),
-        subStartTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
-        subEndTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
+        subTimes: [
+          {
+            startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
+            endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
+          },
+        ],
         isMultiDay: v.details && v.details.length > 1,
         position: v.position
           ? {
               id: v.position.id,
-              name: v.position.name,
+              name: v.position.title,
             }
           : undefined,
         positionType: v.position?.positionType
@@ -412,6 +424,7 @@ export const MapDailyReportDetails = (
           position: positionType,
           positionType: positionType,
           location: location,
+          subTimes: [],
         } as Detail;
       });
     }
@@ -511,12 +524,12 @@ type VacancyDetailWithVacancyInfo = VacancyDetail & {
   vacancyRowVersion: string;
 };
 
-const getMatchingVacancyDetail = (
+const getMatchingVacancyDetails = (
   absenceDetail: AbsenceDetail,
   vacancies: Maybe<Vacancy>[] | null | undefined
-): VacancyDetailWithVacancyInfo | null | undefined => {
+): VacancyDetailWithVacancyInfo[] => {
   if (!vacancies) {
-    return undefined;
+    return [];
   }
 
   const allVacancyDetails = flatMap(vacancies, v =>
@@ -528,10 +541,25 @@ const getMatchingVacancyDetail = (
       };
     })
   );
-  const matchingVacancyDetail = allVacancyDetails.find(
-    d => d && isEqual(parseISO(d.startDate), parseISO(absenceDetail.startDate))
+  const matchingVacancyDetails = allVacancyDetails.filter(
+    d =>
+      d && isSameDay(parseISO(d.startDate), parseISO(absenceDetail.startDate))
   );
-  return matchingVacancyDetail as VacancyDetailWithVacancyInfo;
+
+  // Make sure we're returning the Vacancy Details sorted by their start time
+  const sortedVacancyDetails = matchingVacancyDetails.slice().sort((a, b) => {
+    const startTimeAsDateA = parseISO(a.startTimeLocal);
+    const startTimeAsDateB = parseISO(b.startTimeLocal);
+
+    if (isEqual(startTimeAsDateA, startTimeAsDateB)) {
+      // Fairly unlikely to occur
+      return 0;
+    }
+
+    return isBefore(startTimeAsDateA, startTimeAsDateB) ? -1 : 1;
+  });
+
+  return sortedVacancyDetails as VacancyDetailWithVacancyInfo[];
 };
 
 export const GetUnfilled = (details: Detail[]): Detail[] => {

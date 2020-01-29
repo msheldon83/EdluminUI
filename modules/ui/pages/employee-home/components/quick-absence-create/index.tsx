@@ -1,11 +1,5 @@
 import { makeStyles } from "@material-ui/core";
-import {
-  addMonths,
-  isBefore,
-  startOfDay,
-  startOfMonth,
-  isSameDay,
-} from "date-fns";
+import { isBefore, isSameDay, startOfDay, startOfMonth } from "date-fns";
 import { useMutationBundle } from "graphql/hooks";
 import {
   AbsenceCreateInput,
@@ -14,6 +8,8 @@ import {
 } from "graphql/server-types.gen";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { useDialog } from "hooks/use-dialog";
+import { useSnackbar } from "hooks/use-snackbar";
+import { size, some } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import useForm from "react-hook-form";
@@ -25,6 +21,7 @@ import {
   createAbsenceDetailInput,
   getAbsenceDates,
   TranslateAbsenceErrorCodeToMessage,
+  getCannotCreateAbsenceDates,
 } from "ui/components/absence/helpers";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { Section } from "ui/components/section";
@@ -33,8 +30,6 @@ import { CreateAbsence } from "ui/pages/create-absence/graphql/create.gen";
 import { CreateAbsenceConfirmationRoute } from "ui/routes/create-absence";
 import { QuickAbsenceCreateUI } from "./quick-create-absence-ui";
 import { quickCreateAbsenceReducer, QuickCreateAbsenceState } from "./state";
-import { useSnackbar } from "hooks/use-snackbar";
-import { size, some } from "lodash-es";
 
 type QuickCreateAbsenceFormData = {
   absenceReason: string;
@@ -60,7 +55,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     organizationId: props.organizationId,
     viewingCalendarMonth: startOfMonth(new Date()),
     needsReplacement: props.defaultReplacementNeeded !== NeedsReplacement.No,
-    absenceDates: [startOfDay(new Date())],
+    selectedAbsenceDates: [],
   });
 
   const [state, dispatch] = React.useReducer(
@@ -112,7 +107,8 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
         error,
         openDialog,
         t("There was an issue creating the absence"),
-        async () => await quickCreateAbsence(formValues, state.absenceDates),
+        async () =>
+          await quickCreateAbsence(formValues, state.selectedAbsenceDates),
         t,
         TranslateAbsenceErrorCodeToMessage
       );
@@ -173,18 +169,20 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     props.employeeId,
     state.viewingCalendarMonth
   );
+
+  const disabledDates = useMemo(
+    () => getCannotCreateAbsenceDates(disabledDateObjs),
+    [disabledDateObjs]
+  );
+
   React.useEffect(() => {
-    const conflictingDates = disabledDateObjs
-      .map(dis => dis.date)
-      .filter(dis => some(state.absenceDates, ad => isSameDay(ad, dis)));
+    const conflictingDates = disabledDates.filter(dis =>
+      some(state.selectedAbsenceDates, ad => isSameDay(ad, dis))
+    );
     if (conflictingDates.length > 0) {
       dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
     }
   }, [disabledDateObjs]);
-
-  const disabledDates = useMemo(() => disabledDateObjs.map(d => d.date), [
-    disabledDateObjs,
-  ]);
 
   const onDayPartChange = React.useCallback(
     async (value: DayPart | undefined) => await setValue("dayPart", value),
@@ -219,7 +217,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
   return (
     <form
       onSubmit={handleSubmit(async data => {
-        await quickCreateAbsence(data, state.absenceDates);
+        await quickCreateAbsence(data, state.selectedAbsenceDates);
       })}
     >
       <Section>
@@ -233,12 +231,11 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
           onAbsenceReasonChange={onReasonChange}
           absenceReasonError={errors.absenceReason}
           onMonthChange={onMonthChange}
-          absenceDates={state.absenceDates}
+          selectedAbsenceDates={state.selectedAbsenceDates}
           currentMonth={state.viewingCalendarMonth}
           onToggleAbsenceDate={(d: Date) =>
             dispatch({ action: "toggleDate", date: d })
           }
-          disabledDates={disabledDates}
           selectedDayPart={formValues.dayPart}
           onDayPartChange={onDayPartChange}
           startTimeError={errors.startTimeError}

@@ -19,8 +19,9 @@ export type AssignSubColumn = {
   primaryPhone?: string | null;
   qualified: VacancyQualification;
   available: VacancyAvailability;
-  visible: boolean;
-  visibleOn?: string | null;
+  isAvailableToSubWhenSearching: boolean;
+  availableToSubWhenSearchingAtUtc?: string | null;
+  availableToSubWhenSearchingAtLocal?: string | null;
   isEmployeeFavorite: boolean;
   isLocationPositionTypeFavorite: boolean;
   selectable: boolean;
@@ -121,7 +122,15 @@ export const getAssignSubColumns = (
       field: "visible",
       render: (data: typeof tableData[0]) => {
         return (
-          <VisibleIcon visible={data.visible} visibleOn={data.visibleOn} />
+          <VisibleIcon
+            isAvailableToSubWhenSearching={data.isAvailableToSubWhenSearching}
+            availableToSubWhenSearchingAtUtc={
+              data.availableToSubWhenSearchingAtUtc
+            }
+            availableToSubWhenSearchingAtLocal={
+              data.availableToSubWhenSearchingAtLocal
+            }
+          />
         );
       },
       cellStyle: {

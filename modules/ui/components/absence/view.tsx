@@ -6,30 +6,29 @@ import {
   AbsenceReason,
   AccountingCode,
   PayCode,
-  Vacancy,
   PermissionEnum,
+  Vacancy,
 } from "graphql/server-types.gen";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { useScreenSize } from "hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { some } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { CustomCalendar } from "../form/custom-calendar";
+import { Can } from "../auth/can";
 import { AssignedSub } from "./assigned-sub";
-import { getAbsenceDateRangeDisplayText } from "./date-helpers";
+import { CreateAbsenceCalendar } from "./create-absence-calendar";
+import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "./date-helpers";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import {
   dayPartToLabel,
   getAbsenceDetailsGrouping,
   getReplacementEmployeeForVacancy,
   ReplacementEmployeeForVacancy,
+  getCannotCreateAbsenceDates,
 } from "./helpers";
 import { VacancyDetails } from "./vacancy-details";
-import { Can } from "../auth/can";
 
 type Props = {
   orgId: string;
@@ -41,7 +40,6 @@ type Props = {
 export const View: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useScreenSize() === "mobile";
   const { openSnackbar } = useSnackbar();
   const absenceReasons = useAbsenceReasons(props.orgId);
 
@@ -62,8 +60,8 @@ export const View: React.FC<Props> = props => {
 
   const disabledDates = useMemo(
     () =>
-      allDisabled.filter(
-        disabled => !some(absenceDates, ad => isSameDay(ad, disabled.date))
+      getCannotCreateAbsenceDates(allDisabled).filter(
+        disabled => !some(absenceDates, ad => isSameDay(ad, disabled))
       ),
     [absenceDates, allDisabled]
   );
@@ -119,20 +117,6 @@ export const View: React.FC<Props> = props => {
   const payCode = getPayCode(absence);
   const accountingCode = getAccountingCode(absence);
 
-  const customDatesDisabled = disabledDates.map(({ date }) => {
-    return {
-      date,
-      buttonProps: { className: classes.dateDisabled },
-    };
-  });
-
-  const customAbsenceDates = absenceDates.map(date => {
-    return {
-      date,
-      buttonProps: { className: classes.absenceDate },
-    };
-  });
-
   return (
     <div>
       <Grid container alignItems="flex-start" spacing={4}>
@@ -159,10 +143,11 @@ export const View: React.FC<Props> = props => {
             </div>
 
             <div className={classes.dates}>
-              <CustomCalendar
-                month={parseISO(absence.startDate)}
-                customDates={customDatesDisabled.concat(customAbsenceDates)}
-                variant="month"
+              <CreateAbsenceCalendar
+                monthNavigation={false}
+                currentMonth={parseISO(absence.startDate)}
+                selectedAbsenceDates={absenceDates}
+                employeeId={absence.employeeId.toString()}
               />
             </div>
 
@@ -187,97 +172,96 @@ export const View: React.FC<Props> = props => {
           <Grid item xs={7} container>
             <Grid item xs={12}>
               <Typography variant="h5">{t("Substitute Details")}</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Paper className={classes.substituteDetailsSection}>
-                {replacementEmployeeInformation && (
-                  <AssignedSub
-                    employeeId={replacementEmployeeInformation.employeeId}
-                    employeeName={`${replacementEmployeeInformation.firstName} ${replacementEmployeeInformation.lastName}`}
-                    subText={
-                      props.isConfirmation ? t("pre-arranged") : t("assigned")
-                    }
-                    assignmentId={replacementEmployeeInformation.assignmentId}
-                    assignmentRowVersion={
-                      replacementEmployeeInformation.assignmentRowVersion
-                    }
-                    onRemove={async (...props) => {
-                      await removeSub(...props);
-                      setReplacementEmployeeInformation(null);
-                    }}
-                  />
+              <Typography className={classes.subText}>
+                {t(
+                  "These times may not match your schedule exactly depending on district configuration."
                 )}
-                <div className={classes.vacancyDetails}>
-                  <div className={classes.requiresSubSection}>
-                    <Typography variant="h6">
-                      {t("Requires a substitute")}
-                    </Typography>
-                  </div>
-                  {absence.vacancies && (
+              </Typography>
+            </Grid>
+            <Grid item container xs={12}>
+              {replacementEmployeeInformation && (
+                <AssignedSub
+                  employeeId={replacementEmployeeInformation.employeeId}
+                  employeeName={`${replacementEmployeeInformation.firstName} ${replacementEmployeeInformation.lastName}`}
+                  subText={
+                    props.isConfirmation ? t("pre-arranged") : t("assigned")
+                  }
+                  assignmentId={replacementEmployeeInformation.assignmentId}
+                  assignmentRowVersion={
+                    replacementEmployeeInformation.assignmentRowVersion
+                  }
+                  onRemove={async (...props) => {
+                    await removeSub(...props);
+                    setReplacementEmployeeInformation(null);
+                  }}
+                />
+              )}
+              <div className={classes.substituteDetailsSection}>
+                {absence.vacancies && (
+                  <>
+                    <VacancyDetails
+                      vacancies={absence.vacancies as Vacancy[]}
+                      equalWidthDetails
+                      disabledDates={disabledDates}
+                    />
+                    <div className={classes.requiresSubSection}>
+                      <Typography variant="h6">
+                        {t("Requires a substitute")}
+                      </Typography>
+                    </div>
                     <>
-                      <VacancyDetails
-                        vacancies={absence.vacancies as Vacancy[]}
-                        equalWidthDetails
-                        disabledDates={disabledDates}
-                      />
-                      <>
-                        {props.isAdmin && (accountingCode || payCode) && (
-                          <Grid item container className={classes.subCodes}>
-                            {accountingCode && (
-                              <Can
-                                do={[PermissionEnum.AbsVacViewAccountCode]}
-                              >
-                                <Grid item xs={payCode ? 6 : 12}>
-                                  <Typography variant={"h6"}>
-                                    {t("Accounting code")}
-                                  </Typography>
-                                  {accountingCode.name}
-                                </Grid>
-                              </Can>
-                            )}
-                            {payCode && (
-                              <Can
-                                do={[PermissionEnum.AbsVacViewPayCode]}
-                              >
-                                <Grid item xs={accountingCode ? 6 : 12}>
-                                  <Typography variant={"h6"}>
-                                    {t("Pay code")}
-                                  </Typography>
-                                  {payCode.name}
-                                </Grid>
-                              </Can>
-                            )}
-                          </Grid>
-                        )}
-                      </>
+                      {props.isAdmin && (accountingCode || payCode) && (
+                        <Grid item container className={classes.subCodes}>
+                          {accountingCode && (
+                            <Can do={[PermissionEnum.AbsVacViewAccountCode]}>
+                              <Grid item xs={payCode ? 6 : 12}>
+                                <Typography variant={"h6"}>
+                                  {t("Accounting code")}
+                                </Typography>
+                                {accountingCode.name}
+                              </Grid>
+                            </Can>
+                          )}
+                          {payCode && (
+                            <Can do={[PermissionEnum.AbsVacViewPayCode]}>
+                              <Grid item xs={accountingCode ? 6 : 12}>
+                                <Typography variant={"h6"}>
+                                  {t("Pay code")}
+                                </Typography>
+                                {payCode.name}
+                              </Grid>
+                            </Can>
+                          )}
+                        </Grid>
+                      )}
                     </>
-                  )}
-                  <div className={classes.notesForSubSection}>
-                    <Typography variant={"h6"}>
-                      {t("Notes for substitute")}
-                    </Typography>
-                    <Typography className={classes.subText}>
-                      {t(
-                        "Can be seen by the substitute, administrator and employee."
-                      )}
-                    </Typography>
-                    <div className={classes.notesForSub}>
-                      {notesToReplacement || (
-                        <span className={classes.valueMissing}>
-                          {t("No Notes Specified")}
-                        </span>
-                      )}
-                    </div>
+                  </>
+                )}
+                <div className={classes.notesForSubSection}>
+                  <Typography variant={"h6"}>
+                    {t("Notes for substitute")}
+                  </Typography>
+                  <Typography className={classes.subText}>
+                    {t(
+                      "Can be seen by the substitute, administrator and employee."
+                    )}
+                  </Typography>
+                  <div className={classes.notesForSub}>
+                    {notesToReplacement || (
+                      <span className={classes.valueMissing}>
+                        {t("No Notes Specified")}
+                      </span>
+                    )}
                   </div>
-                  {!props.isConfirmation && (
-                    <div className={classes.edit}>
-                      <Button variant="outlined" onClick={() => {}}>
-                        {t("Edit")}
-                      </Button>
-                    </div>
-                  )}
                 </div>
-              </Paper>
+                {!props.isConfirmation && (
+                  <div className={classes.edit}>
+                    <Button variant="outlined" onClick={() => {}}>
+                      {t("Edit")}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </Grid>
           </Grid>
         )}
@@ -291,13 +275,12 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(),
   },
   substituteDetailsSection: {
+    width: "100%",
     marginTop: theme.spacing(2),
-  },
-  vacancyDetails: {
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    paddingLeft: theme.spacing(4),
-    paddingRight: theme.spacing(4),
+    border: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
+    borderRadius: theme.typography.pxToRem(4),
   },
   absenceReasonDetails: {
     fontWeight: "bold",
@@ -314,13 +297,13 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(6),
   },
   requiresSubSection: {
-    marginBottom: theme.spacing(2),
+    padding: theme.spacing(2),
   },
   subCodes: {
-    marginTop: theme.spacing(4),
+    padding: theme.spacing(2),
   },
   notesForSubSection: {
-    marginTop: theme.spacing(4),
+    padding: theme.spacing(2),
   },
   notesForSub: {
     wordBreak: "break-word",
@@ -337,24 +320,6 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
   },
-  dateDisabled: {
-    backgroundColor: theme.customColors.lightGray,
-    color: theme.palette.text.disabled,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
-      color: theme.palette.text.disabled,
-    },
-  },
-  absenceDate: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.customColors.white,
-    },
-  },
 }));
 
 /* TODO: Currently we are assuming that there is only 1 Absence Reason in
@@ -364,7 +329,7 @@ const useStyles = makeStyles(theme => ({
 const getAbsenceReasonListDisplay = (
   absence: Absence,
   absenceReasons: Pick<AbsenceReason, "id" | "name">[],
-  disabledDates: DisabledDate[],
+  disabledDates: Date[],
   classes: any
 ) => {
   const detailsGrouping = getAbsenceDetailsGrouping(absence);
@@ -384,7 +349,7 @@ const getAbsenceReasonListDisplay = (
           {matchingAbsenceReason?.name}
         </div>
         <Typography variant="h6">
-          {getAbsenceDateRangeDisplayText(allDates, disabledDates)}
+          {getAbsenceDateRangeDisplayTextWithDayOfWeek(allDates, disabledDates)}
         </Typography>
         {d.simpleDetailItems &&
           d.simpleDetailItems.map((di, detailIndex) => {

@@ -27,7 +27,7 @@ query GetEmployeesForOrg(
           id
           primaryPosition {
             id
-            name
+            title
             positionType {
               id
               name

@@ -27,7 +27,7 @@ export const UserMenu: React.FC<Props> = props => {
       getContentAnchorEl={null}
       anchorOrigin={{
         vertical: "bottom",
-        horizontal: "right",
+        horizontal: "left",
       }}
       classes={userMenuListClasses}
     >
@@ -40,10 +40,13 @@ export const UserMenu: React.FC<Props> = props => {
           onClick={props.onClose}
           className={classes.userMenuLink}
         />
-        <HelpMenuLink
+        {/* ml 1-29-20 -- for the initial release phase, we are
+            moving the help link to the top bar. Long term, it
+            belongs here */}
+        {/* <HelpMenuLink
           onClick={props.onClose}
           className={classes.userMenuLink}
-        />
+        /> */}
       </MenuList>
     </Menu>
   );

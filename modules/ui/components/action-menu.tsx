@@ -11,6 +11,7 @@ import { CanDo } from "./auth/types";
 
 type Props = {
   options: Array<Option>;
+  className?: string;
 };
 
 export type Option = {
@@ -50,7 +51,7 @@ export const ActionMenu: React.FC<Props> = props => {
   return filteredOptions.length === 0 ? (
     <></>
   ) : (
-    <div>
+    <div className={props.className}>
       <IconButton onClick={handleClick}>
         <MoreVertIcon />
       </IconButton>

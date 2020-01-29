@@ -1,22 +1,22 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core";
 import { SaveEmployee } from "ui/pages/people/graphql/employee/save-employee.gen";
-import { useTranslation } from "react-i18next";
 import { Redirect } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetEmployeeById } from "ui/pages/people/graphql/employee/get-employee-by-id.gen";
 import { SectionHeader } from "ui/components/section-header";
 import { useCallback } from "react";
+import { GetQualifiedEmployeeCountsWithinOrg } from "ui/components/replacement-criteria/graphql/get-qualified-employee-counts.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { ReplacementCriteriaUI } from "ui/components/replacement-criteria/index";
 import { useRouteParams } from "ui/routes/definition";
+import { Employee } from "graphql/server-types.gen";
 import { PersonViewRoute } from "ui/routes/people";
 
 type Props = {};
 
 export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PersonViewRoute);
@@ -25,9 +25,11 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
+    refetchQueries: ["GetQualifiedEmployeeCountsWithinOrg"],
   });
 
   const getEmployee = useQueryBundle(GetEmployeeById, {
+    fetchPolicy: "cache-first",
     variables: { id: params.orgUserId },
   });
 
@@ -124,18 +126,43 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     [updateEmployee]
   );
 
-  if (getEmployee.state === "LOADING") {
-    return <></>;
-  }
+  const employee = (getEmployee.state === "LOADING" ||
+  getEmployee.state === "UPDATING"
+    ? undefined
+    : getEmployee.data?.orgUser?.byId?.employee) as Pick<
+    Employee,
+    "id" | "orgId" | "firstName" | "lastName" | "primaryPosition"
+  >;
 
-  const employee = getEmployee?.data?.orgUser?.byId?.employee;
   const position = employee?.primaryPosition;
-  const postionType = position?.positionType;
 
-  if (!employee) {
+  //Query qualified numbers
+  const getQualifiedNumbers = useQueryBundle(
+    GetQualifiedEmployeeCountsWithinOrg,
+    {
+      variables: {
+        orgId: params.organizationId,
+        positionId: Number(position?.id),
+      },
+      skip: !position?.id,
+    }
+  );
+
+  const qualifiedCounts =
+    getQualifiedNumbers.state === "LOADING" ||
+    getQualifiedNumbers.state === "UPDATING"
+      ? undefined
+      : getQualifiedNumbers?.data?.position?.qualifiedEmployeeCounts;
+
+  if (
+    getEmployee.state === "DONE" &&
+    !getEmployee.data.orgUser?.byId?.employee
+  ) {
     const listUrl = PersonViewRoute.generate(params);
     return <Redirect to={listUrl} />;
   }
+
+  const postionType = position?.positionType;
 
   //Get Replacement Criteria
   const replacementCriteria = position?.replacementCriteria;
@@ -178,9 +205,8 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
         preferToHave={preferToHave}
         preferToNotHave={preferNotToHave}
         mustNotHave={mustNotHave}
-        positionName={position?.name ?? postionType?.name}
+        title={position?.title ?? postionType?.name}
         orgId={params.organizationId}
-        positionId={position?.id}
         handleMust={updateMustHave}
         handleMustNot={updateMustNot}
         handlePrefer={updatePreferHave}
@@ -190,6 +216,8 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
         existingPrefer={preferToHave}
         existingPreferNot={preferNotToHave}
         endorsementsIgnored={endorsementsIgnored}
+        numMinimallyQualified={qualifiedCounts?.numMinimallyQualified}
+        numFullyQualified={qualifiedCounts?.numFullyQualified}
       />
     </>
   );

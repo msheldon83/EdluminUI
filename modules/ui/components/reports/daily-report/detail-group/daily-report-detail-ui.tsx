@@ -21,7 +21,7 @@ type Props = {
     assignmentRowVersion?: string
   ) => Promise<void>;
   goToAbsenceEdit: (absenceId: string) => void;
-  goToEmployeeView: (employeeId: string | undefined) => void;
+  goToPersonView: (orgUserId: string | undefined) => void;
   goToLocationView: (locationId: string | undefined) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
@@ -66,7 +66,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                   <Link
                     className={classes.action}
                     onClick={() =>
-                      props.goToEmployeeView(props.detail.employee?.id)
+                      props.goToPersonView(props.detail.employee?.id)
                     }
                   >
                     {props.detail.employee?.name}
@@ -77,11 +77,11 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                 </Can>
               </div>
               <div className={classes.detailSubText}>
-                {props.detail.position?.name}
+                {props.detail.position?.title}
               </div>
             </>
           ) : (
-            <div>{props.detail.position?.name}</div>
+            <div>{props.detail.position?.title}</div>
           )}
         </div>
       </div>
@@ -121,7 +121,21 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           )}
           {props.detail.state !== "noSubRequired" && props.detail.substitute && (
             <div className={classes.subWithPhone}>
-              <div>{props.detail.substitute.name}</div>
+              <div>
+                <Can do={[PermissionEnum.SubstituteView]}>
+                  <Link
+                    className={classes.action}
+                    onClick={() =>
+                      props.goToPersonView(props.detail.substitute?.id)
+                    }
+                  >
+                    {props.detail.substitute.name}
+                  </Link>
+                </Can>
+                <Can not do={[PermissionEnum.EmployeeView]}>
+                  {props.detail.substitute.name}
+                </Can>
+              </div>
               {props.detail.substitute.phone && (
                 <div className={classes.subPhoneInfoIcon}>
                   <Tooltip
@@ -152,11 +166,11 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
               </Link>
             </Can>
           )}
-          {props.detail.subStartTime && props.detail.subEndTime && (
-            <div className={classes.detailSubText}>
-              {`${props.detail.subStartTime} - ${props.detail.subEndTime}`}
-            </div>
-          )}
+          {props.detail.subTimes.map((st, i) => {
+            return (<div className={classes.detailSubText} key={i}>
+              {`${st.startTime} - ${st.endTime}`}
+            </div>);
+          })}
         </div>
       </div>
       <div>

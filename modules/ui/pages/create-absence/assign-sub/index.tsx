@@ -3,7 +3,6 @@ import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
 import { useQueryBundle } from "graphql/hooks";
 import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useIsMobile } from "hooks";
@@ -23,6 +22,7 @@ import {
 
 type Props = {
   orgId: string;
+  absenceId?: string;
   existingVacancy?: boolean;
   vacancies: Vacancy[];
   userIsAdmin: boolean;
@@ -30,7 +30,7 @@ type Props = {
   employeeId?: string;
   positionId?: string;
   positionName?: string;
-  disabledDates?: DisabledDate[];
+  disabledDates?: Date[];
   selectButtonText?: string;
   onSelectReplacement: (
     replacementId: number,
@@ -92,7 +92,7 @@ export const AssignSub: React.FC<Props> = props => {
   }
 
   // Vacancy Details collapse configuration
-  const collapsedVacancyDetailsHeight = 150;
+  const collapsedVacancyDetailsHeight = 200;
   const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
     number | null
   >(null);
@@ -154,8 +154,9 @@ export const AssignSub: React.FC<Props> = props => {
       primaryPhone: r.phoneNumber,
       qualified: r.levelQualified,
       available: r.levelAvailable,
-      visible: r.isVisible,
-      visibleOn: r.visibleAtLocal,
+      isAvailableToSubWhenSearching: r.isAvailableToSubWhenSearching,
+      availableToSubWhenSearchingAtUtc: r.availableToSubWhenSearchingAtUtc,
+      availableToSubWhenSearchingAtLocal: r.availableToSubWhenSearchingAtLocal,
       isEmployeeFavorite: r.isFavoriteEmployee,
       isLocationPositionTypeFavorite: r.isFavoritePositionType,
       selectable: r.isSelectable,
@@ -196,6 +197,7 @@ export const AssignSub: React.FC<Props> = props => {
             gridRef={vacancyDetailsRef}
             showHeader
             disabledDates={props.disabledDates}
+            detailsClassName={classes.vacancyDetailsTable}
           />
         </Collapse>
         {showViewAllDetails && (
@@ -255,10 +257,19 @@ export const AssignSub: React.FC<Props> = props => {
             <Typography variant="h1">{props.employeeName}</Typography>
           )}
         </div>
-        <div>
-          <Button variant="outlined" onClick={props.onCancel}>
-            {t("Back to Absence Details")}
-          </Button>
+        <div className={classes.confAndReturnContainer}>
+          <div>
+            <Button variant="outlined" onClick={props.onCancel}>
+              {t("Back to Absence Details")}
+            </Button>
+          </div>
+          <div>
+            {props.absenceId && (
+              <Typography variant="h6">
+                {t("Confirmation")} #{props.absenceId}
+              </Typography>
+            )}
+          </div>
         </div>
       </div>
       <Section>
@@ -306,10 +317,21 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
+  },
+  confAndReturnContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
   },
   vacancyDetails: {
     marginBottom: theme.spacing(3),
+  },
+  vacancyDetailsTable: {
+    width: "50%",
+    border: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
   },
   viewAllDetails: {
     cursor: "pointer",

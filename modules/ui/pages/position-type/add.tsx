@@ -32,7 +32,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
   const [positionType, setPositionType] = React.useState<
     PositionTypeCreateInput
   >({
-    orgId: Number(params.organizationId),
+    orgId: params.organizationId,
     name: "",
     externalId: null,
     forPermanentPositions: true,
@@ -81,7 +81,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
           forStaffAugmentation: boolean,
           minAbsenceDurationMinutes: number,
           payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
-          defaultContractId?: number | null
+          defaultContractId?: string | null
         ) => {
           const newPositionType = {
             ...positionType,

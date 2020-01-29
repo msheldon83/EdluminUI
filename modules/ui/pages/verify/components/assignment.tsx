@@ -378,7 +378,7 @@ export const Assignment: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.lightText}>
-                  {vacancyDetail.vacancy!.position!.name}
+                  {vacancyDetail.vacancy!.position!.title}
                 </Typography>
                 {!isActiveCard && (
                   <Typography

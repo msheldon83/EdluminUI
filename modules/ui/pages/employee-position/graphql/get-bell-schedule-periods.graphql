@@ -1,0 +1,16 @@
+query GetBellSchedulePeriods($id: ID!) {
+  workDaySchedule {
+    byId(id: $id) {
+      id
+      periods {
+        id
+        name
+        standardPeriod {
+          id
+          startTime
+          endTime
+        }
+      }
+    }
+  }
+}

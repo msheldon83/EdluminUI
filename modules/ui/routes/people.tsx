@@ -139,8 +139,7 @@ export const PeopleSubPoolEditLoader = asyncComponent({
 //Edit Replacement Criteria
 export const PeopleReplacementCriteriaEditRoute = defineSubRoute(
   PersonViewRoute,
-  "/replacement-criteria",
-  []
+  "/replacement-criteria"
 );
 
 export const PeopleReplacementCriteriaEditLoader = asyncComponent({
@@ -153,6 +152,20 @@ export const PeopleReplacementCriteriaEditLoader = asyncComponent({
     return PeopleReplacementCriteriaEdit;
   },
   name: "PeopleReplacementCriteriaEditSettingsPage",
+});
+
+// Edit Employee Position
+export const PeopleEmployeePositionEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-position"
+);
+export const PeopleEmployeePositionEditLoader = asyncComponent({
+  resolve: async () => {
+    const EmployeePosition = (await import("ui/pages/employee-position"))
+      .EmployeePosition;
+    return EmployeePosition;
+  },
+  name: "EmployeePosition",
 });
 
 //Edit Sub Related Orgs

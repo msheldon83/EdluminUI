@@ -14,7 +14,7 @@ import { GetFilledAbsences } from "./graphql/get-filled-absences.gen";
 import { useLocations } from "reference-data/locations";
 import { FilterQueryParams } from "./components/filter-param";
 import { VacancyDetailRow } from "./components/vacancy-detail";
-import { EdluminLogo } from "ui/components/edlumin-logo";
+import { RedRoverLogo } from "ui/components/red-rover-logo";
 import { Print } from "@material-ui/icons";
 
 type Props = {};
@@ -102,7 +102,7 @@ export const SubSignInPage: React.FC<Props> = props => {
   return (
     <>
       <div className={classes.header}>
-        <EdluminLogo />
+        <RedRoverLogo />
       </div>
       <div className={classes.title}>
         <Typography variant="h5">{`${location?.name} ${t(

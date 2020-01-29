@@ -1,0 +1,10 @@
+query GetPositionTypes($orgId: ID) {
+  positionType {
+    all(orgId: $orgId) {
+      id
+      name
+      needsReplacement
+      defaultContractId
+    }
+  }
+}

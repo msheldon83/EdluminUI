@@ -39,6 +39,7 @@ export const EmployeeSchedule: React.FC<Props> = props => {
         status: "error",
       });
     },
+    refetchQueries: ["GetEmployeeAbsenceSchedule"],
   });
 
   const cancelAbsence = async (absenceId: string) => {
@@ -56,11 +57,11 @@ export const EmployeeSchedule: React.FC<Props> = props => {
           view={props.view}
           employeeId={employee?.id}
           orgId={employee?.orgId?.toString()}
-          pageTitle={"My Schedule"}
+          pageTitle={t("My Schedule")}
           cancelAbsence={cancelAbsence}
           calendarViewRoute={EmployeeScheduleCalendarViewRoute.generate(params)}
           listViewRoute={EmployeeScheduleListViewRoute.generate(params)}
-          isAdmin={false}
+          actingAsEmployee={true}
         />
       )}
     </div>

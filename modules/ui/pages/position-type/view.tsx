@@ -23,7 +23,6 @@ import {
 import * as yup from "yup";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import { UpdatePositionType } from "./graphql/update-position-type.gen";
-import { GetAllPositionTypesWithinOrg } from "./graphql/position-types.gen";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { ReplacementCriteria } from "./replacement-criteria";
 
@@ -59,7 +58,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
       return updatePositionType({
         variables: {
           positionType: {
-            id: Number(params.positionTypeId),
+            id: params.positionTypeId,
             rowVersion: rowVersion,
             expired: !enabled,
           },
@@ -85,6 +84,21 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   }
 
   const replacementCriteria = positionType?.replacementCriteria;
+  const minimumDuration = minutesToHours(
+    positionType.minAbsenceDurationMinutes,
+    2
+  );
+
+  const displayMinimumDuration = (d: number | null) => {
+    if (!d) {
+      return t("No Minimum");
+    }
+    return d === 1
+      ? t("1 hour")
+      : t("{{hours}} hours", {
+          hours: d,
+        });
+  };
 
   if (enabled === null) {
     setEnabled(!positionType.expired);
@@ -94,7 +108,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     await updatePositionType({
       variables: {
         positionType: {
-          id: Number(positionType.id),
+          id: positionType.id,
           rowVersion: positionType.rowVersion,
           name,
         },
@@ -106,7 +120,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     await updatePositionType({
       variables: {
         positionType: {
-          id: Number(positionType.id),
+          id: positionType.id,
           rowVersion: positionType.rowVersion,
           externalId,
         },
@@ -224,12 +238,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
             <Typography variant="h6">
               {t("Minimum absence duration")}
             </Typography>
-            <div>
-              {`${minutesToHours(
-                positionType.minAbsenceDurationMinutes,
-                2
-              )} hour(s)`}
-            </div>
+            <div>{displayMinimumDuration(minimumDuration)}</div>
           </Grid>
           <Grid item xs={12} sm={6} lg={6}>
             <Typography variant="h6">{t("Default Contract")}</Typography>
