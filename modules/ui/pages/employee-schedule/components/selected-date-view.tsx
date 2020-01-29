@@ -113,7 +113,7 @@ const displayAbsenceDayInformation = (
     const day = a.rawData as EmployeeAbsenceDetail;
     const cancel = async () => cancelAbsence && (await cancelAbsence(day.id));
     return (
-      <Grid item container xs={12} spacing={4} key={i}>
+      <Grid item container xs={12} spacing={4} key={day.id}>
         <AbsenceDetailRow
           absence={day}
           cancelAbsence={cancel}

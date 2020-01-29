@@ -46,7 +46,7 @@ export const ScheduledAbsences: React.FC<Props> = props => {
         ].join(" ");
 
         return (
-          <Grid item container xs={12} key={i} className={className}>
+          <Grid item container xs={12} key={a.id} className={className}>
             <AbsenceDetailRow
               absence={a}
               cancelAbsence={props.cancelAbsence}
