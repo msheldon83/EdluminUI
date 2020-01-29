@@ -68,6 +68,10 @@ export const AbsenceSchedule: React.FC<Props> = props => {
   const [queryStartDate, setQueryStartDate] = useState(startDateOfToday);
   const [queryEndDate, setQueryEndDate] = useState(endDate);
 
+  React.useEffect(() => {
+    setQueryEndDate(endDate);
+  }, [endDate]);
+
   const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
     variables: {
       id: props.employeeId,
@@ -79,12 +83,10 @@ export const AbsenceSchedule: React.FC<Props> = props => {
   });
 
   const absences =
-    getAbsenceSchedule.state === "LOADING" ||
-    getAbsenceSchedule.state === "UPDATING"
+    getAbsenceSchedule.state === "LOADING"
       ? []
       : (getAbsenceSchedule.data?.employee
           ?.employeeAbsenceSchedule as GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]);
-
   const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
 
   if (!currentSchoolYear) {
@@ -160,10 +162,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
               <ScheduledAbsences
                 absences={employeeAbsenceDetails}
                 cancelAbsence={props.cancelAbsence}
-                isLoading={
-                  getAbsenceSchedule.state === "LOADING" ||
-                  getAbsenceSchedule.state === "UPDATING"
-                }
+                isLoading={getAbsenceSchedule.state === "LOADING"}
                 orgId={props.orgId}
                 isAdmin={props.isAdmin}
               />
