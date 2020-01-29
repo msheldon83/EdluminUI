@@ -74,6 +74,7 @@ export const AsAdmin = () => {
     <Provider>
       <Route path={AdminCreateAbsenceRoute.path}>
         <EditVacancies
+          orgId="1006"
           employeeName="Jane Doe"
           details={formVacancyValues}
           employeeId="103"

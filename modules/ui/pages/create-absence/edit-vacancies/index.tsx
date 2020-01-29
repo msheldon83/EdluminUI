@@ -62,7 +62,7 @@ export const EditVacancies: React.FC<Props> = props => {
   //Pay Codes
   const payCodes = usePayCodes(props.orgId);
   const payCodeOptions = useMemo(
-    () => payCodes.map(c => ({ label: c.name, value: c.id })),
+    () => payCodes.map(c => ({ label: c.name, value: Number(c.id) })),
     [payCodes]
   );
 
@@ -209,8 +209,8 @@ export const EditVacancies: React.FC<Props> = props => {
                   <Grid key={i} container className={classes.rowSpacing}>
                     <EditableVacancyDetailRow
                       locationOptions={locationOptions}
-                      accountCodeOptions={accountCodeOptions}
                       payCodeOptions={payCodeOptions}
+                      //accountCodeOptions={accountCodeOptions}
                       keyPrefix={`details.${i}`}
                       values={d}
                       className={i % 2 == 1 ? classes.shadedRow : undefined}

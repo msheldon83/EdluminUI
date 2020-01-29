@@ -431,6 +431,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       </form>
       {step === "edit" && (
         <EditVacancies
+          orgId={props.organizationId}
           actingAsEmployee={props.actingAsEmployee}
           employeeName={name}
           positionName={props.positionName}
