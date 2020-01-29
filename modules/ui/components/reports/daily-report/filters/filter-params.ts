@@ -91,8 +91,9 @@ const boolToString = (b: boolean): "true" | "false" | "" => {
 const to = (o: DailyReportFilters): DailyReportQueryFilters => {
   return {
     date: o.date,
-    positionTypeIds: o.positionTypeIds.split(","),
-    locationIds: o.locationIds.split(","),
+    positionTypeIds:
+      o.positionTypeIds === "" ? [] : o.positionTypeIds.split(","),
+    locationIds: o.locationIds === "" ? [] : o.locationIds.split(","),
     showAbsences: stringToBool(o.showAbsences, true),
     showVacancies: stringToBool(o.showVacancies, true),
     groupByFillStatus: stringToBool(o.groupByFillStatus, true),

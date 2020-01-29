@@ -117,8 +117,8 @@ const to = (o: PeopleFilters): RoleSpecificFilters => {
     case OrgUserRole.Administrator:
       return {
         roleFilter: o.roleFilter,
-        positionTypes: o.positionTypes.split(","),
-        locations: o.locations.split(","),
+        positionTypes: o.positionTypes === "" ? [] : o.positionTypes.split(","),
+        locations: o.locations === "" ? [] : o.locations.split(","),
       };
     case OrgUserRole.ReplacementEmployee:
       return {

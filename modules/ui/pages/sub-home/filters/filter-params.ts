@@ -47,9 +47,10 @@ export const FilterQueryParams = {
 
 const to = (o: SubHomeFilters): SubHomeQueryFilters => {
   return {
-    positionTypeIds: o.positionTypeIds.split(","),
-    locationIds: o.locationIds.split(","),
-    orgIds: o.orgIds.split(","),
+    positionTypeIds:
+      o.positionTypeIds === "" ? [] : o.positionTypeIds.split(","),
+    locationIds: o.locationIds === "" ? [] : o.locationIds.split(","),
+    orgIds: o.orgIds === "" ? [] : o.orgIds.split(","),
     times: o.times.split(","),
   };
 };
