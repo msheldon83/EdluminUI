@@ -10,19 +10,21 @@ import { FieldArray, Formik, FormikErrors } from "formik";
 import { useQueryBundle } from "graphql/hooks";
 import { compact, isArray } from "lodash-es";
 import * as React from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
 import { VacancyDetail } from "../../../components/absence/types";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
+import { usePayCodes } from "reference-data/pay-codes";
 import * as yup from "yup";
 import { isBefore, parseISO, isValid, areIntervalsOverlapping } from "date-fns";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "ui/components/absence/date-helpers";
 
 type Props = {
   details: VacancyDetail[];
   actingAsEmployee?: boolean;
+  orgId: string;
   positionName?: string;
   employeeName: string;
   onCancel: () => void;
@@ -56,6 +58,15 @@ export const EditVacancies: React.FC<Props> = props => {
     (locationQuery.state !== "LOADING" &&
       compact(locationQuery.data.employee?.byId?.locations)) ||
     [];
+
+  //Pay Codes
+  const payCodes = usePayCodes(props.orgId);
+  const payCodeOptions = useMemo(
+    () => payCodes.map(c => ({ label: c.name, value: c.id })),
+    [payCodes]
+  );
+
+  //Accounting Codes
 
   if (props.details.length === 0) {
     props.setStep("absence");
@@ -198,6 +209,8 @@ export const EditVacancies: React.FC<Props> = props => {
                   <Grid key={i} container className={classes.rowSpacing}>
                     <EditableVacancyDetailRow
                       locationOptions={locationOptions}
+                      accountCodeOptions={accountCodeOptions}
+                      payCodeOptions={payCodeOptions}
                       keyPrefix={`details.${i}`}
                       values={d}
                       className={i % 2 == 1 ? classes.shadedRow : undefined}

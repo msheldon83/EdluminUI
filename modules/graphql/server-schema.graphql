@@ -96,6 +96,7 @@ type AbsenceQueries {
   projectedAbsence(absence: AbsenceCreateInput!, ignoreAbsenceId: Int): Absence
   dailyReport(orgId: ID!, date: Date!, locationIds: [Int], positionTypeIds: [Int]): DailyReport
   subSignInReport(orgId: ID!, date: Date!, locationIds: [Int]): [VacancyDetail]
+  byConfirmationId(orgIds: [ID], confirmationId: String!): [ConfirmationNumberQueryResultTypeDef]
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -757,6 +758,30 @@ type ChangeLogTypeDef {
   _info: [ReturnMessage]
   messages: String!
   changes: String!
+}
+
+type ConfirmationNumberQueryResultTypeDef {
+  _info: [ReturnMessage]
+  absenceId: Int!
+  objectTypeId: ObjectType!
+  objectTypeName: String!
+  orgId: Int!
+  createdUtc: DateTime
+  employeeId: Int!
+  employeeFirstName: String!
+  employeeMiddleName: String
+  employeeLastName: String!
+  absenceStartTimeLocal: DateTime
+  absenceEndTimeLocal: DateTime
+  absenceStartTimeUtc: DateTime
+  absenceEndTimeUtc: DateTime
+  absNumDays: Short
+  assignmentId: Int
+  assignmentCreatedUtc: DateTime
+  subId: Int
+  subFirstName: String
+  subMiddleName: String
+  subLastName: String
 }
 
 type Contract implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {

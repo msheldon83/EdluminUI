@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { HighlightOff } from "@material-ui/icons";
-import { convertStringToDate, formatDateIfPossible } from "helpers/date";
+import { formatDateIfPossible } from "helpers/date";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { FormikSelect } from "ui/components/form/formik-select";
@@ -18,6 +18,8 @@ import { startOfDay, parseISO } from "date-fns";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
+  payCodeOptions: { label: string; value: number }[];
+  accountCodeOptions?: string[];
   keyPrefix: string;
   values: VacancyDetail;
   className?: string;
@@ -35,6 +37,12 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     value: Number(loc.id),
     label: loc.name,
   }));
+
+  // const accountingCodeMenuOptions = props.accountCodeOptions.map(loc => ({
+  //   value: Number(loc.id),
+  //   label: loc.name,
+  // }));
+
   const fieldNamePrefix = props.keyPrefix;
 
   const date = parseISO(props.values.date);
@@ -75,7 +83,6 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             />
           </Grid>
         </Grid>
-
         <Grid item xs={3} className={classes.vacancyBlockItem}>
           <FormikSelect
             name={`${fieldNamePrefix}.locationId`}
@@ -83,6 +90,20 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             withResetValue={false}
           />
         </Grid>
+        <Grid item xs={2} className={classes.vacancyBlockItem}>
+          <FormikSelect
+            name={`${fieldNamePrefix}.payCodeId`}
+            options={props.payCodeOptions}
+            withResetValue={false}
+          />
+        </Grid>
+        {/* <Grid item xs={2} className={classes.vacancyBlockItem}>
+          <FormikSelect
+            name={`${fieldNamePrefix}.accountingId`}
+            options={accountingCodeMenuOptions}
+            withResetValue={false}
+          />
+        </Grid> */}
         {props.showRemoveButton && (
           <Grid item>
             <IconButton onClick={props.onRemoveRow}>
