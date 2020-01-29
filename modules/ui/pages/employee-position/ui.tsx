@@ -8,6 +8,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useLocations } from "reference-data/locations";
 import { useContracts } from "reference-data/contracts";
+import { useAccountingCodes } from "reference-data/accounting-codes";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { ActionButtons } from "ui/components/action-buttons";
 import * as yup from "yup";
@@ -31,21 +32,8 @@ import {
   buildNewPeriod,
 } from "./components/helpers";
 import { flatMap } from "lodash-es";
-import {
-  midnightTime,
-  secondsSinceMidnight,
-  timeStampToIso,
-} from "helpers/time";
-import {
-  addMinutes,
-  areIntervalsOverlapping,
-  format,
-  isBefore,
-  isDate,
-  isEqual,
-  isValid,
-  parseISO,
-} from "date-fns";
+import { secondsSinceMidnight } from "helpers/time";
+import { isBefore, parseISO } from "date-fns";
 
 type Props = {
   position?:
@@ -58,6 +46,7 @@ type Props = {
       }
     | null
     | undefined;
+  accountingCodeId?: string | null | undefined;
   positionSchedule?: Schedule[] | null | undefined;
   onSave: (position: PositionInput) => Promise<unknown>;
   onCancel: () => void;
@@ -99,6 +88,12 @@ export const PositionEditUI: React.FC<Props> = props => {
     [contracts]
   );
 
+  const accountingCodes = useAccountingCodes(params.organizationId);
+  const accountingCodeOptions: OptionType[] = useMemo(
+    () => accountingCodes.map(p => ({ label: p.name, value: p.id })),
+    [accountingCodes]
+  );
+
   const locations = useLocations(params.organizationId);
   const locationOptions: OptionType[] = useMemo(
     () => locations.map(p => ({ label: p.name, value: p.id })),
@@ -113,7 +108,7 @@ export const PositionEditUI: React.FC<Props> = props => {
     getBellSchedules.state != "LOADING"
       ? getBellSchedules.data.workDaySchedule?.all ?? []
       : [];
-  
+
   const needsReplacementOptions: OptionType[] = useMemo(
     () => [
       { label: t("Yes"), value: NeedsReplacement.Yes },
@@ -135,6 +130,7 @@ export const PositionEditUI: React.FC<Props> = props => {
           title: position?.title ?? "",
           needsReplacement: position?.needsReplacement ?? NeedsReplacement.Yes,
           contractId: position?.contractId ?? "",
+          accountingCodeId: props.accountingCodeId ?? "",
           hoursPerFullWorkDay: position?.hoursPerFullWorkDay ?? "",
           schedules: positionSchedule,
         }}
@@ -166,6 +162,9 @@ export const PositionEditUI: React.FC<Props> = props => {
                 ? undefined
                 : data.hoursPerFullWorkDay,
             schedules,
+            accountingCodeAllocations: data.accountingCodeId
+              ? [{ accountingCodeId: data.accountingCodeId, allocation: 1 }]
+              : null,
           });
         }}
         validationSchema={yup.object({
@@ -188,60 +187,85 @@ export const PositionEditUI: React.FC<Props> = props => {
           hoursPerFullWorkDay: yup.number().nullable(),
           schedules: yup.array().of(
             yup
-            .object()
-            .nullable()
-            .shape({
-              periods: yup.array().of(
-                yup
-                  .object()
-                  .shape({
-                    locationId: yup
-                      .string()
-                      .nullable()
-                      .required(t("Location is required")),
-                    bellScheduleId: yup
-                      .string()
-                      .nullable()
-                      .required(t("Bell schedule is required")),
-                    startTime: yup.string().nullable().when("bellScheduleId", {
-                      is: (val) => val === "custom",
-                      then: yup.string().nullable().required(t("Required")),
-                    }),
-                    endTime: yup.string().nullable().when("bellScheduleId", {
-                      is: (val) => val === "custom",
-                      then: yup.string().nullable().required(t("Required")),
-                    }),
-                    startPeriodId: yup.string().nullable().when("bellScheduleId", {
-                      is: (val) => val !== "custom",
-                      then: yup.string().nullable().required(t("Required")),
-                    }),
-                    endPeriodId: yup.string().nullable().when("bellScheduleId", {
-                      is: (val) => val !== "custom",
-                      then: yup.string().nullable().required(t("Required")),
-                    }),
-                  })
-                  .test({
-                    name: "endBeforeStartCheck",
-                    test: function test(value) {
-                      if (
-                        isBefore(
-                          parseISO(value.endTime),
-                          parseISO(value.startTime)
-                        )
-                      ) {
-                        return new yup.ValidationError(
-                          t("End Time before Start Time"),
-                          null,
-                          `${this.path}.endTime`
-                        );
-                      }
+              .object()
+              .nullable()
+              .shape({
+                periods: yup.array().of(
+                  yup
+                    .object()
+                    .shape({
+                      locationId: yup
+                        .string()
+                        .nullable()
+                        .required(t("Location is required")),
+                      bellScheduleId: yup
+                        .string()
+                        .nullable()
+                        .required(t("Bell schedule is required")),
+                      startTime: yup
+                        .string()
+                        .nullable()
+                        .when("bellScheduleId", {
+                          is: val => val === "custom",
+                          then: yup
+                            .string()
+                            .nullable()
+                            .required(t("Required")),
+                        }),
+                      endTime: yup
+                        .string()
+                        .nullable()
+                        .when("bellScheduleId", {
+                          is: val => val === "custom",
+                          then: yup
+                            .string()
+                            .nullable()
+                            .required(t("Required")),
+                        }),
+                      startPeriodId: yup
+                        .string()
+                        .nullable()
+                        .when("bellScheduleId", {
+                          is: val => val !== "custom",
+                          then: yup
+                            .string()
+                            .nullable()
+                            .required(t("Required")),
+                        }),
+                      endPeriodId: yup
+                        .string()
+                        .nullable()
+                        .when("bellScheduleId", {
+                          is: val => val !== "custom",
+                          then: yup
+                            .string()
+                            .nullable()
+                            .required(t("Required")),
+                        }),
+                    })
+                    .test({
+                      name: "endBeforeStartCheck",
+                      test: function test(value) {
+                        if (
+                          isBefore(
+                            parseISO(value.endTime),
+                            parseISO(value.startTime)
+                          )
+                        ) {
+                          return new yup.ValidationError(
+                            t("End Time before Start Time"),
+                            null,
+                            `${this.path}.endTime`
+                          );
+                        }
 
-                      return true;
-                    },
-                  })
-              ),
-            }),
-        )})}
+                        return true;
+                      },
+                    })
+                ),
+              })
+          ),
+        })}
       >
         {({
           values,
@@ -317,6 +341,25 @@ export const PositionEditUI: React.FC<Props> = props => {
                       }}
                       options={needsReplacementOptions}
                       withResetValue={false}
+                    />
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Typography>{t("Accounting Code")}</Typography>
+                    <SelectNew
+                      value={{
+                        value: values.accountingCodeId,
+                        label:
+                          accountingCodeOptions.find(
+                            e => e.value && e.value === values.accountingCodeId
+                          )?.label || "",
+                      }}
+                      multiple={false}
+                      onChange={(value: OptionType) => {
+                        const id = (value as OptionTypeBase).value;
+                        setFieldValue("accountingCodeId", id);
+                      }}
+                      options={accountingCodeOptions}
+                      withResetValue={true}
                     />
                   </Grid>
                 </Grid>
@@ -433,7 +476,9 @@ export const PositionEditUI: React.FC<Props> = props => {
                             locationId: string,
                             index: number
                           ) => {
-                            const locationGroupId = locations.find(x => x.id === locationId)?.locationGroupId ?? "";
+                            const locationGroupId =
+                              locations.find(x => x.id === locationId)
+                                ?.locationGroupId ?? "";
                             positionSchedule[i].periods[
                               index
                             ].locationId = locationId;

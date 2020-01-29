@@ -96,13 +96,15 @@ export const EmployeePosition: React.FC<Props> = props => {
       locationId: p.location.id,
       locationGroupId: p.location.locationGroupId,
       bellScheduleId:
-        (!p.bellSchedule && p.startTime && p.endTime)
+        !p.bellSchedule && p.startTime && p.endTime
           ? "custom"
           : p.bellSchedule?.id,
-      startTime: p.startTime ? timeStampToIso(
-        midnightTime().setSeconds(p.startTime)) : undefined,
-      endTime: p.endTime ? timeStampToIso(
-        midnightTime().setSeconds(p.endTime)) : undefined,
+      startTime: p.startTime
+        ? timeStampToIso(midnightTime().setSeconds(p.startTime))
+        : undefined,
+      endTime: p.endTime
+        ? timeStampToIso(midnightTime().setSeconds(p.endTime))
+        : undefined,
       allDay: p.isAllDay,
       startPeriodId: p.startPeriod?.id,
       endPeriodId: p.endPeriod?.id,
@@ -120,6 +122,11 @@ export const EmployeePosition: React.FC<Props> = props => {
       </div>
       <PositionEditUI
         position={position}
+        accountingCodeId={
+          position?.accountingCodeAllocations
+            ? position.accountingCodeAllocations[0]?.accountingCodeId
+            : undefined
+        }
         positionSchedule={
           positionSchedule.length > 0 ? positionSchedule : undefined
         }

@@ -252,6 +252,7 @@ export const PeriodUI: React.FC<Props> = props => {
                   label=""
                   name={`schedules[${props.scheduleIndex}]periods[${props.index}].endTime`}
                   value={period.endTime || undefined}
+                  earliestTime={period.startTime || undefined}
                   inputStatus={endTimeError ? "error" : "default"}
                   validationMessage={endTimeError}
                 />

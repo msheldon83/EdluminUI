@@ -16,6 +16,11 @@ query GetEmployeePosition($id: ID!) {
             id
             name
           }
+          accountingCodeAllocations {
+            id
+            accountingCodeId
+            allocation
+          }
           contractId
           schedules {
             id

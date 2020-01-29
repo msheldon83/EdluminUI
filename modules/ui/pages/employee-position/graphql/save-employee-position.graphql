@@ -14,6 +14,11 @@ mutation SaveEmployeePosition($employee: EmployeeInput!) {
             id
             name
           }
+          accountingCodeAllocations {
+            id
+            accountingCodeId
+            allocation
+          }
           contractId
           schedules {
             id
