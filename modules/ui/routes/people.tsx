@@ -154,6 +154,20 @@ export const PeopleReplacementCriteriaEditLoader = asyncComponent({
   name: "PeopleReplacementCriteriaEditSettingsPage",
 });
 
+// Edit Employee Position
+export const PeopleEmployeePositionEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-position"
+);
+export const PeopleEmployeePositionEditLoader = asyncComponent({
+  resolve: async () => {
+    const EmployeePosition = (await import("ui/pages/employee-position"))
+      .EmployeePosition;
+    return EmployeePosition;
+  },
+  name: "EmployeePosition",
+});
+
 //Edit Sub Related Orgs
 export const PeopleSubRelatedOrgsEditRoute = defineSubRoute(
   PersonViewRoute,

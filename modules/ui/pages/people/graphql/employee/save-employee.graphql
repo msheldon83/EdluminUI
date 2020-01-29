@@ -30,14 +30,14 @@ mutation SaveEmployee($employee: EmployeeInput!) {
         }
         primaryPosition {
           id
-          name
+          title
           hoursPerFullWorkDay
           needsReplacement
           positionType {
             id
             name
           }
-          currentContract {
+          contract {
             id
             name
           }

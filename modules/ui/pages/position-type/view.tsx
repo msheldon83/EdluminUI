@@ -59,7 +59,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
       return updatePositionType({
         variables: {
           positionType: {
-            id: Number(params.positionTypeId),
+            id: params.positionTypeId,
             rowVersion: rowVersion,
             expired: !enabled,
           },
@@ -109,7 +109,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     await updatePositionType({
       variables: {
         positionType: {
-          id: Number(positionType.id),
+          id: positionType.id,
           rowVersion: positionType.rowVersion,
           name,
         },
@@ -121,7 +121,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     await updatePositionType({
       variables: {
         positionType: {
-          id: Number(positionType.id),
+          id: positionType.id,
           rowVersion: positionType.rowVersion,
           externalId,
         },

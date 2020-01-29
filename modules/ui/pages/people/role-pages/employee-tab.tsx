@@ -90,10 +90,10 @@ export const EmployeeTab: React.FC<Props> = props => {
       <Position
         editing={props.editing}
         setEditing={props.setEditing}
-        positionName={employee.primaryPosition?.name}
+        positionTitle={employee.primaryPosition?.title}
         needsReplacement={employee.primaryPosition?.needsReplacement}
         hoursPerFullWorkDay={employee.primaryPosition?.hoursPerFullWorkDay}
-        contractName={employee.primaryPosition?.currentContract?.name}
+        contractName={employee.primaryPosition?.contract?.name}
         scheduleNames={
           employee.primaryPosition?.schedules?.map(s => s?.name) ?? []
         }

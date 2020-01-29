@@ -60,7 +60,7 @@ export type Detail = {
   assignmentRowVersion?: string;
   position?: {
     id?: string;
-    name: string;
+    title: string;
   };
   positionType?: {
     id: string;
@@ -143,7 +143,7 @@ export const MapDailyReportDetails = (
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
                 id: a.vacancies[0].position.id,
-                name: a.vacancies[0].position.name,
+                name: a.vacancies[0].position.title,
               }
             : undefined,
         positionType:
@@ -211,7 +211,7 @@ export const MapDailyReportDetails = (
         position: v.position
           ? {
               id: v.position.id,
-              name: v.position.name,
+              name: v.position.title,
             }
           : undefined,
         positionType: v.position?.positionType
@@ -281,7 +281,7 @@ export const MapDailyReportDetails = (
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
                 id: a.vacancies[0].position.id,
-                name: a.vacancies[0].position.name,
+                name: a.vacancies[0].position.title,
               }
             : undefined,
         positionType:
@@ -338,7 +338,7 @@ export const MapDailyReportDetails = (
         position: v.position
           ? {
               id: v.position.id,
-              name: v.position.name,
+              name: v.position.title,
             }
           : undefined,
         positionType: v.position?.positionType

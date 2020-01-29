@@ -17,7 +17,7 @@ type AssignmentVacancy = {
     name: string;
   };
   position?: {
-    name: string;
+    title: string;
   } | null;
   absence?: {
     employee?: {
@@ -83,7 +83,7 @@ export const AssignmentDetails: React.FC<Props> = props => {
       startDate={vacancy.startDate}
       endDate={vacancy.endDate}
       locationNames={locationNames}
-      positionName={vacancy.position!.name}
+      positionName={vacancy.position!.title}
     />
   );
 };

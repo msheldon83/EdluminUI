@@ -58,7 +58,7 @@ query GetUpcomingAssignments(
         }
         position {
           id
-          name
+          title
         }
         notesToReplacement
       }

@@ -7,7 +7,7 @@ query GetEmployeePositionContractSchedule(
     employeePositionSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
       position {
         id
-        name
+        title
       }
       details {
         startDate

@@ -57,7 +57,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       const result = await updatePositionType({
         variables: {
           positionType: {
-            id: Number(params.positionTypeId),
+            id: params.positionTypeId,
             rowVersion: positionType?.rowVersion,
             replacementCriteria: {
               mustHave: mustHaveInput.map(l => ({ id: l })),
@@ -79,7 +79,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       const result = await updatePositionType({
         variables: {
           positionType: {
-            id: Number(params.positionTypeId),
+            id: params.positionTypeId,
             rowVersion: positionType?.rowVersion,
             replacementCriteria: {
               mustNotHave: mustNotInput.map(l => ({ id: l })),
@@ -101,7 +101,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       const result = await updatePositionType({
         variables: {
           positionType: {
-            id: Number(params.positionTypeId),
+            id: params.positionTypeId,
             rowVersion: positionType?.rowVersion,
             replacementCriteria: {
               shouldHave: shouldHaveInput.map(l => ({ id: l })),
@@ -123,7 +123,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       const result = await updatePositionType({
         variables: {
           positionType: {
-            id: Number(params.positionTypeId),
+            id: params.positionTypeId,
             rowVersion: positionType?.rowVersion,
             replacementCriteria: {
               shouldNotHave: shouldNotHaveInput.map(l => ({ id: l })),

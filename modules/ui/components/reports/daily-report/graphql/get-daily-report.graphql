@@ -42,7 +42,7 @@ query GetDailyReport(
           rowVersion
           position {
             id
-            name
+            title
             positionType {
               id
               name
@@ -79,7 +79,7 @@ query GetDailyReport(
         createdLocal
         position {
           id
-          name
+          title
           positionType {
             id
             name
@@ -137,7 +137,7 @@ query GetDailyReport(
           rowVersion
           position {
             id
-            name
+            title
             positionType {
               id
               name
@@ -174,7 +174,7 @@ query GetDailyReport(
         createdLocal
         position {
           id
-          name
+          title
           positionType {
             id
             name

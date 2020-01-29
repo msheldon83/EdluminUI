@@ -238,7 +238,7 @@ export const EditAbsence: React.FC<Props> = props => {
         positionId={
           position?.id ?? employee.primaryPositionId?.toString() ?? undefined
         }
-        positionName={position?.name ?? employee.primaryPosition?.name}
+        positionName={position?.title ?? employee.primaryPosition?.title}
         organizationId={data.organization.id}
         absenceReasonId={reasonUsage?.absenceReasonId}
         absenceId={data.id}
