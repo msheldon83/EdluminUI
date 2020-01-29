@@ -11,6 +11,7 @@ import { useQueryBundle } from "graphql/hooks";
 import { compact, isArray } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
+import { useAccountingCodes } from "reference-data/accounting-codes";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
@@ -67,6 +68,14 @@ export const EditVacancies: React.FC<Props> = props => {
   );
 
   //Accounting Codes
+  // const accountingCodes = props.details.map(d => ({
+  //   const val = useAccountingCodes(props.orgId, d.locationId);
+  // }));
+
+  // const accountingCodeOptions = useMemo(
+  //   () => accountingCodes.map(a => ({ label: a.name, value: a.id })),
+  //   [accountingCodes]
+  // );
 
   if (props.details.length === 0) {
     props.setStep("absence");
