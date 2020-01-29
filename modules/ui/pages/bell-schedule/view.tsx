@@ -6,6 +6,8 @@ import {
   WorkDayScheduleUsage,
   WorkDayScheduleVariant,
   PermissionEnum,
+  Location,
+  LocationGroup,
 } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
 import {
@@ -375,21 +377,24 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     setStep: React.Dispatch<React.SetStateAction<number>>,
     goToNextStep: Function
   ) => {
-    const locationIds: Array<number> = workDaySchedule.usages
+    const locations: Pick<Location, "id" | "name">[] = workDaySchedule.usages
       ? workDaySchedule.usages
-          .filter(u => u && u.locationId)
-          .map((u: Maybe<WorkDayScheduleUsage>) => u!.locationId!)
+          .filter(u => u && u.location)
+          .map((u: Maybe<WorkDayScheduleUsage>) => u!.location!)
       : [];
-    const locationGroupIds: Array<number> = workDaySchedule.usages
+    const locationGroups: Pick<
+      LocationGroup,
+      "id" | "name"
+    >[] = workDaySchedule.usages
       ? workDaySchedule.usages
-          .filter(u => u && u.locationGroupId)
-          .map((u: Maybe<WorkDayScheduleUsage>) => u!.locationGroupId!)
+          .filter(u => u && u.locationGroup)
+          .map((u: Maybe<WorkDayScheduleUsage>) => u!.locationGroup!)
       : [];
 
     return (
       <Assign
-        locationIds={locationIds}
-        locationGroupIds={locationGroupIds}
+        locationsAssigned={locations}
+        locationGroupsAssigned={locationGroups}
         organizationId={params.organizationId}
         onSubmit={updateLocationAssigments}
         onCancel={() => {
