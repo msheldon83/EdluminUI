@@ -16,6 +16,7 @@ import {
 } from "../../../helpers/date";
 import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previous-date";
 import { Calendar } from "./calendar";
+import { DateInput } from "./date-input";
 
 export type DatePickerOnMonthChange = CalendarProps["onMonthChange"];
 
@@ -367,60 +368,3 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(1.5 / 2),
   },
 }));
-
-// Single Date Input
-
-type DateInputProps = {
-  label: string;
-  value?: Date | string;
-  onChange: (date: string) => void;
-  onValidDate: (date: Date) => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
-  dateFormat?: string;
-  endAdornment?: React.ReactNode;
-};
-
-export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
-  const {
-    label,
-    value = "",
-    onValidDate,
-    onChange,
-    onFocus,
-    endAdornment,
-    onBlur = () => {},
-    dateFormat = DEFAULT_DATE_FORMAT,
-  } = props;
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
-  };
-
-  const handleOnBlur = () => {
-    let date = createDate(value);
-
-    if (isValid(date)) {
-      onValidDate(date);
-    } else {
-      date = value;
-    }
-
-    onBlur();
-    onChange(date);
-  };
-
-  const formattedValue = formatDateIfPossible(value, dateFormat);
-
-  return (
-    <Input
-      label={label}
-      value={formattedValue}
-      onChange={handleOnChange}
-      onBlur={handleOnBlur}
-      onFocus={onFocus}
-      ref={ref}
-      endAdornment={endAdornment}
-    />
-  );
-});
