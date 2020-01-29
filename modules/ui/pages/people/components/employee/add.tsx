@@ -75,7 +75,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       });
       setInitialStepNumber(1);
     }
-  }, [employee, orgUser, params.organizationId]);
+  }, [orgUser, params.organizationId]);
 
   const handleCancel = () => {
     const url =
