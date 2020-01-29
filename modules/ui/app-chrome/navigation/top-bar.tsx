@@ -5,16 +5,17 @@ import {
   makeStyles,
   Toolbar,
 } from "@material-ui/core";
+import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import * as React from "react";
 import { Route } from "react-router-dom";
+import { QuickCreateButton } from "ui/components/absence/quick-create-button";
 import { LoadingStateIndicator } from "ui/components/loading-state/loading-state-indicator";
+import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
+import { AdminChromeRoute, AppChromeRoute } from "ui/routes/app-chrome";
+import { useRouteParams } from "ui/routes/definition";
 import { SearchBar } from "./search-bar";
 import { UserMenu } from "./user-menu";
-import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
-import { QuickCreateButton } from "ui/components/absence/quick-create-button";
-import { AppChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
-import { useRouteParams } from "ui/routes/definition";
 
 type Props = { contentClassName?: string };
 
@@ -49,6 +50,19 @@ export const TopBar: React.FC<Props> = props => {
 
                 <IconButton edge="end" classes={iconButtonClasses}>
                   <NotificationsNoneIcon />
+                </IconButton>
+
+                {/* ml 1-29-20 -- for the initial release phase, we are
+                    moving the help link to the top bar. Long term, it
+                    belongs in the user menu */}
+                <IconButton
+                  edge="end"
+                  classes={iconButtonClasses}
+                  onClick={() => {
+                    window.open("https://help.redroverk12.com", "_blank");
+                  }}
+                >
+                  <HelpOutlineIcon />
                 </IconButton>
 
                 <IconButton
