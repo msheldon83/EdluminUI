@@ -29,7 +29,7 @@ type Props = {
   cancelAbsence?: (absenceId: string) => Promise<void>;
   calendarViewRoute: string;
   listViewRoute: string;
-  isAdmin: boolean;
+  actingAsEmployee: boolean;
 };
 
 export const AbsenceSchedule: React.FC<Props> = props => {
@@ -68,6 +68,10 @@ export const AbsenceSchedule: React.FC<Props> = props => {
   const [queryStartDate, setQueryStartDate] = useState(startDateOfToday);
   const [queryEndDate, setQueryEndDate] = useState(endDate);
 
+  React.useEffect(() => {
+    setQueryEndDate(endDate);
+  }, [endDate]);
+
   const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
     variables: {
       id: props.employeeId,
@@ -79,17 +83,11 @@ export const AbsenceSchedule: React.FC<Props> = props => {
   });
 
   const absences =
-    getAbsenceSchedule.state === "LOADING" ||
-    getAbsenceSchedule.state === "UPDATING"
+    getAbsenceSchedule.state === "LOADING"
       ? []
       : (getAbsenceSchedule.data?.employee
           ?.employeeAbsenceSchedule as GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]);
-
   const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
-
-  const handleAfterCancel = async () => {
-    await getAbsenceSchedule.refetch();
-  };
 
   if (!currentSchoolYear) {
     return <></>;
@@ -102,7 +100,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
           <Grid item>
             <PageTitle title={t(props.pageTitle)} />
           </Grid>
-          {!props.isAdmin && (
+          {props.actingAsEmployee && (
             <Grid item>
               <Button
                 variant="outlined"
@@ -121,9 +119,8 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                     scheduleDates={selectedScheduleDates}
                     selectedDate={selectedScheduleDates[0].date}
                     cancelAbsence={props.cancelAbsence}
-                    handleAfterCancel={handleAfterCancel}
                     orgId={props.orgId}
-                    isAdmin={props.isAdmin}
+                    actingAsEmployee={props.actingAsEmployee}
                   />
                 )}
               </Section>
@@ -165,13 +162,9 @@ export const AbsenceSchedule: React.FC<Props> = props => {
               <ScheduledAbsences
                 absences={employeeAbsenceDetails}
                 cancelAbsence={props.cancelAbsence}
-                handleAfterAbsence={handleAfterCancel}
-                isLoading={
-                  getAbsenceSchedule.state === "LOADING" ||
-                  getAbsenceSchedule.state === "UPDATING"
-                }
+                isLoading={getAbsenceSchedule.state === "LOADING"}
                 orgId={props.orgId}
-                isAdmin={props.isAdmin}
+                actingAsEmployee={props.actingAsEmployee}
               />
             </Grid>
           )}

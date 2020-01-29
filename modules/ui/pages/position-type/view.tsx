@@ -23,7 +23,6 @@ import {
 import * as yup from "yup";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import { UpdatePositionType } from "./graphql/update-position-type.gen";
-import { GetAllPositionTypesWithinOrg } from "./graphql/position-types.gen";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { ReplacementCriteria } from "./replacement-criteria";
 

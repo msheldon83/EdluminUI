@@ -10,7 +10,7 @@ import { CalendarDayType, PermissionEnum } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { useGetEmployee } from "reference-data/employee";
@@ -76,7 +76,19 @@ export const EmployeeHome: React.FC<Props> = props => {
         status: "error",
       });
     },
+    refetchQueries: ["GetEmployeeAbsenceSchedule"],
   });
+
+  const cancelAbsence = useCallback(
+    async (absenceId: string) => {
+      await deleteAbsence({
+        variables: {
+          absenceId: Number(absenceId),
+        },
+      });
+    },
+    [deleteAbsence]
+  );
 
   const disabledDates = useMemo(
     () => computeDisabledDates(getContractSchedule),
@@ -94,21 +106,6 @@ export const EmployeeHome: React.FC<Props> = props => {
       : (getAbsenceSchedule.data?.employee
           ?.employeeAbsenceSchedule as GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]);
   const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
-
-  const cancelAbsence = async (absenceId: string) => {
-    const result = await deleteAbsence({
-      variables: {
-        absenceId: absenceId,
-      },
-    });
-    //if (result) {
-    //await getAbsenceSchedule.refetch();
-    //}
-  };
-
-  const handleAfterAbsense = async () => {
-    await getAbsenceSchedule.refetch();
-  };
 
   return (
     <>
@@ -143,11 +140,11 @@ export const EmployeeHome: React.FC<Props> = props => {
                 (a: EmployeeAbsenceDetail) => isAfter(a.startTimeLocal, today)
               )}
               cancelAbsence={cancelAbsence}
-              handleAfterAbsence={handleAfterAbsense}
               isLoading={
                 getAbsenceSchedule.state === "LOADING" ||
                 getAbsenceSchedule.state === "UPDATING"
               }
+              actingAsEmployee={true}
             />
           </Section>
         </Grid>
