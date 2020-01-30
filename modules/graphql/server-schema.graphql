@@ -1618,6 +1618,10 @@ enum EventType {
   ABSENCE_DETAIL_ADDED
   ABSENCE_DETAIL_CHANGED
   ABSENCE_DETAIL_REMOVED
+  ABSENCE_DISCOVERED_FOR_CALENDAR_CHANGE
+  ABSENCE_DETAIL_CLOSED_BY_CALENDAR_CHANGE
+  ABSENCE_DETAIL_ALTERED_BY_CALENDAR_CHANGE
+  ABSENCE_DETAIL_RESTORED_BY_CALENDAR_CHANGE_DELETE
   VACANCY_CREATED
   VACANCY_UPDATED
   VACANCY_DELETED
@@ -1634,6 +1638,9 @@ enum EventType {
   VACANCY_DETAIL_UPDATED
   VACANCY_DETAIL_VERIFIED
   VACANCY_DETAIL_UN_VERIFIED
+  VACANCY_DETAIL_CLOSED_BY_CALENDAR_CHANGE
+  VACANCY_DETAIL_ALTERED_BY_CALENDAR_CHANGE
+  VACANCY_DETAIL_RESTORED_BY_CALENDAR_CHANGE_DELETE
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
@@ -2079,6 +2086,7 @@ type organizationConfig {
   maxGapMinutesForSameVacancyDetail: Int!
   minAbsenceMinutes: Int!
   maxAbsenceDays: Int!
+  absenceCreateCutoffTime: Seconds!
   requestedSubCutoffMinutes: Int!
   minRequestedEmployeeHoldMinutes: Int!
   maxRequestedEmployeeHoldMinutes: Int!
@@ -2101,6 +2109,7 @@ input organizationConfigInput {
   maxGapMinutesForSameVacancyDetail: Int
   minAbsenceMinutes: Int
   maxAbsenceDays: Int
+  absenceCreateCutoffTime: Int
   requestedSubCutoffMinutes: Int
   minRequestedEmployeeHoldMinutes: Int
   maxRequestedEmployeeHoldMinutes: Int
@@ -3071,7 +3080,7 @@ type PositionAccountingCode implements ModelObjectInterface & OrgObjectInterface
   changedUtc: DateTime!
   deletedUtc: DateTime!
   isDeleted: Boolean!
-  orgId: Int!
+  orgId: ID!
   organization: Organization!
   createdLocal: DateTime
   changedLocal: DateTime
