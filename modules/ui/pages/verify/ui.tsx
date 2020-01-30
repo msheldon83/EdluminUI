@@ -260,7 +260,6 @@ export const VerifyUI: React.FC<Props> = props => {
 
   // When we select a detail record figure out what the next record we should have selected once we verify
   const onSelectDetail = (vacancyDetailId: string) => {
-    console.log("on select", vacancyDetailId);
     setSelectedVacancyDetail(vacancyDetailId);
     const index = assignments.findIndex(x => x.id === vacancyDetailId);
     const nextId = assignments[index + 1]?.id;
@@ -274,11 +273,17 @@ export const VerifyUI: React.FC<Props> = props => {
     }
   };
 
+  const handleSetSelectedDate = (d: Date) => {
+    setSelectedDateTab(d);
+    setSelectedVacancyDetail(undefined);
+    setNextSelectedVacancyDetail(undefined);
+  };
+
   return (
     <>
       <DateTabs
         selectedDateTab={selectedDateToUse}
-        setSelectedDateTab={setSelectedDateTab}
+        setSelectedDateTab={handleSetSelectedDate}
         dateTabOptions={dateTabOptions}
         showLinkToVerify={props.showLinkToVerify}
       />

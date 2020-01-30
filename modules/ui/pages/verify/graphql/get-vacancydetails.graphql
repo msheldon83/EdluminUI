@@ -36,6 +36,7 @@ query GetVacancyDetails(
       accountingCodeAllocations {
         id
         allocation
+        accountingCodeId
         accountingCode {
           id
           name
@@ -49,6 +50,7 @@ query GetVacancyDetails(
           lastName
         }
       }
+      payCodeId
       payCode {
         id
         name

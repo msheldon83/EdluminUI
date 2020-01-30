@@ -6,8 +6,6 @@ import {
   VacancyDetailVerifyInput,
   AbsenceReasonTrackingTypeId,
   DayConversion,
-  PayCode,
-  AccountingCode,
   PermissionEnum,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
@@ -35,6 +33,7 @@ type Props = {
     | "endTimeLocal"
     | "assignment"
     | "payCode"
+    | "payCodeId"
     | "location"
     | "vacancy"
     | "dayPortion"
@@ -62,12 +61,12 @@ export const Assignment: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const vacancyDetail = props.vacancyDetail;
-  const [currentPayCode, setCurrentPayCode] = useState<
-    Pick<PayCode, "id" | "name"> | undefined
-  >(vacancyDetail.payCode ?? undefined);
-  const [currentAccountingCode, setCurrentAccountingCode] = useState<
-    Pick<AccountingCode, "id" | "name"> | undefined
-  >(vacancyDetail.accountingCodeAllocations![0]?.accountingCode ?? undefined);
+  const [currentPayCodeId, setCurrentPayCodeId] = useState<string | undefined>(
+    vacancyDetail.payCodeId ?? undefined
+  );
+  const [currentAccountingCodeId, setCurrentAccountingCodeId] = useState<
+    string | undefined
+  >(vacancyDetail.accountingCodeAllocations![0]?.accountingCodeId ?? undefined);
   const [selectedDayConversionName, setSelectedDayConversionName] = useState<
     string
   >();
@@ -123,7 +122,6 @@ export const Assignment: React.FC<Props> = props => {
   }, [props.vacancyDayConversions, dayConversionHourlyName]);
   // Make sure the dayConversionName is initially set
   useEffect(() => {
-    console.log("in effect");
     if (
       !vacancyDetail.dayPortion ||
       vacancyDetail.payTypeId === AbsenceReasonTrackingTypeId.Hourly
@@ -157,7 +155,6 @@ export const Assignment: React.FC<Props> = props => {
     vacancyDetail.payTypeId,
     vacancyDetail.payInfo,
   ]);
-  //console.log("selected day conversion name", selectedDayConversionName);
 
   // Get the current PayTypeId based on the current selectedDayConversion
   const payTypeId = useMemo(() => {
@@ -187,8 +184,16 @@ export const Assignment: React.FC<Props> = props => {
     ]
   );
 
-  const handlePayCodeOnBlur = async (payCodeId: string | undefined) => {
-    if (currentPayCode?.id === payCodeId) {
+  const payCodeLabel = props.payCodeOptions.find(
+    x => x.value === currentPayCodeId
+  )?.label;
+
+  const accountingCodeLabel = accountingCodeOptions.find(
+    x => x.value === currentAccountingCodeId
+  )?.label;
+
+  const handlePayCodeOnChange = async (payCodeId: string | undefined) => {
+    if (currentPayCodeId === payCodeId) {
       // Don't call the mutation if we're not chaning anything
       return;
     }
@@ -201,16 +206,14 @@ export const Assignment: React.FC<Props> = props => {
 
     // Find the pay code option that matches our selection and set in state
     const payCode = props.payCodeOptions.find(x => x.value === payCodeId);
-    setCurrentPayCode(
-      payCode ? { id: payCodeId!, name: payCode.label.toString() } : undefined
-    );
+
+    setCurrentPayCodeId(payCode ? payCodeId! : undefined);
   };
 
-  const handleAccountingCodeOnBlur = async (
+  const handleAccountingCodeOnChange = async (
     accountingCodeId: string | undefined
   ) => {
-    console.log("in blur for accounting code");
-    if (currentAccountingCode?.id === accountingCodeId) {
+    if (currentAccountingCodeId === accountingCodeId) {
       // Don't call the mutation if we're not chaning anything
       return;
     }
@@ -232,11 +235,7 @@ export const Assignment: React.FC<Props> = props => {
     const accountingCode = accountingCodeOptions.find(
       x => x.value === accountingCodeId
     );
-    setCurrentAccountingCode(
-      accountingCode
-        ? { id: accountingCodeId!, name: accountingCode.label.toString() }
-        : undefined
-    );
+    setCurrentAccountingCodeId(accountingCode ? accountingCodeId : undefined);
   };
 
   const handleCommentsOnBlur = async (verifyComments: string | undefined) => {
@@ -282,9 +281,9 @@ export const Assignment: React.FC<Props> = props => {
       <Formik
         initialValues={{
           verifyComments: vacancyDetail.verifyComments ?? undefined,
-          payCodeId: currentPayCode?.id ?? undefined,
+          payCodeId: currentPayCodeId ?? undefined,
           dayPortion: vacancyDetail.dayPortion,
-          accountingCodeId: currentAccountingCode?.id ?? undefined,
+          accountingCodeId: currentAccountingCodeId ?? undefined,
           payDurationOverrideHours: minutesToHours(
             vacancyDetail.payDurationOverride ??
               vacancyDetail.actualDuration ??
@@ -385,7 +384,7 @@ export const Assignment: React.FC<Props> = props => {
                 {!isActiveCard && (
                   <Typography
                     className={classes.boldText}
-                  >{`Pay: ${currentPayCode?.name ?? t("N/A")}`}</Typography>
+                  >{`Pay: ${payCodeLabel ?? t("N/A")}`}</Typography>
                 )}
               </Grid>
               <Grid item xs={2}>
@@ -395,8 +394,7 @@ export const Assignment: React.FC<Props> = props => {
                 {!isActiveCard && (
                   <Typography
                     className={classes.boldText}
-                  >{`Acct: ${currentAccountingCode?.name ??
-                    t("N/A")}`}</Typography>
+                  >{`Acct: ${accountingCodeLabel ?? t("N/A")}`}</Typography>
                 )}
               </Grid>
               <Grid item xs={1}>
@@ -522,7 +520,7 @@ export const Assignment: React.FC<Props> = props => {
                               a => a.value === values.payCodeId
                             )?.label || "",
                         }}
-                        onChange={(e: OptionType) => {
+                        onChange={async (e: OptionType) => {
                           //TODO: Once the select component is updated,
                           // can remove the Array checking
                           let selectedValue = null;
@@ -535,16 +533,16 @@ export const Assignment: React.FC<Props> = props => {
                             }
                           }
                           setFieldValue("payCodeId", selectedValue);
+                          await handlePayCodeOnChange(selectedValue);
                         }}
                         multiple={false}
                         options={props.payCodeOptions}
-                        onBlur={() => handlePayCodeOnBlur(values.payCodeId)}
                       />
                     </Can>
                     <Can not do={[PermissionEnum.AbsVacSavePayCode]}>
                       <Typography
                         className={classes.boldText}
-                      >{`Pay: ${currentPayCode?.name ?? t("N/A")}`}</Typography>
+                      >{`Pay: ${payCodeLabel ?? t("N/A")}`}</Typography>
                     </Can>
                   </Grid>
                   <Grid item xs={2}>
@@ -558,7 +556,7 @@ export const Assignment: React.FC<Props> = props => {
                               a => a.value === values.accountingCodeId
                             )?.label || "",
                         }}
-                        onChange={(e: OptionType) => {
+                        onChange={async (e: OptionType) => {
                           //TODO: Once the select component is updated,
                           // can remove the Array checking
                           let selectedValue = null;
@@ -571,21 +569,16 @@ export const Assignment: React.FC<Props> = props => {
                             }
                           }
                           setFieldValue("accountingCodeId", selectedValue);
-                          handleAccountingCodeOnBlur(selectedValue);
+                          await handleAccountingCodeOnChange(selectedValue);
                         }}
                         options={accountingCodeOptions}
-                        onBlur={
-                          () => {}
-                          //handleAccountingCodeOnBlur(values.accountingCodeId)
-                        }
                         multiple={false}
                       />
                     </Can>
                     <Can not do={[PermissionEnum.AbsVacSaveAccountCode]}>
                       <Typography
                         className={classes.boldText}
-                      >{`Acct: ${currentAccountingCode?.name ??
-                        t("N/A")}`}</Typography>
+                      >{`Acct: ${accountingCodeLabel ?? t("N/A")}`}</Typography>
                     </Can>
                   </Grid>
                   <Grid item xs={1}></Grid>

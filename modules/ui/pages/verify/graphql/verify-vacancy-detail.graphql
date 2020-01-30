@@ -23,11 +23,13 @@ mutation VerifyVacancyDetail($vacancyDetail: VacancyDetailVerifyInput!) {
       accountingCodeAllocations {
         id
         allocation
+        accountingCodeId
         accountingCode {
           id
           name
         }
       }
+      payCodeId
       payCode {
         id
         name
