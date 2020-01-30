@@ -154,7 +154,7 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
         {({ handleSubmit, submitForm, values, setFieldValue }) => (
           <form onSubmit={handleSubmit}>
             <Spacing bottom={2}>
-              <Grid container alignItems="center" spacing={2}>
+              <Grid container alignItems="flex-end" spacing={2}>
                 {values.fields.map((field: FieldData, index: number) => (
                   <Grid item key={field.key}>
                     <Input
@@ -168,7 +168,7 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
                     />
                   </Grid>
                 ))}
-                <Padding top={4}>
+                <Padding bottom={2}>
                   <Grid item>
                     <Clear
                       className={
@@ -181,7 +181,7 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
                     />
                   </Grid>
                 </Padding>
-                <Padding top={4}>
+                <Padding bottom={2}>
                   <Grid item>
                     <Check
                       className={

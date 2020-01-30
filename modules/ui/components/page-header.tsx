@@ -184,11 +184,11 @@ export const PageHeader: React.FC<Props> = props => {
         {({ handleSubmit, submitForm }) => (
           <form onSubmit={handleSubmit}>
             <Spacing bottom={2}>
-              <Grid container alignItems="center" spacing={2}>
+              <Grid container alignItems="flex-end" spacing={2}>
                 <Grid item>
                   <Input label={props.label} name="value" fullWidth />
                 </Grid>
-                <Padding top={4}>
+                <Padding bottom={2}>
                   <Grid item>
                     <Clear
                       className={
@@ -201,7 +201,7 @@ export const PageHeader: React.FC<Props> = props => {
                     />
                   </Grid>
                 </Padding>
-                <Padding top={4}>
+                <Padding bottom={2}>
                   <Grid item>
                     <Check
                       className={
