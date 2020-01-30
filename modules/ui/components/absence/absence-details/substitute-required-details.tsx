@@ -33,12 +33,12 @@ type Props = {
   isAdmin: boolean;
   errors: Errors;
   values: AbsenceDetailsFormData;
-  replacementEmployeeId?: number;
+  replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   arrangeSubButtonTitle?: string;
   disabledDates?: Date[];
   disableReplacementInteractions?: boolean;
-  locationIds?: number[];
+  locationIds?: string[];
   disableEditingDatesAndTimes?: boolean;
   isSubmitted: boolean;
   initialAbsenceCreation: boolean;

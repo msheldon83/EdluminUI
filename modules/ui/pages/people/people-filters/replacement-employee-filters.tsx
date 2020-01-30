@@ -30,9 +30,7 @@ export const ReplacementEmployeeFilters: React.FC<Props> = props => {
 
   const onChange = useCallback(
     (value /* OptionType[] */) => {
-      const ids: number[] = value
-        ? value.map((v: OptionType) => Number(v.value))
-        : [];
+      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
       updateFilters({ endorsements: ids });
     },
     [updateFilters]
@@ -45,7 +43,7 @@ export const ReplacementEmployeeFilters: React.FC<Props> = props => {
         onChange={onChange}
         options={endorsementOptions}
         value={endorsementOptions.filter(
-          e => e.value && props.endorsements.includes(Number(e.value))
+          e => e.value && props.endorsements.includes(e.value.toString())
         )}
         multiple
       />

@@ -107,7 +107,7 @@ export const EmployeeTab: React.FC<Props> = props => {
       />
       <ReplacementCriteria
         editing={props.editing}
-        replacementCriteria={employee.primaryPosition?.replacementCriteria}
+        replacementCriteria={employee?.primaryPosition?.replacementCriteria}
       />
       <SubstitutePrefCard
         favoriteHeading={t("Favorites")}

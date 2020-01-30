@@ -12,12 +12,12 @@ export type SubSignInFilter = {
 };
 
 type SubSignInFilterQueryParams = {
-  location: number;
+  location: string;
   date: string;
 };
 
 export type SubSignInQueryFilters = {
-  location: number;
+  location: string;
   date: string;
 };
 
@@ -27,11 +27,11 @@ export const FilterParams: Isomorphism<
 > = {
   to: k => ({
     date: k.date,
-    location: Number(k.location),
+    location: k.location,
   }),
   from: s => ({
     ...FilterQueryParamDefaults,
-    location: s.location.toString(),
+    location: s.location,
     date: s.date,
   }),
 };

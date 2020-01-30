@@ -17,7 +17,7 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
   const [updateAbsenceReasonMutation] = useMutationBundle(UpdateAbsenceReason);
 
   const [deleteAbsenceReason] = useMutationBundle(DeleteAbsenceReason, {
-    variables: { absenceReasonId: Number(params.absenceReasonId) },
+    variables: { absenceReasonId: params.absenceReasonId },
   });
 
   const deleteAbsenceReasonCallback = React.useCallback(async () => {
@@ -44,7 +44,7 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
     updateAbsenceReasonMutation({
       variables: {
         absenceReason: {
-          id: Number(absenceReason.id),
+          id: absenceReason.id,
           rowVersion: absenceReason.rowVersion,
           isBucket: absenceReason.isBucket,
           allowNegativeBalance: absenceReason.allowNegativeBalance,

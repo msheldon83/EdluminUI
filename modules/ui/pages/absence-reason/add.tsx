@@ -54,7 +54,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
       const result = await createAbsenceReason({
         variables: {
           absenceReason: {
-            orgId: Number(params.organizationId),
+            orgId: params.organizationId,
             ...basicInfo,
             allowNegativeBalance,
             isBucket: false,

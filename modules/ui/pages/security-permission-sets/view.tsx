@@ -57,7 +57,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
   const deletePermissionSet = React.useCallback(async () => {
     await deletePermissionSetMutation({
       variables: {
-        permissionSetId: Number(params.permissionSetId),
+        permissionSetId: params.permissionSetId,
       },
       awaitRefetchQueries: true,
       refetchQueries: ["GetAllPermissionSetsWithinOrg"],
@@ -94,7 +94,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
     await updatePermissionSet({
       variables: {
         permissionSet: {
-          id: Number(permissionSet.id),
+          id: permissionSet.id,
           rowVersion: permissionSet.rowVersion,
           name,
         },
@@ -106,7 +106,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
     await updatePermissionSet({
       variables: {
         permissionSet: {
-          id: Number(permissionSet.id),
+          id: permissionSet.id,
           rowVersion: permissionSet.rowVersion,
           externalId,
         },
@@ -118,7 +118,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
     await updatePermissionSet({
       variables: {
         permissionSet: {
-          id: Number(permissionSet.id),
+          id: permissionSet.id,
           rowVersion: permissionSet.rowVersion,
           description,
         },
@@ -149,7 +149,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
     await updatePermissionSet({
       variables: {
         permissionSet: {
-          id: Number(permissionSet.id),
+          id: permissionSet.id,
           rowVersion: permissionSet.rowVersion,
           categories: filteredCategoryObjects,
         },

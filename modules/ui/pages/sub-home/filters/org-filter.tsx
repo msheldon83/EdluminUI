@@ -20,8 +20,8 @@ export const DistrictFilter: React.FC<Props> = props => {
   );
   const onChangeOrganizations = useCallback(
     (value: OptionType[]) => {
-      const ids: number[] = value
-        ? value.map((v: OptionType) => Number(v.value))
+      const ids: string[] = value
+        ? value.map((v: OptionType) => v.value.toString())
         : [];
       updateFilters({ orgIds: ids });
     },
@@ -29,7 +29,7 @@ export const DistrictFilter: React.FC<Props> = props => {
   );
 
   const value = organizationOptions.filter(
-    e => e.value && props.orgIds.includes(Number(e.value))
+    e => e.value && props.orgIds.includes(e.value.toString())
   );
 
   return (

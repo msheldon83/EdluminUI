@@ -1,16 +1,7 @@
-import { getContiguousDateIntervals } from "helpers/date";
+import { getContiguousDateIntervals, DateInterval } from "helpers/date";
 import { format } from "date-fns";
 
-export const getAbsenceDateRangeDisplayText = (
-  allDates: Date[],
-  disabledDates?: Date[]
-): string | null => {
-  if (allDates.length === 0) {
-    return null;
-  }
-
-  const intervals = getContiguousDateIntervals(allDates, disabledDates);
-
+export const getIntervalDisplayText = (intervals: DateInterval[]) => {
   if (intervals.length === 0) {
     return null;
   }
@@ -70,7 +61,7 @@ export const getAbsenceDateRangeDisplayText = (
   return overallDateRangeDisplay;
 };
 
-export const getAbsenceDateRangeDisplayTextWithDayOfWeek = (
+export const getAbsenceDateRangeDisplayText = (
   allDates: Date[],
   disabledDates?: Date[]
 ): string | null => {
@@ -79,7 +70,12 @@ export const getAbsenceDateRangeDisplayTextWithDayOfWeek = (
   }
 
   const intervals = getContiguousDateIntervals(allDates, disabledDates);
+  return getIntervalDisplayText(intervals);
+};
 
+export const getIntervalDisplayTextWithDayOfWeek = (
+  intervals: DateInterval[]
+) => {
   if (intervals.length === 0) {
     return null;
   }
@@ -161,4 +157,28 @@ export const getAbsenceDateRangeDisplayTextWithDayOfWeek = (
   }
 
   return `${overallDayOfWeekDisplay} ${overallDateRangeDisplay}`;
+};
+
+export const getAbsenceDateRangeDisplayTextWithDayOfWeek = (
+  allDates: Date[],
+  disabledDates?: Date[]
+): string | null => {
+  if (allDates.length === 0) {
+    return null;
+  }
+
+  const intervals = getContiguousDateIntervals(allDates, disabledDates);
+  return getIntervalDisplayTextWithDayOfWeek(intervals);
+};
+
+export const getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates = (
+  allDates: Date[],
+  disabledDates?: Date[]
+): string | null => {
+  const intervals = getContiguousDateIntervals(allDates, disabledDates);
+  if (intervals.length > 1) {
+    return getIntervalDisplayText(intervals);
+  } else {
+    return getIntervalDisplayTextWithDayOfWeek(intervals);
+  }
 };

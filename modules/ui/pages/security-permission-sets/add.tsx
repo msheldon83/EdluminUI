@@ -28,7 +28,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 
 type PermissionSetCreate = {
-  orgId: number;
+  orgId: string;
   name: string;
   externalId?: string | null | undefined;
   description?: string | null | undefined;
@@ -56,7 +56,7 @@ export const PermissionSetAddPage: React.FC<{}> = props => {
 
   const [permissionSet, setPermissionSet] = React.useState<PermissionSetCreate>(
     {
-      orgId: Number(params.organizationId),
+      orgId: params.organizationId,
       name: "",
       externalId: null,
       description: null,

@@ -1,9 +1,9 @@
 import { OrgUserRole } from "graphql/server-types.gen";
 
 export type OrgUser = {
-  orgId: number;
+  orgId: string;
   name: string;
   externalId?: string | null;
   role: OrgUserRole | null;
-  permissionSet?: number;
+  permissionSet?: string;
 };

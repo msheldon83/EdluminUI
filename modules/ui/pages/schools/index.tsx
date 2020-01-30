@@ -16,7 +16,7 @@ type Props = {};
 export const Locations: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [locationGroupFilter, setLocationGroupsFilter] = useState<number[]>([]);
+  const [locationGroupFilter, setLocationGroupsFilter] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<string | undefined>();
   const params = useRouteParams(LocationsRoute);
 

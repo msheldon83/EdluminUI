@@ -1,8 +1,8 @@
 query GetDailyReport(
   $orgId: ID!
   $date: Date!
-  $locationIds: [Int]
-  $positionTypeIds: [Int]
+  $locationIds: [ID]
+  $positionTypeIds: [ID]
 ) {
   absence {
     dailyReport(

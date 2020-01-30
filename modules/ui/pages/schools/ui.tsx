@@ -10,10 +10,9 @@ import { LocationsRoute, LocationViewRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllLocationsWithinOrg } from "./graphql/get-all-locations.gen";
 import { useIsMobile } from "hooks";
-import { PaginationControls } from "ui/components/pagination-controls";
 
 type Props = {
-  locationGroupFilter: number[];
+  locationGroupFilter: string[];
   searchText?: string;
   olderAction?: () => void;
 };

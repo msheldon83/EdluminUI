@@ -67,7 +67,7 @@ export const AccountingCode: React.FC<Props> = props => {
   );
 
   const accountingCode: AccountingCodeCreateInput = {
-    orgId: Number(params.organizationId),
+    orgId: params.organizationId,
     name: "",
     externalId: null,
     locationId: null,
@@ -133,12 +133,10 @@ export const AccountingCode: React.FC<Props> = props => {
     validateAccountingCode.validate(accountingCode).catch(function(err) {
       ShowGenericErrors(err, openSnackbar);
     });
-    accountingCode.locationId =
-      accountingCode.locationId === 0 ? null : accountingCode.locationId;
     const result = await updateAccountingCode({
       variables: {
         accountingCode: {
-          id: Number(accountingCode.id),
+          id: accountingCode.id,
           rowVersion: accountingCode.rowVersion,
           name: accountingCode.name,
           externalId:
@@ -164,8 +162,6 @@ export const AccountingCode: React.FC<Props> = props => {
     validateAccountingCode.validate(accountingCode).catch(function(err) {
       ShowGenericErrors(err, openSnackbar);
     });
-    accountingCode.locationId =
-      accountingCode.locationId === 0 ? null : accountingCode.locationId;
     const result = await createAccountingCode({
       variables: {
         accountingCode: {
@@ -191,7 +187,7 @@ export const AccountingCode: React.FC<Props> = props => {
   const deleteAccountingCode = (accountingCodeId: string) => {
     return deleteAccountingCodeMutation({
       variables: {
-        accountingCodeId: Number(accountingCodeId),
+        accountingCodeId: accountingCodeId,
       },
     });
   };
@@ -221,9 +217,7 @@ export const AccountingCode: React.FC<Props> = props => {
               name: newData.name,
               externalId: newData.externalId,
               locationId:
-                newData.location === null
-                  ? undefined
-                  : parseInt(newData.location?.id),
+                newData.location === null ? undefined : newData.location?.id,
             };
             const result = await addAccountingCode(newAccountingCode);
             if (!result) throw Error("Preserve Row on error");
@@ -234,14 +228,12 @@ export const AccountingCode: React.FC<Props> = props => {
         onRowUpdate={{
           action: async newData => {
             const updateAccountingCode = {
-              id: Number(newData.id),
+              id: newData.id,
               rowVersion: newData.rowVersion,
               name: newData.name,
               externalId: newData.externalId,
               locationId:
-                newData.location === null
-                  ? undefined
-                  : parseInt(newData.location?.id),
+                newData.location === null ? undefined : newData.location?.id,
             };
             const result = await editAccountingCode(updateAccountingCode);
             if (!result) throw Error("Preserve Row on error");

@@ -95,7 +95,7 @@ export const View: React.FC<Props> = props => {
   }
 
   const removeSub = async (
-    employeeId: number,
+    employeeId: string,
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => {

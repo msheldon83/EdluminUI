@@ -25,7 +25,7 @@ export type BellSchedule = {
 
 export type Variant = {
   periods: Period[];
-  workDayScheduleVariantTypeId: number;
+  workDayScheduleVariantTypeId: string;
 };
 
 export type Period = {

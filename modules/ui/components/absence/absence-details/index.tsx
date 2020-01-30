@@ -26,7 +26,7 @@ import { SubstituteRequiredDetails } from "./substitute-required-details";
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
   absenceReason: string;
-  replacementEmployeeId?: number;
+  replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   accountingCode?: string;
   payCode?: string;
@@ -53,7 +53,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
   vacancies: Vacancy[];
-  locationIds?: number[];
+  locationIds?: string[];
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
   disabledDates: Date[];
   balanceUsageText?: string;
@@ -62,12 +62,13 @@ type Props = {
   arrangeSubButtonTitle?: string;
   /** default: pre-arranged */
   arrangedSubText?: string;
+  assignmentId?: string;
   disableReplacementInteractions?: boolean;
   disableEditingDatesAndTimes?: boolean;
-  replacementEmployeeId?: number;
+  replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   onRemoveReplacement: (
-    replacementEmployeeId: number,
+    replacementEmployeeId: string,
     replacementEmployeeName?: string,
     assignmentRowVersion?: string
   ) => void;
@@ -230,6 +231,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
               props.disableReplacementInteractions
             }
             employeeId={props.replacementEmployeeId}
+            assignmentId={props.assignmentId}
             employeeName={props.replacementEmployeeName || ""}
             subText={props.arrangedSubText ?? t("pre-arranged")}
             onRemove={props.onRemoveReplacement}

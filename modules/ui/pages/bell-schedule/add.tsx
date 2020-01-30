@@ -86,9 +86,9 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   const orgUsesHalfDayBreaks: boolean = orgFeatureFlags.includes(
     FeatureFlag.HalfDayAbsences
   );
-  const workDayPatternId: number = orgWorkDayPatterns.length
-    ? Number(orgWorkDayPatterns[0]!.id)
-    : 0;
+  const workDayPatternId: string = orgWorkDayPatterns.length
+    ? orgWorkDayPatterns[0]!.id
+    : "";
 
   const renderBasicInfoStep = (
     setStep: React.Dispatch<React.SetStateAction<number>>,
@@ -120,7 +120,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   const renderStandardSchedule = (
     setStep: React.Dispatch<React.SetStateAction<number>>,
     goToNextStep: Function,
-    variantTypeId: number,
+    variantTypeId: string,
     variantTypeName: string
   ) => {
     const schedulePeriods: Array<Period> = [];
@@ -179,7 +179,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   const renderVariantSchedule = (
     setStep: React.Dispatch<React.SetStateAction<number>>,
     goToNextStep: Function,
-    variantTypeId: number,
+    variantTypeId: string,
     variantTypeName: string,
     variantIndex: number
   ) => {
@@ -327,7 +327,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
         return renderStandardSchedule(
           setStep,
           goToNextStep,
-          Number(standardVariantType.id),
+          standardVariantType.id,
           standardVariantType.name
         );
       },
@@ -345,13 +345,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
           setStep: React.Dispatch<React.SetStateAction<number>>,
           goToNextStep: Function
         ) => {
-          return renderVariantSchedule(
-            setStep,
-            goToNextStep,
-            Number(v.id),
-            v.name,
-            i
-          );
+          return renderVariantSchedule(setStep, goToNextStep, v.id, v.name, i);
         },
       });
     });
@@ -393,7 +387,7 @@ const buildWorkDayScheduleCreateInput = (
   organizationId: string
 ): WorkDayScheduleCreateInput => {
   let workDaySchedule: WorkDayScheduleCreateInput = {
-    orgId: Number(organizationId),
+    orgId: organizationId,
     name: bellSchedule.name,
     externalId: bellSchedule.externalId,
     additionalVariants: bellSchedule.variants.map((v: Variant) => {
