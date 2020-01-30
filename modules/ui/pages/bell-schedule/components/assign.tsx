@@ -140,10 +140,7 @@ export const Assign: React.FC<Props> = props => {
           submit={{
             text: props.submitLabel || t("Save"),
             execute: () => {
-              props.onSubmit(
-                locationIds.map(l => Number(l)),
-                locationGroupIds.map(l => Number(l))
-              );
+              props.onSubmit(locationIds, locationGroupIds);
             },
           }}
           cancel={{ text: t("Cancel"), execute: props.onCancel }}
