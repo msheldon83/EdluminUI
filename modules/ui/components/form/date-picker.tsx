@@ -17,7 +17,7 @@ type DatePickerProps = {
   startDate: Date | string;
   endDate?: Date | string;
   onChange: DatePickerOnChange;
-  startLabel: string;
+  startLabel?: string;
   endLabel?: string;
   dateFormat?: string;
   disableDates?: Array<Date>;
@@ -335,7 +335,7 @@ export const DatePicker = (props: DatePickerProps) => {
       <div className={classes.keyboardInputWrapper}>
         <div className={classes.startDateInput} style={startDateStyle()}>
           <DateInput
-            label={startLabel}
+            label={startLabel || ""}
             value={inputStartDate || startDate}
             /*
               The handler is used for both change and valid date ranges here to make the experience

@@ -443,7 +443,6 @@ export const Information: React.FC<Props> = props => {
                             onChange={e =>
                               setFieldValue("dateOfBirth", e.startDate)
                             }
-                            startLabel={""}
                           />
                         }
                       />
