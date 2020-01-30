@@ -80,7 +80,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   const deleteWorkDaySchedule = React.useCallback(async () => {
     await deleteWorkDayScheduleMutation({
       variables: {
-        workDayScheduleId: Number(params.workDayScheduleId),
+        workDayScheduleId: params.workDayScheduleId,
       },
       awaitRefetchQueries: true,
       refetchQueries: ["GetAllWorkDaySchedulesWithinOrg"],
@@ -98,7 +98,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
       return updateWorkDaySchedule({
         variables: {
           workDaySchedule: {
-            id: Number(params.workDayScheduleId),
+            id: params.workDayScheduleId,
             rowVersion: rowVersion,
             expired: !enabled,
           },
@@ -132,7 +132,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     await updateWorkDaySchedule({
       variables: {
         workDaySchedule: {
-          id: Number(workDaySchedule.id),
+          id: workDaySchedule.id,
           rowVersion: workDaySchedule.rowVersion,
           name,
         },
@@ -144,7 +144,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
     await updateWorkDaySchedule({
       variables: {
         workDaySchedule: {
-          id: Number(workDaySchedule.id),
+          id: workDaySchedule.id,
           rowVersion: workDaySchedule.rowVersion,
           externalId,
         },
@@ -229,10 +229,10 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
         name={standardVariantType?.name}
         isStandard={true}
         periods={periods}
-        variantId={Number(standardSchedule.id)}
+        variantId={standardSchedule.id}
         onSubmit={async (
           periods: Array<Period>,
-          variantId: number | null | undefined
+          variantId: string | null | undefined
         ) => {
           await updateStandardSchedule(periods, variantId);
         }}
@@ -246,16 +246,16 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
 
   const updateStandardSchedule = async (
     periods: Array<Period>,
-    variantId?: number | null | undefined
+    variantId?: string | null | undefined
   ) => {
     await updateWorkDaySchedule({
       variables: {
         workDaySchedule: {
-          id: Number(workDaySchedule.id),
+          id: workDaySchedule.id,
           rowVersion: workDaySchedule.rowVersion,
           periods: periods.map(p => {
             return {
-              id: p.periodId ? Number(p.periodId) : null,
+              id: p.periodId ? p.periodId : null,
               name: p.name || p.placeholder,
             };
           }),
@@ -263,7 +263,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
             id: variantId,
             periods: periods.map(p => {
               return {
-                id: p.variantPeriodId ? Number(p.variantPeriodId) : null,
+                id: p.variantPeriodId ? p.variantPeriodId : null,
                 workDaySchedulePeriodName: p.name || p.placeholder,
                 startTime: p.startTime
                   ? secondsSinceMidnight(p.startTime)
@@ -307,7 +307,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
       lastPeriod.startTime === lastPeriod.endTime
     ) {
       endOfDayPeriodName = workDaySchedule.periods!.find(
-        p => Number(p!.id) === lastPeriod.workDaySchedulePeriodId
+        p => p!.id === lastPeriod.workDaySchedulePeriodId
       )?.name;
     }
 
@@ -322,10 +322,10 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
         name={variantTypeName}
         isStandard={false}
         periods={periods}
-        variantId={existingVariant ? Number(existingVariant.id) : null}
+        variantId={existingVariant ? existingVariant.id : null}
         onSubmit={async (
           periods: Array<Period>,
-          variantId: number | null | undefined
+          variantId: string | null | undefined
         ) => {
           await updateVariantSchedule(periods, variantTypeId, variantId);
         }}
@@ -340,21 +340,21 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   const updateVariantSchedule = async (
     periods: Array<Period>,
     variantTypeId: string,
-    variantId?: number | null | undefined
+    variantId?: string | null | undefined
   ) => {
     await updateWorkDayScheduleVariant({
       variables: {
         workDayScheduleVariant: {
-          workDayScheduleId: Number(workDaySchedule.id),
+          workDayScheduleId: workDaySchedule.id,
           rowVersion: workDaySchedule.rowVersion,
           scheduleVariant: {
             id: variantId ?? undefined,
-            workDayScheduleVariantTypeId: Number(variantTypeId),
+            workDayScheduleVariantTypeId: variantTypeId,
             periods: periods
               .filter(p => !p.skipped)
               .map(p => {
                 return {
-                  id: p.variantPeriodId ? Number(p.variantPeriodId) : undefined,
+                  id: p.variantPeriodId ? p.variantPeriodId : undefined,
                   workDaySchedulePeriodName: p.name || p.placeholder,
                   startTime: p.startTime
                     ? secondsSinceMidnight(p.startTime)
@@ -406,13 +406,13 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   };
 
   const updateLocationAssigments = async (
-    locationIds: Array<number>,
-    locationGroupIds: Array<number>
+    locationIds: Array<string>,
+    locationGroupIds: Array<string>
   ) => {
     await updateWorkDaySchedule({
       variables: {
         workDaySchedule: {
-          id: Number(workDaySchedule.id),
+          id: workDaySchedule.id,
           rowVersion: workDaySchedule.rowVersion,
           locationIds,
           locationGroupIds,

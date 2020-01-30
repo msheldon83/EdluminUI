@@ -11,7 +11,7 @@ import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
 export const VerifyPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const [showVerified, setShowVerified] = useState(false);
-  const [locationsFilter, setLocationsFilter] = useState<number[]>([]);
+  const [locationsFilter, setLocationsFilter] = useState<string[]>([]);
   const params = useRouteParams(VerifyRoute);
 
   return (

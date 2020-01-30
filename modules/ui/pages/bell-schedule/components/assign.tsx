@@ -22,8 +22,8 @@ type Props = {
   organizationId: string;
   submitLabel?: string;
   onSubmit: (
-    locationIds: Array<number>,
-    locationGroupIds: Array<number>
+    locationIds: Array<string>,
+    locationGroupIds: Array<string>
   ) => void;
   onCancel: () => void;
 };

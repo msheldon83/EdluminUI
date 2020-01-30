@@ -1,6 +1,6 @@
 query GetProjectedVacancies(
   $absence: AbsenceCreateInput!
-  $ignoreAbsenceId: Int
+  $ignoreAbsenceId: ID
 ) {
   absence {
     projectedVacancies(absence: $absence, ignoreAbsenceId: $ignoreAbsenceId) {

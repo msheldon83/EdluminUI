@@ -28,8 +28,8 @@ export const CreateAbsence: React.FC<Props> = props => {
     return <></>;
   }
 
-  const locationIds = employeeInfo.data.employee?.byId?.locations?.map(l =>
-    Number(l?.id)
+  const locationIds = employeeInfo.data.employee?.byId?.locations?.map(
+    l => l?.id ?? ""
   );
 
   return (
@@ -46,7 +46,10 @@ export const CreateAbsence: React.FC<Props> = props => {
       }
       positionName={employeeInfo.data.employee?.byId?.primaryPosition?.title}
       positionId={employeeInfo.data.employee.byId.primaryPosition?.id}
-      payCodeId={employeeInfo.data.employee?.byId?.primaryPosition?.positionType?.payCodeId?.toString()}
+      payCodeId={
+        employeeInfo.data.employee?.byId?.primaryPosition?.positionType
+          ?.payCodeId
+      }
     />
   );
 };

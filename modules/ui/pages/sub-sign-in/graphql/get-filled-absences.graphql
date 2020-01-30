@@ -1,4 +1,4 @@
-query GetFilledAbsences($orgId: ID!, $date: Date!, $locationIds: [Int]) {
+query GetFilledAbsences($orgId: ID!, $date: Date!, $locationIds: [ID]) {
   absence {
     subSignInReport(orgId: $orgId, date: $date, locationIds: $locationIds) {
       id

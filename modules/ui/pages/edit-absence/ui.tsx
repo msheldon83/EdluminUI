@@ -60,17 +60,18 @@ type Props = {
   userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
-  absenceReasonId: number;
+  absenceReasonId: string;
   absenceId: string;
+  assignmentId?: string;
   dayPart?: DayPart;
   initialVacancyDetails: VacancyDetail[];
   initialVacancies: Vacancy[];
   initialAbsenceUsageData: AbsenceReasonUsageData[];
   rowVersion: string;
   absenceDetailsIdsByDate: Record<string, string>;
-  replacementEmployeeId?: number;
+  replacementEmployeeId?: string;
   replacementEmployeeName?: string;
-  locationIds?: number[];
+  locationIds?: string[];
   startTimeLocal: string;
   endTimeLocal: string;
   absenceDates: Date[];
@@ -241,9 +242,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       buildAbsenceCreateInput(
         state.absenceDates,
         formValues,
-        Number(props.organizationId),
-        Number(state.employeeId),
-        Number(props.positionId),
+        props.organizationId,
+        state.employeeId,
+        props.positionId ?? "",
         disabledDates,
         state.needsReplacement,
         customizedVacancyDetails
@@ -268,7 +269,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         ...projectedVacanciesInput!,
         ignoreWarnings: true,
       },
-      ignoreAbsenceId: Number(props.absenceId),
+      ignoreAbsenceId: props.absenceId,
     },
     skip: !useProjectedInformation || projectedVacanciesInput === null,
     onError: () => {},
@@ -280,7 +281,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         ...projectedVacanciesInput!,
         ignoreWarnings: true,
       },
-      ignoreAbsenceId: Number(props.absenceId),
+      ignoreAbsenceId: props.absenceId,
     },
     skip: !useProjectedInformation || projectedVacanciesInput === null,
     // fetchPolicy: "no-cache",
@@ -341,7 +342,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   ) => {
     let absenceUpdateInput = buildAbsenceUpdateInput(
       props.absenceId,
-      Number(props.positionId),
+      props.positionId ?? "",
       props.rowVersion,
       state.absenceDates,
       props.absenceDetailsIdsByDate,
@@ -376,14 +377,14 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     }
   };
   const onSelectReplacement = useCallback(
-    async (employeeId: number, name: string) => {
+    async (employeeId: string, name: string) => {
       await assignVacancy({
         variables: {
           assignment: {
-            orgId: Number(props.organizationId),
+            orgId: props.organizationId,
             employeeId: employeeId,
             appliesToAllVacancyDetails: true,
-            vacancyId: Number(props.initialVacancies[0].id),
+            vacancyId: props.initialVacancies[0].id,
           },
         },
       });
@@ -456,6 +457,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               onToggleAbsenceDate={onToggleAbsenceDate}
               saveLabel={t("Save")}
               setStep={setStep}
+              assignmentId={props.assignmentId}
               disabledDates={disabledDates}
               isAdmin={props.userIsAdmin}
               needsReplacement={props.needsReplacement}
@@ -534,7 +536,7 @@ const initialState = (props: Props): EditAbsenceState => ({
 
 const buildAbsenceUpdateInput = (
   absenceId: string,
-  positionId: number,
+  positionId: string,
   rowVersion: string,
   absenceDates: Date[],
   absenceDetailsIdsByDate: Record<string, string>,
@@ -564,7 +566,7 @@ const buildAbsenceUpdateInput = (
     })) || undefined;
 
   const absence: AbsenceUpdateInput = {
-    id: Number(absenceId),
+    id: absenceId,
     rowVersion,
     notesToApprover: formValues.notesToApprover,
     details: dates.map(d => {
@@ -572,9 +574,9 @@ const buildAbsenceUpdateInput = (
       const previousId = absenceDetailsIdsByDate[formattedDate];
       let detail: AbsenceDetailCreateInput = {
         date: formattedDate,
-        id: previousId ? Number(previousId) : null,
+        id: previousId ? previousId : null,
         dayPartId: formValues.dayPart,
-        reasons: [{ absenceReasonId: Number(formValues.absenceReason) }],
+        reasons: [{ absenceReasonId: formValues.absenceReason }],
       };
 
       if (formValues.dayPart === DayPart.Hourly) {
@@ -593,7 +595,7 @@ const buildAbsenceUpdateInput = (
     }),
     vacancies: [
       {
-        positionId: Number(positionId),
+        positionId: positionId,
         useSuppliedDetails: true,
         needsReplacement: state.needsReplacement,
         notesToReplacement: formValues.notesToReplacement,
@@ -602,12 +604,12 @@ const buildAbsenceUpdateInput = (
         accountingCodeAllocations: formValues.accountingCode
           ? [
               {
-                accountingCodeId: Number(formValues.accountingCode),
+                accountingCodeId: formValues.accountingCode,
                 allocation: 1.0,
               },
             ]
           : undefined,
-        payCodeId: formValues.payCode ? Number(formValues.payCode) : undefined,
+        payCodeId: formValues.payCode ? formValues.payCode : undefined,
       },
     ],
   };

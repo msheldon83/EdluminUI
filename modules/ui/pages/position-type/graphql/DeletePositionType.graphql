@@ -1,4 +1,4 @@
-mutation DeletePostionType($positionTypeId: Int!) {
+mutation DeletePostionType($positionTypeId: ID!) {
   positionType {
     delete(positionTypeId: $positionTypeId)
   }

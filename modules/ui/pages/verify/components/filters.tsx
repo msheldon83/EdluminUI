@@ -15,8 +15,8 @@ type Props = {
   showVerified: boolean;
   orgId: string;
   setShowVerified: React.Dispatch<React.SetStateAction<boolean>>;
-  locationsFilter: number[];
-  setLocationsFilter: React.Dispatch<React.SetStateAction<number[]>>;
+  locationsFilter: string[];
+  setLocationsFilter: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 export const Filters: React.FC<Props> = props => {
@@ -30,8 +30,8 @@ export const Filters: React.FC<Props> = props => {
   );
   const onChangeLocations = useCallback(
     (value /* OptionType[] */) => {
-      const ids: number[] = value
-        ? value.map((v: OptionType) => Number(v.value))
+      const ids: string[] = value
+        ? value.map((v: OptionType) =>v.value)
         : [];
       props.setLocationsFilter(ids);
     },
@@ -53,7 +53,7 @@ export const Filters: React.FC<Props> = props => {
             onChange={onChangeLocations}
             options={locationOptions}
             value={locationOptions.filter(
-              e => e.value && props.locationsFilter.includes(Number(e.value))
+              e => e.value && props.locationsFilter.includes(e.value.toString())
             )}
             multiple
           />

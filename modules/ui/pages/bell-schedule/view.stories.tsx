@@ -90,7 +90,7 @@ export const BasicView = () => {
               {
                 id: "1000",
                 isStandard: true,
-                workDayScheduleVariantTypeId: 1000,
+                workDayScheduleVariantTypeId: "1000",
                 periods: [
                   {
                     id: "1",
@@ -99,7 +99,7 @@ export const BasicView = () => {
                     isHalfDayMorningEnd: true,
                     isHalfDayAfternoonStart: false,
                     sequence: 1,
-                    workDaySchedulePeriodId: 1000,
+                    workDaySchedulePeriodId: "1000",
                   },
                   {
                     id: "2",
@@ -108,7 +108,7 @@ export const BasicView = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: true,
                     sequence: 2,
-                    workDaySchedulePeriodId: 1001,
+                    workDaySchedulePeriodId: "1001",
                   },
                   {
                     id: "3",
@@ -117,14 +117,14 @@ export const BasicView = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: false,
                     sequence: 3,
-                    workDaySchedulePeriodId: 1002,
+                    workDaySchedulePeriodId: "1002",
                   },
                 ],
               },
               {
                 id: "1002",
                 isStandard: false,
-                workDayScheduleVariantTypeId: 1001,
+                workDayScheduleVariantTypeId: "1001",
                 periods: [
                   {
                     id: "4",
@@ -133,7 +133,7 @@ export const BasicView = () => {
                     isHalfDayMorningEnd: true,
                     isHalfDayAfternoonStart: false,
                     sequence: 1,
-                    workDaySchedulePeriodId: 1000,
+                    workDaySchedulePeriodId: "1000",
                   },
                   {
                     id: "5",
@@ -142,7 +142,7 @@ export const BasicView = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: true,
                     sequence: 2,
-                    workDaySchedulePeriodId: 1001,
+                    workDaySchedulePeriodId: "1001",
                   },
                   {
                     id: "6",
@@ -151,14 +151,14 @@ export const BasicView = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: false,
                     sequence: 3,
-                    workDaySchedulePeriodId: 1002,
+                    workDaySchedulePeriodId: "1002",
                   },
                 ],
               },
               {
                 id: "1003",
                 isStandard: false,
-                workDayScheduleVariantTypeId: 1002,
+                workDayScheduleVariantTypeId: "1002",
                 periods: [
                   {
                     id: "7",
@@ -167,7 +167,7 @@ export const BasicView = () => {
                     isHalfDayMorningEnd: true,
                     isHalfDayAfternoonStart: false,
                     sequence: 1,
-                    workDaySchedulePeriodId: 1000,
+                    workDaySchedulePeriodId: "1000",
                   },
                   {
                     id: "8",
@@ -176,7 +176,7 @@ export const BasicView = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: true,
                     sequence: 2,
-                    workDaySchedulePeriodId: 1001,
+                    workDaySchedulePeriodId: "1001",
                   },
                   {
                     id: "9",
@@ -185,7 +185,7 @@ export const BasicView = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: false,
                     sequence: 3,
-                    workDaySchedulePeriodId: 1002,
+                    workDaySchedulePeriodId: "1002",
                   },
                 ],
               },
@@ -234,7 +234,7 @@ export const InactiveBellSchedule = () => {
               {
                 id: "1000",
                 isStandard: true,
-                workDayScheduleVariantTypeId: 1000,
+                workDayScheduleVariantTypeId: "1000",
                 periods: [
                   {
                     id: "1",
@@ -243,7 +243,7 @@ export const InactiveBellSchedule = () => {
                     isHalfDayMorningEnd: true,
                     isHalfDayAfternoonStart: false,
                     sequence: 1,
-                    workDaySchedulePeriodId: 1000,
+                    workDaySchedulePeriodId: "1000",
                   },
                   {
                     id: "2",
@@ -252,7 +252,7 @@ export const InactiveBellSchedule = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: true,
                     sequence: 2,
-                    workDaySchedulePeriodId: 1001,
+                    workDaySchedulePeriodId: "1001",
                   },
                   {
                     id: "3",
@@ -261,14 +261,14 @@ export const InactiveBellSchedule = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: false,
                     sequence: 3,
-                    workDaySchedulePeriodId: 1002,
+                    workDaySchedulePeriodId: "1002",
                   },
                 ],
               },
               {
                 id: "1002",
                 isStandard: false,
-                workDayScheduleVariantTypeId: 1001,
+                workDayScheduleVariantTypeId: "1001",
                 periods: [
                   {
                     id: "4",
@@ -277,7 +277,7 @@ export const InactiveBellSchedule = () => {
                     isHalfDayMorningEnd: true,
                     isHalfDayAfternoonStart: false,
                     sequence: 1,
-                    workDaySchedulePeriodId: 1000,
+                    workDaySchedulePeriodId: "1000",
                   },
                   {
                     id: "5",
@@ -286,7 +286,7 @@ export const InactiveBellSchedule = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: true,
                     sequence: 2,
-                    workDaySchedulePeriodId: 1001,
+                    workDaySchedulePeriodId: "1001",
                   },
                   {
                     id: "6",
@@ -295,14 +295,14 @@ export const InactiveBellSchedule = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: false,
                     sequence: 3,
-                    workDaySchedulePeriodId: 1002,
+                    workDaySchedulePeriodId: "1002",
                   },
                 ],
               },
               {
                 id: "1003",
                 isStandard: false,
-                workDayScheduleVariantTypeId: 1002,
+                workDayScheduleVariantTypeId: "1002",
                 periods: [
                   {
                     id: "7",
@@ -311,7 +311,7 @@ export const InactiveBellSchedule = () => {
                     isHalfDayMorningEnd: true,
                     isHalfDayAfternoonStart: false,
                     sequence: 1,
-                    workDaySchedulePeriodId: 1000,
+                    workDaySchedulePeriodId: "1000",
                   },
                   {
                     id: "8",
@@ -320,7 +320,7 @@ export const InactiveBellSchedule = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: true,
                     sequence: 2,
-                    workDaySchedulePeriodId: 1001,
+                    workDaySchedulePeriodId: "1001",
                   },
                   {
                     id: "9",
@@ -329,7 +329,7 @@ export const InactiveBellSchedule = () => {
                     isHalfDayMorningEnd: false,
                     isHalfDayAfternoonStart: false,
                     sequence: 3,
-                    workDaySchedulePeriodId: 1002,
+                    workDaySchedulePeriodId: "1002",
                   },
                 ],
               },

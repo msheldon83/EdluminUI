@@ -46,7 +46,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     {
       variables: {
         orgId: params.organizationId,
-        positionTypeId: Number(params.positionTypeId),
+        positionTypeId: params.positionTypeId,
       },
     }
   );

@@ -1,4 +1,4 @@
-mutation DeletePermissionSet($permissionSetId: Int!) {
+mutation DeletePermissionSet($permissionSetId: ID!) {
   permissionSet {
     delete(permissionSetId: $permissionSetId)
   }

@@ -1,4 +1,4 @@
-query GetAccountingCodes($orgId: ID!, $locationIds: [Int]) {
+query GetAccountingCodes($orgId: ID!, $locationIds: [ID]) {
   orgRef_AccountingCode {
     all(orgId: $orgId, locationIds: $locationIds) {
       id

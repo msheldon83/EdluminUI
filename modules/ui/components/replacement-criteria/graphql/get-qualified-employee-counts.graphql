@@ -1,4 +1,4 @@
-query GetQualifiedEmployeeCountsWithinOrg($orgId: ID!, $positionId: Int!) {
+query GetQualifiedEmployeeCountsWithinOrg($orgId: ID!, $positionId: ID!) {
   position {
     qualifiedEmployeeCounts(orgId: $orgId, positionId: $positionId) {
       numFullyQualified

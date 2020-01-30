@@ -82,7 +82,7 @@ export const CalendarChangeReason: React.FC<Props> = props => {
   );
   const deleteCalendarChangeReasons = (calendarChangeReasonId: string) => {
     return deleteCalendarChangeReasonsMutation({
-      variables: { calendarChangeReasonId: Number(calendarChangeReasonId) },
+      variables: { calendarChangeReasonId: calendarChangeReasonId },
     });
   };
 
@@ -103,7 +103,7 @@ export const CalendarChangeReason: React.FC<Props> = props => {
   const [calendarChangeReason] = React.useState<
     CalendarChangeReasonCreateInput
   >({
-    orgId: Number(params.organizationId),
+    orgId: params.organizationId,
     name: "",
     description: "",
     calendarDayTypeId: null,
@@ -233,7 +233,7 @@ export const CalendarChangeReason: React.FC<Props> = props => {
         onRowUpdate={{
           action: async newData => {
             const updateCalendarChangeReason = {
-              id: Number(newData.id),
+              id: newData.id,
               rowVersion: newData.rowVersion,
               name: newData.name,
               description:

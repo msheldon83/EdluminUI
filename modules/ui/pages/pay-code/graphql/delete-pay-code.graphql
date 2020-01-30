@@ -1,4 +1,4 @@
-mutation DeletePayCode($payCodeId: Int!) {
+mutation DeletePayCode($payCodeId: ID!) {
   orgRef_PayCode {
     delete(payCodeId: $payCodeId)
   }
