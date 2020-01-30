@@ -166,7 +166,7 @@ export const getAbsenceDetailsGrouping = (absence: Absence) => {
 
   const detailsGroupings: AbsenceDetailsGroup[] = [];
   Object.entries(detailsGroupedByStartDate).forEach(([key, value]) => {
-    const keyAsDate = new Date(`${key} 00:00`);
+    const keyAsDate = parseISO(key);
     // Look for a potential matching group to add to
     const potentialGroup = detailsGroupings.find(g => {
       if (!g.endDate) {
@@ -215,7 +215,7 @@ export const getAbsenceDetailsGrouping = (absence: Absence) => {
 
       // Add a new grouping item
       detailsGroupings.push({
-        startDate: new Date(`${key} 00:00`),
+        startDate: parseISO(key),
         detailItems: convertAbsenceDetailsToDetailsItem(keyAsDate, value),
       });
     }
@@ -305,7 +305,7 @@ export const getVacancyDetailsGrouping = (
 
   const detailsGroupings: VacancyDetailsGroup[] = [];
   Object.entries(detailsGroupedByStartDate).forEach(([key, value]) => {
-    const keyAsDate = new Date(`${key} 00:00`);
+    const keyAsDate = parseISO(key);
     // Look for a potential matching group to add to
     const potentialGroup = detailsGroupings.find(g => {
       if (!g.endDate) {
@@ -354,7 +354,7 @@ export const getVacancyDetailsGrouping = (
 
       // Add a new grouping item
       detailsGroupings.push({
-        startDate: new Date(`${key} 00:00`),
+        startDate: parseISO(key),
         detailItems: convertVacancyDetailsToDetailsItem(keyAsDate, value),
         absenceStartTime: value[0]?.absenceStartTime
           ? parseISO(value[0]?.absenceStartTime)
