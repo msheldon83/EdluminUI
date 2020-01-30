@@ -63,7 +63,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
 
   const contracts = useContracts(props.orgId);
   const contractOptions = useMemo(
-    () => contracts.map(c => ({ label: c.name, value: parseInt(c.id) })),
+    () => contracts.map(c => ({ label: c.name, value: c.id })),
     [contracts]
   );
 
@@ -206,7 +206,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
             }}
             onSubmit={async (data: any, formProps) => {
               const newCalendarChangeCreate: CalendarChangeCreateInput = {
-                orgId: parseInt(props.orgId),
+                orgId: props.orgId,
                 description: data.notes,
                 startDate: data.fromDate,
                 endDate: data.toDate,

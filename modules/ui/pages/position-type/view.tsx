@@ -44,7 +44,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const deletePositionType = React.useCallback(async () => {
     await deletePositionTypeMutation({
       variables: {
-        positionTypeId: Number(params.positionTypeId),
+        positionTypeId: params.positionTypeId,
       },
       awaitRefetchQueries: true,
       refetchQueries: ["GetAllPositionTypesWithinOrg"],

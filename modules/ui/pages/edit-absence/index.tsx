@@ -52,7 +52,7 @@ export const EditAbsence: React.FC<Props> = props => {
     }
   }, [employeeInfo]);
 
-  const locationIds = employee?.locations?.map(l => Number(l?.id));
+  const locationIds = employee?.locations?.map(l => l?.id ?? "");
 
   const returnUrl: string | undefined = useMemo(() => {
     return history.location.state?.returnUrl;
@@ -81,7 +81,7 @@ export const EditAbsence: React.FC<Props> = props => {
   const onDeleteAbsence = React.useCallback(async () => {
     const result = await deleteAbsence({
       variables: {
-        absenceId: Number(params.absenceId),
+        absenceId: params.absenceId,
       },
     });
     setDialogIsOpen(false);
@@ -96,14 +96,7 @@ export const EditAbsence: React.FC<Props> = props => {
         autoHideDuration: 5000,
       });
     }
-  }, [
-    params.absenceId,
-    deleteAbsence,
-    history,
-    openSnackbar,
-    t,
-    setDialogIsOpen,
-  ]);
+  }, [deleteAbsence, params.absenceId, returnUrl, history, openSnackbar, t]);
 
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
   const cancelAssignments = React.useCallback(async () => {
@@ -172,13 +165,13 @@ export const EditAbsence: React.FC<Props> = props => {
   // @ts-ignore
   const dayPart = detail?.dayPartId ?? undefined;
 
-  let replacementEmployeeId: number | undefined;
+  let replacementEmployeeId: string | undefined;
   let replacementEmployeeName: string | undefined;
 
   // @ts-ignore
   const assignedEmployee = vacancy?.details[0]?.assignment?.employee;
   if (assignedEmployee) {
-    replacementEmployeeId = Number(assignedEmployee.id);
+    replacementEmployeeId = assignedEmployee.id;
     replacementEmployeeName = `${assignedEmployee.firstName} ${assignedEmployee.lastName}`;
   }
 
@@ -230,14 +223,12 @@ export const EditAbsence: React.FC<Props> = props => {
         firstName={employee.firstName}
         lastName={employee.lastName}
         assignmentId={assignmentId}
-        employeeId={employee.id.toString()}
+        employeeId={employee.id}
         rowVersion={data.rowVersion}
         needsReplacement={needsSub ? NeedsReplacement.Yes : NeedsReplacement.No}
         notesToApprover={data.notesToApprover ?? undefined}
         userIsAdmin={userIsAdmin}
-        positionId={
-          position?.id ?? employee.primaryPositionId?.toString() ?? undefined
-        }
+        positionId={position?.id ?? employee.primaryPositionId ?? undefined}
         positionName={position?.title ?? employee.primaryPosition?.title}
         organizationId={data.organization.id}
         absenceReasonId={reasonUsage?.absenceReasonId}

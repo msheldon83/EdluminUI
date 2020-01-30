@@ -249,12 +249,12 @@ export const DailyReport: React.FC<Props> = props => {
       variables: {
         swapDetails: {
           firstVacancyId: firstDetail.vacancyId
-            ? Number(firstDetail.vacancyId)
-            : 0,
+            ? firstDetail.vacancyId
+            : "",
           firstVacancyRowVersion: firstDetail.vacancyRowVersion ?? "",
           secondVacancyId: secondDetail.vacancyId
-            ? Number(secondDetail.vacancyId)
-            : 0,
+            ? secondDetail.vacancyId
+            : "",
           secondVacancyRowVersion: secondDetail.vacancyRowVersion ?? "",
           ignoreWarnings: ignoreWarnings ?? false,
         },

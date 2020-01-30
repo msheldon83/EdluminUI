@@ -1,6 +1,6 @@
 query GetVacancyDetails(
   $orgId: ID!
-  $locationIds: [Int]
+  $locationIds: [ID]
   $fromDate: Date
   $toDate: Date
   $includeVerified: Boolean

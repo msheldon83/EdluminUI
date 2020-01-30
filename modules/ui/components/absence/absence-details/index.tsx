@@ -26,7 +26,7 @@ import { SubstituteRequiredDetails } from "./substitute-required-details";
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
   absenceReason: string;
-  replacementEmployeeId?: number;
+  replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   accountingCode?: string;
   payCode?: string;
@@ -53,7 +53,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
   vacancies: Vacancy[];
-  locationIds?: number[];
+  locationIds?: string[];
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
   disabledDates: Date[];
   balanceUsageText?: string;
@@ -65,10 +65,10 @@ type Props = {
   assignmentId?: string;
   disableReplacementInteractions?: boolean;
   disableEditingDatesAndTimes?: boolean;
-  replacementEmployeeId?: number;
+  replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   onRemoveReplacement: (
-    replacementEmployeeId: number,
+    replacementEmployeeId: string,
     replacementEmployeeName?: string,
     assignmentRowVersion?: string
   ) => void;

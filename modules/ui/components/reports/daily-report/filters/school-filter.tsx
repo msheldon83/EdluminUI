@@ -24,9 +24,7 @@ export const SchoolFilter: React.FC<Props> = props => {
   );
   const onChangeLocations = useCallback(
     (value /* OptionType[] */) => {
-      const ids: number[] = value
-        ? value.map((v: OptionType) => Number(v.value))
-        : [];
+      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
       updateFilters({ locationIds: ids });
     },
     [updateFilters]
@@ -39,7 +37,7 @@ export const SchoolFilter: React.FC<Props> = props => {
           onChange={onChangeLocations}
           options={locationOptions}
           value={locationOptions.filter(
-            e => e.value && props.locationIds.includes(Number(e.value))
+            e => e.value && props.locationIds.includes(e.value.toString())
           )}
           multiple
         />

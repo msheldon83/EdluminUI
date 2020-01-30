@@ -117,7 +117,7 @@ export const PeoplePage: React.FC<Props> = props => {
     },
   });
   const invite = React.useCallback(
-    async (userIds: number[], orgId: number) => {
+    async (userIds: string[], orgId: string) => {
       const response = await inviteUsers({
         variables: {
           userIds: userIds,
@@ -503,7 +503,7 @@ export const PeoplePage: React.FC<Props> = props => {
                   userIds.push(data.userId);
                 }
 
-                await invite(compact(userIds), Number(params.organizationId));
+                await invite(compact(userIds), params.organizationId);
               },
               permissions: [PermissionEnum.OrgUserInvite],
             },

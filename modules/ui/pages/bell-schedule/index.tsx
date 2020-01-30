@@ -44,7 +44,7 @@ export const BellSchedulePage: React.FC<{}> = props => {
   const deleteWorkDaySchedule = (workDayScheduleId: string) => {
     return deleteWorkDayScheduleMutation({
       variables: {
-        workDayScheduleId: Number(workDayScheduleId),
+        workDayScheduleId: workDayScheduleId,
       },
     });
   };

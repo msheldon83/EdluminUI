@@ -33,7 +33,7 @@ type Props = {
   disabledDates?: Date[];
   selectButtonText?: string;
   onSelectReplacement: (
-    replacementId: number,
+    replacementId: string,
     replacementName: string,
     payCode: string | undefined
   ) => void;
@@ -69,7 +69,7 @@ const buildVacancyInput = (
               parseTimeFromString(format(endTimeLocal, "h:mm a"))
             )
           : 0,
-        locationId: d?.locationId ?? 0,
+        locationId: d?.locationId ?? "",
       };
     }),
   };
@@ -165,7 +165,7 @@ export const AssignSub: React.FC<Props> = props => {
   }, [replacementEmployees]);
 
   const selectReplacementEmployee = async (
-    replacementEmployeeId: number,
+    replacementEmployeeId: string,
     name: string,
     payCodeId: string | undefined
   ) => {

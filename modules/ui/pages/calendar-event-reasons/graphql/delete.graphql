@@ -1,4 +1,4 @@
-mutation DeleteCalendarChangeReason($calendarChangeReasonId: Int!) {
+mutation DeleteCalendarChangeReason($calendarChangeReasonId: ID!) {
   orgRef_CalendarChangeReason {
     delete(calendarChangeReasonId: $calendarChangeReasonId)
   }

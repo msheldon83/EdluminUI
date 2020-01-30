@@ -178,7 +178,7 @@ export const SubHome: React.FC<Props> = props => {
           variables: {
             vacancyRejection: {
               vacancyId: vacancyId,
-              employeeId: Number(employeeId),
+              employeeId: employeeId,
             },
           },
         })
@@ -188,7 +188,7 @@ export const SubHome: React.FC<Props> = props => {
   };
 
   const determineEmployeeId = (orgId: string) => {
-    const employeeId = orgUsers.find(o => o.orgId === Number(orgId))?.id ?? 0;
+    const employeeId = orgUsers.find(o => o.orgId === orgId)?.id ?? 0;
     return employeeId;
   };
 
@@ -205,7 +205,7 @@ export const SubHome: React.FC<Props> = props => {
         variables: {
           vacancyRequest: {
             vacancyId: vacancyId,
-            employeeId: Number(employeeId),
+            employeeId: employeeId,
           },
         },
       });

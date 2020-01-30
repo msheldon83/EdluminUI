@@ -1,4 +1,4 @@
-mutation DeleteReplacementEndorsement($endorsementId: Int!) {
+mutation DeleteReplacementEndorsement($endorsementId: ID!) {
   orgRef_Endorsement {
     delete(endorsementId: $endorsementId)
   }
