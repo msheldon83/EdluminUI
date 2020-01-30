@@ -17,12 +17,17 @@ type DatePickerProps = {
   startDate: Date | string;
   endDate?: Date | string;
   onChange: DatePickerOnChange;
-  startLabel: string;
+  startLabel?: string;
   endLabel?: string;
   dateFormat?: string;
   disableDates?: Array<Date>;
   onMonthChange?: DatePickerOnMonthChange;
-  variant?: "single" | "single-hidden" | "range" | "extended-range";
+  variant?:
+    | "single"
+    | "single-hidden"
+    | "range"
+    | "extended-range"
+    | "field-only";
   endAdornment?: React.ReactNode;
 };
 
@@ -70,6 +75,7 @@ export const DatePicker = (props: DatePickerProps) => {
   let shouldShowRange = true;
   switch (variant) {
     case "single":
+    case "field-only":
     case "single-hidden": {
       shouldShowRange = false;
       break;
@@ -233,6 +239,8 @@ export const DatePicker = (props: DatePickerProps) => {
           handleCalendarDateRangeChange(date);
           break;
         }
+        case "field-only":
+          break;
       }
     },
     [handleCalendarDateRangeChange, handleCalendarSingleDateChange, variant]
@@ -290,9 +298,23 @@ export const DatePicker = (props: DatePickerProps) => {
     );
   };
 
+  let showCalendar: null | { render: () => JSX.Element };
+  switch (variant) {
+    case "field-only":
+      showCalendar = null;
+      break;
+    case "single-hidden":
+      showCalendar = { render: renderPopoverCalendar };
+      break;
+    default:
+      showCalendar = { render: renderCalendar };
+      break;
+  }
+
   const renderEndDate = () => {
     switch (variant) {
       case "single":
+      case "field-only":
       case "single-hidden": {
         return;
       }
@@ -335,7 +357,7 @@ export const DatePicker = (props: DatePickerProps) => {
       <div className={classes.keyboardInputWrapper}>
         <div className={classes.startDateInput} style={startDateStyle()}>
           <DateInput
-            label={startLabel}
+            label={startLabel || ""}
             value={inputStartDate || startDate}
             /*
               The handler is used for both change and valid date ranges here to make the experience
@@ -352,7 +374,7 @@ export const DatePicker = (props: DatePickerProps) => {
         </div>
         {renderEndDate()}
       </div>
-      {showCalendarOnFocus ? renderPopoverCalendar() : renderCalendar()}
+      {showCalendar && showCalendar.render()}
     </div>
   );
 };
