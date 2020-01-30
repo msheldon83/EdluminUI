@@ -16,19 +16,19 @@ const formVacancyValues: VacancyDetail[] = [
     date: "2019-11-15",
     startTime: "2019-11-15T08:30:00" as any,
     endTime: "2019-11-15T12:00:00" as any,
-    locationId: 1013,
+    locationId: "1013",
   },
   {
     date: "2019-11-18" as any,
     startTime: "2019-11-18T08:30:00" as any,
     endTime: "2019-11-18T12:00:00" as any,
-    locationId: 1013,
+    locationId: "1013",
   },
 ];
 
 const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
   {
-    positionId: 1057,
+    positionId: "1057",
     startTimeLocal: "2019-11-15T08:30:00" as any,
     endTimeLocal: "2019-11-18T12:00:00" as any,
     numDays: 2,
@@ -36,7 +36,7 @@ const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
       {
         startTimeLocal: "2019-11-15T08:30:00" as any,
         endTimeLocal: "2019-11-15T12:00:00" as any,
-        locationId: 1013,
+        locationId: "1013",
         location: {
           name: "Haven Elementary School",
         },
@@ -44,7 +44,7 @@ const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
       {
         startTimeLocal: "2019-11-18T08:30:00" as any,
         endTimeLocal: "2019-11-18T12:00:00" as any,
-        locationId: 1013,
+        locationId: "1013",
         location: {
           name: "Haven Elementary School",
         },

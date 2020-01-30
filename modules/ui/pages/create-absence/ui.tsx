@@ -53,7 +53,7 @@ type Props = {
   userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
-  locationIds?: number[];
+  locationIds?: string[];
   initialAbsenceReason?: string;
   initialDates?: Date[];
   initialDayPart?: DayPart;
@@ -183,9 +183,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       buildAbsenceCreateInput(
         state.absenceDates,
         formValues,
-        Number(state.organizationId),
-        Number(state.employeeId),
-        Number(props.positionId),
+        state.organizationId,
+        state.employeeId,
+        props.positionId ?? "",
         disabledDates,
         state.needsReplacement,
         state.vacanciesInput
@@ -271,9 +271,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     let absenceCreateInput = buildAbsenceCreateInput(
       state.absenceDates,
       formValues,
-      Number(state.organizationId),
-      Number(state.employeeId),
-      Number(props.positionId),
+      state.organizationId,
+      state.employeeId,
+      props.positionId ?? "",
       disabledDates,
       state.needsReplacement,
       theVacancyDetails
@@ -313,7 +313,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const onAssignSub = React.useCallback(
     (
-      replacementId: number,
+      replacementId: string,
       replacementName: string,
       payCodeId: string | undefined
     ) => {
@@ -470,7 +470,7 @@ export type CreateAbsenceFormData = {
   hourlyEndTime?: Date;
   notesToApprover?: string;
   notesToReplacement?: string;
-  replacementEmployeeId?: number;
+  replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   vacancies?: AbsenceVacancyInput[];
   accountingCode?: string;
@@ -480,9 +480,9 @@ export type CreateAbsenceFormData = {
 export const buildAbsenceCreateInput = (
   absenceDates: Date[],
   formValues: CreateAbsenceFormData,
-  organizationId: number,
-  employeeId: number,
-  positionId: number,
+  organizationId: string,
+  employeeId: string,
+  positionId: string,
   disabledDates: Date[],
   needsReplacement: boolean,
   vacancyDetails?: VacancyDetail[]
@@ -546,12 +546,12 @@ export const buildAbsenceCreateInput = (
         accountingCodeAllocations: formValues.accountingCode
           ? [
               {
-                accountingCodeId: Number(formValues.accountingCode),
+                accountingCodeId: formValues.accountingCode,
                 allocation: 1.0,
               },
             ]
           : undefined,
-        payCodeId: formValues.payCode ? Number(formValues.payCode) : undefined,
+        payCodeId: formValues.payCode ? formValues.payCode : undefined,
       },
     ],
   };

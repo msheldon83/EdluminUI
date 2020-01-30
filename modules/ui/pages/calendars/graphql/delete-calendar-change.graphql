@@ -1,4 +1,4 @@
-mutation DeleteCalendarChange($calendarChangeId: Int!) {
+mutation DeleteCalendarChange($calendarChangeId: ID!) {
   calendarChange {
     delete(calendarChangeId: $calendarChangeId)
   }

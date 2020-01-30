@@ -77,7 +77,7 @@ export type ScheduleTimes = {
 };
 
 export type ReplacementEmployeeForVacancy = {
-  employeeId: number;
+  employeeId: string;
   firstName: string;
   lastName: string;
   assignmentId: string;
@@ -104,7 +104,7 @@ export const getReplacementEmployeeForVacancy = (
 
   const assignment = absence.vacancies![0]!.details![0]!.assignment!;
   return {
-    employeeId: Number(assignment.employee!.id),
+    employeeId: assignment.employee!.id,
     firstName: assignment.employee?.firstName || "",
     lastName: assignment.employee?.lastName || "",
     assignmentId: assignment.id,
@@ -124,7 +124,7 @@ type DetailsGroup<T> = {
 };
 
 export type AbsenceDetailsGroup = DetailsGroup<AbsenceDetailsItem> & {
-  absenceReasonId?: number;
+  absenceReasonId?: string;
 };
 
 export type VacancyDetailsGroup = DetailsGroup<VacancyDetailsItem> & {
@@ -141,11 +141,11 @@ type DetailsItemByDate<T> = T & { date: Date };
 
 export type AbsenceDetailsItem = DetailsItem & {
   dayPart: DayPart;
-  absenceReasonId: number;
+  absenceReasonId: string;
 };
 
 export type VacancyDetailsItem = DetailsItem & {
-  locationId: number | null | undefined;
+  locationId: string | null | undefined;
   locationName: string | null | undefined;
 };
 
@@ -491,7 +491,7 @@ export const createAbsenceDetailInput = (
     let detail: AbsenceDetailCreateInput = {
       date: format(d, "P"),
       dayPartId: dayPart,
-      reasons: [{ absenceReasonId: Number(absenceReason) }],
+      reasons: [{ absenceReasonId: absenceReason }],
     };
 
     if (dayPart === DayPart.Hourly) {

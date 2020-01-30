@@ -1,7 +1,7 @@
 query getCalendarChanges(
   $orgId: ID!
-  $contractId: Int
-  $schoolYearId: Int
+  $contractId: ID
+  $schoolYearId: ID
   $limit: Int
   $offset: Int
 ) {

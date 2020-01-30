@@ -40,11 +40,11 @@ type Props = {
   name?: string | null | undefined;
   isStandard: boolean;
   periods: Array<Period>;
-  variantId?: number | null | undefined;
+  variantId?: string | null | undefined;
   submitLabel?: string | null | undefined;
   onSubmit: (
     periods: Array<Period>,
-    variantId?: number | null | undefined
+    variantId?: string | null | undefined
   ) => void;
   onCancel: () => void;
 };

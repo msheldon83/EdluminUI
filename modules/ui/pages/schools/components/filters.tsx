@@ -12,9 +12,9 @@ import { sortBy } from "lodash-es";
 
 type Props = {
   orgId: string;
-  locationGroupFilter: number[];
+  locationGroupFilter: string[];
   setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
-  setLocationGroupsFilter: React.Dispatch<React.SetStateAction<number[]>>;
+  setLocationGroupsFilter: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 export const Filters: React.FC<Props> = props => {
@@ -22,14 +22,17 @@ export const Filters: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(LocationsRoute);
 
+  const setSearchText = props.setSearchText;
+  const setLocationGroupsFilter = props.setLocationGroupsFilter;
+
   const [
     searchText,
     pendingSearchText,
     setPendingSearchText,
   ] = useDeferredState<string | undefined>(undefined, 200);
   useEffect(() => {
-    props.setSearchText(searchText);
-  }, [searchText]);
+    setSearchText(searchText);
+  }, [setSearchText, searchText]);
 
   const updateSearchText = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,23 +47,23 @@ export const Filters: React.FC<Props> = props => {
     sortBy(options, ["label"]);
     options.unshift({ label: t("(All)"), value: "0" });
     return options;
-  }, [locationGroups]);
+  }, [locationGroups, t]);
 
   const selectedValue = locationGroupOptions.find(e =>
     props.locationGroupFilter.length === 0
       ? locationGroupOptions.find(e => e.value === "0")
-      : e.label && props.locationGroupFilter.includes(Number(e.value))
+      : e.label && props.locationGroupFilter.includes(e.value.toString())
   );
 
   const onChangeGroup = useCallback(
     value => {
       if (value.value === "0") {
-        props.setLocationGroupsFilter([]);
+        setLocationGroupsFilter([]);
       } else {
-        props.setLocationGroupsFilter([Number(value.value)]);
+        setLocationGroupsFilter([value.value]);
       }
     },
-    [props.setLocationGroupsFilter]
+    [setLocationGroupsFilter]
   );
 
   return (

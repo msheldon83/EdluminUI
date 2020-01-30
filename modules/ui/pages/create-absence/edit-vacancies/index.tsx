@@ -45,7 +45,7 @@ export const EditVacancies: React.FC<Props> = props => {
   const initialFormData: EditVacancyFormData = {
     details: props.details.map(d => ({
       ...d,
-      locationId: Number(d.locationId),
+      locationId: d.locationId,
       startTime: parseISO(d.startTime).toISOString(),
       endTime: parseISO(d.endTime).toISOString(),
     })),

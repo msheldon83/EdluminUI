@@ -38,7 +38,7 @@ export const AbsenceReason: React.FC<{}> = props => {
   const deleteAbsenceReason = (absenceReasonId: string) => {
     return deleteAbsenceReaonsMutation({
       variables: {
-        absenceReasonId: Number(absenceReasonId),
+        absenceReasonId: absenceReasonId,
       },
     });
   };

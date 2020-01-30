@@ -6,9 +6,9 @@ query GetAllPeopleForOrg(
   $role: [OrgUserRole]
   $active: Boolean
   $name: String
-  $endorsements: [Int]
-  $positionTypes: [Int]
-  $locations: [Int]
+  $endorsements: [ID]
+  $positionTypes: [ID]
+  $locations: [ID]
 ) {
   orgUser {
     paged(

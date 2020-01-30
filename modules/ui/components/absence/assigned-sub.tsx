@@ -6,13 +6,13 @@ import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
 
 type Props = {
-  employeeId: number;
+  employeeId: string;
   employeeName: string;
   subText?: string;
   assignmentId?: string;
   assignmentRowVersion?: string;
   onRemove?: (
-    employeeId: number,
+    employeeId: string,
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => void;

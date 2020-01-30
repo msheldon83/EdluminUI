@@ -2,7 +2,7 @@ export type VacancyDetail = {
   date: string;
   startTime: string;
   endTime: string;
-  locationId: number;
+  locationId: string;
   locationName?: string;
   absenceStartTime?: string;
   absenceEndTime?: string;
