@@ -208,6 +208,7 @@ export const Assignment: React.FC<Props> = props => {
   const handleAccountingCodeOnBlur = async (
     accountingCodeId: string | undefined
   ) => {
+    console.log("in blur for accounting code");
     if (currentAccountingCode?.id === accountingCodeId) {
       // Don't call the mutation if we're not chaning anything
       return;
@@ -425,6 +426,7 @@ export const Assignment: React.FC<Props> = props => {
                   ].join(" ")}
                 >
                   <Grid item xs={2}></Grid>
+
                   <Grid item xs={2}>
                     <Can do={[PermissionEnum.AbsVacSave]}>
                       <SelectNew
@@ -568,10 +570,12 @@ export const Assignment: React.FC<Props> = props => {
                             }
                           }
                           setFieldValue("accountingCodeId", selectedValue);
+                          handleAccountingCodeOnBlur(selectedValue);
                         }}
                         options={accountingCodeOptions}
-                        onBlur={() =>
-                          handleAccountingCodeOnBlur(values.accountingCodeId)
+                        onBlur={
+                          () => {}
+                          //handleAccountingCodeOnBlur(values.accountingCodeId)
                         }
                         multiple={false}
                       />
