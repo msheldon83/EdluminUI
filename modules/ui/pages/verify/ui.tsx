@@ -110,6 +110,7 @@ export const VerifyUI: React.FC<Props> = props => {
   // Determines what tabs are shown and the count of unverified assignments on each tab
   // We show today and each day of the last week unless weekends have 0
   // Older then shows a count of all unverified going back to the start of the school year
+  // Be careful with the dependencies on this hook.  We don't want anything to push more than 8 items onto the array
   useEffect(() => {
     let date = today;
     let totalCount = assignmentCounts
@@ -148,7 +149,8 @@ export const VerifyUI: React.FC<Props> = props => {
         date = addDays(date, -1);
       }
     }
-  }, [assignmentCounts, today, dateTabOptions, t, olderAction]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assignmentCounts, today, dateTabOptions, t]);
 
   // If we're given a date we don't actually have in our list of
   // tabs, keep the focus to Today
