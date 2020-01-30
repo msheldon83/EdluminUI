@@ -7,7 +7,10 @@ import { getVacancyDetailsGrouping } from "./helpers";
 import { TFunction } from "i18next";
 import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
-import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "./date-helpers";
+import {
+  getAbsenceDateRangeDisplayTextWithDayOfWeek,
+  getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates,
+} from "./date-helpers";
 import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
 import { VacancyDetail } from "./types";
 import { format } from "date-fns";
@@ -129,7 +132,7 @@ const getVacancyDetailsDisplay = (
             <Grid key={detailsIndex} item container xs={12}>
               <Grid item xs={12}>
                 <Typography variant="h6">
-                  {getAbsenceDateRangeDisplayTextWithDayOfWeek(
+                  {getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates(
                     allDates,
                     disabledDates
                   )}

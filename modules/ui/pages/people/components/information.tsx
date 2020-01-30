@@ -65,7 +65,7 @@ export type OrgUser = {
 type Props = {
   editing: string | null;
   isCreate?: boolean;
-  userId?: number | null | undefined;
+  userId?: string | null | undefined;
   loginEmail?: string | null | undefined;
   orgUser: OrgUser;
   permissionSet?:
@@ -100,8 +100,8 @@ export const Information: React.FC<Props> = props => {
     const response = await resetPassword({
       variables: {
         resetPasswordInput: {
-          id: Number(props.userId),
-          orgId: Number(orgUser.orgId),
+          id: props.userId ?? "",
+          orgId: orgUser.orgId,
         },
       },
     });

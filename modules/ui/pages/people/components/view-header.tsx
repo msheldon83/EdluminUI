@@ -29,8 +29,8 @@ type Props = {
   editing: string | null;
   orgUser: {
     id: string;
-    orgId: number;
-    userId?: number | null | undefined;
+    orgId: string;
+    userId?: string | null | undefined;
     active: boolean;
     firstName: string;
     middleName?: string | null | undefined;
@@ -133,7 +133,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
         onSubmit={async (values: Array<FieldData>) => {
           await props.onSaveOrgUser({
             rowVersion: orgUser.rowVersion,
-            id: Number(orgUser.id),
+            id: orgUser.id,
             firstName: values.find(x => x.key === "firstName")?.value,
             lastName: values.find(x => x.key === "lastName")?.value,
             middleName: values.find(x => x.key === "middleName")?.value,
@@ -168,7 +168,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
               onClick: async () => {
                 await props.onSaveOrgUser({
                   rowVersion: orgUser.rowVersion,
-                  id: Number(orgUser.id),
+                  id: orgUser.id,
                   active: !orgUser.active,
                 });
               },
@@ -219,7 +219,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
         onActivate={async () => {
           await props.onSaveOrgUser({
             rowVersion: orgUser.rowVersion,
-            id: Number(orgUser.id),
+            id: orgUser.id,
             active: !orgUser.active,
           });
         }}
@@ -249,7 +249,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
         onSubmit={async (value: Maybe<string>) => {
           await props.onSaveOrgUser({
             rowVersion: orgUser.rowVersion,
-            id: Number(orgUser.id),
+            id: orgUser.id,
             externalId: value,
           });
         }}

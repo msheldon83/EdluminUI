@@ -77,8 +77,8 @@ export const Assignment: React.FC<Props> = props => {
   // If it is verified, we would want to allow the record to be unverified
   const notVerified = vacancyDetail.verifiedAtLocal === null;
 
-  const accountingCodes = useAccountingCodes(vacancyDetail.orgId.toString(), [
-    +vacancyDetail.location!.id,
+  const accountingCodes = useAccountingCodes(vacancyDetail.orgId, [
+    vacancyDetail.location!.id,
   ]);
   const accountingCodeOptions = useMemo(
     () => accountingCodes.map(a => ({ label: a.name, value: a.id })),
@@ -195,7 +195,7 @@ export const Assignment: React.FC<Props> = props => {
     await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
-      payCodeId: payCodeId ? Number(payCodeId) : null,
+      payCodeId: payCodeId ? payCodeId : null,
     });
 
     // Find the pay code option that matches our selection and set in state
@@ -220,7 +220,7 @@ export const Assignment: React.FC<Props> = props => {
       accountingCodeAllocations: accountingCodeId
         ? [
             {
-              accountingCodeId: Number(accountingCodeId),
+              accountingCodeId: accountingCodeId,
               allocation: 1.0,
             },
           ]
@@ -298,12 +298,12 @@ export const Assignment: React.FC<Props> = props => {
 
           await props.onVerify({
             vacancyDetailId: vacancyDetail.id,
-            payCodeId: data.payCodeId ? Number(data.payCodeId) : null,
+            payCodeId: data.payCodeId ? data.payCodeId : null,
             verifyComments: data.verifyComments,
             accountingCodeAllocations: data.accountingCodeId
               ? [
                   {
-                    accountingCodeId: Number(data.accountingCodeId),
+                    accountingCodeId: data.accountingCodeId,
                     allocation: 1.0,
                   },
                 ]

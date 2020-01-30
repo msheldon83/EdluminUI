@@ -81,7 +81,7 @@ export const BellScheduleVariants: React.FC<Props> = props => {
   const [workDayScheduleVariantType] = React.useState<
     WorkDayScheduleVariantTypeCreateInput
   >({
-    orgId: Number(params.organizationId),
+    orgId: params.organizationId,
     name: "",
     externalId: null,
     description: "",
@@ -125,7 +125,7 @@ export const BellScheduleVariants: React.FC<Props> = props => {
   ) => {
     const result = deleteWorkDayScheduleVariantTypeMutation({
       variables: {
-        workDayScheduleVariantTypeId: Number(workDayScheduleVariantTypeId),
+        workDayScheduleVariantTypeId: workDayScheduleVariantTypeId,
       },
     });
   };
@@ -214,7 +214,7 @@ export const BellScheduleVariants: React.FC<Props> = props => {
         onRowUpdate={{
           action: async newData => {
             const updateWorkDayScheduleVariantType = {
-              id: Number(newData.id),
+              id: newData.id,
               rowVersion: newData.rowVersion,
               name: newData.name,
               externalId:

@@ -13,7 +13,7 @@ import { QualifiedIcon } from "./icons/qualified-icon";
 import { VisibleIcon } from "./icons/visible-icon";
 
 export type AssignSubColumn = {
-  employeeId: number;
+  employeeId: string;
   firstName: string;
   lastName: string;
   primaryPhone?: string | null;
@@ -25,7 +25,7 @@ export type AssignSubColumn = {
   isEmployeeFavorite: boolean;
   isLocationPositionTypeFavorite: boolean;
   selectable: boolean;
-  payCodeId?: number | null;
+  payCodeId?: string | null;
 };
 
 export const getAssignSubColumns = (
@@ -33,7 +33,7 @@ export const getAssignSubColumns = (
   isAdmin: boolean,
   selectTitle: string,
   selectReplacementEmployee: (
-    replacementEmployeeId: number,
+    replacementEmployeeId: string,
     name: string,
     payCodeId: string | undefined
   ) => Promise<void>,
@@ -157,7 +157,7 @@ export const getAssignSubColumns = (
           await selectReplacementEmployee(
             data.employeeId,
             `${data.firstName} ${data.lastName}`,
-            data.payCodeId ? data.payCodeId.toString() : undefined
+            data.payCodeId ? data.payCodeId : undefined
           );
         }}
       >
