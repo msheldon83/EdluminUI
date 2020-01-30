@@ -2,6 +2,7 @@ import { DayOfWeek } from "graphql/server-types.gen";
 
 export type Period = {
   locationId: string;
+  locationGroupId: string;
   bellScheduleId: string | null | undefined;
   startTime?: string | null | undefined;
   endTime?: string | null | undefined;
@@ -29,6 +30,7 @@ export const buildNewSchedule = (
 export const buildNewPeriod = (allDay: boolean): Period => {
   return {
     locationId: "",
+    locationGroupId: "",
     bellScheduleId: null,
     allDay: allDay,
   };

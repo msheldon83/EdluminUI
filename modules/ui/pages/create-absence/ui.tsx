@@ -69,6 +69,7 @@ type Props = {
   initialEndHour?: Date;
   initialNeedsReplacement?: boolean;
   payCodeId?: string | null;
+  accountingCodeId?: string | null;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -99,6 +100,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     hourlyStartTime: props.initialStartHour,
     hourlyEndTime: props.initialEndHour,
     payCode: props.payCodeId ?? undefined,
+    accountingCode: props.accountingCodeId ?? undefined,
   };
 
   const {
@@ -324,7 +326,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     (
       replacementId: string,
       replacementName: string,
-      payCodeId: string | undefined
+      payCodeId: string | undefined,
     ) => {
       /* eslint-disable @typescript-eslint/no-floating-promises */
       setValue("replacementEmployeeId", replacementId);
