@@ -253,8 +253,8 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <Assign
-        locationIds={[]}
-        locationGroupIds={[]}
+        locationsAssigned={[]}
+        locationGroupsAssigned={[]}
         organizationId={params.organizationId}
         onSubmit={async (
           locationIds: Array<string>,
