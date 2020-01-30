@@ -1,45 +1,45 @@
-import * as React from "react";
 import {
-  Typography,
   Divider,
   Grid,
   makeStyles,
   Tooltip,
+  Typography,
 } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
-import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
-import { useTranslation } from "react-i18next";
-import { formatIsoDateIfPossible } from "helpers/date";
 import { isValid, parseISO } from "date-fns";
-import { TextButton } from "ui/components/text-button";
-import { AvatarCard } from "ui/components/avatar-card";
-import { useBreakpoint } from "hooks";
-import { getInitials } from "ui/components/helpers";
-import { PhoneNumberInput } from "ui/components/form/phone-number-input";
+import { Formik } from "formik";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
-  StateCode,
   CountryCode,
   OrgUserRole,
   PermissionEnum,
+  StateCode,
 } from "graphql/server-types.gen";
-import { PeopleGridItem } from "./people-grid-item";
-import * as yup from "yup";
-import { Formik } from "formik";
-import { Input } from "ui/components/form/input";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
-import { TextField as FormTextField } from "ui/components/form/text-field";
-import { USStates } from "reference-data/states";
+import { formatIsoDateIfPossible } from "helpers/date";
+import { useBreakpoint } from "hooks";
+import { useSnackbar } from "hooks/use-snackbar";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
 import { usePermissionSets } from "reference-data/permission-sets";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
-import { ShowErrors } from "ui/components/error-helpers";
-import { useSnackbar } from "hooks/use-snackbar";
-import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
-import { GetOrgUserLastLogin } from "../graphql/get-orguser-lastlogin.gen";
-import { DatePicker } from "ui/components/form/date-picker";
+import { USStates } from "reference-data/states";
 import { Can } from "ui/components/auth/can";
+import { AvatarCard } from "ui/components/avatar-card";
+import { ShowErrors } from "ui/components/error-helpers";
+import { DatePicker } from "ui/components/form/date-picker";
+import { Input } from "ui/components/form/input";
+import { PhoneNumberInput } from "ui/components/form/phone-number-input";
+import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { TextField as FormTextField } from "ui/components/form/text-field";
+import { getInitials } from "ui/components/helpers";
+import { Section } from "ui/components/section";
+import { SectionHeader } from "ui/components/section-header";
+import { TextButton } from "ui/components/text-button";
+import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
+import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
+import { GetOrgUserLastLogin } from "../graphql/get-orguser-lastlogin.gen";
+import { PeopleGridItem } from "./people-grid-item";
 
 export const editableSections = {
   information: "edit-information",
@@ -438,7 +438,7 @@ export const Information: React.FC<Props> = props => {
                         title={t("Date of Birth")}
                         description={
                           <DatePicker
-                            variant={"single-hidden"}
+                            variant={"field-only"}
                             startDate={values.dateOfBirth ?? ""}
                             onChange={e =>
                               setFieldValue("dateOfBirth", e.startDate)
