@@ -12,6 +12,10 @@ query GetEmployee($employeeId: ID!) {
         id
         title
         needsReplacement
+        accountingCodeAllocations {
+          id
+          accountingCodeId
+        }
         positionType {
           id
           payCodeId

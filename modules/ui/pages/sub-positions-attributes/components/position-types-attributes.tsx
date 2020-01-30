@@ -268,7 +268,6 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
                                 }
                               }
                             }}
-                            startLabel={""}
                             endAdornment={getDatePickerAdornment(a, classes, t)}
                           />
                         )}

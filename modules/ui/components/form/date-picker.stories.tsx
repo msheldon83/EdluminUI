@@ -133,7 +133,6 @@ export const SingleHiddenDateStory = () => {
           setStartDate(startDate);
           setEndDate(endDate);
         }}
-        startLabel="Date"
         dateFormat={text("dateFormat", DEFAULT_DATE_FORMAT)}
         disableDates={[endOfTomorrow(), endOfYesterday()]}
       />

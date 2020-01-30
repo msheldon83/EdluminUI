@@ -46,9 +46,13 @@ export const CreateAbsence: React.FC<Props> = props => {
       }
       positionName={employeeInfo.data.employee?.byId?.primaryPosition?.title}
       positionId={employeeInfo.data.employee.byId.primaryPosition?.id}
-      payCodeId={
-        employeeInfo.data.employee?.byId?.primaryPosition?.positionType
-          ?.payCodeId
+      payCodeId={employeeInfo.data.employee?.byId?.primaryPosition?.positionType?.payCodeId}
+      accountingCodeId={
+        employeeInfo.data.employee?.byId?.primaryPosition
+          ?.accountingCodeAllocations
+          ? employeeInfo.data.employee.byId.primaryPosition
+              .accountingCodeAllocations[0]?.accountingCodeId ?? undefined
+          : undefined
       }
     />
   );

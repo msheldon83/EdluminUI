@@ -1733,6 +1733,10 @@ enum EventType {
   ABSENCE_DETAIL_ADDED
   ABSENCE_DETAIL_CHANGED
   ABSENCE_DETAIL_REMOVED
+  ABSENCE_DISCOVERED_FOR_CALENDAR_CHANGE
+  ABSENCE_DETAIL_CLOSED_BY_CALENDAR_CHANGE
+  ABSENCE_DETAIL_ALTERED_BY_CALENDAR_CHANGE
+  ABSENCE_DETAIL_RESTORED_BY_CALENDAR_CHANGE_DELETE
   VACANCY_CREATED
   VACANCY_UPDATED
   VACANCY_DELETED
@@ -1749,6 +1753,9 @@ enum EventType {
   VACANCY_DETAIL_UPDATED
   VACANCY_DETAIL_VERIFIED
   VACANCY_DETAIL_UN_VERIFIED
+  VACANCY_DETAIL_CLOSED_BY_CALENDAR_CHANGE
+  VACANCY_DETAIL_ALTERED_BY_CALENDAR_CHANGE
+  VACANCY_DETAIL_RESTORED_BY_CALENDAR_CHANGE_DELETE
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
@@ -2221,6 +2228,7 @@ type organizationConfig {
   maxGapMinutesForSameVacancyDetail: Int!
   minAbsenceMinutes: Int!
   maxAbsenceDays: Int!
+  absenceCreateCutoffTime: Seconds!
   requestedSubCutoffMinutes: Int!
   minRequestedEmployeeHoldMinutes: Int!
   maxRequestedEmployeeHoldMinutes: Int!
@@ -2243,6 +2251,7 @@ input organizationConfigInput {
   maxGapMinutesForSameVacancyDetail: Int
   minAbsenceMinutes: Int
   maxAbsenceDays: Int
+  absenceCreateCutoffTime: Int
   requestedSubCutoffMinutes: Int
   minRequestedEmployeeHoldMinutes: Int
   maxRequestedEmployeeHoldMinutes: Int
@@ -3365,8 +3374,32 @@ type Position implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   isStaffAugmentation: Boolean!
   replacementCriteria: ObjectReplacementCriteria
   schedules: [PositionSchedule]
+  accountingCodeAllocations: [PositionAccountingCode]
   locationIds: [ID]
   locations: [Location]
+}
+
+type PositionAccountingCode implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  positionId: ID!
+  accountingCodeId: ID!
+  accountingCode: AccountingCode
+  allocation: Decimal!
+}
+
+input PositionAccountingCodeInput {
+  accountingCodeId: ID!
+  allocation: Decimal!
 }
 
 input PositionCreateInput {
@@ -3394,6 +3427,7 @@ input PositionInput {
   needsReplacement: NeedsReplacement
   schedules: [PositionScheduleInput]
   replacementCriteria: ReplacementCriteriaInput
+  accountingCodeAllocations: [PositionAccountingCodeInput]
 }
 
 type PositionQueries {
@@ -5539,6 +5573,8 @@ type WorkDayScheduleQueries {
     includeExpired: Boolean
     sortBy: [SortDetailsInput]
     searchText: String
+    locationIds: [ID]
+    locationGroupIds: [ID]
   ): [WorkDaySchedule]
   paged(
     orgId: ID
@@ -5548,6 +5584,8 @@ type WorkDayScheduleQueries {
     includeExpired: Boolean
     sortBy: [SortDetailsInput]
     searchText: String
+    locationIds: [ID]
+    locationGroupIds: [ID]
   ): PagedWorkDaySchedule
 }
 
