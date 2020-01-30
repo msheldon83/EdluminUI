@@ -27,6 +27,7 @@ import {
   isEqual,
   startOfToday,
 } from "date-fns";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { formatIsoDateIfPossible } from "helpers/date";
 import {
   VacancyDetailCount,
@@ -52,6 +53,7 @@ type Props = {
 export const VerifyUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const vacancyDetailAnimationClasses = useVacancyDetailAnimationStyles();
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(VerifyRoute);
@@ -70,7 +72,7 @@ export const VerifyUI: React.FC<Props> = props => {
   /* Because this UI can stand alone or show up on the Admin homepage, we need
     to account for only controlling the selectedDate within here as well
     as the scenario where the selected date is provided to us through props.
-    To handle that make sure to use "selectedDateToUse" when trying 
+    To handle that make sure to use "selectedDateToUse" when trying
     to retrieve the currently selected date */
   const [selectedDateTab, setSelectedDateTab] = useState<Date>(
     props.date ?? today
@@ -89,7 +91,10 @@ export const VerifyUI: React.FC<Props> = props => {
     : getAssignmentCounts.data?.vacancy?.getCountOfAssignmentsForVerify ??
       []) as VacancyDetailCount[];
 
-  const dateTabOptions: DateTabOption[] = useMemo(() => [], [assignmentCounts]);
+  const dateTabOptions: DateTabOption[] = useMemo(() => {
+    const a = assignmentCounts; // Need this here to make our linter happy
+    return [];
+  }, [assignmentCounts]);
 
   // If the date is controlled outside this component, track local state change
   // and call the provided setDate function in props
@@ -97,7 +102,7 @@ export const VerifyUI: React.FC<Props> = props => {
     if (props.setDate) {
       props.setDate(selectedDateTab);
     }
-  }, [selectedDateTab]);
+  }, [props, selectedDateTab]);
 
   // Determines what tabs are shown and the count of unverified assignments on each tab
   // We show today and each day of the last week unless weekends have 0
@@ -140,7 +145,7 @@ export const VerifyUI: React.FC<Props> = props => {
         date = addDays(date, -1);
       }
     }
-  }, [assignmentCounts, today, dateTabOptions, t]);
+  }, [assignmentCounts, today, dateTabOptions, t, props.olderAction]);
 
   // If we're given a date we don't actually have in our list of
   // tabs, keep the focus to Today
@@ -279,23 +284,38 @@ export const VerifyUI: React.FC<Props> = props => {
         ) : assignments.length === 0 ? (
           <Typography variant="h5">{t("All assignments verified")}</Typography>
         ) : uniqueDays.length === 1 ? (
-          assignments.map((vacancyDetail, index) => (
-            <Collapse
-              in={verifiedId !== vacancyDetail.id}
-              key={vacancyDetail.id}
-            >
-              <Assignment
+          <TransitionGroup>
+            {assignments.map((vacancyDetail, index) => (
+              <CSSTransition
                 key={vacancyDetail.id}
-                vacancyDetail={vacancyDetail}
-                shadeRow={index % 2 != 0}
-                onVerify={onVerify}
-                selectedVacancyDetail={selectedVacancyDetail}
-                onSelectDetail={onSelectDetail}
-                payCodeOptions={payCodeOptions}
-                vacancyDayConversions={vacancyDayConversions}
-              />
-            </Collapse>
-          ))
+                timeout={ANIMATION_TIMEOUT}
+                classNames={{
+                  enter: vacancyDetailAnimationClasses.enter,
+                  enterActive: vacancyDetailAnimationClasses.enterActive,
+                  exit: vacancyDetailAnimationClasses.exit,
+                  exitActive: vacancyDetailAnimationClasses.exitActive,
+                }}
+              >
+                <div>
+                  <Collapse
+                    in={verifiedId !== vacancyDetail.id}
+                    key={vacancyDetail.id}
+                  >
+                    <Assignment
+                      key={vacancyDetail.id}
+                      vacancyDetail={vacancyDetail}
+                      shadeRow={index % 2 != 0}
+                      onVerify={onVerify}
+                      selectedVacancyDetail={selectedVacancyDetail}
+                      onSelectDetail={onSelectDetail}
+                      payCodeOptions={payCodeOptions}
+                      vacancyDayConversions={vacancyDayConversions}
+                    />
+                  </Collapse>
+                </div>
+              </CSSTransition>
+            ))}
+          </TransitionGroup>
         ) : (
           uniqueDays.map((d, i) => (
             <ExpansionPanel defaultExpanded={true} key={`panel-${i}`}>
@@ -311,25 +331,41 @@ export const VerifyUI: React.FC<Props> = props => {
                 </div>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails className={classes.details}>
-                {assignments
-                  .filter(x => x.startDate === d)
-                  .map((vacancyDetail, index) => (
-                    <Collapse
-                      in={verifiedId !== vacancyDetail.id}
-                      key={vacancyDetail.id}
-                    >
-                      <Assignment
+                <TransitionGroup>
+                  {assignments
+                    .filter(x => x.startDate === d)
+                    .map((vacancyDetail, index) => (
+                      <CSSTransition
                         key={vacancyDetail.id}
-                        vacancyDetail={vacancyDetail}
-                        shadeRow={index % 2 != 0}
-                        onVerify={onVerify}
-                        selectedVacancyDetail={selectedVacancyDetail}
-                        onSelectDetail={onSelectDetail}
-                        payCodeOptions={payCodeOptions}
-                        vacancyDayConversions={vacancyDayConversions}
-                      />
-                    </Collapse>
-                  ))}
+                        timeout={ANIMATION_TIMEOUT}
+                        classNames={{
+                          enter: vacancyDetailAnimationClasses.enter,
+                          enterActive:
+                            vacancyDetailAnimationClasses.enterActive,
+                          exit: vacancyDetailAnimationClasses.exit,
+                          exitActive: vacancyDetailAnimationClasses.exitActive,
+                        }}
+                      >
+                        <div>
+                          <Collapse
+                            in={verifiedId !== vacancyDetail.id}
+                            key={vacancyDetail.id}
+                          >
+                            <Assignment
+                              key={vacancyDetail.id}
+                              vacancyDetail={vacancyDetail}
+                              shadeRow={index % 2 != 0}
+                              onVerify={onVerify}
+                              selectedVacancyDetail={selectedVacancyDetail}
+                              onSelectDetail={onSelectDetail}
+                              payCodeOptions={payCodeOptions}
+                              vacancyDayConversions={vacancyDayConversions}
+                            />
+                          </Collapse>
+                        </div>
+                      </CSSTransition>
+                    ))}
+                </TransitionGroup>
               </ExpansionPanelDetails>
             </ExpansionPanel>
           ))
@@ -370,5 +406,32 @@ export const useStyles = makeStyles(theme => ({
   summaryText: {
     color: theme.palette.primary.main,
     fontWeight: "bold",
+  },
+}));
+
+const ANIMATION_TIMEOUT = 500;
+
+const useVacancyDetailAnimationStyles = makeStyles(theme => ({
+  enter: {
+    maxHeight: 0,
+    opacity: 0,
+    overflow: "hidden",
+  },
+  enterActive: {
+    maxHeight: theme.typography.pxToRem(300),
+    opacity: 1,
+    overflow: "hidden",
+    transition: `all ${ANIMATION_TIMEOUT}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+  },
+  exit: {
+    maxHeight: theme.typography.pxToRem(300),
+    opacity: 1,
+    overflow: "hidden",
+  },
+  exitActive: {
+    maxHeight: 0,
+    opacity: 0,
+    overflow: "hidden",
+    transition: `all ${ANIMATION_TIMEOUT}ms cubic-bezier(0.4, 0, 0.2, 1)`,
   },
 }));
