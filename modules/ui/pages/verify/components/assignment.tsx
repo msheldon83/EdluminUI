@@ -121,9 +121,9 @@ export const Assignment: React.FC<Props> = props => {
       },
     ];
   }, [props.vacancyDayConversions, dayConversionHourlyName]);
-
   // Make sure the dayConversionName is initially set
   useEffect(() => {
+    console.log("in effect");
     if (
       !vacancyDetail.dayPortion ||
       vacancyDetail.payTypeId === AbsenceReasonTrackingTypeId.Hourly
@@ -157,6 +157,7 @@ export const Assignment: React.FC<Props> = props => {
     vacancyDetail.payTypeId,
     vacancyDetail.payInfo,
   ]);
+  //console.log("selected day conversion name", selectedDayConversionName);
 
   // Get the current PayTypeId based on the current selectedDayConversion
   const payTypeId = useMemo(() => {
