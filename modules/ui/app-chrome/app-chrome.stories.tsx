@@ -30,7 +30,7 @@ export const AppChromeStory = () => {
               orgUsers: [
                 {
                   id: "1",
-                  orgId: 1,
+                  orgId: "1",
                   isAdmin: false,
                 },
               ],

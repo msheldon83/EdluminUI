@@ -289,8 +289,8 @@ const createQuickAbsenceInputs = (
   );
 
   return {
-    orgId: Number(organizationId),
-    employeeId: Number(employeeId),
+    orgId: organizationId,
+    employeeId: employeeId,
     details,
   };
 };

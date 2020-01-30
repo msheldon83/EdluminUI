@@ -3,7 +3,7 @@ import { compact } from "lodash-es";
 import { GetAccountingCodes } from "./get-accounting-codes.gen";
 import { useMemo } from "react";
 
-export function useAccountingCodes(orgId: string, locationIds?: Array<number>) {
+export function useAccountingCodes(orgId: string, locationIds?: string[]) {
   const accountingCodes = useQueryBundle(GetAccountingCodes, {
     fetchPolicy: "cache-first",
     variables: { orgId, locationIds },

@@ -21,9 +21,9 @@ type SubHomeFilterQueryParams = Omit<
   SubHomeQueryFilters;
 
 export type SubHomeQueryFilters = {
-  orgIds: number[];
-  locationIds: number[];
-  positionTypeIds: number[];
+  orgIds: string[];
+  locationIds: string[];
+  positionTypeIds: string[];
   times: string[];
 };
 
@@ -47,15 +47,12 @@ export const FilterQueryParams = {
 
 const to = (o: SubHomeFilters): SubHomeQueryFilters => {
   return {
-    positionTypeIds: stringToNumberArray(o.positionTypeIds),
-    locationIds: stringToNumberArray(o.locationIds),
-    orgIds: stringToNumberArray(o.orgIds),
+    positionTypeIds:
+      o.positionTypeIds === "" ? [] : o.positionTypeIds.split(","),
+    locationIds: o.locationIds === "" ? [] : o.locationIds.split(","),
+    orgIds: o.orgIds === "" ? [] : o.orgIds.split(","),
     times: o.times.split(","),
   };
-};
-
-const stringToNumberArray = (s: string): number[] => {
-  return s === "" ? [] : s.split(",").map(e => Number(e));
 };
 
 const from = (o: SubHomeQueryFilters) => {

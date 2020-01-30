@@ -53,7 +53,7 @@ export const PayCode: React.FC<Props> = props => {
   const deletePayCode = (payCodeId: string) => {
     return deletePayCodeMutation({
       variables: {
-        payCodeId: Number(payCodeId),
+        payCodeId: payCodeId,
       },
     });
   };
@@ -71,7 +71,7 @@ export const PayCode: React.FC<Props> = props => {
   );
 
   const [payCode] = React.useState<PayCodeCreateInput>({
-    orgId: Number(params.organizationId),
+    orgId: params.organizationId,
     name: "",
     externalId: null,
     description: "",
@@ -204,7 +204,7 @@ export const PayCode: React.FC<Props> = props => {
         onRowUpdate={{
           action: async newData => {
             const updatePayCode = {
-              id: Number(newData.id),
+              id: newData.id,
               rowVersion: newData.rowVersion,
               name: newData.name,
               externalId:

@@ -26,7 +26,7 @@ const basicProjectedVacancies = [
     endDate: "2019-11-18",
     endTimeLocal: "2019-11-18T12:00:00",
     numDays: 2,
-    positionId: 1057,
+    positionId: "1057",
     details: [
       {
         startDate: "2019-11-15",
@@ -36,7 +36,7 @@ const basicProjectedVacancies = [
         location: {
           name: "Haven Elementary School",
         },
-        locationId: 1013,
+        locationId: "1013",
       },
       {
         startDate: "2019-11-18",
@@ -46,7 +46,7 @@ const basicProjectedVacancies = [
         location: {
           name: "Haven Elementary School",
         },
-        locationId: 1013,
+        locationId: "1013",
       },
     ],
   },
@@ -54,7 +54,7 @@ const basicProjectedVacancies = [
 
 const basicReplacementEmployees = [
   {
-    employeeId: 1,
+    employeeId: "1",
     firstName: "Luke",
     lastName: "Skywalker",
     phoneNumber: "3452346789",

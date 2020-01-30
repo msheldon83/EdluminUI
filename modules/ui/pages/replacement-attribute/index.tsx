@@ -77,7 +77,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
   );
 
   const [replacementEndorsement] = React.useState<EndorsementCreateInput>({
-    orgId: Number(params.organizationId),
+    orgId: params.organizationId,
     name: "",
     externalId: null,
     description: "",
@@ -115,7 +115,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
   const deleteReplacementEndorsement = (endorsementId: string) => {
     const result = deleteReplacementEndorsementMutation({
       variables: {
-        endorsementId: Number(endorsementId),
+        endorsementId: endorsementId,
       },
     });
   };
@@ -216,7 +216,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         onRowUpdate={{
           action: async newData => {
             const updateReplacementEndorsement = {
-              id: Number(newData.id),
+              id: newData.id,
               rowVersion: newData.rowVersion,
               name: newData.name,
               externalId:

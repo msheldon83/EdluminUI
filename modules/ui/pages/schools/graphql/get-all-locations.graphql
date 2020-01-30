@@ -1,6 +1,6 @@
 query GetAllLocationsWithinOrg(
   $orgId: ID
-  $locationGroups: [Int]
+  $locationGroups: [ID]
   $searchText: String
 ) {
   location {

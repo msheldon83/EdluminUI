@@ -1,4 +1,4 @@
-mutation DeleteAbsenceReason($absenceReasonId: Int!) {
+mutation DeleteAbsenceReason($absenceReasonId: ID!) {
   orgRef_AbsenceReason {
     delete(absenceReasonId: $absenceReasonId)
   }

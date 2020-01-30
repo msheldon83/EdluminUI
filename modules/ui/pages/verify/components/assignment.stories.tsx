@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
 
 const simpleAssignment = ({
   id: "123456789",
-  orgId: 1038,
+  orgId: "1038",
   startTimeLocal: "2019-11-20T08:00",
   endTimeLocal: "2019-11-20T15:00",
   dayPortion: 1.0,

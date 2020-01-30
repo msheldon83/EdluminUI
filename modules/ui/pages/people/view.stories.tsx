@@ -18,7 +18,7 @@ const AdminView = (isActive: boolean) => {
         orgUser: () => ({
           byId: {
             id: "1000",
-            userId: 1000,
+            userId: "1000",
             loginEmail: "jschmoe@school.edu",
             rowVersion: "1234567890",
             firstName: "Joe",
@@ -56,7 +56,7 @@ const EmployeeView = (isActive: boolean) => {
         orgUser: () => ({
           byId: {
             id: "1000",
-            userId: 1000,
+            userId: "1000",
             loginEmail: "jschmoe@school.edu",
             rowVersion: "1234567890",
             firstName: "Joe",
@@ -98,7 +98,7 @@ const SubstituteView = (isActive: boolean) => {
         orgUser: () => ({
           byId: {
             id: "1000",
-            userId: 1000,
+            userId: "1000",
             loginEmail: "jschmoe@school.edu",
             rowVersion: "1234567890",
             firstName: "Joe",

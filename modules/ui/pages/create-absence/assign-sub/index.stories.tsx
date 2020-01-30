@@ -15,7 +15,7 @@ export default {
 
 const dummyReplacementEmployees = [
   {
-    employeeId: 1,
+    employeeId: "1",
     firstName: "Luke",
     lastName: "Skywalker",
     phoneNumber: "3452346789",
@@ -33,7 +33,7 @@ const dummyReplacementEmployees = [
     isSelectable: true,
   },
   {
-    employeeId: 2,
+    employeeId: "2",
     firstName: "Anakin",
     lastName: "Skywalker",
     phoneNumber: "3452346789",
@@ -51,7 +51,7 @@ const dummyReplacementEmployees = [
     isSelectable: true,
   },
   {
-    employeeId: 3,
+    employeeId: "3",
     firstName: "Obi-Wan",
     lastName: "Kenobi",
     phoneNumber: "3452346789",
@@ -69,7 +69,7 @@ const dummyReplacementEmployees = [
     isSelectable: true,
   },
   {
-    employeeId: 4,
+    employeeId: "4",
     firstName: "Qui-Gon",
     lastName: "Jinn",
     phoneNumber: "3452346789",
@@ -121,14 +121,14 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
               endDate: "2019-11-3",
               endTimeLocal: new Date("11/3/2019 05:00 PM"),
               numDays: 3,
-              positionId: 1,
+              positionId: "1",
               details: [
                 {
                   startDate: "2019-11-1",
                   startTimeLocal: new Date("11/1/2019 07:00 AM"),
                   endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 09:00 AM"),
-                  locationId: 1,
+                  locationId: "1",
                   location: {
                     name: "Evans Elementary School",
                   },
@@ -138,7 +138,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/1/2019 09:00 AM"),
                   endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 12:00 PM"),
-                  locationId: 2,
+                  locationId: "2",
                   location: {
                     name: "Brook Elementary School",
                   },
@@ -148,7 +148,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/1/2019 01:00 PM"),
                   endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 05:00 PM"),
-                  locationId: 3,
+                  locationId: "3",
                   location: {
                     name: "Haven Elementary School",
                   },
@@ -158,7 +158,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/2/2019 07:00 AM"),
                   endDate: "2019-11-2",
                   endTimeLocal: new Date("11/2/2019 09:00 AM"),
-                  locationId: 1,
+                  locationId: "1",
                   location: {
                     name: "Evans Elementary School",
                   },
@@ -168,7 +168,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/2/2019 09:00 AM"),
                   endDate: "2019-11-2",
                   endTimeLocal: new Date("11/2/2019 12:00 PM"),
-                  locationId: 2,
+                  locationId: "2",
                   location: {
                     name: "Brook Elementary School",
                   },
@@ -178,7 +178,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/2/2019 01:00 PM"),
                   endDate: "2019-11-2",
                   endTimeLocal: new Date("11/2/2019 05:00 PM"),
-                  locationId: 3,
+                  locationId: "3",
                   location: {
                     name: "Haven Elementary School",
                   },
@@ -188,7 +188,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/3/2019 07:00 AM"),
                   endDate: "2019-11-3",
                   endTimeLocal: new Date("11/3/2019 09:00 AM"),
-                  locationId: 1,
+                  locationId: "1",
                   location: {
                     name: "Evans Elementary School",
                   },
@@ -198,7 +198,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/3/2019 09:00 AM"),
                   endDate: "2019-11-3",
                   endTimeLocal: new Date("11/3/2019 12:00 PM"),
-                  locationId: 2,
+                  locationId: "2",
                   location: {
                     name: "Brook Elementary School",
                   },
@@ -208,7 +208,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/3/2019 01:00 PM"),
                   endDate: "2019-11-3",
                   endTimeLocal: new Date("11/3/2019 05:00 PM"),
-                  locationId: 3,
+                  locationId: "3",
                   location: {
                     name: "Haven Elementary School",
                   },
@@ -221,14 +221,14 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
               endDate: "2019-11-7",
               endTimeLocal: new Date("11/7/2019 05:00 PM"),
               numDays: 2,
-              positionId: 1,
+              positionId: "1",
               details: [
                 {
                   startDate: "2019-11-6",
                   startTimeLocal: new Date("11/6/2019 07:00 AM"),
                   endDate: "2019-11-6",
                   endTimeLocal: new Date("11/6/2019 09:00 AM"),
-                  locationId: 1,
+                  locationId: "1",
                   location: {
                     name: "Evans Elementary School",
                   },
@@ -238,7 +238,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/6/2019 09:00 AM"),
                   endDate: "2019-11-6",
                   endTimeLocal: new Date("11/6/2019 12:00 PM"),
-                  locationId: 2,
+                  locationId: "2",
                   location: {
                     name: "Brook Elementary School",
                   },
@@ -248,7 +248,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/6/2019 01:00 PM"),
                   endDate: "2019-11-6",
                   endTimeLocal: new Date("11/6/2019 05:00 PM"),
-                  locationId: 3,
+                  locationId: "3",
                   location: {
                     name: "Haven Elementary School",
                   },
@@ -258,7 +258,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/7/2019 07:00 AM"),
                   endDate: "2019-11-7",
                   endTimeLocal: new Date("11/7/2019 09:00 AM"),
-                  locationId: 1,
+                  locationId: "1",
                   location: {
                     name: "Evans Elementary School",
                   },
@@ -268,7 +268,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/7/2019 09:00 AM"),
                   endDate: "2019-11-7",
                   endTimeLocal: new Date("11/7/2019 12:00 PM"),
-                  locationId: 2,
+                  locationId: "2",
                   location: {
                     name: "Brook Elementary School",
                   },
@@ -278,7 +278,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
                   startTimeLocal: new Date("11/7/2019 01:00 PM"),
                   endDate: "2019-11-7",
                   endTimeLocal: new Date("11/7/2019 05:00 PM"),
-                  locationId: 3,
+                  locationId: "3",
                   location: {
                     name: "Haven Elementary School",
                   },
@@ -329,14 +329,14 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
               endDate: "2019-11-10",
               endTimeLocal: new Date("11/10/2019 05:00 PM"),
               numDays: 7,
-              positionId: 1,
+              positionId: "1",
               details: [
                 {
                   startDate: "2019-11-1",
                   startTimeLocal: new Date("11/1/2019 07:00 AM"),
                   endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 05:00 PM"),
-                  locationId: 1,
+                  locationId: "1",
                   location: {
                     name: "Evans Elementary School",
                   },
@@ -386,14 +386,14 @@ export const PrearrangeSubAsAdmin = () => {
               endDate: "2019-11-10",
               endTimeLocal: new Date("11/10/2019 05:00 PM"),
               numDays: 7,
-              positionId: 1,
+              positionId: "1",
               details: [
                 {
                   startDate: "2019-11-1",
                   startTimeLocal: new Date("11/1/2019 07:00 AM"),
                   endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 05:00 PM"),
-                  locationId: 1,
+                  locationId: "1",
                   location: {
                     name: "Evans Elementary School",
                   },
@@ -443,14 +443,14 @@ export const PrearrangeSubAsEmployee = () => {
               endDate: "2019-11-10",
               endTimeLocal: new Date("11/10/2019 05:00 PM"),
               numDays: 7,
-              positionId: 1,
+              positionId: "1",
               details: [
                 {
                   startDate: "2019-11-1",
                   startTimeLocal: new Date("11/1/2019 07:00 AM"),
                   endDate: "2019-11-1",
                   endTimeLocal: new Date("11/1/2019 05:00 PM"),
-                  locationId: 1,
+                  locationId: "1",
                   location: {
                     name: "Evans Elementary School",
                   },

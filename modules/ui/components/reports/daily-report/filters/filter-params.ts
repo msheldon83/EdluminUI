@@ -36,8 +36,8 @@ type DailyReportFilterQueryParams = Omit<
 
 export type DailyReportQueryFilters = {
   date: string;
-  locationIds: number[];
-  positionTypeIds: number[];
+  locationIds: string[];
+  positionTypeIds: string[];
   showAbsences: boolean;
   showVacancies: boolean;
   groupByFillStatus: boolean;
@@ -91,17 +91,14 @@ const boolToString = (b: boolean): "true" | "false" | "" => {
 const to = (o: DailyReportFilters): DailyReportQueryFilters => {
   return {
     date: o.date,
-    positionTypeIds: stringToNumberArray(o.positionTypeIds),
-    locationIds: stringToNumberArray(o.locationIds),
+    positionTypeIds:
+      o.positionTypeIds === "" ? [] : o.positionTypeIds.split(","),
+    locationIds: o.locationIds === "" ? [] : o.locationIds.split(","),
     showAbsences: stringToBool(o.showAbsences, true),
     showVacancies: stringToBool(o.showVacancies, true),
     groupByFillStatus: stringToBool(o.groupByFillStatus, true),
     groupByPositionType: stringToBool(o.groupByPositionType, true),
   };
-};
-
-const stringToNumberArray = (s: string): number[] => {
-  return s === "" ? [] : s.split(",").map(e => Number(e));
 };
 
 const from = (o: DailyReportQueryFilters) => {

@@ -36,7 +36,7 @@ export const PositionTypePage: React.FC<{}> = props => {
   const deletePositionType = (positionTypeId: string) => {
     return deletePositionTypeMutation({
       variables: {
-        positionTypeId: Number(positionTypeId),
+        positionTypeId: positionTypeId,
       },
     });
   };
