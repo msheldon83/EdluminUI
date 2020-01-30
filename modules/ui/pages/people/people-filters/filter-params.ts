@@ -123,7 +123,7 @@ const to = (o: PeopleFilters): RoleSpecificFilters => {
     case OrgUserRole.ReplacementEmployee:
       return {
         roleFilter: OrgUserRole.ReplacementEmployee,
-        endorsements: o.endorsements.split(","),
+        endorsements: o.endorsements === "" ? [] : o.endorsements.split(","),
       };
     case "":
     default:
