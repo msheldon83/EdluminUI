@@ -50,15 +50,8 @@ export const Assign: React.FC<Props> = props => {
     const data = locations.map((l: Pick<Location, "id" | "name">) => {
       return { text: l.name, value: l.id };
     });
-
-    defaultLocationSelections.forEach(l => {
-      if (!data.includes(l)) {
-        data.push(l);
-      }
-    });
-
     return data;
-  }, [locations, defaultLocationSelections]);
+  }, [locations]);
 
   const defaultLocationGroupSelections = useMemo(() => {
     return props.locationGroupsAssigned.map(l => {
@@ -69,15 +62,8 @@ export const Assign: React.FC<Props> = props => {
     const data = locationGroups.map((l: Pick<LocationGroup, "id" | "name">) => {
       return { text: l.name, value: l.id };
     });
-
-    defaultLocationGroupSelections.forEach(l => {
-      if (!data.includes(l)) {
-        data.push(l);
-      }
-    });
-
     return data;
-  }, [locationGroups, defaultLocationGroupSelections]);
+  }, [locationGroups]);
 
   if (
     !locations ||
