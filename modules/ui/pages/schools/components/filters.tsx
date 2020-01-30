@@ -22,14 +22,17 @@ export const Filters: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(LocationsRoute);
 
+  const setSearchText = props.setSearchText;
+  const setLocationGroupsFilter = props.setLocationGroupsFilter;
+
   const [
     searchText,
     pendingSearchText,
     setPendingSearchText,
   ] = useDeferredState<string | undefined>(undefined, 200);
   useEffect(() => {
-    props.setSearchText(searchText);
-  }, [props, searchText]);
+    setSearchText(searchText);
+  }, [setSearchText, searchText]);
 
   const updateSearchText = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,12 +58,12 @@ export const Filters: React.FC<Props> = props => {
   const onChangeGroup = useCallback(
     value => {
       if (value.value === "0") {
-        props.setLocationGroupsFilter([]);
+        setLocationGroupsFilter([]);
       } else {
-        props.setLocationGroupsFilter([value.value]);
+        setLocationGroupsFilter([value.value]);
       }
     },
-    [props]
+    [setLocationGroupsFilter]
   );
 
   return (
