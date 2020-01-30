@@ -6,7 +6,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "ui/components/form/input";
 import { CrossFade } from "ui/components/cross-fade";
-import { Margin } from "ui/components/margin";
+import { Spacing } from "ui/components/spacing";
 import { Padding } from "ui/components/padding";
 import { ActionMenu, Option } from "./action-menu";
 import { TextButton } from "./text-button";
@@ -153,7 +153,7 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
       >
         {({ handleSubmit, submitForm, values, setFieldValue }) => (
           <form onSubmit={handleSubmit}>
-            <Margin bottom={2}>
+            <Spacing bottom={2}>
               <Grid container alignItems="center" spacing={2}>
                 {values.fields.map((field: FieldData, index: number) => (
                   <Grid item key={field.key}>
@@ -192,7 +192,7 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
                   </Grid>
                 </Padding>
               </Grid>
-            </Margin>
+            </Spacing>
           </form>
         )}
       </Formik>

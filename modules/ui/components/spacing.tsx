@@ -1,8 +1,7 @@
 import * as React from "react";
-import clsx from "clsx";
 import { useTheme } from "@material-ui/core/styles";
 
-type marginProps = {
+type SpacingProps = {
   children: React.ReactElement;
   top?: number;
   right?: number;
@@ -10,7 +9,7 @@ type marginProps = {
   left?: number;
 };
 
-export const Margin = (props: marginProps) => {
+export const Spacing = (props: SpacingProps) => {
   const theme = useTheme();
 
   const style: React.CSSProperties = {};

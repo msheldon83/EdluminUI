@@ -7,7 +7,7 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "ui/components/form/input";
-import { Margin } from "ui/components/margin";
+import { Spacing } from "ui/components/spacing";
 import { Padding } from "ui/components/padding";
 import { CrossFade } from "ui/components/cross-fade";
 import { ActionMenu, Option } from "./action-menu";
@@ -183,7 +183,7 @@ export const PageHeader: React.FC<Props> = props => {
       >
         {({ handleSubmit, submitForm }) => (
           <form onSubmit={handleSubmit}>
-            <Margin bottom={2}>
+            <Spacing bottom={2}>
               <Grid container alignItems="center" spacing={2}>
                 <Grid item>
                   <Input label={props.label} name="value" fullWidth />
@@ -212,7 +212,7 @@ export const PageHeader: React.FC<Props> = props => {
                   </Grid>
                 </Padding>
               </Grid>
-            </Margin>
+            </Spacing>
           </form>
         )}
       </Formik>
