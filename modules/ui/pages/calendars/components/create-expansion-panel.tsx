@@ -28,12 +28,13 @@ import { DatePicker } from "ui/components/form/date-picker";
 import { useContracts } from "reference-data/contracts";
 import { useMemo } from "react";
 import { OptionTypeBase } from "react-select/src/types";
-import { parseISO, format, isBefore } from "date-fns";
+import { parseISO, format, isBefore, isValid } from "date-fns";
 import { CreateCalendarChange } from "../graphql/create-calendar-change.gen";
 import { CalendarChangeCreateInput } from "graphql/server-types.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useAllSchoolYears } from "reference-data/school-years";
+import { isAfterDate } from "helpers/date";
 
 type Props = {
   orgId: string;
@@ -44,7 +45,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
-  const today = useMemo(() => format(new Date(), "MMM d, yyyy").toString(), []);
+  const today = useMemo(() => new Date(), []);
   const schoolYears = useAllSchoolYears(props.orgId);
 
   const getCalendarChangeReasons: any = useQueryBundle(
@@ -70,16 +71,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
   const [enableAllContracts, setEnableAllContracts] = React.useState(true);
   const [selectedChangeReason, setSelectedChangeReason] = React.useState();
   const [selectedContracts, setselectedContracts] = React.useState();
-  const [selectedToDate, setSelectedToDate] = React.useState(today);
-  const [selectedFromDate, setSelectedFromDate] = React.useState(today);
   const [panelOpened, setPanelOpened] = React.useState(false);
-
-  const selectedToDateAsDate = useMemo(() => new Date(selectedToDate), [
-    selectedToDate,
-  ]);
-  const selectedFromDateAsDate = useMemo(() => new Date(selectedFromDate), [
-    selectedFromDate,
-  ]);
 
   const contractValue = contractOptions.filter(
     e => e.value && selectedContracts?.includes(Number(e.value))
@@ -189,15 +181,13 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
           <Formik
             initialValues={{
               changeReason: selectedChangeReason,
-              toDate: selectedToDate,
-              fromDate: selectedFromDate,
+              toDate: today,
+              fromDate: today,
               notes: undefined,
               contracts: selectedContracts,
               applyToAll: enableAllContracts,
             }}
             onReset={(values, formProps) => {
-              setSelectedToDate(today);
-              setSelectedFromDate(today);
               setselectedContracts([]);
               setEnableAllContracts(true);
               setSelectedChangeReason(changeReasonOptions[0].value);
@@ -282,17 +272,12 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   <Grid item xs={3}>
                     <DatePicker
                       variant={"single-hidden"}
-                      startDate={selectedFromDateAsDate}
+                      startDate={values.fromDate}
                       onChange={({ startDate }) => {
-                        const fromDateAsDate =
-                          typeof startDate === "string"
-                            ? startDate
-                            : format(startDate, "MMM d, yyyy").toString();
-
-                        setSelectedFromDate(fromDateAsDate);
-                        setFieldValue("fromDate", fromDateAsDate);
-                        setSelectedToDate(fromDateAsDate);
-                        setFieldValue("toDate", fromDateAsDate);
+                        setFieldValue("fromDate", startDate);
+                        if (isAfterDate(startDate, values.fromDate)) {
+                          setFieldValue("toDate", startDate);
+                        }
                       }}
                       startLabel={t("From")}
                     />
@@ -300,16 +285,10 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   <Grid item xs={3}>
                     <DatePicker
                       variant={"single-hidden"}
-                      startDate={selectedToDateAsDate}
-                      onChange={({ startDate }) => {
-                        const startDateAsDate =
-                          typeof startDate === "string"
-                            ? startDate
-                            : format(startDate, "MMM d, yyyy").toString();
-
-                        setSelectedToDate(startDateAsDate);
-                        setFieldValue("toDate", startDateAsDate);
-                      }}
+                      startDate={values.toDate}
+                      onChange={({ startDate: toDate }) =>
+                        setFieldValue("toDate", toDate)
+                      }
                       startLabel={t("To")}
                     />
                   </Grid>
