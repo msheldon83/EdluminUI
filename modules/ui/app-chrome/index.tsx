@@ -39,25 +39,30 @@ export const AppChrome: React.FunctionComponent = props => {
     return (
       <LoadingStateProvider>
         <PageTitleProvider>
-          <Route path={AdminChromeRoute.path}>
-            <OrganizationSwitcherBar />
-          </Route>
-          <div className={classes.outer}>
-            <MobileTopBar expandDrawer={expand} />
-            <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
-            <div className={classes.mainContent}>
-              <SnackbarProvider>
-                <DialogProvider>
-                  <div />
-                  <div className={classes.contentView}>
-                    <ErrorBoundary>
-                      <LoadingStateIndicatorFullScreen>
-                        {props.children}
-                      </LoadingStateIndicatorFullScreen>
-                    </ErrorBoundary>
-                  </div>
-                </DialogProvider>
-              </SnackbarProvider>
+          <div className={classes.app}>
+            <Route path={AdminChromeRoute.path}>
+              <OrganizationSwitcherBar />
+            </Route>
+            <div className={classes.outer}>
+              <MobileTopBar expandDrawer={expand} />
+              <MobileNavigationSideBar
+                expanded={expanded}
+                collapse={collapse}
+              />
+              <div className={classes.mainContent}>
+                <SnackbarProvider>
+                  <DialogProvider>
+                    <div />
+                    <div className={classes.contentView}>
+                      <ErrorBoundary>
+                        <LoadingStateIndicatorFullScreen>
+                          {props.children}
+                        </LoadingStateIndicatorFullScreen>
+                      </ErrorBoundary>
+                    </div>
+                  </DialogProvider>
+                </SnackbarProvider>
+              </div>
             </div>
           </div>
         </PageTitleProvider>
