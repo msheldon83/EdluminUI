@@ -273,11 +273,17 @@ export const VerifyUI: React.FC<Props> = props => {
     }
   };
 
+  const handleSetSelectedDate = (d: Date) => {
+    setSelectedDateTab(d);
+    setSelectedVacancyDetail(undefined);
+    setNextSelectedVacancyDetail(undefined);
+  };
+
   return (
     <>
       <DateTabs
         selectedDateTab={selectedDateToUse}
-        setSelectedDateTab={setSelectedDateTab}
+        setSelectedDateTab={handleSetSelectedDate}
         dateTabOptions={dateTabOptions}
         showLinkToVerify={props.showLinkToVerify}
       />

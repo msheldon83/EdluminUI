@@ -21,6 +21,8 @@ import { GetAllPayCodesWithinOrg } from "./graphql/get-pay-codes.gen";
 import { UpdatePayCode } from "./graphql/update-pay-code.gen";
 import { DeletePayCode } from "./graphql/delete-pay-code.gen";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
+import { useOrganizationId } from "core/org-context";
+import { GetPayCodesDocument } from "reference-data/get-pay-codes.gen";
 
 type Props = {};
 
@@ -28,12 +30,21 @@ export const PayCode: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
+  const orgId = useOrganizationId();
+
+  const payCodesReferenceDataQuery = {
+    query: GetPayCodesDocument,
+    variables: { orgId },
+  };
+
   const [createPayCode] = useMutationBundle(CreatePayCode, {
+    refetchQueries: [payCodesReferenceDataQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
   });
   const [updatePayCode] = useMutationBundle(UpdatePayCode, {
+    refetchQueries: [payCodesReferenceDataQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -46,6 +57,7 @@ export const PayCode: React.FC<Props> = props => {
     variables: { orgId: params.organizationId, includeExpired },
   });
   const [deletePayCodeMutation] = useMutationBundle(DeletePayCode, {
+    refetchQueries: [payCodesReferenceDataQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
