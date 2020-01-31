@@ -197,7 +197,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     [setValue]
   );
 
-  const userIsAdmin = useIsAdmin();
+  const userIsAdmin = useIsAdmin(props.organizationId);
 
   const snackbar = useSnackbar();
   /* only show the form error once. this prevents it from reappearing as the user edits individual fields */

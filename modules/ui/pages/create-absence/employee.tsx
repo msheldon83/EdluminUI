@@ -31,7 +31,7 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
 
   const employee = useGetEmployee();
 
-  const userIsAdmin = useIsAdmin();
+  const userIsAdmin = useIsAdmin(employee?.orgId.toString());
   if (
     (potentialEmployees.state !== "DONE" &&
       potentialEmployees.state !== "UPDATING") ||
