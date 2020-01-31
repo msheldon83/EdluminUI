@@ -1,4 +1,4 @@
-query GetAssignmentDatesForEmployee(
+query GetAssignmentDatesForSubstitute(
   $id: ID!
   $organizationId: ID
   $fromDate: DateTime!
@@ -16,11 +16,6 @@ query GetAssignmentDatesForEmployee(
       includeCompletedToday: $includeCompletedToday
     ) {
       id
-      assignment {
-        id
-        startTimeLocal
-        endTimeLocal
-      }
       startDate
     }
   }
