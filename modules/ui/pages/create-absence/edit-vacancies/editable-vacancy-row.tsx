@@ -40,7 +40,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     label: loc.name,
   }));
 
-  const locationIds = props.locationOptions.map(l => Number(l.id));
+  const locationIds = props.locationOptions.map(l => l.id);
 
   //Accounting Codes
   const accountingCodes = useAccountingCodes(props.orgId, locationIds);

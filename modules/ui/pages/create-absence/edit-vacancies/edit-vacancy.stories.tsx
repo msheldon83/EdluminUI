@@ -17,12 +17,14 @@ const formVacancyValues: VacancyDetail[] = [
     startTime: "2019-11-15T08:30:00" as any,
     endTime: "2019-11-15T12:00:00" as any,
     locationId: "1013",
+    payCodeId: "2313",
   },
   {
     date: "2019-11-18" as any,
     startTime: "2019-11-18T08:30:00" as any,
     endTime: "2019-11-18T12:00:00" as any,
     locationId: "1013",
+    payCodeId: "4365",
   },
 ];
 
@@ -40,6 +42,13 @@ const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
         location: {
           name: "Haven Elementary School",
         },
+        payCodeId: "1001",
+        payCode: {
+          name: "Code 5",
+        },
+        accountingCodeAllocations: {
+          name: "Code 7",
+        },
       },
       {
         startTimeLocal: "2019-11-18T08:30:00" as any,
@@ -47,6 +56,13 @@ const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
         locationId: "1013",
         location: {
           name: "Haven Elementary School",
+        },
+        payCodeId: "1008",
+        payCode: {
+          name: "Code 6",
+        },
+        accountingCodeAllocations: {
+          name: "Code 8",
         },
       },
     ],

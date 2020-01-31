@@ -6,6 +6,8 @@ export type VacancyDetail = {
   locationName?: string;
   absenceStartTime?: string;
   absenceEndTime?: string;
-  accountingCode?: number;
-  payCodeId?: number;
+  //accountingCodeAllocations: string[];
+  //accountingCodeAllocationNames?: string[];
+  payCodeName?: string;
+  payCodeId: string;
 };
