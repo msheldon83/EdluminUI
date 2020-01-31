@@ -1,21 +1,15 @@
-import * as React from "react";
-import { CalendarProps } from "@material-ui/pickers/views/Calendar/Calendar";
-import { makeStyles } from "@material-ui/core/styles";
-import createDate from "sugar/date/create";
-import isValid from "date-fns/isValid";
-import addDays from "date-fns/addDays";
-import isSameDay from "date-fns/isSameDay";
-import Popper from "@material-ui/core/Popper";
-import Fade from "@material-ui/core/Fade";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
-import { Input } from "./input";
-import {
-  isAfterDate,
-  formatDateIfPossible,
-  PolymorphicDateType,
-} from "../../../helpers/date";
+import Fade from "@material-ui/core/Fade";
+import Popper from "@material-ui/core/Popper";
+import { makeStyles } from "@material-ui/core/styles";
+import { CalendarProps } from "@material-ui/pickers/views/Calendar/Calendar";
+import addDays from "date-fns/addDays";
+import * as React from "react";
+import { useState } from "react";
+import { isAfterDate } from "../../../helpers/date";
 import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previous-date";
 import { Calendar } from "./calendar";
+import { DateInput } from "./date-input";
 
 export type DatePickerOnMonthChange = CalendarProps["onMonthChange"];
 
@@ -23,14 +17,17 @@ type DatePickerProps = {
   startDate: Date | string;
   endDate?: Date | string;
   onChange: DatePickerOnChange;
-  minimumDate?: Date;
-  maximumDate?: Date;
-  startLabel: string;
+  startLabel?: string;
   endLabel?: string;
   dateFormat?: string;
   disableDates?: Array<Date>;
   onMonthChange?: DatePickerOnMonthChange;
-  variant?: "single" | "single-hidden" | "range" | "extended-range";
+  variant?:
+    | "single"
+    | "single-hidden"
+    | "range"
+    | "extended-range"
+    | "field-only";
   endAdornment?: React.ReactNode;
 };
 
@@ -56,6 +53,13 @@ export const DatePicker = (props: DatePickerProps) => {
 
   const classes = useStyles(props);
 
+  const [inputStartDate, setInputStartDate] = useState<
+    string | Date | undefined
+  >(undefined);
+  const [inputEndDate, setInputEndDate] = useState<string | Date | undefined>(
+    undefined
+  );
+
   /*
     The calendar component requires that there always be a valid date value, so this hook tracks
     the last valid value (defaulting to the current date) and makes sure we can do date calculations
@@ -71,6 +75,7 @@ export const DatePicker = (props: DatePickerProps) => {
   let shouldShowRange = true;
   switch (variant) {
     case "single":
+    case "field-only":
     case "single-hidden": {
       shouldShowRange = false;
       break;
@@ -113,6 +118,7 @@ export const DatePicker = (props: DatePickerProps) => {
       // Not a valid date yet
       if (typeof newEndDate === "string") {
         onChange({ startDate: newStartDate, endDate: newEndDate });
+        setInputEndDate(undefined);
         return;
       }
 
@@ -127,6 +133,7 @@ export const DatePicker = (props: DatePickerProps) => {
       }
 
       onChange({ startDate: newStartDate, endDate: newEndDate });
+      setInputEndDate(undefined);
     },
     [startDate, onChange]
   );
@@ -146,6 +153,7 @@ export const DatePicker = (props: DatePickerProps) => {
       // Not a valid date yet
       if (typeof newStartDate == "string") {
         onChange({ startDate: newStartDate, endDate: newEndDate });
+        setInputStartDate(undefined);
         return;
       }
 
@@ -157,6 +165,7 @@ export const DatePicker = (props: DatePickerProps) => {
       }
 
       onChange({ startDate: newStartDate, endDate: newEndDate });
+      setInputStartDate(undefined);
     },
     [endDate, onChange]
   );
@@ -177,6 +186,7 @@ export const DatePicker = (props: DatePickerProps) => {
       // Not a valid date yet
       if (typeof date == "string") {
         onChange({ startDate: newStartDate, endDate: newEndDate });
+        setInputStartDate(undefined);
         return;
       }
 
@@ -190,7 +200,9 @@ export const DatePicker = (props: DatePickerProps) => {
         newStartDate = date;
         newEndDate = undefined;
       }
+
       onChange({ startDate: newStartDate, endDate: newEndDate });
+      setInputStartDate(undefined);
     },
     [endDate, startDate, onChange]
   );
@@ -204,8 +216,9 @@ export const DatePicker = (props: DatePickerProps) => {
       if (date === null) {
         return;
       }
-
       onChange({ startDate: date });
+
+      setInputStartDate(undefined);
     },
     [onChange]
   );
@@ -226,6 +239,8 @@ export const DatePicker = (props: DatePickerProps) => {
           handleCalendarDateRangeChange(date);
           break;
         }
+        case "field-only":
+          break;
       }
     },
     [handleCalendarDateRangeChange, handleCalendarSingleDateChange, variant]
@@ -283,9 +298,23 @@ export const DatePicker = (props: DatePickerProps) => {
     );
   };
 
+  let showCalendar: null | { render: () => JSX.Element };
+  switch (variant) {
+    case "field-only":
+      showCalendar = null;
+      break;
+    case "single-hidden":
+      showCalendar = { render: renderPopoverCalendar };
+      break;
+    default:
+      showCalendar = { render: renderCalendar };
+      break;
+  }
+
   const renderEndDate = () => {
     switch (variant) {
       case "single":
+      case "field-only":
       case "single-hidden": {
         return;
       }
@@ -294,10 +323,11 @@ export const DatePicker = (props: DatePickerProps) => {
           <div className={classes.endDateInput}>
             <DateInput
               label={endLabel || "(End Label Missing)"}
-              value={endDate}
-              onChange={handleEndDateInputChange}
+              value={inputEndDate || endDate}
+              onChange={(date: string) => setInputEndDate(date)}
               onValidDate={handleEndDateInputChange}
               dateFormat={dateFormat}
+              onBlur={() => setInputEndDate(undefined)}
             />
           </div>
         );
@@ -327,23 +357,24 @@ export const DatePicker = (props: DatePickerProps) => {
       <div className={classes.keyboardInputWrapper}>
         <div className={classes.startDateInput} style={startDateStyle()}>
           <DateInput
-            label={startLabel}
-            value={startDate}
+            label={startLabel || ""}
+            value={inputStartDate || startDate}
             /*
               The handler is used for both change and valid date ranges here to make the experience
               calculate at all the correct interaction timers
             */
-            onChange={handleStartDateInputChange}
+            onChange={(date: string) => setInputStartDate(date)}
             onValidDate={handleStartDateInputChange}
             ref={startDateInputRef}
             onFocus={handleStartDateFocus}
             dateFormat={dateFormat}
             endAdornment={endAdornment}
+            onBlur={() => setInputStartDate(undefined)}
           />
         </div>
         {renderEndDate()}
       </div>
-      {showCalendarOnFocus ? renderPopoverCalendar() : renderCalendar()}
+      {showCalendar && showCalendar.render()}
     </div>
   );
 };
@@ -367,60 +398,3 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(1.5 / 2),
   },
 }));
-
-// Single Date Input
-
-type DateInputProps = {
-  label: string;
-  value?: Date | string;
-  onChange: (date: string) => void;
-  onValidDate: (date: Date) => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
-  dateFormat?: string;
-  endAdornment?: React.ReactNode;
-};
-
-export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
-  const {
-    label,
-    value = "",
-    onValidDate,
-    onChange,
-    onFocus,
-    endAdornment,
-    onBlur = () => {},
-    dateFormat = DEFAULT_DATE_FORMAT,
-  } = props;
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
-  };
-
-  const handleOnBlur = () => {
-    let date = createDate(value);
-
-    if (isValid(date)) {
-      onValidDate(date);
-    } else {
-      date = value;
-    }
-
-    onBlur();
-    onChange(date);
-  };
-
-  const formattedValue = formatDateIfPossible(value, dateFormat);
-
-  return (
-    <Input
-      label={label}
-      value={formattedValue}
-      onChange={handleOnChange}
-      onBlur={handleOnBlur}
-      onFocus={onFocus}
-      ref={ref}
-      endAdornment={endAdornment}
-    />
-  );
-});

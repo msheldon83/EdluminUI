@@ -124,6 +124,7 @@ export const SubSignInPage: React.FC<Props> = props => {
               )}
               options={locationOptions}
               multiple={false}
+              withResetValue={false}
             />
           </Grid>
           <Grid item xs={3}></Grid>
