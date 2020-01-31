@@ -16,6 +16,11 @@ query GetEmployeePosition($id: ID!) {
             id
             name
           }
+          accountingCodeAllocations {
+            id
+            accountingCodeId
+            allocation
+          }
           contractId
           schedules {
             id
@@ -27,6 +32,7 @@ query GetEmployeePosition($id: ID!) {
               startTime
               location {
                 id
+                locationGroupId
               }
               startPeriod {
                 id

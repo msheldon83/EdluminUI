@@ -2,6 +2,7 @@ const config = require("config");
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const ProgressBarPlugin = require("progress-bar-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const loaders = require("./loaders");
@@ -100,6 +101,10 @@ module.exports = {
 
   plugins: [
     // new HardSourceWebpackPlugin(),
+
+    new CopyPlugin([
+      { from: "scripts/new-relic.js"},
+    ]),
 
     // Define global letiables in the client to instrument behavior.
     new webpack.DefinePlugin({

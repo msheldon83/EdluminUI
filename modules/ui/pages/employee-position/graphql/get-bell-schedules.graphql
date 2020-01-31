@@ -3,6 +3,11 @@ query GetBellSchedules($orgId: ID) {
     all(orgId: $orgId) {
       id
       name
+      usages {
+        id
+        locationId
+        locationGroupId
+      }
       periods {
         id
         name

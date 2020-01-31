@@ -150,6 +150,7 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
           multiple={false}
           inputStatus={absenceReasonError ? "error" : undefined}
           validationMessage={absenceReasonError?.message}
+          withResetValue={false}
         />
       </div>
 

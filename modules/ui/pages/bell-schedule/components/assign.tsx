@@ -14,10 +14,11 @@ import { ChipInputAutoSuggest } from "ui/components/chip-input-autosuggest";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { Can } from "ui/components/auth/can";
+import { useMemo } from "react";
 
 type Props = {
-  locationIds: Array<string>;
-  locationGroupIds: Array<string>;
+  locationsAssigned: Pick<Location, "id" | "name">[];
+  locationGroupsAssigned: Pick<LocationGroup, "id" | "name">[];
   organizationId: string;
   submitLabel?: string;
   onSubmit: (
@@ -31,14 +32,38 @@ export const Assign: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
-  const [locationIds, setLocationIds] = React.useState<Array<string>>(
-    props.locationIds
+  const [locationIds, setLocationIds] = React.useState<string[]>(
+    props.locationsAssigned.map(l => l.id)
   );
-  const [locationGroupIds, setLocationGroupIds] = React.useState<Array<string>>(
-    props.locationGroupIds
+  const [locationGroupIds, setLocationGroupIds] = React.useState<string[]>(
+    props.locationGroupsAssigned.map(l => l.id)
   );
   const locations = useLocations(props.organizationId);
   const locationGroups = useLocationGroups(props.organizationId);
+
+  const defaultLocationSelections = useMemo(() => {
+    return props.locationsAssigned.map(l => {
+      return { text: l.name, value: l.id };
+    });
+  }, [props.locationsAssigned]);
+  const locationDataSource = useMemo(() => {
+    const data = locations.map((l: Pick<Location, "id" | "name">) => {
+      return { text: l.name, value: l.id };
+    });
+    return data;
+  }, [locations]);
+
+  const defaultLocationGroupSelections = useMemo(() => {
+    return props.locationGroupsAssigned.map(l => {
+      return { text: l.name, value: l.id };
+    });
+  }, [props.locationGroupsAssigned]);
+  const locationGroupDataSource = useMemo(() => {
+    const data = locationGroups.map((l: Pick<LocationGroup, "id" | "name">) => {
+      return { text: l.name, value: l.id };
+    });
+    return data;
+  }, [locationGroups]);
 
   if (
     !locations ||
@@ -49,20 +74,6 @@ export const Assign: React.FC<Props> = props => {
     return <></>;
   }
 
-  const defaultLocationSelections = locations
-    .filter((l: Pick<Location, "id">) => props.locationIds.includes(l.id))
-    .map((l: Pick<Location, "id" | "name">) => {
-      return { text: l.name, value: l.id };
-    });
-
-  const defaultLocationGroupSelections = locationGroups
-    .filter((l: Pick<LocationGroup, "id">) =>
-      props.locationGroupIds.includes(l.id)
-    )
-    .map((l: Pick<LocationGroup, "id" | "name">) => {
-      return { text: l.name, value: l.id };
-    });
-
   return (
     <Section>
       <SectionHeader title={t("Assigned to")} />
@@ -72,9 +83,7 @@ export const Assign: React.FC<Props> = props => {
             <ChipInputAutoSuggest
               label={t("Schools")}
               defaultSelections={defaultLocationSelections}
-              dataSource={locations.map((l: Pick<Location, "id" | "name">) => {
-                return { text: l.name, value: l.id };
-              })}
+              dataSource={locationDataSource}
               onChange={selections => {
                 setLocationIds(selections.map(s => s.value));
               }}
@@ -95,11 +104,7 @@ export const Assign: React.FC<Props> = props => {
             <ChipInputAutoSuggest
               label={t("Groups")}
               defaultSelections={defaultLocationGroupSelections}
-              dataSource={locationGroups.map(
-                (l: Pick<LocationGroup, "id" | "name">) => {
-                  return { text: l.name, value: l.id };
-                }
-              )}
+              dataSource={locationGroupDataSource}
               onChange={selections => {
                 setLocationGroupIds(selections.map(s => s.value));
               }}
