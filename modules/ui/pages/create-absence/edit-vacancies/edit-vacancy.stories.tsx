@@ -42,7 +42,18 @@ const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
         location: {
           name: "Haven Elementary School",
         },
-        payCodeId: "1001",
+        payCode: {
+          name: "name",
+        },
+        payCodeId: "123",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "1",
+            accountingCode: {
+              name: "val",
+            },
+          },
+        ],
       },
       {
         startTimeLocal: "2019-11-18T08:30:00" as any,
@@ -51,7 +62,18 @@ const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
         location: {
           name: "Haven Elementary School",
         },
-        payCodeId: "1008",
+        payCode: {
+          name: "name",
+        },
+        payCodeId: "123",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "1",
+            accountingCode: {
+              name: "val",
+            },
+          },
+        ],
       },
     ],
     absence: {

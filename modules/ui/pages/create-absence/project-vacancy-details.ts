@@ -49,9 +49,9 @@ export const projectVacancyDetailsFromVacancies = (
         absenceStartTime: absenceDetail?.startTimeLocal,
         absenceEndTime: absenceDetail?.endTimeLocal,
         payCodeId: d?.payCodeId,
-        payCodeName: d?.payCode?.name,
-        //Figure out accounting Codes
-        //accountingCodes: d?.accountingCodeAllocations?,
+        accountingCodeId:
+          d?.accountingCodeAllocations &&
+          d?.accountingCodeAllocations[0]?.accountingCodeId,
       } as VacancyDetail;
     })
     .filter(
@@ -59,8 +59,6 @@ export const projectVacancyDetailsFromVacancies = (
         !!detail.locationId &&
         !!detail.date &&
         !!detail.startTime &&
-        !!detail.endTime &&
-        !!detail.payCodeId
-      //!!detail.accountingCodeAllocations
+        !!detail.endTime
     );
 };

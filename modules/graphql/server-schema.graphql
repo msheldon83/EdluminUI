@@ -4772,6 +4772,8 @@ input VacancyDetailInput {
   startTime: Seconds
   endTime: Seconds
   locationId: ID
+  payCodeId: ID
+  accountingCodeAllocations: VacancyDetailAccountingCodeInput
 }
 
 input VacancyDetailVerifyInput {
