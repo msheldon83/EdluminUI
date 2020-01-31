@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useCallback } from "react";
-import { CancelDialog } from "ui/components/substitutes/assignment-row/cancel-dialog";
 import { EmployeeAbsenceDetail } from "../types";
 import { AbsenceDetailRowUI } from "./absence-detail-row-ui";
+import { CancelAbsenceDialog } from "./cancel-absence-dialog";
 
 type Props = {
   absence: EmployeeAbsenceDetail;
@@ -21,7 +21,7 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
 
   return (
     <>
-      <CancelDialog
+      <CancelAbsenceDialog
         open={dialogIsOpen}
         onClose={() => setDialogIsOpen(false)}
         onCancel={() => {
