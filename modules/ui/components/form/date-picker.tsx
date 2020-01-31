@@ -358,7 +358,7 @@ export const DatePicker = (props: DatePickerProps) => {
         <div className={classes.startDateInput} style={startDateStyle()}>
           <DateInput
             label={startLabel || ""}
-            value={inputStartDate || startDate}
+            value={inputStartDate === undefined ? startDate : inputStartDate}
             /*
               The handler is used for both change and valid date ranges here to make the experience
               calculate at all the correct interaction timers
@@ -369,7 +369,12 @@ export const DatePicker = (props: DatePickerProps) => {
             onFocus={handleStartDateFocus}
             dateFormat={dateFormat}
             endAdornment={endAdornment}
-            onBlur={() => setInputStartDate(undefined)}
+            onBlur={() => {
+              /* ml - 1/31/20. This is not a great solution for the timing issue here.
+                 This timeout will let the onBlur fire after the competing state update.
+               */
+              setTimeout(() => setInputStartDate(undefined), 1);
+            }}
           />
         </div>
         {renderEndDate()}
