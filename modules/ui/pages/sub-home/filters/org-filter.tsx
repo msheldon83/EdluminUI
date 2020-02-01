@@ -1,10 +1,13 @@
 import { Grid } from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
+import { useQueryBundle } from "graphql/hooks";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
+import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { useOrganizations } from "reference-data/organizations";
 import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
+import { compact, uniq } from "lodash-es";
 
 type Props = {
   orgLabel: string;
@@ -13,11 +16,26 @@ type Props = {
 export const DistrictFilter: React.FC<Props> = props => {
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
-  const organizations = useOrganizations();
+  const userAccessQuery = useQueryBundle(GetMyUserAccess, {
+    fetchPolicy: "cache-first",
+  });
+  const userAccess = userAccessQuery.state !== "DONE" ? null : userAccessQuery.data.userAccess?.me;  
+
   const organizationOptions: OptionType[] = useMemo(
-    () => organizations.map(o => ({ label: o.name, value: o.id })),
-    [organizations]
+    () => {
+      if (userAccess) {
+        const mySubOrgs = compact(
+          userAccess?.user?.orgUsers?.map(ou => {if (ou.isReplacementEmployee) {
+            return ou.organization;
+          }}));
+        return mySubOrgs.map(o => ({ label: o.name, value: o.id }))
+      } else {
+        return [{ label: "", value: ""}];
+      }
+    },
+    [userAccess]
   );
+
   const onChangeOrganizations = useCallback(
     (value: OptionType[]) => {
       const ids: string[] = value
