@@ -6,6 +6,8 @@ import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import * as React from "react";
 import { ProfileUI } from "./profile-ui";
 import { useTimezones } from "reference-data/timezones";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {};
 
@@ -14,9 +16,22 @@ export const ProfilePage: React.FC<Props> = props => {
     fetchPolicy: "cache-first",
   });
   const timeZones = useTimezones();
-  const [updateLoginEmail] = useMutationBundle(UpdateLoginEmail);
-  const [resetPassword] = useMutationBundle(ResetPassword);
-  const [updateUser] = useMutationBundle(UpdateUser);
+  const { openSnackbar } = useSnackbar();
+  const [updateLoginEmail] = useMutationBundle(UpdateLoginEmail, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const [resetPassword] = useMutationBundle(ResetPassword, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const [updateUser] = useMutationBundle(UpdateUser, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   if (myProfile.state === "LOADING") {
     return <></>;
