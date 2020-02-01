@@ -130,6 +130,7 @@ export const ProfileUI: React.FC<Props> = props => {
         onClose={onCloseEmailDialog}
         updateLoginEmail={props.updateLoginEmail}
         user={props.user}
+        triggerReauth={true}
       />
       <ChangeTimezoneDialog
         open={changeTimezoneIsOpen}

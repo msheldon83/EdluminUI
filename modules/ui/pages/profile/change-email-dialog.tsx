@@ -11,7 +11,7 @@ import { useAuth0 } from "auth/auth0";
 import { Formik } from "formik";
 import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
 import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
-import { UserLoginEmailChangeInput } from "graphql/server-types.gen";
+import { UserLoginEmailChangeInput, User } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { InformationHelperText } from "ui/components/information-helper-text";
@@ -21,11 +21,12 @@ import * as Yup from "yup";
 type Props = {
   open: boolean;
   onClose: () => void;
-  user: GetMyUserAccess.User;
+  user: Pick<User, "id" | "rowVersion">;
   updateLoginEmail: MutationFunction<
     UpdateLoginEmail.Mutation,
     UpdateLoginEmail.Variables
   >;
+  triggerReauth: boolean;
 };
 
 export const ChangeLoginEmailDialog: React.FC<Props> = props => {
@@ -46,7 +47,9 @@ export const ChangeLoginEmailDialog: React.FC<Props> = props => {
           await props.updateLoginEmail({
             variables: { loginEmailChange: { ...values } },
           });
-          auth0.login();
+          if (props.triggerReauth) {
+            auth0.login();
+          }
           props.onClose();
         }}
         validationSchema={Yup.object().shape({

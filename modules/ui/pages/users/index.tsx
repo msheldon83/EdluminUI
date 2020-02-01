@@ -1,20 +1,20 @@
-import { Button, IconButton, makeStyles } from "@material-ui/core";
-import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
+import { makeStyles } from "@material-ui/core";
+import { usePagedQueryBundle } from "graphql/hooks";
 import { useIsMobile, useDeferredState } from "hooks";
-import { Column } from "material-table";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Table } from "ui/components/table";
-import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { GetAllUsersPaged } from "./graphql/get-all-users.gen";
-import { User } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { makeQueryIso, PaginationParams } from "hooks/query-params";
 import { Section } from "ui/components/section";
 import { Input } from "ui/components/form/input";
+import { useRouteParams } from "ui/routes/definition";
+import { useHistory } from "react-router";
+import { UsersRoute, UserViewRoute } from "ui/routes/users";
 
 type Props = {};
 
@@ -22,6 +22,8 @@ export const UsersPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
+  const history = useHistory();
+  const params = useRouteParams(UsersRoute);
 
   const columns = [
     { title: t("Id"), field: "id" },
@@ -94,6 +96,14 @@ export const UsersPage: React.FC<Props> = props => {
             data={users}
             options={{
               showTitle: !isMobile,
+            }}
+            onRowClick={(event, user) => {
+              if (!user) return;
+              const newParams = {
+                ...params,
+                userId: user.id,
+              };
+              history.push(UserViewRoute.generate(newParams));
             }}
           />
           <div className={classes.pagination}>

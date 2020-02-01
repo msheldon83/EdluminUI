@@ -11,3 +11,14 @@ export const UsersLoader = asyncComponent({
   },
   name: "Users",
 });
+
+// View
+export const UserViewRoute = defineSubRoute(UsersRoute, "/:userId", ["userId"]);
+
+export const UserViewLoader = asyncComponent({
+  resolve: async () => {
+    const UserViewPage = (await import("ui/pages/users/view")).UserViewPage;
+    return UserViewPage;
+  },
+  name: "UserViewPage",
+});
