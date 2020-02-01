@@ -2,7 +2,7 @@ import { GetMyUserAccess } from "./get-my-user-access.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { some } from "lodash-es";
 
-export const useIsAdmin = () => {
+export const useIsAdmin = (orgId?: string) => {
   const orgUserQuery = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
@@ -10,8 +10,13 @@ export const useIsAdmin = () => {
   if (orgUserQuery.state !== "DONE") {
     return null;
   }
-  return (
-    orgUserQuery.data.userAccess?.me?.isSystemAdministrator ||
-    some(orgUserQuery.data.userAccess?.me?.user?.orgUsers ?? [], "isAdmin")
-  );
+
+  return orgId
+    ? (orgUserQuery.data.userAccess?.me?.isSystemAdministrator ||
+        (orgUserQuery.data.userAccess?.me?.user?.orgUsers ?? []).find(
+          (o: any) => o.orgId === orgId
+        )?.isAdmin) ??
+        false
+    : orgUserQuery.data.userAccess?.me?.isSystemAdministrator ||
+        some(orgUserQuery.data.userAccess?.me?.user?.orgUsers ?? [], "isAdmin");
 };
