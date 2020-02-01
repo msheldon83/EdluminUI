@@ -1,0 +1,27 @@
+query GetUserById($id: ID!) {
+  user {
+    byId(id: $id) {
+      id
+      createdUtc
+      firstName
+      middleName
+      lastName
+      inviteSent
+      inviteSentAtUtc
+      isAccountSetup
+      isSystemAdministrator
+      loginEmail
+      phone
+      formattedPhone
+      timeZoneId
+      rowVersion
+      orgUsers {
+        id
+        isAdmin
+        isEmployee
+        isReplacementEmployee
+        active
+      }
+    }
+  }
+}

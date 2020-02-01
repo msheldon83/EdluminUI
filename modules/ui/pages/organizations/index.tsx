@@ -1,4 +1,4 @@
-import { Button, IconButton, makeStyles } from "@material-ui/core";
+import { Button, IconButton, makeStyles, Grid } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
 import PlayForWork from "@material-ui/icons/PlayForWork";
 import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
@@ -8,13 +8,17 @@ import { Column } from "material-table";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, Redirect } from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { Table } from "ui/components/table";
 import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
 import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { AdminHomeRoute } from "ui/routes/admin-home";
+import { useRouteParams } from "ui/routes/definition";
+import { UsersRoute } from "ui/routes/users";
+import { canViewAsSysAdmin } from "helpers/permissions";
+import { Can } from "ui/components/auth/can";
 
 type Props = { redirectIfOneOrg?: boolean };
 
@@ -22,6 +26,8 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
+  const history = useHistory();
+  const params = useRouteParams(UsersRoute);
 
   const columns: Column<GetMyUserAccess.Organization>[] = [
     { title: t("Id"), field: "id" },
@@ -133,7 +139,23 @@ export const OrganizationsPage: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle title={t("Organizations")} />
+      <Grid container justify="space-between" alignItems="center">
+        <Grid item>
+          <PageTitle title={t("Organizations")} />
+        </Grid>
+        <Grid item>
+          <Can do={canViewAsSysAdmin}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                history.push(UsersRoute.generate(params));
+              }}
+            >
+              {t("Users")}
+            </Button>
+          </Can>
+        </Grid>
+      </Grid>
       <Table
         title={`${organizationsCount} Records`}
         columns={columns}
