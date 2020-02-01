@@ -127,18 +127,25 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
-    overflow: "scroll",
+    overflow: "hidden",
     transform:
       "rotate(0)" /* cf - this affects how position works in children elements. */,
   },
-  mainContent: { flexGrow: 1 },
+  mainContent: {
+    flexGrow: 1,
+    overflowY: "auto",
+  },
   container: {
+    height: "100vh",
     display: "flex",
     flexDirection: "row",
     alignItems: "stretch",
     flexGrow: 1,
     maxWidth: theme.typography.pxToRem(1440),
     transform: "rotate(0)",
+    paddingBottom: theme.typography.pxToRem(
+      75
+    ) /* DTN - Was noticing without any padding at the bottom of the content, it would look like the bottom of the page was slightly cut off */,
   },
 
   navWidthExpanded: {
@@ -167,7 +174,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   contentView: {
-    overflow: "scroll",
+    overflowY: "auto",
     [theme.breakpoints.up("md")]: {
       width: "1px", // Prevent the content view from expanding past its allowed size
     },
