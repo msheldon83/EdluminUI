@@ -168,10 +168,6 @@ import {
   SecurityPermissionSetsViewLoader,
   SecurityPermissionSetsViewRoute,
 } from "./routes/security/permission-sets";
-import {
-  SecurityUsersLoader,
-  SecurityUsersRoute,
-} from "./routes/security/users";
 import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
 import {
   SubPreferencesLoader,
@@ -838,11 +834,6 @@ export function App() {
                                   permissions={[
                                     PermissionEnum.CalendarChangeView,
                                   ]}
-                                />
-                                <ProtectedRoute
-                                  component={SecurityUsersLoader}
-                                  path={SecurityUsersRoute.path}
-                                  role={"admin"}
                                 />
                                 <ProtectedRoute
                                   component={SecurityPermissionSetsAddLoader}

@@ -21,7 +21,6 @@ import {
   canViewPTOBalancesNavLink,
   canViewSchoolsNavLink,
   canViewSecurityNavLink,
-  canViewAsSysAdmin,
 } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
 import * as React from "react";
@@ -39,10 +38,8 @@ import { LocationsRoute } from "ui/routes/locations";
 import { SecurityManagedOrganizationsRoute } from "ui/routes/security/managed-organizations";
 import { SecurityPartnersRoute } from "ui/routes/security/partners";
 import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
-import { SecurityUsersRoute } from "ui/routes/security/users";
 import { NavLink } from "./nav-link";
 import SearchIcon from "@material-ui/icons/Search";
-import { SupervisedUserCircle } from "@material-ui/icons";
 
 type Props = {
   className?: string;
