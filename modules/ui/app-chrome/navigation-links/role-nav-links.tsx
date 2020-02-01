@@ -214,11 +214,6 @@ export const AdminNavLinks: React.FC<Props> = props => {
           }
         />
       )}
-      <UsersNavLink
-        onClick={props.onClick}
-        navBarExpanded={props.navBarExpanded}
-        route={UsersRoute.generate(params)}
-      />
     </>
   );
 };

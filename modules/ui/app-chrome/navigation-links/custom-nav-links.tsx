@@ -171,7 +171,6 @@ export const SettingsNavLink: React.FC<Props> = props => {
 
 export const SecurityNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const paramsSecurityUsers = useRouteParams(SecurityUsersRoute);
   const paramsSecurityPermissionSets = useRouteParams(
     SecurityPermissionSetsRoute
   );
@@ -185,10 +184,6 @@ export const SecurityNavLink: React.FC<Props> = props => {
         title={t("Security")}
         icon={<LockIcon />}
         subNavItems={[
-          {
-            title: t("Users"),
-            route: SecurityUsersRoute.generate(paramsSecurityUsers),
-          },
           {
             title: t("Permission Sets"),
             route: SecurityPermissionSetsRoute.generate(
@@ -276,14 +271,5 @@ export const OrganizationsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
     <NavLink title={t("Organizations")} icon={<BusinessIcon />} {...props} />
-  );
-};
-
-export const UsersNavLink: React.FC<Props> = props => {
-  const { t } = useTranslation();
-  return (
-    <Can do={canViewAsSysAdmin}>
-      <NavLink title={t("Users")} icon={<SupervisedUserCircle />} {...props} />
-    </Can>
   );
 };
