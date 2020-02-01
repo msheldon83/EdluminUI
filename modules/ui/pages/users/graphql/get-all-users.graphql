@@ -1,0 +1,33 @@
+query GetAllUsersPaged($limit: Int, $offset: Int, $searchText: String) {
+  user {
+    paged(limit: $limit, offset: $offset, searchText: $searchText) {
+      results {
+        id
+        createdUtc
+        firstName
+        middleName
+        lastName
+        inviteSent
+        inviteSentAtUtc
+        isAccountSetup
+        isSystemAdministrator
+        loginEmail
+        phone
+        formattedPhone
+        timeZoneId
+        rowVersion
+        orgUsers {
+          id
+          isAdmin
+          isEmployee
+          isReplacementEmployee
+          active
+        }
+      }
+      offset
+      limit
+      hasMoreData
+      totalCount
+    }
+  }
+}

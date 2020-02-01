@@ -231,6 +231,7 @@ import {
   SubMobileSearchRoute,
   SubstituteMobileSearchLoader,
 } from "ui/routes/mobile-search";
+import { UsersRoute, UsersLoader } from "./routes/users";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -392,6 +393,11 @@ export function App() {
                           <Route
                             component={OrganizationsLoader}
                             path={OrganizationsRoute.path}
+                          />
+                          {/* TODO: Secure this to SysAdmins Only */}
+                          <Route
+                            component={UsersLoader}
+                            path={UsersRoute.path}
                           />
                           <Route path={AdminChromeRoute.path}>
                             <AdminRouteOrganizationContextProvider>

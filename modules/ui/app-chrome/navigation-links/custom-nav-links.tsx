@@ -41,6 +41,7 @@ import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets"
 import { SecurityUsersRoute } from "ui/routes/security/users";
 import { NavLink } from "./nav-link";
 import SearchIcon from "@material-ui/icons/Search";
+import { SupervisedUserCircle } from "@material-ui/icons";
 
 type Props = {
   className?: string;
@@ -274,5 +275,12 @@ export const OrganizationsNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
     <NavLink title={t("Organizations")} icon={<BusinessIcon />} {...props} />
+  );
+};
+
+export const UsersNavLink: React.FC<Props> = props => {
+  const { t } = useTranslation();
+  return (
+    <NavLink title={t("Users")} icon={<SupervisedUserCircle />} {...props} />
   );
 };

@@ -31,6 +31,7 @@ import {
   SecurityNavLink,
   SubPreferencesNavLink,
   MobileSearchNavLink,
+  UsersNavLink,
 } from "./custom-nav-links";
 import { OrgSettingsRoute } from "ui/routes/org-settings";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
@@ -43,6 +44,8 @@ import {
   SubMobileSearchRoute,
   EmpMobileSearchRoute,
 } from "ui/routes/mobile-search";
+import { useMyUserAccess } from "reference-data/my-user-access";
+import { UsersRoute } from "ui/routes/users";
 
 type Props = {
   navBarExpanded: boolean;
@@ -140,6 +143,8 @@ export const AdminNavLinks: React.FC<Props> = props => {
   const showOrgs = useIsSystemAdminOrAdminInMultipleOrgs();
   const inOrg = !isNaN(+params.organizationId);
   const isMobile = useIsMobile();
+  const userAccess = useMyUserAccess();
+
   return (
     <>
       {inOrg && (
@@ -210,6 +215,13 @@ export const AdminNavLinks: React.FC<Props> = props => {
               ? OrganizationsRoute.generate(params)
               : AdminRootChromeRoute.generate({})
           }
+        />
+      )}
+      {userAccess?.isSysAdmin && (
+        <UsersNavLink
+          onClick={props.onClick}
+          navBarExpanded={props.navBarExpanded}
+          route={UsersRoute.generate(params)}
         />
       )}
     </>
