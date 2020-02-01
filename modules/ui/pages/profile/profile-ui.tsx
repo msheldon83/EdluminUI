@@ -28,6 +28,7 @@ import { Formik } from "formik";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Input } from "ui/components/form/input";
 import * as yup from "yup";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {
   user: GetMyUserAccess.User;
@@ -46,6 +47,7 @@ type Props = {
 export const ProfileUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const { openSnackbar } = useSnackbar();
   const isSmDown = useBreakpoint("sm", "down");
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
   const [changeTimezoneIsOpen, setChangeTimezoneIsOpen] = React.useState(false);
@@ -67,9 +69,18 @@ export const ProfileUI: React.FC<Props> = props => {
   );
 
   const onResetPassword = async () => {
-    await props.resetPassword({
+    const response = await props.resetPassword({
       variables: { resetPasswordInput: { id: props.user.id } },
     });
+    const result = response?.data?.user?.resetPassword;
+    if (result) {
+      openSnackbar({
+        message: t("Reset password email has been sent"),
+        dismissable: true,
+        status: "success",
+        autoHideDuration: 5000,
+      });
+    }
   };
 
   const onCloseTimezoneDialog = React.useCallback(
