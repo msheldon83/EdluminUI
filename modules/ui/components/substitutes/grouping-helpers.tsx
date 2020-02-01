@@ -23,30 +23,25 @@ export function generateEmptyDateMap(from: Date, to: Date): DateGroupByMonth[] {
 
 export type AssignmentVacancyTimeDetails = {
   id?: string;
-  assignment: {
-    id: string;
-    startTimeLocal?: string;
-    endTimeLocal?: string;
-  } | null;
   startDate?: string;
 };
 
 export const mergeAssignmentDatesByMonth = (
   emptyMap: DateGroupByMonth[],
-  assignments: AssignmentVacancyTimeDetails[]
+  vacancyDetails: AssignmentVacancyTimeDetails[]
 ) => {
   const all = emptyMap;
   Object.entries(
     groupBy(
-      assignments,
+      vacancyDetails,
       a =>
-        a.assignment?.startTimeLocal &&
-        startOfMonth(parseISO(a.assignment?.startTimeLocal)).toISOString()
+        a.startDate &&
+        startOfMonth(parseISO(a.startDate)).toISOString()
     )
-  ).map(([date, assignments]) => {
+  ).map(([date, vacancyDetails]) => {
     const month = all.find(e => e.month === date);
     if (!month) return;
-    month.dates = assignments.map(a => parseISO(a.startDate!));
+    month.dates = vacancyDetails.map(a => parseISO(a.startDate!));
   });
 
   return all;
