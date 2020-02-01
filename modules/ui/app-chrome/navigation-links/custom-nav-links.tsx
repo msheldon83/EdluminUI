@@ -21,6 +21,7 @@ import {
   canViewPTOBalancesNavLink,
   canViewSchoolsNavLink,
   canViewSecurityNavLink,
+  canViewAsSysAdmin,
 } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
 import * as React from "react";
@@ -281,6 +282,8 @@ export const OrganizationsNavLink: React.FC<Props> = props => {
 export const UsersNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <NavLink title={t("Users")} icon={<SupervisedUserCircle />} {...props} />
+    <Can do={canViewAsSysAdmin}>
+      <NavLink title={t("Users")} icon={<SupervisedUserCircle />} {...props} />
+    </Can>
   );
 };

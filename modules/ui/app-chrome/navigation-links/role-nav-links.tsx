@@ -44,7 +44,6 @@ import {
   SubMobileSearchRoute,
   EmpMobileSearchRoute,
 } from "ui/routes/mobile-search";
-import { useMyUserAccess } from "reference-data/my-user-access";
 import { UsersRoute } from "ui/routes/users";
 
 type Props = {
@@ -143,8 +142,6 @@ export const AdminNavLinks: React.FC<Props> = props => {
   const showOrgs = useIsSystemAdminOrAdminInMultipleOrgs();
   const inOrg = !isNaN(+params.organizationId);
   const isMobile = useIsMobile();
-  const userAccess = useMyUserAccess();
-
   return (
     <>
       {inOrg && (
@@ -217,13 +214,11 @@ export const AdminNavLinks: React.FC<Props> = props => {
           }
         />
       )}
-      {userAccess?.isSysAdmin && (
-        <UsersNavLink
-          onClick={props.onClick}
-          navBarExpanded={props.navBarExpanded}
-          route={UsersRoute.generate(params)}
-        />
-      )}
+      <UsersNavLink
+        onClick={props.onClick}
+        navBarExpanded={props.navBarExpanded}
+        route={UsersRoute.generate(params)}
+      />
     </>
   );
 };
