@@ -181,12 +181,21 @@ export const PageHeader: React.FC<Props> = props => {
         }}
         validationSchema={props.validationSchema || null}
       >
-        {({ handleSubmit, submitForm }) => (
+        {({ handleSubmit, submitForm, values, setFieldValue }) => (
           <form onSubmit={handleSubmit}>
             <Spacing bottom={2}>
               <Grid container alignItems="flex-end" spacing={2}>
                 <Grid item>
-                  <Input label={props.label} name="value" fullWidth />
+                  <Input
+                    value={values.value}
+                    label={props.label}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      values.value = e.target.value;
+                      setFieldValue("value", e.target.value);
+                    }}
+                    name="value"
+                    fullWidth
+                  />
                 </Grid>
                 <Padding bottom={2}>
                   <Grid item>

@@ -1,5 +1,8 @@
-import { Divider, Drawer, List, makeStyles } from "@material-ui/core";
+import { Divider, Drawer, Fab, List, makeStyles } from "@material-ui/core";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import * as React from "react";
+import { useCallback } from "react";
 import { RedRoverLogo } from "ui/components/red-rover-logo";
 import { AutoSwitchingNavLinks } from "../navigation-links/role-nav-links";
 import { RoleSwitcher } from "../role-switcher";
@@ -12,16 +15,36 @@ type Props = {
 
 export const NavigationSideBar: React.FC<Props> = props => {
   const classes = useStyles();
+  const { expanded, expand, collapse } = props;
+  const toggleExpand = useCallback(() => (expanded ? collapse() : expand()), [
+    expanded,
+    expand,
+    collapse,
+  ]);
 
   return (
     <div className={classes.sidebar}>
+      <div
+        className={`${expanded ? classes.drawerOpen : classes.drawerClose} ${
+          classes.fabContainer
+        }`}
+      >
+        <Fab onClick={toggleExpand} size="small" className={classes.fab}>
+          {expanded ? (
+            <ChevronLeftIcon className={classes.white} />
+          ) : (
+            <ChevronRightIcon className={classes.white} />
+          )}
+        </Fab>
+      </div>
+
       <Drawer
         onClose={props.collapse}
         open={props.expanded}
         variant={"permanent"}
         className={props.expanded ? classes.drawerOpen : classes.drawerClose}
         classes={{
-          paper: `${classes.marginTop} ${classes.drawer} ${
+          paper: `${classes.drawer} ${
             props.expanded ? classes.drawerOpen : classes.drawerClose
           }`,
         }}
@@ -46,9 +69,6 @@ const useStyles = makeStyles(theme => ({
   drawer: {
     background: theme.customColors.edluminSlate,
     flexShrink: 0,
-  },
-  marginTop: {
-    marginTop: theme.typography.pxToRem(34),
   },
   drawerOpen: {
     width: theme.typography.pxToRem(258),
@@ -85,5 +105,26 @@ const useStyles = makeStyles(theme => ({
   },
   margin: {
     marginLeft: theme.typography.pxToRem(3),
+  },
+
+  fabContainer: {
+    overflow: "visible",
+    position: "relative",
+    zIndex: 2000,
+  },
+  fab: {
+    position: "absolute",
+    top: theme.typography.pxToRem(-20),
+    right: theme.typography.pxToRem(-20),
+    backgroundColor: theme.customColors.edluminSlate,
+    "&:hover": {
+      backgroundColor: theme.customColors.edluminSlate,
+      border: `${theme.typography.pxToRem(1)} solid ${
+        theme.customColors.white
+      }`,
+    },
+  },
+  white: {
+    color: theme.customColors.white,
   },
 }));

@@ -14,14 +14,17 @@ type Props = {};
 export const QuickCreateConfirmation: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(CreateAbsenceConfirmationRoute);
-  const isAdmin = useIsAdmin();
 
   const absenceQuery = useQueryBundle(GetAbsence, {
     variables: {
       id: params.absenceId,
     },
   });
-
+  const isAdmin = useIsAdmin(
+    absenceQuery.state === "LOADING"
+      ? undefined
+      : absenceQuery.data.absence?.byId?.organization.id.toString()
+  );
   if (absenceQuery.state === "LOADING") {
     return <></>;
   }

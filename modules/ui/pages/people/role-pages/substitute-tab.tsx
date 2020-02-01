@@ -41,8 +41,6 @@ export const SubstituteTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
   const history = useHistory();
-  let userIsAdmin = useIsAdmin();
-  userIsAdmin = userIsAdmin === null ? false : userIsAdmin;
   const params = useRouteParams(PersonViewRoute);
   const [updateSubstitute] = useMutationBundle(SaveSubstitute, {
     onError: error => {
@@ -69,6 +67,9 @@ export const SubstituteTab: React.FC<Props> = props => {
     getSubstitute.state === "LOADING"
       ? undefined
       : getSubstitute?.data?.orgUser?.byId;
+
+  let userIsAdmin = useIsAdmin(orgUser?.substitute?.orgId);
+  userIsAdmin = userIsAdmin === null ? false : userIsAdmin;
 
   if (getSubstitute.state === "LOADING" || !orgUser?.substitute) {
     return <></>;
