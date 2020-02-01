@@ -77,6 +77,25 @@ export const UserViewPage: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
+  const onResetPassword = async () => {
+    const response = await resetPassword({
+      variables: {
+        userInfo: {
+          id: params.userId,
+        },
+      },
+    });
+    const result = response?.data?.user?.resetPassword;
+    if (result) {
+      openSnackbar({
+        message: t("Reset password email has been sent"),
+        dismissable: true,
+        status: "success",
+        autoHideDuration: 5000,
+      });
+    }
+  };
+
   const [inviteUser] = useMutationBundle(InviteUser, {
     onError: error => {
       ShowErrors(error, openSnackbar);
@@ -139,11 +158,7 @@ export const UserViewPage: React.FC<Props> = props => {
           <div className={classes.action}>
             <Button
               variant="outlined"
-              onClick={async () =>
-                await resetPassword({
-                  variables: { userInfo: { id: params.userId } },
-                })
-              }
+              onClick={async () => await onResetPassword()}
             >
               {t("Reset Password")}
             </Button>
