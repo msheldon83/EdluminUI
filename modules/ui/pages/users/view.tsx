@@ -1,4 +1,10 @@
-import { makeStyles, Grid, Button, Typography } from "@material-ui/core";
+import {
+  makeStyles,
+  Grid,
+  Button,
+  Typography,
+  Divider,
+} from "@material-ui/core";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useIsMobile, useDeferredState } from "hooks";
 import * as React from "react";
@@ -23,6 +29,9 @@ import { InviteUser } from "./graphql/invite-user.gen";
 import { ChangeLoginEmailDialog } from "../profile/change-email-dialog";
 import { UpdateLoginEmail } from "../profile/UpdateLoginEmail.gen";
 import { format } from "date-fns";
+import { Table } from "ui/components/table";
+import { OrgUser } from "graphql/server-types.gen";
+import { Column } from "material-table";
 
 type Props = {};
 
@@ -113,6 +122,19 @@ export const UserViewPage: React.FC<Props> = props => {
   const user = getUser?.data?.user?.byId;
   const userName = `${user?.firstName} ${user?.lastName}`;
   const rowVersion = user?.rowVersion;
+  const orgUsers = (user?.orgUsers ?? []) as Pick<
+    OrgUser,
+    | "id"
+    | "isAdmin"
+    | "isEmployee"
+    | "isReplacementEmployee"
+    | "active"
+    | "organization"
+    | "firstName"
+    | "lastName"
+    | "email"
+  >[];
+  const resetPasswordTicketUrl = user?.resetPasswordTicketUrl ?? "";
 
   let pendingInvite = false;
   let currentStatusLabel = "";
@@ -126,6 +148,53 @@ export const UserViewPage: React.FC<Props> = props => {
   } else {
     currentStatusLabel = t("No invite sent");
   }
+
+  const orgUserColumns: Column<
+    Pick<
+      OrgUser,
+      | "id"
+      | "isAdmin"
+      | "isEmployee"
+      | "isReplacementEmployee"
+      | "active"
+      | "organization"
+      | "firstName"
+      | "lastName"
+      | "email"
+    >
+  >[] = [
+    { title: t("OrgUserId"), field: "id" },
+    { title: t("Org Id"), field: "organization.id" },
+    { title: t("Org Name"), field: "organization.name" },
+    {
+      title: t("Name In Org"),
+      render: rowData => `${rowData.firstName} ${rowData.lastName}`,
+    },
+    {
+      title: t("Email In Org"),
+      field: "email",
+    },
+    {
+      title: t("Roles"),
+      render: rowData => {
+        const roles: string[] = [];
+        if (rowData.isAdmin) {
+          roles.push("Admin");
+        }
+        if (rowData.isEmployee) {
+          roles.push("Employee");
+        }
+        if (rowData.isReplacementEmployee) {
+          roles.push("Sub");
+        }
+        return roles.join(", ");
+      },
+    },
+    {
+      title: t("Active"),
+      render: rowData => (rowData.active ? t("Yes") : t("No")),
+    },
+  ];
 
   return (
     <>
@@ -252,19 +321,6 @@ export const UserViewPage: React.FC<Props> = props => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} className={classes.accessDetails}>
-                  <Typography variant="h5">{currentStatusLabel}</Typography>
-                  {user?.inviteSent && !pendingInvite && (
-                    <Typography variant="h5">
-                      {t("Last invite sent on {{date}}", {
-                        date: format(
-                          new Date(user.inviteSentAtUtc),
-                          "MMM d h:mm aaaa"
-                        ),
-                      })}
-                    </Typography>
-                  )}
-                </Grid>
               </Grid>
               <ActionButtons
                 submit={{ text: t("Save"), execute: submitForm }}
@@ -278,6 +334,53 @@ export const UserViewPage: React.FC<Props> = props => {
             </form>
           )}
         </Formik>
+
+        <Divider className={classes.divider} />
+
+        <div>
+          <Typography variant="h5" className={classes.header}>
+            {t("Access status")}
+          </Typography>
+          <Typography variant="h6">{currentStatusLabel}</Typography>
+          {user?.inviteSent && !pendingInvite && (
+            <Typography variant="h6">
+              {t("Last invite sent on {{date}}", {
+                date: format(new Date(user.inviteSentAtUtc), "MMM d h:mm aaaa"),
+              })}
+            </Typography>
+          )}
+          {resetPasswordTicketUrl.length > 0 && (
+            <>
+              <div>
+                <span className={classes.fieldLabel}>
+                  {t("Reset password url")}:
+                </span>{" "}
+                {resetPasswordTicketUrl}
+              </div>
+              {!!user?.resetPasswordTicketUrlGeneratedAtUtc && (
+                <div>
+                  <span className={classes.fieldLabel}>
+                    {t("Reset password url generated at")}:
+                  </span>{" "}
+                  {format(
+                    new Date(user.resetPasswordTicketUrlGeneratedAtUtc),
+                    "MMM d h:mm aaaa"
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <Divider className={classes.divider} />
+
+        <div>
+          <Table
+            title={t("Organization access")}
+            columns={orgUserColumns}
+            data={orgUsers}
+          />
+        </div>
       </Section>
     </>
   );
@@ -290,7 +393,14 @@ const useStyles = makeStyles(theme => ({
   action: {
     marginLeft: theme.spacing(2),
   },
-  accessDetails: {
-    marginTop: theme.spacing(2),
+  header: {
+    marginBottom: theme.spacing(),
+  },
+  divider: {
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(2),
+  },
+  fieldLabel: {
+    fontWeight: "bold",
   },
 }));

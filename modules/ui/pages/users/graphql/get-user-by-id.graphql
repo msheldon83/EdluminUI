@@ -14,9 +14,14 @@ query GetUserById($id: ID!) {
       phone
       formattedPhone
       timeZoneId
+      resetPasswordTicketUrl
+      resetPasswordTicketUrlGeneratedAtUtc
       rowVersion
       orgUsers {
         id
+        firstName
+        lastName
+        email
         isAdmin
         isEmployee
         isReplacementEmployee
