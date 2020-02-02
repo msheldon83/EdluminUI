@@ -14,13 +14,22 @@ mutation UpdateUser($user: UserUpdateInput!) {
       phone
       formattedPhone
       timeZoneId
+      resetPasswordTicketUrl
+      resetPasswordTicketUrlGeneratedAtUtc
       rowVersion
       orgUsers {
         id
+        firstName
+        lastName
+        email
         isAdmin
         isEmployee
         isReplacementEmployee
         active
+        organization {
+          id
+          name
+        }
       }
     }
   }
