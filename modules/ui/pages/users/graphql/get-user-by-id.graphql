@@ -21,6 +21,10 @@ query GetUserById($id: ID!) {
         isEmployee
         isReplacementEmployee
         active
+        organization {
+          id
+          name
+        }
       }
     }
   }
