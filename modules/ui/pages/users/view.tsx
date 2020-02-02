@@ -8,7 +8,7 @@ import {
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useIsMobile, useDeferredState } from "hooks";
 import * as React from "react";
-import { useMemo } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -42,6 +42,20 @@ export const UserViewPage: React.FC<Props> = props => {
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(UserViewRoute);
+  const [orgUsers, setOrgUsers] = React.useState<
+    Pick<
+      OrgUser,
+      | "id"
+      | "isAdmin"
+      | "isEmployee"
+      | "isReplacementEmployee"
+      | "active"
+      | "organization"
+      | "firstName"
+      | "lastName"
+      | "email"
+    >[]
+  >([]);
 
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
   const onCloseEmailDialog = React.useCallback(
@@ -114,26 +128,37 @@ export const UserViewPage: React.FC<Props> = props => {
   const getUser = useQueryBundle(GetUserById, {
     variables: { id: params.userId },
   });
+  const user =
+    getUser.state === "LOADING" ? undefined : getUser?.data?.user?.byId;
+
+  // On User Update, the backend doesn't return the OrgUsers
+  // associated with the User, so let's just cache them here
+  // when we get a populated list and not when the list in empty
+  useEffect(() => {
+    if (user?.orgUsers && user?.orgUsers?.length > 0) {
+      setOrgUsers(
+        (user?.orgUsers ?? []) as Pick<
+          OrgUser,
+          | "id"
+          | "isAdmin"
+          | "isEmployee"
+          | "isReplacementEmployee"
+          | "active"
+          | "organization"
+          | "firstName"
+          | "lastName"
+          | "email"
+        >[]
+      );
+    }
+  }, [user]);
 
   if (getUser.state === "LOADING") {
     return <></>;
   }
 
-  const user = getUser?.data?.user?.byId;
   const userName = `${user?.firstName} ${user?.lastName}`;
   const rowVersion = user?.rowVersion;
-  const orgUsers = (user?.orgUsers ?? []) as Pick<
-    OrgUser,
-    | "id"
-    | "isAdmin"
-    | "isEmployee"
-    | "isReplacementEmployee"
-    | "active"
-    | "organization"
-    | "firstName"
-    | "lastName"
-    | "email"
-  >[];
   const resetPasswordTicketUrl = user?.resetPasswordTicketUrl ?? "";
 
   let pendingInvite = false;
