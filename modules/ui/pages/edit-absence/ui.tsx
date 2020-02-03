@@ -352,6 +352,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       theVacancyDetails
     );
 
+    console.log(theVacancyDetails);
+
     if (ignoreWarnings) {
       absenceUpdateInput = {
         ...absenceUpdateInput,
@@ -565,7 +567,9 @@ const buildAbsenceUpdateInput = (
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
       payCodeId: v.payCodeId,
-      accountingCodeAllocation: v.accountingCodeId ? [{accountingCodeId: v.accountingCodeId, allocation: 1}] : undefined
+      accountingCodeAllocation: v.accountingCodeId
+        ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
+        : undefined,
     })) || undefined;
 
   const absence: AbsenceUpdateInput = {
