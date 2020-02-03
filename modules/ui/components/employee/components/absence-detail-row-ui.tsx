@@ -16,7 +16,7 @@ type Props = {
   absence: EmployeeAbsenceDetail;
   cancelAbsence?: () => void;
   showAbsenceChip?: boolean;
-  isAdmin?: boolean;
+  actingAsEmployee?: boolean;
   orgId?: string;
 };
 
@@ -54,7 +54,7 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
       : dayPortionLabel;
 
   const employeeCancelWhileSubAssigned =
-    !props.isAdmin && !!props.absence.substitute;
+    props.actingAsEmployee && !!props.absence.substitute;
 
   const cancelButton = (
     <Button
@@ -114,13 +114,13 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
       <Grid item xs={1}>
         <Link
           to={
-            props.isAdmin
-              ? AdminEditAbsenceRoute.generate({
+            props.actingAsEmployee
+              ? EmployeeEditAbsenceRoute.generate({
+                  absenceId: props.absence.id,
+                })
+              : AdminEditAbsenceRoute.generate({
                   absenceId: props.absence.id,
                   organizationId: props.orgId!,
-                })
-              : EmployeeEditAbsenceRoute.generate({
-                  absenceId: props.absence.id,
                 })
           }
           className={classes.detailText}
