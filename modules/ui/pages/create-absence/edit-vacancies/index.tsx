@@ -48,6 +48,8 @@ export const EditVacancies: React.FC<Props> = props => {
       locationId: d.locationId,
       startTime: parseISO(d.startTime).toISOString(),
       endTime: parseISO(d.endTime).toISOString(),
+      accountingCodeId: d.accountingCodeId,
+      payCodeId: d.payCodeId,
     })),
   };
 

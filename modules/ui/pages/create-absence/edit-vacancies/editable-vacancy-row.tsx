@@ -42,14 +42,15 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
 
   const locationIds = props.locationOptions.map(l => l.id);
 
-  //Accounting Codes
   const accountingCodes = useAccountingCodes(props.orgId, locationIds);
   const accountingCodeOptions = useMemo(
-    () => accountingCodes.map(a => ({ label: a.name, value: a.id })),
+    () => accountingCodes.map(a => ({ label: a.name, value: Number(a.id) })),
     [accountingCodes]
   );
 
   const fieldNamePrefix = props.keyPrefix;
+
+  console.log(accountingCodeOptions);
 
   const date = parseISO(props.values.date);
   const startOfDate = date ? startOfDay(date) : undefined;

@@ -352,7 +352,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       theVacancyDetails
     );
 
-    console.log(theVacancyDetails);
+    console.log(absenceUpdateInput);
 
     if (ignoreWarnings) {
       absenceUpdateInput = {
@@ -364,6 +364,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     const result = await updateAbsence({
       variables: { absence: absenceUpdateInput },
     });
+
     const absence = result?.data?.absence?.update as Absence;
     if (absence) {
       openSnackbar({
@@ -417,6 +418,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       {step === "absence" && (
         <form
           onSubmit={handleSubmit(async data => {
+            console.log(data);
             await update(data);
             dispatch({ action: "resetAfterSave" });
           })}
