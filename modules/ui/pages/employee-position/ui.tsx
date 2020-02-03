@@ -36,7 +36,7 @@ import { secondsSinceMidnight } from "helpers/time";
 import { isBefore, parseISO } from "date-fns";
 
 type Props = {
-  position?:
+  position:
     | {
         positionTypeId?: string | null | undefined;
         title?: string | null | undefined;
@@ -47,7 +47,7 @@ type Props = {
     | null
     | undefined;
   accountingCodeId?: string | null | undefined;
-  positionSchedule?: Schedule[] | null | undefined;
+  positionSchedule: Schedule[] | null | undefined;
   onSave: (position: PositionInput) => Promise<unknown>;
   onCancel: () => void;
   submitLabel: string;

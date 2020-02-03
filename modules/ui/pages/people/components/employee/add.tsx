@@ -16,6 +16,7 @@ import {
   EmployeeInput,
   OrgUserRole,
   PositionInput,
+  NeedsReplacement
 } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
@@ -24,6 +25,11 @@ import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { PositionEditUI } from "ui/pages/employee-position/ui";
+import {
+  Schedule,
+  buildNewSchedule,
+  buildNewPeriod,
+} from "./components/helpers";
 
 export const EmployeeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -47,6 +53,19 @@ export const EmployeeAddPage: React.FC<{}> = props => {
     lastName: "",
     externalId: null,
     email: "",
+    position: {
+      positionType: {
+        id: "",
+      },
+      title: "",
+      needsReplacement: NeedsReplacement.Yes,
+      contract: {
+        id: "",
+      },
+      hoursPerFullWorkDay: undefined,
+      schedules: [buildNewSchedule(true, true)],
+      accountingCodeAllocations: [{ accountingCodeId: "", allocation: 1}],
+    }
   });
 
   const getOrgUser = useQueryBundle(GetOrgUserById, {
@@ -147,6 +166,15 @@ export const EmployeeAddPage: React.FC<{}> = props => {
     return (
       <PositionEditUI
         submitLabel={t("Save")} // TODO: Change this label to "Next" if we add another step
+        position={{
+          positionTypeId: employee.position?.positionType?.id,
+          title: employee.position?.title,
+          needsReplacement: employee.position?.needsReplacement,
+          contractId: employee.position?.contract?.id,
+          hoursPerFullWorkDay: employee.position?.hoursPerFullWorkDay,
+        }}
+        accountingCodeId={employee.position?.accountingCodeAllocations[0]?.accountingCodeId}
+        positionSchedule={employee.position?.schedules}
         onSave={async (position: PositionInput) => {
           const newEmployee = {
             ...employee,
