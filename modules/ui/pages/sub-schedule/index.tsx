@@ -9,6 +9,8 @@ import {
   SubScheduleRoute,
 } from "ui/routes/sub-schedule";
 import { SubstituteAssignments } from "ui/components/substitutes/substitute-assignments";
+import { useMemo } from "react";
+import { parseISO } from "date-fns";
 
 type Props = {
   view: "list" | "calendar";
@@ -22,20 +24,31 @@ export const SubSchedule: React.FC<Props> = props => {
     fetchPolicy: "cache-first",
   });
 
-  const userId =
+  const user =
     getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
       ? undefined
-      : getOrgUsers.data?.userAccess?.me?.user?.id;
+      : getOrgUsers.data?.userAccess?.me?.user;
+
+  const userCreatedDate = useMemo(() => {
+    if (!user || !user.createdUtc) {
+      return undefined;
+    }
+
+    const userCreatedDate = parseISO(user.createdUtc);
+    return userCreatedDate;
+  }, [user]);
 
   return (
     <div className={classes.pageContainer}>
-      {userId && (
+      {user?.id && userCreatedDate && (
         <SubstituteAssignments
           view={props.view}
           pageTitle={"My Schedule"}
-          userId={userId}
+          userId={user.id}
           listViewRoute={SubScheduleListViewRoute.generate(params)}
           calendarViewRoute={SubScheduleCalendarViewRoute.generate(params)}
+          isAdmin={false}
+          userCreatedDate={userCreatedDate}
         />
       )}
     </div>
