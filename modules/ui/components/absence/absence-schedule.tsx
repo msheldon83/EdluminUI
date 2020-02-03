@@ -180,7 +180,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                 {getAbsenceSchedule.state !== "DONE" && (
                   <Grid container>
                     <Grid item xs={12} className={classes.loading}>
-                      <Typography variant="h6">
+                      <Typography variant="h5">
                         {t("Loading Calendar")} ...
                       </Typography>
                     </Grid>
