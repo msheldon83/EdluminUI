@@ -140,7 +140,7 @@ export const ProfileUI: React.FC<Props> = props => {
       yup.object().shape({
         firstName: yup.string().required(t("First name is required")),
         lastName: yup.string().required(t("Last name is required")),
-        phone: yup.string(),
+        phone: yup.string().nullable().required(t("Phone number is required")),
       }),
     [t]
   );
