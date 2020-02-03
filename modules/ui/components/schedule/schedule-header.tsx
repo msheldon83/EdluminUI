@@ -88,6 +88,7 @@ export const ScheduleHeader: React.FC<Props> = props => {
           })}
           multiple={false}
           options={schoolYearOptions}
+          withResetValue={false}
         />
       </div>
       {props.view === "list" && showFromPicker && (
@@ -109,6 +110,7 @@ export const ScheduleHeader: React.FC<Props> = props => {
             )}
             options={listViewFilterOptions}
             multiple={false}
+            withResetValue={false}
           />
         </div>
       )}

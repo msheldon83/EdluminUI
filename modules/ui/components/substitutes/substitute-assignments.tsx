@@ -104,6 +104,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
         <div className={classes.viewContainer}>
           {props.view === "calendar" && (
             <SubstituteAssignmentsCalendarView
+              userId={props.userId}
               fromDate={beginningOfSchoolYear}
               toDate={queryEndDate}
               selectedDate={selectedDate}
