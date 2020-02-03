@@ -27,7 +27,7 @@ type Props = {
 export const SubstituteAssignments: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  let userIsAdmin = useIsAdmin(); //Just in case an admin accesses this page
+  let userIsAdmin = useIsAdmin(props.orgId); //Just in case an admin accesses this page
   userIsAdmin = userIsAdmin === null ? false : userIsAdmin;
 
   /* the value for today will not change as long as the 

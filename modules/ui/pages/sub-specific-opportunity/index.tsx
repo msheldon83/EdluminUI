@@ -227,7 +227,7 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
           </Section>
         </Grid>
       </Grid>
-      {isMobile && (
+      {isMobile && vacancy !== null && (
         <Section>
           <Grid container justify="space-between" alignItems="flex-end">
             {DismissAndAcceptButtons}

@@ -42,6 +42,7 @@ export const MobileSearchBar: React.FC<Props> = props => {
     : [contextOrgId];
 
   const [loading, updateLoading] = React.useState(false);
+  const [openDrawer, updateOpenDrawer] = React.useState(false);
 
   const [
     confirmationId,
@@ -53,6 +54,9 @@ export const MobileSearchBar: React.FC<Props> = props => {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       updateLoading(event.target.value !== "" ? true : false);
       setPendingConfirmationId(event.target.value);
+      if (event.target.value === "") {
+        updateOpenDrawer(false);
+      }
     },
     [setPendingConfirmationId]
   );
@@ -70,8 +74,9 @@ export const MobileSearchBar: React.FC<Props> = props => {
   useEffect(() => {
     if (searchResults.state === "DONE" && loading) {
       updateLoading(false);
+      updateOpenDrawer(pendingConfirmationId !== "");
     }
-  }, [searchResults, loading, setPendingConfirmationId]);
+  }, [searchResults, loading, setPendingConfirmationId, pendingConfirmationId]);
 
   const results =
     searchResults.state === "DONE" || searchResults.state === "UPDATING"
@@ -105,6 +110,7 @@ export const MobileSearchBar: React.FC<Props> = props => {
 
   const onClose = () => {
     setPendingConfirmationId("");
+    updateOpenDrawer(false);
   };
 
   return (
@@ -143,7 +149,7 @@ export const MobileSearchBar: React.FC<Props> = props => {
           />
         </div>
 
-        {results && results.length > 0 && (
+        {results && openDrawer && (
           <Grid className={classes.resultContainer} container spacing={2}>
             {results.length == 0 && (
               <Grid className={classes.resultItem} item xs={12}>

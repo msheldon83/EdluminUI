@@ -41,6 +41,14 @@ const getUserPermissions = (
   return allPermissions;
 };
 
+export const canViewAsSysAdmin = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  return isSysAdmin;
+};
+
 /* admin left nav helpers */
 export const canViewAbsVacNavLink = (
   permissions: OrgUserPermissions[],

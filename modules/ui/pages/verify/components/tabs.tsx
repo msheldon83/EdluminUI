@@ -10,7 +10,9 @@ import { format, isEqual } from "date-fns";
 type Props = {
   selectedDateTab: Date;
   dateTabOptions: DateTabOption[];
-  setSelectedDateTab: React.Dispatch<React.SetStateAction<Date>>;
+  setSelectedDateTab:
+    | React.Dispatch<React.SetStateAction<Date>>
+    | ((d: Date) => void);
   showLinkToVerify?: boolean;
 };
 

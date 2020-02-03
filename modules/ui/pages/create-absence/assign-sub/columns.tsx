@@ -84,7 +84,7 @@ export const getAssignSubColumns = (
     });
   }
 
-  // Only Admins see the Qualified and Available columns
+  // Only Admins see the Qualified. Available, and Visible columns
   if (isAdmin && !isMobile) {
     columns.push({
       title: t("Qualified"),
@@ -114,9 +114,6 @@ export const getAssignSubColumns = (
       },
       sorting: false,
     });
-  }
-
-  if (!isMobile) {
     columns.push({
       title: t("Visible"),
       field: "visible",

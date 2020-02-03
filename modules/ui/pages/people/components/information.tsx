@@ -200,7 +200,9 @@ export const Information: React.FC<Props> = props => {
             postalCode:
               data.postalCode.trim().length === 0 ? null : data.postalCode,
             country: data.state ? ("US" as CountryCode) : null,
-            permissionSet: data.permissionSetId && { id: data.permissionSetId },
+            permissionSet: data.permissionSetId
+              ? { id: data.permissionSetId }
+              : undefined,
           });
         }}
         validationSchema={yup.object({
@@ -433,20 +435,6 @@ export const Information: React.FC<Props> = props => {
                         )
                       }
                     />
-                    {props.editing === editableSections.information && (
-                      <PeopleGridItem
-                        title={t("Date of Birth")}
-                        description={
-                          <DatePicker
-                            variant={"field-only"}
-                            startDate={values.dateOfBirth ?? ""}
-                            onChange={e =>
-                              setFieldValue("dateOfBirth", e.startDate)
-                            }
-                          />
-                        }
-                      />
-                    )}
                   </Grid>
                   <Grid container item xs={6} spacing={2}>
                     <PeopleGridItem
@@ -545,7 +533,20 @@ export const Information: React.FC<Props> = props => {
                         )
                       }
                     />
-                    {props.editing !== editableSections.information && (
+                    {props.editing === editableSections.information ? (
+                      <PeopleGridItem
+                        title={t("Date of Birth")}
+                        description={
+                          <DatePicker
+                            variant={"field-only"}
+                            startDate={values.dateOfBirth ?? ""}
+                            onChange={e =>
+                              setFieldValue("dateOfBirth", e.startDate)
+                            }
+                          />
+                        }
+                      />
+                    ) : (
                       <Grid item className={classes.label}>
                         <Typography variant="h6">
                           {t("Date of Birth")}

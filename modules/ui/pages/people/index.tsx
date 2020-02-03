@@ -5,7 +5,7 @@ import {
   List,
   ListItemText,
   Grid,
-  Button
+  Button,
 } from "@material-ui/core";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
@@ -93,6 +93,10 @@ export const PeoplePage: React.FC<Props> = props => {
     [filters, oldFilters]
   );
 
+  const truncateString = (str: string, num: number) => {
+    return str.length <= num ? str : str.slice(0, num) + "...";
+  };
+
   const listRoles = useCallback(
     (isAdmin: boolean, isEmployee: boolean, isSub: boolean) => {
       const roles = [];
@@ -106,7 +110,7 @@ export const PeoplePage: React.FC<Props> = props => {
         roles.push(t("Substitute"));
       }
 
-      return roles.join(",");
+      return roles.join(", ");
     },
     []
   );
@@ -190,6 +194,7 @@ export const PeoplePage: React.FC<Props> = props => {
     const qResults = compact(allPeopleQuery.data?.orgUser?.paged?.results);
     if (qResults) people = qResults;
   }
+
   const tableData = useMemo(() => {
     return people.map(person => ({
       id: person.id,
@@ -197,13 +202,14 @@ export const PeoplePage: React.FC<Props> = props => {
       firstName: person.firstName,
       lastName: person.lastName,
       email: person.email,
-      externalId: person.externalId,
+      externalId: truncateString(person.externalId ?? "", 8),
       roles: listRoles(
         person.isAdmin,
         person.isEmployee,
         person.isReplacementEmployee
       ),
       positionType: person.employee?.primaryPosition?.positionType?.name,
+      userName: person.email,
       phone: person.phoneNumber,
       locations: person.employee?.locations,
       endorsements: person.substitute?.attributes
@@ -257,31 +263,17 @@ export const PeoplePage: React.FC<Props> = props => {
       ),
     },
     {
-      title: t("First Name"),
-      field: "firstName",
+      title: t("Name"),
       sorting: false,
+      render: o => `${o.lastName}, ${o.firstName}`,
     },
     {
-      title: t("Last Name"),
-      field: "lastName",
+      title: t("Username"),
+      field: "userName",
       sorting: false,
     },
-    // Column to show on All, Employees, and Admins tabs, but not Substitutes
-    {
-      title: t("Primary Phone"),
-      field: "phone",
-      sorting: false,
-      hidden: filters.roleFilter === OrgUserRole.ReplacementEmployee,
-    },
-    // Column to potentially show on the Substitutes tab based on the permission
-    {
-      title: t("Primary Phone"),
-      field: "phone",
-      sorting: false,
-      hidden: filters.roleFilter !== OrgUserRole.ReplacementEmployee,
-      permissions: [PermissionEnum.SubstituteViewPhone],
-    },
-    { title: t("External ID"), field: "externalId", sorting: false },
+
+    { title: t("Ext ID"), field: "externalId", sorting: false },
     {
       title: t("Role"),
       field: "roles",
@@ -467,10 +459,16 @@ export const PeoplePage: React.FC<Props> = props => {
         <Grid item>
           <PageTitle title={t("People")} />
         </Grid>
-        <Can do={[PermissionEnum.AdminSave, PermissionEnum.EmployeeSave, PermissionEnum.SubstituteSave]}>
-        <Grid item>
-          <CreateButton />
-        </Grid>
+        <Can
+          do={[
+            PermissionEnum.AdminSave,
+            PermissionEnum.EmployeeSave,
+            PermissionEnum.SubstituteSave,
+          ]}
+        >
+          <Grid item>
+            <CreateButton />
+          </Grid>
         </Can>
       </Grid>
       <PeopleFilters />

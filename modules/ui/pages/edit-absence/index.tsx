@@ -25,7 +25,7 @@ import { DeleteDialog } from "./delete-absence-dialog";
 type Props = { actingAsEmployee?: boolean };
 export const EditAbsence: React.FC<Props> = props => {
   const params = useRouteParams(AdminEditAbsenceRoute);
-  const userIsAdmin = useIsAdmin();
+
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
@@ -36,6 +36,12 @@ export const EditAbsence: React.FC<Props> = props => {
       id: params.absenceId,
     },
   });
+  const userIsAdmin = useIsAdmin(
+    absence.state === "LOADING"
+      ? undefined
+      : absence.data?.absence?.byId?.organization.id.toString()
+  );
+
   const employeeInfo = useQueryBundle(GetEmployee, {
     variables: {
       employeeId:

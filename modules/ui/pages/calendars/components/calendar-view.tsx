@@ -4,7 +4,6 @@ import { Grid } from "@material-ui/core";
 import { CalendarChangeMonthCalendar } from "./calendar-change-month-calendar";
 import {
   generateEmptyDateMap,
-  mergeAssignmentDatesByMonth,
   DateGroupByMonth,
 } from "ui/components/substitutes/grouping-helpers";
 import { parseISO, eachDayOfInterval, format } from "date-fns";
@@ -34,7 +33,7 @@ export const CalendarView: React.FC<Props> = props => {
     props.setSelectedDate(date);
   };
 
-  const mergeAssignmentDatesByMonth = (
+  const mergeChangeDatesByMonth = (
     emptyMap: DateGroupByMonth[],
     calandarChangeDates: CalendarChange[]
   ) => {
@@ -72,7 +71,7 @@ export const CalendarView: React.FC<Props> = props => {
     }
   });
 
-  const groupedDates = mergeAssignmentDatesByMonth(
+  const groupedDates = mergeChangeDatesByMonth(
     empty,
     unConsolidatedCalandarChangeDates
   );

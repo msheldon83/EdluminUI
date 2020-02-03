@@ -1,24 +1,20 @@
-import { Fab } from "@material-ui/core";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import { makeStyles } from "@material-ui/styles";
-import { not } from "helpers";
 import { useScreenSize } from "hooks";
+import { DialogProvider } from "hooks/use-dialog";
+import { SnackbarProvider } from "hooks/use-snackbar";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
+import { Route } from "react-router";
 import { NavigationSideBar } from "ui/app-chrome/navigation";
+import { ErrorBoundary } from "ui/components/error-boundary";
 import { LoadingStateProvider } from "ui/components/loading-state";
+import { LoadingStateIndicatorFullScreen } from "ui/components/loading-state/loading-state-indicator-fullscreen";
+import { AdminChromeRoute } from "ui/routes/app-chrome";
 import { MobileNavigationSideBar } from "./mobile-navigation/mobile-navigation-side-bar";
 import { MobileTopBar } from "./mobile-navigation/mobile-top-bar";
 import { TopBar } from "./navigation/top-bar";
-import { LoadingStateIndicatorFullScreen } from "ui/components/loading-state/loading-state-indicator-fullscreen";
-import { PageTitleProvider } from "./page-title-context";
-import { ErrorBoundary } from "ui/components/error-boundary";
 import { OrganizationSwitcherBar } from "./organization-switcher-bar";
-import { Route } from "react-router";
-import { AdminChromeRoute } from "ui/routes/app-chrome";
-import { SnackbarProvider } from "hooks/use-snackbar";
-import { DialogProvider } from "hooks/use-dialog";
+import { PageTitleProvider } from "./page-title-context";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -29,7 +25,6 @@ export const AppChrome: React.FunctionComponent = props => {
   const mobile = screenSize === "mobile";
   const expand = useCallback(() => setExpanded(true), [setExpanded]);
   const collapse = useCallback(() => setExpanded(false), [setExpanded]);
-  const toggleExpand = useCallback(() => setExpanded(not), [setExpanded]);
   const classes = useStyles();
 
   /* cf - 2019-10-09
@@ -44,25 +39,30 @@ export const AppChrome: React.FunctionComponent = props => {
     return (
       <LoadingStateProvider>
         <PageTitleProvider>
-          <Route path={AdminChromeRoute.path}>
-            <OrganizationSwitcherBar />
-          </Route>
-          <div className={classes.outer}>
-            <MobileTopBar expandDrawer={expand} />
-            <MobileNavigationSideBar expanded={expanded} collapse={collapse} />
-            <div className={classes.mainContent}>
-              <SnackbarProvider>
-                <DialogProvider>
-                  <div />
-                  <div className={classes.contentView}>
-                    <ErrorBoundary>
-                      <LoadingStateIndicatorFullScreen>
-                        {props.children}
-                      </LoadingStateIndicatorFullScreen>
-                    </ErrorBoundary>
-                  </div>
-                </DialogProvider>
-              </SnackbarProvider>
+          <div className={classes.app}>
+            <Route path={AdminChromeRoute.path}>
+              <OrganizationSwitcherBar />
+            </Route>
+            <div className={classes.outer}>
+              <MobileTopBar expandDrawer={expand} />
+              <MobileNavigationSideBar
+                expanded={expanded}
+                collapse={collapse}
+              />
+              <div className={classes.mainContent}>
+                <SnackbarProvider>
+                  <DialogProvider>
+                    <div />
+                    <div className={classes.contentView}>
+                      <ErrorBoundary>
+                        <LoadingStateIndicatorFullScreen>
+                          {props.children}
+                        </LoadingStateIndicatorFullScreen>
+                      </ErrorBoundary>
+                    </div>
+                  </DialogProvider>
+                </SnackbarProvider>
+              </div>
             </div>
           </div>
         </PageTitleProvider>
@@ -72,55 +72,43 @@ export const AppChrome: React.FunctionComponent = props => {
     return (
       <LoadingStateProvider>
         <PageTitleProvider>
-          <Route path={AdminChromeRoute.path}>
-            <OrganizationSwitcherBar />
-          </Route>
-          <div className={classes.outer}>
-            <TopBar
-              contentClassName={
-                expanded
-                  ? classes.leftPaddingExpanded
-                  : classes.leftPaddingCompact
-              }
-            />
-            <NavigationSideBar
-              expanded={expanded}
-              expand={expand}
-              collapse={collapse}
-            />
-            <div className={`${classes.container}`}>
-              <SnackbarProvider>
-                <DialogProvider>
-                  <div
-                    className={`${
-                      expanded
-                        ? classes.navWidthExpanded
-                        : classes.navWidthCompact
-                    }`}
-                  >
-                    <div className={classes.fabContainer}>
-                      <Fab
-                        onClick={toggleExpand}
-                        size="small"
-                        className={classes.fab}
-                      >
-                        {expanded ? (
-                          <ChevronLeftIcon className={classes.white} />
-                        ) : (
-                          <ChevronRightIcon className={classes.white} />
-                        )}
-                      </Fab>
+          <div className={classes.app}>
+            <Route path={AdminChromeRoute.path}>
+              <OrganizationSwitcherBar />
+            </Route>
+            <div className={classes.outer}>
+              <TopBar
+                contentClassName={
+                  expanded
+                    ? classes.leftPaddingExpanded
+                    : classes.leftPaddingCompact
+                }
+              />
+              <NavigationSideBar
+                expanded={expanded}
+                expand={expand}
+                collapse={collapse}
+              />
+              <div className={`${classes.container}`}>
+                <SnackbarProvider>
+                  <DialogProvider>
+                    <div
+                      className={`${
+                        expanded
+                          ? classes.navWidthExpanded
+                          : classes.navWidthCompact
+                      }`}
+                    ></div>
+                    <div className={`${classes.contentView}`}>
+                      <ErrorBoundary>
+                        <LoadingStateIndicatorFullScreen>
+                          {props.children}
+                        </LoadingStateIndicatorFullScreen>
+                      </ErrorBoundary>
                     </div>
-                  </div>
-                  <div className={`${classes.contentView}`}>
-                    <ErrorBoundary>
-                      <LoadingStateIndicatorFullScreen>
-                        {props.children}
-                      </LoadingStateIndicatorFullScreen>
-                    </ErrorBoundary>
-                  </div>
-                </DialogProvider>
-              </SnackbarProvider>
+                  </DialogProvider>
+                </SnackbarProvider>
+              </div>
             </div>
           </div>
         </PageTitleProvider>
@@ -130,20 +118,34 @@ export const AppChrome: React.FunctionComponent = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  app: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+  },
   outer: {
     display: "flex",
-    maxWidth: "100%",
     flexDirection: "column",
-    minHeight: "100%",
     flexGrow: 1,
+    overflow: "hidden",
+    transform:
+      "rotate(0)" /* cf - this affects how position works in children elements. */,
   },
-  mainContent: { flexGrow: 1 },
+  mainContent: {
+    flexGrow: 1,
+    overflowY: "auto",
+  },
   container: {
+    height: "100vh",
     display: "flex",
     flexDirection: "row",
     alignItems: "stretch",
     flexGrow: 1,
     maxWidth: theme.typography.pxToRem(1440),
+    transform: "rotate(0)",
+    paddingBottom: theme.typography.pxToRem(
+      75
+    ) /* DTN - Was noticing without any padding at the bottom of the content, it would look like the bottom of the page was slightly cut off */,
   },
 
   navWidthExpanded: {
@@ -172,6 +174,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   contentView: {
+    overflowY: "auto",
     [theme.breakpoints.up("md")]: {
       width: "1px", // Prevent the content view from expanding past its allowed size
     },
@@ -210,26 +213,5 @@ const useStyles = makeStyles(theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
     }),
-  },
-  fabContainer: {
-    width: "100%",
-    height: "100%",
-    position: "relative",
-  },
-  fab: {
-    backgroundColor: theme.customColors.edluminSlate,
-    position: "absolute",
-    top: theme.typography.pxToRem(-20),
-    right: theme.typography.pxToRem(-20),
-    zIndex: 4000,
-    "&:hover": {
-      backgroundColor: theme.customColors.edluminSlate,
-      border: `${theme.typography.pxToRem(1)} solid ${
-        theme.customColors.white
-      }`,
-    },
-  },
-  white: {
-    color: theme.customColors.white,
   },
 }));

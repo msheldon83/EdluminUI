@@ -168,10 +168,6 @@ import {
   SecurityPermissionSetsViewLoader,
   SecurityPermissionSetsViewRoute,
 } from "./routes/security/permission-sets";
-import {
-  SecurityUsersLoader,
-  SecurityUsersRoute,
-} from "./routes/security/users";
 import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
 import {
   SubPreferencesLoader,
@@ -231,6 +227,12 @@ import {
   SubMobileSearchRoute,
   SubstituteMobileSearchLoader,
 } from "ui/routes/mobile-search";
+import {
+  UsersRoute,
+  UsersLoader,
+  UserViewLoader,
+  UserViewRoute,
+} from "./routes/users";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -392,6 +394,16 @@ export function App() {
                           <Route
                             component={OrganizationsLoader}
                             path={OrganizationsRoute.path}
+                          />
+                          <ProtectedRoute
+                            component={UserViewLoader}
+                            path={UserViewRoute.path}
+                            role={"sysAdmin"}
+                          />
+                          <ProtectedRoute
+                            component={UsersLoader}
+                            path={UsersRoute.path}
+                            role={"sysAdmin"}
                           />
                           <Route path={AdminChromeRoute.path}>
                             <AdminRouteOrganizationContextProvider>
@@ -822,11 +834,6 @@ export function App() {
                                   permissions={[
                                     PermissionEnum.CalendarChangeView,
                                   ]}
-                                />
-                                <ProtectedRoute
-                                  component={SecurityUsersLoader}
-                                  path={SecurityUsersRoute.path}
-                                  role={"admin"}
                                 />
                                 <ProtectedRoute
                                   component={SecurityPermissionSetsAddLoader}

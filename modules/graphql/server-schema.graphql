@@ -4577,6 +4577,8 @@ type User implements ModelObjectInterface {
   isSystemAdministrator: Boolean!
   eulaAcceptedAtUtc: DateTime
   eulaAccepted: Boolean!
+  resetPasswordTicketUrl: String
+  resetPasswordTicketUrlGeneratedAtUtc: DateTime
 }
 
 type UserAccess {
@@ -4635,7 +4637,7 @@ input UserPreferencesInput {
 
 type UserQueries {
   byId(id: ID!): User
-  paged(limit: Int, offset: Int, searchText: String): PagedUser
+  paged(limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String): PagedUser
 }
 
 input UserUpdateInput {
@@ -4773,7 +4775,7 @@ input VacancyDetailInput {
   endTime: Seconds
   locationId: ID
   payCodeId: ID
-  accountingCodeAllocations: VacancyDetailAccountingCodeInput
+  accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
 }
 
 input VacancyDetailVerifyInput {

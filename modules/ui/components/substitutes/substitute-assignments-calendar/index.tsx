@@ -3,7 +3,7 @@ import { useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
-import { GetAssignmentDatesForEmployee } from "../graphql/get-assignments-dates-for-employee.gen";
+import { GetAssignmentDatesForSubstitute } from "../graphql/get-assignments-dates-for-substitute.gen";
 import { AssignmentCalendar } from "./assignment-calendar";
 import {
   generateEmptyDateMap,
@@ -21,7 +21,7 @@ type Props = {
 
 export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
   const upcomingAssignmentDates = useQueryBundle(
-    GetAssignmentDatesForEmployee,
+    GetAssignmentDatesForSubstitute,
     {
       variables: {
         id: String(props.userId),
