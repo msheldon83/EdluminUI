@@ -105,7 +105,7 @@ export const CalendarView: React.FC<Props> = props => {
       <>
         <Grid container spacing={2}>
           <Grid item xs={12} className={classes.loading}>
-            <Typography variant="h6">Loading Calendar ...</Typography>
+            <Typography variant="h6">{t("Loading Calendar")} ...</Typography>
           </Grid>
         </Grid>
       </>
