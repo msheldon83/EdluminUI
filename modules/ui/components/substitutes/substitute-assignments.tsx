@@ -151,7 +151,7 @@ const useStyles = makeStyles(theme => ({
   sticky: {
     position: "sticky",
     top: 0,
-    zIndex: 1,
+    zIndex: 400,
     backgroundColor: theme.customColors.appBackgroundGray,
     boxShadow: `0 ${theme.typography.pxToRem(32)} ${theme.typography.pxToRem(
       16
