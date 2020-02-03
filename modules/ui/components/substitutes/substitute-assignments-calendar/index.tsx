@@ -68,7 +68,6 @@ export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
         <AssignmentCalendar
           key={i}
           onSelectDate={props.onSelectDate}
-          userId={props.userId}
           date={group.month}
           assignmentDates={group.dates}
           selectedDate={props.selectedDate}

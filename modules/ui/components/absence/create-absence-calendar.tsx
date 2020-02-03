@@ -20,17 +20,12 @@ type Props = {
 );
 
 export const CreateAbsenceCalendar: React.FC<Props> = props => {
-  const { selectedAbsenceDates } = props;
+  const { selectedAbsenceDates, currentMonth } = props;
   const classes = useStyles();
   const disabledDateObjs = useEmployeeDisabledDates(
     props.employeeId,
-    props.currentMonth
+    currentMonth
   );
-
-  const currentMonth =
-    props.selectedAbsenceDates.length > 0
-      ? props.selectedAbsenceDates[0]
-      : props.currentMonth;
 
   const customDatesDisabled = useMemo(
     () =>

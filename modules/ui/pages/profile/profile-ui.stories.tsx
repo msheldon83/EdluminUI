@@ -21,6 +21,7 @@ export const Basic = () => {
           phone: "610-555-1212",
           timeZoneId: "EASTERN_STANDARD_TIME_US_CANADA" as any,
           orgUsers: [],
+          createdUtc: "1/1/2019 08:00AM",
         }}
         updateLoginEmail={(): any => {}}
         resetPassword={(): any => {}}

@@ -12,6 +12,8 @@ import {
   EmployeeScheduleRoute,
 } from "ui/routes/employee-schedule";
 import { AbsenceSchedule } from "ui/components/absence/absence-schedule";
+import { useMemo } from "react";
+import { parseISO } from "date-fns";
 
 type Props = {
   view: "list" | "calendar";
@@ -23,6 +25,15 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(EmployeeScheduleRoute);
   const employee = useGetEmployee();
+
+  const employeeCreatedDate = useMemo(() => {
+    if (!employee || !employee.createdUtc) {
+      return undefined;
+    }
+
+    const employeeCreatedDate = parseISO(employee.createdUtc);
+    return employeeCreatedDate;
+  }, [employee]);
 
   const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
     onError: error => {
@@ -52,7 +63,7 @@ export const EmployeeSchedule: React.FC<Props> = props => {
 
   return (
     <div className={classes.pageContainer}>
-      {employee && (
+      {employee && employeeCreatedDate && (
         <AbsenceSchedule
           view={props.view}
           employeeId={employee?.id}
@@ -62,6 +73,7 @@ export const EmployeeSchedule: React.FC<Props> = props => {
           calendarViewRoute={EmployeeScheduleCalendarViewRoute.generate(params)}
           listViewRoute={EmployeeScheduleListViewRoute.generate(params)}
           actingAsEmployee={true}
+          userCreatedDate={employeeCreatedDate}
         />
       )}
     </div>

@@ -30,6 +30,7 @@ type Props = {
   calendarViewRoute: string;
   listViewRoute: string;
   actingAsEmployee: boolean;
+  userCreatedDate: Date;
 };
 
 export const AbsenceSchedule: React.FC<Props> = props => {
@@ -39,11 +40,6 @@ export const AbsenceSchedule: React.FC<Props> = props => {
   const getOrgUsers = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
-
-  const userId =
-    getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
-      ? undefined
-      : getOrgUsers.data?.userAccess?.me?.user?.id;
 
   const createAbsenceParams = useRouteParams(EmployeeCreateAbsenceRoute);
 
@@ -133,18 +129,16 @@ export const AbsenceSchedule: React.FC<Props> = props => {
         <Grid container>
           <Grid item xs={12} className={classes.filters}>
             <div className={classes.scheduleHeader}>
-              {userId && (
-                <ScheduleHeader
-                  view={props.view}
-                  today={startDateOfToday}
-                  beginningOfCurrentSchoolYear={startDateOfSchoolYear}
-                  endOfSchoolCurrentYear={endDate}
-                  startDate={queryStartDate}
-                  setStartDate={setQueryStartDate}
-                  setEndDate={setQueryEndDate}
-                  userId={userId}
-                />
-              )}
+              <ScheduleHeader
+                view={props.view}
+                today={startDateOfToday}
+                beginningOfCurrentSchoolYear={startDateOfSchoolYear}
+                endOfSchoolCurrentYear={endDate}
+                startDate={queryStartDate}
+                setStartDate={setQueryStartDate}
+                setEndDate={setQueryEndDate}
+                userCreatedDate={props.userCreatedDate}
+              />
             </div>
             <div>
               <ScheduleViewToggle
