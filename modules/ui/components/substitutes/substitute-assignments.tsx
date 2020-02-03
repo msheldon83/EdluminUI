@@ -9,7 +9,6 @@ import { NowViewingAssignmentsForDate } from "./substitute-assignments-calendar/
 import { SubstituteAssignmentsListView } from "./substitute-assignments-list";
 import { ScheduleHeader } from "ui/components/schedule/schedule-header";
 import { useTranslation } from "react-i18next";
-import { useIsAdmin } from "reference-data/is-admin";
 import { useMemo, useState } from "react";
 import { getBeginningOfSchoolYear } from "ui/components/helpers";
 import { numberOfMonthsInSchoolYear } from "ui/components/schedule/helpers";
@@ -21,14 +20,14 @@ type Props = {
   userId: string;
   listViewRoute: string;
   calendarViewRoute: string;
+  userCreatedDate: Date;
+  isAdmin: boolean;
   orgId?: string;
 };
 
 export const SubstituteAssignments: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  let userIsAdmin = useIsAdmin(props.orgId); //Just in case an admin accesses this page
-  userIsAdmin = userIsAdmin === null ? false : userIsAdmin;
 
   /* the value for today will not change as long as the 
       component is mounted. This could cause stale today
@@ -69,7 +68,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
             <NowViewingAssignmentsForDate
               date={selectedDate}
               userId={props.userId}
-              isAdmin={userIsAdmin}
+              isAdmin={props.isAdmin}
               orgId={props.orgId}
             />
           </Section>
@@ -87,7 +86,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
               startDate={queryStartDate}
               setStartDate={setQueryStartDate}
               setEndDate={setQueryEndDate}
-              userId={props.userId}
+              userCreatedDate={props.userCreatedDate}
             />
           </div>
 
@@ -105,7 +104,6 @@ export const SubstituteAssignments: React.FC<Props> = props => {
         <div className={classes.viewContainer}>
           {props.view === "calendar" && (
             <SubstituteAssignmentsCalendarView
-              userId={props.userId}
               fromDate={beginningOfSchoolYear}
               toDate={queryEndDate}
               selectedDate={selectedDate}
@@ -118,7 +116,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
               userId={props.userId}
               startDate={queryStartDate}
               endDate={queryEndDate}
-              isAdmin={userIsAdmin}
+              isAdmin={props.isAdmin}
               orgId={props.orgId}
             />
           )}

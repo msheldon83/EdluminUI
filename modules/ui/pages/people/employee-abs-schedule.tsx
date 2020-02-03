@@ -12,6 +12,8 @@ import { AbsenceSchedule } from "ui/components/absence/absence-schedule";
 import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
 import { PeopleRoute } from "ui/routes/people";
 import { Redirect } from "react-router";
+import { useMemo } from "react";
+import { parseISO } from "date-fns";
 
 type Props = {
   view: "list" | "calendar";
@@ -31,6 +33,15 @@ export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
       ? undefined
       : getOrgUser?.data?.orgUser?.byId;
 
+  const orgUserCreatedDate = useMemo(() => {
+    if (!orgUser || !orgUser.createdUtc) {
+      return undefined;
+    }
+
+    const orgUserCreatedDate = parseISO(orgUser.createdUtc);
+    return orgUserCreatedDate;
+  }, [orgUser]);
+
   if (getOrgUser.state === "LOADING") {
     return <></>;
   }
@@ -43,7 +54,7 @@ export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
 
   return (
     <div className={classes.pageContainer}>
-      {orgUser && (
+      {orgUser && orgUserCreatedDate && (
         <AbsenceSchedule
           view={props.view}
           employeeId={params.orgUserId}
@@ -54,6 +65,7 @@ export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
           )}
           listViewRoute={EmployeeAbsScheduleListViewRoute.generate(params)}
           actingAsEmployee={false}
+          userCreatedDate={orgUserCreatedDate}
         />
       )}
     </div>

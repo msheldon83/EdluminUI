@@ -10,6 +10,7 @@ query GetMyUserAccess {
         loginEmail
         phone
         timeZoneId
+        createdUtc
         orgUsers {
           id
           isAdmin
@@ -20,12 +21,14 @@ query GetMyUserAccess {
             id
             name
           }
+          createdUtc
           administrator {
             id
             firstName
             lastName
             isSuperUser
             permissions
+            createdUtc
           }
           employee {
             id
@@ -39,11 +42,13 @@ query GetMyUserAccess {
               needsReplacement
             }
             permissions
+            createdUtc
           }
           substitute {
             firstName
             lastName
             permissions
+            createdUtc
           }
         }
       }

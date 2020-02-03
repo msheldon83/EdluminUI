@@ -2,6 +2,7 @@ query GetOrgUserById($id: ID!) {
   orgUser {
     byId(id: $id) {
       id
+      createdUtc
       externalId
       userId
       rowVersion

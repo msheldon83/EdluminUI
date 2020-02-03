@@ -11,6 +11,8 @@ import { useQueryBundle } from "graphql/hooks";
 import { GetSubstituteById } from "./graphql/substitute/get-substitute-by-id.gen";
 import { PeopleRoute } from "ui/routes/people";
 import { Redirect } from "react-router";
+import { useMemo } from "react";
+import { parseISO } from "date-fns";
 
 type Props = {
   view: "list" | "calendar";
@@ -29,6 +31,15 @@ export const SubstituteAssignmentsSchedulePage: React.FC<Props> = props => {
       ? undefined
       : getSubstitute?.data?.orgUser?.byId;
 
+  const orgUserCreatedDate = useMemo(() => {
+    if (!orgUser || !orgUser.createdUtc) {
+      return undefined;
+    }
+
+    const orgUserCreatedDate = parseISO(orgUser.createdUtc);
+    return orgUserCreatedDate;
+  }, [orgUser]);
+
   if (getSubstitute.state === "LOADING") {
     return <></>;
   }
@@ -41,7 +52,7 @@ export const SubstituteAssignmentsSchedulePage: React.FC<Props> = props => {
 
   return (
     <div className={classes.pageContainer}>
-      {orgUser && (
+      {orgUser && orgUserCreatedDate && (
         <SubstituteAssignments
           view={props.view}
           pageTitle={`${orgUser?.substitute!.firstName} ${
@@ -55,6 +66,8 @@ export const SubstituteAssignmentsSchedulePage: React.FC<Props> = props => {
             params
           )}
           orgId={orgUser?.substitute!.orgId.toString()}
+          isAdmin={true}
+          userCreatedDate={orgUserCreatedDate}
         />
       )}
     </div>
