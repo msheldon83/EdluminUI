@@ -89,7 +89,6 @@ export const DayPartField: React.FC<Props> = props => {
         return undefined;
       }
 
-      console.log(scheduleTimes);
       return {
         startTime: format(parseISO(scheduleTimes.startTimeLocal), "h:mm a"),
         halfDayMorningEnd: scheduleTimes.halfDayMorningEndLocal
