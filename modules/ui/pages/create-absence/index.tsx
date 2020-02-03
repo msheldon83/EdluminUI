@@ -19,7 +19,7 @@ export const CreateAbsence: React.FC<Props> = props => {
     },
   });
 
-  const userIsAdmin = useIsAdmin();
+  const userIsAdmin = useIsAdmin(organizationId);
   if (
     employeeInfo.state !== "DONE" ||
     userIsAdmin === null ||
@@ -46,7 +46,10 @@ export const CreateAbsence: React.FC<Props> = props => {
       }
       positionName={employeeInfo.data.employee?.byId?.primaryPosition?.title}
       positionId={employeeInfo.data.employee.byId.primaryPosition?.id}
-      payCodeId={employeeInfo.data.employee?.byId?.primaryPosition?.positionType?.payCodeId}
+      payCodeId={
+        employeeInfo.data.employee?.byId?.primaryPosition?.positionType
+          ?.payCodeId
+      }
       accountingCodeId={
         employeeInfo.data.employee?.byId?.primaryPosition
           ?.accountingCodeAllocations

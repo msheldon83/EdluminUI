@@ -19,7 +19,7 @@ import { useOrganizationId } from "core/org-context";
 // Copied from https://stackoverflow.com/a/52366872 and tweaked
 
 interface ProtectedRouteProps extends RouteProps {
-  role: "employee" | "substitute" | "admin";
+  role: "employee" | "substitute" | "admin" | "sysAdmin";
   component?:
     | React.ComponentType<RouteComponentProps<any>>
     | React.ComponentType<any>;
@@ -34,6 +34,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = props => {
   const userAccess = useMyUserAccess();
   if (!userAccess) {
     return <></>;
+  }
+
+  // Support blocking routes for non Sys Admins
+  if (props.role === "sysAdmin" && !userAccess.isSysAdmin) {
+    return <Redirect to={UnauthorizedRoute.generate({})} />;
   }
 
   let hasAccessToOrg = true;

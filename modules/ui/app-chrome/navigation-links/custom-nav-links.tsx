@@ -38,7 +38,6 @@ import { LocationsRoute } from "ui/routes/locations";
 import { SecurityManagedOrganizationsRoute } from "ui/routes/security/managed-organizations";
 import { SecurityPartnersRoute } from "ui/routes/security/partners";
 import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
-import { SecurityUsersRoute } from "ui/routes/security/users";
 import { NavLink } from "./nav-link";
 import SearchIcon from "@material-ui/icons/Search";
 
@@ -169,7 +168,6 @@ export const SettingsNavLink: React.FC<Props> = props => {
 
 export const SecurityNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const paramsSecurityUsers = useRouteParams(SecurityUsersRoute);
   const paramsSecurityPermissionSets = useRouteParams(
     SecurityPermissionSetsRoute
   );
@@ -183,10 +181,6 @@ export const SecurityNavLink: React.FC<Props> = props => {
         title={t("Security")}
         icon={<LockIcon />}
         subNavItems={[
-          {
-            title: t("Users"),
-            route: SecurityUsersRoute.generate(paramsSecurityUsers),
-          },
           {
             title: t("Permission Sets"),
             route: SecurityPermissionSetsRoute.generate(

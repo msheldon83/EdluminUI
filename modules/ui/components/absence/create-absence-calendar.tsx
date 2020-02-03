@@ -27,6 +27,11 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
     props.currentMonth
   );
 
+  const currentMonth =
+    props.selectedAbsenceDates.length > 0
+      ? props.selectedAbsenceDates[0]
+      : props.currentMonth;
+
   const customDatesDisabled = useMemo(
     () =>
       getCannotCreateAbsenceDates(disabledDateObjs).map(date => {
@@ -76,11 +81,10 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
       customSelectedAbsenceDates,
     ]
   );
-
   return (
     <CustomCalendar
       variant="month"
-      month={props.currentMonth}
+      month={currentMonth}
       {...props}
       customDates={customDates}
     />

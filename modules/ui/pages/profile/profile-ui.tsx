@@ -28,6 +28,7 @@ import { Formik } from "formik";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Input } from "ui/components/form/input";
 import * as yup from "yup";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {
   user: GetMyUserAccess.User;
@@ -46,7 +47,9 @@ type Props = {
 export const ProfileUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const { openSnackbar } = useSnackbar();
   const isSmDown = useBreakpoint("sm", "down");
+  const [rowVersion, setRowVersion] = React.useState(props.user.rowVersion);
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
   const [changeTimezoneIsOpen, setChangeTimezoneIsOpen] = React.useState(false);
   const selectTimeZoneOption = props.timeZoneOptions.find(
@@ -67,9 +70,19 @@ export const ProfileUI: React.FC<Props> = props => {
   );
 
   const onResetPassword = async () => {
-    await props.resetPassword({
+    const response = await props.resetPassword({
       variables: { resetPasswordInput: { id: props.user.id } },
     });
+    const result = response?.data?.user?.resetPassword;
+    if (result) {
+      openSnackbar({
+        message: t("Reset password email has been sent"),
+        dismissable: true,
+        status: "success",
+        autoHideDuration: 5000,
+      });
+      setRowVersion(result.rowVersion);
+    }
   };
 
   const onCloseTimezoneDialog = React.useCallback(
@@ -78,17 +91,22 @@ export const ProfileUI: React.FC<Props> = props => {
   );
 
   const updateTimezoneCallback = React.useCallback(
-    async (timeZoneId: any) =>
-      await props.updateUser({
+    async (timeZoneId: any) => {
+      const response = await props.updateUser({
         variables: {
           user: {
             id: props.user.id,
             timeZoneId,
-            rowVersion: props.user.rowVersion,
+            rowVersion: rowVersion,
           },
         },
-      }),
-    [props]
+      });
+      const result = response?.data?.user?.update;
+      if (result) {
+        setRowVersion(result.rowVersion);
+      }
+    },
+    [props, rowVersion]
   );
 
   const updateBasicDetails = React.useCallback(
@@ -98,19 +116,23 @@ export const ProfileUI: React.FC<Props> = props => {
       phone: string | null;
     }) => {
       const { firstName, lastName, phone } = data;
-      await props.updateUser({
+      const response = await props.updateUser({
         variables: {
           user: {
             id: props.user.id,
-            rowVersion: props.user.rowVersion,
+            rowVersion: rowVersion,
             firstName,
             lastName,
             phone,
           },
         },
       });
+      const result = response?.data?.user?.update;
+      if (result) {
+        setRowVersion(result.rowVersion);
+      }
     },
-    [props]
+    [props, rowVersion]
   );
 
   const validateBasicDetails = React.useMemo(
@@ -130,6 +152,7 @@ export const ProfileUI: React.FC<Props> = props => {
         onClose={onCloseEmailDialog}
         updateLoginEmail={props.updateLoginEmail}
         user={props.user}
+        triggerReauth={true}
       />
       <ChangeTimezoneDialog
         open={changeTimezoneIsOpen}

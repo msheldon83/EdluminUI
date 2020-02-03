@@ -6,8 +6,7 @@ import {
   AdminRootChromeRoute,
   AppChromeRoute,
 } from "ui/routes/app-chrome";
-import { SecurityUsersRoute } from "ui/routes/security/users";
-import { defineSubRoute, useRouteParams } from "ui/routes/definition";
+import { useRouteParams } from "ui/routes/definition";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { EmployeePtoBalanceRoute } from "ui/routes/employee-pto-balances";
 import { OrganizationsRoute } from "ui/routes/organizations";
@@ -43,6 +42,7 @@ import {
   SubMobileSearchRoute,
   EmpMobileSearchRoute,
 } from "ui/routes/mobile-search";
+import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
 
 type Props = {
   navBarExpanded: boolean;
@@ -196,7 +196,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           <SecurityNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
-            route={SecurityUsersRoute.generate(params)}
+            route={SecurityPermissionSetsRoute.generate(params)}
             orgId={params.organizationId}
           />
         </>
