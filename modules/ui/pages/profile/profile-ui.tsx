@@ -109,12 +109,15 @@ export const ProfileUI: React.FC<Props> = props => {
     [props, rowVersion]
   );
 
+  // TODO: Consolidate this logic with the phone number field in Information component
+  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+
+  const cleanPhoneNumber = (phoneNumber: string) => {
+    return phoneNumber.replace(/\D/g, "");
+  };
+
   const updateBasicDetails = React.useCallback(
-    async (data: {
-      firstName: string;
-      lastName: string;
-      phone: string | null;
-    }) => {
+    async (data: { firstName: string; lastName: string; phone: string }) => {
       const { firstName, lastName, phone } = data;
       const response = await props.updateUser({
         variables: {
@@ -123,7 +126,7 @@ export const ProfileUI: React.FC<Props> = props => {
             rowVersion: rowVersion,
             firstName,
             lastName,
-            phone,
+            phone: phone.trim().length === 0 ? null : cleanPhoneNumber(phone),
           },
         },
       });
@@ -140,10 +143,14 @@ export const ProfileUI: React.FC<Props> = props => {
       yup.object().shape({
         firstName: yup.string().required(t("First name is required")),
         lastName: yup.string().required(t("Last name is required")),
-        phone: yup.string().nullable().required(t("Phone number is required")),
+        phone: yup
+          .string()
+          .nullable()
+          .required(t("Phone number is required")) // TODO: Only require this if the user has a replacmenet Employee role
+          .matches(phoneRegExp, t("Phone Number Is Not Valid")),
       }),
-    [t]
-  );
+    [t, phoneRegExp]
+  );  
 
   return (
     <>
