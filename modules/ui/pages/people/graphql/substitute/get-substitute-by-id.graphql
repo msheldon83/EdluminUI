@@ -6,6 +6,7 @@ query GetSubstituteById($id: ID!) {
       orgId
       userId
       loginEmail
+      createdUtc
       relatedOrganizations {
         id
         name

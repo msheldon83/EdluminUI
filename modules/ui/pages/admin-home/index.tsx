@@ -93,7 +93,8 @@ export const AdminHome: React.FC<Props> = props => {
       setSelectedCard("unfilled");
     } else if (newTimeOfDay === "afternoon") {
       setDate(startOfToday());
-      setSelectedCard("awaitingVerification");
+      // setSelectedCard("awaitingVerification");  // TODO: will we want to send them to verify at some point?
+      setSelectedCard("unfilled"); // For afternoon don't automatically go to Verification per LF.
     } else if (newTimeOfDay === "evening") {
       setDate(startOfTomorrow());
       setSelectedCard("unfilled");

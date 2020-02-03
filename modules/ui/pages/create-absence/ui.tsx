@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { format, isBefore, isSameDay, startOfMonth } from "date-fns";
@@ -317,7 +318,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     (
       replacementId: string,
       replacementName: string,
-      payCodeId: string | undefined,
+      payCodeId: string | undefined
     ) => {
       /* eslint-disable @typescript-eslint/no-floating-promises */
       setValue("replacementEmployeeId", replacementId);
@@ -455,7 +456,9 @@ const initialState = (props: Props): CreateAbsenceState => {
       ? props.needsReplacement !== NeedsReplacement.No
       : props.initialNeedsReplacement;
   const absenceDates = props.initialDates || [];
-  const viewingCalendarMonth = startOfMonth(new Date());
+  const viewingCalendarMonth = props.initialDates
+    ? startOfMonth(props.initialDates[0])
+    : startOfMonth(new Date());
   return {
     employeeId: props.employeeId,
     organizationId: props.organizationId,

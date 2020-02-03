@@ -15,10 +15,10 @@ type Props = {
   today: Date;
   beginningOfCurrentSchoolYear: Date;
   endOfSchoolCurrentYear: Date;
+  userCreatedDate: Date;
   startDate: Date;
   setStartDate: React.Dispatch<React.SetStateAction<Date>>;
   setEndDate: React.Dispatch<React.SetStateAction<Date>>;
-  userId?: string;
 };
 
 export const ScheduleHeader: React.FC<Props> = props => {
@@ -42,30 +42,15 @@ export const ScheduleHeader: React.FC<Props> = props => {
     [props.today, props.beginningOfCurrentSchoolYear, t]
   );
 
-  const startYearForUser = useQueryBundle(GetUserCreateDate, {
-    variables: {
-      id: props.userId,
-    },
-    skip: !props.userId,
-  });
-
   const schoolYearOptions = useMemo(() => {
-    if (
-      startYearForUser.state !== "DONE" &&
-      startYearForUser.state !== "UPDATING"
-    )
-      return [];
-    const userStartDate = parseISO(
-      startYearForUser.data.user?.byId?.createdUtc
-    );
-    const startYear = userStartDate.getFullYear();
+    const startYear = props.userCreatedDate.getFullYear();
     const endYear = props.endOfSchoolCurrentYear.getFullYear();
 
     // 1. fill in the years between the startYear and the current year
     // 2. create the respective values for each
     return startYear !== endYear
       ? range(startYear, endYear).map(d => {
-          const year = userStartDate;
+          const year = props.userCreatedDate;
           year.setFullYear(d);
           return createYearOption(year);
         })
@@ -73,15 +58,8 @@ export const ScheduleHeader: React.FC<Props> = props => {
   }, [
     props.beginningOfCurrentSchoolYear,
     props.endOfSchoolCurrentYear,
-    startYearForUser,
+    props.userCreatedDate,
   ]);
-
-  if (
-    startYearForUser.state !== "DONE" &&
-    startYearForUser.state !== "UPDATING"
-  ) {
-    return <></>;
-  }
 
   return (
     <div className={classes.selectContainer}>
@@ -110,6 +88,7 @@ export const ScheduleHeader: React.FC<Props> = props => {
           })}
           multiple={false}
           options={schoolYearOptions}
+          withResetValue={false}
         />
       </div>
       {props.view === "list" && showFromPicker && (
@@ -131,6 +110,7 @@ export const ScheduleHeader: React.FC<Props> = props => {
             )}
             options={listViewFilterOptions}
             multiple={false}
+            withResetValue={false}
           />
         </div>
       )}
