@@ -20,7 +20,7 @@ import { startOfDay, parseISO } from "date-fns";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
-  payCodeOptions: { label: string; value: number }[];
+  payCodeOptions: { label: string; value: string }[];
   keyPrefix: string;
   orgId: string;
   values: VacancyDetail;
@@ -36,21 +36,21 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const locationMenuOptions = props.locationOptions.map(loc => ({
-    value: Number(loc.id),
+    value: loc.id,
     label: loc.name,
   }));
+
+  console.log(props.values);
 
   const locationIds = props.locationOptions.map(l => l.id);
 
   const accountingCodes = useAccountingCodes(props.orgId, locationIds);
   const accountingCodeOptions = useMemo(
-    () => accountingCodes.map(a => ({ label: a.name, value: Number(a.id) })),
+    () => accountingCodes.map(a => ({ label: a.name, value: a.id })),
     [accountingCodes]
   );
 
   const fieldNamePrefix = props.keyPrefix;
-
-  console.log(accountingCodeOptions);
 
   const date = parseISO(props.values.date);
   const startOfDate = date ? startOfDay(date) : undefined;

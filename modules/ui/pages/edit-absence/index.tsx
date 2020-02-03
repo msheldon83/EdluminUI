@@ -142,7 +142,7 @@ export const EditAbsence: React.FC<Props> = props => {
             startTime: d.startTimeLocal,
             endTime: d.endTimeLocal,
             locationId: d.locationId!,
-            payCodeId: d.payCodeId!,
+            payCodeId: d.payCodeId,
             accountingCodeId:
               d?.accountingCodeAllocations &&
               d?.accountingCodeAllocations[0]?.accountingCode?.id,

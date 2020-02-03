@@ -352,8 +352,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       theVacancyDetails
     );
 
-    console.log(absenceUpdateInput);
-
     if (ignoreWarnings) {
       absenceUpdateInput = {
         ...absenceUpdateInput,
@@ -418,7 +416,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       {step === "absence" && (
         <form
           onSubmit={handleSubmit(async data => {
-            console.log(data);
             await update(data);
             dispatch({ action: "resetAfterSave" });
           })}
@@ -569,7 +566,7 @@ const buildAbsenceUpdateInput = (
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
       payCodeId: v.payCodeId,
-      accountingCodeAllocation: v.accountingCodeId
+      accountingCodeAllocations: v.accountingCodeId
         ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
         : undefined,
     })) || undefined;

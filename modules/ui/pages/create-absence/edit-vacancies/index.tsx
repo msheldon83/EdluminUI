@@ -64,7 +64,7 @@ export const EditVacancies: React.FC<Props> = props => {
   //Pay Codes
   const payCodes = usePayCodes(props.orgId);
   const payCodeOptions = useMemo(
-    () => payCodes.map(c => ({ label: c.name, value: Number(c.id) })),
+    () => payCodes.map(c => ({ label: c.name, value: c.id })),
     [payCodes]
   );
 
