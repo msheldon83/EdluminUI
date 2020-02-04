@@ -75,9 +75,15 @@ export const DateStepperHeader: React.FC<Props> = props => {
       </div>
       <div className={classes.dateStepper}>
         <ArrowBackIos onClick={goBackward} className={classes.arrow} />
-        <Typography variant={isMobile ? "h5" : "h1"}>
-          {format(pendingDate, "EEE',' MMM d")}
-        </Typography>
+        <div
+          className={
+            isMobile ? classes.dateContainerMobile : classes.dateContainer
+          }
+        >
+          <Typography variant={isMobile ? "h5" : "h1"}>
+            {format(pendingDate, "EEE',' MMM d")}
+          </Typography>
+        </div>
         <ArrowForwardIos
           onClick={goForward}
           className={clsx({
@@ -98,6 +104,10 @@ const useStyles = makeStyles(theme => ({
   },
   todayLink: {
     cursor: "pointer",
+  },
+  dateContainerMobile: { width: "140px" },
+  dateContainer: {
+    width: "280px",
   },
   dateStepper: {
     marginTop: theme.spacing(),
