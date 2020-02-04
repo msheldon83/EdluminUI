@@ -64,7 +64,7 @@ export const AdminHome: React.FC<Props> = props => {
     if (timeOfDay === "morning") {
       setSelectedCard("unfilled");
     } else if (timeOfDay === "afternoon") {
-      setSelectedCard("awaitingVerification");
+      setSelectedCard("unfilled");
     } else if (timeOfDay === "evening") {
       setDate(startOfTomorrow());
       setSelectedCard("unfilled");
