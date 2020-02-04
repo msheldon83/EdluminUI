@@ -194,6 +194,7 @@ export const View: React.FC<Props> = props => {
                     await removeSub(...props);
                     setReplacementEmployeeInformation(null);
                   }}
+                  assignmentStartDate={absenceStartDate}
                 />
               )}
               <div className={classes.substituteDetailsSection}>
