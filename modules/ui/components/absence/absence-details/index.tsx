@@ -235,7 +235,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             employeeName={props.replacementEmployeeName || ""}
             subText={props.arrangedSubText ?? t("pre-arranged")}
             onRemove={props.onRemoveReplacement}
-            assignmentStartDate={startDate}
+            assignmentStartDate={startDate} //CLA - this is a hack and should eventually be using the assignment start date
           />
         )}
 
