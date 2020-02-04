@@ -14,6 +14,7 @@ import {
 import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
 import { VacancyDetail } from "./types";
 import { format } from "date-fns";
+import { AssignedSub } from "./assigned-sub";
 
 type Props = {
   vacancies: Vacancy[];
@@ -148,7 +149,17 @@ const getVacancyDetailsDisplay = (
             <Grid key={detailsIndex} item container xs={12}>
               <Grid item xs={12}>
                 {!g.assignmentId && t("Unfilled")}
-                {g.assignmentId && g.assignmentEmployeeName}
+                {g.assignmentId && (
+                  <AssignedSub
+                    disableReplacementInteractions={
+                      false //props.disableReplacementInteractions
+                    }
+                    employeeId={g.assignmentEmployeeId}
+                    assignmentId={g.assignmentId}
+                    employeeName={g.assignmentEmployeeName || ""}
+                    onRemove={() => {}}
+                  />
+                )}
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="h6">

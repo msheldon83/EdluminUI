@@ -150,10 +150,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
   const isSplitVacancy = useMemo(() => {
     const allAssignmentIds = props.vacancies
-      ? flatMap(props.vacancies.map(v => v.details?.map(d => d?.assignmentId)))
+      ? flatMap(
+          props.vacancies.map(v => v.details?.map(d => d?.assignment?.id))
+        )
       : [];
     const uniqueAssignmentIds = uniq(allAssignmentIds);
-    console.log("uniqueAssignmentIds", uniqueAssignmentIds);
     return uniqueAssignmentIds.length > 1;
   }, [props.vacancies]);
 
