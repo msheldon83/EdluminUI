@@ -301,6 +301,34 @@ export const canAssignSub = (
   return true;
 };
 
+export const canReassignSub = (
+  absDate: Date,
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) return true;
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  if (
+    !isToday(absDate) &&
+    !isFuture(absDate) &&
+    (!userPerms?.includes(PermissionEnum.AbsVacAssign) ||
+      !userPerms?.includes(PermissionEnum.AbsVacEditPast) ||
+      !userPerms?.includes(PermissionEnum.AbsVacRemoveSub))
+  ) {
+    return false;
+  } else if (
+    (isToday(absDate) || isFuture(absDate)) &&
+    (!userPerms?.includes(PermissionEnum.AbsVacAssign) ||
+      !userPerms?.includes(PermissionEnum.AbsVacRemoveSub))
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
 export const canEditAbsence = (
   absDate: Date,
   permissions: OrgUserPermissions[],

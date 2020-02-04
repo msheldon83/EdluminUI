@@ -19,6 +19,7 @@ import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
 } from "./filters";
+import { ReassignAbsenceDialog } from "ui/components/absence/reassign-dialog";
 
 type Props = {
   orgId: string;
@@ -38,6 +39,7 @@ type Props = {
     payCode: string | undefined
   ) => void;
   onCancel: () => void;
+  currentReplacementEmployeeName?: string;
 };
 
 const buildVacancyInput = (
@@ -86,6 +88,17 @@ export const AssignSub: React.FC<Props> = props => {
   const [searchFilter, updateSearch] = React.useState<
     ReplacementEmployeeFilters
   >();
+
+  const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
+  const [
+    replacementEmployeeName,
+    setReplacementEmployeeName,
+  ] = React.useState();
+  const [
+    replacementEmployeePayCode,
+    setReplacementEmployeePayCode,
+  ] = React.useState();
+  const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
 
   if (props.vacancies.length === 0) {
     props.onCancel();
@@ -172,6 +185,22 @@ export const AssignSub: React.FC<Props> = props => {
     props.onSelectReplacement(replacementEmployeeId, name, payCodeId);
   };
 
+  const confirmReassign = async (
+    replacementEmployeeId: string,
+    name: string,
+    payCodeId: string | undefined
+  ) => {
+    if (props.currentReplacementEmployeeName) {
+      setReplacementEmployeeName(name);
+      setReplacementEmployeePayCode(payCodeId);
+      setReplacementEmployeeId(replacementEmployeeId);
+      setDialogIsOpen(true);
+    } else {
+      await selectReplacementEmployee(replacementEmployeeId, name, payCodeId);
+    }
+    selectReplacementEmployee;
+  };
+
   const setSearch = (filters: ReplacementEmployeeFilters) => {
     updateSearch(filters);
   };
@@ -227,7 +256,7 @@ export const AssignSub: React.FC<Props> = props => {
         tableData,
         props.userIsAdmin,
         selectTitle,
-        selectReplacementEmployee,
+        confirmReassign,
         isMobile,
         theme,
         classes,
@@ -250,6 +279,21 @@ export const AssignSub: React.FC<Props> = props => {
 
   return (
     <>
+      <ReassignAbsenceDialog
+        open={dialogIsOpen}
+        onClose={() => setDialogIsOpen(false)}
+        onAssign={async () => {
+          //call asign functionality
+          setDialogIsOpen(false);
+          await selectReplacementEmployee(
+            replacementEmployeeId,
+            replacementEmployeeName,
+            replacementEmployeePayCode
+          );
+        }}
+        currentReplacementEmployee={props.currentReplacementEmployeeName!}
+        newReplacementEmployee={replacementEmployeeName}
+      />
       <div className={classes.header}>
         <div>
           <Typography variant="h5">{pageHeader}</Typography>
