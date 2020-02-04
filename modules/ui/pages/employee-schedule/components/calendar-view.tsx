@@ -1,4 +1,4 @@
-import { Grid, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { isSameDay, isSameMonth, parseISO } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
 import * as React from "react";
@@ -83,27 +83,34 @@ export const CalendarView: React.FC<Props> = props => {
   );
 
   // Default to Today if it exists in the current set of Months
-  useEffect(() => {
-    if (
-      monthGroups &&
-      monthGroups.length > 0 &&
-      selectedScheduleDates.length === 0
-    ) {
-      const currentMonth = monthGroups.find(m =>
-        isSameMonth(parseISO(m.month), today)
+
+  if (
+    getEmployeeSchedule.state === "DONE" &&
+    monthGroups &&
+    monthGroups.length > 0 &&
+    selectedScheduleDates.length === 0
+  ) {
+    const currentMonth = monthGroups.find(m =>
+      isSameMonth(parseISO(m.month), today)
+    );
+    if (currentMonth) {
+      setSelectedScheduleDates(
+        currentMonth.scheduleDates.filter(s => isSameDay(s.date, today))
       );
-      if (currentMonth) {
-        setSelectedScheduleDates(
-          currentMonth.scheduleDates.filter(s => isSameDay(s.date, today))
-        );
-      }
     }
-  }, [
-    monthGroups,
-    today,
-    selectedScheduleDates.length,
-    setSelectedScheduleDates,
-  ]);
+  }
+
+  if (getEmployeeSchedule.state !== "DONE") {
+    return (
+      <>
+        <Grid container spacing={2}>
+          <Grid item xs={12} className={classes.loading}>
+            <Typography variant="h5">{t("Loading Calendar")} ...</Typography>
+          </Grid>
+        </Grid>
+      </>
+    );
+  }
 
   return (
     <Grid container spacing={2}>
@@ -120,9 +127,15 @@ export const CalendarView: React.FC<Props> = props => {
     </Grid>
   );
 };
-
 const useStyles = makeStyles(theme => ({
   calendarContainer: {
     padding: theme.spacing(),
+  },
+  loading: {
+    padding: `${theme.typography.pxToRem(25)} !important`,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: theme.typography.pxToRem(800),
   },
 }));
