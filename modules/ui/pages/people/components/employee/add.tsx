@@ -11,7 +11,7 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { AddBasicInfo } from "../add-basic-info";
 import { useHistory } from "react-router";
-import { Information, editableSections, OrgUser } from "../information";
+import { Information, editableSections } from "../information";
 import {
   EmployeeInput,
   OrgUserRole,
@@ -25,7 +25,13 @@ import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { PositionEditUI } from "ui/pages/employee-position/ui";
-import { buildNewSchedule } from "ui/pages/employee-position/components/helpers";
+import {
+  buildNewSchedule,
+  buildDaysOfTheWeek,
+  buildNewPeriod,
+} from "ui/pages/employee-position/components/helpers";
+import { format } from "date-fns";
+import { midnightTime } from "helpers/time";
 
 export const EmployeeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -59,7 +65,6 @@ export const EmployeeAddPage: React.FC<{}> = props => {
         id: "",
       },
       hoursPerFullWorkDay: undefined,
-      schedules: [buildNewSchedule(true, true)],
       accountingCodeAllocations: [{ accountingCodeId: "", allocation: 1 }],
     },
   });
@@ -173,7 +178,24 @@ export const EmployeeAddPage: React.FC<{}> = props => {
           employee.position?.accountingCodeAllocations &&
           employee.position?.accountingCodeAllocations[0]?.accountingCodeId
         }
-        positionSchedule={employee.position?.schedules}
+        positionSchedule={employee.position?.schedules?.map(s => ({
+          daysOfTheWeek:
+            s?.daysOfTheWeek && s?.daysOfTheWeek.length > 0
+              ? s.daysOfTheWeek.map(d => d)
+              : buildDaysOfTheWeek(true),
+          periods: s?.items?.map(i => ({
+            locationId: i?.location?.id ?? "",
+            bellScheduleId: i?.bellSchedule?.id,
+            startTime: i?.startTime
+              ? format(midnightTime().setSeconds(i?.startTime), "h:mm a")
+              : "",
+            endTime: i?.endTime
+              ? format(midnightTime().setSeconds(i?.endTime), "h:mm a")
+              : "",
+            startPeriodId: i?.startPeriod?.id,
+            endPeriodId: i?.endPeriod?.id,
+          })) ?? [buildNewPeriod(true)],
+        }))}
         onSave={async (position: PositionInput) => {
           const newEmployee = {
             ...employee,

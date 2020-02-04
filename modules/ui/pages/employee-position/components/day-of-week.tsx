@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next";
 
 type Props = {
   dayOfWeek: DayOfWeek;
-  scheduleDaysOfWeek: DayOfWeek[];
-  disabledDaysOfWeek: DayOfWeek[];
+  scheduleDaysOfWeek: Array<DayOfWeek | null>;
+  disabledDaysOfWeek: Array<DayOfWeek | null>;
   onCheckDayOfWeek: (dow: DayOfWeek) => void;
 };
 

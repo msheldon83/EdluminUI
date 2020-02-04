@@ -29,7 +29,7 @@ type Props = {
   bellSchedules: Array<BellSchedule | null | undefined>;
   onAddSchool: () => void;
   onRemoveSchool: (periodNumber: number) => void;
-  disabledDaysOfWeek: DayOfWeek[];
+  disabledDaysOfWeek: Array<DayOfWeek | null>;
   onCheckDayOfWeek: (dow: DayOfWeek) => void;
   onChangeLocation: (locationId: string, index: number) => void;
   onChangeBellSchedule: (bellScheduleId: string, index: number) => void;
