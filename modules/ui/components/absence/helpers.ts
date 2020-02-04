@@ -112,10 +112,6 @@ export const getReplacementEmployeeForVacancy = (
   };
 };
 
-export const getScheduleLettersArray = () => {
-  return new Array(26).fill(1).map((_, i) => String.fromCharCode(65 + i));
-};
-
 type DetailsGroup<T> = {
   startDate: Date;
   endDate?: Date;
@@ -128,9 +124,11 @@ export type AbsenceDetailsGroup = DetailsGroup<AbsenceDetailsItem> & {
 };
 
 export type VacancyDetailsGroup = DetailsGroup<VacancyDetailsItem> & {
-  schedule?: string;
   absenceStartTime?: Date;
   absenceEndTime?: Date;
+  assignmentId?: string;
+  assignmentEmployeeId?: string;
+  assignmentEmployeeName?: string;
 };
 
 type DetailsItem = {
@@ -145,8 +143,10 @@ export type AbsenceDetailsItem = DetailsItem & {
 };
 
 export type VacancyDetailsItem = DetailsItem & {
+  vacancyDetailId: string | undefined;
   locationId: string | null | undefined;
   locationName: string | null | undefined;
+  assignmentId?: string;
 };
 
 export const getAbsenceDetailsGrouping = (absence: Absence) => {
@@ -332,7 +332,8 @@ export const getVacancyDetailsGrouping = (
           return (
             a.startTime === b.startTime &&
             a.endTime === b.endTime &&
-            a.locationId === b.locationId
+            a.locationId === b.locationId &&
+            a.assignmentId === b.assignmentId
           );
         }
       );
@@ -362,6 +363,9 @@ export const getVacancyDetailsGrouping = (
         absenceEndTime: value[0]?.absenceEndTime
           ? parseISO(value[0]?.absenceEndTime)
           : undefined,
+          assignmentId: value[0].assignmentId,
+          assignmentEmployeeId: value[0].assignmentEmployeeId,
+          assignmentEmployeeName: value[0].assignmentEmployeeName,
       });
     }
   });
@@ -378,53 +382,23 @@ export const getVacancyDetailsGrouping = (
     g.simpleDetailItems = uniqWith(
       g.detailItems.map(di => {
         return {
+          vacancyDetailId: undefined,
           startTime: di.startTime,
           endTime: di.endTime,
           locationId: di.locationId,
           locationName: di.locationName,
+          assignmentId: di.assignmentId
         };
       }),
       (a, b) => {
         return (
           a.startTime === b.startTime &&
           a.endTime === b.endTime &&
-          a.locationId === b.locationId
+          a.locationId === b.locationId &&
+          a.assignmentId === b.assignmentId
         );
       }
     );
-  });
-
-  // Set the appropriate Schedule letter on like groupings
-  const scheduleLetters = getScheduleLettersArray();
-  let scheduleIndex = 0;
-  detailsGroupings.forEach(g => {
-    // Look for a matching existing group that already has a Schedule letter
-    const matchedGroup = detailsGroupings.find(d => {
-      if (!d.schedule || !g.simpleDetailItems || !d.simpleDetailItems) {
-        return false;
-      }
-
-      // If all of the Start Times, End Times, and Locations match, this is the same Schedule
-      const differences = differenceWith(
-        g.simpleDetailItems,
-        d.simpleDetailItems,
-        (a, b) => {
-          return (
-            a.startTime === b.startTime &&
-            a.endTime === b.endTime &&
-            a.locationId === b.locationId
-          );
-        }
-      );
-      return !differences.length;
-    });
-
-    if (matchedGroup) {
-      g.schedule = matchedGroup.schedule;
-    } else {
-      g.schedule = scheduleLetters[scheduleIndex];
-      scheduleIndex = scheduleIndex + 1;
-    }
   });
 
   return detailsGroupings;
@@ -442,11 +416,13 @@ const convertVacancyDetailsToDetailsItem = (
     }
 
     return {
+      vacancyDetailId: v.vacancyDetailId,
       date: date,
       startTime: format(startTime, "h:mm a"),
       endTime: format(endTime, "h:mm a"),
       locationId: v.locationId,
       locationName: v.locationName,
+      assignmentId: v.assignmentId
     };
   });
   const populatedItems = detailItems.filter(

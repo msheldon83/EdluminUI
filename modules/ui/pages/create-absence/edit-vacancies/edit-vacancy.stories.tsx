@@ -13,12 +13,14 @@ export default {
 
 const formVacancyValues: VacancyDetail[] = [
   {
+    vacancyDetailId: "1",
     date: "2019-11-15",
     startTime: "2019-11-15T08:30:00" as any,
     endTime: "2019-11-15T12:00:00" as any,
     locationId: "1013",
   },
   {
+    vacancyDetailId: "2",
     date: "2019-11-18" as any,
     startTime: "2019-11-18T08:30:00" as any,
     endTime: "2019-11-18T12:00:00" as any,

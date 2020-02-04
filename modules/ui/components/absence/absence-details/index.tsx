@@ -22,6 +22,7 @@ import { CreateAbsenceCalendar } from "../create-absence-calendar";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
+import { flatMap, uniq } from "lodash-es";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -147,6 +148,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
     return { part: values.dayPart };
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
 
+  const isSplitVacancy = useMemo(() => {
+    const allAssignmentIds = props.vacancies
+      ? flatMap(props.vacancies.map(v => v.details?.map(d => d?.assignmentId)))
+      : [];
+    const uniqueAssignmentIds = uniq(allAssignmentIds);
+    console.log("uniqueAssignmentIds", uniqueAssignmentIds);
+    return uniqueAssignmentIds.length > 1;
+  }, [props.vacancies]);
+
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -225,7 +235,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           )}
         </Typography>
 
-        {props.replacementEmployeeId && (
+        {props.replacementEmployeeId && !isSplitVacancy && (
           <AssignedSub
             disableReplacementInteractions={
               props.disableReplacementInteractions

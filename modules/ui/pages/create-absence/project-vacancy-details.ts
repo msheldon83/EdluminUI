@@ -41,6 +41,7 @@ export const projectVacancyDetailsFromVacancies = (
       );
 
       return {
+        vacancyDetailId: d?.id,
         date: d?.startDate,
         locationId: d?.locationId,
         startTime: d?.startTimeLocal,
@@ -48,6 +49,9 @@ export const projectVacancyDetailsFromVacancies = (
         locationName: d?.location?.name,
         absenceStartTime: absenceDetail?.startTimeLocal,
         absenceEndTime: absenceDetail?.endTimeLocal,
+        assignmentId: d?.assignment?.id,
+        assignmentEmployeeId: d?.assignment?.employee?.id,
+        assignmentEmployeeName: `${d?.assignment?.employee?.firstName} ${d?.assignment?.employee?.lastName}`,
       } as VacancyDetail;
     })
     .filter(

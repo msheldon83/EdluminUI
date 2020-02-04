@@ -2,7 +2,7 @@ import * as React from "react";
 import { Vacancy } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { Grid, makeStyles, Typography } from "@material-ui/core";
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import { getVacancyDetailsGrouping } from "./helpers";
 import { TFunction } from "i18next";
 import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
@@ -31,46 +31,60 @@ export const VacancyDetails: React.FC<Props> = props => {
 
   const { detailsClassName = classes.fullWidth } = props;
 
+  const detailsUI = useMemo(() => {
+    const sortedVacancies = props.vacancies
+      .slice()
+      .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
+
+    return (
+      <Grid container ref={props.gridRef || null}>
+        {props.showHeader && (
+          <Grid item xs={12}>
+            <VacancySummaryHeader
+              positionName={props.positionName}
+              vacancies={props.vacancies}
+              disabledDates={props.disabledDates}
+            />
+          </Grid>
+        )}
+        <div className={detailsClassName}>
+          {sortedVacancies.map((v, i) => {
+            if (v.details && v.details.length) {
+              const projectedDetails = projectVacancyDetailsFromVacancies([v]);
+
+              return (
+                <Fragment key={i}>
+                  {getVacancyDetailsDisplay(
+                    projectedDetails,
+                    props.equalWidthDetails || false,
+                    t,
+                    classes,
+                    props.disabledDates
+                  )}
+                </Fragment>
+              );
+            }
+          })}
+        </div>
+      </Grid>
+    );
+  }, [
+    props.vacancies,
+    props.gridRef,
+    props.positionName,
+    props.disabledDates,
+    detailsClassName,
+    props.equalWidthDetails,
+    t,
+    classes,
+    props.showHeader,
+  ]);
+
   if (!props.vacancies || !props.vacancies.length) {
     return <></>;
   }
 
-  const sortedVacancies = props.vacancies
-    .slice()
-    .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
-
-  return (
-    <Grid container ref={props.gridRef || null}>
-      {props.showHeader && (
-        <Grid item xs={12}>
-          <VacancySummaryHeader
-            positionName={props.positionName}
-            vacancies={props.vacancies}
-            disabledDates={props.disabledDates}
-          />
-        </Grid>
-      )}
-      <div className={detailsClassName}>
-        {sortedVacancies.map((v, i) => {
-          if (v.details && v.details.length) {
-            const projectedDetails = projectVacancyDetailsFromVacancies([v]);
-
-            return (
-              <Fragment key={i}>
-                {getVacancyDetailsDisplay(
-                  projectedDetails,
-                  props.equalWidthDetails || false,
-                  t,
-                  classes,
-                  props.disabledDates
-                )}
-              </Fragment>
-            );
-          }
-        })}
-      </div>
-    </Grid>
-  );
+  return detailsUI;
 };
 
 const useStyles = makeStyles(theme => ({
@@ -114,6 +128,8 @@ const getVacancyDetailsDisplay = (
     return null;
   }
 
+  console.log(groupedDetails);
+
   return (
     <>
       <Grid item container xs={12} className={classes.vacancyDetailsHeader}>
@@ -130,6 +146,10 @@ const getVacancyDetailsDisplay = (
 
           return (
             <Grid key={detailsIndex} item container xs={12}>
+              <Grid item xs={12}>
+                {!g.assignmentId && t("Unfilled")}
+                {g.assignmentId && g.assignmentEmployeeName}
+              </Grid>
               <Grid item xs={12}>
                 <Typography variant="h6">
                   {getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates(

@@ -1,4 +1,5 @@
 export type VacancyDetail = {
+  vacancyDetailId: string | undefined;
   date: string;
   startTime: string;
   endTime: string;
@@ -6,4 +7,7 @@ export type VacancyDetail = {
   locationName?: string;
   absenceStartTime?: string;
   absenceEndTime?: string;
+  assignmentId?: string;
+  assignmentEmployeeId?: string;
+  assignmentEmployeeName?: string;
 };

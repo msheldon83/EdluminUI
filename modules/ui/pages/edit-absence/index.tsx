@@ -138,10 +138,14 @@ export const EditAbsence: React.FC<Props> = props => {
         return v.details.map(d => {
           if (!d) return null;
           return {
+            vacancyDetailId: d.id,
             date: d.startDate,
             startTime: d.startTimeLocal,
             endTime: d.endTimeLocal,
             locationId: d.locationId!,
+            assignmentId: d.assignment?.id,
+            assignmentEmployeeId: d.assignment?.employee?.id,
+            assignmentEmployeeName: `${d.assignment?.employee?.firstName} ${d.assignment?.employee?.lastName}`,
           };
         });
       })
