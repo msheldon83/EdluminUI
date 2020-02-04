@@ -61,7 +61,6 @@ export const EditVacancies: React.FC<Props> = props => {
       compact(locationQuery.data.employee?.byId?.locations)) ||
     [];
 
-  //Pay Codes
   const payCodes = usePayCodes(props.orgId);
   const payCodeOptions = useMemo(
     () => payCodes.map(c => ({ label: c.name, value: c.id })),

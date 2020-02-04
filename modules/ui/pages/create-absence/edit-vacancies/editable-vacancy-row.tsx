@@ -17,6 +17,7 @@ import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.g
 import { VacancyDetail } from "../../../components/absence/types";
 import { FormikErrors } from "formik";
 import { startOfDay, parseISO } from "date-fns";
+import { PayCode } from "ui/pages/pay-code";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
@@ -39,8 +40,6 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     value: loc.id,
     label: loc.name,
   }));
-
-  console.log(props.values);
 
   const locationIds = props.locationOptions.map(l => l.id);
 
@@ -111,7 +110,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           <FormikSelect
             name={`${fieldNamePrefix}.payCodeId`}
             options={props.payCodeOptions}
-            withResetValue={false}
+            withResetValue={true}
           />
         </Grid>
         <Grid
@@ -123,7 +122,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           <FormikSelect
             name={`${fieldNamePrefix}.accountingCodeId`}
             options={accountingCodeOptions}
-            withResetValue={false}
+            withResetValue={true}
           />
         </Grid>
         {props.showRemoveButton && (
