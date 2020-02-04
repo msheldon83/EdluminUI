@@ -258,6 +258,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             disableEditingDatesAndTimes={props.disableEditingDatesAndTimes}
             setValue={setValue}
             vacancies={props.vacancies}
+            isSplitVacancy={isSplitVacancy}
             setStep={props.setStep}
             organizationId={organizationId}
             triggerValidation={triggerValidation}

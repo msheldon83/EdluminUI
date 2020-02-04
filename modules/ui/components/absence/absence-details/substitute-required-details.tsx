@@ -27,6 +27,7 @@ import { NoteField } from "./notes-field";
 type Props = {
   setValue: SetValue;
   vacancies: Vacancy[];
+  isSplitVacancy: boolean;
   setStep: (step: "absence" | "preAssignSub" | "edit") => void;
   triggerValidation: TriggerValidation;
   organizationId: string;
@@ -120,6 +121,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
         <VacancyDetails
           vacancies={vacancies}
           disabledDates={props.disabledDates}
+          isSplitVacancy={props.isSplitVacancy}
         />
       )}
 

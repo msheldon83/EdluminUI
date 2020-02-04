@@ -18,6 +18,7 @@ import { AssignedSub } from "./assigned-sub";
 
 type Props = {
   vacancies: Vacancy[];
+  isSplitVacancy: boolean;
   positionName?: string | null | undefined;
   showHeader?: boolean;
   equalWidthDetails?: boolean;
@@ -148,16 +149,19 @@ const getVacancyDetailsDisplay = (
           return (
             <Grid key={detailsIndex} item container xs={12}>
               <Grid item xs={12}>
-                {!g.assignmentId && t("Unfilled")}
+                {!g.assignmentId && (
+                  <div>{t("Unfilled")}</div>
+                )}
                 {g.assignmentId && (
                   <AssignedSub
                     disableReplacementInteractions={
                       false //props.disableReplacementInteractions
                     }
-                    employeeId={g.assignmentEmployeeId}
+                    employeeId={g.assignmentEmployeeId ?? ""}
                     assignmentId={g.assignmentId}
                     employeeName={g.assignmentEmployeeName || ""}
                     onRemove={() => {}}
+                    assignmentStartDate={g.}
                   />
                 )}
               </Grid>
