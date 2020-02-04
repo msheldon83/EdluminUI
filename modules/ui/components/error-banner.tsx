@@ -47,8 +47,6 @@ export const ErrorBanner: React.FC<Props> = props => {
     )
   );
 
-  console.log(props.apolloErrors);
-
   return (
     <>
       {props.errorBannerOpen && (
