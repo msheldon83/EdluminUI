@@ -16,7 +16,7 @@ import {
   EmployeeInput,
   OrgUserRole,
   PositionInput,
-  NeedsReplacement
+  NeedsReplacement,
 } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
@@ -25,11 +25,7 @@ import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { PositionEditUI } from "ui/pages/employee-position/ui";
-import {
-  Schedule,
-  buildNewSchedule,
-  buildNewPeriod,
-} from "./components/helpers";
+import { buildNewSchedule } from "ui/pages/employee-position/components/helpers";
 
 export const EmployeeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -64,8 +60,8 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       },
       hoursPerFullWorkDay: undefined,
       schedules: [buildNewSchedule(true, true)],
-      accountingCodeAllocations: [{ accountingCodeId: "", allocation: 1}],
-    }
+      accountingCodeAllocations: [{ accountingCodeId: "", allocation: 1 }],
+    },
   });
 
   const getOrgUser = useQueryBundle(GetOrgUserById, {
@@ -94,7 +90,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       });
       setInitialStepNumber(1);
     }
-  }, [orgUser, params.organizationId]);
+  }, [employee, orgUser, params.organizationId]);
 
   const handleCancel = () => {
     const url =
@@ -173,7 +169,10 @@ export const EmployeeAddPage: React.FC<{}> = props => {
           contractId: employee.position?.contract?.id,
           hoursPerFullWorkDay: employee.position?.hoursPerFullWorkDay,
         }}
-        accountingCodeId={employee.position?.accountingCodeAllocations[0]?.accountingCodeId}
+        accountingCodeId={
+          employee.position?.accountingCodeAllocations &&
+          employee.position?.accountingCodeAllocations[0]?.accountingCodeId
+        }
         positionSchedule={employee.position?.schedules}
         onSave={async (position: PositionInput) => {
           const newEmployee = {
