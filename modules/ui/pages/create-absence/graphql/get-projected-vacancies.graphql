@@ -16,6 +16,16 @@ query GetProjectedVacancies(
         endDate
         endTimeLocal
         locationId
+        payCodeId
+        payCode {
+          name
+        }
+        accountingCodeAllocations {
+          accountingCodeId
+          accountingCode {
+            name
+          }
+        }
         location {
           name
         }

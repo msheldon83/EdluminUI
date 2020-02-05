@@ -18,9 +18,8 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
-import { Input } from "ui/components/form/input";
+import { DurationInput } from "ui/components/form/duration-input";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
-import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import * as yup from "yup";
@@ -168,214 +167,219 @@ export const Settings: React.FC<Props> = props => {
             },
           })}
       >
-        {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
-          <form onSubmit={handleSubmit}>
-            <Typography variant="h6">
-              {t("How will you use this position?")}
-            </Typography>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={values.forPermanentPositions}
-                  onChange={e => {
-                    setFieldValue("forPermanentPositions", e.target.checked);
-                  }}
-                  value={values.forPermanentPositions}
-                  color="primary"
-                  className={
-                    errors && errors.forPermanentPositions
-                      ? classes.checkboxError
-                      : ""
-                  }
-                />
-              }
-              label={t("Use for employees")}
-            />
-            <FormHelperText className={classes.useForEmployeesSubItems}>
-              {t("Will you assign employees to this position?")}
-            </FormHelperText>
-            <div
-              className={[
-                classes.useForEmployeesSubItems,
-                classes.needSubLabel,
-              ].join(" ")}
-            >
-              {t("Need substitute")}
-            </div>
-            <RadioGroup
-              aria-label="needsReplacement"
-              name="needsReplacement"
-              value={values.needsReplacement}
-              onChange={e => {
-                setFieldValue("needsReplacement", e.target.value);
-              }}
-              row={!isMobile}
-              className={classes.useForEmployeesSubItems}
-            >
-              <FormControlLabel
-                value={NeedsReplacement.Yes}
-                control={<Radio color="primary" />}
-                label={t("Yes")}
-                labelPlacement="end"
-              />
-              <FormControlLabel
-                value={NeedsReplacement.No}
-                control={<Radio color="primary" />}
-                label={t("No")}
-                labelPlacement="end"
-              />
-              <FormControlLabel
-                value={NeedsReplacement.Sometimes}
-                control={<Radio color="primary" />}
-                label={t("Employee should specify")}
-                labelPlacement="end"
-              />
-            </RadioGroup>
-            <FormHelperText className={classes.useForEmployeesSubItems}>
-              {t(
-                "Will employees working this position usually need to have a substitute?"
-              )}
-            </FormHelperText>
-            <FormHelperText className={classes.useForEmployeesSubItems}>
-              {t(
-                "Don’t worry, you will be able to change this for an individual employee."
-              )}
-            </FormHelperText>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={values.forStaffAugmentation}
-                  onChange={e => {
-                    setFieldValue("forStaffAugmentation", e.target.checked);
-                  }}
-                  value={values.forStaffAugmentation}
-                  color="primary"
-                  className={
-                    errors && errors.forStaffAugmentation
-                      ? classes.checkboxError
-                      : ""
-                  }
-                />
-              }
-              label={t("Use for vacancies")}
-            />
-            <FormHelperText className={classes.useForEmployeesSubItems}>
-              {t(
-                "Will you need to request a substitute without an employee being absent?"
-              )}
-            </FormHelperText>
-            {errors &&
-              errors.forPermanentPositions &&
-              errors.forStaffAugmentation && (
-                <FormHelperText error={true} className={classes.appliesToError}>
-                  {t("Please specify how you will use this position")}
-                </FormHelperText>
-              )}
-            <div
-              className={[
-                classes.contractSection,
-                isMobile
-                  ? classes.mobileSectionSpacing
-                  : classes.normalSectionSpacing,
-              ].join(" ")}
-            >
-              <div>{t("Default contract")}</div>
-              <SelectNew
-                value={contractOptions.find(
-                  (c: any) => c.value === values.defaultContractId
-                )}
-                options={contractOptions}
-                onChange={(e: OptionType) => {
-                  //TODO: Once the select component is updated,
-                  // can remove the Array checking
-                  let selectedValue = null;
-                  if (e) {
-                    if (Array.isArray(e)) {
-                      selectedValue = (e as Array<OptionTypeBase>)[0].value;
-                    } else {
-                      selectedValue = (e as OptionTypeBase).value;
-                    }
-                  }
-                  setFieldValue("defaultContractId", selectedValue);
-                }}
-                multiple={false}
-              />
-              <FormHelperText>
-                {t(
-                  "Positions of this type will likely be associated with this contract"
-                )}
-              </FormHelperText>
-            </div>
-            <div
-              className={[
-                classes.minAbsenceSection,
-                isMobile
-                  ? classes.mobileSectionSpacing
-                  : classes.normalSectionSpacing,
-              ].join(" ")}
-            >
+        {({ values, handleSubmit, submitForm, setFieldValue, errors }) => {
+          return (
+            <form onSubmit={handleSubmit}>
               <Typography variant="h6">
-                {t("How should the system behave for this position?")}
+                {t("How will you use this position?")}
               </Typography>
-              <FormHelperText>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={values.forPermanentPositions}
+                    onChange={e => {
+                      setFieldValue("forPermanentPositions", e.target.checked);
+                    }}
+                    value={values.forPermanentPositions}
+                    color="primary"
+                    className={
+                      errors && errors.forPermanentPositions
+                        ? classes.checkboxError
+                        : ""
+                    }
+                  />
+                }
+                label={t("Use for employees")}
+              />
+              <FormHelperText className={classes.useForEmployeesSubItems}>
+                {t("Will you assign employees to this position?")}
+              </FormHelperText>
+              <div
+                className={[
+                  classes.useForEmployeesSubItems,
+                  classes.needSubLabel,
+                ].join(" ")}
+              >
+                {t("Need substitute")}
+              </div>
+              <RadioGroup
+                aria-label="needsReplacement"
+                name="needsReplacement"
+                value={values.needsReplacement}
+                onChange={e => {
+                  setFieldValue("needsReplacement", e.target.value);
+                }}
+                row={!isMobile}
+                className={classes.useForEmployeesSubItems}
+              >
+                <FormControlLabel
+                  value={NeedsReplacement.Yes}
+                  control={<Radio color="primary" />}
+                  label={t("Yes")}
+                  labelPlacement="end"
+                />
+                <FormControlLabel
+                  value={NeedsReplacement.No}
+                  control={<Radio color="primary" />}
+                  label={t("No")}
+                  labelPlacement="end"
+                />
+                <FormControlLabel
+                  value={NeedsReplacement.Sometimes}
+                  control={<Radio color="primary" />}
+                  label={t("Employee should specify")}
+                  labelPlacement="end"
+                />
+              </RadioGroup>
+              <FormHelperText className={classes.useForEmployeesSubItems}>
                 {t(
-                  "Don’t worry, you will be able to change these settings for an individual employee"
+                  "Will employees working this position usually need to have a substitute?"
                 )}
               </FormHelperText>
-              <div className={classes.minAbsenceDurationLabel}>
-                <Input
-                  label={t("Minimum absence duration")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "minAbsenceDurationMinutes",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    fullWidth: true,
+              <FormHelperText className={classes.useForEmployeesSubItems}>
+                {t(
+                  "Don’t worry, you will be able to change this for an individual employee."
+                )}
+              </FormHelperText>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={values.forStaffAugmentation}
+                    onChange={e => {
+                      setFieldValue("forStaffAugmentation", e.target.checked);
+                    }}
+                    value={values.forStaffAugmentation}
+                    color="primary"
+                    className={
+                      errors && errors.forStaffAugmentation
+                        ? classes.checkboxError
+                        : ""
+                    }
+                  />
+                }
+                label={t("Use for vacancies")}
+              />
+              <FormHelperText className={classes.useForEmployeesSubItems}>
+                {t(
+                  "Will you need to request a substitute without an employee being absent?"
+                )}
+              </FormHelperText>
+              {errors &&
+                errors.forPermanentPositions &&
+                errors.forStaffAugmentation && (
+                  <FormHelperText
+                    error={true}
+                    className={classes.appliesToError}
+                  >
+                    {t("Please specify how you will use this position")}
+                  </FormHelperText>
+                )}
+              <div
+                className={[
+                  classes.contractSection,
+                  isMobile
+                    ? classes.mobileSectionSpacing
+                    : classes.normalSectionSpacing,
+                ].join(" ")}
+              >
+                <div>{t("Default contract")}</div>
+                <SelectNew
+                  value={contractOptions.find(
+                    (c: any) => c.value === values.defaultContractId
+                  )}
+                  options={contractOptions}
+                  onChange={(e: OptionType) => {
+                    //TODO: Once the select component is updated,
+                    // can remove the Array checking
+                    let selectedValue = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+                    setFieldValue("defaultContractId", selectedValue);
                   }}
+                  multiple={false}
                 />
-                <FormHelperText className={classes.formHelperText}>
+                <FormHelperText>
                   {t(
-                    "The shortest time (in minutes) that an employee with this position can be absent."
+                    "Positions of this type will likely be associated with this contract"
                   )}
                 </FormHelperText>
               </div>
-            </div>
-            <div
-              className={[
-                classes.payTypeSection,
-                isMobile
-                  ? classes.mobileSectionSpacing
-                  : classes.normalSectionSpacing,
-              ].join(" ")}
-            >
-              <div>{t("Pay Type")}</div>
-              <SelectNew
-                value={payTypeOptions.find(
-                  (c: any) => c.value === values.payTypeId
-                )}
-                options={payTypeOptions}
-                multiple={false}
-                onChange={(e: OptionType) => {
-                  //TODO: Once the select component is updated,
-                  // can remove the Array checking
-                  let selectedValue = null;
-                  if (e) {
-                    if (Array.isArray(e)) {
-                      selectedValue = (e as Array<OptionTypeBase>)[0].value;
-                    } else {
-                      selectedValue = (e as OptionTypeBase).value;
+              <div
+                className={[
+                  classes.minAbsenceSection,
+                  isMobile
+                    ? classes.mobileSectionSpacing
+                    : classes.normalSectionSpacing,
+                ].join(" ")}
+              >
+                <Typography variant="h6">
+                  {t("How should the system behave for this position?")}
+                </Typography>
+                <FormHelperText>
+                  {t(
+                    "Don’t worry, you will be able to change these settings for an individual employee"
+                  )}
+                </FormHelperText>
+                <div className={classes.minAbsenceDurationLabel}>
+                  <DurationInput
+                    label={t("Minimum absence duration")}
+                    name="minAbsenceDurationMinutes"
+                    value={values.minAbsenceDurationMinutes.toString()}
+                    onChange={(value: number) =>
+                      setFieldValue("minAbsenceDurationMinutes", value)
                     }
-                  }
-                  setFieldValue("payTypeId", selectedValue);
-                }}
+                    inputStatus={
+                      errors.minAbsenceDurationMinutes ? "error" : "default"
+                    }
+                    validationMessage={errors.minAbsenceDurationMinutes}
+                    helperMessage={t(
+                      "The shortest time (hh:mm) that an employee with this position can be absent."
+                    )}
+                  />
+                </div>
+              </div>
+              <div
+                className={[
+                  classes.payTypeSection,
+                  isMobile
+                    ? classes.mobileSectionSpacing
+                    : classes.normalSectionSpacing,
+                ].join(" ")}
+              >
+                <div>{t("Pay Type")}</div>
+                <SelectNew
+                  value={payTypeOptions.find(
+                    (c: any) => c.value === values.payTypeId
+                  )}
+                  options={payTypeOptions}
+                  multiple={false}
+                  onChange={(e: OptionType) => {
+                    //TODO: Once the select component is updated,
+                    // can remove the Array checking
+                    let selectedValue = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+                    setFieldValue("payTypeId", selectedValue);
+                  }}
+                />
+              </div>
+              <ActionButtons
+                submit={{ text: props.submitText, execute: submitForm }}
+                cancel={{ text: t("Cancel"), execute: props.onCancel }}
               />
-            </div>
-            <ActionButtons
-              submit={{ text: props.submitText, execute: submitForm }}
-              cancel={{ text: t("Cancel"), execute: props.onCancel }}
-            />
-          </form>
-        )}
+            </form>
+          );
+        }}
       </Formik>
     </Section>
   );

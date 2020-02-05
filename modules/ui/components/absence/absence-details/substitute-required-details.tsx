@@ -23,6 +23,9 @@ import { SelectNew } from "ui/components/form/select-new";
 import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
 import { AbsenceDetailsFormData } from ".";
 import { NoteField } from "./notes-field";
+import { OrgUserPermissions } from "ui/components/auth/types";
+import { canAssignSub, canReassignSub } from "helpers/permissions";
+import { parseISO } from "date-fns";
 
 type Props = {
   setValue: SetValue;
@@ -216,7 +219,20 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 
             {hasVacancies && (
               <div className={classes.substituteActions}>
-                <Can do={[PermissionEnum.AbsVacAssign]}>
+                <Can
+                  do={(
+                    permissions: OrgUserPermissions[],
+                    isSysAdmin: boolean,
+                    orgId?: string
+                  ) =>
+                    canAssignSub(
+                      parseISO(vacancies[0].startDate),
+                      permissions,
+                      isSysAdmin,
+                      orgId
+                    )
+                  }
+                >
                   <Button
                     variant="outlined"
                     className={classes.preArrangeButton}
@@ -229,6 +245,32 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                     {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
                   </Button>
                 </Can>
+                {(props.disableReplacementInteractions ||
+                  props.replacementEmployeeId !== undefined) &&
+                  props.arrangeSubButtonTitle && (
+                    <Can
+                      do={(
+                        permissions: OrgUserPermissions[],
+                        isSysAdmin: boolean,
+                        orgId?: string
+                      ) =>
+                        canReassignSub(
+                          parseISO(vacancies[0].startDate),
+                          permissions,
+                          isSysAdmin,
+                          orgId
+                        )
+                      }
+                    >
+                      <Button
+                        variant="outlined"
+                        className={classes.reassignButton}
+                        onClick={() => setStep("preAssignSub")}
+                      >
+                        {t("Reassign Sub")}
+                      </Button>
+                    </Can>
+                  )}
 
                 <Button
                   variant="outlined"
@@ -276,5 +318,9 @@ const useStyles = makeStyles(theme => ({
   },
   substituteRequiredText: {
     fontStyle: "italic",
+  },
+  reassignButton: {
+    marginLeft: theme.typography.pxToRem(-140),
+    marginRight: theme.spacing(2),
   },
 }));

@@ -248,13 +248,9 @@ export const DailyReport: React.FC<Props> = props => {
     const result = await swapVacancyAssignments({
       variables: {
         swapDetails: {
-          firstVacancyId: firstDetail.vacancyId
-            ? firstDetail.vacancyId
-            : "",
+          firstVacancyId: firstDetail.vacancyId ? firstDetail.vacancyId : "",
           firstVacancyRowVersion: firstDetail.vacancyRowVersion ?? "",
-          secondVacancyId: secondDetail.vacancyId
-            ? secondDetail.vacancyId
-            : "",
+          secondVacancyId: secondDetail.vacancyId ? secondDetail.vacancyId : "",
           secondVacancyRowVersion: secondDetail.vacancyRowVersion ?? "",
           ignoreWarnings: ignoreWarnings ?? false,
         },
@@ -400,7 +396,7 @@ export const DailyReport: React.FC<Props> = props => {
         props.orgId,
         async () => {
           await getTotalAwaitingVerificationCount.refetch();
-        },
+        }
       )}
     </Section>
   );
@@ -460,6 +456,12 @@ const useStyles = makeStyles(theme => ({
   noPrint: {
     "@media print": { display: "none" },
   },
+  buttonHover: {
+    "&:hover": {
+      backgroundColor: "#def0ff",
+      color: "#2196F3",
+    },
+  },
 }));
 
 const displaySections = (
@@ -479,7 +481,7 @@ const displaySections = (
   setDate: (date: Date) => void,
   verifyOlderAction: () => void,
   orgId: string,
-  updateVerificationCount: () => Promise<void>,
+  updateVerificationCount: () => Promise<void>
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -533,7 +535,14 @@ const displaySections = (
           </Grid>
         )}
         <Grid item>
-          {displaySwabSubsAction(selectedRows, swapSubs, t, orgId, date)}
+          {displaySwabSubsAction(
+            selectedRows,
+            swapSubs,
+            t,
+            orgId,
+            classes,
+            date
+          )}
         </Grid>
         <DesktopOnly>
           <Grid item>
@@ -583,6 +592,7 @@ const displaySwabSubsAction = (
   swapSubs: (ignoreWarnings?: boolean) => Promise<void>,
   t: TFunction,
   orgId: string,
+  classes: any,
   absDate: Date
 ) => {
   if (selectedRows.length < 2) {
@@ -593,6 +603,7 @@ const displaySwabSubsAction = (
     <Button
       variant="outlined"
       color="primary"
+      className={classes.buttonHover}
       disabled={selectedRows.length > 2}
       onClick={async () => await swapSubs(false)}
     >

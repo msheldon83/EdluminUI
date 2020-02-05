@@ -34,10 +34,21 @@ query GetEmployeeById($id: ID!) {
           title
           hoursPerFullWorkDay
           needsReplacement
+          positionTypeId
           positionType {
             id
             name
           }
+          accountingCodeAllocations {
+            id
+            accountingCodeId
+            accountingCode {
+              id
+              name
+            }
+            allocation
+          }
+          contractId
           contract {
             id
             name
@@ -45,6 +56,34 @@ query GetEmployeeById($id: ID!) {
           schedules {
             id
             name
+            daysOfTheWeek
+            items {
+              isAllDay
+              endTime
+              startTime
+              location {
+                id
+                name
+                locationGroupId
+              }
+              startPeriod {
+                id
+                standardPeriod {
+                  id
+                  startTime
+                }
+              }
+              endPeriod {
+                id
+                standardPeriod {
+                  id
+                  endTime
+                }
+              }
+              bellSchedule {
+                id
+              }
+            }
           }
           replacementCriteria {
             mustHave {

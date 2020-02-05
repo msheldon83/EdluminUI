@@ -75,7 +75,7 @@ type Props = {
   startTimeLocal: string;
   endTimeLocal: string;
   absenceDates: Date[];
-  cancelAssignments: () => void;
+  cancelAssignments: () => Promise<void>;
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
   returnUrl?: string;
@@ -362,6 +362,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     const result = await updateAbsence({
       variables: { absence: absenceUpdateInput },
     });
+
     const absence = result?.data?.absence?.update as Absence;
     if (absence) {
       openSnackbar({
@@ -376,8 +377,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       });
     }
   };
+
   const onSelectReplacement = useCallback(
     async (employeeId: string, name: string) => {
+      if (props.replacementEmployeeId != undefined) {
+        await props.cancelAssignments();
+      }
       await assignVacancy({
         variables: {
           assignment: {
@@ -493,6 +498,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       )}
       {step === "edit" && (
         <EditVacancies
+          orgId={props.organizationId}
           actingAsEmployee={props.actingAsEmployee}
           employeeName={name}
           positionName={props.positionName}
@@ -519,6 +525,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           selectButtonText={t("Assign")}
           onSelectReplacement={onSelectReplacement}
           onCancel={onCancel}
+          currentReplacementEmployeeName={props.replacementEmployeeName}
         />
       )}
     </>
@@ -563,6 +570,10 @@ const buildAbsenceUpdateInput = (
       endTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
+      payCodeId: v.payCodeId,
+      accountingCodeAllocations: v.accountingCodeId
+        ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
+        : undefined,
     })) || undefined;
 
   const absence: AbsenceUpdateInput = {

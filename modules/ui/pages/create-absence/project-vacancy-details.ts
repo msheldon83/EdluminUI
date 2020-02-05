@@ -49,6 +49,10 @@ export const projectVacancyDetailsFromVacancies = (
         locationName: d?.location?.name,
         absenceStartTime: absenceDetail?.startTimeLocal,
         absenceEndTime: absenceDetail?.endTimeLocal,
+        payCodeId: d?.payCodeId,
+        accountingCodeId:
+          d?.accountingCodeAllocations &&
+          d?.accountingCodeAllocations[0]?.accountingCodeId,
         assignmentId: d?.assignment?.id,
         assignmentEmployeeId: d?.assignment?.employee?.id,
         assignmentEmployeeName: `${d?.assignment?.employee?.firstName} ${d?.assignment?.employee?.lastName}`,

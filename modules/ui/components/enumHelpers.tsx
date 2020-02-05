@@ -78,6 +78,34 @@ const buildEnumMap = (t: i18next.TFunction) => {
       name: "dayOfWeek.SATURDAY",
       displayName: t("Saturday"),
     },
+    {
+      name: "dayOfWeekShort.SUNDAY",
+      displayName: t("Sun"),
+    },
+    {
+      name: "dayOfWeekShort.MONDAY",
+      displayName: t("Mon"),
+    },
+    {
+      name: "dayOfWeekShort.TUESDAY",
+      displayName: t("Tue"),
+    },
+    {
+      name: "dayOfWeekShort.WEDNESDAY",
+      displayName: t("Wed"),
+    },
+    {
+      name: "dayOfWeekShort.THURSDAY",
+      displayName: t("Thu"),
+    },
+    {
+      name: "dayOfWeekShort.FRIDAY",
+      displayName: t("Fri"),
+    },
+    {
+      name: "dayOfWeekShort.SATURDAY",
+      displayName: t("Sat"),
+    },
   ];
   return enumMap;
 };
