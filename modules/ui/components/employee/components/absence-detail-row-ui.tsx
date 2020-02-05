@@ -10,13 +10,14 @@ import {
   AdminEditAbsenceRoute,
 } from "ui/routes/edit-absence";
 import { Can } from "ui/components/auth/can";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, DayPart } from "graphql/server-types.gen";
+import { compact, uniq } from "lodash-es";
 
 type Props = {
   absence: EmployeeAbsenceDetail;
   cancelAbsence?: () => void;
   showAbsenceChip?: boolean;
-  isAdmin?: boolean;
+  actingAsEmployee?: boolean;
   orgId?: string;
 };
 
@@ -34,27 +35,35 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
         "MMM d"
       )}`;
 
-  const dayPortionLabel = React.useMemo(() => {
-    const dayPortion = props.absence.totalDayPortion;
-    if (dayPortion < 0.5) {
-      return t("Partial day (hourly)");
-    } else if (dayPortion === 0.5) {
-      return t("Half day");
-    } else if (dayPortion > 0.5 && dayPortion < 2) {
-      return t("Full day");
-    } else {
-      return t("Full days");
+  const determineDayPartLabel = (dayPart: DayPart, count: number) => {
+    switch (dayPart) {
+      case DayPart.FullDay:
+        return count > 1 ? t("Full Days") : t("Full Day");
+      case DayPart.HalfDayAfternoon:
+      case DayPart.HalfDayMorning:
+        return count > 1 ? t("Half Days") : t("Half Day");
+      case DayPart.Hourly:
+        return count > 1 ? t("Hours") : t("Hour");
+      case DayPart.QuarterDayEarlyAfternoon:
+      case DayPart.QuarterDayLateAfternoon:
+      case DayPart.QuarterDayEarlyMorning:
+      case DayPart.QuarterDayLateMorning:
+        return count > 1 ? t("Quarter Days") : t("Quarter Day");
+      default:
+        break;
     }
-  }, [props.absence.totalDayPortion, t]);
+  };
 
-  const dayPortionNumberDisplay = Math.round(props.absence.totalDayPortion);
-  const dayPortionDisplay =
-    dayPortionNumberDisplay >= 1
-      ? `${dayPortionNumberDisplay} ${dayPortionLabel}`
-      : dayPortionLabel;
+  const uniqueDayParts = uniq(
+    compact(props.absence.allDayParts.map(d => d.dayPart))
+  );
+  const dayPartCountLabels = uniqueDayParts.map(u => {
+    const count = props.absence.allDayParts.filter(x => x.dayPart === u).length;
+    return `${count} ${determineDayPartLabel(u, count)}`;
+  });
 
   const employeeCancelWhileSubAssigned =
-    !props.isAdmin && !!props.absence.substitute;
+    props.actingAsEmployee && !!props.absence.substitute;
 
   const cancelButton = (
     <Button
@@ -100,11 +109,18 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
       <Grid item xs={3}>
         <div className={classes.dayPartContainer}>
           <DayIcon
-            dayPortion={props.absence.totalDayPortion}
+            dayPortion={props.absence.allDayParts[0].dayPortion}
             startTime={props.absence.startTimeLocal.toString()}
           />
           <div className={classes.dayPart}>
-            <div className={classes.detailText}>{dayPortionDisplay}</div>
+            {dayPartCountLabels.map((dp, i) => {
+              return (
+                <div key={`daypart-i`} className={classes.detailText}>
+                  {dp}
+                </div>
+              );
+            })}
+
             <div className={classes.subText}>
               {`${props.absence.startTime} - ${props.absence.endTime}`}
             </div>
@@ -114,13 +130,13 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
       <Grid item xs={1}>
         <Link
           to={
-            props.isAdmin
-              ? AdminEditAbsenceRoute.generate({
+            props.actingAsEmployee
+              ? EmployeeEditAbsenceRoute.generate({
+                  absenceId: props.absence.id,
+                })
+              : AdminEditAbsenceRoute.generate({
                   absenceId: props.absence.id,
                   organizationId: props.orgId!,
-                })
-              : EmployeeEditAbsenceRoute.generate({
-                  absenceId: props.absence.id,
                 })
           }
           className={classes.detailText}

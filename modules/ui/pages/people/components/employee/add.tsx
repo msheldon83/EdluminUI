@@ -11,11 +11,12 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { AddBasicInfo } from "../add-basic-info";
 import { useHistory } from "react-router";
-import { Information, editableSections, OrgUser } from "../information";
+import { Information, editableSections } from "../information";
 import {
   EmployeeInput,
   OrgUserRole,
   PositionInput,
+  NeedsReplacement,
 } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
@@ -24,6 +25,13 @@ import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { PositionEditUI } from "ui/pages/employee-position/ui";
+import {
+  buildNewSchedule,
+  buildDaysOfTheWeek,
+  buildNewPeriod,
+} from "ui/pages/employee-position/components/helpers";
+import { format } from "date-fns";
+import { midnightTime } from "helpers/time";
 
 export const EmployeeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -47,6 +55,18 @@ export const EmployeeAddPage: React.FC<{}> = props => {
     lastName: "",
     externalId: null,
     email: "",
+    position: {
+      positionType: {
+        id: "",
+      },
+      title: "",
+      needsReplacement: NeedsReplacement.Yes,
+      contract: {
+        id: "",
+      },
+      hoursPerFullWorkDay: undefined,
+      accountingCodeAllocations: [{ accountingCodeId: "", allocation: 1 }],
+    },
   });
 
   const getOrgUser = useQueryBundle(GetOrgUserById, {
@@ -75,7 +95,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       });
       setInitialStepNumber(1);
     }
-  }, [orgUser, params.organizationId]);
+  }, [employee, orgUser, params.organizationId]);
 
   const handleCancel = () => {
     const url =
@@ -147,6 +167,35 @@ export const EmployeeAddPage: React.FC<{}> = props => {
     return (
       <PositionEditUI
         submitLabel={t("Save")} // TODO: Change this label to "Next" if we add another step
+        position={{
+          positionTypeId: employee.position?.positionType?.id,
+          title: employee.position?.title,
+          needsReplacement: employee.position?.needsReplacement,
+          contractId: employee.position?.contract?.id,
+          hoursPerFullWorkDay: employee.position?.hoursPerFullWorkDay,
+        }}
+        accountingCodeId={
+          employee.position?.accountingCodeAllocations &&
+          employee.position?.accountingCodeAllocations[0]?.accountingCodeId
+        }
+        positionSchedule={employee.position?.schedules?.map(s => ({
+          daysOfTheWeek:
+            s?.daysOfTheWeek && s?.daysOfTheWeek.length > 0
+              ? s.daysOfTheWeek.map(d => d)
+              : buildDaysOfTheWeek(true),
+          periods: s?.items?.map(i => ({
+            locationId: i?.location?.id ?? "",
+            bellScheduleId: i?.bellSchedule?.id,
+            startTime: i?.startTime
+              ? format(midnightTime().setSeconds(i?.startTime), "h:mm a")
+              : "",
+            endTime: i?.endTime
+              ? format(midnightTime().setSeconds(i?.endTime), "h:mm a")
+              : "",
+            startPeriodId: i?.startPeriod?.id,
+            endPeriodId: i?.endPeriod?.id,
+          })) ?? [buildNewPeriod(true)],
+        }))}
         onSave={async (position: PositionInput) => {
           const newEmployee = {
             ...employee,

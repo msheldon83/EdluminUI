@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
 
 type Props = {
-  userId?: string;
   date: string;
   onSelectDate: (date: Date) => void;
   assignmentDates: Date[];

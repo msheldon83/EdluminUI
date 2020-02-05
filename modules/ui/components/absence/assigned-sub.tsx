@@ -4,6 +4,8 @@ import { AccountCircleOutlined } from "@material-ui/icons";
 import { useTranslation } from "react-i18next";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
+import { canRemoveSub } from "helpers/permissions";
+import { OrgUserPermissions } from "ui/components/auth/types";
 
 type Props = {
   employeeId: string;
@@ -11,6 +13,7 @@ type Props = {
   subText?: string;
   assignmentId?: string;
   assignmentRowVersion?: string;
+  assignmentStartDate: Date;
   onRemove?: (
     employeeId: string,
     assignmentId?: string,
@@ -41,7 +44,20 @@ export const AssignedSub: React.FC<Props> = props => {
       )}
       <div>
         {props.onRemove && (
-          <Can do={[PermissionEnum.AbsVacAssign]}>
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canRemoveSub(
+                props.assignmentStartDate,
+                permissions,
+                isSysAdmin,
+                orgId
+              )
+            }
+          >
             <Button
               disabled={props.disableReplacementInteractions}
               className={classes.removeButton}

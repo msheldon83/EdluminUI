@@ -1,0 +1,36 @@
+mutation UpdateUser($user: UserUpdateInput!) {
+  user {
+    update(user: $user) {
+      id
+      createdUtc
+      firstName
+      middleName
+      lastName
+      inviteSent
+      inviteSentAtUtc
+      isAccountSetup
+      isSystemAdministrator
+      loginEmail
+      phone
+      formattedPhone
+      timeZoneId
+      resetPasswordTicketUrl
+      resetPasswordTicketUrlGeneratedAtUtc
+      rowVersion
+      orgUsers {
+        id
+        firstName
+        lastName
+        email
+        isAdmin
+        isEmployee
+        isReplacementEmployee
+        active
+        organization {
+          id
+          name
+        }
+      }
+    }
+  }
+}

@@ -28,6 +28,7 @@ import { Formik } from "formik";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Input } from "ui/components/form/input";
 import * as yup from "yup";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {
   user: GetMyUserAccess.User;
@@ -46,7 +47,9 @@ type Props = {
 export const ProfileUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const { openSnackbar } = useSnackbar();
   const isSmDown = useBreakpoint("sm", "down");
+  const [rowVersion, setRowVersion] = React.useState(props.user.rowVersion);
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
   const [changeTimezoneIsOpen, setChangeTimezoneIsOpen] = React.useState(false);
   const selectTimeZoneOption = props.timeZoneOptions.find(
@@ -67,9 +70,19 @@ export const ProfileUI: React.FC<Props> = props => {
   );
 
   const onResetPassword = async () => {
-    await props.resetPassword({
+    const response = await props.resetPassword({
       variables: { resetPasswordInput: { id: props.user.id } },
     });
+    const result = response?.data?.user?.resetPassword;
+    if (result) {
+      openSnackbar({
+        message: t("Reset password email has been sent"),
+        dismissable: true,
+        status: "success",
+        autoHideDuration: 5000,
+      });
+      setRowVersion(result.rowVersion);
+    }
   };
 
   const onCloseTimezoneDialog = React.useCallback(
@@ -78,39 +91,51 @@ export const ProfileUI: React.FC<Props> = props => {
   );
 
   const updateTimezoneCallback = React.useCallback(
-    async (timeZoneId: any) =>
-      await props.updateUser({
+    async (timeZoneId: any) => {
+      const response = await props.updateUser({
         variables: {
           user: {
             id: props.user.id,
             timeZoneId,
-            rowVersion: props.user.rowVersion,
-          },
-        },
-      }),
-    [props]
-  );
-
-  const updateBasicDetails = React.useCallback(
-    async (data: {
-      firstName: string;
-      lastName: string;
-      phone: string | null;
-    }) => {
-      const { firstName, lastName, phone } = data;
-      await props.updateUser({
-        variables: {
-          user: {
-            id: props.user.id,
-            rowVersion: props.user.rowVersion,
-            firstName,
-            lastName,
-            phone,
+            rowVersion: rowVersion,
           },
         },
       });
+      const result = response?.data?.user?.update;
+      if (result) {
+        setRowVersion(result.rowVersion);
+      }
     },
-    [props]
+    [props, rowVersion]
+  );
+
+  // TODO: Consolidate this logic with the phone number field in Information component
+  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+
+  const cleanPhoneNumber = (phoneNumber: string) => {
+    return phoneNumber.replace(/\D/g, "");
+  };
+
+  const updateBasicDetails = React.useCallback(
+    async (data: { firstName: string; lastName: string; phone: string }) => {
+      const { firstName, lastName, phone } = data;
+      const response = await props.updateUser({
+        variables: {
+          user: {
+            id: props.user.id,
+            rowVersion: rowVersion,
+            firstName,
+            lastName,
+            phone: phone.trim().length === 0 ? null : cleanPhoneNumber(phone),
+          },
+        },
+      });
+      const result = response?.data?.user?.update;
+      if (result) {
+        setRowVersion(result.rowVersion);
+      }
+    },
+    [props, rowVersion]
   );
 
   const validateBasicDetails = React.useMemo(
@@ -118,10 +143,14 @@ export const ProfileUI: React.FC<Props> = props => {
       yup.object().shape({
         firstName: yup.string().required(t("First name is required")),
         lastName: yup.string().required(t("Last name is required")),
-        phone: yup.string(),
+        phone: yup
+          .string()
+          .nullable()
+          .required(t("Phone number is required")) // TODO: Only require this if the user has a replacmenet Employee role
+          .matches(phoneRegExp, t("Phone Number Is Not Valid")),
       }),
-    [t]
-  );
+    [t, phoneRegExp]
+  );  
 
   return (
     <>
@@ -130,6 +159,7 @@ export const ProfileUI: React.FC<Props> = props => {
         onClose={onCloseEmailDialog}
         updateLoginEmail={props.updateLoginEmail}
         user={props.user}
+        triggerReauth={true}
       />
       <ChangeTimezoneDialog
         open={changeTimezoneIsOpen}

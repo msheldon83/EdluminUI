@@ -13,7 +13,8 @@ export type InputProps = Omit<OutlinedInputProps, "labelWidth"> & {
   InputComponent?: React.ElementType;
   inputComponentProps?: Record<string, any>;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
-  validationMessage?: string | undefined;
+  validationMessage?: string;
+  helperMessage?: string;
 };
 
 export const Input = React.forwardRef((props: InputProps, ref) => {
@@ -25,6 +26,7 @@ export const Input = React.forwardRef((props: InputProps, ref) => {
     withSpacing = false,
     inputStatus = "default",
     validationMessage,
+    helperMessage,
     ...restOfInputProps
   } = props;
 
@@ -43,6 +45,8 @@ export const Input = React.forwardRef((props: InputProps, ref) => {
     [classes.input]: true,
     [classes.disabled]: restOfInputProps.disabled,
   });
+
+  const helperText = validationMessage ? validationMessage : helperMessage;
 
   return (
     <FormControl className={classNames} error={isError}>
@@ -71,10 +75,8 @@ export const Input = React.forwardRef((props: InputProps, ref) => {
           {...restOfInputProps}
         />
       )}
-      {props.validationMessage && (
-        <FormHelperText error={isError}>
-          {props.validationMessage}
-        </FormHelperText>
+      {helperText && (
+        <FormHelperText error={isError}>{helperText}</FormHelperText>
       )}
     </FormControl>
   );

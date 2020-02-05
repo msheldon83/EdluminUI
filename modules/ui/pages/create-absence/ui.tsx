@@ -1,13 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import {
-  format,
-  isBefore,
-  isSameDay,
-  min,
-  startOfDay,
-  startOfMonth,
-} from "date-fns";
+import { format, isBefore, isSameDay, startOfMonth } from "date-fns";
 import { useForm } from "forms";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
@@ -19,7 +13,6 @@ import {
   Vacancy,
 } from "graphql/server-types.gen";
 import { computeAbsenceUsageText } from "helpers/absence/computeAbsenceUsageText";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
@@ -75,7 +68,6 @@ type Props = {
 export const CreateAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { openDialog } = useDialog();
   const [absence, setAbsence] = useState<Absence>();
   const [step, setStep] = useQueryParamIso(StepParams);
 
@@ -326,7 +318,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     (
       replacementId: string,
       replacementName: string,
-      payCodeId: string | undefined,
+      payCodeId: string | undefined
     ) => {
       /* eslint-disable @typescript-eslint/no-floating-promises */
       setValue("replacementEmployeeId", replacementId);
@@ -433,6 +425,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       </form>
       {step === "edit" && (
         <EditVacancies
+          orgId={props.organizationId}
           actingAsEmployee={props.actingAsEmployee}
           employeeName={name}
           positionName={props.positionName}
@@ -463,7 +456,9 @@ const initialState = (props: Props): CreateAbsenceState => {
       ? props.needsReplacement !== NeedsReplacement.No
       : props.initialNeedsReplacement;
   const absenceDates = props.initialDates || [];
-  const viewingCalendarMonth = startOfMonth(new Date());
+  const viewingCalendarMonth = props.initialDates
+    ? startOfMonth(props.initialDates[0])
+    : startOfMonth(new Date());
   return {
     employeeId: props.employeeId,
     organizationId: props.organizationId,

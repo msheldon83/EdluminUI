@@ -41,6 +41,14 @@ const getUserPermissions = (
   return allPermissions;
 };
 
+export const canViewAsSysAdmin = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  return isSysAdmin;
+};
+
 /* admin left nav helpers */
 export const canViewAbsVacNavLink = (
   permissions: OrgUserPermissions[],
@@ -286,6 +294,34 @@ export const canAssignSub = (
   } else if (
     (isToday(absDate) || isFuture(absDate)) &&
     !userPerms?.includes(PermissionEnum.AbsVacAssign)
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+export const canReassignSub = (
+  absDate: Date,
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) return true;
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  if (
+    !isToday(absDate) &&
+    !isFuture(absDate) &&
+    (!userPerms?.includes(PermissionEnum.AbsVacAssign) ||
+      !userPerms?.includes(PermissionEnum.AbsVacEditPast) ||
+      !userPerms?.includes(PermissionEnum.AbsVacRemoveSub))
+  ) {
+    return false;
+  } else if (
+    (isToday(absDate) || isFuture(absDate)) &&
+    (!userPerms?.includes(PermissionEnum.AbsVacAssign) ||
+      !userPerms?.includes(PermissionEnum.AbsVacRemoveSub))
   ) {
     return false;
   }

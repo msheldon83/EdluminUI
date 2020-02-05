@@ -5,12 +5,16 @@ import {
   List,
   ListItemText,
   Grid,
-  Button
+  Button,
 } from "@material-ui/core";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
-import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
+import {
+  usePagedQueryBundle,
+  useMutationBundle,
+  useQueryBundle,
+} from "graphql/hooks";
 import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { useIsMobile, usePrevious } from "hooks";
 import {
@@ -37,6 +41,8 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { AccessIcon } from "./components/access-icon";
 import { CreateButton } from "./components/create-button";
 import { Can } from "ui/components/auth/can";
+import { GetOrgConfigStatus } from "reference-data/get-org-config-status.gen";
+import { OrganizationType } from "graphql/server-types.gen";
 
 type Props = {};
 
@@ -83,6 +89,12 @@ export const PeoplePage: React.FC<Props> = props => {
     peoplePaginationDefaults
   );
 
+  const getOrgStatus = useQueryBundle(GetOrgConfigStatus, {
+    variables: {
+      orgId: params.organizationId,
+    },
+  });
+
   const oldFilters = usePrevious(filters);
   useEffect(
     () => {
@@ -92,6 +104,10 @@ export const PeoplePage: React.FC<Props> = props => {
     /* eslint-disable-next-line */
     [filters, oldFilters]
   );
+
+  const truncateString = (str: string, num: number) => {
+    return str.length <= num ? str : str.slice(0, num) + "...";
+  };
 
   const listRoles = useCallback(
     (isAdmin: boolean, isEmployee: boolean, isSub: boolean) => {
@@ -106,7 +122,7 @@ export const PeoplePage: React.FC<Props> = props => {
         roles.push(t("Substitute"));
       }
 
-      return roles.join(",");
+      return roles.join(", ");
     },
     []
   );
@@ -190,6 +206,7 @@ export const PeoplePage: React.FC<Props> = props => {
     const qResults = compact(allPeopleQuery.data?.orgUser?.paged?.results);
     if (qResults) people = qResults;
   }
+
   const tableData = useMemo(() => {
     return people.map(person => ({
       id: person.id,
@@ -197,13 +214,14 @@ export const PeoplePage: React.FC<Props> = props => {
       firstName: person.firstName,
       lastName: person.lastName,
       email: person.email,
-      externalId: person.externalId,
+      externalId: truncateString(person.externalId ?? "", 8),
       roles: listRoles(
         person.isAdmin,
         person.isEmployee,
         person.isReplacementEmployee
       ),
       positionType: person.employee?.primaryPosition?.positionType?.name,
+      userName: person.email,
       phone: person.phoneNumber,
       locations: person.employee?.locations,
       endorsements: person.substitute?.attributes
@@ -234,6 +252,11 @@ export const PeoplePage: React.FC<Props> = props => {
     return <></>;
   }
 
+  const orgStatus =
+    getOrgStatus.state === "LOADING"
+      ? undefined
+      : getOrgStatus?.data?.organization?.byId?.config?.organizationTypeId;
+
   const peopleCount = pagination.totalCount;
 
   const columns: TableColumn<typeof tableData[0]>[] = [
@@ -257,31 +280,17 @@ export const PeoplePage: React.FC<Props> = props => {
       ),
     },
     {
-      title: t("First Name"),
-      field: "firstName",
+      title: t("Name"),
       sorting: false,
+      render: o => `${o.lastName}, ${o.firstName}`,
     },
     {
-      title: t("Last Name"),
-      field: "lastName",
+      title: t("Username"),
+      field: "userName",
       sorting: false,
     },
-    // Column to show on All, Employees, and Admins tabs, but not Substitutes
-    {
-      title: t("Primary Phone"),
-      field: "phone",
-      sorting: false,
-      hidden: filters.roleFilter === OrgUserRole.ReplacementEmployee,
-    },
-    // Column to potentially show on the Substitutes tab based on the permission
-    {
-      title: t("Primary Phone"),
-      field: "phone",
-      sorting: false,
-      hidden: filters.roleFilter !== OrgUserRole.ReplacementEmployee,
-      permissions: [PermissionEnum.SubstituteViewPhone],
-    },
-    { title: t("External ID"), field: "externalId", sorting: false },
+
+    { title: t("Ext ID"), field: "externalId", sorting: false },
     {
       title: t("Role"),
       field: "roles",
@@ -467,10 +476,16 @@ export const PeoplePage: React.FC<Props> = props => {
         <Grid item>
           <PageTitle title={t("People")} />
         </Grid>
-        <Can do={[PermissionEnum.AdminSave, PermissionEnum.EmployeeSave, PermissionEnum.SubstituteSave]}>
-        <Grid item>
-          <CreateButton />
-        </Grid>
+        <Can
+          do={[
+            PermissionEnum.AdminSave,
+            PermissionEnum.EmployeeSave,
+            PermissionEnum.SubstituteSave,
+          ]}
+        >
+          <Grid item>
+            <CreateButton />
+          </Grid>
         </Can>
       </Grid>
       <PeopleFilters />
@@ -502,8 +517,18 @@ export const PeoplePage: React.FC<Props> = props => {
                 } else {
                   userIds.push(data.userId);
                 }
-
-                await invite(compact(userIds), params.organizationId);
+                if (orgStatus === OrganizationType.Demo) {
+                  openSnackbar({
+                    message: t(
+                      "This Organization is in Demo Mode. No invites have been sent"
+                    ),
+                    dismissable: true,
+                    status: "info",
+                    autoHideDuration: 5000,
+                  });
+                } else {
+                  await invite(compact(userIds), params.organizationId);
+                }
               },
               permissions: [PermissionEnum.OrgUserInvite],
             },

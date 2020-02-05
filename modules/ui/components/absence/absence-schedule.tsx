@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
-import { Button, Divider, Grid } from "@material-ui/core";
+import { Button, Divider, Grid, Typography } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
 import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
@@ -30,6 +30,7 @@ type Props = {
   calendarViewRoute: string;
   listViewRoute: string;
   actingAsEmployee: boolean;
+  userCreatedDate: Date;
 };
 
 export const AbsenceSchedule: React.FC<Props> = props => {
@@ -39,11 +40,6 @@ export const AbsenceSchedule: React.FC<Props> = props => {
   const getOrgUsers = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
-
-  const userId =
-    getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
-      ? undefined
-      : getOrgUsers.data?.userAccess?.me?.user?.id;
 
   const createAbsenceParams = useRouteParams(EmployeeCreateAbsenceRoute);
 
@@ -111,7 +107,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
               </Button>
             </Grid>
           )}
-          {props.view === "calendar" && (
+          {props.view === "calendar" && getAbsenceSchedule.state === "DONE" && (
             <Grid item xs={12}>
               <Section className={classes.absenceSection}>
                 {selectedScheduleDates && selectedScheduleDates.length > 0 && (
@@ -131,9 +127,9 @@ export const AbsenceSchedule: React.FC<Props> = props => {
 
       <Section className={classes.container}>
         <Grid container>
-          <Grid item xs={12} className={classes.filters}>
-            <div className={classes.scheduleHeader}>
-              {userId && (
+          {getAbsenceSchedule.state === "DONE" && (
+            <Grid item xs={12} className={classes.filters}>
+              <div className={classes.scheduleHeader}>
                 <ScheduleHeader
                   view={props.view}
                   today={startDateOfToday}
@@ -142,18 +138,18 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                   startDate={queryStartDate}
                   setStartDate={setQueryStartDate}
                   setEndDate={setQueryEndDate}
-                  userId={userId}
+                  userCreatedDate={props.userCreatedDate}
                 />
-              )}
-            </div>
-            <div>
-              <ScheduleViewToggle
-                view={props.view}
-                listViewRoute={props.listViewRoute}
-                calendarViewRoute={props.calendarViewRoute}
-              />
-            </div>
-          </Grid>
+              </div>
+              <div>
+                <ScheduleViewToggle
+                  view={props.view}
+                  listViewRoute={props.listViewRoute}
+                  calendarViewRoute={props.calendarViewRoute}
+                />
+              </div>
+            </Grid>
+          )}
           <Grid item xs={12}>
             <Divider />
           </Grid>
@@ -162,7 +158,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
               <ScheduledAbsences
                 absences={employeeAbsenceDetails}
                 cancelAbsence={props.cancelAbsence}
-                isLoading={getAbsenceSchedule.state === "LOADING"}
+                isLoading={false}
                 orgId={props.orgId}
                 actingAsEmployee={props.actingAsEmployee}
               />
@@ -171,14 +167,25 @@ export const AbsenceSchedule: React.FC<Props> = props => {
           {props.view === "calendar" && (
             <Grid item xs={12}>
               <div className={classes.calendarContent}>
-                <CalendarView
-                  selectedScheduleDates={selectedScheduleDates}
-                  setSelectedScheduleDates={setSelectedScheduleDates}
-                  employeeId={props.employeeId}
-                  startDate={startDateOfSchoolYear}
-                  endDate={endDate}
-                  absences={employeeAbsenceDetails}
-                />
+                {getAbsenceSchedule.state === "DONE" && (
+                  <CalendarView
+                    selectedScheduleDates={selectedScheduleDates}
+                    setSelectedScheduleDates={setSelectedScheduleDates}
+                    employeeId={props.employeeId}
+                    startDate={startDateOfSchoolYear}
+                    endDate={endDate}
+                    absences={employeeAbsenceDetails}
+                  />
+                )}
+                {getAbsenceSchedule.state !== "DONE" && (
+                  <Grid container>
+                    <Grid item xs={12} className={classes.loading}>
+                      <Typography variant="h5">
+                        {t("Loading Calendar")} ...
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                )}
               </div>
             </Grid>
           )}
@@ -191,6 +198,13 @@ export const AbsenceSchedule: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   container: {
     padding: 0,
+  },
+  loading: {
+    padding: theme.spacing(3),
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: theme.typography.pxToRem(800),
   },
   filters: {
     padding: theme.spacing(3),
@@ -210,7 +224,7 @@ const useStyles = makeStyles(theme => ({
   sticky: {
     position: "sticky",
     top: 0,
-    zIndex: 1,
+    zIndex: 400,
     backgroundColor: theme.customColors.appBackgroundGray,
     boxShadow: `0 ${theme.typography.pxToRem(16)} ${theme.typography.pxToRem(
       16

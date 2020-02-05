@@ -200,7 +200,9 @@ export const Information: React.FC<Props> = props => {
             postalCode:
               data.postalCode.trim().length === 0 ? null : data.postalCode,
             country: data.state ? ("US" as CountryCode) : null,
-            permissionSet: data.permissionSetId && { id: data.permissionSetId },
+            permissionSet: data.permissionSetId
+              ? { id: data.permissionSetId }
+              : undefined,
           });
         }}
         validationSchema={yup.object({
@@ -370,10 +372,13 @@ export const Information: React.FC<Props> = props => {
                           props.editing === editableSections.information &&
                           !props.isSuperUser ? (
                             <SelectNew
-                              value={permissionSetOptions.find(
-                                e =>
-                                  e.value && e.value === values.permissionSetId
-                              )}
+                              value={
+                                permissionSetOptions.find(
+                                  e =>
+                                    e.value &&
+                                    e.value === values.permissionSetId
+                                ) ?? { label: "", value: "" }
+                              }
                               multiple={false}
                               onChange={(value: OptionType) => {
                                 const id = (value as OptionTypeBase).value;
@@ -532,18 +537,18 @@ export const Information: React.FC<Props> = props => {
                       }
                     />
                     {props.editing === editableSections.information ? (
-                        <PeopleGridItem
-                          title={t("Date of Birth")}
-                          description={
-                            <DatePicker
-                              variant={"field-only"}
-                              startDate={values.dateOfBirth ?? ""}
-                              onChange={e =>
-                                setFieldValue("dateOfBirth", e.startDate)
-                              }
-                            />
-                          }
-                        />
+                      <PeopleGridItem
+                        title={t("Date of Birth")}
+                        description={
+                          <DatePicker
+                            variant={"field-only"}
+                            startDate={values.dateOfBirth ?? ""}
+                            onChange={e =>
+                              setFieldValue("dateOfBirth", e.startDate)
+                            }
+                          />
+                        }
+                      />
                     ) : (
                       <Grid item className={classes.label}>
                         <Typography variant="h6">

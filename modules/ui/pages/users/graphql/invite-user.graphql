@@ -1,0 +1,5 @@
+mutation InviteUser($userId: ID!) {
+  user {
+    invite(idsToInvite: [$userId], inviteSynchronously: true)
+  }
+}

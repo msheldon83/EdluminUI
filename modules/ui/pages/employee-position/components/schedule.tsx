@@ -29,7 +29,7 @@ type Props = {
   bellSchedules: Array<BellSchedule | null | undefined>;
   onAddSchool: () => void;
   onRemoveSchool: (periodNumber: number) => void;
-  disabledDaysOfWeek: DayOfWeek[];
+  disabledDaysOfWeek: Array<DayOfWeek | null>;
   onCheckDayOfWeek: (dow: DayOfWeek) => void;
   onChangeLocation: (locationId: string, index: number) => void;
   onChangeBellSchedule: (bellScheduleId: string, index: number) => void;
@@ -94,14 +94,8 @@ export const ScheduleUI: React.FC<Props> = props => {
             {periods.map((p, i) => {
               return (
                 <div key={`div-schedule${props.index}period${i}`}>
-                  {i != 0 && (
-                    <Divider
-                      key={`schedule${props.index}period${i}-divider`}
-                      className={classes.divider}
-                    />
-                  )}
+                  {i != 0 && <Divider className={classes.divider} />}
                   <PeriodUI
-                    key={`schedule${props.index}period${i}`}
                     index={i}
                     locationOptions={props.locationOptions}
                     bellSchedules={props.bellSchedules}
