@@ -143,7 +143,6 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     maxWidth: theme.typography.pxToRem(1440),
     transform: "rotate(0)",
-
     overflowY: "auto",
   },
 
