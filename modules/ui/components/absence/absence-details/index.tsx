@@ -148,7 +148,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
 
   return (
-    <Grid container className={classes.absContainer}>
+    <Grid container>
       <Grid item md={4} className={classes.spacing}>
         <Typography variant="h5">{t("Absence Details")}</Typography>
 
@@ -294,9 +294,6 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-end",
-  },
-  absContainer: {
-    overflowY: "auto",
   },
   stickyFooter: {
     backgroundColor: theme.customColors.lightGray,
