@@ -85,6 +85,12 @@ const themeColors: Theme["customColors"] = {
   success: "#00c853",
   warning: "#ffa000",
   info: "#56657F",
+
+  yellow1: "rgba(255, 204, 1, 0.2)",
+  yellow2: "rgba(255, 204, 1, 0.4)",
+  yellow3: "rgba(255, 204, 1, 0.5)",
+  yellow4: "rgba(255, 204, 1, 0.8)",
+  yellow5: "rgba(255, 204, 1, 1)",
 };
 const breakpointCustomization: BreakpointsOptions = {};
 const breakpoints = createBreakpoints(breakpointCustomization);

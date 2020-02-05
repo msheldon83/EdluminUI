@@ -22,6 +22,7 @@ export type SelectProps<T extends boolean> = {
   onFocus?: (event: React.FocusEvent) => void;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
+  className?: string;
 
   // This should never be used if it's a multi-select
   withResetValue?: T extends true ? false : boolean;
@@ -56,6 +57,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     validationMessage,
     placeholder,
     withResetValue = multiple ? false : true,
+    className,
   } = props;
 
   const [showAllChips, setShowAllChips] = React.useState(false);
@@ -67,6 +69,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
   // Reference to all the multiple values display
   const selectedChipsRef = React.useRef(null);
+  const inputRef = React.useRef(null);
 
   // Operate on the options entry
   const getOptionLabel = (option: OptionType): string => {
@@ -94,7 +97,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     : options;
 
   // Determine if the multi select display has over flow
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const element = selectedChipsRef.current || {
       offsetHeight: 0,
       scrollHeight: 0,
@@ -111,7 +114,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
     setTallEnoughForOverflow(offsetHeight > triggerHeight);
     setHasOverFlow(elementHasOverflow);
-  }, [value, showAllChips, theme.typography]);
+  }, [value, showAllChips, theme.typography, selectedChipsRef]);
 
   const {
     getRootProps,
@@ -122,9 +125,9 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   } = useAutocomplete({
     id: `${label}-${Date.now()}`,
     getOptionSelected,
-    multiple,
-    value,
-    onChange: (e, selection) => {
+    multiple: multiple ? true : undefined,
+    value: value as any, // The types in @material-ui's autocomplete are unusable
+    onChange: (e: React.ChangeEvent<{}>, selection: any) => {
       onChange(selection);
 
       // Keep list open if it's not a multi select
@@ -158,12 +161,31 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     ...autocompleteInputProps
   } = getInputProps() as any;
 
+  const handleArrowClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const input = inputRef.current as HTMLInputElement | null;
+
+    input?.focus();
+
+    /*
+      Manually trigger the focus event because sometimes it's already focused
+      when it's a single select and the dropdown needs to reopen
+    */
+    input?.dispatchEvent(new Event("focus"));
+  };
+
   return (
-    <div className={containerClasses} {...(disabled ? {} : getRootProps())}>
+    <div
+      className={`${className} ${containerClasses}`}
+      {...(disabled ? {} : getRootProps())}
+    >
       <div className={classes.inputContainer}>
         <div className={classes.dropdownContainer}>
           <Input
             {...autocompleteInputProps}
+            inputRef={inputRef}
             disabled={disabled}
             label={label}
             name={name}
@@ -174,10 +196,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             }}
             endAdornment={
               <ArrowDropDownIcon
-                onClick={e => {
-                  e.stopPropagation();
-                  setListOpen(!listOpen);
-                }}
+                onClick={handleArrowClick}
                 className={classes.arrowDownIcon}
               />
             }
@@ -196,7 +215,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
           {listOpen && !disabled ? (
             <ul className={classes.listbox} {...getListboxProps()}>
-              {groupedOptions.map((option, index) => {
+              {groupedOptions.map((option: OptionType, index: number) => {
                 const itemClasses = clsx({
                   [classes.optionItem]: true,
                   [classes.resetLabel]: option.label === RESET_LABEL,
@@ -229,7 +248,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             return (
               <Chip
                 key={getOptionValue(valueItem)}
-                size="small"
+                size="medium"
                 label={getOptionLabel(valueItem)}
                 onDelete={() => {
                   const newValues = (value as Array<OptionType>).filter(
@@ -253,7 +272,10 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             <TextButton
               color="primary"
               className={classes.showAllButton}
-              onClick={() => setShowAllChips(true)}
+              onClick={() => {
+                setShowAllChips(true);
+                setTallEnoughForOverflow(true);
+              }}
             >
               View more
             </TextButton>
@@ -319,7 +341,7 @@ const useStyles = makeStyles(theme => ({
       4
     )} ${theme.typography.pxToRem(4)}`,
     borderTopWidth: 0,
-    color: theme.customColors.edluminSubText,
+    color: theme.palette.text.primary,
     fontSize: theme.typography.pxToRem(14),
     lineHeight: theme.typography.pxToRem(32),
     listStyle: "none",
@@ -342,8 +364,8 @@ const useStyles = makeStyles(theme => ({
       cursor: "pointer",
     },
     '&[aria-selected="true"]': {
-      color: theme.palette.text.primary,
-      cursor: "default",
+      backgroundColor: theme.customColors.yellow1,
+      cursor: "pointer",
     },
   },
   resetLabel: {
@@ -359,6 +381,7 @@ const useStyles = makeStyles(theme => ({
     right: 0,
     top: "50%",
     transform: "translateY(-50%)",
+    zIndex: 2,
 
     "&:after": {
       content: "''",
@@ -376,11 +399,11 @@ const useStyles = makeStyles(theme => ({
     boxSizing: "border-box",
     display: "flex",
     flexWrap: "wrap",
-    paddingTop: theme.spacing(1),
+    marginTop: theme.spacing(1),
     height: theme.typography.pxToRem(36),
     maxHeight: theme.typography.pxToRem(36),
+    lineHeight: theme.typography.pxToRem(36),
     overflow: "hidden",
-    transition: "all 300ms ease-in-out",
     position: "relative",
   },
   showAllSelectedChips: {
@@ -388,18 +411,35 @@ const useStyles = makeStyles(theme => ({
     maxHeight: theme.typography.pxToRem(999999),
   },
   selectionChip: {
-    backgroundColor: theme.customColors.mediumBlue,
-    color: theme.customColors.white,
+    backgroundColor: theme.customColors.yellow4,
+    color: theme.palette.text.primary,
     marginBottom: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
+    position: "relative",
 
     "& svg": {
       color: theme.customColors.white,
+      position: "relative",
       transition: "color 100ms linear",
+      zIndex: 2,
 
       "&:hover": {
-        color: "rgba(255, 255, 255, 0.7)",
-      },
+        color: theme.customColors.white,
+      }
+
+    },
+
+    "&::after": {
+      display: "inline-block",
+      content: "''",
+      width: theme.typography.pxToRem(8),
+      height: theme.typography.pxToRem(8),
+      backgroundColor: "rgba(0,0,0,1)",
+      position: "absolute",
+      top: "50%",
+      transform: "translateY(-50%)",
+      right: theme.typography.pxToRem(12),
+      zIndex: 1,
     },
   },
 }));

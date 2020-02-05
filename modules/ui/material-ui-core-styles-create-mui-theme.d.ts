@@ -53,6 +53,12 @@ interface CustomColors {
   success: string;
   warning: string;
   info: string;
+
+  yellow1: string;
+  yellow2: string;
+  yellow3: string;
+  yellow4: string;
+  yellow5: string;
 }
 
 interface EdluminTheme extends Theme {
