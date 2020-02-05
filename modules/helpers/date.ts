@@ -148,7 +148,7 @@ export const getDateRangeDisplayText = (
 
 export const convertStringToDate = (dateString: string | Date): Date | null => {
   const convertedDate =
-    dateString instanceof Date ? new Date(dateString) : parseISO(dateString);
+    dateString instanceof Date ? dateString : parseISO(dateString);
 
   if (convertedDate && isDate(convertedDate) && isValid(convertedDate)) {
     return convertedDate;
