@@ -12,7 +12,6 @@ import {
   PeopleEmployeePositionEditRoute,
 } from "ui/routes/people";
 import { DayOfWeek } from "graphql/server-types.gen";
-import { compact, flatMap, uniq } from "lodash-es";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { format } from "date-fns";
 import { midnightTime } from "helpers/time";
@@ -140,7 +139,7 @@ export const Position: React.FC<Props> = props => {
             <Grid item xs={12}>
               <Typography variant="h6">{t("Contract")}</Typography>
               <div>{props.contractName ?? t("Not available")}</div>
-            </Grid>            
+            </Grid>
           </Grid>
           <Grid container item spacing={2} xs={8}>
             <Grid item xs={12}>

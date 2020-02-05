@@ -1,7 +1,6 @@
 import { DayOfWeek } from "graphql/server-types.gen";
 import i18next = require("i18next");
 import { getDisplayName } from "ui/components/enumHelpers";
-import { isSunday } from "date-fns";
 
 const daysOfWeekOrdered = [
   DayOfWeek.Sunday,
@@ -13,6 +12,7 @@ const daysOfWeekOrdered = [
   DayOfWeek.Saturday,
 ];
 
+// Use to sort an array of days of the week
 export const sortDaysOfWeek = (daysOfWeek?: DayOfWeek[]) => {
   if (!daysOfWeek) {
     return [];
@@ -22,6 +22,7 @@ export const sortDaysOfWeek = (daysOfWeek?: DayOfWeek[]) => {
   );
 };
 
+// Can use when sorting an array by day of week properties
 export const compareDaysOfWeek = (
   firstDay?: DayOfWeek | null,
   secondDay?: DayOfWeek | null
@@ -40,6 +41,7 @@ export const compareDaysOfWeek = (
     : 0;
 };
 
+// Will build out a text string with the shortened day of the week
 export const buildDaysLabel = (days: DayOfWeek[], t: i18next.TFunction) => {
   let result = "";
   let previousDayOrder = 0;
