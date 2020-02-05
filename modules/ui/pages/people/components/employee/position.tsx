@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Typography, Grid } from "@material-ui/core";
+import { Typography, Grid, makeStyles } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
@@ -16,6 +16,11 @@ import { compact, flatMap, uniq } from "lodash-es";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { format } from "date-fns";
 import { midnightTime } from "helpers/time";
+import {
+  sortDaysOfWeek,
+  compareDaysOfWeek,
+  buildDaysLabel,
+} from "helpers/day-of-week";
 
 const editableSections = {
   empPosition: "edit-employee-position",
@@ -25,6 +30,7 @@ type Props = {
   editing: string | null;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   positionTitle: string | null | undefined;
+  positionTypeName: string | null | undefined;
   needsReplacement: Maybe<NeedsReplacement>;
   hoursPerFullWorkDay: number | null | undefined;
   contractName: string | null | undefined;
@@ -65,12 +71,20 @@ export const Position: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(PersonViewRoute);
   const history = useHistory();
+  const classes = useStyles();
 
   const accountingCodes = props.accountingCodeAllocations
     ? props.accountingCodeAllocations
         ?.map(ac => ac?.accountingCode?.name)
         .join(", ") ?? t("None defined")
     : t("None defined");
+
+  const sortedSchedules = props.schedules.sort((a, b) =>
+    compareDaysOfWeek(
+      sortDaysOfWeek(a?.daysOfTheWeek)[0],
+      sortDaysOfWeek(b?.daysOfTheWeek)[0]
+    )
+  );
 
   return (
     <>
@@ -104,6 +118,10 @@ export const Position: React.FC<Props> = props => {
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={4}>
             <Grid item xs={12}>
+              <Typography variant="h6">{t("Position")}</Typography>
+              <div>{props.positionTypeName ?? t("Not available")}</div>
+            </Grid>
+            <Grid item xs={12}>
               <Typography variant="h6">{t("Title")}</Typography>
               <div>{props.positionTitle ?? t("Not available")}</div>
             </Grid>
@@ -122,21 +140,18 @@ export const Position: React.FC<Props> = props => {
             <Grid item xs={12}>
               <Typography variant="h6">{t("Contract")}</Typography>
               <div>{props.contractName ?? t("Not available")}</div>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="h6">{t("Accounting Code")}</Typography>
-              <div>{accountingCodes}</div>
-            </Grid>
+            </Grid>            
           </Grid>
-          <Grid container item spacing={2} xs={4}>
+          <Grid container item spacing={2} xs={8}>
             <Grid item xs={12}>
               <Typography variant="h6">{t("Schedule")}</Typography>
               <div>
-                {props.schedules?.map((schedule, i) => {
+                {sortedSchedules?.map((schedule, i) => {
                   if (schedule) {
-                    const formattedDays = schedule.daysOfTheWeek
-                      .map(day => getDisplayName("dayOfWeek", day, t))
-                      .join(", ");
+                    const formattedDays = buildDaysLabel(
+                      sortDaysOfWeek(schedule.daysOfTheWeek),
+                      t
+                    );
                     const formattedItems = schedule.items.map(item => {
                       const locationName = item.location.name;
                       const startTime =
@@ -153,11 +168,24 @@ export const Position: React.FC<Props> = props => {
                         midnightTime().setSeconds(endTime ?? 0),
                         "h:mm a"
                       );
-                      return `${formattedStartTime} - ${formattedEndTime}  ${locationName}`;
+                      return (
+                        <div
+                          className={classes.scheduleRow}
+                          key={`scheduleRow-${i}`}
+                        >
+                          <div
+                            className={classes.timeField}
+                          >{`${formattedStartTime} - ${formattedEndTime}`}</div>
+                          <div>{locationName}</div>
+                        </div>
+                      );
                     });
 
                     return (
-                      <div key={`schedule-${i}`}>
+                      <div
+                        key={`schedule-${i}`}
+                        className={classes.scheduleDay}
+                      >
                         <div>{formattedDays}</div>
                         {formattedItems.map((fi, i) => {
                           return <div key={`schedule-item-${i}`}>{fi}</div>;
@@ -172,9 +200,25 @@ export const Position: React.FC<Props> = props => {
               <Typography variant="h6">{t("Hours in full day")}</Typography>
               <div>{props.hoursPerFullWorkDay ?? t("Not available")}</div>
             </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6">{t("Accounting Code")}</Typography>
+              <div>{accountingCodes}</div>
+            </Grid>
           </Grid>
         </Grid>
       </Section>
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  scheduleDay: {
+    paddingBottom: theme.spacing(1),
+  },
+  scheduleRow: {
+    display: "flex",
+  },
+  timeField: {
+    width: theme.spacing(20),
+  },
+}));
