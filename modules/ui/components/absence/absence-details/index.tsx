@@ -148,7 +148,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
 
   return (
-    <Grid container>
+    <Grid container className={classes.absContainer}>
       <Grid item md={4} className={classes.spacing}>
         <Typography variant="h5">{t("Absence Details")}</Typography>
 
@@ -267,7 +267,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </div>
       </Grid>
 
-      <Grid item xs={12}>
+      <Grid item xs={12} className={classes.stickyFooter}>
         <div className={classes.actionButtons}>
           {props.returnUrl && (
             <Button
@@ -294,6 +294,23 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-end",
+  },
+  absContainer: {
+    overflowY: "auto",
+  },
+  stickyFooter: {
+    backgroundColor: theme.customColors.lightGray,
+    height: theme.typography.pxToRem(72),
+    position: "fixed",
+    width: "100%",
+    left: "0",
+    right: "0",
+    bottom: "0",
+    boxSizing: "border-box",
+    border: "1px solid #d8d8d8",
+    paddingTop: theme.typography.pxToRem(16),
+    zIndex: 500,
+    paddingRight: theme.typography.pxToRem(10),
   },
   cancelButton: {
     marginRight: theme.spacing(2),
