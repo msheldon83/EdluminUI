@@ -79,7 +79,7 @@ export const EmployeePosition: React.FC<Props> = props => {
         },
       },
     });
-    if (result) {
+    if (result?.data) {
       history.push(PersonViewRoute.generate(params));
     }
   };
