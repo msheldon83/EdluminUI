@@ -19,6 +19,7 @@ import { OrgUserPermissions } from "ui/components/auth/types";
 import { OptionType } from "ui/components/form/select-new";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { OrgUserRole } from "graphql/server-types.gen";
+import { OrganizationType } from "graphql/server-types.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -43,6 +44,7 @@ type Props = {
     isEmployee: boolean;
     isReplacementEmployee: boolean;
   };
+  orgStatus?: OrganizationType | null | undefined;
   selectedRole?: OrgUserRole | null;
   orgId: string;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
@@ -65,22 +67,31 @@ export const PersonViewHeader: React.FC<Props> = props => {
     },
   });
   const invite = React.useCallback(async () => {
-    const response = await inviteUser({
-      variables: {
-        userId: orgUser.userId!,
-        orgId: orgUser.orgId,
-      },
-    });
-    const result = response?.data?.user?.invite;
-    if (result) {
+    if (props.orgStatus === OrganizationType.Demo) {
       openSnackbar({
-        message: t("The invite has been sent"),
+        message: t("This Organization is in Demo Mode. Invite was not sent"),
         dismissable: true,
-        status: "success",
+        status: "info",
         autoHideDuration: 5000,
       });
-      if (!inviteSent) {
-        setInviteSent(true);
+    } else {
+      const response = await inviteUser({
+        variables: {
+          userId: orgUser.userId!,
+          orgId: orgUser.orgId,
+        },
+      });
+      const result = response?.data?.user?.invite;
+      if (result) {
+        openSnackbar({
+          message: t("The invite has been sent"),
+          dismissable: true,
+          status: "success",
+          autoHideDuration: 5000,
+        });
+        if (!inviteSent) {
+          setInviteSent(true);
+        }
       }
     }
   }, [inviteUser, orgUser, setInviteSent, inviteSent, openSnackbar, t]);

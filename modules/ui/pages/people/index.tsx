@@ -256,7 +256,6 @@ export const PeoplePage: React.FC<Props> = props => {
     getOrgStatus.state === "LOADING"
       ? undefined
       : getOrgStatus?.data?.organization?.byId?.config?.organizationTypeId;
-  console.log(orgStatus);
 
   const peopleCount = pagination.totalCount;
 
@@ -518,8 +517,6 @@ export const PeoplePage: React.FC<Props> = props => {
                 } else {
                   userIds.push(data.userId);
                 }
-
-                //Check for Org status
                 if (orgStatus === OrganizationType.Demo) {
                   openSnackbar({
                     message: t(
