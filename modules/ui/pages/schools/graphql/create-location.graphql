@@ -1,0 +1,10 @@
+mutation CreateLocation($location: LocationCreateInput!) {
+  location {
+    create(location: $location) {
+      id
+      name
+      rowVersion
+      externalId
+    }
+  }
+}
