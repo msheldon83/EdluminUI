@@ -75,7 +75,7 @@ type Props = {
   startTimeLocal: string;
   endTimeLocal: string;
   absenceDates: Date[];
-  cancelAssignments: () => void;
+  cancelAssignments: () => Promise<void>;
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
   returnUrl?: string;
@@ -377,8 +377,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       });
     }
   };
+
   const onSelectReplacement = useCallback(
     async (employeeId: string, name: string) => {
+      if (props.replacementEmployeeId != undefined) {
+        await props.cancelAssignments();
+      }
       await assignVacancy({
         variables: {
           assignment: {
@@ -521,6 +525,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           selectButtonText={t("Assign")}
           onSelectReplacement={onSelectReplacement}
           onCancel={onCancel}
+          currentReplacementEmployeeName={props.replacementEmployeeName}
         />
       )}
     </>
