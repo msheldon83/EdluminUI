@@ -113,7 +113,10 @@ export const AssignSub: React.FC<Props> = props => {
     {
       variables: {
         orgId: props.orgId,
-        vacancy: buildVacancyInput(props.vacancies),
+        vacancyId: props.vacancies[0]?.id ?? undefined,
+        vacancy: !props.vacancies[0]?.id
+          ? buildVacancyInput(props.vacancies)
+          : undefined,
         absentEmployeeId: props.employeeId ?? undefined,
         name: searchFilter?.name,
         qualified: searchFilter?.name ? undefined : searchFilter?.qualified,
