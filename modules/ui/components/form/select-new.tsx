@@ -8,6 +8,7 @@ import Chip from "@material-ui/core/Chip";
 import { TextButton } from "ui/components/text-button";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import { Input } from "./input";
+import { useMemo } from "react";
 
 export type SelectProps<T extends boolean> = {
   label?: string;
@@ -23,9 +24,7 @@ export type SelectProps<T extends boolean> = {
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
   className?: string;
-
-  // Will skip sorting the options
-  ignoreSort?: boolean;
+  doSort?: (arr: Array<OptionType>) => Array<OptionType>;
 
   // This should never be used if it's a multi-select
   withResetValue?: T extends true ? false : boolean;
@@ -60,11 +59,17 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     placeholder,
     withResetValue = multiple ? false : true,
     className,
+    options,
+    doSort,
   } = props;
 
-  const options = props.ignoreSort
-    ? props.options
-    : props.options.sort((a, b) => (a.label > b.label ? 1 : -1));
+  const sortedOptions = useMemo(
+    () =>
+      doSort
+        ? doSort(options)
+        : options.sort((a, b) => (a.label > b.label ? 1 : -1)),
+    [options, doSort]
+  );
 
   const [showAllChips, setShowAllChips] = React.useState(false);
   const [hasOverflow, setHasOverFlow] = React.useState(false);
@@ -99,8 +104,8 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
           label: RESET_LABEL,
           value: "",
         },
-      ] as Array<OptionType>).concat(options)
-    : options;
+      ] as Array<OptionType>).concat(sortedOptions)
+    : sortedOptions;
 
   // Determine if the multi select display has over flow
   React.useLayoutEffect(() => {

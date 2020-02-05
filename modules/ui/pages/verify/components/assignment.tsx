@@ -454,7 +454,9 @@ export const Assignment: React.FC<Props> = props => {
                         options={dayConversionOptions}
                         multiple={false}
                         withResetValue={false}
-                        ignoreSort={true}
+                        doSort={(arr: Array<OptionType>) => {
+                          return arr;
+                        }}
                       />
                     </Can>
                     <Can not do={[PermissionEnum.AbsVacSave]}>
