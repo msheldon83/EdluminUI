@@ -17,12 +17,14 @@ const formVacancyValues: VacancyDetail[] = [
     startTime: "2019-11-15T08:30:00" as any,
     endTime: "2019-11-15T12:00:00" as any,
     locationId: "1013",
+    payCodeId: "2313",
   },
   {
     date: "2019-11-18" as any,
     startTime: "2019-11-18T08:30:00" as any,
     endTime: "2019-11-18T12:00:00" as any,
     locationId: "1013",
+    payCodeId: "4365",
   },
 ];
 
@@ -40,6 +42,18 @@ const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
         location: {
           name: "Haven Elementary School",
         },
+        payCode: {
+          name: "name",
+        },
+        payCodeId: "123",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "1",
+            accountingCode: {
+              name: "val",
+            },
+          },
+        ],
       },
       {
         startTimeLocal: "2019-11-18T08:30:00" as any,
@@ -48,6 +62,18 @@ const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
         location: {
           name: "Haven Elementary School",
         },
+        payCode: {
+          name: "name",
+        },
+        payCodeId: "123",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "1",
+            accountingCode: {
+              name: "val",
+            },
+          },
+        ],
       },
     ],
     absence: {
@@ -74,6 +100,7 @@ export const AsAdmin = () => {
     <Provider>
       <Route path={AdminCreateAbsenceRoute.path}>
         <EditVacancies
+          orgId="1006"
           employeeName="Jane Doe"
           details={formVacancyValues}
           employeeId="103"

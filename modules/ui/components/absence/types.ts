@@ -6,4 +6,6 @@ export type VacancyDetail = {
   locationName?: string;
   absenceStartTime?: string;
   absenceEndTime?: string;
+  accountingCodeId?: string | null;
+  payCodeId?: string | null;
 };

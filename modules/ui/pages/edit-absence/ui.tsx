@@ -362,6 +362,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     const result = await updateAbsence({
       variables: { absence: absenceUpdateInput },
     });
+
     const absence = result?.data?.absence?.update as Absence;
     if (absence) {
       openSnackbar({
@@ -493,6 +494,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       )}
       {step === "edit" && (
         <EditVacancies
+          orgId={props.organizationId}
           actingAsEmployee={props.actingAsEmployee}
           employeeName={name}
           positionName={props.positionName}
@@ -563,6 +565,10 @@ const buildAbsenceUpdateInput = (
       endTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
+      payCodeId: v.payCodeId,
+      accountingCodeAllocations: v.accountingCodeId
+        ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
+        : undefined,
     })) || undefined;
 
   const absence: AbsenceUpdateInput = {
