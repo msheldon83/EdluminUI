@@ -283,6 +283,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                   <Grid item xs={4}>
                     <Typography>{t("Position Type")}</Typography>
                     <SelectNew
+                      key={`positiontype-input`}
                       value={{
                         value: values.positionTypeId,
                         label:
@@ -346,6 +347,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                   <Grid item xs={4}>
                     <Typography>{t("Accounting Code")}</Typography>
                     <SelectNew
+                      key={`accountingcode-input`}
                       value={{
                         value: values.accountingCodeId,
                         label:
@@ -367,6 +369,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                   <Grid item xs={4}>
                     <Typography>{t("Contract")}</Typography>
                     <SelectNew
+                      key={`contract-input`}
                       value={{
                         value: values.contractId,
                         label:
@@ -416,15 +419,9 @@ export const PositionEditUI: React.FC<Props> = props => {
                       [];
 
                     return (
-                      <>
-                        {i != 0 && (
-                          <Divider
-                            key={`divider-schedule-${i}`}
-                            className={classes.divider}
-                          />
-                        )}
+                      <div key={`schedule-${i}`}>
+                        {i != 0 && <Divider className={classes.divider} />}
                         <ScheduleUI
-                          key={`schedule-${i}`}
                           index={i}
                           errors={errors}
                           multipleSchedules={values.schedules.length > 1}
@@ -542,7 +539,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                             setFieldValue("schedules", positionSchedule);
                           }}
                         />
-                      </>
+                      </div>
                     );
                   })}
                 </Grid>
