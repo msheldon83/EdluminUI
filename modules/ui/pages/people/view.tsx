@@ -19,6 +19,7 @@ import { AdminTab } from "./role-pages/admin-tab";
 import { EmployeeTab } from "./role-pages/employee-tab";
 import { SubstituteTab } from "./role-pages/substitute-tab";
 import { makeStyles } from "@material-ui/core";
+import { GetOrgConfigStatus } from "reference-data/get-org-config-status.gen";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -57,6 +58,12 @@ export const PersonViewPage: React.FC<{}> = props => {
     variables: { id: params.orgUserId },
   });
 
+  const getOrgStatus = useQueryBundle(GetOrgConfigStatus, {
+    variables: {
+      orgId: params.organizationId,
+    },
+  });
+
   const orgUser =
     getOrgUser.state === "LOADING"
       ? undefined
@@ -65,6 +72,11 @@ export const PersonViewPage: React.FC<{}> = props => {
   if (getOrgUser.state === "LOADING") {
     return <></>;
   }
+
+  const orgStatus =
+    getOrgStatus.state === "LOADING"
+      ? undefined
+      : getOrgStatus?.data?.organization?.byId?.config?.organizationTypeId;
 
   if (!orgUser) {
     // Redirect the User back to the List page
@@ -91,6 +103,7 @@ export const PersonViewPage: React.FC<{}> = props => {
     <>
       <PageTitle title={t("Person")} withoutHeading={!isMobile} />
       <PersonViewHeader
+        orgStatus={orgStatus}
         orgUser={orgUser}
         editing={editing}
         setEditing={setEditing}

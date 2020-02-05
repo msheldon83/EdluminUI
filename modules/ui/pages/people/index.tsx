@@ -10,7 +10,11 @@ import {
 import { AccountCircleOutlined } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
 import { makeStyles, useTheme } from "@material-ui/styles";
-import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
+import {
+  usePagedQueryBundle,
+  useMutationBundle,
+  useQueryBundle,
+} from "graphql/hooks";
 import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { useIsMobile, usePrevious } from "hooks";
 import {
@@ -37,6 +41,8 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { AccessIcon } from "./components/access-icon";
 import { CreateButton } from "./components/create-button";
 import { Can } from "ui/components/auth/can";
+import { GetOrgConfigStatus } from "reference-data/get-org-config-status.gen";
+import { OrganizationType } from "graphql/server-types.gen";
 
 type Props = {};
 
@@ -82,6 +88,12 @@ export const PeoplePage: React.FC<Props> = props => {
     },
     peoplePaginationDefaults
   );
+
+  const getOrgStatus = useQueryBundle(GetOrgConfigStatus, {
+    variables: {
+      orgId: params.organizationId,
+    },
+  });
 
   const oldFilters = usePrevious(filters);
   useEffect(
@@ -239,6 +251,11 @@ export const PeoplePage: React.FC<Props> = props => {
   ) {
     return <></>;
   }
+
+  const orgStatus =
+    getOrgStatus.state === "LOADING"
+      ? undefined
+      : getOrgStatus?.data?.organization?.byId?.config?.organizationTypeId;
 
   const peopleCount = pagination.totalCount;
 
@@ -500,8 +517,18 @@ export const PeoplePage: React.FC<Props> = props => {
                 } else {
                   userIds.push(data.userId);
                 }
-
-                await invite(compact(userIds), params.organizationId);
+                if (orgStatus === OrganizationType.Demo) {
+                  openSnackbar({
+                    message: t(
+                      "This Organization is in Demo Mode. No invites have been sent"
+                    ),
+                    dismissable: true,
+                    status: "info",
+                    autoHideDuration: 5000,
+                  });
+                } else {
+                  await invite(compact(userIds), params.organizationId);
+                }
               },
               permissions: [PermissionEnum.OrgUserInvite],
             },
