@@ -60,8 +60,8 @@ export const DurationInput = React.forwardRef((props: Props, ref) => {
 
 // Only allow valid characters
 const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  const VALID_CHARACTERS = /[0-9]/gi;
-  const isValid = e.key.length > 1 || VALID_CHARACTERS.test(e.key);
+  const VALID_CHARACTERS = /[0-9:]/gi;
+  const isValid = e.key.length > 1 || VALID_CHARACTERS.test(e.key) || e.metaKey;
 
   if (isValid) {
     return true;

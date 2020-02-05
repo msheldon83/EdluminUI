@@ -338,7 +338,7 @@ export const Settings: React.FC<Props> = props => {
                     }
                     validationMessage={errors.minAbsenceDurationMinutes}
                     helperMessage={t(
-                      "The shortest time (in minutes) that an employee with this position can be absent."
+                      "The shortest time (hh:mm) that an employee with this position can be absent."
                     )}
                   />
                 </div>
