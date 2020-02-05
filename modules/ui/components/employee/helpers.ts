@@ -53,8 +53,13 @@ export const GetEmployeeAbsenceDetails = (
         startDate: parseISO(a.startDate),
         endDate: parseISO(a.endDate),
         numDays: Number(a.numDays),
-        totalDayPortion: Number(a.totalDayPortion),
-        dayPart: a.details![0]!.dayPartId!,
+        allDayParts:
+          a.details && a.details.length > 0
+            ? a.details.map(d => ({
+                dayPart: d!.dayPartId!,
+                dayPortion: d!.dayPortion,
+              }))
+            : [],
         startTime: format(parseISO(a.startTimeLocal), "h:mm a"),
         startTimeLocal: parseISO(a.startTimeLocal),
         endTime: format(parseISO(a.endTimeLocal), "h:mm a"),
