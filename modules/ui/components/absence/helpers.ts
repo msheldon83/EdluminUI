@@ -4,6 +4,7 @@ import {
   AbsenceDetail,
   Maybe,
   AbsenceDetailCreateInput,
+  Vacancy,
 } from "graphql/server-types.gen";
 import {
   groupBy,
@@ -12,6 +13,8 @@ import {
   compact,
   map,
   isEmpty,
+  flatMap,
+  uniq,
 } from "lodash-es";
 import {
   isAfter,
@@ -363,9 +366,9 @@ export const getVacancyDetailsGrouping = (
         absenceEndTime: value[0]?.absenceEndTime
           ? parseISO(value[0]?.absenceEndTime)
           : undefined,
-          assignmentId: value[0].assignmentId,
-          assignmentEmployeeId: value[0].assignmentEmployeeId,
-          assignmentEmployeeName: value[0].assignmentEmployeeName,
+        assignmentId: value[0].assignmentId,
+        assignmentEmployeeId: value[0].assignmentEmployeeId,
+        assignmentEmployeeName: value[0].assignmentEmployeeName,
       });
     }
   });
@@ -387,7 +390,7 @@ export const getVacancyDetailsGrouping = (
           endTime: di.endTime,
           locationId: di.locationId,
           locationName: di.locationName,
-          assignmentId: di.assignmentId
+          assignmentId: di.assignmentId,
         };
       }),
       (a, b) => {
@@ -422,7 +425,7 @@ const convertVacancyDetailsToDetailsItem = (
       endTime: format(endTime, "h:mm a"),
       locationId: v.locationId,
       locationName: v.locationName,
-      assignmentId: v.assignmentId
+      assignmentId: v.assignmentId,
     };
   });
   const populatedItems = detailItems.filter(
@@ -506,3 +509,11 @@ export const getAbsenceDates = (
 // Answers the question, "on which days can I not create an absence?"
 export const getCannotCreateAbsenceDates = (disabledDates: DisabledDate[]) =>
   disabledDates.filter(d => d.type === "nonWorkDay").map(d => d.date);
+
+export const vacanciesHaveMultipleAssignments = (vacancies: Vacancy[]) => {
+  const allAssignmentIds = vacancies
+    ? flatMap(vacancies.map(v => v.details?.map(d => d?.assignment?.id)))
+    : [];
+  const uniqueAssignmentIds = uniq(allAssignmentIds);
+  return uniqueAssignmentIds.length > 1;
+};

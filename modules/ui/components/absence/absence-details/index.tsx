@@ -23,6 +23,7 @@ import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
 import { flatMap, uniq } from "lodash-es";
+import { vacanciesHaveMultipleAssignments } from "../helpers";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -149,13 +150,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
 
   const isSplitVacancy = useMemo(() => {
-    const allAssignmentIds = props.vacancies
-      ? flatMap(
-          props.vacancies.map(v => v.details?.map(d => d?.assignment?.id))
-        )
-      : [];
-    const uniqueAssignmentIds = uniq(allAssignmentIds);
-    return uniqueAssignmentIds.length > 1;
+    return vacanciesHaveMultipleAssignments(props.vacancies);
   }, [props.vacancies]);
 
   return (
@@ -258,7 +253,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
             disableEditingDatesAndTimes={props.disableEditingDatesAndTimes}
             setValue={setValue}
             vacancies={props.vacancies}
-            isSplitVacancy={isSplitVacancy}
             setStep={props.setStep}
             organizationId={organizationId}
             triggerValidation={triggerValidation}

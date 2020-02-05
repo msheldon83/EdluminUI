@@ -3,7 +3,10 @@ import { Vacancy } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { Fragment, useMemo } from "react";
-import { getVacancyDetailsGrouping } from "./helpers";
+import {
+  getVacancyDetailsGrouping,
+  vacanciesHaveMultipleAssignments,
+} from "./helpers";
 import { TFunction } from "i18next";
 import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
@@ -18,7 +21,6 @@ import { AssignedSub } from "./assigned-sub";
 
 type Props = {
   vacancies: Vacancy[];
-  isSplitVacancy: boolean;
   positionName?: string | null | undefined;
   showHeader?: boolean;
   equalWidthDetails?: boolean;
@@ -32,6 +34,10 @@ export const VacancyDetails: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const { detailsClassName = classes.fullWidth } = props;
+
+  const isSplitVacancy = useMemo(() => {
+    return vacanciesHaveMultipleAssignments(props.vacancies);
+  }, [props.vacancies]);
 
   const detailsUI = useMemo(() => {
     const sortedVacancies = props.vacancies
@@ -61,6 +67,7 @@ export const VacancyDetails: React.FC<Props> = props => {
                     props.equalWidthDetails || false,
                     t,
                     classes,
+                    isSplitVacancy,
                     props.disabledDates
                   )}
                 </Fragment>
@@ -80,6 +87,7 @@ export const VacancyDetails: React.FC<Props> = props => {
     t,
     classes,
     props.showHeader,
+    isSplitVacancy,
   ]);
 
   if (!props.vacancies || !props.vacancies.length) {
@@ -93,14 +101,17 @@ const useStyles = makeStyles(theme => ({
   fullWidth: {
     width: "100%",
   },
-  details: {
-    padding: theme.spacing(2),
-  },
   scheduleText: {
     color: theme.customColors.edluminSubText,
   },
+  vacancyBlockHeader: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
   vacancyBlockItem: {
     marginTop: theme.spacing(0.5),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
   vacancyDetailsHeader: {
     backgroundColor: theme.customColors.lightGray,
@@ -116,6 +127,11 @@ const useStyles = makeStyles(theme => ({
   subScheduleLocation: {
     marginLeft: theme.spacing(2),
   },
+  unfilled: {
+    padding: theme.spacing(2),
+    backgroundColor: theme.customColors.lighterGray,
+    color: theme.customColors.darkRed,
+  },
 }));
 
 const getVacancyDetailsDisplay = (
@@ -123,6 +139,7 @@ const getVacancyDetailsDisplay = (
   equalWidthDetails: boolean,
   t: TFunction,
   classes: any,
+  isSplitVacancy: boolean,
   disabledDates?: Date[]
 ) => {
   const groupedDetails = getVacancyDetailsGrouping(vacancyDetails);
@@ -142,30 +159,36 @@ const getVacancyDetailsDisplay = (
           {t("Substitute schedule")}
         </Grid>
       </Grid>
-      <div className={classes.details}>
+      <div>
         {groupedDetails.map((g, detailsIndex) => {
           const allDates = g.detailItems.map(di => di.date);
 
           return (
             <Grid key={detailsIndex} item container xs={12}>
-              <Grid item xs={12}>
-                {!g.assignmentId && (
-                  <div>{t("Unfilled")}</div>
-                )}
-                {g.assignmentId && (
-                  <AssignedSub
-                    disableReplacementInteractions={
-                      false //props.disableReplacementInteractions
-                    }
-                    employeeId={g.assignmentEmployeeId ?? ""}
-                    assignmentId={g.assignmentId}
-                    employeeName={g.assignmentEmployeeName || ""}
-                    onRemove={() => {}}
-                    assignmentStartDate={g.}
-                  />
-                )}
-              </Grid>
-              <Grid item xs={12}>
+              {isSplitVacancy && (
+                <Grid item xs={12}>
+                  {!g.assignmentId && (
+                    <div className={classes.unfilled}>
+                      <Typography variant={"h6"}>{t("Unfilled")}</Typography>
+                    </div>
+                  )}
+                  {g.assignmentId && (
+                    <AssignedSub
+                      subText={t("assigned")}
+                      disableReplacementInteractions={
+                        false //props.disableReplacementInteractions
+                      }
+                      employeeId={g.assignmentEmployeeId ?? ""}
+                      assignmentId={g.assignmentId}
+                      employeeName={g.assignmentEmployeeName || ""}
+                      onRemove={() => {}}
+                      assignmentStartDate={g.startDate}
+                      showLinkButton={true}
+                    />
+                  )}
+                </Grid>
+              )}
+              <Grid item xs={12} className={classes.vacancyBlockHeader}>
                 <Typography variant="h6">
                   {getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates(
                     allDates,

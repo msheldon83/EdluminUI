@@ -20,6 +20,7 @@ type Props = {
     assignmentRowVersion?: string
   ) => void;
   disableReplacementInteractions?: boolean;
+  showLinkButton?: boolean;
 };
 
 export const AssignedSub: React.FC<Props> = props => {
@@ -61,7 +62,7 @@ export const AssignedSub: React.FC<Props> = props => {
             <Button
               disabled={props.disableReplacementInteractions}
               className={classes.removeButton}
-              variant="outlined"
+              variant={props.showLinkButton ? "text" : "outlined"}
               onClick={() => {
                 if (props.onRemove) {
                   props.onRemove(
@@ -91,10 +92,10 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "#ECF9F3",
     marginTop: theme.spacing(),
     marginBottom: theme.spacing(),
-    border: `${theme.typography.pxToRem(1)} solid ${
-      theme.customColors.medLightGray
-    }`,
-    borderRadius: theme.typography.pxToRem(4),
+    // border: `${theme.typography.pxToRem(1)} solid ${
+    //   theme.customColors.medLightGray
+    // }`,
+    // borderRadius: theme.typography.pxToRem(4),
   },
   details: {
     display: "flex",
