@@ -1,12 +1,11 @@
 import * as React from "react";
 import { Input, InputProps } from "./input";
 
-export type Props = Omit<InputProps, "onChange"> & {
+export type Props = Omit<InputProps, "onChange" | "onBlur"> & {
   label: string;
   value?: string;
   name?: string;
-  onChange: (value: string) => void;
-  onValidDuration: (value: string) => void;
+  onChange: (value: number) => void;
   ref?: React.Ref<any>;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
@@ -16,7 +15,6 @@ export type Props = Omit<InputProps, "onChange"> & {
 
 export const DurationInput = React.forwardRef((props: Props, ref) => {
   const {
-    onValidDuration,
     label,
     value = "",
     onChange,
@@ -27,34 +25,28 @@ export const DurationInput = React.forwardRef((props: Props, ref) => {
     helperMessage,
   } = props;
 
-  const handleBlur = React.useCallback(
-    event => {
-      onValidDuration(formatDuration(event.target.value));
-    },
-    [onValidDuration]
+  // This is a uncontrolled ocmponent because of how the the formatting needs to happen
+  const [internalValue, setInternalValue] = React.useState(
+    formatDuration(value)
   );
 
-  // Only allow valid characters
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const VALID_CHARACTERS = /[0-9]/gi;
-    const isValid = e.key.length > 1 || VALID_CHARACTERS.test(e.key);
+  const handleBlur = React.useCallback(
+    event => {
+      // Always send out a number
+      onChange(internalValue ? unformatDuration(internalValue) : 0);
 
-    if (isValid) {
-      return true;
-    }
-
-    e.stopPropagation();
-    e.preventDefault();
-
-    return false;
-  };
+      // Internally, the value can be a number or a formatted duration
+      setInternalValue(formatDuration(internalValue));
+    },
+    [internalValue, onChange]
+  );
 
   return (
     <Input
       label={label}
       name={name}
-      value={value}
-      onChange={event => onChange(event.target.value)}
+      value={internalValue}
+      onChange={event => setInternalValue(event.target.value)}
       onBlur={handleBlur}
       onKeyDown={handleKeyDown}
       inputRef={ref}
@@ -66,9 +58,28 @@ export const DurationInput = React.forwardRef((props: Props, ref) => {
   );
 });
 
+// Only allow valid characters
+const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const VALID_CHARACTERS = /[0-9]/gi;
+  const isValid = e.key.length > 1 || VALID_CHARACTERS.test(e.key);
+
+  if (isValid) {
+    return true;
+  }
+
+  e.stopPropagation();
+  e.preventDefault();
+
+  return false;
+};
+
 // Deconstruct the formatted duration with as much protection as possible
-const unformatDuration = (formattedDuration: string) => {
-  const [hours, minutes] = formattedDuration.split(":").map(value => {
+const unformatDuration = (duration: string) => {
+  if (!isFormattedDuration(duration)) {
+    return parseInt(duration, 10);
+  }
+
+  const [hours, minutes] = duration.split(":").map(value => {
     const parsedValue = parseInt(value, 10);
 
     return isNaN(parsedValue) ? 0 : parsedValue;
@@ -83,7 +94,9 @@ const unformatDuration = (formattedDuration: string) => {
 */
 const isFormattedDuration = (duration: string) => duration.includes(":");
 
-const formatDuration = (duration: string) => {
+const formatDuration = (rawDuration: string) => {
+  const duration: string = rawDuration.toString();
+
   const totalMinutes = isFormattedDuration(duration)
     ? unformatDuration(duration)
     : parseInt(duration, 10);

@@ -18,10 +18,8 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
-import { Input } from "ui/components/form/input";
 import { DurationInput } from "ui/components/form/duration-input";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
-import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import * as yup from "yup";
@@ -332,10 +330,7 @@ export const Settings: React.FC<Props> = props => {
                     label={t("Minimum absence duration")}
                     name="minAbsenceDurationMinutes"
                     value={values.minAbsenceDurationMinutes.toString()}
-                    onChange={(value: string) =>
-                      setFieldValue("minAbsenceDurationMinutes", value)
-                    }
-                    onValidDuration={(value: string) =>
+                    onChange={(value: number) =>
                       setFieldValue("minAbsenceDurationMinutes", value)
                     }
                     inputStatus={
