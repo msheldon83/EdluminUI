@@ -7,21 +7,31 @@ import {
 } from "@material-ui/core";
 import { HighlightOff } from "@material-ui/icons";
 import { formatDateIfPossible } from "helpers/date";
-import { useAccountingCodes } from "reference-data/accounting-codes";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo } from "react";
 import { FormikSelect } from "ui/components/form/formik-select";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
 import { VacancyDetail } from "../../../components/absence/types";
 import { FormikErrors } from "formik";
 import { startOfDay, parseISO } from "date-fns";
-import { PayCode } from "ui/pages/pay-code";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
   payCodeOptions: { label: string; value: string }[];
+  accountingCodes:
+    | Array<
+        | {
+            id: string;
+            name: string;
+            locationId?: string | null | undefined;
+          }
+        | null
+        | undefined
+      >
+    | null
+    | undefined;
   keyPrefix: string;
   orgId: string;
   values: VacancyDetail;
@@ -40,16 +50,20 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     value: loc.id,
     label: loc.name,
   }));
-
-  const locationIds = props.locationOptions.map(l => l.id);
-
-  const accountingCodes = useAccountingCodes(props.orgId, locationIds);
-  const accountingCodeOptions = useMemo(
-    () => accountingCodes.map(a => ({ label: a.name, value: a.id })),
-    [accountingCodes]
-  );
-
   const fieldNamePrefix = props.keyPrefix;
+  const locationId = props.values.locationId;
+
+  const accountingCodes = props.accountingCodes;
+
+  const accountingCodeOptions = useMemo(
+    () =>
+      accountingCodes
+        ? accountingCodes
+            .filter(x => x?.locationId === locationId || !x?.locationId)
+            .map(a => ({ label: a?.name ?? "", value: a?.id ?? "" }))
+        : [],
+    [accountingCodes, locationId]
+  );
 
   const date = parseISO(props.values.date);
   const startOfDate = date ? startOfDay(date) : undefined;

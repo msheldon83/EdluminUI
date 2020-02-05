@@ -12,6 +12,7 @@ import { compact, isArray } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useAccountingCodes } from "reference-data/accounting-codes";
 import { Section } from "ui/components/section";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
 import { VacancyDetail } from "../../../components/absence/types";
@@ -66,6 +67,8 @@ export const EditVacancies: React.FC<Props> = props => {
     () => payCodes.map(c => ({ label: c.name, value: c.id })),
     [payCodes]
   );
+
+  const accountingCodes = useAccountingCodes(props.orgId);
 
   if (props.details.length === 0) {
     props.setStep("absence");
@@ -208,6 +211,7 @@ export const EditVacancies: React.FC<Props> = props => {
                   <Grid key={i} container className={classes.rowSpacing}>
                     <EditableVacancyDetailRow
                       locationOptions={locationOptions}
+                      accountingCodes={accountingCodes}
                       orgId={props.orgId}
                       payCodeOptions={payCodeOptions}
                       keyPrefix={`details.${i}`}
