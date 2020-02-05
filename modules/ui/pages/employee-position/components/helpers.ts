@@ -2,19 +2,19 @@ import { DayOfWeek } from "graphql/server-types.gen";
 
 export type Period = {
   locationId: string;
-  locationGroupId: string;
+  locationGroupId?: string;
   bellScheduleId: string | null | undefined;
   startTime?: string | null | undefined;
   endTime?: string | null | undefined;
   startPeriodId?: string | null | undefined;
   endPeriodId?: string | null | undefined;
-  allDay: boolean;
+  allDay?: boolean;
 };
 
 export type Schedule = {
   id?: string | null | undefined;
   periods: Period[];
-  daysOfTheWeek: Array<DayOfWeek>;
+  daysOfTheWeek: Array<DayOfWeek | null>;
 };
 
 export const buildNewSchedule = (
@@ -36,7 +36,7 @@ export const buildNewPeriod = (allDay: boolean): Period => {
   };
 };
 
-const buildDaysOfTheWeek = (defaultSelected: boolean): DayOfWeek[] => {
+export const buildDaysOfTheWeek = (defaultSelected: boolean): DayOfWeek[] => {
   if (defaultSelected) {
     return [
       DayOfWeek.Monday,
