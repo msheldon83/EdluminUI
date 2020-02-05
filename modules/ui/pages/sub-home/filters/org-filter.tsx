@@ -19,22 +19,25 @@ export const DistrictFilter: React.FC<Props> = props => {
   const userAccessQuery = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
-  const userAccess = userAccessQuery.state !== "DONE" ? null : userAccessQuery.data.userAccess?.me;  
+  const userAccess =
+    userAccessQuery.state !== "DONE"
+      ? null
+      : userAccessQuery.data.userAccess?.me;
 
-  const organizationOptions: OptionType[] = useMemo(
-    () => {
-      if (userAccess) {
-        const mySubOrgs = compact(
-          userAccess?.user?.orgUsers?.map(ou => {if (ou.isReplacementEmployee) {
+  const organizationOptions: OptionType[] = useMemo(() => {
+    if (userAccess) {
+      const mySubOrgs = compact(
+        userAccess?.user?.orgUsers?.map(ou => {
+          if (ou?.isReplacementEmployee) {
             return ou.organization;
-          }}));
-        return mySubOrgs.map(o => ({ label: o.name, value: o.id }))
-      } else {
-        return [{ label: "", value: ""}];
-      }
-    },
-    [userAccess]
-  );
+          }
+        })
+      );
+      return mySubOrgs.map(o => ({ label: o.name, value: o.id }));
+    } else {
+      return [{ label: "", value: "" }];
+    }
+  }, [userAccess]);
 
   const onChangeOrganizations = useCallback(
     (value: OptionType[]) => {
