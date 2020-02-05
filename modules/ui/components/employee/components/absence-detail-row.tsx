@@ -6,7 +6,7 @@ import { CancelAbsenceDialog } from "./cancel-absence-dialog";
 
 type Props = {
   absence: EmployeeAbsenceDetail;
-  cancelAbsence?: (absenceId: string) => Promise<void>;
+  cancelAbsence: (absenceId: string) => Promise<void>;
   showAbsenceChip?: boolean;
   actingAsEmployee?: boolean;
   orgId?: string;
@@ -24,8 +24,8 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
       <CancelAbsenceDialog
         open={dialogIsOpen}
         onClose={() => setDialogIsOpen(false)}
-        onCancel={() => {
-          props.cancelAbsence && props.cancelAbsence(props.absence.id);
+        onCancel={async () => {
+          await props.cancelAbsence(props.absence.id);
           setDialogIsOpen(false);
         }}
       />

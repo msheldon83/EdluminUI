@@ -54,6 +54,7 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   });
 
   const cancelAbsence = async (absenceId: string) => {
+    console.log(absenceId);
     const result = await deleteAbsence({
       variables: {
         absenceId: absenceId,
