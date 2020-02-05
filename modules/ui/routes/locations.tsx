@@ -41,3 +41,16 @@ export const LocationSubPrefLoader = asyncComponent({
   },
   name: "LocationsSubPrefPage",
 });
+
+// Add
+export const LocationAddRoute = defineSubRoute(LocationsRoute, "/add", []);
+
+export const LocationAddLoader = asyncComponent({
+  resolve: async () => {
+    const LocationAddBasicInfo = (
+      await import("ui/pages/schools/components/add-basic-info")
+    ).LocationAddBasicInfo;
+    return LocationAddBasicInfo;
+  },
+  name: "LocationAddBasicInfo",
+});
