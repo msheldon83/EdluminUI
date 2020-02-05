@@ -61,13 +61,8 @@ export const AdminHome: React.FC<Props> = props => {
   // being shown based on the timeOfDay
 
   useEffect(() => {
-    if (timeOfDay === "morning") {
-      setSelectedCard("unfilled");
-    } else if (timeOfDay === "afternoon") {
-      setSelectedCard("awaitingVerification");
-    } else if (timeOfDay === "evening") {
+    if (timeOfDay === "evening") {
       setDate(startOfTomorrow());
-      setSelectedCard("unfilled");
     }
   }, [timeOfDay]);
 
@@ -88,6 +83,7 @@ export const AdminHome: React.FC<Props> = props => {
     }
     setTimeOfDay(newTimeOfDay);
 
+    // It's possible we will want to add different states in the future
     if (newTimeOfDay === "morning") {
       setDate(startOfToday());
       setSelectedCard("unfilled");

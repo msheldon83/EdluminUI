@@ -11,8 +11,6 @@ export type EmployeeAbsenceDetail = {
   startDate: Date;
   endDate: Date;
   numDays: number;
-  dayPart: DayPart;
-  totalDayPortion: number;
   startTime: string;
   startTimeLocal: Date;
   endTime: string;
@@ -23,6 +21,10 @@ export type EmployeeAbsenceDetail = {
     phoneNumber?: string | null | undefined;
   };
   allDays: Date[];
+  allDayParts: {
+    dayPart: DayPart;
+    dayPortion: number;
+  }[];
 };
 
 export type ContractDate = {
