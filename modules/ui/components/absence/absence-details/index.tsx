@@ -247,16 +247,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             assignmentId={props.assignmentId}
             employeeName={props.replacementEmployeeName || ""}
             subText={props.arrangedSubText ?? t("pre-arranged")}
-            onRemove={async (
-              employeeId: string,
-              assignmentId?: string,
-              assignmentRowVersion?: string
-            ) =>
-              await props.onRemoveReplacement(
-                assignmentId,
-                assignmentRowVersion
-              )
-            }
+            onRemove={async () => await props.onRemoveReplacement()}
             assignmentStartDate={assignmentStartTime ?? startDate}
           />
         )}
