@@ -210,6 +210,7 @@ export const EditVacancies: React.FC<Props> = props => {
                 values.details.map((d, i) => (
                   <Grid key={i} container className={classes.rowSpacing}>
                     <EditableVacancyDetailRow
+                      actingAsEmployee={props.actingAsEmployee}
                       locationOptions={locationOptions}
                       accountingCodes={accountingCodes}
                       orgId={props.orgId}
