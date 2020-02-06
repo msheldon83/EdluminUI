@@ -37,6 +37,7 @@ type Props = {
   values: VacancyDetail;
   className?: string;
   showRemoveButton: boolean;
+  actingAsEmployee?: boolean;
   onRemoveRow: () => void;
   onAddRow: () => void;
   error?: FormikErrors<VacancyDetail>;
@@ -115,30 +116,34 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             withResetValue={false}
           />
         </Grid>
-        <Grid
-          item
-          xs={3}
-          className={(classes.vacancyBlockItem, classes.spacing)}
-        >
-          {t("Pay Code")}
-          <FormikSelect
-            name={`${fieldNamePrefix}.payCodeId`}
-            options={props.payCodeOptions}
-            withResetValue={true}
-          />
-        </Grid>
-        <Grid
-          item
-          xs={2}
-          className={(classes.vacancyBlockItem, classes.spacing)}
-        >
-          {t("Accounting Code")}
-          <FormikSelect
-            name={`${fieldNamePrefix}.accountingCodeId`}
-            options={accountingCodeOptions}
-            withResetValue={true}
-          />
-        </Grid>
+        {!props.actingAsEmployee && (
+          <>
+            <Grid
+              item
+              xs={3}
+              className={(classes.vacancyBlockItem, classes.spacing)}
+            >
+              {t("Pay Code")}
+              <FormikSelect
+                name={`${fieldNamePrefix}.payCodeId`}
+                options={props.payCodeOptions}
+                withResetValue={true}
+              />
+            </Grid>
+            <Grid
+              item
+              xs={2}
+              className={(classes.vacancyBlockItem, classes.spacing)}
+            >
+              {t("Accounting Code")}
+              <FormikSelect
+                name={`${fieldNamePrefix}.accountingCodeId`}
+                options={accountingCodeOptions}
+                withResetValue={true}
+              />
+            </Grid>
+          </>
+        )}
         {props.showRemoveButton && (
           <Grid item>
             <IconButton onClick={props.onRemoveRow}>

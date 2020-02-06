@@ -22,12 +22,7 @@ type DatePickerProps = {
   dateFormat?: string;
   disableDates?: Array<Date>;
   onMonthChange?: DatePickerOnMonthChange;
-  variant?:
-    | "single"
-    | "single-hidden"
-    | "range"
-    | "extended-range"
-    | "field-only";
+  variant?: "single" | "single-hidden" | "range" | "extended-range";
   endAdornment?: React.ReactNode;
 };
 
@@ -75,7 +70,6 @@ export const DatePicker = (props: DatePickerProps) => {
   let shouldShowRange = true;
   switch (variant) {
     case "single":
-    case "field-only":
     case "single-hidden": {
       shouldShowRange = false;
       break;
@@ -239,8 +233,6 @@ export const DatePicker = (props: DatePickerProps) => {
           handleCalendarDateRangeChange(date);
           break;
         }
-        case "field-only":
-          break;
       }
     },
     [handleCalendarDateRangeChange, handleCalendarSingleDateChange, variant]
@@ -300,9 +292,6 @@ export const DatePicker = (props: DatePickerProps) => {
 
   let showCalendar: null | { render: () => JSX.Element };
   switch (variant) {
-    case "field-only":
-      showCalendar = null;
-      break;
     case "single-hidden":
       showCalendar = { render: renderPopoverCalendar };
       break;
@@ -314,7 +303,6 @@ export const DatePicker = (props: DatePickerProps) => {
   const renderEndDate = () => {
     switch (variant) {
       case "single":
-      case "field-only":
       case "single-hidden": {
         return;
       }

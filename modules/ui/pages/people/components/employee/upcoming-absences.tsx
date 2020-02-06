@@ -1,7 +1,7 @@
 import { isAfter } from "date-fns";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
@@ -16,6 +16,9 @@ import {
   EmployeeAbsScheduleListViewRoute,
   PersonViewRoute,
 } from "ui/routes/people";
+import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {
   employeeId: string;
@@ -26,6 +29,7 @@ export const UpcomingAbsences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PersonViewRoute);
+  const { openSnackbar } = useSnackbar();
 
   const currentSchoolYear = useCurrentSchoolYear(props.orgId.toString());
   const startDate = useMemo(() => new Date(), []);
@@ -48,6 +52,24 @@ export const UpcomingAbsences: React.FC<Props> = props => {
 
   const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
 
+  const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+    refetchQueries: ["GetEmployeeAbsenceSchedule"],
+  });
+
+  const cancelAbsence = useCallback(
+    async (absenceId: string) => {
+      await deleteAbsence({
+        variables: {
+          absenceId: absenceId,
+        },
+      });
+    },
+    [deleteAbsence]
+  );
+
   return (
     <Section>
       <SectionHeader
@@ -69,6 +91,7 @@ export const UpcomingAbsences: React.FC<Props> = props => {
             isAfter(a.startTimeLocal, startDate)
           )
           .slice(0, 5)}
+        cancelAbsence={cancelAbsence}
         isLoading={
           getAbsenceSchedule.state === "LOADING" ||
           getAbsenceSchedule.state === "UPDATING"
