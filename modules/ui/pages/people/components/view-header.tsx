@@ -66,8 +66,10 @@ export const PersonViewHeader: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
+
+  const orgStatus = props.orgStatus;
   const invite = React.useCallback(async () => {
-    if (props.orgStatus === OrganizationType.Demo) {
+    if (orgStatus === OrganizationType.Demo) {
       openSnackbar({
         message: t("This Organization is in Demo Mode. Invite was not sent"),
         dismissable: true,
@@ -95,7 +97,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
       }
     }
   }, [
-    props.orgStatus,
+    orgStatus,
     openSnackbar,
     t,
     inviteUser,
