@@ -3,15 +3,14 @@ import * as React from "react";
 import createDate from "sugar/date/create";
 import { formatDateIfPossible } from "../../../helpers/date";
 import { DEFAULT_DATE_FORMAT } from "./date-picker";
-import { Input } from "./input";
+import { Input, InputProps } from "./input";
 
-type DateInputProps = {
-  label: string;
+type InputPropsExtendable = Omit<InputProps, "onChange" | "value">;
+
+type DateInputProps = InputPropsExtendable & {
   value?: Date | string;
   onChange: (date: string) => void;
   onValidDate: (date: Date) => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
   dateFormat?: string;
   endAdornment?: React.ReactNode;
 };
@@ -26,13 +25,14 @@ export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
     endAdornment,
     onBlur = () => {},
     dateFormat = DEFAULT_DATE_FORMAT,
+    ...inputProps
   } = props;
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
   };
 
-  const handleOnBlur = () => {
+  const handleOnBlur = (e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     let date = createDate(value);
 
     if (isValid(date)) {
@@ -41,7 +41,7 @@ export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
       date = value;
     }
 
-    onBlur();
+    onBlur(e);
     onChange(date);
   };
 
@@ -49,7 +49,7 @@ export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
 
   return (
     <Input
-      label={label}
+      {...inputProps}
       value={formattedValue}
       onChange={handleOnChange}
       onBlur={handleOnBlur}
