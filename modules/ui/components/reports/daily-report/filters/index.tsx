@@ -28,7 +28,7 @@ export const Filters: React.FC<Props> = props => {
   return (
     <Grid
       container
-      alignItems="center"
+      alignItems="flex-start"
       justify="flex-start"
       spacing={2}
       className={classes.filters}
