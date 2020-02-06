@@ -291,7 +291,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
             </Button>
           )}
           <Can do={[PermissionEnum.AbsVacSave]}>
-            <Button type="submit" variant="contained">
+            <Button
+              type="submit"
+              variant="contained"
+              className={classes.saveButton}
+            >
               {props.saveLabel ?? t("Create")}
             </Button>
           </Can>
@@ -328,6 +332,9 @@ const useStyles = makeStyles(theme => ({
   },
   cancelButton: {
     marginRight: theme.spacing(2),
+  },
+  saveButton: {
+    marginRight: theme.spacing(4),
   },
   select: {
     paddingTop: theme.typography.pxToRem(4),
