@@ -52,10 +52,10 @@ export const DurationInput = React.forwardRef((props: Props, ref) => {
       inputRef={ref}
       inputStatus={inputStatus}
       disabled={disabled}
-      validationMessage={validationMessage}
-      helperMessage={helperMessage}
+      validationMessage={validationMessage || helperMessage}
     />
   );
+
 });
 
 // Only allow valid characters

@@ -88,7 +88,8 @@ export const SelectNew = () => {
 
 export const MultiSelectNew = () => {
   const classes = useStyles();
-  const [value, setValue] = React.useState<Array<OptionType>>([]);
+  const [value1, setValue1] = React.useState<Array<OptionType>>([]);
+  const [value2, setValue2] = React.useState<Array<OptionType>>([]);
 
   const options = [
     { label: "One", value: 1 },
@@ -104,15 +105,34 @@ export const MultiSelectNew = () => {
   ];
 
   return (
-    <div className={classes.container}>
+    <div className={`${classes.container} ${classes.flexContainer}`}>
       <CustomSelectNew
+        className={classes.flexItem}
         label={text("label", "Multi Select Label")}
-        value={value}
+        value={value1}
         multiple
         options={object("options", options)}
         onChange={(value: Array<OptionType>) => {
           action("onChange")(value);
-          setValue(value);
+          setValue1(value);
+        }}
+        validationMessage={text("validationMessage", "")}
+        inputStatus={select(
+          "inputStatus",
+          { undefined: null, error: "error" },
+          null
+        )}
+        disabled={boolean("disabled", false)}
+      />
+      <CustomSelectNew
+        className={classes.flexItem}
+        label={text("label", "Multi Select Label")}
+        value={value2}
+        multiple
+        options={object("options", options)}
+        onChange={(value: Array<OptionType>) => {
+          action("onChange")(value);
+          setValue2(value);
         }}
         validationMessage={text("validationMessage", "")}
         inputStatus={select(
@@ -132,5 +152,14 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2),
     maxWidth: theme.typography.pxToRem(400),
     width: "100%",
+  },
+  flexContainer: {
+    alignItems: "flex-start",
+    display: "flex",
+    maxWidth: theme.typography.pxToRem(700),
+  },
+  flexItem: {
+    flex: 1,
+    marginRight: theme.spacing(2),
   },
 }));
