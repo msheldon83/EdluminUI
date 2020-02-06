@@ -43,7 +43,7 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
 
-  const inFuture = isFuture(parseISO(props.startDate));
+  const inFuture = isFuture(parseISO(props.startTime));
 
   return (
     <div className={[classes.container, props.className].join(" ")}>
@@ -68,22 +68,22 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               #C{props.confirmationNumber}
             </Typography>
           </div>
-          {props.isAdmin || inFuture && (
+          {(props.isAdmin || inFuture) && (
             <Can do={[PermissionEnum.AbsVacRemoveSub]}>
-            <div className={classes.actionItem}>
-              <Button
-                variant="outlined"
-                className={classes.cancel}
-                onClick={e => {
-                  e.stopPropagation();
-                  props.onCancel();
-                }}
-              >
-                {t("Cancel")}
-              </Button>
-            </div>
-          </Can>
-          )}          
+              <div className={classes.actionItem}>
+                <Button
+                  variant="outlined"
+                  className={classes.cancel}
+                  onClick={e => {
+                    e.stopPropagation();
+                    props.onCancel();
+                  }}
+                >
+                  {t("Cancel")}
+                </Button>
+              </div>
+            </Can>
+          )}
         </div>
       )}
     </div>

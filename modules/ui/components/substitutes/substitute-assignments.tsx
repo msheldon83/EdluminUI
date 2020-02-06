@@ -128,7 +128,9 @@ export const SubstituteAssignments: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  section: { padding: 0 },
+  section: {
+    padding: 0,
+  },
   header: { paddingBottom: theme.spacing(3) },
   itemContainer: {
     display: "flex",
