@@ -57,8 +57,8 @@ export const SubSchedule: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   pageContainer: {
-    display: "block",
-    overflowY: "scroll",
+    display: "flex",
+    overflowY: "auto",
     height: "100vh",
   },
 }));

@@ -7,6 +7,7 @@ import { AssignmentDetailsUI } from "ui/components/substitutes/assignment-detail
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { NotesPopper } from "../notes-popper";
+import { parseISO, isFuture } from "date-fns";
 
 type Props = {
   startDate: string;
@@ -42,6 +43,8 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
 
+  const inFuture = isFuture(parseISO(props.startDate));
+
   return (
     <div className={[classes.container, props.className].join(" ")}>
       <div className={classes.infoContainer}>
@@ -65,7 +68,8 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               #C{props.confirmationNumber}
             </Typography>
           </div>
-          <Can do={[PermissionEnum.AbsVacRemoveSub]}>
+          {props.isAdmin || inFuture && (
+            <Can do={[PermissionEnum.AbsVacRemoveSub]}>
             <div className={classes.actionItem}>
               <Button
                 variant="outlined"
@@ -79,6 +83,7 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               </Button>
             </div>
           </Can>
+          )}          
         </div>
       )}
     </div>

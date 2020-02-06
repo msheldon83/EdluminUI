@@ -33,13 +33,11 @@ export const AssignmentRow: React.FC<Props> = props => {
   const onCancelClick = () => setIsCancelDialogOpen(true);
   const onCloseDialog = () => setIsCancelDialogOpen(false);
   const onCancelMutation = useCallback(async () => {
-    await onCancel(
-      a.assignment?.id ?? "",
-      a.assignment?.rowVersion ?? "",
-      undefined
-    );
+    await onCancel(a.assignment?.id ?? "", a.assignment?.rowVersion ?? "", [
+      a.id ?? "",
+    ]);
     onCloseDialog();
-  }, [onCancel, a.assignment]);
+  }, [onCancel, a.assignment, a.id]);
 
   return (
     <>
