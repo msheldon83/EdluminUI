@@ -10,6 +10,7 @@ export type VacancyDetail = {
   accountingCodeId?: string | null;
   payCodeId?: string | null;
   assignmentId?: string;
+  assignmentRowVersion?: string;
   assignmentEmployeeId?: string;
   assignmentEmployeeName?: string;
 };

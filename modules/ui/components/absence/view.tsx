@@ -95,7 +95,6 @@ export const View: React.FC<Props> = props => {
   }
 
   const removeSub = async (
-    employeeId: string,
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => {
@@ -190,8 +189,11 @@ export const View: React.FC<Props> = props => {
                   assignmentRowVersion={
                     replacementEmployeeInformation.assignmentRowVersion
                   }
-                  onRemove={async (...props) => {
-                    await removeSub(...props);
+                  onRemove={async (
+                    assignmentId?: string,
+                    assignmentRowVersion?: string
+                  ) => {
+                    await removeSub(assignmentId, assignmentRowVersion);
                     setReplacementEmployeeInformation(null);
                   }}
                   assignmentStartDate={absenceStartDate} //CLA - this is a hack and should eventually be using the assignment start date
@@ -204,6 +206,13 @@ export const View: React.FC<Props> = props => {
                       vacancies={absence.vacancies as Vacancy[]}
                       equalWidthDetails
                       disabledDates={disabledDates}
+                      onCancelAssignment={async (
+                        assignmentId?: string,
+                        assignmentRowVersion?: string
+                      ) => {
+                        await removeSub(assignmentId, assignmentRowVersion);
+                        setReplacementEmployeeInformation(null);
+                      }}
                     />
                     <div className={classes.requiresSubSection}>
                       <Typography variant="h6">

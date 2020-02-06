@@ -379,6 +379,7 @@ const useStyles = makeStyles(theme => ({
     border: `${theme.typography.pxToRem(1)} solid ${
       theme.customColors.medLightGray
     }`,
+    paddingBottom: theme.spacing(),
   },
   viewAllDetails: {
     cursor: "pointer",

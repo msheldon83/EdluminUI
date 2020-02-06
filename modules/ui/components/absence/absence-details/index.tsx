@@ -70,10 +70,10 @@ type Props = {
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   onRemoveReplacement: (
-    replacementEmployeeId: string,
-    replacementEmployeeName?: string,
-    assignmentRowVersion?: string
-  ) => void;
+    assignmentId?: string,
+    assignmentRowVersion?: string,
+    vacancyDetailIds?: string[]
+  ) => Promise<void>;
   returnUrl?: string;
   isSubmitted: boolean;
   initialAbsenceCreation: boolean;
@@ -240,7 +240,16 @@ export const AbsenceDetails: React.FC<Props> = props => {
             assignmentId={props.assignmentId}
             employeeName={props.replacementEmployeeName || ""}
             subText={props.arrangedSubText ?? t("pre-arranged")}
-            onRemove={props.onRemoveReplacement}
+            onRemove={async (
+              employeeId: string,
+              assignmentId?: string,
+              assignmentRowVersion?: string
+            ) =>
+              await props.onRemoveReplacement(
+                assignmentId,
+                assignmentRowVersion
+              )
+            }
             assignmentStartDate={startDate} //CLA - this is a hack and should eventually be using the assignment start date
           />
         )}
@@ -269,6 +278,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             needsReplacement={needsReplacement}
             wantsReplacement={wantsReplacement}
             onSubstituteWantedChange={onSubstituteWantedChange}
+            onCancelAssignment={props.onRemoveReplacement}
           />
         </div>
       </Grid>

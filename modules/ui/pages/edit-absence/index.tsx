@@ -105,27 +105,55 @@ export const EditAbsence: React.FC<Props> = props => {
   }, [deleteAbsence, params.absenceId, returnUrl, history, openSnackbar, t]);
 
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
-  const cancelAssignments = React.useCallback(async () => {
-    if (absence.state !== "DONE") return;
-    const assignments = uniqBy(
-      compact(
-        flatMap(absence.data.absence?.byId?.vacancies, v =>
-          v?.details?.map(vd => vd?.assignment)
-        )
-      ),
-      "id"
-    );
-    await Promise.all(
-      assignments.map(a =>
-        cancelAssignment({
+  const cancelAssignments = React.useCallback(
+    async (
+      assignmentId?: string,
+      assignmentRowVersion?: string,
+      vacancyDetailIds?: string[]
+    ) => {
+      if (absence.state !== "DONE") return;
+
+      if (!assignmentId) {
+        // No specific Assignment Id provided, cancel all Assignments
+        const assignments = uniqBy(
+          compact(
+            flatMap(absence.data.absence?.byId?.vacancies, v =>
+              v?.details?.map(vd => vd?.assignment)
+            )
+          ),
+          "id"
+        );
+        await Promise.all(
+          assignments.map(a =>
+            cancelAssignment({
+              variables: {
+                assignment: { assignmentId: a.id, rowVersion: a.rowVersion },
+              },
+            })
+          )
+        );
+      } else {
+        const vacancyDetailIdsToCancel =
+          vacancyDetailIds && vacancyDetailIds.length > 0
+            ? vacancyDetailIds
+            : undefined;
+        // Cancelling a single Assignment (or part of a single Assignment)
+        await cancelAssignment({
           variables: {
-            assignment: { assignmentId: a.id, rowVersion: a.rowVersion },
+            assignment: {
+              assignmentId: assignmentId,
+              rowVersion: assignmentRowVersion ?? "",
+              vacancyDetailIds: vacancyDetailIdsToCancel,
+            },
           },
-        })
-      )
-    );
-    await absence.refetch();
-  }, [absence, cancelAssignment]);
+        });
+      }
+
+      // Reload the Absence
+      await absence.refetch();
+    },
+    [absence, cancelAssignment]
+  );
 
   const initialVacancyDetails: VacancyDetail[] = useMemo(() => {
     if (absence.state !== "DONE") {
@@ -148,6 +176,7 @@ export const EditAbsence: React.FC<Props> = props => {
               d?.accountingCodeAllocations &&
               d?.accountingCodeAllocations[0]?.accountingCode?.id,
             assignmentId: d.assignment?.id,
+            assignmentRowVersion: d.assignment?.rowVersion,
             assignmentEmployeeId: d.assignment?.employee?.id,
             assignmentEmployeeName: `${d.assignment?.employee?.firstName} ${d.assignment?.employee?.lastName}`,
           };

@@ -48,6 +48,11 @@ type Props = {
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
   onSubstituteWantedChange: (wanted: boolean) => void;
+  onCancelAssignment: (
+    assignmentId?: string,
+    assignmentRowVersion?: string,
+    vacancyDetailIds?: string[]
+  ) => Promise<void>;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -123,6 +128,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
         <VacancyDetails
           vacancies={vacancies}
           disabledDates={props.disabledDates}
+          onCancelAssignment={props.onCancelAssignment}
         />
       )}
 

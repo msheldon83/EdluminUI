@@ -75,7 +75,7 @@ type Props = {
   startTimeLocal: string;
   endTimeLocal: string;
   absenceDates: Date[];
-  cancelAssignments: () => Promise<void>;
+  cancelAssignments: (assignmentId?: string, assignmentRowVersion?: string, vacancyDetailIds?: string[]) => Promise<void>;
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
   returnUrl?: string;
