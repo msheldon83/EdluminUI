@@ -5,10 +5,14 @@ import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
+import { OptionType } from "ui/components/form/select-new";
+import { USStates } from "reference-data/states";
+import { useQueryBundle } from "graphql/hooks";
 import { AddressInput, TimeZone } from "graphql/server-types.gen";
 import { Typography, makeStyles } from "@material-ui/core";
 import { AddSettingsInfo } from "./components/add-settings-info";
 import { LocationCreateInput } from "graphql/server-types.gen";
+import { GetAllLocationGroupsWithinOrg } from "ui/pages/school-groups/graphql/get-all-location-groups.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { CreateLocation } from "./graphql/create-location.gen";
 import {
@@ -34,12 +38,32 @@ export const LocationAddPage: React.FC<Props> = props => {
     name: "",
     externalId: null,
     address: null,
-    timeZoneId: null,
+    timeZoneId: null, //Pull from the ORg
     locationGroupId: null,
     phoneNumber: null,
     replacementStartOffsetMinutes: null,
     replacementEndOffsetMinutes: null,
   });
+
+  const stateOptions = USStates.map(s => ({
+    label: s.name,
+    value: s.enumValue,
+  }));
+
+  //Query Location Groups
+  const locationGroups = useQueryBundle(GetAllLocationGroupsWithinOrg, {
+    variables: { orgId: params.organizationId },
+  });
+
+  if ( locationGroups.state === "LOADING") {
+    return <></>;
+  }
+
+  const locationGroupOptions: OptionType[] =
+    locationGroups?.data?.locationGroup?.all?.map(c => ({
+      label: c?.name ?? "",
+      value: c?.id ?? "",
+    })) ?? [];
 
   //Render Tabs
   const renderBasicInfoStep = (
@@ -71,8 +95,9 @@ export const LocationAddPage: React.FC<Props> = props => {
   ) => {
     return (
       <AddSettingsInfo
-        orgId={params.organizationId}
-        location={location}
+        location={location}   
+        stateOptions={stateOptions}
+        locationGroupOptions={locationGroupOptions}       
         submitText={t("Save")}
         onSubmit={async (
           address?: AddressInput | null,
