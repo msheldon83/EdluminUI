@@ -1,6 +1,6 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useRouteParams } from "ui/routes/definition";
 import {
@@ -14,6 +14,9 @@ import { PeopleRoute } from "ui/routes/people";
 import { Redirect } from "react-router";
 import { useMemo } from "react";
 import { parseISO } from "date-fns";
+import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {
   view: "list" | "calendar";
@@ -23,6 +26,22 @@ export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const params = useRouteParams(EmployeeAbsScheduleRoute);
+  const { openSnackbar } = useSnackbar();
+
+  const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+    refetchQueries: ["GetEmployeeAbsenceSchedule"],
+  });
+
+  const cancelAbsence = async (absenceId: string) => {
+    const result = await deleteAbsence({
+      variables: {
+        absenceId: absenceId,
+      },
+    });
+  };
 
   const getOrgUser = useQueryBundle(GetOrgUserById, {
     variables: { id: params.orgUserId },
@@ -59,6 +78,7 @@ export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
           view={props.view}
           employeeId={params.orgUserId}
           orgId={params.organizationId}
+          cancelAbsence={cancelAbsence}
           pageTitle={`${orgUser.firstName} ${orgUser.lastName}'s Schedule`}
           calendarViewRoute={EmployeeAbsScheduleCalendarViewRoute.generate(
             params

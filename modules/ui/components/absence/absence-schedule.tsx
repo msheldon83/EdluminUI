@@ -26,7 +26,7 @@ type Props = {
   employeeId: string;
   orgId: string;
   pageTitle: string;
-  cancelAbsence?: (absenceId: string) => Promise<void>;
+  cancelAbsence: (absenceId: string) => Promise<void>;
   calendarViewRoute: string;
   listViewRoute: string;
   actingAsEmployee: boolean;
