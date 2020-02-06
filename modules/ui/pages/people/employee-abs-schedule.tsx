@@ -16,6 +16,7 @@ import { useMemo } from "react";
 import { parseISO } from "date-fns";
 import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
 import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {
   view: "list" | "calendar";
@@ -29,18 +30,7 @@ export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
 
   const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
     refetchQueries: ["GetEmployeeAbsenceSchedule"],
   });
