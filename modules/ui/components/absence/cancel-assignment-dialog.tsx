@@ -127,7 +127,13 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
-        <Typography variant="h5">{t("Remove Substitute")}</Typography>
+        <Typography variant="h5">
+          {currentAssignmentDetails.assignmentEmployeeName
+            ? `${t("Remove")} ${
+                currentAssignmentDetails.assignmentEmployeeName
+              }`
+            : t("Remove Substitute")}
+        </Typography>
       </DialogTitle>
       <DialogContent>
         <Typography>
