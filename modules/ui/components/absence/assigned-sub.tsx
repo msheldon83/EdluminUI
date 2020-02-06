@@ -2,23 +2,28 @@ import * as React from "react";
 import { makeStyles, Button, Typography } from "@material-ui/core";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import { useTranslation } from "react-i18next";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { Vacancy } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
 import { canRemoveSub } from "helpers/permissions";
 import { OrgUserPermissions } from "ui/components/auth/types";
+import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
+import { useState, useMemo, useCallback } from "react";
+import { getGroupedVacancyDetails } from "./helpers";
+import { flatMap, uniq } from "lodash-es";
 
 type Props = {
   employeeId: string;
   employeeName: string;
+  vacancies: Vacancy[];
   subText?: string;
   assignmentId?: string;
   assignmentRowVersion?: string;
   assignmentStartDate: Date;
-  onRemove?: (
-    employeeId: string,
+  onCancelAssignment?: (
     assignmentId?: string,
-    assignmentRowVersion?: string
-  ) => void;
+    assignmentRowVersion?: string,
+    vacancyDetailIds?: string[]
+  ) => Promise<void>;
   disableReplacementInteractions?: boolean;
   showLinkButton?: boolean;
 };
@@ -26,59 +31,100 @@ type Props = {
 export const AssignedSub: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const [
+    cancelAssignmentDialogIsOpen,
+    setCancelAssignmentDialogIsOpen,
+  ] = useState(false);
+
+  const allGroupedDetails = useMemo(() => {
+    return getGroupedVacancyDetails(props.vacancies);
+  }, [props.vacancies]);
+
+  const onClickRemove = useCallback(async () => {
+    if (!props.onCancelAssignment) {
+      return;
+    }
+
+    // Determine if the same Assignment is across multiple days
+    const matchingGroups = allGroupedDetails.filter(
+      x => x.assignmentId && x.assignmentId === props.assignmentId
+    );
+    const allDates = uniq(
+      flatMap(matchingGroups.map(g => g.detailItems.map(di => di.date)))
+    );
+
+    if (allDates.length > 1) {
+      // Need User input for how they want to proceed
+      setCancelAssignmentDialogIsOpen(true);
+    } else {
+      // Go ahead and just cancel this Assignment
+      await props.onCancelAssignment(
+        matchingGroups[0].assignmentId,
+        matchingGroups[0].assignmentRowVersion
+      );
+    }
+  }, [
+    setCancelAssignmentDialogIsOpen,
+    props.assignmentId,
+    props.onCancelAssignment,
+    allGroupedDetails,
+  ]);
 
   return (
-    <div className={classes.container}>
-      <div className={classes.details}>
-        <AccountCircleOutlined fontSize="large" />
-        <div className={classes.name}>
-          <Typography variant="h6">{props.employeeName}</Typography>
-          {props.subText && (
-            <div className={classes.subText}>{props.subText}</div>
+    <>
+      {props.onCancelAssignment && props.assignmentId && (
+        <CancelAssignmentDialog
+          onCancelAssignment={props.onCancelAssignment}
+          onClose={() => setCancelAssignmentDialogIsOpen(false)}
+          open={cancelAssignmentDialogIsOpen}
+          assignmentId={props.assignmentId}
+          allDetailGroups={allGroupedDetails}
+        />
+      )}
+      <div className={classes.container}>
+        <div className={classes.details}>
+          <AccountCircleOutlined fontSize="large" />
+          <div className={classes.name}>
+            <Typography variant="h6">{props.employeeName}</Typography>
+            {props.subText && (
+              <div className={classes.subText}>{props.subText}</div>
+            )}
+          </div>
+        </div>
+        {props.assignmentId === undefined ? (
+          <></>
+        ) : (
+          <div>{t("#C") + props.assignmentId}</div>
+        )}
+        <div>
+          {props.onCancelAssignment && (
+            <Can
+              do={(
+                permissions: OrgUserPermissions[],
+                isSysAdmin: boolean,
+                orgId?: string
+              ) =>
+                canRemoveSub(
+                  props.assignmentStartDate,
+                  permissions,
+                  isSysAdmin,
+                  orgId
+                )
+              }
+            >
+              <Button
+                disabled={props.disableReplacementInteractions}
+                className={classes.removeButton}
+                variant={props.showLinkButton ? "text" : "outlined"}
+                onClick={onClickRemove}
+              >
+                {t("Remove")}
+              </Button>
+            </Can>
           )}
         </div>
       </div>
-      {props.assignmentId === undefined ? (
-        <></>
-      ) : (
-        <div>{t("#C") + props.assignmentId}</div>
-      )}
-      <div>
-        {props.onRemove && (
-          <Can
-            do={(
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string
-            ) =>
-              canRemoveSub(
-                props.assignmentStartDate,
-                permissions,
-                isSysAdmin,
-                orgId
-              )
-            }
-          >
-            <Button
-              disabled={props.disableReplacementInteractions}
-              className={classes.removeButton}
-              variant={props.showLinkButton ? "text" : "outlined"}
-              onClick={() => {
-                if (props.onRemove) {
-                  props.onRemove(
-                    props.employeeId,
-                    props.assignmentId,
-                    props.assignmentRowVersion
-                  );
-                }
-              }}
-            >
-              {t("Remove")}
-            </Button>
-          </Can>
-        )}
-      </div>
-    </div>
+    </>
   );
 };
 

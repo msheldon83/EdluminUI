@@ -5,12 +5,12 @@ import { VacancyDetailsGroup } from "./helpers";
 import { getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "./date-helpers";
 import { format } from "date-fns";
 import { AssignedSub } from "./assigned-sub";
-import { useMemo, useCallback, useState } from "react";
-import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
+import { useMemo } from "react";
+import { Vacancy } from "graphql/server-types.gen";
 
 type Props = {
   groupedDetail: VacancyDetailsGroup;
-  allGroupedDetails: VacancyDetailsGroup[];
+  vacancies: Vacancy[];
   isSplitVacancy: boolean;
   equalWidthDetails?: boolean;
   disabledDates?: Date[];
@@ -25,14 +25,10 @@ type Props = {
 export const VacancyDetailRow: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [
-    cancelAssignmentDialogIsOpen,
-    setCancelAssignmentDialogIsOpen,
-  ] = useState(false);
 
   const {
     groupedDetail,
-    allGroupedDetails,
+    vacancies,
     isSplitVacancy,
     onCancelAssignment,
     equalWidthDetails = false,
@@ -43,44 +39,8 @@ export const VacancyDetailRow: React.FC<Props> = props => {
     return groupedDetail.detailItems.map(di => di.date);
   }, [groupedDetail]);
 
-  const onClickRemove = useCallback(async () => {
-    if (!onCancelAssignment) {
-      return;
-    }
-
-    // Determine if the same Assignment is across multiple groups
-    const matchingGroups = allGroupedDetails.filter(
-      x => x.assignmentId && x.assignmentId === groupedDetail.assignmentId
-    );
-
-    if (matchingGroups.length > 1) {
-      // Need User input for how they want to proceed
-      setCancelAssignmentDialogIsOpen(true);
-    } else {
-      // Go ahead and just cancel this Assignment
-      await onCancelAssignment(
-        groupedDetail.assignmentId,
-        groupedDetail.assignmentRowVersion
-      );
-    }
-  }, [
-    setCancelAssignmentDialogIsOpen,
-    groupedDetail,
-    allGroupedDetails,
-    onCancelAssignment,
-  ]);
-
   return (
     <>
-      {onCancelAssignment && groupedDetail.assignmentId && (
-        <CancelAssignmentDialog
-          onCancelAssignment={onCancelAssignment}
-          onClose={() => setCancelAssignmentDialogIsOpen(false)}
-          open={cancelAssignmentDialogIsOpen}
-          assignmentId={groupedDetail.assignmentId}
-          allDetailGroups={allGroupedDetails}
-        />
-      )}
       {isSplitVacancy && (
         <Grid item xs={12}>
           {!groupedDetail.assignmentId && (
@@ -97,11 +57,12 @@ export const VacancyDetailRow: React.FC<Props> = props => {
               employeeId={groupedDetail.assignmentEmployeeId ?? ""}
               assignmentId={groupedDetail.assignmentId}
               employeeName={groupedDetail.assignmentEmployeeName || ""}
-              onRemove={onCancelAssignment ? onClickRemove : undefined}
+              onCancelAssignment={onCancelAssignment}
               assignmentStartDate={
                 groupedDetail.assignmentStartTime ?? groupedDetail.startDate
               }
               showLinkButton={true}
+              vacancies={vacancies}
             />
           )}
         </Grid>

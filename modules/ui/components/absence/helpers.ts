@@ -30,6 +30,7 @@ import { TFunction } from "i18next";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { VacancyDetail } from "./types";
+import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -370,7 +371,9 @@ export const getVacancyDetailsGrouping = (
           : undefined,
         assignmentId: value[0].assignmentId,
         assignmentRowVersion: value[0].assignmentRowVersion,
-        assignmentStartTime: value[0].assignmentStartDateTime ? parseISO(value[0].assignmentStartDateTime) : undefined,
+        assignmentStartTime: value[0].assignmentStartDateTime
+          ? parseISO(value[0].assignmentStartDateTime)
+          : undefined,
         assignmentEmployeeId: value[0].assignmentEmployeeId,
         assignmentEmployeeName: value[0].assignmentEmployeeName,
       });
@@ -520,4 +523,27 @@ export const vacanciesHaveMultipleAssignments = (vacancies: Vacancy[]) => {
     : [];
   const uniqueAssignmentIds = uniq(allAssignmentIds);
   return uniqueAssignmentIds.length > 1;
+};
+
+export const getGroupedVacancyDetails = (vacancies: Vacancy[]) => {
+  if (!vacancies) {
+    return [];
+  }
+
+  const sortedVacancies = vacancies
+    .slice()
+    .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
+
+  const allGroupedDetails: VacancyDetailsGroup[] = [];
+  sortedVacancies.forEach(v => {
+    if (v.details && v.details.length > 0) {
+      const projectedDetails = projectVacancyDetailsFromVacancies([v]);
+      const groupedDetails = getVacancyDetailsGrouping(projectedDetails);
+      if (groupedDetails !== null && groupedDetails.length > 0) {
+        allGroupedDetails.push(...groupedDetails);
+      }
+    }
+  });
+
+  return allGroupedDetails;
 };

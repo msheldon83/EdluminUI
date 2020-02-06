@@ -247,8 +247,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
             assignmentId={props.assignmentId}
             employeeName={props.replacementEmployeeName || ""}
             subText={props.arrangedSubText ?? t("pre-arranged")}
-            onRemove={async () => await props.onRemoveReplacement()}
+            onCancelAssignment={props.onRemoveReplacement}
             assignmentStartDate={assignmentStartTime ?? startDate}
+            vacancies={props.vacancies}
           />
         )}
 

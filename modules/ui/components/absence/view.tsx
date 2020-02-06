@@ -90,13 +90,17 @@ export const View: React.FC<Props> = props => {
     },
   });
 
+  const vacancies = useMemo(() => {
+    const vacancies = absence?.vacancies?.filter(v => !!v).map(v => v!) ?? [];
+    return vacancies;
+  }, [absence]);
+
   const assignmentStartTime = useMemo(() => {
-    const vacancies = absence?.vacancies;
-    const details = vacancies && vacancies[0] ? vacancies[0].details : [];
+    const details = vacancies[0] ? vacancies[0].details : [];
     const startTime =
       details && details[0] ? details[0].startTimeLocal : undefined;
     return startTime ? parseISO(startTime) : undefined;
-  }, [absence]);
+  }, [vacancies]);
 
   if (!absence) {
     return null;
@@ -104,13 +108,15 @@ export const View: React.FC<Props> = props => {
 
   const removeSub = async (
     assignmentId?: string,
-    assignmentRowVersion?: string
+    assignmentRowVersion?: string,
+    vacancyDetailIds?: string[]
   ) => {
     const result = await cancelAssignment({
       variables: {
         cancelRequest: {
           assignmentId: assignmentId ?? "",
           rowVersion: assignmentRowVersion ?? "",
+          vacancyDetailIds: vacancyDetailIds ?? undefined,
         },
       },
     });
@@ -197,14 +203,20 @@ export const View: React.FC<Props> = props => {
                   assignmentRowVersion={
                     replacementEmployeeInformation.assignmentRowVersion
                   }
-                  onRemove={async (
+                  onCancelAssignment={async (
                     assignmentId?: string,
-                    assignmentRowVersion?: string
+                    assignmentRowVersion?: string,
+                    vacancyDetailIds?: string[]
                   ) => {
-                    await removeSub(assignmentId, assignmentRowVersion);
+                    await removeSub(
+                      assignmentId,
+                      assignmentRowVersion,
+                      vacancyDetailIds
+                    );
                     setReplacementEmployeeInformation(null);
                   }}
                   assignmentStartDate={assignmentStartTime ?? absenceStartDate}
+                  vacancies={vacancies}
                 />
               )}
               <div className={classes.substituteDetailsSection}>

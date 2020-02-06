@@ -7,9 +7,9 @@ import {
   getVacancyDetailsGrouping,
   vacanciesHaveMultipleAssignments,
   VacancyDetailsGroup,
+  getGroupedVacancyDetails,
 } from "./helpers";
 import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
-import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
 import { VacancyDetailRow } from "./vacancy-detail-row";
 
 type Props = {
@@ -38,31 +38,9 @@ export const VacancyDetails: React.FC<Props> = props => {
     return vacanciesHaveMultipleAssignments(props.vacancies);
   }, [props.vacancies]);
 
-  const sortedVacancies = useMemo(() => {
-    if (!props.vacancies) {
-      return [];
-    }
-
-    return props.vacancies
-      .slice()
-      .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
-  }, [props.vacancies]);
-
   const groupedDetails = useMemo(() => {
-    const allGroupedDetails: VacancyDetailsGroup[] = [];
-
-    sortedVacancies.forEach(v => {
-      if (v.details && v.details.length > 0) {
-        const projectedDetails = projectVacancyDetailsFromVacancies([v]);
-        const groupedDetails = getVacancyDetailsGrouping(projectedDetails);
-        if (groupedDetails !== null && groupedDetails.length > 0) {
-          allGroupedDetails.push(...groupedDetails);
-        }
-      }
-    });
-
-    return allGroupedDetails;
-  }, [sortedVacancies]);
+    return getGroupedVacancyDetails(props.vacancies);
+  }, [props.vacancies]);
 
   if (!props.vacancies || !props.vacancies.length) {
     return <></>;
@@ -93,7 +71,7 @@ export const VacancyDetails: React.FC<Props> = props => {
             <Grid key={detailsIndex} item container xs={12}>
               <VacancyDetailRow
                 groupedDetail={g}
-                allGroupedDetails={groupedDetails}
+                vacancies={props.vacancies}
                 isSplitVacancy={isSplitVacancy}
                 equalWidthDetails={props.equalWidthDetails || false}
                 disabledDates={props.disabledDates}
