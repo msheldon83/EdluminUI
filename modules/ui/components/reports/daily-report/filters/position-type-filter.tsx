@@ -31,8 +31,8 @@ export const PositionTypeFilter: React.FC<Props> = props => {
   return (
     <>
       <Grid item xs={12} sm={6} md={3} lg={3}>
-        <InputLabel>{props.positionTypeLabel}</InputLabel>
         <SelectNew
+          label={props.positionTypeLabel}
           onChange={onChangePositionTypes}
           options={positionTypeOptions}
           value={positionTypeOptions.filter(
