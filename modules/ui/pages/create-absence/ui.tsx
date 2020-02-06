@@ -346,7 +346,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       <React.Fragment>
         <Prompt
           message={t(
-            "You have not created your absence yet. Click OK to navitgate away without creating your absence."
+            "You have not created your absence yet. Click OK to navigate away without creating your absence."
           )}
           when={!abscenceCreated}
         />
