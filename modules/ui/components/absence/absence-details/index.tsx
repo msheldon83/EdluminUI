@@ -1,6 +1,6 @@
 import { Button, Grid, makeStyles, Paper, Typography } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
-import { min, startOfDay } from "date-fns";
+import { min, startOfDay, parseISO } from "date-fns";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import {
   DayPart,
@@ -153,6 +153,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     return vacanciesHaveMultipleAssignments(props.vacancies);
   }, [props.vacancies]);
 
+  const assignmentStartTime = useMemo(() => {
+    const details = props.vacancies[0]?.details;
+    const startTime =
+      details && details[0] ? details[0].startTimeLocal : undefined;
+    return startTime ? parseISO(startTime) : undefined;
+  }, [props.vacancies]);
+
   return (
     <Grid container>
       <Grid item md={4} className={classes.spacing}>
@@ -250,7 +257,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 assignmentRowVersion
               )
             }
-            assignmentStartDate={startDate} //CLA - this is a hack and should eventually be using the assignment start date
+            assignmentStartDate={assignmentStartTime ?? startDate}
           />
         )}
 

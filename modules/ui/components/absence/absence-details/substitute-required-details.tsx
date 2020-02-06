@@ -129,6 +129,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
           vacancies={vacancies}
           disabledDates={props.disabledDates}
           onCancelAssignment={props.onCancelAssignment}
+          disableReplacementInteractions={props.disableReplacementInteractions}
         />
       )}
 

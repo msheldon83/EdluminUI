@@ -131,6 +131,7 @@ export type VacancyDetailsGroup = DetailsGroup<VacancyDetailsItem> & {
   absenceEndTime?: Date;
   assignmentId?: string;
   assignmentRowVersion?: string;
+  assignmentStartTime?: Date;
   assignmentEmployeeId?: string;
   assignmentEmployeeName?: string;
 };
@@ -369,6 +370,7 @@ export const getVacancyDetailsGrouping = (
           : undefined,
         assignmentId: value[0].assignmentId,
         assignmentRowVersion: value[0].assignmentRowVersion,
+        assignmentStartTime: value[0].assignmentStartDateTime ? parseISO(value[0].assignmentStartDateTime) : undefined,
         assignmentEmployeeId: value[0].assignmentEmployeeId,
         assignmentEmployeeName: value[0].assignmentEmployeeName,
       });

@@ -55,6 +55,7 @@ export const projectVacancyDetailsFromVacancies = (
           d?.accountingCodeAllocations[0]?.accountingCodeId,
         assignmentId: d?.assignment?.id,
         assignmentRowVersion: d?.assignment?.rowVersion,
+        assignmentStartDateTime: d?.startTimeLocal,
         assignmentEmployeeId: d?.assignment?.employee?.id,
         assignmentEmployeeName: `${d?.assignment?.employee?.firstName} ${d?.assignment?.employee?.lastName}`,
       } as VacancyDetail;

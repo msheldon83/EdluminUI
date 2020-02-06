@@ -15,8 +15,9 @@ import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 import { VacancyDetailsGroup } from "./helpers";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { flatMap } from "lodash-es";
+import { getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "./date-helpers";
 
 type Props = {
   open: boolean;
@@ -28,6 +29,7 @@ type Props = {
   ) => Promise<void>;
   currentAssignmentDetails: VacancyDetailsGroup;
   allAssignmentDetails: VacancyDetailsGroup[];
+  disabledDates?: Date[];
 };
 
 export const CancelAssignmentDialog: React.FC<Props> = props => {
@@ -39,9 +41,10 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
     currentAssignmentDetails,
     allAssignmentDetails,
     onCancelAssignment,
+    disabledDates,
   } = props;
 
-  const onCancelClick = useCallback(async () => {
+  const onRemoveClick = useCallback(async () => {
     // Figure out which VacancyDetailIds to remove the Assignment from per their selection
     let vacancyDetailIds: string[] = [
       ...currentAssignmentDetails.detailItems
@@ -49,7 +52,7 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
         .map(di => di.vacancyDetailId!),
     ];
     if (selection === "all") {
-      var matchingDetails = allAssignmentDetails.filter(
+      const matchingDetails = allAssignmentDetails.filter(
         x =>
           x.assignmentId &&
           x.assignmentId === currentAssignmentDetails.assignmentId
@@ -70,17 +73,66 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
       currentAssignmentDetails.assignmentRowVersion ?? "",
       vacancyDetailIds
     );
-  }, [onCancelAssignment, currentAssignmentDetails, allAssignmentDetails]);
+  }, [
+    selection,
+    onCancelAssignment,
+    currentAssignmentDetails,
+    allAssignmentDetails,
+  ]);
+
+  const buildDetailDisplay = useCallback(
+    (detailGroup: VacancyDetailsGroup) => {
+      const allDates = detailGroup.detailItems.map(di => di.date);
+
+      const dateRangeDisplay = getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates(
+        allDates,
+        disabledDates
+      );
+
+      const timesAndLocations = detailGroup.simpleDetailItems!.map((d, i) => {
+        return (
+          <div key={i}>
+            {`${d.startTime} - ${d.endTime}`}
+            <span className={classes.location}>{d.locationName}</span>
+          </div>
+        );
+      });
+
+      return (
+        <div className={classes.detailRow}>
+          {dateRangeDisplay}
+          {timesAndLocations}
+        </div>
+      );
+    },
+    [disabledDates, classes.location, classes.detailRow]
+  );
+
+  const currentAssignmentDetailsDisplay = useMemo(() => {
+    return buildDetailDisplay(currentAssignmentDetails);
+  }, [currentAssignmentDetails, buildDetailDisplay]);
+
+  const allAssignmentDetailsDisplay = useMemo(() => {
+    const matchingDetails = allAssignmentDetails.filter(
+      x =>
+        x.assignmentId &&
+        x.assignmentId === currentAssignmentDetails.assignmentId
+    );
+
+    return matchingDetails.map((d, i) => {
+      return <div key={i}>{buildDetailDisplay(d)}</div>;
+    });
+  }, [allAssignmentDetails, currentAssignmentDetails, buildDetailDisplay]);
 
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
-        <Typography variant="h5">{t("Cancel Assignment")}</Typography>
+        <Typography variant="h5">{t("Remove Substitute")}</Typography>
       </DialogTitle>
       <DialogContent>
         <Typography>
           {t(
-            "This substitute is filling multiple dates. Do you want to remove them from just these dates or the whole Absence?"
+            "This substitute is filling multiple dates on this Absence. Do you want to remove them from just these dates or the whole Absence?"
           )}
         </Typography>
         <RadioGroup
@@ -89,18 +141,21 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
             setSelection(e.target.value === "all" ? "all" : "single")
           }
           aria-label="selection"
-          //className={classes.radioGroup}
         >
           <FormControlLabel
             value={"single"}
             control={<Radio />}
             label={"Remove from just these dates"}
           />
+          <div className={classes.details}>
+            {currentAssignmentDetailsDisplay}
+          </div>
           <FormControlLabel
             value={"all"}
             control={<Radio />}
             label={"Remove from whole Absence"}
           />
+          <div className={classes.details}>{allAssignmentDetailsDisplay}</div>
         </RadioGroup>
       </DialogContent>
 
@@ -111,8 +166,8 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
         </TextButton>
         <ButtonDisableOnClick
           variant="outlined"
-          onClick={onCancelClick}
-          className={classes.delete}
+          onClick={onRemoveClick}
+          className={[classes.buttonSpacing, classes.remove].join(" ")}
         >
           {t("Remove")}
         </ButtonDisableOnClick>
@@ -123,15 +178,20 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   buttonSpacing: {
-    paddingRight: theme.spacing(2),
-  },
-  removeSub: {
-    paddingTop: theme.spacing(2),
-    fontWeight: theme.typography.fontWeightMedium,
+    marginRight: theme.spacing(2),
   },
   divider: {
     color: theme.customColors.gray,
     marginTop: theme.spacing(2),
   },
-  delete: { color: theme.customColors.darkRed },
+  remove: { color: theme.customColors.darkRed, marginRight: theme.spacing(2) },
+  details: {
+    marginLeft: theme.spacing(5),
+  },
+  detailRow: {
+    marginBottom: theme.spacing(),
+  },
+  location: {
+    marginLeft: theme.spacing(2),
+  },
 }));

@@ -90,6 +90,14 @@ export const View: React.FC<Props> = props => {
     },
   });
 
+  const assignmentStartTime = useMemo(() => {
+    const vacancies = absence?.vacancies;
+    const details = vacancies && vacancies[0] ? vacancies[0].details : [];
+    const startTime =
+      details && details[0] ? details[0].startTimeLocal : undefined;
+    return startTime ? parseISO(startTime) : undefined;
+  }, [absence]);
+
   if (!absence) {
     return null;
   }
@@ -196,7 +204,7 @@ export const View: React.FC<Props> = props => {
                     await removeSub(assignmentId, assignmentRowVersion);
                     setReplacementEmployeeInformation(null);
                   }}
-                  assignmentStartDate={absenceStartDate} //CLA - this is a hack and should eventually be using the assignment start date
+                  assignmentStartDate={assignmentStartTime ?? absenceStartDate}
                 />
               )}
               <div className={classes.substituteDetailsSection}>

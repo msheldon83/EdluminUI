@@ -19,6 +19,7 @@ type Props = {
     assignmentRowVersion?: string,
     vacancyDetailIds?: string[]
   ) => Promise<void>;
+  disableReplacementInteractions?: boolean;
 };
 
 export const VacancyDetailRow: React.FC<Props> = props => {
@@ -69,6 +70,8 @@ export const VacancyDetailRow: React.FC<Props> = props => {
     onCancelAssignment,
   ]);
 
+  console.log(groupedDetail);
+
   return (
     <>
       {onCancelAssignment && groupedDetail.assignmentId && (
@@ -78,6 +81,7 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           open={cancelAssignmentDialogIsOpen}
           currentAssignmentDetails={groupedDetail}
           allAssignmentDetails={allGroupedDetails}
+          disabledDates={disabledDates}
         />
       )}
       {isSplitVacancy && (
@@ -90,15 +94,12 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           {groupedDetail.assignmentId && (
             <AssignedSub
               subText={t("assigned")}
-              disableReplacementInteractions={
-                false //props.disableReplacementInteractions
-              }
+              disableReplacementInteractions={props.disableReplacementInteractions}
               employeeId={groupedDetail.assignmentEmployeeId ?? ""}
               assignmentId={groupedDetail.assignmentId}
               employeeName={groupedDetail.assignmentEmployeeName || ""}
               onRemove={onCancelAssignment ? onClickRemove : undefined}
-              //TODO: build a datetime that has the startDate and time of the first Vacancy Detail
-              assignmentStartDate={groupedDetail.startDate}
+              assignmentStartDate={groupedDetail.assignmentStartTime ?? groupedDetail.startDate}
               showLinkButton={true}
             />
           )}

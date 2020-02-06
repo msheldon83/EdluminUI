@@ -11,6 +11,7 @@ export type VacancyDetail = {
   payCodeId?: string | null;
   assignmentId?: string;
   assignmentRowVersion?: string;
+  assignmentStartDateTime?: string;
   assignmentEmployeeId?: string;
   assignmentEmployeeName?: string;
 };

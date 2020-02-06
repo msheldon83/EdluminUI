@@ -25,6 +25,7 @@ type Props = {
     assignmentRowVersion?: string,
     vacancyDetailIds?: string[]
   ) => Promise<void>;
+  disableReplacementInteractions?: boolean;
 };
 
 export const VacancyDetails: React.FC<Props> = props => {
@@ -97,6 +98,7 @@ export const VacancyDetails: React.FC<Props> = props => {
                 equalWidthDetails={props.equalWidthDetails || false}
                 disabledDates={props.disabledDates}
                 onCancelAssignment={props.onCancelAssignment}
+                disableReplacementInteractions={props.disableReplacementInteractions}
               />
             </Grid>
           );
