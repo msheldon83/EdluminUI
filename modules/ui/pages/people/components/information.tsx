@@ -26,7 +26,7 @@ import { USStates } from "reference-data/states";
 import { Can } from "ui/components/auth/can";
 import { AvatarCard } from "ui/components/avatar-card";
 import { ShowErrors } from "ui/components/error-helpers";
-import { DatePicker } from "ui/components/form/date-picker";
+import { DateInput } from "ui/components/form/date-input";
 import { Input } from "ui/components/form/input";
 import { PhoneNumberInput } from "ui/components/form/phone-number-input";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
@@ -540,11 +540,14 @@ export const Information: React.FC<Props> = props => {
                       <PeopleGridItem
                         title={t("Date of Birth")}
                         description={
-                          <DatePicker
-                            variant={"field-only"}
-                            startDate={values.dateOfBirth ?? ""}
-                            onChange={e =>
-                              setFieldValue("dateOfBirth", e.startDate)
+                          <DateInput
+                            value={values.dateOfBirth ?? ""}
+                            placeholder="MMM DD, YYYY"
+                            onChange={(date: string) =>
+                              setFieldValue("dateOfBirth", date)
+                            }
+                            onValidDate={date =>
+                              setFieldValue("dateOfBirth", date)
                             }
                           />
                         }
