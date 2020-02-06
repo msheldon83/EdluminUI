@@ -5,8 +5,10 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AssignmentDetailsUI } from "ui/components/substitutes/assignment-details/assignment-details-ui";
 import { Can } from "ui/components/auth/can";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { OrgUserPermissions } from "ui/components/auth/types";
 import { NotesPopper } from "../notes-popper";
+import { canRemoveSub } from "helpers/permissions";
+import { parseISO } from "date-fns";
 
 type Props = {
   startDate: string;
@@ -65,7 +67,20 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               #C{props.confirmationNumber}
             </Typography>
           </div>
-          <Can do={[PermissionEnum.AbsVacRemoveSub]}>
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canRemoveSub(
+                parseISO(props.startTime),
+                permissions,
+                isSysAdmin,
+                orgId
+              )
+            }
+          >
             <div className={classes.actionItem}>
               <Button
                 variant="outlined"

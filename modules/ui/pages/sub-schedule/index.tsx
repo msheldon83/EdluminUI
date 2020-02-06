@@ -39,7 +39,7 @@ export const SubSchedule: React.FC<Props> = props => {
   }, [user]);
 
   return (
-    <div className={classes.pageContainer}>
+    <div>
       {user?.id && userCreatedDate && (
         <SubstituteAssignments
           view={props.view}
@@ -55,10 +55,4 @@ export const SubSchedule: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  pageContainer: {
-    display: "block",
-    overflowY: "scroll",
-    height: "100vh",
-  },
-}));
+const useStyles = makeStyles(theme => ({}));

@@ -9,6 +9,8 @@ import { NoAssignment } from "../assignment-row/no-assignment";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { CancelAssignment } from "ui/components/absence/graphql/cancel-assignment.gen";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {
   userId?: string;
@@ -21,18 +23,32 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const [showingMore, setShowingMore] = useState(false);
+  const { openSnackbar } = useSnackbar();
 
   /* TODO change mutation to cancelVacancyDetail. This component breaks them up
      so we only want to cancel the individual piece of the assignment */
-  const [cancelAssignment] = useMutationBundle(CancelAssignment);
+  const [cancelAssignment] = useMutationBundle(CancelAssignment, {
+    refetchQueries: [
+      "GetAssignmentDatesForSubstitute",
+      "GetUpcomingAssignments",
+    ],
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   const onCancel = useCallback(
-    async (assignmentId: string, rowVersion: string) => {
+    async (
+      assignmentId: string,
+      rowVersion: string,
+      vacancyDetailIds?: string[]
+    ) => {
       await cancelAssignment({
         variables: {
           cancelRequest: {
             assignmentId,
             rowVersion,
+            vacancyDetailIds,
           },
         },
       });

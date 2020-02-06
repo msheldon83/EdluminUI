@@ -84,21 +84,29 @@ export const CalendarView: React.FC<Props> = props => {
 
   // Default to Today if it exists in the current set of Months
 
-  if (
-    getEmployeeSchedule.state === "DONE" &&
-    monthGroups &&
-    monthGroups.length > 0 &&
-    selectedScheduleDates.length === 0
-  ) {
-    const currentMonth = monthGroups.find(m =>
-      isSameMonth(parseISO(m.month), today)
-    );
-    if (currentMonth) {
-      setSelectedScheduleDates(
-        currentMonth.scheduleDates.filter(s => isSameDay(s.date, today))
+  useEffect(() => {
+    if (
+      getEmployeeSchedule.state === "DONE" &&
+      monthGroups &&
+      monthGroups.length > 0 &&
+      selectedScheduleDates.length === 0
+    ) {
+      const currentMonth = monthGroups.find(m =>
+        isSameMonth(parseISO(m.month), today)
       );
+      if (currentMonth) {
+        setSelectedScheduleDates(
+          currentMonth.scheduleDates.filter(s => isSameDay(s.date, today))
+        );
+      }
     }
-  }
+  }, [
+    getEmployeeSchedule.state,
+    monthGroups,
+    selectedScheduleDates,
+    setSelectedScheduleDates,
+    today,
+  ]);
 
   if (getEmployeeSchedule.state !== "DONE") {
     return (
