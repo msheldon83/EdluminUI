@@ -60,6 +60,7 @@ export type OrgUser = {
   phoneNumber?: string | null | undefined;
   dateOfBirth?: Date | string | null | undefined;
   permissionSet?: { id?: string | null | undefined } | null | undefined;
+  active?: boolean | null;
 };
 
 type Props = {
@@ -574,7 +575,8 @@ export const Information: React.FC<Props> = props => {
                           title={t("Username")}
                           description={props.loginEmail}
                         />
-                        <Can do={[PermissionEnum.UserResetPassword]}>
+                        {orgUser.active && (
+                          <Can do={[PermissionEnum.UserResetPassword]}>
                           <PeopleGridItem
                             title={
                               <span className={classes.resetPassword}>
@@ -608,6 +610,7 @@ export const Information: React.FC<Props> = props => {
                             }
                           />
                         </Can>
+                        )}                        
                       </Grid>
                       <Grid container item xs={6} spacing={2}>
                         <PeopleGridItem
