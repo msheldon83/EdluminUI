@@ -11,7 +11,7 @@ import { useQueryBundle } from "graphql/hooks";
 import { AddressInput, TimeZone } from "graphql/server-types.gen";
 import { Typography, makeStyles } from "@material-ui/core";
 import { AddSettingsInfo } from "./components/add-settings-info";
-import { LocationCreateInput } from "graphql/server-types.gen";
+import { LocationCreateInput, CountryCode } from "graphql/server-types.gen";
 import { GetAllLocationGroupsWithinOrg } from "ui/pages/school-groups/graphql/get-all-location-groups.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { CreateLocation } from "./graphql/create-location.gen";
@@ -37,10 +37,16 @@ export const LocationAddPage: React.FC<Props> = props => {
     orgId: params.organizationId,
     name: "",
     externalId: null,
-    address: null,
+    address: {
+      address1: null,
+      city: null,
+      state: null,
+      postalCode: null,
+      country: null,
+    },
     timeZoneId: null, //Pull from the ORg
     locationGroupId: null,
-    phoneNumber: null,
+    phoneNumber: null, // Add clean up function for Regex
     replacementStartOffsetMinutes: null,
     replacementEndOffsetMinutes: null,
   });
@@ -55,7 +61,7 @@ export const LocationAddPage: React.FC<Props> = props => {
     variables: { orgId: params.organizationId },
   });
 
-  if ( locationGroups.state === "LOADING") {
+  if (locationGroups.state === "LOADING") {
     return <></>;
   }
 
@@ -95,21 +101,31 @@ export const LocationAddPage: React.FC<Props> = props => {
   ) => {
     return (
       <AddSettingsInfo
-        location={location}   
+        location={location}
         stateOptions={stateOptions}
-        locationGroupOptions={locationGroupOptions}       
+        locationGroupOptions={locationGroupOptions}
         submitText={t("Save")}
         onSubmit={async (
-          address?: AddressInput | null,
+          country: CountryCode | null,
+          locationGroupId: string | null,
+          address1?: string | null,
+          city?: string | null,
+          state?: string | null,
+          postalCode?: string | null,
+          timeZoneId?: string | null,
           phoneNumber?: string | null,
-          timeZoneId?: TimeZone | null,
-          locationGroupId?: string | null,
           replacementStartOffsetMinutes?: number | null,
           replacementEndOffsetMinutes?: number | null
         ) => {
           const newLocation = {
             ...location,
-            address: address,
+            address: {
+              address1: address1,
+              city: city,
+              state: state,
+              postalCode: postalCode,
+              country: CountryCode.Us,
+            },
             phoneNumber: phoneNumber,
             timeZoneId: timeZoneId,
             locationGroupId: locationGroupId,
@@ -134,6 +150,11 @@ export const LocationAddPage: React.FC<Props> = props => {
     );
   };
 
+  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+  const cleanPhoneNumber = (phoneNumber: string) => {
+    return phoneNumber.replace(/\D/g, "");
+  };
+
   //Mutations for Create Only
   const create = async (location: LocationCreateInput) => {
     const result = await createLocation({
@@ -144,6 +165,10 @@ export const LocationAddPage: React.FC<Props> = props => {
             location.externalId && location.externalId.trim().length === 0
               ? null
               : location.externalId,
+          phoneNumber:
+            location.phoneNumber === null || location.phoneNumber === undefined
+              ? null
+              : cleanPhoneNumber(location.phoneNumber),
         },
       },
     });

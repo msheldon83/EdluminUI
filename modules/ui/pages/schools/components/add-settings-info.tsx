@@ -8,7 +8,12 @@ import {
 } from "@material-ui/core";
 import { Formik } from "formik";
 import { useQueryBundle } from "graphql/hooks";
-import { AddressInput, TimeZone, Maybe } from "graphql/server-types.gen";
+import {
+  AddressInput,
+  TimeZone,
+  Maybe,
+  CountryCode,
+} from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
@@ -28,15 +33,25 @@ type Props = {
   locationGroupOptions: OptionType[];
   stateOptions: OptionType[];
   location: {
-    address?: AddressInput | undefined | null;
+    address: {
+      address1?: string | undefined | null;
+      city?: string | undefined | null;
+      state?: string | undefined | null;
+      postalCode?: string | undefined | null;
+      country?: CountryCode | undefined | null;
+    };
     phoneNumber?: string | undefined | null;
-    locationGroupId?: string | undefined | null;
+    locationGroupId: string;
   };
   submitText: string;
   onSubmit: (
-    address: AddressInput | undefined | null,
-    phoneNumber: string | undefined | null,   
-    locationGroupId: string | undefined | null
+    locationGroupId: string,
+    address1?: string | undefined | null,
+    city?: string | undefined | null,
+    state?: string | undefined | null,
+    postalCode?: string | undefined | null,
+    country?: CountryCode | undefined | null,
+    phoneNumber?: string | undefined | null
   ) => Promise<unknown>;
   onCancel: () => void;
 };
@@ -46,25 +61,30 @@ export const AddSettingsInfo: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
 
- 
+  //add validation for LocaitonId
 
   return (
     <Section>
       <SectionHeader title={t("Settings")} />
       <Formik
-        initialValues={{        
-          address1: props.location.address,
-          city: "",
-          state: undefined,
-          postalCode: "",
+        initialValues={{
+          address1: props.location.address.address1,
+          country: props.location.address.country,
+          city: props.location.address.city,
+          state: props.location.address.state,
+          postalCode: props.location.address.postalCode,
           phoneNumber: props.location.phoneNumber,
           locationGroupId: props.location.locationGroupId,
         }}
         onSubmit={async (data, meta) => {
           await props.onSubmit(
+            data.country,
+            data.locationGroupId,
             data.address1,
-            data.phoneNumber,        
-            data.locationGroupId
+            data.city,
+            data.state,
+            data.postalCode,
+            data.phoneNumber
           );
         }}
       >
@@ -81,27 +101,11 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                           (c: any) => c.value === values.locationGroupId
                         )}
                         options={props.locationGroupOptions}
-                        // onChange={(e: OptionType) => {
-                        //   let selectedValue = null;
-                        //   if (e) {
-                        //     if (Array.isArray(e)) {
-                        //       selectedValue = (e as Array<OptionTypeBase>)[0]
-                        //         .value;
-                        //     } else {
-                        //       selectedValue = (e as OptionTypeBase).value;
-                        //     }
-                        //   }
-                        //   setFieldValue("locationGroupId", selectedValue);
-                        // }}
                         multiple={false}
                       />
                     </Grid>
                     <Grid item xs={12} sm={12} lg={12}>
                       <dt className={classes.title}>{t("Phone number")}</dt>
-                      
-                    </Grid>
-                    <Grid item xs={12}>
-                      <div>{t("Phone number")}</div>
                       <Input
                         value={values.phoneNumber}
                         InputComponent={FormTextField}
@@ -144,25 +148,12 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                           value={{
                             value: values.state ?? "",
                             label:
-                              stateOptions.find(a => a.value === values.state)
-                                ?.label || "",
+                              props.stateOptions.find(
+                                a => a.value === values.state
+                              )?.label || "",
                           }}
                           multiple={false}
-                          onChange={(e: OptionType) => {
-                            //TODO: Once the select component is updated,
-                            // can remove the Array checking
-                            let selectedValue = null;
-                            if (e) {
-                              if (Array.isArray(e)) {
-                                selectedValue = (e as Array<OptionTypeBase>)[0]
-                                  .value;
-                              } else {
-                                selectedValue = (e as OptionTypeBase).value;
-                              }
-                            }
-                            setFieldValue("state", selectedValue);
-                          }}
-                          options={stateOptions}
+                          options={props.stateOptions}
                         />
                       </Grid>
                       <Grid item xs={6}>
@@ -189,12 +180,9 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                         </TextButton>
                       </Grid>
                     </Grid>
-
-                    <Grid container item xs={6} spacing={2}></Grid>
                   </Grid>
                 </Grid>
               </Grid>
-
               <ActionButtons
                 submit={{ text: props.submitText, execute: submitForm }}
                 cancel={{ text: t("Cancel"), execute: props.onCancel }}
@@ -208,18 +196,12 @@ export const AddSettingsInfo: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  useForEmployeesSubItems: {
-    marginLeft: theme.spacing(4),
-  },
   field: {
     display: "flex",
     width: "50%",
     [theme.breakpoints.down("sm")]: {
       width: "100%",
     },
-  },
-  needSubLabel: {
-    marginTop: theme.spacing(2),
   },
   mobileSectionSpacing: {
     marginTop: theme.spacing(2),
@@ -231,7 +213,6 @@ const useStyles = makeStyles(theme => ({
   normalSectionSpacing: {
     marginTop: theme.spacing(6),
   },
-
   minAbsenceSection: {
     maxWidth: "500px",
     "& p": {
