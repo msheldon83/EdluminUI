@@ -19,6 +19,7 @@ import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "hooks/use-snackbar";
 import { DeleteDialog } from "./delete-absence-dialog";
+import { ShowErrors } from "ui/components/error-helpers";
 
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 
@@ -66,18 +67,7 @@ export const EditAbsence: React.FC<Props> = props => {
 
   const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
 
@@ -104,7 +94,11 @@ export const EditAbsence: React.FC<Props> = props => {
     }
   }, [deleteAbsence, params.absenceId, returnUrl, history, openSnackbar, t]);
 
-  const [cancelAssignment] = useMutationBundle(CancelAssignment);
+  const [cancelAssignment] = useMutationBundle(CancelAssignment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const cancelAssignments = React.useCallback(
     async (
       assignmentId?: string,
