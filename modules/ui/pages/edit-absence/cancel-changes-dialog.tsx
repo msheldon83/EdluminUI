@@ -30,7 +30,7 @@ export const CancelChangesDialog: React.FC<Props> = props => {
       <DialogContent>
         <Typography>
           {t(
-            "Are you sure you would like to cancel and loose any unsaved changes?"
+            "Are you sure you would like to cancel and lose any unsaved changes?"
           )}
         </Typography>
       </DialogContent>
