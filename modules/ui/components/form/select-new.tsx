@@ -60,7 +60,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     withResetValue = multiple ? false : true,
     className,
     options,
-    doSort = (a: OptionType, b: OptionType) => (a.label > b.label ? 1 : -1),
+    doSort = (a: OptionType, b: OptionType) => (a.label > b.label ? 1 : b.label > a.label ? -1 : 0),
   } = props;
 
   const sortedOptions = useMemo(() => options.sort(doSort), [options, doSort]);
