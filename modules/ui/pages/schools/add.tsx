@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
+import { AddressInput, TimeZone } from "graphql/server-types.gen";
 import { Typography, makeStyles } from "@material-ui/core";
 import { AddSettingsInfo } from "./components/add-settings-info";
 import { LocationCreateInput } from "graphql/server-types.gen";
@@ -32,6 +33,12 @@ export const LocationAddPage: React.FC<Props> = props => {
     orgId: params.organizationId,
     name: "",
     externalId: null,
+    address: null,
+    timeZoneId: null,
+    locationGroupId: null,
+    phoneNumber: null,
+    replacementStartOffsetMinutes: null,
+    replacementEndOffsetMinutes: null,
   });
 
   //Render Tabs
@@ -67,20 +74,31 @@ export const LocationAddPage: React.FC<Props> = props => {
         orgId={params.organizationId}
         location={location}
         submitText={t("Save")}
-        onSubmit={async (forPermanentPositions: boolean) => {
+        onSubmit={async (
+          address?: AddressInput | null,
+          phoneNumber?: string | null,
+          timeZoneId?: TimeZone | null,
+          locationGroupId?: string | null,
+          replacementStartOffsetMinutes?: number | null,
+          replacementEndOffsetMinutes?: number | null
+        ) => {
           const newLocation = {
             ...location,
-            //Settings Values here
+            address: address,
+            phoneNumber: phoneNumber,
+            timeZoneId: timeZoneId,
+            locationGroupId: locationGroupId,
+            replacementStartOffsetMinutes: replacementStartOffsetMinutes,
+            replacementEndOffsetMinutes: replacementEndOffsetMinutes,
           };
           setLocation(newLocation);
-
-          // Create the Position Type
+          // Create the Location
           const id = await create(newLocation);
           const viewParams = {
             ...params,
             locationId: id!,
           };
-          // Go to the Position Type View page
+          // Go to the Location View page
           history.push(LocationViewRoute.generate(viewParams));
         }}
         onCancel={() => {
