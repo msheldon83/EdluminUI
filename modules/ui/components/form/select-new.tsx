@@ -24,7 +24,7 @@ export type SelectProps<T extends boolean> = {
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
   className?: string;
-  doSort?: (arr: Array<OptionType>) => Array<OptionType>;
+  doSort?: (option1: OptionType, option2: OptionType) => 1 | -1 | 0;
 
   // This should never be used if it's a multi-select
   withResetValue?: T extends true ? false : boolean;
@@ -60,16 +60,10 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     withResetValue = multiple ? false : true,
     className,
     options,
-    doSort,
+    doSort = (a: OptionType, b: OptionType) => (a.label > b.label ? 1 : -1),
   } = props;
 
-  const sortedOptions = useMemo(
-    () =>
-      doSort
-        ? doSort(options)
-        : options.sort((a, b) => (a.label > b.label ? 1 : -1)),
-    [options, doSort]
-  );
+  const sortedOptions = useMemo(() => options.sort(doSort), [options, doSort]);
 
   const [showAllChips, setShowAllChips] = React.useState(false);
   const [hasOverflow, setHasOverFlow] = React.useState(false);
@@ -436,8 +430,7 @@ const useStyles = makeStyles(theme => ({
 
       "&:hover": {
         color: theme.customColors.white,
-      }
-
+      },
     },
 
     "&::after": {
