@@ -5,9 +5,10 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AssignmentDetailsUI } from "ui/components/substitutes/assignment-details/assignment-details-ui";
 import { Can } from "ui/components/auth/can";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { OrgUserPermissions } from "ui/components/auth/types";
 import { NotesPopper } from "../notes-popper";
-import { parseISO, isFuture } from "date-fns";
+import { canRemoveSub } from "helpers/permissions";
+import { parseISO } from "date-fns";
 
 type Props = {
   startDate: string;
@@ -43,8 +44,6 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
 
-  const inFuture = isFuture(parseISO(props.startTime));
-
   return (
     <div className={[classes.container, props.className].join(" ")}>
       <div className={classes.infoContainer}>
@@ -68,22 +67,33 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               #C{props.confirmationNumber}
             </Typography>
           </div>
-          {(props.isAdmin || inFuture) && (
-            <Can do={[PermissionEnum.AbsVacRemoveSub]}>
-              <div className={classes.actionItem}>
-                <Button
-                  variant="outlined"
-                  className={classes.cancel}
-                  onClick={e => {
-                    e.stopPropagation();
-                    props.onCancel();
-                  }}
-                >
-                  {t("Cancel")}
-                </Button>
-              </div>
-            </Can>
-          )}
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canRemoveSub(
+                parseISO(props.startTime),
+                permissions,
+                isSysAdmin,
+                orgId
+              )
+            }
+          >
+            <div className={classes.actionItem}>
+              <Button
+                variant="outlined"
+                className={classes.cancel}
+                onClick={e => {
+                  e.stopPropagation();
+                  props.onCancel();
+                }}
+              >
+                {t("Cancel")}
+              </Button>
+            </div>
+          </Can>
         </div>
       )}
     </div>
