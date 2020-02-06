@@ -143,9 +143,7 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     maxWidth: theme.typography.pxToRem(1440),
     transform: "rotate(0)",
-    paddingBottom: theme.typography.pxToRem(
-      75
-    ) /* DTN - Was noticing without any padding at the bottom of the content, it would look like the bottom of the page was slightly cut off */,
+    overflowY: "auto",
   },
 
   navWidthExpanded: {
