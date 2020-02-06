@@ -70,8 +70,6 @@ export const VacancyDetailRow: React.FC<Props> = props => {
     onCancelAssignment,
   ]);
 
-  console.log(groupedDetail);
-
   return (
     <>
       {onCancelAssignment && groupedDetail.assignmentId && (
@@ -94,12 +92,16 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           {groupedDetail.assignmentId && (
             <AssignedSub
               subText={t("assigned")}
-              disableReplacementInteractions={props.disableReplacementInteractions}
+              disableReplacementInteractions={
+                props.disableReplacementInteractions
+              }
               employeeId={groupedDetail.assignmentEmployeeId ?? ""}
               assignmentId={groupedDetail.assignmentId}
               employeeName={groupedDetail.assignmentEmployeeName || ""}
               onRemove={onCancelAssignment ? onClickRemove : undefined}
-              assignmentStartDate={groupedDetail.assignmentStartTime ?? groupedDetail.startDate}
+              assignmentStartDate={
+                groupedDetail.assignmentStartTime ?? groupedDetail.startDate
+              }
               showLinkButton={true}
             />
           )}
