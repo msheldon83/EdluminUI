@@ -252,8 +252,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                     {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
                   </Button>
                 </Can>
-                {(props.disableReplacementInteractions ||
-                  props.replacementEmployeeId !== undefined) &&
+                {props.replacementEmployeeId !== undefined &&
                   props.arrangeSubButtonTitle && (
                     <Can
                       do={(
@@ -273,6 +272,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                         variant="outlined"
                         className={classes.reassignButton}
                         onClick={() => setStep("preAssignSub")}
+                        disabled={props.disableReplacementInteractions}
                       >
                         {t("Reassign Sub")}
                       </Button>
