@@ -2,9 +2,10 @@ import { Grid } from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
-import { useOrganizations } from "reference-data/organizations";
+import { useMyUserAccess } from "reference-data/my-user-access";
 import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
+import { compact, uniq } from "lodash-es";
 
 type Props = {
   orgLabel: string;
@@ -13,11 +14,23 @@ type Props = {
 export const DistrictFilter: React.FC<Props> = props => {
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
-  const organizations = useOrganizations();
-  const organizationOptions: OptionType[] = useMemo(
-    () => organizations.map(o => ({ label: o.name, value: o.id })),
-    [organizations]
-  );
+  const myUserAccess = useMyUserAccess();
+
+  const organizationOptions: OptionType[] = useMemo(() => {
+    if (myUserAccess) {
+      const mySubOrgs = compact(
+        myUserAccess?.me?.user?.orgUsers?.map(ou => {
+          if (ou?.isReplacementEmployee) {
+            return ou.organization;
+          }
+        })
+      );
+      return mySubOrgs.map(o => ({ label: o.name, value: o.id }));
+    } else {
+      return [{ label: "", value: "" }];
+    }
+  }, [myUserAccess]);
+
   const onChangeOrganizations = useCallback(
     (value: OptionType[]) => {
       const ids: string[] = value
