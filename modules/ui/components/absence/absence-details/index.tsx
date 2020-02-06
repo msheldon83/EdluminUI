@@ -75,6 +75,8 @@ type Props = {
   returnUrl?: string;
   isSubmitted: boolean;
   initialAbsenceCreation: boolean;
+  onDelete?: () => void;
+  onCancel?: () => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -269,17 +271,31 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
       <Grid item xs={12} className={classes.stickyFooter}>
         <div className={classes.actionButtons}>
-          {props.returnUrl && (
+          {props.onDelete && (
             <Button
-              onClick={() => history.push(props.returnUrl!)}
+              onClick={() => props.onDelete!()}
+              variant="text"
+              className={classes.deleteButton}
+            >
+              {t("Delete")}
+            </Button>
+          )}
+          {props.onCancel && (
+            <Button
+              //onClick={() => history.goBack()}
+              onClick={() => props.onCancel!()}
               variant="outlined"
               className={classes.cancelButton}
             >
-              {t("Cancel")}
+              {t("Cancel Changes")}
             </Button>
           )}
           <Can do={[PermissionEnum.AbsVacSave]}>
-            <Button type="submit" variant="contained">
+            <Button
+              type="submit"
+              variant="contained"
+              className={classes.saveButton}
+            >
               {props.saveLabel ?? t("Create")}
             </Button>
           </Can>
@@ -309,8 +325,16 @@ const useStyles = makeStyles(theme => ({
     zIndex: 500,
     paddingRight: theme.typography.pxToRem(10),
   },
+  deleteButton: {
+    color: theme.customColors.darkRed,
+    marginRight: theme.spacing(2),
+    textDecoration: "underline",
+  },
   cancelButton: {
     marginRight: theme.spacing(2),
+  },
+  saveButton: {
+    marginRight: theme.spacing(4),
   },
   select: {
     paddingTop: theme.typography.pxToRem(4),

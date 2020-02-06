@@ -15,7 +15,7 @@ import { compact, uniq } from "lodash-es";
 
 type Props = {
   absence: EmployeeAbsenceDetail;
-  cancelAbsence?: () => void;
+  cancelAbsence: () => void;
   showAbsenceChip?: boolean;
   actingAsEmployee?: boolean;
   orgId?: string;
