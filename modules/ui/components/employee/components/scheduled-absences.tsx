@@ -8,7 +8,7 @@ import { AbsenceDetailRow } from "./absence-detail-row";
 type Props = {
   header?: string;
   absences: EmployeeAbsenceDetail[];
-  cancelAbsence?: (absenceId: string) => Promise<void>;
+  cancelAbsence: (absenceId: string) => Promise<void>;
   isLoading: boolean;
   orgId?: string;
   actingAsEmployee?: boolean;

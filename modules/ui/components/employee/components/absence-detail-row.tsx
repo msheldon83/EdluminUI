@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCallback } from "react";
+import { useCallback, useRef, useEffect } from "react";
 import { EmployeeAbsenceDetail } from "../types";
 import { AbsenceDetailRowUI } from "./absence-detail-row-ui";
 import { CancelAbsenceDialog } from "./cancel-absence-dialog";
@@ -19,6 +19,13 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
     setDialogIsOpen,
   ]);
 
+  const componentIsMounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      componentIsMounted.current = false;
+    };
+  }, []);
+
   return (
     <>
       <CancelAbsenceDialog
@@ -26,7 +33,9 @@ export const AbsenceDetailRow: React.FC<Props> = props => {
         onClose={() => setDialogIsOpen(false)}
         onCancel={async () => {
           await props.cancelAbsence(props.absence.id);
-          setDialogIsOpen(false);
+          if (componentIsMounted.current) {
+            setDialogIsOpen(false);
+          }
         }}
       />
       <AbsenceDetailRowUI {...props} cancelAbsence={onClickCancel} />
