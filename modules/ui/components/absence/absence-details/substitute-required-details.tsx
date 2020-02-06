@@ -53,6 +53,7 @@ type Props = {
     assignmentRowVersion?: string,
     vacancyDetailIds?: string[]
   ) => Promise<void>;
+  isSplitVacancy: boolean;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -224,7 +225,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
               />
             </div>
 
-            {hasVacancies && (
+            {hasVacancies && !props.isSplitVacancy && (
               <div className={classes.substituteActions}>
                 <Can
                   do={(

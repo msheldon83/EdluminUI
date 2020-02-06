@@ -98,7 +98,9 @@ export const VacancyDetails: React.FC<Props> = props => {
                 equalWidthDetails={props.equalWidthDetails || false}
                 disabledDates={props.disabledDates}
                 onCancelAssignment={props.onCancelAssignment}
-                disableReplacementInteractions={props.disableReplacementInteractions}
+                disableReplacementInteractions={
+                  props.disableReplacementInteractions
+                }
               />
             </Grid>
           );

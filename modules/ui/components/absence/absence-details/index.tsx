@@ -277,6 +277,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             wantsReplacement={wantsReplacement}
             onSubstituteWantedChange={onSubstituteWantedChange}
             onCancelAssignment={props.onRemoveReplacement}
+            isSplitVacancy={isSplitVacancy}
           />
         </div>
       </Grid>

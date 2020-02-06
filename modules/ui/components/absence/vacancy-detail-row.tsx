@@ -77,9 +77,8 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           onCancelAssignment={onCancelAssignment}
           onClose={() => setCancelAssignmentDialogIsOpen(false)}
           open={cancelAssignmentDialogIsOpen}
-          currentAssignmentDetails={groupedDetail}
-          allAssignmentDetails={allGroupedDetails}
-          disabledDates={disabledDates}
+          assignmentId={groupedDetail.assignmentId}
+          allDetailGroups={allGroupedDetails}
         />
       )}
       {isSplitVacancy && (
