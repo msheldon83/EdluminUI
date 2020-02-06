@@ -67,7 +67,7 @@ export const EmployeePosition: React.FC<Props> = props => {
   const position = orgUser.employee.primaryPosition;
 
   const handleSave = async (positionInput: PositionInput) => {
-    await saveEmployeePosition({
+    const result = await saveEmployeePosition({
       variables: {
         employee: {
           id: orgUser.id,
@@ -79,6 +79,9 @@ export const EmployeePosition: React.FC<Props> = props => {
         },
       },
     });
+    if (result?.data) {
+      history.push(PersonViewRoute.generate(params));
+    }
   };
 
   const handleCancel = () => {
