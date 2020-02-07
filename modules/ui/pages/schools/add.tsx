@@ -6,14 +6,18 @@ import { PageTitle } from "ui/components/page-title";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { OptionType } from "ui/components/form/select-new";
-import { USStates } from "reference-data/states";
 import { useQueryBundle } from "graphql/hooks";
-import { AddressInput, TimeZone } from "graphql/server-types.gen";
+import { TimeZone } from "graphql/server-types.gen";
 import { Typography, makeStyles } from "@material-ui/core";
 import { AddSettingsInfo } from "./components/add-settings-info";
-import { LocationCreateInput, CountryCode } from "graphql/server-types.gen";
+import {
+  LocationCreateInput,
+  CountryCode,
+  StateCode,
+} from "graphql/server-types.gen";
 import { GetAllLocationGroupsWithinOrg } from "ui/pages/school-groups/graphql/get-all-location-groups.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
+import { GetOrgConfigTimeZoneId } from "reference-data/get-org-config-timezone.gen";
 import { CreateLocation } from "./graphql/create-location.gen";
 import {
   LocationAddRoute,
@@ -42,26 +46,22 @@ export const LocationAddPage: React.FC<Props> = props => {
       city: null,
       state: null,
       postalCode: null,
-      country: null,
     },
-    timeZoneId: null, //Pull from the ORg
     locationGroupId: null,
-    phoneNumber: null, // Add clean up function for Regex
+    phoneNumber: null,
     replacementStartOffsetMinutes: null,
     replacementEndOffsetMinutes: null,
   });
-
-  const stateOptions = USStates.map(s => ({
-    label: s.name,
-    value: s.enumValue,
-  }));
 
   //Query Location Groups
   const locationGroups = useQueryBundle(GetAllLocationGroupsWithinOrg, {
     variables: { orgId: params.organizationId },
   });
+  const getTimeZoneId = useQueryBundle(GetOrgConfigTimeZoneId, {
+    variables: { orgId: params.organizationId },
+  });
 
-  if (locationGroups.state === "LOADING") {
+  if (locationGroups.state === "LOADING" || getTimeZoneId.state === "LOADING") {
     return <></>;
   }
 
@@ -70,6 +70,8 @@ export const LocationAddPage: React.FC<Props> = props => {
       label: c?.name ?? "",
       value: c?.id ?? "",
     })) ?? [];
+
+  const timeZoneId = getTimeZoneId?.data?.organization?.byId?.timeZoneId;
 
   //Render Tabs
   const renderBasicInfoStep = (
@@ -102,17 +104,14 @@ export const LocationAddPage: React.FC<Props> = props => {
     return (
       <AddSettingsInfo
         location={location}
-        stateOptions={stateOptions}
         locationGroupOptions={locationGroupOptions}
         submitText={t("Save")}
         onSubmit={async (
-          country: CountryCode | null,
-          locationGroupId: string | null,
+          locationGroupId: string,
           address1?: string | null,
           city?: string | null,
-          state?: string | null,
+          state?: StateCode | null,
           postalCode?: string | null,
-          timeZoneId?: string | null,
           phoneNumber?: string | null,
           replacementStartOffsetMinutes?: number | null,
           replacementEndOffsetMinutes?: number | null
@@ -132,6 +131,8 @@ export const LocationAddPage: React.FC<Props> = props => {
             replacementStartOffsetMinutes: replacementStartOffsetMinutes,
             replacementEndOffsetMinutes: replacementEndOffsetMinutes,
           };
+
+          console.log(newLocation);
           setLocation(newLocation);
           // Create the Location
           const id = await create(newLocation);
@@ -150,11 +151,6 @@ export const LocationAddPage: React.FC<Props> = props => {
     );
   };
 
-  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-  const cleanPhoneNumber = (phoneNumber: string) => {
-    return phoneNumber.replace(/\D/g, "");
-  };
-
   //Mutations for Create Only
   const create = async (location: LocationCreateInput) => {
     const result = await createLocation({
@@ -165,10 +161,6 @@ export const LocationAddPage: React.FC<Props> = props => {
             location.externalId && location.externalId.trim().length === 0
               ? null
               : location.externalId,
-          phoneNumber:
-            location.phoneNumber === null || location.phoneNumber === undefined
-              ? null
-              : cleanPhoneNumber(location.phoneNumber),
         },
       },
     });

@@ -1,22 +1,27 @@
 import * as React from "react";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { LocationsInformation } from "./components/information";
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
 import { GetLocationById } from "./graphql/get-location-by-id.gen";
 import { useRouteParams } from "ui/routes/definition";
+import { useState } from "react";
 import { LocationViewRoute } from "ui/routes/locations";
+import { Redirect, useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Location as Loc, PermissionEnum } from "graphql/server-types.gen";
 import { PageHeader } from "ui/components/page-header";
 import { makeStyles } from "@material-ui/core";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { can } from "helpers/permissions";
-import { LocationSubPrefRoute } from "ui/routes/locations";
+import { LocationSubPrefRoute, LocationsRoute } from "ui/routes/locations";
+import { DeleteLocation } from "./graphql/delete-location.gen";
 
 export const LocationViewPage: React.FC<{}> = props => {
   const params = useRouteParams(LocationViewRoute);
   const { t } = useTranslation();
+  const history = useHistory();
   const classes = useStyles();
+  const [enabled, setEnabled] = useState<boolean | null>(null);
 
   const getLocation = useQueryBundle(GetLocationById, {
     variables: {
@@ -25,11 +30,27 @@ export const LocationViewPage: React.FC<{}> = props => {
     fetchPolicy: "cache-first",
   });
 
+  const [deleteLocationMutation] = useMutationBundle(DeleteLocation);
+  const deleteLocation = React.useCallback(async () => {
+    await deleteLocationMutation({
+      variables: {
+        locationId: params.locationId,
+      },
+      awaitRefetchQueries: true,
+      refetchQueries: ["GetAllLocationsWithinOrg"],
+    });
+    history.push(LocationsRoute.generate(params));
+  }, [deleteLocationMutation, history, params]);
+
   if (getLocation.state === "LOADING") {
     return <></>;
   }
   const location: any | undefined =
     getLocation?.data?.location?.byId ?? undefined;
+
+  if (enabled === null) {
+    setEnabled(!location.expired);
+  }
 
   return (
     <div>
@@ -44,6 +65,17 @@ export const LocationViewPage: React.FC<{}> = props => {
           isSysAdmin: boolean,
           orgId?: string
         ) => can([PermissionEnum.LocationSave], permissions, isSysAdmin, orgId)}
+        actions={[
+          {
+            name: t("Change History"),
+            onClick: () => {},
+          },
+          {
+            name: t("Delete"),
+            onClick: deleteLocation,
+            permissions: [PermissionEnum.LocationSave],
+          },
+        ]}
       ></PageHeader>
       <PageHeader
         text={location.externalId}

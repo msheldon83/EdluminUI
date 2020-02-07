@@ -1,56 +1,42 @@
-import {
-  FormControlLabel,
-  FormHelperText,
-  Grid,
-  MenuItem,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import { Formik } from "formik";
-import { useQueryBundle } from "graphql/hooks";
-import {
-  AddressInput,
-  TimeZone,
-  Maybe,
-  CountryCode,
-} from "graphql/server-types.gen";
+import { StateCode } from "graphql/server-types.gen";
+import * as yup from "yup";
 import { useIsMobile } from "hooks";
 import * as React from "react";
-import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { TextButton } from "ui/components/text-button";
-import TextField from "@material-ui/core/TextField";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { useTranslation } from "react-i18next";
+import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
 import { Input } from "ui/components/form/input";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { ActionButtons } from "../../../components/action-buttons";
-import { useMemo } from "react";
 
 type Props = {
   locationGroupOptions: OptionType[];
-  stateOptions: OptionType[];
   location: {
-    address: {
-      address1?: string | undefined | null;
-      city?: string | undefined | null;
-      state?: string | undefined | null;
-      postalCode?: string | undefined | null;
-      country?: CountryCode | undefined | null;
-    };
+    address?:
+      | {
+          address1?: string | undefined | null;
+          city?: string | undefined | null;
+          state?: StateCode | undefined | null;
+          postalCode?: string | undefined | null;
+        }
+      | undefined
+      | null;
     phoneNumber?: string | undefined | null;
-    locationGroupId: string;
+    locationGroupId?: string | undefined | null;
   };
   submitText: string;
   onSubmit: (
     locationGroupId: string,
     address1?: string | undefined | null,
     city?: string | undefined | null,
-    state?: string | undefined | null,
+    state?: StateCode | undefined | null,
     postalCode?: string | undefined | null,
-    country?: CountryCode | undefined | null,
     phoneNumber?: string | undefined | null
   ) => Promise<unknown>;
   onCancel: () => void;
@@ -61,32 +47,64 @@ export const AddSettingsInfo: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
 
-  //add validation for LocaitonId
+  const stateOptions = USStates.map(s => ({
+    label: s.name,
+    value: s.enumValue,
+  }));
+
+  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+  const cleanPhoneNumber = (phoneNumber: string) => {
+    return phoneNumber.replace(/\D/g, "");
+  };
 
   return (
     <Section>
       <SectionHeader title={t("Settings")} />
       <Formik
         initialValues={{
-          address1: props.location.address.address1,
-          country: props.location.address.country,
-          city: props.location.address.city,
-          state: props.location.address.state,
-          postalCode: props.location.address.postalCode,
-          phoneNumber: props.location.phoneNumber,
-          locationGroupId: props.location.locationGroupId,
+          address1: props?.location?.address?.address1 ?? "",
+          city: props?.location?.address?.city ?? "",
+          state: props.location?.address?.state ?? undefined,
+          postalCode: props?.location?.address?.postalCode ?? "",
+          phoneNumber: props.location.phoneNumber ?? "",
+          locationGroupId: props.location.locationGroupId ?? "",
         }}
         onSubmit={async (data, meta) => {
           await props.onSubmit(
-            data.country,
             data.locationGroupId,
-            data.address1,
-            data.city,
-            data.state,
-            data.postalCode,
-            data.phoneNumber
+            data.address1.trim().length === 0 ? null : data.address1,
+            data.city.trim().length === 0 ? null : data.city,
+            data.state ?? null,
+            data.postalCode.trim().length === 0 ? null : data.postalCode,
+            data.phoneNumber.trim().length === 0
+              ? null
+              : cleanPhoneNumber(data.phoneNumber)
           );
         }}
+        validationSchema={yup.object({
+          locationGroupId: yup.string().required(t("School Group is required")),
+          phoneNumber: yup
+            .string()
+            .nullable()
+            .matches(phoneRegExp, t("Phone Number Is Not Valid")),
+          postalCode: yup
+            .number()
+            .nullable()
+            .min(5)
+            .required(t("Zip code is required")),
+          address1: yup
+            .string()
+            .nullable()
+            .required(t("Address is required")),
+          city: yup
+            .string()
+            .nullable()
+            .required(t("City is required")),
+          state: yup
+            .string()
+            .nullable()
+            .required(t("State is required")),
+        })}
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => {
           return (
@@ -97,9 +115,27 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                     <Grid item xs={12} sm={12} lg={12}>
                       <dt className={classes.title}>{t("School group")}</dt>
                       <SelectNew
-                        value={props.locationGroupOptions.find(
-                          (c: any) => c.value === values.locationGroupId
-                        )}
+                        value={{
+                          value: values.locationGroupId ?? "",
+                          label:
+                            props.locationGroupOptions.find(
+                              (c: any) => c.value === values.locationGroupId
+                            )?.label || "",
+                        }}
+                        onChange={(e: OptionType) => {
+                          //TODO: Once the select component is updated,
+                          // can remove the Array checking
+                          let selectedValue = null;
+                          if (e) {
+                            if (Array.isArray(e)) {
+                              selectedValue = (e as Array<OptionTypeBase>)[0]
+                                .value;
+                            } else {
+                              selectedValue = (e as OptionTypeBase).value;
+                            }
+                          }
+                          setFieldValue("locationGroupId", selectedValue);
+                        }}
                         options={props.locationGroupOptions}
                         multiple={false}
                       />
@@ -110,8 +146,8 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                         value={values.phoneNumber}
                         InputComponent={FormTextField}
                         inputComponentProps={{
-                          name: "phonenumber",
-                          id: "phonenumber",
+                          name: "phoneNumber",
+                          id: "phoneNumber",
                         }}
                       />
                     </Grid>
@@ -148,12 +184,25 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                           value={{
                             value: values.state ?? "",
                             label:
-                              props.stateOptions.find(
-                                a => a.value === values.state
-                              )?.label || "",
+                              stateOptions.find(a => a.value === values.state)
+                                ?.label || "",
+                          }}
+                          onChange={(e: OptionType) => {
+                            //TODO: Once the select component is updated,
+                            // can remove the Array checking
+                            let selectedValue = null;
+                            if (e) {
+                              if (Array.isArray(e)) {
+                                selectedValue = (e as Array<OptionTypeBase>)[0]
+                                  .value;
+                              } else {
+                                selectedValue = (e as OptionTypeBase).value;
+                              }
+                            }
+                            setFieldValue("state", selectedValue);
                           }}
                           multiple={false}
-                          options={props.stateOptions}
+                          options={stateOptions}
                         />
                       </Grid>
                       <Grid item xs={6}>
@@ -203,30 +252,11 @@ const useStyles = makeStyles(theme => ({
       width: "100%",
     },
   },
-  mobileSectionSpacing: {
-    marginTop: theme.spacing(2),
-  },
-  formHelperText: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
   normalSectionSpacing: {
     marginTop: theme.spacing(6),
   },
-  minAbsenceSection: {
-    maxWidth: "500px",
-    "& p": {
-      marginLeft: 0,
-    },
-  },
   filled: {
     background: theme.customColors.grayWhite,
-  },
-  minAbsenceDurationLabel: {
-    marginTop: theme.spacing(2),
-  },
-  checkboxError: {
-    color: theme.palette.error.main,
   },
   description: {
     fontSize: theme.typography.pxToRem(14),
@@ -237,15 +267,5 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(16),
     fontWeight: "bold",
     lineHeight: theme.typography.pxToRem(24),
-  },
-  appliesToError: {
-    marginTop: theme.spacing(2),
-    fontSize: theme.typography.pxToRem(14),
-  },
-  payTypeSection: {
-    maxWidth: "500px",
-    "& p": {
-      marginLeft: 0,
-    },
   },
 }));
