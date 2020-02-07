@@ -4,10 +4,11 @@ import { Filters } from "./components/filters";
 import { Section } from "ui/components/section";
 import { Grid, Button, makeStyles } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
-import { LocationsRoute } from "ui/routes/locations";
+import { LocationsRoute, LocationAddRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationsUI } from "./ui";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 
@@ -34,8 +35,8 @@ export const Locations: React.FC<Props> = props => {
           <Grid item>
             <Button
               variant="contained"
-              //component={Link}
-              //to={ROUTE_GOES_HERE.generate(params)} Generate correct Route for ADD
+              component={Link}
+              to={LocationAddRoute.generate(params)}
             >
               {t("Add School")}
             </Button>
