@@ -1,9 +1,5 @@
-import {
-  addMonths,
-  differenceInCalendarMonths,
-  parseISO,
-  startOfMonth,
-} from "date-fns";
+import { addMonths, differenceInCalendarMonths, parseISO } from "date-fns";
+import { startOfMonth } from "date-fns/esm";
 import { groupBy, range } from "lodash-es";
 import { AssignmentVacancyDetails } from "../../pages/sub-schedule/types";
 
