@@ -956,6 +956,7 @@ input CreateVacancyAssignmentInput {
   isLongTerm: Boolean
   appliesToAllVacancyDetails: Boolean
   vacancyDetailIds: [ID]
+  ignoreWarnings: Boolean
 }
 
 enum Culture {
