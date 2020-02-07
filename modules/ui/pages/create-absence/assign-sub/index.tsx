@@ -26,6 +26,7 @@ type Props = {
   absenceId?: string;
   existingVacancy?: boolean;
   vacancies: Vacancy[];
+  vacancyDetailIdsToAssign: string[];
   userIsAdmin: boolean;
   employeeName: string;
   employeeId?: string;
@@ -40,41 +41,6 @@ type Props = {
   ) => void;
   onCancel: () => void;
   currentReplacementEmployeeName?: string;
-};
-
-const buildVacancyInput = (
-  vacancies: Vacancy[]
-): AbsenceVacancyInput | null => {
-  const vacancy = vacancies[0];
-  if (vacancy === undefined) {
-    return null;
-  }
-
-  return {
-    positionId: vacancy.positionId,
-    needsReplacement: true,
-    details: vacancy.details!.map(d => {
-      const startTimeLocal =
-        d && d.startTimeLocal ? convertStringToDate(d.startTimeLocal) : null;
-      const endTimeLocal =
-        d && d.endTimeLocal ? convertStringToDate(d.endTimeLocal) : null;
-
-      return {
-        date: startTimeLocal ? format(startTimeLocal, "P") : null,
-        startTime: startTimeLocal
-          ? secondsSinceMidnight(
-              parseTimeFromString(format(startTimeLocal, "h:mm a"))
-            )
-          : 0,
-        endTime: endTimeLocal
-          ? secondsSinceMidnight(
-              parseTimeFromString(format(endTimeLocal, "h:mm a"))
-            )
-          : 0,
-        locationId: d?.locationId ?? "",
-      };
-    }),
-  };
 };
 
 export const AssignSub: React.FC<Props> = props => {
@@ -100,7 +66,8 @@ export const AssignSub: React.FC<Props> = props => {
   ] = React.useState();
   const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
 
-  if (props.vacancies.length === 0) {
+  // If we don't have any info, cancel the Assign Sub action
+  if (!props.vacancies || props.vacancies.length === 0) {
     props.onCancel();
   }
 
@@ -146,6 +113,7 @@ export const AssignSub: React.FC<Props> = props => {
 
   useEffect(() => {
     if (searchFilter) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       getReplacementEmployeesForVacancyQuery.refetch();
     }
   }, [searchFilter]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -273,6 +241,8 @@ export const AssignSub: React.FC<Props> = props => {
       classes,
       t,
       tableData,
+      confirmReassign,
+      selectTitle,
     ]
   );
 
@@ -396,3 +366,38 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
 }));
+
+const buildVacancyInput = (
+  vacancies: Vacancy[]
+): AbsenceVacancyInput | null => {
+  const vacancy = vacancies[0];
+  if (vacancy === undefined) {
+    return null;
+  }
+
+  return {
+    positionId: vacancy.positionId,
+    needsReplacement: true,
+    details: vacancy.details!.map(d => {
+      const startTimeLocal =
+        d && d.startTimeLocal ? convertStringToDate(d.startTimeLocal) : null;
+      const endTimeLocal =
+        d && d.endTimeLocal ? convertStringToDate(d.endTimeLocal) : null;
+
+      return {
+        date: startTimeLocal ? format(startTimeLocal, "P") : null,
+        startTime: startTimeLocal
+          ? secondsSinceMidnight(
+              parseTimeFromString(format(startTimeLocal, "h:mm a"))
+            )
+          : 0,
+        endTime: endTimeLocal
+          ? secondsSinceMidnight(
+              parseTimeFromString(format(endTimeLocal, "h:mm a"))
+            )
+          : 0,
+        locationId: d?.locationId ?? "",
+      };
+    }),
+  };
+};

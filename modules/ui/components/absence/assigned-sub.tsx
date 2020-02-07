@@ -4,7 +4,7 @@ import { AccountCircleOutlined } from "@material-ui/icons";
 import { useTranslation } from "react-i18next";
 import { Vacancy } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
-import { canRemoveSub } from "helpers/permissions";
+import { canRemoveSub, canReassignSub } from "helpers/permissions";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
 import { useState, useMemo, useCallback } from "react";
@@ -19,6 +19,7 @@ type Props = {
   assignmentId?: string;
   assignmentRowVersion?: string;
   assignmentStartDate: Date;
+  onReassignSub?: () => void;
   onCancelAssignment?: (
     assignmentId?: string,
     assignmentRowVersion?: string,
@@ -105,6 +106,31 @@ export const AssignedSub: React.FC<Props> = props => {
           <div>{t("#C") + props.assignmentId}</div>
         )}
         <div>
+          {props.onReassignSub && (
+            <Can
+              do={(
+                permissions: OrgUserPermissions[],
+                isSysAdmin: boolean,
+                orgId?: string
+              ) =>
+                canReassignSub(
+                  props.assignmentStartDate,
+                  permissions,
+                  isSysAdmin,
+                  orgId
+                )
+              }
+            >
+              <Button
+                variant="outlined"
+                //className={classes.reassignButton}
+                onClick={props.onReassignSub}
+                disabled={props.disableReplacementInteractions}
+              >
+                {t("Reassign")}
+              </Button>
+            </Can>
+          )}
           {props.onCancelAssignment && (
             <Can
               do={(
