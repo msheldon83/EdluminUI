@@ -29,6 +29,7 @@ import {
   getCannotCreateAbsenceDates,
 } from "./helpers";
 import { VacancyDetails } from "./vacancy-details";
+import { ShowErrors } from "../error-helpers";
 
 type Props = {
   orgId: string;
