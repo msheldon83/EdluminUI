@@ -11,6 +11,9 @@ import { AvailableIcon } from "./icons/available-icon";
 import { FavoriteIcon } from "./icons/favorite-icon";
 import { QualifiedIcon } from "./icons/qualified-icon";
 import { VisibleIcon } from "./icons/visible-icon";
+import { canAssignUnQualifiedSub, canAssignUnAvailableSub, canAssignUnQualifiedAndUnAvailableSub} from "helpers/permissions";
+import { OrgUserPermissions } from "ui/components/auth/types";
+import { Can } from "ui/components/auth/can";
 
 export type AssignSubColumn = {
   employeeId: string;
@@ -43,6 +46,25 @@ export const getAssignSubColumns = (
   t: TFunction
 ) => {
   //TODO: Custom sort handling for Star column, Qualified, Available, Visible
+
+  const renderAssignButton = (selectable: boolean, employeeId: string, firstName: string, lastName: string, payCodeId: string | null | undefined) => {
+    return (
+      <Button
+        variant="outlined"
+        disabled={!selectable}
+        className={classes.selectButton}
+        onClick={async () => {
+          await selectReplacementEmployee(
+            employeeId,
+            `${firstName} ${lastName}`,
+            payCodeId ? payCodeId : undefined
+          );
+        }}
+      >
+        {selectTitle}
+      </Button>
+    );    
+  };
 
   const columns: TableColumn<typeof tableData[0]>[] = [
     {
@@ -146,20 +168,51 @@ export const getAssignSubColumns = (
     sorting: false,
     permissions: [PermissionEnum.AbsVacAssign],
     render: (data: typeof tableData[0]) => (
-      <Button
-        variant="outlined"
-        disabled={!data.selectable}
-        className={classes.selectButton}
-        onClick={async () => {
-          await selectReplacementEmployee(
-            data.employeeId,
-            `${data.firstName} ${data.lastName}`,
-            data.payCodeId ? data.payCodeId : undefined
-          );
-        }}
+      (!data.qualified && !data.available) ? (
+        <Can
+          do={(
+            permissions: OrgUserPermissions[],
+            isSysAdmin: boolean,
+            orgId?: string
+          ) =>
+          canAssignUnQualifiedAndUnAvailableSub(
+              permissions,
+              isSysAdmin,
+              orgId
+            )
+          }
+        >
+          {renderAssignButton(data.selectable, data.employeeId, data.firstName, data.lastName, data.payCodeId)}
+        </Can>
+      ) : (!data.qualified && data.available) ? (<Can
+        do={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) =>
+        canAssignUnQualifiedSub(
+            permissions,
+            isSysAdmin,
+            orgId
+          )
+        }
       >
-        {selectTitle}
-      </Button>
+        {renderAssignButton(data.selectable, data.employeeId, data.firstName, data.lastName, data.payCodeId)}
+      </Can>) : (!data.available  && data.qualified) ? (<Can
+        do={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) =>
+        canAssignUnAvailableSub(
+            permissions,
+            isSysAdmin,
+            orgId
+          )
+        }
+      >
+        {renderAssignButton(data.selectable, data.employeeId, data.firstName, data.lastName, data.payCodeId)}
+      </Can>) : ({renderAssignButton(data.selectable, data.employeeId, data.firstName, data.lastName, data.payCodeId)})
     ),
   });
 
