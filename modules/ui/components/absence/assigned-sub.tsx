@@ -40,14 +40,21 @@ export const AssignedSub: React.FC<Props> = props => {
     return getGroupedVacancyDetails(props.vacancies);
   }, [props.vacancies]);
 
+  const { assignmentId, onCancelAssignment } = props;
   const onClickRemove = useCallback(async () => {
-    if (!props.onCancelAssignment) {
+    if (!onCancelAssignment) {
+      // Shouldn't occur, but just in case
       return;
+    }
+
+    if (!assignmentId) {
+      // Removing a pre-arranged Sub when creating the Absence
+      await onCancelAssignment();
     }
 
     // Determine if the same Assignment is across multiple days
     const matchingGroups = allGroupedDetails.filter(
-      x => x.assignmentId && x.assignmentId === props.assignmentId
+      x => x.assignmentId && x.assignmentId === assignmentId
     );
     const allDates = uniq(
       flatMap(matchingGroups.map(g => g.detailItems.map(di => di.date)))
@@ -58,15 +65,15 @@ export const AssignedSub: React.FC<Props> = props => {
       setCancelAssignmentDialogIsOpen(true);
     } else {
       // Go ahead and just cancel this Assignment
-      await props.onCancelAssignment(
+      await onCancelAssignment(
         matchingGroups[0].assignmentId,
         matchingGroups[0].assignmentRowVersion
       );
     }
   }, [
     setCancelAssignmentDialogIsOpen,
-    props.assignmentId,
-    props.onCancelAssignment,
+    assignmentId,
+    onCancelAssignment,
     allGroupedDetails,
   ]);
 
