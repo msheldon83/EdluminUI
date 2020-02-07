@@ -343,7 +343,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
-      <React.Fragment>
+      {
+        // TODO: This is being temporarily commented out so that we can handle navigating away from the page without throwing the error on sub assign page
+        /*<React.Fragment>
         <Prompt
           message={t(
             "You have not created your absence yet. Click OK to navigate away without creating your absence."
@@ -351,6 +353,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           when={!abscenceCreated}
         />
       </React.Fragment>
+          */
+      }
       <form
         onSubmit={handleSubmit(async data => {
           await create(data);
