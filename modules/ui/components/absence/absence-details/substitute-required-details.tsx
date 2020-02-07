@@ -54,6 +54,7 @@ type Props = {
     vacancyDetailIds?: string[]
   ) => Promise<void>;
   isSplitVacancy: boolean;
+  onAssignSubClick: (vacancyDetailIds?: string[]) => void;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -131,6 +132,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
           disabledDates={props.disabledDates}
           onCancelAssignment={props.onCancelAssignment}
           disableReplacementInteractions={props.disableReplacementInteractions}
+          onAssignSubClick={props.onAssignSubClick}
         />
       )}
 
@@ -225,43 +227,17 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
               />
             </div>
 
-            {hasVacancies && !props.isSplitVacancy && (
+            {hasVacancies && (
               <div className={classes.substituteActions}>
-                <Can
-                  do={(
-                    permissions: OrgUserPermissions[],
-                    isSysAdmin: boolean,
-                    orgId?: string
-                  ) =>
-                    canAssignSub(
-                      parseISO(vacancies[0].startDate),
-                      permissions,
-                      isSysAdmin,
-                      orgId
-                    )
-                  }
-                >
-                  <Button
-                    variant="outlined"
-                    className={classes.preArrangeButton}
-                    onClick={() => setStep("preAssignSub")}
-                    disabled={
-                      props.disableReplacementInteractions ||
-                      props.replacementEmployeeId !== undefined
-                    }
-                  >
-                    {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
-                  </Button>
-                </Can>
-                {props.replacementEmployeeId !== undefined &&
-                  props.arrangeSubButtonTitle && (
+                {!props.isSplitVacancy && (
+                  <>
                     <Can
                       do={(
                         permissions: OrgUserPermissions[],
                         isSysAdmin: boolean,
                         orgId?: string
                       ) =>
-                        canReassignSub(
+                        canAssignSub(
                           parseISO(vacancies[0].startDate),
                           permissions,
                           isSysAdmin,
@@ -271,14 +247,44 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                     >
                       <Button
                         variant="outlined"
-                        className={classes.reassignButton}
-                        onClick={() => setStep("preAssignSub")}
-                        disabled={props.disableReplacementInteractions}
+                        className={classes.preArrangeButton}
+                        onClick={() => props.onAssignSubClick()}
+                        disabled={
+                          props.disableReplacementInteractions ||
+                          props.replacementEmployeeId !== undefined
+                        }
                       >
-                        {t("Reassign Sub")}
+                        {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
                       </Button>
                     </Can>
-                  )}
+                    {props.replacementEmployeeId !== undefined &&
+                      props.arrangeSubButtonTitle && (
+                        <Can
+                          do={(
+                            permissions: OrgUserPermissions[],
+                            isSysAdmin: boolean,
+                            orgId?: string
+                          ) =>
+                            canReassignSub(
+                              parseISO(vacancies[0].startDate),
+                              permissions,
+                              isSysAdmin,
+                              orgId
+                            )
+                          }
+                        >
+                          <Button
+                            variant="outlined"
+                            className={classes.reassignButton}
+                            onClick={() => setStep("preAssignSub")}
+                            disabled={props.disableReplacementInteractions}
+                          >
+                            {t("Reassign Sub")}
+                          </Button>
+                        </Can>
+                      )}
+                  </>
+                )}
 
                 <Button
                   variant="outlined"

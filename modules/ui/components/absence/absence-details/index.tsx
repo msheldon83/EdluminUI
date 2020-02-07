@@ -79,6 +79,7 @@ type Props = {
   initialAbsenceCreation: boolean;
   onDelete?: () => void;
   onCancel?: () => void;
+  onAssignSubClick: (vacancyDetailIds?: string[]) => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -281,6 +282,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             onSubstituteWantedChange={onSubstituteWantedChange}
             onCancelAssignment={props.onRemoveReplacement}
             isSplitVacancy={isSplitVacancy}
+            onAssignSubClick={props.onAssignSubClick}
           />
         </div>
       </Grid>

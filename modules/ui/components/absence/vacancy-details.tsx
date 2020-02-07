@@ -2,11 +2,9 @@ import * as React from "react";
 import { Vacancy } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { Grid, makeStyles } from "@material-ui/core";
-import { Fragment, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
-  getVacancyDetailsGrouping,
   vacanciesHaveMultipleAssignments,
-  VacancyDetailsGroup,
   getGroupedVacancyDetails,
 } from "./helpers";
 import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
@@ -14,6 +12,7 @@ import { VacancyDetailRow } from "./vacancy-detail-row";
 
 type Props = {
   vacancies: Vacancy[];
+  vacancyDetailIds?: string[];
   positionName?: string | null | undefined;
   showHeader?: boolean;
   equalWidthDetails?: boolean;
@@ -26,23 +25,51 @@ type Props = {
     vacancyDetailIds?: string[]
   ) => Promise<void>;
   disableReplacementInteractions?: boolean;
+  onAssignSubClick?: (vacancyDetailIds?: string[]) => void;
 };
 
 export const VacancyDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { detailsClassName = classes.fullWidth } = props;
+  const {
+    vacancies = [],
+    vacancyDetailIds = [],
+    detailsClassName = classes.fullWidth,
+  } = props;
+
+  console.log(vacancies, vacancyDetailIds);
+
+  // Filter the Vacancies and Vacancy Details down to the ones
+  // we are interested in based on props.vacancyDetailIds
+  const filteredVacancies = useMemo(() => {
+    if (vacancyDetailIds.length === 0) {
+      return vacancies;
+    }
+
+    const vacancyList: Vacancy[] = [];
+    vacancies.forEach(v => {
+      const matchingDetails =
+        v.details?.filter(d => vacancyDetailIds.includes(d?.id ?? "")) ?? [];
+      if (matchingDetails.length > 0) {
+        vacancyList.push({
+          ...v,
+          details: matchingDetails,
+        });
+      }
+    });
+    return vacancyList;
+  }, [vacancies, vacancyDetailIds]);
 
   const isSplitVacancy = useMemo(() => {
-    return vacanciesHaveMultipleAssignments(props.vacancies);
-  }, [props.vacancies]);
+    return vacanciesHaveMultipleAssignments(filteredVacancies);
+  }, [filteredVacancies]);
 
   const groupedDetails = useMemo(() => {
-    return getGroupedVacancyDetails(props.vacancies);
-  }, [props.vacancies]);
+    return getGroupedVacancyDetails(filteredVacancies);
+  }, [filteredVacancies]);
 
-  if (!props.vacancies || !props.vacancies.length) {
+  if (filteredVacancies.length === 0) {
     return <></>;
   }
 
@@ -51,8 +78,8 @@ export const VacancyDetails: React.FC<Props> = props => {
       {props.showHeader && (
         <Grid item xs={12} className={classes.vacancySummaryHeader}>
           <VacancySummaryHeader
+            vacancyDetailGroupings={groupedDetails}
             positionName={props.positionName}
-            vacancies={props.vacancies}
             disabledDates={props.disabledDates}
           />
         </Grid>
@@ -79,6 +106,7 @@ export const VacancyDetails: React.FC<Props> = props => {
                 disableReplacementInteractions={
                   props.disableReplacementInteractions
                 }
+                onAssignSubClick={props.onAssignSubClick}
               />
             </Grid>
           );

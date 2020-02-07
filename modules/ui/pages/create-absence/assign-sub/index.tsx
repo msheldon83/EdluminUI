@@ -8,7 +8,7 @@ import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useIsMobile } from "hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
@@ -26,7 +26,7 @@ type Props = {
   absenceId?: string;
   existingVacancy?: boolean;
   vacancies: Vacancy[];
-  vacancyDetailIdsToAssign: string[];
+  vacancyDetailIdsToAssign?: string[];
   userIsAdmin: boolean;
   employeeName: string;
   employeeId?: string;
@@ -54,6 +54,9 @@ export const AssignSub: React.FC<Props> = props => {
   const [searchFilter, updateSearch] = React.useState<
     ReplacementEmployeeFilters
   >();
+  const { onSelectReplacement, currentReplacementEmployeeName = "" } = props;
+
+  console.log(props.vacancyDetailIdsToAssign);
 
   const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
   const [
@@ -97,6 +100,7 @@ export const AssignSub: React.FC<Props> = props => {
         vacancy: !props.vacancies[0]?.id
           ? buildVacancyInput(props.vacancies)
           : undefined,
+        //vacancyDetailIds: props.vacancyDetailIdsToAssign ?? undefined
         absentEmployeeId: props.employeeId ?? undefined,
         name: searchFilter?.name,
         qualified: searchFilter?.name ? undefined : searchFilter?.qualified,
@@ -148,29 +152,34 @@ export const AssignSub: React.FC<Props> = props => {
     }));
   }, [replacementEmployees]);
 
-  const selectReplacementEmployee = async (
-    replacementEmployeeId: string,
-    name: string,
-    payCodeId: string | undefined
-  ) => {
-    props.onSelectReplacement(replacementEmployeeId, name, payCodeId);
-  };
+  const selectReplacementEmployee = useCallback(
+    async (
+      replacementEmployeeId: string,
+      name: string,
+      payCodeId: string | undefined
+    ) => {
+      onSelectReplacement(replacementEmployeeId, name, payCodeId);
+    },
+    [onSelectReplacement]
+  );
 
-  const confirmReassign = async (
-    replacementEmployeeId: string,
-    name: string,
-    payCodeId: string | undefined
-  ) => {
-    if (props.currentReplacementEmployeeName) {
-      setReplacementEmployeeName(name);
-      setReplacementEmployeePayCode(payCodeId);
-      setReplacementEmployeeId(replacementEmployeeId);
-      setDialogIsOpen(true);
-    } else {
-      await selectReplacementEmployee(replacementEmployeeId, name, payCodeId);
-    }
-    selectReplacementEmployee;
-  };
+  const confirmReassign = useCallback(
+    async (
+      replacementEmployeeId: string,
+      name: string,
+      payCodeId: string | undefined
+    ) => {
+      if (currentReplacementEmployeeName) {
+        setReplacementEmployeeName(name);
+        setReplacementEmployeePayCode(payCodeId);
+        setReplacementEmployeeId(replacementEmployeeId);
+        setDialogIsOpen(true);
+      } else {
+        await selectReplacementEmployee(replacementEmployeeId, name, payCodeId);
+      }
+    },
+    [selectReplacementEmployee, currentReplacementEmployeeName]
+  );
 
   const setSearch = (filters: ReplacementEmployeeFilters) => {
     updateSearch(filters);
@@ -193,6 +202,7 @@ export const AssignSub: React.FC<Props> = props => {
         >
           <VacancyDetails
             vacancies={props.vacancies}
+            vacancyDetailIds={props.vacancyDetailIdsToAssign}
             positionName={props.positionName}
             gridRef={vacancyDetailsRef}
             showHeader
@@ -236,7 +246,6 @@ export const AssignSub: React.FC<Props> = props => {
     [
       isMobile,
       props.userIsAdmin,
-      selectReplacementEmployee,
       theme,
       classes,
       t,
@@ -264,7 +273,7 @@ export const AssignSub: React.FC<Props> = props => {
             replacementEmployeePayCode
           );
         }}
-        currentReplacementEmployee={props.currentReplacementEmployeeName!}
+        currentReplacementEmployee={currentReplacementEmployeeName}
         newReplacementEmployee={replacementEmployeeName}
       />
       <div className={classes.header}>

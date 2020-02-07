@@ -19,7 +19,7 @@ type Props = {
   assignmentId?: string;
   assignmentRowVersion?: string;
   assignmentStartDate: Date;
-  onReassignSub?: () => void;
+  onAssignSubClick?: () => void;
   onCancelAssignment?: (
     assignmentId?: string,
     assignmentRowVersion?: string,
@@ -106,56 +106,57 @@ export const AssignedSub: React.FC<Props> = props => {
           <div>{t("#C") + props.assignmentId}</div>
         )}
         <div>
-          {props.onReassignSub && (
-            <Can
-              do={(
-                permissions: OrgUserPermissions[],
-                isSysAdmin: boolean,
-                orgId?: string
-              ) =>
-                canReassignSub(
-                  props.assignmentStartDate,
-                  permissions,
-                  isSysAdmin,
-                  orgId
-                )
-              }
-            >
-              <Button
-                variant="outlined"
-                //className={classes.reassignButton}
-                onClick={props.onReassignSub}
-                disabled={props.disableReplacementInteractions}
+          <div>
+            {props.onAssignSubClick && (
+              <Can
+                do={(
+                  permissions: OrgUserPermissions[],
+                  isSysAdmin: boolean,
+                  orgId?: string
+                ) =>
+                  canReassignSub(
+                    props.assignmentStartDate,
+                    permissions,
+                    isSysAdmin,
+                    orgId
+                  )
+                }
               >
-                {t("Reassign")}
-              </Button>
-            </Can>
-          )}
-          {props.onCancelAssignment && (
-            <Can
-              do={(
-                permissions: OrgUserPermissions[],
-                isSysAdmin: boolean,
-                orgId?: string
-              ) =>
-                canRemoveSub(
-                  props.assignmentStartDate,
-                  permissions,
-                  isSysAdmin,
-                  orgId
-                )
-              }
-            >
-              <Button
-                disabled={props.disableReplacementInteractions}
-                className={classes.removeButton}
-                variant={props.showLinkButton ? "text" : "outlined"}
-                onClick={onClickRemove}
+                <Button
+                  variant="text"
+                  onClick={props.onAssignSubClick}
+                  disabled={props.disableReplacementInteractions}
+                >
+                  {t("Reassign")}
+                </Button>
+              </Can>
+            )}
+            {props.onCancelAssignment && (
+              <Can
+                do={(
+                  permissions: OrgUserPermissions[],
+                  isSysAdmin: boolean,
+                  orgId?: string
+                ) =>
+                  canRemoveSub(
+                    props.assignmentStartDate,
+                    permissions,
+                    isSysAdmin,
+                    orgId
+                  )
+                }
               >
-                {t("Remove")}
-              </Button>
-            </Can>
-          )}
+                <Button
+                  disabled={props.disableReplacementInteractions}
+                  className={classes.removeButton}
+                  variant={props.showLinkButton ? "text" : "outlined"}
+                  onClick={onClickRemove}
+                >
+                  {t("Remove")}
+                </Button>
+              </Can>
+            )}
+          </div>
         </div>
       </div>
     </>

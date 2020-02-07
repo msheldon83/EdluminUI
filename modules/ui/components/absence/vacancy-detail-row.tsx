@@ -1,12 +1,15 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { Grid, makeStyles, Typography, Button } from "@material-ui/core";
 import { VacancyDetailsGroup } from "./helpers";
 import { getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "./date-helpers";
 import { format } from "date-fns";
 import { AssignedSub } from "./assigned-sub";
 import { useMemo } from "react";
 import { Vacancy } from "graphql/server-types.gen";
+import { OrgUserPermissions } from "../auth/types";
+import { canAssignSub } from "helpers/permissions";
+import { Can } from "../auth/can";
 
 type Props = {
   groupedDetail: VacancyDetailsGroup;
@@ -20,6 +23,7 @@ type Props = {
     vacancyDetailIds?: string[]
   ) => Promise<void>;
   disableReplacementInteractions?: boolean;
+  onAssignSubClick?: (vacancyDetailIds?: string[]) => void;
 };
 
 export const VacancyDetailRow: React.FC<Props> = props => {
@@ -39,6 +43,14 @@ export const VacancyDetailRow: React.FC<Props> = props => {
     return groupedDetail.detailItems.map(di => di.date);
   }, [groupedDetail]);
 
+  //console.log(groupedDetail);
+  const vacancyDetailIds: string[] = useMemo(() => {
+    const ids = groupedDetail.detailItems
+      .filter(di => !!di.vacancyDetailId)
+      .map(di => di.vacancyDetailId!);
+    return ids;
+  }, [groupedDetail]);
+
   return (
     <>
       {isSplitVacancy && (
@@ -46,9 +58,34 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           {!groupedDetail.assignmentId && (
             <div className={classes.unfilled}>
               <Typography variant={"h6"}>{t("Unfilled")}</Typography>
+              {props.onAssignSubClick && (
+                <Can
+                  do={(
+                    permissions: OrgUserPermissions[],
+                    isSysAdmin: boolean,
+                    orgId?: string
+                  ) =>
+                    canAssignSub(
+                      groupedDetail.assignmentStartTime ??
+                        groupedDetail.startDate,
+                      permissions,
+                      isSysAdmin,
+                      orgId
+                    )
+                  }
+                >
+                  <Button
+                    variant="text"
+                    onClick={() => props.onAssignSubClick!(vacancyDetailIds)}
+                    disabled={props.disableReplacementInteractions}
+                  >
+                    {t("Assign")}
+                  </Button>
+                </Can>
+              )}
             </div>
           )}
-          {groupedDetail.assignmentId && (
+          {groupedDetail.assignmentId && props.onAssignSubClick && (
             <AssignedSub
               subText={t("assigned")}
               disableReplacementInteractions={
@@ -63,6 +100,7 @@ export const VacancyDetailRow: React.FC<Props> = props => {
               }
               showLinkButton={true}
               vacancies={vacancies}
+              onAssignSubClick={() => props.onAssignSubClick!(vacancyDetailIds)}
             />
           )}
         </Grid>
@@ -124,6 +162,9 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(2),
   },
   unfilled: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: theme.spacing(2),
     backgroundColor: theme.customColors.lighterGray,
     color: theme.customColors.darkRed,
