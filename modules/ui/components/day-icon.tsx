@@ -1,6 +1,5 @@
 import * as React from "react";
-import getHours from "date-fns/getHours";
-import parseISO from "date-fns/parseISO";
+import { getHours, parseISO } from "date-fns";
 
 type Props = {
   dayPortion: number;

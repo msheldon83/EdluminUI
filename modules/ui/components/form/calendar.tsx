@@ -9,9 +9,7 @@ import {
 } from "@material-ui/pickers";
 import Paper from "@material-ui/core/Paper";
 import IconButton from "@material-ui/core/IconButton";
-import isEqual from "date-fns/isEqual";
-import isSameDay from "date-fns/isSameDay";
-import format from "date-fns/format";
+import { isEqual, isSameDay, format } from "date-fns";
 import {
   isAfterDate,
   areDatesEqual,
