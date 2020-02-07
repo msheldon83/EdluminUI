@@ -22,6 +22,7 @@ import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
 import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 import { compact, differenceWith, flatMap, isEqual, some } from "lodash-es";
 import * as React from "react";
 import { useCallback, useMemo, useReducer } from "react";
@@ -119,7 +120,11 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     [dispatch]
   );
 
-  const [assignVacancy] = useMutationBundle(AssignVacancy, {});
+  const [assignVacancy] = useMutationBundle(AssignVacancy, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   const name = `${props.firstName} ${props.lastName}`;
   const canEdit =
@@ -391,6 +396,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             employeeId: employeeId,
             appliesToAllVacancyDetails: true,
             vacancyId: props.initialVacancies[0].id,
+            ignoreWarnings: true,
           },
         },
       });
