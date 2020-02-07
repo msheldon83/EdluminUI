@@ -11,6 +11,9 @@ import { AvailableIcon } from "./icons/available-icon";
 import { FavoriteIcon } from "./icons/favorite-icon";
 import { QualifiedIcon } from "./icons/qualified-icon";
 import { VisibleIcon } from "./icons/visible-icon";
+import { canAssignUnQualifiedAndUnAvailableSub } from "helpers/permissions";
+import { OrgUserPermissions } from "ui/components/auth/types";
+import { Can } from "ui/components/auth/can";
 
 export type AssignSubColumn = {
   employeeId: string;
@@ -144,22 +147,37 @@ export const getAssignSubColumns = (
     title: "",
     field: "actions",
     sorting: false,
-    permissions: [PermissionEnum.AbsVacAssign],
     render: (data: typeof tableData[0]) => (
-      <Button
-        variant="outlined"
-        disabled={!data.selectable}
-        className={classes.selectButton}
-        onClick={async () => {
-          await selectReplacementEmployee(
-            data.employeeId,
-            `${data.firstName} ${data.lastName}`,
-            data.payCodeId ? data.payCodeId : undefined
-          );
-        }}
+      <Can
+        do={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) =>
+          canAssignUnQualifiedAndUnAvailableSub(
+            data.qualified,
+            data.available,
+            permissions,
+            isSysAdmin,
+            orgId
+          )
+        }
       >
-        {selectTitle}
-      </Button>
+        <Button
+          variant="outlined"
+          disabled={!data.selectable}
+          className={classes.selectButton}
+          onClick={async () => {
+            await selectReplacementEmployee(
+              data.employeeId,
+              `${data.firstName} ${data.lastName}`,
+              data.payCodeId ? data.payCodeId : undefined
+            );
+          }}
+        >
+          {selectTitle}
+        </Button>
+      </Can>
     ),
   });
 

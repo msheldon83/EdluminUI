@@ -1,4 +1,8 @@
-import { PermissionEnum } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  VacancyQualification,
+  VacancyAvailability,
+} from "graphql/server-types.gen";
 import { isPast, isToday, isFuture } from "date-fns";
 import { OrgUserPermissions, CanDo } from "ui/components/auth/types";
 import { flatMap, uniq } from "lodash-es";
@@ -327,6 +331,41 @@ export const canReassignSub = (
   }
 
   return true;
+};
+
+export const canAssignUnQualifiedAndUnAvailableSub = (
+  qualified: VacancyQualification,
+  available: VacancyAvailability,
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) return true;
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  if (
+    qualified !== VacancyQualification.NotQualified &&
+    available !== VacancyAvailability.MinorConflict &&
+    userPerms?.includes(PermissionEnum.AbsVacAssign)
+  ) {
+    return true;
+  }
+
+  let result = true;
+  if (
+    qualified === VacancyQualification.NotQualified &&
+    !userPerms?.includes(PermissionEnum.AbsVacAssignUnqualified)
+  ) {
+    result = false;
+  }
+  if (
+    available === VacancyAvailability.MinorConflict &&
+    !userPerms?.includes(PermissionEnum.AbsVacAssignMinorConflict)
+  ) {
+    result = false;
+  }
+
+  return result;
 };
 
 export const canEditAbsence = (
