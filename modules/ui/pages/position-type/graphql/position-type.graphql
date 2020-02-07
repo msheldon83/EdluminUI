@@ -16,6 +16,7 @@ query GetPositionTypeById($id: ID!) {
         name
       }
       payTypeId
+      payCodeId
       replacementCriteria {
         mustHave {
           id

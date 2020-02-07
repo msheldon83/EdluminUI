@@ -50,8 +50,8 @@ type Props = {
     needsReplacement: NeedsReplacement | undefined | null,
     forStaffAugmentation: boolean,
     minAbsenceDurationMinutes: number,
-    payCodeId: string | undefined | null,
     payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
+    payCodeId: string | undefined | null,
     defaultContractId: string | undefined | null
   ) => Promise<unknown>;
   onCancel: () => void;
@@ -112,9 +112,15 @@ export const Settings: React.FC<Props> = props => {
     return <></>;
   }
 
-  const payCodeOptions = compact(getPayCodes?.data?.orgRef_PayCode?.all ?? []);
+  const payCodeOptions: OptionType[] =
+    getPayCodes?.data?.orgRef_PayCode?.all?.map(e => ({
+      label: e?.name ?? "",
+      value: e?.id ?? "",
+    })) ?? [];
+
   const allActiveContracts: any =
     getAllActiveContracts?.data?.contract?.all || [];
+
   const contractOptions = buildContractOptions(
     allActiveContracts,
     props.positionType
@@ -303,8 +309,6 @@ export const Settings: React.FC<Props> = props => {
                   )}
                   options={contractOptions}
                   onChange={(e: OptionType) => {
-                    //TODO: Once the select component is updated,
-                    // can remove the Array checking
                     let selectedValue = null;
                     if (e) {
                       if (Array.isArray(e)) {
@@ -365,7 +369,7 @@ export const Settings: React.FC<Props> = props => {
                     : classes.normalSectionSpacing,
                 ].join(" ")}
               >
-                <div>{t("Pay Type")}</div>
+                <div>{t("Pay type")}</div>
                 <SelectNew
                   value={payTypeOptions.find(
                     (c: any) => c.value === values.payTypeId
@@ -373,8 +377,6 @@ export const Settings: React.FC<Props> = props => {
                   options={payTypeOptions}
                   multiple={false}
                   onChange={(e: OptionType) => {
-                    //TODO: Once the select component is updated,
-                    // can remove the Array checking
                     let selectedValue = null;
                     if (e) {
                       if (Array.isArray(e)) {
@@ -386,25 +388,30 @@ export const Settings: React.FC<Props> = props => {
                     setFieldValue("payTypeId", selectedValue);
                   }}
                 />
-                <div>{t("Pay code")}</div>
-                <SelectNew
-                  value={payCodeOptions.find(
-                    (c: any) => c.value === values.payCodeId
-                  )}
-                  options={payCodeOptions}
-                  multiple={false}
-                  onChange={(e: OptionType) => {
-                    let selectedValue = null;
-                    if (e) {
-                      if (Array.isArray(e)) {
-                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
-                      } else {
-                        selectedValue = (e as OptionTypeBase).value;
+                <div className={classes.paddingTop}>
+                  <div>{t("Pay code")}</div>
+                  <SelectNew
+                    value={{
+                      value: values.payCodeId ?? "",
+                      label:
+                        payCodeOptions.find(a => a.value === values.payCodeId)
+                          ?.label || "",
+                    }}
+                    options={payCodeOptions}
+                    multiple={false}
+                    onChange={(e: OptionType) => {
+                      let selectedValue = null;
+                      if (e) {
+                        if (Array.isArray(e)) {
+                          selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                        } else {
+                          selectedValue = (e as OptionTypeBase).value;
+                        }
                       }
-                    }
-                    setFieldValue("payCodeId", selectedValue);
-                  }}
-                />
+                      setFieldValue("payCodeId", selectedValue);
+                    }}
+                  />
+                </div>
               </div>
               <ActionButtons
                 submit={{ text: props.submitText, execute: submitForm }}
@@ -440,6 +447,9 @@ const useStyles = makeStyles(theme => ({
     "& p": {
       marginLeft: 0,
     },
+  },
+  paddingTop: {
+    paddingTop: "20px",
   },
   minAbsenceSection: {
     maxWidth: "500px",
