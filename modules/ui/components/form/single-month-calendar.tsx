@@ -1,12 +1,7 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Button, { ButtonProps } from "@material-ui/core/Button";
-import eachDayOfInterval from "date-fns/eachDayOfInterval";
-import format from "date-fns/format";
-import isSameDay from "date-fns/isSameDay";
-import lastDayOfMonth from "date-fns/lastDayOfMonth";
-import startOfMonth from "date-fns/startOfMonth";
-import getDay from "date-fns/getDay";
+import { eachDayOfInterval, format, isSameDay, lastDayOfMonth, startOfMonth, getDay } from "date-fns";
 
 type SingleMonthCalendarProps = {
   currentMonth: Date;

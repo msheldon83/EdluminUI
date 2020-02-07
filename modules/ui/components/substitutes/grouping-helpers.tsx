@@ -1,5 +1,9 @@
-import { addMonths, differenceInCalendarMonths, parseISO } from "date-fns";
-import { startOfMonth } from "date-fns/esm";
+import {
+  addMonths,
+  differenceInCalendarMonths,
+  parseISO,
+  startOfMonth,
+} from "date-fns";
 import { groupBy, range } from "lodash-es";
 import { AssignmentVacancyDetails } from "../../pages/sub-schedule/types";
 
@@ -34,9 +38,7 @@ export const mergeAssignmentDatesByMonth = (
   Object.entries(
     groupBy(
       vacancyDetails,
-      a =>
-        a.startDate &&
-        startOfMonth(parseISO(a.startDate)).toISOString()
+      a => a.startDate && startOfMonth(parseISO(a.startDate)).toISOString()
     )
   ).map(([date, vacancyDetails]) => {
     const month = all.find(e => e.month === date);
