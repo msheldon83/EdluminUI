@@ -329,54 +329,6 @@ export const canReassignSub = (
   return true;
 };
 
-export const canAssignUnQualifiedSub = (
-  permissions: OrgUserPermissions[],
-  isSysAdmin: boolean,
-  orgId?: string
-) => {
-  if (isSysAdmin) return true;
-
-  const userPerms = getUserPermissions(permissions, orgId);
-  if (!userPerms?.includes(PermissionEnum.AbsVacAssignUnqualified)) {
-    return false;
-  }
-
-  return true;
-};
-
-export const canAssignUnAvailableSub = (
-  permissions: OrgUserPermissions[],
-  isSysAdmin: boolean,
-  orgId?: string
-) => {
-  if (isSysAdmin) return true;
-
-  const userPerms = getUserPermissions(permissions, orgId);
-  if (!userPerms?.includes(PermissionEnum.AbsVacAssignMinorConflict)) {
-    return false;
-  }
-
-  return true;
-};
-
-export const canAssignUnQualifiedAndUnAvailableSub = (
-  permissions: OrgUserPermissions[],
-  isSysAdmin: boolean,
-  orgId?: string
-) => {
-  if (isSysAdmin) return true;
-
-  const userPerms = getUserPermissions(permissions, orgId);
-  if (
-    !userPerms?.includes(PermissionEnum.AbsVacAssignMinorConflict) ||
-    !userPerms?.includes(PermissionEnum.AbsVacAssignUnqualified)
-  ) {
-    return false;
-  }
-
-  return true;
-};
-
 export const canEditAbsence = (
   absDate: Date,
   permissions: OrgUserPermissions[],
