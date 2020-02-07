@@ -43,6 +43,7 @@ import { projectVacancyDetails } from "./project-vacancy-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { ApolloError } from "apollo-client";
+import { Prompt } from "react-router";
 
 type Props = {
   firstName: string;
@@ -124,6 +125,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const [errorBannerOpen, setErrorBannerOpen] = useState(false);
   const [absenceErrors, setAbsenceErrors] = useState<ApolloError | null>(null);
+  const [abscenceCreated, setAbsenceCreated] = useState(false);
 
   const formValues = getValues();
 
@@ -301,6 +303,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     const absence = result?.data?.absence?.create as Absence;
     if (absence) {
       setAbsence(absence);
+      setAbsenceCreated(true);
       setStep("confirmation");
     }
   };
@@ -340,7 +343,18 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
-
+      {
+        // TODO: This is being temporarily commented out so that we can handle navigating away from the page without throwing the error on sub assign page
+        /*<React.Fragment>
+        <Prompt
+          message={t(
+            "You have not created your absence yet. Click OK to navigate away without creating your absence."
+          )}
+          when={!abscenceCreated}
+        />
+      </React.Fragment>
+          */
+      }
       <form
         onSubmit={handleSubmit(async data => {
           await create(data);

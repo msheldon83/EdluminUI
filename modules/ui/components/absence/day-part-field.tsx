@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   FormControlLabel,
   Grid,
@@ -75,6 +76,7 @@ export const DayPartField: React.FC<Props> = props => {
           .length > 0
           ? (getEmployeeScheduleTimes.data?.employee
               ?.employeePositionSchedule[0] as Pick<
+              // TODO: this does not handle variants will for multi-day absences
               PositionScheduleDate,
               | "startTimeLocal"
               | "endTimeLocal"
@@ -89,14 +91,12 @@ export const DayPartField: React.FC<Props> = props => {
 
       return {
         startTime: format(parseISO(scheduleTimes.startTimeLocal), "h:mm a"),
-        halfDayMorningEnd: format(
-          parseISO(scheduleTimes.halfDayMorningEndLocal),
-          "h:mm a"
-        ),
-        halfDayAfternoonStart: format(
-          parseISO(scheduleTimes.halfDayAfternoonStartLocal),
-          "h:mm a"
-        ),
+        halfDayMorningEnd: scheduleTimes.halfDayMorningEndLocal
+          ? format(parseISO(scheduleTimes.halfDayMorningEndLocal), "h:mm a")
+          : null,
+        halfDayAfternoonStart: scheduleTimes.halfDayAfternoonStartLocal
+          ? format(parseISO(scheduleTimes.halfDayAfternoonStartLocal), "h:mm a")
+          : null,
         endTime: format(parseISO(scheduleTimes.endTimeLocal), "h:mm a"),
       };
     }
@@ -154,6 +154,13 @@ export const DayPartField: React.FC<Props> = props => {
     [value, setIncompleteEndTime, onDayPartChange]
   );
 
+  const showFullDayOption = useMemo(() => {
+    return (
+      employeeScheduleTimes?.halfDayAfternoonStart &&
+      employeeScheduleTimes?.halfDayMorningEnd
+    );
+  }, [employeeScheduleTimes]);
+
   return (
     <>
       <RadioGroup
@@ -165,26 +172,33 @@ export const DayPartField: React.FC<Props> = props => {
           const timeDisplay = employeeScheduleTimes
             ? dayPartToTimesLabel(type, employeeScheduleTimes)
             : "";
-          return (
-            <Grid
-              container
-              justify="space-between"
-              alignItems="center"
-              key={type}
-            >
-              <Grid item xs={10}>
-                <FormControlLabel
-                  value={type}
-                  control={<Radio checked={type === value.part} />}
-                  disabled={disabled}
-                  label={`${t(dayPartToLabel(type))} ${timeDisplay}`}
-                />
+
+          // Hide the full day option if we don't have both half days in the schedule
+          if (type === DayPart.FullDay && !showFullDayOption) {
+            return <div key={type}></div>;
+          }
+          if (timeDisplay) {
+            return (
+              <Grid
+                container
+                justify="space-between"
+                alignItems="center"
+                key={type}
+              >
+                <Grid item xs={10}>
+                  <FormControlLabel
+                    value={type}
+                    control={<Radio checked={type === value.part} />}
+                    disabled={disabled}
+                    label={`${t(dayPartToLabel(type))} ${timeDisplay}`}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  {dayPartToIcon(type, classes)}
+                </Grid>
               </Grid>
-              <Grid item xs={2}>
-                {dayPartToIcon(type, classes)}
-              </Grid>
-            </Grid>
-          );
+            );
+          }
         })}
       </RadioGroup>
 

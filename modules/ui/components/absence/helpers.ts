@@ -60,9 +60,13 @@ export const dayPartToTimesLabel = (dayPart: DayPart, times: ScheduleTimes) => {
     case DayPart.FullDay:
       return `(${times.startTime} - ${times.endTime})`;
     case DayPart.HalfDayMorning:
-      return `(${times.startTime} - ${times.halfDayMorningEnd})`;
+      return times.halfDayMorningEnd
+        ? `(${times.startTime} - ${times.halfDayMorningEnd})`
+        : null;
     case DayPart.HalfDayAfternoon:
-      return `(${times.halfDayAfternoonStart} - ${times.endTime})`;
+      return times.halfDayAfternoonStart
+        ? `(${times.halfDayAfternoonStart} - ${times.endTime})`
+        : null;
     case DayPart.Hourly:
     case DayPart.QuarterDayEarlyMorning:
     case DayPart.QuarterDayLateMorning:
@@ -75,8 +79,8 @@ export const dayPartToTimesLabel = (dayPart: DayPart, times: ScheduleTimes) => {
 
 export type ScheduleTimes = {
   startTime: string;
-  halfDayMorningEnd: string;
-  halfDayAfternoonStart: string;
+  halfDayMorningEnd: string | null;
+  halfDayAfternoonStart: string | null;
   endTime: string;
 };
 

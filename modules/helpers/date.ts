@@ -1,15 +1,14 @@
-import isAfter from "date-fns/isAfter";
-import isValid from "date-fns/isValid";
-import format from "date-fns/format";
-import parseISO from "date-fns/parseISO";
-import isWithinInterval from "date-fns/isWithinInterval";
-import isEqual from "date-fns/isEqual";
 import {
+  isAfter,
+  isValid,
+  format,
+  parseISO,
+  isWithinInterval,
+  isEqual,
   isDate,
   isYesterday,
   isToday,
   isTomorrow,
-  eachDayOfInterval,
   differenceInCalendarDays,
   isSameDay,
 } from "date-fns";

@@ -81,21 +81,25 @@ export const EmployeeAddPage: React.FC<{}> = props => {
 
   // Cannot include "employee" in the list of dependencies because we are
   // also setting it here which results in an infinite render loop
-  useEffect(() => {
-    if (orgUser) {
-      setEmployee({
-        ...employee,
-        id: orgUser.id,
-        orgId: params.organizationId,
-        firstName: orgUser.firstName,
-        middleName: orgUser.middleName,
-        lastName: orgUser.lastName,
-        externalId: orgUser.externalId,
-        email: orgUser.email,
-      });
-      setInitialStepNumber(1);
-    }
-  }, [employee, orgUser, params.organizationId]);
+  useEffect(
+    () => {
+      if (orgUser) {
+        setEmployee({
+          ...employee,
+          id: orgUser.id,
+          orgId: params.organizationId,
+          firstName: orgUser.firstName,
+          middleName: orgUser.middleName,
+          lastName: orgUser.lastName,
+          externalId: orgUser.externalId,
+          email: orgUser.email,
+        });
+        setInitialStepNumber(1);
+      }
+    },
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [orgUser, params.organizationId]
+  );
 
   const handleCancel = () => {
     const url =

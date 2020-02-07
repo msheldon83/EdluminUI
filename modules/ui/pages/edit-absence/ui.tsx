@@ -79,6 +79,7 @@ type Props = {
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
   returnUrl?: string;
+  onCancel: () => void;
 };
 
 type EditAbsenceFormData = {
@@ -492,6 +493,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               returnUrl={props.returnUrl}
               isSubmitted={formState.isSubmitted}
               initialAbsenceCreation={false}
+              onDelete={props.onDelete}
+              onCancel={props.onCancel}
             />
           </Section>
         </form>

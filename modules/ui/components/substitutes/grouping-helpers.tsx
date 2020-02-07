@@ -34,9 +34,7 @@ export const mergeAssignmentDatesByMonth = (
   Object.entries(
     groupBy(
       vacancyDetails,
-      a =>
-        a.startDate &&
-        startOfMonth(parseISO(a.startDate)).toISOString()
+      a => a.startDate && startOfMonth(parseISO(a.startDate)).toISOString()
     )
   ).map(([date, vacancyDetails]) => {
     const month = all.find(e => e.month === date);
