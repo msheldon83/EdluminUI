@@ -6,8 +6,8 @@ import {
   generateEmptyDateMap,
   DateGroupByMonth,
 } from "ui/components/substitutes/grouping-helpers";
-import { parseISO, eachDayOfInterval, format } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
+import { parseISO, eachDayOfInterval, format } from "date-fns";
 import { groupBy, range } from "lodash-es";
 import { useState } from "react";
 

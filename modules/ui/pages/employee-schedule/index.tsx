@@ -52,7 +52,7 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   };
 
   return (
-    <div className={classes.pageContainer}>
+    <div>
       {employee && employeeCreatedDate && (
         <AbsenceSchedule
           view={props.view}
@@ -71,11 +71,4 @@ export const EmployeeSchedule: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  pageContainer: {
-    display: "block",
-    overflowY: "scroll",
-    height: "100vh",
-    position: "fixed",
-    paddingRight: theme.spacing(3),
-  },
 }));

@@ -58,21 +58,25 @@ export const AdminAddPage: React.FC<{}> = props => {
 
   // Cannot include "admin" in the list of dependencies because we are
   // also setting it here which results in an infinite render loop
-  useEffect(() => {
-    if (orgUser) {
-      setAdmin({
-        ...admin,
-        id: orgUser.id,
-        orgId: params.organizationId,
-        firstName: orgUser.firstName,
-        middleName: orgUser.middleName,
-        lastName: orgUser.lastName,
-        externalId: orgUser.externalId,
-        email: orgUser.email,
-      });
-      setInitialStepNumber(2);
-    }
-  }, [orgUser, params.organizationId]);
+  useEffect(
+    () => {
+      if (orgUser) {
+        setAdmin({
+          ...admin,
+          id: orgUser.id,
+          orgId: params.organizationId,
+          firstName: orgUser.firstName,
+          middleName: orgUser.middleName,
+          lastName: orgUser.lastName,
+          externalId: orgUser.externalId,
+          email: orgUser.email,
+        });
+        setInitialStepNumber(2);
+      }
+    },
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [orgUser, params.organizationId]
+  );
 
   const handleCancel = () => {
     const url =
@@ -157,7 +161,7 @@ export const AdminAddPage: React.FC<{}> = props => {
         onSubmit={async (orgUser: any) => {
           const newAdmin = {
             ...admin,
-            ...orgUser
+            ...orgUser,
           };
           setAdmin(newAdmin);
           const id = await create(newAdmin);
@@ -195,7 +199,7 @@ export const AdminAddPage: React.FC<{}> = props => {
       stepNumber: 2,
       name: t("Access Control"),
       content: renderAccessControl,
-    }
+    },
   ];
   const [initialStepNumber, setInitialStepNumber] = React.useState(
     steps[0].stepNumber

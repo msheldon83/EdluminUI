@@ -245,8 +245,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                     {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
                   </Button>
                 </Can>
-                {(props.disableReplacementInteractions ||
-                  props.replacementEmployeeId !== undefined) &&
+                {props.replacementEmployeeId !== undefined &&
                   props.arrangeSubButtonTitle && (
                     <Can
                       do={(

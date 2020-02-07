@@ -6,7 +6,7 @@ export const FilterQueryParamDefaults: PeopleFilters = {
   firstNameSort: "asc",
   lastNameSort: "asc",
   roleFilter: "",
-  active: "",
+  active: "true",
   endorsements: "",
   positionTypes: "",
   locations: "",

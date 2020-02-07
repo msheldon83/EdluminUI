@@ -7,10 +7,7 @@ import {
 } from "@material-ui/core";
 import { Directions, LocalPhone, ReceiptOutlined } from "@material-ui/icons";
 import * as React from "react";
-import parseISO from "date-fns/parseISO";
-import isTomorrow from "date-fns/isTomorrow";
-import isToday from "date-fns/isTomorrow";
-import format from "date-fns/format";
+import { parseISO, isTomorrow, isToday, format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { VacancyDetail } from "graphql/server-types.gen";

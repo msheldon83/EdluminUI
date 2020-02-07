@@ -66,8 +66,10 @@ export const PersonViewHeader: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
+
+  const orgStatus = props.orgStatus;
   const invite = React.useCallback(async () => {
-    if (props.orgStatus === OrganizationType.Demo) {
+    if (orgStatus === OrganizationType.Demo) {
       openSnackbar({
         message: t("This Organization is in Demo Mode. Invite was not sent"),
         dismissable: true,
@@ -94,7 +96,15 @@ export const PersonViewHeader: React.FC<Props> = props => {
         }
       }
     }
-  }, [inviteUser, orgUser, setInviteSent, inviteSent, openSnackbar, t]);
+  }, [
+    orgStatus,
+    openSnackbar,
+    t,
+    inviteUser,
+    orgUser.userId,
+    orgUser.orgId,
+    inviteSent,
+  ]);
 
   return (
     <>
@@ -153,7 +163,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
         onCancel={() => props.setEditing(null)}
         actions={[
           ...[
-            ...(props.selectedRole === OrgUserRole.Employee
+            ...(props.selectedRole === OrgUserRole.Employee && orgUser.active
               ? [
                   {
                     name: t("Create Absence"),
@@ -198,7 +208,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
                 ),
             },
           ],
-          ...(orgUser.userId
+          ...(orgUser.userId && orgUser.active
             ? [
                 {
                   name: inviteSent ? t("Resend Invitation") : t("Invite"),

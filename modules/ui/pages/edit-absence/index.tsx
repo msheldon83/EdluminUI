@@ -19,6 +19,9 @@ import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "hooks/use-snackbar";
 import { DeleteDialog } from "./delete-absence-dialog";
+import { CancelChangesDialog } from "./cancel-changes-dialog";
+import { AdminHomeRoute } from "ui/routes/admin-home";
+import { EmployeeHomeRoute } from "ui/routes/employee-home";
 
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 
@@ -29,7 +32,8 @@ export const EditAbsence: React.FC<Props> = props => {
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
-  const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
 
   const absence = useQueryBundle(GetAbsence, {
     variables: {
@@ -81,8 +85,8 @@ export const EditAbsence: React.FC<Props> = props => {
     },
   });
 
-  const onClickDelete = React.useCallback(() => setDialogIsOpen(true), [
-    setDialogIsOpen,
+  const onClickDelete = React.useCallback(() => setDeleteDialogIsOpen(true), [
+    setDeleteDialogIsOpen,
   ]);
   const onDeleteAbsence = React.useCallback(async () => {
     const result = await deleteAbsence({
@@ -90,9 +94,8 @@ export const EditAbsence: React.FC<Props> = props => {
         absenceId: params.absenceId,
       },
     });
-    setDialogIsOpen(false);
-    if (result) {
-      returnUrl && history.push(returnUrl);
+    setDeleteDialogIsOpen(false);
+    if (result?.data) {
       openSnackbar({
         message: t("Absence #{{absenceId}} has been deleted", {
           absenceId: params.absenceId,
@@ -101,8 +104,29 @@ export const EditAbsence: React.FC<Props> = props => {
         status: "success",
         autoHideDuration: 5000,
       });
+      goBack();
     }
   }, [deleteAbsence, params.absenceId, returnUrl, history, openSnackbar, t]);
+
+  const onClickCancelChanges = React.useCallback(() => {
+    setCancelDialogIsOpen(true);
+  }, [setCancelDialogIsOpen]);
+
+  const onCancelChanges = () => {
+    goBack();
+  };
+
+  const goBack = () => {
+    if (document.referrer === "") {
+      history.push(
+        props.actingAsEmployee
+          ? EmployeeHomeRoute.generate(params)
+          : AdminHomeRoute.generate(params)
+      );
+    } else {
+      history.goBack();
+    }
+  };
 
   const [cancelAssignment] = useMutationBundle(CancelAssignment);
   const cancelAssignments = React.useCallback(async () => {
@@ -225,9 +249,14 @@ export const EditAbsence: React.FC<Props> = props => {
     <>
       <DeleteDialog
         onDelete={onDeleteAbsence}
-        onClose={() => setDialogIsOpen(false)}
-        open={dialogIsOpen}
+        onClose={() => setDeleteDialogIsOpen(false)}
+        open={deleteDialogIsOpen}
         replacementEmployeeName={replacementEmployeeName}
+      />
+      <CancelChangesDialog
+        onCancel={() => onCancelChanges()}
+        onClose={() => setCancelDialogIsOpen(false)}
+        open={cancelDialogIsOpen}
       />
       <EditAbsenceUI
         firstName={employee.firstName}
@@ -261,6 +290,7 @@ export const EditAbsence: React.FC<Props> = props => {
         cancelAssignments={cancelAssignments}
         refetchAbsence={absence.refetch}
         onDelete={onClickDelete}
+        onCancel={onClickCancelChanges}
       />
     </>
   );
