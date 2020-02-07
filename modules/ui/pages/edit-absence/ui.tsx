@@ -49,7 +49,6 @@ import { AssignVacancy } from "./graphql/assign-vacancy.gen";
 import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-import { canAssignUnQualifiedSub } from "helpers/permissions";
 
 type Props = {
   firstName: string;
