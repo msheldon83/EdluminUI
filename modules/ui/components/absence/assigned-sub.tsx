@@ -50,6 +50,7 @@ export const AssignedSub: React.FC<Props> = props => {
     if (!assignmentId) {
       // Removing a pre-arranged Sub when creating the Absence
       await onCancelAssignment();
+      return;
     }
 
     // Determine if the same Assignment is across multiple days
