@@ -19,6 +19,8 @@ import { GetAllLocationGroupsWithinOrg } from "ui/pages/school-groups/graphql/ge
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { GetOrgConfigTimeZoneId } from "reference-data/get-org-config-timezone.gen";
 import { CreateLocation } from "./graphql/create-location.gen";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 import {
   LocationAddRoute,
   LocationsRoute,
@@ -32,9 +34,15 @@ export const LocationAddPage: React.FC<Props> = props => {
   const history = useHistory();
   const params = useRouteParams(LocationAddRoute);
   const classes = useStyles();
-  const [createLocation] = useMutationBundle(CreateLocation);
+  const { openSnackbar } = useSnackbar();
   const [name, setName] = React.useState<string | null>(null);
   const namePlaceholder = t("Glenbrook North High School");
+
+  const [createLocation] = useMutationBundle(CreateLocation, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   //Set State
   const [location, setLocation] = React.useState<LocationCreateInput>({

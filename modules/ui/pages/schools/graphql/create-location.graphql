@@ -5,6 +5,16 @@ mutation CreateLocation($location: LocationCreateInput!) {
       name
       rowVersion
       externalId
+      locationGroupId
+      address {
+        address1
+        city
+        state
+        postalCode
+      }
+      phoneNumber
+      replacementEndOffsetMinutes
+      replacementStartOffsetMinutes
     }
   }
 }

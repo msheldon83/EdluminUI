@@ -13,6 +13,8 @@ import { PageHeader } from "ui/components/page-header";
 import { makeStyles } from "@material-ui/core";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { can } from "helpers/permissions";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 import { LocationSubPrefRoute, LocationsRoute } from "ui/routes/locations";
 import { DeleteLocation } from "./graphql/delete-location.gen";
 
@@ -21,6 +23,7 @@ export const LocationViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const classes = useStyles();
+  const { openSnackbar } = useSnackbar();
 
   const getLocation = useQueryBundle(GetLocationById, {
     variables: {
@@ -29,7 +32,12 @@ export const LocationViewPage: React.FC<{}> = props => {
     fetchPolicy: "cache-first",
   });
 
-  const [deleteLocationMutation] = useMutationBundle(DeleteLocation);
+  const [deleteLocationMutation] = useMutationBundle(DeleteLocation, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
   const deleteLocation = React.useCallback(async () => {
     await deleteLocationMutation({
       variables: {
@@ -68,7 +76,7 @@ export const LocationViewPage: React.FC<{}> = props => {
           {
             name: t("Delete"),
             onClick: deleteLocation,
-            permissions: [PermissionEnum.LocationSave],
+            permissions: [PermissionEnum.LocationDelete],
           },
         ]}
       ></PageHeader>

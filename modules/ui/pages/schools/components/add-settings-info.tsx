@@ -2,9 +2,7 @@ import { Grid, makeStyles } from "@material-ui/core";
 import { Formik } from "formik";
 import { StateCode } from "graphql/server-types.gen";
 import * as yup from "yup";
-import { useIsMobile } from "hooks";
 import * as React from "react";
-import { TextButton } from "ui/components/text-button";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { useTranslation } from "react-i18next";
 import { USStates } from "reference-data/states";
@@ -45,7 +43,6 @@ type Props = {
 export const AddSettingsInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useIsMobile();
 
   const stateOptions = USStates.map(s => ({
     label: s.name,
@@ -115,13 +112,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
               <Grid container>
                 <Grid container item xs={8} component="dl" spacing={2}>
                   <Grid container item xs={6} spacing={2}>
-                    <Grid
-                      item
-                      xs={12}
-                      sm={12}
-                      lg={12}
-                      className={classes.marginTop}
-                    >
+                    <Grid item xs={12}>
                       <dt className={classes.title}>{t("School group")}</dt>
                       <SelectNew
                         value={{
@@ -151,13 +142,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                         multiple={false}
                       />
                     </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      sm={12}
-                      lg={12}
-                      className={classes.marginBottom}
-                    >
+                    <Grid item xs={12} className={classes.marginBottom}>
                       <dt className={classes.title}>{t("Phone number")}</dt>
                       <Input
                         value={values.phoneNumber}
@@ -170,7 +155,6 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                     </Grid>
                   </Grid>
                   <Grid container item xs={6} spacing={2}>
-                    <Grid item xs={12} sm={12} lg={12}></Grid>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <dt className={classes.title}>{t("Street")}</dt>
@@ -195,7 +179,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                         />
                       </Grid>
                       <Grid item xs={6}>
-                        <dt className={classes.title}>{t("Street")}</dt>
+                        <dt className={classes.title}>{t("State")}</dt>
                         <SelectNew
                           value={{
                             value: values.state ?? "",
@@ -232,18 +216,6 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={6}>
-                        <TextButton
-                          onClick={() => {
-                            setFieldValue("address1", "");
-                            setFieldValue("city", "");
-                            setFieldValue("postalCode", "");
-                            setFieldValue("state", null);
-                          }}
-                        >
-                          {t("Clear address")}
-                        </TextButton>
-                      </Grid>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -262,10 +234,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   marginBottom: {
-    marginBottom: "114px",
-  },
-  marginTop: {
-    marginTop: "8px",
+    marginBottom: "90px",
   },
   title: {
     fontSize: theme.typography.pxToRem(16),
