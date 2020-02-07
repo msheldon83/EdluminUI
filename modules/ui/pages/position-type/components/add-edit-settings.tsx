@@ -15,6 +15,7 @@ import {
   AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
+import { compact } from "lodash-es";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
@@ -26,6 +27,7 @@ import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
 import { useMemo } from "react";
+import { GetPayCodes } from "reference-data/get-pay-codes.gen";
 
 type Props = {
   orgId: string;
@@ -36,6 +38,7 @@ type Props = {
     payTypeId?: AbsenceReasonTrackingTypeId | undefined | null;
     needsReplacement?: NeedsReplacement | undefined | null;
     defaultContractId?: string | undefined | null;
+    payCodeId?: string | undefined | null;
     defaultContract?: {
       id: string;
       name: string;
@@ -47,6 +50,7 @@ type Props = {
     needsReplacement: NeedsReplacement | undefined | null,
     forStaffAugmentation: boolean,
     minAbsenceDurationMinutes: number,
+    payCodeId: string | undefined | null,
     payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
     defaultContractId: string | undefined | null
   ) => Promise<unknown>;
@@ -94,13 +98,21 @@ export const Settings: React.FC<Props> = props => {
     ];
   }, [t]);
 
+  const getPayCodes = useQueryBundle(GetPayCodes, {
+    variables: { orgId: props.orgId },
+  });
+
   const getAllActiveContracts = useQueryBundle(GetAllActiveContracts, {
     variables: { orgId: props.orgId },
   });
-  if (getAllActiveContracts.state === "LOADING") {
+  if (
+    getAllActiveContracts.state === "LOADING" ||
+    getPayCodes.state === "LOADING"
+  ) {
     return <></>;
   }
 
+  const payCodeOptions = compact(getPayCodes?.data?.orgRef_PayCode?.all ?? []);
   const allActiveContracts: any =
     getAllActiveContracts?.data?.contract?.all || [];
   const contractOptions = buildContractOptions(
@@ -120,6 +132,7 @@ export const Settings: React.FC<Props> = props => {
             props.positionType.minAbsenceDurationMinutes,
           defaultContractId: props.positionType.defaultContractId,
           payTypeId: props.positionType.payTypeId,
+          payCodeId: props.positionType.payCodeId,
         }}
         onSubmit={async (data, meta) => {
           await props.onSubmit(
@@ -128,6 +141,7 @@ export const Settings: React.FC<Props> = props => {
             data.forStaffAugmentation,
             data.minAbsenceDurationMinutes,
             data.payTypeId,
+            data.payCodeId,
             data.defaultContractId
           );
         }}
@@ -370,6 +384,25 @@ export const Settings: React.FC<Props> = props => {
                       }
                     }
                     setFieldValue("payTypeId", selectedValue);
+                  }}
+                />
+                <div>{t("Pay code")}</div>
+                <SelectNew
+                  value={payCodeOptions.find(
+                    (c: any) => c.value === values.payCodeId
+                  )}
+                  options={payCodeOptions}
+                  multiple={false}
+                  onChange={(e: OptionType) => {
+                    let selectedValue = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+                    setFieldValue("payCodeId", selectedValue);
                   }}
                 />
               </div>
