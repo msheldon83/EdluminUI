@@ -140,7 +140,7 @@ export const Settings: React.FC<Props> = props => {
           payTypeId: props.positionType.payTypeId,
           payCodeId: props.positionType.payCodeId,
         }}
-        onSubmit={async (data, meta) => {
+        onSubmit={async (data, meta) => {     
           await props.onSubmit(
             data.forPermanentPositions,
             data.needsReplacement,
@@ -304,9 +304,13 @@ export const Settings: React.FC<Props> = props => {
               >
                 <div>{t("Default contract")}</div>
                 <SelectNew
-                  value={contractOptions.find(
-                    (c: any) => c.value === values.defaultContractId
-                  )}
+                  value={{
+                    value: values.defaultContractId ?? "",
+                    label:
+                      contractOptions.find(
+                        a => a.value === values.defaultContractId
+                      )?.label || "",
+                  }}
                   options={contractOptions}
                   onChange={(e: OptionType) => {
                     let selectedValue = null;
@@ -371,9 +375,12 @@ export const Settings: React.FC<Props> = props => {
               >
                 <div>{t("Pay type")}</div>
                 <SelectNew
-                  value={payTypeOptions.find(
-                    (c: any) => c.value === values.payTypeId
-                  )}
+                  value={{
+                    value: values.payTypeId ?? "",
+                    label:
+                      payTypeOptions.find(a => a.value === values.payTypeId)
+                        ?.label || "",
+                  }}
                   options={payTypeOptions}
                   multiple={false}
                   onChange={(e: OptionType) => {
