@@ -131,8 +131,6 @@ export const LocationAddPage: React.FC<Props> = props => {
             replacementStartOffsetMinutes: replacementStartOffsetMinutes,
             replacementEndOffsetMinutes: replacementEndOffsetMinutes,
           };
-
-          console.log(newLocation);
           setLocation(newLocation);
           // Create the Location
           const id = await create(newLocation);
