@@ -21,7 +21,6 @@ export const LocationViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const classes = useStyles();
-  const [enabled, setEnabled] = useState<boolean | null>(null);
 
   const getLocation = useQueryBundle(GetLocationById, {
     variables: {
@@ -47,10 +46,6 @@ export const LocationViewPage: React.FC<{}> = props => {
   }
   const location: any | undefined =
     getLocation?.data?.location?.byId ?? undefined;
-
-  if (enabled === null) {
-    setEnabled(!location.expired);
-  }
 
   return (
     <div>

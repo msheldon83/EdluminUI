@@ -82,7 +82,10 @@ export const AddSettingsInfo: React.FC<Props> = props => {
           );
         }}
         validationSchema={yup.object({
-          locationGroupId: yup.string().required(t("School Group is required")),
+          locationGroupId: yup
+            .string()
+            .nullable()
+            .required(t("School Group is required")),
           phoneNumber: yup
             .string()
             .nullable()
@@ -112,7 +115,13 @@ export const AddSettingsInfo: React.FC<Props> = props => {
               <Grid container>
                 <Grid container item xs={8} component="dl" spacing={2}>
                   <Grid container item xs={6} spacing={2}>
-                    <Grid item xs={12} sm={12} lg={12}>
+                    <Grid
+                      item
+                      xs={12}
+                      sm={12}
+                      lg={12}
+                      className={classes.marginTop}
+                    >
                       <dt className={classes.title}>{t("School group")}</dt>
                       <SelectNew
                         value={{
@@ -123,8 +132,6 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                             )?.label || "",
                         }}
                         onChange={(e: OptionType) => {
-                          //TODO: Once the select component is updated,
-                          // can remove the Array checking
                           let selectedValue = null;
                           if (e) {
                             if (Array.isArray(e)) {
@@ -136,11 +143,21 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                           }
                           setFieldValue("locationGroupId", selectedValue);
                         }}
+                        inputStatus={
+                          errors.locationGroupId ? "error" : undefined
+                        }
+                        validationMessage={errors.locationGroupId}
                         options={props.locationGroupOptions}
                         multiple={false}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={12} lg={12}>
+                    <Grid
+                      item
+                      xs={12}
+                      sm={12}
+                      lg={12}
+                      className={classes.marginBottom}
+                    >
                       <dt className={classes.title}>{t("Phone number")}</dt>
                       <Input
                         value={values.phoneNumber}
@@ -151,13 +168,12 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                         }}
                       />
                     </Grid>
-                    <Grid container item xs={6} spacing={2}></Grid>
                   </Grid>
                   <Grid container item xs={6} spacing={2}>
                     <Grid item xs={12} sm={12} lg={12}></Grid>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
-                        <div>{t("Street")}</div>
+                        <dt className={classes.title}>{t("Street")}</dt>
                         <Input
                           value={values.address1}
                           InputComponent={FormTextField}
@@ -168,7 +184,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                         />
                       </Grid>
                       <Grid item xs={12}>
-                        <div>{t("City")}</div>
+                        <dt className={classes.title}>{t("City")}</dt>
                         <Input
                           value={values.city}
                           InputComponent={FormTextField}
@@ -179,7 +195,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                         />
                       </Grid>
                       <Grid item xs={6}>
-                        <div>{t("State")}</div>
+                        <dt className={classes.title}>{t("Street")}</dt>
                         <SelectNew
                           value={{
                             value: values.state ?? "",
@@ -188,8 +204,6 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                                 ?.label || "",
                           }}
                           onChange={(e: OptionType) => {
-                            //TODO: Once the select component is updated,
-                            // can remove the Array checking
                             let selectedValue = null;
                             if (e) {
                               if (Array.isArray(e)) {
@@ -201,12 +215,14 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                             }
                             setFieldValue("state", selectedValue);
                           }}
+                          inputStatus={errors.state ? "error" : undefined}
+                          validationMessage={errors.state}
                           multiple={false}
                           options={stateOptions}
                         />
                       </Grid>
                       <Grid item xs={6}>
-                        <div>{t("Zip")}</div>
+                        <dt className={classes.title}>{t("Zip")}</dt>
                         <Input
                           value={values.postalCode}
                           InputComponent={FormTextField}
@@ -245,23 +261,11 @@ export const AddSettingsInfo: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  field: {
-    display: "flex",
-    width: "50%",
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-    },
+  marginBottom: {
+    marginBottom: "114px",
   },
-  normalSectionSpacing: {
-    marginTop: theme.spacing(6),
-  },
-  filled: {
-    background: theme.customColors.grayWhite,
-  },
-  description: {
-    fontSize: theme.typography.pxToRem(14),
-    lineHeight: theme.typography.pxToRem(21),
-    margin: 0,
+  marginTop: {
+    marginTop: "8px",
   },
   title: {
     fontSize: theme.typography.pxToRem(16),
