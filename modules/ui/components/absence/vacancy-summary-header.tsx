@@ -1,5 +1,4 @@
 import { Typography } from "@material-ui/core";
-import { parseISO } from "date-fns";
 import { uniq, flatMap } from "lodash-es";
 import * as React from "react";
 import { getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "./date-helpers";
@@ -18,9 +17,7 @@ export const VacancySummaryHeader: React.FC<Props> = props => {
     )
   );
   const dayLengthDisplayText =
-    allDates.length > 1
-      ? `${allDates.length + 1} days`
-      : `${allDates.length + 1} day`;
+    allDates.length > 1 ? `${allDates.length} days` : `${allDates.length} day`;
 
   let headerText = getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates(
     allDates,

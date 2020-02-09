@@ -197,7 +197,8 @@ export const EditAbsence: React.FC<Props> = props => {
             assignmentRowVersion: d.assignment?.rowVersion,
             assignmentStartDateTime: d.startTimeLocal,
             assignmentEmployeeId: d.assignment?.employee?.id,
-            assignmentEmployeeName: `${d.assignment?.employee?.firstName} ${d.assignment?.employee?.lastName}`,
+            assignmentEmployeeFirstName: d.assignment?.employee?.firstName,
+            assignmentEmployeeLastName: d.assignment?.employee?.lastName,
           };
         });
       })

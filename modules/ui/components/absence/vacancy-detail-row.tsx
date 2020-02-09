@@ -93,7 +93,12 @@ export const VacancyDetailRow: React.FC<Props> = props => {
               }
               employeeId={groupedDetail.assignmentEmployeeId ?? ""}
               assignmentId={groupedDetail.assignmentId}
-              employeeName={groupedDetail.assignmentEmployeeName || ""}
+              employeeName={
+                groupedDetail.assignmentEmployeeFirstName &&
+                groupedDetail.assignmentEmployeeLastName
+                  ? `${groupedDetail.assignmentEmployeeFirstName} ${groupedDetail.assignmentEmployeeLastName}`
+                  : ""
+              }
               onCancelAssignment={onCancelAssignment}
               assignmentStartDate={
                 groupedDetail.assignmentStartTime ?? groupedDetail.startDate

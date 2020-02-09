@@ -138,7 +138,8 @@ export type VacancyDetailsGroup = DetailsGroup<VacancyDetailsItem> & {
   assignmentRowVersion?: string;
   assignmentStartTime?: Date;
   assignmentEmployeeId?: string;
-  assignmentEmployeeName?: string;
+  assignmentEmployeeFirstName?: string;
+  assignmentEmployeeLastName?: string;
 };
 
 type DetailsItem = {
@@ -379,7 +380,8 @@ export const getVacancyDetailsGrouping = (
           ? parseISO(value[0].assignmentStartDateTime)
           : undefined,
         assignmentEmployeeId: value[0].assignmentEmployeeId,
-        assignmentEmployeeName: value[0].assignmentEmployeeName,
+        assignmentEmployeeFirstName: value[0].assignmentEmployeeFirstName,
+        assignmentEmployeeLastName: value[0].assignmentEmployeeLastName,
       });
     }
   });

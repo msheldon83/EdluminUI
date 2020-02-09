@@ -57,9 +57,8 @@ export const projectVacancyDetailsFromVacancies = (
         assignmentRowVersion: d?.assignment?.rowVersion,
         assignmentStartDateTime: d?.startTimeLocal,
         assignmentEmployeeId: d?.assignment?.employee?.id,
-        assignmentEmployeeName: d?.assignment?.employee
-          ? `${d?.assignment?.employee?.firstName} ${d?.assignment?.employee?.lastName}`
-          : undefined,
+        assignmentEmployeeFirstName: d?.assignment?.employee?.firstName,
+        assignmentEmployeeLastName: d?.assignment?.employee?.lastName,
       } as VacancyDetail;
     })
     .filter(

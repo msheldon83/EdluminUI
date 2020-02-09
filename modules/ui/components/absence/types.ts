@@ -13,5 +13,6 @@ export type VacancyDetail = {
   assignmentRowVersion?: string;
   assignmentStartDateTime?: string;
   assignmentEmployeeId?: string;
-  assignmentEmployeeName?: string;
+  assignmentEmployeeFirstName?: string;
+  assignmentEmployeeLastName?: string;
 };

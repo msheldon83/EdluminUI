@@ -50,9 +50,18 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
     return allDates;
   }, [allDetailGroups, assignmentId]);
 
-  const subName = useMemo(() => {
-    return allDetailGroups.find(d => d.assignmentId === assignmentId)
-      ?.assignmentEmployeeName;
+  const subFirstName = useMemo(() => {
+    const matchingGroup = allDetailGroups.find(
+      d => d.assignmentId === assignmentId
+    );
+    return matchingGroup?.assignmentEmployeeFirstName;
+  }, [assignmentId, allDetailGroups]);
+
+  const subLastName = useMemo(() => {
+    const matchingGroup = allDetailGroups.find(
+      d => d.assignmentId === assignmentId
+    );
+    return matchingGroup?.assignmentEmployeeLastName;
   }, [assignmentId, allDetailGroups]);
 
   const onRemoveClick = useCallback(async () => {
@@ -84,6 +93,7 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
         <div key={i}>
           <FormControlLabel
             checked={selectedDates.includes(d)}
+            disabled={selection === "all"}
             control={
               <Checkbox
                 onChange={e => {
@@ -103,19 +113,24 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
         </div>
       );
     });
-  }, [getRelevantDates, selectedDates, setSelectedDates]);
+  }, [getRelevantDates, selectedDates, setSelectedDates, selection]);
+
+  const missingFirstNameBackup = t("the Substitute");
 
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
         <Typography variant="h5">
-          {subName ? `${t("Remove")} ${subName}` : t("Remove Substitute")}
+          {subFirstName && subLastName
+            ? `${t("Remove")} ${subFirstName} ${subLastName}`
+            : t("Remove Substitute")}
         </Typography>
       </DialogTitle>
       <DialogContent>
         <Typography>
           {t(
-            "This substitute is assigned to multiple days. Would you like to remove them from individual days or all days?"
+            "Would you like to remove {{firstName}} from the entire assignment or only select days?",
+            { firstName: subFirstName ?? missingFirstNameBackup }
           )}
         </Typography>
         <RadioGroup
@@ -139,7 +154,7 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
           <FormControlLabel
             value={"all"}
             control={<Radio />}
-            label={"Remove from all days"}
+            label={"Entire assignment"}
           />
         </RadioGroup>
         <div>{detailsDisplay}</div>
