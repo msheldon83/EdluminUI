@@ -15,6 +15,7 @@ import { MobileTopBar } from "./mobile-navigation/mobile-top-bar";
 import { TopBar } from "./navigation/top-bar";
 import { OrganizationSwitcherBar } from "./organization-switcher-bar";
 import { PageTitleProvider } from "./page-title-context";
+import { OrganizationStatusBar } from "./orgaization-status-bar";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -42,6 +43,9 @@ export const AppChrome: React.FunctionComponent = props => {
           <div className={classes.app}>
             <Route path={AdminChromeRoute.path}>
               <OrganizationSwitcherBar />
+            </Route>
+            <Route path={AdminChromeRoute.path}>
+              <OrganizationStatusBar />
             </Route>
             <div className={classes.outer}>
               <MobileTopBar expandDrawer={expand} />
@@ -75,6 +79,9 @@ export const AppChrome: React.FunctionComponent = props => {
           <div className={classes.app}>
             <Route path={AdminChromeRoute.path}>
               <OrganizationSwitcherBar />
+            </Route>
+            <Route path={AdminChromeRoute.path}>
+              <OrganizationStatusBar />
             </Route>
             <div className={classes.outer}>
               <TopBar
@@ -178,7 +185,7 @@ const useStyles = makeStyles(theme => ({
     },
     flexGrow: 1,
     marginTop: theme.spacing(3),
-    padding:theme.spacing(0, 3, 4, 3),
+    padding: theme.spacing(0, 3, 4, 3),
     [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(0),
       paddingTop: theme.spacing(2),
