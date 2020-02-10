@@ -85,10 +85,9 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           {date && formatDateIfPossible(date, "MMMM d, yyyy")}
         </Typography>
       </Grid>
-
       <Grid item container alignItems="center">
-        <Grid item container md={3} className={classes.vacancyBlockItem}>
-          <Grid item xs={4} className={classes.timeInput}>
+        <Grid item container md={4} className={classes.vacancyBlockItem}>
+          <Grid item xs={isMobile ? 3 : 4} className={classes.timeInput}>
             <FormikTimeInput
               name={`${fieldNamePrefix}.startTime`}
               date={startOfDate}
@@ -96,7 +95,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
               validationMessage={startTimeError}
             />
           </Grid>
-          <Grid item xs={4} className={classes.timeInput}>
+          <Grid item xs={isMobile ? 3 : 4} className={classes.timeInput}>
             <FormikTimeInput
               name={`${fieldNamePrefix}.endTime`}
               date={startOfDate}
@@ -108,44 +107,54 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
         </Grid>
         <Grid
           item
-          xs={3}
-          className={(classes.vacancyBlockItem, classes.spacing)}
+          container
+          md={7}
+          className={
+            (classes.vacancyBlockItem,
+            isMobile ? classes.mobilePadding : classes.noClass)
+          }
         >
-          {t("School")}
-          <FormikSelect
-            name={`${fieldNamePrefix}.locationId`}
-            options={locationMenuOptions}
-            withResetValue={false}
-          />
+          <Grid
+            item
+            xs={4}
+            className={(classes.vacancyBlockItem, classes.margin)}
+          >
+            {t("School")}
+            <FormikSelect
+              name={`${fieldNamePrefix}.locationId`}
+              options={locationMenuOptions}
+              withResetValue={false}
+            />
+          </Grid>
+          {!props.actingAsEmployee && (
+            <>
+              <Grid
+                item
+                xs={4}
+                className={(classes.vacancyBlockItem, classes.spacing)}
+              >
+                {t("Accounting Code")}
+                <FormikSelect
+                  name={`${fieldNamePrefix}.accountingCodeId`}
+                  options={accountingCodeOptions}
+                  withResetValue={true}
+                />
+              </Grid>
+              <Grid
+                item
+                xs={4}
+                className={(classes.vacancyBlockItem, classes.spacing)}
+              >
+                {t("Pay Code")}
+                <FormikSelect
+                  name={`${fieldNamePrefix}.payCodeId`}
+                  options={props.payCodeOptions}
+                  withResetValue={true}
+                />
+              </Grid>
+            </>
+          )}
         </Grid>
-        {!props.actingAsEmployee && (
-          <>
-            <Grid
-              item
-              xs={3}
-              className={(classes.vacancyBlockItem, classes.spacing)}
-            >
-              {t("Accounting Code")}
-              <FormikSelect
-                name={`${fieldNamePrefix}.accountingCodeId`}
-                options={accountingCodeOptions}
-                withResetValue={true}
-              />
-            </Grid>
-            <Grid
-              item
-              xs={2}
-              className={(classes.vacancyBlockItem, classes.spacing)}
-            >
-              {t("Pay Code")}
-              <FormikSelect
-                name={`${fieldNamePrefix}.payCodeId`}
-                options={props.payCodeOptions}
-                withResetValue={true}
-              />
-            </Grid>
-          </>
-        )}
         {props.showRemoveButton && (
           <Grid item>
             <IconButton onClick={props.onRemoveRow}>
@@ -166,6 +175,9 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(0.5),
     marginRight: theme.spacing(1),
   },
+  mobilePadding: {
+    paddingTop: theme.spacing(2),
+  },
   rowContainer: {
     padding: theme.spacing(2),
   },
@@ -176,4 +188,8 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
     paddingLeft: theme.spacing(1),
   },
+  margin: {
+    marginBottom: theme.spacing(2),
+  },
+  noClass: {},
 }));
