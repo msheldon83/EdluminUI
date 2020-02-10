@@ -61,8 +61,6 @@ export const AssignSub: React.FC<Props> = props => {
     employeeToReplace = "",
   } = props;
 
-  console.log(vacancyDetailIdsToAssign);
-
   const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
   const [
     replacementEmployeeName,

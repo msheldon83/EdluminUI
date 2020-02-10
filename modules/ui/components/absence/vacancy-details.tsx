@@ -41,8 +41,6 @@ export const VacancyDetails: React.FC<Props> = props => {
     detailsClassName = classes.fullWidth,
   } = props;
 
-  console.log(vacancies, vacancyDetailIds);
-
   // Filter the Vacancies and Vacancy Details down to the ones
   // we are interested in based on props.vacancyDetailIds
   const filteredVacancies = useMemo(() => {

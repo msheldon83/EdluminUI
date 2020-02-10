@@ -79,7 +79,8 @@ type Props = {
   cancelAssignments: (
     assignmentId?: string,
     assignmentRowVersion?: string,
-    vacancyDetailIds?: string[]
+    vacancyDetailIds?: string[],
+    preventAbsenceRefetch?: boolean
   ) => Promise<void>;
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
@@ -402,7 +403,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       vacancyDetailIds?: string[]
     ) => {
       if (props.replacementEmployeeId != undefined) {
-        await props.cancelAssignments(undefined, undefined, vacancyDetailIds);
+        await props.cancelAssignments(
+          undefined,
+          undefined,
+          vacancyDetailIds,
+          true
+        );
       }
       await assignVacancy({
         variables: {

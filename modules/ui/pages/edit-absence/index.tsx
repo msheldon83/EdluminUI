@@ -127,7 +127,8 @@ export const EditAbsence: React.FC<Props> = props => {
     async (
       assignmentId?: string,
       assignmentRowVersion?: string,
-      vacancyDetailIds?: string[]
+      vacancyDetailIds?: string[],
+      preventAbsenceRefetch?: boolean 
     ) => {
       if (absence.state !== "DONE") return;
 
@@ -209,8 +210,10 @@ export const EditAbsence: React.FC<Props> = props => {
         });
       }
 
-      // Reload the Absence
-      await absence.refetch();
+      if (!preventAbsenceRefetch) {
+        // Reload the Absence
+        await absence.refetch();
+      }
     },
     [absence, cancelAssignment]
   );
