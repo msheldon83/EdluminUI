@@ -118,10 +118,6 @@ export const PositionEditUI: React.FC<Props> = props => {
     [t]
   );
 
-  const [positionSchedule, setPositionSchedule] = useState<Schedule[]>(
-    props.positionSchedule ?? [buildNewSchedule(true, true)]
-  );
-
   return (
     <>
       <Formik
@@ -132,7 +128,7 @@ export const PositionEditUI: React.FC<Props> = props => {
           contractId: position?.contractId ?? "",
           accountingCodeId: props.accountingCodeId ?? "",
           hoursPerFullWorkDay: position?.hoursPerFullWorkDay ?? "",
-          schedules: positionSchedule,
+          schedules: props.positionSchedule ?? [buildNewSchedule(true, true)],
         }}
         onSubmit={async (data, e) => {
           const schedules = data.schedules.map(s => ({
@@ -273,6 +269,8 @@ export const PositionEditUI: React.FC<Props> = props => {
           handleChange,
           submitForm,
           setFieldValue,
+          setFieldTouched,
+          handleBlur,
           errors,
         }) => (
           <form onSubmit={handleSubmit}>
@@ -294,7 +292,6 @@ export const PositionEditUI: React.FC<Props> = props => {
                       multiple={false}
                       onChange={(value: OptionType) => {
                         const id = (value as OptionTypeBase).value.toString();
-                        setFieldValue("positionTypeId", id);
                         const pt = positionTypes.find(x => x.id === id);
                         if (pt?.needsReplacement) {
                           setFieldValue(
@@ -308,7 +305,9 @@ export const PositionEditUI: React.FC<Props> = props => {
                         if (props.setPositionTypeName) {
                           props.setPositionTypeName(value.label);
                         }
+                        setFieldValue("positionTypeId", id);
                       }}
+                      onBlur={handleBlur}
                       options={positionTypeOptions}
                       inputStatus={errors.positionTypeId ? "error" : undefined}
                       validationMessage={errors.positionTypeId}
@@ -427,34 +426,34 @@ export const PositionEditUI: React.FC<Props> = props => {
                           multipleSchedules={values.schedules.length > 1}
                           lastSchedule={i === values.schedules.length - 1}
                           onDelete={() => {
-                            positionSchedule.splice(i, 1);
-                            setFieldValue("schedules", positionSchedule);
+                            values.schedules.splice(i, 1);
+                            setFieldValue("schedules", values.schedules);
                           }}
                           schedule={schedule}
                           locationOptions={locationOptions}
                           bellSchedules={bellSchedules}
                           onCheckScheduleVaries={() => {
-                            positionSchedule.push(
+                            values.schedules.push(
                               buildNewSchedule(false, true)
                             );
-                            setFieldValue("schedules", positionSchedule);
+                            setFieldValue("schedules", values.schedules);
                           }}
                           onAddSchedule={() => {
-                            positionSchedule.push(
+                            values.schedules.push(
                               buildNewSchedule(false, true)
                             );
-                            setFieldValue("schedules", positionSchedule);
+                            setFieldValue("schedules", values.schedules);
                           }}
                           onRemoveSchool={index => {
-                            positionSchedule[i].periods.splice(index, 1);
-                            setFieldValue("schedules", positionSchedule);
+                            values.schedules[i].periods.splice(index, 1);
+                            setFieldValue("schedules", values.schedules);
                           }}
                           onAddSchool={() => {
-                            positionSchedule[i].periods[0].allDay = false;
-                            positionSchedule[i].periods.push(
+                            values.schedules[i].periods[0].allDay = false;
+                            values.schedules[i].periods.push(
                               buildNewPeriod(false)
                             );
-                            setFieldValue("schedules", positionSchedule);
+                            setFieldValue("schedules", values.schedules);
                           }}
                           disabledDaysOfWeek={disabledDaysOfWeek}
                           onCheckDayOfWeek={(dow: DayOfWeek) => {
@@ -466,8 +465,8 @@ export const PositionEditUI: React.FC<Props> = props => {
                             } else {
                               schedule.daysOfTheWeek.push(dow);
                             }
-                            positionSchedule[i] = schedule;
-                            setFieldValue("schedules", positionSchedule);
+                            values.schedules[i] = schedule;
+                            setFieldValue("schedules", values.schedules);
                           }}
                           onChangeLocation={(
                             locationId: string,
@@ -476,67 +475,65 @@ export const PositionEditUI: React.FC<Props> = props => {
                             const locationGroupId =
                               locations.find(x => x.id === locationId)
                                 ?.locationGroupId ?? "";
-                            positionSchedule[i].periods[
+                            values.schedules[i].periods[
                               index
                             ].locationId = locationId;
-                            positionSchedule[i].periods[
+                            values.schedules[i].periods[
                               index
                             ].locationGroupId = locationGroupId;
-                            setFieldValue("schedules", positionSchedule);
+                            setFieldValue("schedules", values.schedules);
                           }}
                           onChangeBellSchedule={(
                             bellScheduleId: string,
                             index: number
                           ) => {
-                            positionSchedule[i].periods[
+                            values.schedules[i].periods[
                               index
                             ].bellScheduleId = bellScheduleId;
                             if (
-                              positionSchedule[i].periods[index].allDay &&
+                              values.schedules[i].periods[index].allDay &&
                               bellScheduleId !== "custom"
                             ) {
                               const bellSchedule = bellSchedules.find(
                                 x => x?.id === bellScheduleId
                               );
-                              positionSchedule[i].periods[index].startPeriodId =
+                              values.schedules[i].periods[index].startPeriodId =
                                 bellSchedule!.periods![0]!.id ?? undefined;
-                              positionSchedule[i].periods[index].endPeriodId =
+                              values.schedules[i].periods[index].endPeriodId =
                                 bellSchedule!.periods![
                                   bellSchedule!.periods!.length - 1
                                 ]!.id ?? undefined;
-                              positionSchedule[i].periods[
+                              values.schedules[i].periods[
                                 index
                               ].startTime = null;
-                              positionSchedule[i].periods[index].endTime = null;
+                              values.schedules[i].periods[index].endTime = null;
                             }
-                            setFieldValue("schedules", positionSchedule);
+                            setFieldValue("schedules", values.schedules);
                           }}
                           onCheckAllDay={() => {
-                            positionSchedule[
-                              i
-                            ].periods[0].allDay = !positionSchedule[i]
-                              .periods[0].allDay;
-                            setFieldValue("schedules", positionSchedule);
+                            values.schedules[i].periods[0].allDay = !values
+                              .schedules[i].periods[0].allDay;
+                            setFieldValue("schedules", values.schedules);
                           }}
                           onChangeStartPeriod={(
                             startPeriodId: string,
                             index: number
                           ) => {
-                            positionSchedule[i].periods[
+                            values.schedules[i].periods[
                               index
                             ].startPeriodId = startPeriodId;
-                            positionSchedule[i].periods[index].startTime = null;
-                            setFieldValue("schedules", positionSchedule);
+                            values.schedules[i].periods[index].startTime = null;
+                            setFieldValue("schedules", values.schedules);
                           }}
                           onChangeEndPeriod={(
                             endPeriodId: string,
                             index: number
                           ) => {
-                            positionSchedule[i].periods[
+                            values.schedules[i].periods[
                               index
                             ].endPeriodId = endPeriodId;
-                            positionSchedule[i].periods[index].endTime = null;
-                            setFieldValue("schedules", positionSchedule);
+                            values.schedules[i].periods[index].endTime = null;
+                            setFieldValue("schedules", values.schedules);
                           }}
                         />
                       </div>

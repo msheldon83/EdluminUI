@@ -16,11 +16,8 @@ import { SaveEmployeePosition } from "./graphql/save-employee-position.gen";
 import { PositionInput } from "graphql/server-types.gen";
 import { useHistory } from "react-router";
 import { compact } from "lodash-es";
-import {
-  midnightTime,
-  secondsSinceMidnight,
-  timeStampToIso,
-} from "helpers/time";
+import { midnightTime, timeStampToIso } from "helpers/time";
+import { sortDaysOfWeek, compareDaysOfWeek } from "helpers/day-of-week";
 
 type Props = {};
 
@@ -93,27 +90,36 @@ export const EmployeePosition: React.FC<Props> = props => {
     : t("Position");
 
   const positionSchedules = compact(position?.schedules) ?? [];
-  const positionSchedule = positionSchedules.map(ps => ({
-    id: ps.id,
-    periods: ps.items.map(p => ({
-      locationId: p.location.id,
-      locationGroupId: p.location.locationGroupId,
-      bellScheduleId:
-        !p.bellSchedule && p.startTime && p.endTime
-          ? "custom"
-          : p.bellSchedule?.id,
-      startTime: p.startTime
-        ? timeStampToIso(midnightTime().setSeconds(p.startTime))
-        : undefined,
-      endTime: p.endTime
-        ? timeStampToIso(midnightTime().setSeconds(p.endTime))
-        : undefined,
-      allDay: p.isAllDay,
-      startPeriodId: p.startPeriod?.id,
-      endPeriodId: p.endPeriod?.id,
-    })),
-    daysOfTheWeek: ps.daysOfTheWeek,
-  }));
+  const positionSchedule = positionSchedules
+    .sort((a, b) =>
+      compareDaysOfWeek(
+        sortDaysOfWeek(a?.daysOfTheWeek)[0],
+        sortDaysOfWeek(b?.daysOfTheWeek)[0]
+      )
+    )
+    .map(ps => ({
+      id: ps.id,
+      periods: ps.items.map(p => ({
+        locationId: p.location.id,
+        locationGroupId: p.location.locationGroupId,
+        bellScheduleId:
+          !p.bellSchedule && p.startTime && p.endTime
+            ? "custom"
+            : p.bellSchedule?.id,
+        startTime: p.startTime
+          ? timeStampToIso(midnightTime().setSeconds(p.startTime))
+          : undefined,
+        endTime: p.endTime
+          ? timeStampToIso(midnightTime().setSeconds(p.endTime))
+          : undefined,
+        allDay: p.isAllDay,
+        startPeriodId: p.startPeriod?.id,
+        endPeriodId: p.endPeriod?.id,
+      })),
+      daysOfTheWeek: ps.daysOfTheWeek,
+    }));
+
+  console.log(positionSchedule);
 
   return (
     <>
