@@ -4,6 +4,9 @@ query AllOrganizations($limit: Int, $offset: Int) {
       results {
         id
         name
+        config {
+          organizationTypeId
+        }
       }
       offset
       limit
