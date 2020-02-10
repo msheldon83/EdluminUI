@@ -20,6 +20,9 @@ query GetMyUserAccess {
           organization {
             id
             name
+            config {
+              organizationTypeId
+            }
           }
           createdUtc
           administrator {
