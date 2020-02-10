@@ -175,7 +175,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
           }}
           expandIcon={<ExpandMoreIcon />}
         >
-          <Typography variant="h5">{t("New Event")}</Typography>
+          <Typography variant="h5">{t("Add New Event")}</Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <Formik
