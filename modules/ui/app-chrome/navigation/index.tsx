@@ -1,4 +1,4 @@
-import { Divider, Drawer, Fab, List, makeStyles } from "@material-ui/core";
+import { Drawer, Fab, List, makeStyles } from "@material-ui/core";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import * as React from "react";
@@ -49,10 +49,12 @@ export const NavigationSideBar: React.FC<Props> = props => {
           }`,
         }}
       >
-        <RedRoverLogo size={props.expanded ? "large" : "small"} />
+        <RedRoverLogo
+          className={classes.logo}
+          size={props.expanded ? "large" : "small"}
+        />
         <RoleSwitcher expanded={props.expanded} />
-        <Divider className={classes.divider} />
-        <List className={classes.list}>
+        <List>
           <AutoSwitchingNavLinks navBarExpanded={props.expanded} />
         </List>
       </Drawer>
@@ -78,9 +80,6 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.short,
     }),
   },
-  divider: {
-    background: theme.customColors.edluminLightSlate,
-  },
   drawerClose: {
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
@@ -92,9 +91,9 @@ const useStyles = makeStyles(theme => ({
       width: theme.spacing(9) + 1,
     },
   },
-  list: {
-    paddingRight: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
+  logo: {
+    marginBottom: theme.spacing(1.5),
+    marginLeft: theme.spacing(1),
   },
   spacing: {
     marginLeft: theme.typography.pxToRem(23),

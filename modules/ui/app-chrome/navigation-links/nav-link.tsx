@@ -161,7 +161,7 @@ const useStyles = makeStyles(theme => ({
   },
   icon: {
     minWidth: 0,
-    paddingRight: theme.typography.pxToRem(24),
+    paddingRight: theme.spacing(1.5),
     color: "inherit",
   },
   text: {
@@ -172,6 +172,9 @@ const useStyles = makeStyles(theme => ({
   menuItem: {
     color: theme.customColors.lightSlate,
     whiteSpace: "nowrap",
+    paddingLeft: theme.spacing(2),
+    paddingBottom: theme.spacing(1.2),
+    paddingTop: theme.spacing(1.2),
 
     "&:hover": {
       color: theme.palette.primary.main,
@@ -187,16 +190,19 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.primary.main,
   },
   subNavItems: {
+    background: "rgba(255,255,255,0.2)",
     listStyle: "none",
     margin: 0,
     padding: 0,
   },
   subNavItemsOpen: {
-    padding: `0 0 ${theme.typography.pxToRem(7)}`,
+    paddingBottom: theme.spacing(2),
+    paddingTop: theme.spacing(2),
   },
 
   toggleSubNavItemsIcon: {
     color: "inherit",
+    marginRight: theme.spacing(0.5),
 
     "&:hover": {
       color: theme.palette.primary.main,

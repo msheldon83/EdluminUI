@@ -49,7 +49,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(14),
     lineHeight: theme.typography.pxToRem(30),
     fontWeight: 600,
-    paddingLeft: theme.spacing(8),
+    paddingLeft: theme.spacing(6.6),
     textDecoration: "none",
     transition: theme.transitions.create("color", {
       easing: theme.transitions.easing.sharp,

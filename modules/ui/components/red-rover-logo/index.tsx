@@ -39,7 +39,7 @@ const useStyles = makeStyles(theme => ({
     ...theme.mixins.toolbar,
   },
   majorLogo: {
-    width: theme.typography.pxToRem(225),
+    width: theme.typography.pxToRem(150),
   },
   minorLogo: {
     width: theme.typography.pxToRem(70),
