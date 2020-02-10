@@ -17,6 +17,7 @@ import {
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { usePayCodes } from "reference-data/pay-codes";
 import { OptionTypeBase } from "react-select/src/types";
 import { DurationInput } from "ui/components/form/duration-input";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
@@ -26,6 +27,7 @@ import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
 import { useMemo } from "react";
+import { GetPayCodes } from "reference-data/get-pay-codes.gen";
 
 type Props = {
   orgId: string;
@@ -36,6 +38,7 @@ type Props = {
     payTypeId?: AbsenceReasonTrackingTypeId | undefined | null;
     needsReplacement?: NeedsReplacement | undefined | null;
     defaultContractId?: string | undefined | null;
+    payCodeId?: string | undefined | null;
     defaultContract?: {
       id: string;
       name: string;
@@ -48,6 +51,7 @@ type Props = {
     forStaffAugmentation: boolean,
     minAbsenceDurationMinutes: number,
     payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
+    payCodeId: string | undefined | null,
     defaultContractId: string | undefined | null
   ) => Promise<unknown>;
   onCancel: () => void;
@@ -94,6 +98,12 @@ export const Settings: React.FC<Props> = props => {
     ];
   }, [t]);
 
+  const getPayCodes = usePayCodes(props.orgId);
+  const payCodeOptions = useMemo(
+    () => getPayCodes.map(c => ({ label: c.name, value: c.id })),
+    [getPayCodes]
+  );
+
   const getAllActiveContracts = useQueryBundle(GetAllActiveContracts, {
     variables: { orgId: props.orgId },
   });
@@ -103,6 +113,7 @@ export const Settings: React.FC<Props> = props => {
 
   const allActiveContracts: any =
     getAllActiveContracts?.data?.contract?.all || [];
+
   const contractOptions = buildContractOptions(
     allActiveContracts,
     props.positionType
@@ -120,6 +131,7 @@ export const Settings: React.FC<Props> = props => {
             props.positionType.minAbsenceDurationMinutes,
           defaultContractId: props.positionType.defaultContractId,
           payTypeId: props.positionType.payTypeId,
+          payCodeId: props.positionType.payCodeId,
         }}
         onSubmit={async (data, meta) => {
           await props.onSubmit(
@@ -128,6 +140,7 @@ export const Settings: React.FC<Props> = props => {
             data.forStaffAugmentation,
             data.minAbsenceDurationMinutes,
             data.payTypeId,
+            data.payCodeId,
             data.defaultContractId
           );
         }}
@@ -284,13 +297,15 @@ export const Settings: React.FC<Props> = props => {
               >
                 <div>{t("Default contract")}</div>
                 <SelectNew
-                  value={contractOptions.find(
-                    (c: any) => c.value === values.defaultContractId
-                  )}
+                  value={{
+                    value: values.defaultContractId ?? "",
+                    label:
+                      contractOptions.find(
+                        a => a.value === values.defaultContractId
+                      )?.label || "",
+                  }}
                   options={contractOptions}
                   onChange={(e: OptionType) => {
-                    //TODO: Once the select component is updated,
-                    // can remove the Array checking
                     let selectedValue = null;
                     if (e) {
                       if (Array.isArray(e)) {
@@ -351,16 +366,17 @@ export const Settings: React.FC<Props> = props => {
                     : classes.normalSectionSpacing,
                 ].join(" ")}
               >
-                <div>{t("Pay Type")}</div>
+                <div>{t("Pay type")}</div>
                 <SelectNew
-                  value={payTypeOptions.find(
-                    (c: any) => c.value === values.payTypeId
-                  )}
+                  value={{
+                    value: values.payTypeId ?? "",
+                    label:
+                      payTypeOptions.find(a => a.value === values.payTypeId)
+                        ?.label || "",
+                  }}
                   options={payTypeOptions}
                   multiple={false}
                   onChange={(e: OptionType) => {
-                    //TODO: Once the select component is updated,
-                    // can remove the Array checking
                     let selectedValue = null;
                     if (e) {
                       if (Array.isArray(e)) {
@@ -372,6 +388,30 @@ export const Settings: React.FC<Props> = props => {
                     setFieldValue("payTypeId", selectedValue);
                   }}
                 />
+                <div className={classes.paddingTop}>
+                  <div>{t("Pay code")}</div>
+                  <SelectNew
+                    value={{
+                      value: values.payCodeId ?? "",
+                      label:
+                        payCodeOptions.find(a => a.value === values.payCodeId)
+                          ?.label || "",
+                    }}
+                    options={payCodeOptions}
+                    multiple={false}
+                    onChange={(e: OptionType) => {
+                      let selectedValue = null;
+                      if (e) {
+                        if (Array.isArray(e)) {
+                          selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                        } else {
+                          selectedValue = (e as OptionTypeBase).value;
+                        }
+                      }
+                      setFieldValue("payCodeId", selectedValue);
+                    }}
+                  />
+                </div>
               </div>
               <ActionButtons
                 submit={{ text: props.submitText, execute: submitForm }}
@@ -407,6 +447,9 @@ const useStyles = makeStyles(theme => ({
     "& p": {
       marginLeft: 0,
     },
+  },
+  paddingTop: {
+    paddingTop: "20px",
   },
   minAbsenceSection: {
     maxWidth: "500px",
