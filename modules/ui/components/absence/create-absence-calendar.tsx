@@ -76,11 +76,29 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
       customSelectedAbsenceDates,
     ]
   );
+
+  const handleSelectDates = (dates: Date[]) => {
+    // This component does not allow date selection if there is no month selection
+    if (!props.monthNavigation) {
+      return;
+    }
+
+    /*
+      If more than one date is selected, the first date is dropped because
+      that one is already marked as selected in the state management. This keeps
+      it from being toggled off for this multi-date selection
+    */
+    const [initialDate, ...restOfDates] = dates;
+
+    props.onSelectDates(dates.length > 1 ? restOfDates : [initialDate]);
+  };
+
   return (
     <CustomCalendar
       variant="month"
       month={currentMonth}
       {...props}
+      onSelectDates={handleSelectDates}
       customDates={customDates}
     />
   );
