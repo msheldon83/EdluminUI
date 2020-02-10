@@ -262,6 +262,20 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               )}
             </div>
           </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Pay Code")}</Typography>
+            <div>
+              <div>
+                {positionType?.payCode?.name ? (
+                  positionType?.payCode?.name
+                ) : (
+                  <span className={classes.valueMissing}>
+                    {t("Not Specified")}
+                  </span>
+                )}
+              </div>
+            </div>
+          </Grid>
         </Grid>
       </Section>
       <ReplacementCriteria
