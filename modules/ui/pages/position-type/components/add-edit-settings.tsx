@@ -15,9 +15,9 @@ import {
   AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
-import { compact } from "lodash-es";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { usePayCodes } from "reference-data/pay-codes";
 import { OptionTypeBase } from "react-select/src/types";
 import { DurationInput } from "ui/components/form/duration-input";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
@@ -98,25 +98,24 @@ export const Settings: React.FC<Props> = props => {
     ];
   }, [t]);
 
-  const getPayCodes = useQueryBundle(GetPayCodes, {
-    variables: { orgId: props.orgId },
-  });
+  const getPayCodes = usePayCodes(props.orgId);
+  const payCodeOptions = useMemo(
+    () => getPayCodes.map(c => ({ label: c.name, value: c.id })),
+    [getPayCodes]
+  );
 
   const getAllActiveContracts = useQueryBundle(GetAllActiveContracts, {
     variables: { orgId: props.orgId },
   });
-  if (
-    getAllActiveContracts.state === "LOADING" ||
-    getPayCodes.state === "LOADING"
-  ) {
+  if (getAllActiveContracts.state === "LOADING") {
     return <></>;
   }
 
-  const payCodeOptions: OptionType[] =
-    getPayCodes?.data?.orgRef_PayCode?.all?.map(e => ({
-      label: e?.name ?? "",
-      value: e?.id ?? "",
-    })) ?? [];
+  // const payCodeOptions: OptionType[] =
+  //   getPayCodes?.data?.orgRef_PayCode?.all?.map(e => ({
+  //     label: e?.name ?? "",
+  //     value: e?.id ?? "",
+  //   })) ?? [];
 
   const allActiveContracts: any =
     getAllActiveContracts?.data?.contract?.all || [];
@@ -140,7 +139,7 @@ export const Settings: React.FC<Props> = props => {
           payTypeId: props.positionType.payTypeId,
           payCodeId: props.positionType.payCodeId,
         }}
-        onSubmit={async (data, meta) => {     
+        onSubmit={async (data, meta) => {
           await props.onSubmit(
             data.forPermanentPositions,
             data.needsReplacement,
