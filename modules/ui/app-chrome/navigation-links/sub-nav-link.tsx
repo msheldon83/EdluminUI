@@ -34,7 +34,7 @@ export const SubNavLink: React.FC<Props> = props => {
       <Link
         {...linkProps}
         to={route}
-        className={`${classes.subNavItemLink} ${matches && classes.active}`}
+        className={`${classes.subNavItemLink} ${matches ? classes.active : ""}`}
       >
         {title}
       </Link>
@@ -43,12 +43,8 @@ export const SubNavLink: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  active: {
-    backgroundColor: theme.customColors.edluminLightSlate,
-  },
-
   subNavItemLink: {
-    color: theme.customColors.medLightGray,
+    color: theme.customColors.lightSlate,
     display: "block",
     fontSize: theme.typography.pxToRem(14),
     lineHeight: theme.typography.pxToRem(30),
@@ -59,11 +55,12 @@ const useStyles = makeStyles(theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.shorter,
     }),
-    borderRadius: theme.typography.pxToRem(4),
 
     "&:hover": {
-      color: theme.customColors.white,
-      backgroundColor: theme.customColors.edluminLightSlate,
+      color: theme.palette.primary.main,
     },
+  },
+  active: {
+    color: theme.palette.primary.main,
   },
 }));

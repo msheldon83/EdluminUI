@@ -84,11 +84,7 @@ export const NavLink: React.FC<Props> = props => {
       onClick={toggleSubNavClick}
       disableRipple
     >
-      {expanded ? (
-        <ExpandLess className={classes.expandLessIcon} />
-      ) : (
-        <ExpandMore />
-      )}
+      {expanded ? <ExpandLess /> : <ExpandMore />}
     </IconButton>
   );
 
@@ -174,23 +170,21 @@ const useStyles = makeStyles(theme => ({
     color: "inherit",
   },
   menuItem: {
-    color: theme.customColors.medLightGray,
-    borderRadius: theme.typography.pxToRem(5),
+    color: theme.customColors.lightSlate,
     whiteSpace: "nowrap",
+
     "&:hover": {
-      backgroundColor: theme.customColors.edluminLightSlate,
-      color: theme.customColors.white,
+      color: theme.palette.primary.main,
     },
-    transition: theme.transitions.create("background", {
+
+    transition: theme.transitions.create("color", {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.standard,
     }),
   },
-  menuItemWithSubNavItems: {
-    marginBottom: 0,
-  },
+  menuItemWithSubNavItems: {},
   active: {
-    backgroundColor: theme.customColors.edluminLightSlate,
+    color: theme.palette.primary.main,
   },
   subNavItems: {
     listStyle: "none",
@@ -202,14 +196,11 @@ const useStyles = makeStyles(theme => ({
   },
 
   toggleSubNavItemsIcon: {
-    color: theme.customColors.medLightGray,
+    color: "inherit",
 
     "&:hover": {
-      color: theme.customColors.white,
+      color: theme.palette.primary.main,
     },
-  },
-  expandLessIcon: {
-    color: theme.customColors.white,
   },
 }));
 
