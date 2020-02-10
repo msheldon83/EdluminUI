@@ -111,12 +111,6 @@ export const Settings: React.FC<Props> = props => {
     return <></>;
   }
 
-  // const payCodeOptions: OptionType[] =
-  //   getPayCodes?.data?.orgRef_PayCode?.all?.map(e => ({
-  //     label: e?.name ?? "",
-  //     value: e?.id ?? "",
-  //   })) ?? [];
-
   const allActiveContracts: any =
     getAllActiveContracts?.data?.contract?.all || [];
 

@@ -112,7 +112,6 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
   };
 
   const create = async (positionType: PositionTypeCreateInput) => {
-    console.log(positionType);
     const result = await createPositionType({
       variables: {
         positionType: {
