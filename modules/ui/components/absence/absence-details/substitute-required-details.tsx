@@ -54,7 +54,7 @@ type Props = {
     vacancyDetailIds?: string[]
   ) => Promise<void>;
   isSplitVacancy: boolean;
-  onAssignSubClick: (vacancyDetailIds?: string[]) => void;
+  onAssignSubClick: (vacancyDetailIds?: string[], employeeToReplace?: string) => void;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {

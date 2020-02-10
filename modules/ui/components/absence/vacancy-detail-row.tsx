@@ -23,7 +23,7 @@ type Props = {
     vacancyDetailIds?: string[]
   ) => Promise<void>;
   disableReplacementInteractions?: boolean;
-  onAssignSubClick?: (vacancyDetailIds?: string[]) => void;
+  onAssignSubClick?: (vacancyDetailIds?: string[], employeeToReplace?: string) => void;
 };
 
 export const VacancyDetailRow: React.FC<Props> = props => {
@@ -43,12 +43,18 @@ export const VacancyDetailRow: React.FC<Props> = props => {
     return groupedDetail.detailItems.map(di => di.date);
   }, [groupedDetail]);
 
-  //console.log(groupedDetail);
   const vacancyDetailIds: string[] = useMemo(() => {
     const ids = groupedDetail.detailItems
       .filter(di => !!di.vacancyDetailId)
       .map(di => di.vacancyDetailId!);
     return ids;
+  }, [groupedDetail]);
+
+  const subName = useMemo(() => {
+    return groupedDetail.assignmentEmployeeFirstName &&
+                groupedDetail.assignmentEmployeeLastName
+                  ? `${groupedDetail.assignmentEmployeeFirstName} ${groupedDetail.assignmentEmployeeLastName}`
+                  : undefined;
   }, [groupedDetail]);
 
   return (
@@ -93,19 +99,14 @@ export const VacancyDetailRow: React.FC<Props> = props => {
               }
               employeeId={groupedDetail.assignmentEmployeeId ?? ""}
               assignmentId={groupedDetail.assignmentId}
-              employeeName={
-                groupedDetail.assignmentEmployeeFirstName &&
-                groupedDetail.assignmentEmployeeLastName
-                  ? `${groupedDetail.assignmentEmployeeFirstName} ${groupedDetail.assignmentEmployeeLastName}`
-                  : ""
-              }
+              employeeName={subName ?? ""}
               onCancelAssignment={onCancelAssignment}
               assignmentStartDate={
                 groupedDetail.assignmentStartTime ?? groupedDetail.startDate
               }
               showLinkButton={true}
               vacancies={vacancies}
-              onAssignSubClick={() => props.onAssignSubClick!(vacancyDetailIds)}
+              onAssignSubClick={() => props.onAssignSubClick!(vacancyDetailIds, subName)}
             />
           )}
         </Grid>

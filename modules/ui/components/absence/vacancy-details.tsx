@@ -25,7 +25,10 @@ type Props = {
     vacancyDetailIds?: string[]
   ) => Promise<void>;
   disableReplacementInteractions?: boolean;
-  onAssignSubClick?: (vacancyDetailIds?: string[]) => void;
+  onAssignSubClick?: (
+    vacancyDetailIds?: string[],
+    employeeToReplace?: string
+  ) => void;
 };
 
 export const VacancyDetails: React.FC<Props> = props => {
@@ -95,7 +98,13 @@ export const VacancyDetails: React.FC<Props> = props => {
         </Grid>
         {groupedDetails.map((g, detailsIndex) => {
           return (
-            <Grid key={detailsIndex} item container xs={12}>
+            <Grid
+              key={detailsIndex}
+              item
+              container
+              xs={12}
+              className={classes.detailRow}
+            >
               <VacancyDetailRow
                 groupedDetail={g}
                 vacancies={props.vacancies}
@@ -133,5 +142,8 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(),
     paddingRight: theme.spacing(2),
     paddingLeft: theme.spacing(2),
+  },
+  detailRow: {
+    paddingBottom: theme.spacing(),
   },
 }));

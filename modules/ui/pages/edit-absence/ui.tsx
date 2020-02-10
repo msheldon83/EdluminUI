@@ -115,6 +115,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [vacancyDetailIdsToAssign, setVacancyDetailIdsToAssign] = useState<
     string[] | undefined
   >(undefined);
+  const [employeeToReplace, setEmployeeToReplace] = useState<
+    string | undefined
+  >(undefined);
 
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
@@ -392,16 +395,26 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   };
 
   const onSelectReplacement = useCallback(
-    async (employeeId: string, name: string) => {
+    async (
+      employeeId: string,
+      name: string,
+      payCode: string | undefined,
+      vacancyDetailIds?: string[]
+    ) => {
       if (props.replacementEmployeeId != undefined) {
-        await props.cancelAssignments();
+        await props.cancelAssignments(undefined, undefined, vacancyDetailIds);
       }
       await assignVacancy({
         variables: {
           assignment: {
             orgId: props.organizationId,
             employeeId: employeeId,
-            appliesToAllVacancyDetails: true,
+            appliesToAllVacancyDetails:
+              !vacancyDetailIds || vacancyDetailIds.length === 0,
+            vacancyDetailIds:
+              vacancyDetailIds && vacancyDetailIds.length > 0
+                ? vacancyDetailIds
+                : undefined,
             vacancyId: props.initialVacancies[0].id,
             ignoreWarnings: true,
           },
@@ -421,8 +434,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   );
 
   const onAssignSubClick = React.useCallback(
-    (vacancyDetailIds?: string[]) => {
+    (vacancyDetailIds?: string[], employeeToReplace?: string) => {
       setVacancyDetailIdsToAssign(vacancyDetailIds ?? undefined);
+      setEmployeeToReplace(employeeToReplace ?? undefined);
       setStep("preAssignSub");
     },
     [setStep]
@@ -551,9 +565,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           onSelectReplacement={onSelectReplacement}
           onCancel={() => {
             setVacancyDetailIdsToAssign(undefined);
+            setEmployeeToReplace(undefined);
             onCancel();
           }}
-          currentReplacementEmployeeName={props.replacementEmployeeName}
+          employeeToReplace={employeeToReplace}
           vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
         />
       )}

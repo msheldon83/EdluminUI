@@ -37,10 +37,11 @@ type Props = {
   onSelectReplacement: (
     replacementId: string,
     replacementName: string,
-    payCode: string | undefined
+    payCode: string | undefined,
+    vacancyDetailIds?: string[]
   ) => void;
   onCancel: () => void;
-  currentReplacementEmployeeName?: string;
+  employeeToReplace?: string;
 };
 
 export const AssignSub: React.FC<Props> = props => {
@@ -54,9 +55,13 @@ export const AssignSub: React.FC<Props> = props => {
   const [searchFilter, updateSearch] = React.useState<
     ReplacementEmployeeFilters
   >();
-  const { onSelectReplacement, currentReplacementEmployeeName = "" } = props;
+  const {
+    onSelectReplacement,
+    vacancyDetailIdsToAssign,
+    employeeToReplace = "",
+  } = props;
 
-  console.log(props.vacancyDetailIdsToAssign);
+  console.log(vacancyDetailIdsToAssign);
 
   const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
   const [
@@ -100,7 +105,7 @@ export const AssignSub: React.FC<Props> = props => {
         vacancy: !props.vacancies[0]?.id
           ? buildVacancyInput(props.vacancies)
           : undefined,
-        vacancyDetailIds: props.vacancyDetailIdsToAssign ?? undefined,
+        vacancyDetailIds: vacancyDetailIdsToAssign ?? undefined,
         absentEmployeeId: props.employeeId ?? undefined,
         name: searchFilter?.name,
         qualified: searchFilter?.name ? undefined : searchFilter?.qualified,
@@ -158,9 +163,14 @@ export const AssignSub: React.FC<Props> = props => {
       name: string,
       payCodeId: string | undefined
     ) => {
-      onSelectReplacement(replacementEmployeeId, name, payCodeId);
+      onSelectReplacement(
+        replacementEmployeeId,
+        name,
+        payCodeId,
+        vacancyDetailIdsToAssign
+      );
     },
-    [onSelectReplacement]
+    [onSelectReplacement, vacancyDetailIdsToAssign]
   );
 
   const confirmReassign = useCallback(
@@ -169,7 +179,7 @@ export const AssignSub: React.FC<Props> = props => {
       name: string,
       payCodeId: string | undefined
     ) => {
-      if (currentReplacementEmployeeName) {
+      if (employeeToReplace) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
@@ -178,7 +188,7 @@ export const AssignSub: React.FC<Props> = props => {
         await selectReplacementEmployee(replacementEmployeeId, name, payCodeId);
       }
     },
-    [selectReplacementEmployee, currentReplacementEmployeeName]
+    [selectReplacementEmployee, employeeToReplace]
   );
 
   const setSearch = (filters: ReplacementEmployeeFilters) => {
@@ -202,7 +212,7 @@ export const AssignSub: React.FC<Props> = props => {
         >
           <VacancyDetails
             vacancies={props.vacancies}
-            vacancyDetailIds={props.vacancyDetailIdsToAssign}
+            vacancyDetailIds={vacancyDetailIdsToAssign}
             positionName={props.positionName}
             gridRef={vacancyDetailsRef}
             showHeader
@@ -273,7 +283,7 @@ export const AssignSub: React.FC<Props> = props => {
             replacementEmployeePayCode
           );
         }}
-        currentReplacementEmployee={currentReplacementEmployeeName}
+        currentReplacementEmployee={employeeToReplace}
         newReplacementEmployee={replacementEmployeeName}
       />
       <div className={classes.header}>

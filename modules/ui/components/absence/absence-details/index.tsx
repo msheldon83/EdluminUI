@@ -79,7 +79,7 @@ type Props = {
   initialAbsenceCreation: boolean;
   onDelete?: () => void;
   onCancel?: () => void;
-  onAssignSubClick: (vacancyDetailIds?: string[]) => void;
+  onAssignSubClick: (vacancyDetailIds?: string[], employeeToReplace?: string) => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {

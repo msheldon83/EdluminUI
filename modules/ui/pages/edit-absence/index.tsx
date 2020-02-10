@@ -131,26 +131,68 @@ export const EditAbsence: React.FC<Props> = props => {
     ) => {
       if (absence.state !== "DONE") return;
 
-      if (!assignmentId) {
+      const assignments = compact(
+        flatMap(absence.data.absence?.byId?.vacancies, v =>
+          v?.details
+            ?.filter(vd => vd?.assignment)
+            .map(vd => {
+              return {
+                assignmentId: vd!.assignment!.id,
+                assignmentRowVersion: vd!.assignment!.rowVersion,
+                vacancyDetailId: vd!.id,
+              };
+            })
+        )
+      );
+      const uniqueAssignments = uniqBy(assignments, "assignmentId");
+
+      if (!assignmentId && !vacancyDetailIds) {
         // No specific Assignment Id provided, cancel all Assignments
-        const assignments = uniqBy(
-          compact(
-            flatMap(absence.data.absence?.byId?.vacancies, v =>
-              v?.details?.map(vd => vd?.assignment)
-            )
-          ),
-          "id"
-        );
         await Promise.all(
-          assignments.map(a =>
+          uniqueAssignments.map(a =>
             cancelAssignment({
               variables: {
-                assignment: { assignmentId: a.id, rowVersion: a.rowVersion },
+                assignment: {
+                  assignmentId: a.assignmentId,
+                  rowVersion: a.assignmentRowVersion,
+                },
               },
             })
           )
         );
-      } else {
+      } else if (
+        !assignmentId &&
+        vacancyDetailIds &&
+        vacancyDetailIds.length > 0
+      ) {
+        // Figure out which Assignments to cancel based on the Vacancy Detail Ids provided
+        const matchingAssignments = assignments.filter(
+          a => a.vacancyDetailId && vacancyDetailIds.includes(a.vacancyDetailId)
+        );
+        const assignmentsToCancel = uniqueAssignments.filter(u =>
+          matchingAssignments.find(m => m.assignmentId === u.assignmentId)
+        );
+
+        await Promise.all(
+          assignmentsToCancel.map(a => {
+            // For the current Assignment, figure out which Vacancy Detail Ids are appropriate
+            // to cancel. It might not be all of the Vacancy Detail Ids on the Assignment.
+            const vacancyDetailIdsToCancel = matchingAssignments
+              .filter(m => m.assignmentId === a.assignmentId)
+              .map(m => m.vacancyDetailId)
+              .filter(id => vacancyDetailIds.includes(id));
+            return cancelAssignment({
+              variables: {
+                assignment: {
+                  assignmentId: a.assignmentId,
+                  rowVersion: a.assignmentRowVersion,
+                  vacancyDetailIds: vacancyDetailIdsToCancel,
+                },
+              },
+            });
+          })
+        );
+      } else if (assignmentId) {
         const vacancyDetailIdsToCancel =
           vacancyDetailIds && vacancyDetailIds.length > 0
             ? vacancyDetailIds
