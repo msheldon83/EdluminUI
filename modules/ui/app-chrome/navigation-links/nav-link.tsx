@@ -93,15 +93,18 @@ export const NavLink: React.FC<Props> = props => {
     [classes.subNavItemsOpen]: expanded,
   });
 
+  const listItemClasses = clsx({
+    [classes.menuItemWithSubNavItems]: showSubNavItems,
+    [classes.listItemSubItemSelected]: expanded && subNavActive,
+    [classes.active]: displayAsMatching,
+  });
+
   return (
     <div>
       <Link to={props.route} className={classes.link}>
         <ListItem
           button
-          className={`${classes.menuItem} ${
-            props.className
-          } ${displayAsMatching && classes.active} ${showSubNavItems &&
-            classes.menuItemWithSubNavItems}`}
+          className={`${classes.menuItem} ${props.className} ${listItemClasses} `}
           href={props.route}
           onClick={props.onClick}
           classes={menuItemClasses}
@@ -186,6 +189,15 @@ const useStyles = makeStyles(theme => ({
     }),
   },
   menuItemWithSubNavItems: {},
+  listItemSubItemSelected: {
+    background: theme.customColors.white,
+    color: theme.palette.primary.main,
+
+    "&:hover": {
+      background: theme.customColors.white,
+      color: theme.palette.primary.main,
+    },
+  },
   active: {
     color: theme.palette.primary.main,
   },
