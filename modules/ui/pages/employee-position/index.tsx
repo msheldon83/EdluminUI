@@ -119,8 +119,6 @@ export const EmployeePosition: React.FC<Props> = props => {
       daysOfTheWeek: ps.daysOfTheWeek,
     }));
 
-  console.log(positionSchedule);
-
   return (
     <>
       <div className={classes.header}>

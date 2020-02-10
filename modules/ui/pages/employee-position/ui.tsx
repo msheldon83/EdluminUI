@@ -266,10 +266,8 @@ export const PositionEditUI: React.FC<Props> = props => {
         {({
           values,
           handleSubmit,
-          handleChange,
           submitForm,
           setFieldValue,
-          setFieldTouched,
           handleBlur,
           errors,
         }) => (
@@ -307,7 +305,6 @@ export const PositionEditUI: React.FC<Props> = props => {
                         }
                         setFieldValue("positionTypeId", id);
                       }}
-                      onBlur={handleBlur}
                       options={positionTypeOptions}
                       inputStatus={errors.positionTypeId ? "error" : undefined}
                       validationMessage={errors.positionTypeId}

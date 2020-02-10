@@ -188,8 +188,6 @@ export const PeriodUI: React.FC<Props> = props => {
     props.scheduleIndex
   );
 
-  console.log(period);
-
   return (
     <>
       <Grid container spacing={2}>
