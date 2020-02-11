@@ -35,6 +35,35 @@ export const ReplacementCriteria: React.FC<Props> = props => {
   const replacementCriteria = props.replacementCriteria;
   const inheritedReplacementCriteria = props.inheritedReplacementCriteria;
 
+  const mustHaves = replacementCriteria?.mustHave?.map(x => x?.name) ?? [];
+  const inheritedMustHaves =
+    inheritedReplacementCriteria?.mustHave?.map(x => x?.name) ?? [];
+  const deduppedMustHaves = [...new Set(mustHaves.concat(inheritedMustHaves))];
+
+  const mustNotHaves =
+    replacementCriteria?.mustNotHave?.map(x => x?.name) ?? [];
+  const inheritedMustNotHaves =
+    inheritedReplacementCriteria?.mustNotHave?.map(x => x?.name) ?? [];
+  const deduppedMustNotHaves = [
+    ...new Set(mustNotHaves.concat(inheritedMustNotHaves)),
+  ];
+
+  const preferToHaves =
+    replacementCriteria?.preferToHave?.map(x => x?.name) ?? [];
+  const inheritedPreferToHaves =
+    inheritedReplacementCriteria?.preferToHave?.map(x => x?.name) ?? [];
+  const deduppedPreferToHaves = [
+    ...new Set(preferToHaves.concat(inheritedPreferToHaves)),
+  ];
+
+  const preferToNotHaves =
+    replacementCriteria?.preferToNotHave?.map(x => x?.name) ?? [];
+  const inheritedPreferToNotHaves =
+    inheritedReplacementCriteria?.preferToNotHave?.map(x => x?.name) ?? [];
+  const deduppedPreferToNotHaves = [
+    ...new Set(preferToNotHaves.concat(inheritedPreferToNotHaves)),
+  ];
+
   return (
     <>
       <Section>
@@ -56,98 +85,40 @@ export const ReplacementCriteria: React.FC<Props> = props => {
           <Grid container item spacing={2} xs={8}>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">{t("Substitutes must have")}</Typography>
-              {(replacementCriteria === undefined ||
-                replacementCriteria?.mustHave?.length === 0) &&
-              (inheritedReplacementCriteria === undefined ||
-                inheritedReplacementCriteria?.mustHave?.length === 0) ? (
+              {deduppedMustHaves.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
-                <div>
-                  <div>
-                    {inheritedReplacementCriteria?.mustHave?.map((n, i) => (
-                      <div key={i}>{n?.name}</div>
-                    ))}
-                  </div>
-                  <div>
-                    {replacementCriteria?.mustHave?.map((n, i) => (
-                      <div key={i}>{n?.name}</div>
-                    ))}
-                  </div>
-                </div>
+                deduppedMustHaves.map((n, i) => <div key={i}>{n}</div>)
               )}
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">
                 {t("Prefer that substitutes have")}
               </Typography>
-              {(replacementCriteria === undefined ||
-                replacementCriteria?.preferToHave?.length === 0) &&
-              (inheritedReplacementCriteria === undefined ||
-                inheritedReplacementCriteria?.preferToHave?.length === 0) ? (
+              {deduppedPreferToHaves.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
-                <div>
-                  <div>
-                    {inheritedReplacementCriteria?.preferToHave?.map((n, i) => (
-                      <div key={i}>{n?.name}</div>
-                    ))}
-                  </div>
-                  <div>
-                    {replacementCriteria?.preferToHave?.map((n, i) => (
-                      <div key={i}>{n?.name}</div>
-                    ))}
-                  </div>
-                </div>
+                deduppedPreferToHaves.map((n, i) => <div key={i}>{n}</div>)
               )}
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">
                 {t("Substitutes must not have")}
               </Typography>
-              {(replacementCriteria === undefined ||
-                replacementCriteria?.mustNotHave?.length === 0) &&
-              (inheritedReplacementCriteria === undefined ||
-                inheritedReplacementCriteria?.mustNotHave?.length === 0) ? (
+              {deduppedMustNotHaves.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
-                <div>
-                  <div>
-                    {inheritedReplacementCriteria?.mustNotHave?.map((n, i) => (
-                      <div key={i}>{n?.name}</div>
-                    ))}
-                  </div>
-                  <div>
-                    {replacementCriteria?.mustNotHave?.map((n, i) => (
-                      <div key={i}>{n?.name}</div>
-                    ))}
-                  </div>
-                </div>
+                deduppedMustNotHaves.map((n, i) => <div key={i}>{n}</div>)
               )}
             </Grid>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6">
                 {t("Prefer that substitutes not have")}
               </Typography>
-              {(replacementCriteria === undefined ||
-                replacementCriteria?.preferToNotHave?.length === 0) &&
-              (inheritedReplacementCriteria === undefined ||
-                inheritedReplacementCriteria?.preferToNotHave?.length === 0) ? (
+              {deduppedPreferToNotHaves.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
-                <div>
-                  <div>
-                    {inheritedReplacementCriteria?.preferToNotHave?.map(
-                      (n, i) => (
-                        <div key={i}>{n?.name}</div>
-                      )
-                    )}
-                  </div>
-                  <div>
-                    {replacementCriteria?.preferToNotHave?.map((n, i) => (
-                      <div key={i}>{n?.name}</div>
-                    ))}
-                  </div>
-                </div>
+                deduppedPreferToNotHaves.map((n, i) => <div key={i}>{n}</div>)
               )}
             </Grid>
           </Grid>
