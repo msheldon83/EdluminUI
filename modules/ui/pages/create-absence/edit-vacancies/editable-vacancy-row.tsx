@@ -86,8 +86,16 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
         </Typography>
       </Grid>
       <Grid item container alignItems="center">
-        <Grid item container md={4} className={classes.vacancyBlockItem}>
-          <Grid item xs={isMobile ? 3 : 4} className={classes.timeInput}>
+        <Grid
+          item
+          container
+          xs={isMobile ? 12 : 4}
+          className={
+            (classes.vacancyBlockItem,
+            isMobile ? classes.margin : classes.noClass)
+          }
+        >
+          <Grid item xs={isMobile ? 5 : 4} className={classes.timeInput}>
             <FormikTimeInput
               name={`${fieldNamePrefix}.startTime`}
               date={startOfDate}
@@ -95,7 +103,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
               validationMessage={startTimeError}
             />
           </Grid>
-          <Grid item xs={isMobile ? 3 : 4} className={classes.timeInput}>
+          <Grid item xs={isMobile ? 5 : 4} className={classes.timeInput}>
             <FormikTimeInput
               name={`${fieldNamePrefix}.endTime`}
               date={startOfDate}
@@ -108,7 +116,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
         <Grid
           item
           container
-          md={7}
+          xs={isMobile ? 12 : 7}
           className={
             (classes.vacancyBlockItem,
             isMobile ? classes.mobilePadding : classes.noClass)
@@ -116,8 +124,11 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
         >
           <Grid
             item
-            xs={4}
-            className={(classes.vacancyBlockItem, classes.margin)}
+            xs={isMobile ? 12 : 4}
+            className={
+              (classes.vacancyBlockItem,
+              isMobile ? classes.margin : classes.noClass)
+            }
           >
             {t("School")}
             <FormikSelect
@@ -130,8 +141,11 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             <>
               <Grid
                 item
-                xs={4}
-                className={(classes.vacancyBlockItem, classes.spacing)}
+                xs={isMobile ? 12 : 4}
+                className={
+                  (classes.vacancyBlockItem,
+                  isMobile ? classes.margin : classes.spacing)
+                }
               >
                 {t("Accounting Code")}
                 <FormikSelect
@@ -142,8 +156,11 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
               </Grid>
               <Grid
                 item
-                xs={4}
-                className={(classes.vacancyBlockItem, classes.spacing)}
+                xs={isMobile ? 12 : 4}
+                className={
+                  (classes.vacancyBlockItem,
+                  isMobile ? classes.margin : classes.spacing)
+                }
               >
                 {t("Pay Code")}
                 <FormikSelect
@@ -189,7 +206,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(1),
   },
   margin: {
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(1),
   },
   noClass: {},
 }));
