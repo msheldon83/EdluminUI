@@ -1,4 +1,11 @@
-import { Button, IconButton, makeStyles, Grid } from "@material-ui/core";
+import {
+  Button,
+  IconButton,
+  makeStyles,
+  Grid,
+  Chip,
+  Typography,
+} from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
 import PlayForWork from "@material-ui/icons/PlayForWork";
 import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
@@ -19,6 +26,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { UsersRoute } from "ui/routes/users";
 import { canViewAsSysAdmin } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
+import { OrganizationType } from "graphql/server-types.gen";
 
 type Props = { redirectIfOneOrg?: boolean };
 
@@ -29,14 +37,40 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const history = useHistory();
   const params = useRouteParams(UsersRoute);
 
-  const columns: Column<GetMyUserAccess.Organization>[] = [
+  const columns: Column<AllOrganizations.Results>[] = [
     { title: t("Id"), field: "id" },
-    { title: t("Name"), field: "name", defaultSort: "asc" },
+    {
+      title: t("Name"),
+      field: "name",
+      defaultSort: "asc",
+      render: (rowData: AllOrganizations.Results) => {
+        return (
+          <div>
+            <Typography display="inline">{rowData.name}</Typography>{" "}
+            {rowData.config?.organizationTypeId ===
+              OrganizationType.Implementing && (
+              <Chip
+                tabIndex={-1}
+                className={classes.implementingChip}
+                label={t("Implementing")}
+              />
+            )}
+            {rowData.config?.organizationTypeId === OrganizationType.Demo && (
+              <Chip
+                tabIndex={-1}
+                className={classes.demoChip}
+                label={t("Demo")}
+              />
+            )}
+          </div>
+        );
+      },
+    },
     {
       title: "",
       field: "actions",
       sorting: false,
-      render: (rowData: GetMyUserAccess.Organization) => {
+      render: (rowData: AllOrganizations.Results) => {
         const switchOrg = () => {
           return (
             <div className={classes.switchAlign}>
@@ -183,5 +217,13 @@ const useStyles = makeStyles(theme => ({
   },
   switchAlign: {
     textAlign: "right",
+  },
+  implementingChip: {
+    background: "#FFCC01",
+    color: "#050039",
+  },
+  demoChip: {
+    background: theme.customColors.mediumBlue,
+    color: theme.customColors.white,
   },
 }));

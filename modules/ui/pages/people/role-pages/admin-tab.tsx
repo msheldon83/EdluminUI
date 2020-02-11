@@ -74,6 +74,7 @@ export const AdminTab: React.FC<Props> = props => {
         editPermissions={[PermissionEnum.AdminSave]}
         onSubmit={onUpdateAdmin}
         onCancel={onCancelAdmin}
+        temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
       <AccessControl
         editing={props.editing}

@@ -168,38 +168,40 @@ export const DayPartField: React.FC<Props> = props => {
         aria-label="dayPart"
         className={classes.radioGroup}
       >
-        {dayPartOptions.map(type => {
-          const timeDisplay = employeeScheduleTimes
-            ? dayPartToTimesLabel(type, employeeScheduleTimes)
-            : "";
+        {(getEmployeeScheduleTimes.state === "DONE" ||
+          getEmployeeScheduleTimes.state === "UPDATING") &&
+          dayPartOptions.map(type => {
+            const timeDisplay = employeeScheduleTimes
+              ? dayPartToTimesLabel(type, employeeScheduleTimes)
+              : "";
 
-          // Hide the full day option if we don't have both half days in the schedule
-          if (type === DayPart.FullDay && !showFullDayOption) {
-            return <div key={type}></div>;
-          }
-          if (timeDisplay) {
-            return (
-              <Grid
-                container
-                justify="space-between"
-                alignItems="center"
-                key={type}
-              >
-                <Grid item xs={10}>
-                  <FormControlLabel
-                    value={type}
-                    control={<Radio checked={type === value.part} />}
-                    disabled={disabled}
-                    label={`${t(dayPartToLabel(type))} ${timeDisplay}`}
-                  />
+            // Hide the full day option if we don't have both half days in the schedule
+            if (type === DayPart.FullDay && !showFullDayOption) {
+              return <div key={type}></div>;
+            }
+            if (timeDisplay || type === DayPart.Hourly) {
+              return (
+                <Grid
+                  container
+                  justify="space-between"
+                  alignItems="center"
+                  key={type}
+                >
+                  <Grid item xs={10}>
+                    <FormControlLabel
+                      value={type}
+                      control={<Radio checked={type === value.part} />}
+                      disabled={disabled}
+                      label={`${t(dayPartToLabel(type))} ${timeDisplay}`}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    {dayPartToIcon(type, classes)}
+                  </Grid>
                 </Grid>
-                <Grid item xs={2}>
-                  {dayPartToIcon(type, classes)}
-                </Grid>
-              </Grid>
-            );
-          }
-        })}
+              );
+            }
+          })}
       </RadioGroup>
 
       {value.part === DayPart.Hourly && (
