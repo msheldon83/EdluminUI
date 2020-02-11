@@ -8,6 +8,7 @@ import {
 import { HighlightOff } from "@material-ui/icons";
 import { formatDateIfPossible } from "helpers/date";
 import * as React from "react";
+import { useIsMobile } from "hooks";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
 import { FormikSelect } from "ui/components/form/formik-select";
@@ -45,6 +46,7 @@ type Props = {
 
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
   const classes = useStyles();
+  const isMobile = useIsMobile();
   const { t } = useTranslation();
 
   const locationMenuOptions = props.locationOptions.map(loc => ({
@@ -83,10 +85,17 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           {date && formatDateIfPossible(date, "MMMM d, yyyy")}
         </Typography>
       </Grid>
-
       <Grid item container alignItems="center">
-        <Grid item container md={3} className={classes.vacancyBlockItem}>
-          <Grid item xs={4} className={classes.timeInput}>
+        <Grid
+          item
+          container
+          xs={isMobile ? 12 : 4}
+          className={
+            (classes.vacancyBlockItem,
+            isMobile ? classes.mobileMargin : classes.noClass)
+          }
+        >
+          <Grid item xs={isMobile ? 5 : 4} className={classes.timeInput}>
             <FormikTimeInput
               name={`${fieldNamePrefix}.startTime`}
               date={startOfDate}
@@ -94,7 +103,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
               validationMessage={startTimeError}
             />
           </Grid>
-          <Grid item xs={4} className={classes.timeInput}>
+          <Grid item xs={isMobile ? 5 : 4} className={classes.timeInput}>
             <FormikTimeInput
               name={`${fieldNamePrefix}.endTime`}
               date={startOfDate}
@@ -106,44 +115,63 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
         </Grid>
         <Grid
           item
-          xs={3}
-          className={(classes.vacancyBlockItem, classes.spacing)}
+          container
+          xs={isMobile ? 12 : 7}
+          className={
+            (classes.vacancyBlockItem,
+            isMobile ? classes.mobilePadding : classes.noClass)
+          }
         >
-          {t("School")}
-          <FormikSelect
-            name={`${fieldNamePrefix}.locationId`}
-            options={locationMenuOptions}
-            withResetValue={false}
-          />
+          <Grid
+            item
+            xs={isMobile ? 12 : 4}
+            className={
+              (classes.vacancyBlockItem,
+              isMobile ? classes.mobileMargin : classes.noClass)
+            }
+          >
+            {t("School")}
+            <FormikSelect
+              name={`${fieldNamePrefix}.locationId`}
+              options={locationMenuOptions}
+              withResetValue={false}
+            />
+          </Grid>
+          {!props.actingAsEmployee && (
+            <>
+              <Grid
+                item
+                xs={isMobile ? 12 : 4}
+                className={
+                  (classes.vacancyBlockItem,
+                  isMobile ? classes.mobileMargin : classes.spacing)
+                }
+              >
+                {t("Accounting Code")}
+                <FormikSelect
+                  name={`${fieldNamePrefix}.accountingCodeId`}
+                  options={accountingCodeOptions}
+                  withResetValue={true}
+                />
+              </Grid>
+              <Grid
+                item
+                xs={isMobile ? 12 : 4}
+                className={
+                  (classes.vacancyBlockItem,
+                  isMobile ? classes.mobileMargin : classes.spacing)
+                }
+              >
+                {t("Pay Code")}
+                <FormikSelect
+                  name={`${fieldNamePrefix}.payCodeId`}
+                  options={props.payCodeOptions}
+                  withResetValue={true}
+                />
+              </Grid>
+            </>
+          )}
         </Grid>
-        {!props.actingAsEmployee && (
-          <>
-            <Grid
-              item
-              xs={3}
-              className={(classes.vacancyBlockItem, classes.spacing)}
-            >
-              {t("Pay Code")}
-              <FormikSelect
-                name={`${fieldNamePrefix}.payCodeId`}
-                options={props.payCodeOptions}
-                withResetValue={true}
-              />
-            </Grid>
-            <Grid
-              item
-              xs={2}
-              className={(classes.vacancyBlockItem, classes.spacing)}
-            >
-              {t("Accounting Code")}
-              <FormikSelect
-                name={`${fieldNamePrefix}.accountingCodeId`}
-                options={accountingCodeOptions}
-                withResetValue={true}
-              />
-            </Grid>
-          </>
-        )}
         {props.showRemoveButton && (
           <Grid item>
             <IconButton onClick={props.onRemoveRow}>
@@ -152,7 +180,6 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           </Grid>
         )}
       </Grid>
-
       <Grid item container>
         <Link onClick={props.onAddRow}>{t("Add row")}</Link>
       </Grid>
@@ -163,7 +190,10 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   vacancyBlockItem: {
     marginTop: theme.spacing(0.5),
-    marginRight: theme.spacing(2),
+    marginRight: theme.spacing(1),
+  },
+  mobilePadding: {
+    paddingTop: theme.spacing(2),
   },
   rowContainer: {
     padding: theme.spacing(2),
@@ -173,6 +203,10 @@ const useStyles = makeStyles(theme => ({
   },
   spacing: {
     marginBottom: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
+    paddingLeft: theme.spacing(1),
   },
+  mobileMargin: {
+    marginBottom: theme.spacing(1),
+  },
+  noClass: {},
 }));
