@@ -185,7 +185,8 @@ export const EditAbsence: React.FC<Props> = props => {
   // @ts-ignore
   const vacancies = compact(data?.vacancies ?? []);
   const vacancy = vacancies[0];
-  const needsSub = !!vacancy;
+  const needsReplacement =
+    vacancy?.position?.needsReplacement ?? NeedsReplacement.No;
   const position = vacancy?.position;
 
   const vacancyDetails = compact(vacancy?.details ?? []);
@@ -264,7 +265,7 @@ export const EditAbsence: React.FC<Props> = props => {
         assignmentId={assignmentId}
         employeeId={employee.id}
         rowVersion={data.rowVersion}
-        needsReplacement={needsSub ? NeedsReplacement.Yes : NeedsReplacement.No}
+        needsReplacement={needsReplacement}
         notesToApprover={data.notesToApprover ?? undefined}
         userIsAdmin={userIsAdmin}
         positionId={position?.id ?? employee.primaryPositionId ?? undefined}
