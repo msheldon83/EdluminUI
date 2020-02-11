@@ -14,6 +14,8 @@ type Props = {
 type Endorsement = {
   id: string;
   name: string;
+  inherited?: boolean;
+  inheritedFromName?: string;
 };
 
 export const ReplacementCriteriaView: React.FC<Props> = props => {
@@ -42,14 +44,20 @@ export const ReplacementCriteriaView: React.FC<Props> = props => {
                   )}`}
                 >
                   <div>{n.name}</div>
-                  <div>
-                    <TextButton
-                      className={classes.link}
-                      onClick={() => props.remove(removeEndorsement(n))}
-                    >
-                      {t("Remove")}
-                    </TextButton>
-                  </div>
+                  {n.inherited ? (
+                    <div className={classes.inheritedText}>{`${t(
+                      "Inherited from "
+                    )} ${n.inheritedFromName}`}</div>
+                  ) : (
+                    <div>
+                      <TextButton
+                        className={classes.link}
+                        onClick={() => props.remove(removeEndorsement(n))}
+                      >
+                        {t("Remove")}
+                      </TextButton>
+                    </div>
+                  )}
                 </div>
               ))
             )}
@@ -93,6 +101,9 @@ const useStyles = makeStyles(theme => ({
   row: {
     width: "100%",
     padding: theme.spacing(),
+  },
+  inheritedText: {
+    color: "#9E9E9E",
   },
 }));
 

@@ -33,6 +33,13 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     variables: { id: params.orgUserId },
   });
 
+  const employee = (getEmployee.state === "LOADING"
+    ? undefined
+    : getEmployee.data?.orgUser?.byId?.employee) as Pick<
+    Employee,
+    "id" | "orgId" | "firstName" | "lastName" | "primaryPosition"
+  >;
+
   //Mutations
   const updateMustHave = useCallback(
     async (mustHaveInput: string[]) => {
@@ -54,7 +61,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updateEmployee]
+    [employee, getEmployee, updateEmployee]
   );
 
   const updateMustNot = useCallback(
@@ -77,7 +84,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updateEmployee]
+    [employee, getEmployee, updateEmployee]
   );
 
   const updatePreferHave = useCallback(
@@ -100,7 +107,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updateEmployee]
+    [employee, getEmployee, updateEmployee]
   );
 
   const updatePreferNotHave = useCallback(
@@ -123,15 +130,8 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
       }
       return false;
     },
-    [updateEmployee]
+    [employee, getEmployee, updateEmployee]
   );
-
-  const employee = (getEmployee.state === "LOADING"
-    ? undefined
-    : getEmployee.data?.orgUser?.byId?.employee) as Pick<
-    Employee,
-    "id" | "orgId" | "firstName" | "lastName" | "primaryPosition"
-  >;
 
   const position = employee?.primaryPosition;
 
@@ -159,28 +159,68 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
 
   const postionType = position?.positionType;
 
+  // Get Inherited Replacement Criteria
+  const inheritedReplacementCriteria =
+    position?.positionType?.replacementCriteria;
+  const inheritedMustHave =
+    inheritedReplacementCriteria?.mustHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+      inherited: true,
+      inheritedFromName: postionType?.name,
+    })) ?? [];
+  const inheritedPreferToHave =
+    inheritedReplacementCriteria?.preferToHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+      inherited: true,
+      inheritedFromName: postionType?.name,
+    })) ?? [];
+  const inheritedPreferNotToHave =
+    inheritedReplacementCriteria?.preferToNotHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+      inherited: true,
+      inheritedFromName: postionType?.name,
+    })) ?? [];
+  const inheritedMustNotHave =
+    inheritedReplacementCriteria?.mustNotHave?.map(e => ({
+      name: e?.name ?? "",
+      id: e?.id ?? "",
+      inherited: true,
+      inheritedFromName: postionType?.name,
+    })) ?? [];
+
   //Get Replacement Criteria
   const replacementCriteria = position?.replacementCriteria;
   const mustHave =
-    replacementCriteria?.mustHave?.map(e => ({
-      name: e?.name ?? "",
-      id: e?.id ?? "",
-    })) ?? [];
+    replacementCriteria?.mustHave
+      ?.map(e => ({
+        name: e?.name ?? "",
+        id: e?.id ?? "",
+      }))
+      .concat(inheritedMustHave) ?? [];
   const preferToHave =
-    replacementCriteria?.preferToHave?.map(e => ({
-      name: e?.name ?? "",
-      id: e?.id ?? "",
-    })) ?? [];
+    replacementCriteria?.preferToHave
+      ?.map(e => ({
+        name: e?.name ?? "",
+        id: e?.id ?? "",
+      }))
+      .concat(inheritedPreferToHave) ?? [];
   const preferNotToHave =
-    replacementCriteria?.preferToNotHave?.map(e => ({
-      name: e?.name ?? "",
-      id: e?.id ?? "",
-    })) ?? [];
+    replacementCriteria?.preferToNotHave
+      ?.map(e => ({
+        name: e?.name ?? "",
+        id: e?.id ?? "",
+      }))
+      .concat(inheritedPreferNotToHave) ?? [];
   const mustNotHave =
-    replacementCriteria?.mustNotHave?.map(e => ({
-      name: e?.name ?? "",
-      id: e?.id ?? "",
-    })) ?? [];
+    replacementCriteria?.mustNotHave
+      ?.map(e => ({
+        name: e?.name ?? "",
+        id: e?.id ?? "",
+      }))
+      .concat(inheritedMustNotHave) ?? [];
 
   //Endorsements to Ignore
   const endorsementsIgnored = mustHave.concat(
