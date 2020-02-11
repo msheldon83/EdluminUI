@@ -92,7 +92,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           xs={isMobile ? 12 : 4}
           className={
             (classes.vacancyBlockItem,
-            isMobile ? classes.margin : classes.noClass)
+            isMobile ? classes.mobileMargin : classes.noClass)
           }
         >
           <Grid item xs={isMobile ? 5 : 4} className={classes.timeInput}>
@@ -127,7 +127,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             xs={isMobile ? 12 : 4}
             className={
               (classes.vacancyBlockItem,
-              isMobile ? classes.margin : classes.noClass)
+              isMobile ? classes.mobileMargin : classes.noClass)
             }
           >
             {t("School")}
@@ -144,7 +144,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
                 xs={isMobile ? 12 : 4}
                 className={
                   (classes.vacancyBlockItem,
-                  isMobile ? classes.margin : classes.spacing)
+                  isMobile ? classes.mobileMargin : classes.spacing)
                 }
               >
                 {t("Accounting Code")}
@@ -159,7 +159,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
                 xs={isMobile ? 12 : 4}
                 className={
                   (classes.vacancyBlockItem,
-                  isMobile ? classes.margin : classes.spacing)
+                  isMobile ? classes.mobileMargin : classes.spacing)
                 }
               >
                 {t("Pay Code")}
@@ -205,7 +205,7 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
     paddingLeft: theme.spacing(1),
   },
-  margin: {
+  mobileMargin: {
     marginBottom: theme.spacing(1),
   },
   noClass: {},
