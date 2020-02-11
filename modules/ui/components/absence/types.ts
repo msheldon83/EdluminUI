@@ -1,4 +1,5 @@
 export type VacancyDetail = {
+  vacancyDetailId: string | undefined;
   date: string;
   startTime: string;
   endTime: string;
@@ -8,4 +9,10 @@ export type VacancyDetail = {
   absenceEndTime?: string;
   accountingCodeId?: string | null;
   payCodeId?: string | null;
+  assignmentId?: string;
+  assignmentRowVersion?: string;
+  assignmentStartDateTime?: string;
+  assignmentEmployeeId?: string;
+  assignmentEmployeeFirstName?: string;
+  assignmentEmployeeLastName?: string;
 };

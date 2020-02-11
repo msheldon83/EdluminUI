@@ -25,7 +25,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { compact, differenceWith, flatMap, isEqual, some } from "lodash-es";
 import * as React from "react";
-import { useCallback, useMemo, useReducer } from "react";
+import { useCallback, useMemo, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -76,7 +76,12 @@ type Props = {
   startTimeLocal: string;
   endTimeLocal: string;
   absenceDates: Date[];
-  cancelAssignments: () => Promise<void>;
+  cancelAssignments: (
+    assignmentId?: string,
+    assignmentRowVersion?: string,
+    vacancyDetailIds?: string[],
+    preventAbsenceRefetch?: boolean
+  ) => Promise<void>;
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
   returnUrl?: string;
@@ -108,6 +113,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
+  const [vacancyDetailIdsToAssign, setVacancyDetailIdsToAssign] = useState<
+    string[] | undefined
+  >(undefined);
+  const [employeeToReplace, setEmployeeToReplace] = useState<
+    string | undefined
+  >(undefined);
 
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
@@ -385,16 +396,31 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   };
 
   const onSelectReplacement = useCallback(
-    async (employeeId: string, name: string) => {
+    async (
+      employeeId: string,
+      name: string,
+      payCode: string | undefined,
+      vacancyDetailIds?: string[]
+    ) => {
       if (props.replacementEmployeeId != undefined) {
-        await props.cancelAssignments();
+        await props.cancelAssignments(
+          undefined,
+          undefined,
+          vacancyDetailIds,
+          true
+        );
       }
       await assignVacancy({
         variables: {
           assignment: {
             orgId: props.organizationId,
             employeeId: employeeId,
-            appliesToAllVacancyDetails: true,
+            appliesToAllVacancyDetails:
+              !vacancyDetailIds || vacancyDetailIds.length === 0,
+            vacancyDetailIds:
+              vacancyDetailIds && vacancyDetailIds.length > 0
+                ? vacancyDetailIds
+                : undefined,
             vacancyId: props.initialVacancies[0].id,
             ignoreWarnings: true,
           },
@@ -411,6 +437,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       if (canEdit) dispatch({ action: "toggleDate", date: d });
     },
     [dispatch, canEdit]
+  );
+
+  const onAssignSubClick = React.useCallback(
+    (vacancyDetailIds?: string[], employeeToReplace?: string) => {
+      setVacancyDetailIdsToAssign(vacancyDetailIds ?? undefined);
+      setEmployeeToReplace(employeeToReplace ?? undefined);
+      setStep("preAssignSub");
+    },
+    [setStep]
   );
 
   return (
@@ -501,6 +536,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               initialAbsenceCreation={false}
               onDelete={props.onDelete}
               onCancel={props.onCancel}
+              onAssignSubClick={onAssignSubClick}
             />
           </Section>
         </form>
@@ -533,8 +569,13 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           disabledDates={disabledDates}
           selectButtonText={t("Assign")}
           onSelectReplacement={onSelectReplacement}
-          onCancel={onCancel}
-          currentReplacementEmployeeName={props.replacementEmployeeName}
+          onCancel={() => {
+            setVacancyDetailIdsToAssign(undefined);
+            setEmployeeToReplace(undefined);
+            onCancel();
+          }}
+          employeeToReplace={employeeToReplace}
+          vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
         />
       )}
     </>

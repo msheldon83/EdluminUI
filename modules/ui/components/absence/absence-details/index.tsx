@@ -1,6 +1,6 @@
 import { Button, Grid, makeStyles, Paper, Typography } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
-import { min, startOfDay } from "date-fns";
+import { min, startOfDay, parseISO } from "date-fns";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import {
   DayPart,
@@ -22,6 +22,8 @@ import { CreateAbsenceCalendar } from "../create-absence-calendar";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
+import { flatMap, uniq } from "lodash-es";
+import { vacanciesHaveMultipleAssignments } from "../helpers";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -68,15 +70,16 @@ type Props = {
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   onRemoveReplacement: (
-    replacementEmployeeId: string,
-    replacementEmployeeName?: string,
-    assignmentRowVersion?: string
-  ) => void;
+    assignmentId?: string,
+    assignmentRowVersion?: string,
+    vacancyDetailIds?: string[]
+  ) => Promise<void>;
   returnUrl?: string;
   isSubmitted: boolean;
   initialAbsenceCreation: boolean;
   onDelete?: () => void;
   onCancel?: () => void;
+  onAssignSubClick: (vacancyDetailIds?: string[], employeeToReplace?: string) => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -148,6 +151,17 @@ export const AbsenceDetails: React.FC<Props> = props => {
     }
     return { part: values.dayPart };
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
+
+  const isSplitVacancy = useMemo(() => {
+    return vacanciesHaveMultipleAssignments(props.vacancies);
+  }, [props.vacancies]);
+
+  const assignmentStartTime = useMemo(() => {
+    const details = props.vacancies[0]?.details;
+    const startTime =
+      details && details[0] ? details[0].startTimeLocal : undefined;
+    return startTime ? parseISO(startTime) : undefined;
+  }, [props.vacancies]);
 
   return (
     <Grid container>
@@ -227,7 +241,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           )}
         </Typography>
 
-        {props.replacementEmployeeId && (
+        {props.replacementEmployeeId && !isSplitVacancy && (
           <AssignedSub
             disableReplacementInteractions={
               props.disableReplacementInteractions
@@ -236,8 +250,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
             assignmentId={props.assignmentId}
             employeeName={props.replacementEmployeeName || ""}
             subText={props.arrangedSubText ?? t("pre-arranged")}
-            onRemove={props.onRemoveReplacement}
-            assignmentStartDate={startDate} //CLA - this is a hack and should eventually be using the assignment start date
+            onCancelAssignment={props.onRemoveReplacement}
+            assignmentStartDate={assignmentStartTime ?? startDate}
+            vacancies={props.vacancies}
           />
         )}
 
@@ -265,6 +280,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
             needsReplacement={needsReplacement}
             wantsReplacement={wantsReplacement}
             onSubstituteWantedChange={onSubstituteWantedChange}
+            onCancelAssignment={props.onRemoveReplacement}
+            isSplitVacancy={isSplitVacancy}
+            onAssignSubClick={props.onAssignSubClick}
           />
         </div>
       </Grid>

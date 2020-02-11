@@ -1,6 +1,7 @@
 query GetReplacementEmployeesForVacancy(
   $orgId: ID!
   $vacancyId: ID
+  $vacancyDetailIds: [ID]
   $vacancy: AbsenceVacancyInput
   $absentEmployeeId: ID
   $name: String
@@ -15,6 +16,7 @@ query GetReplacementEmployeesForVacancy(
       orgId: $orgId
       vacancyId: $vacancyId
       vacancy: $vacancy
+      vacancyDetailIds: $vacancyDetailIds
       absentEmployeeId: $absentEmployeeId
       name: $name
       qualified: $qualified

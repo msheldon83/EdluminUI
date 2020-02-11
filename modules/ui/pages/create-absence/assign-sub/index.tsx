@@ -8,7 +8,7 @@ import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useIsMobile } from "hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
@@ -26,6 +26,7 @@ type Props = {
   absenceId?: string;
   existingVacancy?: boolean;
   vacancies: Vacancy[];
+  vacancyDetailIdsToAssign?: string[];
   userIsAdmin: boolean;
   employeeName: string;
   employeeId?: string;
@@ -36,45 +37,11 @@ type Props = {
   onSelectReplacement: (
     replacementId: string,
     replacementName: string,
-    payCode: string | undefined
+    payCode: string | undefined,
+    vacancyDetailIds?: string[]
   ) => void;
   onCancel: () => void;
-  currentReplacementEmployeeName?: string;
-};
-
-const buildVacancyInput = (
-  vacancies: Vacancy[]
-): AbsenceVacancyInput | null => {
-  const vacancy = vacancies[0];
-  if (vacancy === undefined) {
-    return null;
-  }
-
-  return {
-    positionId: vacancy.positionId,
-    needsReplacement: true,
-    details: vacancy.details!.map(d => {
-      const startTimeLocal =
-        d && d.startTimeLocal ? convertStringToDate(d.startTimeLocal) : null;
-      const endTimeLocal =
-        d && d.endTimeLocal ? convertStringToDate(d.endTimeLocal) : null;
-
-      return {
-        date: startTimeLocal ? format(startTimeLocal, "P") : null,
-        startTime: startTimeLocal
-          ? secondsSinceMidnight(
-              parseTimeFromString(format(startTimeLocal, "h:mm a"))
-            )
-          : 0,
-        endTime: endTimeLocal
-          ? secondsSinceMidnight(
-              parseTimeFromString(format(endTimeLocal, "h:mm a"))
-            )
-          : 0,
-        locationId: d?.locationId ?? "",
-      };
-    }),
-  };
+  employeeToReplace?: string;
 };
 
 export const AssignSub: React.FC<Props> = props => {
@@ -88,6 +55,11 @@ export const AssignSub: React.FC<Props> = props => {
   const [searchFilter, updateSearch] = React.useState<
     ReplacementEmployeeFilters
   >();
+  const {
+    onSelectReplacement,
+    vacancyDetailIdsToAssign,
+    employeeToReplace = "",
+  } = props;
 
   const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
   const [
@@ -100,7 +72,8 @@ export const AssignSub: React.FC<Props> = props => {
   ] = React.useState();
   const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
 
-  if (props.vacancies.length === 0) {
+  // If we don't have any info, cancel the Assign Sub action
+  if (!props.vacancies || props.vacancies.length === 0) {
     props.onCancel();
   }
 
@@ -130,6 +103,7 @@ export const AssignSub: React.FC<Props> = props => {
         vacancy: !props.vacancies[0]?.id
           ? buildVacancyInput(props.vacancies)
           : undefined,
+        vacancyDetailIds: vacancyDetailIdsToAssign ?? undefined,
         absentEmployeeId: props.employeeId ?? undefined,
         name: searchFilter?.name,
         qualified: searchFilter?.name ? undefined : searchFilter?.qualified,
@@ -146,6 +120,7 @@ export const AssignSub: React.FC<Props> = props => {
 
   useEffect(() => {
     if (searchFilter) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       getReplacementEmployeesForVacancyQuery.refetch();
     }
   }, [searchFilter]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -180,29 +155,39 @@ export const AssignSub: React.FC<Props> = props => {
     }));
   }, [replacementEmployees]);
 
-  const selectReplacementEmployee = async (
-    replacementEmployeeId: string,
-    name: string,
-    payCodeId: string | undefined
-  ) => {
-    props.onSelectReplacement(replacementEmployeeId, name, payCodeId);
-  };
+  const selectReplacementEmployee = useCallback(
+    async (
+      replacementEmployeeId: string,
+      name: string,
+      payCodeId: string | undefined
+    ) => {
+      onSelectReplacement(
+        replacementEmployeeId,
+        name,
+        payCodeId,
+        vacancyDetailIdsToAssign
+      );
+    },
+    [onSelectReplacement, vacancyDetailIdsToAssign]
+  );
 
-  const confirmReassign = async (
-    replacementEmployeeId: string,
-    name: string,
-    payCodeId: string | undefined
-  ) => {
-    if (props.currentReplacementEmployeeName) {
-      setReplacementEmployeeName(name);
-      setReplacementEmployeePayCode(payCodeId);
-      setReplacementEmployeeId(replacementEmployeeId);
-      setDialogIsOpen(true);
-    } else {
-      await selectReplacementEmployee(replacementEmployeeId, name, payCodeId);
-    }
-    selectReplacementEmployee;
-  };
+  const confirmReassign = useCallback(
+    async (
+      replacementEmployeeId: string,
+      name: string,
+      payCodeId: string | undefined
+    ) => {
+      if (employeeToReplace) {
+        setReplacementEmployeeName(name);
+        setReplacementEmployeePayCode(payCodeId);
+        setReplacementEmployeeId(replacementEmployeeId);
+        setDialogIsOpen(true);
+      } else {
+        await selectReplacementEmployee(replacementEmployeeId, name, payCodeId);
+      }
+    },
+    [selectReplacementEmployee, employeeToReplace]
+  );
 
   const setSearch = (filters: ReplacementEmployeeFilters) => {
     updateSearch(filters);
@@ -225,6 +210,7 @@ export const AssignSub: React.FC<Props> = props => {
         >
           <VacancyDetails
             vacancies={props.vacancies}
+            vacancyDetailIds={vacancyDetailIdsToAssign}
             positionName={props.positionName}
             gridRef={vacancyDetailsRef}
             showHeader
@@ -268,11 +254,12 @@ export const AssignSub: React.FC<Props> = props => {
     [
       isMobile,
       props.userIsAdmin,
-      selectReplacementEmployee,
       theme,
       classes,
       t,
       tableData,
+      confirmReassign,
+      selectTitle,
     ]
   );
 
@@ -294,7 +281,7 @@ export const AssignSub: React.FC<Props> = props => {
             replacementEmployeePayCode
           );
         }}
-        currentReplacementEmployee={props.currentReplacementEmployeeName!}
+        currentReplacementEmployee={employeeToReplace}
         newReplacementEmployee={replacementEmployeeName}
       />
       <div className={classes.header}>
@@ -379,6 +366,7 @@ const useStyles = makeStyles(theme => ({
     border: `${theme.typography.pxToRem(1)} solid ${
       theme.customColors.medLightGray
     }`,
+    paddingBottom: theme.spacing(),
   },
   viewAllDetails: {
     cursor: "pointer",
@@ -395,3 +383,38 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
 }));
+
+const buildVacancyInput = (
+  vacancies: Vacancy[]
+): AbsenceVacancyInput | null => {
+  const vacancy = vacancies[0];
+  if (vacancy === undefined) {
+    return null;
+  }
+
+  return {
+    positionId: vacancy.positionId,
+    needsReplacement: true,
+    details: vacancy.details!.map(d => {
+      const startTimeLocal =
+        d && d.startTimeLocal ? convertStringToDate(d.startTimeLocal) : null;
+      const endTimeLocal =
+        d && d.endTimeLocal ? convertStringToDate(d.endTimeLocal) : null;
+
+      return {
+        date: startTimeLocal ? format(startTimeLocal, "P") : null,
+        startTime: startTimeLocal
+          ? secondsSinceMidnight(
+              parseTimeFromString(format(startTimeLocal, "h:mm a"))
+            )
+          : 0,
+        endTime: endTimeLocal
+          ? secondsSinceMidnight(
+              parseTimeFromString(format(endTimeLocal, "h:mm a"))
+            )
+          : 0,
+        locationId: d?.locationId ?? "",
+      };
+    }),
+  };
+};
