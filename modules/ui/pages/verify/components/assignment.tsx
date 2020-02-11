@@ -412,6 +412,7 @@ export const Assignment: React.FC<Props> = props => {
                   <Grid item xs={3} className={classes.displayFlex}>
                     <Grid
                       item
+                      className={classes.topMargin}
                       xs={
                         payTypeId === AbsenceReasonTrackingTypeId.Daily ? 12 : 8
                       }
@@ -451,15 +452,15 @@ export const Assignment: React.FC<Props> = props => {
                     </Grid>
                     {payTypeId === AbsenceReasonTrackingTypeId.Hourly ? (
                       <>
-                        <Can do={[PermissionEnum.AbsVacSavePayCode]}>
-                          <Grid item xs={3} className={classes.hourlyInput}>
+                        <Grid item xs={3} className={classes.hourlyInput}>
+                          <Can do={[PermissionEnum.AbsVacSavePayCode]}>
                             <Input
                               value={values.payDurationOverrideHours ?? ""}
                               InputComponent={FormTextField}
+                              classes={{ root: classes.root }}
                               inputComponentProps={{
                                 name: "payDurationOverrideHours",
                                 margin: "normal",
-                                label: t("Hours"),
                                 fullWidth: true,
                               }}
                               onChange={(
@@ -483,8 +484,8 @@ export const Assignment: React.FC<Props> = props => {
                                 )
                               }
                             />
-                          </Grid>
-                        </Can>
+                          </Can>
+                        </Grid>
                       </>
                     ) : (
                       <></>
@@ -646,5 +647,8 @@ export const useStyles = makeStyles(theme => ({
   hourlyInput: {
     paddingLeft: theme.spacing(2),
     paddingTop: "5px",
+  },
+  topMargin: {
+    marginTop: "5px",
   },
 }));
