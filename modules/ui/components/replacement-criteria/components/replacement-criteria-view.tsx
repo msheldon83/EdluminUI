@@ -14,6 +14,8 @@ type Props = {
 type Endorsement = {
   id: string;
   name: string;
+  inherited?: boolean;
+  inheritedFromName?: string;
 };
 
 export const ReplacementCriteriaView: React.FC<Props> = props => {
@@ -24,16 +26,35 @@ export const ReplacementCriteriaView: React.FC<Props> = props => {
     return [...props.attributes].filter(e => e !== endorsement).map(a => a.id);
   };
 
+  // Find the duplicate names
+  const duplicateNames = props.attributes.filter(
+    (e, i, a) => a.findIndex(x => x.name === e.name) !== i
+  );
+
+  // Filter out duplicates but leave the inherited attributes
+  const filteredAttributes = props.attributes.reduce(
+    (acc: Endorsement[], val: Endorsement) => {
+      if (val.inherited) {
+        return [...acc, val];
+      } else {
+        return duplicateNames.find(r => r.name === val.name)
+          ? acc
+          : [...acc, val];
+      }
+    },
+    []
+  );
+
   return (
     <>
       <Grid item xs={12}>
         <Section>
           <SectionHeader title={props.label} />
           <Grid item xs={12}>
-            {props.attributes?.length === 0 ? (
+            {filteredAttributes?.length === 0 ? (
               <div className={classes.allOrNoneRow}>{t("No Attributes")}</div>
             ) : (
-              props.attributes?.map((n, i) => (
+              filteredAttributes?.map((n, i) => (
                 <div
                   key={i}
                   className={`${classes.endorsementRow} ${getRowClasses(
@@ -42,14 +63,20 @@ export const ReplacementCriteriaView: React.FC<Props> = props => {
                   )}`}
                 >
                   <div>{n.name}</div>
-                  <div>
-                    <TextButton
-                      className={classes.link}
-                      onClick={() => props.remove(removeEndorsement(n))}
-                    >
-                      {t("Remove")}
-                    </TextButton>
-                  </div>
+                  {n.inherited ? (
+                    <div className={classes.inheritedText}>{`${t(
+                      "Inherited from "
+                    )} ${n.inheritedFromName}`}</div>
+                  ) : (
+                    <div>
+                      <TextButton
+                        className={classes.link}
+                        onClick={() => props.remove(removeEndorsement(n))}
+                      >
+                        {t("Remove")}
+                      </TextButton>
+                    </div>
+                  )}
                 </div>
               ))
             )}
@@ -93,6 +120,9 @@ const useStyles = makeStyles(theme => ({
   row: {
     width: "100%",
     padding: theme.spacing(),
+  },
+  inheritedText: {
+    color: "#9E9E9E",
   },
 }));
 
