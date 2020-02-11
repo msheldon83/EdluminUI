@@ -374,6 +374,14 @@ export const UserViewPage: React.FC<Props> = props => {
               })}
             </Typography>
           )}
+          {user?.temporaryPassword && (
+            <div>
+              <span className={classes.fieldLabel}>
+                {t("Temporary Password")}:
+              </span>{" "}
+              {user?.temporaryPassword}
+            </div>
+          )}
           {resetPasswordTicketUrl.length > 0 && (
             <>
               <div>

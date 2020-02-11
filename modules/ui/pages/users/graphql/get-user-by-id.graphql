@@ -16,6 +16,7 @@ query GetUserById($id: ID!) {
       timeZoneId
       resetPasswordTicketUrl
       resetPasswordTicketUrlGeneratedAtUtc
+      temporaryPassword
       rowVersion
       orgUsers {
         id
