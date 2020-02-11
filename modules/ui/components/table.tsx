@@ -103,6 +103,7 @@ const tableIcons: Icons = {
 
 export function Table<T extends object>(props: TableProps<T>) {
   const classes = useStyles();
+  const overrideStyles = rootStyles();
   const theme = useTheme();
   const { t } = useTranslation();
   const userAccess = useMyUserAccess();
@@ -265,7 +266,13 @@ export function Table<T extends object>(props: TableProps<T>) {
               expiredRowCheckFunc && expiredRowCheckFunc(props.data),
             [classes.tableRow]: true,
           });
-          return <MTableBodyRow className={classNames} {...props} />;
+          return (
+            <MTableBodyRow
+              className={classNames}
+              {...props}
+              classes={{ root: overrideStyles.root }}
+            />
+          );
         },
         Cell: props => <MTableCell {...props} className={classes.cell} />,
         Toolbar: props => {
@@ -279,6 +286,12 @@ export function Table<T extends object>(props: TableProps<T>) {
     />
   );
 }
+
+const rootStyles = makeStyles(theme => ({
+  root: {
+    opacity: `${1.0} !important`,
+  },
+}));
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -306,5 +319,8 @@ const useStyles = makeStyles(theme => ({
     borderBottom: 0,
     paddingBottom: theme.spacing(1.7),
     paddingTop: theme.spacing(1.7),
+  },
+  opacity: {
+    opacity: 1.0,
   },
 }));
