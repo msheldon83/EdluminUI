@@ -10,6 +10,7 @@ import {
 import createAuth0Client from "@auth0/auth0-spa-js";
 import Auth0Client from "@auth0/auth0-spa-js/dist/typings/Auth0Client";
 import { History } from "history";
+import * as QueryString from "querystring";
 
 export type Auth0Context = {
   isAuthenticated: boolean;
@@ -139,10 +140,32 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
           AFTER_AUTH_REDIRECT_URL,
           `${pathname}${search}${hash}`
         );
+
+        // Determine if we have any information from Auth0
+        // that we need to pass along in the Authorize request
+        let prefilledEmail: string | undefined = undefined;
+        let isPasswordReset: string | undefined = undefined;
+        if (search) {
+          // Remove any "?" from the string
+          const cleanedSearchString = search.replace(/\?/g, "");
+          const parseQuerystring = QueryString.parse(cleanedSearchString);
+          if (parseQuerystring?.email) {
+            prefilledEmail = parseQuerystring.email.toString();
+          }
+          if (
+            parseQuerystring?.success === "true" &&
+            parseQuerystring?.isPasswordReset === "true"
+          ) {
+            isPasswordReset = "true";
+          }
+        }
+
         return state.client.loginWithRedirect({
           audience: Config.Auth0.apiAudience,
           redirect_uri: Config.Auth0.redirectUrl,
           scope: Config.Auth0.scope,
+          login_hint: prefilledEmail,
+          isPasswordReset: isPasswordReset,
         });
       }
     },

@@ -6,9 +6,11 @@ query GetAdminById($id: ID!) {
       externalId
       userId
       loginEmail
+      temporaryPassword
       administrator {
         id
         orgId
+        active
         email
         address1
         city

@@ -92,7 +92,7 @@ type AbsenceQueries {
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
   projectedVacancies(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): [Vacancy]
-  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancy: AbsenceVacancyInput, absentEmployeeId: ID, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
+  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: AbsenceVacancyInput, absentEmployeeId: ID, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   projectedAbsence(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): Absence
   dailyReport(orgId: ID!, date: Date!, locationIds: [ID], positionTypeIds: [ID]): DailyReport
   subSignInReport(orgId: ID!, date: Date!, locationIds: [ID]): [VacancyDetail]
@@ -2339,6 +2339,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   lastName: String!
   userId: ID
   loginEmail: String
+  temporaryPassword: String
   isReplacementEmployee: Boolean!
   isEmployee: Boolean!
   isAdmin: Boolean!
@@ -4580,6 +4581,7 @@ type User implements ModelObjectInterface {
   eulaAccepted: Boolean!
   resetPasswordTicketUrl: String
   resetPasswordTicketUrlGeneratedAtUtc: DateTime
+  temporaryPassword: String
 }
 
 type UserAccess {

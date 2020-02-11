@@ -106,6 +106,7 @@ export const SubstituteTab: React.FC<Props> = props => {
         selectedRole={props.selectedRole}
         editPermissions={[PermissionEnum.SubstituteSave]}
         onSubmit={onUpdateSubstitute}
+        temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
       <SubPositionsAttributes
         editing={props.editing}

@@ -25,6 +25,7 @@ query GetOrgUserById($id: ID!) {
       inviteSent
       inviteSentAtUtc
       isAccountSetup
+      temporaryPassword
     }
   }
 }
