@@ -7,6 +7,7 @@ import {
   OrgUserRole,
   SubstituteInput,
   PermissionEnum,
+  OrganizationRelationshipType,
 } from "graphql/server-types.gen";
 import { GetSubstituteById } from "../graphql/substitute/get-substitute-by-id.gen";
 import { SaveSubstitute } from "../graphql/substitute/save-substitute.gen";
@@ -29,6 +30,7 @@ import {
   PersonViewRoute,
 } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
+import { GetOrganizationRelationships } from "../graphql/substitute/get-org-relationships.gen";
 
 type Props = {
   editing: string | null;
@@ -51,6 +53,18 @@ export const SubstituteTab: React.FC<Props> = props => {
   const getSubstitute = useQueryBundle(GetSubstituteById, {
     variables: { id: props.orgUserId },
   });
+
+  const getOrgRelationships = useQueryBundle(GetOrganizationRelationships, {
+    variables: { orgId: params.organizationId },
+  });
+  const showRelatedOrgs =
+    getOrgRelationships.state === "LOADING"
+      ? false
+      : getOrgRelationships?.data?.organizationRelationship?.all?.find(
+          x => x?.relationshipType === OrganizationRelationshipType.Services
+        )
+      ? true
+      : false;
 
   /*added for upcoming assignments*/
 
@@ -117,10 +131,12 @@ export const SubstituteTab: React.FC<Props> = props => {
         editing={props.editing}
         substitutePoolMembership={substitute.substitutePoolMembership}
       />
-      <OrganizationList
-        editing={props.editing}
-        orgs={orgUser.relatedOrganizations}
-      />
+      {showRelatedOrgs && (
+        <OrganizationList
+          editing={props.editing}
+          orgs={orgUser.relatedOrganizations}
+        />
+      )}
       {endDate && (
         <Section>
           <SectionHeader
