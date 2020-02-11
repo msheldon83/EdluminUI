@@ -177,7 +177,7 @@ export const DayPartField: React.FC<Props> = props => {
           if (type === DayPart.FullDay && !showFullDayOption) {
             return <div key={type}></div>;
           }
-          if (timeDisplay) {
+          if (timeDisplay || type === DayPart.Hourly) {
             return (
               <Grid
                 container
