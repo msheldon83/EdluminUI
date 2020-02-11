@@ -645,8 +645,8 @@ export const useStyles = makeStyles(theme => ({
     display: "flex",
   },
   hourlyInput: {
-    paddingLeft: theme.spacing(2),
-    paddingTop: "5px",
+    marginLeft: "18px",
+    marginTop: "25px",
   },
   topMargin: {
     marginTop: "5px",
