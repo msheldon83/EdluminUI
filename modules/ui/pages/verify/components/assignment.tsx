@@ -339,77 +339,61 @@ export const Assignment: React.FC<Props> = props => {
               className={classes.container}
             >
               <Grid item xs={2}>
-                <Typography className={classes.lightText}>
-                  {`${t("Absence")} #${vacancyDetail.vacancy!.absence!.id}`}
-                </Typography>
-                <Typography className={classes.regularText}>{`${t(
-                  "Assignment"
-                )} #C${vacancyDetail.assignment!.id}`}</Typography>
+                <Typography className={classes.boldText}>{`
+                 #C${vacancyDetail.assignment!.id}`}</Typography>
               </Grid>
               <Grid item xs={2}>
-                <Typography className={classes.lightText}>
+                <Typography className={classes.boldText}>
                   {`${vacancyDetail.vacancy!.absence!.employee!.firstName} ${
                     vacancyDetail.vacancy!.absence!.employee!.lastName
                   }`}
                 </Typography>
-                <Typography className={classes.boldText}>{`${
+                <Typography className={classes.lightText}>{`${
                   vacancyDetail.assignment!.employee!.firstName
                 } ${vacancyDetail.assignment!.employee!.lastName}`}</Typography>
               </Grid>
               <Grid item xs={3}>
-                <Typography className={classes.lightText}>
-                  {`${getDisplayName(
-                    "dayPart",
-                    absenceDetail!.dayPartId!.toString(),
-                    t
-                  )} (${format(absenceDetailStartTime, "h:mmaaa")}-${format(
-                    absenceDetailEndTime,
-                    "h:mmaaa"
-                  )})`}
-                </Typography>
                 <Typography className={classes.regularText}>{`${format(
                   vacancyDetailStartTime,
                   "h:mm aaa"
                 )} - ${format(vacancyDetailEndTime, "h:mm aaa")}`}</Typography>
                 {!isActiveCard && (
-                  <Typography className={classes.boldText}>
-                    {payLabel}
+                  <Typography className={classes.lightText}>
+                    {t("Pay: " + payLabel + "")}
                   </Typography>
                 )}
               </Grid>
               <Grid item xs={2}>
-                <Typography className={classes.lightText}>
+                <Typography className={classes.regularText}>
                   {vacancyDetail.vacancy!.position!.title}
                 </Typography>
                 {!isActiveCard && (
                   <Typography
-                    className={classes.boldText}
-                  >{`Pay: ${payCodeLabel ?? t("N/A")}`}</Typography>
+                    className={classes.lightText}
+                  >{`Code: ${payCodeLabel ?? t("N/A")}`}</Typography>
                 )}
               </Grid>
               <Grid item xs={2}>
-                <Typography className={classes.lightText}>
+                <Typography className={classes.regularText}>
                   {vacancyDetail.location!.name}
                 </Typography>
                 {!isActiveCard && (
                   <Typography
-                    className={classes.boldText}
+                    className={classes.lightText}
                   >{`Acct: ${accountingCodeLabel ?? t("N/A")}`}</Typography>
                 )}
               </Grid>
               <Grid item xs={1}>
-                {!isActiveCard && (
-                  <Button
-                    variant={isActiveCard ? "contained" : "outlined"}
-                    type="submit"
-                    onClick={event => {
-                      event.stopPropagation();
-                      onsubmit;
-                    }}
-                  >
-                    {notVerified ? t("Verify") : t("Undo verify")}
-                  </Button>
-                )}
+                <Button
+                  variant={isActiveCard ? "contained" : "outlined"}
+                  type="submit"
+                  onClick={event => {
+                    event.stopPropagation();
+                    onsubmit;
+                  }}
+                >
+                  {notVerified ? t("Verify") : t("Undo verify")}
+                </Button>
               </Grid>
             </Grid>
             {isActiveCard && (
@@ -424,95 +408,95 @@ export const Assignment: React.FC<Props> = props => {
                     classes.container,
                   ].join(" ")}
                 >
-                  <Grid item xs={2}></Grid>
-
-                  <Grid item xs={2}>
-                    <Can do={[PermissionEnum.AbsVacSave]}>
-                      <SelectNew
-                        value={dayConversionOptions.find(
-                          a => a.label === selectedDayConversionName
-                        )}
-                        onChange={async (e: OptionType) => {
-                          //TODO: Once the select component is updated,
-                          // can remove the Array checking
-                          let selectedLabel: string | undefined = undefined;
-                          if (e) {
-                            if (Array.isArray(e)) {
-                              selectedLabel = (e as Array<OptionTypeBase>)[0]
-                                .label;
-                            } else {
-                              selectedLabel = (e as OptionTypeBase).label;
+                  <Grid item xs={4}></Grid>
+                  <Grid item xs={3} className={classes.displayFlex}>
+                    <Grid
+                      item
+                      className={classes.topMargin}
+                      xs={
+                        payTypeId === AbsenceReasonTrackingTypeId.Daily ? 12 : 8
+                      }
+                    >
+                      <Can do={[PermissionEnum.AbsVacSave]}>
+                        <Typography className={classes.boldText}>
+                          {t("Pay:")}
+                        </Typography>
+                        <SelectNew
+                          value={dayConversionOptions.find(
+                            a => a.label === selectedDayConversionName
+                          )}
+                          onChange={async (e: OptionType) => {
+                            //TODO: Once the select component is updated,
+                            // can remove the Array checking
+                            let selectedLabel: string | undefined = undefined;
+                            if (e) {
+                              if (Array.isArray(e)) {
+                                selectedLabel = (e as Array<OptionTypeBase>)[0]
+                                  .label;
+                              } else {
+                                selectedLabel = (e as OptionTypeBase).label;
+                              }
                             }
-                          }
-                          setSelectedDayConversionName(selectedLabel);
-                          await handleDaysUpdate(
-                            values.dayPortion,
-                            values.payDurationOverrideHours,
-                            selectedLabel
-                          );
-                        }}
-                        options={dayConversionOptions}
-                        multiple={false}
-                        withResetValue={false}
-                      />
-                    </Can>
-                    <Can not do={[PermissionEnum.AbsVacSave]}>
-                      <Typography className={classes.boldText}>
-                        {selectedDayConversionName}
-                      </Typography>
-                    </Can>
-                  </Grid>
-
-                  <Grid item xs={3}>
-                    {payTypeId === AbsenceReasonTrackingTypeId.Daily ? (
-                      <Typography className={classes.boldText}>
-                        {payLabel}
-                      </Typography>
-                    ) : (
+                            setSelectedDayConversionName(selectedLabel);
+                            await handleDaysUpdate(
+                              values.dayPortion,
+                              values.payDurationOverrideHours,
+                              selectedLabel
+                            );
+                          }}
+                          options={dayConversionOptions}
+                          multiple={false}
+                          withResetValue={false}
+                        />
+                      </Can>
+                    </Grid>
+                    {payTypeId === AbsenceReasonTrackingTypeId.Hourly ? (
                       <>
-                        <Can do={[PermissionEnum.AbsVacSave]}>
-                          <Input
-                            value={values.payDurationOverrideHours ?? ""}
-                            InputComponent={FormTextField}
-                            inputComponentProps={{
-                              name: "payDurationOverrideHours",
-                              margin: "normal",
-                              label: t("Hours"),
-                              fullWidth: true,
-                            }}
-                            onChange={(
-                              event: React.ChangeEvent<HTMLInputElement>
-                            ) => {
-                              setFieldValue(
-                                "payDurationOverrideHours",
-                                event.target.value
-                                  ? event.target.value
-                                  : minutesToHours(
-                                      vacancyDetail.actualDuration ?? undefined
-                                    )
-                              );
-                            }}
-                            onBlur={() =>
-                              handleDaysUpdate(
-                                values.dayPortion,
-                                values.payDurationOverrideHours,
-                                selectedDayConversionName
-                              )
-                            }
-                          />
-                        </Can>
-                        <Can not do={[PermissionEnum.AbsVacSave]}>
-                          <Typography className={classes.boldText}>
-                            {payLabel}
-                          </Typography>
-                        </Can>
+                        <Grid item xs={3} className={classes.hourlyInput}>
+                          <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+                            <Input
+                              value={values.payDurationOverrideHours ?? ""}
+                              InputComponent={FormTextField}
+                              classes={{ root: classes.root }}
+                              inputComponentProps={{
+                                name: "payDurationOverrideHours",
+                                margin: "normal",
+                                fullWidth: true,
+                              }}
+                              onChange={(
+                                event: React.ChangeEvent<HTMLInputElement>
+                              ) => {
+                                setFieldValue(
+                                  "payDurationOverrideHours",
+                                  event.target.value
+                                    ? event.target.value
+                                    : minutesToHours(
+                                        vacancyDetail.actualDuration ??
+                                          undefined
+                                      )
+                                );
+                              }}
+                              onBlur={() =>
+                                handleDaysUpdate(
+                                  values.dayPortion,
+                                  values.payDurationOverrideHours,
+                                  selectedDayConversionName
+                                )
+                              }
+                            />
+                          </Can>
+                        </Grid>
                       </>
+                    ) : (
+                      <></>
                     )}
                   </Grid>
                   <Grid item xs={2}>
                     <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+                      <Typography className={classes.boldText}>
+                        {t("Pay code:")}
+                      </Typography>
                       <SelectNew
-                        label={t("Pay Code")}
                         value={{
                           value: values.payCodeId ?? "",
                           label:
@@ -547,8 +531,10 @@ export const Assignment: React.FC<Props> = props => {
                   </Grid>
                   <Grid item xs={2}>
                     <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
+                      <Typography className={classes.boldText}>
+                        {t("Accounting code:")}
+                      </Typography>
                       <SelectNew
-                        label={t("Accounting Code")}
                         value={{
                           value: values.accountingCodeId ?? "",
                           label:
@@ -596,14 +582,17 @@ export const Assignment: React.FC<Props> = props => {
                   <Grid item xs={4}></Grid>
                   <Grid item xs={7}>
                     <Can do={[PermissionEnum.AbsVacSave]}>
+                      <Typography className={classes.boldText}>
+                        {t("Comments:")}
+                      </Typography>
                       <Input
                         value={values.verifyComments}
                         InputComponent={FormTextField}
+                        classes={{ root: classes.root }}
                         inputComponentProps={{
                           name: "verifyComments",
                           margin: "normal",
                           fullWidth: true,
-                          placeholder: t("Comments"),
                         }}
                         onBlur={() =>
                           handleCommentsOnBlur(values.verifyComments)
@@ -611,14 +600,7 @@ export const Assignment: React.FC<Props> = props => {
                       />
                     </Can>
                   </Grid>
-                  <Grid item xs={1}>
-                    <Button
-                      variant={isActiveCard ? "contained" : "outlined"}
-                      type="submit"
-                    >
-                      {notVerified ? t("Verify") : t("Undo verify")}
-                    </Button>
-                  </Grid>
+                  <Grid item xs={1}></Grid>
                 </Grid>
               </div>
             )}
@@ -656,4 +638,17 @@ export const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(1),
   },
   container: { width: "100%" },
+  root: {
+    marginTop: "0px",
+  },
+  displayFlex: {
+    display: "flex",
+  },
+  hourlyInput: {
+    marginLeft: "18px",
+    marginTop: "25px",
+  },
+  topMargin: {
+    marginTop: "5px",
+  },
 }));
