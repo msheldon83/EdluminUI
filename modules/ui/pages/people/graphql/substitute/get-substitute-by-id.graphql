@@ -6,6 +6,7 @@ query GetSubstituteById($id: ID!) {
       orgId
       userId
       loginEmail
+      temporaryPassword
       createdUtc
       relatedOrganizations {
         id
@@ -14,6 +15,7 @@ query GetSubstituteById($id: ID!) {
       substitute {
         id
         orgId
+        active
         email
         address1
         city

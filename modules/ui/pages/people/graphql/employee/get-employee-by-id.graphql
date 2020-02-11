@@ -6,9 +6,11 @@ query GetEmployeeById($id: ID!) {
       orgId
       userId
       loginEmail
+      temporaryPassword
       employee {
         id
         orgId
+        active
         email
         address1
         city

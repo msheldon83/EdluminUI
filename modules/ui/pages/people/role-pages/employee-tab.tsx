@@ -86,6 +86,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         selectedRole={props.selectedRole}
         editPermissions={[PermissionEnum.EmployeeSave]}
         onSubmit={onUpdateEmployee}
+        temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
       <Position
         editing={props.editing}
