@@ -3,6 +3,7 @@ mutation UpdateLocation($location: LocationUpdateInput!) {
     update(location: $location) {
       id
       name
+      externalId
     }
   }
 }
