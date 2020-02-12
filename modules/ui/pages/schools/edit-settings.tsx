@@ -38,7 +38,6 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
     refetchQueries: ["GetLocationById"],
   });
 
-  //Mutations for Create Only
   const update = async (location: LocationUpdateInput) => {
     const result = await updateLocation({
       variables: {
@@ -85,7 +84,6 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
     phoneNumber: location?.phoneNumber,
   };
 
-  //return Add-Settings Component
   return (
     <>
       <div className={classes.header}>
@@ -104,7 +102,6 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
           phoneNumber?: string | null
         ) => {
           const updateLocation: LocationUpdateInput = {
-            //...location,
             id: location?.id ?? "",
             rowVersion: location?.rowVersion ?? "",
             address: {
