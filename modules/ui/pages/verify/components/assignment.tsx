@@ -347,13 +347,15 @@ export const Assignment: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.boldText}>
-                  {`${vacancyDetail.vacancy!.absence!.employee!.firstName} ${
-                    vacancyDetail.vacancy!.absence!.employee!.lastName
+                  {`${vacancyDetail.assignment!.employee!.firstName} ${
+                    vacancyDetail.assignment!.employee!.lastName
                   }`}
                 </Typography>
                 <Typography className={classes.lightText}>{`for ${
-                  vacancyDetail.assignment!.employee!.firstName
-                } ${vacancyDetail.assignment!.employee!.lastName}`}</Typography>
+                  vacancyDetail.vacancy!.absence!.employee!.firstName
+                } ${
+                  vacancyDetail.vacancy!.absence!.employee!.lastName
+                }`}</Typography>
                 {absenceReason ? (
                   <Typography
                     className={classes.lightText}
