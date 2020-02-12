@@ -164,7 +164,8 @@ const useStyles = makeStyles(theme => ({
   },
   icon: {
     minWidth: 0,
-    paddingRight: theme.spacing(1.5),
+    // There's some width issues with svgs and text, so this makes it look nicer
+    paddingRight: `calc(${theme.spacing(1.5)}px + 1px)`,
     color: "inherit",
   },
   text: {

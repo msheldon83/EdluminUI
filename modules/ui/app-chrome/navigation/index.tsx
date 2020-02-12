@@ -50,7 +50,7 @@ export const NavigationSideBar: React.FC<Props> = props => {
         }}
       >
         <RedRoverLogo
-          className={classes.logo}
+          className={props.expanded ? classes.logoLarge : classes.logoSmall}
           size={props.expanded ? "large" : "small"}
         />
         <RoleSwitcher expanded={props.expanded} />
@@ -70,11 +70,13 @@ const useStyles = makeStyles(theme => ({
   },
   drawer: {
     background: theme.customColors.edluminSlate,
+    borderRightWidth: 0,
     flexShrink: 0,
   },
   drawerOpen: {
     width: theme.typography.pxToRem(258),
     overflowX: "hidden",
+    willChange: "width",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
@@ -87,13 +89,22 @@ const useStyles = makeStyles(theme => ({
     }),
     overflowX: "hidden",
     width: theme.spacing(7) + 1,
+
     [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9) + 1,
+      width: theme.typography.pxToRem(53),
     },
   },
-  logo: {
+  logoLarge: {
     marginBottom: theme.spacing(1.5),
-    marginLeft: theme.spacing(1),
+    marginLeft: theme.spacing(0.5),
+    transition: theme.transitions.create("margin-left", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.short,
+    }),
+  },
+  logoSmall: {
+    marginBottom: theme.spacing(1.5),
+    marginLeft: 0,
   },
   spacing: {
     marginLeft: theme.typography.pxToRem(23),
