@@ -40,7 +40,6 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
 
   //Mutations for Create Only
   const update = async (location: LocationUpdateInput) => {
-    console.log(location);
     const result = await updateLocation({
       variables: {
         location: {
