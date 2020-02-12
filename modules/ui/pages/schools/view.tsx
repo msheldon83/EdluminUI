@@ -134,7 +134,11 @@ export const LocationViewPage: React.FC<{}> = props => {
         label={t("External ID")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
-        editPermissions={[PermissionEnum.LocationSave]}
+        editPermissions={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) => can([PermissionEnum.LocationSave], permissions, isSysAdmin, orgId)}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
