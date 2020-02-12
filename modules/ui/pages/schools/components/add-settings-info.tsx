@@ -54,8 +54,6 @@ export const AddSettingsInfo: React.FC<Props> = props => {
     return phoneNumber.replace(/\D/g, "");
   };
 
-  console.log(props.location);
-
   return (
     <Section>
       <SectionHeader title={t("Settings")} />

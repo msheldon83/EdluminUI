@@ -34,10 +34,13 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
+    awaitRefetchQueries: true,
+    refetchQueries: ["GetLocationById"],
   });
 
   //Mutations for Create Only
   const update = async (location: LocationUpdateInput) => {
+    console.log(location);
     const result = await updateLocation({
       variables: {
         location: {
@@ -72,26 +75,22 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
 
   const location = getLocation?.data?.location?.byId;
 
-  //console.log(location);
-
   const locationObject = {
-    location: {
-      address: {
-        address1: location?.address1,
-        city: location?.city,
-        state: location?.stateName,
-        postalCode: location?.postalCode,
-      },
-      //locationGroupId: location?.locationGroup?[0]?.id,
-      phoneNumber: location?.phoneNumber,
+    address: {
+      address1: location?.address1,
+      city: location?.city,
+      state: location?.state,
+      postalCode: location?.postalCode,
     },
+    locationGroupId: location?.locationGroup?.id,
+    phoneNumber: location?.phoneNumber,
   };
 
   //return Add-Settings Component
   return (
     <>
       <div className={classes.header}>
-        <PageTitle title={location?.name} />
+        <PageTitle title={location?.name ?? ""} />
       </div>
       <AddSettingsInfo
         location={locationObject}
@@ -103,22 +102,23 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
           city?: string | null,
           state?: StateCode | null,
           postalCode?: string | null,
-          phoneNumber?: string | null,
-          replacementStartOffsetMinutes?: number | null,
-          replacementEndOffsetMinutes?: number | null
+          phoneNumber?: string | null
         ) => {
           const updateLocation: LocationUpdateInput = {
-            ...location,
-            id: location.id,
-            rowVersion: location.rowVerion,
-            address1: address1,
-            city: city,
-            state: state,
-            postalCode: postalCode,
-            country: CountryCode.Us,
+            //...location,
+            id: location?.id ?? "",
+            rowVersion: location?.rowVersion ?? "",
+            address: {
+              address1: address1,
+              city: city,
+              state: state,
+              postalCode: postalCode,
+              country: CountryCode.Us,
+            },
             phoneNumber: phoneNumber,
             locationGroupId: locationGroupId,
           };
+
           // Update the Location
           await update(updateLocation);
           const viewParams = {

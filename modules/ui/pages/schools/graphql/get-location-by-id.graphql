@@ -8,6 +8,7 @@ query GetLocationById($locationId: ID!) {
       address2
       city
       stateName
+      state
       postalCode
       phoneNumber
       formattedPhone

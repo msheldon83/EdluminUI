@@ -1613,6 +1613,7 @@ enum EventType {
   VACANCY_ASSIGNMENT_CREATED
   VACANCY_ASSIGNMENT_UPDATED
   VACANCY_ASSIGNMENT_CANCELLED
+  VACANCY_ASSIGNMENT_DELETED
   ABSENCE_CREATED
   ABSENCE_UPDATED
   ABSENCE_DELETED
@@ -1787,6 +1788,8 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   address2: String
   city: String
   stateName: String
+  state: StateCode
+  country: CountryCode
   postalCode: String
   countryName: String
   validUntil: DateTime
@@ -3275,6 +3278,7 @@ input PositionScheduleItemInput {
   endPeriod: LocatorInput
   startTime: Int
   endTime: Int
+  nextStartTime: Int
 }
 
 type PositionScheduleMutations {
@@ -3386,7 +3390,10 @@ type PositionScheduleVariantPeriod implements ModelObjectInterface & OrgObjectIn
   sequence: Int
   startTime: Seconds!
   endTime: Seconds!
+  nextStartTime: Seconds
   duration: Int
+  travelDuration: Int
+  totalDuration: Int
   dayPortion: Decimal!
   isHalfDayMorningEnd: Boolean!
   isHalfDayAfternoonStart: Boolean!
