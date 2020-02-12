@@ -80,6 +80,11 @@ query GetVacancyDetails(
             endTimeLocal
             dayPortion
             dayPartId
+            reasonUsages {
+              absenceReason {
+                name
+              }
+            }
           }
         }
         payInfoSummary {
