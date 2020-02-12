@@ -126,6 +126,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const [errorBannerOpen, setErrorBannerOpen] = useState(false);
   const [absenceErrors, setAbsenceErrors] = useState<ApolloError | null>(null);
   const [abscenceCreated, setAbsenceCreated] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(true);
 
   const formValues = getValues();
 
@@ -304,18 +305,21 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     if (absence) {
       setAbsence(absence);
       setAbsenceCreated(true);
-      setStep("confirmation");
+      /*if (showPrompt) {
+        setShowPrompt(false);
+      }*/
+      handleSetStep("confirmation");
     }
   };
 
   const onChangedVacancies = React.useCallback(
     (vacancyDetails: VacancyDetail[]) => {
-      setStep("absence");
+      handleSetStep("absence");
       setVacanciesInput(vacancyDetails);
     },
     [setVacanciesInput, setStep]
   );
-  const onCancel = React.useCallback(() => setStep("absence"), [setStep]);
+  const onCancel = React.useCallback(() => handleSetStep("absence"), [setStep]);
 
   const onAssignSub = React.useCallback(
     (
@@ -330,7 +334,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         setValue("payCode", payCodeId);
       }
       /* eslint-enable @typescript-eslint/no-floating-promises */
-      setStep("absence");
+      handleSetStep("absence");
     },
     [setStep, setValue]
   );
@@ -340,21 +344,29 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     await setValue("replacementEmployeeName", undefined);
   }, [setValue]);
 
+  const handleSetStep = (newStep: any) => {
+    if (showPrompt) {
+      setShowPrompt(false);
+    }
+
+    setStep(newStep);
+  };
+  console.log("showPrompt", showPrompt);
+  console.log("abscenceCreated", abscenceCreated);
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
-      {
-        // TODO: This is being temporarily commented out so that we can handle navigating away from the page without throwing the error on sub assign page
-        /*<React.Fragment>
-        <Prompt
-          message={t(
-            "You have not created your absence yet. Click OK to navigate away without creating your absence."
-          )}
-          when={!abscenceCreated}
-        />
-      </React.Fragment>
-          */
-      }
+      {showPrompt && (
+        <React.Fragment>
+          <Prompt
+            message={t(
+              "You have not created your absence yet. Click OK to navigate away without creating your absence."
+            )}
+            when={!abscenceCreated}
+          />
+        </React.Fragment>
+      )}
+
       <form
         onSubmit={handleSubmit(async data => {
           await create(data);
@@ -400,7 +412,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
-                setStep={setStep}
+                setStep={handleSetStep}
                 locationIds={props.locationIds}
                 disabledDates={disabledDates}
                 balanceUsageText={absenceUsageText || undefined}
@@ -410,6 +422,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 onRemoveReplacement={removePrearrangedReplacementEmployee}
                 isSubmitted={formState.isSubmitted}
                 initialAbsenceCreation={true}
+                isFormDirty={formState.dirty}
               />
             </Section>
           </>
@@ -432,7 +445,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           <Confirmation
             orgId={props.organizationId}
             absence={absence}
-            setStep={setStep}
+            setStep={handleSetStep}
             isAdmin={props.userIsAdmin}
           />
         )}
@@ -447,7 +460,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           details={projectedVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
-          setStep={setStep}
+          setStep={handleSetStep}
           disabledDates={disabledDates}
         />
       )}

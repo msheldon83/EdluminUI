@@ -25,7 +25,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { compact, differenceWith, flatMap, isEqual, some } from "lodash-es";
 import * as React from "react";
-import { useCallback, useMemo, useReducer } from "react";
+import { useCallback, useMemo, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -49,6 +49,7 @@ import { AssignVacancy } from "./graphql/assign-vacancy.gen";
 import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
+import { DiscardChangesDialog } from "./discard-changes-dialog";
 
 type Props = {
   firstName: string;
@@ -80,7 +81,6 @@ type Props = {
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
   returnUrl?: string;
-  onCancel: () => void;
 };
 
 type EditAbsenceFormData = {
@@ -111,6 +111,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
+  const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
 
   const customizedVacancyDetails = state.customizedVacanciesInput;
   const setVacanciesInput = useCallback(
@@ -157,6 +158,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const {
     register,
     handleSubmit,
+    reset,
     setValue,
     getValues,
     errors,
@@ -413,8 +415,22 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     [dispatch, canEdit]
   );
 
+  const onClickReset = () => {
+    setCancelDialogIsOpen(true);
+  };
+
+  const handleReset = () => {
+    reset(initialFormData);
+    setCancelDialogIsOpen(false);
+  };
+
   return (
     <>
+      <DiscardChangesDialog
+        onCancel={() => handleReset()}
+        onClose={() => setCancelDialogIsOpen(false)}
+        open={cancelDialogIsOpen}
+      />
       {props.returnUrl && (
         <div className={classes.linkPadding}>
           <Link to={props.returnUrl} className={classes.link}>
@@ -500,7 +516,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               isSubmitted={formState.isSubmitted}
               initialAbsenceCreation={false}
               onDelete={props.onDelete}
-              onCancel={props.onCancel}
+              onCancel={onClickReset}
+              isFormDirty={formState.dirty}
             />
           </Section>
         </form>
