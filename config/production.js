@@ -5,5 +5,6 @@ module.exports = {
   auth0_redirect_url: "https://dev.edlumin.com/",
   auth0_api_audience: "https://hcmdev/api",
   auth0_scope: "openid profile email",
-  apiUrl: "https://devapi.edlumin.com/graphql"
+  auth0_clock_skew_leeway_seconds: 3600,
+  apiUrl: "https://devapi.edlumin.com/graphql",
 };
