@@ -26,11 +26,12 @@ The compiled frontend is influenced by config variables which can optionally be 
 - `AUTH0_REDIRECT_URL`: Full URL of where Auth0 will send the user back to after authenticating.
 - `AUTH0_API_AUDIENCE`: This specifies the Auth0 audience. It should match the API's configuration.
 - `AUTH0_SCOPE`: Additional information that will be included in the token sent to our API.
+- `AUTH0_CLOCK_SKEW_LEEWAY_SECONDS`: The total amount of clock skew (in seconds) we will accept before failing the authentication attempt. This is primarily to address issues around the User's local clock being behind. Example error: `Error: Issued At (iat) claim error in the ID token; current time (Wed Feb 12 2020 09:01:12 GMT-0500 (Eastern Standard Time)) is before issued at time (Wed Feb 12 2020 09:18:22 GMT-0500 (Eastern Standard Time))`.
 
-The `config/default.js` is used to default these variables and `config/production.js` is used for defaulting the production build.  
+The `config/default.js` is used to default these variables and `config/production.js` is used for defaulting the production build.
 
-The .env file can be used to override these variables. See the `.env.example` file.  You can override these by setting
-them at the unix shell, or using the `cross-env` utility.  In most cases, the `DEV_PROXY_HOST` variable is likely to be changed for testing against a local version of the API.
+The .env file can be used to override these variables. See the `.env.example` file. You can override these by setting
+them at the unix shell, or using the `cross-env` utility. In most cases, the `DEV_PROXY_HOST` variable is likely to be changed for testing against a local version of the API.
 
 ### Adding additional configuration vars
 

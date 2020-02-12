@@ -81,6 +81,7 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
         audience: Config.Auth0.apiAudience,
         client_id: Config.Auth0.clientId,
         redirect_uri: Config.Auth0.redirectUrl,
+        leeway: Config.Auth0.clockSkewLeewaySeconds,
       });
       if (history.location.search.includes("code=")) {
         await client.handleRedirectCallback();
