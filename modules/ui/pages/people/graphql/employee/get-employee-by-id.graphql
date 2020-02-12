@@ -40,6 +40,24 @@ query GetEmployeeById($id: ID!) {
           positionType {
             id
             name
+            replacementCriteria {
+              mustHave {
+                id
+                name
+              }
+              mustNotHave {
+                id
+                name
+              }
+              preferToHave {
+                id
+                name
+              }
+              preferToNotHave {
+                id
+                name
+              }
+            }
           }
           accountingCodeAllocations {
             id

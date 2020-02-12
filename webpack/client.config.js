@@ -102,9 +102,7 @@ module.exports = {
   plugins: [
     // new HardSourceWebpackPlugin(),
 
-    new CopyPlugin([
-      { from: "scripts/new-relic.js"},
-    ]),
+    new CopyPlugin([{ from: "scripts/new-relic.js" }]),
 
     // Define global letiables in the client to instrument behavior.
     new webpack.DefinePlugin({
@@ -121,6 +119,9 @@ module.exports = {
         config.get("auth0_api_audience")
       ),
       "Config.Auth0.scope": JSON.stringify(config.get("auth0_scope")),
+      "Config.Auth0.clockSkewLeewaySeconds": JSON.stringify(
+        config.get("auth0_clock_skew_leeway_seconds")
+      ),
       "Config.apiUri": JSON.stringify(config.get("apiUrl")),
 
       // ALlow switching on NODE_ENV in client code
@@ -154,7 +155,7 @@ module.exports = {
 
     ...(process.env.ANALYZE
       ? [
-          new (require("webpack-bundle-analyzer")).BundleAnalyzerPlugin({
+          new (require("webpack-bundle-analyzer").BundleAnalyzerPlugin)({
             analyzerMode: "static",
           }),
         ]

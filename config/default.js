@@ -31,6 +31,8 @@ module.exports = {
     process.env.AUTH0_REDIRECT_URL || "http://localhost:3000/",
   auth0_api_audience: process.env.AUTH0_API_AUDIENCE || "https://hcmdev/api",
   auth0_scope: process.env.AUTH0_SCOPE || "openid profile email",
+  auth0_clock_skew_leeway_seconds:
+    process.env.AUTH0_CLOCK_SKEW_LEEWAY_SECONDS || 3600,
   apiUrl: "/graphql",
 
   devServer: {
