@@ -166,6 +166,9 @@ export const Assignment: React.FC<Props> = props => {
       : AbsenceReasonTrackingTypeId.Hourly;
   }, [selectedDayConversionName, props.vacancyDayConversions]);
 
+  const absenceReason = vacancyDetail.vacancy!.absence!.details?.[0]
+    ?.reasonUsages?.[0]?.absenceReason?.name;
+
   const payLabel = useMemo(
     () =>
       getPayLabel(
@@ -348,9 +351,16 @@ export const Assignment: React.FC<Props> = props => {
                     vacancyDetail.vacancy!.absence!.employee!.lastName
                   }`}
                 </Typography>
-                <Typography className={classes.lightText}>{`${
+                <Typography className={classes.lightText}>{`for ${
                   vacancyDetail.assignment!.employee!.firstName
                 } ${vacancyDetail.assignment!.employee!.lastName}`}</Typography>
+                {absenceReason ? (
+                  <Typography
+                    className={classes.lightText}
+                  >{`${absenceReason}`}</Typography>
+                ) : (
+                  <></>
+                )}
               </Grid>
               <Grid item xs={3}>
                 <Typography className={classes.regularText}>{`${format(
@@ -426,8 +436,6 @@ export const Assignment: React.FC<Props> = props => {
                             a => a.label === selectedDayConversionName
                           )}
                           onChange={async (e: OptionType) => {
-                            //TODO: Once the select component is updated,
-                            // can remove the Array checking
                             let selectedLabel: string | undefined = undefined;
                             if (e) {
                               if (Array.isArray(e)) {
@@ -505,8 +513,6 @@ export const Assignment: React.FC<Props> = props => {
                             )?.label || "",
                         }}
                         onChange={async (e: OptionType) => {
-                          //TODO: Once the select component is updated,
-                          // can remove the Array checking
                           let selectedValue = null;
                           if (e) {
                             if (Array.isArray(e)) {
@@ -543,8 +549,6 @@ export const Assignment: React.FC<Props> = props => {
                             )?.label || "",
                         }}
                         onChange={async (e: OptionType) => {
-                          //TODO: Once the select component is updated,
-                          // can remove the Array checking
                           let selectedValue = null;
                           if (e) {
                             if (Array.isArray(e)) {
