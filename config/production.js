@@ -6,4 +6,5 @@ module.exports = {
   auth0_api_audience: "https://hcmdev/api",
   auth0_scope: "openid profile email",
   auth0_clock_skew_leeway_seconds: 3600,
+  apiUrl: "https://devapi.edlumin.com/graphql",
 };
