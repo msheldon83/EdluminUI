@@ -26,7 +26,10 @@ import { NoteField } from "./notes-field";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { canAssignSub, canReassignSub } from "helpers/permissions";
 import { parseISO } from "date-fns";
-import { flatMap, uniq } from "lodash-es";
+import {
+  vacancyDetailsHaveDifferentAccountingCodeSelections,
+  vacancyDetailsHaveDifferentPayCodeSelections,
+} from "../helpers";
 
 type Props = {
   setValue: SetValue;
@@ -129,27 +132,11 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   );
 
   const detailsHaveDifferentAccountingCodes = useMemo(() => {
-    const allAccountingCodeAllocations = flatMap(
-      vacancies.map(v => v?.details?.map(d => d?.accountingCodeAllocations))
-    );
-    const uniqueAccountingCodeIds = uniq(
-      flatMap(
-        allAccountingCodeAllocations.map(a =>
-          a?.map(acc => acc?.accountingCodeId)
-        )
-      )
-    );
-    console.log("UniqueA", uniqueAccountingCodeIds);
-    return uniqueAccountingCodeIds.length > 1;
+    return vacancyDetailsHaveDifferentAccountingCodeSelections(vacancies);
   }, [vacancies]);
 
   const detailsHaveDifferentPayCodes = useMemo(() => {
-    const allPayCodeIds = flatMap(
-      vacancies.map(v => v?.details?.map(d => d?.payCodeId))
-    );
-    const uniquePayCodeIds = uniq(allPayCodeIds);
-    console.log("UniqueP", uniquePayCodeIds);
-    return uniquePayCodeIds.length > 1;
+    return vacancyDetailsHaveDifferentPayCodeSelections(vacancies);
   }, [vacancies]);
 
   return (

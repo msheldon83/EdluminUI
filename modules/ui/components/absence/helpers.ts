@@ -553,3 +553,47 @@ export const getGroupedVacancyDetails = (vacancies: Vacancy[]) => {
 
   return allGroupedDetails;
 };
+
+export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
+  vacancies: Vacancy[]
+) => {
+  const allDetails = compact(flatMap(vacancies.map(v => v?.details)));
+  if (!allDetails || allDetails.length === 0) {
+    return false;
+  }
+
+  const initialAccountingCodeId = allDetails[0]?.accountingCodeAllocations
+    ? allDetails[0].accountingCodeAllocations[0]?.accountingCodeId ?? null
+    : null;
+  for (let i = 0; i < allDetails.length; i++) {
+    const d = allDetails[i];
+    const detailAccountingCodeId = d?.accountingCodeAllocations
+      ? d.accountingCodeAllocations[0]?.accountingCodeId ?? null
+      : null;
+    if (detailAccountingCodeId !== initialAccountingCodeId) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+export const vacancyDetailsHaveDifferentPayCodeSelections = (
+  vacancies: Vacancy[]
+) => {
+  const allDetails = compact(flatMap(vacancies.map(v => v?.details)));
+  if (!allDetails || allDetails.length === 0) {
+    return false;
+  }
+
+  const initialPayCodeId = allDetails[0].payCodeId ?? null;
+  for (let i = 0; i < allDetails.length; i++) {
+    const d = allDetails[i];
+    const detailPayCodeId = d?.payCodeId ?? null;
+    if (detailPayCodeId !== initialPayCodeId) {
+      return true;
+    }
+  }
+
+  return false;
+};

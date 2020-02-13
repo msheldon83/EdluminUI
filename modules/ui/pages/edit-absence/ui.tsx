@@ -629,10 +629,20 @@ const buildAbsenceUpdateInput = (
       endTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
-      payCodeId: v.payCodeId ? v.payCodeId : undefined,
-      accountingCodeAllocations: v.accountingCodeId
+      // If any of the Details have Pay Codes selected we'll include those selections
+      // here on the detail or send null when one doesn't have any Pay Code selected
+      payCodeId: !detailsHavePayCodeSelections
+        ? undefined
+        : v.payCodeId
+        ? v.payCodeId
+        : null,
+      // If any of the Details have Accounting Codes selected we'll include those selections
+      // here on the detail or send null when one doesn't have any Accounting Code selected
+      accountingCodeAllocations: !detailsHaveAccountingCodeSelections
+        ? undefined
+        : v.accountingCodeId
         ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
-        : undefined,
+        : [],
     })) || undefined;
 
   const absence: AbsenceUpdateInput = {
@@ -671,15 +681,27 @@ const buildAbsenceUpdateInput = (
         notesToReplacement: formValues.notesToReplacement,
         prearrangedReplacementEmployeeId: null, // TODO make this the currently assigned employee
         details: vDetails,
-        accountingCodeAllocations: !detailsHaveAccountingCodeSelections && formValues.accountingCode
+        // When the details have Accounting Code selections, we won't send Accounting Codes on
+        // the Vacancy. When they don't we'll take the single selection in Sub Details
+        // and send that if there is one or an empty list to clear out all selections on the Details.
+        accountingCodeAllocations: detailsHaveAccountingCodeSelections
+          ? undefined
+          : formValues.accountingCode
           ? [
               {
                 accountingCodeId: formValues.accountingCode,
                 allocation: 1.0,
               },
             ]
-          : undefined,
-        payCodeId: !detailsHavePayCodeSelections && formValues.payCode ? formValues.payCode : undefined,
+          : [],
+        // When the details have Pay Code selections, we won't send a Pay Code on
+        // the Vacancy. When they don't we'll take the single selection in Sub Details
+        // and send that if there is one or null to clear out all selections on the Details.
+        payCodeId: detailsHavePayCodeSelections
+          ? undefined
+          : formValues.payCode
+          ? formValues.payCode
+          : null,
       },
     ],
   };
