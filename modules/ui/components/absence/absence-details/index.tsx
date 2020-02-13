@@ -84,6 +84,7 @@ type Props = {
     vacancyDetailIds?: string[],
     employeeToReplace?: string
   ) => void;
+  hasEditedDetails: boolean;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -292,7 +293,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
               const updatedDetails = props.vacancyDetails.map(vd => {
                 return {
                   ...vd,
-                  accountingCodeId,
+                  accountingCodeId: accountingCodeId ? accountingCodeId : null,
                 };
               });
               props.setVacanciesInput(updatedDetails);
@@ -301,11 +302,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
               const updatedDetails = props.vacancyDetails.map(vd => {
                 return {
                   ...vd,
-                  payCodeId,
+                  payCodeId: payCodeId ? payCodeId : null,
                 };
               });
               props.setVacanciesInput(updatedDetails);
             }}
+            hasEditedDetails={props.hasEditedDetails}
           />
         </div>
       </Grid>

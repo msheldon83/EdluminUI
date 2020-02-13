@@ -66,6 +66,7 @@ type Props = {
   ) => void;
   updateDetailAccountingCodes: (accountingCodeId: string | null) => void;
   updateDetailPayCodes: (payCodeId: string | null) => void;
+  hasEditedDetails: boolean;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -88,6 +89,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     onSubstituteWantedChange,
     updateDetailAccountingCodes,
     updateDetailPayCodes,
+    hasEditedDetails,
   } = props;
   const hasVacancies = !!(props.vacancies && props.vacancies.length);
 
@@ -109,18 +111,26 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   const hasPayCodeOptions = !!(payCodeOptions && payCodeOptions.length);
 
   const detailsHaveDifferentAccountingCodes = useMemo(() => {
+    if (!hasEditedDetails) {
+      return false;
+    }
+
     return vacancyDetailsHaveDifferentAccountingCodeSelections(
       vacancyDetails,
       values.accountingCode ? values.accountingCode : null
     );
-  }, [vacancyDetails, values.accountingCode]);
+  }, [hasEditedDetails, vacancyDetails, values.accountingCode]);
 
   const detailsHaveDifferentPayCodes = useMemo(() => {
+    if (!hasEditedDetails) {
+      return false;
+    }
+
     return vacancyDetailsHaveDifferentPayCodeSelections(
       vacancyDetails,
       values.payCode ? values.payCode : null
     );
-  }, [vacancyDetails, values.payCode]);
+  }, [hasEditedDetails, vacancyDetails, values.payCode]);
 
   const onNotesToReplacementChange = React.useCallback(
     async event => {
@@ -131,7 +141,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 
   const onAccountingCodeChange = React.useCallback(
     async event => {
-      if (!detailsHaveDifferentAccountingCodes) {
+      if (!detailsHaveDifferentAccountingCodes && hasEditedDetails) {
         updateDetailAccountingCodes(event?.value);
       }
 
@@ -143,12 +153,13 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
       triggerValidation,
       detailsHaveDifferentAccountingCodes,
       updateDetailAccountingCodes,
+      hasEditedDetails,
     ]
   );
 
   const onPayCodeChange = React.useCallback(
     async event => {
-      if (!detailsHaveDifferentPayCodes) {
+      if (!detailsHaveDifferentPayCodes && hasEditedDetails) {
         updateDetailPayCodes(event?.value);
       }
 
@@ -160,6 +171,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
       triggerValidation,
       detailsHaveDifferentPayCodes,
       updateDetailPayCodes,
+      hasEditedDetails,
     ]
   );
 

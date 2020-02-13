@@ -415,6 +415,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isSubmitted={formState.isSubmitted}
                 initialAbsenceCreation={true}
                 onAssignSubClick={onAssignSubClick}
+                hasEditedDetails={!!state.vacanciesInput}
               />
             </Section>
           </>
@@ -454,6 +455,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           employeeId={props.employeeId}
           setStep={setStep}
           disabledDates={disabledDates}
+          defaultAccountingCode={formValues.accountingCode}
+          defaultPayCode={formValues.payCode}
         />
       )}
     </>

@@ -538,6 +538,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               onDelete={props.onDelete}
               onCancel={props.onCancel}
               onAssignSubClick={onAssignSubClick}
+              hasEditedDetails={true}
             />
           </Section>
         </form>
