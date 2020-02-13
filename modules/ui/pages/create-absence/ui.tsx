@@ -550,7 +550,7 @@ export const buildAbsenceCreateInput = (
       endTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
-      payCodeId: v.payCodeId ?? undefined,
+      payCodeId: v.payCodeId ? v.payCodeId : undefined,
       accountingCodeAllocations: v.accountingCodeId
         ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
         : undefined,
