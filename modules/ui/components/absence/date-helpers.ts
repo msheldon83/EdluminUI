@@ -182,3 +182,11 @@ export const getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates = (
     return getIntervalDisplayTextWithDayOfWeek(intervals);
   }
 };
+
+export const getAbsenceDateRangeDisplayTextWithOutDayOfWeekForContiguousDates = (
+  allDates: Date[],
+  disabledDates?: Date[]
+): string | null => {
+  const intervals = getContiguousDateIntervals(allDates, disabledDates);
+  return getIntervalDisplayText(intervals);
+};
