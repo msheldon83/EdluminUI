@@ -48,6 +48,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
   onSubstituteWantedChange: (wanted: boolean) => void;
+  isFormDirty: boolean;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -239,7 +240,8 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                     onClick={() => setStep("preAssignSub")}
                     disabled={
                       props.disableReplacementInteractions ||
-                      props.replacementEmployeeId !== undefined
+                      props.replacementEmployeeId !== undefined ||
+                      (props.isFormDirty && !!props.arrangeSubButtonTitle)
                     }
                   >
                     {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
@@ -265,6 +267,9 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                         variant="outlined"
                         className={classes.reassignButton}
                         onClick={() => setStep("preAssignSub")}
+                        disabled={
+                          props.isFormDirty && !!props.arrangeSubButtonTitle
+                        }
                       >
                         {t("Reassign Sub")}
                       </Button>

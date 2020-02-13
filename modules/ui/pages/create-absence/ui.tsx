@@ -77,6 +77,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     props,
     initialState
   );
+
   const setVacanciesInput: (
     i: undefined | VacancyDetail[]
   ) => void = useCallback(
@@ -305,9 +306,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     if (absence) {
       setAbsence(absence);
       setAbsenceCreated(true);
-      /*if (showPrompt) {
-        setShowPrompt(false);
-      }*/
       handleSetStep("confirmation");
     }
   };
@@ -319,7 +317,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     },
     [setVacanciesInput, setStep]
   );
-  const onCancel = React.useCallback(() => handleSetStep("absence"), [setStep]);
+  const onCancel = () => handleSetStep("absence");
 
   const onAssignSub = React.useCallback(
     (
@@ -348,25 +346,23 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     if (showPrompt) {
       setShowPrompt(false);
     }
+    setTimeout(() => {
+      setStep(newStep);
+    }, 0);
+  }; /* eslint-disable-line react-hooks/exhaustive-deps */ /* eslint-disable-line react-hooks/exhaustive-deps */
 
-    setStep(newStep);
-  };
-  console.log("showPrompt", showPrompt);
-  console.log("abscenceCreated", abscenceCreated);
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
-      {showPrompt && (
-        <React.Fragment>
-          <Prompt
-            message={t(
-              "You have not created your absence yet. Click OK to navigate away without creating your absence."
-            )}
-            when={!abscenceCreated}
-          />
-        </React.Fragment>
-      )}
-
+      <React.Fragment>
+        <Prompt
+          message={t(
+            "You have not created your absence yet. Click DISCARD CHANGES to leave this page and lose all unsaved changes."
+          )}
+          when={showPrompt && !abscenceCreated}
+        />
+      </React.Fragment>
+      )
       <form
         onSubmit={handleSubmit(async data => {
           await create(data);
@@ -423,6 +419,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isSubmitted={formState.isSubmitted}
                 initialAbsenceCreation={true}
                 isFormDirty={formState.dirty}
+                setshowPrompt={setShowPrompt}
               />
             </Section>
           </>
@@ -439,6 +436,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             disabledDates={disabledDates}
             onCancel={onCancel}
             onSelectReplacement={onAssignSub}
+            setShowPrompt={setShowPrompt}
           />
         )}
         {step === "confirmation" && (
@@ -462,6 +460,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           employeeId={props.employeeId}
           setStep={handleSetStep}
           disabledDates={disabledDates}
+          setShowPrompt={setShowPrompt}
         />
       )}
     </>

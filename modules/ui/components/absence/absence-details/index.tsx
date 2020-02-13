@@ -10,7 +10,7 @@ import {
 } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
@@ -78,6 +78,7 @@ type Props = {
   onDelete?: () => void;
   onCancel?: () => void;
   isFormDirty: boolean;
+  setshowPrompt: (show: boolean) => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -149,6 +150,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
     }
     return { part: values.dayPart };
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
+
+  //this is used to enable prompt if unsaved.
+  useEffect(() => {
+    props.setshowPrompt(true);
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   return (
     <Grid container>
@@ -266,6 +272,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             needsReplacement={needsReplacement}
             wantsReplacement={wantsReplacement}
             onSubstituteWantedChange={onSubstituteWantedChange}
+            isFormDirty={props.isFormDirty}
           />
         </div>
       </Grid>

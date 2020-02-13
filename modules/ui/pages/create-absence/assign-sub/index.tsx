@@ -40,6 +40,7 @@ type Props = {
   ) => void;
   onCancel: () => void;
   currentReplacementEmployeeName?: string;
+  setShowPrompt: (show: boolean) => void;
 };
 
 const buildVacancyInput = (
@@ -275,6 +276,11 @@ export const AssignSub: React.FC<Props> = props => {
       tableData,
     ]
   );
+
+  //this is used to enable prompt if unsaved.
+  React.useEffect(() => {
+    props.setShowPrompt(true);
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const isLoading =
     getReplacementEmployeesForVacancyQuery.state === "LOADING" ||
