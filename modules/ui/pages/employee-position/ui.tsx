@@ -507,9 +507,29 @@ export const PositionEditUI: React.FC<Props> = props => {
                             }
                             setFieldValue("schedules", values.schedules);
                           }}
-                          onCheckAllDay={() => {
-                            values.schedules[i].periods[0].allDay = !values
-                              .schedules[i].periods[0].allDay;
+                          onCheckAllDay={(allDay: boolean) => {
+                            values.schedules[i].periods[0].allDay = allDay;
+                            if (
+                              allDay &&
+                              values.schedules[i].periods[0].bellScheduleId
+                            ) {
+                              const bellSchedule = bellSchedules.find(
+                                x =>
+                                  x?.id ===
+                                  values.schedules[i].periods[0].bellScheduleId
+                              );
+                              values.schedules[i].periods[0].startPeriodId =
+                                bellSchedule!.periods![0]!.id ?? undefined;
+                              values.schedules[i].periods[0].endPeriodId =
+                                bellSchedule!.periods![
+                                  bellSchedule!.periods!.length - 1
+                                ]!.id ?? undefined;
+                              values.schedules[i].periods[0].startTime = null;
+                              values.schedules[i].periods[0].endTime = null;
+                            } else if (!allDay) {
+                              values.schedules[i].periods[0].startPeriodId = undefined;
+                              values.schedules[i].periods[0].endPeriodId = undefined;
+                            }
                             setFieldValue("schedules", values.schedules);
                           }}
                           onChangeStartPeriod={(

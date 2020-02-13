@@ -47,7 +47,7 @@ type Props = {
   onChangeBellSchedule: (bellScheduleId: string, index: number) => void;
   onChangeStartPeriod: (startPeriodId: string, index: number) => void;
   onChangeEndPeriod: (endPeriodId: string, index: number) => void;
-  onCheckAllDay: () => void;
+  onCheckAllDay: (allDay: boolean) => void;
   onAddSchool: () => void;
   onRemoveSchool: (periodNumber: number) => void;
   scheduleNumber: string;
@@ -117,38 +117,29 @@ export const PeriodUI: React.FC<Props> = props => {
   const startPeriodSelected = useMemo(
     () =>
       period.bellScheduleId && period.bellScheduleId !== "custom"
-        ? period.allDay
-          ? periodStartOptions[0]
-          : {
-              value: period.startPeriodId ?? "",
-              label:
-                periodStartOptions.find(
-                  e => e.value && e.value === period.startPeriodId
-                )?.label || "",
-            }
+        ? {
+            value: period.startPeriodId ?? "",
+            label:
+              periodStartOptions.find(
+                e => e.value && e.value === period.startPeriodId
+              )?.label || "",
+          }
         : { value: "", label: "" },
-    [
-      period.bellScheduleId,
-      periodStartOptions,
-      period.startPeriodId,
-      period.allDay,
-    ]
+    [period.bellScheduleId, periodStartOptions, period.startPeriodId]
   );
 
   const endPeriodSelected = useMemo(
     () =>
       period.bellScheduleId && period.bellScheduleId !== "custom"
-        ? period.allDay
-          ? periodEndOptions[periodEndOptions.length - 1]
-          : {
-              value: period.endPeriodId ?? "",
-              label:
-                periodEndOptions.find(
-                  e => e.value && e.value === period.endPeriodId
-                )?.label || "",
-            }
+        ? {
+            value: period.endPeriodId ?? "",
+            label:
+              periodEndOptions.find(
+                e => e.value && e.value === period.endPeriodId
+              )?.label || "",
+          }
         : { value: "", label: "" },
-    [period.bellScheduleId, periodEndOptions, period.endPeriodId, period.allDay]
+    [period.bellScheduleId, periodEndOptions, period.endPeriodId]
   );
 
   const locationError = GetError(
@@ -302,7 +293,7 @@ export const PeriodUI: React.FC<Props> = props => {
                 <Checkbox
                   color="primary"
                   checked={period.allDay}
-                  onChange={e => props.onCheckAllDay()}
+                  onChange={e => props.onCheckAllDay(!period.allDay)}
                   disabled={props.disableAllDay}
                 />
               }
