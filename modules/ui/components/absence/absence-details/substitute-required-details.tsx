@@ -30,10 +30,12 @@ import {
   vacancyDetailsHaveDifferentAccountingCodeSelections,
   vacancyDetailsHaveDifferentPayCodeSelections,
 } from "../helpers";
+import { VacancyDetail } from "../types";
 
 type Props = {
   setValue: SetValue;
   vacancies: Vacancy[];
+  vacancyDetails: VacancyDetail[];
   setStep: (step: "absence" | "preAssignSub" | "edit") => void;
   triggerValidation: TriggerValidation;
   organizationId: string;
@@ -62,6 +64,8 @@ type Props = {
     vacancyDetailIds?: string[],
     employeeToReplace?: string
   ) => void;
+  updateDetailAccountingCodes: (accountingCodeId: string | null) => void;
+  updateDetailPayCodes: (payCodeId: string | null) => void;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -72,6 +76,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     setStep,
     setValue,
     vacancies,
+    vacancyDetails,
     organizationId,
     locationIds,
     errors,
@@ -81,6 +86,8 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     needsReplacement,
     wantsReplacement,
     onSubstituteWantedChange,
+    updateDetailAccountingCodes,
+    updateDetailPayCodes,
   } = props;
   const hasVacancies = !!(props.vacancies && props.vacancies.length);
 
@@ -101,6 +108,20 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   );
   const hasPayCodeOptions = !!(payCodeOptions && payCodeOptions.length);
 
+  const detailsHaveDifferentAccountingCodes = useMemo(() => {
+    return vacancyDetailsHaveDifferentAccountingCodeSelections(
+      vacancyDetails,
+      values.accountingCode
+    );
+  }, [vacancyDetails, values.accountingCode]);
+
+  const detailsHaveDifferentPayCodes = useMemo(() => {
+    return vacancyDetailsHaveDifferentPayCodeSelections(
+      vacancyDetails,
+      values.payCode
+    );
+  }, [vacancyDetails, values.payCode]);
+
   const onNotesToReplacementChange = React.useCallback(
     async event => {
       await setValue("notesToReplacement", event.target.value);
@@ -110,18 +131,36 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 
   const onAccountingCodeChange = React.useCallback(
     async event => {
+      if (!detailsHaveDifferentAccountingCodes) {
+        updateDetailAccountingCodes(event?.value);
+      }
+
       await setValue("accountingCode", event?.value);
       await triggerValidation({ name: "accountingCode" });
     },
-    [setValue, triggerValidation]
+    [
+      setValue,
+      triggerValidation,
+      detailsHaveDifferentAccountingCodes,
+      updateDetailAccountingCodes,
+    ]
   );
 
   const onPayCodeChange = React.useCallback(
     async event => {
+      if (!detailsHaveDifferentPayCodes) {
+        updateDetailPayCodes(event?.value);
+      }
+
       await setValue("payCode", event?.value);
       await triggerValidation({ name: "payCode" });
     },
-    [setValue, triggerValidation]
+    [
+      setValue,
+      triggerValidation,
+      detailsHaveDifferentPayCodes,
+      updateDetailPayCodes,
+    ]
   );
 
   const onNeedsReplacementChange = React.useCallback(
@@ -130,14 +169,6 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     },
     [onSubstituteWantedChange]
   );
-
-  const detailsHaveDifferentAccountingCodes = useMemo(() => {
-    return vacancyDetailsHaveDifferentAccountingCodeSelections(vacancies);
-  }, [vacancies]);
-
-  const detailsHaveDifferentPayCodes = useMemo(() => {
-    return vacancyDetailsHaveDifferentPayCodeSelections(vacancies);
-  }, [vacancies]);
 
   return (
     <>

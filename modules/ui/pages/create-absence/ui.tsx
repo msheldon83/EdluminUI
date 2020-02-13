@@ -403,6 +403,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
+                vacancyDetails={projectedVacancyDetails}
                 setStep={setStep}
                 locationIds={props.locationIds}
                 disabledDates={disabledDates}

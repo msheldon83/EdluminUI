@@ -555,21 +555,18 @@ export const getGroupedVacancyDetails = (vacancies: Vacancy[]) => {
 };
 
 export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
-  vacancies: Vacancy[]
+  vacancyDetails: VacancyDetail[],
+  accountingCodeIdToCompare?: string
 ) => {
-  const allDetails = compact(flatMap(vacancies.map(v => v?.details)));
-  if (!allDetails || allDetails.length === 0) {
+  if (!vacancyDetails || vacancyDetails.length === 0) {
     return false;
   }
 
-  const initialAccountingCodeId = allDetails[0]?.accountingCodeAllocations
-    ? allDetails[0].accountingCodeAllocations[0]?.accountingCodeId ?? null
-    : null;
-  for (let i = 0; i < allDetails.length; i++) {
-    const d = allDetails[i];
-    const detailAccountingCodeId = d?.accountingCodeAllocations
-      ? d.accountingCodeAllocations[0]?.accountingCodeId ?? null
-      : null;
+  const initialAccountingCodeId =
+    accountingCodeIdToCompare ?? vacancyDetails[0].accountingCodeId ?? null;
+  for (let i = 0; i < vacancyDetails.length; i++) {
+    const d = vacancyDetails[i];
+    const detailAccountingCodeId = d.accountingCodeId ?? null;
     if (detailAccountingCodeId !== initialAccountingCodeId) {
       return true;
     }
@@ -579,16 +576,17 @@ export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
 };
 
 export const vacancyDetailsHaveDifferentPayCodeSelections = (
-  vacancies: Vacancy[]
+  vacancyDetails: VacancyDetail[],
+  payCodeIdToCompare?: string
 ) => {
-  const allDetails = compact(flatMap(vacancies.map(v => v?.details)));
-  if (!allDetails || allDetails.length === 0) {
+  if (!vacancyDetails || vacancyDetails.length === 0) {
     return false;
   }
 
-  const initialPayCodeId = allDetails[0].payCodeId ?? null;
-  for (let i = 0; i < allDetails.length; i++) {
-    const d = allDetails[i];
+  const initialPayCodeId =
+    payCodeIdToCompare ?? vacancyDetails[0].payCodeId ?? null;
+  for (let i = 0; i < vacancyDetails.length; i++) {
+    const d = vacancyDetails[i];
     const detailPayCodeId = d?.payCodeId ?? null;
     if (detailPayCodeId !== initialPayCodeId) {
       return true;

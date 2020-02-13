@@ -55,6 +55,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
   vacancies: Vacancy[];
+  vacancyDetails: VacancyDetail[];
   locationIds?: string[];
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
   disabledDates: Date[];
@@ -79,7 +80,10 @@ type Props = {
   initialAbsenceCreation: boolean;
   onDelete?: () => void;
   onCancel?: () => void;
-  onAssignSubClick: (vacancyDetailIds?: string[], employeeToReplace?: string) => void;
+  onAssignSubClick: (
+    vacancyDetailIds?: string[],
+    employeeToReplace?: string
+  ) => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -264,6 +268,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             disableEditingDatesAndTimes={props.disableEditingDatesAndTimes}
             setValue={setValue}
             vacancies={props.vacancies}
+            vacancyDetails={props.vacancyDetails}
             setStep={props.setStep}
             organizationId={organizationId}
             triggerValidation={triggerValidation}
@@ -283,6 +288,24 @@ export const AbsenceDetails: React.FC<Props> = props => {
             onCancelAssignment={props.onRemoveReplacement}
             isSplitVacancy={isSplitVacancy}
             onAssignSubClick={props.onAssignSubClick}
+            updateDetailAccountingCodes={(accountingCodeId: string | null) => {
+              const updatedDetails = props.vacancyDetails.map(vd => {
+                return {
+                  ...vd,
+                  accountingCodeId,
+                };
+              });
+              props.setVacanciesInput(updatedDetails);
+            }}
+            updateDetailPayCodes={(payCodeId: string | null) => {
+              const updatedDetails = props.vacancyDetails.map(vd => {
+                return {
+                  ...vd,
+                  payCodeId,
+                };
+              });
+              props.setVacanciesInput(updatedDetails);
+            }}
           />
         </div>
       </Grid>
