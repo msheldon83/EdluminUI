@@ -464,7 +464,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     (vacancyDetailIds?: string[], employeeToReplace?: string) => {
       setVacancyDetailIdsToAssign(vacancyDetailIds ?? undefined);
       setEmployeeToReplace(employeeToReplace ?? undefined);
-      setStep("preAssignSub");
+      handleSetStep("preAssignSub");
     },
     [setStep]
   );
@@ -569,6 +569,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               isSubmitted={formState.isSubmitted}
               initialAbsenceCreation={false}
               onDelete={props.onDelete}
+              onCancel={onClickReset}
               onAssignSubClick={onAssignSubClick}
               isFormDirty={formState.dirty}
               setshowPrompt={setShowPrompt}

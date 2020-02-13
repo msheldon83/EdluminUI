@@ -336,9 +336,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     },
     [setStep, setValue]
   );
-  const onAssignSubClick = React.useCallback(() => setStep("preAssignSub"), [
-    setStep,
-  ]);
+  const onAssignSubClick = React.useCallback(
+    () => handleSetStep("preAssignSub"),
+    [setStep]
+  );
 
   const removePrearrangedReplacementEmployee = React.useCallback(async () => {
     await setValue("replacementEmployeeId", undefined);

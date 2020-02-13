@@ -251,8 +251,8 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                     >
                       <Button
                         variant="outlined"
-                        className={classes.reassignButton}
-                        onClick={() => setStep("preAssignSub")}
+                        className={classes.preArrangeButton}
+                        onClick={() => props.onAssignSubClick()}
                         disabled={
                           props.disableReplacementInteractions ||
                           props.replacementEmployeeId !== undefined ||
@@ -262,38 +262,6 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                         {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
                       </Button>
                     </Can>
-                    {props.replacementEmployeeId !== undefined &&
-                      props.arrangeSubButtonTitle &&
-                      !props.isSplitVacancy && (
-                        <Can
-                          do={(
-                            permissions: OrgUserPermissions[],
-                            isSysAdmin: boolean,
-                            orgId?: string
-                          ) =>
-                            canAssignSub(
-                              parseISO(vacancies[0].startDate),
-                              permissions,
-                              isSysAdmin,
-                              orgId
-                            )
-                          }
-                        >
-                          <Button
-                            variant="outlined"
-                            className={classes.preArrangeButton}
-                            onClick={() => props.onAssignSubClick()}
-                            disabled={
-                              props.disableReplacementInteractions ||
-                              props.replacementEmployeeId !== undefined ||
-                              (props.isFormDirty &&
-                                !!props.arrangeSubButtonTitle)
-                            }
-                          >
-                            {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
-                          </Button>
-                        </Can>
-                      )}
                     {props.replacementEmployeeId !== undefined &&
                       props.arrangeSubButtonTitle && (
                         <Can
