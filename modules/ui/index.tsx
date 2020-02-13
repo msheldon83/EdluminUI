@@ -148,6 +148,8 @@ import {
   LocationsLoader,
   LocationAddLoader,
   LocationAddRoute,
+  LocationEditSettingsLoader,
+  LocationEditSettingsRoute,
   LocationsRoute,
   LocationViewLoader,
   LocationViewRoute,
@@ -776,6 +778,12 @@ export function App() {
                                 <ProtectedRoute
                                   component={LocationAddLoader}
                                   path={LocationAddRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.LocationSave]}
+                                />
+                                <ProtectedRoute
+                                  component={LocationEditSettingsLoader}
+                                  path={LocationEditSettingsRoute.path}
                                   role={"admin"}
                                   permissions={[PermissionEnum.LocationSave]}
                                 />
