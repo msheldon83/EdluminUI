@@ -99,7 +99,7 @@ export const LocationViewPage: React.FC<{}> = props => {
     <div>
       <PageHeader
         text={location.name}
-        label={"name"}
+        label={t("Name")}
         showLabel={false}
         isSubHeader={false}
         editable={editing === null}
