@@ -610,6 +610,15 @@ const buildAbsenceUpdateInput = (
     isSameDay(a, b)
   );
 
+  // If the Vacancy Details records have selections, we don't want to send
+  // the associated property on the parent Vacancy to the server.
+  const detailsHaveAccountingCodeSelections = !!vacancyDetails?.find(
+    vd => vd.accountingCodeId
+  );
+  const detailsHavePayCodeSelections = !!vacancyDetails?.find(
+    vd => vd.payCodeId
+  );
+
   const vDetails =
     vacancyDetails?.map(v => ({
       date: v.date,
@@ -662,7 +671,7 @@ const buildAbsenceUpdateInput = (
         notesToReplacement: formValues.notesToReplacement,
         prearrangedReplacementEmployeeId: null, // TODO make this the currently assigned employee
         details: vDetails,
-        accountingCodeAllocations: formValues.accountingCode
+        accountingCodeAllocations: !detailsHaveAccountingCodeSelections && formValues.accountingCode
           ? [
               {
                 accountingCodeId: formValues.accountingCode,
@@ -670,7 +679,7 @@ const buildAbsenceUpdateInput = (
               },
             ]
           : undefined,
-        payCodeId: formValues.payCode ? formValues.payCode : undefined,
+        payCodeId: !detailsHavePayCodeSelections && formValues.payCode ? formValues.payCode : undefined,
       },
     ],
   };

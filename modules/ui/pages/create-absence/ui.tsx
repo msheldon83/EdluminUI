@@ -540,6 +540,15 @@ export const buildAbsenceCreateInput = (
     ),
   };
 
+  // If the Vacancy Details records have selections, we don't want to send
+  // the associated property on the parent Vacancy to the server.
+  const detailsHaveAccountingCodeSelections = !!vacancyDetails?.find(
+    vd => vd.accountingCodeId
+  );
+  const detailsHavePayCodeSelections = !!vacancyDetails?.find(
+    vd => vd.payCodeId
+  );
+
   const vDetails =
     vacancyDetails?.map(v => ({
       date: v.date,
@@ -570,15 +579,19 @@ export const buildAbsenceCreateInput = (
         notesToReplacement: formValues.notesToReplacement,
         prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
         details: vDetails,
-        accountingCodeAllocations: formValues.accountingCode
-          ? [
-              {
-                accountingCodeId: formValues.accountingCode,
-                allocation: 1.0,
-              },
-            ]
-          : undefined,
-        payCodeId: formValues.payCode ? formValues.payCode : undefined,
+        accountingCodeAllocations:
+          !detailsHaveAccountingCodeSelections && formValues.accountingCode
+            ? [
+                {
+                  accountingCodeId: formValues.accountingCode,
+                  allocation: 1.0,
+                },
+              ]
+            : undefined,
+        payCodeId:
+          !detailsHavePayCodeSelections && formValues.payCode
+            ? formValues.payCode
+            : undefined,
       },
     ],
   };
