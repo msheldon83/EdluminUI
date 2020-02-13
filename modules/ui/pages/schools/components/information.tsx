@@ -54,11 +54,10 @@ export const LocationsInformation: React.FC<Props> = props => {
         </Grid>
         <Grid container item xs={12} className={classes.label}>
           <Typography>
-            {`${props.location.city ?? ""}, ${props.location.stateName ??
+            {`${props.location.city ?? ""}, ${props.location.state ??
               ""} ${props.location.postalCode ?? ""}`}
           </Typography>
         </Grid>
-
         <Grid container item xs={12} spacing={2} className={classes.label}>
           <Typography variant="h6">{t("Phone")}</Typography>
         </Grid>
