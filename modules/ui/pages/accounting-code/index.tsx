@@ -148,6 +148,8 @@ export const AccountingCode: React.FC<Props> = props => {
             accountingCode.locationId &&
             accountingCode.locationId.toString().length === 0
               ? null
+              : accountingCode.locationId === "0"
+              ? null
               : accountingCode.locationId,
         },
       },
@@ -175,6 +177,8 @@ export const AccountingCode: React.FC<Props> = props => {
           locationId:
             accountingCode.locationId &&
             accountingCode.locationId.toString().length === 0
+              ? null
+              : accountingCode.locationId === "0"
               ? null
               : accountingCode.locationId,
         },
@@ -216,8 +220,7 @@ export const AccountingCode: React.FC<Props> = props => {
               ...accountingCode,
               name: newData.name,
               externalId: newData.externalId,
-              locationId:
-                newData.location === null ? undefined : newData.location?.id,
+              locationId: newData.location?.id,
             };
             const result = await addAccountingCode(newAccountingCode);
             if (!result) throw Error("Preserve Row on error");
@@ -232,8 +235,7 @@ export const AccountingCode: React.FC<Props> = props => {
               rowVersion: newData.rowVersion,
               name: newData.name,
               externalId: newData.externalId,
-              locationId:
-                newData.location === null ? undefined : newData.location?.id,
+              locationId: newData.location?.id,
             };
             const result = await editAccountingCode(updateAccountingCode);
             if (!result) throw Error("Preserve Row on error");
