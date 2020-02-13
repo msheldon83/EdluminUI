@@ -53,3 +53,20 @@ export const LocationAddLoader = asyncComponent({
   },
   name: "LocationAddPage",
 });
+
+// Edit Settings
+export const LocationEditSettingsRoute = defineSubRoute(
+  LocationViewRoute,
+  "/edit-settings",
+  []
+);
+
+export const LocationEditSettingsLoader = asyncComponent({
+  resolve: async () => {
+    const LocationEditSettingsPage = (
+      await import("ui/pages/schools/edit-settings")
+    ).LocationEditSettingsPage;
+    return LocationEditSettingsPage;
+  },
+  name: "LocationEditSettingsPage",
+});

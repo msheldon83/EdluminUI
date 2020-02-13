@@ -4,6 +4,7 @@ import {
   AbsenceDetail,
   Maybe,
   AbsenceDetailCreateInput,
+  Vacancy,
 } from "graphql/server-types.gen";
 import {
   groupBy,
@@ -12,6 +13,8 @@ import {
   compact,
   map,
   isEmpty,
+  flatMap,
+  uniq,
 } from "lodash-es";
 import {
   isAfter,
@@ -27,6 +30,7 @@ import { TFunction } from "i18next";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { VacancyDetail } from "./types";
+import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -116,10 +120,6 @@ export const getReplacementEmployeeForVacancy = (
   };
 };
 
-export const getScheduleLettersArray = () => {
-  return new Array(26).fill(1).map((_, i) => String.fromCharCode(65 + i));
-};
-
 type DetailsGroup<T> = {
   startDate: Date;
   endDate?: Date;
@@ -132,9 +132,14 @@ export type AbsenceDetailsGroup = DetailsGroup<AbsenceDetailsItem> & {
 };
 
 export type VacancyDetailsGroup = DetailsGroup<VacancyDetailsItem> & {
-  schedule?: string;
   absenceStartTime?: Date;
   absenceEndTime?: Date;
+  assignmentId?: string;
+  assignmentRowVersion?: string;
+  assignmentStartTime?: Date;
+  assignmentEmployeeId?: string;
+  assignmentEmployeeFirstName?: string;
+  assignmentEmployeeLastName?: string;
 };
 
 type DetailsItem = {
@@ -149,8 +154,10 @@ export type AbsenceDetailsItem = DetailsItem & {
 };
 
 export type VacancyDetailsItem = DetailsItem & {
+  vacancyDetailId: string | undefined;
   locationId: string | null | undefined;
   locationName: string | null | undefined;
+  assignmentId?: string;
 };
 
 export const getAbsenceDetailsGrouping = (absence: Absence) => {
@@ -336,7 +343,8 @@ export const getVacancyDetailsGrouping = (
           return (
             a.startTime === b.startTime &&
             a.endTime === b.endTime &&
-            a.locationId === b.locationId
+            a.locationId === b.locationId &&
+            a.assignmentId === b.assignmentId
           );
         }
       );
@@ -366,6 +374,14 @@ export const getVacancyDetailsGrouping = (
         absenceEndTime: value[0]?.absenceEndTime
           ? parseISO(value[0]?.absenceEndTime)
           : undefined,
+        assignmentId: value[0].assignmentId,
+        assignmentRowVersion: value[0].assignmentRowVersion,
+        assignmentStartTime: value[0].assignmentStartDateTime
+          ? parseISO(value[0].assignmentStartDateTime)
+          : undefined,
+        assignmentEmployeeId: value[0].assignmentEmployeeId,
+        assignmentEmployeeFirstName: value[0].assignmentEmployeeFirstName,
+        assignmentEmployeeLastName: value[0].assignmentEmployeeLastName,
       });
     }
   });
@@ -382,53 +398,23 @@ export const getVacancyDetailsGrouping = (
     g.simpleDetailItems = uniqWith(
       g.detailItems.map(di => {
         return {
+          vacancyDetailId: undefined,
           startTime: di.startTime,
           endTime: di.endTime,
           locationId: di.locationId,
           locationName: di.locationName,
+          assignmentId: di.assignmentId,
         };
       }),
       (a, b) => {
         return (
           a.startTime === b.startTime &&
           a.endTime === b.endTime &&
-          a.locationId === b.locationId
+          a.locationId === b.locationId &&
+          a.assignmentId === b.assignmentId
         );
       }
     );
-  });
-
-  // Set the appropriate Schedule letter on like groupings
-  const scheduleLetters = getScheduleLettersArray();
-  let scheduleIndex = 0;
-  detailsGroupings.forEach(g => {
-    // Look for a matching existing group that already has a Schedule letter
-    const matchedGroup = detailsGroupings.find(d => {
-      if (!d.schedule || !g.simpleDetailItems || !d.simpleDetailItems) {
-        return false;
-      }
-
-      // If all of the Start Times, End Times, and Locations match, this is the same Schedule
-      const differences = differenceWith(
-        g.simpleDetailItems,
-        d.simpleDetailItems,
-        (a, b) => {
-          return (
-            a.startTime === b.startTime &&
-            a.endTime === b.endTime &&
-            a.locationId === b.locationId
-          );
-        }
-      );
-      return !differences.length;
-    });
-
-    if (matchedGroup) {
-      g.schedule = matchedGroup.schedule;
-    } else {
-      g.schedule = scheduleLetters[scheduleIndex];
-      scheduleIndex = scheduleIndex + 1;
-    }
   });
 
   return detailsGroupings;
@@ -446,11 +432,13 @@ const convertVacancyDetailsToDetailsItem = (
     }
 
     return {
+      vacancyDetailId: v.vacancyDetailId,
       date: date,
       startTime: format(startTime, "h:mm a"),
       endTime: format(endTime, "h:mm a"),
       locationId: v.locationId,
       locationName: v.locationName,
+      assignmentId: v.assignmentId,
     };
   });
   const populatedItems = detailItems.filter(
@@ -534,3 +522,34 @@ export const getAbsenceDates = (
 // Answers the question, "on which days can I not create an absence?"
 export const getCannotCreateAbsenceDates = (disabledDates: DisabledDate[]) =>
   disabledDates.filter(d => d.type === "nonWorkDay").map(d => d.date);
+
+export const vacanciesHaveMultipleAssignments = (vacancies: Vacancy[]) => {
+  const allAssignmentIds = vacancies
+    ? flatMap(vacancies.map(v => v.details?.map(d => d?.assignment?.id)))
+    : [];
+  const uniqueAssignmentIds = uniq(allAssignmentIds);
+  return uniqueAssignmentIds.length > 1;
+};
+
+export const getGroupedVacancyDetails = (vacancies: Vacancy[]) => {
+  if (!vacancies) {
+    return [];
+  }
+
+  const sortedVacancies = vacancies
+    .slice()
+    .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
+
+  const allGroupedDetails: VacancyDetailsGroup[] = [];
+  sortedVacancies.forEach(v => {
+    if (v.details && v.details.length > 0) {
+      const projectedDetails = projectVacancyDetailsFromVacancies([v]);
+      const groupedDetails = getVacancyDetailsGrouping(projectedDetails);
+      if (groupedDetails !== null && groupedDetails.length > 0) {
+        allGroupedDetails.push(...groupedDetails);
+      }
+    }
+  });
+
+  return allGroupedDetails;
+};

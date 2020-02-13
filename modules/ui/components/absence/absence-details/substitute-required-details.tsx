@@ -49,6 +49,13 @@ type Props = {
   wantsReplacement: boolean;
   onSubstituteWantedChange: (wanted: boolean) => void;
   isFormDirty: boolean;
+  onCancelAssignment: (
+    assignmentId?: string,
+    assignmentRowVersion?: string,
+    vacancyDetailIds?: string[]
+  ) => Promise<void>;
+  isSplitVacancy: boolean;
+  onAssignSubClick: (vacancyDetailIds?: string[], employeeToReplace?: string) => void;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -124,6 +131,9 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
         <VacancyDetails
           vacancies={vacancies}
           disabledDates={props.disabledDates}
+          onCancelAssignment={props.onCancelAssignment}
+          disableReplacementInteractions={props.disableReplacementInteractions}
+          onAssignSubClick={props.onAssignSubClick}
         />
       )}
 
@@ -236,7 +246,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                 >
                   <Button
                     variant="outlined"
-                    className={classes.preArrangeButton}
+                    className={classes.reassignButton}
                     onClick={() => setStep("preAssignSub")}
                     disabled={
                       props.disableReplacementInteractions ||
@@ -248,14 +258,14 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                   </Button>
                 </Can>
                 {props.replacementEmployeeId !== undefined &&
-                  props.arrangeSubButtonTitle && (
+                  props.arrangeSubButtonTitle && !props.isSplitVacancy && (
                     <Can
                       do={(
                         permissions: OrgUserPermissions[],
                         isSysAdmin: boolean,
                         orgId?: string
                       ) =>
-                        canReassignSub(
+                        canAssignSub(
                           parseISO(vacancies[0].startDate),
                           permissions,
                           isSysAdmin,
@@ -266,15 +276,44 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                       <Button
                         variant="outlined"
                         className={classes.reassignButton}
-                        onClick={() => setStep("preAssignSub")}
+                        onClick={() => props.onAssignSubClick()}
                         disabled={
+                          props.disableReplacementInteractions ||
+                          props.replacementEmployeeId !== undefined ||
                           props.isFormDirty && !!props.arrangeSubButtonTitle
                         }
                       >
-                        {t("Reassign Sub")}
+                        {props.arrangeSubButtonTitle ?? t("Pre-arrange")}
                       </Button>
                     </Can>
-                  )}
+                    {props.replacementEmployeeId !== undefined &&
+                      props.arrangeSubButtonTitle && (
+                        <Can
+                          do={(
+                            permissions: OrgUserPermissions[],
+                            isSysAdmin: boolean,
+                            orgId?: string
+                          ) =>
+                            canReassignSub(
+                              parseISO(vacancies[0].startDate),
+                              permissions,
+                              isSysAdmin,
+                              orgId
+                            )
+                          }
+                        >
+                          <Button
+                            variant="outlined"
+                            className={classes.reassignButton}
+                            onClick={() => setStep("preAssignSub")}
+                            disabled={props.disableReplacementInteractions}
+                          >
+                            {t("Reassign Sub")}
+                          </Button>
+                        </Can>
+                      )}
+                  </>
+                )}
 
                 <Button
                   variant="outlined"

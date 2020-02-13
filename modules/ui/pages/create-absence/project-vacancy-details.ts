@@ -41,6 +41,7 @@ export const projectVacancyDetailsFromVacancies = (
       );
 
       return {
+        vacancyDetailId: d?.id,
         date: d?.startDate,
         locationId: d?.locationId,
         startTime: d?.startTimeLocal,
@@ -52,6 +53,12 @@ export const projectVacancyDetailsFromVacancies = (
         accountingCodeId:
           d?.accountingCodeAllocations &&
           d?.accountingCodeAllocations[0]?.accountingCodeId,
+        assignmentId: d?.assignment?.id,
+        assignmentRowVersion: d?.assignment?.rowVersion,
+        assignmentStartDateTime: d?.startTimeLocal,
+        assignmentEmployeeId: d?.assignment?.employee?.id,
+        assignmentEmployeeFirstName: d?.assignment?.employee?.firstName,
+        assignmentEmployeeLastName: d?.assignment?.employee?.lastName,
       } as VacancyDetail;
     })
     .filter(

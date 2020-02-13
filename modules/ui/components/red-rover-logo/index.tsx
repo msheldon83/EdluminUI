@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Grid, makeStyles } from "@material-ui/core";
+import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 
 type Props = {
@@ -12,10 +13,15 @@ export const RedRoverLogo: React.FC<Props> = props => {
   const { t } = useTranslation();
   const { size = "large" } = props;
 
+  const classNames = clsx({
+    [classes.container]: true,
+    [classes.smallLogoContainer]: size === "small",
+  });
+
   return (
     <Grid
       container
-      className={`${classes.container} ${props.className}`}
+      className={`${classNames} ${props.className}`}
       alignItems="center"
       wrap="nowrap"
     >
@@ -39,13 +45,17 @@ const useStyles = makeStyles(theme => ({
     ...theme.mixins.toolbar,
   },
   majorLogo: {
-    width: theme.typography.pxToRem(225),
+    width: theme.typography.pxToRem(150),
   },
   minorLogo: {
-    width: theme.typography.pxToRem(70),
+    width: theme.typography.pxToRem(53),
   },
   logo: {
     color: theme.customColors.marigold,
+    marginLeft: 0,
+  },
+  smallLogoContainer: {
+    marginLeft: 0,
   },
   productTitle: {
     color: theme.customColors.white,

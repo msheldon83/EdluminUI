@@ -84,11 +84,7 @@ export const NavLink: React.FC<Props> = props => {
       onClick={toggleSubNavClick}
       disableRipple
     >
-      {expanded ? (
-        <ExpandLess className={classes.expandLessIcon} />
-      ) : (
-        <ExpandMore />
-      )}
+      {expanded ? <ExpandLess /> : <ExpandMore />}
     </IconButton>
   );
 
@@ -97,15 +93,18 @@ export const NavLink: React.FC<Props> = props => {
     [classes.subNavItemsOpen]: expanded,
   });
 
+  const listItemClasses = clsx({
+    [classes.menuItemWithSubNavItems]: showSubNavItems,
+    [classes.listItemSubItemSelected]: expanded && subNavActive,
+    [classes.active]: displayAsMatching,
+  });
+
   return (
     <div>
       <Link to={props.route} className={classes.link}>
         <ListItem
           button
-          className={`${classes.menuItem} ${
-            props.className
-          } ${displayAsMatching && classes.active} ${showSubNavItems &&
-            classes.menuItemWithSubNavItems}`}
+          className={`${classes.menuItem} ${props.className} ${listItemClasses} `}
           href={props.route}
           onClick={props.onClick}
           classes={menuItemClasses}
@@ -165,7 +164,8 @@ const useStyles = makeStyles(theme => ({
   },
   icon: {
     minWidth: 0,
-    paddingRight: theme.typography.pxToRem(24),
+    // There's some width issues with svgs and text, so this makes it look nicer
+    paddingRight: `calc(${theme.spacing(1.5)}px + 1px)`,
     color: "inherit",
   },
   text: {
@@ -174,42 +174,52 @@ const useStyles = makeStyles(theme => ({
     color: "inherit",
   },
   menuItem: {
-    color: theme.customColors.medLightGray,
-    borderRadius: theme.typography.pxToRem(5),
+    color: theme.customColors.lightSlate,
     whiteSpace: "nowrap",
+    paddingLeft: theme.spacing(2),
+    paddingBottom: theme.spacing(1.2),
+    paddingTop: theme.spacing(1.2),
+
     "&:hover": {
-      backgroundColor: theme.customColors.edluminLightSlate,
-      color: theme.customColors.white,
+      color: theme.palette.primary.main,
     },
-    transition: theme.transitions.create("background", {
+
+    transition: theme.transitions.create("color", {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.standard,
     }),
   },
-  menuItemWithSubNavItems: {
-    marginBottom: 0,
+  menuItemWithSubNavItems: {},
+  listItemSubItemSelected: {
+    background: theme.customColors.white,
+    color: theme.palette.primary.main,
+
+    "&:hover": {
+      background: theme.customColors.white,
+      color: theme.palette.primary.main,
+    },
   },
   active: {
-    backgroundColor: theme.customColors.edluminLightSlate,
+    color: theme.palette.primary.main,
   },
   subNavItems: {
+    background: "rgba(255,255,255,0.2)",
     listStyle: "none",
     margin: 0,
     padding: 0,
   },
   subNavItemsOpen: {
-    padding: `0 0 ${theme.typography.pxToRem(7)}`,
+    paddingBottom: theme.spacing(2),
+    paddingTop: theme.spacing(2),
   },
 
   toggleSubNavItemsIcon: {
-    color: theme.customColors.medLightGray,
+    color: "inherit",
+    marginRight: theme.spacing(0.5),
 
     "&:hover": {
-      color: theme.customColors.white,
+      color: theme.palette.primary.main,
     },
-  },
-  expandLessIcon: {
-    color: theme.customColors.white,
   },
 }));
 

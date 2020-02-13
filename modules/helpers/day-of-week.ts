@@ -50,23 +50,34 @@ export const buildDaysLabel = (days: DayOfWeek[], t: i18next.TFunction) => {
 
   days.forEach((day, i) => {
     currentDayOrder = daysOfWeekOrdered.indexOf(day);
-    const displayName = getDisplayName("dayOfWeekShort", day, t);
+    const displayName = getDisplayName("dayOfWeekShort", day, t) ?? "";
 
-    if (i === 0 || i === days.length - 1) {
+    if (i === 0) {
+      // Handle first day of schedule
       result = result + displayName;
+    } else if (i === days.length - 1) {
+      // Handle last day of schedule
+      result = i === 1 ? result + `, ${displayName}` : result + displayName;
     } else {
       previousDayOrder = daysOfWeekOrdered.indexOf(days[i - 1]);
       nextDayOrder = daysOfWeekOrdered.indexOf(days[i + 1]);
 
+      // Check if day is contigous with previous and next
       if (
         currentDayOrder - previousDayOrder === 1 &&
-        (nextDayOrder - currentDayOrder != 1 || i + 1 === days.length - 1)
+        nextDayOrder - currentDayOrder === 1
       ) {
-        result = result + " - ";
+        result = result.endsWith("- ") ? result : result + " - ";
       }
 
+      // Handle next day not contiguous
       if (nextDayOrder - currentDayOrder > 1) {
         result = result + `${displayName}, `;
+      }
+
+      // Handle previous day not contiguous
+      if (currentDayOrder - previousDayOrder > 1) {
+        result = result + `${displayName}`;
       }
     }
   });

@@ -19,6 +19,7 @@ import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "hooks/use-snackbar";
 import { DeleteDialog } from "./delete-absence-dialog";
+import { ShowErrors } from "ui/components/error-helpers";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 
@@ -68,18 +69,7 @@ export const EditAbsence: React.FC<Props> = props => {
 
   const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
 
@@ -118,28 +108,105 @@ export const EditAbsence: React.FC<Props> = props => {
     }
   };
 
-  const [cancelAssignment] = useMutationBundle(CancelAssignment);
-  const cancelAssignments = React.useCallback(async () => {
-    if (absence.state !== "DONE") return;
-    const assignments = uniqBy(
-      compact(
+  const [cancelAssignment] = useMutationBundle(CancelAssignment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const cancelAssignments = React.useCallback(
+    async (
+      assignmentId?: string,
+      assignmentRowVersion?: string,
+      vacancyDetailIds?: string[],
+      preventAbsenceRefetch?: boolean
+    ) => {
+      if (absence.state !== "DONE") return;
+
+      const assignments = compact(
         flatMap(absence.data.absence?.byId?.vacancies, v =>
-          v?.details?.map(vd => vd?.assignment)
+          v?.details
+            ?.filter(vd => vd?.assignment)
+            .map(vd => {
+              return {
+                assignmentId: vd!.assignment!.id,
+                assignmentRowVersion: vd!.assignment!.rowVersion,
+                vacancyDetailId: vd!.id,
+              };
+            })
         )
-      ),
-      "id"
-    );
-    await Promise.all(
-      assignments.map(a =>
-        cancelAssignment({
+      );
+      const uniqueAssignments = uniqBy(assignments, "assignmentId");
+
+      if (!assignmentId && !vacancyDetailIds) {
+        // No specific Assignment Id provided, cancel all Assignments
+        await Promise.all(
+          uniqueAssignments.map(a =>
+            cancelAssignment({
+              variables: {
+                assignment: {
+                  assignmentId: a.assignmentId,
+                  rowVersion: a.assignmentRowVersion,
+                },
+              },
+            })
+          )
+        );
+      } else if (
+        !assignmentId &&
+        vacancyDetailIds &&
+        vacancyDetailIds.length > 0
+      ) {
+        // Figure out which Assignments to cancel based on the Vacancy Detail Ids provided
+        const matchingAssignments = assignments.filter(
+          a => a.vacancyDetailId && vacancyDetailIds.includes(a.vacancyDetailId)
+        );
+        const assignmentsToCancel = uniqueAssignments.filter(u =>
+          matchingAssignments.find(m => m.assignmentId === u.assignmentId)
+        );
+
+        await Promise.all(
+          assignmentsToCancel.map(a => {
+            // For the current Assignment, figure out which Vacancy Detail Ids are appropriate
+            // to cancel. It might not be all of the Vacancy Detail Ids on the Assignment.
+            const vacancyDetailIdsToCancel = matchingAssignments
+              .filter(m => m.assignmentId === a.assignmentId)
+              .map(m => m.vacancyDetailId)
+              .filter(id => vacancyDetailIds.includes(id));
+            return cancelAssignment({
+              variables: {
+                assignment: {
+                  assignmentId: a.assignmentId,
+                  rowVersion: a.assignmentRowVersion,
+                  vacancyDetailIds: vacancyDetailIdsToCancel,
+                },
+              },
+            });
+          })
+        );
+      } else if (assignmentId) {
+        const vacancyDetailIdsToCancel =
+          vacancyDetailIds && vacancyDetailIds.length > 0
+            ? vacancyDetailIds
+            : undefined;
+        // Cancelling a single Assignment (or part of a single Assignment)
+        await cancelAssignment({
           variables: {
-            assignment: { assignmentId: a.id, rowVersion: a.rowVersion },
+            assignment: {
+              assignmentId: assignmentId,
+              rowVersion: assignmentRowVersion ?? "",
+              vacancyDetailIds: vacancyDetailIdsToCancel,
+            },
           },
-        })
-      )
-    );
-    await absence.refetch();
-  }, [absence, cancelAssignment]);
+        });
+      }
+
+      if (!preventAbsenceRefetch) {
+        // Reload the Absence
+        await absence.refetch();
+      }
+    },
+    [absence, cancelAssignment]
+  );
 
   const initialVacancyDetails: VacancyDetail[] = useMemo(() => {
     if (absence.state !== "DONE") {
@@ -152,6 +219,7 @@ export const EditAbsence: React.FC<Props> = props => {
         return v.details.map(d => {
           if (!d) return null;
           return {
+            vacancyDetailId: d.id,
             date: d.startDate,
             startTime: d.startTimeLocal,
             endTime: d.endTimeLocal,
@@ -160,6 +228,12 @@ export const EditAbsence: React.FC<Props> = props => {
             accountingCodeId:
               d?.accountingCodeAllocations &&
               d?.accountingCodeAllocations[0]?.accountingCode?.id,
+            assignmentId: d.assignment?.id,
+            assignmentRowVersion: d.assignment?.rowVersion,
+            assignmentStartDateTime: d.startTimeLocal,
+            assignmentEmployeeId: d.assignment?.employee?.id,
+            assignmentEmployeeFirstName: d.assignment?.employee?.firstName,
+            assignmentEmployeeLastName: d.assignment?.employee?.lastName,
           };
         });
       })

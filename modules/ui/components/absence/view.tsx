@@ -29,6 +29,7 @@ import {
   getCannotCreateAbsenceDates,
 } from "./helpers";
 import { VacancyDetails } from "./vacancy-details";
+import { ShowErrors } from "../error-helpers";
 
 type Props = {
   orgId: string;
@@ -75,35 +76,37 @@ export const View: React.FC<Props> = props => {
 
   const [cancelAssignment] = useMutationBundle(CancelAssignment, {
     onError: error => {
-      openSnackbar({
-        message: error.graphQLErrors.map((e, i) => {
-          const errorMessage =
-            e.extensions?.data?.text ?? e.extensions?.data?.code;
-          if (!errorMessage) {
-            return null;
-          }
-          return <div key={i}>{errorMessage}</div>;
-        }),
-        dismissable: true,
-        status: "error",
-      });
+      ShowErrors(error, openSnackbar);
     },
   });
+
+  const vacancies = useMemo(() => {
+    const vacancies = absence?.vacancies?.filter(v => !!v).map(v => v!) ?? [];
+    return vacancies;
+  }, [absence]);
+
+  const assignmentStartTime = useMemo(() => {
+    const details = vacancies[0] ? vacancies[0].details : [];
+    const startTime =
+      details && details[0] ? details[0].startTimeLocal : undefined;
+    return startTime ? parseISO(startTime) : undefined;
+  }, [vacancies]);
 
   if (!absence) {
     return null;
   }
 
   const removeSub = async (
-    employeeId: string,
     assignmentId?: string,
-    assignmentRowVersion?: string
+    assignmentRowVersion?: string,
+    vacancyDetailIds?: string[]
   ) => {
     const result = await cancelAssignment({
       variables: {
         cancelRequest: {
           assignmentId: assignmentId ?? "",
           rowVersion: assignmentRowVersion ?? "",
+          vacancyDetailIds: vacancyDetailIds ?? undefined,
         },
       },
     });
@@ -190,11 +193,20 @@ export const View: React.FC<Props> = props => {
                   assignmentRowVersion={
                     replacementEmployeeInformation.assignmentRowVersion
                   }
-                  onRemove={async (...props) => {
-                    await removeSub(...props);
+                  onCancelAssignment={async (
+                    assignmentId?: string,
+                    assignmentRowVersion?: string,
+                    vacancyDetailIds?: string[]
+                  ) => {
+                    await removeSub(
+                      assignmentId,
+                      assignmentRowVersion,
+                      vacancyDetailIds
+                    );
                     setReplacementEmployeeInformation(null);
                   }}
-                  assignmentStartDate={absenceStartDate} //CLA - this is a hack and should eventually be using the assignment start date
+                  assignmentStartDate={assignmentStartTime ?? absenceStartDate}
+                  vacancies={vacancies}
                 />
               )}
               <div className={classes.substituteDetailsSection}>
@@ -204,6 +216,13 @@ export const View: React.FC<Props> = props => {
                       vacancies={absence.vacancies as Vacancy[]}
                       equalWidthDetails
                       disabledDates={disabledDates}
+                      onCancelAssignment={async (
+                        assignmentId?: string,
+                        assignmentRowVersion?: string
+                      ) => {
+                        await removeSub(assignmentId, assignmentRowVersion);
+                        setReplacementEmployeeInformation(null);
+                      }}
                     />
                     <div className={classes.requiresSubSection}>
                       <Typography variant="h6">

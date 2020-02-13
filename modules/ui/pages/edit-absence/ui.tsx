@@ -78,7 +78,12 @@ type Props = {
   startTimeLocal: string;
   endTimeLocal: string;
   absenceDates: Date[];
-  cancelAssignments: () => Promise<void>;
+  cancelAssignments: (
+    assignmentId?: string,
+    assignmentRowVersion?: string,
+    vacancyDetailIds?: string[],
+    preventAbsenceRefetch?: boolean
+  ) => Promise<void>;
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
   returnUrl?: string;
@@ -109,6 +114,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
+  const [vacancyDetailIdsToAssign, setVacancyDetailIdsToAssign] = useState<
+    string[] | undefined
+  >(undefined);
+  const [employeeToReplace, setEmployeeToReplace] = useState<
+    string | undefined
+  >(undefined);
 
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
@@ -389,16 +400,31 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   };
 
   const onSelectReplacement = useCallback(
-    async (employeeId: string, name: string) => {
+    async (
+      employeeId: string,
+      name: string,
+      payCode: string | undefined,
+      vacancyDetailIds?: string[]
+    ) => {
       if (props.replacementEmployeeId != undefined) {
-        await props.cancelAssignments();
+        await props.cancelAssignments(
+          undefined,
+          undefined,
+          vacancyDetailIds,
+          true
+        );
       }
       await assignVacancy({
         variables: {
           assignment: {
             orgId: props.organizationId,
             employeeId: employeeId,
-            appliesToAllVacancyDetails: true,
+            appliesToAllVacancyDetails:
+              !vacancyDetailIds || vacancyDetailIds.length === 0,
+            vacancyDetailIds:
+              vacancyDetailIds && vacancyDetailIds.length > 0
+                ? vacancyDetailIds
+                : undefined,
             vacancyId: props.initialVacancies[0].id,
             ignoreWarnings: true,
           },
@@ -434,6 +460,14 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       setStep(newStep);
     }, 0);
   }; /* eslint-disable-line react-hooks/exhaustive-deps */ /* eslint-disable-line react-hooks/exhaustive-deps */
+  const onAssignSubClick = React.useCallback(
+    (vacancyDetailIds?: string[], employeeToReplace?: string) => {
+      setVacancyDetailIdsToAssign(vacancyDetailIds ?? undefined);
+      setEmployeeToReplace(employeeToReplace ?? undefined);
+      setStep("preAssignSub");
+    },
+    [setStep]
+  );
 
   return (
     <>
@@ -535,7 +569,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               isSubmitted={formState.isSubmitted}
               initialAbsenceCreation={false}
               onDelete={props.onDelete}
-              onCancel={onClickReset}
+              onAssignSubClick={onAssignSubClick}
               isFormDirty={formState.dirty}
               setshowPrompt={setShowPrompt}
             />
@@ -571,8 +605,13 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           disabledDates={disabledDates}
           selectButtonText={t("Assign")}
           onSelectReplacement={onSelectReplacement}
-          onCancel={onCancel}
-          currentReplacementEmployeeName={props.replacementEmployeeName}
+          onCancel={() => {
+            setVacancyDetailIdsToAssign(undefined);
+            setEmployeeToReplace(undefined);
+            onCancel();
+          }}
+          employeeToReplace={employeeToReplace}
+          vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
           setShowPrompt={setShowPrompt}
         />
       )}

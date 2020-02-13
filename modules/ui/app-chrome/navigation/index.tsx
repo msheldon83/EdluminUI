@@ -1,4 +1,4 @@
-import { Divider, Drawer, Fab, List, makeStyles } from "@material-ui/core";
+import { Drawer, Fab, List, makeStyles } from "@material-ui/core";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import * as React from "react";
@@ -49,10 +49,12 @@ export const NavigationSideBar: React.FC<Props> = props => {
           }`,
         }}
       >
-        <RedRoverLogo size={props.expanded ? "large" : "small"} />
+        <RedRoverLogo
+          className={props.expanded ? classes.logoLarge : classes.logoSmall}
+          size={props.expanded ? "large" : "small"}
+        />
         <RoleSwitcher expanded={props.expanded} />
-        <Divider className={classes.divider} />
-        <List className={classes.list}>
+        <List>
           <AutoSwitchingNavLinks navBarExpanded={props.expanded} />
         </List>
       </Drawer>
@@ -68,18 +70,17 @@ const useStyles = makeStyles(theme => ({
   },
   drawer: {
     background: theme.customColors.edluminSlate,
+    borderRightWidth: 0,
     flexShrink: 0,
   },
   drawerOpen: {
     width: theme.typography.pxToRem(258),
     overflowX: "hidden",
+    willChange: "width",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
     }),
-  },
-  divider: {
-    background: theme.customColors.edluminLightSlate,
   },
   drawerClose: {
     transition: theme.transitions.create("width", {
@@ -88,13 +89,22 @@ const useStyles = makeStyles(theme => ({
     }),
     overflowX: "hidden",
     width: theme.spacing(7) + 1,
+
     [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9) + 1,
+      width: theme.typography.pxToRem(53),
     },
   },
-  list: {
-    paddingRight: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
+  logoLarge: {
+    marginBottom: theme.spacing(1.5),
+    marginLeft: theme.spacing(0.5),
+    transition: theme.transitions.create("margin-left", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.short,
+    }),
+  },
+  logoSmall: {
+    marginBottom: theme.spacing(1.5),
+    marginLeft: 0,
   },
   spacing: {
     marginLeft: theme.typography.pxToRem(23),

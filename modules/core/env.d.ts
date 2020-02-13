@@ -11,6 +11,7 @@ declare const Config: {
     redirectUrl: string;
     apiAudience: string;
     scope: string;
+    clockSkewLeewaySeconds: number;
   };
   apiUri: string;
 };

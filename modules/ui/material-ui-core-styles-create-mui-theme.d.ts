@@ -29,6 +29,8 @@ interface CustomColors {
   edluminLightSlate: string;
   edluminSubText: string;
   darkRed: string;
+  primary: string;
+
   raspberry: string;
   pumpkin: string;
   mustard: string;

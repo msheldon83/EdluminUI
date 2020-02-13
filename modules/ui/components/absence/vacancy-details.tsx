@@ -1,72 +1,122 @@
 import * as React from "react";
 import { Vacancy } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
-import { Grid, makeStyles, Typography } from "@material-ui/core";
-import { Fragment } from "react";
-import { getVacancyDetailsGrouping } from "./helpers";
-import { TFunction } from "i18next";
-import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
+import { Grid, makeStyles } from "@material-ui/core";
+import { useMemo } from "react";
 import {
-  getAbsenceDateRangeDisplayTextWithDayOfWeek,
-  getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates,
-} from "./date-helpers";
-import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
-import { VacancyDetail } from "./types";
-import { format } from "date-fns";
+  vacanciesHaveMultipleAssignments,
+  getGroupedVacancyDetails,
+} from "./helpers";
+import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
+import { VacancyDetailRow } from "./vacancy-detail-row";
 
 type Props = {
   vacancies: Vacancy[];
+  vacancyDetailIds?: string[];
   positionName?: string | null | undefined;
   showHeader?: boolean;
   equalWidthDetails?: boolean;
   gridRef?: React.RefObject<HTMLDivElement>;
   disabledDates?: Date[];
   detailsClassName?: string;
+  onCancelAssignment?: (
+    assignmentId?: string,
+    assignmentRowVersion?: string,
+    vacancyDetailIds?: string[]
+  ) => Promise<void>;
+  disableReplacementInteractions?: boolean;
+  onAssignSubClick?: (
+    vacancyDetailIds?: string[],
+    employeeToReplace?: string
+  ) => void;
 };
 
 export const VacancyDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { detailsClassName = classes.fullWidth } = props;
+  const {
+    vacancies = [],
+    vacancyDetailIds = [],
+    detailsClassName = classes.fullWidth,
+  } = props;
 
-  if (!props.vacancies || !props.vacancies.length) {
+  // Filter the Vacancies and Vacancy Details down to the ones
+  // we are interested in based on props.vacancyDetailIds
+  const filteredVacancies = useMemo(() => {
+    if (vacancyDetailIds.length === 0) {
+      return vacancies;
+    }
+
+    const vacancyList: Vacancy[] = [];
+    vacancies.forEach(v => {
+      const matchingDetails =
+        v.details?.filter(d => vacancyDetailIds.includes(d?.id ?? "")) ?? [];
+      if (matchingDetails.length > 0) {
+        vacancyList.push({
+          ...v,
+          details: matchingDetails,
+        });
+      }
+    });
+    return vacancyList;
+  }, [vacancies, vacancyDetailIds]);
+
+  const isSplitVacancy = useMemo(() => {
+    return vacanciesHaveMultipleAssignments(filteredVacancies);
+  }, [filteredVacancies]);
+
+  const groupedDetails = useMemo(() => {
+    return getGroupedVacancyDetails(filteredVacancies);
+  }, [filteredVacancies]);
+
+  if (filteredVacancies.length === 0) {
     return <></>;
   }
-
-  const sortedVacancies = props.vacancies
-    .slice()
-    .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
 
   return (
     <Grid container ref={props.gridRef || null}>
       {props.showHeader && (
-        <Grid item xs={12}>
+        <Grid item xs={12} className={classes.vacancySummaryHeader}>
           <VacancySummaryHeader
+            vacancyDetailGroupings={groupedDetails}
             positionName={props.positionName}
-            vacancies={props.vacancies}
             disabledDates={props.disabledDates}
           />
         </Grid>
       )}
       <div className={detailsClassName}>
-        {sortedVacancies.map((v, i) => {
-          if (v.details && v.details.length) {
-            const projectedDetails = projectVacancyDetailsFromVacancies([v]);
-
-            return (
-              <Fragment key={i}>
-                {getVacancyDetailsDisplay(
-                  projectedDetails,
-                  props.equalWidthDetails || false,
-                  t,
-                  classes,
-                  props.disabledDates
-                )}
-              </Fragment>
-            );
-          }
+        <Grid item container xs={12} className={classes.vacancyDetailsHeader}>
+          <Grid item xs={props.equalWidthDetails ? 6 : 4}>
+            {t("Absence")}
+          </Grid>
+          <Grid item xs={props.equalWidthDetails ? 6 : 8}>
+            {t("Substitute schedule")}
+          </Grid>
+        </Grid>
+        {groupedDetails.map((g, detailsIndex) => {
+          return (
+            <Grid
+              key={detailsIndex}
+              item
+              container
+              xs={12}
+              className={classes.detailRow}
+            >
+              <VacancyDetailRow
+                groupedDetail={g}
+                vacancies={props.vacancies}
+                isSplitVacancy={isSplitVacancy}
+                equalWidthDetails={props.equalWidthDetails || false}
+                disabledDates={props.disabledDates}
+                onCancelAssignment={props.onCancelAssignment}
+                disableReplacementInteractions={
+                  props.disableReplacementInteractions
+                }
+                onAssignSubClick={props.onAssignSubClick}
+              />
+            </Grid>
+          );
         })}
       </div>
     </Grid>
@@ -77,14 +127,8 @@ const useStyles = makeStyles(theme => ({
   fullWidth: {
     width: "100%",
   },
-  details: {
-    padding: theme.spacing(2),
-  },
-  scheduleText: {
-    color: theme.customColors.edluminSubText,
-  },
-  vacancyBlockItem: {
-    marginTop: theme.spacing(0.5),
+  vacancySummaryHeader: {
+    marginBottom: theme.spacing(),
   },
   vacancyDetailsHeader: {
     backgroundColor: theme.customColors.lightGray,
@@ -97,81 +141,7 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(2),
     paddingLeft: theme.spacing(2),
   },
-  subScheduleLocation: {
-    marginLeft: theme.spacing(2),
+  detailRow: {
+    paddingBottom: theme.spacing(),
   },
 }));
-
-const getVacancyDetailsDisplay = (
-  vacancyDetails: VacancyDetail[],
-  equalWidthDetails: boolean,
-  t: TFunction,
-  classes: any,
-  disabledDates?: Date[]
-) => {
-  const groupedDetails = getVacancyDetailsGrouping(vacancyDetails);
-  if (groupedDetails === null || !groupedDetails.length) {
-    return null;
-  }
-
-  return (
-    <>
-      <Grid item container xs={12} className={classes.vacancyDetailsHeader}>
-        <Grid item xs={equalWidthDetails ? 6 : 4}>
-          {t("Absence")}
-        </Grid>
-        <Grid item xs={equalWidthDetails ? 6 : 8}>
-          {t("Substitute schedule")}
-        </Grid>
-      </Grid>
-      <div className={classes.details}>
-        {groupedDetails.map((g, detailsIndex) => {
-          const allDates = g.detailItems.map(di => di.date);
-
-          return (
-            <Grid key={detailsIndex} item container xs={12}>
-              <Grid item xs={12}>
-                <Typography variant="h6">
-                  {getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates(
-                    allDates,
-                    disabledDates
-                  )}
-                </Typography>
-              </Grid>
-              <Grid
-                item
-                xs={equalWidthDetails ? 6 : 4}
-                className={classes.vacancyBlockItem}
-              >
-                {g.absenceStartTime && g.absenceEndTime && (
-                  <div>
-                    {`${format(g.absenceStartTime, "h:mm a")} - ${format(
-                      g.absenceEndTime,
-                      "h:mm a"
-                    )}`}
-                  </div>
-                )}
-              </Grid>
-              <Grid
-                item
-                xs={equalWidthDetails ? 6 : 8}
-                className={classes.vacancyBlockItem}
-              >
-                {g.simpleDetailItems!.map((d, i) => {
-                  return (
-                    <div key={i}>
-                      {`${d.startTime} - ${d.endTime}`}
-                      <span className={classes.subScheduleLocation}>
-                        {d.locationName}
-                      </span>
-                    </div>
-                  );
-                })}
-              </Grid>
-            </Grid>
-          );
-        })}
-      </div>
-    </>
-  );
-};
