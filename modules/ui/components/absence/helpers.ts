@@ -556,18 +556,16 @@ export const getGroupedVacancyDetails = (vacancies: Vacancy[]) => {
 
 export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
   vacancyDetails: VacancyDetail[],
-  accountingCodeIdToCompare?: string
+  accountingCodeIdToCompare: string | null
 ) => {
   if (!vacancyDetails || vacancyDetails.length === 0) {
     return false;
   }
 
-  const initialAccountingCodeId =
-    accountingCodeIdToCompare ?? vacancyDetails[0].accountingCodeId ?? null;
   for (let i = 0; i < vacancyDetails.length; i++) {
     const d = vacancyDetails[i];
     const detailAccountingCodeId = d.accountingCodeId ?? null;
-    if (detailAccountingCodeId !== initialAccountingCodeId) {
+    if (detailAccountingCodeId !== accountingCodeIdToCompare) {
       return true;
     }
   }
@@ -577,18 +575,16 @@ export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
 
 export const vacancyDetailsHaveDifferentPayCodeSelections = (
   vacancyDetails: VacancyDetail[],
-  payCodeIdToCompare?: string
+  payCodeIdToCompare: string | null
 ) => {
   if (!vacancyDetails || vacancyDetails.length === 0) {
     return false;
   }
 
-  const initialPayCodeId =
-    payCodeIdToCompare ?? vacancyDetails[0].payCodeId ?? null;
   for (let i = 0; i < vacancyDetails.length; i++) {
     const d = vacancyDetails[i];
     const detailPayCodeId = d?.payCodeId ?? null;
-    if (detailPayCodeId !== initialPayCodeId) {
+    if (detailPayCodeId !== payCodeIdToCompare) {
       return true;
     }
   }

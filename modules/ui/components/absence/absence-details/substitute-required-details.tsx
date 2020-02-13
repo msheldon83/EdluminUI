@@ -111,14 +111,14 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   const detailsHaveDifferentAccountingCodes = useMemo(() => {
     return vacancyDetailsHaveDifferentAccountingCodeSelections(
       vacancyDetails,
-      values.accountingCode
+      values.accountingCode ? values.accountingCode : null
     );
   }, [vacancyDetails, values.accountingCode]);
 
   const detailsHaveDifferentPayCodes = useMemo(() => {
     return vacancyDetailsHaveDifferentPayCodeSelections(
       vacancyDetails,
-      values.payCode
+      values.payCode ? values.payCode : null
     );
   }, [vacancyDetails, values.payCode]);
 

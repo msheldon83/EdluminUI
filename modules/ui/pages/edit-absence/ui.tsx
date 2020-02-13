@@ -326,15 +326,13 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     }
   }, [props.initialAbsenceUsageData, t, getProjectedAbsenceUsage]);
 
-  const projectedVacancies = useMemo(() => {
-    return getProjectedVacancies.state === "DONE" ||
-      getProjectedVacancies.state === "UPDATING"
+  const projectedVacancies =
+    getProjectedVacancies.state === "DONE" ||
+    getProjectedVacancies.state === "UPDATING"
       ? (compact(
           getProjectedVacancies.data?.absence?.projectedVacancies ?? []
         ) as Vacancy[])
       : null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getProjectedVacancies.state]);
 
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
@@ -347,7 +345,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const projectedVacancyDetails: VacancyDetail[] = useMemo(
     () => projectVacancyDetails(getProjectedVacancies),
-    [getProjectedVacancies]
+    [getProjectedVacancies.state]
   );
 
   const theVacancyDetails: VacancyDetail[] =
