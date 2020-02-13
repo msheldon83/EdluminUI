@@ -47,6 +47,7 @@ const themeColors: Theme["customColors"] = {
   edluminLightSlate: "#38336C",
   edluminSubText: "#9E9E9E",
   darkRed: "#C62828",
+  primary: "#FF5555",
 
   /* colors below are historical */
   black: "#262c36",
@@ -262,7 +263,7 @@ export const EdluminTheme = createMuiTheme({
   },
   palette: {
     primary: {
-      main: themeColors.blue,
+      main: themeColors.primary,
     },
     secondary: {
       main: themeColors.darkGray,

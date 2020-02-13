@@ -52,8 +52,8 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
           <ProfileAvatar className={classes.avatar} />
         </Link>
       </Grid>
+
       <RoleSwitcher expanded />
-      <Divider className={classes.divider} />
 
       <List className={classes.list}>
         <AutoSwitchingNavLinks
@@ -81,19 +81,20 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
           {t("Help")}
         </Button>
       </Grid>
-      <RedRoverLogo />
+      <RedRoverLogo className={classes.logo} />
     </Drawer>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  logo: {
+    marginLeft: theme.spacing(1.5),
+    marginTop: theme.spacing(1),
+  },
   drawer: {
     background: theme.customColors.edluminSlate,
     display: "flex",
     flexDirection: "column",
-  },
-  divider: {
-    background: theme.customColors.edluminLightSlate,
   },
   link: { textDecoration: "none" },
   avatarContainer: {
@@ -107,8 +108,6 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(2),
   },
   list: {
-    paddingRight: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
     flexGrow: 1,
   },
   userItems: {
