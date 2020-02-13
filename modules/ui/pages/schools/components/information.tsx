@@ -4,7 +4,13 @@ import { SectionHeader } from "ui/components/section-header";
 import { makeStyles, Grid, Typography } from "@material-ui/core";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
+import { useHistory, Redirect } from "react-router";
+import { useRouteParams } from "ui/routes/definition";
 import { Location } from "graphql/server-types.gen";
+import {
+  LocationViewRoute,
+  LocationEditSettingsRoute,
+} from "ui/routes/locations";
 
 type Props = {
   location: Location;
@@ -12,7 +18,9 @@ type Props = {
 
 export const LocationsInformation: React.FC<Props> = props => {
   const classes = useStyles();
+  const history = useHistory();
   const { t } = useTranslation();
+  const params = useRouteParams(LocationViewRoute);
 
   const [editing, setEditing] = React.useState<boolean>(false);
 
@@ -28,23 +36,8 @@ export const LocationsInformation: React.FC<Props> = props => {
           text: t("Edit"),
           visible: !editing,
           execute: () => {
-            setEditing(!editing);
-          },
-          permissions: [PermissionEnum.LocationSave],
-        }}
-        submit={{
-          text: t("Save"),
-          visible: editing,
-          execute: () => {
-            setEditing(false);
-          },
-          permissions: [PermissionEnum.LocationSave],
-        }}
-        cancel={{
-          text: t("Cancel"),
-          visible: editing,
-          execute: () => {
-            setEditing(false);
+            const editSettingsUrl = LocationEditSettingsRoute.generate(params);
+            history.push(editSettingsUrl);
           },
           permissions: [PermissionEnum.LocationSave],
         }}
@@ -61,16 +54,22 @@ export const LocationsInformation: React.FC<Props> = props => {
         </Grid>
         <Grid container item xs={12} className={classes.label}>
           <Typography>
-            {`${props.location.city ?? ""}, ${props.location.stateName ??
+            {`${props.location.city ?? ""}, ${props.location.state ??
               ""} ${props.location.postalCode ?? ""}`}
           </Typography>
         </Grid>
-
         <Grid container item xs={12} spacing={2} className={classes.label}>
           <Typography variant="h6">{t("Phone")}</Typography>
         </Grid>
         <Grid container item xs={12} spacing={2} className={classes.label}>
           <Typography>{`${props.location.formattedPhone ?? ""}`}</Typography>
+        </Grid>
+        <Grid container item xs={12} spacing={2} className={classes.label}>
+          <Typography variant="h6">{t("School Group")}</Typography>
+        </Grid>
+        <Grid container item xs={12} spacing={2} className={classes.label}>
+          <Typography>{`${props.location.locationGroup?.name ??
+            ""}`}</Typography>
         </Grid>
       </Grid>
     </Section>
