@@ -92,25 +92,33 @@ export const PeriodUI: React.FC<Props> = props => {
       : [];
   const periodStartOptions: OptionType[] = useMemo(
     () =>
-      periods.map(p => ({
-        label: `${p?.name} (${format(
-          midnightTime().setSeconds(p?.standardPeriod?.startTime),
-          "h:mm a"
-        )})`,
-        value: p?.id ?? "",
-      })),
+      periods
+        .sort((a, b) =>
+          b?.standardPeriod?.startTime < a?.standardPeriod?.startTime ? 1 : -1
+        )
+        .map(p => ({
+          label: `${p?.name} (${format(
+            midnightTime().setSeconds(p?.standardPeriod?.startTime),
+            "h:mm a"
+          )})`,
+          value: p?.id ?? "",
+        })),
     [periods]
   );
 
   const periodEndOptions: OptionType[] = useMemo(
     () =>
-      periods.map(p => ({
-        label: `${p?.name} (${format(
-          midnightTime().setSeconds(p?.standardPeriod?.endTime),
-          "h:mm a"
-        )})`,
-        value: p?.id ?? "",
-      })),
+      periods
+        .sort((a, b) =>
+          b?.standardPeriod?.endTime < a?.standardPeriod?.endTime ? 1 : -1
+        )
+        .map(p => ({
+          label: `${p?.name} (${format(
+            midnightTime().setSeconds(p?.standardPeriod?.endTime),
+            "h:mm a"
+          )})`,
+          value: p?.id ?? "",
+        })),
     [periods]
   );
 
@@ -265,6 +273,7 @@ export const PeriodUI: React.FC<Props> = props => {
                   disabled={!period.bellScheduleId || period.allDay}
                   inputStatus={startPeriodIdError ? "error" : "default"}
                   validationMessage={startPeriodIdError}
+                  doSort={false}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -281,6 +290,7 @@ export const PeriodUI: React.FC<Props> = props => {
                   disabled={!period.bellScheduleId || period.allDay}
                   inputStatus={endPeriodIdError ? "error" : "default"}
                   validationMessage={endPeriodIdError}
+                  doSort={false}
                 />
               </Grid>
             </>
