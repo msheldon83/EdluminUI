@@ -231,17 +231,17 @@ export const PeoplePage: React.FC<Props> = props => {
             )
           )
         : [],
-      adminLocations:
-        person.administrator?.accessControl?.derivedAdminLocations ?? [],
+      adminLocations: person.administrator?.accessControl?.locations ?? [],
       allLocationIdsInScope:
         person.administrator?.accessControl?.allLocationIdsInScope ?? false,
       adminPositionTypes:
-        person.administrator?.accessControl?.derivedAdminPositionTypes ?? [],
+        person.administrator?.accessControl?.positionTypes ?? [],
       allPositionTypeIdsInScope:
         person.administrator?.accessControl?.allPositionTypeIdsInScope ?? false,
       inviteSent: person.inviteSent,
       inviteSentAtUtc: person.inviteSentAtUtc,
       accountSetup: person.isAccountSetup,
+      isSuperUser: person.administrator?.isSuperUser ?? false,
     }));
   }, [people, listRoles]);
 
@@ -343,7 +343,7 @@ export const PeoplePage: React.FC<Props> = props => {
       sorting: false,
       hidden: filters.roleFilter != OrgUserRole.Administrator,
       render: o =>
-        o.allPositionTypeIdsInScope ? (
+        o.allPositionTypeIdsInScope || o.isSuperUser ? (
           t("All")
         ) : !o.adminPositionTypes || o.adminPositionTypes?.length < 1 ? (
           t("None")
@@ -379,7 +379,7 @@ export const PeoplePage: React.FC<Props> = props => {
       sorting: false,
       hidden: filters.roleFilter != OrgUserRole.Administrator,
       render: o =>
-        o.allLocationIdsInScope ? (
+        o.allLocationIdsInScope || o.isSuperUser ? (
           t("All")
         ) : !o.adminLocations || o.adminLocations?.length < 1 ? (
           t("None")
@@ -463,7 +463,7 @@ export const PeoplePage: React.FC<Props> = props => {
       ),
     },
   ];
-
+  console.log(tableData);
   return (
     <>
       <Grid
