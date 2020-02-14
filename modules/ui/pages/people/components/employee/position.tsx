@@ -33,13 +33,15 @@ type Props = {
   needsReplacement: Maybe<NeedsReplacement>;
   hoursPerFullWorkDay: number | null | undefined;
   contractName: string | null | undefined;
-  accountingCodeAllocations?:
+  accountingCodeAllocations?: Array<
     | {
         accountingCode?: {
           name: string;
         } | null;
-      }[]
-    | null;
+      }
+    | null
+    | undefined
+  > | null;
   schedules: Array<
     | {
         daysOfTheWeek: DayOfWeek[];

@@ -97,6 +97,9 @@ export const EmployeeTab: React.FC<Props> = props => {
         hoursPerFullWorkDay={employee.primaryPosition?.hoursPerFullWorkDay}
         contractName={employee.primaryPosition?.contract?.name}
         schedules={employee.primaryPosition?.schedules ?? []}
+        accountingCodeAllocations={
+          employee.primaryPosition?.accountingCodeAllocations ?? []
+        }
       />
       <RemainingBalances
         employeeId={employee.id}

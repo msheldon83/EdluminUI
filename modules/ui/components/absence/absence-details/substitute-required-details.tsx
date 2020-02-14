@@ -26,10 +26,16 @@ import { NoteField } from "./notes-field";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { canAssignSub, canReassignSub } from "helpers/permissions";
 import { parseISO } from "date-fns";
+import {
+  vacancyDetailsHaveDifferentAccountingCodeSelections,
+  vacancyDetailsHaveDifferentPayCodeSelections,
+} from "../helpers";
+import { VacancyDetail } from "../types";
 
 type Props = {
   setValue: SetValue;
   vacancies: Vacancy[];
+  vacancyDetails: VacancyDetail[];
   setStep: (step: "absence" | "preAssignSub" | "edit") => void;
   triggerValidation: TriggerValidation;
   organizationId: string;
@@ -59,6 +65,9 @@ type Props = {
     vacancyDetailIds?: string[],
     employeeToReplace?: string
   ) => void;
+  updateDetailAccountingCodes: (accountingCodeId: string | null) => void;
+  updateDetailPayCodes: (payCodeId: string | null) => void;
+  hasEditedDetails: boolean;
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -69,6 +78,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     setStep,
     setValue,
     vacancies,
+    vacancyDetails,
     organizationId,
     locationIds,
     errors,
@@ -78,6 +88,9 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     needsReplacement,
     wantsReplacement,
     onSubstituteWantedChange,
+    updateDetailAccountingCodes,
+    updateDetailPayCodes,
+    hasEditedDetails,
   } = props;
   const hasVacancies = !!(props.vacancies && props.vacancies.length);
 
@@ -98,6 +111,28 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   );
   const hasPayCodeOptions = !!(payCodeOptions && payCodeOptions.length);
 
+  const detailsHaveDifferentAccountingCodes = useMemo(() => {
+    if (!hasEditedDetails) {
+      return false;
+    }
+
+    return vacancyDetailsHaveDifferentAccountingCodeSelections(
+      vacancyDetails,
+      values.accountingCode ? values.accountingCode : null
+    );
+  }, [hasEditedDetails, vacancyDetails, values.accountingCode]);
+
+  const detailsHaveDifferentPayCodes = useMemo(() => {
+    if (!hasEditedDetails) {
+      return false;
+    }
+
+    return vacancyDetailsHaveDifferentPayCodeSelections(
+      vacancyDetails,
+      values.payCode ? values.payCode : null
+    );
+  }, [hasEditedDetails, vacancyDetails, values.payCode]);
+
   const onNotesToReplacementChange = React.useCallback(
     async event => {
       await setValue("notesToReplacement", event.target.value);
@@ -107,18 +142,38 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 
   const onAccountingCodeChange = React.useCallback(
     async event => {
+      if (!detailsHaveDifferentAccountingCodes && hasEditedDetails) {
+        updateDetailAccountingCodes(event?.value);
+      }
+
       await setValue("accountingCode", event?.value);
       await triggerValidation({ name: "accountingCode" });
     },
-    [setValue, triggerValidation]
+    [
+      setValue,
+      triggerValidation,
+      detailsHaveDifferentAccountingCodes,
+      updateDetailAccountingCodes,
+      hasEditedDetails,
+    ]
   );
 
   const onPayCodeChange = React.useCallback(
     async event => {
+      if (!detailsHaveDifferentPayCodes && hasEditedDetails) {
+        updateDetailPayCodes(event?.value);
+      }
+
       await setValue("payCode", event?.value);
       await triggerValidation({ name: "payCode" });
     },
-    [setValue, triggerValidation]
+    [
+      setValue,
+      triggerValidation,
+      detailsHaveDifferentPayCodes,
+      updateDetailPayCodes,
+      hasEditedDetails,
+    ]
   );
 
   const onNeedsReplacementChange = React.useCallback(
@@ -168,22 +223,30 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                   <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
                     <Grid item xs={hasPayCodeOptions ? 6 : 12}>
                       <Typography>{t("Accounting code")}</Typography>
-                      <SelectNew
-                        value={{
-                          value: values.accountingCode ?? "",
-                          label:
-                            accountingCodeOptions.find(
-                              a => a.value === values.accountingCode
-                            )?.label || "",
-                        }}
-                        onChange={onAccountingCodeChange}
-                        options={accountingCodeOptions}
-                        multiple={false}
-                        inputStatus={
-                          errors.accountingCode ? "error" : undefined
-                        }
-                        validationMessage={errors.accountingCode?.message}
-                      />
+                      {detailsHaveDifferentAccountingCodes ? (
+                        <div className={classes.subText}>
+                          {t(
+                            "Details have different Accounting code selections. Click on Edit Substitute Details below to manage."
+                          )}
+                        </div>
+                      ) : (
+                        <SelectNew
+                          value={{
+                            value: values.accountingCode ?? "",
+                            label:
+                              accountingCodeOptions.find(
+                                a => a.value === values.accountingCode
+                              )?.label || "",
+                          }}
+                          onChange={onAccountingCodeChange}
+                          options={accountingCodeOptions}
+                          multiple={false}
+                          inputStatus={
+                            errors.accountingCode ? "error" : undefined
+                          }
+                          validationMessage={errors.accountingCode?.message}
+                        />
+                      )}
                     </Grid>
                   </Can>
                 )}
@@ -191,19 +254,28 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                   <Can do={[PermissionEnum.AbsVacSavePayCode]}>
                     <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
                       <Typography>{t("Pay code")}</Typography>
-                      <SelectNew
-                        value={{
-                          value: values.payCode ?? "",
-                          label:
-                            payCodeOptions.find(a => a.value === values.payCode)
-                              ?.label || "",
-                        }}
-                        onChange={onPayCodeChange}
-                        options={payCodeOptions}
-                        multiple={false}
-                        inputStatus={errors.payCode ? "error" : undefined}
-                        validationMessage={errors.payCode?.message}
-                      />
+                      {detailsHaveDifferentPayCodes ? (
+                        <div className={classes.subText}>
+                          {t(
+                            "Details have different Pay code selections. Click on Edit Substitute Details below to manage."
+                          )}
+                        </div>
+                      ) : (
+                        <SelectNew
+                          value={{
+                            value: values.payCode ?? "",
+                            label:
+                              payCodeOptions.find(
+                                a => a.value === values.payCode
+                              )?.label || "",
+                          }}
+                          onChange={onPayCodeChange}
+                          options={payCodeOptions}
+                          multiple={false}
+                          inputStatus={errors.payCode ? "error" : undefined}
+                          validationMessage={errors.payCode?.message}
+                        />
+                      )}
                     </Grid>
                   </Can>
                 )}

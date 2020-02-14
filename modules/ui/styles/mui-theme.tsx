@@ -239,6 +239,11 @@ export const EdluminTheme = createMuiTheme({
         right: pxToRem(14),
       },
     },
+    MuiLink: {
+      root: {
+        color: themeColors.blue,
+      },
+    },
     /*
       The overrides for the calendar aren't really documented anywhere, so the keys and values
       can be found in this directory:

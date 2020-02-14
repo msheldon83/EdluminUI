@@ -75,6 +75,7 @@ query GetAbsence($id: ID!) {
           }
           accountingCodeAllocations {
             id
+            accountingCodeId
             accountingCode {
               id
               name

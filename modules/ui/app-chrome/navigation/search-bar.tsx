@@ -171,7 +171,7 @@ export const SearchBar: React.FC<Props> = props => {
               )}
               {results.map((r: any, i) => {
                 const heading: string = r.assignmentId
-                  ? `${t("Absence")} #${r.absenceId} (${t("Assignment")} #${
+                  ? `${t("Absence")} #${r.absenceId} (${t("Assignment")} #C${
                       r.assignmentId
                     })`
                   : `${t("Absence")} #${r.absenceId}`;

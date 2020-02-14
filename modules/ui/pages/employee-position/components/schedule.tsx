@@ -35,7 +35,7 @@ type Props = {
   onChangeBellSchedule: (bellScheduleId: string, index: number) => void;
   onChangeStartPeriod: (startPeriodId: string, index: number) => void;
   onChangeEndPeriod: (endPeriodId: string, index: number) => void;
-  onCheckAllDay: () => void;
+  onCheckAllDay: (allDay: boolean) => void;
   errors: FormikErrors<{ schedules: Schedule[] }>;
 };
 
