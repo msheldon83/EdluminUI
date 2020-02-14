@@ -33,6 +33,8 @@ type Props = {
   employeeId: string;
   setStep: (s: "absence") => void;
   disabledDates?: Date[];
+  defaultAccountingCode?: string;
+  defaultPayCode?: string;
 };
 
 type EditVacancyFormData = {
@@ -49,8 +51,8 @@ export const EditVacancies: React.FC<Props> = props => {
       locationId: d.locationId,
       startTime: parseISO(d.startTime).toISOString(),
       endTime: parseISO(d.endTime).toISOString(),
-      accountingCodeId: d.accountingCodeId,
-      payCodeId: d.payCodeId,
+      accountingCodeId: d.accountingCodeId ?? props.defaultAccountingCode,
+      payCodeId: d.payCodeId ?? props.defaultPayCode,
     })),
   };
 

@@ -11,7 +11,7 @@ import {
 } from "graphql/server-types.gen";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { useSnackbar } from "hooks/use-snackbar";
-import { some } from "lodash-es";
+import { some, flatMap, compact } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -36,6 +36,7 @@ type Props = {
   absence: Absence;
   isConfirmation?: boolean;
   isAdmin: boolean;
+  goToEdit?: Function;
 };
 
 export const View: React.FC<Props> = props => {
@@ -110,6 +111,24 @@ export const View: React.FC<Props> = props => {
         },
       },
     });
+
+    const removedSuccessfully = !!result?.data?.assignment?.cancelAssignment
+      ?.id;
+    if (
+      removedSuccessfully &&
+      props.goToEdit &&
+      vacancyDetailIds &&
+      vacancyDetailIds.length > 0
+    ) {
+      // Determine if the Sub was only removed from part of the day
+      // and if so, redirect the User to the Edit view of the Absence
+      const allVacancyDetailIds = compact(
+        flatMap(vacancies.map(v => v?.details?.map(d => d?.id)))
+      );
+      if (vacancyDetailIds.length !== allVacancyDetailIds.length) {
+        props.goToEdit();
+      }
+    }
   };
 
   const hasVacancies = absence.vacancies && absence.vacancies.length > 0;

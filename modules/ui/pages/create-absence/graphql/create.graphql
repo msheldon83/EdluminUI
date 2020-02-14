@@ -75,6 +75,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
           }
           accountingCodeAllocations {
             id
+            accountingCodeId
             accountingCode {
               id
               name

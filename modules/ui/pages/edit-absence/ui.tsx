@@ -33,6 +33,8 @@ import { AbsenceDetails } from "ui/components/absence/absence-details";
 import {
   getCannotCreateAbsenceDates,
   TranslateAbsenceErrorCodeToMessage,
+  vacancyDetailsHaveDifferentAccountingCodeSelections,
+  vacancyDetailsHaveDifferentPayCodeSelections
 } from "ui/components/absence/helpers";
 import { ActionMenu } from "ui/components/action-menu";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
@@ -345,7 +347,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const projectedVacancyDetails: VacancyDetail[] = useMemo(
     () => projectVacancyDetails(getProjectedVacancies),
-    [projectVacancyDetails, getProjectedVacancies.state]
+    [getProjectedVacancies.state]
   );
 
   const theVacancyDetails: VacancyDetail[] =
@@ -521,6 +523,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               errors={{}}
               triggerValidation={triggerValidation}
               vacancies={projectedVacancies || props.initialVacancies}
+              vacancyDetails={theVacancyDetails}
               balanceUsageText={absenceUsageText ?? undefined}
               setVacanciesInput={setVacanciesInput}
               arrangedSubText={t("assigned")}
@@ -537,6 +540,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               onDelete={props.onDelete}
               onCancel={props.onCancel}
               onAssignSubClick={onAssignSubClick}
+              hasEditedDetails={true}
             />
           </Section>
         </form>
@@ -610,6 +614,17 @@ const buildAbsenceUpdateInput = (
     isSameDay(a, b)
   );
 
+  // If the Vacancy Details records have selections, we don't want to send
+  // the associated property on the parent Vacancy to the server.
+  const detailsHaveDifferentAccountingCodeSelections = vacancyDetailsHaveDifferentAccountingCodeSelections(
+    vacancyDetails,
+    formValues.accountingCode ? formValues.accountingCode : null
+  );
+  const detailsHaveDifferentPayCodeSelections = vacancyDetailsHaveDifferentPayCodeSelections(
+    vacancyDetails,
+    formValues.payCode ? formValues.payCode : null
+  );
+
   const vDetails =
     vacancyDetails?.map(v => ({
       date: v.date,
@@ -620,10 +635,20 @@ const buildAbsenceUpdateInput = (
       endTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
-      payCodeId: v.payCodeId,
-      accountingCodeAllocations: v.accountingCodeId
+      // If any of the Details have Pay Codes selected we'll include those selections
+      // here on the detail or send null when one doesn't have any Pay Code selected
+      payCodeId: !detailsHaveDifferentPayCodeSelections
+        ? undefined
+        : v.payCodeId
+        ? v.payCodeId
+        : null,
+      // If any of the Details have Accounting Codes selected we'll include those selections
+      // here on the detail or send null when one doesn't have any Accounting Code selected
+      accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
+        ? undefined
+        : v.accountingCodeId
         ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
-        : undefined,
+        : [],
     })) || undefined;
 
   const absence: AbsenceUpdateInput = {
@@ -662,15 +687,27 @@ const buildAbsenceUpdateInput = (
         notesToReplacement: formValues.notesToReplacement,
         prearrangedReplacementEmployeeId: null, // TODO make this the currently assigned employee
         details: vDetails,
-        accountingCodeAllocations: formValues.accountingCode
+        // When the details have Accounting Code selections, we won't send Accounting Codes on
+        // the Vacancy. When they don't we'll take the single selection in Sub Details
+        // and send that if there is one or an empty list to clear out all selections on the Details.
+        accountingCodeAllocations: detailsHaveDifferentAccountingCodeSelections
+          ? undefined
+          : formValues.accountingCode
           ? [
               {
                 accountingCodeId: formValues.accountingCode,
                 allocation: 1.0,
               },
             ]
-          : undefined,
-        payCodeId: formValues.payCode ? formValues.payCode : undefined,
+          : [],
+        // When the details have Pay Code selections, we won't send a Pay Code on
+        // the Vacancy. When they don't we'll take the single selection in Sub Details
+        // and send that if there is one or null to clear out all selections on the Details.
+        payCodeId: detailsHaveDifferentPayCodeSelections
+          ? undefined
+          : formValues.payCode
+          ? formValues.payCode
+          : null,
       },
     ],
   };

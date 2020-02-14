@@ -553,3 +553,41 @@ export const getGroupedVacancyDetails = (vacancies: Vacancy[]) => {
 
   return allGroupedDetails;
 };
+
+export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
+  vacancyDetails: VacancyDetail[],
+  accountingCodeIdToCompare: string | null
+) => {
+  if (!vacancyDetails || vacancyDetails.length === 0) {
+    return false;
+  }
+
+  for (let i = 0; i < vacancyDetails.length; i++) {
+    const d = vacancyDetails[i];
+    const detailAccountingCodeId = d.accountingCodeId ?? null;
+    if (detailAccountingCodeId !== accountingCodeIdToCompare) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+export const vacancyDetailsHaveDifferentPayCodeSelections = (
+  vacancyDetails: VacancyDetail[],
+  payCodeIdToCompare: string | null
+) => {
+  if (!vacancyDetails || vacancyDetails.length === 0) {
+    return false;
+  }
+
+  for (let i = 0; i < vacancyDetails.length; i++) {
+    const d = vacancyDetails[i];
+    const detailPayCodeId = d?.payCodeId ?? null;
+    if (detailPayCodeId !== payCodeIdToCompare) {
+      return true;
+    }
+  }
+
+  return false;
+};

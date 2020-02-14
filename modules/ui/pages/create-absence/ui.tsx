@@ -17,7 +17,6 @@ import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
-import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
 import { compact, flatMap, size, some } from "lodash-es";
 import * as React from "react";
@@ -28,6 +27,8 @@ import {
   createAbsenceDetailInput,
   getAbsenceDates,
   getCannotCreateAbsenceDates,
+  vacancyDetailsHaveDifferentAccountingCodeSelections,
+  vacancyDetailsHaveDifferentPayCodeSelections,
 } from "ui/components/absence/helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -403,6 +404,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
+                vacancyDetails={projectedVacancyDetails}
                 setStep={setStep}
                 locationIds={props.locationIds}
                 disabledDates={disabledDates}
@@ -414,6 +416,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isSubmitted={formState.isSubmitted}
                 initialAbsenceCreation={true}
                 onAssignSubClick={onAssignSubClick}
+                hasEditedDetails={!!state.vacanciesInput}
               />
             </Section>
           </>
@@ -453,6 +456,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           employeeId={props.employeeId}
           setStep={setStep}
           disabledDates={disabledDates}
+          defaultAccountingCode={formValues.accountingCode}
+          defaultPayCode={formValues.payCode}
         />
       )}
     </>
@@ -540,6 +545,21 @@ export const buildAbsenceCreateInput = (
     ),
   };
 
+  // If the Vacancy Details records have selections, we don't want to send
+  // the associated property on the parent Vacancy to the server.
+  const detailsHaveDifferentAccountingCodeSelections =
+    vacancyDetails &&
+    vacancyDetailsHaveDifferentAccountingCodeSelections(
+      vacancyDetails,
+      formValues.accountingCode ? formValues.accountingCode : null
+    );
+  const detailsHaveDifferentPayCodeSelections =
+    vacancyDetails &&
+    vacancyDetailsHaveDifferentPayCodeSelections(
+      vacancyDetails,
+      formValues.payCode ? formValues.payCode : null
+    );
+
   const vDetails =
     vacancyDetails?.map(v => ({
       date: v.date,
@@ -550,6 +570,16 @@ export const buildAbsenceCreateInput = (
       endTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
+      payCodeId: !detailsHaveDifferentPayCodeSelections
+        ? undefined
+        : v.payCodeId
+        ? v.payCodeId
+        : null,
+      accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
+        ? undefined
+        : v.accountingCodeId
+        ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
+        : [],
     })) || undefined;
 
   // Populate the Vacancies on the Absence
@@ -566,15 +596,20 @@ export const buildAbsenceCreateInput = (
         notesToReplacement: formValues.notesToReplacement,
         prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
         details: vDetails,
-        accountingCodeAllocations: formValues.accountingCode
-          ? [
-              {
-                accountingCodeId: formValues.accountingCode,
-                allocation: 1.0,
-              },
-            ]
-          : undefined,
-        payCodeId: formValues.payCode ? formValues.payCode : undefined,
+        accountingCodeAllocations:
+          !detailsHaveDifferentAccountingCodeSelections &&
+          formValues.accountingCode
+            ? [
+                {
+                  accountingCodeId: formValues.accountingCode,
+                  allocation: 1.0,
+                },
+              ]
+            : undefined,
+        payCodeId:
+          !detailsHaveDifferentPayCodeSelections && formValues.payCode
+            ? formValues.payCode
+            : undefined,
       },
     ],
   };
