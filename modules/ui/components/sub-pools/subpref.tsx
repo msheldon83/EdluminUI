@@ -8,22 +8,25 @@ import { PermissionEnum } from "graphql/server-types.gen";
 type Props = {
   favoriteHeading: string;
   blockedHeading: string;
-  blockedHeading: string;
-  autoAssignHeading: string;
+  autoAssignHeading?: string;
   searchHeading: string;
   favoriteEmployees: any[];
   blockedEmployees: any[];
+  autoAssignEmployees?: any[] | null | undefined;
   heading: string;
   subHeading: string;
   orgId: string;
   onRemoveFavoriteEmployee: (orgUser: any) => void;
   onRemoveBlockedEmployee: (orgUser: any) => void;
+  onRemoveAutoAssignedEmployee?: (orgUser: any) => void | null | undefined;
   onAddFavoriteEmployee: (orgUser: any) => void;
   onBlockEmployee: (orgUser: any) => void;
+  onAutoAssignEmployee?: (orgUser: any) => void | null | undefined;
   removeBlockedPermission: PermissionEnum[];
   removeFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
   addToFavoritePermission: PermissionEnum[];
+  isLocationOnly: boolean;
 };
 
 export const SubstitutePreferences: React.FC<Props> = props => {
@@ -52,22 +55,26 @@ export const SubstitutePreferences: React.FC<Props> = props => {
               removePermission={props.removeBlockedPermission}
             ></SubPoolCard>
           </Grid>
-          <Grid item xs={12}>
-            <SubPoolCard
-              title={props.autoAssignHeading}
-              blocked={true}
-              orgUsers={props.blockedEmployees}
-              onRemove={props.onRemoveBlockedEmployee}
-              removePermission={props.removeBlockedPermission}
-            ></SubPoolCard>
-          </Grid>
+          {props.isLocationOnly && (
+            <Grid item xs={12}>
+              <SubPoolCard
+                title={props.autoAssignHeading ?? ""} // Auto Assign List?
+                blocked={false}
+                orgUsers={props.autoAssignEmployees}
+                onRemove={props.onRemoveAutoAssignedEmployee}
+                removePermission={props.removeBlockedPermission}
+              ></SubPoolCard>
+            </Grid>
+          )}
         </Grid>
         <Grid item xs={6}>
           <SubstitutePicker
+            isLocationOnly={props.isLocationOnly}
             orgId={props.orgId}
             title={props.searchHeading}
             onAdd={props.onAddFavoriteEmployee}
             onBlock={props.onBlockEmployee}
+            onAutoAssign={props.onAutoAssignEmployee}
             takenSubstitutes={props.favoriteEmployees.concat(
               props.blockedEmployees
             )}

@@ -27,9 +27,11 @@ import { Can } from "../auth/can";
 
 type Props = {
   title: string;
+  isLocationOnly: boolean;
   orgId: string;
   onAdd: (orgUser: any) => void;
   onBlock: (orgUser: any) => void;
+  onAutoAssign?: (orgUser: any) => void;
   takenSubstitutes: any[];
   addToFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
@@ -170,6 +172,16 @@ export const SubstitutePicker: React.FC<Props> = props => {
                     {t("Add")}
                   </TextButton>
                 </Can>
+                {props.isLocationOnly && (
+                  <Can do={props.addToFavoritePermission}>
+                    <TextButton
+                      className={classes.addActionLink}
+                      onClick={() => props.onAutoAssign(user)}
+                    >
+                      {t("Auto Assign")}
+                    </TextButton>
+                  </Can>
+                )}
               </Grid>
             );
           })}

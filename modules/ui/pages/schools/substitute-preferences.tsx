@@ -30,7 +30,8 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
     return updatePreferences(
       filteredFavorites,
-      location.substitutePreferences?.blockedSubstitutes
+      location.substitutePreferences?.blockedSubstitutes,
+      location.substitutePreferences?.autoAssignSubstitutes
     );
   };
 
@@ -42,7 +43,21 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
     return updatePreferences(
       location.substitutePreferences?.favoriteSubstitutes,
-      filteredBlocked
+      filteredBlocked,
+      location.substitutePreferences?.autoAssignSubstitutes
+    );
+  };
+
+  const onRemoveAutoAssignedSubstitute = async (substitute: any) => {
+    const filteredAutoAssigned = location.substitutePreferences?.autoAssignedSubstitutes.filter(
+      (u: any) => {
+        return u.id !== substitute.id;
+      }
+    );
+    return updatePreferences(
+      location.substitutePreferences?.favoriteSubstitutes,
+      location.substitutePreferences?.blockedSubstitutes,
+      filteredAutoAssigned
     );
   };
 
@@ -51,7 +66,8 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
 
     return updatePreferences(
       location.substitutePreferences?.favoriteSubstitutes,
-      location.substitutePreferences?.blockedSubstitutes
+      location.substitutePreferences?.blockedSubstitutes,
+      location.substitutePreferences?.autoAssignSubstitutes
     );
   };
 
@@ -60,11 +76,26 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
 
     return updatePreferences(
       location.substitutePreferences?.favoriteSubstitutes,
-      location.substitutePreferences?.blockedSubstitutes
+      location.substitutePreferences?.blockedSubstitutes,
+      location.substitutePreferences?.autoAssignSubstitutes
     );
   };
 
-  const updatePreferences = async (favorites: any[], blocked: any[]) => {
+  const onAutoAssignSubstitute = async (substitute: any) => {
+    location.substitutePreferences?.autoAssugnSubstitutes.push(substitute);
+
+    return updatePreferences(
+      location.substitutePreferences?.favoriteSubstitutes,
+      location.substitutePreferences?.blockedSubstitutes,
+      location.substitutePreferences?.autoAssignSubstitutes
+    );
+  };
+
+  const updatePreferences = async (
+    favorites: any[],
+    blocked: any[],
+    autoAssigned: any[]
+  ) => {
     const neweFavs = favorites.map((s: any) => {
       return { id: s.id };
     });
@@ -72,12 +103,18 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     const neweBlocked = blocked.map((s: any) => {
       return { id: s.id };
     });
+
+    const neweAutoAssigned = autoAssigned.map((s: any) => {
+      return { id: s.id };
+    });
+
     const updatedLocation: any = {
       id: location.id,
       rowVersion: location.rowVersion,
       substitutePreferences: {
         favoriteSubstitutes: neweFavs,
         blockedSubstitutes: neweBlocked,
+        autoAssignSubstitutes: neweAutoAssigned,
       },
     };
     const result = await updateLocation({
@@ -109,13 +146,19 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         searchHeading={"All Substitutes"}
         favoriteEmployees={location.substitutePreferences.favoriteSubstitutes}
         blockedEmployees={location.substitutePreferences.blockedSubstitutes}
+        autoAssignEmployees={
+          location.substitutePreferences.autoAssignedSubstitutes
+        }
         heading={t("Substitute Preferences")}
         subHeading={location.name}
+        isLocationOnly={true}
         orgId={params.organizationId}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
+        onRemoveAutoAssignedEmployee={onRemoveAutoAssignedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}
         onBlockEmployee={onBlockSubstitute}
+        onAutoAssignEmployee={onAutoAssignSubstitute}
         removeBlockedPermission={[PermissionEnum.LocationSave]}
         removeFavoritePermission={[PermissionEnum.LocationSave]}
         addToBlockedPermission={[PermissionEnum.LocationSave]}
