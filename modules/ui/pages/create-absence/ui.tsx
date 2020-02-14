@@ -17,7 +17,6 @@ import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
-import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
 import { compact, flatMap, size, some } from "lodash-es";
 import * as React from "react";
@@ -28,6 +27,8 @@ import {
   createAbsenceDetailInput,
   getAbsenceDates,
   getCannotCreateAbsenceDates,
+  vacancyDetailsHaveDifferentAccountingCodeSelections,
+  vacancyDetailsHaveDifferentPayCodeSelections,
 } from "ui/components/absence/helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -546,12 +547,18 @@ export const buildAbsenceCreateInput = (
 
   // If the Vacancy Details records have selections, we don't want to send
   // the associated property on the parent Vacancy to the server.
-  const detailsHaveAccountingCodeSelections = !!vacancyDetails?.find(
-    vd => vd.accountingCodeId
-  );
-  const detailsHavePayCodeSelections = !!vacancyDetails?.find(
-    vd => vd.payCodeId
-  );
+  const detailsHaveDifferentAccountingCodeSelections =
+    vacancyDetails &&
+    vacancyDetailsHaveDifferentAccountingCodeSelections(
+      vacancyDetails,
+      formValues.accountingCode ? formValues.accountingCode : null
+    );
+  const detailsHaveDifferentPayCodeSelections =
+    vacancyDetails &&
+    vacancyDetailsHaveDifferentPayCodeSelections(
+      vacancyDetails,
+      formValues.payCode ? formValues.payCode : null
+    );
 
   const vDetails =
     vacancyDetails?.map(v => ({
@@ -563,12 +570,12 @@ export const buildAbsenceCreateInput = (
       endTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
-      payCodeId: !detailsHavePayCodeSelections
+      payCodeId: !detailsHaveDifferentPayCodeSelections
         ? undefined
         : v.payCodeId
         ? v.payCodeId
         : null,
-      accountingCodeAllocations: !detailsHaveAccountingCodeSelections
+      accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
         ? undefined
         : v.accountingCodeId
         ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
@@ -590,7 +597,8 @@ export const buildAbsenceCreateInput = (
         prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
         details: vDetails,
         accountingCodeAllocations:
-          !detailsHaveAccountingCodeSelections && formValues.accountingCode
+          !detailsHaveDifferentAccountingCodeSelections &&
+          formValues.accountingCode
             ? [
                 {
                   accountingCodeId: formValues.accountingCode,
@@ -599,7 +607,7 @@ export const buildAbsenceCreateInput = (
               ]
             : undefined,
         payCodeId:
-          !detailsHavePayCodeSelections && formValues.payCode
+          !detailsHaveDifferentPayCodeSelections && formValues.payCode
             ? formValues.payCode
             : undefined,
       },

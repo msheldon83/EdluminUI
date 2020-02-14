@@ -33,6 +33,8 @@ import { AbsenceDetails } from "ui/components/absence/absence-details";
 import {
   getCannotCreateAbsenceDates,
   TranslateAbsenceErrorCodeToMessage,
+  vacancyDetailsHaveDifferentAccountingCodeSelections,
+  vacancyDetailsHaveDifferentPayCodeSelections
 } from "ui/components/absence/helpers";
 import { ActionMenu } from "ui/components/action-menu";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
@@ -614,11 +616,13 @@ const buildAbsenceUpdateInput = (
 
   // If the Vacancy Details records have selections, we don't want to send
   // the associated property on the parent Vacancy to the server.
-  const detailsHaveAccountingCodeSelections = !!vacancyDetails?.find(
-    vd => vd.accountingCodeId
+  const detailsHaveDifferentAccountingCodeSelections = vacancyDetailsHaveDifferentAccountingCodeSelections(
+    vacancyDetails,
+    formValues.accountingCode ? formValues.accountingCode : null
   );
-  const detailsHavePayCodeSelections = !!vacancyDetails?.find(
-    vd => vd.payCodeId
+  const detailsHaveDifferentPayCodeSelections = vacancyDetailsHaveDifferentPayCodeSelections(
+    vacancyDetails,
+    formValues.payCode ? formValues.payCode : null
   );
 
   const vDetails =
@@ -633,14 +637,14 @@ const buildAbsenceUpdateInput = (
       ),
       // If any of the Details have Pay Codes selected we'll include those selections
       // here on the detail or send null when one doesn't have any Pay Code selected
-      payCodeId: !detailsHavePayCodeSelections
+      payCodeId: !detailsHaveDifferentPayCodeSelections
         ? undefined
         : v.payCodeId
         ? v.payCodeId
         : null,
       // If any of the Details have Accounting Codes selected we'll include those selections
       // here on the detail or send null when one doesn't have any Accounting Code selected
-      accountingCodeAllocations: !detailsHaveAccountingCodeSelections
+      accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
         ? undefined
         : v.accountingCodeId
         ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
@@ -686,7 +690,7 @@ const buildAbsenceUpdateInput = (
         // When the details have Accounting Code selections, we won't send Accounting Codes on
         // the Vacancy. When they don't we'll take the single selection in Sub Details
         // and send that if there is one or an empty list to clear out all selections on the Details.
-        accountingCodeAllocations: detailsHaveAccountingCodeSelections
+        accountingCodeAllocations: detailsHaveDifferentAccountingCodeSelections
           ? undefined
           : formValues.accountingCode
           ? [
@@ -699,7 +703,7 @@ const buildAbsenceUpdateInput = (
         // When the details have Pay Code selections, we won't send a Pay Code on
         // the Vacancy. When they don't we'll take the single selection in Sub Details
         // and send that if there is one or null to clear out all selections on the Details.
-        payCodeId: detailsHavePayCodeSelections
+        payCodeId: detailsHaveDifferentPayCodeSelections
           ? undefined
           : formValues.payCode
           ? formValues.payCode
