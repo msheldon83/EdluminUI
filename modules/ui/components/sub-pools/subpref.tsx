@@ -8,6 +8,8 @@ import { PermissionEnum } from "graphql/server-types.gen";
 type Props = {
   favoriteHeading: string;
   blockedHeading: string;
+  blockedHeading: string;
+  autoAssignHeading: string;
   searchHeading: string;
   favoriteEmployees: any[];
   blockedEmployees: any[];
@@ -31,25 +33,36 @@ export const SubstitutePreferences: React.FC<Props> = props => {
       <Typography variant="h5">{props.subHeading}</Typography>
       <Typography variant="h1">{props.heading}</Typography>
       <Grid container spacing={2} className={classes.content}>
-        <Grid item md={6} xs={12}>
-          <SubPoolCard
-            title={props.favoriteHeading}
-            blocked={false}
-            orgUsers={props.favoriteEmployees}
-            onRemove={props.onRemoveFavoriteEmployee}
-            removePermission={props.removeFavoritePermission}
-          ></SubPoolCard>
+        <Grid item xs={6}>
+          <Grid item xs={12}>
+            <SubPoolCard
+              title={props.favoriteHeading}
+              blocked={false}
+              orgUsers={props.favoriteEmployees}
+              onRemove={props.onRemoveFavoriteEmployee}
+              removePermission={props.removeFavoritePermission}
+            ></SubPoolCard>
+          </Grid>
+          <Grid item xs={12}>
+            <SubPoolCard
+              title={props.blockedHeading}
+              blocked={true}
+              orgUsers={props.blockedEmployees}
+              onRemove={props.onRemoveBlockedEmployee}
+              removePermission={props.removeBlockedPermission}
+            ></SubPoolCard>
+          </Grid>
+          <Grid item xs={12}>
+            <SubPoolCard
+              title={props.autoAssignHeading}
+              blocked={true}
+              orgUsers={props.blockedEmployees}
+              onRemove={props.onRemoveBlockedEmployee}
+              removePermission={props.removeBlockedPermission}
+            ></SubPoolCard>
+          </Grid>
         </Grid>
-        <Grid item md={6} xs={12}>
-          <SubPoolCard
-            title={props.blockedHeading}
-            blocked={true}
-            orgUsers={props.blockedEmployees}
-            onRemove={props.onRemoveBlockedEmployee}
-            removePermission={props.removeBlockedPermission}
-          ></SubPoolCard>
-        </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={6}>
           <SubstitutePicker
             orgId={props.orgId}
             title={props.searchHeading}

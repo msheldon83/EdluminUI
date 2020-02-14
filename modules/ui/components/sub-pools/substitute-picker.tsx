@@ -130,7 +130,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
           alignItems="center"
           direction="row"
         >
-          <Grid item xs={3} className={classes.filters}>
+          <Grid item xs={6} className={classes.filters}>
             <Input
               label={t("Search")}
               value={pendingName}

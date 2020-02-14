@@ -105,6 +105,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
       <SubstitutePreferences
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
+        autoAssignHeading={t("Auto Assign")}
         searchHeading={"All Substitutes"}
         favoriteEmployees={location.substitutePreferences.favoriteSubstitutes}
         blockedEmployees={location.substitutePreferences.blockedSubstitutes}

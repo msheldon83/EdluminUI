@@ -431,6 +431,56 @@ input AdminScopePositionTypeRulesInput {
   positionTypeIds: [ID]
 }
 
+type Application {
+  _info: [ReturnMessage]
+  id: Int!
+  name: String
+  description: String
+  url: String
+  contactEmail: String
+  contactPhone: String
+}
+
+type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  application: Application
+  active: Boolean!
+  apiKey: String!
+}
+
+input ApplicationGrantCreateInput {
+  orgId: Int!
+  applicationId: Int!
+  active: Boolean!
+}
+
+type ApplicationGrantMutations {
+  create(applicationGrant: ApplicationGrantCreateInput!): ApplicationGrant
+  update(applicationGrant: ApplicationGrantUpdateInput!): ApplicationGrant
+  delete(applicationGrantId: Int!): Boolean
+}
+
+type ApplicationGrantQueries {
+  byId(id: ID!): ApplicationGrant
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ApplicationGrant]
+}
+
+input ApplicationGrantUpdateInput {
+  orgId: Int!
+  applicationId: Int!
+  active: Boolean!
+}
+
 type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -1497,6 +1547,9 @@ enum EventType {
   ORGANIZATION_DELETED
   ORGANIZATION_TIME_ZONE_CHANGED
   ORGANIZATION_DATA_SEEDED
+  APPLICATION_GRANT_CREATED
+  APPLICATION_GRANT_UPDATED
+  APPLICATION_GRANT_DELETED
   LOCATION_CREATED
   LOCATION_UPDATED
   LOCATION_DELETED
@@ -1904,6 +1957,7 @@ interface ModelObjectInterface {
 type Mutation {
   absence: AbsenceMutations
   absenceReasonBalance: AbsenceReasonBalanceMutations
+  applicationGrant: ApplicationGrantMutations
   assignment: AssignmentMutations
   branding: BrandingMutations
   calendarChange: CalendarChangeMutations
@@ -3513,6 +3567,7 @@ type QualifiedEmployeeCounts {
 type Query {
   absence: AbsenceQueries
   absenceReasonBalance: AbsenceReasonBalanceQueries
+  applicationGrant: ApplicationGrantQueries
   assignment: AssignmentQueries
   branding: BrandingQueries
   calendarChange: CalendarChangeQueries
@@ -4012,6 +4067,7 @@ type ReplacementPoolConfig implements ModelObjectInterface & OrgObjectInterface 
   exclude: Boolean
   maxLeadTimeMinutes: Int!
   minLeadTImeMinutes: Int!
+  useWhenDayExceedsWorkMinutes: Int!
   selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
@@ -4024,6 +4080,7 @@ input ReplacementPoolConfigCreateInput {
   exclude: Boolean
   maxLeadTimeMinutes: Int!
   minLeadTImeMinutes: Int!
+  useWhenDayExceedsWorkMinutes: Int!
   selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
@@ -4049,6 +4106,7 @@ input ReplacementPoolConfigUpdateInput {
   exclude: Boolean
   maxLeadTimeMinutes: Int
   minLeadTImeMinutes: Int
+  useWhenDayExceedsWorkMinutes: Int
   selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
@@ -4128,6 +4186,7 @@ enum ReplacementPoolType {
   INVALID
   FAVORITE
   BLOCKED
+  AUTO_ASSIGN
   OTHER
 }
 
