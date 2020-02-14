@@ -16,6 +16,7 @@ import { TopBar } from "./navigation/top-bar";
 import { OrganizationSwitcherBar } from "./organization-switcher-bar";
 import { PageTitleProvider } from "./page-title-context";
 import { OrganizationStatusBar } from "./orgaization-status-bar";
+import { HelpWidget } from "./help-widget";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -68,6 +69,7 @@ export const AppChrome: React.FunctionComponent = props => {
                 </SnackbarProvider>
               </div>
             </div>
+            <HelpWidget />
           </div>
         </PageTitleProvider>
       </LoadingStateProvider>
@@ -117,6 +119,7 @@ export const AppChrome: React.FunctionComponent = props => {
                 </SnackbarProvider>
               </div>
             </div>
+            <HelpWidget />
           </div>
         </PageTitleProvider>
       </LoadingStateProvider>
