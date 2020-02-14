@@ -51,7 +51,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
       ...absenceEditParams,
       absenceId,
     });
-    history.push(url, {
+    history.push(`${url}?step=preAssignSub`, {
       returnUrl: `${history.location.pathname}${history.location.search}`,
     });
   };
