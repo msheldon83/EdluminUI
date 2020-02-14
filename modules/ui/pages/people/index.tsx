@@ -463,7 +463,7 @@ export const PeoplePage: React.FC<Props> = props => {
       ),
     },
   ];
-  console.log(tableData);
+
   return (
     <>
       <Grid
