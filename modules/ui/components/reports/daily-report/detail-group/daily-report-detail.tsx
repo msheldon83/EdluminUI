@@ -51,6 +51,16 @@ export const DailyReportDetail: React.FC<Props> = props => {
       ...absenceEditParams,
       absenceId,
     });
+    history.push(url, {
+      returnUrl: `${history.location.pathname}${history.location.search}`,
+    });
+  };
+
+  const goToAbsenceEditAssign = (absenceId: string) => {
+    const url = AdminEditAbsenceRoute.generate({
+      ...absenceEditParams,
+      absenceId,
+    });
     history.push(`${url}?step=preAssignSub`, {
       returnUrl: `${history.location.pathname}${history.location.search}`,
     });
@@ -136,6 +146,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
           rowActions={rowActions}
           hideCheckbox={hideCheckbox}
           goToAbsenceEdit={goToAbsenceEdit}
+          goToAbsenceEditAssign={goToAbsenceEditAssign}
           goToPersonView={goToPersonView}
           goToLocationView={goToLocationView}
           isChecked={isChecked}
