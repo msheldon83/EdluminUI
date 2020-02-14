@@ -78,6 +78,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     props,
     initialState
   );
+
   const setVacanciesInput: (
     i: undefined | VacancyDetail[]
   ) => void = useCallback(
@@ -127,6 +128,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const [errorBannerOpen, setErrorBannerOpen] = useState(false);
   const [absenceErrors, setAbsenceErrors] = useState<ApolloError | null>(null);
   const [abscenceCreated, setAbsenceCreated] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(true);
 
   const formValues = getValues();
 
@@ -305,18 +307,18 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     if (absence) {
       setAbsence(absence);
       setAbsenceCreated(true);
-      setStep("confirmation");
+      handleSetStep("confirmation");
     }
   };
 
   const onChangedVacancies = React.useCallback(
     (vacancyDetails: VacancyDetail[]) => {
-      setStep("absence");
+      handleSetStep("absence");
       setVacanciesInput(vacancyDetails);
     },
     [setVacanciesInput, setStep]
   );
-  const onCancel = React.useCallback(() => setStep("absence"), [setStep]);
+  const onCancel = () => handleSetStep("absence");
 
   const onAssignSub = React.useCallback(
     (
@@ -331,34 +333,40 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         setValue("payCode", payCodeId);
       }
       /* eslint-enable @typescript-eslint/no-floating-promises */
-      setStep("absence");
+      handleSetStep("absence");
     },
     [setStep, setValue]
   );
-  const onAssignSubClick = React.useCallback(() => setStep("preAssignSub"), [
-    setStep,
-  ]);
+  const onAssignSubClick = React.useCallback(
+    () => handleSetStep("preAssignSub"),
+    [setStep]
+  );
 
   const removePrearrangedReplacementEmployee = React.useCallback(async () => {
     await setValue("replacementEmployeeId", undefined);
     await setValue("replacementEmployeeName", undefined);
   }, [setValue]);
 
+  const handleSetStep = (newStep: any) => {
+    setShowPrompt(false);
+
+    setTimeout(() => {
+      setStep(newStep);
+    }, 0);
+  }; /* eslint-disable-line react-hooks/exhaustive-deps */ /* eslint-disable-line react-hooks/exhaustive-deps */
+
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
-      {
-        // TODO: This is being temporarily commented out so that we can handle navigating away from the page without throwing the error on sub assign page
-        /*<React.Fragment>
+      <React.Fragment>
         <Prompt
           message={t(
-            "You have not created your absence yet. Click OK to navigate away without creating your absence."
+            "You have not created your absence yet. Click DISCARD CHANGES to leave this page and lose all unsaved changes."
           )}
-          when={!abscenceCreated}
+          when={showPrompt && !abscenceCreated}
         />
       </React.Fragment>
-          */
-      }
+
       <form
         onSubmit={handleSubmit(async data => {
           await create(data);
@@ -404,8 +412,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
+                setStep={handleSetStep}
                 vacancyDetails={projectedVacancyDetails}
-                setStep={setStep}
                 locationIds={props.locationIds}
                 disabledDates={disabledDates}
                 balanceUsageText={absenceUsageText || undefined}
@@ -415,6 +423,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 onRemoveReplacement={removePrearrangedReplacementEmployee}
                 isSubmitted={formState.isSubmitted}
                 initialAbsenceCreation={true}
+                isFormDirty={formState.dirty}
+                setshowPrompt={setShowPrompt}
                 onAssignSubClick={onAssignSubClick}
                 hasEditedDetails={!!state.vacanciesInput}
               />
@@ -433,13 +443,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             disabledDates={disabledDates}
             onCancel={onCancel}
             onSelectReplacement={onAssignSub}
+            setShowPrompt={setShowPrompt}
           />
         )}
         {step === "confirmation" && (
           <Confirmation
             orgId={props.organizationId}
             absence={absence}
-            setStep={setStep}
+            setStep={handleSetStep}
             isAdmin={props.userIsAdmin}
           />
         )}
@@ -454,8 +465,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           details={projectedVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
-          setStep={setStep}
+          setStep={handleSetStep}
           disabledDates={disabledDates}
+          setShowPrompt={setShowPrompt}
           defaultAccountingCode={formValues.accountingCode}
           defaultPayCode={formValues.payCode}
         />

@@ -33,6 +33,7 @@ type Props = {
   employeeId: string;
   setStep: (s: "absence") => void;
   disabledDates?: Date[];
+  setShowPrompt: (show: boolean) => void;
   defaultAccountingCode?: string;
   defaultPayCode?: string;
 };
@@ -71,6 +72,11 @@ export const EditVacancies: React.FC<Props> = props => {
   );
 
   const accountingCodes = useAccountingCodes(props.orgId);
+
+  //this is used to enable prompt if unsaved.
+  React.useEffect(() => {
+    props.setShowPrompt(true);
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   if (props.details.length === 0) {
     props.setStep("absence");

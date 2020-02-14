@@ -54,6 +54,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
   onSubstituteWantedChange: (wanted: boolean) => void;
+  isFormDirty: boolean;
   onCancelAssignment: (
     assignmentId?: string,
     assignmentRowVersion?: string,
@@ -326,7 +327,8 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                         onClick={() => props.onAssignSubClick()}
                         disabled={
                           props.disableReplacementInteractions ||
-                          props.replacementEmployeeId !== undefined
+                          props.replacementEmployeeId !== undefined ||
+                          (props.isFormDirty && !!props.arrangeSubButtonTitle)
                         }
                       >
                         {props.arrangeSubButtonTitle ?? t("Pre-arrange")}

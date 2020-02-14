@@ -18,20 +18,18 @@ type Props = {
   onCancel: () => void;
 };
 
-export const CancelChangesDialog: React.FC<Props> = props => {
+export const DiscardChangesDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
-        <Typography variant="h5">{t("Cancel Changes")}</Typography>
+        <Typography variant="h5">{t("Discard Changes")}</Typography>
       </DialogTitle>
       <DialogContent>
         <Typography>
-          {t(
-            "Are you sure you would like to cancel and lose any unsaved changes?"
-          )}
+          {t("Are you sure you would like to discard any unsaved changes?")}
         </Typography>
       </DialogContent>
 
@@ -45,7 +43,7 @@ export const CancelChangesDialog: React.FC<Props> = props => {
           onClick={props.onCancel}
           className={classes.delete}
         >
-          {t("Cancel Changes")}
+          {t("Discard Changes")}
         </ButtonDisableOnClick>
       </DialogActions>
     </Dialog>

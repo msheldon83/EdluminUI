@@ -10,7 +10,7 @@ import {
 } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
@@ -80,6 +80,8 @@ type Props = {
   initialAbsenceCreation: boolean;
   onDelete?: () => void;
   onCancel?: () => void;
+  isFormDirty: boolean;
+  setshowPrompt: (show: boolean) => void;
   onAssignSubClick: (
     vacancyDetailIds?: string[],
     employeeToReplace?: string
@@ -157,6 +159,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
     return { part: values.dayPart };
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
 
+  //this is used to enable prompt if unsaved.
+  useEffect(() => {
+    props.setshowPrompt(true);
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
   const isSplitVacancy = useMemo(() => {
     return vacanciesHaveMultipleAssignments(props.vacancies);
   }, [props.vacancies]);
@@ -286,6 +292,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             needsReplacement={needsReplacement}
             wantsReplacement={wantsReplacement}
             onSubstituteWantedChange={onSubstituteWantedChange}
+            isFormDirty={props.isFormDirty}
             onCancelAssignment={props.onRemoveReplacement}
             isSplitVacancy={isSplitVacancy}
             onAssignSubClick={props.onAssignSubClick}
@@ -314,7 +321,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
       <Grid item xs={12} className={classes.stickyFooter}>
         <div className={classes.actionButtons}>
-          {props.onDelete && (
+          <div className={classes.unsavedText}>
+            {props.isFormDirty && (
+              <Typography>{t("This page has unsaved changes")}</Typography>
+            )}
+          </div>
+          {props.onDelete && !props.isFormDirty && (
             <Button
               onClick={() => props.onDelete!()}
               variant="text"
@@ -323,14 +335,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
               {t("Delete")}
             </Button>
           )}
-          {props.onCancel && (
+          {props.onCancel && props.isFormDirty && (
             <Button
-              //onClick={() => history.goBack()}
               onClick={() => props.onCancel!()}
               variant="outlined"
               className={classes.cancelButton}
+              disabled={!props.isFormDirty}
             >
-              {t("Cancel Changes")}
+              {t("Discard Changes")}
             </Button>
           )}
           <Can do={[PermissionEnum.AbsVacSave]}>
@@ -338,6 +350,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
               type="submit"
               variant="contained"
               className={classes.saveButton}
+              disabled={!props.isFormDirty}
             >
               {props.saveLabel ?? t("Create")}
             </Button>
@@ -355,7 +368,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "flex-end",
   },
   stickyFooter: {
-    backgroundColor: theme.customColors.lightGray,
+    backgroundColor: "#E3F2FD",
     height: theme.typography.pxToRem(72),
     position: "fixed",
     width: "100%",
@@ -375,6 +388,7 @@ const useStyles = makeStyles(theme => ({
   },
   cancelButton: {
     marginRight: theme.spacing(2),
+    color: "#050039",
   },
   saveButton: {
     marginRight: theme.spacing(4),
@@ -389,6 +403,11 @@ const useStyles = makeStyles(theme => ({
   subText: {
     color: theme.customColors.edluminSubText,
   },
+  unsavedText: {
+    marginRight: theme.typography.pxToRem(30),
+    marginTop: theme.typography.pxToRem(8),
+  },
+
   substituteDetailsTitle: { paddingBottom: theme.typography.pxToRem(3) },
   substituteDetailsSubtitle: { paddingBottom: theme.typography.pxToRem(1) },
   subDetailsContainer: {
