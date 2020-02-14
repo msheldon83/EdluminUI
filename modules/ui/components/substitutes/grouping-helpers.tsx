@@ -18,6 +18,7 @@ export function generateEmptyDateMap(from: Date, to: Date): DateGroupByMonth[] {
   const toDate = isLastDayOfMonth(to) ? addDays(to, 1) : to;
   const diff = differenceInCalendarMonths(toDate, from);
   const absDiff = Math.abs(diff);
+  const delta = diff > 0 ? 1 : -1;
 
   return absDiff > 1
     ? range(0, absDiff).map(i => ({
