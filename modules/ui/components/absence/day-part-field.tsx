@@ -154,13 +154,6 @@ export const DayPartField: React.FC<Props> = props => {
     [value, setIncompleteEndTime, onDayPartChange]
   );
 
-  const showFullDayOption = useMemo(() => {
-    return (
-      employeeScheduleTimes?.halfDayAfternoonStart &&
-      employeeScheduleTimes?.halfDayMorningEnd
-    );
-  }, [employeeScheduleTimes]);
-
   return (
     <>
       <RadioGroup
@@ -175,10 +168,6 @@ export const DayPartField: React.FC<Props> = props => {
               ? dayPartToTimesLabel(type, employeeScheduleTimes)
               : "";
 
-            // Hide the full day option if we don't have both half days in the schedule
-            if (type === DayPart.FullDay && !showFullDayOption) {
-              return <div key={type}></div>;
-            }
             if (timeDisplay || type === DayPart.Hourly) {
               return (
                 <Grid
