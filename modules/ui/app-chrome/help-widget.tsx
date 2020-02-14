@@ -3,7 +3,7 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 
 declare let $zopim: any;
 declare let zE: any;
-export const HelpWidget: React.FC<React.Props> = props => {
+export const HelpWidget: React.FC<{}> = props => {
   const userAccess = useMyUserAccess();
   const user = userAccess?.me?.user;
   const showChat = user?.orgUsers?.some(x => x?.administrator?.isSuperUser);
