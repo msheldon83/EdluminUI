@@ -347,9 +347,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   }, [setValue]);
 
   const handleSetStep = (newStep: any) => {
-    if (showPrompt) {
-      setShowPrompt(false);
-    }
+    setShowPrompt(false);
+
     setTimeout(() => {
       setStep(newStep);
     }, 0);
@@ -366,7 +365,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           when={showPrompt && !abscenceCreated}
         />
       </React.Fragment>
-      )
+
       <form
         onSubmit={handleSubmit(async data => {
           await create(data);
