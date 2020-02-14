@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
 
 export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
   const params = useRouteParams(LocationSubPrefRoute);
@@ -22,35 +22,35 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     fetchPolicy: "cache-first",
   });
 
-  const onRemoveFavoriteSubstitute = async (substitute: any) => {
+  const onRemoveFavoriteSubstitute = async (substitute: OrgUser) => {
     const filteredFavorites = location.substitutePreferences?.favoriteSubstitutes.filter(
-      (u: any) => {
+      (u: OrgUser) => {
         return u.id !== substitute.id;
       }
     );
     return updatePreferences(
       filteredFavorites,
       location.substitutePreferences?.blockedSubstitutes,
-      location.substitutePreferences?.autoAssignSubstitutes
+      location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
 
-  const onRemoveBlockedSubstitute = async (substitute: any) => {
+  const onRemoveBlockedSubstitute = async (substitute: OrgUser) => {
     const filteredBlocked = location.substitutePreferences?.blockedSubstitutes.filter(
-      (u: any) => {
+      (u: OrgUser) => {
         return u.id !== substitute.id;
       }
     );
     return updatePreferences(
       location.substitutePreferences?.favoriteSubstitutes,
       filteredBlocked,
-      location.substitutePreferences?.autoAssignSubstitutes
+      location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
 
-  const onRemoveAutoAssignedSubstitute = async (substitute: any) => {
+  const onRemoveAutoAssignedSubstitute = async (substitute: OrgUser) => {
     const filteredAutoAssigned = location.substitutePreferences?.autoAssignedSubstitutes.filter(
-      (u: any) => {
+      (u: OrgUser) => {
         return u.id !== substitute.id;
       }
     );
@@ -61,50 +61,50 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onAddSubstitute = async (substitute: any) => {
+  const onAddSubstitute = async (substitute: OrgUser) => {
     location.substitutePreferences?.favoriteSubstitutes.push(substitute);
 
     return updatePreferences(
       location.substitutePreferences?.favoriteSubstitutes,
       location.substitutePreferences?.blockedSubstitutes,
-      location.substitutePreferences?.autoAssignSubstitutes
+      location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
 
-  const onBlockSubstitute = async (substitute: any) => {
+  const onBlockSubstitute = async (substitute: OrgUser) => {
     location.substitutePreferences?.blockedSubstitutes.push(substitute);
 
     return updatePreferences(
       location.substitutePreferences?.favoriteSubstitutes,
       location.substitutePreferences?.blockedSubstitutes,
-      location.substitutePreferences?.autoAssignSubstitutes
+      location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
 
-  const onAutoAssignSubstitute = async (substitute: any) => {
-    location.substitutePreferences?.autoAssugnSubstitutes.push(substitute);
+  const onAutoAssignSubstitute = async (substitute: OrgUser) => {
+    location.substitutePreferences?.autoAssignedSubstitutes.push(substitute);
 
     return updatePreferences(
       location.substitutePreferences?.favoriteSubstitutes,
       location.substitutePreferences?.blockedSubstitutes,
-      location.substitutePreferences?.autoAssignSubstitutes
+      location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
 
   const updatePreferences = async (
-    favorites: any[],
-    blocked: any[],
-    autoAssigned: any[]
+    favorites: OrgUser[],
+    blocked: OrgUser[],
+    autoAssigned: OrgUser[]
   ) => {
-    const neweFavs = favorites.map((s: any) => {
+    const neweFavs = favorites.map((s: OrgUser) => {
       return { id: s.id };
     });
 
-    const neweBlocked = blocked.map((s: any) => {
+    const neweBlocked = blocked.map((s: OrgUser) => {
       return { id: s.id };
     });
 
-    const neweAutoAssigned = autoAssigned.map((s: any) => {
+    const neweAutoAssigned = autoAssigned.map((s: OrgUser) => {
       return { id: s.id };
     });
 
@@ -114,7 +114,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
       substitutePreferences: {
         favoriteSubstitutes: neweFavs,
         blockedSubstitutes: neweBlocked,
-        autoAssignSubstitutes: neweAutoAssigned,
+        autoAssignedSubstitutes: neweAutoAssigned,
       },
     };
     const result = await updateLocation({

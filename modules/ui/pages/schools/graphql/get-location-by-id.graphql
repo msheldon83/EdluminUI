@@ -26,6 +26,12 @@ query GetLocationById($locationId: ID!) {
           middleName
           lastName
         }
+        autoAssignedSubstitutes {
+          id
+          firstName
+          middleName
+          lastName
+        }
       }
       locationGroup {
         id

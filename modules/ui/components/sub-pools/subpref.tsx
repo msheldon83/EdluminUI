@@ -3,25 +3,25 @@ import { Grid, Typography } from "@material-ui/core";
 import { SubPoolCard } from "ui/components/sub-pools/subpoolcard";
 import { SubstitutePicker } from "ui/components/sub-pools/substitute-picker";
 import { makeStyles } from "@material-ui/styles";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
 
 type Props = {
   favoriteHeading: string;
   blockedHeading: string;
   autoAssignHeading?: string;
   searchHeading: string;
-  favoriteEmployees: any[];
-  blockedEmployees: any[];
-  autoAssignEmployees?: any[] | null | undefined;
+  favoriteEmployees: OrgUser[];
+  blockedEmployees: OrgUser[];
+  autoAssignEmployees?: OrgUser[];
   heading: string;
   subHeading: string;
   orgId: string;
-  onRemoveFavoriteEmployee: (orgUser: any) => void;
-  onRemoveBlockedEmployee: (orgUser: any) => void;
-  onRemoveAutoAssignedEmployee?: (orgUser: any) => void | null | undefined;
-  onAddFavoriteEmployee: (orgUser: any) => void;
-  onBlockEmployee: (orgUser: any) => void;
-  onAutoAssignEmployee?: (orgUser: any) => void | null | undefined;
+  onRemoveFavoriteEmployee: (orgUser: OrgUser) => void;
+  onRemoveBlockedEmployee: (orgUser: OrgUser) => void;
+  onRemoveAutoAssignedEmployee?: (orgUser: OrgUser) => void;
+  onAddFavoriteEmployee: (orgUser: OrgUser) => void;
+  onBlockEmployee: (orgUser: OrgUser) => void;
+  onAutoAssignEmployee?: (orgUser: OrgUser) => void;
   removeBlockedPermission: PermissionEnum[];
   removeFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
@@ -55,7 +55,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
               removePermission={props.removeBlockedPermission}
             ></SubPoolCard>
           </Grid>
-          {props.isLocationOnly && (
+          {props.isLocationOnly && props.onRemoveAutoAssignedEmployee && (
             <Grid item xs={12}>
               <SubPoolCard
                 title={props.autoAssignHeading ?? ""} // Auto Assign List?

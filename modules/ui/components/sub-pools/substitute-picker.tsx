@@ -172,11 +172,11 @@ export const SubstitutePicker: React.FC<Props> = props => {
                     {t("Add")}
                   </TextButton>
                 </Can>
-                {props.isLocationOnly && (
+                {props.isLocationOnly && props.onAutoAssign && (
                   <Can do={props.addToFavoritePermission}>
                     <TextButton
                       className={classes.addActionLink}
-                      onClick={() => props.onAutoAssign(user)}
+                      onClick={() => props.onAutoAssign!(user)}
                     >
                       {t("Auto Assign")}
                     </TextButton>
