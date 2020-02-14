@@ -24,7 +24,8 @@ export type SelectProps<T extends boolean> = {
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
   className?: string;
-  doSort?: (option1: OptionType, option2: OptionType) => 1 | -1 | 0;
+  onSort?: (option1: OptionType, option2: OptionType) => 1 | -1 | 0;
+  doSort?: boolean;
 
   // This should never be used if it's a multi-select
   withResetValue?: T extends true ? false : boolean;
@@ -60,10 +61,15 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     withResetValue = multiple ? false : true,
     className,
     options,
-    doSort = (a: OptionType, b: OptionType) => (a.label > b.label ? 1 : b.label > a.label ? -1 : 0),
+    doSort = true,
+    onSort = (a: OptionType, b: OptionType) =>
+      a.label > b.label ? 1 : b.label > a.label ? -1 : 0,
   } = props;
 
-  const sortedOptions = useMemo(() => options.sort(doSort), [options, doSort]);
+  const sortedOptions = useMemo(
+    () => (doSort ? options.sort(onSort) : options),
+    [options, onSort, doSort]
+  );
 
   const [showAllChips, setShowAllChips] = React.useState(false);
   const [hasOverflow, setHasOverFlow] = React.useState(false);

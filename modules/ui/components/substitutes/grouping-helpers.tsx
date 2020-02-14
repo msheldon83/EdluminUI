@@ -1,4 +1,10 @@
-import { addMonths, differenceInCalendarMonths, parseISO } from "date-fns";
+import {
+  addMonths,
+  differenceInCalendarMonths,
+  parseISO,
+  isLastDayOfMonth,
+  addDays,
+} from "date-fns";
 import { startOfMonth } from "date-fns/esm";
 import { groupBy, range } from "lodash-es";
 import { AssignmentVacancyDetails } from "../../pages/sub-schedule/types";
@@ -9,7 +15,8 @@ export interface DateGroupByMonth {
 }
 
 export function generateEmptyDateMap(from: Date, to: Date): DateGroupByMonth[] {
-  const diff = differenceInCalendarMonths(to, from);
+  const toDate = isLastDayOfMonth(to) ? addDays(to, 1) : to;
+  const diff = differenceInCalendarMonths(toDate, from);
   const absDiff = Math.abs(diff);
   const delta = diff > 0 ? 1 : -1;
 

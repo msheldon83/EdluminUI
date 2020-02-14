@@ -505,10 +505,17 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           <div className={classes.titleContainer}>
             <div className={classes.title}>
               {props.actingAsEmployee ? (
-                <Typography variant="h1">{t("Edit absence")}</Typography>
-              ) : (
                 <>
                   <Typography variant="h5">{t("Edit absence")}</Typography>
+                  <Typography variant="h6">
+                    {t("Confirmation")} #{props.absenceId}
+                  </Typography>
+                </>
+              ) : (
+                <>
+                  <Typography variant="h5">
+                    {t("Edit absence")} #{props.absenceId}
+                  </Typography>
                   <Typography variant="h1">{name}</Typography>
                 </>
               )}
@@ -525,12 +532,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                   },
                 ]}
               />
-
-              <div className={classes.confirmationNumber}>
-                <Typography variant="h6">
-                  {t("Confirmation")} #{props.absenceId}
-                </Typography>
-              </div>
             </div>
           </div>
 
