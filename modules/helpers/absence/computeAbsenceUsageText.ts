@@ -33,7 +33,7 @@ export const computeAbsenceUsageText = (
     HOURLY: ["hour", "hours"],
   }[trackingType];
   if (!unitText) return null;
-  return `${t("Uses")} ${amount} ${t(unitText[Number(amount !== 1)])} ${t(
-    "of your balance"
-  )}`;
+  return `${t("Uses")} ${amount.toFixed(2)} ${t(
+    unitText[Number(amount !== 1)]
+  )} ${t("of your balance")}`;
 };
