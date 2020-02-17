@@ -341,7 +341,7 @@ export const Assignment: React.FC<Props> = props => {
               spacing={2}
               className={classes.container}
             >
-              <Grid item xs={2}>
+              <Grid item xs={1}>
                 <Typography className={classes.boldText}>{`
                  #C${vacancyDetail.assignment!.id}`}</Typography>
               </Grid>
@@ -364,7 +364,7 @@ export const Assignment: React.FC<Props> = props => {
                   <></>
                 )}
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={2}>
                 <Typography className={classes.regularText}>{`${format(
                   vacancyDetailStartTime,
                   "h:mm aaa"
@@ -375,7 +375,7 @@ export const Assignment: React.FC<Props> = props => {
                   </Typography>
                 )}
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 <Typography className={classes.regularText}>
                   {vacancyDetail.vacancy!.position!.title}
                 </Typography>
@@ -385,7 +385,7 @@ export const Assignment: React.FC<Props> = props => {
                   >{`Code: ${payCodeLabel ?? t("N/A")}`}</Typography>
                 )}
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 <Typography className={classes.regularText}>
                   {vacancyDetail.location!.name}
                 </Typography>
@@ -420,7 +420,7 @@ export const Assignment: React.FC<Props> = props => {
                     classes.container,
                   ].join(" ")}
                 >
-                  <Grid item xs={4}></Grid>
+                  <Grid item xs={1}></Grid>
                   <Grid item xs={3} className={classes.displayFlex}>
                     <Grid
                       item
@@ -501,77 +501,80 @@ export const Assignment: React.FC<Props> = props => {
                       <></>
                     )}
                   </Grid>
-                  <Grid item xs={2}>
-                    <Can do={[PermissionEnum.AbsVacSavePayCode]}>
-                      <Typography className={classes.boldText}>
-                        {t("Pay code:")}
-                      </Typography>
-                      <SelectNew
-                        value={{
-                          value: values.payCodeId ?? "",
-                          label:
-                            props.payCodeOptions.find(
-                              a => a.value === values.payCodeId
-                            )?.label || "",
-                        }}
-                        onChange={async (e: OptionType) => {
-                          let selectedValue = null;
-                          if (e) {
-                            if (Array.isArray(e)) {
-                              selectedValue = (e as Array<OptionTypeBase>)[0]
-                                .value;
-                            } else {
-                              selectedValue = (e as OptionTypeBase).value;
+                  <Grid container item xs={7} spacing={2}>
+                    <Grid item xs={6}>
+                      <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+                        <Typography className={classes.boldText}>
+                          {t("Pay code:")}
+                        </Typography>
+                        <SelectNew
+                          value={{
+                            value: values.payCodeId ?? "",
+                            label:
+                              props.payCodeOptions.find(
+                                a => a.value === values.payCodeId
+                              )?.label || "",
+                          }}
+                          onChange={async (e: OptionType) => {
+                            let selectedValue = null;
+                            if (e) {
+                              if (Array.isArray(e)) {
+                                selectedValue = (e as Array<OptionTypeBase>)[0]
+                                  .value;
+                              } else {
+                                selectedValue = (e as OptionTypeBase).value;
+                              }
                             }
-                          }
-                          setFieldValue("payCodeId", selectedValue);
-                          await handlePayCodeOnChange(selectedValue);
-                        }}
-                        multiple={false}
-                        options={props.payCodeOptions}
-                      />
-                    </Can>
-                    <Can not do={[PermissionEnum.AbsVacSavePayCode]}>
-                      <Typography
-                        className={classes.boldText}
-                      >{`Pay: ${payCodeLabel ?? t("N/A")}`}</Typography>
-                    </Can>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
-                      <Typography className={classes.boldText}>
-                        {t("Accounting code:")}
-                      </Typography>
-                      <SelectNew
-                        value={{
-                          value: values.accountingCodeId ?? "",
-                          label:
-                            accountingCodeOptions.find(
-                              a => a.value === values.accountingCodeId
-                            )?.label || "",
-                        }}
-                        onChange={async (e: OptionType) => {
-                          let selectedValue = null;
-                          if (e) {
-                            if (Array.isArray(e)) {
-                              selectedValue = (e as Array<OptionTypeBase>)[0]
-                                .value;
-                            } else {
-                              selectedValue = (e as OptionTypeBase).value;
+                            setFieldValue("payCodeId", selectedValue);
+                            await handlePayCodeOnChange(selectedValue);
+                          }}
+                          multiple={false}
+                          options={props.payCodeOptions}
+                        />
+                      </Can>
+                      <Can not do={[PermissionEnum.AbsVacSavePayCode]}>
+                        <Typography
+                          className={classes.boldText}
+                        >{`Pay: ${payCodeLabel ?? t("N/A")}`}</Typography>
+                      </Can>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
+                        <Typography className={classes.boldText}>
+                          {t("Accounting code:")}
+                        </Typography>
+                        <SelectNew
+                          value={{
+                            value: values.accountingCodeId ?? "",
+                            label:
+                              accountingCodeOptions.find(
+                                a => a.value === values.accountingCodeId
+                              )?.label || "",
+                          }}
+                          onChange={async (e: OptionType) => {
+                            let selectedValue = null;
+                            if (e) {
+                              if (Array.isArray(e)) {
+                                selectedValue = (e as Array<OptionTypeBase>)[0]
+                                  .value;
+                              } else {
+                                selectedValue = (e as OptionTypeBase).value;
+                              }
                             }
-                          }
-                          setFieldValue("accountingCodeId", selectedValue);
-                          await handleAccountingCodeOnChange(selectedValue);
-                        }}
-                        options={accountingCodeOptions}
-                        multiple={false}
-                      />
-                    </Can>
-                    <Can not do={[PermissionEnum.AbsVacSaveAccountCode]}>
-                      <Typography
-                        className={classes.boldText}
-                      >{`Acct: ${accountingCodeLabel ?? t("N/A")}`}</Typography>
-                    </Can>
+                            setFieldValue("accountingCodeId", selectedValue);
+                            await handleAccountingCodeOnChange(selectedValue);
+                          }}
+                          options={accountingCodeOptions}
+                          multiple={false}
+                        />
+                      </Can>
+                      <Can not do={[PermissionEnum.AbsVacSaveAccountCode]}>
+                        <Typography
+                          className={classes.boldText}
+                        >{`Acct: ${accountingCodeLabel ??
+                          t("N/A")}`}</Typography>
+                      </Can>
+                    </Grid>
                   </Grid>
                   <Grid item xs={1}></Grid>
                 </Grid>
@@ -585,8 +588,8 @@ export const Assignment: React.FC<Props> = props => {
                     classes.container,
                   ].join(" ")}
                 >
-                  <Grid item xs={4}></Grid>
-                  <Grid item xs={7}>
+                  <Grid item xs={1}></Grid>
+                  <Grid item xs={10}>
                     <Can do={[PermissionEnum.AbsVacSave]}>
                       <Typography className={classes.boldText}>
                         {t("Comments:")}
