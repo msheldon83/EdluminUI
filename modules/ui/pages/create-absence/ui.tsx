@@ -129,7 +129,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const [errorBannerOpen, setErrorBannerOpen] = useState(false);
   const [absenceErrors, setAbsenceErrors] = useState<ApolloError | null>(null);
   const [abscenceCreated, setAbsenceCreated] = useState(false);
-  const [showPrompt, setShowPrompt] = useState(true);
 
   const formValues = getValues();
 
@@ -310,18 +309,18 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     if (absence) {
       setAbsence(absence);
       setAbsenceCreated(true);
-      handleSetStep("confirmation");
+      setStep("confirmation");
     }
   };
 
   const onChangedVacancies = React.useCallback(
     (vacancyDetails: VacancyDetail[]) => {
-      handleSetStep("absence");
+      setStep("absence");
       setVacanciesInput(vacancyDetails);
     },
     [setVacanciesInput, setStep]
   );
-  const onCancel = () => handleSetStep("absence");
+  const onCancel = () => setStep("absence");
 
   const onAssignSub = React.useCallback(
     (
@@ -336,31 +335,18 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         setValue("payCode", payCodeId);
       }
       /* eslint-enable @typescript-eslint/no-floating-promises */
-      handleSetStep("absence");
+      setStep("absence");
     },
     [setStep, setValue]
   );
-  const onAssignSubClick = React.useCallback(
-    () => handleSetStep("preAssignSub"),
-    [setStep]
-  );
+  const onAssignSubClick = React.useCallback(() => setStep("preAssignSub"), [
+    setStep,
+  ]);
 
   const removePrearrangedReplacementEmployee = React.useCallback(async () => {
     await setValue("replacementEmployeeId", undefined);
     await setValue("replacementEmployeeName", undefined);
   }, [setValue]);
-
-  const handleSetStep = React.useCallback(
-    (newStep: any) => {
-      if (showPrompt) {
-        setShowPrompt(false);
-      }
-      setTimeout(() => {
-        setStep(newStep);
-      }, 0);
-    },
-    [setStep, setShowPrompt, showPrompt]
-  );
 
   return (
     <>
@@ -425,7 +411,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
-                setStep={handleSetStep}
+                setStep={setStep}
                 vacancyDetails={projectedVacancyDetails}
                 locationIds={props.locationIds}
                 disabledDates={disabledDates}
@@ -437,7 +423,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isSubmitted={formState.isSubmitted}
                 initialAbsenceCreation={true}
                 isFormDirty={formState.dirty}
-                setshowPrompt={setShowPrompt}
                 onAssignSubClick={onAssignSubClick}
                 hasEditedDetails={!!state.vacanciesInput}
               />
@@ -456,14 +441,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             disabledDates={disabledDates}
             onCancel={onCancel}
             onSelectReplacement={onAssignSub}
-            setShowPrompt={setShowPrompt}
           />
         )}
         {step === "confirmation" && (
           <Confirmation
             orgId={props.organizationId}
             absence={absence}
-            setStep={handleSetStep}
+            setStep={setStep}
             isAdmin={props.userIsAdmin}
           />
         )}
@@ -478,9 +462,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           details={projectedVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
-          setStep={handleSetStep}
+          setStep={setStep}
           disabledDates={disabledDates}
-          setShowPrompt={setShowPrompt}
           defaultAccountingCode={formValues.accountingCode}
           defaultPayCode={formValues.payCode}
         />

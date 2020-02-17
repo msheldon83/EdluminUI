@@ -127,7 +127,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
-  const [showPrompt, setShowPrompt] = useState(true);
 
   const customizedVacancyDetails = state.customizedVacanciesInput;
   const setVacanciesInput = useCallback(
@@ -230,18 +229,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       );
     },
   });
-
-  const handleSetStep = React.useCallback(
-    (newStep: any) => {
-      if (showPrompt) {
-        setShowPrompt(false);
-      }
-      setTimeout(() => {
-        setStep(newStep);
-      }, 0);
-    },
-    [setStep, setShowPrompt, showPrompt]
-  );
 
   const useProjectedInformation =
     customizedVacancyDetails !== undefined ||
@@ -362,12 +349,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
-      handleSetStep("absence");
+      setStep("absence");
       setVacanciesInput(vacancyDetails);
     },
-    [setVacanciesInput, handleSetStep]
+    [setVacanciesInput, setStep]
   );
-  const onCancel = () => handleSetStep("absence");
+  const onCancel = () => setStep("absence");
 
   const projectedVacancyDetails: VacancyDetail[] = useMemo(
     () => projectVacancyDetails(getProjectedVacancies),
@@ -455,10 +442,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         },
       });
       await props.refetchAbsence();
-      handleSetStep("absence");
+      setStep("absence");
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [handleSetStep, assignVacancy]
+    [setStep, assignVacancy]
   );
 
   const onToggleAbsenceDate = useCallback(
@@ -484,9 +471,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     (vacancyDetailIds?: string[], employeeToReplace?: string) => {
       setVacancyDetailIdsToAssign(vacancyDetailIds ?? undefined);
       setEmployeeToReplace(employeeToReplace ?? undefined);
-      handleSetStep("preAssignSub");
+      setStep("preAssignSub");
     },
-    [handleSetStep]
+    [setStep]
   );
 
   const hasUnsavedChanges = useMemo(() => {
@@ -578,7 +565,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               absenceDates={state.absenceDates}
               onToggleAbsenceDate={onToggleAbsenceDate}
               saveLabel={t("Save")}
-              setStep={handleSetStep}
+              setStep={setStep}
               assignmentId={props.assignmentId}
               disabledDates={disabledDates}
               isAdmin={props.userIsAdmin}
@@ -618,7 +605,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 !isEqual(state.absenceDates, props.absenceDates) ||
                 !isEqual(props.initialVacancyDetails, theVacancyDetails)
               }
-              setshowPrompt={setShowPrompt}
               hasEditedDetails={true}
             />
           </Section>
@@ -634,9 +620,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           details={theVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
-          setStep={handleSetStep}
+          setStep={setStep}
           disabledDates={disabledDates}
-          setShowPrompt={setShowPrompt}
         />
       )}
       {step === "preAssignSub" && (
@@ -660,7 +645,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           }}
           employeeToReplace={employeeToReplace}
           vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
-          setShowPrompt={setShowPrompt}
         />
       )}
     </>
