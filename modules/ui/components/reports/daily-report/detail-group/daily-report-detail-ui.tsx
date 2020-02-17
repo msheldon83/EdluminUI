@@ -21,6 +21,7 @@ type Props = {
     assignmentRowVersion?: string
   ) => Promise<void>;
   goToAbsenceEdit: (absenceId: string) => void;
+  goToAbsenceEditAssign: (absenceId: string) => void;
   goToPersonView: (orgUserId: string | undefined) => void;
   goToLocationView: (locationId: string | undefined) => void;
   hideCheckbox: boolean;
@@ -160,16 +161,18 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
             >
               <Link
                 className={classes.action}
-                onClick={() => props.goToAbsenceEdit(props.detail.id)}
+                onClick={() => props.goToAbsenceEditAssign(props.detail.id)}
               >
                 {t("Assign")}
               </Link>
             </Can>
           )}
           {props.detail.subTimes.map((st, i) => {
-            return (<div className={classes.detailSubText} key={i}>
-              {`${st.startTime} - ${st.endTime}`}
-            </div>);
+            return (
+              <div className={classes.detailSubText} key={i}>
+                {`${st.startTime} - ${st.endTime}`}
+              </div>
+            );
           })}
         </div>
       </div>

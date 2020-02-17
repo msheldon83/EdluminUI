@@ -17,7 +17,6 @@ import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
-import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
 import { compact, flatMap, size, some } from "lodash-es";
 import * as React from "react";
@@ -28,6 +27,8 @@ import {
   createAbsenceDetailInput,
   getAbsenceDates,
   getCannotCreateAbsenceDates,
+  vacancyDetailsHaveDifferentAccountingCodeSelections,
+  vacancyDetailsHaveDifferentPayCodeSelections,
 } from "ui/components/absence/helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -77,6 +78,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     props,
     initialState
   );
+
   const setVacanciesInput: (
     i: undefined | VacancyDetail[]
   ) => void = useCallback(
@@ -126,6 +128,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const [errorBannerOpen, setErrorBannerOpen] = useState(false);
   const [absenceErrors, setAbsenceErrors] = useState<ApolloError | null>(null);
   const [abscenceCreated, setAbsenceCreated] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(true);
 
   const formValues = getValues();
 
@@ -193,6 +196,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         props.positionId ?? "",
         disabledDates,
         state.needsReplacement,
+        !!state.vacanciesInput,
         state.vacanciesInput
       ),
     [
@@ -281,6 +285,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       props.positionId ?? "",
       disabledDates,
       state.needsReplacement,
+      !!state.vacanciesInput,
       theVacancyDetails
     );
     if (!absenceCreateInput) {
@@ -304,18 +309,18 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     if (absence) {
       setAbsence(absence);
       setAbsenceCreated(true);
-      setStep("confirmation");
+      handleSetStep("confirmation");
     }
   };
 
   const onChangedVacancies = React.useCallback(
     (vacancyDetails: VacancyDetail[]) => {
-      setStep("absence");
+      handleSetStep("absence");
       setVacanciesInput(vacancyDetails);
     },
     [setVacanciesInput, setStep]
   );
-  const onCancel = React.useCallback(() => setStep("absence"), [setStep]);
+  const onCancel = () => handleSetStep("absence");
 
   const onAssignSub = React.useCallback(
     (
@@ -330,34 +335,40 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         setValue("payCode", payCodeId);
       }
       /* eslint-enable @typescript-eslint/no-floating-promises */
-      setStep("absence");
+      handleSetStep("absence");
     },
     [setStep, setValue]
   );
-  const onAssignSubClick = React.useCallback(() => setStep("preAssignSub"), [
-    setStep,
-  ]);
+  const onAssignSubClick = React.useCallback(
+    () => handleSetStep("preAssignSub"),
+    [setStep]
+  );
 
   const removePrearrangedReplacementEmployee = React.useCallback(async () => {
     await setValue("replacementEmployeeId", undefined);
     await setValue("replacementEmployeeName", undefined);
   }, [setValue]);
 
+  const handleSetStep = (newStep: any) => {
+    setShowPrompt(false);
+
+    setTimeout(() => {
+      setStep(newStep);
+    }, 0);
+  }; /* eslint-disable-line react-hooks/exhaustive-deps */ /* eslint-disable-line react-hooks/exhaustive-deps */
+
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
-      {
-        // TODO: This is being temporarily commented out so that we can handle navigating away from the page without throwing the error on sub assign page
-        /*<React.Fragment>
+      <React.Fragment>
         <Prompt
           message={t(
-            "You have not created your absence yet. Click OK to navigate away without creating your absence."
+            "You have not created your absence yet. Click DISCARD CHANGES to leave this page and lose all unsaved changes."
           )}
-          when={!abscenceCreated}
+          when={showPrompt && !abscenceCreated}
         />
       </React.Fragment>
-          */
-      }
+
       <form
         onSubmit={handleSubmit(async data => {
           await create(data);
@@ -403,7 +414,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
-                setStep={setStep}
+                setStep={handleSetStep}
+                vacancyDetails={projectedVacancyDetails}
                 locationIds={props.locationIds}
                 disabledDates={disabledDates}
                 balanceUsageText={absenceUsageText || undefined}
@@ -413,7 +425,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 onRemoveReplacement={removePrearrangedReplacementEmployee}
                 isSubmitted={formState.isSubmitted}
                 initialAbsenceCreation={true}
+                isFormDirty={formState.dirty}
+                setshowPrompt={setShowPrompt}
                 onAssignSubClick={onAssignSubClick}
+                hasEditedDetails={!!state.vacanciesInput}
               />
             </Section>
           </>
@@ -430,13 +445,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             disabledDates={disabledDates}
             onCancel={onCancel}
             onSelectReplacement={onAssignSub}
+            setShowPrompt={setShowPrompt}
           />
         )}
         {step === "confirmation" && (
           <Confirmation
             orgId={props.organizationId}
             absence={absence}
-            setStep={setStep}
+            setStep={handleSetStep}
             isAdmin={props.userIsAdmin}
           />
         )}
@@ -451,8 +467,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           details={projectedVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
-          setStep={setStep}
+          setStep={handleSetStep}
           disabledDates={disabledDates}
+          setShowPrompt={setShowPrompt}
+          defaultAccountingCode={formValues.accountingCode}
+          defaultPayCode={formValues.payCode}
         />
       )}
     </>
@@ -508,6 +527,7 @@ export const buildAbsenceCreateInput = (
   positionId: string,
   disabledDates: Date[],
   needsReplacement: boolean,
+  hasEditedDetails: boolean,
   vacancyDetails?: VacancyDetail[]
 ): AbsenceCreateInput | null => {
   if (!formValues.absenceReason || !formValues.dayPart) {
@@ -540,6 +560,23 @@ export const buildAbsenceCreateInput = (
     ),
   };
 
+  // If the Vacancy Details records have selections, we don't want to send
+  // the associated property on the parent Vacancy to the server.
+  const detailsHaveDifferentAccountingCodeSelections =
+    hasEditedDetails &&
+    vacancyDetails &&
+    vacancyDetailsHaveDifferentAccountingCodeSelections(
+      vacancyDetails,
+      formValues.accountingCode ? formValues.accountingCode : null
+    );
+  const detailsHaveDifferentPayCodeSelections =
+    hasEditedDetails &&
+    vacancyDetails &&
+    vacancyDetailsHaveDifferentPayCodeSelections(
+      vacancyDetails,
+      formValues.payCode ? formValues.payCode : null
+    );
+
   const vDetails =
     vacancyDetails?.map(v => ({
       date: v.date,
@@ -550,6 +587,16 @@ export const buildAbsenceCreateInput = (
       endTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
+      payCodeId: !detailsHaveDifferentPayCodeSelections
+        ? undefined
+        : v.payCodeId
+        ? v.payCodeId
+        : null,
+      accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
+        ? undefined
+        : v.accountingCodeId
+        ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
+        : [],
     })) || undefined;
 
   // Populate the Vacancies on the Absence
@@ -566,15 +613,20 @@ export const buildAbsenceCreateInput = (
         notesToReplacement: formValues.notesToReplacement,
         prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
         details: vDetails,
-        accountingCodeAllocations: formValues.accountingCode
-          ? [
-              {
-                accountingCodeId: formValues.accountingCode,
-                allocation: 1.0,
-              },
-            ]
-          : undefined,
-        payCodeId: formValues.payCode ? formValues.payCode : undefined,
+        accountingCodeAllocations:
+          !detailsHaveDifferentAccountingCodeSelections &&
+          formValues.accountingCode
+            ? [
+                {
+                  accountingCodeId: formValues.accountingCode,
+                  allocation: 1.0,
+                },
+              ]
+            : undefined,
+        payCodeId:
+          !detailsHaveDifferentPayCodeSelections && formValues.payCode
+            ? formValues.payCode
+            : undefined,
       },
     ],
   };

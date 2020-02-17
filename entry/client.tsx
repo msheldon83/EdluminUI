@@ -1,13 +1,14 @@
 import { createBrowserHistory } from "history";
 import * as React from "react";
 import * as ReactDom from "react-dom";
-import { Router } from "react-router-dom";
+import { Router, BrowserRouter } from "react-router-dom";
 import { App } from "ui";
 import { buildGraphqlClient } from "graphql/client";
 import { Auth0Provider } from "auth/auth0";
 import { ApolloLink } from "apollo-link";
 import "./i18n";
 import { AuthenticatedApolloProvider } from "auth/authenticated-apollo-provider";
+import RedRoverPrompt from "ui/components/routing/red-rover-prompt";
 
 const history = createBrowserHistory();
 // history.listen((location, action) => {
@@ -23,9 +24,13 @@ const bootstrapClient = () => {
   const rootEl = (
     <Auth0Provider history={history}>
       <AuthenticatedApolloProvider buildApolloClient={graphqlClient}>
-        <Router history={history}>
+        <BrowserRouter
+          getUserConfirmation={(message, callback) =>
+            RedRoverPrompt(message, callback)
+          }
+        >
           <App />
-        </Router>
+        </BrowserRouter>
       </AuthenticatedApolloProvider>
     </Auth0Provider>
   );

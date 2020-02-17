@@ -23,7 +23,6 @@ export const CalendarView: React.FC<Props> = props => {
   /*need to group all dates by month then iterate over each and render a calendar-change-month-calendar*/
 
   const empty = generateEmptyDateMap(props.fromDate, props.toDate);
-  //const [selectedDate, setSelectedDate] = useState();
 
   const onSelectDate = (date: Date) => {
     const calendarChanges = props.calandarChangeDates.filter(cc => {

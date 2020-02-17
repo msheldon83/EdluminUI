@@ -317,7 +317,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                       value={values.title}
                       InputComponent={FormTextField}
                       inputComponentProps={{
-                        placeholder: `E.g 3rd Grade Math`,
+                        placeholder: `E.g Language Arts`,
                         name: "title",
                         id: "title",
                       }}
@@ -527,8 +527,12 @@ export const PositionEditUI: React.FC<Props> = props => {
                               values.schedules[i].periods[0].startTime = null;
                               values.schedules[i].periods[0].endTime = null;
                             } else if (!allDay) {
-                              values.schedules[i].periods[0].startPeriodId = undefined;
-                              values.schedules[i].periods[0].endPeriodId = undefined;
+                              values.schedules[
+                                i
+                              ].periods[0].startPeriodId = undefined;
+                              values.schedules[
+                                i
+                              ].periods[0].endPeriodId = undefined;
                             }
                             setFieldValue("schedules", values.schedules);
                           }}

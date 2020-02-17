@@ -113,6 +113,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
         positionName={"Math teacher"}
         onCancel={() => {}}
         onSelectReplacement={() => {}}
+        setShowPrompt={(show: boolean) => {}}
         vacancies={
           [
             {
@@ -321,6 +322,7 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
+        setShowPrompt={(show: boolean) => {}}
         vacancies={
           [
             {
@@ -378,6 +380,7 @@ export const PrearrangeSubAsAdmin = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
+        setShowPrompt={(show: boolean) => {}}
         vacancies={
           [
             {
@@ -435,6 +438,7 @@ export const PrearrangeSubAsEmployee = () => {
         employeeName={"Mary Smith"}
         positionId={"1"}
         positionName={"Math teacher"}
+        setShowPrompt={(show: boolean) => {}}
         vacancies={
           [
             {

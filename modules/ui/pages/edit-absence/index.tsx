@@ -20,7 +20,6 @@ import { useTranslation } from "react-i18next";
 import { useSnackbar } from "hooks/use-snackbar";
 import { DeleteDialog } from "./delete-absence-dialog";
 import { ShowErrors } from "ui/components/error-helpers";
-import { CancelChangesDialog } from "./cancel-changes-dialog";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 
@@ -34,7 +33,6 @@ export const EditAbsence: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
-  const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
 
   const absence = useQueryBundle(GetAbsence, {
     variables: {
@@ -98,14 +96,6 @@ export const EditAbsence: React.FC<Props> = props => {
     }
   }, [deleteAbsence, params.absenceId, returnUrl, history, openSnackbar, t]);
 
-  const onClickCancelChanges = React.useCallback(() => {
-    setCancelDialogIsOpen(true);
-  }, [setCancelDialogIsOpen]);
-
-  const onCancelChanges = () => {
-    goBack();
-  };
-
   const goBack = () => {
     if (document.referrer === "") {
       history.push(
@@ -128,7 +118,7 @@ export const EditAbsence: React.FC<Props> = props => {
       assignmentId?: string,
       assignmentRowVersion?: string,
       vacancyDetailIds?: string[],
-      preventAbsenceRefetch?: boolean 
+      preventAbsenceRefetch?: boolean
     ) => {
       if (absence.state !== "DONE") return;
 
@@ -328,11 +318,7 @@ export const EditAbsence: React.FC<Props> = props => {
         open={deleteDialogIsOpen}
         replacementEmployeeName={replacementEmployeeName}
       />
-      <CancelChangesDialog
-        onCancel={() => onCancelChanges()}
-        onClose={() => setCancelDialogIsOpen(false)}
-        open={cancelDialogIsOpen}
-      />
+
       <EditAbsenceUI
         firstName={employee.firstName}
         lastName={employee.lastName}
@@ -365,7 +351,6 @@ export const EditAbsence: React.FC<Props> = props => {
         cancelAssignments={cancelAssignments}
         refetchAbsence={absence.refetch}
         onDelete={onClickDelete}
-        onCancel={onClickCancelChanges}
       />
     </>
   );

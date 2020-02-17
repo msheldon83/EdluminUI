@@ -18,7 +18,8 @@ export type EditAbsenceActions =
   | { action: "toggleDate"; date: Date }
   | { action: "setVacanciesInput"; input: undefined | VacancyDetail[] }
   | { action: "removeAbsenceDates"; dates: Date[] }
-  | { action: "resetAfterSave" };
+  | { action: "resetAfterSave" }
+  | { action: "resetToInitialState"; initialState: EditAbsenceState };
 
 export const editAbsenceReducer: Reducer<
   EditAbsenceState,
@@ -62,6 +63,9 @@ export const editAbsenceReducer: Reducer<
     }
     case "resetAfterSave": {
       return { ...prev, customizedVacanciesInput: undefined };
+    }
+    case "resetToInitialState": {
+      return action.initialState;
     }
   }
 };

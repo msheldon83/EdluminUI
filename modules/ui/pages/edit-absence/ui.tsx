@@ -33,6 +33,8 @@ import { AbsenceDetails } from "ui/components/absence/absence-details";
 import {
   getCannotCreateAbsenceDates,
   TranslateAbsenceErrorCodeToMessage,
+  vacancyDetailsHaveDifferentAccountingCodeSelections,
+  vacancyDetailsHaveDifferentPayCodeSelections,
 } from "ui/components/absence/helpers";
 import { ActionMenu } from "ui/components/action-menu";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
@@ -49,6 +51,8 @@ import { AssignVacancy } from "./graphql/assign-vacancy.gen";
 import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
+import { DiscardChangesDialog } from "./discard-changes-dialog";
+import { Prompt } from "react-router";
 
 type Props = {
   firstName: string;
@@ -85,7 +89,6 @@ type Props = {
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
   returnUrl?: string;
-  onCancel: () => void;
 };
 
 type EditAbsenceFormData = {
@@ -122,11 +125,19 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
+  const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(true);
 
   const customizedVacancyDetails = state.customizedVacanciesInput;
   const setVacanciesInput = useCallback(
     (input: VacancyDetail[] | undefined) => {
       dispatch({ action: "setVacanciesInput", input });
+    },
+    [dispatch]
+  );
+  const resetInitialAbsenceState = useCallback(
+    (initialState: EditAbsenceState) => {
+      dispatch({ action: "resetToInitialState", initialState });
     },
     [dispatch]
   );
@@ -168,6 +179,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const {
     register,
     handleSubmit,
+    reset,
     setValue,
     getValues,
     errors,
@@ -218,6 +230,18 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     },
   });
 
+  const handleSetStep = React.useCallback(
+    (newStep: any) => {
+      if (showPrompt) {
+        setShowPrompt(false);
+      }
+      setTimeout(() => {
+        setStep(newStep);
+      }, 0);
+    },
+    [setStep, setShowPrompt, showPrompt]
+  );
+
   const useProjectedInformation =
     customizedVacancyDetails !== undefined ||
     !isEqual(state.absenceDates, props.absenceDates) ||
@@ -264,6 +288,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         props.positionId ?? "",
         disabledDates,
         state.needsReplacement,
+        true,
         customizedVacancyDetails
       ),
     [
@@ -336,16 +361,16 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
-      setStep("absence");
+      handleSetStep("absence");
       setVacanciesInput(vacancyDetails);
     },
-    [setVacanciesInput, setStep]
+    [setVacanciesInput, handleSetStep]
   );
-  const onCancel = useCallback(() => setStep("absence"), [setStep]);
+  const onCancel = () => handleSetStep("absence");
 
   const projectedVacancyDetails: VacancyDetail[] = useMemo(
     () => projectVacancyDetails(getProjectedVacancies),
-    [projectVacancyDetails, getProjectedVacancies.state]
+    [getProjectedVacancies.state]
   );
 
   const theVacancyDetails: VacancyDetail[] =
@@ -382,6 +407,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
     const absence = result?.data?.absence?.update as Absence;
     if (absence) {
+      // Reset the form so it's no longer dirty
+      reset();
       openSnackbar({
         message: props.returnUrl
           ? t("Absence #{{absenceId}} has been updated", {
@@ -427,9 +454,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         },
       });
       await props.refetchAbsence();
-      setStep("absence");
+      handleSetStep("absence");
     },
-    [setStep, assignVacancy]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [handleSetStep, assignVacancy]
   );
 
   const onToggleAbsenceDate = useCallback(
@@ -439,17 +467,34 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     [dispatch, canEdit]
   );
 
+  const onClickReset = () => {
+    setCancelDialogIsOpen(true);
+  };
+
+  const handleReset = () => {
+    // Reset the form
+    reset(initialFormData);
+    // Reset all of the details in State
+    resetInitialAbsenceState(initialState(props));
+    setCancelDialogIsOpen(false);
+  };
+
   const onAssignSubClick = React.useCallback(
     (vacancyDetailIds?: string[], employeeToReplace?: string) => {
       setVacancyDetailIdsToAssign(vacancyDetailIds ?? undefined);
       setEmployeeToReplace(employeeToReplace ?? undefined);
-      setStep("preAssignSub");
+      handleSetStep("preAssignSub");
     },
-    [setStep]
+    [handleSetStep]
   );
 
   return (
     <>
+      <DiscardChangesDialog
+        onCancel={() => handleReset()}
+        onClose={() => setCancelDialogIsOpen(false)}
+        open={cancelDialogIsOpen}
+      />
       {props.returnUrl && (
         <div className={classes.linkPadding}>
           <Link to={props.returnUrl} className={classes.link}>
@@ -458,6 +503,14 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         </div>
       )}
       <PageTitle title={t("Edit Absence")} withoutHeading />
+      <React.Fragment>
+        <Prompt
+          message={t(
+            "Click DISCARD CHANGES to leave this page and lose all unsaved changes."
+          )}
+          when={showPrompt && formState.dirty}
+        />
+      </React.Fragment>
 
       {step === "absence" && (
         <form
@@ -469,10 +522,17 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           <div className={classes.titleContainer}>
             <div className={classes.title}>
               {props.actingAsEmployee ? (
-                <Typography variant="h1">{t("Edit absence")}</Typography>
-              ) : (
                 <>
                   <Typography variant="h5">{t("Edit absence")}</Typography>
+                  <Typography variant="h6">
+                    {t("Confirmation")} #{props.absenceId}
+                  </Typography>
+                </>
+              ) : (
+                <>
+                  <Typography variant="h5">
+                    {t("Edit absence")} #{props.absenceId}
+                  </Typography>
                   <Typography variant="h1">{name}</Typography>
                 </>
               )}
@@ -489,12 +549,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                   },
                 ]}
               />
-
-              <div className={classes.confirmationNumber}>
-                <Typography variant="h6">
-                  {t("Confirmation")} #{props.absenceId}
-                </Typography>
-              </div>
             </div>
           </div>
 
@@ -503,7 +557,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               absenceDates={state.absenceDates}
               onToggleAbsenceDate={onToggleAbsenceDate}
               saveLabel={t("Save")}
-              setStep={setStep}
+              setStep={handleSetStep}
               assignmentId={props.assignmentId}
               disabledDates={disabledDates}
               isAdmin={props.userIsAdmin}
@@ -521,6 +575,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               errors={{}}
               triggerValidation={triggerValidation}
               vacancies={projectedVacancies || props.initialVacancies}
+              vacancyDetails={theVacancyDetails}
               balanceUsageText={absenceUsageText ?? undefined}
               setVacanciesInput={setVacanciesInput}
               arrangedSubText={t("assigned")}
@@ -535,8 +590,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               isSubmitted={formState.isSubmitted}
               initialAbsenceCreation={false}
               onDelete={props.onDelete}
-              onCancel={props.onCancel}
+              onCancel={onClickReset}
               onAssignSubClick={onAssignSubClick}
+              isFormDirty={
+                formState.dirty ||
+                !isEqual(state.absenceDates, props.absenceDates) ||
+                !isEqual(props.initialVacancyDetails, theVacancyDetails)
+              }
+              setshowPrompt={setShowPrompt}
+              hasEditedDetails={true}
             />
           </Section>
         </form>
@@ -551,8 +613,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           details={theVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
-          setStep={setStep}
+          setStep={handleSetStep}
           disabledDates={disabledDates}
+          setShowPrompt={setShowPrompt}
         />
       )}
       {step === "preAssignSub" && (
@@ -576,6 +639,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           }}
           employeeToReplace={employeeToReplace}
           vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
+          setShowPrompt={setShowPrompt}
         />
       )}
     </>
@@ -610,6 +674,17 @@ const buildAbsenceUpdateInput = (
     isSameDay(a, b)
   );
 
+  // If the Vacancy Details records have selections, we don't want to send
+  // the associated property on the parent Vacancy to the server.
+  const detailsHaveDifferentAccountingCodeSelections = vacancyDetailsHaveDifferentAccountingCodeSelections(
+    vacancyDetails,
+    formValues.accountingCode ? formValues.accountingCode : null
+  );
+  const detailsHaveDifferentPayCodeSelections = vacancyDetailsHaveDifferentPayCodeSelections(
+    vacancyDetails,
+    formValues.payCode ? formValues.payCode : null
+  );
+
   const vDetails =
     vacancyDetails?.map(v => ({
       date: v.date,
@@ -620,10 +695,20 @@ const buildAbsenceUpdateInput = (
       endTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
-      payCodeId: v.payCodeId,
-      accountingCodeAllocations: v.accountingCodeId
+      // If any of the Details have Pay Codes selected we'll include those selections
+      // here on the detail or send null when one doesn't have any Pay Code selected
+      payCodeId: !detailsHaveDifferentPayCodeSelections
+        ? undefined
+        : v.payCodeId
+        ? v.payCodeId
+        : null,
+      // If any of the Details have Accounting Codes selected we'll include those selections
+      // here on the detail or send null when one doesn't have any Accounting Code selected
+      accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
+        ? undefined
+        : v.accountingCodeId
         ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
-        : undefined,
+        : [],
     })) || undefined;
 
   const absence: AbsenceUpdateInput = {
@@ -662,15 +747,27 @@ const buildAbsenceUpdateInput = (
         notesToReplacement: formValues.notesToReplacement,
         prearrangedReplacementEmployeeId: null, // TODO make this the currently assigned employee
         details: vDetails,
-        accountingCodeAllocations: formValues.accountingCode
+        // When the details have Accounting Code selections, we won't send Accounting Codes on
+        // the Vacancy. When they don't we'll take the single selection in Sub Details
+        // and send that if there is one or an empty list to clear out all selections on the Details.
+        accountingCodeAllocations: detailsHaveDifferentAccountingCodeSelections
+          ? undefined
+          : formValues.accountingCode
           ? [
               {
                 accountingCodeId: formValues.accountingCode,
                 allocation: 1.0,
               },
             ]
-          : undefined,
-        payCodeId: formValues.payCode ? formValues.payCode : undefined,
+          : [],
+        // When the details have Pay Code selections, we won't send a Pay Code on
+        // the Vacancy. When they don't we'll take the single selection in Sub Details
+        // and send that if there is one or null to clear out all selections on the Details.
+        payCodeId: detailsHaveDifferentPayCodeSelections
+          ? undefined
+          : formValues.payCode
+          ? formValues.payCode
+          : null,
       },
     ],
   };
