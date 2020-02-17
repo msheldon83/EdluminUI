@@ -110,7 +110,6 @@ export const AsAdmin = () => {
           onChangedVacancies={() => {}}
           onCancel={() => {}}
           setStep={() => {}}
-          setShowPrompt={(show: boolean) => {}}
         />
       </Route>
     </Provider>

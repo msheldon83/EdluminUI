@@ -52,7 +52,7 @@ import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { DiscardChangesDialog } from "./discard-changes-dialog";
-import { Prompt } from "react-router";
+import { Prompt, useRouteMatch } from "react-router";
 
 type Props = {
   firstName: string;
@@ -116,6 +116,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
+  const match = useRouteMatch();
   const [vacancyDetailIdsToAssign, setVacancyDetailIdsToAssign] = useState<
     string[] | undefined
   >(undefined);
@@ -126,7 +127,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
-  const [showPrompt, setShowPrompt] = useState(true);
 
   const customizedVacancyDetails = state.customizedVacanciesInput;
   const setVacanciesInput = useCallback(
@@ -229,18 +229,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       );
     },
   });
-
-  const handleSetStep = React.useCallback(
-    (newStep: any) => {
-      if (showPrompt) {
-        setShowPrompt(false);
-      }
-      setTimeout(() => {
-        setStep(newStep);
-      }, 0);
-    },
-    [setStep, setShowPrompt, showPrompt]
-  );
 
   const useProjectedInformation =
     customizedVacancyDetails !== undefined ||
@@ -361,12 +349,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
-      handleSetStep("absence");
+      setStep("absence");
       setVacanciesInput(vacancyDetails);
     },
-    [setVacanciesInput, handleSetStep]
+    [setVacanciesInput, setStep]
   );
-  const onCancel = () => handleSetStep("absence");
+  const onCancel = () => setStep("absence");
 
   const projectedVacancyDetails: VacancyDetail[] = useMemo(
     () => projectVacancyDetails(getProjectedVacancies),
@@ -454,10 +442,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         },
       });
       await props.refetchAbsence();
-      handleSetStep("absence");
+      setStep("absence");
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [handleSetStep, assignVacancy]
+    [setStep, assignVacancy]
   );
 
   const onToggleAbsenceDate = useCallback(
@@ -483,10 +471,24 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     (vacancyDetailIds?: string[], employeeToReplace?: string) => {
       setVacancyDetailIdsToAssign(vacancyDetailIds ?? undefined);
       setEmployeeToReplace(employeeToReplace ?? undefined);
-      handleSetStep("preAssignSub");
+      setStep("preAssignSub");
     },
-    [handleSetStep]
+    [setStep]
   );
+
+  const hasUnsavedChanges = useMemo(() => {
+    return (
+      formState.dirty ||
+      !isEqual(state.absenceDates, props.absenceDates) ||
+      !isEqual(props.initialVacancyDetails, theVacancyDetails)
+    );
+  }, [
+    formState.dirty,
+    state.absenceDates,
+    props.absenceDates,
+    props.initialVacancyDetails,
+    theVacancyDetails,
+  ]);
 
   return (
     <>
@@ -503,14 +505,20 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         </div>
       )}
       <PageTitle title={t("Edit Absence")} withoutHeading />
-      <React.Fragment>
-        <Prompt
-          message={t(
+      <Prompt
+        message={location => {
+          if (match.url === location.pathname || !hasUnsavedChanges) {
+            // We're not actually leaving the Edit Absence route
+            // OR we don't have any pending changes
+            return true;
+          }
+
+          const msg = t(
             "Click DISCARD CHANGES to leave this page and lose all unsaved changes."
-          )}
-          when={showPrompt && formState.dirty}
-        />
-      </React.Fragment>
+          );
+          return msg;
+        }}
+      />
 
       {step === "absence" && (
         <form
@@ -557,7 +565,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               absenceDates={state.absenceDates}
               onToggleAbsenceDate={onToggleAbsenceDate}
               saveLabel={t("Save")}
-              setStep={handleSetStep}
+              setStep={setStep}
               assignmentId={props.assignmentId}
               disabledDates={disabledDates}
               isAdmin={props.userIsAdmin}
@@ -597,7 +605,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 !isEqual(state.absenceDates, props.absenceDates) ||
                 !isEqual(props.initialVacancyDetails, theVacancyDetails)
               }
-              setshowPrompt={setShowPrompt}
               hasEditedDetails={true}
             />
           </Section>
@@ -613,9 +620,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           details={theVacancyDetails}
           onChangedVacancies={onChangedVacancies}
           employeeId={props.employeeId}
-          setStep={handleSetStep}
+          setStep={setStep}
           disabledDates={disabledDates}
-          setShowPrompt={setShowPrompt}
         />
       )}
       {step === "preAssignSub" && (
@@ -639,7 +645,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           }}
           employeeToReplace={employeeToReplace}
           vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
-          setShowPrompt={setShowPrompt}
         />
       )}
     </>

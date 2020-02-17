@@ -81,7 +81,6 @@ type Props = {
   onDelete?: () => void;
   onCancel?: () => void;
   isFormDirty: boolean;
-  setshowPrompt: (show: boolean) => void;
   onAssignSubClick: (
     vacancyDetailIds?: string[],
     employeeToReplace?: string
@@ -158,11 +157,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     }
     return { part: values.dayPart };
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
-
-  //this is used to enable prompt if unsaved.
-  useEffect(() => {
-    props.setshowPrompt(true);
-  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const isSplitVacancy = useMemo(() => {
     return vacanciesHaveMultipleAssignments(props.vacancies);
