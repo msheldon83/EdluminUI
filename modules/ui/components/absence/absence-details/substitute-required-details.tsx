@@ -353,7 +353,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                           <Button
                             variant="outlined"
                             className={classes.reassignButton}
-                            onClick={() => setStep("preAssignSub")}
+                            onClick={() => props.onAssignSubClick()}
                             disabled={props.disableReplacementInteractions}
                           >
                             {t("Reassign Sub")}
