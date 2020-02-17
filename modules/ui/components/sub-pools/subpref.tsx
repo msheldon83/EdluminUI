@@ -12,7 +12,7 @@ type Props = {
   favoriteEmployees: any[];
   blockedEmployees: any[];
   heading: string;
-  subHeading: string;
+  subHeading?: string;
   orgId: string;
   onRemoveFavoriteEmployee: (orgUser: any) => void;
   onRemoveBlockedEmployee: (orgUser: any) => void;
@@ -28,7 +28,9 @@ export const SubstitutePreferences: React.FC<Props> = props => {
   const classes = useStyles();
   return (
     <>
-      <Typography variant="h5">{props.subHeading}</Typography>
+      {props.subHeading && (
+        <Typography variant="h5">{props.subHeading}</Typography>
+      )}
       <Typography variant="h1">{props.heading}</Typography>
       <Grid container spacing={2} className={classes.content}>
         <Grid item md={6} xs={12}>
