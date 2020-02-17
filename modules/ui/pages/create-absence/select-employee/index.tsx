@@ -97,7 +97,7 @@ export const SelectEmployee: React.FC<Props> = props => {
 
         {
           title: t("Location"),
-          field: "phone",
+
           hideOnMobile: true,
           render: (o: any) =>
             !o.locations || o.locations?.length < 1 ? (
