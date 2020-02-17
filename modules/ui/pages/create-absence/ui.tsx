@@ -196,6 +196,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         props.positionId ?? "",
         disabledDates,
         state.needsReplacement,
+        !!state.vacanciesInput,
         state.vacanciesInput
       ),
     [
@@ -284,6 +285,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       props.positionId ?? "",
       disabledDates,
       state.needsReplacement,
+      !!state.vacanciesInput,
       theVacancyDetails
     );
     if (!absenceCreateInput) {
@@ -525,6 +527,7 @@ export const buildAbsenceCreateInput = (
   positionId: string,
   disabledDates: Date[],
   needsReplacement: boolean,
+  hasEditedDetails: boolean,
   vacancyDetails?: VacancyDetail[]
 ): AbsenceCreateInput | null => {
   if (!formValues.absenceReason || !formValues.dayPart) {
@@ -560,12 +563,14 @@ export const buildAbsenceCreateInput = (
   // If the Vacancy Details records have selections, we don't want to send
   // the associated property on the parent Vacancy to the server.
   const detailsHaveDifferentAccountingCodeSelections =
+    hasEditedDetails &&
     vacancyDetails &&
     vacancyDetailsHaveDifferentAccountingCodeSelections(
       vacancyDetails,
       formValues.accountingCode ? formValues.accountingCode : null
     );
   const detailsHaveDifferentPayCodeSelections =
+    hasEditedDetails &&
     vacancyDetails &&
     vacancyDetailsHaveDifferentPayCodeSelections(
       vacancyDetails,

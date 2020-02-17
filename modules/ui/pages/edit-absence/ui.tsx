@@ -288,6 +288,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         props.positionId ?? "",
         disabledDates,
         state.needsReplacement,
+        true,
         customizedVacancyDetails
       ),
     [
