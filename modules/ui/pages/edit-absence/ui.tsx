@@ -135,6 +135,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     },
     [dispatch]
   );
+  const resetInitialAbsenceState = useCallback(
+    (initialState: EditAbsenceState) => {
+      dispatch({ action: "resetToInitialState", initialState });
+    },
+    [dispatch]
+  );
 
   const [assignVacancy] = useMutationBundle(AssignVacancy, {
     onError: error => {
@@ -465,7 +471,10 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   };
 
   const handleReset = () => {
+    // Reset the form
     reset(initialFormData);
+    // Reset all of the details in State
+    resetInitialAbsenceState(initialState(props));
     setCancelDialogIsOpen(false);
   };
 
@@ -584,7 +593,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               onAssignSubClick={onAssignSubClick}
               isFormDirty={
                 formState.dirty ||
-                !isEqual(state.absenceDates, props.absenceDates)
+                !isEqual(state.absenceDates, props.absenceDates) ||
+                !isEqual(props.initialVacancyDetails, theVacancyDetails)
               }
               setshowPrompt={setShowPrompt}
               hasEditedDetails={true}
