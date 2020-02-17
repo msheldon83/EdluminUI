@@ -52,7 +52,7 @@ import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { DiscardChangesDialog } from "./discard-changes-dialog";
-import { Prompt } from "react-router";
+import { Prompt, useRouteMatch } from "react-router";
 
 type Props = {
   firstName: string;
@@ -116,6 +116,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
+  const match = useRouteMatch();
   const [vacancyDetailIdsToAssign, setVacancyDetailIdsToAssign] = useState<
     string[] | undefined
   >(undefined);
@@ -488,6 +489,20 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     [handleSetStep]
   );
 
+  const hasUnsavedChanges = useMemo(() => {
+    return (
+      formState.dirty ||
+      !isEqual(state.absenceDates, props.absenceDates) ||
+      !isEqual(props.initialVacancyDetails, theVacancyDetails)
+    );
+  }, [
+    formState.dirty,
+    state.absenceDates,
+    props.absenceDates,
+    props.initialVacancyDetails,
+    theVacancyDetails,
+  ]);
+
   return (
     <>
       <DiscardChangesDialog
@@ -503,14 +518,20 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         </div>
       )}
       <PageTitle title={t("Edit Absence")} withoutHeading />
-      <React.Fragment>
-        <Prompt
-          message={t(
+      <Prompt
+        message={location => {
+          if (match.url === location.pathname || !hasUnsavedChanges) {
+            // We're not actually leaving the Edit Absence route
+            // OR we don't have any pending changes
+            return true;
+          }
+
+          const msg = t(
             "Click DISCARD CHANGES to leave this page and lose all unsaved changes."
-          )}
-          when={showPrompt && formState.dirty}
-        />
-      </React.Fragment>
+          );
+          return msg;
+        }}
+      />
 
       {step === "absence" && (
         <form

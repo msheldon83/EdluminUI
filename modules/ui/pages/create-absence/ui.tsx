@@ -44,7 +44,7 @@ import { projectVacancyDetails } from "./project-vacancy-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { ApolloError } from "apollo-client";
-import { Prompt } from "react-router";
+import { Prompt, useRouteMatch } from "react-router";
 
 type Props = {
   firstName: string;
@@ -72,6 +72,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const [absence, setAbsence] = useState<Absence>();
   const [step, setStep] = useQueryParamIso(StepParams);
+  const match = useRouteMatch();
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -349,25 +350,35 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     await setValue("replacementEmployeeName", undefined);
   }, [setValue]);
 
-  const handleSetStep = (newStep: any) => {
-    setShowPrompt(false);
-
-    setTimeout(() => {
-      setStep(newStep);
-    }, 0);
-  }; /* eslint-disable-line react-hooks/exhaustive-deps */ /* eslint-disable-line react-hooks/exhaustive-deps */
+  const handleSetStep = React.useCallback(
+    (newStep: any) => {
+      if (showPrompt) {
+        setShowPrompt(false);
+      }
+      setTimeout(() => {
+        setStep(newStep);
+      }, 0);
+    },
+    [setStep, setShowPrompt, showPrompt]
+  );
 
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
-      <React.Fragment>
-        <Prompt
-          message={t(
+      <Prompt
+        message={location => {
+          if (match.url === location.pathname || abscenceCreated) {
+            // We're not actually leaving the Create Absence route
+            // OR the Absence has been created and we're on the Confirmation screen
+            return true;
+          }
+
+          const msg = t(
             "You have not created your absence yet. Click DISCARD CHANGES to leave this page and lose all unsaved changes."
-          )}
-          when={showPrompt && !abscenceCreated}
-        />
-      </React.Fragment>
+          );
+          return msg;
+        }}
+      />
 
       <form
         onSubmit={handleSubmit(async data => {
