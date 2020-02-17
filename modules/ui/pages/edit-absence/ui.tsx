@@ -79,6 +79,8 @@ type Props = {
   locationIds?: string[];
   startTimeLocal: string;
   endTimeLocal: string;
+  absenceStartTimeLocal: Date;
+  absenceEndTimeLocal: Date;
   absenceDates: Date[];
   cancelAssignments: (
     assignmentId?: string,
@@ -622,6 +624,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeId={props.employeeId}
           setStep={setStep}
           disabledDates={disabledDates}
+          absenceStartTime={props.absenceStartTimeLocal}
+          absenceEndTime={props.absenceEndTimeLocal}
         />
       )}
       {step === "preAssignSub" && (

@@ -35,6 +35,8 @@ type Props = {
   disabledDates?: Date[];
   defaultAccountingCode?: string;
   defaultPayCode?: string;
+  absenceStartTime: Date;
+  absenceEndTime: Date;
 };
 
 type EditVacancyFormData = {
@@ -55,6 +57,18 @@ export const EditVacancies: React.FC<Props> = props => {
       payCodeId: d.payCodeId ?? props.defaultPayCode,
     })),
   };
+
+  console.log(
+    props?.absenceStartTime?.toLocaleString("en-US", {
+      hour: "numeric",
+      hour12: true,
+    }) +
+      " : " +
+      props?.absenceEndTime?.toLocaleString("en-US", {
+        hour: "numeric",
+        hour12: true,
+      })
+  );
 
   const locationQuery = useQueryBundle(GetLocationsForEmployee, {
     variables: { id: props.employeeId },
@@ -177,7 +191,6 @@ export const EditVacancies: React.FC<Props> = props => {
           {!props.actingAsEmployee && (
             <Typography variant="h1">{props.employeeName}</Typography>
           )}
-
           <Section className={classes.vacancyDetails}>
             <Grid
               container
@@ -186,12 +199,19 @@ export const EditVacancies: React.FC<Props> = props => {
               alignItems="center"
             >
               <Grid item>
-                <Typography variant="h5">
+                <Typography variant="h6">
                   {getAbsenceDateRangeDisplayTextWithDayOfWeek(
                     props.details.map(d => parseISO(d.date)),
                     props.disabledDates
                   )}
-                  {props.positionName && ` - ${props.positionName}`}
+                </Typography>
+                {(props.absenceStartTime || props.absenceEndTime) && (
+                  <Typography variant="h6">
+                    {props.absenceStartTime} - {props.absenceEndTime}
+                  </Typography>
+                )}
+                <Typography variant="h6">
+                  {props.positionName && `${props.positionName}`}
                 </Typography>
               </Grid>
               <Grid item>

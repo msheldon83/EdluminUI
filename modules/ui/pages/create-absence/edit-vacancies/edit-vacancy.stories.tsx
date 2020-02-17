@@ -98,6 +98,8 @@ export const AsAdmin = () => {
     },
   });
 
+  const date = Date.now();
+
   return (
     <Provider>
       <Route path={AdminCreateAbsenceRoute.path}>
@@ -110,6 +112,8 @@ export const AsAdmin = () => {
           onChangedVacancies={() => {}}
           onCancel={() => {}}
           setStep={() => {}}
+          absenceEndTime={date}
+          absenceStartTime={date}
         />
       </Route>
     </Provider>

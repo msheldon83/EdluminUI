@@ -466,6 +466,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           disabledDates={disabledDates}
           defaultAccountingCode={formValues.accountingCode}
           defaultPayCode={formValues.payCode}
+          absenceStartTime={absence?.startTimeLocal}
+          absenceEndTime={absence?.endTimeLocal}
         />
       )}
     </>

@@ -346,8 +346,10 @@ export const EditAbsence: React.FC<Props> = props => {
         replacementEmployeeId={replacementEmployeeId}
         replacementEmployeeName={replacementEmployeeName}
         actingAsEmployee={props.actingAsEmployee}
-        startTimeLocal={data.startTimeLocal}
-        endTimeLocal={data.endTimeLocal}
+        startTimeLocal={detail.startTimeLocal}
+        endTimeLocal={detail.endTimeLocal}
+        absenceStartTimeLocal={detail.startTimeLocal as Date}
+        absenceEndTimeLocal={detail.endTimeLocal as Date}
         cancelAssignments={cancelAssignments}
         refetchAbsence={absence.refetch}
         onDelete={onClickDelete}
