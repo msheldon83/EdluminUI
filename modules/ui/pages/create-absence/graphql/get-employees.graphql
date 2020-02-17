@@ -25,6 +25,10 @@ query GetEmployeesForOrg(
         lastName
         employee {
           id
+          locations {
+            id
+            name
+          }
           primaryPosition {
             id
             title
