@@ -13,9 +13,13 @@ export const HelpWidget: React.FC<{}> = props => {
       name: `${user?.firstName} ${user?.lastName}`,
       email: user?.loginEmail,
     });
-    $zopim.livechat.button.show();
+    if ($zopim) {
+      $zopim.livechat.button.show();
+    }
   } else {
-    $zopim.livechat.button.hide();
+    if ($zopim) {
+      $zopim.livechat.button.hide();
+    }
   }
   return <></>;
 };
