@@ -58,7 +58,13 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
     compact(props.absence.allDayParts.map(d => d.dayPart))
   );
   const dayPartCountLabels = uniqueDayParts.map(u => {
-    const count = props.absence.allDayParts.filter(x => x.dayPart === u).length;
+    const count =
+      u === DayPart.Hourly
+        ? props.absence.allDayParts
+            .filter(x => x.dayPart === u)
+            .map(x => x.hourDuration)
+            .reduce((a, b) => a + b, 0)
+        : props.absence.allDayParts.filter(x => x.dayPart === u).length;
     return `${count} ${determineDayPartLabel(u, count)}`;
   });
 
