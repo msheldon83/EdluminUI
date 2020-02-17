@@ -89,13 +89,13 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
         <Grid
           item
           container
-          xs={isMobile ? 12 : 3}
+          xs={isMobile ? 12 : 4}
           className={
             (classes.vacancyBlockItem,
             isMobile ? classes.mobileMargin : classes.noClass)
           }
         >
-          <Grid item xs={5} className={classes.timeInput}>
+          <Grid item xs={isMobile ? 5 : 4} className={classes.timeInput}>
             <FormikTimeInput
               name={`${fieldNamePrefix}.startTime`}
               date={startOfDate}
@@ -103,7 +103,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
               validationMessage={startTimeError}
             />
           </Grid>
-          <Grid item xs={5} className={classes.timeInput}>
+          <Grid item xs={isMobile ? 5 : 4} className={classes.timeInput}>
             <FormikTimeInput
               name={`${fieldNamePrefix}.endTime`}
               date={startOfDate}
@@ -116,7 +116,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
         <Grid
           item
           container
-          xs={isMobile ? 12 : 8}
+          xs={isMobile ? 12 : 7}
           className={
             (classes.vacancyBlockItem,
             isMobile ? classes.mobilePadding : classes.noClass)
@@ -190,20 +190,20 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   vacancyBlockItem: {
     marginTop: theme.spacing(0.5),
-    marginRight: theme.spacing(0.5),
+    marginRight: theme.spacing(1),
   },
   mobilePadding: {
     paddingTop: theme.spacing(2),
   },
   rowContainer: {
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
   },
   timeInput: {
     marginRight: theme.spacing(1),
   },
   spacing: {
     marginBottom: theme.spacing(2),
-    paddingLeft: theme.spacing(0.5),
+    paddingLeft: theme.spacing(1),
   },
   mobileMargin: {
     marginBottom: theme.spacing(1),

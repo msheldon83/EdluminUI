@@ -420,7 +420,7 @@ export const Assignment: React.FC<Props> = props => {
                     classes.container,
                   ].join(" ")}
                 >
-                  <Grid item xs={4}></Grid>
+                  <Grid item xs={2}></Grid>
                   <Grid item xs={3} className={classes.displayFlex}>
                     <Grid
                       item
@@ -501,7 +501,7 @@ export const Assignment: React.FC<Props> = props => {
                       <></>
                     )}
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={3}>
                     <Can do={[PermissionEnum.AbsVacSavePayCode]}>
                       <Typography className={classes.boldText}>
                         {t("Pay code:")}
@@ -537,7 +537,7 @@ export const Assignment: React.FC<Props> = props => {
                       >{`Pay: ${payCodeLabel ?? t("N/A")}`}</Typography>
                     </Can>
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={3}>
                     <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
                       <Typography className={classes.boldText}>
                         {t("Accounting code:")}
@@ -585,8 +585,8 @@ export const Assignment: React.FC<Props> = props => {
                     classes.container,
                   ].join(" ")}
                 >
-                  <Grid item xs={4}></Grid>
-                  <Grid item xs={7}>
+                  <Grid item xs={2}></Grid>
+                  <Grid item xs={9}>
                     <Can do={[PermissionEnum.AbsVacSave]}>
                       <Typography className={classes.boldText}>
                         {t("Comments:")}
