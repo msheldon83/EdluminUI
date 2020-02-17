@@ -135,6 +135,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     },
     [dispatch]
   );
+  const resetInitialAbsenceState = useCallback(
+    (initialState: EditAbsenceState) => {
+      dispatch({ action: "resetToInitialState", initialState });
+    },
+    [dispatch]
+  );
 
   const [assignVacancy] = useMutationBundle(AssignVacancy, {
     onError: error => {
@@ -224,6 +230,18 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     },
   });
 
+  const handleSetStep = React.useCallback(
+    (newStep: any) => {
+      if (showPrompt) {
+        setShowPrompt(false);
+      }
+      setTimeout(() => {
+        setStep(newStep);
+      }, 0);
+    },
+    [setStep, setShowPrompt, showPrompt]
+  );
+
   const useProjectedInformation =
     customizedVacancyDetails !== undefined ||
     !isEqual(state.absenceDates, props.absenceDates) ||
@@ -270,6 +288,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         props.positionId ?? "",
         disabledDates,
         state.needsReplacement,
+        true,
         customizedVacancyDetails
       ),
     [
@@ -345,7 +364,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       handleSetStep("absence");
       setVacanciesInput(vacancyDetails);
     },
-    [setVacanciesInput, setStep]
+    [setVacanciesInput, handleSetStep]
   );
   const onCancel = () => handleSetStep("absence");
 
@@ -388,6 +407,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
     const absence = result?.data?.absence?.update as Absence;
     if (absence) {
+      // Reset the form so it's no longer dirty
+      reset();
       openSnackbar({
         message: props.returnUrl
           ? t("Absence #{{absenceId}} has been updated", {
@@ -435,7 +456,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       await props.refetchAbsence();
       handleSetStep("absence");
     },
-    [setStep, assignVacancy]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [handleSetStep, assignVacancy]
   );
 
   const onToggleAbsenceDate = useCallback(
@@ -450,25 +472,20 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   };
 
   const handleReset = () => {
+    // Reset the form
     reset(initialFormData);
+    // Reset all of the details in State
+    resetInitialAbsenceState(initialState(props));
     setCancelDialogIsOpen(false);
   };
 
-  const handleSetStep = (newStep: any) => {
-    if (showPrompt) {
-      setShowPrompt(false);
-    }
-    setTimeout(() => {
-      setStep(newStep);
-    }, 0);
-  }; /* eslint-disable-line react-hooks/exhaustive-deps */ /* eslint-disable-line react-hooks/exhaustive-deps */
   const onAssignSubClick = React.useCallback(
     (vacancyDetailIds?: string[], employeeToReplace?: string) => {
       setVacancyDetailIdsToAssign(vacancyDetailIds ?? undefined);
       setEmployeeToReplace(employeeToReplace ?? undefined);
       handleSetStep("preAssignSub");
     },
-    [setStep]
+    [handleSetStep]
   );
 
   return (
@@ -575,7 +592,11 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               onDelete={props.onDelete}
               onCancel={onClickReset}
               onAssignSubClick={onAssignSubClick}
-              isFormDirty={formState.dirty}
+              isFormDirty={
+                formState.dirty ||
+                !isEqual(state.absenceDates, props.absenceDates) ||
+                !isEqual(props.initialVacancyDetails, theVacancyDetails)
+              }
               setshowPrompt={setShowPrompt}
               hasEditedDetails={true}
             />

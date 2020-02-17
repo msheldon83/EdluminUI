@@ -163,6 +163,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
   useEffect(() => {
     props.setshowPrompt(true);
   }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
+
   const isSplitVacancy = useMemo(() => {
     return vacanciesHaveMultipleAssignments(props.vacancies);
   }, [props.vacancies]);
