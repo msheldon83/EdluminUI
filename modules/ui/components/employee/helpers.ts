@@ -11,6 +11,7 @@ import {
   startOfMonth,
   addMonths,
   isSameDay,
+  differenceInHours,
 } from "date-fns";
 import { GetEmployeePositionContractSchedule } from "./graphql/get-employee-position-contract-schedule.gen";
 import { flatMap, range, groupBy } from "lodash-es";
@@ -58,6 +59,10 @@ export const GetEmployeeAbsenceDetails = (
             ? a.details.map(d => ({
                 dayPart: d!.dayPartId!,
                 dayPortion: d!.dayPortion,
+                hourDuration: differenceInHours(
+                  parseISO(d!.endTimeLocal),
+                  parseISO(d!.startTimeLocal)
+                ),
               }))
             : [],
         startTime: format(parseISO(a.startTimeLocal), "h:mm a"),

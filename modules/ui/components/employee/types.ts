@@ -24,6 +24,7 @@ export type EmployeeAbsenceDetail = {
   allDayParts: {
     dayPart: DayPart;
     dayPortion: number;
+    hourDuration: number;
   }[];
 };
 

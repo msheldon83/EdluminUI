@@ -86,11 +86,7 @@ export const UpcomingAbsences: React.FC<Props> = props => {
         }}
       />
       <ScheduledAbsences
-        absences={employeeAbsenceDetails
-          .filter((a: EmployeeAbsenceDetail) =>
-            isAfter(a.startTimeLocal, startDate)
-          )
-          .slice(0, 5)}
+        absences={employeeAbsenceDetails.slice(0, 5)}
         cancelAbsence={cancelAbsence}
         isLoading={
           getAbsenceSchedule.state === "LOADING" ||

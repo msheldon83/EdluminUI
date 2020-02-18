@@ -82,7 +82,7 @@ export const SelectEmployee: React.FC<Props> = props => {
       externalId: orgUser.externalId,
       firstName: orgUser.firstName,
       lastName: orgUser.lastName,
-      phone: orgUser.phoneNumber,
+      locations: orgUser.employee?.locations,
       position: orgUser.employee?.primaryPosition?.title,
     }));
   }, [results]);
@@ -90,9 +90,24 @@ export const SelectEmployee: React.FC<Props> = props => {
   const columns: Column<typeof tableData[0]>[] = useMemo(
     () =>
       [
-        { title: t("First name"), field: "firstName" },
-        { title: t("Last name"), field: "lastName" },
-        { title: t("Primary phone"), field: "phone", hideOnMobile: true },
+        {
+          title: t("Name"),
+          render: (o: any) => `${o.lastName}, ${o.firstName}`,
+        },
+
+        {
+          title: t("Location"),
+
+          hideOnMobile: true,
+          render: (o: any) =>
+            !o.locations || o.locations?.length < 1 ? (
+              t("None")
+            ) : o.locations.length === 1 ? (
+              o.locations[0]?.name
+            ) : (
+              <>{`${o.locations?.length} ${t("Locations")}`}</>
+            ),
+        },
         { title: t("Employee ID"), field: "employeeId", hideOnMobile: true },
         { title: t("Position"), field: "position" },
       ].filter(c => !isMobile || !c.hideOnMobile),
