@@ -98,8 +98,6 @@ export const AsAdmin = () => {
     },
   });
 
-  const date = Date.now();
-
   return (
     <Provider>
       <Route path={AdminCreateAbsenceRoute.path}>

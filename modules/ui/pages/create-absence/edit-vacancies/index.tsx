@@ -35,8 +35,8 @@ type Props = {
   disabledDates?: Date[];
   defaultAccountingCode?: string;
   defaultPayCode?: string;
-  absenceStartTime: Date;
-  absenceEndTime: Date;
+  absenceStartTime: string;
+  absenceEndTime: string;
 };
 
 type EditVacancyFormData = {
@@ -58,17 +58,13 @@ export const EditVacancies: React.FC<Props> = props => {
     })),
   };
 
-  console.log(
-    props?.absenceStartTime?.toLocaleString("en-US", {
-      hour: "numeric",
-      hour12: true,
-    }) +
-      " : " +
-      props?.absenceEndTime?.toLocaleString("en-US", {
-        hour: "numeric",
-        hour12: true,
-      })
-  );
+  const absenceStartTime = parseISO(props?.absenceStartTime)
+    .toLocaleTimeString()
+    .replace(/^([^\d]*\d{1,2}:\d{1,2}):\d{1,2}([^\d]*)$/, "$1$2");
+
+  const absenceEndTime = parseISO(props?.absenceEndTime)
+    .toLocaleTimeString()
+    .replace(/^([^\d]*\d{1,2}:\d{1,2}):\d{1,2}([^\d]*)$/, "$1$2");
 
   const locationQuery = useQueryBundle(GetLocationsForEmployee, {
     variables: { id: props.employeeId },
@@ -207,7 +203,7 @@ export const EditVacancies: React.FC<Props> = props => {
                 </Typography>
                 {(props.absenceStartTime || props.absenceEndTime) && (
                   <Typography variant="h6">
-                    {props.absenceStartTime} - {props.absenceEndTime}
+                    {absenceStartTime} - {absenceEndTime}
                   </Typography>
                 )}
                 <Typography variant="h6">

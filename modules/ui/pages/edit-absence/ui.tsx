@@ -79,8 +79,6 @@ type Props = {
   locationIds?: string[];
   startTimeLocal: string;
   endTimeLocal: string;
-  absenceStartTimeLocal: Date;
-  absenceEndTimeLocal: Date;
   absenceDates: Date[];
   cancelAssignments: (
     assignmentId?: string,
