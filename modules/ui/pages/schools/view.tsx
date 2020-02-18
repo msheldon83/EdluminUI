@@ -165,6 +165,10 @@ export const LocationViewPage: React.FC<{}> = props => {
             blockedSubstitutes={
               location.substitutePreferences.blockedSubstitutes
             }
+            autoAssignedSubstitutes={
+              location.substitutePreferences?.autoAssignedSubstitutes
+            }
+            autoAssignedSubsOnly={true}
             editRoute={LocationSubPrefRoute.generate(params)}
             editing={false}
             editPermission={[PermissionEnum.LocationSave]}
