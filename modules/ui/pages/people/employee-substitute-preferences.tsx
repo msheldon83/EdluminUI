@@ -63,19 +63,18 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   };
 
   const updatePreferences = async (favorites: any[], blocked: any[]) => {
-    const neweFavs = favorites.map((s: any) => {
+    const newFavs = favorites.map((s: any) => {
       return { id: s.id };
     });
 
-    const neweBlocked = blocked.map((s: any) => {
+    const newBlocked = blocked.map((s: any) => {
       return { id: s.id };
     });
     const updatedEmployee: any = {
       id: employee.id,
-      rowVersion: employee.rowVersion,
       substitutePreferences: {
-        favoriteSubstitutes: neweFavs,
-        blockedSubstitutes: neweBlocked,
+        favoriteSubstitutes: newFavs,
+        blockedSubstitutes: newBlocked,
       },
     };
     const result = await updateEmployee({

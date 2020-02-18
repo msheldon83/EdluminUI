@@ -2453,12 +2453,15 @@ type OrgUserMutations {
   saveAdministrator(administrator: AdministratorInput!): OrgUser
   saveSubstitute(substitute: SubstituteInput!): OrgUser
   saveEmployee(employee: EmployeeInput!): OrgUser
+  addSubPreference(subPreference: SubstitutePreferenceInput!): ReplacementPoolMember
+  removeSubPreference(subPreference: SubstitutePreferenceInput!): Boolean
 }
 
 type OrgUserQueries {
   byId(id: ID!): OrgUser
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [ID], locations: [ID], positionTypes: [ID]): [OrgUser]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [ID], locations: [ID], positionTypes: [ID]): PagedOrgUser
+  pagedSubsForPreferences(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String): PagedOrgUser
   lastLoginById(id: ID!): OrgUserLastLogin
 }
 
@@ -4067,6 +4070,7 @@ type ReplacementPoolConfig implements ModelObjectInterface & OrgObjectInterface 
   exclude: Boolean
   maxLeadTimeMinutes: Int!
   minLeadTImeMinutes: Int!
+  useWhenDayExceedsWorkMinutes: Int!
   selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
@@ -4079,6 +4083,7 @@ input ReplacementPoolConfigCreateInput {
   exclude: Boolean
   maxLeadTimeMinutes: Int!
   minLeadTImeMinutes: Int!
+  useWhenDayExceedsWorkMinutes: Int!
   selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
@@ -4104,6 +4109,7 @@ input ReplacementPoolConfigUpdateInput {
   exclude: Boolean
   maxLeadTimeMinutes: Int
   minLeadTImeMinutes: Int
+  useWhenDayExceedsWorkMinutes: Int
   selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
@@ -4183,6 +4189,7 @@ enum ReplacementPoolType {
   INVALID
   FAVORITE
   BLOCKED
+  AUTO_ASSIGN
   OTHER
 }
 
@@ -4559,15 +4566,27 @@ type SubstitutePoolMembership {
   blockedFromPositionTypes: [PositionType]
 }
 
+input SubstitutePreferenceInput {
+  orgId: ID!
+  employee: LocatorInput
+  location: LocatorInput
+  locationGroup: LocatorInput
+  positionType: LocatorInput
+  substitute: LocatorInput
+  replacementPoolType: ReplacementPoolType
+}
+
 type SubstitutePreferences {
   _info: [ReturnMessage]
   favoriteSubstitutes: [Employee!]!
   blockedSubstitutes: [Employee!]!
+  autoAssignedSubstitutes: [Employee!]!
 }
 
 input SubstitutePreferencesInput {
   favoriteSubstitutes: [LocatorInput]
   blockedSubstitutes: [LocatorInput]
+  autoAssignedSubstitutes: [LocatorInput]
 }
 
 input SwapVacancyAssignmentsInput {
