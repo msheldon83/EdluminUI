@@ -110,8 +110,8 @@ export const AsAdmin = () => {
           onChangedVacancies={() => {}}
           onCancel={() => {}}
           setStep={() => {}}
-          absenceEndTime={date}
-          absenceStartTime={date}
+          absenceEndTime={"8:30 AM"}
+          absenceStartTime={"5:00 PM"}
         />
       </Route>
     </Provider>

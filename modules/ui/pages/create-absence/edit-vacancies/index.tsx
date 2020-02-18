@@ -19,7 +19,13 @@ import { VacancyDetail } from "../../../components/absence/types";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import { usePayCodes } from "reference-data/pay-codes";
 import * as yup from "yup";
-import { isBefore, parseISO, isValid, areIntervalsOverlapping } from "date-fns";
+import {
+  isBefore,
+  parseISO,
+  isValid,
+  areIntervalsOverlapping,
+  format,
+} from "date-fns";
 import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "ui/components/absence/date-helpers";
 
 type Props = {
@@ -58,13 +64,11 @@ export const EditVacancies: React.FC<Props> = props => {
     })),
   };
 
-  const absenceStartTime = parseISO(props?.absenceStartTime)
-    .toLocaleTimeString()
-    .replace(/^([^\d]*\d{1,2}:\d{1,2}):\d{1,2}([^\d]*)$/, "$1$2");
-
-  const absenceEndTime = parseISO(props?.absenceEndTime)
-    .toLocaleTimeString()
-    .replace(/^([^\d]*\d{1,2}:\d{1,2}):\d{1,2}([^\d]*)$/, "$1$2");
+  const absenceStartTime = `${format(
+    parseISO(props.absenceStartTime),
+    "h:mm a"
+  )}`;
+  const absenceEndTime = `${format(parseISO(props.absenceEndTime), "h:mm a")}`;
 
   const locationQuery = useQueryBundle(GetLocationsForEmployee, {
     variables: { id: props.employeeId },
