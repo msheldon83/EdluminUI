@@ -1,0 +1,11 @@
+mutation CreateVacancyReason($vacancyReason: VacancyReasonCreateInput!) {
+  orgRef_VacancyReason {
+    create(vacancyReason: $vacancyReason) {
+      id
+      name
+      description
+      rowVersion
+      externalId
+    }
+  }
+}

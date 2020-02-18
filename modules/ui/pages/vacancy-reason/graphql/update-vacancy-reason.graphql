@@ -1,0 +1,11 @@
+mutation UpdateVacancyReason($vacancyReason: VacancyReasonUpdateInput!) {
+  orgRef_VacancyReason {
+    update(vacancyReason: $vacancyReason) {
+      id
+      name
+      description
+      rowVersion
+      externalId
+    }
+  }
+}
