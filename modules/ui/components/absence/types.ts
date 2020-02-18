@@ -1,3 +1,12 @@
+type AssignmentInfo = {
+  assignmentId?: string;
+  assignmentRowVersion?: string;
+  assignmentStartDateTime?: string;
+  assignmentEmployeeId?: string;
+  assignmentEmployeeFirstName?: string;
+  assignmentEmployeeLastName?: string;
+};
+
 export type VacancyDetail = {
   vacancyDetailId: string | undefined;
   date: string;
@@ -9,10 +18,8 @@ export type VacancyDetail = {
   absenceEndTime?: string;
   accountingCodeId?: string | null;
   payCodeId?: string | null;
-  assignmentId?: string;
-  assignmentRowVersion?: string;
-  assignmentStartDateTime?: string;
-  assignmentEmployeeId?: string;
-  assignmentEmployeeFirstName?: string;
-  assignmentEmployeeLastName?: string;
-};
+} & AssignmentInfo;
+
+export type AssignmentOnDate = {
+  date: string;
+} & AssignmentInfo;
