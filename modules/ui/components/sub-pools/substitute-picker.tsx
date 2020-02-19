@@ -58,13 +58,13 @@ export const SubstitutePicker: React.FC<Props> = props => {
       setPendingName(isoFilters.name);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isoFilters.name, name, setPendingName]);
+  }, [isoFilters.name]);
 
   useEffect(() => {
     if (name !== isoFilters.name) {
       updateIsoFilters({ name });
     }
-  }, [isoFilters.name, name, updateIsoFilters]); // eslint-disable-line
+  }, [name]); // eslint-disable-line
 
   const updateNameFilter = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
