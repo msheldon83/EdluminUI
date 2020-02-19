@@ -69,7 +69,7 @@ export const VacancyReason: React.FC<Props> = props => {
       editable: "always",
     },
     {
-      title: t("Code"),
+      title: t("External ID"),
       field: "externalId",
       hidden: isMobile,
       editable: "always",
