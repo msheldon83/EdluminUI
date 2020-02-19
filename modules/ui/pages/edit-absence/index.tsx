@@ -229,6 +229,8 @@ export const EditAbsence: React.FC<Props> = props => {
               d?.accountingCodeAllocations &&
               d?.accountingCodeAllocations[0]?.accountingCode?.id,
             assignmentId: d.assignment?.id,
+            absenceStartTime: d.startTimeLocal,
+            absenceEndTime: d.endTimeLocal,
             assignmentRowVersion: d.assignment?.rowVersion,
             assignmentStartDateTime: d.startTimeLocal,
             assignmentEmployeeId: d.assignment?.employee?.id,

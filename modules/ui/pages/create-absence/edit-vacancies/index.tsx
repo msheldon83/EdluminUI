@@ -19,13 +19,7 @@ import { VacancyDetail } from "../../../components/absence/types";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import { usePayCodes } from "reference-data/pay-codes";
 import * as yup from "yup";
-import {
-  isBefore,
-  parseISO,
-  isValid,
-  areIntervalsOverlapping,
-  format,
-} from "date-fns";
+import { isBefore, parseISO, isValid, areIntervalsOverlapping } from "date-fns";
 import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "ui/components/absence/date-helpers";
 
 type Props = {
@@ -41,8 +35,6 @@ type Props = {
   disabledDates?: Date[];
   defaultAccountingCode?: string;
   defaultPayCode?: string;
-  absenceStartTime: string;
-  absenceEndTime: string;
 };
 
 type EditVacancyFormData = {
@@ -61,14 +53,10 @@ export const EditVacancies: React.FC<Props> = props => {
       endTime: parseISO(d.endTime).toISOString(),
       accountingCodeId: d.accountingCodeId ?? props.defaultAccountingCode,
       payCodeId: d.payCodeId ?? props.defaultPayCode,
+      absenceStartTime: d.absenceStartTime,
+      absenceEndTime: d.absenceEndTime,
     })),
   };
-
-  const absenceStartTime = `${format(
-    parseISO(props.absenceStartTime),
-    "h:mm a"
-  )}`;
-  const absenceEndTime = `${format(parseISO(props.absenceEndTime), "h:mm a")}`;
 
   const locationQuery = useQueryBundle(GetLocationsForEmployee, {
     variables: { id: props.employeeId },
@@ -199,18 +187,13 @@ export const EditVacancies: React.FC<Props> = props => {
               alignItems="center"
             >
               <Grid item>
-                <Typography variant="h6">
+                <Typography variant="h5">
                   {getAbsenceDateRangeDisplayTextWithDayOfWeek(
                     props.details.map(d => parseISO(d.date)),
                     props.disabledDates
                   )}
                 </Typography>
-                {(props.absenceStartTime || props.absenceEndTime) && (
-                  <Typography variant="h6">
-                    {absenceStartTime} - {absenceEndTime}
-                  </Typography>
-                )}
-                <Typography variant="h6">
+                <Typography variant="h5">
                   {props.positionName && `${props.positionName}`}
                 </Typography>
               </Grid>
