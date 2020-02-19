@@ -132,6 +132,9 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "column",
     height: "100vh",
+    "@media print": {
+      height: "100%",
+    },
   },
   outer: {
     display: "flex",
@@ -154,6 +157,10 @@ const useStyles = makeStyles(theme => ({
     maxWidth: theme.typography.pxToRem(1440),
     transform: "rotate(0)",
     overflowY: "auto",
+    "@media print": {
+      height: "100%",
+      overflowY: "hidden",
+    },
   },
 
   navWidthExpanded: {
@@ -196,6 +203,7 @@ const useStyles = makeStyles(theme => ({
     "@media print": {
       padding: 0,
       fontSize: theme.typography.pxToRem(11),
+      overflowY: "hidden",
     },
   },
   name: {
