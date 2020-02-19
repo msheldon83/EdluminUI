@@ -4067,6 +4067,7 @@ type ReplacementPoolConfig implements ModelObjectInterface & OrgObjectInterface 
   exclude: Boolean
   maxLeadTimeMinutes: Int!
   minLeadTImeMinutes: Int!
+  useWhenDayExceedsWorkMinutes: Int!
   selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
@@ -4079,6 +4080,7 @@ input ReplacementPoolConfigCreateInput {
   exclude: Boolean
   maxLeadTimeMinutes: Int!
   minLeadTImeMinutes: Int!
+  useWhenDayExceedsWorkMinutes: Int!
   selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
@@ -4104,6 +4106,7 @@ input ReplacementPoolConfigUpdateInput {
   exclude: Boolean
   maxLeadTimeMinutes: Int
   minLeadTImeMinutes: Int
+  useWhenDayExceedsWorkMinutes: Int
   selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
@@ -4183,6 +4186,7 @@ enum ReplacementPoolType {
   INVALID
   FAVORITE
   BLOCKED
+  AUTO_ASSIGN
   OTHER
 }
 
@@ -4563,11 +4567,13 @@ type SubstitutePreferences {
   _info: [ReturnMessage]
   favoriteSubstitutes: [Employee!]!
   blockedSubstitutes: [Employee!]!
+  autoAssignedSubstitutes: [Employee!]!
 }
 
 input SubstitutePreferencesInput {
   favoriteSubstitutes: [LocatorInput]
   blockedSubstitutes: [LocatorInput]
+  autoAssignedSubstitutes: [LocatorInput]
 }
 
 input SwapVacancyAssignmentsInput {
