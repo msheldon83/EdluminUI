@@ -110,6 +110,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         subHeading={`${employee.firstName ?? ""} ${employee.middleName ??
           ""} ${employee.lastName ?? ""}`}
         orgId={params.organizationId}
+        isLocationOnly={false}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}

@@ -5,14 +5,14 @@ import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
 
 type Props = {
   title: string;
-  orgUsers: any[];
+  orgUsers?: OrgUser[] | null;
   blocked: boolean;
-  onRemove: (orgUser: any) => void;
+  onRemove: (orgUser: OrgUser) => void;
   removePermission: PermissionEnum[];
 };
 
@@ -30,18 +30,17 @@ export const SubPoolCard: React.FC<Props> = props => {
           alignItems="center"
           direction="row"
         >
-          {props.orgUsers.length === 0 ? (
+          {props.orgUsers?.length === 0 ? (
             <Grid item xs={12}>
               <Typography>{t("Not Defined")}</Typography>
             </Grid>
           ) : (
-            props.orgUsers.map((user, i) => {
+            props.orgUsers?.map((user, i) => {
               const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`;
               const className = [
                 classes.detail,
                 i % 2 == 1 ? classes.shadedRow : undefined,
               ].join(" ");
-
               return (
                 <Grid item className={className} xs={12} key={i}>
                   <Typography className={classes.userName}>{name}</Typography>

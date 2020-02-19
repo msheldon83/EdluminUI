@@ -17,19 +17,17 @@ import { Grid, Typography } from "@material-ui/core";
 import { TextButton } from "ui/components/text-button";
 import { Input } from "ui/components/form/input";
 import { useDeferredState } from "hooks";
-import {
-  FilterQueryParams,
-  FilterRole,
-  RoleSpecificFilters,
-} from "ui/pages/people/people-filters/filter-params";
-import { useEffect, useMemo } from "react";
+import { FilterQueryParams } from "ui/pages/people/people-filters/filter-params";
+import { useEffect } from "react";
 import { Can } from "../auth/can";
 
 type Props = {
   title: string;
+  isLocationOnly: boolean;
   orgId: string;
   onAdd: (orgUser: any) => void;
   onBlock: (orgUser: any) => void;
+  onAutoAssign?: (orgUser: any) => void;
   takenSubstitutes: any[];
   addToFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
@@ -131,7 +129,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
           alignItems="center"
           direction="row"
         >
-          <Grid item xs={3} className={classes.filters}>
+          <Grid item xs={6} className={classes.filters}>
             <Input
               label={t("Search")}
               value={pendingName}
@@ -171,6 +169,16 @@ export const SubstitutePicker: React.FC<Props> = props => {
                     {t("Add favorite")}
                   </TextButton>
                 </Can>
+                {props.isLocationOnly && props.onAutoAssign && (
+                  <Can do={props.addToFavoritePermission}>
+                    <TextButton
+                      className={classes.addActionLink}
+                      onClick={() => props.onAutoAssign!(user)}
+                    >
+                      {t("Auto Assign")}
+                    </TextButton>
+                  </Can>
+                )}
               </Grid>
             );
           })}

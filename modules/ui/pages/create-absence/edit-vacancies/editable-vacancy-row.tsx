@@ -16,7 +16,7 @@ import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
 import { VacancyDetail } from "../../../components/absence/types";
 import { FormikErrors } from "formik";
-import { startOfDay, parseISO } from "date-fns";
+import { startOfDay, parseISO, format } from "date-fns";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
@@ -48,6 +48,15 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
   const { t } = useTranslation();
+
+  const absenceStartTime = `${format(
+    parseISO(props.values.absenceStartTime!),
+    "h:mm a"
+  )}`;
+  const absenceEndTime = `${format(
+    parseISO(props.values.absenceEndTime!),
+    "h:mm a"
+  )}`;
 
   const locationMenuOptions = props.locationOptions.map(loc => ({
     value: loc.id,
@@ -84,6 +93,13 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
         <Typography variant="h6">
           {date && formatDateIfPossible(date, "MMMM d, yyyy")}
         </Typography>
+      </Grid>
+      <Grid item container>
+        {(absenceStartTime || absenceEndTime) && (
+          <Typography variant="h6">
+            {absenceStartTime} - {absenceEndTime}
+          </Typography>
+        )}
       </Grid>
       <Grid item container alignItems="center">
         <Grid
