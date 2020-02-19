@@ -1658,6 +1658,9 @@ enum EventType {
   USER_PAUSE_SMS_RECEIVED
   USER_RESUME_SMS_RECEIVED
   USER_INVALID_SMS_NUMBER_RECEIVED
+  USER_AVAILABLE_TIME_SAVED
+  USER_UNAVAILABLE_TIME_SAVED
+  USER_UNAVAILABLE_TIME_DELETED
   ORGANIZATION_CREATED
   ORGANIZATION_UPDATED
   ORGANIZATION_DELETED
@@ -3083,6 +3086,15 @@ type PagedSchoolYear {
 type PagedUser {
   _info: [ReturnMessage]
   results: [User]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedUserUnavailableTime {
+  _info: [ReturnMessage]
+  results: [UserUnavailableTime]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -5116,6 +5128,7 @@ type User implements ModelObjectInterface {
   resetPasswordTicketUrl: String
   resetPasswordTicketUrlGeneratedAtUtc: DateTime
   temporaryPassword: String
+  availableTime: [UserAvailableTime]
 }
 
 type UserAccess {
@@ -5127,6 +5140,37 @@ type UserAccess {
 
 type UserAccessQueries {
   me: UserAccess
+}
+
+enum UserAvailability {
+  INVALID
+  AVAILABLE
+  NOT_AVAILABLE
+  BEFORE
+  AFTER
+}
+
+type UserAvailableTime implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  userId: ID!
+  description: String
+  daysOfWeek: [DayOfWeek!]!
+  availableTime: Seconds
+  availabilityType: UserAvailability!
+}
+
+input UserAvailableTimeInput {
+  id: ID
+  description: String
+  userId: ID!
+  daysOfWeek: [DayOfWeek!]!
+  availableTime: Int
+  userAvailabilityType: UserAvailability!
 }
 
 input UserCreateInput {
@@ -5155,6 +5199,9 @@ type UserMutations {
   resetPassword(userInfo: ResetUserPasswordInput!): User
   acceptEula: User
   invite(idsToInvite: [ID]!, orgId: ID, inviteSynchronously: Boolean): Boolean
+  saveAvailableTime(availableTime: UserAvailableTimeInput!): UserAvailableTime
+  saveUnavailableTime(unavailableTime: UserUnavailableTimeInput!): UserUnavailableTime
+  deleteUnavailableTime(id: ID!): Boolean
 }
 
 type UserPreferences {
@@ -5174,12 +5221,33 @@ input UserPreferencesInput {
 
 type UserQueries {
   byId(id: ID!): User
-  paged(
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    searchText: String
-  ): PagedUser
+  paged(limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String): PagedUser
+  pagedUserUnavailableTime(limit: Int, offset: Int, sortBy: [SortDetailsInput], userId: ID, fromDate: DateTime!, toDate: Date!): PagedUserUnavailableTime
+}
+
+type UserUnavailableTime implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  userId: ID!
+  description: String
+  startDate: Date!
+  endDate: Date!
+  availableTime: Seconds
+  availabilityType: UserAvailability!
+}
+
+input UserUnavailableTimeInput {
+  id: ID
+  description: String
+  userId: ID!
+  userAvailabilityType: UserAvailability!
+  startTimeLocal: Date!
+  endTimeLocal: Date!
+  startTime: Int
 }
 
 input UserUpdateInput {

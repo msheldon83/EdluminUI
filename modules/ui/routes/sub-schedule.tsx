@@ -24,3 +24,17 @@ export const SubScheduleLoader = asyncComponent({
   },
   name: "SubSchedule",
 });
+
+export const SubAvailabilityRoute = defineSubRoute(
+  SubScheduleRoute,
+  "/availability"
+);
+
+export const SubAvailabilityLoader = asyncComponent({
+  resolve: async () => {
+    const SubAvailability = (await import("ui/pages/sub-availability/index"))
+      .SubAvailabilityPage;
+    return SubAvailability;
+  },
+  name: "SubSchedule",
+});

@@ -106,6 +106,22 @@ const buildEnumMap = (t: i18next.TFunction) => {
       name: "dayOfWeekShort.SATURDAY",
       displayName: t("Sat"),
     },
+    {
+      name: "userAvailability.AVAILABLE",
+      displayName: t("Any time"),
+    },
+    {
+      name: "userAvailability.NOT_AVAILABLE",
+      displayName: t("Not available"),
+    },
+    {
+      name: "userAvailability.BEFORE",
+      displayName: t("Before"),
+    },
+    {
+      name: "userAvailability.AFTER",
+      displayName: t("After"),
+    },
   ];
   return enumMap;
 };
