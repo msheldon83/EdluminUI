@@ -1,0 +1,5 @@
+mutation DeleteVacancyReason($vacancyReasonId: ID!) {
+  orgRef_VacancyReason {
+    delete(vacancyReasonId: $vacancyReasonId)
+  }
+}
