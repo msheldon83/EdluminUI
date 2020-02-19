@@ -15,14 +15,13 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
-import { VacancyDetail } from "ui/components/absence/types";
+import { VacancyDetail, AssignmentOnDate } from "ui/components/absence/types";
 import { Can } from "ui/components/auth/can";
 import { SelectNew } from "ui/components/form/select-new";
 import { CreateAbsenceCalendar } from "../create-absence-calendar";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
-import { flatMap, uniq } from "lodash-es";
 import { vacanciesHaveMultipleAssignments } from "../helpers";
 
 export type AbsenceDetailsFormData = {
@@ -86,6 +85,7 @@ type Props = {
     employeeToReplace?: string
   ) => void;
   hasEditedDetails: boolean;
+  assignmentsByDate: AssignmentOnDate[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -103,6 +103,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     onSwitchMonth,
     errors,
     triggerValidation,
+    assignmentsByDate,
   } = props;
 
   const absenceReasons = useAbsenceReasons(organizationId);
@@ -259,6 +260,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             onCancelAssignment={props.onRemoveReplacement}
             assignmentStartDate={assignmentStartTime ?? startDate}
             vacancies={props.vacancies}
+            assignmentsByDate={assignmentsByDate}
           />
         )}
 
@@ -310,6 +312,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
               props.setVacanciesInput(updatedDetails);
             }}
             hasEditedDetails={props.hasEditedDetails}
+            assignmentsByDate={assignmentsByDate}
           />
         </div>
       </Grid>

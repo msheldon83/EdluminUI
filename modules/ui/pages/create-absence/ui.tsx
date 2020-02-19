@@ -425,6 +425,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isFormDirty={formState.dirty}
                 onAssignSubClick={onAssignSubClick}
                 hasEditedDetails={!!state.vacanciesInput}
+                assignmentsByDate={[]}
               />
             </Section>
           </>
@@ -441,6 +442,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             disabledDates={disabledDates}
             onCancel={onCancel}
             onSelectReplacement={onAssignSub}
+            assignmentsByDate={[]}
           />
         )}
         {step === "confirmation" && (

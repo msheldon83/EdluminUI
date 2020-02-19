@@ -40,7 +40,10 @@ import { ActionMenu } from "ui/components/action-menu";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
-import { VacancyDetail } from "../../components/absence/types";
+import {
+  VacancyDetail,
+  AssignmentOnDate,
+} from "../../components/absence/types";
 import { AssignSub } from "../create-absence/assign-sub";
 import { EditVacancies } from "../create-absence/edit-vacancies";
 import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
@@ -89,6 +92,7 @@ type Props = {
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
   returnUrl?: string;
+  assignmentsByDate: AssignmentOnDate[];
 };
 
 type EditAbsenceFormData = {
@@ -606,6 +610,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 !isEqual(props.initialVacancyDetails, theVacancyDetails)
               }
               hasEditedDetails={true}
+              assignmentsByDate={props.assignmentsByDate}
             />
           </Section>
         </form>
@@ -645,6 +650,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           }}
           employeeToReplace={employeeToReplace}
           vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
+          assignmentsByDate={props.assignmentsByDate}
         />
       )}
     </>

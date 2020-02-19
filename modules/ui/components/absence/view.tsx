@@ -30,6 +30,7 @@ import {
 } from "./helpers";
 import { VacancyDetails } from "./vacancy-details";
 import { ShowErrors } from "../error-helpers";
+import { AssignmentOnDate } from "./types";
 
 type Props = {
   orgId: string;
@@ -92,6 +93,34 @@ export const View: React.FC<Props> = props => {
       details && details[0] ? details[0].startTimeLocal : undefined;
     return startTime ? parseISO(startTime) : undefined;
   }, [vacancies]);
+
+  /* eslint-disable @typescript-eslint/ban-ts-ignore */
+  const assignmentsByDate: AssignmentOnDate[] = useMemo(() => {
+    if (!absence) {
+      return [];
+    }
+
+    return compact(
+      // @ts-ignore
+      flatMap(absence.vacancies ?? [], v => {
+        // @ts-ignore
+        return v.details
+          .filter(d => d?.assignment)
+          .map(d => {
+            if (!d) return null;
+            return {
+              date: d.startDate,
+              assignmentId: d.assignment?.id,
+              assignmentRowVersion: d.assignment?.rowVersion,
+              assignmentStartDateTime: d.startTimeLocal,
+              assignmentEmployeeId: d.assignment?.employee?.id,
+              assignmentEmployeeFirstName: d.assignment?.employee?.firstName,
+              assignmentEmployeeLastName: d.assignment?.employee?.lastName,
+            };
+          });
+      })
+    );
+  }, [absence]);
 
   if (!absence) {
     return null;
@@ -226,6 +255,7 @@ export const View: React.FC<Props> = props => {
                   }}
                   assignmentStartDate={assignmentStartTime ?? absenceStartDate}
                   vacancies={vacancies}
+                  assignmentsByDate={assignmentsByDate}
                 />
               )}
               <div className={classes.substituteDetailsSection}>
@@ -242,6 +272,7 @@ export const View: React.FC<Props> = props => {
                         await removeSub(assignmentId, assignmentRowVersion);
                         setReplacementEmployeeInformation(null);
                       }}
+                      assignmentsByDate={assignmentsByDate}
                     />
                     <div className={classes.requiresSubSection}>
                       <Typography variant="h6">

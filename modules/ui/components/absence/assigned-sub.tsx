@@ -10,6 +10,7 @@ import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
 import { useState, useMemo, useCallback } from "react";
 import { getGroupedVacancyDetails } from "./helpers";
 import { flatMap, uniq } from "lodash-es";
+import { AssignmentOnDate } from "./types";
 
 type Props = {
   employeeId: string;
@@ -19,6 +20,7 @@ type Props = {
   assignmentId?: string;
   assignmentRowVersion?: string;
   assignmentStartDate: Date;
+  assignmentsByDate: AssignmentOnDate[];
   onAssignSubClick?: () => void;
   onCancelAssignment?: (
     assignmentId?: string,
@@ -38,8 +40,8 @@ export const AssignedSub: React.FC<Props> = props => {
   ] = useState(false);
 
   const allGroupedDetails = useMemo(() => {
-    return getGroupedVacancyDetails(props.vacancies);
-  }, [props.vacancies]);
+    return getGroupedVacancyDetails(props.vacancies, props.assignmentsByDate);
+  }, [props.vacancies, props.assignmentsByDate]);
 
   const { assignmentId, onCancelAssignment } = props;
   const onClickRemove = useCallback(async () => {

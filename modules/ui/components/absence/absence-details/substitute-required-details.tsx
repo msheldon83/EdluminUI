@@ -30,7 +30,7 @@ import {
   vacancyDetailsHaveDifferentAccountingCodeSelections,
   vacancyDetailsHaveDifferentPayCodeSelections,
 } from "../helpers";
-import { VacancyDetail } from "../types";
+import { VacancyDetail, AssignmentOnDate } from "../types";
 
 type Props = {
   setValue: SetValue;
@@ -68,6 +68,7 @@ type Props = {
   updateDetailAccountingCodes: (accountingCodeId: string | null) => void;
   updateDetailPayCodes: (payCodeId: string | null) => void;
   hasEditedDetails: boolean;
+  assignmentsByDate: AssignmentOnDate[];
 };
 
 export const SubstituteRequiredDetails: React.FC<Props> = props => {
@@ -192,6 +193,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
           onCancelAssignment={props.onCancelAssignment}
           disableReplacementInteractions={props.disableReplacementInteractions}
           onAssignSubClick={props.onAssignSubClick}
+          assignmentsByDate={props.assignmentsByDate}
         />
       )}
 
