@@ -523,14 +523,6 @@ export const getAbsenceDates = (
 export const getCannotCreateAbsenceDates = (disabledDates: DisabledDate[]) =>
   disabledDates.filter(d => d.type === "nonWorkDay").map(d => d.date);
 
-export const vacanciesHaveMultipleAssignments = (vacancies: Vacancy[]) => {
-  const allAssignmentIds = vacancies
-    ? flatMap(vacancies.map(v => v.details?.map(d => d?.assignment?.id)))
-    : [];
-  const uniqueAssignmentIds = uniq(allAssignmentIds);
-  return uniqueAssignmentIds.length > 1;
-};
-
 export const getGroupedVacancyDetails = (
   vacancies: Vacancy[],
   assignmentsByDate: AssignmentOnDate[]

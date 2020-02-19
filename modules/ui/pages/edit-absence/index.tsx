@@ -248,26 +248,27 @@ export const EditAbsence: React.FC<Props> = props => {
       return [];
     }
 
-    return compact(
+    const allVacancyDetails = compact(
       // @ts-ignore
       flatMap(absence.data.absence?.byId.vacancies ?? [], v => {
         // @ts-ignore
-        return v.details
-          .filter(d => d?.assignment)
-          .map(d => {
-            if (!d) return null;
-            return {
-              date: d.startDate,
-              assignmentId: d.assignment?.id,
-              assignmentRowVersion: d.assignment?.rowVersion,
-              assignmentStartDateTime: d.startTimeLocal,
-              assignmentEmployeeId: d.assignment?.employee?.id,
-              assignmentEmployeeFirstName: d.assignment?.employee?.firstName,
-              assignmentEmployeeLastName: d.assignment?.employee?.lastName,
-            };
-          });
+        return v.details.map(d => {
+          if (!d) return null;
+          return {
+            date: d.startDate,
+            assignmentId: d.assignment?.id,
+            assignmentRowVersion: d.assignment?.rowVersion,
+            assignmentStartDateTime: d.startTimeLocal,
+            assignmentEmployeeId: d.assignment?.employee?.id,
+            assignmentEmployeeFirstName: d.assignment?.employee?.firstName,
+            assignmentEmployeeLastName: d.assignment?.employee?.lastName,
+          };
+        });
       })
     );
+
+    const uniqueDetailsByDate = uniqBy(allVacancyDetails, "date");
+    return uniqueDetailsByDate;
   }, [absence]);
 
   if (absence.state !== "DONE" && absence.state !== "UPDATING") {

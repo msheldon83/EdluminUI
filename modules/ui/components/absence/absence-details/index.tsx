@@ -22,7 +22,7 @@ import { CreateAbsenceCalendar } from "../create-absence-calendar";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
-import { vacanciesHaveMultipleAssignments } from "../helpers";
+import { uniqBy } from "lodash-es";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -160,8 +160,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
 
   const isSplitVacancy = useMemo(() => {
-    return vacanciesHaveMultipleAssignments(props.vacancies);
-  }, [props.vacancies]);
+    const uniqueRecords = uniqBy(assignmentsByDate, "assignmentId");
+    return uniqueRecords.length > 1;
+  }, [assignmentsByDate]);
 
   const assignmentStartTime = useMemo(() => {
     const details = props.vacancies[0]?.details;

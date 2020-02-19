@@ -4,12 +4,12 @@ import { useTranslation } from "react-i18next";
 import { Grid, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import {
-  vacanciesHaveMultipleAssignments,
   getGroupedVacancyDetails,
 } from "./helpers";
 import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
 import { VacancyDetailRow } from "./vacancy-detail-row";
 import { AssignmentOnDate } from "./types";
+import { uniqBy } from "lodash-es";
 
 type Props = {
   vacancies: Vacancy[];
@@ -66,8 +66,9 @@ export const VacancyDetails: React.FC<Props> = props => {
   }, [vacancies, vacancyDetailIds]);
 
   const isSplitVacancy = useMemo(() => {
-    return vacanciesHaveMultipleAssignments(filteredVacancies);
-  }, [filteredVacancies]);
+    const uniqueRecords = uniqBy(assignmentsByDate, "assignmentId");
+    return uniqueRecords.length > 1;
+  }, [assignmentsByDate]);
 
   const groupedDetails = useMemo(() => {
     return getGroupedVacancyDetails(filteredVacancies, assignmentsByDate);
