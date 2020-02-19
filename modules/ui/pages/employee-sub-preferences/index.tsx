@@ -107,6 +107,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         removeFavoritePermission={[PermissionEnum.EmployeeSaveFavoriteSubs]}
         addToBlockedPermission={[PermissionEnum.EmployeeSaveBlockedSubs]}
         addToFavoritePermission={[PermissionEnum.EmployeeSaveFavoriteSubs]}
+        isLocationOnly={false}
       ></SubstitutePreferences>
     </>
   );
