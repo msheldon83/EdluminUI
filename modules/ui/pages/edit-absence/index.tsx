@@ -212,12 +212,19 @@ export const EditAbsence: React.FC<Props> = props => {
     if (absence.state !== "DONE") {
       return [];
     }
+
+    const absenceDetails = absence.data.absence?.byId?.details;
+
     return compact(
       // @ts-ignore
       flatMap(absence.data.absence?.byId.vacancies ?? [], v => {
         // @ts-ignore
         return v.details.map(d => {
           if (!d) return null;
+
+          const absenceDetail = absenceDetails?.find(
+            ad => ad?.startDate === d?.startDate
+          );
           return {
             vacancyDetailId: d.id,
             date: d.startDate,
@@ -229,8 +236,8 @@ export const EditAbsence: React.FC<Props> = props => {
               d?.accountingCodeAllocations &&
               d?.accountingCodeAllocations[0]?.accountingCode?.id,
             assignmentId: d.assignment?.id,
-            absenceStartTime: d.startTimeLocal,
-            absenceEndTime: d.endTimeLocal,
+            absenceStartTime: absenceDetail?.startTimeLocal,
+            absenceEndTime: absenceDetail?.endTimeLocal,
             assignmentRowVersion: d.assignment?.rowVersion,
             assignmentStartDateTime: d.startTimeLocal,
             assignmentEmployeeId: d.assignment?.employee?.id,
