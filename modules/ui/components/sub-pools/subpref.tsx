@@ -14,7 +14,7 @@ type Props = {
   blockedEmployees: OrgUser[];
   autoAssignEmployees?: OrgUser[];
   heading: string;
-  subHeading: string;
+  subHeading?: string;
   orgId: string;
   onRemoveFavoriteEmployee: (orgUser: OrgUser) => void;
   onRemoveBlockedEmployee: (orgUser: OrgUser) => void;
@@ -43,7 +43,9 @@ export const SubstitutePreferences: React.FC<Props> = props => {
 
   return (
     <>
-      <Typography variant="h5">{props.subHeading}</Typography>
+      {props.subHeading && (
+        <Typography variant="h5">{props.subHeading}</Typography>
+      )}
       <Typography variant="h1">{props.heading}</Typography>
       <Grid container spacing={2} className={classes.content}>
         <Grid item xs={6}>

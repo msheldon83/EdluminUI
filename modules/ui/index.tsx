@@ -207,6 +207,10 @@ import {
   EmployeeScheduleRoute,
 } from "./routes/employee-schedule";
 import {
+  EmployeeSubPreferenceRoute,
+  EmployeeSubPreferenceRouteLoader,
+} from "./routes/employee-sub-preferences";
+import {
   EmployeePtoBalanceRoute,
   EmployeePtoBalanceLoader,
 } from "./routes/employee-pto-balances";
@@ -315,6 +319,11 @@ export function App() {
                             role={"employee"}
                             permissions={[PermissionEnum.EmployeeViewBalances]}
                           />
+                          <Route
+                            path={EmployeeSubPreferenceRoute.path}
+                            component={EmployeeSubPreferenceRouteLoader}
+                          />
+
                           <Route path={EmployeeScheduleCalendarViewRoute.path}>
                             <EmployeeScheduleLoader view="calendar" />
                           </Route>

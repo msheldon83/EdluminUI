@@ -9,6 +9,7 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { EmployeePtoBalanceRoute } from "ui/routes/employee-pto-balances";
+import { EmployeeSubPreferenceRoute } from "ui/routes/employee-sub-preferences";
 import { OrganizationsRoute } from "ui/routes/organizations";
 import { PeopleRoute } from "ui/routes/people";
 import { CalendarListViewRoute } from "ui/routes/calendar/calendar";
@@ -98,7 +99,7 @@ export const EmployeeNavLinks: React.FC<Props> = props => {
       <SubPreferencesNavLink
         onClick={props.onClick}
         navBarExpanded={props.navBarExpanded}
-        route={tbd.generate(params)}
+        route={EmployeeSubPreferenceRoute.generate(params)}
       />
     </>
   );

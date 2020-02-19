@@ -1,0 +1,38 @@
+query GetSubstitutesForPreferences(
+  $orgId: ID!
+  $limit: Int
+  $offset: Int
+  $sortBy: [SortDetailsInput]
+  $name: String
+) {
+  orgUser {
+    pagedSubsForPreferences(
+      orgId: $orgId
+      limit: $limit
+      offset: $offset
+      sortBy: $sortBy
+      name: $name
+    ) {
+      offset
+      limit
+      hasMoreData
+      totalCount
+      results {
+        id
+        firstName
+        lastName
+        substitute {
+          id
+          rowVersion
+          attributes {
+            id
+            endorsement {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}

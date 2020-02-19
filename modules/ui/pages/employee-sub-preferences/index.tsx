@@ -2,92 +2,83 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
-import { useRouteParams } from "ui/routes/definition";
-import { EmployeeSubstitutePreferenceRoute } from "ui/routes/people";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetEmployeeById } from "./graphql/employee/get-employee-by-id.gen";
-import { SaveEmployee } from "./graphql/employee/save-employee.gen";
+import { GetEmployeeById } from "ui/pages/people/graphql/employee/get-employee-by-id.gen";
+import { AddSubPreference } from "./graphql/add-sub-preference.gen";
+import { RemoveSubPreference } from "./graphql/remove-sub-preference.gen";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, ReplacementPoolType } from "graphql/server-types.gen";
+import { useGetEmployee } from "reference-data/employee";
 
 export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
-  const params = useRouteParams(EmployeeSubstitutePreferenceRoute);
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
+  const me = useGetEmployee();
 
   const getEmployee = useQueryBundle(GetEmployeeById, {
-    variables: { id: params.orgUserId },
+    variables: { id: me?.id },
     fetchPolicy: "cache-first",
   });
 
   const onRemoveFavoriteSubstitute = async (sub: any) => {
-    const filteredFavorites = employee.substitutePreferences?.favoriteSubstitutes.filter(
-      (u: any) => {
-        return u.id !== sub.id;
-      }
-    );
-    return updatePreferences(
-      filteredFavorites,
-      employee.substitutePreferences?.blockedSubstitutes
-    );
+    await removeSub(sub.id, ReplacementPoolType.Favorite);
   };
 
   const onRemoveBlockedSubstitute = async (sub: any) => {
-    const filteredBlocked = employee.substitutePreferences?.blockedSubstitutes.filter(
-      (u: any) => {
-        return u.id !== sub.id;
-      }
-    );
-    return updatePreferences(
-      employee.substitutePreferences?.favoriteSubstitutes,
-      filteredBlocked
-    );
+    await removeSub(sub.id, ReplacementPoolType.Blocked);
   };
 
   const onAddSubstitute = async (sub: any) => {
     employee.substitutePreferences?.favoriteSubstitutes.push(sub);
 
-    return updatePreferences(
-      employee.substitutePreferences?.favoriteSubstitutes,
-      employee.substitutePreferences?.blockedSubstitutes
-    );
+    await addSub(sub.id, ReplacementPoolType.Favorite);
   };
 
   const onBlockSubstitute = async (sub: any) => {
     employee.substitutePreferences?.blockedSubstitutes.push(sub);
 
-    return updatePreferences(
-      employee.substitutePreferences?.favoriteSubstitutes,
-      employee.substitutePreferences?.blockedSubstitutes
-    );
+    await addSub(sub.id, ReplacementPoolType.Blocked);
   };
 
-  const updatePreferences = async (favorites: any[], blocked: any[]) => {
-    const newFavs = favorites.map((s: any) => {
-      return { id: s.id };
-    });
+  const [addSubPreference] = useMutationBundle(AddSubPreference, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
-    const newBlocked = blocked.map((s: any) => {
-      return { id: s.id };
-    });
-    const updatedEmployee: any = {
-      id: employee.id,
-      substitutePreferences: {
-        favoriteSubstitutes: newFavs,
-        blockedSubstitutes: newBlocked,
-      },
-    };
-    const result = await updateEmployee({
+  const addSub = async (subId: string, type: ReplacementPoolType) => {
+    const result = await addSubPreference({
       variables: {
-        employee: updatedEmployee,
+        subPreference: {
+          orgId: employee.orgId,
+          employee: { id: employee.id },
+          substitute: { id: subId },
+          replacementPoolType: type,
+        },
       },
     });
-    if (!result?.data) return false;
+    if (!result.data) return false;
     await getEmployee.refetch();
     return true;
   };
 
-  const [updateEmployee] = useMutationBundle(SaveEmployee, {
+  const removeSub = async (subId: string, type: ReplacementPoolType) => {
+    const result = await removeSubPreference({
+      variables: {
+        subPreference: {
+          orgId: employee.orgId,
+          employee: { id: employee.id },
+          substitute: { id: subId },
+          replacementPoolType: type,
+        },
+      },
+    });
+    if (!result.data) return false;
+    await getEmployee.refetch();
+    return true;
+  };
+
+  const [removeSubPreference] = useMutationBundle(RemoveSubPreference, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -107,10 +98,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         favoriteEmployees={employee.substitutePreferences?.favoriteSubstitutes}
         blockedEmployees={employee.substitutePreferences?.blockedSubstitutes}
         heading={t("Substitute Preferences")}
-        subHeading={`${employee.firstName ?? ""} ${employee.middleName ??
-          ""} ${employee.lastName ?? ""}`}
-        orgId={params.organizationId}
-        isLocationOnly={false}
+        orgId={employee?.orgId?.toString()}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}
@@ -119,6 +107,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         removeFavoritePermission={[PermissionEnum.EmployeeSaveFavoriteSubs]}
         addToBlockedPermission={[PermissionEnum.EmployeeSaveBlockedSubs]}
         addToFavoritePermission={[PermissionEnum.EmployeeSaveFavoriteSubs]}
+        isLocationOnly={false}
       ></SubstitutePreferences>
     </>
   );

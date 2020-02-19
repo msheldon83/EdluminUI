@@ -8,7 +8,7 @@ import {
 } from "hooks/query-params";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { usePagedQueryBundle } from "graphql/hooks";
-import { GetAllPeopleForOrg } from "ui/pages/people/graphql/get-all-people-for-org.gen";
+import { GetSubstitutesForPreferences } from "./graphql/get-substitutes.gen";
 import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { compact, remove } from "lodash-es";
 import { useTranslation } from "react-i18next";
@@ -55,6 +55,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
     if (name !== isoFilters.name) {
       setPendingName(isoFilters.name);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isoFilters.name]);
 
   useEffect(() => {
@@ -71,14 +72,12 @@ export const SubstitutePicker: React.FC<Props> = props => {
   );
 
   const [allSubstitutesQuery, pagination] = usePagedQueryBundle(
-    GetAllPeopleForOrg,
-    r => r.orgUser?.paged?.totalCount,
+    GetSubstitutesForPreferences,
+    r => r.orgUser?.pagedSubsForPreferences?.totalCount,
     {
       variables: {
         ...isoFilters,
         orgId: props.orgId,
-        //locations: [props.locationId], -Not sure if we need to filter this list by location
-        role: [OrgUserRole.ReplacementEmployee],
         sortBy: [
           {
             sortByPropertyName: "lastName",
@@ -94,18 +93,20 @@ export const SubstitutePicker: React.FC<Props> = props => {
     peoplePaginationDefaults
   );
 
-  let substitutes: GetAllPeopleForOrg.Results[] = [];
+  let substitutes: GetSubstitutesForPreferences.Results[] = [];
   if (
     allSubstitutesQuery.state === "DONE" ||
     allSubstitutesQuery.state === "UPDATING"
   ) {
-    const qResults = compact(allSubstitutesQuery.data?.orgUser?.paged?.results);
+    const qResults = compact(
+      allSubstitutesQuery.data?.orgUser?.pagedSubsForPreferences?.results
+    );
     if (qResults) substitutes = qResults;
   }
 
   if (
     allSubstitutesQuery.state === "LOADING" ||
-    !allSubstitutesQuery.data.orgUser?.paged?.results
+    !allSubstitutesQuery.data.orgUser?.pagedSubsForPreferences?.results
   ) {
     return <></>;
   }
@@ -165,7 +166,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
                     className={classes.addActionLink}
                     onClick={() => props.onAdd(user)}
                   >
-                    {t("Add")}
+                    {t("Add favorite")}
                   </TextButton>
                 </Can>
                 {props.isLocationOnly && props.onAutoAssign && (
