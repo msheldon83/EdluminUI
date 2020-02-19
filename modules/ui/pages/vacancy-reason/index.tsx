@@ -37,7 +37,6 @@ export const VacancyReason: React.FC<Props> = props => {
 
   const getVacancyReasons = useQueryBundle(GetAllVacancyReasonsWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired: true },
-    skip: true,
   });
   const [updateVacancyReason] = useMutationBundle(UpdateVacancyReason, {
     onError: error => {
@@ -99,10 +98,9 @@ export const VacancyReason: React.FC<Props> = props => {
     return <></>;
   }
 
-  /*const vacancyReasons = compact(
+  const vacancyReasons = compact(
     getVacancyReasons?.data?.orgRef_VacancyReason?.all ?? []
-  );*/
-  const vacancyReasons: any = [];
+  );
 
   const vacancyReasonCount = vacancyReasons.length;
 

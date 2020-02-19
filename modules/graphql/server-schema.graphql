@@ -5042,11 +5042,13 @@ type SubstitutePreferences {
   _info: [ReturnMessage]
   favoriteSubstitutes: [Employee!]!
   blockedSubstitutes: [Employee!]!
+  autoAssignedSubstitutes: [Employee!]!
 }
 
 input SubstitutePreferencesInput {
   favoriteSubstitutes: [LocatorInput]
   blockedSubstitutes: [LocatorInput]
+  autoAssignedSubstitutes: [LocatorInput]
 }
 
 input SwapVacancyAssignmentsInput {
