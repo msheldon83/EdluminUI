@@ -31,6 +31,16 @@ type Props = {
 
 export const SubstitutePreferences: React.FC<Props> = props => {
   const classes = useStyles();
+
+  const takenSubs = () => {
+    if (props.autoAssignEmployees === undefined) {
+      return props.favoriteEmployees.concat(props.blockedEmployees);
+    }
+    return props.favoriteEmployees
+      .concat(props.blockedEmployees)
+      .concat(props.autoAssignEmployees);
+  };
+
   return (
     <>
       <Typography variant="h5">{props.subHeading}</Typography>
@@ -75,9 +85,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
             onAdd={props.onAddFavoriteEmployee}
             onBlock={props.onBlockEmployee}
             onAutoAssign={props.onAutoAssignEmployee}
-            takenSubstitutes={props.favoriteEmployees.concat(
-              props.blockedEmployees
-            )}
+            takenSubstitutes={takenSubs()}
             addToBlockedPermission={props.addToBlockedPermission}
             addToFavoritePermission={props.addToFavoritePermission}
           ></SubstitutePicker>

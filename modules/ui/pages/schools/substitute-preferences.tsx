@@ -163,7 +163,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         removeFavoritePermission={[PermissionEnum.LocationSave]}
         addToBlockedPermission={[PermissionEnum.LocationSave]}
         addToFavoritePermission={[PermissionEnum.LocationSave]}
-      ></SubstitutePreferences>
+      />
     </>
   );
 };

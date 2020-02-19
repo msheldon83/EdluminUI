@@ -17,12 +17,8 @@ import { Grid, Typography } from "@material-ui/core";
 import { TextButton } from "ui/components/text-button";
 import { Input } from "ui/components/form/input";
 import { useDeferredState } from "hooks";
-import {
-  FilterQueryParams,
-  FilterRole,
-  RoleSpecificFilters,
-} from "ui/pages/people/people-filters/filter-params";
-import { useEffect, useMemo } from "react";
+import { FilterQueryParams } from "ui/pages/people/people-filters/filter-params";
+import { useEffect } from "react";
 import { Can } from "../auth/can";
 
 type Props = {
