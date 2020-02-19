@@ -53,6 +53,8 @@ export const EditVacancies: React.FC<Props> = props => {
       endTime: parseISO(d.endTime).toISOString(),
       accountingCodeId: d.accountingCodeId ?? props.defaultAccountingCode,
       payCodeId: d.payCodeId ?? props.defaultPayCode,
+      absenceStartTime: d.absenceStartTime,
+      absenceEndTime: d.absenceEndTime,
     })),
   };
 
@@ -177,7 +179,6 @@ export const EditVacancies: React.FC<Props> = props => {
           {!props.actingAsEmployee && (
             <Typography variant="h1">{props.employeeName}</Typography>
           )}
-
           <Section className={classes.vacancyDetails}>
             <Grid
               container
@@ -191,7 +192,9 @@ export const EditVacancies: React.FC<Props> = props => {
                     props.details.map(d => parseISO(d.date)),
                     props.disabledDates
                   )}
-                  {props.positionName && ` - ${props.positionName}`}
+                </Typography>
+                <Typography variant="h5">
+                  {props.positionName && `${props.positionName}`}
                 </Typography>
               </Grid>
               <Grid item>
