@@ -408,6 +408,9 @@ const useStyles = makeStyles(theme => ({
     paddingRight: 0,
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
+    "@media print": {
+      padding: 0,
+    },
   },
   headerContainer: {
     paddingLeft: theme.spacing(4),
@@ -432,6 +435,9 @@ const useStyles = makeStyles(theme => ({
   detailActions: {
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
+    "@media print": {
+      display: "none",
+    },
   },
   groupedDetailsContainer: {
     paddingLeft: theme.spacing(4),
