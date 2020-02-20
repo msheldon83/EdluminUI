@@ -101,9 +101,7 @@ export const VacancyReason: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle
-        title={`${params.organizationId} ${t("Absence & Vacancy Rules")}`}
-      />
+      <PageTitle title={`${params.organizationId} ${t("Vacancy Reasons")}`} />
       <UnderConstructionHeader />
     </>
   );
