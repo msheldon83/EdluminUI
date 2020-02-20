@@ -1,7 +1,7 @@
 import * as React from "react";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import clsx from "clsx";
-import { makeStyles, Typography, Button } from "@material-ui/core";
+import { makeStyles, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import {
   UserAvailability,
@@ -10,13 +10,12 @@ import {
 } from "graphql/server-types.gen";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { useIsMobile } from "hooks";
-import { format } from "date-fns";
-import { midnightTime } from "helpers/time";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { secondsSinceMidnight } from "helpers/time";
+import { formatAvailabilityLabel, formatAvailableTime } from "./helpers";
 
 type Props = {
   id?: string;
@@ -38,25 +37,20 @@ export const SingleDay: React.FC<Props> = props => {
     props.dayOfWeek == DayOfWeek.Saturday;
   const isAvailable = props.availability != UserAvailability.NotAvailable;
 
-  const availableTime = props.time
-    ? format(midnightTime().setSeconds(props.time), "h:mm a")
-    : undefined;
-
-  console.log(props);
-
+  const availableTime = formatAvailableTime(props.time);
+  const availabilityLabel = formatAvailabilityLabel(
+    t,
+    props.availability,
+    props.time
+  );
   const dayOfWeekLabel = getDisplayName("dayOfWeek", props.dayOfWeek, t);
-  const availabilityLabel = `${getDisplayName(
-    "userAvailability",
-    props.availability ?? UserAvailability.Available,
-    t
-  )}${availableTime ? ` ${availableTime}` : ""}`;
   const mobileText = `${dayOfWeekLabel} - ${availabilityLabel}`;
 
   const availabilityOptions = [
-    { label: "Available", value: UserAvailability.Available },
-    { label: "Before", value: UserAvailability.Before },
-    { label: "After", value: UserAvailability.After },
-    { label: "Not available", value: UserAvailability.NotAvailable },
+    { label: t("Available"), value: UserAvailability.Available },
+    { label: t("Before"), value: UserAvailability.Before },
+    { label: t("After"), value: UserAvailability.After },
+    { label: t("Not available"), value: UserAvailability.NotAvailable },
   ];
 
   return (

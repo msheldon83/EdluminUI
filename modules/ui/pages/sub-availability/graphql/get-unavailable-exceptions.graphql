@@ -1,0 +1,28 @@
+query GetUnavilableTimeExceptions(
+  $userId: ID
+  $limit: Int
+  $offset: Int
+  $fromDate: DateTime!
+  $toDate: Date!
+) {
+  user {
+    pagedUserUnavailableTime(
+      userId: $userId
+      limit: $limit
+      offset: $offset
+      fromDate: $fromDate
+      toDate: $toDate
+    ) {
+      totalCount
+      results {
+        id
+        userId
+        availabilityType
+        availableTime
+        description
+        startDate
+        endDate
+      }
+    }
+  }
+}

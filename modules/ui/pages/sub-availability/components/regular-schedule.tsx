@@ -12,7 +12,9 @@ import { SaveAvailableTime } from "../graphql/save-available-time.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
-type Props = {};
+type Props = {
+  userId: string;
+};
 
 export const RegularSchedule: React.FC<Props> = props => {
   const { t } = useTranslation();
@@ -41,7 +43,7 @@ export const RegularSchedule: React.FC<Props> = props => {
   ) => {
     const result = await saveAvailableTime({ variables: { availableTime } });
     if (result) {
-      getAvailableTime.refetch();
+      await getAvailableTime.refetch();
       return true;
     } else {
       return false;
@@ -54,7 +56,7 @@ export const RegularSchedule: React.FC<Props> = props => {
 
   return (
     <>
-      <Section>
+      <Section className={classes.section}>
         <SectionHeader title={t("Regular Schedule")} />
         <div className={classes.container}>
           {days.map((d, i) => {
@@ -66,7 +68,7 @@ export const RegularSchedule: React.FC<Props> = props => {
                 key={i}
                 dayOfWeek={d}
                 onChange={onChangeAvailability}
-                userId={user.id}
+                userId={props.userId}
                 availability={at?.availabilityType}
                 time={at?.availableTime}
               />
@@ -82,5 +84,8 @@ const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
     flexWrap: "wrap",
+  },
+  section: {
+    marginBottom: theme.spacing(0),
   },
 }));
