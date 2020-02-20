@@ -16,7 +16,9 @@ type Props = {
   orgId: string;
   setShowVerified: React.Dispatch<React.SetStateAction<boolean>>;
   locationsFilter: string[];
+  subSourceFilter: string[];
   setLocationsFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  setSubSourceFilter: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 export const Filters: React.FC<Props> = props => {
@@ -28,14 +30,24 @@ export const Filters: React.FC<Props> = props => {
     () => locations.map(l => ({ label: l.name, value: l.id })),
     [locations]
   );
+
+  //Get Option Types for Sub Source
+  //const subSources = NEW QUERY
+
   const onChangeLocations = useCallback(
     (value /* OptionType[] */) => {
-      const ids: string[] = value
-        ? value.map((v: OptionType) =>v.value)
-        : [];
+      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
       props.setLocationsFilter(ids);
     },
     [props.setLocationsFilter]
+  );
+
+  const onChangeSubSource = useCallback(
+    (value /* OptionType[] */) => {
+      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
+      props.setSubSourceFilter(ids);
+    },
+    [props.setSubSourceFilter]
   );
 
   return (
@@ -56,6 +68,17 @@ export const Filters: React.FC<Props> = props => {
               e => e.value && props.locationsFilter.includes(e.value.toString())
             )}
             multiple
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3} lg={3}>
+          <InputLabel className={classes.label}>{t("Sub source")}</InputLabel>
+          <SelectNew
+            onChange={onChangeSubSource}
+            options={locationOptions} // TODO
+            value={locationOptions.filter(
+              e => e.value && props.subSourceFilter.includes(e.value.toString())
+            )}
+            multiple={false}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3}>

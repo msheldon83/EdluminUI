@@ -43,6 +43,7 @@ import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conv
 type Props = {
   showVerified: boolean;
   locationsFilter: string[];
+  subSourceFilter: string[];
   showLinkToVerify?: boolean;
   date?: Date;
   setDate?: (date: Date) => void;
@@ -68,6 +69,8 @@ export const VerifyUI: React.FC<Props> = props => {
     params.organizationId
   );
 
+  const locationIds = props.locationsFilter.concat(props.subSourceFilter);
+
   const today = useMemo(() => startOfToday(), []);
   /* Because this UI can stand alone or show up on the Admin homepage, we need
     to account for only controlling the selectedDate within here as well
@@ -82,7 +85,7 @@ export const VerifyUI: React.FC<Props> = props => {
   const getAssignmentCounts = useQueryBundle(GetAssignmentCount, {
     variables: {
       orgId: params.organizationId,
-      locationIds: props.locationsFilter,
+      locationIds: locationIds, //props.locationsFilter,
     },
   });
 
@@ -177,7 +180,7 @@ export const VerifyUI: React.FC<Props> = props => {
     variables: {
       orgId: params.organizationId,
       includeVerified: props.showVerified,
-      locationIds: props.locationsFilter,
+      locationIds: locationIds, //props.locationsFilter,
       fromDate: isEqual(selectedDateToUse, addDays(today, -8))
         ? null
         : selectedDateToUse,

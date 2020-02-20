@@ -12,6 +12,7 @@ export const VerifyPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const [showVerified, setShowVerified] = useState(false);
   const [locationsFilter, setLocationsFilter] = useState<string[]>([]);
+  const [subSourceFilter, setSubSourceFilter] = useState<string[]>([]);
   const params = useRouteParams(VerifyRoute);
 
   return (
@@ -21,12 +22,18 @@ export const VerifyPage: React.FC<{}> = props => {
         <Filters
           showVerified={showVerified}
           locationsFilter={locationsFilter}
+          subSourceFilter={subSourceFilter}
           setShowVerified={setShowVerified}
           setLocationsFilter={setLocationsFilter}
+          setSubSourceFilter={setSubSourceFilter}
           orgId={params.organizationId}
         />
       </Section>
-      <VerifyUI showVerified={showVerified} locationsFilter={locationsFilter} />
+      <VerifyUI
+        showVerified={showVerified}
+        locationsFilter={locationsFilter}
+        subSourceFilter={subSourceFilter}
+      />
     </>
   );
 };
