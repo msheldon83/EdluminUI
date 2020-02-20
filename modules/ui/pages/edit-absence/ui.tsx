@@ -40,7 +40,10 @@ import { ActionMenu } from "ui/components/action-menu";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
-import { VacancyDetail } from "../../components/absence/types";
+import {
+  VacancyDetail,
+  AssignmentOnDate,
+} from "../../components/absence/types";
 import { AssignSub } from "../create-absence/assign-sub";
 import { EditVacancies } from "../create-absence/edit-vacancies";
 import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
@@ -89,6 +92,7 @@ type Props = {
   refetchAbsence: () => Promise<unknown>;
   onDelete: () => void;
   returnUrl?: string;
+  assignmentsByDate: AssignmentOnDate[];
 };
 
 type EditAbsenceFormData = {
@@ -356,10 +360,26 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   );
   const onCancel = () => setStep("absence");
 
-  const projectedVacancyDetails: VacancyDetail[] = useMemo(
-    () => projectVacancyDetails(getProjectedVacancies),
-    [getProjectedVacancies.state]
-  );
+  const projectedVacancyDetails: VacancyDetail[] = useMemo(() => {
+    const projectedDetails = projectVacancyDetails(getProjectedVacancies);
+    if (props.assignmentsByDate.length > 0) {
+      projectedDetails
+        .filter(d => !d.assignmentId)
+        .forEach(d => {
+          // Find a matching record in assignmentsByDate
+          const match = props.assignmentsByDate.find(a => a.date === d.date);
+          if (match) {
+            d.assignmentId = match.assignmentId;
+            d.assignmentRowVersion = match.assignmentRowVersion;
+            d.assignmentStartDateTime = match.assignmentStartDateTime;
+            d.assignmentEmployeeId = match.assignmentEmployeeId;
+            d.assignmentEmployeeFirstName = match.assignmentEmployeeFirstName;
+            d.assignmentEmployeeLastName = match.assignmentEmployeeLastName;
+          }
+        });
+    }
+    return projectedDetails;
+  }, [getProjectedVacancies, props.assignmentsByDate]);
 
   const theVacancyDetails: VacancyDetail[] =
     customizedVacancyDetails ||
@@ -606,6 +626,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 !isEqual(props.initialVacancyDetails, theVacancyDetails)
               }
               hasEditedDetails={true}
+              assignmentsByDate={props.assignmentsByDate}
             />
           </Section>
         </form>
@@ -645,6 +666,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           }}
           employeeToReplace={employeeToReplace}
           vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
+          assignmentsByDate={props.assignmentsByDate}
         />
       )}
     </>

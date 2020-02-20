@@ -10,7 +10,10 @@ import { useIsAdmin } from "reference-data/is-admin";
 import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
-import { VacancyDetail } from "../../components/absence/types";
+import {
+  VacancyDetail,
+  AssignmentOnDate,
+} from "../../components/absence/types";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { EditAbsenceUI } from "./ui";
@@ -249,6 +252,34 @@ export const EditAbsence: React.FC<Props> = props => {
     );
   }, [absence]);
 
+  const assignmentsByDate: AssignmentOnDate[] = useMemo(() => {
+    if (absence.state !== "DONE") {
+      return [];
+    }
+
+    const allVacancyDetails = compact(
+      // @ts-ignore
+      flatMap(absence.data.absence?.byId.vacancies ?? [], v => {
+        // @ts-ignore
+        return v.details.map(d => {
+          if (!d) return null;
+          return {
+            date: d.startDate,
+            assignmentId: d.assignment?.id,
+            assignmentRowVersion: d.assignment?.rowVersion,
+            assignmentStartDateTime: d.startTimeLocal,
+            assignmentEmployeeId: d.assignment?.employee?.id,
+            assignmentEmployeeFirstName: d.assignment?.employee?.firstName,
+            assignmentEmployeeLastName: d.assignment?.employee?.lastName,
+          };
+        });
+      })
+    );
+
+    const uniqueDetailsByDate = uniqBy(allVacancyDetails, "date");
+    return uniqueDetailsByDate;
+  }, [absence]);
+
   if (absence.state !== "DONE" && absence.state !== "UPDATING") {
     return <></>;
   }
@@ -360,6 +391,7 @@ export const EditAbsence: React.FC<Props> = props => {
         cancelAssignments={cancelAssignments}
         refetchAbsence={absence.refetch}
         onDelete={onClickDelete}
+        assignmentsByDate={assignmentsByDate}
       />
     </>
   );

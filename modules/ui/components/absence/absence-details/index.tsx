@@ -15,15 +15,14 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
-import { VacancyDetail } from "ui/components/absence/types";
+import { VacancyDetail, AssignmentOnDate } from "ui/components/absence/types";
 import { Can } from "ui/components/auth/can";
 import { SelectNew } from "ui/components/form/select-new";
 import { CreateAbsenceCalendar } from "../create-absence-calendar";
 import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
-import { flatMap, uniq } from "lodash-es";
-import { vacanciesHaveMultipleAssignments } from "../helpers";
+import { uniqBy } from "lodash-es";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -86,6 +85,7 @@ type Props = {
     employeeToReplace?: string
   ) => void;
   hasEditedDetails: boolean;
+  assignmentsByDate: AssignmentOnDate[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -103,6 +103,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     onSwitchMonth,
     errors,
     triggerValidation,
+    assignmentsByDate,
   } = props;
 
   const absenceReasons = useAbsenceReasons(organizationId);
@@ -159,8 +160,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
   }, [values.dayPart, values.hourlyStartTime, values.hourlyEndTime]);
 
   const isSplitVacancy = useMemo(() => {
-    return vacanciesHaveMultipleAssignments(props.vacancies);
-  }, [props.vacancies]);
+    const uniqueRecords = uniqBy(assignmentsByDate, "assignmentId");
+    return uniqueRecords.length > 1;
+  }, [assignmentsByDate]);
 
   const assignmentStartTime = useMemo(() => {
     const details = props.vacancies[0]?.details;
@@ -259,6 +261,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             onCancelAssignment={props.onRemoveReplacement}
             assignmentStartDate={assignmentStartTime ?? startDate}
             vacancies={props.vacancies}
+            assignmentsByDate={assignmentsByDate}
           />
         )}
 
@@ -310,6 +313,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
               props.setVacanciesInput(updatedDetails);
             }}
             hasEditedDetails={props.hasEditedDetails}
+            assignmentsByDate={assignmentsByDate}
           />
         </div>
       </Grid>

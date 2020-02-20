@@ -29,7 +29,7 @@ import { convertStringToDate } from "helpers/date";
 import { TFunction } from "i18next";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
-import { VacancyDetail } from "./types";
+import { VacancyDetail, AssignmentOnDate } from "./types";
 import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
@@ -523,15 +523,10 @@ export const getAbsenceDates = (
 export const getCannotCreateAbsenceDates = (disabledDates: DisabledDate[]) =>
   disabledDates.filter(d => d.type === "nonWorkDay").map(d => d.date);
 
-export const vacanciesHaveMultipleAssignments = (vacancies: Vacancy[]) => {
-  const allAssignmentIds = vacancies
-    ? flatMap(vacancies.map(v => v.details?.map(d => d?.assignment?.id)))
-    : [];
-  const uniqueAssignmentIds = uniq(allAssignmentIds);
-  return uniqueAssignmentIds.length > 1;
-};
-
-export const getGroupedVacancyDetails = (vacancies: Vacancy[]) => {
+export const getGroupedVacancyDetails = (
+  vacancies: Vacancy[],
+  assignmentsByDate: AssignmentOnDate[]
+) => {
   if (!vacancies) {
     return [];
   }
@@ -544,6 +539,23 @@ export const getGroupedVacancyDetails = (vacancies: Vacancy[]) => {
   sortedVacancies.forEach(v => {
     if (v.details && v.details.length > 0) {
       const projectedDetails = projectVacancyDetailsFromVacancies([v]);
+      if (assignmentsByDate.length > 0) {
+        projectedDetails
+          .filter(d => !d.assignmentId)
+          .forEach(d => {
+            // Find a matching record in assignmentsByDate
+            const match = assignmentsByDate.find(a => a.date === d.date);
+            if (match) {
+              d.assignmentId = match.assignmentId;
+              d.assignmentRowVersion = match.assignmentRowVersion;
+              d.assignmentStartDateTime = match.assignmentStartDateTime;
+              d.assignmentEmployeeId = match.assignmentEmployeeId;
+              d.assignmentEmployeeFirstName = match.assignmentEmployeeFirstName;
+              d.assignmentEmployeeLastName = match.assignmentEmployeeLastName;
+            }
+          });
+      }
+
       const groupedDetails = getVacancyDetailsGrouping(projectedDetails);
       if (groupedDetails !== null && groupedDetails.length > 0) {
         allGroupedDetails.push(...groupedDetails);

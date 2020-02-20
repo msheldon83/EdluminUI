@@ -30,6 +30,7 @@ import {
 } from "./helpers";
 import { VacancyDetails } from "./vacancy-details";
 import { ShowErrors } from "../error-helpers";
+import { AssignmentOnDate } from "./types";
 
 type Props = {
   orgId: string;
@@ -226,6 +227,7 @@ export const View: React.FC<Props> = props => {
                   }}
                   assignmentStartDate={assignmentStartTime ?? absenceStartDate}
                   vacancies={vacancies}
+                  assignmentsByDate={[]}
                 />
               )}
               <div className={classes.substituteDetailsSection}>
@@ -242,6 +244,7 @@ export const View: React.FC<Props> = props => {
                         await removeSub(assignmentId, assignmentRowVersion);
                         setReplacementEmployeeInformation(null);
                       }}
+                      assignmentsByDate={[]}
                     />
                     <div className={classes.requiresSubSection}>
                       <Typography variant="h6">

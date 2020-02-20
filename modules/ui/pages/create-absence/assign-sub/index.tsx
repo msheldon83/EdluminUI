@@ -20,6 +20,7 @@ import {
   ReplacementEmployeeFilters,
 } from "./filters";
 import { ReassignAbsenceDialog } from "ui/components/absence/reassign-dialog";
+import { AssignmentOnDate } from "ui/components/absence/types";
 
 type Props = {
   orgId: string;
@@ -42,6 +43,7 @@ type Props = {
   ) => void;
   onCancel: () => void;
   employeeToReplace?: string;
+  assignmentsByDate: AssignmentOnDate[];
 };
 
 export const AssignSub: React.FC<Props> = props => {
@@ -216,6 +218,7 @@ export const AssignSub: React.FC<Props> = props => {
             showHeader
             disabledDates={props.disabledDates}
             detailsClassName={classes.vacancyDetailsTable}
+            assignmentsByDate={props.assignmentsByDate}
           />
         </Collapse>
         {showViewAllDetails && (

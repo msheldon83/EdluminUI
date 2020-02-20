@@ -113,6 +113,7 @@ export const AssignSubToExistingVacancyAsAdmin = () => {
         positionName={"Math teacher"}
         onCancel={() => {}}
         onSelectReplacement={() => {}}
+        assignmentsByDate={[]}
         vacancies={
           [
             {
@@ -314,6 +315,7 @@ export const AssignSubToExistingVacancyAsEmployee = () => {
       <AssignSub
         onSelectReplacement={() => {}}
         onCancel={() => {}}
+        assignmentsByDate={[]}
         orgId={"1006"}
         absenceId={"1000579"}
         userIsAdmin={false}
@@ -372,6 +374,7 @@ export const PrearrangeSubAsAdmin = () => {
       <AssignSub
         onSelectReplacement={() => {}}
         onCancel={() => {}}
+        assignmentsByDate={[]}
         orgId={"1006"}
         absenceId={"1000535"}
         userIsAdmin={true}
@@ -429,6 +432,7 @@ export const PrearrangeSubAsEmployee = () => {
       <AssignSub
         onSelectReplacement={() => {}}
         onCancel={() => {}}
+        assignmentsByDate={[]}
         orgId={"1006"}
         absenceId={"1000225"}
         userIsAdmin={false}

@@ -4,11 +4,12 @@ import { useTranslation } from "react-i18next";
 import { Grid, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import {
-  vacanciesHaveMultipleAssignments,
   getGroupedVacancyDetails,
 } from "./helpers";
 import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
 import { VacancyDetailRow } from "./vacancy-detail-row";
+import { AssignmentOnDate } from "./types";
+import { uniqBy } from "lodash-es";
 
 type Props = {
   vacancies: Vacancy[];
@@ -29,6 +30,7 @@ type Props = {
     vacancyDetailIds?: string[],
     employeeToReplace?: string
   ) => void;
+  assignmentsByDate: AssignmentOnDate[];
 };
 
 export const VacancyDetails: React.FC<Props> = props => {
@@ -36,6 +38,7 @@ export const VacancyDetails: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const {
+    assignmentsByDate,
     vacancies = [],
     vacancyDetailIds = [],
     detailsClassName = classes.fullWidth,
@@ -63,12 +66,13 @@ export const VacancyDetails: React.FC<Props> = props => {
   }, [vacancies, vacancyDetailIds]);
 
   const isSplitVacancy = useMemo(() => {
-    return vacanciesHaveMultipleAssignments(filteredVacancies);
-  }, [filteredVacancies]);
+    const uniqueRecords = uniqBy(assignmentsByDate, "assignmentId");
+    return uniqueRecords.length > 1;
+  }, [assignmentsByDate]);
 
   const groupedDetails = useMemo(() => {
-    return getGroupedVacancyDetails(filteredVacancies);
-  }, [filteredVacancies]);
+    return getGroupedVacancyDetails(filteredVacancies, assignmentsByDate);
+  }, [filteredVacancies, assignmentsByDate]);
 
   if (filteredVacancies.length === 0) {
     return <></>;
@@ -114,6 +118,7 @@ export const VacancyDetails: React.FC<Props> = props => {
                   props.disableReplacementInteractions
                 }
                 onAssignSubClick={props.onAssignSubClick}
+                assignmentsByDate={assignmentsByDate}
               />
             </Grid>
           );

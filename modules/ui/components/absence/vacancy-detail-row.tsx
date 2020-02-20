@@ -10,6 +10,7 @@ import { Vacancy } from "graphql/server-types.gen";
 import { OrgUserPermissions } from "../auth/types";
 import { canAssignSub } from "helpers/permissions";
 import { Can } from "../auth/can";
+import { AssignmentOnDate } from "./types";
 
 type Props = {
   groupedDetail: VacancyDetailsGroup;
@@ -23,7 +24,11 @@ type Props = {
     vacancyDetailIds?: string[]
   ) => Promise<void>;
   disableReplacementInteractions?: boolean;
-  onAssignSubClick?: (vacancyDetailIds?: string[], employeeToReplace?: string) => void;
+  onAssignSubClick?: (
+    vacancyDetailIds?: string[],
+    employeeToReplace?: string
+  ) => void;
+  assignmentsByDate: AssignmentOnDate[];
 };
 
 export const VacancyDetailRow: React.FC<Props> = props => {
@@ -52,9 +57,9 @@ export const VacancyDetailRow: React.FC<Props> = props => {
 
   const subName = useMemo(() => {
     return groupedDetail.assignmentEmployeeFirstName &&
-                groupedDetail.assignmentEmployeeLastName
-                  ? `${groupedDetail.assignmentEmployeeFirstName} ${groupedDetail.assignmentEmployeeLastName}`
-                  : undefined;
+      groupedDetail.assignmentEmployeeLastName
+      ? `${groupedDetail.assignmentEmployeeFirstName} ${groupedDetail.assignmentEmployeeLastName}`
+      : undefined;
   }, [groupedDetail]);
 
   return (
@@ -106,7 +111,10 @@ export const VacancyDetailRow: React.FC<Props> = props => {
               }
               showLinkButton={true}
               vacancies={vacancies}
-              onAssignSubClick={() => props.onAssignSubClick!(vacancyDetailIds, subName)}
+              onAssignSubClick={() =>
+                props.onAssignSubClick!(vacancyDetailIds, subName)
+              }
+              assignmentsByDate={props.assignmentsByDate}
             />
           )}
         </Grid>
