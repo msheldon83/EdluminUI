@@ -23,6 +23,7 @@ import { CreateVacancyReason } from "./graphql/create-vacancy-reason.gen";
 import { DeleteVacancyReason } from "./graphql/delete-vacancy-reason.gen";
 import { Column } from "material-table";
 import { compact } from "lodash-es";
+import { UnderConstructionHeader } from "ui/components/under-construction";
 
 type Props = {};
 
@@ -37,6 +38,7 @@ export const VacancyReason: React.FC<Props> = props => {
 
   const getVacancyReasons = useQueryBundle(GetAllVacancyReasonsWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired: true },
+    skip: true, //CLA Added while feature is to be hidden from users
   });
   const [updateVacancyReason] = useMutationBundle(UpdateVacancyReason, {
     onError: error => {
@@ -94,7 +96,20 @@ export const VacancyReason: React.FC<Props> = props => {
     [t]
   );
 
-  if (getVacancyReasons.state === "LOADING") {
+  /*****  THIS BLOCK OF CODE WAS ADDED WHILE FEATURE IS HIDDEN TO USERS. */
+  /***** Remove this block of code, and uncomment code below to turn page "on". */
+
+  return (
+    <>
+      <PageTitle title={`${params.organizationId} ${t("Vacancy Reasons")}`} />
+      <UnderConstructionHeader />
+    </>
+  );
+  /*****                                                                 */
+
+  /*  Begin of code to uncomment if turning this page "on"  */
+  /*
+if (getVacancyReasons.state === "LOADING") {
     return <></>;
   }
 
@@ -225,6 +240,8 @@ export const VacancyReason: React.FC<Props> = props => {
       />
     </>
   );
+  */
+  /*** End of code to uncomment if turning page "on" */
 };
 
 const useStyles = makeStyles(theme => ({
