@@ -17,7 +17,7 @@ export const SubAvailabilityPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const userCreatedDate = useMemo(() => parseISO(user.createdUtc), [user]);
+  const userCreatedDate = parseISO(user.createdUtc);
 
   return (
     <>
