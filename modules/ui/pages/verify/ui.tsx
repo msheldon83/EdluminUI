@@ -85,7 +85,7 @@ export const VerifyUI: React.FC<Props> = props => {
   const getAssignmentCounts = useQueryBundle(GetAssignmentCount, {
     variables: {
       orgId: params.organizationId,
-      locationIds: locationIds, //props.locationsFilter,
+      locationIds: props.locationsFilter,
     },
   });
 
@@ -180,7 +180,7 @@ export const VerifyUI: React.FC<Props> = props => {
     variables: {
       orgId: params.organizationId,
       includeVerified: props.showVerified,
-      locationIds: locationIds, //props.locationsFilter,
+      locationIds: props.locationsFilter,
       fromDate: isEqual(selectedDateToUse, addDays(today, -8))
         ? null
         : selectedDateToUse,
