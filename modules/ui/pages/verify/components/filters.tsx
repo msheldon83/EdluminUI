@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useQueryBundle } from "graphql/hooks";
+import { compact } from "lodash-es";
 import {
   Checkbox,
   FormControlLabel,
@@ -10,6 +12,8 @@ import {
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useLocations } from "reference-data/locations";
 import { useCallback, useMemo } from "react";
+import { OrganizationRelationshipType } from "graphql/server-types.gen";
+import { GetOrganizationRelationships } from "../graphql/get-organization-relationships.gen";
 
 type Props = {
   showVerified: boolean;
@@ -32,7 +36,32 @@ export const Filters: React.FC<Props> = props => {
   );
 
   //Get Option Types for Sub Source
-  //const subSources = NEW QUERY
+  const getSubSources = useQueryBundle(GetOrganizationRelationships, {
+    fetchPolicy: "cache-first",
+    variables: { orgId: props.orgId },
+  });
+
+  const subSources = useMemo(() => {
+    if (
+      getSubSources.state === "DONE" &&
+      getSubSources.data.organizationRelationship
+    ) {
+      return compact(getSubSources.data.organizationRelationship.all) ?? [];
+    }
+    return [];
+  }, [getSubSources]);
+
+  const subSourceOptions: OptionType[] = useMemo(() => {
+    const delgateTo = subSources.filter(
+      l => l.relationshipType === OrganizationRelationshipType.DelegatesTo
+    );
+    return (
+      delgateTo?.map(x => ({
+        label: x.relatesToOrganization!.name,
+        value: x.id,
+      })) ?? []
+    );
+  }, [subSources]);
 
   const onChangeLocations = useCallback(
     (value /* OptionType[] */) => {
@@ -49,6 +78,8 @@ export const Filters: React.FC<Props> = props => {
     },
     [props.setSubSourceFilter]
   );
+
+  console.log(subSources);
 
   return (
     <>
@@ -70,17 +101,22 @@ export const Filters: React.FC<Props> = props => {
             multiple
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3} lg={3}>
-          <InputLabel className={classes.label}>{t("Sub source")}</InputLabel>
-          <SelectNew
-            onChange={onChangeSubSource}
-            options={locationOptions} // TODO
-            value={locationOptions.filter(
-              e => e.value && props.subSourceFilter.includes(e.value.toString())
-            )}
-            multiple={false}
-          />
-        </Grid>
+        {subSourceOptions.length > 0 && (
+          <Grid item xs={12} sm={6} md={3} lg={3}>
+            <InputLabel className={classes.label}>
+              {t("Substitute source")}
+            </InputLabel>
+            <SelectNew
+              onChange={onChangeSubSource}
+              options={subSourceOptions}
+              value={subSourceOptions.find(
+                e =>
+                  e.value && props.subSourceFilter.includes(e.value.toString())
+              )}
+              multiple={false}
+            />
+          </Grid>
+        )}
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <FormControlLabel
             checked={props.showVerified}
