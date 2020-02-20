@@ -43,7 +43,7 @@ import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conv
 type Props = {
   showVerified: boolean;
   locationsFilter: string[];
-  subSourceFilter: string[];
+  subSourceFilter: string | undefined;
   showLinkToVerify?: boolean;
   date?: Date;
   setDate?: (date: Date) => void;
@@ -68,8 +68,6 @@ export const VerifyUI: React.FC<Props> = props => {
   const vacancyDayConversions = useOrgVacancyDayConversions(
     params.organizationId
   );
-
-  const locationIds = props.locationsFilter.concat(props.subSourceFilter);
 
   const today = useMemo(() => startOfToday(), []);
   /* Because this UI can stand alone or show up on the Admin homepage, we need

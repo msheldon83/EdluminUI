@@ -20,9 +20,9 @@ type Props = {
   orgId: string;
   setShowVerified: React.Dispatch<React.SetStateAction<boolean>>;
   locationsFilter: string[];
-  subSourceFilter: string[];
+  subSourceFilter: string;
   setLocationsFilter: React.Dispatch<React.SetStateAction<string[]>>;
-  setSubSourceFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  setSubSourceFilter: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
 export const Filters: React.FC<Props> = props => {
@@ -55,12 +55,14 @@ export const Filters: React.FC<Props> = props => {
     const delgateTo = subSources.filter(
       l => l.relationshipType === OrganizationRelationshipType.DelegatesTo
     );
-    return (
+    const options =
       delgateTo?.map(x => ({
         label: x.relatesToOrganization!.name,
         value: x.id,
-      })) ?? []
-    );
+      })) ?? [];
+    options.unshift({ label: "My Organization", value: props.orgId });
+    options.unshift({ label: "All", value: "0" });
+    return options;
   }, [subSources]);
 
   const onChangeLocations = useCallback(
@@ -73,7 +75,9 @@ export const Filters: React.FC<Props> = props => {
 
   const onChangeSubSource = useCallback(
     (value /* OptionType[] */) => {
-      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
+      //check for 0 set as undefined
+      let ids = value ?? value.map((v: OptionType) => v.value);
+      if (ids === "0") ids = undefined;
       props.setSubSourceFilter(ids);
     },
     [props.setSubSourceFilter]
@@ -101,7 +105,7 @@ export const Filters: React.FC<Props> = props => {
             multiple
           />
         </Grid>
-        {subSourceOptions.length > 0 && (
+        {subSourceOptions.length > 2 && (
           <Grid item xs={12} sm={6} md={3} lg={3}>
             <InputLabel className={classes.label}>
               {t("Substitute source")}

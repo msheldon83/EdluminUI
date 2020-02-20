@@ -561,7 +561,7 @@ const displaySections = (
           <VerifyUI
             showVerified={false}
             locationsFilter={[]}
-            subSourceFilter={[]}
+            subSourceFilter={undefined}
             showLinkToVerify={true}
             date={date}
             setDate={setDate}
