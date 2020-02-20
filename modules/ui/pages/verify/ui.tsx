@@ -174,6 +174,8 @@ export const VerifyUI: React.FC<Props> = props => {
     }
   }
 
+  console.log(props.subSourceFilter);
+
   const getVacancyDetails = useQueryBundle(GetVacancyDetails, {
     variables: {
       orgId: params.organizationId,
@@ -183,6 +185,7 @@ export const VerifyUI: React.FC<Props> = props => {
         ? null
         : selectedDateToUse,
       toDate: selectedDateToUse,
+      shadowFromOrgId: props.subSourceFilter,
     },
   });
 

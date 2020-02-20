@@ -74,16 +74,13 @@ export const Filters: React.FC<Props> = props => {
   );
 
   const onChangeSubSource = useCallback(
-    (value /* OptionType[] */) => {
-      //check for 0 set as undefined
+    value => {
       let ids = value ?? value.map((v: OptionType) => v.value);
       if (ids === "0") ids = undefined;
       props.setSubSourceFilter(ids);
     },
     [props.setSubSourceFilter]
   );
-
-  console.log(subSources);
 
   return (
     <>
@@ -118,6 +115,7 @@ export const Filters: React.FC<Props> = props => {
                   e.value && props.subSourceFilter.includes(e.value.toString())
               )}
               multiple={false}
+              withResetValue={false}
             />
           </Grid>
         )}
