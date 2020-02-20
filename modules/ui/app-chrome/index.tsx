@@ -144,17 +144,18 @@ const useStyles = makeStyles(theme => ({
     transform:
       "rotate(0)" /* cf - this affects how position works in children elements. */,
   },
+
   mainContent: {
     flexGrow: 1,
     overflowY: "auto",
   },
+
   container: {
     height: "100vh",
     display: "flex",
     flexDirection: "row",
     alignItems: "stretch",
     flexGrow: 1,
-    maxWidth: theme.typography.pxToRem(1440),
     transform: "rotate(0)",
     overflowY: "auto",
     "@media print": {
@@ -188,31 +189,25 @@ const useStyles = makeStyles(theme => ({
       display: "none",
     },
   },
+
   contentView: {
-    overflowY: "auto",
-    [theme.breakpoints.up("md")]: {
-      width: "1px", // Prevent the content view from expanding past its allowed size
-    },
     flexGrow: 1,
     marginTop: theme.spacing(3),
+    maxWidth: theme.typography.pxToRem(1140),
     padding: theme.spacing(0, 3, 4, 3),
-    [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(0),
-      paddingTop: theme.spacing(2),
-    },
     "@media print": {
       padding: 0,
       fontSize: theme.typography.pxToRem(11),
       overflowY: "hidden",
     },
   },
+
   name: {
     backgroundColor: theme.customColors.mustard,
     padding: theme.typography.pxToRem(24),
     marginTop: theme.typography.pxToRem(18),
   },
   leftPaddingExpanded: {
-    maxWidth: theme.typography.pxToRem(1440),
     paddingLeft: theme.typography.pxToRem(258),
     transition: theme.transitions.create("padding", {
       easing: theme.transitions.easing.sharp,
