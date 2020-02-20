@@ -100,6 +100,7 @@ export const CalendarView: React.FC<Props> = props => {
         );
       }
     }
+    /* eslint-disable-line react-hooks/exhaustive-deps */
   }, [getEmployeeSchedule.state, today]);
 
   if (getEmployeeSchedule.state !== "DONE") {
