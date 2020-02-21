@@ -20,6 +20,7 @@ import { OptionType } from "ui/components/form/select-new";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { OrganizationType } from "graphql/server-types.gen";
+import { ShadowIndicator } from "ui/components/shadow-indicator";
 
 const editableSections = {
   name: "edit-name",
@@ -43,6 +44,8 @@ type Props = {
     isAdmin: boolean;
     isEmployee: boolean;
     isReplacementEmployee: boolean;
+    isShadowRecord: boolean;
+    shadowFromOrgName: string | null | undefined;
   };
   orgStatus?: OrganizationType | null | undefined;
   selectedRole?: OrgUserRole | null;
@@ -54,6 +57,8 @@ type Props = {
 
 export const PersonViewHeader: React.FC<Props> = props => {
   const orgUser = props.orgUser;
+  const editable = !orgUser.isShadowRecord && props.editing === null;
+
   const history = useHistory();
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
@@ -106,6 +111,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
     inviteSent,
   ]);
 
+  console.log(editable);
   return (
     <>
       <PageHeaderMultiField
@@ -113,7 +119,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
           orgUser.middleName ? `${orgUser.middleName} ` : ""
         }${orgUser.lastName}`}
         label={t("Name")}
-        editable={props.editing === null}
+        editable={editable}
         onEdit={() => props.setEditing(editableSections.name)}
         editPermissions={(
           permissions: OrgUserPermissions[],
@@ -248,7 +254,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
       <PageHeader
         text={orgUser.externalId}
         label={t("External ID")}
-        editable={props.editing === null}
+        editable={editable}
         onEdit={() => props.setEditing(editableSections.externalId)}
         editPermissions={(
           permissions: OrgUserPermissions[],
@@ -277,6 +283,10 @@ export const PersonViewHeader: React.FC<Props> = props => {
         onCancel={() => props.setEditing(null)}
         isSubHeader={true}
         showLabel={true}
+      />
+      <ShadowIndicator
+        orgName={orgUser.shadowFromOrgName}
+        isShadow={orgUser.isShadowRecord}
       />
     </>
   );

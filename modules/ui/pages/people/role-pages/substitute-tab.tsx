@@ -111,6 +111,7 @@ export const SubstituteTab: React.FC<Props> = props => {
     <>
       <Information
         editing={props.editing}
+        editable={!orgUser?.isShadowRecord}
         orgUser={substitute}
         permissionSet={substitute.permissionSet}
         userId={orgUser?.userId}
@@ -124,6 +125,7 @@ export const SubstituteTab: React.FC<Props> = props => {
       />
       <SubPositionsAttributes
         editing={props.editing}
+        editable={!orgUser?.isShadowRecord}
         attributes={substitute.attributes?.map(ee => ee?.endorsement) ?? []}
         qualifiedPositionTypes={substitute.qualifiedPositionTypes}
       />

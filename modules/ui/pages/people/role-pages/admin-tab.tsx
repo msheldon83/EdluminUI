@@ -64,6 +64,7 @@ export const AdminTab: React.FC<Props> = props => {
     <>
       <Information
         editing={props.editing}
+        editable={!orgUser?.isShadowRecord}
         orgUser={admin}
         permissionSet={admin.permissionSet}
         userId={orgUser?.userId}
@@ -78,6 +79,7 @@ export const AdminTab: React.FC<Props> = props => {
       />
       <AccessControl
         editing={props.editing}
+        editable={!orgUser?.isShadowRecord}
         setEditing={props.setEditing}
         orgId={orgUser.orgId.toString()}
         locations={admin?.accessControl?.locations ?? []}
