@@ -39,6 +39,9 @@ import { PermissionEnum } from "graphql/server-types.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { can } from "helpers/permissions";
 import { useOrganizationId } from "core/org-context";
+import { PaginationControls } from "ui/components/pagination-controls";
+import { PaginationInfo } from "graphql/hooks";
+import { useIsMobile } from "hooks";
 
 export type TableProps<T extends object> = {
   title?: string;
@@ -64,6 +67,7 @@ export type TableProps<T extends object> = {
   expiredRowCheck?: (rowData: T) => boolean;
   style?: React.CSSProperties;
   backgroundFillForAlternatingRows?: boolean;
+  pagination?: PaginationInfo;
 } & Pick<MaterialTableProps<T>, "options" | "editable">;
 
 export type TableColumn<T extends object> = {
@@ -110,6 +114,8 @@ export function Table<T extends object>(props: TableProps<T>) {
   const organizationId = useOrganizationId();
   const [includeExpired, setIncludeExpired] = React.useState(false);
   const [data, setData] = React.useState(props.data);
+  const pagination = props.pagination;
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setData(props.data);
@@ -188,6 +194,9 @@ export function Table<T extends object>(props: TableProps<T>) {
       return (
         <>
           <MTableToolbar {...props} search={false} />
+          {pagination && !isMobile && (
+            <PaginationControls pagination={pagination} />
+          )}
         </>
       );
     } else {
@@ -220,70 +229,76 @@ export function Table<T extends object>(props: TableProps<T>) {
               </Grid>
             </Grid>
           )}
+          {pagination && !isMobile && (
+            <PaginationControls pagination={pagination} />
+          )}
         </>
       );
     }
   };
 
   return (
-    <MaterialTable
-      icons={tableIcons}
-      title={
-        props.title ? (
-          <div className={classes.tableTitle}>{props.title}</div>
-        ) : (
-          ""
-        )
-      }
-      columns={allColumns}
-      data={data}
-      editable={props.editable}
-      onRowClick={props.onRowClick}
-      options={{
-        addRowPosition: "first",
-        selection: selection,
-        headerStyle: {
-          color: theme.customColors.darkGray,
-          fontSize: theme.typography.pxToRem(15),
-          fontWeight: 600,
-          letterSpacing: theme.typography.pxToRem(0.25),
-          lineHeight: theme.typography.pxToRem(24),
-        },
-        rowStyle: {
-          color: theme.customColors.darkGray,
-        },
-        search: false,
-        paging: false,
-        ...props.options,
-      }}
-      style={props.style}
-      actions={anyActionsVisible ? allActions : undefined}
-      components={{
-        Container: props => <div className={classes.container} {...props} />,
-        Row: props => {
-          const classNames = clsx({
-            [classes.inactiveRow]:
-              expiredRowCheckFunc && expiredRowCheckFunc(props.data),
-            [classes.tableRow]: true,
-          });
-          return (
-            <MTableBodyRow
-              className={classNames}
-              {...props}
-              classes={{ root: overrideStyles.root }}
-            />
-          );
-        },
-        Cell: props => <MTableCell {...props} className={classes.cell} />,
-        Toolbar: props => {
-          {
-            return CheckForEditableAndIncludeExpiredAndReturnDisplay({
-              ...props,
+    <>
+      <MaterialTable
+        icons={tableIcons}
+        title={
+          props.title ? (
+            <div className={classes.tableTitle}>{props.title}</div>
+          ) : (
+            ""
+          )
+        }
+        columns={allColumns}
+        data={data}
+        editable={props.editable}
+        onRowClick={props.onRowClick}
+        options={{
+          addRowPosition: "first",
+          selection: selection,
+          headerStyle: {
+            color: theme.customColors.darkGray,
+            fontSize: theme.typography.pxToRem(15),
+            fontWeight: 600,
+            letterSpacing: theme.typography.pxToRem(0.25),
+            lineHeight: theme.typography.pxToRem(24),
+          },
+          rowStyle: {
+            color: theme.customColors.darkGray,
+          },
+          search: false,
+          paging: false,
+          ...props.options,
+        }}
+        style={props.style}
+        actions={anyActionsVisible ? allActions : undefined}
+        components={{
+          Container: props => <div className={classes.container} {...props} />,
+          Row: props => {
+            const classNames = clsx({
+              [classes.inactiveRow]:
+                expiredRowCheckFunc && expiredRowCheckFunc(props.data),
+              [classes.tableRow]: true,
             });
-          }
-        },
-      }}
-    />
+            return (
+              <MTableBodyRow
+                className={classNames}
+                {...props}
+                classes={{ root: overrideStyles.root }}
+              />
+            );
+          },
+          Cell: props => <MTableCell {...props} className={classes.cell} />,
+          Toolbar: props => {
+            {
+              return CheckForEditableAndIncludeExpiredAndReturnDisplay({
+                ...props,
+              });
+            }
+          },
+        }}
+      />
+      {pagination && <PaginationControls pagination={pagination} />}
+    </>
   );
 }
 

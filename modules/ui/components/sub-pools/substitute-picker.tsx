@@ -137,7 +137,12 @@ export const SubstitutePicker: React.FC<Props> = props => {
               placeholder={t("First or last name")}
             />
           </Grid>
-
+          <Grid item xs={12} className={classes.pagination}>
+            <PaginationControls
+              pagination={pagination}
+              pageSizeOptions={[25, 50, 100, 250, 500]}
+            />
+          </Grid>
           {substitutes.length === 0 && (
             <Grid item xs={12} className={classes.noResultRow}>
               <Typography>{t("No Substitutes")}</Typography>
