@@ -50,6 +50,9 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
       firstName={employee.firstName}
       lastName={employee.lastName}
       employeeId={employee.id}
+      trackingBalanceReasonIds={
+        employee.absenceReasonBalances?.map(x => x?.absenceReasonId) ?? []
+      }
       actingAsEmployee
       organizationId={employee.orgId.toString()}
       userIsAdmin={userIsAdmin}
