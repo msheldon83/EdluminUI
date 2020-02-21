@@ -169,9 +169,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "payCode", type: "custom" });
 
   React.useEffect(() => {
-    let isSubscribed = false;
+    let isSubscribed = true;
     const setInitialValues = async () => {
-      if (!isSubscribed) {
+      if (isSubscribed) {
         if (props.initialAbsenceReason) {
           await setValue("absenceReason", props.initialAbsenceReason);
         }
@@ -192,7 +192,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     setInitialValues(); // eslint-disable-line
 
     return () => {
-      isSubscribed = true;
+      isSubscribed = false;
     };
   }, []);
 
