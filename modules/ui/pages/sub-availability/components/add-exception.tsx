@@ -61,7 +61,10 @@ export const AddException: React.FC<Props> = props => {
               description:
                 data.reason && data.reason.length > 0 ? data.reason : undefined,
               startTimeLocal: data.fromDate,
-              endTimeLocal: data.toDate ?? data.fromDate,
+              endTimeLocal:
+                data.availability !== UserAvailability.NotAvailable
+                  ? data.toDate ?? data.fromDate
+                  : data.fromDate,
             });
           }}
           validationSchema={yup.object({
@@ -79,30 +82,7 @@ export const AddException: React.FC<Props> = props => {
           {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
             <form onSubmit={handleSubmit}>
               <Grid container spacing={2}>
-                <Grid item xs={isMobile ? 6 : 2}>
-                  <InputLabel>{t("From")}</InputLabel>
-                  <DatePicker
-                    variant={"single-hidden"}
-                    startDate={values.fromDate}
-                    onChange={({ startDate }) => {
-                      setFieldValue("fromDate", startDate);
-                      if (isAfterDate(startDate, values.fromDate)) {
-                        setFieldValue("toDate", startDate);
-                      }
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={isMobile ? 6 : 2}>
-                  <InputLabel>{t("To")}</InputLabel>
-                  <DatePicker
-                    variant={"single-hidden"}
-                    startDate={values.toDate}
-                    onChange={({ startDate: toDate }) =>
-                      setFieldValue("toDate", toDate)
-                    }
-                  />
-                </Grid>
-                <Grid item xs={isMobile ? 6 : 2}>
+                <Grid item xs={isMobile ? 12 : 2}>
                   <InputLabel>{t("I am")}</InputLabel>
                   <SelectNew
                     value={{
@@ -121,6 +101,31 @@ export const AddException: React.FC<Props> = props => {
                     doSort={false}
                   />
                 </Grid>
+                <Grid item xs={isMobile ? 6 : 2}>
+                  <InputLabel>{t("From")}</InputLabel>
+                  <DatePicker
+                    variant={"single-hidden"}
+                    startDate={values.fromDate}
+                    onChange={({ startDate }) => {
+                      setFieldValue("fromDate", startDate);
+                      if (isAfterDate(startDate, values.fromDate)) {
+                        setFieldValue("toDate", startDate);
+                      }
+                    }}
+                  />
+                </Grid>
+                {values.availability === UserAvailability.NotAvailable && (
+                  <Grid item xs={isMobile ? 6 : 2}>
+                    <InputLabel>{t("To")}</InputLabel>
+                    <DatePicker
+                      variant={"single-hidden"}
+                      startDate={values.toDate}
+                      onChange={({ startDate: toDate }) =>
+                        setFieldValue("toDate", toDate)
+                      }
+                    />
+                  </Grid>
+                )}
                 {(values.availability == UserAvailability.Before ||
                   values.availability == UserAvailability.After) && (
                   <Grid item xs={isMobile ? 6 : 2}>
