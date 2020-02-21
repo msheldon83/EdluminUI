@@ -6,6 +6,7 @@ import {
   ListItemText,
   Grid,
   Button,
+  Typography,
 } from "@material-ui/core";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import MailIcon from "@material-ui/icons/Mail";
@@ -29,6 +30,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
 import { PaginationControls } from "ui/components/pagination-controls";
+import { ShadowIndicator } from "ui/components/shadow-indicator";
 import { Table, TableColumn } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
@@ -242,6 +244,8 @@ export const PeoplePage: React.FC<Props> = props => {
       inviteSentAtUtc: person.inviteSentAtUtc,
       accountSetup: person.isAccountSetup,
       isSuperUser: person.administrator?.isSuperUser ?? false,
+      isShadowRecord: person.isShadowRecord,
+      shadowFromOrgName: person.shadowFromOrgName,
     }));
   }, [people, listRoles]);
 
@@ -282,7 +286,17 @@ export const PeoplePage: React.FC<Props> = props => {
     {
       title: t("Name"),
       sorting: false,
-      render: o => `${o.lastName}, ${o.firstName}`,
+      render: o => (
+        <>
+          <Typography>
+            `${o.lastName}, ${o.firstName}`
+          </Typography>
+          <ShadowIndicator
+            isShadow={o.isShadowRecord}
+            orgName={o.shadowFromOrgName}
+          />
+        </>
+      ),
     },
     {
       title: t("Username"),
