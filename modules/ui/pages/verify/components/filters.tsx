@@ -61,12 +61,18 @@ export const Filters: React.FC<Props> = props => {
         value: x.id,
       })) ?? [];
 
-    options.push(
-      { label: "All", value: "0" },
+    options.unshift(
+      { label: "(All)", value: "0" },
       { label: "My Organization", value: props.orgId }
     );
     return options;
   }, [subSources]);
+
+  const selectedValue = subSourceOptions.find(e =>
+    props.subSourceFilter === "" || props.subSourceFilter === undefined
+      ? subSourceOptions.find(e => e.value.toString() === "0")
+      : e.label && props.subSourceFilter === e.value.toString()
+  );
 
   const onChangeLocations = useCallback(
     (value /* OptionType[] */) => {
@@ -114,9 +120,7 @@ export const Filters: React.FC<Props> = props => {
             <SelectNew
               onChange={onChangeSubSource}
               options={subSourceOptions}
-              value={subSourceOptions.find(
-                e => e.value && props.subSourceFilter === e.value.toString()
-              )}
+              value={selectedValue}
               multiple={false}
               withResetValue={false}
             />
