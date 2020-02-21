@@ -168,6 +168,34 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "accountingCode", type: "custom" });
   register({ name: "payCode", type: "custom" });
 
+  React.useEffect(() => {
+    let isSubscribed = false;
+    const setInitialValues = async () => {
+      if (!isSubscribed) {
+        if (props.initialAbsenceReason) {
+          await setValue("absenceReason", props.initialAbsenceReason);
+        }
+        if (props.initialDayPart) {
+          await setValue("dayPart", props.initialDayPart);
+        }
+        if (props.initialStartHour) {
+          await setValue("hourlyStartTime", props.initialStartHour);
+        }
+        if (props.initialEndHour) {
+          await setValue("hourlyEndTime", props.initialEndHour);
+        }
+        if (props.initialNeedsReplacement) {
+          await setValue("needsReplacement", props.initialNeedsReplacement);
+        }
+      }
+    };
+    setInitialValues(); // eslint-disable-line
+
+    return () => {
+      isSubscribed = true;
+    };
+  }, []);
+
   const disabledDatesObjs = useEmployeeDisabledDates(
     state.employeeId,
     state.viewingCalendarMonth
@@ -422,7 +450,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 onRemoveReplacement={removePrearrangedReplacementEmployee}
                 isSubmitted={formState.isSubmitted}
                 initialAbsenceCreation={true}
-                isFormDirty={formState.dirty}
+                isFormDirty={formState.dirty || formState.touched.length > 0}
                 onAssignSubClick={onAssignSubClick}
                 hasEditedDetails={!!state.vacanciesInput}
                 assignmentsByDate={[]}
