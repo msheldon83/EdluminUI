@@ -17,6 +17,7 @@ import { OrganizationSwitcherBar } from "./organization-switcher-bar";
 import { PageTitleProvider } from "./page-title-context";
 import { OrganizationStatusBar } from "./orgaization-status-bar";
 import { HelpWidget } from "./help-widget";
+import { fixedContentRef } from "../components/fixed-content";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -68,6 +69,7 @@ export const AppChrome: React.FunctionComponent = props => {
                   </DialogProvider>
                 </SnackbarProvider>
               </div>
+              <div ref={fixedContentRef} style={{ position: "fixed" }} />
             </div>
             <HelpWidget />
           </div>
@@ -118,6 +120,7 @@ export const AppChrome: React.FunctionComponent = props => {
                   </DialogProvider>
                 </SnackbarProvider>
               </div>
+              <div ref={fixedContentRef} style={{ position: "fixed" }} />
             </div>
             <HelpWidget />
           </div>
