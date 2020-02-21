@@ -42,7 +42,7 @@ export const RegularSchedule: React.FC<Props> = props => {
     availableTime: UserAvailableTimeInput
   ) => {
     const result = await saveAvailableTime({ variables: { availableTime } });
-    if (result) {
+    if (!result?.data) {
       await getAvailableTime.refetch();
       return true;
     } else {
@@ -69,6 +69,7 @@ export const RegularSchedule: React.FC<Props> = props => {
                 dayOfWeek={d}
                 onChange={onChangeAvailability}
                 userId={props.userId}
+                id={at?.id}
                 availability={at?.availabilityType}
                 time={at?.availableTime}
               />
