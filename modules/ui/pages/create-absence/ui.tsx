@@ -65,6 +65,7 @@ type Props = {
   initialNeedsReplacement?: boolean;
   payCodeId?: string | null;
   accountingCodeId?: string | null;
+  trackingBalanceReasonIds: Array<string | undefined>;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -73,6 +74,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const [absence, setAbsence] = useState<Absence>();
   const [step, setStep] = useQueryParamIso(StepParams);
   const match = useRouteMatch();
+
+  const actingAsEmployee = props.actingAsEmployee;
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -268,8 +271,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         d => d?.reasonUsages?.map(ru => ru)
       )
     );
-    return computeAbsenceUsageText(usages as any, t);
-  }, [getProjectedVacancies]);
+    return computeAbsenceUsageText(
+      usages as any,
+      props.trackingBalanceReasonIds,
+      t,
+      actingAsEmployee
+    );
+  }, [actingAsEmployee, getProjectedVacancies]);
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -373,7 +381,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       >
         {step === "absence" && (
           <>
-            {props.actingAsEmployee ? (
+            {actingAsEmployee ? (
               <Typography variant="h1">{t("Create absence")}</Typography>
             ) : (
               <>
@@ -433,7 +441,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         {step === "preAssignSub" && (
           <AssignSub
             orgId={props.organizationId}
-            userIsAdmin={!props.actingAsEmployee && props.userIsAdmin}
+            userIsAdmin={!actingAsEmployee && props.userIsAdmin}
             employeeName={name}
             employeeId={state.employeeId}
             positionId={props.positionId}
@@ -457,7 +465,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       {step === "edit" && (
         <EditVacancies
           orgId={props.organizationId}
-          actingAsEmployee={props.actingAsEmployee}
+          actingAsEmployee={actingAsEmployee}
           employeeName={name}
           positionName={props.positionName}
           onCancel={onCancel}

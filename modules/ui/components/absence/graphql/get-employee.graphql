@@ -21,6 +21,10 @@ query GetEmployee($employeeId: ID!) {
           payCodeId
         }
       }
+      absenceReasonBalances {
+        id
+        absenceReasonId
+      }
     }
   }
 }

@@ -1,4 +1,7 @@
-query GetProjectedAbsenceUsage($absence: AbsenceCreateInput!, $ignoreAbsenceId: ID) {
+query GetProjectedAbsenceUsage(
+  $absence: AbsenceCreateInput!
+  $ignoreAbsenceId: ID
+) {
   absence {
     projectedAbsence(absence: $absence, ignoreAbsenceId: $ignoreAbsenceId) {
       details {
@@ -6,6 +9,7 @@ query GetProjectedAbsenceUsage($absence: AbsenceCreateInput!, $ignoreAbsenceId: 
           sequence
           amount
           absenceReasonTrackingTypeId
+          absenceReasonId
         }
       }
     }
