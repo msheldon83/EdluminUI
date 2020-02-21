@@ -77,10 +77,11 @@ export const Filters: React.FC<Props> = props => {
   );
 
   const onChangeSubSource = useCallback(
-    value => {
-      let ids = value ?? value.map((v: OptionType) => v.value);
-      if (ids === "0") ids = undefined;
-      props.setSubSourceFilter(ids);
+    (value /* OptionType[] */) => {
+      const ids = value ?? value.map((v: OptionType) => v.value);
+      if (ids.value === "0") ids.value = undefined;
+
+      props.setSubSourceFilter(ids.value);
     },
     [props.setSubSourceFilter]
   );
