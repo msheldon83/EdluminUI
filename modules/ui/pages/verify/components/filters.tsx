@@ -22,7 +22,7 @@ type Props = {
   locationsFilter: string[];
   subSourceFilter: string;
   setLocationsFilter: React.Dispatch<React.SetStateAction<string[]>>;
-  setSubSourceFilter: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setSubSourceFilter: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const Filters: React.FC<Props> = props => {
@@ -60,8 +60,11 @@ export const Filters: React.FC<Props> = props => {
         label: x.relatesToOrganization!.name,
         value: x.id,
       })) ?? [];
-    options.unshift({ label: "My Organization", value: props.orgId });
-    options.unshift({ label: "All", value: "0" });
+
+    options.push(
+      { label: "All", value: "0" },
+      { label: "My Organization", value: props.orgId }
+    );
     return options;
   }, [subSources]);
 
@@ -111,8 +114,7 @@ export const Filters: React.FC<Props> = props => {
               onChange={onChangeSubSource}
               options={subSourceOptions}
               value={subSourceOptions.find(
-                e =>
-                  e.value && props.subSourceFilter.includes(e.value.toString())
+                e => e.value && props.subSourceFilter === e.value.toString()
               )}
               multiple={false}
               withResetValue={false}

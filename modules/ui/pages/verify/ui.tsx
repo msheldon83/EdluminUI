@@ -43,7 +43,7 @@ import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conv
 type Props = {
   showVerified: boolean;
   locationsFilter: string[];
-  subSourceFilter: string | undefined;
+  subSourceFilter?: string;
   showLinkToVerify?: boolean;
   date?: Date;
   setDate?: (date: Date) => void;
@@ -174,8 +174,6 @@ export const VerifyUI: React.FC<Props> = props => {
     }
   }
 
-  console.log(props.subSourceFilter);
-
   const getVacancyDetails = useQueryBundle(GetVacancyDetails, {
     variables: {
       orgId: params.organizationId,
@@ -185,7 +183,10 @@ export const VerifyUI: React.FC<Props> = props => {
         ? null
         : selectedDateToUse,
       toDate: selectedDateToUse,
-      shadowFromOrgId: props.subSourceFilter,
+      shadowFromOrgId:
+        props.subSourceFilter && props.subSourceFilter.length > 0
+          ? props.subSourceFilter
+          : undefined,
     },
   });
 
