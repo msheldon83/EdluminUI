@@ -91,6 +91,7 @@ export const Filters: React.FC<Props> = props => {
             options={locationGroupOptions}
             value={selectedValue}
             multiple={false}
+            withResetValue={false}
           />
         </Grid>
       </Grid>
