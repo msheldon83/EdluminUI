@@ -190,6 +190,8 @@ import {
   SubScheduleListViewRoute,
   SubScheduleLoader,
   SubScheduleRoute,
+  SubAvailabilityRoute,
+  SubAvailabilityLoader,
 } from "./routes/sub-schedule";
 import {
   SubstituteSettingsLoader,
@@ -356,6 +358,10 @@ export function App() {
                             component={UnauthorizedLoader}
                             path={UnauthorizedSubstituteRoleRoute.path}
                           />
+                          <Route
+                            component={SubAvailabilityLoader}
+                            path={SubAvailabilityRoute.path}
+                          />
                           <Route path={SubScheduleCalendarViewRoute.path}>
                             <SubScheduleLoader view="calendar" />
                           </Route>
@@ -365,7 +371,6 @@ export function App() {
                           <Route path={SubScheduleRoute.path}>
                             <SubScheduleLoader view="list" />
                           </Route>
-
                           <Route
                             component={SubPreferencesLoader}
                             path={SubPreferencesRoute.path}
