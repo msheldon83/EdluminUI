@@ -25,6 +25,8 @@ import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import { UpdatePositionType } from "./graphql/update-position-type.gen";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { ReplacementCriteria } from "./replacement-criteria";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 const editableSections = {
   name: "edit-name",
@@ -36,11 +38,16 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const history = useHistory();
+  const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PositionTypeViewRoute);
   const [editing, setEditing] = useState<string | null>(null);
   const [enabled, setEnabled] = useState<boolean | null>(null);
 
-  const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType);
+  const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const deletePositionType = React.useCallback(async () => {
     await deletePositionTypeMutation({
       variables: {
@@ -52,7 +59,11 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
     history.push(PositionTypeRoute.generate(params));
   }, [deletePositionTypeMutation, history, params]);
 
-  const [updatePositionType] = useMutationBundle(UpdatePositionType);
+  const [updatePositionType] = useMutationBundle(UpdatePositionType, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const enableDisablePositionType = React.useCallback(
     (enabled: boolean, rowVersion: string) => {
       return updatePositionType({

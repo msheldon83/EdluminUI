@@ -20,6 +20,8 @@ import {
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 export const PositionTypePage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -27,12 +29,17 @@ export const PositionTypePage: React.FC<{}> = props => {
   const history = useHistory();
   const params = useRouteParams(PositionTypeRoute);
   const isMobile = useIsMobile();
+  const { openSnackbar } = useSnackbar();
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired },
   });
-  const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType);
+  const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const deletePositionType = (positionTypeId: string) => {
     return deletePositionTypeMutation({
       variables: {
