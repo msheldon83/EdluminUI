@@ -27,7 +27,6 @@ import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
 import { useMemo } from "react";
-import { GetPayCodes } from "reference-data/get-pay-codes.gen";
 
 type Props = {
   orgId: string;

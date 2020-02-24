@@ -17,13 +17,19 @@ import {
 } from "graphql/server-types.gen";
 import { UpdatePositionType } from "./graphql/update-position-type.gen";
 import { GetPositionTypeById } from "./graphql/position-type.gen";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PositionTypeEditSettingsRoute);
-
-  const [updatePositionType] = useMutationBundle(UpdatePositionType);
+  const { openSnackbar } = useSnackbar();
+  const [updatePositionType] = useMutationBundle(UpdatePositionType, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const getPositionType = useQueryBundle(GetPositionTypeById, {
     variables: { id: params.positionTypeId },
   });
