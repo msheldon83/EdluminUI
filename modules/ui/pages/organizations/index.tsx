@@ -17,7 +17,6 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Redirect, useHistory } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
-import { PaginationControls } from "ui/components/pagination-controls";
 import { Table } from "ui/components/table";
 import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
 import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
@@ -198,8 +197,8 @@ export const OrganizationsPage: React.FC<Props> = props => {
         options={{
           showTitle: !isMobile,
         }}
+        pagination={pagination}
       />
-      <PaginationControls pagination={pagination} />
     </>
   );
 };

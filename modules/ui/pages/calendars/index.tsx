@@ -20,7 +20,6 @@ import { Table } from "ui/components/table";
 import { compact } from "lodash-es";
 import { parseISO, format, isBefore } from "date-fns";
 import { PageTitle } from "ui/components/page-title";
-import { PaginationControls } from "ui/components/pagination-controls";
 import { CalendarDayTypes } from "reference-data/calendar-day-type";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -219,7 +218,7 @@ export const Calendars: React.FC<Props> = props => {
 
   return (
     <>
-      <div className={classes.pageContainer}>
+      <div>
         <div>
           <Typography variant="h5">
             {contract === undefined ? t("All Contracts") : contract.name}
@@ -319,11 +318,7 @@ export const Calendars: React.FC<Props> = props => {
                           permissions: [PermissionEnum.CalendarChangeDelete],
                         },
                       ]}
-                    />
-
-                    <PaginationControls
                       pagination={pagination}
-                      pageSizeOptions={[25, 50, 100, 250, 500]}
                     />
                   </div>
                 )}
@@ -347,14 +342,6 @@ export const Calendars: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  pageContainer: {
-    display: "block",
-    overflowY: "scroll",
-    height: "100vh",
-    position: "fixed",
-    paddingRight: theme.spacing(3),
-    paddingBottom: theme.spacing(15),
-  },
   container: {
     padding: 0,
   },
