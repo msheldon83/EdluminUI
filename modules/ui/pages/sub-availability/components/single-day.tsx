@@ -111,6 +111,7 @@ export const SingleDay: React.FC<Props> = props => {
               [classes.dowBox]: true,
               [classes.mobileDowBox]: isMobile,
               [classes.desktopDowBox]: !isMobile,
+              [classes.saturdayBox]: props.dayOfWeek === DayOfWeek.Saturday,
             })}
           >
             {editing ? (
@@ -205,7 +206,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-between",
   },
   desktopDowBox: {
-    width: theme.typography.pxToRem(146),
+    width: theme.typography.pxToRem(145),
     height: theme.typography.pxToRem(133),
     marginRight: theme.spacing(1),
     textAlign: "center",
@@ -214,6 +215,9 @@ const useStyles = makeStyles(theme => ({
     borderRadius: "4px",
     marginBottom: theme.spacing(1),
     position: "relative",
+  },
+  saturdayBox: {
+    marginRight: theme.spacing(0),
   },
   weekDay: {
     border: "1px solid #050039",

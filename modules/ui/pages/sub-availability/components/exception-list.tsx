@@ -17,7 +17,6 @@ import {
 } from "date-fns";
 import { getBeginningOfSchoolYear } from "ui/components/helpers";
 import { numberOfMonthsInSchoolYear } from "ui/components/schedule/helpers";
-import { PaginationControls } from "ui/components/pagination-controls";
 import { compact } from "lodash-es";
 import { useMemo, useState } from "react";
 import { ScheduleHeader } from "ui/components/schedule/schedule-header";
@@ -134,10 +133,7 @@ export const ExceptionList: React.FC<Props> = props => {
               await props.onDelete(oldData.id);
             },
           }}
-        />
-        <PaginationControls
           pagination={pagination}
-          pageSizeOptions={[25, 50, 100, 250, 500]}
         />
       </Section>
     </>
