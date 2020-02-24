@@ -100,13 +100,8 @@ export const CalendarView: React.FC<Props> = props => {
         );
       }
     }
-  }, [
-    getEmployeeSchedule.state,
-    monthGroups,
-    selectedScheduleDates,
-    setSelectedScheduleDates,
-    today,
-  ]);
+    /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, [getEmployeeSchedule.state, today]);
 
   if (getEmployeeSchedule.state !== "DONE") {
     return (

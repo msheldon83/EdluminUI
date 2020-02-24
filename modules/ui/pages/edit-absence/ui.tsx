@@ -69,6 +69,7 @@ type Props = {
   positionId?: string;
   positionName?: string;
   absenceReasonId: string;
+  trackingBalanceReasonIds: Array<string | undefined>;
   absenceId: string;
   assignmentId?: string;
   dayPart?: DayPart;
@@ -128,6 +129,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     string | undefined
   >(undefined);
 
+  const actingAsEmployee = props.actingAsEmployee;
+
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
@@ -154,7 +157,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const name = `${props.firstName} ${props.lastName}`;
   const canEdit =
-    !props.actingAsEmployee ||
+    !actingAsEmployee ||
     (!props.replacementEmployeeId && !some(props.absenceDates, isPast));
 
   const initialFormData: EditAbsenceFormData = {
@@ -268,7 +271,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     if (conflictingDates.length > 0) {
       dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
     }
-  }, [disabledDates]);
+  }, [disabledDates, state.absenceDates]);
 
   const projectedVacanciesInput = useMemo(
     () =>
@@ -284,16 +287,14 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         customizedVacancyDetails
       ),
     [
-      props.organizationId,
       state.absenceDates,
-      formValues.absenceReason,
-      formValues.dayPart,
-      formValues.hourlyStartTime,
-      formValues.hourlyEndTime,
-      customizedVacancyDetails,
-      state,
+      state.employeeId,
+      state.needsReplacement,
+      formValues,
+      props.organizationId,
       props.positionId,
       disabledDates,
+      customizedVacancyDetails,
     ]
   );
 
@@ -326,22 +327,42 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     },
   });
 
-  const absenceUsageText = useMemo(() => {
-    if (
-      getProjectedAbsenceUsage.state === "DONE" ||
-      getProjectedAbsenceUsage.state === "UPDATING"
-    ) {
-      const usages = compact(
-        flatMap(
-          getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
-          d => d?.reasonUsages?.map(ru => ru)
+  const trackingBalanceReasonIds = props.trackingBalanceReasonIds;
+  const initialAbsenceUsageData = props.initialAbsenceUsageData;
+  const projectedAbsenceUsage =
+    getProjectedAbsenceUsage.state === "DONE" ||
+    getProjectedAbsenceUsage.state === "UPDATING"
+      ? compact(
+          flatMap(
+            getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
+            d => d?.reasonUsages?.map(ru => ru)
+          )
         )
+      : [];
+
+  const absenceUsageText = useMemo(() => {
+    if (projectedAbsenceUsage.length > 0) {
+      return computeAbsenceUsageText(
+        projectedAbsenceUsage as any,
+        trackingBalanceReasonIds,
+        t,
+        actingAsEmployee
       );
-      return computeAbsenceUsageText(usages as any, t);
     } else {
-      return computeAbsenceUsageText(props.initialAbsenceUsageData, t);
+      return computeAbsenceUsageText(
+        initialAbsenceUsageData,
+        trackingBalanceReasonIds,
+        t,
+        actingAsEmployee
+      );
     }
-  }, [props.initialAbsenceUsageData, t, getProjectedAbsenceUsage]);
+  }, [
+    projectedAbsenceUsage,
+    trackingBalanceReasonIds,
+    initialAbsenceUsageData,
+    t,
+    actingAsEmployee,
+  ]);
 
   const projectedVacancies =
     getProjectedVacancies.state === "DONE" ||
@@ -465,7 +486,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       setStep("absence");
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setStep, assignVacancy]
+    [props, assignVacancy, setStep]
   );
 
   const onToggleAbsenceDate = useCallback(
@@ -549,7 +570,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         >
           <div className={classes.titleContainer}>
             <div className={classes.title}>
-              {props.actingAsEmployee ? (
+              {actingAsEmployee ? (
                 <>
                   <Typography variant="h5">{t("Edit absence")}</Typography>
                   <Typography variant="h6">
@@ -634,7 +655,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       {step === "edit" && (
         <EditVacancies
           orgId={props.organizationId}
-          actingAsEmployee={props.actingAsEmployee}
+          actingAsEmployee={actingAsEmployee}
           employeeName={name}
           positionName={props.positionName}
           onCancel={onCancel}
@@ -652,7 +673,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           orgId={props.organizationId}
           absenceId={props.absenceId}
           vacancies={projectedVacancies || props.initialVacancies}
-          userIsAdmin={!props.actingAsEmployee && props.userIsAdmin}
+          userIsAdmin={!actingAsEmployee && props.userIsAdmin}
           employeeId={props.employeeId}
           positionId={props.positionId}
           positionName={props.positionName}

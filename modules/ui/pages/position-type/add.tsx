@@ -19,13 +19,20 @@ import {
 import { CreatePositionType } from "./graphql/create.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 
 export const PositionTypeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PositionTypeAddRoute);
   const classes = useStyles();
-  const [createPositionType] = useMutationBundle(CreatePositionType);
+  const { openSnackbar } = useSnackbar();
+  const [createPositionType] = useMutationBundle(CreatePositionType, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
   const [name, setName] = React.useState<string | null>(null);
   const namePlaceholder = t("Math teacher");
 
@@ -40,6 +47,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     forStaffAugmentation: true,
     minAbsenceDurationMinutes: 15,
     defaultContractId: null,
+    payCodeId: null,
     payTypeId: AbsenceReasonTrackingTypeId.Daily,
   });
 
@@ -81,6 +89,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
           forStaffAugmentation: boolean,
           minAbsenceDurationMinutes: number,
           payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
+          payCodeId: string | undefined | null,
           defaultContractId?: string | null
         ) => {
           const newPositionType = {
@@ -91,6 +100,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
             minAbsenceDurationMinutes: minAbsenceDurationMinutes,
             defaultContractId: defaultContractId,
             payTypeId: payTypeId,
+            payCodeId: payCodeId,
           };
           setPositionType(newPositionType);
 

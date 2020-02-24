@@ -11,7 +11,6 @@ import { useHistory } from "react-router";
 import Typography from "@material-ui/core/Typography";
 import { PageTitle } from "ui/components/page-title";
 import { Input } from "ui/components/form/input";
-import { PaginationControls } from "ui/components/pagination-controls";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
 import {
@@ -159,10 +158,8 @@ export const SelectEmployee: React.FC<Props> = props => {
             columns={columns}
             data={tableData}
             onRowClick={selectEmployee}
+            pagination={pagination}
           />
-          <div className={classes.pagination}>
-            <PaginationControls pagination={pagination} />
-          </div>
         </div>
       </Section>
     </>
@@ -176,9 +173,6 @@ const useStyles = makeStyles(theme => ({
   nameFieldRow: {
     borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
     paddingBottom: theme.spacing(3),
-  },
-  pagination: {
-    padding: `${theme.spacing(8)} 0`,
   },
   loading: {
     marginTop: theme.spacing(2),
