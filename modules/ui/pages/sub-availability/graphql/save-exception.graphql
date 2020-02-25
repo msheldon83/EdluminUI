@@ -1,0 +1,13 @@
+mutation SaveUnavailableTime($unavailableTime: UserUnavailableTimeInput!) {
+  user {
+    saveUnavailableTime(unavailableTime: $unavailableTime) {
+      id
+      userId
+      description
+      availabilityType
+      availableTime
+      startDate
+      endDate
+    }
+  }
+}

@@ -338,11 +338,12 @@ export const AssignSub: React.FC<Props> = props => {
                 boxShadow: "initial",
               }}
               backgroundFillForAlternatingRows={true}
+              /* As of 12/2/2019, we are not going to page this data.
+                We will reintroduce pagining in the future.
+              pagination={pagination}
+              */
             />
           )}
-          {/* As of 12/2/2019, we are not going to page this data.
-          We will reintroduce pagining in the future.
-        <PaginationControls pagination={pagination} /> */}
         </div>
       </Section>
     </>

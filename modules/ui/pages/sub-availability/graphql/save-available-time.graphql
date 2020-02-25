@@ -1,0 +1,10 @@
+mutation SaveAvailableTime($availableTime: UserAvailableTimeInput!) {
+  user {
+    saveAvailableTime(availableTime: $availableTime) {
+      id
+      availabilityType
+      daysOfWeek
+      availableTime
+    }
+  }
+}
