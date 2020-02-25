@@ -19,6 +19,7 @@ export type EmployeeAbsenceDetail = {
   assignments: EmployeeAbsenceAssignment[];
   isFilled: boolean;
   isPartiallyFilled: boolean;
+  multipleSubsAssigned: boolean;
   allDays: Date[];
   allDayParts: {
     dayPart: DayPart;

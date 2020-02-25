@@ -52,6 +52,7 @@ export const GetEmployeeAbsenceDetails = (
         )
       );
       const assignedDetails = allVacancyDetails.filter(d => !!d.assignmentId);
+      const assignments = buildAssignments(assignedDetails);
 
       return {
         id: a.id,
@@ -75,11 +76,12 @@ export const GetEmployeeAbsenceDetails = (
         endTime: format(parseISO(a.endTimeLocal), "h:mm a"),
         endTimeLocal: parseISO(a.endTimeLocal),
         subRequired: !!a.vacancies && a.vacancies.length > 0,
-        assignments: buildAssignments(assignedDetails),
+        assignments: assignments,
         isFilled: assignedDetails.length > 0,
         isPartiallyFilled:
           assignedDetails.length > 0 &&
           allVacancyDetails.length != assignedDetails.length,
+        multipleSubsAssigned: assignments.length > 1,
         allDays:
           a.details && a.details.length > 0
             ? a.details.map(d => parseISO(d!.startDate))
@@ -108,7 +110,7 @@ const buildAssignments = (
     name: `${sortedDetails[0].assignment!.employee!.firstName} ${
       sortedDetails[0].assignment!.employee!.lastName
     }`,
-    phoneNumber: sortedDetails[0].assignment!.employee!.phoneNumber,
+    phoneNumber: sortedDetails[0].assignment!.employee!.formattedPhone,
     allDates: [],
   };
   sortedDetails.forEach(d => {
@@ -120,7 +122,7 @@ const buildAssignments = (
         name: `${d.assignment!.employee!.firstName} ${
           d.assignment!.employee!.lastName
         }`,
-        phoneNumber: d.assignment!.employee!.phoneNumber,
+        phoneNumber: d.assignment!.employee!.formattedPhone,
         allDates: [],
       };
     }
