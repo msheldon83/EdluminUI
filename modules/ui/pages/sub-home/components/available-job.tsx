@@ -7,6 +7,7 @@ import { AssignmentDetails } from "ui/components/substitutes/assignment-details"
 import { ExpandOrCollapseIndicator } from "ui/components/substitutes/expand-or-collapse-indicator";
 import { NotesPopper } from "ui/components/substitutes/notes-popper";
 import { AvailableJobDetail } from "./available-job-detail";
+import { isBefore, parseISO } from "date-fns";
 
 type Props = {
   vacancy: Pick<
@@ -102,17 +103,26 @@ export const AvailableJob: React.FC<Props> = props => {
 
         {showDetails && (
           <div className={classes.rowContainer}>
-            {vacancy.details!.map((detail, index) => (
-              <AvailableJobDetail
-                locationName={detail!.location!.name}
-                dayPortion={detail!.dayPortion}
-                payInfoLabel={detail!.payInfo!.label}
-                startTimeLocal={detail!.startTimeLocal ?? ""}
-                endTimeLocal={detail!.endTimeLocal ?? ""}
-                shadeRow={index % 2 != 1}
-                key={index}
-              />
-            ))}
+            {vacancy
+              .details!.sort((a, b) =>
+                isBefore(
+                  parseISO(a!.startTimeLocal),
+                  parseISO(b!.startTimeLocal)
+                )
+                  ? -1
+                  : 1
+              )
+              .map((detail, index) => (
+                <AvailableJobDetail
+                  locationName={detail!.location!.name}
+                  dayPortion={detail!.dayPortion}
+                  payInfoLabel={detail!.payInfo!.label}
+                  startTimeLocal={detail!.startTimeLocal ?? ""}
+                  endTimeLocal={detail!.endTimeLocal ?? ""}
+                  shadeRow={index % 2 != 1}
+                  key={index}
+                />
+              ))}
           </div>
         )}
       </div>

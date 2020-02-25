@@ -5,7 +5,6 @@ import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
-import { PaginationControls } from "ui/components/pagination-controls";
 import { Table } from "ui/components/table";
 import { GetAllUsersPaged } from "./graphql/get-all-users.gen";
 import { compact } from "lodash-es";
@@ -105,10 +104,8 @@ export const UsersPage: React.FC<Props> = props => {
               };
               history.push(UserViewRoute.generate(newParams));
             }}
+            pagination={pagination}
           />
-          <div className={classes.pagination}>
-            <PaginationControls pagination={pagination} />
-          </div>
         </div>
       </Section>
     </>
@@ -122,8 +119,5 @@ const useStyles = makeStyles(theme => ({
   searchTextFieldRow: {
     borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
     paddingBottom: theme.spacing(3),
-  },
-  pagination: {
-    padding: `${theme.spacing(8)} 0`,
   },
 }));

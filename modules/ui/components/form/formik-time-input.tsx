@@ -12,6 +12,8 @@ type Props = Omit<
   name: string;
   label?: string;
   date?: Date;
+  className?: string;
+  placeHolder?: string;
 };
 
 export const FormikTimeInput: React.FC<Props> = props => {
@@ -28,6 +30,8 @@ export const FormikTimeInput: React.FC<Props> = props => {
     <TimeInput
       label={props.label || ""}
       name={props.name}
+      className={props.className}
+      placeHolder={props.placeHolder}
       {...props}
       value={time}
       onChange={v => {

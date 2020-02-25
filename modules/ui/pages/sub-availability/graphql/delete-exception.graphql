@@ -1,0 +1,5 @@
+mutation DeleteUnavailableTime($id: ID!) {
+  user {
+    deleteUnavailableTime(id: $id)
+  }
+}
