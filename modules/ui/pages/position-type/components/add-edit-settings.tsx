@@ -138,9 +138,9 @@ export const Settings: React.FC<Props> = props => {
             data.needsReplacement,
             data.forStaffAugmentation,
             data.minAbsenceDurationMinutes,
-            !!data.payTypeId ? data.payTypeId : null, // eslint-disable-line no-extra-boolean-cast
-            !!data.payCodeId ? data.payCodeId : null, // eslint-disable-line no-extra-boolean-cast
-            !!data.defaultContractId ? data.defaultContractId : null // eslint-disable-line no-extra-boolean-cast
+            data.payTypeId ? data.payTypeId : null,
+            data.payCodeId ? data.payCodeId : null,
+            data.defaultContractId ? data.defaultContractId : null
           );
         }}
         validationSchema={yup
