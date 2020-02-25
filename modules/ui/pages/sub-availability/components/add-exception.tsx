@@ -62,8 +62,8 @@ export const AddException: React.FC<Props> = props => {
                 data.reason && data.reason.length > 0 ? data.reason : undefined,
               startTimeLocal: data.fromDate,
               endTimeLocal:
-                data.availability !== UserAvailability.NotAvailable
-                  ? data.toDate ?? data.fromDate
+                data.availability === UserAvailability.NotAvailable
+                  ? data.toDate
                   : data.fromDate,
             });
           }}
