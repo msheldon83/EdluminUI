@@ -3,6 +3,7 @@ import {
   Absence,
   PositionScheduleDateDetail,
   CalendarDayType,
+  VacancyDetail,
 } from "graphql/server-types.gen";
 import {
   parseISO,
@@ -12,15 +13,17 @@ import {
   addMonths,
   isSameDay,
   differenceInHours,
+  eachDayOfInterval,
 } from "date-fns";
 import { GetEmployeePositionContractSchedule } from "./graphql/get-employee-position-contract-schedule.gen";
-import { flatMap, range, groupBy } from "lodash-es";
+import { flatMap, range, groupBy, compact } from "lodash-es";
 import {
   EmployeeAbsenceDetail,
   PositionScheduleDate,
   ContractDate,
   ScheduleDateGroupByMonth,
   ScheduleDate,
+  EmployeeAbsenceAssignment,
 } from "./types";
 
 export const GetEmployeeAbsenceDetails = (
@@ -41,12 +44,14 @@ export const GetEmployeeAbsenceDetails = (
         | "vacancies"
       >
     ) => {
-      const assignment =
-        a.vacancies &&
-        a.vacancies[0]?.details &&
-        a.vacancies[0]?.details[0]?.assignment
-          ? a.vacancies[0]?.details[0]?.assignment
-          : undefined;
+      const allVacancyDetails = compact(
+        flatMap(
+          (a.vacancies ?? [])
+            .filter(v => v)
+            .map(v => v?.details?.filter(d => d))
+        )
+      );
+      const assignedDetails = allVacancyDetails.filter(d => !!d.assignmentId);
 
       return {
         id: a.id,
@@ -70,14 +75,11 @@ export const GetEmployeeAbsenceDetails = (
         endTime: format(parseISO(a.endTimeLocal), "h:mm a"),
         endTimeLocal: parseISO(a.endTimeLocal),
         subRequired: !!a.vacancies && a.vacancies.length > 0,
-        substitute: assignment
-          ? {
-              name: `${assignment.employee!.firstName} ${
-                assignment.employee!.lastName
-              }`,
-              phoneNumber: assignment.employee!.formattedPhone,
-            }
-          : undefined,
+        assignments: buildAssignments(assignedDetails),
+        isFilled: assignedDetails.length > 0,
+        isPartiallyFilled:
+          assignedDetails.length > 0 &&
+          allVacancyDetails.length != assignedDetails.length,
         allDays:
           a.details && a.details.length > 0
             ? a.details.map(d => parseISO(d!.startDate))
@@ -85,6 +87,55 @@ export const GetEmployeeAbsenceDetails = (
       };
     }
   );
+};
+
+const buildAssignments = (
+  assignedDetails: VacancyDetail[]
+): EmployeeAbsenceAssignment[] => {
+  if (assignedDetails.length === 0) {
+    return [];
+  }
+
+  // Sort the details
+  const sortedDetails = assignedDetails
+    .slice()
+    .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
+
+  const assignmentDetails: EmployeeAbsenceAssignment[] = [];
+  // Build up the list of Assignment details grouping by Employee and days in a row
+  let currentAssignment: EmployeeAbsenceAssignment = {
+    employeeId: sortedDetails[0].assignment!.employee!.id,
+    name: `${sortedDetails[0].assignment!.employee!.firstName} ${
+      sortedDetails[0].assignment!.employee!.lastName
+    }`,
+    phoneNumber: sortedDetails[0].assignment!.employee!.phoneNumber,
+    allDates: [],
+  };
+  sortedDetails.forEach(d => {
+    if (d.assignment?.employeeId !== currentAssignment.employeeId) {
+      // Add existing currentAssignment to the list and create a new one
+      assignmentDetails.push({ ...currentAssignment });
+      currentAssignment = {
+        employeeId: d.assignment!.employee!.id,
+        name: `${d.assignment!.employee!.firstName} ${
+          d.assignment!.employee!.lastName
+        }`,
+        phoneNumber: d.assignment!.employee!.phoneNumber,
+        allDates: [],
+      };
+    }
+
+    currentAssignment.allDates.push(
+      ...eachDayOfInterval({
+        start: parseISO(d.startTimeLocal),
+        end: parseISO(d.endTimeLocal),
+      })
+    );
+  });
+
+  // Add the last instance of currentAssignment to the list
+  assignmentDetails.push({ ...currentAssignment });
+  return assignmentDetails;
 };
 
 export const GetContractDates = (

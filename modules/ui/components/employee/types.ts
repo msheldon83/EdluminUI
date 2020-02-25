@@ -16,16 +16,22 @@ export type EmployeeAbsenceDetail = {
   endTime: string;
   endTimeLocal: Date;
   subRequired: boolean;
-  substitute?: {
-    name: string;
-    phoneNumber?: string | null | undefined;
-  };
+  assignments: EmployeeAbsenceAssignment[];
+  isFilled: boolean;
+  isPartiallyFilled: boolean;
   allDays: Date[];
   allDayParts: {
     dayPart: DayPart;
     dayPortion: number;
     hourDuration: number;
   }[];
+};
+
+export type EmployeeAbsenceAssignment = {
+  employeeId: string;
+  name: string;
+  phoneNumber?: string | null | undefined;
+  allDates: Date[];
 };
 
 export type ContractDate = {
