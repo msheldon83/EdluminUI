@@ -446,7 +446,6 @@ export const MapDailyReportDetails = (
         : 0
     );
 
-  console.log(detailsForDate);
   // Filter the list by any client side filtering selections
   const filteredDetails = detailsForDate.filter(
     x =>
