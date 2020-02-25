@@ -108,7 +108,7 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
           props.absence.assignments.map((a, i) => {
             return (
               <div
-                key={`${props.absence.id}-${i}`}
+                key={i}
                 className={clsx({
                   [classes.hide]: i > 0 && !assignmentsExpanded,
                   [classes.multiSubAssignmentDetail]:
@@ -117,7 +117,7 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
               >
                 <div>
                   <span className={classes.detailText}>{a.name}</span>
-                  {props.absence.multipleSubsAssigned && (
+                  {props.absence.isPartiallyFilled && (
                     <>
                       {" "}
                       <span className={classes.subText}>
