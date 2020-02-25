@@ -69,8 +69,8 @@ export const AppChrome: React.FunctionComponent = props => {
                   </DialogProvider>
                 </SnackbarProvider>
               </div>
-              <div ref={fixedContentRef} style={{ position: "fixed" }} />
             </div>
+            <div ref={fixedContentRef} />
             <HelpWidget />
           </div>
         </PageTitleProvider>
@@ -120,7 +120,7 @@ export const AppChrome: React.FunctionComponent = props => {
                   </DialogProvider>
                 </SnackbarProvider>
               </div>
-              <div ref={fixedContentRef} style={{ position: "fixed" }} />
+              <div ref={fixedContentRef} />
             </div>
             <HelpWidget />
           </div>
@@ -148,23 +148,32 @@ const useStyles = makeStyles(theme => ({
       "rotate(0)" /* cf - this affects how position works in children elements. */,
   },
 
-  mainContent: {
-    flexGrow: 1,
-    overflowY: "auto",
+  containerWrapper: {
+    display: "flex",
+    overflow: "hidden",
   },
-
+  containerStacker: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    height: "100%",
+  },
   container: {
-    height: "100vh",
     display: "flex",
     flexDirection: "row",
     alignItems: "stretch",
     flexGrow: 1,
+    overflow: "auto",
     transform: "rotate(0)",
-    overflowY: "auto",
     "@media print": {
       height: "100%",
       overflowY: "hidden",
     },
+  },
+  mainContent: {
+    display: "flex",
+    flexGrow: 1,
+    overflowY: "auto",
   },
 
   navWidthExpanded: {
