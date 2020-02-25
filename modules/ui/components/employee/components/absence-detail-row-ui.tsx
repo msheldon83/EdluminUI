@@ -117,7 +117,8 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
               >
                 <div>
                   <span className={classes.detailText}>{a.name}</span>
-                  {props.absence.isPartiallyFilled && (
+                  {(props.absence.isPartiallyFilled ||
+                    props.absence.multipleSubsAssigned) && (
                     <>
                       {" "}
                       <span className={classes.subText}>
