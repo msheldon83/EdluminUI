@@ -63,8 +63,13 @@ interface CustomColors {
   yellow5: string;
 }
 
+type CustomSpacing = {
+  contentWidth: string;
+};
+
 interface EdluminTheme extends Theme {
   customColors: CustomColors;
+  customSpacing: CustomSpacing;
 }
 
 declare module "@material-ui/styles/defaultTheme" {
@@ -78,10 +83,12 @@ declare module "@material-ui/styles/defaultTheme" {
 declare module "@material-ui/core/styles/createMuiTheme" {
   export interface Theme {
     customColors: CustomColors;
+    customSpacing: CustomSpacing;
   }
   // allow configuration using `createMuiTheme`
   export interface ThemeOptions {
     customColors?: Partial<CustomColors>;
+    customSpacing?: CustomSpacing;
   }
 }
 
@@ -90,5 +97,5 @@ type overridesNameToClassKey = {
 };
 
 declare module "@material-ui/core/styles/overrides" {
-  export interface ComponentNameToClassKey extends overridesNameToClassKey {}
+  export type ComponentNameToClassKey = overridesNameToClassKey;
 }

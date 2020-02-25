@@ -17,7 +17,7 @@ import { OrganizationSwitcherBar } from "./organization-switcher-bar";
 import { PageTitleProvider } from "./page-title-context";
 import { OrganizationStatusBar } from "./orgaization-status-bar";
 import { HelpWidget } from "./help-widget";
-import { fixedContentRef } from "../components/fixed-content";
+import { contentFooterRef } from "../components/content-footer";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -70,7 +70,7 @@ export const AppChrome: React.FunctionComponent = props => {
                 </SnackbarProvider>
               </div>
             </div>
-            <div ref={fixedContentRef} />
+            <div ref={contentFooterRef} />
             <HelpWidget />
           </div>
         </PageTitleProvider>
@@ -120,7 +120,7 @@ export const AppChrome: React.FunctionComponent = props => {
                   </DialogProvider>
                 </SnackbarProvider>
               </div>
-              <div ref={fixedContentRef} />
+              <div ref={contentFooterRef} />
             </div>
             <HelpWidget />
           </div>
@@ -205,7 +205,7 @@ const useStyles = makeStyles(theme => ({
   contentView: {
     flexGrow: 1,
     marginTop: theme.spacing(3),
-    maxWidth: theme.typography.pxToRem(1140),
+    maxWidth: theme.customSpacing.contentWidth,
     padding: theme.spacing(0, 3, 4, 3),
     "@media print": {
       padding: 0,

@@ -30,7 +30,7 @@ import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
 import { uniqBy } from "lodash-es";
-import { FixedContent } from "../../fixed-content";
+import { ContentFooter } from "../../content-footer";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -327,14 +327,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </div>
       </Grid>
 
-      <FixedContent
-        bottom="0"
-        left="0"
-        right="0"
-        width="100%"
-        height={theme.typography.pxToRem(72)}
-      >
-        <Grid item xs={12} className={classes.stickyFooter}>
+      <ContentFooter height={theme.typography.pxToRem(72)}>
+        <Grid item xs={12} className={classes.contentFooter}>
           <div className={classes.actionButtons}>
             <div className={classes.unsavedText}>
               {props.isFormDirty && (
@@ -372,7 +366,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             </Can>
           </div>
         </Grid>
-      </FixedContent>
+      </ContentFooter>
     </Grid>
   );
 };
@@ -385,8 +379,9 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-end",
+    maxWidth: theme.customSpacing.contentWidth,
   },
-  stickyFooter: {
+  contentFooter: {
     backgroundColor: "#E3F2FD",
     height: theme.typography.pxToRem(72),
     width: "100%",
