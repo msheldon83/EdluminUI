@@ -160,7 +160,7 @@ export const PositionEditUI: React.FC<Props> = props => {
             schedules,
             accountingCodeAllocations: data.accountingCodeId
               ? [{ accountingCodeId: data.accountingCodeId, allocation: 1 }]
-              : null,
+              : [],
           });
         }}
         validationSchema={yup.object({

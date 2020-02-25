@@ -10,13 +10,17 @@ mutation UpdatePositionType($positionType: PositionTypeUpdateInput!) {
       minAbsenceDurationMinutes
       needsReplacement
       expired
-      payCodeId
       defaultContractId
       defaultContract {
         id
         name
       }
       payTypeId
+      payCodeId
+      payCode {
+        id
+        name
+      }
       replacementCriteria {
         mustHave {
           id

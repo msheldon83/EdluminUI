@@ -1,17 +1,21 @@
 import { getContiguousDateIntervals, DateInterval } from "helpers/date";
 import { format } from "date-fns";
 
-export const getIntervalDisplayText = (intervals: DateInterval[]) => {
+export const getIntervalDisplayText = (
+  intervals: DateInterval[],
+  monthFormat = "MMMM",
+  includeYear = true
+) => {
   if (intervals.length === 0) {
     return null;
   }
 
-  const monthFormat = "MMMM";
   let currentMonth = format(intervals[0].start, monthFormat);
   let currentYear = intervals[0].start.getFullYear();
   let overallDateRangeDisplay = `${currentMonth} `;
+
   intervals.forEach(interval => {
-    if (currentYear !== interval.start.getFullYear()) {
+    if (includeYear && currentYear !== interval.start.getFullYear()) {
       // New interval crosses over into a new Year from the previous interval
       overallDateRangeDisplay += ` ${currentYear} - ${format(
         interval.start,
@@ -20,6 +24,7 @@ export const getIntervalDisplayText = (intervals: DateInterval[]) => {
       currentYear = interval.start.getFullYear();
       currentMonth = format(interval.start, monthFormat);
     }
+
     if (currentMonth !== format(interval.start, monthFormat)) {
       // New interval crosses into a new Month from the previous interval
       overallDateRangeDisplay += ` ${format(
@@ -30,7 +35,7 @@ export const getIntervalDisplayText = (intervals: DateInterval[]) => {
       currentMonth = format(interval.start, monthFormat);
     }
 
-    if (currentYear !== interval.end.getFullYear()) {
+    if (includeYear && currentYear !== interval.end.getFullYear()) {
       // Current interval crosses a year boundary
       overallDateRangeDisplay += `${format(
         interval.start,
@@ -57,7 +62,18 @@ export const getIntervalDisplayText = (intervals: DateInterval[]) => {
     }
   });
 
-  overallDateRangeDisplay += ` ${currentYear}`;
+  if (includeYear) {
+    overallDateRangeDisplay += ` ${currentYear}`;
+  }
+
+  // Remove trailing comma from the date range display text if there is one
+  if (overallDateRangeDisplay.endsWith(",")) {
+    overallDateRangeDisplay = overallDateRangeDisplay.substring(
+      0,
+      overallDateRangeDisplay.length - 1
+    );
+  }
+
   return overallDateRangeDisplay;
 };
 
@@ -189,4 +205,14 @@ export const getAbsenceDateRangeDisplayTextWithOutDayOfWeekForContiguousDates = 
 ): string | null => {
   const intervals = getContiguousDateIntervals(allDates, disabledDates);
   return getIntervalDisplayText(intervals);
+};
+
+export const getBasicDateRangeDisplayText = (
+  allDates: Date[],
+  disabledDates?: Date[],
+  monthFormat = "MMMM",
+  includeYear = true
+) => {
+  const intervals = getContiguousDateIntervals(allDates, disabledDates);
+  return getIntervalDisplayText(intervals, monthFormat, includeYear);
 };
