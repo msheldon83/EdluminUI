@@ -32,6 +32,7 @@ import { format } from "date-fns";
 import { Table } from "ui/components/table";
 import { OrgUser } from "graphql/server-types.gen";
 import { Column } from "material-table";
+import { UserNotificationLogRoute } from "ui/routes/notification-log";
 
 type Props = {};
 
@@ -78,6 +79,7 @@ export const UserViewPage: React.FC<Props> = props => {
       firstName: string,
       middleName: string | undefined,
       lastName: string,
+      phone: string | undefined,
       rowVersion: string | undefined
     ) => {
       return updateUser({
@@ -88,6 +90,7 @@ export const UserViewPage: React.FC<Props> = props => {
             firstName,
             middleName,
             lastName,
+            phone,
           },
         },
       });
@@ -221,6 +224,8 @@ export const UserViewPage: React.FC<Props> = props => {
     },
   ];
 
+  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+
   return (
     <>
       <ChangeLoginEmailDialog
@@ -236,6 +241,20 @@ export const UserViewPage: React.FC<Props> = props => {
           <PageTitle title={userName} />
         </Grid>
         <Grid item className={classes.actionContainer}>
+          <div className={classes.action}>
+            <Button
+              variant="outlined"
+              onClick={() =>
+                history.push(
+                  UserNotificationLogRoute.generate({
+                    userId: params.userId,
+                  })
+                )
+              }
+            >
+              {t("View notification log")}
+            </Button>
+          </div>
           <div className={classes.action}>
             <Button
               variant="outlined"
@@ -266,12 +285,14 @@ export const UserViewPage: React.FC<Props> = props => {
             firstName: user?.firstName ?? "",
             middleName: user?.middleName ?? undefined,
             lastName: user?.lastName ?? "",
+            phone: user?.phone ?? undefined,
           }}
           onSubmit={async (data, meta) => {
             await update(
               data.firstName,
               data.middleName,
               data.lastName,
+              data.phone,
               rowVersion
             );
           }}
@@ -284,6 +305,10 @@ export const UserViewPage: React.FC<Props> = props => {
               .string()
               .nullable()
               .required(t("Last Name is required")),
+            phone: yup
+              .string()
+              .nullable()
+              .matches(phoneRegExp, t("Phone Number Is Not Valid")),
           })}
         >
           {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
@@ -340,6 +365,18 @@ export const UserViewPage: React.FC<Props> = props => {
                     InputComponent={FormTextField}
                     inputComponentProps={{
                       name: "lastName",
+                      margin: isMobile ? "normal" : "none",
+                      variant: "outlined",
+                      fullWidth: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <Input
+                    label={t("Phone")}
+                    InputComponent={FormTextField}
+                    inputComponentProps={{
+                      name: "phone",
                       margin: isMobile ? "normal" : "none",
                       variant: "outlined",
                       fullWidth: true,

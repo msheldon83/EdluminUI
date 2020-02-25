@@ -1771,6 +1771,13 @@ enum InterestRating {
   HIGH_INTEREST
 }
 
+enum JobNotificationResponse {
+  INVALID
+  ACCEPTED
+  REJECTED
+  IGNORED
+}
+
 type Label implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -2033,6 +2040,15 @@ type NotificationLogQueries {
   byId(id: ID!): NotificationLog
   paged(limit: Int, offset: Int, orgId: ID, includeViewed: Boolean): PagedNotificationLog
   unreadNotificationCount(orgId: ID): Int
+}
+
+enum NotificationMessageStatus {
+  WAITING_TO_SEND
+  SENT_TO_PROVIDER
+  SEND_FAILURE
+  DELIVERED_TO_RECIPIENT
+  DELIVERY_FAILURE
+  NOTHING_TO_SEND
 }
 
 type NotificationPreference {
@@ -5026,6 +5042,28 @@ type VacancyMutations {
   verifyVacancyDetail(vacancyDetail: VacancyDetailVerifyInput!): VacancyDetail
 }
 
+type VacancyNotificationLog {
+  _info: [ReturnMessage]
+  id: ID!
+  orgId: ID!
+  organization: Organization!
+  vacancyId: ID!
+  vacancy: Vacancy!
+  employeeId: ID!
+  employee: Employee!
+  createdUtc: DateTime
+  sentAtUtc: DateTime
+  statusAsOfUtc: DateTime
+  numFailedSendAttempts: Short!
+  notificationMessageStatus: NotificationMessageStatus
+  statusErrorCode: Int
+  repliedAtUtc: DateTime
+  reply: String
+  conversationId: Short!
+  jobNotificationResponse: JobNotificationResponse
+  messageId: String
+}
+
 enum VacancyQualification {
   FULLY
   MINIMALLY
@@ -5045,6 +5083,8 @@ type VacancyQueries {
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
   userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
+  vacancyNotificationLogByVacancy(vacancyId: ID!): [VacancyNotificationLog]
+  vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID]): [VacancyNotificationLog]
 }
 
 type VacancyReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {

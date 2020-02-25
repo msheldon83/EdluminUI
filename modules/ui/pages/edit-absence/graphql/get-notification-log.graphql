@@ -1,0 +1,21 @@
+query GetNotificationLogForVacancy($vacancyId: ID!) {
+  vacancy {
+    vacancyNotificationLogByVacancy(vacancyId: $vacancyId) {
+      id
+      employee {
+        id
+        firstName
+        lastName
+      }
+      createdUtc
+      sentAtUtc
+      statusAsOfUtc
+      numFailedSendAttempts
+      notificationMessageStatus
+      statusErrorCode
+      repliedAtUtc
+      reply
+      jobNotificationResponse
+    }
+  }
+}
