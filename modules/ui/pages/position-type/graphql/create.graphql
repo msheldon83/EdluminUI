@@ -16,6 +16,11 @@ mutation CreatePositionType($positionType: PositionTypeCreateInput!) {
         name
       }
       payTypeId
+      payCodeId
+      payCode {
+        id
+        name
+      }
     }
   }
 }
