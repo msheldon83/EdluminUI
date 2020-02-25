@@ -39,6 +39,7 @@ export type Detail = {
   employee?: {
     id: string;
     name: string;
+    lastName: string;
   };
   absenceReason?: string;
   date: Date;
@@ -110,6 +111,7 @@ export const MapDailyReportDetails = (
           ? {
               id: a.employee.id,
               name: `${a.employee.firstName} ${a.employee.lastName}`,
+              lastName: a.employee.lastName,
             }
           : undefined,
         absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
@@ -257,6 +259,7 @@ export const MapDailyReportDetails = (
           ? {
               id: a.employee.id,
               name: `${a.employee.firstName} ${a.employee.lastName}`,
+              lastName: a.employee.lastName,
             }
           : undefined,
         absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
@@ -409,6 +412,7 @@ export const MapDailyReportDetails = (
             ? {
                 id: a.employee.id,
                 name: `${a.employee.firstName} ${a.employee.lastName}`,
+                lastName: a.employee.lastName,
               }
             : undefined,
           absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
@@ -432,8 +436,17 @@ export const MapDailyReportDetails = (
   details.push(...noSubRequiredAbsencesDetails);
 
   // Filter the list by only details that match the Date we are looking for
-  const detailsForDate = details.filter(x => isEqual(x.date, date));
+  const detailsForDate = details
+    .filter(x => isEqual(x.date, date))
+    .sort((a, b) =>
+      a.employee!.lastName > b.employee!.lastName
+        ? 1
+        : b.employee!.lastName > a.employee!.lastName
+        ? -1
+        : 0
+    );
 
+  console.log(detailsForDate);
   // Filter the list by any client side filtering selections
   const filteredDetails = detailsForDate.filter(
     x =>
