@@ -135,9 +135,9 @@ export const UserViewPage: React.FC<Props> = props => {
   // associated with the User, so let's just cache them here
   // when we get a populated list and not when the list in empty
   useEffect(() => {
-    if (user?.orgUsers && user?.orgUsers?.length > 0) {
+    if (user?.allOrgUsers && user?.allOrgUsers?.length > 0) {
       setOrgUsers(
-        (user?.orgUsers ?? []) as Pick<
+        (user?.allOrgUsers ?? []) as Pick<
           OrgUser,
           | "id"
           | "isAdmin"
