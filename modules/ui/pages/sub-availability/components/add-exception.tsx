@@ -41,7 +41,7 @@ export const AddException: React.FC<Props> = props => {
   return (
     <>
       <Section className={classes.section}>
-        <SectionHeader title={t("Add exception")} />
+        <SectionHeader title={t("Add non-recurring event")} />
         <Formik
           initialValues={{
             availability: UserAvailability.NotAvailable,
