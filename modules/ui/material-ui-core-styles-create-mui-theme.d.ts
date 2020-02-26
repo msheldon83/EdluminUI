@@ -99,5 +99,5 @@ type overridesNameToClassKey = {
 };
 
 declare module "@material-ui/core/styles/overrides" {
-  export type ComponentNameToClassKey = overridesNameToClassKey;
+export interface ComponentNameToClassKey extends overridesNameToClassKey {}
 }
