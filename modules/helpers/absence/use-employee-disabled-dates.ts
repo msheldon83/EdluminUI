@@ -11,6 +11,7 @@ export const useEmployeeDisabledDates = (employeeId: string, month: Date) => {
       fromDate: format(addMonths(month, -1), "yyyy-M-d"),
       toDate: format(endOfMonth(addMonths(month, 2)), "yyyy-M-d"),
     },
+    fetchPolicy: "cache-and-network",
   });
 
   return useMemo(() => computeDisabledDates(contractSchedule), [
