@@ -115,7 +115,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
   //Add deleted Absence Reason to dropdown and re-sort the list
   if (
-    absenceReasonOptions.filter(x => x.value != props.values.absenceReasonId)
+    !absenceReasonOptions.find(x => x.value === props.values.absenceReasonId)
   ) {
     absenceReasonOptions.push({
       label: props.values.absenceReasonName,
