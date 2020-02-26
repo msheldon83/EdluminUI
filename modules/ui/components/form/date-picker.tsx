@@ -24,6 +24,8 @@ type DatePickerProps = {
   onMonthChange?: DatePickerOnMonthChange;
   variant?: "single" | "single-hidden" | "range" | "extended-range";
   endAdornment?: React.ReactNode;
+  inputStatus?: "warning" | "error" | "success" | "default" | null;
+  validationMessage?: any;
 };
 
 export type DatePickerOnChange = (dates: {
@@ -44,6 +46,8 @@ export const DatePicker = (props: DatePickerProps) => {
     endAdornment,
     disableDates = [],
     variant = "range",
+    inputStatus,
+    validationMessage,
   } = props;
 
   const classes = useStyles(props);
@@ -316,6 +320,8 @@ export const DatePicker = (props: DatePickerProps) => {
               onValidDate={handleEndDateInputChange}
               dateFormat={dateFormat}
               onBlur={() => setInputEndDate(undefined)}
+              inputStatus={inputStatus}
+              validationMessage={validationMessage}
             />
           </div>
         );
@@ -363,6 +369,8 @@ export const DatePicker = (props: DatePickerProps) => {
                */
               setTimeout(() => setInputStartDate(undefined), 1);
             }}
+            inputStatus={inputStatus}
+            validationMessage={validationMessage}
           />
         </div>
         {renderEndDate()}
