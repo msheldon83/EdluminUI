@@ -65,6 +65,8 @@ interface CustomColors {
 
 type CustomSpacing = {
   contentWidth: string;
+  navBarWidthExpanded: string;
+  navBarWidthCompact: string;
 };
 
 interface EdluminTheme extends Theme {

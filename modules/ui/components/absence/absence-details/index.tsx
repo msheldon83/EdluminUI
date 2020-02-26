@@ -327,7 +327,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </div>
       </Grid>
 
-      <ContentFooter height={theme.typography.pxToRem(72)}>
+      <ContentFooter>
         <Grid item xs={12} className={classes.contentFooter}>
           <div className={classes.actionButtons}>
             <div className={classes.unsavedText}>
@@ -379,16 +379,13 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-end",
-    maxWidth: theme.customSpacing.contentWidth,
   },
   contentFooter: {
-    backgroundColor: "#E3F2FD",
     height: theme.typography.pxToRem(72),
     width: "100%",
-    boxSizing: "border-box",
-    border: "1px solid #d8d8d8",
-    paddingTop: theme.typography.pxToRem(16),
-    paddingRight: theme.typography.pxToRem(10),
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
   },
   deleteButton: {
     color: theme.customColors.darkRed,

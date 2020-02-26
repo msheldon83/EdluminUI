@@ -283,6 +283,8 @@ export const EdluminTheme = createMuiTheme({
   },
   customSpacing: {
     contentWidth: pxToRem(1140),
+    navBarWidthExpanded: pxToRem(258),
+    navBarWidthCompact: pxToRem(53),
   },
 
   typography: palette => ({

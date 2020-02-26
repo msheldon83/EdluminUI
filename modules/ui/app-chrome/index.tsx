@@ -1,4 +1,5 @@
 import { makeStyles } from "@material-ui/styles";
+import clsx from "clsx";
 import { useScreenSize } from "hooks";
 import { DialogProvider } from "hooks/use-dialog";
 import { SnackbarProvider } from "hooks/use-snackbar";
@@ -28,7 +29,13 @@ export const AppChrome: React.FunctionComponent = props => {
   const mobile = screenSize === "mobile";
   const expand = useCallback(() => setExpanded(true), [setExpanded]);
   const collapse = useCallback(() => setExpanded(false), [setExpanded]);
-  const classes = useStyles();
+  const classes = useStyles({ expanded: expand });
+
+  const contentFooterClasses = clsx({
+    [classes.contentFooterContainer]: true,
+    [classes.contentFooterContainerExpanded]: expanded,
+    [classes.contentFooterContainerCompact]: !expanded,
+  });
 
   /* cf - 2019-10-09
       it's important that both mobile and not mobile return the same number of items
@@ -70,7 +77,9 @@ export const AppChrome: React.FunctionComponent = props => {
                 </SnackbarProvider>
               </div>
             </div>
-            <div ref={contentFooterRef} />
+            <div className={contentFooterClasses}>
+              <div className={classes.contentFooter} ref={contentFooterRef} />
+            </div>
             <HelpWidget />
           </div>
         </PageTitleProvider>
@@ -120,7 +129,9 @@ export const AppChrome: React.FunctionComponent = props => {
                   </DialogProvider>
                 </SnackbarProvider>
               </div>
-              <div ref={contentFooterRef} />
+              <div className={contentFooterClasses}>
+                <div className={classes.contentFooter} ref={contentFooterRef} />
+              </div>
             </div>
             <HelpWidget />
           </div>
@@ -176,9 +187,29 @@ const useStyles = makeStyles(theme => ({
     overflowY: "auto",
   },
 
+  contentFooterContainer: {
+    boxSizing: "border-box",
+    backgroundColor: "#E3F2FD",
+    border: "1px solid #d8d8d8",
+    transition: theme.transitions.create("padding", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.short,
+    }),
+  },
+  contentFooterContainerExpanded: {
+    paddingLeft: theme.customSpacing.navBarWidthExpanded,
+  },
+  contentFooterContainerCompact: {
+    paddingLeft: theme.customSpacing.navBarWidthCompact,
+  },
+  contentFooter: {
+    width: "100%",
+    maxWidth: theme.customSpacing.contentWidth,
+  },
+
   navWidthExpanded: {
     flexShrink: 0,
-    width: theme.typography.pxToRem(258),
+    width: theme.customSpacing.navBarWidthExpanded,
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
@@ -189,7 +220,8 @@ const useStyles = makeStyles(theme => ({
   },
   navWidthCompact: {
     flexShrink: 0,
-    width: theme.spacing(7) + 1,
+    width: theme.customSpacing.navBarWidthCompact,
+
     [theme.breakpoints.up("sm")]: {
       width: theme.spacing(9) + 1,
     },
