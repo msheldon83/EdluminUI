@@ -34,7 +34,7 @@ export function buildGraphqlClient(opts: {
     defaultOptions: {
       watchQuery: {
         // this governs the default fetch policy for react-apollo useQuery():
-        fetchPolicy: "cache-first",
+        fetchPolicy: "cache-and-network",
       },
     },
   });
