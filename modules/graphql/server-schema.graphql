@@ -2142,7 +2142,7 @@ type organizationConfig {
   defaultCountry: CountryCode
   defaultLocationId: Int
   orgUsersMustAcceptEula: Boolean!
-  leadTimeWindowsMinutes: Int!
+  minutesBeforeStartAbsenceCanBeCreated: Int!
   brandingId: ID!
   branding: Branding
   featureFlags: [FeatureFlag]
@@ -2157,6 +2157,7 @@ type organizationConfig {
   minRequestedEmployeeHoldMinutes: Int!
   maxRequestedEmployeeHoldMinutes: Int!
   minorConflictThresholdMinutes: Int!
+  minutesRelativeToStartVacancyCanBeFilled: Int!
   vacancyDayConversions: [DayConversion]
 }
 
@@ -2167,7 +2168,7 @@ input organizationConfigInput {
   defaultCurrency: Currency
   defaultCountry: CountryCode
   orgUsersMustAcceptEula: Boolean
-  defaultLeadTimeWindowMinutes: Int
+  minutesBeforeStartAbsenceCanBeCreated: Int
   brandingId: ID
   longTermVacancyThresholdDays: Int
   minLeadTimeMinutesToCancelVacancy: Int
@@ -2180,6 +2181,7 @@ input organizationConfigInput {
   minRequestedEmployeeHoldMinutes: Int
   maxRequestedEmployeeHoldMinutes: Int
   minorConflictThresholdMinutes: Int
+  minutesRelativeToStartVacancyCanBeFilled: Int
   vacancyDayConversions: [DayConversionInput]
 }
 
@@ -2979,6 +2981,7 @@ enum PermissionEnum {
   ABS_VAC_EDIT_PAST
   ABS_VAC_EDIT_ASSIGNED
   ABS_VAC_EDIT_VERIFIED
+  ABS_VAC_EDIT_PAST_SAME_DAY
   ABS_VAC_REQUEST_REPLACEMENT
   ABS_VAC_ASSIGN
   ABS_VAC_ASSIGN_NO_SUB_NEEDED
@@ -3282,11 +3285,8 @@ type PositionScheduleDate {
   fullWorkdayDuration: Short!
   totalDuration: Short!
   absenceBalanceDuration: Short!
-  absenceBalanceDayPortion: Decimal!
   replacementDuration: Short!
   replacementDayPortion: Decimal!
-  halfDayMorningAbsenceBalanceDayPortion: Decimal
-  halfDayAfternoonAbsenceBalanceDayPortion: Decimal
   halfDayMorningEndLocal: DateTime
   halfDayMorningEndUtc: DateTime
   halfDayAfternoonStartLocal: DateTime
@@ -4695,6 +4695,7 @@ type User implements ModelObjectInterface {
   timeZoneId: TimeZone
   rowVersion: String!
   orgUsers: [OrgUser]
+  allOrgUsers: [OrgUser]
   preferences: UserPreferences
   isSystemAdministrator: Boolean!
   eulaAcceptedAtUtc: DateTime
