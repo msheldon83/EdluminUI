@@ -1,0 +1,13 @@
+query GetAllLocationsWithSchedulesWithinOrg($orgId: ID) {
+  location {
+    all(orgId: $orgId) {
+      id
+      name
+      externalId
+      workDaySchedules {
+        id
+        name
+      }
+    }
+  }
+}

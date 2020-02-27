@@ -243,6 +243,7 @@ import {
   UserViewLoader,
   UserViewRoute,
 } from "./routes/users";
+import { VacancyCreateRoute, VacancyCreateLoader } from "./routes/vacancy";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -429,6 +430,12 @@ export function App() {
                                 <Route
                                   component={UnauthorizedLoader}
                                   path={UnauthorizedAdminRoleRoute.path}
+                                />
+                                <ProtectedRoute
+                                  component={VacancyCreateLoader}
+                                  path={VacancyCreateRoute.path}
+                                  role={"admin"}
+                                  permissions={[PermissionEnum.AbsVacSave]}
                                 />
                                 <ProtectedRoute
                                   component={AdminEditAbsenceLoader}
