@@ -57,7 +57,7 @@ export const RegularSchedule: React.FC<Props> = props => {
   return (
     <>
       <Section className={classes.section}>
-        <SectionHeader title={t("Regular Schedule")} />
+        <SectionHeader title={t("Recurring Availability")} />
         <div className={classes.container}>
           {days.map((d, i) => {
             const at = user?.availableTime

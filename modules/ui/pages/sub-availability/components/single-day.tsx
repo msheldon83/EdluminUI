@@ -206,7 +206,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-between",
   },
   desktopDowBox: {
-    width: theme.typography.pxToRem(145),
+    width: theme.typography.pxToRem(142),
     height: theme.typography.pxToRem(133),
     marginRight: theme.spacing(1),
     textAlign: "center",

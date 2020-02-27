@@ -14,6 +14,7 @@ import {
   isSameDay,
   isSameMonth,
   isSameYear,
+  isBefore,
 } from "date-fns";
 import { getBeginningOfSchoolYear } from "ui/components/helpers";
 import { numberOfMonthsInSchoolYear } from "ui/components/schedule/helpers";
@@ -133,6 +134,7 @@ export const ExceptionList: React.FC<Props> = props => {
               await props.onDelete(oldData.id);
             },
           }}
+          deletableRows={v => !isBefore(parseISO(v.endDate), today)}
           pagination={pagination}
         />
       </Section>

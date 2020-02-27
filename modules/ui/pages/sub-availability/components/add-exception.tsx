@@ -14,7 +14,7 @@ import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { secondsSinceMidnight } from "helpers/time";
 import { DatePicker } from "ui/components/form/date-picker";
-import { startOfTomorrow } from "date-fns";
+import { startOfTomorrow, isBefore, parseISO } from "date-fns";
 import { isAfterDate } from "helpers/date";
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
@@ -30,6 +30,7 @@ export const AddException: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const classes = useStyles();
   const tomorrow = useMemo(() => startOfTomorrow(), []);
+  const today = useMemo(() => new Date(), []);
 
   const availabilityOptions = [
     { label: t("Available before"), value: UserAvailability.Before },
@@ -40,7 +41,7 @@ export const AddException: React.FC<Props> = props => {
   return (
     <>
       <Section className={classes.section}>
-        <SectionHeader title={t("Add exception")} />
+        <SectionHeader title={t("Add non-recurring event")} />
         <Formik
           initialValues={{
             availability: UserAvailability.NotAvailable,
@@ -67,17 +68,54 @@ export const AddException: React.FC<Props> = props => {
                   : data.fromDate,
             });
           }}
-          validationSchema={yup.object({
-            availability: yup.string(),
-            time: yup.string().when("availability", {
-              is: UserAvailability.After || UserAvailability.Before,
-              then: yup
-                .string()
-                .nullable()
-                .required(t("Time is required")),
-              otherwise: yup.string().nullable(),
-            }),
-          })}
+          validationSchema={yup
+            .object({
+              availability: yup.string(),
+              time: yup.string().when("availability", {
+                is: UserAvailability.After || UserAvailability.Before,
+                then: yup
+                  .string()
+                  .nullable()
+                  .required(t("Time is required")),
+                otherwise: yup.string().nullable(),
+                fromDate: yup
+                  .date()
+                  .nullable()
+                  .required(t("From date is required")),
+                toDate: yup.date().nullable(),
+              }),
+            })
+            .test({
+              name: "fromDateInPast",
+              test: function test(value) {
+                if (isBefore(value.fromDate, today)) {
+                  return new yup.ValidationError(
+                    t("Must be after today"),
+                    null,
+                    "fromDate"
+                  );
+                }
+
+                return true;
+              },
+            })
+            .test({
+              name: "fromDateBeforeTo",
+              test: function test(value) {
+                if (
+                  isBefore(value.toDate, value.fromDate) &&
+                  value.availability === UserAvailability.NotAvailable
+                ) {
+                  return new yup.ValidationError(
+                    t("Must be before from"),
+                    null,
+                    "toDate"
+                  );
+                }
+
+                return true;
+              },
+            })}
         >
           {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
             <form onSubmit={handleSubmit}>
@@ -112,6 +150,8 @@ export const AddException: React.FC<Props> = props => {
                         setFieldValue("toDate", startDate);
                       }
                     }}
+                    inputStatus={errors.fromDate ? "error" : "default"}
+                    validationMessage={errors.fromDate}
                   />
                 </Grid>
                 {values.availability === UserAvailability.NotAvailable && (
@@ -123,6 +163,8 @@ export const AddException: React.FC<Props> = props => {
                       onChange={({ startDate: toDate }) =>
                         setFieldValue("toDate", toDate)
                       }
+                      inputStatus={errors.toDate ? "error" : "default"}
+                      validationMessage={errors.toDate}
                     />
                   </Grid>
                 )}
