@@ -28,6 +28,10 @@ export const DailyReportPage: React.FC<Props> = () => {
   const [date, setDate] = React.useState(new Date(filters.date));
   const isMobile = useIsMobile();
 
+  const dateFromFilter = React.useMemo(() => {
+    return new Date(filters.date);
+  }, [filters.date]);
+
   return (
     <>
       <Grid
@@ -37,7 +41,10 @@ export const DailyReportPage: React.FC<Props> = () => {
         className={clsx(classes.header, isMobile && classes.mobileHeader)}
       >
         <Grid item>
-          <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
+          <DateStepperHeader
+            date={dateFromFilter}
+            setDate={setDate}
+          ></DateStepperHeader>
         </Grid>
         {!isMobile && (
           <Grid item className={classes.action}>
