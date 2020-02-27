@@ -56,6 +56,10 @@ import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { DiscardChangesDialog } from "./discard-changes-dialog";
 import { Prompt, useRouteMatch } from "react-router";
+import { OrgUserPermissions } from "ui/components/auth/types";
+import { canViewAsSysAdmin } from "helpers/permissions";
+import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
+import { useHistory } from "react-router";
 
 type Props = {
   firstName: string;
@@ -123,6 +127,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
+  const history = useHistory();
   const match = useRouteMatch();
   const [vacancyDetailIdsToAssign, setVacancyDetailIdsToAssign] = useState<
     string[] | undefined
@@ -599,6 +604,22 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                     name: t("Delete"),
                     onClick: () => props.onDelete(),
                     permissions: [PermissionEnum.AbsVacDelete],
+                  },
+                  {
+                    name: t("Notification Log"),
+                    onClick: () => {
+                      history.push(
+                        VacancyNotificationLogRoute.generate({
+                          organizationId: props.organizationId,
+                          vacancyId: props.initialVacancies[0].id,
+                        })
+                      );
+                    },
+                    permissions: (
+                      permissions: OrgUserPermissions[],
+                      isSysAdmin: boolean,
+                      orgId?: string
+                    ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
                   },
                 ]}
               />
