@@ -4,6 +4,8 @@ import {
   Button,
   Typography,
   Divider,
+  Checkbox,
+  FormControlLabel,
 } from "@material-ui/core";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useIsMobile, useDeferredState } from "hooks";
@@ -80,7 +82,8 @@ export const UserViewPage: React.FC<Props> = props => {
       middleName: string | undefined,
       lastName: string,
       phone: string | undefined,
-      rowVersion: string | undefined
+      rowVersion: string | undefined,
+      phoneIsValidForSms: boolean | undefined
     ) => {
       return updateUser({
         variables: {
@@ -91,6 +94,7 @@ export const UserViewPage: React.FC<Props> = props => {
             middleName,
             lastName,
             phone,
+            phoneIsValidForSms,
           },
         },
       });
@@ -286,6 +290,7 @@ export const UserViewPage: React.FC<Props> = props => {
             middleName: user?.middleName ?? undefined,
             lastName: user?.lastName ?? "",
             phone: user?.phone ?? undefined,
+            phoneIsValidForSms: user?.phoneIsValidForSms,
           }}
           onSubmit={async (data, meta) => {
             await update(
@@ -293,7 +298,8 @@ export const UserViewPage: React.FC<Props> = props => {
               data.middleName,
               data.lastName,
               data.phone,
-              rowVersion
+              rowVersion,
+              data.phoneIsValidForSms ? data.phoneIsValidForSms : undefined
             );
           }}
           validationSchema={yup.object().shape({
@@ -315,7 +321,7 @@ export const UserViewPage: React.FC<Props> = props => {
             <form onSubmit={handleSubmit}>
               <Grid
                 container
-                justify="space-between"
+                justify="flex-start"
                 alignItems="flex-end"
                 spacing={2}
               >
@@ -383,6 +389,26 @@ export const UserViewPage: React.FC<Props> = props => {
                     }}
                   />
                 </Grid>
+                {user?.phone && (
+                  <Grid item xs={4}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          color="primary"
+                          checked={
+                            values.phoneIsValidForSms ||
+                            values.phoneIsValidForSms == undefined ||
+                            values.phoneIsValidForSms == null
+                          }
+                          onChange={() =>
+                            setFieldValue("phoneIsValidForSms", true)
+                          }
+                        />
+                      }
+                      label={t("Phone is valid for sms")}
+                    />
+                  </Grid>
+                )}
               </Grid>
               <ActionButtons
                 submit={{ text: t("Save"), execute: submitForm }}

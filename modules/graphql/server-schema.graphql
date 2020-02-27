@@ -4715,6 +4715,7 @@ type User implements ModelObjectInterface {
   recoveryEmail: String
   phone: String
   formattedPhone: String
+  phoneIsValidForSms: Boolean
   inviteSentAtUtc: DateTime
   inviteSent: Boolean!
   isAccountSetup: Boolean!
@@ -4860,6 +4861,7 @@ input UserUpdateInput {
   lastName: String
   recoveryEmail: String
   phone: String
+  phoneIsValidForSms: Boolean
   timeZoneId: TimeZone
   cultureId: Culture
   preferences: UserPreferencesInput
