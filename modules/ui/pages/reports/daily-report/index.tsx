@@ -14,7 +14,6 @@ import { FilterQueryParams } from "ui/components/reports/daily-report/filters/fi
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
-import { startOfToday, parseISO } from "date-fns";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 
@@ -29,7 +28,7 @@ export const DailyReportPage: React.FC<Props> = () => {
   const isMobile = useIsMobile();
 
   const dateFromFilter = React.useMemo(() => {
-    return parseISO(filters.date);
+    return new Date(filters.date);
   }, [filters.date]);
 
   return (

@@ -11,7 +11,6 @@ import {
   startOfTomorrow,
   isSameDay,
   format,
-  parseISO,
 } from "date-fns";
 import { Grid, Button, Tooltip } from "@material-ui/core";
 import { DateStepperHeader } from "ui/components/date-stepper-header";
@@ -46,7 +45,7 @@ export const AdminHome: React.FC<Props> = props => {
   const dailyReportRouteParams = useRouteParams(DailyReportRoute);
 
   const dateFromFilter = useMemo(() => {
-    return parseISO(filters.date);
+    return new Date(filters.date);
   }, [filters.date]);
 
   const getUserName = useQueryBundle(GetMyUserAccess, {
