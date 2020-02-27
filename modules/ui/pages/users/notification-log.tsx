@@ -1,5 +1,5 @@
 import { Button, Grid, makeStyles, InputLabel } from "@material-ui/core";
-import { useQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
 import { useIsMobile } from "hooks";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
@@ -14,8 +14,11 @@ import { GetNotificationLogForUser } from "./graphql/get-notification-log.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { UserNotificationLogRoute } from "ui/routes/notification-log";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
-import { parseISO, format, addHours, addDays } from "date-fns";
+import { parseISO, format, addMinutes, addDays } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
+import { GetUserById } from "./graphql/get-user-by-id.gen";
+import { Section } from "ui/components/section";
+import { DatePicker } from "ui/components/form/date-picker";
 
 export const UserNotificationLogIndex: React.FC<{}> = props => {
   const classes = useStyles();
@@ -24,15 +27,28 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
   const isMobile = useIsMobile();
   const params = useRouteParams(UserNotificationLogRoute);
 
+  const today = useMemo(() => new Date(), []);
+  const [fromDate, setFromDate] = useState<Date | string>(addDays(today, -7));
+  const [toDate, setToDate] = useState<Date | string>(today);
+
   const timeZoneOffset = useMemo(() => new Date().getTimezoneOffset(), []);
 
-  const getNotificationLog = useQueryBundle(GetNotificationLogForUser, {
-    variables: { userId: params.userId },
+  const getUser = useQueryBundle(GetUserById, {
+    variables: { id: params.userId },
   });
 
-  const columns: Column<
-    GetNotificationLogForUser.VacancyNotificationLogByUser
-  >[] = [
+  const user =
+    getUser.state === "LOADING" ? undefined : getUser?.data?.user?.byId;
+
+  const [getNotificationLog, pagination] = usePagedQueryBundle(
+    GetNotificationLogForUser,
+    r => r.vacancy?.vacancyNotificationLogByUser?.totalCount,
+    {
+      variables: { userId: params.userId, fromDate: fromDate, toDate: toDate },
+    }
+  );
+
+  const columns: Column<GetNotificationLogForUser.Results>[] = [
     {
       title: t("AbsenceId"),
       render: data => {
@@ -57,7 +73,7 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
       render: data => {
         if (data.sentAtUtc) {
           return format(
-            addHours(parseISO(data.sentAtUtc), timeZoneOffset),
+            addMinutes(parseISO(data.sentAtUtc), timeZoneOffset),
             "MMM d, h:mm a"
           );
         } else {
@@ -70,12 +86,12 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
       render: data => {
         if (data.statusAsOfUtc) {
           return format(
-            addHours(parseISO(data.statusAsOfUtc), timeZoneOffset),
+            addMinutes(parseISO(data.statusAsOfUtc), timeZoneOffset),
             "MMM d, h:mm a"
           );
         } else {
           return format(
-            addHours(parseISO(data.createdUtc), timeZoneOffset),
+            addMinutes(parseISO(data.createdUtc), timeZoneOffset),
             "MMM d, h:mm a"
           );
         }
@@ -100,7 +116,7 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
       render: data => {
         if (data.repliedAtUtc) {
           return format(
-            addHours(parseISO(data.repliedAtUtc), timeZoneOffset),
+            addMinutes(parseISO(data.repliedAtUtc), timeZoneOffset),
             "MMM d, h:mm a"
           );
         } else {
@@ -129,7 +145,8 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
   }
 
   const notifications = compact(
-    getNotificationLog?.data?.vacancy?.vacancyNotificationLogByUser ?? []
+    getNotificationLog?.data?.vacancy?.vacancyNotificationLogByUser?.results ??
+      []
   );
   const notificationsCount = notifications.length;
 
@@ -143,18 +160,43 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
         className={classes.header}
       >
         <Grid item>
-          <PageTitle title={`${t("Notification Log for ")}`} />
+          <PageTitle title={t("Notification Log for")} />
+          <div
+            className={classes.subHeader}
+          >{`${user?.firstName} ${user?.lastName}`}</div>
+          <div className={classes.subHeader}>{user?.formattedPhone}</div>
         </Grid>
       </Grid>
-      <Table
-        title={`${notificationsCount} ${t("Log records")}`}
-        columns={columns}
-        data={notifications}
-        selection={false}
-        options={{
-          search: false,
-        }}
-      />
+      <Section>
+        <Grid container>
+          <Grid item xs={isMobile ? 6 : 2}>
+            <InputLabel>{t("From")}</InputLabel>
+            <DatePicker
+              variant={"single-hidden"}
+              startDate={fromDate}
+              onChange={({ startDate }) => setFromDate(startDate)}
+            />
+          </Grid>
+          <Grid item xs={isMobile ? 6 : 2}>
+            <InputLabel>{t("To")}</InputLabel>
+            <DatePicker
+              variant={"single-hidden"}
+              startDate={toDate}
+              onChange={({ startDate }) => setToDate(startDate)}
+            />
+          </Grid>
+        </Grid>
+        <Table
+          title={`${notificationsCount} ${t("Log records")}`}
+          columns={columns}
+          data={notifications}
+          selection={false}
+          options={{
+            search: false,
+          }}
+          pagination={pagination}
+        />
+      </Section>
     </>
   );
 };
@@ -162,5 +204,9 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(),
+  },
+  subHeader: {
+    fontSize: theme.typography.pxToRem(24),
+    fontWeight: "bold",
   },
 }));
