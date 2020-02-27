@@ -79,23 +79,6 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
     return `${count} ${determineDayPartLabel(u, count)}`;
   });
 
-  const employeeCancelWhileSubAssigned =
-    props.actingAsEmployee && !!props.absence.isFilled;
-
-  const cancelButton = (
-    <Button
-      variant="outlined"
-      onClick={employeeCancelWhileSubAssigned ? undefined : props.cancelAbsence}
-      className={[
-        classes.cancelButton,
-        employeeCancelWhileSubAssigned ? classes.disabledButton : "",
-      ].join(" ")}
-      disableTouchRipple={employeeCancelWhileSubAssigned}
-    >
-      {t("Cancel")}
-    </Button>
-  );
-
   return (
     <>
       <Grid item xs={3}>
@@ -198,18 +181,13 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
       <Can do={[PermissionEnum.AbsVacDelete]}>
         {props.cancelAbsence && (
           <Grid item xs={2} className={classes.cancelButtonContainer}>
-            {employeeCancelWhileSubAssigned ? (
-              <Tooltip
-                title={t(
-                  "Absences with assigned substitutes may not be cancelled"
-                )}
-                placement={"top"}
-              >
-                {cancelButton}
-              </Tooltip>
-            ) : (
-              cancelButton
-            )}
+            <Button
+              variant="outlined"
+              onClick={props.cancelAbsence}
+              className={classes.cancelButton}
+            >
+              {t("Cancel")}
+            </Button>
           </Grid>
         )}
       </Can>

@@ -113,6 +113,11 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
         TranslateAbsenceErrorCodeToMessage
       );
     },
+    refetchQueries: [
+      "GetEmployeeContractSchedule",
+      "GetEmployeeContractScheduleDates",
+      "GetEmployeeAbsenceSchedule",
+    ],
   });
 
   const quickCreateAbsence = async (
@@ -182,7 +187,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     if (conflictingDates.length > 0) {
       dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
     }
-  }, [disabledDateObjs]);
+  }, [disabledDateObjs, disabledDates, state.selectedAbsenceDates]);
 
   const onDayPartChange = React.useCallback(
     async (value: DayPart | undefined) => await setValue("dayPart", value),
