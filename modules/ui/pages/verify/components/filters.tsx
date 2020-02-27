@@ -58,7 +58,7 @@ export const Filters: React.FC<Props> = props => {
     const options =
       delgateTo?.map(x => ({
         label: x.relatesToOrganization!.name,
-        value: x.id,
+        value: x?.relatesToOrganizationId!.toString(),
       })) ?? [];
 
     options.unshift(
@@ -123,7 +123,6 @@ export const Filters: React.FC<Props> = props => {
               value={selectedValue}
               multiple={false}
               withResetValue={false}
-              doSort={false}
             />
           </Grid>
         )}

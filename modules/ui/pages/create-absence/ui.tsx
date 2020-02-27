@@ -95,7 +95,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   );
   const initialFormData: CreateAbsenceFormData = {
     absenceReasonId: props.initialAbsenceReason || "",
-    absenceReasonName: props.initialAbsenceReason || "",
+    absenceReasonName: "",
     dayPart: props.initialDayPart,
     hourlyStartTime: props.initialStartHour,
     hourlyEndTime: props.initialEndHour,
