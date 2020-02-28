@@ -72,7 +72,10 @@ type Props = {
   userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
-  absenceReasonId: string;
+  absenceReason: {
+    id: string;
+    name: string;
+  };
   trackingBalanceReasonIds: Array<string | undefined>;
   absenceId: string;
   assignmentId?: string;
@@ -166,7 +169,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     (!props.replacementEmployeeId && !some(props.absenceDates, isPast));
 
   const initialFormData: EditAbsenceFormData = {
-    absenceReason: props.absenceReasonId.toString(),
+    absenceReason: props.absenceReason.id.toString(),
     dayPart: props.dayPart,
     payCode:
       // @ts-ignore
@@ -642,6 +645,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               }
               values={formValues}
               setValue={setValue}
+              absenceReason={props.absenceReason}
               errors={{}}
               triggerValidation={triggerValidation}
               vacancies={projectedVacancies || props.initialVacancies}

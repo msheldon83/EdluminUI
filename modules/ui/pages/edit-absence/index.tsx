@@ -372,7 +372,10 @@ export const EditAbsence: React.FC<Props> = props => {
         positionId={position?.id ?? employee.primaryPositionId ?? undefined}
         positionName={position?.title ?? employee.primaryPosition?.title}
         organizationId={data.organization.id}
-        absenceReasonId={reasonUsage?.absenceReasonId}
+        absenceReason={{
+          id: reasonUsage.absenceReason!.id,
+          name: reasonUsage.absenceReason!.name,
+        }}
         trackingBalanceReasonIds={
           employee.absenceReasonBalances?.map(x => x?.absenceReasonId) ?? []
         }
