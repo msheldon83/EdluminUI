@@ -94,8 +94,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     [dispatch]
   );
   const initialFormData: CreateAbsenceFormData = {
-    absenceReasonId: props.initialAbsenceReason || "",
-    absenceReasonName: "",
+    absenceReason: props.initialAbsenceReason || "",
     dayPart: props.initialDayPart,
     hourlyStartTime: props.initialStartHour,
     hourlyEndTime: props.initialEndHour,
@@ -233,7 +232,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       ),
     [
       state.absenceDates,
-      formValues.absenceReasonId,
+      formValues.absenceReason,
       formValues.dayPart,
       formValues.hourlyStartTime,
       formValues.hourlyEndTime,
@@ -539,8 +538,7 @@ const initialState = (props: Props): CreateAbsenceState => {
 };
 
 export type CreateAbsenceFormData = {
-  absenceReasonId: string;
-  absenceReasonName: string;
+  absenceReason: string;
   dayPart?: DayPart;
   hourlyStartTime?: Date;
   hourlyEndTime?: Date;
@@ -564,7 +562,7 @@ export const buildAbsenceCreateInput = (
   hasEditedDetails: boolean,
   vacancyDetails?: VacancyDetail[]
 ): AbsenceCreateInput | null => {
-  if (!formValues.absenceReasonId || !formValues.dayPart) {
+  if (!formValues.absenceReason || !formValues.dayPart) {
     return null;
   }
   const dates = getAbsenceDates(absenceDates, disabledDates);
@@ -587,7 +585,7 @@ export const buildAbsenceCreateInput = (
     notesToApprover: formValues.notesToApprover,
     details: createAbsenceDetailInput(
       dates,
-      formValues.absenceReasonId,
+      formValues.absenceReason,
       formValues.dayPart,
       formValues.hourlyStartTime,
       formValues.hourlyEndTime
