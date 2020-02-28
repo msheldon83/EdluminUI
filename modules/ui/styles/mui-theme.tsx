@@ -277,16 +277,9 @@ export const EdluminTheme = createMuiTheme({
       main: themeColors.darkRed,
     },
   },
-
   customColors: {
     ...themeColors,
   },
-  customSpacing: {
-    contentWidth: pxToRem(1140),
-    navBarWidthExpanded: pxToRem(258),
-    navBarWidthCompact: pxToRem(53),
-  },
-
   typography: palette => ({
     color: themeColors.black,
     fontFamily: "Roboto",

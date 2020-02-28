@@ -1,5 +1,4 @@
 import { makeStyles } from "@material-ui/styles";
-import clsx from "clsx";
 import { useScreenSize } from "hooks";
 import { DialogProvider } from "hooks/use-dialog";
 import { SnackbarProvider } from "hooks/use-snackbar";
@@ -18,7 +17,6 @@ import { OrganizationSwitcherBar } from "./organization-switcher-bar";
 import { PageTitleProvider } from "./page-title-context";
 import { OrganizationStatusBar } from "./orgaization-status-bar";
 import { HelpWidget } from "./help-widget";
-import { contentFooterRef } from "../components/content-footer";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -29,13 +27,7 @@ export const AppChrome: React.FunctionComponent = props => {
   const mobile = screenSize === "mobile";
   const expand = useCallback(() => setExpanded(true), [setExpanded]);
   const collapse = useCallback(() => setExpanded(false), [setExpanded]);
-  const classes = useStyles({ expanded: expand });
-
-  const contentFooterClasses = clsx({
-    [classes.contentFooterContainer]: true,
-    [classes.contentFooterContainerExpanded]: expanded,
-    [classes.contentFooterContainerCompact]: !expanded,
-  });
+  const classes = useStyles();
 
   /* cf - 2019-10-09
       it's important that both mobile and not mobile return the same number of items
@@ -76,9 +68,6 @@ export const AppChrome: React.FunctionComponent = props => {
                   </DialogProvider>
                 </SnackbarProvider>
               </div>
-            </div>
-            <div className={contentFooterClasses}>
-              <div className={classes.contentFooter} ref={contentFooterRef} />
             </div>
             <HelpWidget />
           </div>
@@ -129,9 +118,6 @@ export const AppChrome: React.FunctionComponent = props => {
                   </DialogProvider>
                 </SnackbarProvider>
               </div>
-              <div className={contentFooterClasses}>
-                <div className={classes.contentFooter} ref={contentFooterRef} />
-              </div>
             </div>
             <HelpWidget />
           </div>
@@ -158,58 +144,28 @@ const useStyles = makeStyles(theme => ({
     transform:
       "rotate(0)" /* cf - this affects how position works in children elements. */,
   },
-
-  containerWrapper: {
-    display: "flex",
-    overflow: "hidden",
-  },
-  containerStacker: {
-    display: "flex",
-    flexDirection: "column",
+  mainContent: {
     flexGrow: 1,
-    height: "100%",
+    overflowY: "auto",
   },
   container: {
+    height: "100vh",
     display: "flex",
     flexDirection: "row",
     alignItems: "stretch",
     flexGrow: 1,
-    overflow: "auto",
+    maxWidth: theme.typography.pxToRem(1440),
     transform: "rotate(0)",
+    overflowY: "auto",
     "@media print": {
       height: "100%",
       overflowY: "hidden",
     },
   },
-  mainContent: {
-    display: "flex",
-    flexGrow: 1,
-    overflowY: "auto",
-  },
-
-  contentFooterContainer: {
-    boxSizing: "border-box",
-    backgroundColor: "#E3F2FD",
-    border: "1px solid #d8d8d8",
-    transition: theme.transitions.create("padding", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.short,
-    }),
-  },
-  contentFooterContainerExpanded: {
-    paddingLeft: theme.customSpacing.navBarWidthExpanded,
-  },
-  contentFooterContainerCompact: {
-    paddingLeft: theme.customSpacing.navBarWidthCompact,
-  },
-  contentFooter: {
-    width: "100%",
-    maxWidth: theme.customSpacing.contentWidth,
-  },
 
   navWidthExpanded: {
     flexShrink: 0,
-    width: theme.customSpacing.navBarWidthExpanded,
+    width: theme.typography.pxToRem(258),
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
@@ -220,8 +176,7 @@ const useStyles = makeStyles(theme => ({
   },
   navWidthCompact: {
     flexShrink: 0,
-    width: theme.customSpacing.navBarWidthCompact,
-
+    width: theme.spacing(7) + 1,
     [theme.breakpoints.up("sm")]: {
       width: theme.spacing(9) + 1,
     },
@@ -233,25 +188,31 @@ const useStyles = makeStyles(theme => ({
       display: "none",
     },
   },
-
   contentView: {
+    overflowY: "auto",
+    [theme.breakpoints.up("md")]: {
+      width: "1px", // Prevent the content view from expanding past its allowed size
+    },
     flexGrow: 1,
     marginTop: theme.spacing(3),
-    maxWidth: theme.customSpacing.contentWidth,
     padding: theme.spacing(0, 3, 4, 3),
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(0),
+      paddingTop: theme.spacing(2),
+    },
     "@media print": {
       padding: 0,
       fontSize: theme.typography.pxToRem(11),
       overflowY: "hidden",
     },
   },
-
   name: {
     backgroundColor: theme.customColors.mustard,
     padding: theme.typography.pxToRem(24),
     marginTop: theme.typography.pxToRem(18),
   },
   leftPaddingExpanded: {
+    maxWidth: theme.typography.pxToRem(1440),
     paddingLeft: theme.typography.pxToRem(258),
     transition: theme.transitions.create("padding", {
       easing: theme.transitions.easing.sharp,
