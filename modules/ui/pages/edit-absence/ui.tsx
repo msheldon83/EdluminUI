@@ -536,11 +536,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     theVacancyDetails,
   ]);
 
-  const submitForm = async () => {
-    await update(formValues);
-    dispatch({ action: "resetAfterSave" });
-  };
-
   return (
     <>
       <DiscardChangesDialog
@@ -572,7 +567,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       />
 
       {step === "absence" && (
-        <form>
+        <form
+          onSubmit={handleSubmit(async data => {
+            await update(data);
+            dispatch({ action: "resetAfterSave" });
+          })}
+        >
           <div className={classes.titleContainer}>
             <div className={classes.title}>
               {actingAsEmployee ? (
@@ -669,7 +669,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               }
               hasEditedDetails={true}
               assignmentsByDate={props.assignmentsByDate}
-              submitForm={submitForm}
             />
           </Section>
         </form>

@@ -94,7 +94,6 @@ type Props = {
   ) => void;
   hasEditedDetails: boolean;
   assignmentsByDate: AssignmentOnDate[];
-  submitForm: () => Promise<void>;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -357,7 +356,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             )}
             <Can do={[PermissionEnum.AbsVacSave]}>
               <Button
-                onClick={props.submitForm}
+                type="submit"
                 variant="contained"
                 className={classes.saveButton}
                 disabled={!props.isFormDirty}

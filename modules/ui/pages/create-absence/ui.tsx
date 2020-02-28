@@ -384,10 +384,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     await setValue("replacementEmployeeName", undefined);
   }, [setValue]);
 
-  const submitForm = async () => {
-    await create(formValues);
-  };
-
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
@@ -406,7 +402,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         }}
       />
 
-      <form>
+      <form
+        onSubmit={handleSubmit(async data => {
+          await create(data);
+        })}
+      >
         {step === "absence" && (
           <>
             {actingAsEmployee ? (
@@ -462,7 +462,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 onAssignSubClick={onAssignSubClick}
                 hasEditedDetails={!!state.vacanciesInput}
                 assignmentsByDate={[]}
-                submitForm={submitForm}
               />
             </Section>
           </>
