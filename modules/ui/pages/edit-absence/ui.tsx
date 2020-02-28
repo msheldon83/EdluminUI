@@ -608,6 +608,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                         VacancyNotificationLogRoute.generate({
                           organizationId: props.organizationId,
                           vacancyId: props.initialVacancies[0].id,
+                          absenceId: props.absenceId,
                         })
                       );
                     },
