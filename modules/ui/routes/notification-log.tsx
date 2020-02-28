@@ -4,8 +4,8 @@ import { defineSubRoute } from "./definition";
 
 export const VacancyNotificationLogRoute = defineSubRoute(
   AdminChromeRoute,
-  "absence/notificationlog/:vacancyId",
-  ["vacancyId"]
+  "absence/notificationlog/:vacancyId/:absenceId",
+  ["vacancyId", "absenceId"]
 );
 
 export const VacancyNotificationLogLoader = asyncComponent({

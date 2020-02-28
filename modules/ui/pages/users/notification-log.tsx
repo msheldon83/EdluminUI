@@ -1,4 +1,4 @@
-import { Button, Grid, makeStyles, InputLabel } from "@material-ui/core";
+import { Grid, makeStyles, InputLabel } from "@material-ui/core";
 import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
 import { useIsMobile } from "hooks";
 import { compact } from "lodash-es";
@@ -14,7 +14,8 @@ import { GetNotificationLogForUser } from "./graphql/get-notification-log.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { UserNotificationLogRoute } from "ui/routes/notification-log";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
-import { parseISO, format, addMinutes, addDays } from "date-fns";
+import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
+import { format, addDays } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { GetUserById } from "./graphql/get-user-by-id.gen";
 import { Section } from "ui/components/section";
@@ -23,15 +24,12 @@ import { DatePicker } from "ui/components/form/date-picker";
 export const UserNotificationLogIndex: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const history = useHistory();
   const isMobile = useIsMobile();
   const params = useRouteParams(UserNotificationLogRoute);
 
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | string>(addDays(today, -7));
   const [toDate, setToDate] = useState<Date | string>(today);
-
-  const timeZoneOffset = useMemo(() => new Date().getTimezoneOffset(), []);
 
   const getUser = useQueryBundle(GetUserById, {
     variables: { id: params.userId },
@@ -53,14 +51,29 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
       title: t("AbsenceId"),
       render: data => {
         return (
-          <Link
-            to={AdminEditAbsenceRoute.generate({
-              absenceId: data.vacancy.absenceId ?? "",
-              organizationId: data.orgId,
-            })}
-          >
-            {`#${data.vacancy.absenceId}`}
-          </Link>
+          <>
+            <div>
+              <Link
+                to={AdminEditAbsenceRoute.generate({
+                  absenceId: data.vacancy.absenceId ?? "",
+                  organizationId: data.orgId,
+                })}
+              >
+                {`#${data.vacancy.absenceId}`}
+              </Link>
+            </div>
+            <div>
+              <Link
+                to={VacancyNotificationLogRoute.generate({
+                  organizationId: data.orgId,
+                  vacancyId: data.vacancyId ?? "",
+                  absenceId: data.vacancy.absenceId ?? "",
+                })}
+              >
+                {t("Log")}
+              </Link>
+            </div>
+          </>
         );
       },
     },
@@ -69,13 +82,20 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
       field: "organization.name",
     },
     {
+      title: t("Record Created"),
+      render: data => {
+        if (data.createdUtc) {
+          return format(new Date(data.createdUtc), "MMM d, h:mm:ss a");
+        } else {
+          return t("Not available");
+        }
+      },
+    },
+    {
       title: t("Sent at"),
       render: data => {
         if (data.sentAtUtc) {
-          return format(
-            addMinutes(parseISO(data.sentAtUtc), timeZoneOffset),
-            "MMM d, h:mm a"
-          );
+          return format(new Date(data.sentAtUtc), "MMM d, h:mm:ss a");
         } else {
           return t("Not sent");
         }
@@ -85,15 +105,9 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
       title: t("Status As Of"),
       render: data => {
         if (data.statusAsOfUtc) {
-          return format(
-            addMinutes(parseISO(data.statusAsOfUtc), timeZoneOffset),
-            "MMM d, h:mm a"
-          );
+          return format(new Date(data.statusAsOfUtc), "MMM d, h:mm:ss a");
         } else {
-          return format(
-            addMinutes(parseISO(data.createdUtc), timeZoneOffset),
-            "MMM d, h:mm a"
-          );
+          return t("No status");
         }
       },
     },
@@ -115,10 +129,7 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
       title: t("Replied at"),
       render: data => {
         if (data.repliedAtUtc) {
-          return format(
-            addMinutes(parseISO(data.repliedAtUtc), timeZoneOffset),
-            "MMM d, h:mm a"
-          );
+          return format(new Date(data.repliedAtUtc), "MMM d, h:mm:ss a");
         } else {
           return t("No reply");
         }
@@ -160,11 +171,17 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
         className={classes.header}
       >
         <Grid item>
-          <PageTitle title={t("Notification Log for")} />
-          <div
-            className={classes.subHeader}
-          >{`${user?.firstName} ${user?.lastName}`}</div>
+          <PageTitle
+            title={`${t("Notification Log for")} ${user?.firstName} ${
+              user?.lastName
+            }`}
+          />
           <div className={classes.subHeader}>{user?.formattedPhone}</div>
+          <div>
+            {t(
+              "This is a log of text messages sent to a user informing them of an available job they can accept.  It does not include any reponses we sent back after they replied, initial welcome text, or notifications about being assigned or removed from a job."
+            )}
+          </div>
         </Grid>
       </Grid>
       <Section>
