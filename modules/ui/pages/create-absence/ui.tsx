@@ -403,6 +403,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       />
 
       <form
+        id="absence-form"
         onSubmit={handleSubmit(async data => {
           await create(data);
         })}
