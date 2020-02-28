@@ -356,6 +356,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             )}
             <Can do={[PermissionEnum.AbsVacSave]}>
               <Button
+                form="absence-form"
                 type="submit"
                 variant="contained"
                 className={classes.saveButton}

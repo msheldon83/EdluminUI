@@ -568,6 +568,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
       {step === "absence" && (
         <form
+          id="absence-form"
           onSubmit={handleSubmit(async data => {
             await update(data);
             dispatch({ action: "resetAfterSave" });
