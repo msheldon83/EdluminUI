@@ -16,6 +16,8 @@ import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absen
 import { useRouteParams } from "ui/routes/definition";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { useLocation } from "react-router";
+import { useEffect } from "react";
 
 type Props = {};
 
@@ -26,10 +28,17 @@ export const DailyReportPage: React.FC<Props> = () => {
   const [filters] = useQueryParamIso(FilterQueryParams);
   const [date, setDate] = React.useState(new Date(filters.date));
   const isMobile = useIsMobile();
+  const location = useLocation();
 
   const dateFromFilter = React.useMemo(() => {
     return new Date(filters.date);
   }, [filters.date]);
+
+  useEffect(() => {
+    if (location.search === "") {
+      setDate(new Date());
+    }
+  }, [location]);
 
   return (
     <>

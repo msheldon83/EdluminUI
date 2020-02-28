@@ -60,8 +60,10 @@ export const AdminHome: React.FC<Props> = props => {
   useEffect(() => {
     if (location.search === "" && getTimeOfDay() === "evening") {
       setDate(startOfTomorrow());
+    } else if (location.search === "") {
+      setDate(new Date());
     }
-  }, [location.search]);
+  }, [location]);
 
   const subSignInUrl = useMemo(() => {
     const params = new URLSearchParams();
