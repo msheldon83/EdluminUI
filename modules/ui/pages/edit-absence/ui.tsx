@@ -73,7 +73,6 @@ type Props = {
   positionId?: string;
   positionName?: string;
   absenceReasonId: string;
-  absenceReasonName: string;
   trackingBalanceReasonIds: Array<string | undefined>;
   absenceId: string;
   assignmentId?: string;
@@ -102,8 +101,7 @@ type Props = {
 };
 
 type EditAbsenceFormData = {
-  absenceReasonId: string;
-  absenceReasonName: string;
+  absenceReason: string;
   dayPart?: DayPart;
   hourlyStartTime?: Date;
   hourlyEndTime?: Date;
@@ -168,8 +166,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     (!props.replacementEmployeeId && !some(props.absenceDates, isPast));
 
   const initialFormData: EditAbsenceFormData = {
-    absenceReasonId: props.absenceReasonId.toString(),
-    absenceReasonName: props.absenceReasonName.toString(),
+    absenceReason: props.absenceReasonId.toString(),
     dayPart: props.dayPart,
     payCode:
       // @ts-ignore
@@ -207,8 +204,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const formValues = getValues();
   const required = t("Required");
   register({ name: "dayPart", type: "custom" }, { required });
-  register({ name: "absenceReasonId", type: "custom" }, { required });
-  register({ name: "absenceReasonName", type: "custom" }, { required });
+  register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "needsReplacement", type: "custom" });
   register({ name: "notesToApprover", type: "custom" });
   register({ name: "notesToReplacement", type: "custom" });
@@ -795,7 +791,7 @@ const buildAbsenceUpdateInput = (
         date: formattedDate,
         id: previousId ? previousId : null,
         dayPartId: formValues.dayPart,
-        reasons: [{ absenceReasonId: formValues.absenceReasonId }],
+        reasons: [{ absenceReasonId: formValues.absenceReason }],
       };
 
       if (formValues.dayPart === DayPart.Hourly) {

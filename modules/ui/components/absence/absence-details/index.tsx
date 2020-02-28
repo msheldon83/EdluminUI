@@ -34,8 +34,7 @@ import { ContentFooter } from "../../content-footer";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
-  absenceReasonId: string;
-  absenceReasonName: string;
+  absenceReason: string;
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   accountingCode?: string;
@@ -122,16 +121,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [absenceReasons]
   );
 
-  //Add deleted Absence Reason to dropdown and re-sort the list
-  if (
-    !absenceReasonOptions.find(x => x.value === props.values.absenceReasonId)
-  ) {
-    absenceReasonOptions.push({
-      label: props.values.absenceReasonName,
-      value: props.values.absenceReasonId,
-    });
-  }
-
   const startDate = startOfDay(min(props.absenceDates));
 
   const onReasonChange = React.useCallback(
@@ -200,11 +189,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
           <Typography>{t("Select a reason")}</Typography>
           <SelectNew
             value={{
-              value: values.absenceReasonId ?? "",
+              value: values.absenceReason ?? "",
               label:
-                absenceReasonOptions.find(
-                  a => a.value === values.absenceReasonId
-                )?.label || "",
+                absenceReasonOptions.find(a => a.value === values.absenceReason)
+                  ?.label || "",
             }}
             onChange={onReasonChange}
             multiple={false}
@@ -212,7 +200,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
             inputStatus={errors.absenceReason ? "error" : undefined}
             validationMessage={errors.absenceReason?.message}
             withResetValue={false}
-            doSort={true}
           />
         </div>
 
