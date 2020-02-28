@@ -111,8 +111,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
   } = props;
 
   const absenceReasons =
-    [{ label: props?.absenceReason?.name, value: props?.absenceReason?.id }] ??
-    [];
+    props?.absenceReason?.name && props?.absenceReason?.id
+      ? [{ label: props.absenceReason.name, value: props.absenceReason.id }]
+      : [];
 
   const absenceReasonOptions = useAbsenceReasonOptions(
     organizationId,
