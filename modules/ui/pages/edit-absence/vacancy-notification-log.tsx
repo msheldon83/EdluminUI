@@ -10,7 +10,7 @@ import { Table } from "ui/components/table";
 import { GetNotificationLogForVacancy } from "./graphql/get-notification-log.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
-import { parseISO, format, addHours } from "date-fns";
+import { parseISO, format, addMinutes } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
 
 export const VacancyNotificationLogIndex: React.FC<{}> = props => {
@@ -38,7 +38,7 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
       render: data => {
         if (data.sentAtUtc) {
           return format(
-            addHours(parseISO(data.sentAtUtc), timeZoneOffset),
+            addMinutes(parseISO(data.sentAtUtc), timeZoneOffset),
             "MMM d, h:mm a"
           );
         } else {
@@ -51,12 +51,12 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
       render: data => {
         if (data.statusAsOfUtc) {
           return format(
-            addHours(parseISO(data.statusAsOfUtc), timeZoneOffset),
+            addMinutes(parseISO(data.statusAsOfUtc), timeZoneOffset),
             "MMM d, h:mm a"
           );
         } else {
           return format(
-            addHours(parseISO(data.createdUtc), timeZoneOffset),
+            addMinutes(parseISO(data.createdUtc), timeZoneOffset),
             "MMM d, h:mm a"
           );
         }
@@ -81,7 +81,7 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
       render: data => {
         if (data.repliedAtUtc) {
           return format(
-            addHours(parseISO(data.repliedAtUtc), timeZoneOffset),
+            addMinutes(parseISO(data.repliedAtUtc), timeZoneOffset),
             "MMM d, h:mm a"
           );
         } else {
