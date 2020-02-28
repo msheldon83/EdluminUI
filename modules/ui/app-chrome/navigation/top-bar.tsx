@@ -105,10 +105,6 @@ const useStyles = makeStyles(theme => ({
 const useMobileToolbarClasses = makeStyles(theme => ({
   root: {
     background: theme.customColors.white,
-    boxSizing: "border-box",
-    maxWidth: theme.customSpacing.contentWidth,
-    paddingLeft: 0,
-    paddingRight: theme.spacing(3),
   },
 }));
 
