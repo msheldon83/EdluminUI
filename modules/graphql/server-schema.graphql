@@ -5391,6 +5391,18 @@ enum VacancyAvailability {
   NO
 }
 
+input VacancyCreateInput {
+  orgId: ID!
+  positionTypeId: ID!
+  contractId: ID!
+  locationId: ID!
+  workDayScheduleId: ID!
+  notesToReplacement: String
+  externalId: String
+  details: [VacancyDetailInput]
+  ignoreWarnings: Boolean
+}
+
 type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -5428,6 +5440,8 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   accountingCodeAllocations: [VacancyDetailAccountingCode]
   payCodeId: ID
   payCode: PayCode
+  vacancyReasonId: ID
+  vacancyReason: VacancyReason
   vacancy: BasicVacancy
   totalDayPortion: Decimal
   payInfo: PayInfo
@@ -5527,6 +5541,8 @@ type VacancyEmployeeRequest implements ModelObjectInterface & OrgObjectInterface
 }
 
 type VacancyMutations {
+  create(vacancy: VacancyCreateInput!): Vacancy
+  delete(vacancyId: ID!): Boolean
   requestVacancy(
     vacancyRequest: EmployeeInterestInVacancyInput!
   ): VacancyEmployeeInterest
