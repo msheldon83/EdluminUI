@@ -2309,7 +2309,7 @@ type OrgRef_AbsenceReasonMutations {
 
 type OrgRef_AbsenceReasonQueries {
   byId(id: ID!): AbsenceReason
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AbsenceReason]
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], orgId: Boolean): [AbsenceReason]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAbsenceReason
 }
 
@@ -4994,6 +4994,7 @@ input VacancyDetailInput {
   locationId: ID
   payCodeId: ID
   accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
+  vacancyReasonId: ID
 }
 
 input VacancyDetailVerifyInput {
