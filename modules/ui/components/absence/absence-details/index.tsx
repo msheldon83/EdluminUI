@@ -20,7 +20,7 @@ import * as React from "react";
 import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { useAbsenceReasonOptions } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail, AssignmentOnDate } from "ui/components/absence/types";
 import { Can } from "ui/components/auth/can";
@@ -61,6 +61,10 @@ type Props = {
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
+  absenceReason?: {
+    id: string;
+    name: string;
+  };
   vacancies: Vacancy[];
   vacancyDetails: VacancyDetail[];
   locationIds?: string[];
@@ -115,10 +119,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
     assignmentsByDate,
   } = props;
 
-  const absenceReasons = useAbsenceReasons(organizationId);
-  const absenceReasonOptions = useMemo(
-    () => absenceReasons.map(r => ({ label: r.name, value: r.id })),
-    [absenceReasons]
+  const absenceReasons =
+    props?.absenceReason?.name && props?.absenceReason?.id
+      ? [{ label: props.absenceReason.name, value: props.absenceReason.id }]
+      : [];
+
+  const absenceReasonOptions = useAbsenceReasonOptions(
+    organizationId,
+    absenceReasons
   );
 
   const startDate = startOfDay(min(props.absenceDates));
