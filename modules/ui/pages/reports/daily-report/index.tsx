@@ -14,9 +14,10 @@ import { FilterQueryParams } from "ui/components/reports/daily-report/filters/fi
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
-import { startOfToday } from "date-fns";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { useLocation } from "react-router";
+import { useEffect } from "react";
 
 type Props = {};
 
@@ -27,6 +28,17 @@ export const DailyReportPage: React.FC<Props> = () => {
   const [filters] = useQueryParamIso(FilterQueryParams);
   const [date, setDate] = React.useState(new Date(filters.date));
   const isMobile = useIsMobile();
+  const location = useLocation();
+
+  const dateFromFilter = React.useMemo(() => {
+    return new Date(filters.date);
+  }, [filters.date]);
+
+  useEffect(() => {
+    if (location.search === "") {
+      setDate(new Date());
+    }
+  }, [location]);
 
   return (
     <>
@@ -37,7 +49,10 @@ export const DailyReportPage: React.FC<Props> = () => {
         className={clsx(classes.header, isMobile && classes.mobileHeader)}
       >
         <Grid item>
-          <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
+          <DateStepperHeader
+            date={dateFromFilter}
+            setDate={setDate}
+          ></DateStepperHeader>
         </Grid>
         {!isMobile && (
           <Grid item className={classes.action}>

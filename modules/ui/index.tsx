@@ -244,6 +244,12 @@ import {
   UserViewRoute,
 } from "./routes/users";
 import { VacancyCreateRoute, VacancyCreateLoader } from "./routes/vacancy";
+import {
+  VacancyNotificationLogRoute,
+  VacancyNotificationLogLoader,
+  UserNotificationLogRoute,
+  UserNotificationLogLoader,
+} from "./routes/notification-log";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -415,6 +421,11 @@ export function App() {
                             path={OrganizationsRoute.path}
                           />
                           <ProtectedRoute
+                            component={UserNotificationLogLoader}
+                            path={UserNotificationLogRoute.path}
+                            role={"sysAdmin"}
+                          />
+                          <ProtectedRoute
                             component={UserViewLoader}
                             path={UserViewRoute.path}
                             role={"sysAdmin"}
@@ -436,6 +447,11 @@ export function App() {
                                   path={VacancyCreateRoute.path}
                                   role={"admin"}
                                   permissions={[PermissionEnum.AbsVacSave]}
+                                />
+                                <ProtectedRoute
+                                  component={VacancyNotificationLogLoader}
+                                  path={VacancyNotificationLogRoute.path}
+                                  role={"sysAdmin"}
                                 />
                                 <ProtectedRoute
                                   component={AdminEditAbsenceLoader}

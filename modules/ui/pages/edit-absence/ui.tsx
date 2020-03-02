@@ -56,6 +56,10 @@ import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { DiscardChangesDialog } from "./discard-changes-dialog";
 import { Prompt, useRouteMatch } from "react-router";
+import { OrgUserPermissions } from "ui/components/auth/types";
+import { canViewAsSysAdmin } from "helpers/permissions";
+import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
+import { useHistory } from "react-router";
 
 type Props = {
   firstName: string;
@@ -68,7 +72,10 @@ type Props = {
   userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
-  absenceReasonId: string;
+  absenceReason: {
+    id: string;
+    name: string;
+  };
   trackingBalanceReasonIds: Array<string | undefined>;
   absenceId: string;
   assignmentId?: string;
@@ -121,6 +128,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
+  const history = useHistory();
   const match = useRouteMatch();
   const [vacancyDetailIdsToAssign, setVacancyDetailIdsToAssign] = useState<
     string[] | undefined
@@ -161,7 +169,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     (!props.replacementEmployeeId && !some(props.absenceDates, isPast));
 
   const initialFormData: EditAbsenceFormData = {
-    absenceReason: props.absenceReasonId.toString(),
+    absenceReason: props.absenceReason.id.toString(),
     dayPart: props.dayPart,
     payCode:
       // @ts-ignore
@@ -235,6 +243,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         TranslateAbsenceErrorCodeToMessage
       );
     },
+    refetchQueries: ["GetAbsence"],
   });
 
   const useProjectedInformation =
@@ -563,6 +572,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
       {step === "absence" && (
         <form
+          id="absence-form"
           onSubmit={handleSubmit(async data => {
             await update(data);
             dispatch({ action: "resetAfterSave" });
@@ -596,6 +606,23 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                     onClick: () => props.onDelete(),
                     permissions: [PermissionEnum.AbsVacDelete],
                   },
+                  {
+                    name: t("Notification Log"),
+                    onClick: () => {
+                      history.push(
+                        VacancyNotificationLogRoute.generate({
+                          organizationId: props.organizationId,
+                          vacancyId: props.initialVacancies[0].id,
+                          absenceId: props.absenceId,
+                        })
+                      );
+                    },
+                    permissions: (
+                      permissions: OrgUserPermissions[],
+                      isSysAdmin: boolean,
+                      orgId?: string
+                    ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+                  },
                 ]}
               />
             </div>
@@ -621,6 +648,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               }
               values={formValues}
               setValue={setValue}
+              absenceReason={props.absenceReason}
               errors={{}}
               triggerValidation={triggerValidation}
               vacancies={projectedVacancies || props.initialVacancies}

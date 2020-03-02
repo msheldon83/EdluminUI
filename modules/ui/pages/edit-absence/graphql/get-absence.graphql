@@ -17,6 +17,10 @@ query GetAbsence($id: ID!) {
           sequence
           absenceReasonTrackingTypeId
           absenceReasonId
+          absenceReason {
+            id
+            name
+          }
         }
       }
       employeeId

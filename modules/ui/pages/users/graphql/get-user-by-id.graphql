@@ -18,6 +18,7 @@ query GetUserById($id: ID!) {
       resetPasswordTicketUrlGeneratedAtUtc
       temporaryPassword
       rowVersion
+      phoneIsValidForSms
       allOrgUsers {
         id
         firstName
