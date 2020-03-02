@@ -5,15 +5,16 @@ import LockOutlined from "@material-ui/icons/LockOutlined";
 type Props = {
   isShadow: boolean;
   orgName: string | null | undefined;
+  size?: "medium" | "small" | undefined;
 };
 
 export const ShadowIndicator: React.FC<Props> = props => {
   const classes = useStyles();
-  const { isShadow, orgName } = props;
+  const { isShadow, orgName, size = "small" } = props;
 
   return isShadow ? (
     <Chip
-      size="small"
+      size={size}
       icon={<LockOutlined />}
       label={orgName}
       classes={{

@@ -45,7 +45,7 @@ type Props = {
     isEmployee: boolean;
     isReplacementEmployee: boolean;
     isShadowRecord: boolean;
-    shadowFromOrgName: string | null | undefined;
+    shadowFromOrgName?: string | null | undefined;
   };
   orgStatus?: OrganizationType | null | undefined;
   selectedRole?: OrgUserRole | null;
@@ -283,11 +283,12 @@ export const PersonViewHeader: React.FC<Props> = props => {
         onCancel={() => props.setEditing(null)}
         isSubHeader={true}
         showLabel={true}
-      />
-      <ShadowIndicator
-        orgName={orgUser.shadowFromOrgName}
-        isShadow={orgUser.isShadowRecord}
-      />
+      >
+        <ShadowIndicator
+          orgName={orgUser.shadowFromOrgName}
+          isShadow={orgUser.isShadowRecord}
+        />
+      </PageHeader>
     </>
   );
 };

@@ -162,6 +162,7 @@ export const PageHeader: React.FC<Props> = props => {
             ) : (
               editButton
             ))}
+          {props.children}
         </Grid>
       </Grid>
     );
