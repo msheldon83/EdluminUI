@@ -243,6 +243,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         TranslateAbsenceErrorCodeToMessage
       );
     },
+    refetchQueries: ["GetAbsence"],
   });
 
   const useProjectedInformation =
