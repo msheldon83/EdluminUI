@@ -39,6 +39,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
     async (updatedValues: {
       allowNegativeBalance: boolean;
       description?: string;
+      isRestricted: boolean;
       absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
     }) => {
       if (result.state !== "DONE") {
@@ -48,16 +49,18 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
       const {
         allowNegativeBalance,
         description,
+        isRestricted,
         absenceReasonTrackingTypeId: absenceReasonTrackingId,
       } = updatedValues;
       await mutation({
         variables: {
           absenceReason: {
-            id:reason.id,
+            id: reason.id,
             rowVersion: reason.rowVersion,
             allowNegativeBalance,
             isBucket: false,
             description,
+            isRestricted,
             absenceReasonTrackingId,
           },
         },
@@ -80,6 +83,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
       <AbsenceReasonSettings
         description={absenceReason.description || undefined}
         allowNegativeBalance={absenceReason.allowNegativeBalance}
+        isRestricted={absenceReason.isRestricted}
         absenceReasonTrackingTypeId={
           absenceReason.absenceReasonTrackingTypeId || undefined
         }

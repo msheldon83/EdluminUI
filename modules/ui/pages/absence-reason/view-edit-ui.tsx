@@ -26,6 +26,7 @@ type Props = {
   externalId?: string;
   name: string;
   rowVersion: string;
+  isRestricted: boolean;
   description?: string;
   allowNegativeBalance: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
@@ -156,6 +157,12 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
             <Typography variant="h6">{t("Allow negative balances")}</Typography>
             <Typography variant="body1">
               {displayBool(props.allowNegativeBalance)}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">{t("Restrict absence reason")}</Typography>
+            <Typography variant="body1">
+              {displayBool(props.isRestricted)}
             </Typography>
           </Grid>
         </Grid>

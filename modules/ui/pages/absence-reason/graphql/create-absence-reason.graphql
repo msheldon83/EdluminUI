@@ -15,6 +15,7 @@ mutation CreateAbsenceReason($absenceReason: AbsenceReasonCreateInput!) {
       limitPerDay
       prioritySequence
       expired
+      isRestricted
     }
   }
 }

@@ -21,11 +21,13 @@ import * as yup from "yup";
 type Props = {
   description?: string;
   allowNegativeBalance: boolean;
+  isRestricted: boolean;
   // isBucket: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   onSubmit: (updatedValues: {
     allowNegativeBalance: boolean;
     // isBucket: boolean;
+    isRestricted: boolean;
     description?: string;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   }) => Promise<void>;
@@ -41,6 +43,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
   const initialValues = pick(props, [
     "description",
     "allowNegativeBalance",
+    "isRestricted",
     // "isBucket",
     "absenceReasonTrackingTypeId",
   ]);
@@ -54,6 +57,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
         validationSchema={yup.object().shape({
           // isBucket: yup.boolean(),
           allowNegativeBalances: yup.boolean(),
+          isRestricted: yup.boolean(),
         })}
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
@@ -109,6 +113,28 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
                   "allowNegativeBalance",
                   e.target.value === "true"
                 );
+              }}
+              row={!isMobile}
+            >
+              <FormControlLabel
+                value={false}
+                control={<Radio color="primary" />}
+                label={t("No")}
+                labelPlacement="end"
+              />
+              <FormControlLabel
+                value={true}
+                control={<Radio color="primary" />}
+                label={t("Yes")}
+                labelPlacement="end"
+              />
+            </RadioGroup>
+            <RadioGroup
+              aria-label="isRestricted"
+              name="isRestricted"
+              value={values.isRestricted}
+              onChange={e => {
+                setFieldValue("isRestricted", e.target.value === "true");
               }}
               row={!isMobile}
             >
