@@ -1700,6 +1700,7 @@ enum EventType {
   VACANCY_DETAIL_CLOSED_BY_CALENDAR_CHANGE
   VACANCY_DETAIL_ALTERED_BY_CALENDAR_CHANGE
   VACANCY_DETAIL_RESTORED_BY_CALENDAR_CHANGE_DELETE
+  VACANCY_REQUESTED_SUB_RESERVED_EXPIRED
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
@@ -2999,6 +3000,7 @@ enum PermissionEnum {
   ABS_VAC_VIEW
   ABS_VAC_VIEW_ACCOUNT_CODE
   ABS_VAC_VIEW_PAY_CODE
+  ABS_VAC_VIEW_NOTIFICATION_LOG
   ABS_VAC_SAVE
   ABS_VAC_DELETE
   ABS_VAC_REMOVE_SUB
@@ -4990,6 +4992,7 @@ input VacancyDetailInput {
   locationId: ID
   payCodeId: ID
   accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
+  vacancyReasonId: ID
 }
 
 input VacancyDetailVerifyInput {
@@ -5064,7 +5067,7 @@ type VacancyNotificationLog {
   vacancy: Vacancy!
   employeeId: ID!
   employee: Employee!
-  createdUtc: DateTime
+  createdUtc: DateTime!
   sentAtUtc: DateTime
   statusAsOfUtc: DateTime
   numFailedSendAttempts: Short!

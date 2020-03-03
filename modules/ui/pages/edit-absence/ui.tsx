@@ -602,11 +602,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 className={classes.actionMenu}
                 options={[
                   {
-                    name: t("Delete"),
-                    onClick: () => props.onDelete(),
-                    permissions: [PermissionEnum.AbsVacDelete],
-                  },
-                  {
                     name: t("Notification Log"),
                     onClick: () => {
                       history.push(
@@ -617,11 +612,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                         })
                       );
                     },
-                    permissions: (
-                      permissions: OrgUserPermissions[],
-                      isSysAdmin: boolean,
-                      orgId?: string
-                    ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+                    permissions: [PermissionEnum.AbsVacViewNotificationLog],
                   },
                 ]}
               />

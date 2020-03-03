@@ -444,7 +444,10 @@ export function App() {
                                 <ProtectedRoute
                                   component={VacancyNotificationLogLoader}
                                   path={VacancyNotificationLogRoute.path}
-                                  role={"sysAdmin"}
+                                  role={"admin"}
+                                  permissions={[
+                                    PermissionEnum.AbsVacViewNotificationLog,
+                                  ]}
                                 />
                                 <ProtectedRoute
                                   component={AdminEditAbsenceLoader}
