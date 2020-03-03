@@ -16,6 +16,7 @@ import { AdminChromeRoute, AppChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
 import { SearchBar } from "./search-bar";
 import { UserMenu } from "./user-menu";
+import { useAppConfig, AppConfig } from "hooks/app-config";
 
 type Props = { contentClassName?: string };
 
@@ -25,7 +26,8 @@ export const TopBar: React.FC<Props> = props => {
   const [subMenuAnchor, setSubMenuAnchor] = React.useState<null | HTMLElement>(
     null
   );
-  const mobileToolbarClasses = useMobileToolbarClasses();
+  const { appConfig } = useAppConfig();
+  const mobileToolbarClasses = useMobileToolbarClasses(appConfig);
   const params = useRouteParams(AppChromeRoute);
 
   return (
@@ -102,12 +104,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const useMobileToolbarClasses = makeStyles(theme => ({
+const useMobileToolbarClasses = makeStyles<any, AppConfig>(theme => ({
   root: {
     background: theme.customColors.white,
     boxSizing: "border-box",
-    maxWidth: theme.customSpacing.contentWidth,
     paddingLeft: 0,
+    maxWidth: props => props.contentWidth,
     paddingRight: theme.spacing(3),
   },
 }));
