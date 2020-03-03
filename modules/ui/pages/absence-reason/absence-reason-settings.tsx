@@ -129,6 +129,9 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
                 labelPlacement="end"
               />
             </RadioGroup>
+            <Typography variant="h6" className={classes.label}>
+              {t("Is this absence reason restricted?")}
+            </Typography>
             <RadioGroup
               aria-label="isRestricted"
               name="isRestricted"
