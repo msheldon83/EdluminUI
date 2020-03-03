@@ -10,7 +10,6 @@ import {
 import {
   PermissionCategoryIdentifierInput,
   PermissionCategory,
-  PermissionEnum,
 } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -19,26 +18,33 @@ import { OptionTypeBase } from "react-select/src/types";
 import { Select, SelectValueType } from "ui/components/form/select";
 import { useMemo, useState, useEffect } from "react";
 import { ExpandMore } from "@material-ui/icons";
-import { Can } from "ui/components/auth/can";
 
 type Props = {
   orgId: string;
   permissionDefinitions: PermissionCategory[];
   permissionSetCategories: PermissionCategoryIdentifierInput[];
+  editable: boolean;
   onChange: (
     categories: PermissionCategoryIdentifierInput[]
   ) => Promise<unknown>;
 };
 
 export const PermissionSettings: React.FC<Props> = props => {
+  const {
+    permissionSetCategories,
+    permissionDefinitions,
+    orgId,
+    onChange,
+    editable,
+  } = props;
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
   const [categories, setCategories] = useState<
     PermissionCategoryIdentifierInput[]
-  >(props.permissionSetCategories);
+  >(permissionSetCategories);
 
-  if (props.permissionDefinitions.length === 0) {
+  if (permissionDefinitions.length === 0) {
     // The permission definitions haven't been loaded yet
     return <></>;
   }
@@ -60,11 +66,11 @@ export const PermissionSettings: React.FC<Props> = props => {
       }
     );
     setCategories(updatedCategories);
-    await props.onChange(updatedCategories);
+    await onChange(updatedCategories);
   };
   if (!categories || categories.length === 0) {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    seedPermissionCategories(props.permissionDefinitions);
+    seedPermissionCategories(permissionDefinitions);
   }
 
   const getSelectedLevel = (
@@ -114,12 +120,12 @@ export const PermissionSettings: React.FC<Props> = props => {
     }
     matchingSetting.levelId = levelId;
     setCategories(updatedCategories);
-    await props.onChange(updatedCategories);
+    await onChange(updatedCategories);
   };
 
   return (
     <>
-      {props.permissionDefinitions.map(pd => {
+      {permissionDefinitions.map(pd => {
         const categoryId = pd.categoryId;
         return (
           <ExpansionPanel defaultExpanded={true} key={categoryId}>
@@ -169,7 +175,7 @@ export const PermissionSettings: React.FC<Props> = props => {
                       </Grid>
                       <Grid item xs={8}>
                         <div className={classes.levelSelect}>
-                          <Can do={[PermissionEnum.PermissionSetSave]}>
+                          {editable ? (
                             <Select
                               value={selectedLevel}
                               label=""
@@ -195,10 +201,9 @@ export const PermissionSettings: React.FC<Props> = props => {
                                 );
                               }}
                             />
-                          </Can>
-                          <Can not do={[PermissionEnum.PermissionSetSave]}>
-                            {selectedLevel.label}
-                          </Can>
+                          ) : (
+                            selectedLevel.label
+                          )}
                         </div>
                       </Grid>
                     </Grid>

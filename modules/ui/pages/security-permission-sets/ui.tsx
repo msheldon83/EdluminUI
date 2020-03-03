@@ -16,6 +16,7 @@ import { GetAllPermissionSetsWithinOrg } from "./graphql/get-all-permission-sets
 import { useIsMobile } from "hooks";
 import { OrgUserRoles } from "reference-data/org-user-roles";
 import { OrgUserRole } from "graphql/server-types.gen";
+import { ShadowIndicator } from "ui/components/shadow-indicator";
 
 type Props = {
   rolesFilter?: OrgUserRole[];
@@ -47,6 +48,15 @@ export const PermissionSetUI: React.FC<Props> = props => {
       field: "name",
       defaultSort: "asc",
       searchable: true,
+      render: rowData => (
+        <>
+          <span>{rowData.name} </span>
+          <ShadowIndicator
+            isShadow={rowData.isShadowRecord}
+            orgName={rowData.shadowFromOrgName}
+          />
+        </>
+      ),
     },
     {
       title: t("Role"),

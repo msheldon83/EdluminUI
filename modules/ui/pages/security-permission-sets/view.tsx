@@ -28,6 +28,9 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { PermissionSettings } from "./components/add-edit-permission-settings";
 import { usePermissionDefinitions } from "reference-data/permission-definitions";
 import { pick } from "lodash-es";
+import { ShadowIndicator } from "ui/components/shadow-indicator";
+import { canEditPermissionSet } from "helpers/permissions";
+import { useCanDo } from "ui/components/auth/can";
 
 const editableSections = {
   name: "edit-name",
@@ -45,6 +48,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
   const [editing, setEditing] = useState<string | null>(null);
   const [role, setRole] = useState<OrgUserRole | undefined>(undefined);
   const permissionDefinitions = usePermissionDefinitions(role);
+  const canDoFn = useCanDo();
 
   const [deletePermissionSetMutation] = useMutationBundle(DeletePermissionSet, {
     onError: error => {
@@ -157,6 +161,13 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
     });
   };
 
+  const userCanEdit = canDoFn(
+    canEditPermissionSet,
+    undefined,
+    undefined,
+    permissionSet
+  );
+
   return (
     <>
       <PageTitle title={t("Permission Set")} withoutHeading={!isMobile} />
@@ -178,7 +189,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         label={t("Name")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.name)}
-        editPermissions={[PermissionEnum.PermissionSetSave]}
+        editPermissions={canEditPermissionSet}
         validationSchema={yup.object().shape({
           value: yup.string().required(t("Name is required")),
         })}
@@ -204,7 +215,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         label={t("External ID")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
-        editPermissions={[PermissionEnum.PermissionSetSave]}
+        editPermissions={canEditPermissionSet}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
@@ -215,13 +226,18 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         onCancel={() => setEditing(null)}
         isSubHeader={true}
         showLabel={true}
-      />
+      >
+        <ShadowIndicator
+          isShadow={permissionSet.isShadowRecord}
+          orgName={permissionSet.shadowFromOrgName}
+        />
+      </PageHeader>
       <PageHeader
         text={permissionSet.description}
         label={t("Description")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.description)}
-        editPermissions={[PermissionEnum.PermissionSetSave]}
+        editPermissions={canEditPermissionSet}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
@@ -238,6 +254,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         orgId={params.organizationId}
         permissionDefinitions={permissionDefinitions}
         permissionSetCategories={permissionSet.categories}
+        editable={userCanEdit}
         onChange={async categories => {
           await updateCategories(categories);
         }}
