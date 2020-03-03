@@ -249,7 +249,6 @@ import {
   UserNotificationLogRoute,
   UserNotificationLogLoader,
 } from "./routes/notification-log";
-import { AppConfigProvider } from "hooks/app-config";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 

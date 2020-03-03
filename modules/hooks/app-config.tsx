@@ -18,7 +18,11 @@ const Context = React.createContext<ContextValue>({
 });
 
 export const AppConfigProvider = ({ children }: { children: any }) => {
-  const [appConfig, setAppConfig] = React.useState({});
+  const theme = useTheme();
+
+  const [appConfig, setAppConfig] = React.useState<AppConfig>({
+    contentWidth: theme.customSpacing.contentWidth,
+  });
 
   const store = {
     appConfig,
