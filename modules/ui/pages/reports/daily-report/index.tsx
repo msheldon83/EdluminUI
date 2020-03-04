@@ -1,5 +1,5 @@
 import { Button, Grid } from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles, useTheme } from "@material-ui/styles";
 import clsx from "clsx";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
@@ -18,6 +18,7 @@ import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { useLocation } from "react-router";
 import { useEffect } from "react";
+import { AppConfig } from "hooks/app-config";
 
 type Props = {};
 
@@ -41,7 +42,7 @@ export const DailyReportPage: React.FC<Props> = () => {
   }, [location]);
 
   return (
-    <>
+    <AppConfig contentWidth="100%">
       <Grid
         container
         justify="space-between"
@@ -91,7 +92,7 @@ export const DailyReportPage: React.FC<Props> = () => {
           </Can>
         </div>
       </MobileActionBar>
-    </>
+    </AppConfig>
   );
 };
 

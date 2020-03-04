@@ -249,6 +249,7 @@ import {
   UserNotificationLogRoute,
   UserNotificationLogLoader,
 } from "./routes/notification-log";
+import { AppConfigProvider } from "hooks/app-config";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -257,709 +258,746 @@ export function App() {
 
   return (
     <ThemeProvider theme={EdluminTheme}>
-      <CssBaseline />
-      <div className={classes.container}>
-        <div className={classes.main}>
-          <Switch>
-            <Route exact path={"/login"} component={LoginPageRouteLoader} />
-            <Route exact path={"/"}>
-              <IfAuthenticated>
-                <Route exact component={IndexLoader} path={"/"} />
-              </IfAuthenticated>
-              <IfAuthenticated not>
-                <RedirectToLogin />
-              </IfAuthenticated>
-            </Route>
-            <Route
-              exact
-              component={UnauthorizedLoader}
-              path={UnauthorizedRoute.path}
-            />
-            <Route path={SubSignInRoute.path}>
-              <AdminRouteOrganizationContextProvider>
+      <AppConfigProvider>
+        <CssBaseline />
+        <div className={classes.container}>
+          <div className={classes.main}>
+            <Switch>
+              <Route exact path={"/login"} component={LoginPageRouteLoader} />
+              <Route exact path={"/"}>
                 <IfAuthenticated>
-                  <IfHasRole role={OrgUserRole.Administrator}>
-                    <ProtectedRoute
-                      component={SubSignInLoader}
-                      path={SubSignInRoute.path}
-                      role={"admin"}
-                    />
-                  </IfHasRole>
+                  <Route exact component={IndexLoader} path={"/"} />
                 </IfAuthenticated>
                 <IfAuthenticated not>
                   <RedirectToLogin />
                 </IfAuthenticated>
-              </AdminRouteOrganizationContextProvider>
-            </Route>
-            <Route path={AppChromeRoute.path}>
-              <IfAuthenticated>
-                <AppChrome>
-                  <Switch>
-                    {/* Protected routes go here */}
+              </Route>
+              <Route
+                exact
+                component={UnauthorizedLoader}
+                path={UnauthorizedRoute.path}
+              />
+              <Route path={SubSignInRoute.path}>
+                <AdminRouteOrganizationContextProvider>
+                  <IfAuthenticated>
+                    <IfHasRole role={OrgUserRole.Administrator}>
+                      <ProtectedRoute
+                        component={SubSignInLoader}
+                        path={SubSignInRoute.path}
+                        role={"admin"}
+                      />
+                    </IfHasRole>
+                  </IfAuthenticated>
+                  <IfAuthenticated not>
+                    <RedirectToLogin />
+                  </IfAuthenticated>
+                </AdminRouteOrganizationContextProvider>
+              </Route>
+              <Route path={AppChromeRoute.path}>
+                <IfAuthenticated>
+                  <AppChrome>
+                    <Switch>
+                      {/* Protected routes go here */}
 
-                    <Route component={ProfileLoader} path={ProfileRoute.path} />
+                      <Route
+                        component={ProfileLoader}
+                        path={ProfileRoute.path}
+                      />
 
-                    {/* Page under construction */}
-                    <Route component={TbdLoader} path={tbd.path} />
+                      {/* Page under construction */}
+                      <Route component={TbdLoader} path={tbd.path} />
 
-                    {/* Employee routes go here */}
-                    <Route path={EmployeeChromeRoute.path}>
-                      <IfHasRole role={OrgUserRole.Employee}>
-                        <Switch>
-                          <Route
-                            component={UnauthorizedLoader}
-                            path={UnauthorizedEmployeeRoleRoute.path}
-                          />
-                          <Route
-                            component={CreateAbsenceConfirmationLoader}
-                            path={CreateAbsenceConfirmationRoute.path}
-                          />
-                          <Route
-                            component={EmployeeCreateAbsenceLoader}
-                            path={EmployeeCreateAbsenceRoute.path}
-                          />
-                          <Route path={EmployeeEditAbsenceRoute.path}>
-                            <AdminEditAbsenceLoader actingAsEmployee />
-                          </Route>
-                          <ProtectedRoute
-                            component={EmployeePtoBalanceLoader}
-                            path={EmployeePtoBalanceRoute.path}
-                            role={"employee"}
-                            permissions={[PermissionEnum.EmployeeViewBalances]}
-                          />
-                          <Route
-                            path={EmployeeSubPreferenceRoute.path}
-                            component={EmployeeSubPreferenceRouteLoader}
-                          />
+                      {/* Employee routes go here */}
+                      <Route path={EmployeeChromeRoute.path}>
+                        <IfHasRole role={OrgUserRole.Employee}>
+                          <Switch>
+                            <Route
+                              component={UnauthorizedLoader}
+                              path={UnauthorizedEmployeeRoleRoute.path}
+                            />
+                            <Route
+                              component={CreateAbsenceConfirmationLoader}
+                              path={CreateAbsenceConfirmationRoute.path}
+                            />
+                            <Route
+                              component={EmployeeCreateAbsenceLoader}
+                              path={EmployeeCreateAbsenceRoute.path}
+                            />
+                            <Route path={EmployeeEditAbsenceRoute.path}>
+                              <AdminEditAbsenceLoader actingAsEmployee />
+                            </Route>
+                            <ProtectedRoute
+                              component={EmployeePtoBalanceLoader}
+                              path={EmployeePtoBalanceRoute.path}
+                              role={"employee"}
+                              permissions={[
+                                PermissionEnum.EmployeeViewBalances,
+                              ]}
+                            />
+                            <Route
+                              path={EmployeeSubPreferenceRoute.path}
+                              component={EmployeeSubPreferenceRouteLoader}
+                            />
 
-                          <Route path={EmployeeScheduleCalendarViewRoute.path}>
-                            <EmployeeScheduleLoader view="calendar" />
-                          </Route>
-                          <Route path={EmployeeScheduleListViewRoute.path}>
-                            <EmployeeScheduleLoader view="list" />
-                          </Route>
-                          <Route path={EmployeeScheduleRoute.path}>
-                            <EmployeeScheduleLoader view="list" />
-                          </Route>
-                          <Route
-                            path={EmpMobileSearchRoute.path}
-                            component={EmployeeMobileSearchLoader}
-                          />
-                          <Route
-                            component={EmployeeHomeLoader}
-                            path={EmployeeHomeRoute.path}
-                          />
-                        </Switch>
-                      </IfHasRole>
-                      <IfHasRole role={OrgUserRole.Employee} not>
-                        <Redirect to={UnauthorizedRoute.generate({})} />
-                      </IfHasRole>
-                    </Route>
+                            <Route
+                              path={EmployeeScheduleCalendarViewRoute.path}
+                            >
+                              <EmployeeScheduleLoader view="calendar" />
+                            </Route>
+                            <Route path={EmployeeScheduleListViewRoute.path}>
+                              <EmployeeScheduleLoader view="list" />
+                            </Route>
+                            <Route path={EmployeeScheduleRoute.path}>
+                              <EmployeeScheduleLoader view="list" />
+                            </Route>
+                            <Route
+                              path={EmpMobileSearchRoute.path}
+                              component={EmployeeMobileSearchLoader}
+                            />
+                            <Route
+                              component={EmployeeHomeLoader}
+                              path={EmployeeHomeRoute.path}
+                            />
+                          </Switch>
+                        </IfHasRole>
+                        <IfHasRole role={OrgUserRole.Employee} not>
+                          <Redirect to={UnauthorizedRoute.generate({})} />
+                        </IfHasRole>
+                      </Route>
 
-                    {/* Sub routes go here */}
-                    <Route path={SubstituteChromeRoute.path}>
-                      <IfHasRole role={OrgUserRole.ReplacementEmployee}>
-                        <Switch>
-                          <Route
-                            component={UnauthorizedLoader}
-                            path={UnauthorizedSubstituteRoleRoute.path}
-                          />
-                          <Route
-                            component={SubAvailabilityLoader}
-                            path={SubAvailabilityRoute.path}
-                          />
-                          <Route path={SubScheduleCalendarViewRoute.path}>
-                            <SubScheduleLoader view="calendar" />
-                          </Route>
-                          <Route path={SubScheduleListViewRoute.path}>
-                            <SubScheduleLoader view="list" />
-                          </Route>
-                          <Route path={SubScheduleRoute.path}>
-                            <SubScheduleLoader view="list" />
-                          </Route>
-                          <Route
-                            component={SubPreferencesLoader}
-                            path={SubPreferencesRoute.path}
-                          />
-                          <Route
-                            component={SubSpecificOpportunityLoader}
-                            path={SubSpecificOpportunityRoute.path}
-                          />
-                          <Route
-                            component={SubSpecificAssignmentLoader}
-                            path={SubSpecificAssignmentRoute.path}
-                          />
-                          <Route
-                            path={SubMobileSearchRoute.path}
-                            component={SubstituteMobileSearchLoader}
-                          />
-                          <Route
-                            component={SubHomeLoader}
-                            path={SubHomeRoute.path}
-                          />
-                        </Switch>
-                      </IfHasRole>
-                      <IfHasRole role={OrgUserRole.ReplacementEmployee} not>
-                        <Redirect to={UnauthorizedRoute.generate({})} />
-                      </IfHasRole>
-                    </Route>
+                      {/* Sub routes go here */}
+                      <Route path={SubstituteChromeRoute.path}>
+                        <IfHasRole role={OrgUserRole.ReplacementEmployee}>
+                          <Switch>
+                            <Route
+                              component={UnauthorizedLoader}
+                              path={UnauthorizedSubstituteRoleRoute.path}
+                            />
+                            <Route
+                              component={SubAvailabilityLoader}
+                              path={SubAvailabilityRoute.path}
+                            />
+                            <Route path={SubScheduleCalendarViewRoute.path}>
+                              <SubScheduleLoader view="calendar" />
+                            </Route>
+                            <Route path={SubScheduleListViewRoute.path}>
+                              <SubScheduleLoader view="list" />
+                            </Route>
+                            <Route path={SubScheduleRoute.path}>
+                              <SubScheduleLoader view="list" />
+                            </Route>
+                            <Route
+                              component={SubPreferencesLoader}
+                              path={SubPreferencesRoute.path}
+                            />
+                            <Route
+                              component={SubSpecificOpportunityLoader}
+                              path={SubSpecificOpportunityRoute.path}
+                            />
+                            <Route
+                              component={SubSpecificAssignmentLoader}
+                              path={SubSpecificAssignmentRoute.path}
+                            />
+                            <Route
+                              path={SubMobileSearchRoute.path}
+                              component={SubstituteMobileSearchLoader}
+                            />
+                            <Route
+                              component={SubHomeLoader}
+                              path={SubHomeRoute.path}
+                            />
+                          </Switch>
+                        </IfHasRole>
+                        <IfHasRole role={OrgUserRole.ReplacementEmployee} not>
+                          <Redirect to={UnauthorizedRoute.generate({})} />
+                        </IfHasRole>
+                      </Route>
 
-                    <Route path={AdminRootChromeRoute.path}>
-                      <IfHasRole role={OrgUserRole.Administrator}>
-                        {/* Admin routes go here*/}
-                        <Switch>
-                          {/* Admin page under construction */}
-                          <Route component={TbdLoader} path={adminTbd.path} />
+                      <Route path={AdminRootChromeRoute.path}>
+                        <IfHasRole role={OrgUserRole.Administrator}>
+                          {/* Admin routes go here*/}
+                          <Switch>
+                            {/* Admin page under construction */}
+                            <Route component={TbdLoader} path={adminTbd.path} />
 
-                          {/*We will need to figure out how to prevent non admin users from accessing this route */}
-                          <Route exact path={AdminRootChromeRoute.path}>
-                            <OrganizationsLoader redirectIfOneOrg />
-                          </Route>
-                          <Route
-                            component={OrganizationsLoader}
-                            path={OrganizationsRoute.path}
-                          />
-                          <ProtectedRoute
-                            component={UserNotificationLogLoader}
-                            path={UserNotificationLogRoute.path}
-                            role={"sysAdmin"}
-                          />
-                          <ProtectedRoute
-                            component={UserViewLoader}
-                            path={UserViewRoute.path}
-                            role={"sysAdmin"}
-                          />
-                          <ProtectedRoute
-                            component={UsersLoader}
-                            path={UsersRoute.path}
-                            role={"sysAdmin"}
-                          />
-                          <Route path={AdminChromeRoute.path}>
-                            <AdminRouteOrganizationContextProvider>
-                              <Switch>
-                                <Route
-                                  component={UnauthorizedLoader}
-                                  path={UnauthorizedAdminRoleRoute.path}
-                                />
-                                <ProtectedRoute
-                                  component={VacancyNotificationLogLoader}
-                                  path={VacancyNotificationLogRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacViewNotificationLog,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={AdminEditAbsenceLoader}
-                                  path={AdminEditAbsenceRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.AbsVacView]}
-                                />
-                                <ProtectedRoute
-                                  component={CreateAbsenceLoader}
-                                  path={AdminCreateAbsenceRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.AbsVacSave]}
-                                />
-                                <ProtectedRoute
-                                  path={EmployeeSubstitutePreferenceRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.EmployeeSave]}
-                                >
-                                  <EmployeeSubstitutePreferenceLoader />
-                                </ProtectedRoute>
+                            {/*We will need to figure out how to prevent non admin users from accessing this route */}
+                            <Route exact path={AdminRootChromeRoute.path}>
+                              <OrganizationsLoader redirectIfOneOrg />
+                            </Route>
+                            <Route
+                              component={OrganizationsLoader}
+                              path={OrganizationsRoute.path}
+                            />
+                            <ProtectedRoute
+                              component={UserNotificationLogLoader}
+                              path={UserNotificationLogRoute.path}
+                              role={"sysAdmin"}
+                            />
+                            <ProtectedRoute
+                              component={UserViewLoader}
+                              path={UserViewRoute.path}
+                              role={"sysAdmin"}
+                            />
+                            <ProtectedRoute
+                              component={UsersLoader}
+                              path={UsersRoute.path}
+                              role={"sysAdmin"}
+                            />
+                            <Route path={AdminChromeRoute.path}>
+                              <AdminRouteOrganizationContextProvider>
+                                <Switch>
+                                  <Route
+                                    component={UnauthorizedLoader}
+                                    path={UnauthorizedAdminRoleRoute.path}
+                                  />
+                                  <ProtectedRoute
+                                    component={VacancyNotificationLogLoader}
+                                    path={VacancyNotificationLogRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacViewNotificationLog,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={AdminEditAbsenceLoader}
+                                    path={AdminEditAbsenceRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.AbsVacView]}
+                                  />
+                                  <ProtectedRoute
+                                    component={CreateAbsenceLoader}
+                                    path={AdminCreateAbsenceRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.AbsVacSave]}
+                                  />
+                                  <ProtectedRoute
+                                    path={
+                                      EmployeeSubstitutePreferenceRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.EmployeeSave]}
+                                  >
+                                    <EmployeeSubstitutePreferenceLoader />
+                                  </ProtectedRoute>
 
-                                <ProtectedRoute
-                                  component={
-                                    SelectEmployeeForCreateAbsenceLoader
-                                  }
-                                  path={
-                                    AdminSelectEmployeeForCreateAbsenceRoute.path
-                                  }
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.AbsVacSave]}
-                                />
-                                <ProtectedRoute
-                                  path={
-                                    EmployeeAbsScheduleCalendarViewRoute.path
-                                  }
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.EmployeeView]}
-                                >
-                                  <EmployeeAbsScheduleLoader view="calendar" />
-                                </ProtectedRoute>
+                                  <ProtectedRoute
+                                    component={
+                                      SelectEmployeeForCreateAbsenceLoader
+                                    }
+                                    path={
+                                      AdminSelectEmployeeForCreateAbsenceRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.AbsVacSave]}
+                                  />
+                                  <ProtectedRoute
+                                    path={
+                                      EmployeeAbsScheduleCalendarViewRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.EmployeeView]}
+                                  >
+                                    <EmployeeAbsScheduleLoader view="calendar" />
+                                  </ProtectedRoute>
 
-                                <ProtectedRoute
-                                  path={EmployeeAbsScheduleListViewRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.EmployeeView]}
-                                >
-                                  <EmployeeAbsScheduleLoader view="list" />
-                                </ProtectedRoute>
-                                <ProtectedRoute
-                                  component={EmployeeAbsScheduleLoader}
-                                  path={EmployeeAbsScheduleRoute.path}
-                                  role={"admin"}
-                                />
+                                  <ProtectedRoute
+                                    path={EmployeeAbsScheduleListViewRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.EmployeeView]}
+                                  >
+                                    <EmployeeAbsScheduleLoader view="list" />
+                                  </ProtectedRoute>
+                                  <ProtectedRoute
+                                    component={EmployeeAbsScheduleLoader}
+                                    path={EmployeeAbsScheduleRoute.path}
+                                    role={"admin"}
+                                  />
 
-                                <ProtectedRoute
-                                  path={
-                                    SubstituteAssignmentScheduleCalendarViewRoute.path
-                                  }
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.SubstituteView]}
-                                >
-                                  <SubstituteAssignmentScheduleLoader view="calendar" />
-                                </ProtectedRoute>
+                                  <ProtectedRoute
+                                    path={
+                                      SubstituteAssignmentScheduleCalendarViewRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.SubstituteView,
+                                    ]}
+                                  >
+                                    <SubstituteAssignmentScheduleLoader view="calendar" />
+                                  </ProtectedRoute>
 
-                                <ProtectedRoute
-                                  path={
-                                    SubstituteAssignmentScheduleListViewRoute.path
-                                  }
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.SubstituteView]}
-                                >
-                                  <SubstituteAssignmentScheduleLoader view="list" />
-                                </ProtectedRoute>
-                                <ProtectedRoute
-                                  component={SubstituteAssignmentScheduleLoader}
-                                  path={SubstituteAssignmentScheduleRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.SubstituteView]}
-                                />
-                                <ProtectedRoute
-                                  component={PeopleSubRelatedOrgsEditLoader}
-                                  path={PeopleSubRelatedOrgsEditRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.SubstituteSave]}
-                                />
-                                <ProtectedRoute
-                                  component={PeopleSubPoolEditLoader}
-                                  path={PeopleSubPoolEditRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.SubstituteSave]}
-                                />
-                                <ProtectedRoute
-                                  component={
-                                    PeopleReplacementCriteriaEditLoader
-                                  }
-                                  path={PeopleReplacementCriteriaEditRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.EmployeeSave]}
-                                />
-                                <ProtectedRoute
-                                  component={
-                                    PeopleSubPositionsAttributesEditLoader
-                                  }
-                                  path={
-                                    PeopleSubPositionsAttributesEditRoute.path
-                                  }
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.SubstituteSave]}
-                                />
-                                <ProtectedRoute
-                                  component={PeopleEmployeePositionEditLoader}
-                                  path={PeopleEmployeePositionEditRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.EmployeeSave]}
-                                />
-                                <ProtectedRoute
-                                  component={AdminAddLoader}
-                                  path={AdminAddRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.AdminSave]}
-                                />
-                                <ProtectedRoute
-                                  component={EmployeeAddLoader}
-                                  path={EmployeeAddRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.EmployeeSave]}
-                                />
-                                <ProtectedRoute
-                                  component={SubstituteAddLoader}
-                                  path={SubstituteAddRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.SubstituteSave]}
-                                />
-                                <ProtectedRoute
-                                  component={PersonViewLoader}
-                                  path={PersonViewRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AdminView,
-                                    PermissionEnum.EmployeeView,
-                                    PermissionEnum.SubstituteView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={PeopleLoader}
-                                  path={PeopleRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AdminView,
-                                    PermissionEnum.EmployeeView,
-                                    PermissionEnum.SubstituteView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={OrgSettingsLoader}
-                                  path={OrgSettingsRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.GeneralSettingsView,
-                                    PermissionEnum.ScheduleSettingsView,
-                                    PermissionEnum.AbsVacSettingsView,
-                                    PermissionEnum.FinanceSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={ReplacementCriteriaEditLoader}
-                                  path={ReplacementCriteriaEditRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.FinanceSettingsSave,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={PositionTypeAddLoader}
-                                  path={PositionTypeAddRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.FinanceSettingsSave,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={PositionTypeEditSettingsLoader}
-                                  path={PositionTypeEditSettingsRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.FinanceSettingsSave,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={PositionTypeViewLoader}
-                                  path={PositionTypeViewRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.FinanceSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={PositionTypeLoader}
-                                  path={PositionTypeRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.FinanceSettingsView,
-                                  ]}
-                                />
+                                  <ProtectedRoute
+                                    path={
+                                      SubstituteAssignmentScheduleListViewRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.SubstituteView,
+                                    ]}
+                                  >
+                                    <SubstituteAssignmentScheduleLoader view="list" />
+                                  </ProtectedRoute>
+                                  <ProtectedRoute
+                                    component={
+                                      SubstituteAssignmentScheduleLoader
+                                    }
+                                    path={
+                                      SubstituteAssignmentScheduleRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.SubstituteView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PeopleSubRelatedOrgsEditLoader}
+                                    path={PeopleSubRelatedOrgsEditRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.SubstituteSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PeopleSubPoolEditLoader}
+                                    path={PeopleSubPoolEditRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.SubstituteSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={
+                                      PeopleReplacementCriteriaEditLoader
+                                    }
+                                    path={
+                                      PeopleReplacementCriteriaEditRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.EmployeeSave]}
+                                  />
+                                  <ProtectedRoute
+                                    component={
+                                      PeopleSubPositionsAttributesEditLoader
+                                    }
+                                    path={
+                                      PeopleSubPositionsAttributesEditRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.SubstituteSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PeopleEmployeePositionEditLoader}
+                                    path={PeopleEmployeePositionEditRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.EmployeeSave]}
+                                  />
+                                  <ProtectedRoute
+                                    component={AdminAddLoader}
+                                    path={AdminAddRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.AdminSave]}
+                                  />
+                                  <ProtectedRoute
+                                    component={EmployeeAddLoader}
+                                    path={EmployeeAddRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.EmployeeSave]}
+                                  />
+                                  <ProtectedRoute
+                                    component={SubstituteAddLoader}
+                                    path={SubstituteAddRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.SubstituteSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PersonViewLoader}
+                                    path={PersonViewRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AdminView,
+                                      PermissionEnum.EmployeeView,
+                                      PermissionEnum.SubstituteView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PeopleLoader}
+                                    path={PeopleRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AdminView,
+                                      PermissionEnum.EmployeeView,
+                                      PermissionEnum.SubstituteView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={OrgSettingsLoader}
+                                    path={OrgSettingsRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.GeneralSettingsView,
+                                      PermissionEnum.ScheduleSettingsView,
+                                      PermissionEnum.AbsVacSettingsView,
+                                      PermissionEnum.FinanceSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={ReplacementCriteriaEditLoader}
+                                    path={ReplacementCriteriaEditRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.FinanceSettingsSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PositionTypeAddLoader}
+                                    path={PositionTypeAddRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.FinanceSettingsSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PositionTypeEditSettingsLoader}
+                                    path={PositionTypeEditSettingsRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.FinanceSettingsSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PositionTypeViewLoader}
+                                    path={PositionTypeViewRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.FinanceSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PositionTypeLoader}
+                                    path={PositionTypeRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.FinanceSettingsView,
+                                    ]}
+                                  />
 
-                                <ProtectedRoute
-                                  component={BellScheduleAddLoader}
-                                  path={BellScheduleAddRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.ScheduleSettingsSave,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={BellScheduleViewLoader}
-                                  path={BellScheduleViewRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.ScheduleSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={BellScheduleLoader}
-                                  path={BellScheduleRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.ScheduleSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={VerifyLoader}
-                                  path={VerifyRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.AbsVacVerify]}
-                                />
-                                <ProtectedRoute
-                                  component={BellScheduleVariantsLoader}
-                                  path={BellScheduleVariantsRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.ScheduleSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={AdminHomeLoader}
-                                  path={AdminHomeRoute.path}
-                                  role={"admin"}
-                                  exact
-                                />
-                                <ProtectedRoute
-                                  component={GeneralSettingsLoader}
-                                  path={GeneralSettingsRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.GeneralSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={CalendarChangeReasonLoader}
-                                  path={CalendarChangeReasonRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.ScheduleSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={ReplacementAttributeLoader}
-                                  path={ReplacementAttributeRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={VacancyReasonLoader}
-                                  path={VacancyReasonRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={AbsenceVacancyRulesLoader}
-                                  path={AbsenceVacancyRulesRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={SubstituteSettingsLoader}
-                                  path={SubstituteSettingsRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={AccountingCodeLoader}
-                                  path={AccountingCodeRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.FinanceSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={PayCodeLoader}
-                                  path={PayCodeRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.FinanceSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={AbsenceReasonAddLoader}
-                                  path={AbsenceReasonAddRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacSettingsSave,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={AbsenceReasonEditSettingsLoader}
-                                  path={AbsenceReasonEditSettingsRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacSettingsSave,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={AbsenceReasonViewEditLoader}
-                                  path={AbsenceReasonViewEditRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacSettingsView,
-                                  ]}
-                                />
+                                  <ProtectedRoute
+                                    component={BellScheduleAddLoader}
+                                    path={BellScheduleAddRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.ScheduleSettingsSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={BellScheduleViewLoader}
+                                    path={BellScheduleViewRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.ScheduleSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={BellScheduleLoader}
+                                    path={BellScheduleRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.ScheduleSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={VerifyLoader}
+                                    path={VerifyRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.AbsVacVerify]}
+                                  />
+                                  <ProtectedRoute
+                                    component={BellScheduleVariantsLoader}
+                                    path={BellScheduleVariantsRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.ScheduleSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={AdminHomeLoader}
+                                    path={AdminHomeRoute.path}
+                                    role={"admin"}
+                                    exact
+                                  />
+                                  <ProtectedRoute
+                                    component={GeneralSettingsLoader}
+                                    path={GeneralSettingsRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.GeneralSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={CalendarChangeReasonLoader}
+                                    path={CalendarChangeReasonRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.ScheduleSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={ReplacementAttributeLoader}
+                                    path={ReplacementAttributeRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={VacancyReasonLoader}
+                                    path={VacancyReasonRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={AbsenceVacancyRulesLoader}
+                                    path={AbsenceVacancyRulesRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={SubstituteSettingsLoader}
+                                    path={SubstituteSettingsRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={AccountingCodeLoader}
+                                    path={AccountingCodeRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.FinanceSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PayCodeLoader}
+                                    path={PayCodeRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.FinanceSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={AbsenceReasonAddLoader}
+                                    path={AbsenceReasonAddRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={AbsenceReasonEditSettingsLoader}
+                                    path={AbsenceReasonEditSettingsRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={AbsenceReasonViewEditLoader}
+                                    path={AbsenceReasonViewEditRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsView,
+                                    ]}
+                                  />
 
-                                <ProtectedRoute
-                                  component={AbsenceReasonLoader}
-                                  path={AbsenceReasonRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.AbsVacSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={ContractsLoader}
-                                  path={ContractsRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.FinanceSettingsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={LocationSubPrefLoader}
-                                  path={LocationSubPrefRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.LocationSave]}
-                                />
-                                <ProtectedRoute
-                                  component={LocationAddLoader}
-                                  path={LocationAddRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.LocationSave]}
-                                />
-                                <ProtectedRoute
-                                  component={LocationEditSettingsLoader}
-                                  path={LocationEditSettingsRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.LocationSave]}
-                                />
-                                <ProtectedRoute
-                                  component={LocationViewLoader}
-                                  path={LocationViewRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.LocationView]}
-                                />
-                                <ProtectedRoute
-                                  component={LocationsLoader}
-                                  path={LocationsRoute.path}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.LocationView]}
-                                />
-                                <ProtectedRoute
-                                  component={LocationGroupSubPrefLoader}
-                                  path={LocationGroupSubPrefRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.LocationGroupSave,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={LocationGroupViewLoader}
-                                  path={LocationGroupViewRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.LocationGroupView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={LocationGroupsLoader}
-                                  path={LocationGroupsRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.LocationGroupView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  path={CalendarListViewRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.CalendarChangeView,
-                                  ]}
-                                >
-                                  <CalendarsLoader view="list" />
-                                </ProtectedRoute>
+                                  <ProtectedRoute
+                                    component={AbsenceReasonLoader}
+                                    path={AbsenceReasonRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={ContractsLoader}
+                                    path={ContractsRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.FinanceSettingsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={LocationSubPrefLoader}
+                                    path={LocationSubPrefRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.LocationSave]}
+                                  />
+                                  <ProtectedRoute
+                                    component={LocationAddLoader}
+                                    path={LocationAddRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.LocationSave]}
+                                  />
+                                  <ProtectedRoute
+                                    component={LocationEditSettingsLoader}
+                                    path={LocationEditSettingsRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.LocationSave]}
+                                  />
+                                  <ProtectedRoute
+                                    component={LocationViewLoader}
+                                    path={LocationViewRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.LocationView]}
+                                  />
+                                  <ProtectedRoute
+                                    component={LocationsLoader}
+                                    path={LocationsRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.LocationView]}
+                                  />
+                                  <ProtectedRoute
+                                    component={LocationGroupSubPrefLoader}
+                                    path={LocationGroupSubPrefRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.LocationGroupSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={LocationGroupViewLoader}
+                                    path={LocationGroupViewRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.LocationGroupView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={LocationGroupsLoader}
+                                    path={LocationGroupsRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.LocationGroupView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    path={CalendarListViewRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.CalendarChangeView,
+                                    ]}
+                                  >
+                                    <CalendarsLoader view="list" />
+                                  </ProtectedRoute>
 
-                                <ProtectedRoute
-                                  path={CalendarCalendarViewRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.CalendarChangeView,
-                                  ]}
-                                >
-                                  <CalendarsLoader view="calendar" />
-                                </ProtectedRoute>
+                                  <ProtectedRoute
+                                    path={CalendarCalendarViewRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.CalendarChangeView,
+                                    ]}
+                                  >
+                                    <CalendarsLoader view="calendar" />
+                                  </ProtectedRoute>
 
-                                <ProtectedRoute
-                                  component={CalendarsLoader}
-                                  path={CalendarRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.CalendarChangeView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={SecurityPermissionSetsAddLoader}
-                                  path={SecurityPermissionSetsAddRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.PermissionSetSave,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={SecurityPermissionSetsViewLoader}
-                                  path={SecurityPermissionSetsViewRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.PermissionSetView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={SecurityPermissionSetsLoader}
-                                  path={SecurityPermissionSetsRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.PermissionSetView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={SecurityPartnersLoader}
-                                  path={SecurityPartnersRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.ExternalConnectionsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  component={SecurityManagedOrganizationsLoader}
-                                  path={SecurityManagedOrganizationsRoute.path}
-                                  role={"admin"}
-                                  permissions={[
-                                    PermissionEnum.ExternalConnectionsView,
-                                  ]}
-                                />
-                                <ProtectedRoute
-                                  path={AdminMobileSearchRoute.path}
-                                  component={AdminMobileSearchLoader}
-                                  role={"admin"}
-                                  permissions={[PermissionEnum.AbsVacView]}
-                                />
-                                <ProtectedRoute
-                                  component={DailyReportLoader}
-                                  path={DailyReportRoute.path}
-                                  role={"admin"}
-                                />
-                              </Switch>
-                            </AdminRouteOrganizationContextProvider>
-                          </Route>
+                                  <ProtectedRoute
+                                    component={CalendarsLoader}
+                                    path={CalendarRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.CalendarChangeView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={SecurityPermissionSetsAddLoader}
+                                    path={SecurityPermissionSetsAddRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.PermissionSetSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={SecurityPermissionSetsViewLoader}
+                                    path={SecurityPermissionSetsViewRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.PermissionSetView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={SecurityPermissionSetsLoader}
+                                    path={SecurityPermissionSetsRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.PermissionSetView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={SecurityPartnersLoader}
+                                    path={SecurityPartnersRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.ExternalConnectionsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={
+                                      SecurityManagedOrganizationsLoader
+                                    }
+                                    path={
+                                      SecurityManagedOrganizationsRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.ExternalConnectionsView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    path={AdminMobileSearchRoute.path}
+                                    component={AdminMobileSearchLoader}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.AbsVacView]}
+                                  />
+                                  <ProtectedRoute
+                                    component={DailyReportLoader}
+                                    path={DailyReportRoute.path}
+                                    role={"admin"}
+                                  />
+                                </Switch>
+                              </AdminRouteOrganizationContextProvider>
+                            </Route>
 
-                          {/* This route handles unknown or underspecified routes and takes the
+                            {/* This route handles unknown or underspecified routes and takes the
                               admin to their organization (or a switcher) */}
-                          <Route path={AdminRootChromeRoute.path}>
-                            <Redirect to={AdminRootChromeRoute.generate({})} />
-                          </Route>
-                        </Switch>
-                      </IfHasRole>
-                      <IfHasRole role={OrgUserRole.Administrator} not>
-                        <Redirect to={UnauthorizedRoute.generate({})} />
-                      </IfHasRole>
-                    </Route>
-                  </Switch>
-                </AppChrome>
-              </IfAuthenticated>
-              <IfAuthenticated not>
-                <RedirectToLogin />
-              </IfAuthenticated>
-            </Route>
-          </Switch>
+                            <Route path={AdminRootChromeRoute.path}>
+                              <Redirect
+                                to={AdminRootChromeRoute.generate({})}
+                              />
+                            </Route>
+                          </Switch>
+                        </IfHasRole>
+                        <IfHasRole role={OrgUserRole.Administrator} not>
+                          <Redirect to={UnauthorizedRoute.generate({})} />
+                        </IfHasRole>
+                      </Route>
+                    </Switch>
+                  </AppChrome>
+                </IfAuthenticated>
+                <IfAuthenticated not>
+                  <RedirectToLogin />
+                </IfAuthenticated>
+              </Route>
+            </Switch>
+          </div>
         </div>
-      </div>
+      </AppConfigProvider>
     </ThemeProvider>
   );
 }

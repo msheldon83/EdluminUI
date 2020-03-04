@@ -19,6 +19,7 @@ import { PageTitleProvider } from "./page-title-context";
 import { OrganizationStatusBar } from "./orgaization-status-bar";
 import { HelpWidget } from "./help-widget";
 import { contentFooterRef } from "../components/content-footer";
+import { useAppConfig } from "../../hooks/app-config";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -30,6 +31,7 @@ export const AppChrome: React.FunctionComponent = props => {
   const expand = useCallback(() => setExpanded(true), [setExpanded]);
   const collapse = useCallback(() => setExpanded(false), [setExpanded]);
   const classes = useStyles({ expanded: expand });
+  const { appConfig } = useAppConfig();
 
   const contentFooterClasses = clsx({
     [classes.contentFooterContainer]: true,
@@ -66,7 +68,10 @@ export const AppChrome: React.FunctionComponent = props => {
                 <SnackbarProvider>
                   <DialogProvider>
                     <div />
-                    <div className={classes.contentView}>
+                    <div
+                      className={classes.contentView}
+                      style={{ maxWidth: appConfig.contentWidth }}
+                    >
                       <ErrorBoundary>
                         <LoadingStateIndicatorFullScreen>
                           {props.children}
@@ -109,7 +114,7 @@ export const AppChrome: React.FunctionComponent = props => {
                 expand={expand}
                 collapse={collapse}
               />
-              <div className={`${classes.container}`}>
+              <div className={classes.container}>
                 <SnackbarProvider>
                   <DialogProvider>
                     <div
@@ -119,7 +124,10 @@ export const AppChrome: React.FunctionComponent = props => {
                           : classes.navWidthCompact
                       }`}
                     ></div>
-                    <div className={`${classes.contentView}`}>
+                    <div
+                      className={classes.contentView}
+                      style={{ maxWidth: appConfig.contentWidth }}
+                    >
                       <ErrorBoundary>
                         <LoadingStateIndicatorFullScreen>
                           {props.children}
@@ -237,7 +245,6 @@ const useStyles = makeStyles(theme => ({
   contentView: {
     flexGrow: 1,
     marginTop: theme.spacing(3),
-    maxWidth: theme.customSpacing.contentWidth,
     padding: theme.spacing(0, 3, 4, 3),
     "@media print": {
       padding: 0,
