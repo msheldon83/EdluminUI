@@ -67,7 +67,7 @@ export const MenuButton: React.FC<Props> = props => {
       </ButtonGroup>
       <Menu
         anchorEl={anchorEl}
-        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "center" }}
         keepMounted
         open={open}
         onClose={handleClose}
@@ -97,6 +97,7 @@ export const MenuButton: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   paper: {
-    width: theme.typography.pxToRem(140),
+    width: theme.typography.pxToRem(135),
+    margin: "40px 0px 0px 67px",
   },
 }));
