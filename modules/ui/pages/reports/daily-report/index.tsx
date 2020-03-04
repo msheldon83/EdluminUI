@@ -40,7 +40,6 @@ export const DailyReportPage: React.FC<Props> = () => {
       setDate(new Date());
     }
   }, [location]);
-  const theme = useTheme();
 
   return (
     <AppConfig contentWidth="100%">
