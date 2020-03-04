@@ -14,7 +14,7 @@ type Props = {
 
 export type Option = {
   name: string;
-  onClick: (event: React.MouseEvent) => void;
+  onClick?: (event: React.MouseEvent) => void;
   permissions?: CanDo;
 };
 
@@ -52,9 +52,6 @@ export const MenuButton: React.FC<Props> = props => {
   return (
     <div>
       <ButtonGroup variant="contained" color="primary">
-        <Button onClick={props.options[selectedIndex].onClick}>
-          {props.options[selectedIndex].name}
-        </Button>
         <Button
           color="primary"
           size="small"
@@ -62,14 +59,15 @@ export const MenuButton: React.FC<Props> = props => {
           aria-expanded={open ? "true" : undefined}
           aria-label="toggle button"
           aria-haspopup="menu"
-          onClick={handleClick}
+          onClick={props.options[selectedIndex].onClick ?? handleClick}
         >
+          {props.options[selectedIndex].name}
           <ArrowDropDownIcon />
         </Button>
       </ButtonGroup>
       <Menu
         anchorEl={anchorEl}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
         keepMounted
         open={open}
         onClose={handleClose}
@@ -77,17 +75,21 @@ export const MenuButton: React.FC<Props> = props => {
           className: classes.paper,
         }}
       >
-        {filteredOptions.map((option: Option, index: number) => (
-          <MenuItem
-            key={index}
-            onClick={event => {
-              option.onClick(event);
-              handleClose();
-            }}
-          >
-            {option.name}
-          </MenuItem>
-        ))}
+        {filteredOptions.map((option: Option, index: number) => {
+          if (option.onClick) {
+            return (
+              <MenuItem
+                key={index}
+                onClick={event => {
+                  option.onClick!(event);
+                  handleClose();
+                }}
+              >
+                {option.name}
+              </MenuItem>
+            );
+          }
+        })}
       </Menu>
     </div>
   );
@@ -95,6 +97,6 @@ export const MenuButton: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   paper: {
-    width: 200,
+    width: theme.typography.pxToRem(140),
   },
 }));
