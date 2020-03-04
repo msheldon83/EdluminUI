@@ -28,7 +28,10 @@ export const CreateButton: React.FC<{}> = props => {
         selectedIndex={0}
         options={[
           {
-            name: t("Create an Employee"),
+            name: t("Add person"),
+          },
+          {
+            name: t("Employee"),
             onClick: () =>
               history.push(
                 EmployeeAddRoute.generate({
@@ -43,7 +46,7 @@ export const CreateButton: React.FC<{}> = props => {
             ) => canCreateEmployee(permissions, isSysAdmin, orgId),
           },
           {
-            name: t("Create a Substitute"),
+            name: t("Substitute"),
             onClick: () =>
               history.push(
                 SubstituteAddRoute.generate({
@@ -58,7 +61,7 @@ export const CreateButton: React.FC<{}> = props => {
             ) => canCreateSubstitute(permissions, isSysAdmin, orgId),
           },
           {
-            name: t("Create an Admin"),
+            name: t("Admin"),
             onClick: () =>
               history.push(
                 AdminAddRoute.generate({
