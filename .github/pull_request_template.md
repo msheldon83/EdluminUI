@@ -8,7 +8,7 @@
 
 ## Dependent PR's (if appropriate):
 
-[PR-](https://github.com/edustaff/EdluminUI/pull/)
+[PR-](https://github.com/edustaff/HCMServer/pull/)
 
 ## Checklist:
 
