@@ -1,3 +1,4 @@
+const config = require("config");
 const path = require("path");
 const nodeExternals = require("webpack-node-externals");
 const webpack = require("webpack");
@@ -76,7 +77,7 @@ module.exports = {
 
     new webpack.DefinePlugin({
       __TEST__: "false",
-      __DEV__: JSON.stringify(process.env.NODE_ENV !== "production"),
+      __DEV__: JSON.stringify(config.get("isDevelopment")),
     }),
   ],
 };

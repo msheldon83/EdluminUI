@@ -107,7 +107,7 @@ module.exports = {
     // Define global letiables in the client to instrument behavior.
     new webpack.DefinePlugin({
       // Flag to detect non-production
-      __DEV__: JSON.stringify(process.env.NODE_ENV !== "production"),
+      __DEV__: JSON.stringify(config.get("isDevelopment")),
       __TEST__: "false",
 
       "Config.Auth0.domain": JSON.stringify(config.get("auth0_domain")),
