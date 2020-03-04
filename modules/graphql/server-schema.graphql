@@ -120,6 +120,7 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isBucket: Boolean!
+  isRestricted: Boolean!
   appliesToAssignmentTypes: AssignmentType
   limitPerDay: Int
   parentAbsenceReasonId: ID
@@ -185,6 +186,7 @@ input AbsenceReasonCreateInput {
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isBucket: Boolean!
+  isRestricted: Boolean!
   limitPerDay: Int
   parentAbsenceReasonId: Int
   prioritySequence: Int
@@ -207,6 +209,7 @@ input AbsenceReasonUpdateInput {
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isBucket: Boolean!
+  isRestricted: Boolean!
   limitPerDay: Int
   parentAbsenceReasonId: ID
   prioritySequence: Int
@@ -3062,6 +3065,7 @@ enum PermissionEnum {
   FINANCE_SETTINGS_VIEW
   FINANCE_SETTINGS_SAVE
   FINANCE_SETTINGS_DELETE
+  ASSIGN_RESTRICTED_ABSENCE_REASON
   PERMISSION_SET_VIEW
   PERMISSION_SET_SAVE
   PERMISSION_SET_DELETE
