@@ -1,10 +1,18 @@
 import * as React from "react";
 import { useMyUserAccess } from "reference-data/my-user-access";
 
-export const HelpWidget: React.FC<{}> = props => {
+type Props = {
+  alwaysHide?: boolean;
+};
+
+export const HelpWidget: React.FC<Props> = props => {
   const userAccess = useMyUserAccess();
   const user = userAccess?.me?.user;
-  const showChat = user?.orgUsers?.some(x => x?.administrator?.isSuperUser);
+  const showChat = props.alwaysHide
+    ? false
+    : user?.orgUsers?.some(x => x?.administrator?.isSuperUser);
+
+  //if (props.alwaysHide) showChat = false;
 
   try {
     const loopsToWait = 10;
