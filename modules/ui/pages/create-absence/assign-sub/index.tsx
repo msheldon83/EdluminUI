@@ -36,7 +36,7 @@ type Props = {
   positionName?: string;
   disabledDates?: Date[];
   selectButtonText?: string;
-  onSelectReplacement: (
+  onAssignReplacement: (
     replacementId: string,
     replacementName: string,
     payCode: string | undefined,
@@ -59,7 +59,7 @@ export const AssignSub: React.FC<Props> = props => {
     ReplacementEmployeeFilters
   >();
   const {
-    onSelectReplacement,
+    onAssignReplacement,
     vacancyDetailIdsToAssign,
     employeeToReplace = "",
   } = props;
@@ -148,6 +148,7 @@ export const AssignSub: React.FC<Props> = props => {
       primaryPhone: r.phoneNumber,
       qualified: r.levelQualified,
       available: r.levelAvailable,
+      unavailableToWork: r.unavailableToWork,
       isAvailableToSubWhenSearching: r.isAvailableToSubWhenSearching,
       availableToSubWhenSearchingAtUtc: r.availableToSubWhenSearchingAtUtc,
       availableToSubWhenSearchingAtLocal: r.availableToSubWhenSearchingAtLocal,
@@ -158,20 +159,20 @@ export const AssignSub: React.FC<Props> = props => {
     }));
   }, [replacementEmployees]);
 
-  const selectReplacementEmployee = useCallback(
+  const assignReplacementEmployee = useCallback(
     async (
       replacementEmployeeId: string,
       name: string,
       payCodeId: string | undefined
     ) => {
-      onSelectReplacement(
+      onAssignReplacement(
         replacementEmployeeId,
         name,
         payCodeId,
         vacancyDetailIdsToAssign
       );
     },
-    [onSelectReplacement, vacancyDetailIdsToAssign]
+    [onAssignReplacement, vacancyDetailIdsToAssign]
   );
 
   const confirmReassign = useCallback(
@@ -179,6 +180,7 @@ export const AssignSub: React.FC<Props> = props => {
       replacementEmployeeId: string,
       name: string,
       payCodeId: string | undefined
+      //unavailableToWork: boolean,
     ) => {
       if (employeeToReplace) {
         setReplacementEmployeeName(name);
@@ -186,10 +188,10 @@ export const AssignSub: React.FC<Props> = props => {
         setReplacementEmployeeId(replacementEmployeeId);
         setDialogIsOpen(true);
       } else {
-        await selectReplacementEmployee(replacementEmployeeId, name, payCodeId);
+        await assignReplacementEmployee(replacementEmployeeId, name, payCodeId);
       }
     },
-    [selectReplacementEmployee, employeeToReplace]
+    [assignReplacementEmployee, employeeToReplace]
   );
 
   const setSearch = (filters: ReplacementEmployeeFilters) => {
@@ -279,7 +281,7 @@ export const AssignSub: React.FC<Props> = props => {
         onAssign={async () => {
           //call asign functionality
           setDialogIsOpen(false);
-          await selectReplacementEmployee(
+          await assignReplacementEmployee(
             replacementEmployeeId,
             replacementEmployeeName,
             replacementEmployeePayCode
