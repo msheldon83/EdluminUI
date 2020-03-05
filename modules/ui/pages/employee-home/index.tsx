@@ -17,10 +17,10 @@ import { useGetEmployee } from "reference-data/employee";
 import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
 import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
 import {
-  GetEmployeeContractSchedule,
-  GetEmployeeContractScheduleQuery,
-  GetEmployeeContractScheduleQueryVariables,
-} from "ui/components/employee/graphql/get-employee-contract-schedule.gen";
+  GetEmployeeContractScheduleDates,
+  GetEmployeeContractScheduleDatesQuery,
+  GetEmployeeContractScheduleDatesQueryVariables,
+} from "ui/components/employee/graphql/get-employee-contract-schedule-dates.gen";
 import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
 import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 import { PageTitle } from "ui/components/page-title";
@@ -52,8 +52,9 @@ export const EmployeeHome: React.FC<Props> = props => {
       toDate: endDate,
     },
     skip: !employee || !endDate,
+    fetchPolicy: "cache-and-network",
   });
-  const getContractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
+  const getContractSchedule = useQueryBundle(GetEmployeeContractScheduleDates, {
     variables: {
       id: employee?.id ?? "0",
       fromDate: startDate,
@@ -66,7 +67,11 @@ export const EmployeeHome: React.FC<Props> = props => {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
-    refetchQueries: ["GetEmployeeAbsenceSchedule"],
+    refetchQueries: [
+      "GetEmployeeContractSchedule",
+      "GetEmployeeContractScheduleDates",
+      "GetEmployeeAbsenceSchedule",
+    ],
   });
 
   const cancelAbsence = useCallback(
@@ -151,8 +156,8 @@ const useStyles = makeStyles(theme => ({
 
 const computeDisabledDates = (
   queryResult: HookQueryResult<
-    GetEmployeeContractScheduleQuery,
-    GetEmployeeContractScheduleQueryVariables
+    GetEmployeeContractScheduleDatesQuery,
+    GetEmployeeContractScheduleDatesQueryVariables
   >
 ) => {
   if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {

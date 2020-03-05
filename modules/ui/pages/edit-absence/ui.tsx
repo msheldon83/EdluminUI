@@ -56,6 +56,10 @@ import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { DiscardChangesDialog } from "./discard-changes-dialog";
 import { Prompt, useRouteMatch } from "react-router";
+import { OrgUserPermissions } from "ui/components/auth/types";
+import { canViewAsSysAdmin } from "helpers/permissions";
+import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
+import { useHistory } from "react-router";
 
 type Props = {
   firstName: string;
@@ -68,7 +72,11 @@ type Props = {
   userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
-  absenceReasonId: string;
+  absenceReason: {
+    id: string;
+    name: string;
+  };
+  trackingBalanceReasonIds: Array<string | undefined>;
   absenceId: string;
   assignmentId?: string;
   dayPart?: DayPart;
@@ -120,6 +128,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const { openSnackbar } = useSnackbar();
+  const history = useHistory();
   const match = useRouteMatch();
   const [vacancyDetailIdsToAssign, setVacancyDetailIdsToAssign] = useState<
     string[] | undefined
@@ -127,6 +136,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [employeeToReplace, setEmployeeToReplace] = useState<
     string | undefined
   >(undefined);
+
+  const actingAsEmployee = props.actingAsEmployee;
 
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
@@ -154,11 +165,11 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const name = `${props.firstName} ${props.lastName}`;
   const canEdit =
-    !props.actingAsEmployee ||
+    !actingAsEmployee ||
     (!props.replacementEmployeeId && !some(props.absenceDates, isPast));
 
   const initialFormData: EditAbsenceFormData = {
-    absenceReason: props.absenceReasonId.toString(),
+    absenceReason: props.absenceReason.id.toString(),
     dayPart: props.dayPart,
     payCode:
       // @ts-ignore
@@ -232,6 +243,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         TranslateAbsenceErrorCodeToMessage
       );
     },
+    refetchQueries: ["GetAbsence"],
   });
 
   const useProjectedInformation =
@@ -268,7 +280,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     if (conflictingDates.length > 0) {
       dispatch({ action: "removeAbsenceDates", dates: conflictingDates });
     }
-  }, [disabledDates]);
+  }, [disabledDates, state.absenceDates]);
 
   const projectedVacanciesInput = useMemo(
     () =>
@@ -284,16 +296,14 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         customizedVacancyDetails
       ),
     [
-      props.organizationId,
       state.absenceDates,
-      formValues.absenceReason,
-      formValues.dayPart,
-      formValues.hourlyStartTime,
-      formValues.hourlyEndTime,
-      customizedVacancyDetails,
-      state,
+      state.employeeId,
+      state.needsReplacement,
+      formValues,
+      props.organizationId,
       props.positionId,
       disabledDates,
+      customizedVacancyDetails,
     ]
   );
 
@@ -326,22 +336,42 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     },
   });
 
-  const absenceUsageText = useMemo(() => {
-    if (
-      getProjectedAbsenceUsage.state === "DONE" ||
-      getProjectedAbsenceUsage.state === "UPDATING"
-    ) {
-      const usages = compact(
-        flatMap(
-          getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
-          d => d?.reasonUsages?.map(ru => ru)
+  const trackingBalanceReasonIds = props.trackingBalanceReasonIds;
+  const initialAbsenceUsageData = props.initialAbsenceUsageData;
+  const projectedAbsenceUsage =
+    getProjectedAbsenceUsage.state === "DONE" ||
+    getProjectedAbsenceUsage.state === "UPDATING"
+      ? compact(
+          flatMap(
+            getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
+            d => d?.reasonUsages?.map(ru => ru)
+          )
         )
+      : [];
+
+  const absenceUsageText = useMemo(() => {
+    if (projectedAbsenceUsage.length > 0) {
+      return computeAbsenceUsageText(
+        projectedAbsenceUsage as any,
+        trackingBalanceReasonIds,
+        t,
+        actingAsEmployee
       );
-      return computeAbsenceUsageText(usages as any, t);
     } else {
-      return computeAbsenceUsageText(props.initialAbsenceUsageData, t);
+      return computeAbsenceUsageText(
+        initialAbsenceUsageData,
+        trackingBalanceReasonIds,
+        t,
+        actingAsEmployee
+      );
     }
-  }, [props.initialAbsenceUsageData, t, getProjectedAbsenceUsage]);
+  }, [
+    projectedAbsenceUsage,
+    trackingBalanceReasonIds,
+    initialAbsenceUsageData,
+    t,
+    actingAsEmployee,
+  ]);
 
   const projectedVacancies =
     getProjectedVacancies.state === "DONE" ||
@@ -465,7 +495,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       setStep("absence");
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setStep, assignVacancy]
+    [props, assignVacancy, setStep]
   );
 
   const onToggleAbsenceDate = useCallback(
@@ -542,6 +572,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
       {step === "absence" && (
         <form
+          id="absence-form"
           onSubmit={handleSubmit(async data => {
             await update(data);
             dispatch({ action: "resetAfterSave" });
@@ -549,7 +580,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         >
           <div className={classes.titleContainer}>
             <div className={classes.title}>
-              {props.actingAsEmployee ? (
+              {actingAsEmployee ? (
                 <>
                   <Typography variant="h5">{t("Edit absence")}</Typography>
                   <Typography variant="h6">
@@ -571,9 +602,17 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 className={classes.actionMenu}
                 options={[
                   {
-                    name: t("Delete"),
-                    onClick: () => props.onDelete(),
-                    permissions: [PermissionEnum.AbsVacDelete],
+                    name: t("Notification Log"),
+                    onClick: () => {
+                      history.push(
+                        VacancyNotificationLogRoute.generate({
+                          organizationId: props.organizationId,
+                          vacancyId: props.initialVacancies[0].id,
+                          absenceId: props.absenceId,
+                        })
+                      );
+                    },
+                    permissions: [PermissionEnum.AbsVacViewNotificationLog],
                   },
                 ]}
               />
@@ -600,6 +639,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               }
               values={formValues}
               setValue={setValue}
+              absenceReason={props.absenceReason}
               errors={{}}
               triggerValidation={triggerValidation}
               vacancies={projectedVacancies || props.initialVacancies}
@@ -634,7 +674,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       {step === "edit" && (
         <EditVacancies
           orgId={props.organizationId}
-          actingAsEmployee={props.actingAsEmployee}
+          actingAsEmployee={actingAsEmployee}
           employeeName={name}
           positionName={props.positionName}
           onCancel={onCancel}
@@ -652,7 +692,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           orgId={props.organizationId}
           absenceId={props.absenceId}
           vacancies={projectedVacancies || props.initialVacancies}
-          userIsAdmin={!props.actingAsEmployee && props.userIsAdmin}
+          userIsAdmin={!actingAsEmployee && props.userIsAdmin}
           employeeId={props.employeeId}
           positionId={props.positionId}
           positionName={props.positionName}

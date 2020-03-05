@@ -1,0 +1,51 @@
+query GetNotificationLogForUser(
+  $userId: ID!
+  $fromDate: Date
+  $toDate: Date
+  $orgIds: [ID]
+  $limit: Int
+  $offset: Int
+) {
+  vacancy {
+    vacancyNotificationLogByUser(
+      userId: $userId
+      fromDate: $fromDate
+      toDate: $toDate
+      orgIds: $orgIds
+      limit: $limit
+      offset: $offset
+    ) {
+      totalCount
+      limit
+      offset
+      hasMoreData
+      results {
+        id
+        employee {
+          id
+          firstName
+          lastName
+        }
+        orgId
+        organization {
+          id
+          name
+        }
+        vacancyId
+        vacancy {
+          id
+          absenceId
+        }
+        createdUtc
+        sentAtUtc
+        statusAsOfUtc
+        numFailedSendAttempts
+        notificationMessageStatus
+        statusErrorCode
+        repliedAtUtc
+        reply
+        jobNotificationResponse
+      }
+    }
+  }
+}

@@ -19,6 +19,8 @@ export type Props = {
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string | undefined;
   disabled?: boolean;
+  className?: string;
+  placeHolder?: string;
 };
 
 export const TimeInput = React.forwardRef((props: Props, ref) => {
@@ -33,6 +35,8 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
     inputStatus = "default",
     validationMessage,
     disabled,
+    className,
+    placeHolder,
   } = props;
 
   const parsedValue = isIso(value)
@@ -56,6 +60,7 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
   return (
     <Input
       label={label}
+      className={className}
       name={name}
       value={parsedValue}
       onChange={event => onChange(event.target.value)}
@@ -64,6 +69,7 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
       inputStatus={inputStatus}
       disabled={disabled}
       validationMessage={validationMessage}
+      placeholder={placeHolder}
     />
   );
 });

@@ -70,6 +70,18 @@ export const EditAbsence: React.FC<Props> = props => {
     return history.location.state?.returnUrl;
   }, [history.location.state]);
 
+  const goBack = React.useCallback(() => {
+    if (document.referrer === "") {
+      history.push(
+        props.actingAsEmployee
+          ? EmployeeHomeRoute.generate(params)
+          : AdminHomeRoute.generate(params)
+      );
+    } else {
+      history.goBack();
+    }
+  }, [history, params, props.actingAsEmployee]);
+
   const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
     onError: error => {
       ShowErrors(error, openSnackbar);
@@ -97,19 +109,7 @@ export const EditAbsence: React.FC<Props> = props => {
       });
       goBack();
     }
-  }, [deleteAbsence, params.absenceId, returnUrl, history, openSnackbar, t]);
-
-  const goBack = () => {
-    if (document.referrer === "") {
-      history.push(
-        props.actingAsEmployee
-          ? EmployeeHomeRoute.generate(params)
-          : AdminHomeRoute.generate(params)
-      );
-    } else {
-      history.goBack();
-    }
-  };
+  }, [deleteAbsence, params.absenceId, openSnackbar, t, goBack]);
 
   const [cancelAssignment] = useMutationBundle(CancelAssignment, {
     onError: error => {
@@ -323,6 +323,7 @@ export const EditAbsence: React.FC<Props> = props => {
           {
             amount: u.amount,
             absenceReasonTrackingTypeId: u.absenceReasonTrackingTypeId,
+            absenceReasonId: u.absenceReasonId,
           },
         ];
       }
@@ -371,7 +372,13 @@ export const EditAbsence: React.FC<Props> = props => {
         positionId={position?.id ?? employee.primaryPositionId ?? undefined}
         positionName={position?.title ?? employee.primaryPosition?.title}
         organizationId={data.organization.id}
-        absenceReasonId={reasonUsage?.absenceReasonId}
+        absenceReason={{
+          id: reasonUsage.absenceReason!.id,
+          name: reasonUsage.absenceReason!.name,
+        }}
+        trackingBalanceReasonIds={
+          employee.absenceReasonBalances?.map(x => x?.absenceReasonId) ?? []
+        }
         absenceId={data.id}
         absenceDates={absenceDates}
         dayPart={dayPart}

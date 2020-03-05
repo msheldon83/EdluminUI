@@ -1,5 +1,7 @@
 # EdluminUI
 
+[![Build Status](https://dev.azure.com/hcmventure/hcmventure/_apis/build/status/RedRoverK12.EdluminUI?branchName=master)](https://dev.azure.com/hcmventure/hcmventure/_build/latest?definitionId=3&branchName=master)
+
 ## Stack
 
 This project is a single-page webapp using the following technologies:

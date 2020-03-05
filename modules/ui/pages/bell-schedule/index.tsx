@@ -18,7 +18,6 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import { GetAllWorkDaySchedulesWithinOrg } from "./graphql/workday-schedules.gen";
-import { PaginationControls } from "ui/components/pagination-controls";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 
@@ -150,8 +149,8 @@ export const BellSchedulePage: React.FC<{}> = props => {
         expiredRowCheck={(rowData: GetAllWorkDaySchedulesWithinOrg.Results) =>
           rowData.expired ?? false
         }
+        pagination={pagination}
       />
-      <PaginationControls pagination={pagination} />
     </>
   );
 };

@@ -30,6 +30,8 @@ import { FilterQueryParams } from "ui/components/reports/daily-report/filters/fi
 import { SubSignInRoute } from "ui/routes/sub-sign-in";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { useLocation } from "react-router";
+import { AppConfig } from "hooks/app-config";
 
 type Props = {};
 
@@ -39,16 +41,13 @@ export const AdminHome: React.FC<Props> = props => {
   const params = useRouteParams(AdminHomeRoute);
   const [filters] = useQueryParamIso(FilterQueryParams);
   const [date, setDate] = useState(new Date(filters.date));
-  // If there is a mismatch between dates, then we should be
-  // using the date coming from the querystring filters
-  // so defaulting to "morning" maintains that
-  const [timeOfDay, setTimeOfDay] = useState(
-    isSameDay(new Date(filters.date), startOfToday())
-      ? getTimeOfDay()
-      : "morning"
-  );
+  const location = useLocation();
   const [selectedCard, setSelectedCard] = useState<CardType>("unfilled");
   const dailyReportRouteParams = useRouteParams(DailyReportRoute);
+
+  const dateFromFilter = useMemo(() => {
+    return new Date(filters.date);
+  }, [filters.date]);
 
   const getUserName = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
@@ -59,43 +58,13 @@ export const AdminHome: React.FC<Props> = props => {
 
   // On load make sure the right data is
   // being shown based on the timeOfDay
-
   useEffect(() => {
-    if (timeOfDay === "evening") {
+    if (location.search === "" && getTimeOfDay() === "evening") {
       setDate(startOfTomorrow());
+    } else if (location.search === "") {
+      setDate(new Date());
     }
-  }, [timeOfDay]);
-
-  /* This is purely to support the "Toggle Time of Day" button
-      in Dev for testing. In Prod we'll only be setting the 
-      timeOfDay once when the page loads.
-  */
-  const toggleTimeOfDay = () => {
-    if (!__DEV__) {
-      return;
-    }
-
-    let newTimeOfDay: TimeOfDay = "morning";
-    if (timeOfDay === "morning") {
-      newTimeOfDay = "afternoon";
-    } else if (timeOfDay === "afternoon") {
-      newTimeOfDay = "evening";
-    }
-    setTimeOfDay(newTimeOfDay);
-
-    // It's possible we will want to add different states in the future
-    if (newTimeOfDay === "morning") {
-      setDate(startOfToday());
-      setSelectedCard("unfilled");
-    } else if (newTimeOfDay === "afternoon") {
-      setDate(startOfToday());
-      // setSelectedCard("awaitingVerification");  // TODO: will we want to send them to verify at some point?
-      setSelectedCard("unfilled"); // For afternoon don't automatically go to Verification per LF.
-    } else if (newTimeOfDay === "evening") {
-      setDate(startOfTomorrow());
-      setSelectedCard("unfilled");
-    }
-  };
+  }, [location]);
 
   const subSignInUrl = useMemo(() => {
     const params = new URLSearchParams();
@@ -107,7 +76,7 @@ export const AdminHome: React.FC<Props> = props => {
   }, [date, dailyReportRouteParams.organizationId]);
 
   return (
-    <>
+    <AppConfig contentWidth="100%">
       <Grid
         container
         justify="space-between"
@@ -115,10 +84,12 @@ export const AdminHome: React.FC<Props> = props => {
         className={classes.header}
       >
         <Grid item>
-          <DateStepperHeader date={date} setDate={setDate}></DateStepperHeader>
+          <DateStepperHeader
+            date={dateFromFilter}
+            setDate={setDate}
+          ></DateStepperHeader>
         </Grid>
         <Grid item className={classes.actions}>
-          {getDevViewToggle(toggleTimeOfDay, timeOfDay)}
           <Button
             variant="outlined"
             component={Link}
@@ -165,7 +136,7 @@ export const AdminHome: React.FC<Props> = props => {
           isHomePage={true}
         />
       </Can>
-    </>
+    </AppConfig>
   );
 };
 
@@ -231,19 +202,4 @@ const getTimeOfDay = (): TimeOfDay => {
   }
 
   return "evening";
-};
-
-const getDevViewToggle = (
-  toggleTimeOfDay: () => void,
-  currentTimeOfDay: TimeOfDay
-) => {
-  return (
-    __DEV__ && (
-      <Tooltip title={`Currently ${currentTimeOfDay}`}>
-        <Button variant="contained" color="secondary" onClick={toggleTimeOfDay}>
-          Toggle Time Of Day
-        </Button>
-      </Tooltip>
-    )
-  );
 };

@@ -27,7 +27,6 @@ import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { GetAllActiveContracts } from "../graphql/get-all-active-contracts.gen";
 import { useMemo } from "react";
-import { GetPayCodes } from "reference-data/get-pay-codes.gen";
 
 type Props = {
   orgId: string;
@@ -139,9 +138,9 @@ export const Settings: React.FC<Props> = props => {
             data.needsReplacement,
             data.forStaffAugmentation,
             data.minAbsenceDurationMinutes,
-            data.payTypeId,
-            data.payCodeId,
-            data.defaultContractId
+            data.payTypeId ? data.payTypeId : null,
+            data.payCodeId ? data.payCodeId : null,
+            data.defaultContractId ? data.defaultContractId : null
           );
         }}
         validationSchema={yup

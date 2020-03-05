@@ -37,10 +37,6 @@ export const AbsenceSchedule: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const getOrgUsers = useQueryBundle(GetMyUserAccess, {
-    fetchPolicy: "cache-first",
-  });
-
   const createAbsenceParams = useRouteParams(EmployeeCreateAbsenceRoute);
 
   const [selectedScheduleDates, setSelectedScheduleDates] = useState<

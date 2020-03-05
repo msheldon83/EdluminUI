@@ -1,7 +1,8 @@
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { makeStyles } from "@material-ui/styles";
-import { Divider } from "@material-ui/core";
+import { Divider, Button, Grid } from "@material-ui/core";
+import { Link } from "react-router-dom";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { Section } from "ui/components/section";
 import { SubstituteAssignmentsCalendarView } from "./substitute-assignments-calendar";
@@ -13,6 +14,7 @@ import { useMemo, useState } from "react";
 import { getBeginningOfSchoolYear } from "ui/components/helpers";
 import { numberOfMonthsInSchoolYear } from "ui/components/schedule/helpers";
 import { addMonths, endOfMonth } from "date-fns";
+import { SubAvailabilityRoute } from "ui/routes/sub-schedule";
 
 type Props = {
   view: "list" | "calendar";
@@ -62,7 +64,22 @@ export const SubstituteAssignments: React.FC<Props> = props => {
   return (
     <>
       <div className={props.view === "calendar" ? classes.sticky : ""}>
-        <PageTitle title={t(props.pageTitle)} />
+        <Grid container justify="space-between" alignItems="center">
+          <Grid item>
+            <PageTitle title={t(props.pageTitle)} />
+          </Grid>
+          {!props.isAdmin && (
+            <Grid item>
+              <Button
+                variant="outlined"
+                component={Link}
+                to={SubAvailabilityRoute.generate({})}
+              >
+                {t("Manage Availability")}
+              </Button>
+            </Grid>
+          )}
+        </Grid>
         {props.view === "calendar" && (
           <Section className={classes.assignments}>
             <NowViewingAssignmentsForDate
@@ -131,7 +148,6 @@ const useStyles = makeStyles(theme => ({
   section: {
     padding: 0,
   },
-  header: { paddingBottom: theme.spacing(3) },
   itemContainer: {
     display: "flex",
     alignItems: "center",

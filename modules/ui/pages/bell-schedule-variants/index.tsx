@@ -128,6 +128,7 @@ export const BellScheduleVariants: React.FC<Props> = props => {
         workDayScheduleVariantTypeId: workDayScheduleVariantTypeId,
       },
     });
+    return result;
   };
 
   const columns: Column<GetAllWorkDayScheduleVariantTypesInOrg.All>[] = [
@@ -242,7 +243,7 @@ export const BellScheduleVariants: React.FC<Props> = props => {
               ShowGenericErrors({ errors }, openSnackbar);
               return;
             }
-            deleteWorkDayScheduleVariantType(String(oldData.id));
+            await deleteWorkDayScheduleVariantType(String(oldData.id));
             await getAllWorkDayScheduleVariantTypes.refetch();
           },
           permissions: [PermissionEnum.ScheduleSettingsDelete],

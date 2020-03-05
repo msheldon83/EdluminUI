@@ -18,6 +18,7 @@ query GetPositionTypeById($id: ID!) {
       payTypeId
       payCodeId
       payCode {
+        id
         name
       }
       replacementCriteria {

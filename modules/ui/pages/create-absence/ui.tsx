@@ -65,6 +65,7 @@ type Props = {
   initialNeedsReplacement?: boolean;
   payCodeId?: string | null;
   accountingCodeId?: string | null;
+  trackingBalanceReasonIds: Array<string | undefined>;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -73,6 +74,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const [absence, setAbsence] = useState<Absence>();
   const [step, setStep] = useQueryParamIso(StepParams);
   const match = useRouteMatch();
+
+  const actingAsEmployee = props.actingAsEmployee;
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -167,6 +170,34 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   );
   register({ name: "accountingCode", type: "custom" });
   register({ name: "payCode", type: "custom" });
+
+  React.useEffect(() => {
+    let isSubscribed = true;
+    const setInitialValues = async () => {
+      if (isSubscribed) {
+        if (props.initialAbsenceReason) {
+          await setValue("absenceReason", props.initialAbsenceReason);
+        }
+        if (props.initialDayPart) {
+          await setValue("dayPart", props.initialDayPart);
+        }
+        if (props.initialStartHour) {
+          await setValue("hourlyStartTime", props.initialStartHour);
+        }
+        if (props.initialEndHour) {
+          await setValue("hourlyEndTime", props.initialEndHour);
+        }
+        if (props.initialNeedsReplacement) {
+          await setValue("needsReplacement", props.initialNeedsReplacement);
+        }
+      }
+    };
+    setInitialValues(); // eslint-disable-line
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, []);
 
   const disabledDatesObjs = useEmployeeDisabledDates(
     state.employeeId,
@@ -268,8 +299,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         d => d?.reasonUsages?.map(ru => ru)
       )
     );
-    return computeAbsenceUsageText(usages as any, t);
-  }, [getProjectedVacancies]);
+    return computeAbsenceUsageText(
+      usages as any,
+      props.trackingBalanceReasonIds,
+      t,
+      actingAsEmployee
+    );
+  }, [actingAsEmployee, getProjectedVacancies]);
 
   const name = `${props.firstName} ${props.lastName}`;
 
@@ -367,13 +403,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       />
 
       <form
+        id="absence-form"
         onSubmit={handleSubmit(async data => {
           await create(data);
         })}
       >
         {step === "absence" && (
           <>
-            {props.actingAsEmployee ? (
+            {actingAsEmployee ? (
               <Typography variant="h1">{t("Create absence")}</Typography>
             ) : (
               <>
@@ -422,7 +459,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 onRemoveReplacement={removePrearrangedReplacementEmployee}
                 isSubmitted={formState.isSubmitted}
                 initialAbsenceCreation={true}
-                isFormDirty={formState.dirty}
+                isFormDirty={formState.dirty || formState.touched.length > 0}
                 onAssignSubClick={onAssignSubClick}
                 hasEditedDetails={!!state.vacanciesInput}
                 assignmentsByDate={[]}
@@ -433,7 +470,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         {step === "preAssignSub" && (
           <AssignSub
             orgId={props.organizationId}
-            userIsAdmin={!props.actingAsEmployee && props.userIsAdmin}
+            userIsAdmin={!actingAsEmployee && props.userIsAdmin}
             employeeName={name}
             employeeId={state.employeeId}
             positionId={props.positionId}
@@ -457,7 +494,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       {step === "edit" && (
         <EditVacancies
           orgId={props.organizationId}
-          actingAsEmployee={props.actingAsEmployee}
+          actingAsEmployee={actingAsEmployee}
           employeeName={name}
           positionName={props.positionName}
           onCancel={onCancel}

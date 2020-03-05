@@ -29,7 +29,6 @@ import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import { PaginationControls } from "ui/components/pagination-controls";
 import { ShadowIndicator } from "ui/components/shadow-indicator";
 import { Table, TableColumn } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
@@ -126,7 +125,7 @@ export const PeoplePage: React.FC<Props> = props => {
 
       return roles.join(", ");
     },
-    []
+    [t]
   );
 
   const [inviteUsers] = useMutationBundle(InviteUsers, {
@@ -547,10 +546,7 @@ export const PeoplePage: React.FC<Props> = props => {
               permissions: [PermissionEnum.OrgUserInvite],
             },
           ]}
-        />
-        <PaginationControls
           pagination={pagination}
-          pageSizeOptions={[25, 50, 100, 250, 500]}
         />
       </div>
     </>

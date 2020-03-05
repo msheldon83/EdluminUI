@@ -4,6 +4,7 @@ query GetVacancyDetails(
   $fromDate: Date
   $toDate: Date
   $includeVerified: Boolean
+  $shadowFromOrgId: ID
 ) {
   vacancy {
     getAssignmentsForVerify(
@@ -12,6 +13,7 @@ query GetVacancyDetails(
       fromDate: $fromDate
       toDate: $toDate
       includeVerified: $includeVerified
+      shadowFromOrgId: $shadowFromOrgId
     ) {
       id
       orgId

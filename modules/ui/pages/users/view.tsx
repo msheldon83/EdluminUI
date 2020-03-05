@@ -4,6 +4,8 @@ import {
   Button,
   Typography,
   Divider,
+  Checkbox,
+  FormControlLabel,
 } from "@material-ui/core";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useIsMobile, useDeferredState } from "hooks";
@@ -32,6 +34,7 @@ import { format } from "date-fns";
 import { Table } from "ui/components/table";
 import { OrgUser } from "graphql/server-types.gen";
 import { Column } from "material-table";
+import { UserNotificationLogRoute } from "ui/routes/notification-log";
 
 type Props = {};
 
@@ -78,7 +81,9 @@ export const UserViewPage: React.FC<Props> = props => {
       firstName: string,
       middleName: string | undefined,
       lastName: string,
-      rowVersion: string | undefined
+      phone: string | undefined,
+      rowVersion: string | undefined,
+      phoneIsValidForSms: boolean | undefined
     ) => {
       return updateUser({
         variables: {
@@ -88,6 +93,8 @@ export const UserViewPage: React.FC<Props> = props => {
             firstName,
             middleName,
             lastName,
+            phone,
+            phoneIsValidForSms,
           },
         },
       });
@@ -135,9 +142,9 @@ export const UserViewPage: React.FC<Props> = props => {
   // associated with the User, so let's just cache them here
   // when we get a populated list and not when the list in empty
   useEffect(() => {
-    if (user?.orgUsers && user?.orgUsers?.length > 0) {
+    if (user?.allOrgUsers && user?.allOrgUsers?.length > 0) {
       setOrgUsers(
-        (user?.orgUsers ?? []) as Pick<
+        (user?.allOrgUsers ?? []) as Pick<
           OrgUser,
           | "id"
           | "isAdmin"
@@ -221,6 +228,8 @@ export const UserViewPage: React.FC<Props> = props => {
     },
   ];
 
+  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+
   return (
     <>
       <ChangeLoginEmailDialog
@@ -236,6 +245,20 @@ export const UserViewPage: React.FC<Props> = props => {
           <PageTitle title={userName} />
         </Grid>
         <Grid item className={classes.actionContainer}>
+          <div className={classes.action}>
+            <Button
+              variant="outlined"
+              onClick={() =>
+                history.push(
+                  UserNotificationLogRoute.generate({
+                    userId: params.userId,
+                  })
+                )
+              }
+            >
+              {t("View notification log")}
+            </Button>
+          </div>
           <div className={classes.action}>
             <Button
               variant="outlined"
@@ -266,13 +289,17 @@ export const UserViewPage: React.FC<Props> = props => {
             firstName: user?.firstName ?? "",
             middleName: user?.middleName ?? undefined,
             lastName: user?.lastName ?? "",
+            phone: user?.phone ?? undefined,
+            phoneIsValidForSms: user?.phoneIsValidForSms,
           }}
           onSubmit={async (data, meta) => {
             await update(
               data.firstName,
               data.middleName,
               data.lastName,
-              rowVersion
+              data.phone,
+              rowVersion,
+              data.phoneIsValidForSms ? data.phoneIsValidForSms : undefined
             );
           }}
           validationSchema={yup.object().shape({
@@ -284,13 +311,17 @@ export const UserViewPage: React.FC<Props> = props => {
               .string()
               .nullable()
               .required(t("Last Name is required")),
+            phone: yup
+              .string()
+              .nullable()
+              .matches(phoneRegExp, t("Phone Number Is Not Valid")),
           })}
         >
           {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
             <form onSubmit={handleSubmit}>
               <Grid
                 container
-                justify="space-between"
+                justify="flex-start"
                 alignItems="flex-end"
                 spacing={2}
               >
@@ -346,6 +377,38 @@ export const UserViewPage: React.FC<Props> = props => {
                     }}
                   />
                 </Grid>
+                <Grid item xs={4}>
+                  <Input
+                    label={t("Phone")}
+                    InputComponent={FormTextField}
+                    inputComponentProps={{
+                      name: "phone",
+                      margin: isMobile ? "normal" : "none",
+                      variant: "outlined",
+                      fullWidth: true,
+                    }}
+                  />
+                </Grid>
+                {user?.phone && (
+                  <Grid item xs={4}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          color="primary"
+                          checked={
+                            values.phoneIsValidForSms ||
+                            values.phoneIsValidForSms == undefined ||
+                            values.phoneIsValidForSms == null
+                          }
+                          onChange={() =>
+                            setFieldValue("phoneIsValidForSms", true)
+                          }
+                        />
+                      }
+                      label={t("Phone is valid for sms")}
+                    />
+                  </Grid>
+                )}
               </Grid>
               <ActionButtons
                 submit={{ text: t("Save"), execute: submitForm }}

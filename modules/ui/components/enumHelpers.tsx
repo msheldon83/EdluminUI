@@ -106,6 +106,58 @@ const buildEnumMap = (t: i18next.TFunction) => {
       name: "dayOfWeekShort.SATURDAY",
       displayName: t("Sat"),
     },
+    {
+      name: "userAvailability.AVAILABLE",
+      displayName: t("Any time"),
+    },
+    {
+      name: "userAvailability.NOT_AVAILABLE",
+      displayName: t("Not available"),
+    },
+    {
+      name: "userAvailability.BEFORE",
+      displayName: t("Before"),
+    },
+    {
+      name: "userAvailability.AFTER",
+      displayName: t("After"),
+    },
+    {
+      name: "notificationMessageStatus.WAITING_TO_SEND",
+      displayName: t("Waiting to send"),
+    },
+    {
+      name: "notificationMessageStatus.SENT_TO_PROVIDER",
+      displayName: t("Sent to provider"),
+    },
+    {
+      name: "notificationMessageStatus.SEND_FAILURE",
+      displayName: t("Send failure"),
+    },
+    {
+      name: "notificationMessageStatus.DELIVERED_TO_RECIPIENT",
+      displayName: t("Delivered"),
+    },
+    {
+      name: "notificationMessageStatus.DELIVERY_FAILURE",
+      displayName: t("Delivery failure"),
+    },
+    {
+      name: "notificationMessageStatus.NOTHING_TO_SEND",
+      displayName: t("Nothing to send"),
+    },
+    {
+      name: "jobNotificationResponse.ACCEPTED",
+      displayName: t("Accepted"),
+    },
+    {
+      name: "jobNotificationResponse.REJECTED",
+      displayName: t("Rejected"),
+    },
+    {
+      name: "jobNotificationResponse.IGNORED",
+      displayName: t("Ignored"),
+    },
   ];
   return enumMap;
 };

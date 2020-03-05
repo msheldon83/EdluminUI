@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useQueryBundle } from "graphql/hooks";
+import { compact } from "lodash-es";
 import {
   Checkbox,
   FormControlLabel,
@@ -10,13 +12,17 @@ import {
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useLocations } from "reference-data/locations";
 import { useCallback, useMemo } from "react";
+import { OrganizationRelationshipType } from "graphql/server-types.gen";
+import { GetOrganizationRelationships } from "../graphql/get-organization-relationships.gen";
 
 type Props = {
   showVerified: boolean;
   orgId: string;
   setShowVerified: React.Dispatch<React.SetStateAction<boolean>>;
   locationsFilter: string[];
+  subSourceFilter: string;
   setLocationsFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  setSubSourceFilter: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const Filters: React.FC<Props> = props => {
@@ -28,14 +34,62 @@ export const Filters: React.FC<Props> = props => {
     () => locations.map(l => ({ label: l.name, value: l.id })),
     [locations]
   );
+
+  //Get Option Types for Sub Source
+  const getSubSources = useQueryBundle(GetOrganizationRelationships, {
+    fetchPolicy: "cache-first",
+    variables: { orgId: props.orgId },
+  });
+
+  const subSources = useMemo(() => {
+    if (
+      getSubSources.state === "DONE" &&
+      getSubSources.data.organizationRelationship
+    ) {
+      return compact(getSubSources.data.organizationRelationship.all) ?? [];
+    }
+    return [];
+  }, [getSubSources]);
+
+  const subSourceOptions: OptionType[] = useMemo(() => {
+    const delgateTo = subSources.filter(
+      l => l.relationshipType === OrganizationRelationshipType.DelegatesTo
+    );
+    const options =
+      delgateTo?.map(x => ({
+        label: x.relatesToOrganization!.name,
+        value: x.id,
+      })) ?? [];
+
+    options.unshift(
+      { label: "(All)", value: "0" },
+      { label: "My Organization", value: props.orgId }
+    );
+    return options;
+  }, [subSources]);
+
+  const selectedValue = subSourceOptions.find(e =>
+    props.subSourceFilter === "" || props.subSourceFilter === undefined
+      ? subSourceOptions.find(e => e.value.toString() === "0")
+      : e.label && props.subSourceFilter === e.value.toString()
+  );
+
   const onChangeLocations = useCallback(
     (value /* OptionType[] */) => {
-      const ids: string[] = value
-        ? value.map((v: OptionType) =>v.value)
-        : [];
+      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
       props.setLocationsFilter(ids);
     },
     [props.setLocationsFilter]
+  );
+
+  const onChangeSubSource = useCallback(
+    (value /* OptionType[] */) => {
+      const ids = value ?? value.map((v: OptionType) => v.value);
+      if (ids.value === "0") ids.value = undefined;
+
+      props.setSubSourceFilter(ids.value);
+    },
+    [props.setSubSourceFilter]
   );
 
   return (
@@ -58,6 +112,21 @@ export const Filters: React.FC<Props> = props => {
             multiple
           />
         </Grid>
+        {subSourceOptions.length > 2 && (
+          <Grid item xs={12} sm={6} md={3} lg={3}>
+            <InputLabel className={classes.label}>
+              {t("Substitute source")}
+            </InputLabel>
+            <SelectNew
+              onChange={onChangeSubSource}
+              options={subSourceOptions}
+              value={selectedValue}
+              multiple={false}
+              withResetValue={false}
+              doSort={false}
+            />
+          </Grid>
+        )}
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <FormControlLabel
             checked={props.showVerified}

@@ -46,6 +46,10 @@ query GetMyUserAccess {
             }
             permissions
             createdUtc
+            absenceReasonBalances {
+              id
+              absenceReasonId
+            }
           }
           substitute {
             firstName

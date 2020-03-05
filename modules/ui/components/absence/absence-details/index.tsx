@@ -1,4 +1,11 @@
-import { Button, Grid, makeStyles, Paper, Typography } from "@material-ui/core";
+import {
+  Button,
+  Grid,
+  makeStyles,
+  Paper,
+  Typography,
+  useTheme,
+} from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay, parseISO } from "date-fns";
 import { Errors, SetValue, TriggerValidation } from "forms";
@@ -13,7 +20,7 @@ import * as React from "react";
 import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { useAbsenceReasonOptions } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail, AssignmentOnDate } from "ui/components/absence/types";
 import { Can } from "ui/components/auth/can";
@@ -23,6 +30,7 @@ import { DayPartField, DayPartValue } from "../day-part-field";
 import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
 import { uniqBy } from "lodash-es";
+import { ContentFooter } from "../../content-footer";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -53,6 +61,10 @@ type Props = {
   isAdmin: null | boolean;
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
+  absenceReason?: {
+    id: string;
+    name: string;
+  };
   vacancies: Vacancy[];
   vacancyDetails: VacancyDetail[];
   locationIds?: string[];
@@ -90,6 +102,7 @@ type Props = {
 
 export const AbsenceDetails: React.FC<Props> = props => {
   const classes = useStyles();
+  const theme = useTheme();
   const { t } = useTranslation();
   const history = useHistory();
   const {
@@ -106,10 +119,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
     assignmentsByDate,
   } = props;
 
-  const absenceReasons = useAbsenceReasons(organizationId);
-  const absenceReasonOptions = useMemo(
-    () => absenceReasons.map(r => ({ label: r.name, value: r.id })),
-    [absenceReasons]
+  const absenceReasons =
+    props?.absenceReason?.name && props?.absenceReason?.id
+      ? [{ label: props.absenceReason.name, value: props.absenceReason.id }]
+      : [];
+
+  const absenceReasonOptions = useAbsenceReasonOptions(
+    organizationId,
+    absenceReasons
   );
 
   const startDate = startOfDay(min(props.absenceDates));
@@ -172,7 +189,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
   }, [props.vacancies]);
 
   return (
-    <Grid container>
+    <Grid container className={classes.absenceDetailsContainer}>
       <Grid item md={4} className={classes.spacing}>
         <Typography variant="h5">{t("Absence Details")}</Typography>
 
@@ -318,67 +335,66 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </div>
       </Grid>
 
-      <Grid item xs={12} className={classes.stickyFooter}>
-        <div className={classes.actionButtons}>
-          <div className={classes.unsavedText}>
-            {props.isFormDirty && (
-              <Typography>{t("This page has unsaved changes")}</Typography>
+      <ContentFooter>
+        <Grid item xs={12} className={classes.contentFooter}>
+          <div className={classes.actionButtons}>
+            <div className={classes.unsavedText}>
+              {props.isFormDirty && (
+                <Typography>{t("This page has unsaved changes")}</Typography>
+              )}
+            </div>
+            {props.onDelete && !props.isFormDirty && (
+              <Button
+                onClick={() => props.onDelete!()}
+                variant="text"
+                className={classes.deleteButton}
+              >
+                {t("Delete")}
+              </Button>
             )}
+            {props.onCancel && props.isFormDirty && (
+              <Button
+                onClick={() => props.onCancel!()}
+                variant="outlined"
+                className={classes.cancelButton}
+                disabled={!props.isFormDirty}
+              >
+                {t("Discard Changes")}
+              </Button>
+            )}
+            <Can do={[PermissionEnum.AbsVacSave]}>
+              <Button
+                form="absence-form"
+                type="submit"
+                variant="contained"
+                className={classes.saveButton}
+                disabled={!props.isFormDirty}
+              >
+                {props.saveLabel ?? t("Create")}
+              </Button>
+            </Can>
           </div>
-          {props.onDelete && !props.isFormDirty && (
-            <Button
-              onClick={() => props.onDelete!()}
-              variant="text"
-              className={classes.deleteButton}
-            >
-              {t("Delete")}
-            </Button>
-          )}
-          {props.onCancel && props.isFormDirty && (
-            <Button
-              onClick={() => props.onCancel!()}
-              variant="outlined"
-              className={classes.cancelButton}
-              disabled={!props.isFormDirty}
-            >
-              {t("Discard Changes")}
-            </Button>
-          )}
-          <Can do={[PermissionEnum.AbsVacSave]}>
-            <Button
-              type="submit"
-              variant="contained"
-              className={classes.saveButton}
-              disabled={!props.isFormDirty}
-            >
-              {props.saveLabel ?? t("Create")}
-            </Button>
-          </Can>
-        </div>
-      </Grid>
+        </Grid>
+      </ContentFooter>
     </Grid>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  absenceDetailsContainer: {
+    paddingBottom: theme.typography.pxToRem(72),
+  },
   actionButtons: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-end",
   },
-  stickyFooter: {
-    backgroundColor: "#E3F2FD",
+  contentFooter: {
     height: theme.typography.pxToRem(72),
-    position: "fixed",
     width: "100%",
-    left: "0",
-    right: "0",
-    bottom: "0",
-    boxSizing: "border-box",
-    border: "1px solid #d8d8d8",
-    paddingTop: theme.typography.pxToRem(16),
-    zIndex: 500,
-    paddingRight: theme.typography.pxToRem(10),
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
   },
   deleteButton: {
     color: theme.customColors.darkRed,

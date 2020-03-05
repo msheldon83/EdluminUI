@@ -5,7 +5,6 @@ import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
-import { PaginationControls } from "ui/components/pagination-controls";
 import { Table } from "ui/components/table";
 import { GetAllUsersPaged } from "./graphql/get-all-users.gen";
 import { compact } from "lodash-es";
@@ -15,6 +14,7 @@ import { Input } from "ui/components/form/input";
 import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
 import { UsersRoute, UserViewRoute } from "ui/routes/users";
+import { Column } from "material-table";
 
 type Props = {};
 
@@ -25,11 +25,19 @@ export const UsersPage: React.FC<Props> = props => {
   const history = useHistory();
   const params = useRouteParams(UsersRoute);
 
-  const columns = [
-    { title: t("Id"), field: "id" },
-    { title: t("Last Name"), field: "lastName" },
-    { title: t("First Name"), field: "firstName" },
+  const columns: Column<GetAllUsersPaged.Results>[] = [
+    { title: t("Id"), field: "id", hidden: isMobile },
+    {
+      title: t("Name"),
+      render: data => {
+        return `${data.lastName}, ${data.firstName}`;
+      },
+      hidden: !isMobile,
+    },
+    { title: t("Last Name"), field: "lastName", hidden: isMobile },
+    { title: t("First Name"), field: "firstName", hidden: isMobile },
     { title: t("Username"), field: "loginEmail" },
+    { title: t("Phone"), field: "formattedPhone" },
   ];
 
   const [
@@ -84,7 +92,9 @@ export const UsersPage: React.FC<Props> = props => {
                   setPendingSearchText(e.target.value);
                 }
               }}
-              placeholder={"First Name, Last Name, Email/Username or User Id"}
+              placeholder={t(
+                "First Name, Last Name, Email/Username, User Id or Un-formatted Phone# (6105551234)"
+              )}
               fullWidth={true}
             />
           </div>
@@ -105,10 +115,8 @@ export const UsersPage: React.FC<Props> = props => {
               };
               history.push(UserViewRoute.generate(newParams));
             }}
+            pagination={pagination}
           />
-          <div className={classes.pagination}>
-            <PaginationControls pagination={pagination} />
-          </div>
         </div>
       </Section>
     </>
@@ -117,13 +125,10 @@ export const UsersPage: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   searchTextFieldContainer: {
-    width: theme.typography.pxToRem(500),
+    width: "100%",
   },
   searchTextFieldRow: {
     borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
     paddingBottom: theme.spacing(3),
-  },
-  pagination: {
-    padding: `${theme.spacing(8)} 0`,
   },
 }));

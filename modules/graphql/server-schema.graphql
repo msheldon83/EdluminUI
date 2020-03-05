@@ -120,6 +120,7 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isBucket: Boolean!
+  isRestricted: Boolean!
   appliesToAssignmentTypes: AssignmentType
   limitPerDay: Int
   parentAbsenceReasonId: ID
@@ -185,6 +186,7 @@ input AbsenceReasonCreateInput {
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isBucket: Boolean!
+  isRestricted: Boolean!
   limitPerDay: Int
   parentAbsenceReasonId: Int
   prioritySequence: Int
@@ -207,6 +209,7 @@ input AbsenceReasonUpdateInput {
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isBucket: Boolean!
+  isRestricted: Boolean!
   limitPerDay: Int
   parentAbsenceReasonId: ID
   prioritySequence: Int
@@ -973,6 +976,7 @@ type ContractScheduleQueries {
   byId(id: ID!): ContractSchedule
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ContractSchedule]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedContractSchedule
+  contractScheduleDates(contractId: ID!, fromDate: Date!, toDate: Date!): [ContractDate!]!
 }
 
 input ContractScheduleUpdateInput {
@@ -1699,6 +1703,7 @@ enum EventType {
   VACANCY_DETAIL_CLOSED_BY_CALENDAR_CHANGE
   VACANCY_DETAIL_ALTERED_BY_CALENDAR_CHANGE
   VACANCY_DETAIL_RESTORED_BY_CALENDAR_CHANGE_DELETE
+  VACANCY_REQUESTED_SUB_RESERVED_EXPIRED
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
@@ -1769,6 +1774,13 @@ enum InterestRating {
   NOT_INTERESTED
   LOW_INTEREST
   HIGH_INTEREST
+}
+
+enum JobNotificationResponse {
+  INVALID
+  ACCEPTED
+  REJECTED
+  IGNORED
 }
 
 type Label implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -1843,6 +1855,7 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   formattedPhone: String
   locationGroup: LocationGroup
   substitutePreferences: SubstitutePreferences!
+  workDaySchedules: [WorkDaySchedule!]!
   address1: String
   address2: String
   city: String
@@ -2035,6 +2048,15 @@ type NotificationLogQueries {
   unreadNotificationCount(orgId: ID): Int
 }
 
+enum NotificationMessageStatus {
+  WAITING_TO_SEND
+  SENT_TO_PROVIDER
+  SEND_FAILURE
+  DELIVERED_TO_RECIPIENT
+  DELIVERY_FAILURE
+  NOTHING_TO_SEND
+}
+
 type NotificationPreference {
   _info: [ReturnMessage]
   notificationReasonId: NotificationReason
@@ -2142,7 +2164,7 @@ type organizationConfig {
   defaultCountry: CountryCode
   defaultLocationId: Int
   orgUsersMustAcceptEula: Boolean!
-  leadTimeWindowsMinutes: Int!
+  minutesBeforeStartAbsenceCanBeCreated: Int!
   brandingId: ID!
   branding: Branding
   featureFlags: [FeatureFlag]
@@ -2157,6 +2179,7 @@ type organizationConfig {
   minRequestedEmployeeHoldMinutes: Int!
   maxRequestedEmployeeHoldMinutes: Int!
   minorConflictThresholdMinutes: Int!
+  minutesRelativeToStartVacancyCanBeFilled: Int!
   vacancyDayConversions: [DayConversion]
 }
 
@@ -2167,7 +2190,7 @@ input organizationConfigInput {
   defaultCurrency: Currency
   defaultCountry: CountryCode
   orgUsersMustAcceptEula: Boolean
-  defaultLeadTimeWindowMinutes: Int
+  minutesBeforeStartAbsenceCanBeCreated: Int
   brandingId: ID
   longTermVacancyThresholdDays: Int
   minLeadTimeMinutesToCancelVacancy: Int
@@ -2180,6 +2203,7 @@ input organizationConfigInput {
   minRequestedEmployeeHoldMinutes: Int
   maxRequestedEmployeeHoldMinutes: Int
   minorConflictThresholdMinutes: Int
+  minutesRelativeToStartVacancyCanBeFilled: Int
   vacancyDayConversions: [DayConversionInput]
 }
 
@@ -2830,6 +2854,15 @@ type PagedVacancy {
   totalCount: Int
 }
 
+type PagedVacancyNotificationLog {
+  _info: [ReturnMessage]
+  results: [VacancyNotificationLog]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedVacancyReason {
   _info: [ReturnMessage]
   results: [VacancyReason]
@@ -2973,6 +3006,7 @@ enum PermissionEnum {
   ABS_VAC_VIEW
   ABS_VAC_VIEW_ACCOUNT_CODE
   ABS_VAC_VIEW_PAY_CODE
+  ABS_VAC_VIEW_NOTIFICATION_LOG
   ABS_VAC_SAVE
   ABS_VAC_DELETE
   ABS_VAC_REMOVE_SUB
@@ -2982,6 +3016,7 @@ enum PermissionEnum {
   ABS_VAC_EDIT_PAST
   ABS_VAC_EDIT_ASSIGNED
   ABS_VAC_EDIT_VERIFIED
+  ABS_VAC_EDIT_PAST_SAME_DAY
   ABS_VAC_REQUEST_REPLACEMENT
   ABS_VAC_ASSIGN
   ABS_VAC_ASSIGN_NO_SUB_NEEDED
@@ -3033,6 +3068,7 @@ enum PermissionEnum {
   FINANCE_SETTINGS_VIEW
   FINANCE_SETTINGS_SAVE
   FINANCE_SETTINGS_DELETE
+  ASSIGN_RESTRICTED_ABSENCE_REASON
   PERMISSION_SET_VIEW
   PERMISSION_SET_SAVE
   PERMISSION_SET_DELETE
@@ -3286,11 +3322,8 @@ type PositionScheduleDate {
   fullWorkdayDuration: Short!
   totalDuration: Short!
   absenceBalanceDuration: Short!
-  absenceBalanceDayPortion: Decimal!
   replacementDuration: Short!
   replacementDayPortion: Decimal!
-  halfDayMorningAbsenceBalanceDayPortion: Decimal
-  halfDayAfternoonAbsenceBalanceDayPortion: Decimal
   halfDayMorningEndLocal: DateTime
   halfDayMorningEndUtc: DateTime
   halfDayAfternoonStartLocal: DateTime
@@ -3575,8 +3608,8 @@ type PositionTypeQualifications {
 
 type PositionTypeQueries {
   byId(id: ID!): PositionType
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [PositionType]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedPositionType
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], forStaffAugmentation: Boolean, forPermanentPositions: Boolean): [PositionType]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], forStaffAugmentation: Boolean, forPermanentPositions: Boolean): PagedPositionType
   qualifiedEmployeeCounts(orgId: ID!, limit: Int, offset: Int, positionTypeId: ID!, name: String): QualifiedEmployeeCounts
   qualifiedEmployees(orgId: ID!, limit: Int, offset: Int, positionTypeId: ID!, name: String): PagedEmployeeQualifiedResult
   getQualificationsFromEndorsements(orgId: ID!, endorsementIds: [ID!]!): PositionTypeQualifications!
@@ -4692,6 +4725,7 @@ type User implements ModelObjectInterface {
   recoveryEmail: String
   phone: String
   formattedPhone: String
+  phoneIsValidForSms: Boolean
   inviteSentAtUtc: DateTime
   inviteSent: Boolean!
   isAccountSetup: Boolean!
@@ -4699,6 +4733,7 @@ type User implements ModelObjectInterface {
   timeZoneId: TimeZone
   rowVersion: String!
   orgUsers: [OrgUser]
+  allOrgUsers: [OrgUser]
   preferences: UserPreferences
   isSystemAdministrator: Boolean!
   eulaAcceptedAtUtc: DateTime
@@ -4836,6 +4871,7 @@ input UserUpdateInput {
   lastName: String
   recoveryEmail: String
   phone: String
+  phoneIsValidForSms: Boolean
   timeZoneId: TimeZone
   cultureId: Culture
   preferences: UserPreferencesInput
@@ -4964,6 +5000,7 @@ input VacancyDetailInput {
   locationId: ID
   payCodeId: ID
   accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
+  vacancyReasonId: ID
 }
 
 input VacancyDetailVerifyInput {
@@ -5029,6 +5066,28 @@ type VacancyMutations {
   verifyVacancyDetail(vacancyDetail: VacancyDetailVerifyInput!): VacancyDetail
 }
 
+type VacancyNotificationLog {
+  _info: [ReturnMessage]
+  id: ID!
+  orgId: ID!
+  organization: Organization!
+  vacancyId: ID!
+  vacancy: Vacancy!
+  employeeId: ID!
+  employee: Employee!
+  createdUtc: DateTime!
+  sentAtUtc: DateTime
+  statusAsOfUtc: DateTime
+  numFailedSendAttempts: Short!
+  notificationMessageStatus: NotificationMessageStatus
+  statusErrorCode: Int
+  repliedAtUtc: DateTime
+  reply: String
+  conversationId: Short!
+  jobNotificationResponse: JobNotificationResponse
+  messageId: String
+}
+
 enum VacancyQualification {
   FULLY
   MINIMALLY
@@ -5039,7 +5098,7 @@ type VacancyQueries {
   byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
-  getAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, limit: Int, orgId: ID!, includeVerified: Boolean): [VacancyDetail]
+  getAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, limit: Int, orgId: ID!, shadowFromOrgId: ID, includeVerified: Boolean): [VacancyDetail]
   getCountOfAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, orgId: ID!, includeVerified: Boolean): [VacancyDetailCount]
   getTotalCountOfAssignmentsToVerifyForCurrentSchoolYear(orgId: ID!): Int
   wasEmployeeAssignedToJob(id: ID!, vacancyId: ID!): VacancyWasAssignedResult
@@ -5048,6 +5107,8 @@ type VacancyQueries {
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
   userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
+  vacancyNotificationLogByVacancy(vacancyId: ID!): [VacancyNotificationLog]
+  vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
 }
 
 type VacancyReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {

@@ -118,6 +118,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         endorsementId: endorsementId,
       },
     });
+    return result;
   };
 
   const columns: Column<GetAllReplacementEndorsementsWithinOrg.All>[] = [
@@ -237,7 +238,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         }}
         onRowDelete={{
           action: async oldData => {
-            deleteReplacementEndorsement(String(oldData.id));
+            await deleteReplacementEndorsement(String(oldData.id));
             await getReplacementEndorsements.refetch();
           },
           permissions: [PermissionEnum.AbsVacSettingsDelete],

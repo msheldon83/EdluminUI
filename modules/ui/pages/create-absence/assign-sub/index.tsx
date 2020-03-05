@@ -21,6 +21,7 @@ import {
 } from "./filters";
 import { ReassignAbsenceDialog } from "ui/components/absence/reassign-dialog";
 import { AssignmentOnDate } from "ui/components/absence/types";
+import { AbsenceHeader } from "ui/components/absence/header";
 
 type Props = {
   orgId: string;
@@ -287,28 +288,13 @@ export const AssignSub: React.FC<Props> = props => {
         currentReplacementEmployee={employeeToReplace}
         newReplacementEmployee={replacementEmployeeName}
       />
-      <div className={classes.header}>
-        <div>
-          <Typography variant="h5">{pageHeader}</Typography>
-          {props.userIsAdmin && (
-            <Typography variant="h1">{props.employeeName}</Typography>
-          )}
-        </div>
-        <div className={classes.confAndReturnContainer}>
-          <div>
-            <Button variant="outlined" onClick={props.onCancel}>
-              {t("Back to Absence Details")}
-            </Button>
-          </div>
-          <div>
-            {props.absenceId && (
-              <Typography variant="h6">
-                {t("Confirmation")} #{props.absenceId}
-              </Typography>
-            )}
-          </div>
-        </div>
-      </div>
+      <AbsenceHeader
+        absenceId={props.absenceId}
+        userIsAdmin={props.userIsAdmin}
+        employeeName={props.employeeName}
+        pageHeader={pageHeader}
+        onCancel={props.onCancel}
+      />
       <Section>
         <div className={classes.vacancyDetails}>{renderVacancyDetails()}</div>
         <Divider />
@@ -338,11 +324,12 @@ export const AssignSub: React.FC<Props> = props => {
                 boxShadow: "initial",
               }}
               backgroundFillForAlternatingRows={true}
+              /* As of 12/2/2019, we are not going to page this data.
+                We will reintroduce pagining in the future.
+              pagination={pagination}
+              */
             />
           )}
-          {/* As of 12/2/2019, we are not going to page this data.
-          We will reintroduce pagining in the future.
-        <PaginationControls pagination={pagination} /> */}
         </div>
       </Section>
     </>

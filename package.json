@@ -42,7 +42,7 @@
     "graphql-tools": "^4.0.5",
     "i18next": "19",
     "lodash-es": "^4.17.15",
-    "material-table": "^1.52.0",
+    "material-table": "1.57.0",
     "material-ui-chip-input": "^1.0.0",
     "material-ui-phone-number": "^2.2.5",
     "react": "^16.10.1",

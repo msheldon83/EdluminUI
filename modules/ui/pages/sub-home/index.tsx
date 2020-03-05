@@ -10,7 +10,7 @@ import { FilterList } from "@material-ui/icons";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/styles";
 import clsx from "clsx";
-import { addDays, format, isEqual, parseISO } from "date-fns";
+import { addDays, format, isEqual, parseISO, isBefore } from "date-fns";
 import {
   useMutationBundle,
   usePagedQueryBundle,
@@ -132,7 +132,11 @@ export const SubHome: React.FC<Props> = props => {
     () =>
       vacancies
         .filter(x => !dismissedAssignments.includes(x.id))
-        .sort(x => x.startTimeLocal),
+        .sort((a, b) =>
+          isBefore(parseISO(a.startTimeLocal), parseISO(b.startTimeLocal))
+            ? -1
+            : 1
+        ),
     [vacancies, dismissedAssignments]
   );
   const onRefreshVacancies = async () => await getVacancies.refetch();
