@@ -12,14 +12,14 @@ import {
   midnightTime,
   secondsSinceMidnight,
   timeStampToIso,
-  parseTimeFromString,
   isoToTimestamp,
-  humanizeTimeStamp,
 } from "helpers/time";
 
 type Props = {
   vacancyDetail: VacancyDetailInput;
   vacancyReasonOptions: OptionType[];
+  payCodeOptions: OptionType[];
+  accountingCodeOptions: OptionType[];
   dayParts: {
     id: string;
     label: string;
@@ -28,6 +28,8 @@ type Props = {
   }[];
   setVacancyDetailReason: (value: VacancyDetailInput) => void;
   setVacancyDetailTimes: (value: VacancyDetailInput) => void;
+  setVacancyPayCode: (value: VacancyDetailInput) => void;
+  setVacancyAccountingCode: (value: VacancyDetailInput) => void;
   showCopyPast: boolean;
 };
 
@@ -37,9 +39,13 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
   const {
     vacancyDetail,
     vacancyReasonOptions,
+    payCodeOptions,
+    accountingCodeOptions,
     showCopyPast,
     setVacancyDetailReason,
     setVacancyDetailTimes,
+    setVacancyPayCode,
+    setVacancyAccountingCode,
     dayParts,
   } = props;
 
@@ -95,18 +101,12 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
 
   const updateVacancyDetailTimes = React.useCallback(
     (timeId: string) => {
-      const sTime: number =
-        timeId !== "custom"
-          ? dayParts.find(d => {
-              return d.id === timeId;
-            })?.start
-          : startTime;
-      const eTime: number =
-        timeId !== "custom"
-          ? dayParts.find(d => {
-              return d.id === timeId;
-            })?.end
-          : endTime;
+      const sTime: number = dayParts.find(d => {
+        return d.id === timeId;
+      })?.start;
+      const eTime: number = dayParts.find(d => {
+        return d.id === timeId;
+      })?.end;
       const newVacDetail = {
         ...vacancyDetail,
         startTime: sTime,
@@ -287,6 +287,68 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
             />
           </Grid>
         )}
+        <Grid item xs={12}>
+          <Select
+            multiple={false}
+            withResetValue={false}
+            options={payCodeOptions}
+            value={{
+              value: vacancyDetail.payCodeId ?? payCodeOptions[0].value,
+              label:
+                payCodeOptions.find(a =>
+                  vacancyDetail.payCodeId
+                    ? a.value === vacancyDetail.payCodeId
+                    : a.value === payCodeOptions[0].value
+                )?.label || "",
+            }}
+            onChange={async (e: OptionType) => {
+              let selectedValue: any = null;
+              if (e) {
+                selectedValue = (e as OptionTypeBase).value;
+              }
+              const newVacDetail = {
+                ...vacancyDetail,
+                payCodeId: selectedValue,
+              };
+              setVacancyPayCode(newVacDetail);
+            }}
+          ></Select>
+        </Grid>
+        <Grid item xs={12}>
+          <Select
+            multiple={false}
+            withResetValue={false}
+            options={accountingCodeOptions}
+            value={{
+              value: vacancyDetail.accountingCodeAllocations
+                ? vacancyDetail.accountingCodeAllocations[0]
+                    ?.accountingCodeId ?? accountingCodeOptions[0].value
+                : accountingCodeOptions[0].value,
+              label:
+                accountingCodeOptions.find(a =>
+                  vacancyDetail.accountingCodeAllocations &&
+                  vacancyDetail.accountingCodeAllocations[0]?.accountingCodeId
+                    ? a.value ===
+                      vacancyDetail.accountingCodeAllocations[0]
+                        .accountingCodeId
+                    : a.value === accountingCodeOptions[0].value
+                )?.label || "",
+            }}
+            onChange={async (e: OptionType) => {
+              let selectedValue: any = null;
+              if (e) {
+                selectedValue = (e as OptionTypeBase).value;
+              }
+              const newVacDetail = {
+                ...vacancyDetail,
+                accountingCodeAllocations: [
+                  { accountingCodeId: selectedValue, allocation: 1.0 },
+                ],
+              };
+              setVacancyAccountingCode(newVacDetail);
+            }}
+          ></Select>
+        </Grid>
       </Grid>
     </>
   );

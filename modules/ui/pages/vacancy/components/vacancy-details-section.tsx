@@ -6,21 +6,24 @@ import {
   VacancyCreateInput,
   Contract,
   VacancyDetailInput,
+  PayCode,
+  AccountingCode,
 } from "graphql/server-types.gen";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryBundle } from "graphql/hooks";
 
-import { compact } from "lodash-es";
+import { compact, sortBy } from "lodash-es";
 import { VacancyContractSelect } from "./vacancy-contract-select";
 import { OptionTypeBase } from "react-select";
-import { Grid, Typography } from "@material-ui/core";
+import { Grid, Typography, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { VacancyDateSelect } from "./vacancy-date-select";
-import { startOfDay } from "date-fns";
+import { startOfDay, addDays, format } from "date-fns";
 import { isSameDay } from "date-fns/esm";
 import { differenceWith, filter, find } from "lodash-es";
 import { VacancyIndividualDayList } from "./vacancy-individual-day-list";
+import { SelectVacancyDateDialog } from "./vacancy-date-picker-dialog";
 
 export type VacancyDetailsFormData = {
   positionTypeId?: string;
@@ -36,6 +39,8 @@ type Props = {
   orgId: string;
   positionTypes: PositionType[];
   locations: Loc[];
+  payCodes: PayCode[];
+  accountingCodes: AccountingCode[];
   contracts: Contract[];
   values: VacancyDetailsFormData;
   setFieldValue: (
@@ -55,9 +60,13 @@ export const VacancyDetailSection: React.FC<Props> = props => {
     setFieldValue,
     setVacancyForCreate,
     contracts,
+    payCodes,
+    accountingCodes,
   } = props;
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const [isSelectDatesOpen, setIsSelectDatesOpen] = useState(false);
 
   const positionTypeOptions = useMemo(
     () => positionTypes.map((r: any) => ({ label: r.name, value: r.id })),
@@ -96,20 +105,68 @@ export const VacancyDetailSection: React.FC<Props> = props => {
     setVacancyForCreate(vacancy);
   };
 
-  const toggleVacancyDate = (d: Date) => {
-    const date = startOfDay(d);
-    if (find(values.details, d => isSameDay(d.date, date))) {
-      const newDetails = values.details.filter(d => !isSameDay(d.date, date));
-      setFieldValue("details", newDetails);
-      updateModel({
-        details: newDetails,
-      });
-    } else {
-      const newDetails = values.details.slice();
-      newDetails.push({ date: date });
-      setFieldValue("details", newDetails);
-      updateModel({ details: newDetails });
+  const toggleVacancyDate = (dates: Date[]) => {
+    const newDetails: VacancyDetailInput[] = [];
+    dates.forEach(d => {
+      const date = startOfDay(d);
+      if (find(values.details, vd => isSameDay(vd.date, date))) {
+        newDetails.push(
+          find(values.details, vd => isSameDay(vd.date, date)) ?? {}
+        );
+      } else {
+        newDetails.push({ date: d });
+      }
+    });
+    setFieldValue("details", newDetails);
+    updateModel({ details: newDetails });
+    setIsSelectDatesOpen(false);
+  };
+
+  const buildDateLabel = React.useMemo(() => {
+    let buildSeq = false;
+    let seqStartDate;
+    let seqEndDate;
+    let label = "";
+    let currentMonth = "";
+    const sortedArray = sortBy(values.details, d => {
+      return d.date;
+    });
+    for (let i = 0; i < sortedArray.length; i++) {
+      if (
+        i + 1 !== sortedArray.length &&
+        isSameDay(addDays(sortedArray[i].date, 1), sortedArray[i + 1].date)
+      ) {
+        //in sequence
+        if (!buildSeq) {
+          buildSeq = true;
+          seqStartDate = sortedArray[i].date;
+          currentMonth =
+            currentMonth === ""
+              ? format(sortedArray[i].date, "MMM")
+              : currentMonth;
+        }
+      } else if (buildSeq) {
+        seqEndDate = sortedArray[i].date;
+        label = `${label} ${format(seqStartDate, "MMM d")} - ${format(
+          seqEndDate,
+          "d"
+        )}`;
+        buildSeq = false;
+      } else if (!buildSeq) {
+        if (format(sortedArray[i].date, "MMM") !== currentMonth) {
+          currentMonth = format(sortedArray[i].date, "MMM");
+          label = `${label} ${format(sortedArray[i].date, "MMM d")}`;
+        } else {
+          label = `${label}, ${format(sortedArray[i].date, "d")}`;
+        }
+      }
     }
+    return label;
+  }, [values.details]);
+
+  const buildSequenceLabel = (startDate: Date, endDate: Date) => {
+    const label = `${format(startDate, "MMM d")} - ${format(endDate, "d")}`;
+    return label;
   };
 
   //default properties
@@ -130,6 +187,14 @@ export const VacancyDetailSection: React.FC<Props> = props => {
 
   return (
     <>
+      <SelectVacancyDateDialog
+        open={isSelectDatesOpen}
+        onClose={() => setIsSelectDatesOpen(false)}
+        onSetDates={toggleVacancyDate}
+        contractId={values.contractId}
+        vacancyDates={values.details.map((d: VacancyDetailInput) => d.date)}
+      />
+
       <Typography variant="h6">{t("Vacancy Details")}</Typography>
       <Grid container justify="space-between">
         <Grid item xs={12} className={classes.rowContainer}>
@@ -170,7 +235,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
             />
           </Grid>
         )}
-        {values.positionTypeId !== "" && (
+        {/*values.positionTypeId !== "" && (
           <Grid item xs={12} className={classes.rowContainer}>
             <VacancyDateSelect
               contractId={values.contractId}
@@ -179,6 +244,24 @@ export const VacancyDetailSection: React.FC<Props> = props => {
               )}
               onSelectDates={dates => dates.forEach(d => toggleVacancyDate(d))}
             />
+          </Grid>
+              )*/}
+        {values.positionTypeId !== "" && (
+          <Grid item container xs={12} className={classes.rowContainer}>
+            <Grid item xs={10}>
+              <label>Dates</label>
+              <Typography>{buildDateLabel}</Typography>
+            </Grid>
+            <Grid item xs={2}>
+              <Button
+                onClick={() => {
+                  setIsSelectDatesOpen(true);
+                }}
+                variant="contained"
+              >
+                {t("Update")}
+              </Button>
+            </Grid>
           </Grid>
         )}
 
@@ -241,6 +324,8 @@ export const VacancyDetailSection: React.FC<Props> = props => {
           <Grid item xs={12} className={classes.rowContainer}>
             <VacancyIndividualDayList
               vacancyDays={values.details}
+              payCodes={payCodes}
+              accountingCodes={accountingCodes}
               workDayScheduleVariant={locations
                 .find(l => l.id === values.locationId)
                 ?.workDaySchedules.find(w => w.id === values.workDayScheduleId)
