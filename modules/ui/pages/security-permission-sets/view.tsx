@@ -185,6 +185,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         editable={editing === null}
         onEdit={() => setEditing(editableSections.name)}
         editPermissions={canEditPermissionSet}
+        permissionContext={permissionSet}
         validationSchema={yup.object().shape({
           value: yup.string().required(t("Name is required")),
         })}
