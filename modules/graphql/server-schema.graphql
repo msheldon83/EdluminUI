@@ -4762,7 +4762,7 @@ type User implements ModelObjectInterface {
 
 type UserAccess {
   _info: [ReturnMessage]
-  id: Int!
+  id: ID
   user: User
   isSystemAdministrator: Boolean!
   visibleOrganizations: [Organization]
