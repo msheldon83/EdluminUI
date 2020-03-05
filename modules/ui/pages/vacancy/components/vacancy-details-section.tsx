@@ -5,6 +5,7 @@ import {
   Location as Loc,
   VacancyCreateInput,
   Contract,
+  VacancyDetailInput,
 } from "graphql/server-types.gen";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +17,10 @@ import { OptionTypeBase } from "react-select";
 import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { VacancyDateSelect } from "./vacancy-date-select";
+import { startOfDay } from "date-fns";
+import { isSameDay } from "date-fns/esm";
+import { differenceWith, filter, find } from "lodash-es";
+import { VacancyIndividualDayList } from "./vacancy-individual-day-list";
 
 export type VacancyDetailsFormData = {
   positionTypeId?: string;
@@ -24,6 +29,7 @@ export type VacancyDetailsFormData = {
   workDayScheduleId: string;
   notesToApprover?: string;
   notesToReplacement?: string;
+  details: VacancyDetailInput[];
 };
 
 type Props = {
@@ -90,6 +96,22 @@ export const VacancyDetailSection: React.FC<Props> = props => {
     setVacancyForCreate(vacancy);
   };
 
+  const toggleVacancyDate = (d: Date) => {
+    const date = startOfDay(d);
+    if (find(values.details, d => isSameDay(d.date, date))) {
+      const newDetails = values.details.filter(d => !isSameDay(d.date, date));
+      setFieldValue("details", newDetails);
+      updateModel({
+        details: newDetails,
+      });
+    } else {
+      const newDetails = values.details.slice();
+      newDetails.push({ date: date });
+      setFieldValue("details", newDetails);
+      updateModel({ details: newDetails });
+    }
+  };
+
   //default properties
   useEffect(() => {
     if (!values.locationId) {
@@ -150,7 +172,13 @@ export const VacancyDetailSection: React.FC<Props> = props => {
         )}
         {values.positionTypeId !== "" && (
           <Grid item xs={12} className={classes.rowContainer}>
-            <VacancyDateSelect contractId={values.contractId} />
+            <VacancyDateSelect
+              contractId={values.contractId}
+              vacancySelectedDates={values.details.map(
+                (d: VacancyDetailInput) => d.date
+              )}
+              onSelectDates={dates => dates.forEach(d => toggleVacancyDate(d))}
+            />
           </Grid>
         )}
 
@@ -206,6 +234,21 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                 updateModel({ workDayScheduleId: selectedValue });
               }}
             ></Select>
+          </Grid>
+        )}
+
+        {values.positionTypeId !== "" && (
+          <Grid item xs={12} className={classes.rowContainer}>
+            <VacancyIndividualDayList
+              vacancyDays={values.details}
+              workDayScheduleVariant={locations
+                .find(l => l.id === values.locationId)
+                ?.workDaySchedules.find(w => w.id === values.workDayScheduleId)
+                ?.variants?.find(v => v?.isStandard)}
+              orgId={orgId}
+              setFieldValue={setFieldValue}
+              updateModel={updateModel}
+            />
           </Grid>
         )}
       </Grid>

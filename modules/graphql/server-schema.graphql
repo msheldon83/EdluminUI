@@ -5399,7 +5399,7 @@ input VacancyCreateInput {
   workDayScheduleId: ID!
   notesToReplacement: String
   externalId: String
-  details: [VacancyDetailInput]
+  details: [VacancyDetailInput!]!
   ignoreWarnings: Boolean
 }
 
@@ -5483,6 +5483,7 @@ input VacancyDetailInput {
   locationId: ID
   payCodeId: ID
   accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
+  vacancyReasonId: ID
 }
 
 input VacancyDetailVerifyInput {
@@ -5563,7 +5564,7 @@ type VacancyNotificationLog {
   vacancy: Vacancy!
   employeeId: ID!
   employee: Employee!
-  createdUtc: DateTime
+  createdUtc: DateTime!
   sentAtUtc: DateTime
   statusAsOfUtc: DateTime
   numFailedSendAttempts: Short!

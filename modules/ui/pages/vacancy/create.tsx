@@ -12,9 +12,14 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
 import { Formik } from "formik";
 import { VacancyDetailSection } from "./components/vacancy-details-section";
-import { PositionType, VacancyCreateInput } from "graphql/server-types.gen";
+import {
+  PositionType,
+  VacancyCreateInput,
+  VacancyDetailInput,
+} from "graphql/server-types.gen";
 import { GetAllLocationsWithSchedulesWithinOrg } from "./graphql/get-locations-with-schedules.gen";
 import { GetAllContracts } from "reference-data/get-contracts.gen";
+import { VacancySubstituteDetailsSection } from "./components/vacancy-substitute-details-section";
 
 type Props = {};
 
@@ -29,6 +34,7 @@ export const VacancyCreate: React.FC<Props> = props => {
     contractId: "",
     locationId: "",
     workDayScheduleId: "",
+    details: [],
   };
 
   const [vacancyForCreate, setVacancyForCreate] = useState<VacancyCreateInput>(
@@ -79,7 +85,7 @@ export const VacancyCreate: React.FC<Props> = props => {
         : label;
     return label;
   };
-
+  console.log("MODEL", vacancyForCreate);
   //console.log("positionTypes", positionTypes);
   //console.log("locations", locations);
   //console.log("contracts", contracts);
@@ -109,6 +115,7 @@ export const VacancyCreate: React.FC<Props> = props => {
           locationId: "",
           contractId: "",
           workDayScheduleId: "",
+          details: [],
         }}
         onSubmit={async (data, e) => {}}
       >
@@ -138,7 +145,18 @@ export const VacancyCreate: React.FC<Props> = props => {
                 ></VacancyDetailSection>
               </Grid>
               <Grid item xs={12} sm={5}>
-                <Typography variant="h6">{t("Substitute Details")}</Typography>
+                <VacancySubstituteDetailsSection
+                  scheduleDays={values.details.map((d: VacancyDetailInput) => {
+                    return {
+                      date: d.date,
+                      startTime: d.startTime,
+                      endTime: d.endTime,
+                      location: locations.find(
+                        (l: any) => values.locationId === l.id
+                      )?.name,
+                    };
+                  })}
+                />
               </Grid>
             </Grid>
           </form>

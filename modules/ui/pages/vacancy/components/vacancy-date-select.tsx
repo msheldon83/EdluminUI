@@ -20,6 +20,8 @@ import { CalendarDayType } from "graphql/server-types.gen";
 
 type Props = {
   contractId: string;
+  vacancySelectedDates: Date[];
+  onSelectDates: (dates: Array<Date>) => void;
 };
 
 export const VacancyDateSelect: React.FC<Props> = props => {
@@ -36,7 +38,6 @@ export const VacancyDateSelect: React.FC<Props> = props => {
       toDate: addDays(startDate, 45),
     },
   });
-  console.log(getContractScheduleDates);
   const disabledDates = useMemo(
     () =>
       computeDisabledDates(getContractScheduleDates).map(date => {
@@ -46,6 +47,23 @@ export const VacancyDateSelect: React.FC<Props> = props => {
         };
       }),
     [getContractScheduleDates]
+  );
+
+  const customSelectedVacancyDates = useMemo(
+    () =>
+      props.vacancySelectedDates.map(date => {
+        return {
+          date,
+          buttonProps: { className: classes.selectedAbsenceDate },
+        };
+      }),
+    [props.vacancySelectedDates, classes.selectedAbsenceDate]
+  );
+
+  const customDates = useMemo(
+    () => disabledDates.concat(customSelectedVacancyDates),
+
+    [customSelectedVacancyDates, disabledDates]
   );
 
   const handleArrowClick = (e: React.MouseEvent) => {
@@ -59,6 +77,17 @@ export const VacancyDateSelect: React.FC<Props> = props => {
     */
     input?.dispatchEvent(new Event("focus"));
     setCalendarOpen(!calendarOpen);
+  };
+
+  const handleSelectDates = (dates: Date[]) => {
+    /*
+      If more than one date is selected, the first date is dropped because
+      that one is already marked as selected in the state management. This keeps
+      it from being toggled off for this multi-date selection
+    */
+    const [initialDate, ...restOfDates] = dates;
+
+    props.onSelectDates(dates.length > 1 ? restOfDates : [initialDate]);
   };
 
   return (
@@ -81,7 +110,14 @@ export const VacancyDateSelect: React.FC<Props> = props => {
         onClick={() => setCalendarOpen(true)}
       />
       {calendarOpen && (
-        <CustomCalendar variant="month" customDates={disabledDates} />
+        <div className={classes.calendarContainer}>
+          <CustomCalendar
+            variant="month"
+            customDates={customDates}
+            monthNavigation={true}
+            onSelectDates={handleSelectDates}
+          />
+        </div>
       )}
     </>
   );
@@ -98,146 +134,34 @@ const useStyles = makeStyles(theme => ({
       color: theme.palette.text.disabled,
     },
   },
-  selectContainer: {
-    position: "relative",
-    zIndex: 100,
+  existingDate: {
+    backgroundColor: theme.customColors.lightBlue,
+    color: theme.palette.text.disabled,
 
-    "&.active": {
-      zIndex: 200,
+    "&:hover": {
+      backgroundColor: theme.customColors.lightBlue,
+      color: theme.palette.text.disabled,
     },
   },
-  selectContainerDisabled: {
-    pointerEvents: "none",
-    cursor: "not-allowed",
-  },
-  inputContainer: {
-    cursor: "text",
-    fontSize: theme.typography.pxToRem(14),
+  selectedAbsenceDate: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.customColors.white,
 
-    "& Input": {
-      cursor: "text",
+    "&:hover": {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.customColors.white,
     },
   },
 
-  dropdownContainer: {
-    position: "relative",
-  },
-  attachedInput: {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    borderBottomWidth: 0,
-  },
   arrowDownIcon: {
     color: theme.customColors.edluminSubText,
     cursor: "pointer",
     zIndex: 200,
   },
-  listbox: {
-    backgroundColor: theme.palette.background.paper,
-    border: `1px solid ${theme.palette.text.primary}`,
-    borderRadius: `0 0 ${theme.typography.pxToRem(
-      4
-    )} ${theme.typography.pxToRem(4)}`,
-    borderTopWidth: 0,
-    color: theme.palette.text.primary,
-    fontSize: theme.typography.pxToRem(14),
-    lineHeight: theme.typography.pxToRem(32),
-    listStyle: "none",
-    margin: 0,
-    maxHeight: 200,
-    overflow: "auto",
-    padding: 0,
-    paddingBottom: theme.spacing(1.5),
+  calendarContainer: {
     position: "absolute",
-    top: "calc(100% - 2px)",
-    width: "100%",
-    zIndex: 100,
-  },
-  optionItem: {
-    paddingLeft: theme.spacing(1.5),
-    paddingRight: theme.spacing(1.5),
-
-    "&:hover": {
-      color: theme.palette.text.primary,
-      cursor: "pointer",
-    },
-    '&[aria-selected="true"]': {
-      backgroundColor: theme.customColors.yellow1,
-      cursor: "pointer",
-    },
-  },
-  resetLabel: {
-    color: theme.customColors.edluminSubText,
-
-    '&[aria-selected="true"]': {
-      color: theme.customColors.edluminSubText,
-    },
-  },
-  showAllButton: {
-    position: "absolute",
-    height: "100%",
-    right: 0,
-    top: "50%",
-    transform: "translateY(-50%)",
-    zIndex: 2,
-
-    "&:after": {
-      content: "''",
-      position: "absolute",
-      top: 0,
-      right: 0,
-      background:
-        "linear-gradient(270deg, rgba(255,255,255,1) 55%, rgba(255,255,255,0) 100%)",
-      height: "100%",
-      width: "200%",
-      zIndex: -1,
-    },
-  },
-  selectedChips: {
-    boxSizing: "border-box",
-    display: "flex",
-    flexWrap: "wrap",
-    marginTop: theme.spacing(1),
-    height: theme.typography.pxToRem(36),
-    maxHeight: theme.typography.pxToRem(36),
-    lineHeight: theme.typography.pxToRem(36),
-    overflow: "hidden",
-    position: "relative",
-  },
-  showAllSelectedChips: {
-    height: "auto",
-    maxHeight: theme.typography.pxToRem(999999),
-  },
-  selectionChip: {
-    backgroundColor: theme.customColors.yellow4,
-    color: theme.palette.text.primary,
-    marginBottom: theme.spacing(0.5),
-    marginRight: theme.spacing(0.5),
-    position: "relative",
-
-    "& svg": {
-      color: theme.customColors.white,
-      position: "relative",
-      transition: "color 100ms linear",
-      zIndex: 2,
-
-      "&:hover": {
-        color: theme.customColors.white,
-      },
-    },
-
-    "&::after": {
-      display: "inline-block",
-      content: "''",
-      width: theme.typography.pxToRem(8),
-      height: theme.typography.pxToRem(8),
-      backgroundColor: "rgba(0,0,0,1)",
-      position: "absolute",
-      top: "50%",
-      transform: "translateY(-50%)",
-      right: theme.typography.pxToRem(12),
-      zIndex: 1,
-    },
+    width: theme.typography.pxToRem(500),
+    zIndex: 1000,
   },
 }));
 
