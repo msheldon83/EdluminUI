@@ -406,10 +406,15 @@ export const canEditOrgUser = (
   isAdmin: boolean,
   isEmployee: boolean,
   isReplacementEmployee: boolean,
-  orgId?: string
+  orgId?: string,
+  isShadowRecord: boolean
 ) => {
   if (isSysAdmin) {
     return true;
+  }
+
+  if (isShadowRecord) {
+    return false;
   }
 
   const userPerms = getUserPermissions(permissions, orgId);
@@ -430,10 +435,15 @@ export const canDeleteOrgUser = (
   isAdmin: boolean,
   isEmployee: boolean,
   isReplacementEmployee: boolean,
-  orgId?: string
+  orgId?: string,
+  isShadowRecord?: boolean
 ) => {
   if (isSysAdmin) {
     return true;
+  }
+
+  if (isShadowRecord) {
+    return false;
   }
 
   const userPerms = getUserPermissions(permissions, orgId);
@@ -491,13 +501,13 @@ export const canEditEmployee = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  toObject?: any
+  context?: any
 ) => {
   if (isSysAdmin) {
     return true;
   }
 
-  if (toObject.isShadowRecord) return false;
+  if (context?.isShadowRecord) return false;
 
   const userPerms = getUserPermissions(permissions, orgId);
   return !!userPerms?.includes(PermissionEnum.EmployeeSave);
@@ -507,13 +517,13 @@ export const canEditSub = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  toObject?: any
+  context?: any
 ) => {
   if (isSysAdmin) {
     return true;
   }
 
-  if (toObject.isShadowRecord) return false;
+  if (context?.isShadowRecord) return false;
 
   const userPerms = getUserPermissions(permissions, orgId);
   return !!userPerms?.includes(PermissionEnum.SubstituteSave);
@@ -523,13 +533,13 @@ export const canEditAdmin = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  toObject?: any
+  context?: any
 ) => {
   if (isSysAdmin) {
     return true;
   }
 
-  if (toObject.isShadowRecord) return false;
+  if (context?.isShadowRecord) return false;
 
   const userPerms = getUserPermissions(permissions, orgId);
   return !!userPerms?.includes(PermissionEnum.AdminSave);
@@ -539,13 +549,13 @@ export const canEditPermissionSet = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  toObject?: any
+  context?: any
 ) => {
   if (isSysAdmin) {
     return true;
   }
 
-  if (toObject.isShadowRecord) return false;
+  if (context?.isShadowRecord) return false;
 
   const userPerms = getUserPermissions(permissions, orgId);
   return !!userPerms?.includes(PermissionEnum.PermissionSetSave);

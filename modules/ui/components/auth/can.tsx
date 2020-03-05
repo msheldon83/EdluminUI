@@ -13,8 +13,9 @@ type Props = {
 
 export const Can: React.FC<Props> = props => {
   const canDoFn = useCanDo();
-  const canDoThis = canDoFn(props.do, props.orgId, props.not, props.context);
-  return canDoThis === !not ? <>{props.children}</> : null;
+  const canDoThis = canDoFn(props.do, props.orgId, props.context);
+
+  return canDoThis === !props.not ? <>{props.children}</> : null;
 };
 
 export const useCanDo = () => {

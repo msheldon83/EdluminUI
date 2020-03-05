@@ -161,12 +161,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
     });
   };
 
-  const userCanEdit = canDoFn(
-    canEditPermissionSet,
-    undefined,
-    undefined,
-    permissionSet
-  );
+  const userCanEdit = canDoFn(canEditPermissionSet, undefined, permissionSet);
 
   return (
     <>
@@ -216,6 +211,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
         editPermissions={canEditPermissionSet}
+        permissionContext={permissionSet}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
@@ -238,6 +234,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         editable={editing === null}
         onEdit={() => setEditing(editableSections.description)}
         editPermissions={canEditPermissionSet}
+        permissionContext={permissionSet}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}

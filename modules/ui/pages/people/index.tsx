@@ -289,7 +289,7 @@ export const PeoplePage: React.FC<Props> = props => {
       render: o => (
         <>
           <Typography>
-            `${o.lastName}, ${o.firstName}`
+            {o.lastName}, {o.firstName}
           </Typography>
           <ShadowIndicator
             isShadow={o.isShadowRecord}

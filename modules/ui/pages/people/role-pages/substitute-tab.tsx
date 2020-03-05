@@ -31,6 +31,8 @@ import {
 } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { GetOrganizationRelationships } from "../graphql/substitute/get-org-relationships.gen";
+import { useCanDo } from "ui/components/auth/can";
+import { canEditSub } from "helpers/permissions";
 
 type Props = {
   editing: string | null;
@@ -41,6 +43,7 @@ type Props = {
 
 export const SubstituteTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
+  const canDoFn = useCanDo();
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PersonViewRoute);
@@ -90,6 +93,7 @@ export const SubstituteTab: React.FC<Props> = props => {
   }
 
   const substitute = orgUser.substitute;
+  const canEditThisSub = canDoFn(canEditSub, orgUser.orgId, orgUser);
 
   const onUpdateSubstitute = async (subInput: SubstituteInput) => {
     await updateSubstitute({
@@ -111,7 +115,7 @@ export const SubstituteTab: React.FC<Props> = props => {
     <>
       <Information
         editing={props.editing}
-        editable={!orgUser?.isShadowRecord}
+        editable={canEditThisSub}
         orgUser={substitute}
         permissionSet={substitute.permissionSet}
         userId={orgUser?.userId}
@@ -125,7 +129,7 @@ export const SubstituteTab: React.FC<Props> = props => {
       />
       <SubPositionsAttributes
         editing={props.editing}
-        editable={!orgUser?.isShadowRecord}
+        editable={canEditThisSub}
         attributes={substitute.attributes?.map(ee => ee?.endorsement) ?? []}
         qualifiedPositionTypes={substitute.qualifiedPositionTypes}
       />

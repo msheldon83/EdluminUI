@@ -13,6 +13,8 @@ import { SaveAdmin } from "../graphql/admin/save-administrator.gen";
 
 import { AccessControl } from "../components/admin/access-control";
 import { Information } from "../components/information";
+import { canEditAdmin } from "helpers/permissions";
+import { useCanDo } from "ui/components/auth/can";
 
 type Props = {
   editing: string | null;
@@ -23,6 +25,7 @@ type Props = {
 
 export const AdminTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
+  const canDoFn = useCanDo();
 
   const [updateAdmin] = useMutationBundle(SaveAdmin, {
     onError: error => {
@@ -42,6 +45,7 @@ export const AdminTab: React.FC<Props> = props => {
   }
 
   const admin = orgUser.administrator;
+  const canEditThisAdmin = canDoFn(canEditAdmin, orgUser.orgId, orgUser);
 
   const onUpdateAdmin = async (admin: AdministratorInput) => {
     await updateAdmin({
@@ -64,7 +68,7 @@ export const AdminTab: React.FC<Props> = props => {
     <>
       <Information
         editing={props.editing}
-        editable={!orgUser?.isShadowRecord}
+        editable={canEditThisAdmin}
         orgUser={admin}
         permissionSet={admin.permissionSet}
         userId={orgUser?.userId}
@@ -79,7 +83,7 @@ export const AdminTab: React.FC<Props> = props => {
       />
       <AccessControl
         editing={props.editing}
-        editable={!orgUser?.isShadowRecord}
+        editable={canEditThisAdmin}
         setEditing={props.setEditing}
         orgId={orgUser.orgId.toString()}
         locations={admin?.accessControl?.locations ?? []}

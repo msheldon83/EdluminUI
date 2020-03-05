@@ -93,7 +93,6 @@ export const Information: React.FC<Props> = props => {
   const orgUser = props.orgUser;
   const { t } = useTranslation();
   const isSmDown = useBreakpoint("sm", "down");
-  console.log(props.editable);
 
   const [resetPassword] = useMutationBundle(ResetPassword, {
     onError: error => {
@@ -125,7 +124,6 @@ export const Information: React.FC<Props> = props => {
     skip: props.isCreate,
     onError: error => {
       // This shouldn't blow up the page
-      console.error(error);
     },
   });
 
@@ -153,10 +151,12 @@ export const Information: React.FC<Props> = props => {
   const permissionSets = usePermissionSets(orgUser.orgId!.toString(), [
     props.selectedRole,
   ]);
-  const permissionSetOptions: OptionType[] = permissionSets.map(ps => ({
-    label: ps.name,
-    value: ps.id,
-  }));
+  const permissionSetOptions: OptionType[] = permissionSets
+    .filter(ps => !ps.isShadowRecord)
+    .map(ps => ({
+      label: ps.name,
+      value: ps.id,
+    }));
 
   let permissions = props.isSuperUser ? t("Org Admin") : "";
   if (props.permissionSet) {
