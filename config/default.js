@@ -34,7 +34,7 @@ module.exports = {
   auth0_clock_skew_leeway_seconds:
     process.env.AUTH0_CLOCK_SKEW_LEEWAY_SECONDS || 3600,
   apiUrl: "/graphql",
-  isDevelopment: process.env.IS_DEVELOPMENT || true,
+  isDevFeatureOnly: process.env.IS_DEV_FEATURE_ONLY || true,
 
   devServer: {
     url: "http://localhost",

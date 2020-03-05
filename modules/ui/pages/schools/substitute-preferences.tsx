@@ -151,7 +151,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         }
         heading={t("Substitute Preferences")}
         subHeading={location.name}
-        isLocationOnly={__DEV__}
+        isLocationOnly={Config.isDevFeatureOnly}
         orgId={params.organizationId}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}

@@ -107,7 +107,7 @@ module.exports = {
     // Define global letiables in the client to instrument behavior.
     new webpack.DefinePlugin({
       // Flag to detect non-production
-      __DEV__: JSON.stringify(config.get("isDevelopment")),
+      __DEV__: JSON.stringify(process.env.NODE_ENV !== "production"),
       __TEST__: "false",
 
       "Config.Auth0.domain": JSON.stringify(config.get("auth0_domain")),
@@ -123,6 +123,7 @@ module.exports = {
         config.get("auth0_clock_skew_leeway_seconds")
       ),
       "Config.apiUri": JSON.stringify(config.get("apiUrl")),
+      "Config.isDevFeatureOnly": JSON.stringify(config.get("isDevFeatureOnly")),
 
       // ALlow switching on NODE_ENV in client code
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
