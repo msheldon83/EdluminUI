@@ -90,6 +90,11 @@ export const Auth0Provider: React.FC<Props> = ({ children, history }) => {
           AFTER_AUTH_REDIRECT_URL
         );
         sessionStorage.removeItem(AFTER_AUTH_REDIRECT_URL);
+
+        // Make sure we don't keep impersonation details between sessions
+        sessionStorage.removeItem(Config.impersonation.actingUserIdKey);
+        sessionStorage.removeItem(Config.impersonation.actingOrgUserIdKey);
+
         history.replace(afterAuthRedirectUrl || "/");
       }
 

@@ -15,4 +15,8 @@ declare const Config: {
   };
   apiUri: string;
   isDevFeatureOnly: boolean;
+  impersonation: {
+    actingUserIdKey: string;
+    actingOrgUserIdKey: string;
+  };
 };

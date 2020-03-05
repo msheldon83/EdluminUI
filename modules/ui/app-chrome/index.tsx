@@ -20,6 +20,7 @@ import { OrganizationStatusBar } from "./orgaization-status-bar";
 import { HelpWidget } from "./help-widget";
 import { contentFooterRef } from "../components/content-footer";
 import { useAppConfig } from "../../hooks/app-config";
+import { ImpersonationStatusBar } from "./impersonation-status-bar";
 
 export const AppChrome: React.FunctionComponent = props => {
   const screenSize = useScreenSize();
@@ -58,6 +59,7 @@ export const AppChrome: React.FunctionComponent = props => {
             <Route path={AdminChromeRoute.path}>
               <OrganizationStatusBar />
             </Route>
+            <ImpersonationStatusBar />
             <div className={classes.outer}>
               <MobileTopBar expandDrawer={expand} />
               <MobileNavigationSideBar
@@ -101,6 +103,7 @@ export const AppChrome: React.FunctionComponent = props => {
             <Route path={AdminChromeRoute.path}>
               <OrganizationStatusBar />
             </Route>
+            <ImpersonationStatusBar />
             <div className={classes.outer}>
               <TopBar
                 contentClassName={

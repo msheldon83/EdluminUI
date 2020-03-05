@@ -1353,6 +1353,9 @@ type EmployeeQueries {
   employeeVacancySchedule(id: ID!, fromDate: Date!, toDate: Date!): [Vacancy]
   employeeAssignmentSchedule(id: ID!, orgId: ID, fromDate: DateTime!, toDate: Date!, limit: Int, includeCompletedToday: Boolean): [VacancyDetail]
   employeeSpecificAssignment(id: ID!, assignmentId: ID!, orgId: ID): [VacancyDetail]
+  employeeSmsLogOnDate(id: ID!, onDate: Date!, orgId: ID, limit: Int, offset: Int): [SmsMessageLog]
+  employeeSmsLogLocal(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): [SmsMessageLog]
+  employeeSmsLogUtc(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): [SmsMessageLog]
 }
 
 input EmployeeRejectVacancyInput {
@@ -3240,7 +3243,7 @@ input PositionCreateInput {
   endDate: Date
   positionTypeId: ID
   currentEmployeeId: ID
-  currentContractId: Int!
+  currentContractId: ID
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
   hoursPerFullWorkDay: Decimal
@@ -4468,6 +4471,23 @@ enum SeedOrgDataOptionEnum {
 
 scalar Short
 
+type SmsMessageLog {
+  _info: [ReturnMessage]
+  createdLocal: DateTime
+  createdUtc: DateTime
+  sentLocal: DateTime
+  sentUtc: DateTime
+  updateLocal: DateTime
+  updateUtc: DateTime
+  direction: String!
+  fromPhone: String!
+  toPhone: String!
+  status: String!
+  errorCode: Int
+  errorMessage: String
+  body: String!
+}
+
 input SortDetailsInput {
   sortByPropertyName: String
   sortAscending: Boolean
@@ -4742,6 +4762,7 @@ type User implements ModelObjectInterface {
 
 type UserAccess {
   _info: [ReturnMessage]
+  id: Int!
   user: User
   isSystemAdministrator: Boolean!
   visibleOrganizations: [Organization]
@@ -4918,6 +4939,18 @@ enum VacancyAvailability {
   NO
 }
 
+input VacancyCreateInput {
+  orgId: ID!
+  positionTypeId: ID!
+  contractId: ID!
+  locationId: ID!
+  workDayScheduleId: ID!
+  notesToReplacement: String
+  externalId: String
+  details: [VacancyDetailInput!]!
+  ignoreWarnings: Boolean
+}
+
 type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -4955,6 +4988,8 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   accountingCodeAllocations: [VacancyDetailAccountingCode]
   payCodeId: ID
   payCode: PayCode
+  vacancyReasonId: ID
+  vacancyReason: VacancyReason
   vacancy: BasicVacancy
   totalDayPortion: Decimal
   payInfo: PayInfo
@@ -4990,6 +5025,7 @@ type VacancyDetailCount {
 }
 
 input VacancyDetailInput {
+  id: ID
   date: DateTime
   startTime: Seconds
   endTime: Seconds
@@ -4997,6 +5033,7 @@ input VacancyDetailInput {
   payCodeId: ID
   accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
   vacancyReasonId: ID
+  prearrangedReplacementEmployeeId: ID
 }
 
 input VacancyDetailVerifyInput {
@@ -5055,6 +5092,9 @@ type VacancyEmployeeRequest implements ModelObjectInterface & OrgObjectInterface
 }
 
 type VacancyMutations {
+  create(vacancy: VacancyCreateInput!): Vacancy
+  update(vacancy: VacancyUpdateInput!): Vacancy
+  delete(vacancyId: ID!): Boolean
   requestVacancy(vacancyRequest: EmployeeInterestInVacancyInput!): VacancyEmployeeInterest
   rejectVacancy(vacancyRejection: EmployeeRejectVacancyInput!): VacancyEmployeeInterest
   assignVacancy(vacancyAssignment: CreateVacancyAssignmentInput!): Assignment
@@ -5105,6 +5145,7 @@ type VacancyQueries {
   userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
   vacancyNotificationLogByVacancy(vacancyId: ID!): [VacancyNotificationLog]
   vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
+  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: VacancyCreateInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
 }
 
 type VacancyReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -5197,6 +5238,16 @@ type VacancySubSearchQueryResult {
   visibleAtUtc: DateTime
   isFavoriteEmployee: Boolean!
   isFavoritePositionType: Boolean!
+}
+
+input VacancyUpdateInput {
+  id: ID!
+  rowVersion: String!
+  workDayScheduleId: ID
+  notesToReplacement: String
+  externalId: String
+  details: [VacancyDetailInput!]!
+  ignoreWarnings: Boolean
 }
 
 type VacancyWasAssignedResult {

@@ -125,6 +125,10 @@ module.exports = {
       "Config.apiUri": JSON.stringify(config.get("apiUrl")),
       "Config.isDevFeatureOnly": JSON.stringify(config.get("isDevFeatureOnly")),
 
+      // Impersonation header keys
+      "Config.impersonation.actingUserIdKey": "rrActingUserId",
+      "Config.impersonation.actingOrgUserIdKey": "rrActingOrgUserId",
+
       // ALlow switching on NODE_ENV in client code
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
 
