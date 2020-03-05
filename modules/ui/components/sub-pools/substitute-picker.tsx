@@ -177,7 +177,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
                 {props.isLocationOnly && props.onAutoAssign && (
                   <Can do={props.addToFavoritePermission}>
                     <TextButton
-                      className={classes.addActionLink}
+                      className={classes.addAutoAssignActionLink}
                       onClick={() => props.onAutoAssign!(user)}
                     >
                       {t("Auto Assign")}
@@ -233,6 +233,11 @@ const useStyles = makeStyles(theme => ({
       paddingRight: 0,
       paddingBottom: 0,
     },
+  },
+  addAutoAssignActionLink: {
+    float: "right",
+    color: theme.customColors.blue,
+    paddingRight: theme.spacing()
   },
   addActionLink: {
     float: "right",

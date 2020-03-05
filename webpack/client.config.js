@@ -123,6 +123,7 @@ module.exports = {
         config.get("auth0_clock_skew_leeway_seconds")
       ),
       "Config.apiUri": JSON.stringify(config.get("apiUrl")),
+      "Config.isDevFeatureOnly": JSON.stringify(config.get("isDevFeatureOnly")),
 
       // ALlow switching on NODE_ENV in client code
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),

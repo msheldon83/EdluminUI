@@ -14,4 +14,5 @@ declare const Config: {
     clockSkewLeewaySeconds: number;
   };
   apiUri: string;
+  isDevFeatureOnly: boolean;
 };
