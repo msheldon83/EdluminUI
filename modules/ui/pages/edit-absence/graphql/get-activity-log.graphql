@@ -1,0 +1,16 @@
+query GetActivityLogForAbsence($id: ID!) {
+  absence {
+    activityLog(id: $id) {
+      count
+      orgId
+      activityLogDetails {
+        actualUser
+        actingUser
+        createdUtc
+        moreDetail
+        title
+        subTitle
+      }
+    }
+  }
+}
