@@ -475,6 +475,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           true
         );
       }
+
       await assignVacancy({
         variables: {
           assignment: {
@@ -491,6 +492,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           },
         },
       });
+
       await props.refetchAbsence();
       setStep("absence");
     },

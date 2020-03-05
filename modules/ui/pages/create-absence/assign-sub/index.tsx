@@ -12,6 +12,7 @@ import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
+import { AssignAbsenceDialog } from "ui/components/assign-absence-dialog";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
 import { VacancyDetails } from "../../../components/absence/vacancy-details";
 import { AssignSubColumn, getAssignSubColumns } from "./columns";
@@ -64,7 +65,11 @@ export const AssignSub: React.FC<Props> = props => {
     employeeToReplace = "",
   } = props;
 
-  const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
+  const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
+  const [
+    unavailableToWorkDialogIsOpen,
+    setUnavailableToWorkDialogIsOpen,
+  ] = React.useState(false);
   const [
     replacementEmployeeName,
     setReplacementEmployeeName,
@@ -74,6 +79,12 @@ export const AssignSub: React.FC<Props> = props => {
     setReplacementEmployeePayCode,
   ] = React.useState();
   const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
+  const [unavailableToWork, setUnavailableToWork] = React.useState();
+
+  const [
+    ignoreUnavailableToWork,
+    setIgnoreUnavailableToWork,
+  ] = React.useState();
 
   // If we don't have any info, cancel the Assign Sub action
   if (!props.vacancies || props.vacancies.length === 0) {
@@ -163,14 +174,21 @@ export const AssignSub: React.FC<Props> = props => {
     async (
       replacementEmployeeId: string,
       name: string,
-      payCodeId: string | undefined
+      payCodeId: string | undefined,
+      unavailableToWork: boolean,
+      ignoreAvailableToWork: boolean
     ) => {
-      onAssignReplacement(
-        replacementEmployeeId,
-        name,
-        payCodeId,
-        vacancyDetailIdsToAssign
-      );
+      //Dialog Here
+      if (unavailableToWork) {
+        setUnavailableToWorkDialogIsOpen(true);
+      } else {
+        onAssignReplacement(
+          replacementEmployeeId,
+          name,
+          payCodeId,
+          vacancyDetailIdsToAssign
+        );
+      }
     },
     [onAssignReplacement, vacancyDetailIdsToAssign]
   );
@@ -179,16 +197,23 @@ export const AssignSub: React.FC<Props> = props => {
     async (
       replacementEmployeeId: string,
       name: string,
-      payCodeId: string | undefined
-      //unavailableToWork: boolean,
+      payCodeId: string | undefined,
+      unavailableToWork: boolean
     ) => {
       if (employeeToReplace) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
-        setDialogIsOpen(true);
+        setUnavailableToWork(unavailableToWork);
+        setReassignDialogIsOpen(true);
       } else {
-        await assignReplacementEmployee(replacementEmployeeId, name, payCodeId);
+        await assignReplacementEmployee(
+          replacementEmployeeId,
+          name,
+          payCodeId,
+          unavailableToWork,
+          ignoreUnavailableToWork
+        );
       }
     },
     [assignReplacementEmployee, employeeToReplace]
@@ -276,19 +301,37 @@ export const AssignSub: React.FC<Props> = props => {
   return (
     <>
       <ReassignAbsenceDialog
-        open={dialogIsOpen}
-        onClose={() => setDialogIsOpen(false)}
+        open={reassignDialogIsOpen}
+        onClose={() => setReassignDialogIsOpen(false)}
         onAssign={async () => {
           //call asign functionality
-          setDialogIsOpen(false);
+          setReassignDialogIsOpen(false);
           await assignReplacementEmployee(
             replacementEmployeeId,
             replacementEmployeeName,
-            replacementEmployeePayCode
+            replacementEmployeePayCode,
+            unavailableToWork,
+            ignoreUnavailableToWork
           );
         }}
         currentReplacementEmployee={employeeToReplace}
         newReplacementEmployee={replacementEmployeeName}
+      />
+      <AssignAbsenceDialog
+        open={unavailableToWorkDialogIsOpen}
+        onClose={() => setUnavailableToWorkDialogIsOpen(false)}
+        onAssign={async () => {
+          //call asign functionality
+          setUnavailableToWorkDialogIsOpen(false);
+          await assignReplacementEmployee(
+            replacementEmployeeId,
+            replacementEmployeeName,
+            replacementEmployeePayCode,
+            unavailableToWork,
+            ignoreUnavailableToWork
+          );
+        }}
+        employeeToAssign={replacementEmployeeName}
       />
       <AbsenceHeader
         absenceId={props.absenceId}

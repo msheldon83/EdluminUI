@@ -33,10 +33,11 @@ export const getAssignSubColumns = (
   tableData: AssignSubColumn[],
   isAdmin: boolean,
   selectTitle: string,
-  selectReplacementEmployee: (
+  assignReplacementEmployee: (
     replacementEmployeeId: string,
     name: string,
-    payCodeId: string | undefined
+    payCodeId: string | undefined,
+    unavailableToWork: boolean
   ) => Promise<void>,
   isMobile: boolean,
   theme: Theme,
@@ -157,10 +158,11 @@ export const getAssignSubColumns = (
         disabled={!data.selectable}
         className={classes.selectButton}
         onClick={async () => {
-          await selectReplacementEmployee(
+          await assignReplacementEmployee(
             data.employeeId,
             `${data.firstName} ${data.lastName}`,
-            data.payCodeId ? data.payCodeId : undefined
+            data.payCodeId ? data.payCodeId : undefined,
+            data.unavailableToWork
           );
         }}
       >
