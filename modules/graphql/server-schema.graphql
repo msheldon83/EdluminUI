@@ -2482,7 +2482,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   relatedOrgIds: [ID]
   relatedOrganizations: [Organization]
   isShadowRecord: Boolean!
-  shadowFromOrgId: Int
+  shadowFromOrgId: ID
   shadowFromOrgName: String
   employee: Employee
   substitute: Substitute
@@ -3155,7 +3155,7 @@ type PermissionSet implements ModelObjectInterface & OrgObjectInterface & Domain
   permissionSet: [PermissionEnum]
   categories: [PermissionCategoryIdentifier!]!
   isShadowRecord: Boolean!
-  shadowFromOrgId: Int
+  shadowFromOrgId: ID
   shadowFromOrgName: String
 }
 
@@ -4944,6 +4944,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
+  title: String
   positionId: ID!
   contractId: ID!
   absenceId: ID
@@ -4979,6 +4980,7 @@ input VacancyCreateInput {
   contractId: ID!
   locationId: ID!
   workDayScheduleId: ID!
+  title: String!
   notesToReplacement: String
   externalId: String
   details: [VacancyDetailInput!]!
@@ -5279,6 +5281,7 @@ input VacancyUpdateInput {
   id: ID!
   rowVersion: String!
   workDayScheduleId: ID
+  title: String
   notesToReplacement: String
   externalId: String
   details: [VacancyDetailInput!]!
