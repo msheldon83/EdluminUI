@@ -24,7 +24,7 @@ export const AvailableIcon: React.FC<Props> = props => {
       );
     case VacancyAvailability.No:
       return props.excludedSub ? (
-        <Tooltip title={t("Blocked from job")}>
+        <Tooltip title={t("Sub has been blocked")}>
           <Close className={classes.notAvailable} />
         </Tooltip>
       ) : (
