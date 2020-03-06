@@ -8,4 +8,5 @@ module.exports = {
   auth0_clock_skew_leeway_seconds: 3600,
   apiUrl: "https://devapi.edlumin.com/graphql",
   environment: process.env.NODE_ENV,
+  isDevFeatureOnly: true,
 };

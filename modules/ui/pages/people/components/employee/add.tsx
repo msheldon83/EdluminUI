@@ -141,6 +141,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       <Information
         orgUser={employee}
         editing={editableSections.information}
+        editable={true}
         isSuperUser={false}
         selectedRole={OrgUserRole.Employee}
         isCreate={true}

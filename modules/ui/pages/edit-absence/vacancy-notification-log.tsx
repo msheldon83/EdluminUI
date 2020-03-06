@@ -4,6 +4,7 @@ import { compact } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
 import { useMemo } from "react";
+import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Table } from "ui/components/table";
@@ -14,15 +15,39 @@ import { format } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { Link } from "react-router-dom";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AbsenceHeader } from "ui/components/absence/header";
+import { GetAbsence } from "./graphql/get-absence.gen";
+import { useMyUserAccess } from "reference-data/my-user-access";
 
 export const VacancyNotificationLogIndex: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const params = useRouteParams(VacancyNotificationLogRoute);
+  const history = useHistory();
 
   const getNotificationLog = useQueryBundle(GetNotificationLogForVacancy, {
     variables: { vacancyId: params.vacancyId },
   });
+
+  const getAbsence = useQueryBundle(GetAbsence, {
+    variables: { id: params.absenceId },
+  });
+  const absence =
+    getAbsence.state !== "LOADING" ? getAbsence?.data?.absence?.byId : null;
+  const employeeName = `${absence?.employee?.firstName ?? ""} ${absence
+    ?.employee?.lastName ?? ""}`;
+
+  const onReturn = () => {
+    history.push(
+      AdminEditAbsenceRoute.generate({
+        absenceId: params.absenceId,
+        organizationId: params.organizationId,
+      })
+    );
+  };
+
+  const userAccess = useMyUserAccess();
+  const isSysAdmin = userAccess?.isSysAdmin;
 
   const columns: Column<
     GetNotificationLogForVacancy.VacancyNotificationLogByVacancy
@@ -34,7 +59,7 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
       },
     },
     {
-      title: t("Record Created"),
+      title: isSysAdmin ? t("Record Created") : t("Sent"),
       render: data => {
         if (data.createdUtc) {
           return format(new Date(data.createdUtc), "MMM d, h:mm:ss a");
@@ -44,7 +69,7 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
       },
     },
     {
-      title: t("Sent at"),
+      title: t("Actually Sent At"),
       render: data => {
         if (data.sentAtUtc) {
           return format(new Date(data.sentAtUtc), "MMM d, h:mm:ss a");
@@ -52,6 +77,7 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
           return t("Not sent");
         }
       },
+      hidden: !isSysAdmin,
     },
     {
       title: t("Status As Of"),
@@ -59,9 +85,10 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
         if (data.statusAsOfUtc) {
           return format(new Date(data.statusAsOfUtc), "MMM d, h:mm:ss a");
         } else {
-          return t("No status");
+          return t("Pending");
         }
       },
+      hidden: !isSysAdmin,
     },
     {
       title: t("Status"),
@@ -73,7 +100,7 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
             t
           );
         } else {
-          return t("No status");
+          return t("Pending");
         }
       },
     },
@@ -122,30 +149,23 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
         className={classes.header}
       >
         <Grid item>
-          <PageTitle
-            title={`${t("Notification Log for VacancyId")}: ${
-              params.vacancyId
-            }`}
+          <AbsenceHeader
+            userIsAdmin={true}
+            employeeName={employeeName}
+            pageHeader={`${t("Text message log")} #${params.absenceId}`}
+            onCancel={onReturn}
           />
-          <div>
-            <Link
-              to={AdminEditAbsenceRoute.generate({
-                absenceId: params.absenceId ?? "",
-                organizationId: params.organizationId,
-              })}
-            >
-              {`Return to Absence #${params.absenceId}`}
-            </Link>
-          </div>
-          <div>
+          <div className={classes.infoText}>
             {t(
-              "This is a log of text messages sent to a user informing them of an available job they can accept.  It does not include any reponses we sent back after they replied, or any other notifications about this vacancy being assigned or unassigned."
+              "This log currently includes only messages informing users that this assignment is available. It does not include responses, assignment notifications, or cancellation notifications."
             )}
           </div>
         </Grid>
       </Grid>
       <Table
-        title={`${notificationsCount} ${t("Log records")}`}
+        title={`${notificationsCount} ${
+          notificationsCount === 1 ? t("record") : t("records")
+        }`}
         columns={columns}
         data={notifications}
         selection={false}
@@ -160,5 +180,9 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(),
+  },
+  infoText: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
   },
 }));

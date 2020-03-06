@@ -3,6 +3,7 @@ query GetPermissionSets($orgId: ID, $roles: [OrgUserRole]) {
     all(orgId: $orgId, roles: $roles) {
       id
       name
+      isShadowRecord
     }
   }
 }

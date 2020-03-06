@@ -10,7 +10,7 @@ import { SubHomeRoute } from "ui/routes/sub-home";
 
 export const IndexPage: React.FunctionComponent = props => {
   const orgUserQuery = useQueryBundle(GetMyUserAccess, {
-    fetchPolicy: "cache-first",
+    fetchPolicy: "network-only",
   });
 
   if (orgUserQuery.state === "LOADING") {

@@ -60,6 +60,7 @@ import { OrgUserPermissions } from "ui/components/auth/types";
 import { canViewAsSysAdmin } from "helpers/permissions";
 import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useHistory } from "react-router";
+import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 
 type Props = {
   firstName: string;
@@ -602,9 +603,20 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 className={classes.actionMenu}
                 options={[
                   {
-                    name: t("Delete"),
-                    onClick: () => props.onDelete(),
-                    permissions: [PermissionEnum.AbsVacDelete],
+                    name: t("Activity Log"),
+                    onClick: () => {
+                      history.push(
+                        AbsenceActivityLogRoute.generate({
+                          organizationId: props.organizationId,
+                          absenceId: props.absenceId,
+                        })
+                      );
+                    },
+                    permissions: (
+                      permissions: OrgUserPermissions[],
+                      isSysAdmin: boolean,
+                      orgId?: string
+                    ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
                   },
                   {
                     name: t("Notification Log"),
@@ -617,11 +629,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                         })
                       );
                     },
-                    permissions: (
-                      permissions: OrgUserPermissions[],
-                      isSysAdmin: boolean,
-                      orgId?: string
-                    ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+                    permissions: [PermissionEnum.AbsVacViewNotificationLog],
                   },
                 ]}
               />

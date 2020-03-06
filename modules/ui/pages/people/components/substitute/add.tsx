@@ -122,6 +122,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       <Information
         orgUser={substitute}
         editing={editableSections.information}
+        editable={true}
         isSuperUser={false}
         selectedRole={OrgUserRole.ReplacementEmployee}
         isCreate={true}

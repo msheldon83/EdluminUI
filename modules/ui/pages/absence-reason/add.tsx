@@ -40,6 +40,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
     async (updatedValues: {
       allowNegativeBalance: boolean;
       description?: string;
+      isRestricted: boolean;
       absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
     }) => {
       if (!basicInfo) {
@@ -49,6 +50,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
         allowNegativeBalance,
         absenceReasonTrackingTypeId: absenceReasonTrackingId,
         description,
+        isRestricted,
       } = updatedValues;
 
       const result = await createAbsenceReason({
@@ -59,6 +61,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
             allowNegativeBalance,
             isBucket: false,
             absenceReasonTrackingId,
+            isRestricted,
             appliesToAssignmentTypes: AssignmentType.ContractAssignment,
             description,
           },
@@ -115,6 +118,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
             allowNegativeBalance={false}
             absenceReasonTrackingTypeId={AbsenceReasonTrackingTypeId.Hourly}
             description={""}
+            isRestricted={false}
             onSubmit={settingsOnSubmit}
             onCancel={() => {
               history.push(AbsenceReasonRoute.generate(params));

@@ -31,6 +31,7 @@ import { SubSignInRoute } from "ui/routes/sub-sign-in";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { useLocation } from "react-router";
+import { AppConfig } from "hooks/app-config";
 
 type Props = {};
 
@@ -75,7 +76,7 @@ export const AdminHome: React.FC<Props> = props => {
   }, [date, dailyReportRouteParams.organizationId]);
 
   return (
-    <>
+    <AppConfig contentWidth="100%">
       <Grid
         container
         justify="space-between"
@@ -135,7 +136,7 @@ export const AdminHome: React.FC<Props> = props => {
           isHomePage={true}
         />
       </Can>
-    </>
+    </AppConfig>
   );
 };
 

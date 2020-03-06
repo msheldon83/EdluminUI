@@ -75,7 +75,7 @@ export const SubstitutePools: React.FC<Props> = props => {
           title={t("Substitute pools")}
           action={{
             text: t("Edit"),
-            visible: !props.editing,
+            visible: false,
             execute: () => {
               const editSettingsUrl = PeopleSubPoolEditRoute.generate(params);
               history.push(editSettingsUrl);
