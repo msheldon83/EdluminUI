@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 type Props = {
   available: VacancyAvailability;
+  excludedSub: boolean;
 };
 
 export const AvailableIcon: React.FC<Props> = props => {
@@ -22,7 +23,13 @@ export const AvailableIcon: React.FC<Props> = props => {
         </Tooltip>
       );
     case VacancyAvailability.No:
-      return <Close className={classes.notAvailable} />;
+      return props.excludedSub ? (
+        <Tooltip title={t("Blocked from job")}>
+          <Close className={classes.notAvailable} />
+        </Tooltip>
+      ) : (
+        <Close className={classes.notAvailable} />
+      );
   }
 };
 

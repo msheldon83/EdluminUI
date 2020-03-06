@@ -155,6 +155,7 @@ export const AssignSub: React.FC<Props> = props => {
       isLocationPositionTypeFavorite: r.isFavoritePositionType,
       selectable: r.isSelectable,
       payCodeId: r.payCodeId,
+      excludedSub: r.excludedSub,
     }));
   }, [replacementEmployees]);
 
