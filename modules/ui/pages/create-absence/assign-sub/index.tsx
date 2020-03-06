@@ -176,11 +176,15 @@ export const AssignSub: React.FC<Props> = props => {
       name: string,
       payCodeId: string | undefined,
       unavailableToWork: boolean,
-      ignoreAvailableToWork: boolean
+      ignoreUnavailableToWork?: boolean
     ) => {
-      //Dialog Here
-      if (unavailableToWork) {
+      if (unavailableToWork && !ignoreUnavailableToWork) {
+        setReplacementEmployeeName(name);
+        setReplacementEmployeePayCode(payCodeId);
+        setReplacementEmployeeId(replacementEmployeeId);
+        setUnavailableToWork(unavailableToWork);
         setUnavailableToWorkDialogIsOpen(true);
+        setIgnoreUnavailableToWork(true);
       } else {
         onAssignReplacement(
           replacementEmployeeId,
@@ -211,8 +215,7 @@ export const AssignSub: React.FC<Props> = props => {
           replacementEmployeeId,
           name,
           payCodeId,
-          unavailableToWork,
-          ignoreUnavailableToWork
+          unavailableToWork
         );
       }
     },
@@ -310,8 +313,7 @@ export const AssignSub: React.FC<Props> = props => {
             replacementEmployeeId,
             replacementEmployeeName,
             replacementEmployeePayCode,
-            unavailableToWork,
-            ignoreUnavailableToWork
+            unavailableToWork
           );
         }}
         currentReplacementEmployee={employeeToReplace}
@@ -321,14 +323,12 @@ export const AssignSub: React.FC<Props> = props => {
         open={unavailableToWorkDialogIsOpen}
         onClose={() => setUnavailableToWorkDialogIsOpen(false)}
         onAssign={async () => {
-          //call asign functionality
           setUnavailableToWorkDialogIsOpen(false);
           await assignReplacementEmployee(
             replacementEmployeeId,
             replacementEmployeeName,
             replacementEmployeePayCode,
-            unavailableToWork,
-            ignoreUnavailableToWork
+            unavailableToWork
           );
         }}
         employeeToAssign={replacementEmployeeName}
