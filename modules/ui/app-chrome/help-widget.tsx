@@ -12,8 +12,6 @@ export const HelpWidget: React.FC<Props> = props => {
     ? false
     : user?.orgUsers?.some(x => x?.administrator?.isSuperUser);
 
-  //if (props.alwaysHide) showChat = false;
-
   try {
     const loopsToWait = 10;
     let currentLoopCount = 0;
