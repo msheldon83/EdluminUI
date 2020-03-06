@@ -169,15 +169,17 @@ export const OrganizationsPage: React.FC<Props> = props => {
     organizationsCount = pagination.totalCount;
   }
 
-  if (organizationsCount === 1 && props.redirectIfOneOrg) {
+  if (
+    organizationsCount === 1 &&
+    props.redirectIfOneOrg &&
+    searchText == undefined
+  ) {
     return (
       <Redirect
         to={AdminHomeRoute.generate({ organizationId: organizations[0].id })}
       />
     );
   }
-
-  pagination.totalCount = organizationsCount;
 
   return (
     <>
@@ -215,7 +217,8 @@ export const OrganizationsPage: React.FC<Props> = props => {
       </div>
       <div className={classes.table}>
         <Table
-          title={`${organizationsCount} Records`}
+          // It is possible that if a user is an admin in multiple orgs and a sub in different orgs, this count will be wrong, but this is probably an unlikely scenario
+          title={`${pagination.totalCount} Records`}
           columns={columns}
           data={organizations}
           selection={false}
