@@ -9,7 +9,7 @@ import {
 import LaunchIcon from "@material-ui/icons/Launch";
 import PlayForWork from "@material-ui/icons/PlayForWork";
 import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
-import { useIsMobile } from "hooks";
+import { useIsMobile, useDeferredState } from "hooks";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
@@ -26,6 +26,7 @@ import { UsersRoute } from "ui/routes/users";
 import { canViewAsSysAdmin } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
 import { OrganizationType } from "graphql/server-types.gen";
+import { Input } from "ui/components/form/input";
 
 type Props = { redirectIfOneOrg?: boolean };
 
@@ -37,11 +38,11 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const params = useRouteParams(UsersRoute);
 
   const columns: Column<AllOrganizations.Results>[] = [
-    { title: t("Id"), field: "id" },
+    { title: t("Id"), field: "id", sorting: false },
     {
       title: t("Name"),
       field: "name",
-      defaultSort: "asc",
+      sorting: false,
       render: (rowData: AllOrganizations.Results) => {
         return (
           <div>
@@ -114,6 +115,12 @@ export const OrganizationsPage: React.FC<Props> = props => {
     },
   ];
 
+  const [
+    searchText,
+    pendingSearchText,
+    setPendingSearchText,
+  ] = useDeferredState<string | undefined>(undefined, 200);
+
   const orgUserQuery = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
   });
@@ -122,7 +129,9 @@ export const OrganizationsPage: React.FC<Props> = props => {
     AllOrganizations,
     r => r.organization?.paged?.totalCount,
     {
-      variables: {},
+      variables: {
+        searchText,
+      },
       fetchPolicy: "cache-and-network",
     }
   );
@@ -160,15 +169,17 @@ export const OrganizationsPage: React.FC<Props> = props => {
     organizationsCount = pagination.totalCount;
   }
 
-  if (organizationsCount === 1 && props.redirectIfOneOrg) {
+  if (
+    organizationsCount === 1 &&
+    props.redirectIfOneOrg &&
+    searchText == undefined
+  ) {
     return (
       <Redirect
         to={AdminHomeRoute.generate({ organizationId: organizations[0].id })}
       />
     );
   }
-
-  pagination.totalCount = organizationsCount;
 
   return (
     <>
@@ -189,16 +200,34 @@ export const OrganizationsPage: React.FC<Props> = props => {
           </Can>
         </Grid>
       </Grid>
-      <Table
-        title={`${organizationsCount} Records`}
-        columns={columns}
-        data={organizations}
-        selection={!isMobile}
-        options={{
-          showTitle: !isMobile,
-        }}
-        pagination={pagination}
-      />
+      <div className={classes.searchTextField}>
+        <Input
+          label={t("Search")}
+          value={pendingSearchText}
+          onChange={e => {
+            if (!e.target.value) {
+              setPendingSearchText(undefined);
+            } else {
+              setPendingSearchText(e.target.value);
+            }
+          }}
+          placeholder={t("Name or Id")}
+          fullWidth={true}
+        />
+      </div>
+      <div className={classes.table}>
+        <Table
+          // It is possible that if a user is an admin in multiple orgs and a sub in different orgs, this count will be wrong, but this is probably an unlikely scenario
+          title={`${pagination.totalCount} Records`}
+          columns={columns}
+          data={organizations}
+          selection={false}
+          options={{
+            showTitle: !isMobile,
+          }}
+          pagination={pagination}
+        />
+      </div>
     </>
   );
 };
@@ -224,5 +253,14 @@ const useStyles = makeStyles(theme => ({
   demoChip: {
     background: theme.customColors.mediumBlue,
     color: theme.customColors.white,
+  },
+  table: {
+    borderColor: theme.customColors.sectionBorder,
+    borderStyle: "solid",
+    borderRadius: theme.typography.pxToRem(4),
+  },
+  searchTextField: {
+    width: theme.typography.pxToRem(323),
+    paddingBottom: theme.spacing(3),
   },
 }));

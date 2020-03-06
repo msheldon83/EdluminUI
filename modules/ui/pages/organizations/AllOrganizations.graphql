@@ -1,6 +1,6 @@
-query AllOrganizations($limit: Int, $offset: Int) {
+query AllOrganizations($limit: Int, $offset: Int, $searchText: String) {
   organization {
-    paged(limit: $limit, offset: $offset) {
+    paged(limit: $limit, offset: $offset, searchText: $searchText) {
       results {
         id
         name
