@@ -111,6 +111,7 @@ export const PermissionSetAddPage: React.FC<{}> = props => {
           orgId={params.organizationId}
           permissionDefinitions={permissionDefinitions}
           permissionSetCategories={permissionSet.categories}
+          editable={true}
           onChange={async categories => {
             setPermissionSet({
               ...permissionSet,

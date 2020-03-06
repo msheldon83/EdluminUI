@@ -37,6 +37,7 @@ query GetReplacementEmployeesForVacancy(
         availableToSubWhenSearchingAtUtc
         availableToSubWhenSearchingAtLocal
         isVisible
+        excludedSub
         visibleAtUtc
         visibleAtLocal
         levelQualified

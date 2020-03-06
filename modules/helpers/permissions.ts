@@ -7,14 +7,20 @@ export const can = (
   canDo: CanDo,
   userPermissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string | null | undefined
+  orgId?: string | null | undefined,
+  context?: any
 ) => {
   // Sys Admins rule the world
   if (isSysAdmin) return true;
 
   // We were provided a permission check function so execute it
   if (!Array.isArray(canDo)) {
-    return canDo(userPermissions, isSysAdmin, orgId ?? undefined);
+    return canDo(
+      userPermissions,
+      isSysAdmin,
+      orgId ?? undefined,
+      context ?? undefined
+    );
   }
 
   // We were provided a list of permissions to check
@@ -400,10 +406,15 @@ export const canEditOrgUser = (
   isAdmin: boolean,
   isEmployee: boolean,
   isReplacementEmployee: boolean,
-  orgId?: string
+  orgId?: string,
+  isShadowRecord: boolean
 ) => {
   if (isSysAdmin) {
     return true;
+  }
+
+  if (isShadowRecord) {
+    return false;
   }
 
   const userPerms = getUserPermissions(permissions, orgId);
@@ -424,10 +435,15 @@ export const canDeleteOrgUser = (
   isAdmin: boolean,
   isEmployee: boolean,
   isReplacementEmployee: boolean,
-  orgId?: string
+  orgId?: string,
+  isShadowRecord?: boolean
 ) => {
   if (isSysAdmin) {
     return true;
+  }
+
+  if (isShadowRecord) {
+    return false;
   }
 
   const userPerms = getUserPermissions(permissions, orgId);
@@ -479,4 +495,68 @@ export const canCreateSubstitute = (
 
   const userPerms = getUserPermissions(permissions, orgId);
   return !!userPerms?.includes(PermissionEnum.SubstituteSave);
+};
+
+export const canEditEmployee = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string,
+  context?: any
+) => {
+  if (isSysAdmin) {
+    return true;
+  }
+
+  if (context?.isShadowRecord) return false;
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  return !!userPerms?.includes(PermissionEnum.EmployeeSave);
+};
+
+export const canEditSub = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string,
+  context?: any
+) => {
+  if (isSysAdmin) {
+    return true;
+  }
+
+  if (context?.isShadowRecord) return false;
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  return !!userPerms?.includes(PermissionEnum.SubstituteSave);
+};
+
+export const canEditAdmin = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string,
+  context?: any
+) => {
+  if (isSysAdmin) {
+    return true;
+  }
+
+  if (context?.isShadowRecord) return false;
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  return !!userPerms?.includes(PermissionEnum.AdminSave);
+};
+
+export const canEditPermissionSet = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string,
+  context?: any
+) => {
+  if (isSysAdmin) {
+    return true;
+  }
+
+  if (context?.isShadowRecord) return false;
+
+  const userPerms = getUserPermissions(permissions, orgId);
+  return !!userPerms?.includes(PermissionEnum.PermissionSetSave);
 };

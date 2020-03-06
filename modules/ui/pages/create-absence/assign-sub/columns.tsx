@@ -19,6 +19,7 @@ export type AssignSubColumn = {
   primaryPhone?: string | null;
   qualified: VacancyQualification;
   available: VacancyAvailability;
+  excludedSub: boolean;
   unavailableToWork: boolean;
   isAvailableToSubWhenSearching: boolean;
   availableToSubWhenSearchingAtUtc?: string | null;
@@ -108,8 +109,9 @@ export const getAssignSubColumns = (
       render: (data: typeof tableData[0]) => {
         return (
           <AvailableIcon
-            unavailableToWork={data.unavailableToWork}
             available={data.available}
+            excludedSub={data.excludedSub}
+            unavailableToWork={data.unavailableToWork}
           />
         );
       },

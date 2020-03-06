@@ -10,6 +10,7 @@ import {
   parseISO,
   format,
   addMonths,
+  addDays,
   endOfMonth,
   isSameDay,
   isSameMonth,
@@ -134,7 +135,9 @@ export const ExceptionList: React.FC<Props> = props => {
               await props.onDelete(oldData.id);
             },
           }}
-          deletableRows={v => !isBefore(parseISO(v.endDate), today)}
+          deletableRows={v =>
+            !isBefore(parseISO(v.endDate), addDays(today, -1))
+          }
           pagination={pagination}
         />
       </Section>

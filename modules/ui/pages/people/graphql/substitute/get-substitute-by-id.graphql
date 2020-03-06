@@ -12,6 +12,8 @@ query GetSubstituteById($id: ID!) {
         id
         name
       }
+      isShadowRecord
+      shadowFromOrgName
       substitute {
         id
         orgId

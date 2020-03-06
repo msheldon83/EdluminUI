@@ -118,6 +118,7 @@ export const AdminAddPage: React.FC<{}> = props => {
       <Information
         orgUser={admin}
         editing={editableSections.information}
+        editable={true}
         isSuperUser={false}
         selectedRole={OrgUserRole.Administrator}
         isCreate={true}
@@ -147,6 +148,7 @@ export const AdminAddPage: React.FC<{}> = props => {
     return (
       <AccessControl
         editing={"edit-access-control"}
+        editable={true}
         orgId={params.organizationId}
         locations={[]}
         locationGroups={[]}
