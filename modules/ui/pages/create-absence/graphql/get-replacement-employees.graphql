@@ -50,6 +50,7 @@ query GetReplacementEmployeesForVacancy(
         isFavoritePositionType
         isSelectable
         payCodeId
+        unavailableToWork
       }
     }
   }

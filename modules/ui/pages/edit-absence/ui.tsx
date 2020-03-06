@@ -461,7 +461,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     }
   };
 
-  const onSelectReplacement = useCallback(
+  const onAssignReplacement = useCallback(
     async (
       employeeId: string,
       name: string,
@@ -476,6 +476,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           true
         );
       }
+
       await assignVacancy({
         variables: {
           assignment: {
@@ -492,6 +493,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           },
         },
       });
+
       await props.refetchAbsence();
       setStep("absence");
     },
@@ -715,7 +717,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           positionName={props.positionName}
           disabledDates={disabledDates}
           selectButtonText={t("Assign")}
-          onSelectReplacement={onSelectReplacement}
+          onAssignReplacement={onAssignReplacement}
           onCancel={() => {
             setVacancyDetailIdsToAssign(undefined);
             setEmployeeToReplace(undefined);

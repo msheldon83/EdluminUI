@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 type Props = {
   available: VacancyAvailability;
   excludedSub: boolean;
+  unavailableToWork: boolean;
 };
 
 export const AvailableIcon: React.FC<Props> = props => {
@@ -18,7 +19,13 @@ export const AvailableIcon: React.FC<Props> = props => {
       return <Check className={classes.available} />;
     case VacancyAvailability.MinorConflict:
       return (
-        <Tooltip title={t("Minor conflict")}>
+        <Tooltip
+          title={
+            props.unavailableToWork
+              ? t("Unavailable to work")
+              : t("Minor conflict")
+          }
+        >
           <img src={require("ui/icons/check-info.svg")} />
         </Tooltip>
       );

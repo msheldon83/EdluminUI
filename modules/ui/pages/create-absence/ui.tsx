@@ -478,7 +478,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             vacancies={projectedVacancies}
             disabledDates={disabledDates}
             onCancel={onCancel}
-            onSelectReplacement={onAssignSub}
+            onAssignReplacement={onAssignSub}
             assignmentsByDate={[]}
           />
         )}

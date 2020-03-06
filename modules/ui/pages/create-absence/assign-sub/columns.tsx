@@ -20,6 +20,7 @@ export type AssignSubColumn = {
   qualified: VacancyQualification;
   available: VacancyAvailability;
   excludedSub: boolean;
+  unavailableToWork: boolean;
   isAvailableToSubWhenSearching: boolean;
   availableToSubWhenSearchingAtUtc?: string | null;
   availableToSubWhenSearchingAtLocal?: string | null;
@@ -33,10 +34,11 @@ export const getAssignSubColumns = (
   tableData: AssignSubColumn[],
   isAdmin: boolean,
   selectTitle: string,
-  selectReplacementEmployee: (
+  assignReplacementEmployee: (
     replacementEmployeeId: string,
     name: string,
-    payCodeId: string | undefined
+    payCodeId: string | undefined,
+    unavailableToWork: boolean
   ) => Promise<void>,
   isMobile: boolean,
   theme: Theme,
@@ -109,6 +111,7 @@ export const getAssignSubColumns = (
           <AvailableIcon
             available={data.available}
             excludedSub={data.excludedSub}
+            unavailableToWork={data.unavailableToWork}
           />
         );
       },
@@ -157,10 +160,11 @@ export const getAssignSubColumns = (
         disabled={!data.selectable}
         className={classes.selectButton}
         onClick={async () => {
-          await selectReplacementEmployee(
+          await assignReplacementEmployee(
             data.employeeId,
             `${data.firstName} ${data.lastName}`,
-            data.payCodeId ? data.payCodeId : undefined
+            data.payCodeId ? data.payCodeId : undefined,
+            data.unavailableToWork
           );
         }}
       >
