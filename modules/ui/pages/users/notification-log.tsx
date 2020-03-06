@@ -159,7 +159,7 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
     getNotificationLog?.data?.vacancy?.vacancyNotificationLogByUser?.results ??
       []
   );
-  const notificationsCount = notifications.length;
+  const notificationsCount = pagination.totalCount;
 
   return (
     <>
