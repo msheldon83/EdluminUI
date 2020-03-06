@@ -22,7 +22,7 @@ export const AvailableIcon: React.FC<Props> = props => {
         <Tooltip
           title={
             props.unavailableToWork
-              ? "Unavailable to work"
+              ? t("Unavailable to work")
               : t("Minor conflict")
           }
         >
