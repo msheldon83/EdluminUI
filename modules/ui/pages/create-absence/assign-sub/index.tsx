@@ -81,10 +81,6 @@ export const AssignSub: React.FC<Props> = props => {
   const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
   const [unavailableToWork, setUnavailableToWork] = React.useState();
 
-  const [ignoreUnavailableToWork, setIgnoreUnavailableToWork] = React.useState(
-    false
-  );
-
   // If we don't have any info, cancel the Assign Sub action
   if (!props.vacancies || props.vacancies.length === 0) {
     props.onCancel();
@@ -330,17 +326,12 @@ export const AssignSub: React.FC<Props> = props => {
         onClose={() => setUnavailableToWorkDialogIsOpen(false)}
         onAssign={async () => {
           setUnavailableToWorkDialogIsOpen(false);
-          setIgnoreUnavailableToWork(true);
-
-          //Not being set here???
-          console.log(ignoreUnavailableToWork);
-
           await assignReplacementEmployee(
             replacementEmployeeId,
             replacementEmployeeName,
             replacementEmployeePayCode,
             unavailableToWork,
-            ignoreUnavailableToWork
+            true
           );
         }}
         employeeToAssign={replacementEmployeeName}
