@@ -137,6 +137,13 @@ query GetEmployeeById($id: ID!) {
             firstName
             lastName
           }
+          autoAssignedSubstitutes {
+            id
+            locations {
+              id
+              name
+            }
+          }
         }
       }
     }
