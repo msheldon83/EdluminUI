@@ -29,6 +29,7 @@ The compiled frontend is influenced by config variables which can optionally be 
 - `AUTH0_API_AUDIENCE`: This specifies the Auth0 audience. It should match the API's configuration.
 - `AUTH0_SCOPE`: Additional information that will be included in the token sent to our API.
 - `AUTH0_CLOCK_SKEW_LEEWAY_SECONDS`: The total amount of clock skew (in seconds) we will accept before failing the authentication attempt. This is primarily to address issues around the User's local clock being behind. Example error: `Error: Issued At (iat) claim error in the ID token; current time (Wed Feb 12 2020 09:01:12 GMT-0500 (Eastern Standard Time)) is before issued at time (Wed Feb 12 2020 09:18:22 GMT-0500 (Eastern Standard Time))`.
+- `IS_DEV_FEATURE_ONLY`: This is currently being used as a global feature flag to control when something shows up locally and in our Development environment, but not in Production. To use this you would use `Config.isDevFeatureOnly` wherever you need to control whether something is shown or enabled in Prod or not. This is a stopgap until we come up with a more full fledged feature flagging solution.
 
 The `config/default.js` is used to default these variables and `config/production.js` is used for defaulting the production build.
 
