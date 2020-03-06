@@ -46,14 +46,20 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   } = props;
   const { t } = useTranslation();
   const [dayForCopy, setDayForCopy] = useState();
-  const [useSameTime, setUseSameTime] = useState(false);
-  const [useSameReason, setUseSameReason] = useState(false);
-  const [useSamePayCode, setUseSamePayCode] = useState(false);
-  const [useSameAccountingCode, setUseSameAccountingCode] = useState(false);
+  const [useSameTime, setUseSameTime] = useState(true);
+  const [useSameReason, setUseSameReason] = useState(true);
+  const [useSamePayCode, setUseSamePayCode] = useState(true);
+  const [useSameAccountingCode, setUseSameAccountingCode] = useState(true);
 
   const getvacancyReasons = useQueryBundle(GetVacancyReasonsForOrg, {
     variables: { orgId: orgId },
   });
+
+  const allCheckMarksChecked = useMemo(() => {
+    return (
+      useSameTime && useSameReason && useSamePayCode && useSameAccountingCode
+    );
+  }, [useSameTime, useSameReason, useSamePayCode, useSameAccountingCode]);
 
   const handelSetDayVacReasonValue = React.useCallback(
     (vacDetail: VacancyDetailInput) => {
@@ -431,10 +437,87 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   return (
     <>
       <Grid container justify="space-between">
-        {vacancyDays.map((d, i) => {
-          return (
-            <Grid item container xs={12} key={"vacancy-day-" + i}>
-              <Grid item xs={12}>
+        <Grid item container xs={12}>
+          <VacancyIndividualDay
+            vacancyDetail={vacancyDays[0]}
+            vacancyReasonOptions={vacancyReasonOptions}
+            payCodeOptions={payCodeOptions}
+            accountingCodeOptions={accountingCodeOptions}
+            dayParts={dayParts}
+            setVacancyDetailReason={handelSetDayVacReasonValue}
+            setVacancyDetailTimes={handelSetDayTimesValue}
+            setVacancyPayCode={handleSetPayCodeValue}
+            setVacancyAccountingCode={handleSetAccountingCodeValue}
+            showCopyPast={vacancyDays.length > 1}
+          />
+        </Grid>
+        {vacancyDays.length > 1 && (
+          <Grid item container xs={12}>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    checked={useSameTime}
+                    onChange={e => {
+                      const isChecked = e.target.checked;
+                      handleSameForAllVTimeCheck(isChecked);
+                    }}
+                  />
+                }
+                label={t("Same time for all days")}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    checked={useSameReason}
+                    onChange={e => {
+                      const isChecked = e.target.checked;
+                      handleSameForAllVacReasonCheck(isChecked);
+                    }}
+                  />
+                }
+                label={t("Same reason for all days")}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    checked={useSamePayCode}
+                    onChange={e => {
+                      const isChecked = e.target.checked;
+                      handleSameForAllPayCodeCheck(isChecked);
+                    }}
+                  />
+                }
+                label={t("Same paycode for all days")}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    checked={useSameAccountingCode}
+                    onChange={e => {
+                      const isChecked = e.target.checked;
+                      handleSameForAllAccountingCodeCheck(isChecked);
+                    }}
+                  />
+                }
+                label={t("Same accounting code for all days")}
+              />
+            </Grid>
+          </Grid>
+        )}
+
+        {!allCheckMarksChecked &&
+          vacancyDays.map((d, i) => {
+            return i == 0 ? (
+              ""
+            ) : (
+              <Grid item container xs={12} key={"vacancy-day-" + i}>
                 <VacancyIndividualDay
                   vacancyDetail={d}
                   vacancyReasonOptions={vacancyReasonOptions}
@@ -448,69 +531,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                   showCopyPast={vacancyDays.length > 1}
                 />
               </Grid>
-              {i === 0 && vacancyDays.length > 1 && (
-                <Grid item container xs={12}>
-                  <Grid item xs={12}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          color="primary"
-                          checked={useSameTime}
-                          onChange={e => {
-                            const isChecked = e.target.checked;
-                            handleSameForAllVTimeCheck(isChecked);
-                          }}
-                        />
-                      }
-                      label={t("Same time for all days")}
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          color="primary"
-                          checked={useSameReason}
-                          onChange={e => {
-                            const isChecked = e.target.checked;
-                            handleSameForAllVacReasonCheck(isChecked);
-                          }}
-                        />
-                      }
-                      label={t("Same reason for all days")}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          color="primary"
-                          checked={useSamePayCode}
-                          onChange={e => {
-                            const isChecked = e.target.checked;
-                            handleSameForAllPayCodeCheck(isChecked);
-                          }}
-                        />
-                      }
-                      label={t("Same paycode for all days")}
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          color="primary"
-                          checked={useSameAccountingCode}
-                          onChange={e => {
-                            const isChecked = e.target.checked;
-                            handleSameForAllAccountingCodeCheck(isChecked);
-                          }}
-                        />
-                      }
-                      label={t("Same accounting code for all days")}
-                    />
-                  </Grid>
-                </Grid>
-              )}
-            </Grid>
-          );
-        })}
+            );
+          })}
       </Grid>
     </>
   );
