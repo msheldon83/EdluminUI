@@ -16,9 +16,7 @@ type Props = {
   blockedSubstitutes: Pick<Employee, "id" | "firstName" | "lastName">[];
   favoriteSubstitutes: Pick<Employee, "id" | "firstName" | "lastName">[];
   autoAssignedSubstitutes?: Pick<Employee, "id" | "firstName" | "lastName">[];
-  autoAssignedLocations?: Pick<Location, "id" | "name">[];
   autoAssignedSubsOnly?: boolean;
-  showAutoAssignedLocations?: boolean;
   editRoute: string;
   editing: boolean;
   editPermission: PermissionEnum[];
@@ -38,10 +36,6 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
 
   const autoAssignedEmployees = props.autoAssignedSubstitutes
     ? props.autoAssignedSubstitutes
-    : [];
-
-  const autoAssignedLocations = props.autoAssignedLocations
-    ? props.autoAssignedLocations
     : [];
 
   return (
@@ -100,18 +94,6 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
                       <div key={i}>{n.firstName + " " + n.lastName}</div>
                     ))
                   )}
-                </Grid>
-              )}
-            </Grid>
-          )}
-          {props.showAutoAssignedLocations && autoAssignedLocations.length > 0 && (
-            <Grid container item spacing={2} xs={5}>
-              {autoAssignedLocations && (
-                <Grid item xs={12} sm={6} lg={6}>
-                  <Typography variant="h6">{t("Auto Assigned")}</Typography>
-                  {autoAssignedLocations.map((n, i) => (
-                    <div key={i}>{n.name}</div>
-                  ))}
                 </Grid>
               )}
             </Grid>
