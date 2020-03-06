@@ -26,6 +26,8 @@ query GetOrgUserById($id: ID!) {
       inviteSentAtUtc
       isAccountSetup
       temporaryPassword
+      isShadowRecord
+      shadowFromOrgName
     }
   }
 }

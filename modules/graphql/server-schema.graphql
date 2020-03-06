@@ -2481,6 +2481,9 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   permissionSetIds: [ID]
   relatedOrgIds: [ID]
   relatedOrganizations: [Organization]
+  isShadowRecord: Boolean!
+  shadowFromOrgId: Int
+  shadowFromOrgName: String
   employee: Employee
   substitute: Substitute
   administrator: Administrator
@@ -3151,8 +3154,9 @@ type PermissionSet implements ModelObjectInterface & OrgObjectInterface & Domain
   orgUserRole: OrgUserRole
   permissionSet: [PermissionEnum]
   categories: [PermissionCategoryIdentifier!]!
-  shadowFromPermissionSetId: ID
-  shadowFromOrgId: ID
+  isShadowRecord: Boolean!
+  shadowFromOrgId: Int
+  shadowFromOrgName: String
 }
 
 input PermissionSetCreateInput {
