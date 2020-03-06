@@ -8,18 +8,38 @@ type Props = {
   do: CanDo;
   orgId?: string;
   not?: boolean;
+  context?: any;
 };
 
 export const Can: React.FC<Props> = props => {
+  const canDoFn = useCanDo();
+  const canDoThis = canDoFn(props.do, props.orgId, props.context);
+
+  return canDoThis === !props.not ? <>{props.children}</> : null;
+};
+
+export const useCanDo = () => {
   const userAccess = useMyUserAccess();
   const contextOrgId = useOrganizationId();
-  const { orgId = contextOrgId, not = false } = props;
 
-  const canDoThis = CanHelper(
-    props.do,
-    userAccess?.permissionsByOrg ?? [],
-    userAccess?.isSysAdmin ?? false,
-    orgId ?? undefined
-  );
-  return canDoThis === !not ? <>{props.children}</> : null;
+  const fn = (
+    canDo: CanDo,
+    orgId?: string | null | undefined,
+    context?: any
+  ) => {
+    orgId = orgId ?? contextOrgId;
+    context = context ?? undefined;
+
+    const canDoThis = CanHelper(
+      canDo,
+      userAccess?.permissionsByOrg ?? [],
+      userAccess?.isSysAdmin ?? false,
+      orgId ?? undefined,
+      context ?? undefined
+    );
+
+    return canDoThis;
+  };
+
+  return fn;
 };

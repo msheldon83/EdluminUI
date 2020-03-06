@@ -32,6 +32,7 @@ type Props = {
   inactiveDisplayText?: string | null | undefined;
   onActivate?: () => Promise<unknown>;
   editPermissions?: CanDo;
+  permissionContext?: any;
 };
 
 export const PageHeader: React.FC<Props> = props => {
@@ -69,7 +70,12 @@ export const PageHeader: React.FC<Props> = props => {
             {props.onActivate && (
               <Grid item>
                 {props.editPermissions ? (
-                  <Can do={props.editPermissions}>{activateButton}</Can>
+                  <Can
+                    do={props.editPermissions}
+                    context={props.permissionContext}
+                  >
+                    {activateButton}
+                  </Can>
                 ) : (
                   activateButton
                 )}
@@ -158,10 +164,13 @@ export const PageHeader: React.FC<Props> = props => {
           </Grid>
           {headerIsEditable &&
             (props.editPermissions ? (
-              <Can do={props.editPermissions}>{editButton}</Can>
+              <Can do={props.editPermissions} context={props.permissionContext}>
+                {editButton}
+              </Can>
             ) : (
               editButton
             ))}
+          {props.children}
         </Grid>
       </Grid>
     );

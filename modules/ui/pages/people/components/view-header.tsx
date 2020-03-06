@@ -20,6 +20,7 @@ import { OptionType } from "ui/components/form/select-new";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { OrganizationType } from "graphql/server-types.gen";
+import { ShadowIndicator } from "ui/components/shadow-indicator";
 
 const editableSections = {
   name: "edit-name",
@@ -43,6 +44,8 @@ type Props = {
     isAdmin: boolean;
     isEmployee: boolean;
     isReplacementEmployee: boolean;
+    isShadowRecord: boolean;
+    shadowFromOrgName?: string | null | undefined;
   };
   orgStatus?: OrganizationType | null | undefined;
   selectedRole?: OrgUserRole | null;
@@ -54,6 +57,7 @@ type Props = {
 
 export const PersonViewHeader: React.FC<Props> = props => {
   const orgUser = props.orgUser;
+
   const history = useHistory();
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
@@ -106,6 +110,82 @@ export const PersonViewHeader: React.FC<Props> = props => {
     inviteSent,
   ]);
 
+  const canEditThisOrgUser = (
+    permissions: OrgUserPermissions[],
+    isSysAdmin: boolean,
+    orgId?: string
+  ) =>
+    canEditOrgUser(
+      permissions,
+      isSysAdmin,
+      orgUser.isAdmin,
+      orgUser.isEmployee,
+      orgUser.isReplacementEmployee,
+      orgId,
+      orgUser.isShadowRecord
+    );
+
+  const canDeleteThisOrgUser = (
+    permissions: OrgUserPermissions[],
+    isSysAdmin: boolean,
+    orgId?: string
+  ) =>
+    canDeleteOrgUser(
+      permissions,
+      isSysAdmin,
+      orgUser.isAdmin,
+      orgUser.isEmployee,
+      orgUser.isReplacementEmployee,
+      orgId,
+      orgUser.isShadowRecord
+    );
+
+  const editable = props.editing === null;
+
+  // setup 3 dot menu actions
+  const menuActions = [];
+  if (props.selectedRole === OrgUserRole.Employee && orgUser.active) {
+    menuActions.push({
+      name: t("Create Absence"),
+      onClick: () => {
+        history.push(
+          AdminCreateAbsenceRoute.generate({
+            organizationId: props.orgId,
+            employeeId: props.orgUser.id,
+          })
+        );
+      },
+      permissions: [PermissionEnum.AbsVacSave],
+    });
+  }
+  menuActions.push({
+    name: t("Change History"),
+    onClick: () => {},
+  });
+  menuActions.push({
+    name: orgUser.active ? t("Inactivate") : t("Activate"),
+    onClick: async () => {
+      await props.onSaveOrgUser({
+        rowVersion: orgUser.rowVersion,
+        id: orgUser.id,
+        active: !orgUser.active,
+      });
+    },
+    permissions: canEditThisOrgUser,
+  });
+  if (orgUser.userId && orgUser.active && !orgUser.isShadowRecord) {
+    menuActions.push({
+      name: inviteSent ? t("Resend Invitation") : t("Invite"),
+      onClick: invite,
+      permissions: [PermissionEnum.OrgUserInvite],
+    });
+  }
+  menuActions.push({
+    name: t("Delete"),
+    onClick: props.deleteOrgUser,
+    permissions: canDeleteThisOrgUser,
+  });
+
   return (
     <>
       <PageHeaderMultiField
@@ -113,22 +193,9 @@ export const PersonViewHeader: React.FC<Props> = props => {
           orgUser.middleName ? `${orgUser.middleName} ` : ""
         }${orgUser.lastName}`}
         label={t("Name")}
-        editable={props.editing === null}
+        editable={editable}
         onEdit={() => props.setEditing(editableSections.name)}
-        editPermissions={(
-          permissions: OrgUserPermissions[],
-          isSysAdmin: boolean,
-          orgId?: string
-        ) =>
-          canEditOrgUser(
-            permissions,
-            isSysAdmin,
-            orgUser.isAdmin,
-            orgUser.isEmployee,
-            orgUser.isReplacementEmployee,
-            orgId
-          )
-        }
+        editPermissions={canEditThisOrgUser}
         validationSchema={yup.object().shape({
           firstName: yup.string().required(t("First name is required")),
           middleName: yup.string().nullable(),
@@ -161,80 +228,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
           });
         }}
         onCancel={() => props.setEditing(null)}
-        actions={[
-          ...[
-            ...(props.selectedRole === OrgUserRole.Employee && orgUser.active
-              ? [
-                  {
-                    name: t("Create Absence"),
-                    onClick: () => {
-                      history.push(
-                        AdminCreateAbsenceRoute.generate({
-                          organizationId: props.orgId,
-                          employeeId: props.orgUser.id,
-                        })
-                      );
-                    },
-                    permissions: [PermissionEnum.AbsVacSave],
-                  },
-                ]
-              : []),
-
-            {
-              name: t("Change History"),
-              onClick: () => {},
-            },
-            {
-              name: orgUser.active ? t("Inactivate") : t("Activate"),
-              onClick: async () => {
-                await props.onSaveOrgUser({
-                  rowVersion: orgUser.rowVersion,
-                  id: orgUser.id,
-                  active: !orgUser.active,
-                });
-              },
-              permissions: (
-                permissions: OrgUserPermissions[],
-                isSysAdmin: boolean,
-                orgId?: string
-              ) =>
-                canEditOrgUser(
-                  permissions,
-                  isSysAdmin,
-                  orgUser.isAdmin,
-                  orgUser.isEmployee,
-                  orgUser.isReplacementEmployee,
-                  orgId
-                ),
-            },
-          ],
-          ...(orgUser.userId && orgUser.active
-            ? [
-                {
-                  name: inviteSent ? t("Resend Invitation") : t("Invite"),
-                  onClick: invite,
-                  permissions: [PermissionEnum.OrgUserInvite],
-                },
-              ]
-            : []),
-          {
-            name: t("Delete"),
-            onClick: props.deleteOrgUser,
-            permissions: (
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string
-            ) =>
-              canDeleteOrgUser(
-                permissions,
-                isSysAdmin,
-                orgUser.isAdmin,
-                orgUser.isEmployee,
-                orgUser.isReplacementEmployee,
-                orgId
-              ),
-          },
-        ]}
+        actions={menuActions}
         isInactive={!orgUser.active}
         inactiveDisplayText={t("This person is currently inactive.")}
         onActivate={async () => {
@@ -248,22 +242,9 @@ export const PersonViewHeader: React.FC<Props> = props => {
       <PageHeader
         text={orgUser.externalId}
         label={t("External ID")}
-        editable={props.editing === null}
+        editable={editable}
         onEdit={() => props.setEditing(editableSections.externalId)}
-        editPermissions={(
-          permissions: OrgUserPermissions[],
-          isSysAdmin: boolean,
-          orgId?: string
-        ) =>
-          canEditOrgUser(
-            permissions,
-            isSysAdmin,
-            orgUser.isAdmin,
-            orgUser.isEmployee,
-            orgUser.isReplacementEmployee,
-            orgId
-          )
-        }
+        editPermissions={canEditThisOrgUser}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
@@ -277,7 +258,12 @@ export const PersonViewHeader: React.FC<Props> = props => {
         onCancel={() => props.setEditing(null)}
         isSubHeader={true}
         showLabel={true}
-      />
+      >
+        <ShadowIndicator
+          orgName={orgUser.shadowFromOrgName}
+          isShadow={orgUser.isShadowRecord}
+        />
+      </PageHeader>
     </>
   );
 };

@@ -97,6 +97,7 @@ type AbsenceQueries {
   dailyReport(orgId: ID!, date: Date!, locationIds: [ID], positionTypeIds: [ID]): DailyReport
   subSignInReport(orgId: ID!, date: Date!, locationIds: [ID]): [VacancyDetail]
   byConfirmationId(orgIds: [ID], confirmationId: String!): [ConfirmationNumberQueryResultTypeDef]
+  activityLog(id: ID!): ActivityLog
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -334,6 +335,35 @@ input AccountingCodeUpdateInput {
   externalId: String
   expired: Boolean
   locationId: ID
+}
+
+type ActivityLog {
+  _info: [ReturnMessage]
+  orgId: ID
+  objectKey: ID!
+  objectTypeId: ObjectType
+  firstActivityUtc: DateTime
+  lastActivityUtc: DateTime
+  count: Int!
+  activityLogDetails: [ActivityLogDetailTypeDef]
+}
+
+type ActivityLogDetailTypeDef {
+  _info: [ReturnMessage]
+  objectKey: ID!
+  objectTypeId: ObjectType
+  eventLogId: ID!
+  eventTypeId: EventType
+  createdUtc: DateTime!
+  actingUserId: ID!
+  actualUserId: ID!
+  actingUser: String!
+  actualUser: String!
+  actingOrgUserId: ID
+  actualOrgUserId: ID
+  title: String
+  subTitle: String
+  moreDetail: Boolean!
 }
 
 type Address {
@@ -2451,6 +2481,9 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   permissionSetIds: [ID]
   relatedOrgIds: [ID]
   relatedOrganizations: [Organization]
+  isShadowRecord: Boolean!
+  shadowFromOrgId: Int
+  shadowFromOrgName: String
   employee: Employee
   substitute: Substitute
   administrator: Administrator
@@ -3121,8 +3154,9 @@ type PermissionSet implements ModelObjectInterface & OrgObjectInterface & Domain
   orgUserRole: OrgUserRole
   permissionSet: [PermissionEnum]
   categories: [PermissionCategoryIdentifier!]!
-  shadowFromPermissionSetId: ID
-  shadowFromOrgId: ID
+  isShadowRecord: Boolean!
+  shadowFromOrgId: Int
+  shadowFromOrgName: String
 }
 
 input PermissionSetCreateInput {
@@ -5146,6 +5180,7 @@ type VacancyQueries {
   vacancyNotificationLogByVacancy(vacancyId: ID!): [VacancyNotificationLog]
   vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: VacancyCreateInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
+  activityLog(id: ID!): ActivityLog
 }
 
 type VacancyReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {

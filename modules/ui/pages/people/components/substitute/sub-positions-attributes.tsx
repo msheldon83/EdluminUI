@@ -18,6 +18,7 @@ import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
   editing: string | null;
+  editable: boolean;
   attributes?: Maybe<Pick<Endorsement, "name"> | null | undefined>[] | null;
   qualifiedPositionTypes?: Maybe<Pick<PositionType, "name">>[] | null;
 };
@@ -26,6 +27,7 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PersonViewRoute);
+  const showEditButton = !props.editing && props.editable;
 
   return (
     <>
@@ -60,18 +62,19 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
               justify="flex-end"
               alignItems="flex-start"
             >
-              <Button
-                variant="outlined"
-                hidden={!props.editing}
-                onClick={() => {
-                  const editSettingsUrl = PeopleSubPositionsAttributesEditRoute.generate(
-                    params
-                  );
-                  history.push(editSettingsUrl);
-                }}
-              >
-                {t("Edit")}
-              </Button>
+              {showEditButton && (
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    const editSettingsUrl = PeopleSubPositionsAttributesEditRoute.generate(
+                      params
+                    );
+                    history.push(editSettingsUrl);
+                  }}
+                >
+                  {t("Edit")}
+                </Button>
+              )}
             </Grid>
           </Can>
         </Grid>

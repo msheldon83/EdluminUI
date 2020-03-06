@@ -7,6 +7,8 @@ query GetEmployeeById($id: ID!) {
       userId
       loginEmail
       temporaryPassword
+      isShadowRecord
+      shadowFromOrgName
       employee {
         id
         orgId
