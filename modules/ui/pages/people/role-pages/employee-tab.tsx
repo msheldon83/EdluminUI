@@ -124,7 +124,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         favoriteSubstitutes={employee.substitutePreferences.favoriteSubstitutes}
         blockedSubstitutes={employee.substitutePreferences.blockedSubstitutes}
         autoAssignedLocations={
-          employee.substitutePreferences?.autoAssignedSubstitutes?.locations
+          employee.substitutePreferences.autoAssignedSubstitutes.locations
         }
         showAutoAssignedLocations={true}
         editRoute={EmployeeSubstitutePreferenceRoute.generate(params)}

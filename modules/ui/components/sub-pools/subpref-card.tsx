@@ -31,6 +31,7 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
   const favoriteEmployees = props.favoriteSubstitutes
     ? props.favoriteSubstitutes
     : [];
+
   const blockedEmployees = props.blockedSubstitutes
     ? props.blockedSubstitutes
     : [];
@@ -103,18 +104,14 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
               )}
             </Grid>
           )}
-          {props.showAutoAssignedLocations && (
+          {props.showAutoAssignedLocations && autoAssignedLocations.length > 0 && (
             <Grid container item spacing={2} xs={5}>
               {autoAssignedLocations && (
                 <Grid item xs={12} sm={6} lg={6}>
                   <Typography variant="h6">{t("Auto Assigned")}</Typography>
-                  {autoAssignedLocations.length === 0 ? (
-                    <div>{t("Not defined")}</div>
-                  ) : (
-                    autoAssignedLocations.map((n, i) => (
-                      <div key={i}>{n?.locations?.name}</div>
-                    ))
-                  )}
+                  {autoAssignedLocations.map((n, i) => (
+                    <div key={i}>{n.name}</div>
+                  ))}
                 </Grid>
               )}
             </Grid>
