@@ -81,10 +81,9 @@ export const AssignSub: React.FC<Props> = props => {
   const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
   const [unavailableToWork, setUnavailableToWork] = React.useState();
 
-  const [
-    ignoreUnavailableToWork,
-    setIgnoreUnavailableToWork,
-  ] = React.useState();
+  const [ignoreUnavailableToWork, setIgnoreUnavailableToWork] = React.useState(
+    false
+  );
 
   // If we don't have any info, cancel the Assign Sub action
   if (!props.vacancies || props.vacancies.length === 0) {
@@ -179,13 +178,19 @@ export const AssignSub: React.FC<Props> = props => {
       unavailableToWork: boolean,
       ignoreUnavailableToWork?: boolean
     ) => {
-      if (unavailableToWork && !ignoreUnavailableToWork) {
+      if (unavailableToWork && ignoreUnavailableToWork) {
+        onAssignReplacement(
+          replacementEmployeeId,
+          name,
+          payCodeId,
+          vacancyDetailIdsToAssign
+        );
+      } else if (unavailableToWork && !ignoreUnavailableToWork) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
         setUnavailableToWork(unavailableToWork);
         setUnavailableToWorkDialogIsOpen(true);
-        setIgnoreUnavailableToWork(true);
       } else {
         onAssignReplacement(
           replacementEmployeeId,
@@ -325,11 +330,17 @@ export const AssignSub: React.FC<Props> = props => {
         onClose={() => setUnavailableToWorkDialogIsOpen(false)}
         onAssign={async () => {
           setUnavailableToWorkDialogIsOpen(false);
+          setIgnoreUnavailableToWork(true);
+
+          //Not being set here???
+          console.log(ignoreUnavailableToWork);
+
           await assignReplacementEmployee(
             replacementEmployeeId,
             replacementEmployeeName,
             replacementEmployeePayCode,
-            unavailableToWork
+            unavailableToWork,
+            ignoreUnavailableToWork
           );
         }}
         employeeToAssign={replacementEmployeeName}
