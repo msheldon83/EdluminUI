@@ -36,6 +36,9 @@ module.exports = {
   apiUrl: "/graphql",
   isDevFeatureOnly: process.env.IS_DEV_FEATURE_ONLY || true,
 
+  impersonation_actingUserIdKey: "rrActingUserId",
+  impersonation_actingOrgUserIdKey: "rrActingOrgUserId",
+
   devServer: {
     url: "http://localhost",
     port: 3000,
