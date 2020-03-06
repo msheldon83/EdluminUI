@@ -174,14 +174,7 @@ export const AssignSub: React.FC<Props> = props => {
       unavailableToWork: boolean,
       ignoreUnavailableToWork?: boolean
     ) => {
-      if (unavailableToWork && ignoreUnavailableToWork) {
-        onAssignReplacement(
-          replacementEmployeeId,
-          name,
-          payCodeId,
-          vacancyDetailIdsToAssign
-        );
-      } else if (unavailableToWork && !ignoreUnavailableToWork) {
+      if (unavailableToWork && !ignoreUnavailableToWork) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
