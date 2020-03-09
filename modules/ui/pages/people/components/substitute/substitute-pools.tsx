@@ -194,7 +194,7 @@ export const useStyles = makeStyles(theme => ({
     color: theme.customColors.blue,
   },
   spacer: {
-    top: "-80px",
+    top: "-70px",
     position: "relative",
   },
 }));
