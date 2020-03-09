@@ -62,8 +62,6 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
       <div className={classes.content}>
         {locationGroup && (
           <SubstitutePrefCard
-            favoriteHeading={t("Favorites")}
-            blockedHeading={t("Blocked")}
             heading={t("Substitute Preferences")}
             favoriteSubstitutes={
               locationGroup.substitutePreferences.favoriteSubstitutes

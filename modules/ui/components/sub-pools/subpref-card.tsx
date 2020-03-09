@@ -4,13 +4,14 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { Maybe, Employee, PermissionEnum } from "graphql/server-types.gen";
-
-import { useRouteParams } from "ui/routes/definition";
+import {
+  Maybe,
+  Employee,
+  PermissionEnum,
+  Location,
+} from "graphql/server-types.gen";
 
 type Props = {
-  favoriteHeading: string;
-  blockedHeading: string;
   heading: string;
   blockedSubstitutes: Pick<Employee, "id" | "firstName" | "lastName">[];
   favoriteSubstitutes: Pick<Employee, "id" | "firstName" | "lastName">[];
@@ -28,6 +29,7 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
   const favoriteEmployees = props.favoriteSubstitutes
     ? props.favoriteSubstitutes
     : [];
+
   const blockedEmployees = props.blockedSubstitutes
     ? props.blockedSubstitutes
     : [];

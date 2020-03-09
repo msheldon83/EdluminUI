@@ -120,8 +120,6 @@ export const EmployeeTab: React.FC<Props> = props => {
         }
       />
       <SubstitutePrefCard
-        favoriteHeading={t("Favorites")}
-        blockedHeading={t("Blocked")}
         heading={t("Substitute Preferences")}
         favoriteSubstitutes={employee.substitutePreferences.favoriteSubstitutes}
         blockedSubstitutes={employee.substitutePreferences.blockedSubstitutes}
