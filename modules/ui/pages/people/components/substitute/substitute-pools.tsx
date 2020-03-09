@@ -172,7 +172,7 @@ export const SubstitutePools: React.FC<Props> = props => {
                   {t("Auto-assigned to")}
                 </Typography>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} className={classes.spacer}>
                 <Typography variant="h6">{t("Locations")}</Typography>
                 {autoAssignLocationsList.map((name, i) => (
                   <div key={i}>{name}</div>
@@ -192,5 +192,9 @@ export const useStyles = makeStyles(theme => ({
     fontWeight: "bold",
     letterSpacing: theme.typography.pxToRem(0.15),
     color: theme.customColors.blue,
+  },
+  spacer: {
+    top: "-80px",
+    position: "relative",
   },
 }));
