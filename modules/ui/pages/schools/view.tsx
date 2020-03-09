@@ -156,8 +156,6 @@ export const LocationViewPage: React.FC<{}> = props => {
         )}
         {location && (
           <SubstitutePrefCard
-            favoriteHeading={t("Favorites")}
-            blockedHeading={t("Blocked")}
             heading={t("Substitute Preferences")}
             favoriteSubstitutes={
               location.substitutePreferences.favoriteSubstitutes

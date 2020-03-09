@@ -82,6 +82,10 @@ query GetSubstituteById($id: ID!) {
             id
             name
           }
+          autoAssignToLocations {
+            id
+            name
+          }
         }
       }
     }
