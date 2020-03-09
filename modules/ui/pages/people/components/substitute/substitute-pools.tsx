@@ -88,7 +88,7 @@ export const SubstitutePools: React.FC<Props> = props => {
             permissions: [PermissionEnum.SubstituteSave],
           }}
         />
-        <Grid container spacing={2}>
+        <Grid container spacing={2} alignItems="flex-start">
           <Grid container item spacing={2} xs={4}>
             <Grid item xs={12}>
               <Typography className={classes.heading}>
@@ -172,7 +172,7 @@ export const SubstitutePools: React.FC<Props> = props => {
                   {t("Auto-assigned to")}
                 </Typography>
               </Grid>
-              <Grid item xs={12} className={classes.spacer}>
+              <Grid item xs={12}>
                 <Typography variant="h6">{t("Locations")}</Typography>
                 {autoAssignLocationsList.map((name, i) => (
                   <div key={i}>{name}</div>
@@ -192,9 +192,5 @@ export const useStyles = makeStyles(theme => ({
     fontWeight: "bold",
     letterSpacing: theme.typography.pxToRem(0.15),
     color: theme.customColors.blue,
-  },
-  spacer: {
-    top: "-70px",
-    position: "relative",
   },
 }));
