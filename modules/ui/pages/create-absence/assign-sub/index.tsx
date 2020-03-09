@@ -48,6 +48,14 @@ type Props = {
   assignmentsByDate: AssignmentOnDate[];
 };
 
+export type ValidationChecks = {
+  isQualified: boolean;
+  isRejected: boolean;
+  isMinorJobConflict: boolean;
+  excludedSub: boolean;
+  notIncluded: boolean;
+};
+
 export const AssignSub: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
@@ -66,10 +74,7 @@ export const AssignSub: React.FC<Props> = props => {
   } = props;
 
   const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
-  const [
-    unavailableToWorkDialogIsOpen,
-    setUnavailableToWorkDialogIsOpen,
-  ] = React.useState(false);
+  const [warningDialogIsOpen, setWarningDialogIsOpen] = React.useState(false);
   const [
     replacementEmployeeName,
     setReplacementEmployeeName,
@@ -80,6 +85,10 @@ export const AssignSub: React.FC<Props> = props => {
   ] = React.useState();
   const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
   const [unavailableToWork, setUnavailableToWork] = React.useState();
+
+  //Absence Dialog box props. Possibly
+  const [title, setTitle] = React.useState();
+  const [message, setMessage] = React.useState();
 
   // If we don't have any info, cancel the Assign Sub action
   if (!props.vacancies || props.vacancies.length === 0) {
@@ -162,7 +171,11 @@ export const AssignSub: React.FC<Props> = props => {
       isLocationPositionTypeFavorite: r.isFavoritePositionType,
       selectable: r.isSelectable,
       payCodeId: r.payCodeId,
+      isQualified: r.isQualified,
+      isRejected: r.isRejected,
+      isMinorJobConflict: r.isMinorJobConflict,
       excludedSub: r.excludedSub,
+      notIncluded: r.notIncluded,
     }));
   }, [replacementEmployees]);
 
@@ -171,15 +184,26 @@ export const AssignSub: React.FC<Props> = props => {
       replacementEmployeeId: string,
       name: string,
       payCodeId: string | undefined,
+      validationChecks: ValidationChecks,
       unavailableToWork: boolean,
-      ignoreUnavailableToWork?: boolean
+      ignoreAndContinue: boolean
     ) => {
-      if (unavailableToWork && !ignoreUnavailableToWork) {
+      //validation check here
+      if (
+        !validator(
+          validationChecks,
+          unavailableToWork,
+          setMessage,
+          setTitle,
+          t
+        ) &&
+        !ignoreAndContinue
+      ) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
         setUnavailableToWork(unavailableToWork);
-        setUnavailableToWorkDialogIsOpen(true);
+        setWarningDialogIsOpen(true);
       } else {
         onAssignReplacement(
           replacementEmployeeId,
@@ -197,7 +221,8 @@ export const AssignSub: React.FC<Props> = props => {
       replacementEmployeeId: string,
       name: string,
       payCodeId: string | undefined,
-      unavailableToWork: boolean
+      unavailableToWork: boolean,
+      validationChecks: ValidationChecks
     ) => {
       if (employeeToReplace) {
         setReplacementEmployeeName(name);
@@ -210,7 +235,9 @@ export const AssignSub: React.FC<Props> = props => {
           replacementEmployeeId,
           name,
           payCodeId,
-          unavailableToWork
+          validationChecks,
+          unavailableToWork,
+          true
         );
       }
     },
@@ -302,12 +329,14 @@ export const AssignSub: React.FC<Props> = props => {
         open={reassignDialogIsOpen}
         onClose={() => setReassignDialogIsOpen(false)}
         onAssign={async () => {
+          const validationChecks = {};
           //call asign functionality
           setReassignDialogIsOpen(false);
           await assignReplacementEmployee(
             replacementEmployeeId,
             replacementEmployeeName,
             replacementEmployeePayCode,
+            validationChecks,
             unavailableToWork
           );
         }}
@@ -315,19 +344,23 @@ export const AssignSub: React.FC<Props> = props => {
         newReplacementEmployee={replacementEmployeeName}
       />
       <AssignAbsenceDialog
-        open={unavailableToWorkDialogIsOpen}
-        onClose={() => setUnavailableToWorkDialogIsOpen(false)}
+        open={warningDialogIsOpen}
+        title={title}
+        message={message}
+        onClose={() => setWarningDialogIsOpen(false)}
         onAssign={async () => {
-          setUnavailableToWorkDialogIsOpen(false);
+          const validationChecks = {};
+
+          setWarningDialogIsOpen(false);
           await assignReplacementEmployee(
             replacementEmployeeId,
             replacementEmployeeName,
             replacementEmployeePayCode,
+            validationChecks,
             unavailableToWork,
             true
           );
         }}
-        employeeToAssign={replacementEmployeeName}
       />
       <AbsenceHeader
         absenceId={props.absenceId}
@@ -448,4 +481,40 @@ const buildVacancyInput = (
       };
     }),
   };
+};
+
+//TODO: remove corresponding checks from the back-end
+const validator = (
+  validationChecks: ValidationChecks,
+  unavailableToWork: boolean,
+  setMessage: any,
+  setTitle: any,
+  t: any
+) => {
+  if (!validationChecks.isQualified) {
+    setMessage(t("User is not qualified for this absence."));
+    setTitle(t("Warning"));
+    return false;
+  } else if (validationChecks.isRejected) {
+    setMessage(t("User is not qualified for this absence."));
+    setTitle(t("Warning"));
+    return false;
+  } else if (validationChecks.isMinorJobConflict) {
+    setMessage(t("User is not qualified for this absence."));
+    setTitle(t("Warning"));
+    return false;
+  } else if (validationChecks.excludedSub) {
+    setMessage(t("User is not qualified for this absence."));
+    setTitle(t("Warning"));
+    return false;
+  } else if (validationChecks.notIncluded) {
+    setMessage(t("User is not qualified for this absence."));
+    setTitle(t("Warning"));
+    return false;
+  } else if (unavailableToWork) {
+    setMessage(t("User is not qualified for this absence."));
+    setTitle(t("Warning"));
+  }
+
+  return true;
 };

@@ -11,6 +11,7 @@ import { AvailableIcon } from "./icons/available-icon";
 import { FavoriteIcon } from "./icons/favorite-icon";
 import { QualifiedIcon } from "./icons/qualified-icon";
 import { VisibleIcon } from "./icons/visible-icon";
+import { ValidationChecks } from "./";
 
 export type AssignSubColumn = {
   employeeId: string;
@@ -19,7 +20,6 @@ export type AssignSubColumn = {
   primaryPhone?: string | null;
   qualified: VacancyQualification;
   available: VacancyAvailability;
-  excludedSub: boolean;
   unavailableToWork: boolean;
   isAvailableToSubWhenSearching: boolean;
   availableToSubWhenSearchingAtUtc?: string | null;
@@ -28,6 +28,11 @@ export type AssignSubColumn = {
   isLocationPositionTypeFavorite: boolean;
   selectable: boolean;
   payCodeId?: string | null;
+  isQualified: boolean;
+  isRejected: boolean;
+  isMinorJobConflict: boolean;
+  excludedSub: boolean;
+  notIncluded: boolean;
 };
 
 export const getAssignSubColumns = (
@@ -38,7 +43,8 @@ export const getAssignSubColumns = (
     replacementEmployeeId: string,
     name: string,
     payCodeId: string | undefined,
-    unavailableToWork: boolean
+    unavailableToWork: boolean,
+    validationChecks: ValidationChecks
   ) => Promise<void>,
   isMobile: boolean,
   theme: Theme,
@@ -160,11 +166,19 @@ export const getAssignSubColumns = (
         disabled={!data.selectable}
         className={classes.selectButton}
         onClick={async () => {
+          const validationChecks: ValidationChecks = {
+            isQualified: data.isQualified,
+            isRejected: data.isRejected,
+            isMinorJobConflict: data.isMinorJobConflict,
+            excludedSub: data.excludedSub,
+            notIncluded: data.notIncluded,
+          };
           await assignReplacementEmployee(
             data.employeeId,
             `${data.firstName} ${data.lastName}`,
             data.payCodeId ? data.payCodeId : undefined,
-            data.unavailableToWork
+            data.unavailableToWork,
+            validationChecks
           );
         }}
       >

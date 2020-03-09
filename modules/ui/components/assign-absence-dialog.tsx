@@ -14,9 +14,10 @@ import { makeStyles } from "@material-ui/styles";
 
 type Props = {
   open: boolean;
+  title: string;
+  message: string;
   onClose: () => void;
-  onAssign: () => void;
-  employeeToAssign: string;
+  onAssign?: () => void;
 };
 
 export const AssignAbsenceDialog: React.FC<Props> = props => {
@@ -26,27 +27,25 @@ export const AssignAbsenceDialog: React.FC<Props> = props => {
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
-        <Typography variant="h5">{t("Unavailable to work")}</Typography>
+        <Typography variant="h5">{props.title}</Typography>
       </DialogTitle>
       <DialogContent>
-        <Typography>
-          {`${props.employeeToAssign} ${t(
-            " is unavailable to work this Absence. Do you wish to continue?"
-          )}`}
-        </Typography>
+        <Typography>{props.message}</Typography>
       </DialogContent>
       <Divider className={classes.divider} />
       <DialogActions>
         <TextButton onClick={props.onClose} className={classes.buttonSpacing}>
           {t("Cancel")}
         </TextButton>
-        <ButtonDisableOnClick
-          variant="outlined"
-          onClick={props.onAssign}
-          className={classes.cancel}
-        >
-          {t("Ignore & Continue")}
-        </ButtonDisableOnClick>
+        {props.onAssign && (
+          <ButtonDisableOnClick
+            variant="outlined"
+            onClick={props.onAssign}
+            className={classes.cancel}
+          >
+            {t("Ignore & Continue")}
+          </ButtonDisableOnClick>
+        )}
       </DialogActions>
     </Dialog>
   );
