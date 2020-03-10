@@ -175,8 +175,8 @@ export const EditVacancies: React.FC<Props> = props => {
         <form onSubmit={handleSubmit}>
 
           <Typography variant={props.actingAsEmployee ? "h1" : "h5"}>
-            {props.details.absenceId && () : ()}
-            {`${t("Substitute details for new absence")}`}
+            {props.details.absenceId ? (): ({`${t("Substitute details for new absence")}`})}
+           
           </Typography>
           {!props.actingAsEmployee && (
             <Typography variant="h1">{props.employeeName}</Typography>
