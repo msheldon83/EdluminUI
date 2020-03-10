@@ -11,7 +11,7 @@ describe("secondsSinceMidnight", () => {
   });
 
   it("Normal Day in date time string (AM)", () => {
-    const result = secondsSinceMidnight("2020-03-10T08:00:00.000");
+    const result = secondsSinceMidnight("2020-03-10T12:00:00.000Z");
     expect(result).toEqual(28800);
   });
 
@@ -21,8 +21,8 @@ describe("secondsSinceMidnight", () => {
   });
 
   it("Normal Day in date time string (PM)", () => {
-    const result = secondsSinceMidnight("2020-03-10T20:45:00.000");
-    expect(result).toEqual(74700);
+    const result = secondsSinceMidnight("2020-03-10T23:45:00.000Z");
+    expect(result).toEqual(71100);
   });
 
   it("DST Begin Day in milliseconds (AM)", () => {
@@ -31,7 +31,7 @@ describe("secondsSinceMidnight", () => {
   });
 
   it("DST Begin Day in date time string (AM)", () => {
-    const result = secondsSinceMidnight("2020-03-08T08:00:00.000");
+    const result = secondsSinceMidnight("2020-03-08T12:00:00.000Z");
     expect(result).toEqual(28800);
   });
 
@@ -41,7 +41,7 @@ describe("secondsSinceMidnight", () => {
   });
 
   it("DST Begin Day in date time string (PM)", () => {
-    const result = secondsSinceMidnight("2020-03-08T19:55:00.000");
+    const result = secondsSinceMidnight("2020-03-08T23:55:00.000Z");
     expect(result).toEqual(71700);
   });
 
@@ -51,7 +51,7 @@ describe("secondsSinceMidnight", () => {
   });
 
   it("DST End Day in date time string (AM)", () => {
-    const result = secondsSinceMidnight("2020-11-01T08:00:00.000");
+    const result = secondsSinceMidnight("2020-11-01T13:00:00.000Z");
     expect(result).toEqual(28800);
   });
 
@@ -61,8 +61,8 @@ describe("secondsSinceMidnight", () => {
   });
 
   it("DST End Day in date time string (PM)", () => {
-    const result = secondsSinceMidnight("2020-11-01T19:55:00.000");
-    expect(result).toEqual(71700);
+    const result = secondsSinceMidnight("2020-11-01T23:55:00.000Z");
+    expect(result).toEqual(68100);
   });
 });
 
