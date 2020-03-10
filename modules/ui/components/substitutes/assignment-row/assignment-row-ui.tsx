@@ -63,6 +63,13 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               isMobile ? classes.mobileConf : "",
             ].join(" ")}
           >
+            {props.isAdmin && (
+              //code here for link
+              <Typography className={classes.bold} noWrap>
+                #C{props.confirmationNumber}
+              </Typography>
+            )}
+
             <Typography className={classes.bold} noWrap>
               #C{props.confirmationNumber}
             </Typography>
