@@ -24,8 +24,6 @@ export const AssignAbsenceDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  console.log(props.messages);
-
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
