@@ -15,7 +15,7 @@ import { makeStyles } from "@material-ui/styles";
 type Props = {
   open: boolean;
   title: string;
-  message: string;
+  messages: string[];
   onClose: () => void;
   onAssign?: () => void;
 };
@@ -24,28 +24,36 @@ export const AssignAbsenceDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
+  console.log(props.messages);
+
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
         <Typography variant="h5">{props.title}</Typography>
       </DialogTitle>
-      <DialogContent>
-        <Typography>{props.message}</Typography>
+      <DialogContent className={classes.dialogBox}>
+        {props.messages && props.messages.length === 0 ? (
+          <div>{t("No Warning Messages")}</div>
+        ) : (
+          props.messages.map((n, i) => (
+            <div key={i} className={classes.padding}>
+              {n}
+            </div>
+          ))
+        )}
       </DialogContent>
       <Divider className={classes.divider} />
       <DialogActions>
         <TextButton onClick={props.onClose} className={classes.buttonSpacing}>
           {t("Cancel")}
         </TextButton>
-        {props.onAssign && (
-          <ButtonDisableOnClick
-            variant="outlined"
-            onClick={props.onAssign}
-            className={classes.cancel}
-          >
-            {t("Ignore & Continue")}
-          </ButtonDisableOnClick>
-        )}
+        <ButtonDisableOnClick
+          variant="outlined"
+          onClick={props.onAssign}
+          className={classes.cancel}
+        >
+          {t("Ignore & Continue")}
+        </ButtonDisableOnClick>
       </DialogActions>
     </Dialog>
   );
@@ -60,4 +68,10 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
   cancel: { color: theme.customColors.blue },
+  padding: {
+    padding: theme.typography.pxToRem(5),
+  },
+  dialogBox: {
+    width: theme.typography.pxToRem(500),
+  },
 }));

@@ -6,7 +6,6 @@ import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useIsMobile } from "hooks";
-import { compact } from "lodash-es";
 import * as React from "react";
 import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +15,7 @@ import { AssignAbsenceDialog } from "ui/components/assign-absence-dialog";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
 import { VacancyDetails } from "../../../components/absence/vacancy-details";
 import { AssignSubColumn, getAssignSubColumns } from "./columns";
+import { compact, uniq } from "lodash-es";
 import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
@@ -93,7 +93,7 @@ export const AssignSub: React.FC<Props> = props => {
 
   //Absence Dialog box props. Possibly
   const [title, setTitle] = React.useState();
-  const [message, setMessage] = React.useState();
+  const [messages, setMessages] = React.useState<string[]>([]);
 
   // If we don't have any info, cancel the Assign Sub action
   if (!props.vacancies || props.vacancies.length === 0) {
@@ -191,25 +191,27 @@ export const AssignSub: React.FC<Props> = props => {
       payCodeId: string | undefined,
       validationChecks: ValidationChecks,
       unavailableToWork: boolean,
-      ignoreAndContinue: boolean
+      ignoreAndContinue?: boolean
     ) => {
-      console.log(validationChecks);
-      console.log(ignoreAndContinue);
-
-      //validation check here
       if (
-        !validator(validationChecks, unavailableToWork, setMessage, setTitle, t) //&&
-        //!ignoreAndContinue
+        !validator(
+          validationChecks,
+          unavailableToWork,
+          setMessages,
+          setTitle,
+          t
+        ) &&
+        !ignoreAndContinue
       ) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
         setUnavailableToWork(unavailableToWork);
-        // setIsQualified(validationChecks.isQualified);
-        // setIsRejected(validationChecks.isRejected);
-        // setIsMinorJobConflict(validationChecks.isMinorJobConflict);
-        // setExcludedSub(validationChecks.excludedSub);
-        // setNotIncluded(validationChecks.notIncluded);
+        setIsQualified(isQualified);
+        setIsRejected(isRejected);
+        setIsMinorJobConflict(isMinorJobConflict);
+        setExcludedSub(excludedSub);
+        setNotIncluded(notIncluded);
         setWarningDialogIsOpen(true);
       } else {
         onAssignReplacement(
@@ -243,8 +245,7 @@ export const AssignSub: React.FC<Props> = props => {
           name,
           payCodeId,
           validationChecks,
-          unavailableToWork,
-          true
+          unavailableToWork
         );
       }
     },
@@ -343,15 +344,14 @@ export const AssignSub: React.FC<Props> = props => {
             excludedSub: excludedSub,
             notIncluded: notIncluded,
           };
-          //call asign functionality
+
           setReassignDialogIsOpen(false);
           await assignReplacementEmployee(
             replacementEmployeeId,
             replacementEmployeeName,
             replacementEmployeePayCode,
             validationChecks,
-            unavailableToWork,
-            true
+            unavailableToWork
           );
         }}
         currentReplacementEmployee={employeeToReplace}
@@ -360,7 +360,7 @@ export const AssignSub: React.FC<Props> = props => {
       <AssignAbsenceDialog
         open={warningDialogIsOpen}
         title={title}
-        message={message}
+        messages={messages}
         onClose={() => setWarningDialogIsOpen(false)}
         onAssign={async () => {
           const validationChecks: ValidationChecks = {
@@ -507,65 +507,42 @@ const buildVacancyInput = (
 const validator = (
   validationChecks: ValidationChecks,
   unavailableToWork: boolean,
-  setMessage: any,
+  setMessages: any,
   setTitle: any,
   t: any
 ) => {
-  const message = "";
-  const linebreak = "\n";
+  const messageArray = [];
 
   if (!validationChecks.isQualified) {
-    const m: string = t(
-      "Employee is not qualified for this Vacancy"
-    ).toString();
-    //message.concat(linebreak);
-    message.concat(m);
+    const m = t("Employee is not qualified for this Vacancy.");
+    messageArray.push(m);
   }
   if (validationChecks.isRejected) {
-    const m: string = t(
-      "Employee has rejected this absence. Do you wish to continue? "
-    ).toString();
-
-    console.log(m);
-    // message.concat(linebreak);
-    message.concat(m);
-
-    console.log(message);
+    const m = t("Employee has rejected this absence.");
+    messageArray.push(m);
   }
   if (validationChecks.isMinorJobConflict) {
-    const m: string = t(
-      "Employee has a minor job conflict. Do you wish to continue?"
-    ).toString();
-    // message.concat(linebreak);
-    message.concat(m);
+    const m = t("Employee has a minor job conflict.");
+    messageArray.push(m);
   }
   if (validationChecks.excludedSub) {
-    const m: string = t(
-      "Employee has been rejected from the replacement pool. Do you wish to continue? "
-    ).toString();
-    //  message.concat(linebreak);
-    message.concat(m);
+    const m = t("Employee has been rejected from the replacement pool.");
+    messageArray.push(m);
   }
   if (validationChecks.notIncluded) {
-    const m: string = t(
-      "Employee has not been included in any replacement pools. Do you wish to continue?"
-    ).toString();
-    //  message.concat(linebreak);
-    message.concat(m);
+    const m = t("Employee has not been included in any replacement pools.");
+    messageArray.push(m);
   }
   if (unavailableToWork) {
-    const m: string = t(
-      "Employee is unavailable to work. Do you wish to continue? "
-    ).toString();
-    //  message.concat(linebreak);
-    message.concat(m);
+    const m = t("Employee is unavailable to work.");
+    messageArray.push(m);
   }
 
-  console.log(message);
-
-  if (message.length > 1) {
-    setTitle(t("Warning"));
-    setMessage(message);
+  if (messageArray.length > 0) {
+    messageArray.push(t("Do you wish to continue?"));
+    const messages = uniq(compact(messageArray));
+    setTitle(t("Warning!"));
+    setMessages(messages);
 
     return false;
   }
