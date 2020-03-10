@@ -30,8 +30,7 @@ import {
   buildDaysOfTheWeek,
   buildNewPeriod,
 } from "ui/pages/employee-position/components/helpers";
-import { format } from "date-fns";
-import { secondsToFormattedString } from "helpers/time";
+import { secondsToFormattedHourMinuteString } from "helpers/time";
 
 export const EmployeeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -192,9 +191,11 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             locationId: i?.location?.id ?? "",
             bellScheduleId: i?.bellSchedule?.id,
             startTime: i?.startTime
-              ? secondsToFormattedString(i?.startTime)
+              ? secondsToFormattedHourMinuteString(i?.startTime)
               : "",
-            endTime: i?.endTime ? secondsToFormattedString(i?.endTime) : "",
+            endTime: i?.endTime
+              ? secondsToFormattedHourMinuteString(i?.endTime)
+              : "",
             startPeriodId: i?.startPeriod?.id,
             endPeriodId: i?.endPeriod?.id,
           })) ?? [buildNewPeriod(true)],

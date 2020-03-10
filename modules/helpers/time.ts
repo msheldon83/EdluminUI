@@ -59,7 +59,7 @@ export const secondsToIsoString = (seconds: number): string => {
   return timeStamp;
 };
 
-export const secondsToFormattedString = (seconds: number): string => {
+export const secondsToFormattedHourMinuteString = (seconds: number): string => {
   const date = secondsAppliedToToday(seconds);
   const formattedDate = format(date, "h:mm a");
   return formattedDate;

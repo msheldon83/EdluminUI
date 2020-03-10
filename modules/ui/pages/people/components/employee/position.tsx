@@ -13,12 +13,12 @@ import {
 } from "ui/routes/people";
 import { DayOfWeek } from "graphql/server-types.gen";
 import { getDisplayName } from "ui/components/enumHelpers";
-import { format } from "date-fns";
 import {
   sortDaysOfWeek,
   compareDaysOfWeek,
   buildDaysLabel,
 } from "helpers/day-of-week";
+import { secondsToFormattedHourMinuteString } from "helpers/time";
 
 const editableSections = {
   empPosition: "edit-employee-position",
@@ -157,13 +157,13 @@ export const Position: React.FC<Props> = props => {
                       const startTime =
                         item.startTime ??
                         item.startPeriod?.standardPeriod?.startTime;
-                      const formattedStartTime = secondsToFormattedString(
+                      const formattedStartTime = secondsToFormattedHourMinuteString(
                         startTime ?? 0
                       );
 
                       const endTime =
                         item.endTime ?? item.endPeriod?.standardPeriod?.endTime;
-                      const formattedEndTime = secondsToFormattedString(
+                      const formattedEndTime = secondsToFormattedHourMinuteString(
                         endTime ?? 0
                       );
                       return (

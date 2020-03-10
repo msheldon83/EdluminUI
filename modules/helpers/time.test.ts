@@ -1,7 +1,7 @@
 import {
   secondsSinceMidnight,
   secondsAppliedToToday,
-  secondsToFormattedString,
+  secondsToFormattedHourMinuteString,
 } from "./time";
 
 describe("secondsSinceMidnight", () => {
@@ -112,14 +112,14 @@ describe("secondsAppliedToToday", () => {
   });
 });
 
-describe("secondsToFormattedString", () => {
+describe("secondsToFormattedHourMinuteString", () => {
   it("Seconds formatted as 'h:mm a' in AM", () => {
-    const result = secondsToFormattedString(28800);
+    const result = secondsToFormattedHourMinuteString(28800);
     expect(result).toEqual("8:00 AM");
   });
 
   it("Seconds formatted as 'h:mm a' in PM", () => {
-    const result = secondsToFormattedString(71700);
+    const result = secondsToFormattedHourMinuteString(71700);
     expect(result).toEqual("7:55 PM");
   });
 });
