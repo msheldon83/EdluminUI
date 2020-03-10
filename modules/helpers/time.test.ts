@@ -55,7 +55,7 @@ describe("secondsSinceMidnight", () => {
     expect(result).toEqual(28800);
   });
 
-  it("DST Begin Day in milliseconds (PM)", () => {
+  it("DST End Day in milliseconds (PM)", () => {
     const result = secondsSinceMidnight(1604254500000);
     expect(result).toEqual(47700);
   });
