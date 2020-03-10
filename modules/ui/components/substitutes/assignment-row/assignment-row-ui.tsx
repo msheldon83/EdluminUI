@@ -1,4 +1,4 @@
-import { Button, Typography } from "@material-ui/core";
+import { Button, Typography, Link } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -7,8 +7,11 @@ import { AssignmentDetailsUI } from "ui/components/substitutes/assignment-detail
 import { Can } from "ui/components/auth/can";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { NotesPopper } from "../notes-popper";
+import { useRouteParams } from "ui/routes/definition";
+import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { canRemoveSub } from "helpers/permissions";
 import { parseISO } from "date-fns";
+import { useHistory } from "react-router";
 
 type Props = {
   startDate: string;
@@ -26,6 +29,7 @@ type Props = {
   isAdmin: boolean;
   forSpecificAssignment?: boolean;
   className?: string;
+  absenceId?: string;
 } /* If there are various times within the vacancy, we
      do not want to give false information. However, we still need
      a startTime to determine which day icon to use.
@@ -43,6 +47,18 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
   const { t } = useTranslation();
+  const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
+  const history = useHistory();
+
+  const goToAbsenceEdit = (absenceId: string) => {
+    const url = AdminEditAbsenceRoute.generate({
+      ...absenceEditParams,
+      absenceId,
+    });
+    history.push(url, {
+      returnUrl: `${history.location.pathname}${history.location.search}`,
+    });
+  };
 
   return (
     <div className={[classes.container, props.className].join(" ")}>
@@ -63,11 +79,11 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               isMobile ? classes.mobileConf : "",
             ].join(" ")}
           >
-            {props.isAdmin && (
-              //code here for link
-              <Typography className={classes.bold} noWrap>
-                #C{props.confirmationNumber}
-              </Typography>
+            {props.isAdmin && props.absenceId && (
+              <Link
+                className={classes.action}
+                onClick={() => goToAbsenceEdit(props.absenceId ?? "")}
+              >{`#${props.absenceId}`}</Link>
             )}
 
             <Typography className={classes.bold} noWrap>
@@ -151,5 +167,8 @@ const useStyles = makeStyles(theme => ({
   mobileConf: {
     display: "flex",
     alignItems: "flex-end",
+  },
+  action: {
+    cursor: "pointer",
   },
 }));
