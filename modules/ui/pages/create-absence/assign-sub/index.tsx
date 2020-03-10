@@ -85,6 +85,11 @@ export const AssignSub: React.FC<Props> = props => {
   ] = React.useState();
   const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
   const [unavailableToWork, setUnavailableToWork] = React.useState();
+  const [isQualified, setIsQualified] = React.useState();
+  const [isRejected, setIsRejected] = React.useState();
+  const [isMinorJobConflict, setIsMinorJobConflict] = React.useState();
+  const [excludedSub, setExcludedSub] = React.useState();
+  const [notIncluded, setNotIncluded] = React.useState();
 
   //Absence Dialog box props. Possibly
   const [title, setTitle] = React.useState();
@@ -188,21 +193,23 @@ export const AssignSub: React.FC<Props> = props => {
       unavailableToWork: boolean,
       ignoreAndContinue: boolean
     ) => {
+      console.log(validationChecks);
+      console.log(ignoreAndContinue);
+
       //validation check here
       if (
-        !validator(
-          validationChecks,
-          unavailableToWork,
-          setMessage,
-          setTitle,
-          t
-        ) &&
-        !ignoreAndContinue
+        !validator(validationChecks, unavailableToWork, setMessage, setTitle, t) //&&
+        //!ignoreAndContinue
       ) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
         setUnavailableToWork(unavailableToWork);
+        // setIsQualified(validationChecks.isQualified);
+        // setIsRejected(validationChecks.isRejected);
+        // setIsMinorJobConflict(validationChecks.isMinorJobConflict);
+        // setExcludedSub(validationChecks.excludedSub);
+        // setNotIncluded(validationChecks.notIncluded);
         setWarningDialogIsOpen(true);
       } else {
         onAssignReplacement(
@@ -329,7 +336,13 @@ export const AssignSub: React.FC<Props> = props => {
         open={reassignDialogIsOpen}
         onClose={() => setReassignDialogIsOpen(false)}
         onAssign={async () => {
-          const validationChecks = {};
+          const validationChecks: ValidationChecks = {
+            isQualified: isQualified,
+            isRejected: isRejected,
+            isMinorJobConflict: isMinorJobConflict,
+            excludedSub: excludedSub,
+            notIncluded: notIncluded,
+          };
           //call asign functionality
           setReassignDialogIsOpen(false);
           await assignReplacementEmployee(
@@ -337,7 +350,8 @@ export const AssignSub: React.FC<Props> = props => {
             replacementEmployeeName,
             replacementEmployeePayCode,
             validationChecks,
-            unavailableToWork
+            unavailableToWork,
+            true
           );
         }}
         currentReplacementEmployee={employeeToReplace}
@@ -349,7 +363,13 @@ export const AssignSub: React.FC<Props> = props => {
         message={message}
         onClose={() => setWarningDialogIsOpen(false)}
         onAssign={async () => {
-          const validationChecks = {};
+          const validationChecks: ValidationChecks = {
+            isQualified: isQualified,
+            isRejected: isRejected,
+            isMinorJobConflict: isMinorJobConflict,
+            excludedSub: excludedSub,
+            notIncluded: notIncluded,
+          };
 
           setWarningDialogIsOpen(false);
           await assignReplacementEmployee(
@@ -491,29 +511,63 @@ const validator = (
   setTitle: any,
   t: any
 ) => {
+  const message = "";
+  const linebreak = "\n";
+
   if (!validationChecks.isQualified) {
-    setMessage(t("User is not qualified for this absence."));
+    const m: string = t(
+      "Employee is not qualified for this Vacancy"
+    ).toString();
+    //message.concat(linebreak);
+    message.concat(m);
+  }
+  if (validationChecks.isRejected) {
+    const m: string = t(
+      "Employee has rejected this absence. Do you wish to continue? "
+    ).toString();
+
+    console.log(m);
+    // message.concat(linebreak);
+    message.concat(m);
+
+    console.log(message);
+  }
+  if (validationChecks.isMinorJobConflict) {
+    const m: string = t(
+      "Employee has a minor job conflict. Do you wish to continue?"
+    ).toString();
+    // message.concat(linebreak);
+    message.concat(m);
+  }
+  if (validationChecks.excludedSub) {
+    const m: string = t(
+      "Employee has been rejected from the replacement pool. Do you wish to continue? "
+    ).toString();
+    //  message.concat(linebreak);
+    message.concat(m);
+  }
+  if (validationChecks.notIncluded) {
+    const m: string = t(
+      "Employee has not been included in any replacement pools. Do you wish to continue?"
+    ).toString();
+    //  message.concat(linebreak);
+    message.concat(m);
+  }
+  if (unavailableToWork) {
+    const m: string = t(
+      "Employee is unavailable to work. Do you wish to continue? "
+    ).toString();
+    //  message.concat(linebreak);
+    message.concat(m);
+  }
+
+  console.log(message);
+
+  if (message.length > 1) {
     setTitle(t("Warning"));
+    setMessage(message);
+
     return false;
-  } else if (validationChecks.isRejected) {
-    setMessage(t("User is not qualified for this absence."));
-    setTitle(t("Warning"));
-    return false;
-  } else if (validationChecks.isMinorJobConflict) {
-    setMessage(t("User is not qualified for this absence."));
-    setTitle(t("Warning"));
-    return false;
-  } else if (validationChecks.excludedSub) {
-    setMessage(t("User is not qualified for this absence."));
-    setTitle(t("Warning"));
-    return false;
-  } else if (validationChecks.notIncluded) {
-    setMessage(t("User is not qualified for this absence."));
-    setTitle(t("Warning"));
-    return false;
-  } else if (unavailableToWork) {
-    setMessage(t("User is not qualified for this absence."));
-    setTitle(t("Warning"));
   }
 
   return true;
