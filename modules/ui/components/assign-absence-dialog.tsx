@@ -14,7 +14,6 @@ import { makeStyles } from "@material-ui/styles";
 
 type Props = {
   open: boolean;
-  title: string;
   messages: string[];
   employeeToAssign: string;
   onClose: () => void;
@@ -29,7 +28,9 @@ export const AssignAbsenceDialog: React.FC<Props> = props => {
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
         <Typography variant="h5">
-          There was an issue assigning {props.employeeToAssign}
+          {t("There was an issue assigning {{employeeToAssign}}", {
+            employeeToAssign: props.employeeToAssign,
+          })}
         </Typography>
       </DialogTitle>
       <DialogContent className={classes.dialogBox}>

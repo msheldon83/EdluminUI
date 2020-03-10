@@ -90,8 +90,6 @@ export const AssignSub: React.FC<Props> = props => {
     ValidationChecks
   >();
 
-  //Absence Dialog box props. Possibly
-  const [title, setTitle] = React.useState();
   const [messages, setMessages] = React.useState<string[]>([]);
 
   // If we don't have any info, cancel the Assign Sub action
@@ -191,10 +189,7 @@ export const AssignSub: React.FC<Props> = props => {
       validationChecks: ValidationChecks,
       ignoreAndContinue?: boolean
     ) => {
-      if (
-        !validator(validationChecks, setMessages, setTitle, t) &&
-        !ignoreAndContinue
-      ) {
+      if (!validator(validationChecks, setMessages, t) && !ignoreAndContinue) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
@@ -343,7 +338,6 @@ export const AssignSub: React.FC<Props> = props => {
       />
       <AssignAbsenceDialog
         open={warningDialogIsOpen}
-        title={title}
         employeeToAssign={replacementEmployeeName}
         messages={messages}
         onClose={() => setWarningDialogIsOpen(false)}
@@ -490,7 +484,6 @@ const buildVacancyInput = (
 const validator = (
   validationChecks: ValidationChecks,
   setMessages: any,
-  setTitle: any,
   t: any
 ) => {
   const messageArray = [];
@@ -525,7 +518,6 @@ const validator = (
   if (messageArray.length > 0) {
     messageArray.push(t("Do you wish to continue?"));
     const messages = uniq(compact(messageArray));
-    setTitle(t("Warning!"));
     setMessages(messages);
 
     return false;
