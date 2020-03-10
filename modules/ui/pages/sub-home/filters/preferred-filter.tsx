@@ -14,10 +14,12 @@ export const PreferredFilter: React.FC<Props> = props => {
     <>
       <Grid item xs={12} sm={6} md={3} lg={3}>
         <FormControlLabel
-          checked={props.nonPreferred}
+          checked={props.showNonPreferredJobs}
           control={
             <Checkbox
-              onChange={e => updateFilters({ nonPreferred: e.target.checked })}
+              onChange={e =>
+                updateFilters({ showNonPreferredJobs: e.target.checked })
+              }
               color="primary"
             />
           }

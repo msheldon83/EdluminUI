@@ -8,7 +8,7 @@ query SubJobSearch(
   $showNonPreferredJobs: Boolean
 ) {
   vacancy {
-    userJobSearch(
+    subJobSearch(
       id: $id
       orgIds: $orgIds
       locationIds: $locationIds
@@ -22,44 +22,48 @@ query SubJobSearch(
       hasMoreData
       totalCount
       results {
-        id
-        organization {
+        unavailableToWork
+        vacancy {
           id
-          name
-        }
-        position {
-          id
-          title
-        }
-        absence {
-          id
-          employee {
-            id
-            firstName
-            lastName
-          }
-        }
-        payInfoSummary {
-          summaryLabel
-        }
-        startTimeLocal
-        endTimeLocal
-        startDate
-        endDate
-        notesToReplacement
-        totalDayPortion
-        details {
-          id
-          location {
+          orgId
+          organization {
             id
             name
           }
-          payInfo {
-            label
+          position {
+            id
+            title
+          }
+          absence {
+            id
+            employee {
+              id
+              firstName
+              lastName
+            }
+          }
+          payInfoSummary {
+            summaryLabel
           }
           startTimeLocal
           endTimeLocal
-          dayPortion
+          startDate
+          endDate
+          notesToReplacement
+          totalDayPortion
+          details {
+            id
+            location {
+              id
+              name
+            }
+            payInfo {
+              label
+            }
+            startTimeLocal
+            endTimeLocal
+            dayPortion
+          }
         }
       }
     }

@@ -48,6 +48,7 @@ import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
 import { RequestVacancy } from "./graphql/request-vacancy.gen";
 import { SubJobSearch } from "./graphql/sub-job-search.gen";
 import { Can } from "ui/components/auth/can";
+import { compact } from "lodash-es";
 
 type Props = {};
 
@@ -61,6 +62,7 @@ export const SubHome: React.FC<Props> = props => {
   React.useEffect(() => setShowFilters(!isMobile), [isMobile]);
 
   const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
+  const [overrideDialogOpen, setOverrideDialogOpen] = React.useState(false);
   const [employeeId, setEmployeeId] = React.useState<string | null>(null);
   const [vacancyId, setVacancyId] = React.useState<string | null>(null);
   const [dismissedAssignments, setDismissedAssignments] = React.useState<
@@ -96,7 +98,7 @@ export const SubHome: React.FC<Props> = props => {
 
   const [getVacancies, pagination] = usePagedQueryBundle(
     SubJobSearch,
-    r => r.vacancy?.userJobSearch?.totalCount,
+    r => r.vacancy?.subJobSearch?.totalCount,
     {
       variables: {
         ...filters,
@@ -108,32 +110,21 @@ export const SubHome: React.FC<Props> = props => {
 
   const vacancies = useMemo(
     () =>
-      (getVacancies.state === "DONE" || getVacancies.state === "UPDATING"
-        ? getVacancies.data.vacancy?.userJobSearch?.results ?? []
-        : []) as Pick<
-        Vacancy,
-        | "id"
-        | "organization"
-        | "position"
-        | "absence"
-        | "startTimeLocal"
-        | "endTimeLocal"
-        | "startDate"
-        | "endDate"
-        | "notesToReplacement"
-        | "totalDayPortion"
-        | "details"
-        | "payInfoSummary"
-      >[],
+      getVacancies.state === "DONE" || getVacancies.state === "UPDATING"
+        ? compact(getVacancies.data.vacancy?.subJobSearch?.results) ?? []
+        : [],
     [getVacancies]
   );
 
   const sortedVacancies = useMemo(
     () =>
       vacancies
-        .filter(x => !dismissedAssignments.includes(x.id))
+        .filter(x => !dismissedAssignments.includes(x?.vacancy.id ?? ""))
         .sort((a, b) =>
-          isBefore(parseISO(a.startTimeLocal), parseISO(b.startTimeLocal))
+          isBefore(
+            parseISO(a?.vacancy.startTimeLocal),
+            parseISO(b?.vacancy.startTimeLocal)
+          )
             ? -1
             : 1
         ),
@@ -202,21 +193,30 @@ export const SubHome: React.FC<Props> = props => {
     await getUpcomingAssignments.refetch();
   };
 
-  const onAcceptVacancy = async (orgId: string, vacancyId: string) => {
-    const employeeId = determineEmployeeId(orgId);
-    if (employeeId != 0) {
-      await requestVacancyMutation({
-        variables: {
-          vacancyRequest: {
-            vacancyId: vacancyId,
-            employeeId: employeeId,
+  const onAcceptVacancy = async (
+    orgId: string,
+    vacancyId: string,
+    unavailableToWork?: boolean,
+    overridePreferred?: boolean
+  ) => {
+    if (unavailableToWork && !overridePreferred) {
+      setOverrideDialogOpen(true);
+    } else {
+      const employeeId = determineEmployeeId(orgId);
+      if (employeeId != 0) {
+        await requestVacancyMutation({
+          variables: {
+            vacancyRequest: {
+              vacancyId: vacancyId,
+              employeeId: employeeId,
+            },
           },
-        },
-      });
+        });
+      }
+      setEmployeeId(employeeId.toString());
+      setVacancyId(vacancyId);
+      setRequestAbsenceIsOpen(true);
     }
-    setEmployeeId(employeeId.toString());
-    setVacancyId(vacancyId);
-    setRequestAbsenceIsOpen(true);
   };
 
   const uniqueWorkingDays = assignments
@@ -348,18 +348,21 @@ export const SubHome: React.FC<Props> = props => {
               <Typography variant="h5">
                 {t("Loading Available Jobs")}
               </Typography>
-            ) : vacancies.length === 0 ? (
-              <Typography variant="h5">{t("No Jobs Available")}</Typography>
-            ) : (
-              sortedVacancies.map((vacancy, index) => (
+            ) : vacancies.length > 0 ? (
+              sortedVacancies.map((x, index) => (
                 <AvailableJob
-                  vacancy={vacancy}
+                  vacancy={x?.vacancy}
+                  unavailableToWork={x?.unavailableToWork ?? false}
                   shadeRow={index % 2 != 0}
                   onDismiss={onDismissVacancy}
                   key={index}
                   onAccept={onAcceptVacancy}
+                  overrideDialogOpen={overrideDialogOpen}
+                  setOverrideDialogOpen={setOverrideDialogOpen}
                 />
               ))
+            ) : (
+              <Typography variant="h5">{t("No Jobs Available")}</Typography>
             )}
           </div>
         </Section>

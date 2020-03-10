@@ -76,7 +76,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const simpleVacancy = ({
+const simpleVacancy = {
   id: "1",
   details: [
     {
@@ -86,8 +86,8 @@ const simpleVacancy = ({
       dayPortion: 1,
     },
   ],
-  organization: { name: "Frank's District" },
-  position: { name: "Kindergarten Teacher" },
+  organization: { id: "1234", name: "Frank's District" },
+  position: { title: "Kindergarten Teacher" },
   absence: { employee: { firstName: "Pam", lastName: "Thomas" } },
   startTimeLocal: "2019-11-20T08:00",
   endTimeLocal: "2019-11-20T15:00",
@@ -95,22 +95,9 @@ const simpleVacancy = ({
   endDate: "2019-11-20",
   notesToReplacement: null,
   totalDayPortion: 1,
-} as unknown) as Pick<
-  Vacancy,
-  | "id"
-  | "organization"
-  | "position"
-  | "absence"
-  | "startTimeLocal"
-  | "endTimeLocal"
-  | "startDate"
-  | "endDate"
-  | "notesToReplacement"
-  | "totalDayPortion"
-  | "details"
->;
+};
 
-const complexVacancy = ({
+const complexVacancy = {
   id: "1",
   details: [
     {
@@ -132,8 +119,8 @@ const complexVacancy = ({
       dayPortion: 0.5,
     },
   ],
-  organization: { name: "Frank's District" },
-  position: { name: "Kindergarten Teacher" },
+  organization: { id: "1234", name: "Frank's District" },
+  position: { title: "Kindergarten Teacher" },
   absence: { employee: { firstName: "Pam", lastName: "Thomas" } },
   startTimeLocal: "2019-11-20T08:00",
   endTimeLocal: "2019-11-22T11:30",
@@ -141,22 +128,9 @@ const complexVacancy = ({
   endDate: "2019-11-22",
   notesToReplacement: "These are notes for the substitute.",
   totalDayPortion: 2.5,
-} as unknown) as Pick<
-  Vacancy,
-  | "id"
-  | "organization"
-  | "position"
-  | "absence"
-  | "startTimeLocal"
-  | "endTimeLocal"
-  | "startDate"
-  | "endDate"
-  | "notesToReplacement"
-  | "totalDayPortion"
-  | "details"
->;
+};
 
-const halfDayAM = ({
+const halfDayAM = {
   id: "1",
   details: [
     {
@@ -166,8 +140,8 @@ const halfDayAM = ({
       dayPortion: 0.5,
     },
   ],
-  organization: { name: "Frank's District" },
-  position: { name: "Kindergarten Teacher" },
+  organization: { id: "1234", name: "Frank's District" },
+  position: { title: "Kindergarten Teacher" },
   absence: { employee: { firstName: "Pam", lastName: "Thomas" } },
   startTimeLocal: "2019-11-20T08:00",
   endTimeLocal: "2019-11-20T11:00",
@@ -175,17 +149,4 @@ const halfDayAM = ({
   endDate: "2019-11-20",
   notesToReplacement: null,
   totalDayPortion: 0.5,
-} as unknown) as Pick<
-  Vacancy,
-  | "id"
-  | "organization"
-  | "position"
-  | "absence"
-  | "startTimeLocal"
-  | "endTimeLocal"
-  | "startDate"
-  | "endDate"
-  | "notesToReplacement"
-  | "totalDayPortion"
-  | "details"
->;
+};

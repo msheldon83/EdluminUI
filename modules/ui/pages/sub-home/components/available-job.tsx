@@ -8,27 +8,51 @@ import { ExpandOrCollapseIndicator } from "ui/components/substitutes/expand-or-c
 import { NotesPopper } from "ui/components/substitutes/notes-popper";
 import { AvailableJobDetail } from "./available-job-detail";
 import { isBefore, parseISO } from "date-fns";
+import { ConfirmOverrideDialog } from "./confirm-override";
 
 type Props = {
-  vacancy: Pick<
-    Vacancy,
-    | "id"
-    | "organization"
-    | "position"
-    | "absence"
-    | "startTimeLocal"
-    | "endTimeLocal"
-    | "startDate"
-    | "endDate"
-    | "notesToReplacement"
-    | "totalDayPortion"
-    | "payInfoSummary"
-    | "details"
-  >;
-  onAccept: (orgId: string, vacancyId: string) => Promise<void>;
+  vacancy: {
+    id: string;
+    organization: {
+      id: string;
+      name: string;
+    };
+    position?: {
+      title: string;
+    } | null;
+    startTimeLocal?: any;
+    endTimeLocal?: any;
+    startDate?: any;
+    endDate?: any;
+    absence?: {
+      employee?: {
+        firstName: string;
+        lastName: string;
+      } | null;
+    } | null;
+    totalDayPortion: number;
+    payInfoSummary?: { summaryLabel: string } | null;
+    notesToReplacement?: string | null;
+    details?: Array<{
+      startTimeLocal?: string | null;
+      endTimeLocal?: string | null;
+      dayPortion: number;
+      location?: { name: string | null } | null;
+      payInfo?: { label?: string | null } | null;
+    } | null> | null;
+  };
+  unavailableToWork?: boolean;
+  onAccept: (
+    orgId: string,
+    vacancyId: string,
+    unavailableToWork?: boolean,
+    overridePreferred?: boolean
+  ) => Promise<void>;
   onDismiss: (orgId: string, vacancyId: string) => Promise<void>;
   shadeRow: boolean;
   forSingleJob?: boolean;
+  overrideDialogOpen?: boolean;
+  setOverrideDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AvailableJob: React.FC<Props> = props => {
@@ -50,89 +74,102 @@ export const AvailableJob: React.FC<Props> = props => {
   };
 
   return (
-    <div onClick={() => setExpanded(!expanded)}>
-      <div
-        className={[
-          classes.rowContainer,
-          props.shadeRow ? classes.shadedRow : "",
-        ].join(" ")}
-      >
-        <div className={classes.container}>
-          <div className={classes.infoContainer}>
-            <AssignmentDetails vacancy={vacancy} />
+    <>
+      <ConfirmOverrideDialog
+        open={props.overrideDialogOpen}
+        orgId={vacancy.organization.id}
+        vacancyId={vacancy.id}
+        setOverrideDialogOpen={props.setOverrideDialogOpen}
+        onAccept={props.onAccept}
+      />
+      <div onClick={() => setExpanded(!expanded)}>
+        <div
+          className={[
+            classes.rowContainer,
+            props.shadeRow ? classes.shadedRow : "",
+          ].join(" ")}
+        >
+          <div className={classes.container}>
+            <div className={classes.infoContainer}>
+              <AssignmentDetails vacancy={vacancy} />
+            </div>
+
+            <div className={classes.actionContainer}>
+              {!forSingleJob && (
+                <>
+                  <div className={classes.notes}>
+                    {vacancy.notesToReplacement && (
+                      <NotesPopper notes={vacancy.notesToReplacement} />
+                    )}
+                  </div>
+
+                  <div
+                    className={[
+                      classes.actionItem,
+                      isMobile ? classes.mobileDismiss : "",
+                    ].join(" ")}
+                  >
+                    <Button
+                      onClick={() => handleDismiss()}
+                      className={classes.lightUnderlineText}
+                    >
+                      {t("Dismiss")}
+                    </Button>
+                  </div>
+                  <div className={classes.actionItem}>
+                    <Button
+                      variant="outlined"
+                      disabled={acceptButtonDisabled}
+                      onClick={async e => {
+                        e.stopPropagation();
+                        await props.onAccept(
+                          vacancy.organization.id,
+                          vacancy.id,
+                          props.unavailableToWork
+                        );
+                      }}
+                    >
+                      {t("Accept")}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
-          <div className={classes.actionContainer}>
-            {!forSingleJob && (
-              <>
-                <div className={classes.notes}>
-                  {vacancy.notesToReplacement && (
-                    <NotesPopper notes={vacancy.notesToReplacement} />
-                  )}
-                </div>
-
-                <div
-                  className={[
-                    classes.actionItem,
-                    isMobile ? classes.mobileDismiss : "",
-                  ].join(" ")}
-                >
-                  <Button
-                    onClick={() => handleDismiss()}
-                    className={classes.lightUnderlineText}
-                  >
-                    {t("Dismiss")}
-                  </Button>
-                </div>
-                <div className={classes.actionItem}>
-                  <Button
-                    variant="outlined"
-                    disabled={acceptButtonDisabled}
-                    onClick={async e => {
-                      e.stopPropagation();
-                      await props.onAccept(vacancy.organization.id, vacancy.id);
-                    }}
-                  >
-                    {t("Accept")}
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {showDetails && (
-          <div className={classes.rowContainer}>
-            {vacancy
-              .details!.sort((a, b) =>
-                isBefore(
-                  parseISO(a!.startTimeLocal),
-                  parseISO(b!.startTimeLocal)
+          {showDetails && (
+            <div className={classes.rowContainer}>
+              {vacancy
+                .details!.sort((a, b) =>
+                  isBefore(
+                    parseISO(a!.startTimeLocal!),
+                    parseISO(b!.startTimeLocal!)
+                  )
+                    ? -1
+                    : 1
                 )
-                  ? -1
-                  : 1
-              )
-              .map((detail, index) => (
-                <AvailableJobDetail
-                  locationName={detail!.location!.name}
-                  dayPortion={detail!.dayPortion}
-                  payInfoLabel={detail!.payInfo!.label}
-                  startTimeLocal={detail!.startTimeLocal ?? ""}
-                  endTimeLocal={detail!.endTimeLocal ?? ""}
-                  shadeRow={index % 2 != 1}
-                  key={index}
-                />
-              ))}
-          </div>
+                .map((detail, index) => (
+                  <AvailableJobDetail
+                    locationName={detail!.location!.name ?? ""}
+                    dayPortion={detail!.dayPortion}
+                    payInfoLabel={detail!.payInfo?.label ?? ""}
+                    startTimeLocal={detail!.startTimeLocal ?? ""}
+                    endTimeLocal={detail!.endTimeLocal ?? ""}
+                    shadeRow={index % 2 != 1}
+                    key={index}
+                  />
+                ))}
+            </div>
+          )}
+        </div>
+        {!forSingleJob && hasDetails && (
+          <ExpandOrCollapseIndicator
+            isExpanded={expanded}
+            className={classes.noBorder}
+          />
         )}
       </div>
-      {!forSingleJob && hasDetails && (
-        <ExpandOrCollapseIndicator
-          isExpanded={expanded}
-          className={classes.noBorder}
-        />
-      )}
-    </div>
+    </>
   );
 };
 

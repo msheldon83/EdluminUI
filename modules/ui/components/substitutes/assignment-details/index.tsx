@@ -5,8 +5,8 @@ import { compact, groupBy } from "lodash-es";
 import { formatIsoDateIfPossible } from "helpers/date";
 
 type Detail = {
-  startTimeLocal?: string;
-  endTimeLocal?: string;
+  startTimeLocal?: string | null;
+  endTimeLocal?: string | null;
   location?: {
     name: string | null;
   } | null;
@@ -14,6 +14,7 @@ type Detail = {
 
 type AssignmentVacancy = {
   organization: {
+    id: string;
     name: string;
   };
   position?: {
