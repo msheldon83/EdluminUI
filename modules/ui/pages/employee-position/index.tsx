@@ -16,8 +16,8 @@ import { SaveEmployeePosition } from "./graphql/save-employee-position.gen";
 import { PositionInput } from "graphql/server-types.gen";
 import { useHistory } from "react-router";
 import { compact } from "lodash-es";
-import { midnightTime, timeStampToIso } from "helpers/time";
 import { sortDaysOfWeek, compareDaysOfWeek } from "helpers/day-of-week";
+import { secondsToIsoString } from "helpers/time";
 
 type Props = {};
 
@@ -106,12 +106,8 @@ export const EmployeePosition: React.FC<Props> = props => {
           !p.bellSchedule && p.startTime && p.endTime
             ? "custom"
             : p.bellSchedule?.id,
-        startTime: p.startTime
-          ? timeStampToIso(midnightTime().setSeconds(p.startTime))
-          : undefined,
-        endTime: p.endTime
-          ? timeStampToIso(midnightTime().setSeconds(p.endTime))
-          : undefined,
+        startTime: p.startTime ? secondsToIsoString(p.startTime) : undefined,
+        endTime: p.endTime ? secondsToIsoString(p.endTime) : undefined,
         allDay: p.isAllDay,
         startPeriodId: p.startPeriod?.id,
         endPeriodId: p.endPeriod?.id,
