@@ -14,7 +14,6 @@ import {
 import { DayOfWeek } from "graphql/server-types.gen";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { format } from "date-fns";
-import { midnightTime } from "helpers/time";
 import {
   sortDaysOfWeek,
   compareDaysOfWeek,
@@ -158,16 +157,14 @@ export const Position: React.FC<Props> = props => {
                       const startTime =
                         item.startTime ??
                         item.startPeriod?.standardPeriod?.startTime;
-                      const formattedStartTime = format(
-                        midnightTime().setSeconds(startTime ?? 0),
-                        "h:mm a"
+                      const formattedStartTime = secondsToFormattedString(
+                        startTime ?? 0
                       );
 
                       const endTime =
                         item.endTime ?? item.endPeriod?.standardPeriod?.endTime;
-                      const formattedEndTime = format(
-                        midnightTime().setSeconds(endTime ?? 0),
-                        "h:mm a"
+                      const formattedEndTime = secondsToFormattedString(
+                        endTime ?? 0
                       );
                       return (
                         <div

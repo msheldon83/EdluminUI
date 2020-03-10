@@ -31,7 +31,7 @@ import {
   buildNewPeriod,
 } from "ui/pages/employee-position/components/helpers";
 import { format } from "date-fns";
-import { midnightTime } from "helpers/time";
+import { secondsToFormattedString } from "helpers/time";
 
 export const EmployeeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -192,11 +192,9 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             locationId: i?.location?.id ?? "",
             bellScheduleId: i?.bellSchedule?.id,
             startTime: i?.startTime
-              ? format(midnightTime().setSeconds(i?.startTime), "h:mm a")
+              ? secondsToFormattedString(i?.startTime)
               : "",
-            endTime: i?.endTime
-              ? format(midnightTime().setSeconds(i?.endTime), "h:mm a")
-              : "",
+            endTime: i?.endTime ? secondsToFormattedString(i?.endTime) : "",
             startPeriodId: i?.startPeriod?.id,
             endPeriodId: i?.endPeriod?.id,
           })) ?? [buildNewPeriod(true)],

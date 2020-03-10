@@ -1,10 +1,4 @@
 import { TFunction } from "i18next";
-import {
-  WorkDaySchedulePeriodInput,
-  Maybe,
-  WorkDayScheduleVariantInput,
-} from "graphql/server-types.gen";
-import { midnightTime, timeStampToIso } from "helpers/time";
 import { isValid, differenceInMinutes, addMinutes, parseISO } from "date-fns";
 
 export type ScheduleSettings = {
