@@ -14,9 +14,10 @@ import { makeStyles } from "@material-ui/styles";
 
 type Props = {
   open: boolean;
-  onClose: () => void;
-  onAssign: () => void;
+  messages: string[];
   employeeToAssign: string;
+  onClose: () => void;
+  onAssign?: () => void;
 };
 
 export const AssignAbsenceDialog: React.FC<Props> = props => {
@@ -26,14 +27,22 @@ export const AssignAbsenceDialog: React.FC<Props> = props => {
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
-        <Typography variant="h5">{t("Unavailable to work")}</Typography>
-      </DialogTitle>
-      <DialogContent>
-        <Typography>
-          {`${props.employeeToAssign} ${t(
-            " is unavailable to work this Absence. Do you wish to continue?"
-          )}`}
+        <Typography variant="h5">
+          {t("There was an issue assigning {{employeeToAssign}}", {
+            employeeToAssign: props.employeeToAssign,
+          })}
         </Typography>
+      </DialogTitle>
+      <DialogContent className={classes.dialogBox}>
+        {props.messages && props.messages.length === 0 ? (
+          <div>{t("No Warning Messages")}</div>
+        ) : (
+          props.messages.map((n, i) => (
+            <div key={i} className={classes.padding}>
+              {n}
+            </div>
+          ))
+        )}
       </DialogContent>
       <Divider className={classes.divider} />
       <DialogActions>
@@ -61,4 +70,10 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
   cancel: { color: theme.customColors.blue },
+  padding: {
+    padding: theme.typography.pxToRem(5),
+  },
+  dialogBox: {
+    width: theme.typography.pxToRem(500),
+  },
 }));
