@@ -54,6 +54,7 @@ export type ValidationChecks = {
   isMinorJobConflict: boolean;
   excludedSub: boolean;
   notIncluded: boolean;
+  unavailableToWork: boolean;
 };
 
 export const AssignSub: React.FC<Props> = props => {
@@ -84,12 +85,10 @@ export const AssignSub: React.FC<Props> = props => {
     setReplacementEmployeePayCode,
   ] = React.useState();
   const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
-  const [unavailableToWork, setUnavailableToWork] = React.useState();
-  const [isQualified, setIsQualified] = React.useState();
-  const [isRejected, setIsRejected] = React.useState();
-  const [isMinorJobConflict, setIsMinorJobConflict] = React.useState();
-  const [excludedSub, setExcludedSub] = React.useState();
-  const [notIncluded, setNotIncluded] = React.useState();
+
+  const [validationChecks, setValidationChecks] = React.useState<
+    ValidationChecks
+  >();
 
   //Absence Dialog box props. Possibly
   const [title, setTitle] = React.useState();
@@ -190,28 +189,16 @@ export const AssignSub: React.FC<Props> = props => {
       name: string,
       payCodeId: string | undefined,
       validationChecks: ValidationChecks,
-      unavailableToWork: boolean,
       ignoreAndContinue?: boolean
     ) => {
       if (
-        !validator(
-          validationChecks,
-          unavailableToWork,
-          setMessages,
-          setTitle,
-          t
-        ) &&
+        !validator(validationChecks, setMessages, setTitle, t) &&
         !ignoreAndContinue
       ) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
-        setUnavailableToWork(unavailableToWork);
-        setIsQualified(isQualified);
-        setIsRejected(isRejected);
-        setIsMinorJobConflict(isMinorJobConflict);
-        setExcludedSub(excludedSub);
-        setNotIncluded(notIncluded);
+        setValidationChecks(validationChecks);
         setWarningDialogIsOpen(true);
       } else {
         onAssignReplacement(
@@ -230,22 +217,19 @@ export const AssignSub: React.FC<Props> = props => {
       replacementEmployeeId: string,
       name: string,
       payCodeId: string | undefined,
-      unavailableToWork: boolean,
       validationChecks: ValidationChecks
     ) => {
       if (employeeToReplace) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
-        setUnavailableToWork(unavailableToWork);
         setReassignDialogIsOpen(true);
       } else {
         await assignReplacementEmployee(
           replacementEmployeeId,
           name,
           payCodeId,
-          validationChecks,
-          unavailableToWork
+          validationChecks
         );
       }
     },
@@ -337,12 +321,13 @@ export const AssignSub: React.FC<Props> = props => {
         open={reassignDialogIsOpen}
         onClose={() => setReassignDialogIsOpen(false)}
         onAssign={async () => {
-          const validationChecks: ValidationChecks = {
-            isQualified: isQualified,
-            isRejected: isRejected,
-            isMinorJobConflict: isMinorJobConflict,
-            excludedSub: excludedSub,
-            notIncluded: notIncluded,
+          const validationCheck: ValidationChecks = {
+            isQualified: validationChecks!.isQualified,
+            isRejected: validationChecks!.isRejected,
+            isMinorJobConflict: validationChecks!.isMinorJobConflict,
+            excludedSub: validationChecks!.excludedSub,
+            notIncluded: validationChecks!.notIncluded,
+            unavailableToWork: validationChecks!.unavailableToWork,
           };
 
           setReassignDialogIsOpen(false);
@@ -350,8 +335,7 @@ export const AssignSub: React.FC<Props> = props => {
             replacementEmployeeId,
             replacementEmployeeName,
             replacementEmployeePayCode,
-            validationChecks,
-            unavailableToWork
+            validationCheck
           );
         }}
         currentReplacementEmployee={employeeToReplace}
@@ -360,24 +344,24 @@ export const AssignSub: React.FC<Props> = props => {
       <AssignAbsenceDialog
         open={warningDialogIsOpen}
         title={title}
+        employeeToAssign={replacementEmployeeName}
         messages={messages}
         onClose={() => setWarningDialogIsOpen(false)}
         onAssign={async () => {
-          const validationChecks: ValidationChecks = {
-            isQualified: isQualified,
-            isRejected: isRejected,
-            isMinorJobConflict: isMinorJobConflict,
-            excludedSub: excludedSub,
-            notIncluded: notIncluded,
+          const validationCheck: ValidationChecks = {
+            isQualified: validationChecks!.isQualified,
+            isRejected: validationChecks!.isRejected,
+            isMinorJobConflict: validationChecks!.isMinorJobConflict,
+            excludedSub: validationChecks!.excludedSub,
+            notIncluded: validationChecks!.notIncluded,
+            unavailableToWork: validationChecks!.unavailableToWork,
           };
-
           setWarningDialogIsOpen(false);
           await assignReplacementEmployee(
             replacementEmployeeId,
             replacementEmployeeName,
             replacementEmployeePayCode,
-            validationChecks,
-            unavailableToWork,
+            validationCheck,
             true
           );
         }}
@@ -505,7 +489,6 @@ const buildVacancyInput = (
 
 const validator = (
   validationChecks: ValidationChecks,
-  unavailableToWork: boolean,
   setMessages: any,
   setTitle: any,
   t: any
@@ -513,26 +496,29 @@ const validator = (
   const messageArray = [];
 
   if (!validationChecks.isQualified) {
-    const m = t("Employee is not qualified for this Vacancy.");
+    const m = t("They are not qualified for this Vacancy.");
     messageArray.push(m);
   }
   if (validationChecks.isRejected) {
-    const m = t("Employee has rejected this absence.");
+    const m = t("They have rejected this absence.");
     messageArray.push(m);
   }
-  if (validationChecks.isMinorJobConflict && unavailableToWork) {
-    const m = t("Employee is unavailable to work.");
+  if (
+    validationChecks.isMinorJobConflict &&
+    validationChecks.unavailableToWork
+  ) {
+    const m = t("They are unavailable to work.");
     messageArray.push(m);
   } else if (validationChecks.isMinorJobConflict) {
-    const m = t("Employee has a minor job conflict.");
+    const m = t("They have a minor job conflict.");
     messageArray.push(m);
   }
   if (validationChecks.excludedSub) {
-    const m = t("Employee has been rejected from the replacement pool.");
+    const m = t("They have been rejected from the replacement pool.");
     messageArray.push(m);
   }
   if (validationChecks.notIncluded) {
-    const m = t("Employee has not been included in any replacement pools.");
+    const m = t("They have not been included in any replacement pools.");
     messageArray.push(m);
   }
 

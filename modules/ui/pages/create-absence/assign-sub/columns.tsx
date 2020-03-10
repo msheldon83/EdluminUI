@@ -43,7 +43,6 @@ export const getAssignSubColumns = (
     replacementEmployeeId: string,
     name: string,
     payCodeId: string | undefined,
-    unavailableToWork: boolean,
     validationChecks: ValidationChecks
   ) => Promise<void>,
   isMobile: boolean,
@@ -172,12 +171,12 @@ export const getAssignSubColumns = (
             isMinorJobConflict: data.isMinorJobConflict,
             excludedSub: data.excludedSub,
             notIncluded: data.notIncluded,
+            unavailableToWork: data.unavailableToWork,
           };
           await assignReplacementEmployee(
             data.employeeId,
             `${data.firstName} ${data.lastName}`,
             data.payCodeId ? data.payCodeId : undefined,
-            data.unavailableToWork,
             validationChecks
           );
         }}

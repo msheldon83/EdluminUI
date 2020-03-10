@@ -16,6 +16,7 @@ type Props = {
   open: boolean;
   title: string;
   messages: string[];
+  employeeToAssign: string;
   onClose: () => void;
   onAssign?: () => void;
 };
@@ -27,7 +28,9 @@ export const AssignAbsenceDialog: React.FC<Props> = props => {
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
-        <Typography variant="h5">{props.title}</Typography>
+        <Typography variant="h5">
+          There was an issue assigning {props.employeeToAssign}
+        </Typography>
       </DialogTitle>
       <DialogContent className={classes.dialogBox}>
         {props.messages && props.messages.length === 0 ? (
