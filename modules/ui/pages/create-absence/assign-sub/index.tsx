@@ -489,11 +489,11 @@ const validator = (
   const messageArray = [];
 
   if (!validationChecks.isQualified) {
-    const m = t("They are not qualified for this Vacancy.");
+    const m = t("They are not qualified.");
     messageArray.push(m);
   }
   if (validationChecks.isRejected) {
-    const m = t("They have rejected this absence.");
+    const m = t("They have rejected this job.");
     messageArray.push(m);
   }
   if (
@@ -507,11 +507,11 @@ const validator = (
     messageArray.push(m);
   }
   if (validationChecks.excludedSub) {
-    const m = t("They have been rejected from the replacement pool.");
+    const m = t("They have been blocked.");
     messageArray.push(m);
   }
   if (validationChecks.notIncluded) {
-    const m = t("They have not been included in any replacement pools.");
+    const m = t("They are not included on any Favorite lists.");
     messageArray.push(m);
   }
 
