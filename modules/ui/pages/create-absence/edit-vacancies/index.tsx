@@ -174,7 +174,7 @@ export const EditVacancies: React.FC<Props> = props => {
       {({ values, handleSubmit, errors }) => (
         <form onSubmit={handleSubmit}>
           <Typography variant={props.actingAsEmployee ? "h1" : "h5"}>
-            {`${t("Create Absence")}: ${t("Editing Substitute Details")}`}
+            {`${t("Substitute details for new absence")}`}
           </Typography>
           {!props.actingAsEmployee && (
             <Typography variant="h1">{props.employeeName}</Typography>
@@ -192,10 +192,9 @@ export const EditVacancies: React.FC<Props> = props => {
                     props.details.map(d => parseISO(d.date)),
                     props.disabledDates
                   )}
+                  {`${" - "}`} {props.positionName && `${props.positionName}`}
                 </Typography>
-                <Typography variant="h5">
-                  {props.positionName && `${props.positionName}`}
-                </Typography>
+                <Typography variant="h5"></Typography>
               </Grid>
               <Grid item>
                 {errors && errors.details && !isArray(errors.details) && (

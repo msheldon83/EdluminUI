@@ -279,7 +279,7 @@ export const AssignSub: React.FC<Props> = props => {
   const replacementEmployeeCount = replacementEmployees.length;
   const pageHeader = props.existingVacancy
     ? t("Assign Substitute")
-    : `${t("Create Absence")}: ${t("Prearranging Substitute")}`;
+    : `${t("Prearrange substitute for new absence")}`;
 
   const selectTitle = props.selectButtonText || t("Select")!;
   const columns = useMemo(
