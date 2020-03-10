@@ -521,7 +521,10 @@ const validator = (
     const m = t("Employee has rejected this absence.");
     messageArray.push(m);
   }
-  if (validationChecks.isMinorJobConflict) {
+  if (validationChecks.isMinorJobConflict && unavailableToWork) {
+    const m = t("Employee is unavailable to work.");
+    messageArray.push(m);
+  } else if (validationChecks.isMinorJobConflict) {
     const m = t("Employee has a minor job conflict.");
     messageArray.push(m);
   }
@@ -531,10 +534,6 @@ const validator = (
   }
   if (validationChecks.notIncluded) {
     const m = t("Employee has not been included in any replacement pools.");
-    messageArray.push(m);
-  }
-  if (unavailableToWork) {
-    const m = t("Employee is unavailable to work.");
     messageArray.push(m);
   }
 
