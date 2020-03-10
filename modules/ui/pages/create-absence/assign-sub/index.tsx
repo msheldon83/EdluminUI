@@ -503,7 +503,6 @@ const buildVacancyInput = (
   };
 };
 
-//TODO: remove corresponding checks from the back-end
 const validator = (
   validationChecks: ValidationChecks,
   unavailableToWork: boolean,
