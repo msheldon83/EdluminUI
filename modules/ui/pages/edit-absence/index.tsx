@@ -235,6 +235,7 @@ export const EditAbsence: React.FC<Props> = props => {
             endTime: d.endTimeLocal,
             locationId: d.locationId!,
             payCodeId: d.payCodeId,
+            absenceId: absence.data.absence?.byId?.id,
             accountingCodeId:
               d?.accountingCodeAllocations &&
               d?.accountingCodeAllocations[0]?.accountingCode?.id,
@@ -364,7 +365,7 @@ export const EditAbsence: React.FC<Props> = props => {
         firstName={employee.firstName}
         lastName={employee.lastName}
         assignmentId={assignmentId}
-        employeeId={employee.id}      
+        employeeId={employee.id}
         rowVersion={data.rowVersion}
         needsReplacement={needsReplacement}
         notesToApprover={data.notesToApprover ?? undefined}
