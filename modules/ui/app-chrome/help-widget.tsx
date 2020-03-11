@@ -8,18 +8,18 @@ export const HelpWidget: React.FC<{}> = () => {
   const showChat = user?.orgUsers?.some(x => x?.administrator?.isSuperUser);
 
   useEffect(() => {
-    const zopim = (window as any).zE;
+    const zE = (window as any).zE;
     if (showChat) {
-      zopim("webWidget", "prefill", {
+      zE("webWidget", "prefill", {
         name: {
           value: `${user?.firstName} ${user?.lastName}`,
           readOnly: false,
         },
         email: { value: user?.loginEmail, readOnly: false },
       });
-      zopim("webWidget", "show");
+      zE("webWidget", "show");
     } else {
-      zopim("webWidget", "hide");
+      zE("webWidget", "hide");
     }
   }),
     [];
