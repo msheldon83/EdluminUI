@@ -1,5 +1,4 @@
 import { Button, makeStyles } from "@material-ui/core";
-import { Vacancy } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -9,6 +8,7 @@ import { NotesPopper } from "ui/components/substitutes/notes-popper";
 import { AvailableJobDetail } from "./available-job-detail";
 import { isBefore, parseISO } from "date-fns";
 import { ConfirmOverrideDialog } from "./confirm-override";
+import { Warning } from "@material-ui/icons";
 
 type Props = {
   vacancy: {
@@ -129,6 +129,7 @@ export const AvailableJob: React.FC<Props> = props => {
                         );
                       }}
                     >
+                      {props.unavailableToWork && <Warning />}
                       {t("Accept")}
                     </Button>
                   </div>

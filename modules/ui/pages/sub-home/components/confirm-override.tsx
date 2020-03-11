@@ -43,7 +43,7 @@ export const ConfirmOverrideDialog: React.FC<Props> = props => {
           >
             <Grid item>
               {t(
-                "Your schedule indicates that you are unavailable to work.  Would you like to accept anyway?"
+                "This assignment is in conflict with a day/time you previously specified you were not available. Are you sure you want to accept it?"
               )}
             </Grid>
           </Grid>
