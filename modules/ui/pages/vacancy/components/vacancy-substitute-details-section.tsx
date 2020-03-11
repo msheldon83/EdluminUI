@@ -1,27 +1,24 @@
 import * as React from "react";
-import {
-  Button,
-  Grid,
-  makeStyles,
-  Typography,
-  FormControlLabel,
-  Checkbox,
-} from "@material-ui/core";
+import { Grid, makeStyles, Typography, TextField } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
 import { midnightTime, timeStampToIso } from "helpers/time";
 
-type ScheduleDay = {
+export type VacancyScheduleDay = {
   date: Date;
   startTime: number;
   endTime: number;
   location: string;
   payCode: string;
   accountingCode: string;
+  positionTitle?: string;
 };
 
 type Props = {
-  scheduleDays: ScheduleDay[];
+  scheduleDays: VacancyScheduleDay[];
+  onNotesChange?: (notes: string) => void;
+  notes?: string;
+  showNotes: boolean;
 };
 
 export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
@@ -35,18 +32,26 @@ export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
     );
   };
 
+  const onNotesChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (props.onNotesChange) {
+        props.onNotesChange(event.target.value);
+      }
+    },
+    [props]
+  );
+
   return (
     <>
-      <Grid container>
-        <Grid item xs={12}>
-          {" "}
-          <Typography className={classes.title} variant="h6">
-            {t("Substitute Details")}
-          </Typography>
-        </Grid>
+      <Grid container className={classes.subContainer}>
         <Grid item xs={12} className={classes.vacancyDetailsHeader}>
           {t("Substitute schedule")}
         </Grid>
+        {props.scheduleDays.length === 0 && (
+          <Grid item xs={12} className={classes.daysPlaceHolder}>
+            <Typography>{t("No days choosen")}</Typography>
+          </Grid>
+        )}
         {props.scheduleDays.map((sd, i) => {
           return (
             <Grid className={classes.scheduleItem} item container key={i}>
@@ -76,17 +81,50 @@ export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
             </Grid>
           );
         })}
+        {props.showNotes && (
+          <>
+            <Grid item xs={12} className={classes.notesLabelContainer}>
+              <label>{t("Notes for substitute")}</label>
+            </Grid>
+            <Grid item xs={12} className={classes.notesSubLabelContainer}>
+              <Typography variant="caption">
+                {t(
+                  "Can be seen by the substititue, administrator and employee"
+                )}
+              </Typography>
+            </Grid>
+            <Grid item xs={10} className={classes.notesContainer}>
+              {props.onNotesChange && (
+                <TextField
+                  multiline={true}
+                  value={props.notes}
+                  fullWidth={true}
+                  placeholder={t("Enter notes for substitute")}
+                  variant="outlined"
+                  onChange={onNotesChange}
+                />
+              )}
+              {!props.onNotesChange && <Typography>{props.notes}</Typography>}
+            </Grid>
+          </>
+        )}
       </Grid>
     </>
   );
 };
 const useStyles = makeStyles(theme => ({
-  title: {
-    marginBottom: theme.typography.pxToRem(15),
+  subContainer: {
+    border: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
+    "& label": {
+      fontWeight: "bold",
+    },
   },
   scheduleItem: {
     marginTop: theme.typography.pxToRem(15),
     marginBottom: theme.typography.pxToRem(15),
+    paddingLeft: theme.typography.pxToRem(15),
   },
   fullWidth: {
     width: "100%",
@@ -107,5 +145,21 @@ const useStyles = makeStyles(theme => ({
   },
   detailRow: {
     paddingBottom: theme.spacing(),
+  },
+  daysPlaceHolder: {
+    marginTop: theme.typography.pxToRem(20),
+    marginBottom: theme.typography.pxToRem(20),
+    paddingLeft: theme.spacing(2),
+  },
+  notesContainer: {
+    paddingLeft: theme.spacing(2),
+    marginBottom: theme.typography.pxToRem(20),
+  },
+  notesLabelContainer: {
+    paddingLeft: theme.spacing(2),
+  },
+  notesSubLabelContainer: {
+    paddingLeft: theme.spacing(2),
+    color: theme.customColors.gray,
   },
 }));

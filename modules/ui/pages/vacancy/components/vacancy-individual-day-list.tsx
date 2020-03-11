@@ -13,11 +13,7 @@ import { compact } from "lodash-es";
 import { Checkbox, FormControlLabel, Grid } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { isSameDay, format } from "date-fns";
-import {
-  midnightTime,
-  secondsSinceMidnight,
-  timeStampToIso,
-} from "helpers/time";
+import { midnightTime, timeStampToIso } from "helpers/time";
 import { parseISO } from "date-fns/esm";
 
 type Props = {
@@ -46,8 +42,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   } = props;
   const { t } = useTranslation();
   const [dayForCopy, setDayForCopy] = useState();
-  const [useSameTime, setUseSameTime] = useState(true);
-  const [useSameReason, setUseSameReason] = useState(true);
+  const [useSameTime, setUseSameTime] = useState();
+  const [useSameReason, setUseSameReason] = useState();
   const [useSamePayCode, setUseSamePayCode] = useState(true);
   const [useSameAccountingCode, setUseSameAccountingCode] = useState(true);
 
@@ -65,6 +61,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     (vacDetail: VacancyDetailInput) => {
       const newVacancyDays = vacancyDays.slice();
       newVacancyDays.forEach((vd, i) => {
+        newVacancyDays[i] = {
+          //need this to mark form as dirty
+          ...newVacancyDays[i],
+        };
         if (useSameReason) {
           newVacancyDays[i].vacancyReasonId = vacDetail.vacancyReasonId;
         } else {
@@ -83,6 +83,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     (vacDetail: VacancyDetailInput) => {
       const newVacancyDays = vacancyDays.slice();
       newVacancyDays.forEach((vd, i) => {
+        newVacancyDays[i] = {
+          //need this to mark form as dirty
+          ...newVacancyDays[i],
+        };
         if (useSameTime) {
           newVacancyDays[i].startTime = vacDetail.startTime;
           newVacancyDays[i].endTime = vacDetail.endTime;
@@ -103,6 +107,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     (vacDetail: VacancyDetailInput) => {
       const newVacancyDays = vacancyDays.slice();
       newVacancyDays.forEach((vd, i) => {
+        newVacancyDays[i] = {
+          //need this to mark form as dirty
+          ...newVacancyDays[i],
+        };
         if (useSamePayCode) {
           newVacancyDays[i].payCodeId = vacDetail.payCodeId;
         } else {
@@ -129,6 +137,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
               allocation: 1.0,
             };
       newVacancyDays.forEach((vd, i) => {
+        newVacancyDays[i] = {
+          //need this to mark form as dirty
+          ...newVacancyDays[i],
+        };
         if (useSameAccountingCode) {
           newVacancyDays[i].accountingCodeAllocations = [accCode];
         } else {
@@ -236,7 +248,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   }, [accountingCodes, props]);
 
   const dayParts = useMemo(() => {
-    const partsArray = [];
+    const partsArray: any = [];
+    if (!workDayScheduleVariant) return partsArray;
     partsArray.push({
       id: "full",
       label: `Full day (${format(
@@ -309,6 +322,62 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     return partsArray;
   }, [props, workDayScheduleVariant]);
 
+  /* Use this effect for existing vacancies that will have existing days */
+  useEffect(() => {
+    if (vacancyDays.length > 0) {
+      /* vacancy reason */
+      const reasonId = vacancyDays[0].vacancyReasonId;
+      let useSR = true;
+      vacancyDays.forEach(vd => {
+        if (vd.vacancyReasonId !== reasonId) {
+          useSR = false;
+        }
+      });
+      setUseSameReason(useSR);
+
+      /* times */
+      const sTime = vacancyDays[0].startTime;
+      const eTime = vacancyDays[0].endTime;
+      let useSt = true;
+      vacancyDays.forEach(vd => {
+        if (vd.startTime !== sTime || vd.endTime !== eTime) {
+          useSt = false;
+        }
+      });
+      setUseSameTime(useSt);
+
+      /* paycodes */
+      const payCodeId = vacancyDays[0].payCodeId;
+      let useSPC = true;
+      vacancyDays.forEach(vd => {
+        if (vd.payCodeId !== payCodeId) {
+          useSPC = false;
+        }
+      });
+      setUseSamePayCode(useSPC);
+
+      /* accounting code */
+      const accountingCodeId = vacancyDays[0].accountingCodeAllocations
+        ? vacancyDays[0].accountingCodeAllocations[0]?.accountingCodeId
+        : "";
+      let useSAC = true;
+      vacancyDays.forEach(vd => {
+        if (
+          vd.accountingCodeAllocations &&
+          vd.accountingCodeAllocations[0]?.accountingCodeId !== accountingCodeId
+        ) {
+          useSAC = false;
+        }
+      });
+      setUseSameAccountingCode(useSAC);
+    } else {
+      setUseSameReason(true);
+      setUseSameTime(true);
+      setUseSamePayCode(true);
+      setUseSameAccountingCode(true);
+    }
+  }, []);
+
   /* this effect is needed when we add a day and the check box is selected to use same reason */
   /* we want to default the newly added day to the first vac reason*/
   useEffect(() => {
@@ -322,7 +391,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
           update = true;
         } else {
           if (!vacancyDays[i].vacancyReasonId) {
-            vacancyDays[i].vacancyReasonId = vacReasonId;
+            vacancyDays[i].vacancyReasonId = vacancyReasonOptions[0].value;
             update = true;
           }
         }
@@ -352,8 +421,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
           update = true;
         } else {
           if (!vacancyDays[i].startTime || !vacancyDays[i].endTime) {
-            vacancyDays[i].startTime = sTime;
-            vacancyDays[i].endTime = eTime;
+            vacancyDays[i].startTime = dayParts[0].start;
+            vacancyDays[i].endTime = dayParts[0].end;
             update = true;
           }
         }
@@ -377,7 +446,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
           update = true;
         } else {
           if (!vacancyDays[i].payCodeId) {
-            vacancyDays[i].payCodeId = payCodeId;
+            vacancyDays[i].payCodeId = payCodeOptions[0].value;
             update = true;
           }
         }
@@ -414,7 +483,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         } else {
           if (!vacancyDays[i].accountingCodeAllocations) {
             vacancyDays[i].accountingCodeAllocations = [
-              { accountingCodeId: accountingCodeId, allocation: 1.0 },
+              {
+                accountingCodeId: accountingCodeOptions[0].value,
+                allocation: 1.0,
+              },
             ];
             update = true;
           }
@@ -448,7 +520,12 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
             setVacancyDetailTimes={handelSetDayTimesValue}
             setVacancyPayCode={handleSetPayCodeValue}
             setVacancyAccountingCode={handleSetAccountingCodeValue}
-            showCopyPast={vacancyDays.length > 1}
+            showCopyPast={false}
+            subTitle={
+              allCheckMarksChecked && vacancyDays.length > 1
+                ? t("Vacancy Details for all days")
+                : undefined
+            }
           />
         </Grid>
         {vacancyDays.length > 1 && (
@@ -528,7 +605,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                   setVacancyDetailTimes={handelSetDayTimesValue}
                   setVacancyPayCode={handleSetPayCodeValue}
                   setVacancyAccountingCode={handleSetAccountingCodeValue}
-                  showCopyPast={vacancyDays.length > 1}
+                  showCopyPast={false}
                 />
               </Grid>
             );

@@ -1,0 +1,54 @@
+query GetVacancyReplacementEmployees(
+  $orgId: ID!
+  $vacancyId: ID
+  $vacancyDetailIds: [ID]
+  $vacancy: VacancyCreateInput
+  $name: String
+  $qualified: [VacancyQualification]
+  $available: [VacancyAvailability]
+  $favoritesOnly: Boolean
+  $limit: Int
+  $offset: Int
+) {
+  vacancy {
+    replacementEmployeesForVacancy(
+      orgId: $orgId
+      vacancyId: $vacancyId
+      vacancy: $vacancy
+      vacancyDetailIds: $vacancyDetailIds
+      name: $name
+      qualified: $qualified
+      available: $available
+      favoritesOnly: $favoritesOnly
+      limit: $limit
+      offset: $offset
+    ) {
+      totalCount
+      offset
+      limit
+      results {
+        employeeId
+        firstName
+        lastName
+        phoneNumber
+        isAvailableToSubWhenSearching
+        availableToSubWhenSearchingAtUtc
+        availableToSubWhenSearchingAtLocal
+        isVisible
+        excludedSub
+        visibleAtUtc
+        visibleAtLocal
+        levelQualified
+        isQualified
+        qualifiedAtUtc
+        qualifiedAtLocal
+        levelAvailable
+        isAvailable
+        isFavoriteEmployee
+        isFavoritePositionType
+        isSelectable
+        payCodeId
+      }
+    }
+  }
+}

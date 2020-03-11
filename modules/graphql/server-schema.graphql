@@ -2789,7 +2789,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   relatedOrgIds: [ID]
   relatedOrganizations: [Organization]
   isShadowRecord: Boolean!
-  shadowFromOrgId: Int
+  shadowFromOrgId: ID
   shadowFromOrgName: String
   employee: Employee
   substitute: Substitute
@@ -3493,7 +3493,7 @@ type PermissionSet implements ModelObjectInterface & OrgObjectInterface & Domain
   permissionSet: [PermissionEnum]
   categories: [PermissionCategoryIdentifier!]!
   isShadowRecord: Boolean!
-  shadowFromOrgId: Int
+  shadowFromOrgId: ID
   shadowFromOrgName: String
 }
 
@@ -5175,6 +5175,8 @@ type SubstitutePoolMembership {
   favoriteForPositionTypes: [PositionType]
   blockedFromPositionTypeIds: [ID!]
   blockedFromPositionTypes: [PositionType]
+  autoAssignToLocations: [Location]
+  autoAssignToLocationIds: [ID!]
 }
 
 input SubstitutePreferenceInput {
@@ -5443,6 +5445,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
+  title: String
   positionId: ID!
   contractId: ID!
   absenceId: ID
@@ -5478,6 +5481,7 @@ input VacancyCreateInput {
   contractId: ID!
   locationId: ID!
   workDayScheduleId: ID!
+  title: String!
   notesToReplacement: String
   externalId: String
   details: [VacancyDetailInput!]!
@@ -5499,8 +5503,10 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   vacancyId: ID!
   startDate: Date
   startTimeLocal: DateTime
+  startTimeLocalTimeSpan: Seconds!
   endDate: Date
   endTimeLocal: DateTime
+  endTimeLocalTimeSpan: Seconds!
   startTimeUtc: DateTime
   endTimeUtc: DateTime
   actualDuration: Int
@@ -5837,6 +5843,7 @@ input VacancyUpdateInput {
   id: ID!
   rowVersion: String!
   workDayScheduleId: ID
+  title: String
   notesToReplacement: String
   externalId: String
   details: [VacancyDetailInput!]!

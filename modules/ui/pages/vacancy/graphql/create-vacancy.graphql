@@ -1,0 +1,7 @@
+mutation CreateVacancy($vacancy: VacancyCreateInput!) {
+  vacancy {
+    create(vacancy: $vacancy) {
+      id
+    }
+  }
+}

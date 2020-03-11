@@ -17,11 +17,20 @@ type Props = {
     shouldValidate?: boolean | undefined
   ) => void;
   updateModel: (p: any) => void;
+  readOnly: boolean;
+  vacancyExists: boolean;
 };
 
 export const VacancyContractSelect: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const { selectedContractId, contracts, setFieldValue, updateModel } = props;
+  const {
+    selectedContractId,
+    contracts,
+    setFieldValue,
+    updateModel,
+    readOnly,
+    vacancyExists,
+  } = props;
   const [editMode, setEditMode] = useState(false);
   const classes = useStyles();
 
@@ -46,9 +55,11 @@ export const VacancyContractSelect: React.FC<Props> = props => {
             <Typography>{selectedValue?.label ?? ""}</Typography>
           </Grid>
           <Grid xs={2} item>
-            <TextButton onClick={() => setEditMode(true)}>
-              {t("Change")}
-            </TextButton>
+            {!readOnly && !vacancyExists && (
+              <TextButton onClick={() => setEditMode(true)}>
+                {t("Change")}
+              </TextButton>
+            )}
           </Grid>
         </Grid>
       )}

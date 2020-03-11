@@ -96,20 +96,16 @@ export const VacancyReason: React.FC<Props> = props => {
     [t]
   );
 
-  /*****  THIS BLOCK OF CODE WAS ADDED WHILE FEATURE IS HIDDEN TO USERS. */
-  /***** Remove this block of code, and uncomment code below to turn page "on". */
+  if (!Config.isDevFeatureOnly) {
+    return (
+      <>
+        <PageTitle title={`${t("Create vacancy")}`} />
+        <UnderConstructionHeader />
+      </>
+    );
+  }
 
-  return (
-    <>
-      <PageTitle title={`${params.organizationId} ${t("Vacancy Reasons")}`} />
-      <UnderConstructionHeader />
-    </>
-  );
-  /*****                                                                 */
-
-  /*  Begin of code to uncomment if turning this page "on"  */
-  /*
-if (getVacancyReasons.state === "LOADING") {
+  if (getVacancyReasons.state === "LOADING") {
     return <></>;
   }
 
@@ -240,8 +236,6 @@ if (getVacancyReasons.state === "LOADING") {
       />
     </>
   );
-  */
-  /*** End of code to uncomment if turning page "on" */
 };
 
 const useStyles = makeStyles(theme => ({

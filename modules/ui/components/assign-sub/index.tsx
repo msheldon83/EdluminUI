@@ -2,7 +2,11 @@ import { Button, Collapse, Divider, Link, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
 import { useQueryBundle } from "graphql/hooks";
-import { AbsenceVacancyInput, Vacancy } from "graphql/server-types.gen";
+import {
+  AbsenceVacancyInput,
+  Vacancy,
+  VacancyCreateInput,
+} from "graphql/server-types.gen";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useIsMobile } from "hooks";
@@ -13,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
-import { VacancyDetails } from "../../../components/absence/vacancy-details";
+import { VacancyDetails } from "../absence/vacancy-details";
 import { AssignSubColumn, getAssignSubColumns } from "./columns";
 import {
   AssignSubFilters as Filters,
@@ -22,15 +26,21 @@ import {
 import { ReassignAbsenceDialog } from "ui/components/absence/reassign-dialog";
 import { AssignmentOnDate } from "ui/components/absence/types";
 import { AbsenceHeader } from "ui/components/absence/header";
+import {
+  VacancyScheduleDay,
+  VacancySubstituteDetailsSection,
+} from "ui/pages/vacancy/components/vacancy-substitute-details-section";
+import { VacancySummaryHeader } from "../absence/vacancy-summary-header";
+import { GetVacancyReplacementEmployees } from "./graphql/get-replacement-employees-for-vacancy.gen";
 
 type Props = {
   orgId: string;
   absenceId?: string;
   existingVacancy?: boolean;
-  vacancies: Vacancy[];
+  vacancies?: Vacancy[];
   vacancyDetailIdsToAssign?: string[];
   userIsAdmin: boolean;
-  employeeName: string;
+  employeeName?: string;
   employeeId?: string;
   positionId?: string;
   positionName?: string;
@@ -45,6 +55,10 @@ type Props = {
   onCancel: () => void;
   employeeToReplace?: string;
   assignmentsByDate: AssignmentOnDate[];
+  isForVacancy?: boolean;
+  vacancyScheduleDays?: VacancyScheduleDay[];
+  vacancy?: VacancyCreateInput;
+  vacancyId?: string;
 };
 
 export const AssignSub: React.FC<Props> = props => {
@@ -76,7 +90,12 @@ export const AssignSub: React.FC<Props> = props => {
   const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
 
   // If we don't have any info, cancel the Assign Sub action
-  if (!props.vacancies || props.vacancies.length === 0) {
+  if (
+    (!props.isForVacancy && !props.vacancies) ||
+    props.vacancies?.length === 0 ||
+    (props.isForVacancy && !props.vacancyScheduleDays) ||
+    props.vacancyScheduleDays?.length === 0
+  ) {
     props.onCancel();
   }
 
@@ -102,10 +121,13 @@ export const AssignSub: React.FC<Props> = props => {
     {
       variables: {
         orgId: props.orgId,
-        vacancyId: props.vacancies[0]?.id ?? undefined,
-        vacancy: !props.vacancies[0]?.id
-          ? buildVacancyInput(props.vacancies)
+        vacancyId: props.vacancies
+          ? props.vacancies[0]?.id ?? undefined
           : undefined,
+        vacancy:
+          props.vacancies && !props.vacancies[0]?.id
+            ? AbsenceVacancyInput(props.vacancies)
+            : undefined,
         vacancyDetailIds: vacancyDetailIdsToAssign ?? undefined,
         absentEmployeeId: props.employeeId ?? undefined,
         name: searchFilter?.name,
@@ -117,7 +139,28 @@ export const AssignSub: React.FC<Props> = props => {
         limit: null,
         offset: null,
       },
-      skip: searchFilter === undefined,
+      skip: searchFilter === undefined || props.isForVacancy,
+    }
+  );
+
+  /** this query is used for vacancy subs */
+  const getVacancyReplacementEmployeesForVacancyQuery = useQueryBundle(
+    GetVacancyReplacementEmployees,
+    {
+      variables: {
+        orgId: props.orgId,
+        vacancy: props.vacancy,
+        vacancyId: props.vacancyId,
+        name: searchFilter?.name,
+        qualified: searchFilter?.name ? undefined : searchFilter?.qualified,
+        available: searchFilter?.name ? undefined : searchFilter?.available,
+        favoritesOnly: searchFilter?.name
+          ? undefined
+          : searchFilter?.favoritesOnly,
+        limit: null,
+        offset: null,
+      },
+      skip: searchFilter === undefined || !props.isForVacancy,
     }
   );
 
@@ -125,10 +168,12 @@ export const AssignSub: React.FC<Props> = props => {
     if (searchFilter) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       getReplacementEmployeesForVacancyQuery.refetch();
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      getVacancyReplacementEmployeesForVacancyQuery.refetch();
     }
   }, [searchFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  let replacementEmployees: GetReplacementEmployeesForVacancy.Results[] = [];
+  /*let replacementEmployees: GetReplacementEmployeesForVacancy.Results[] = [];
   if (
     getReplacementEmployeesForVacancyQuery.state === "DONE" ||
     getReplacementEmployeesForVacancyQuery.state === "UPDATING"
@@ -138,7 +183,23 @@ export const AssignSub: React.FC<Props> = props => {
         ?.replacementEmployeesForVacancy?.results
     );
     if (qResults) replacementEmployees = qResults;
-  }
+  }*/
+  const replacementEmployees =
+    (!props.isForVacancy &&
+      getReplacementEmployeesForVacancyQuery.state === "DONE") ||
+    getReplacementEmployeesForVacancyQuery.state === "UPDATING"
+      ? compact(
+          getReplacementEmployeesForVacancyQuery.data?.absence
+            ?.replacementEmployeesForVacancy?.results
+        )
+      : (props.isForVacancy &&
+          getVacancyReplacementEmployeesForVacancyQuery.state === "DONE") ||
+        getVacancyReplacementEmployeesForVacancyQuery.state === "UPDATING"
+      ? compact(
+          getVacancyReplacementEmployeesForVacancyQuery.data?.vacancy
+            ?.replacementEmployeesForVacancy?.results
+        )
+      : [];
 
   const tableData: AssignSubColumn[] = useMemo(() => {
     return replacementEmployees.map(r => ({
@@ -212,16 +273,33 @@ export const AssignSub: React.FC<Props> = props => {
               : collapsedVacancyDetailsHeight
           )}
         >
-          <VacancyDetails
-            vacancies={props.vacancies}
-            vacancyDetailIds={vacancyDetailIdsToAssign}
-            positionName={props.positionName}
-            gridRef={vacancyDetailsRef}
-            showHeader
-            disabledDates={props.disabledDates}
-            detailsClassName={classes.vacancyDetailsTable}
-            assignmentsByDate={props.assignmentsByDate}
-          />
+          {props.vacancies && !props.isForVacancy && (
+            <VacancyDetails
+              vacancies={props.vacancies}
+              vacancyDetailIds={vacancyDetailIdsToAssign}
+              positionName={props.positionName}
+              gridRef={vacancyDetailsRef}
+              showHeader
+              disabledDates={props.disabledDates}
+              detailsClassName={classes.vacancyDetailsTable}
+              assignmentsByDate={props.assignmentsByDate}
+              isForVacancy={props.isForVacancy}
+            />
+          )}
+          {props.vacancyScheduleDays && props.isForVacancy && (
+            <div className={classes.vacSubDetailContainer}>
+              <VacancySummaryHeader
+                positionName={props.vacancyScheduleDays[0].positionTitle}
+                vacancyDates={props.vacancyScheduleDays?.map((vsd: any) => {
+                  return vsd.date;
+                })}
+              />
+              <VacancySubstituteDetailsSection
+                scheduleDays={props.vacancyScheduleDays}
+                showNotes={false}
+              />
+            </div>
+          )}
         </Collapse>
         {showViewAllDetails && (
           <div className={classes.viewAllDetails}>
@@ -241,6 +319,8 @@ export const AssignSub: React.FC<Props> = props => {
   const replacementEmployeeCount = replacementEmployees.length;
   const pageHeader = props.existingVacancy
     ? t("Assign Substitute")
+    : props.isForVacancy
+    ? `${t("Create Vacancy")}: ${t("Prearranging Substitute")}`
     : `${t("Create Absence")}: ${t("Prearranging Substitute")}`;
 
   const selectTitle = props.selectButtonText || t("Select")!;
@@ -269,8 +349,12 @@ export const AssignSub: React.FC<Props> = props => {
   );
 
   const isLoading =
-    getReplacementEmployeesForVacancyQuery.state === "LOADING" ||
-    getReplacementEmployeesForVacancyQuery.state === "UPDATING";
+    (!props.isForVacancy &&
+      getReplacementEmployeesForVacancyQuery.state === "LOADING") ||
+    getReplacementEmployeesForVacancyQuery.state === "UPDATING" ||
+    (props.isForVacancy &&
+      getVacancyReplacementEmployeesForVacancyQuery.state === "LOADING") ||
+    getVacancyReplacementEmployeesForVacancyQuery.state === "UPDATING";
 
   return (
     <>
@@ -295,6 +379,7 @@ export const AssignSub: React.FC<Props> = props => {
         employeeName={props.employeeName}
         pageHeader={pageHeader}
         onCancel={props.onCancel}
+        isForVacancy={props.isForVacancy}
       />
       <Section>
         <div className={classes.vacancyDetails}>{renderVacancyDetails()}</div>
@@ -373,9 +458,12 @@ const useStyles = makeStyles(theme => ({
   substitutesList: {
     marginTop: theme.spacing(2),
   },
+  vacSubDetailContainer: {
+    width: "50%",
+  },
 }));
 
-const buildVacancyInput = (
+const AbsenceVacancyInput = (
   vacancies: Vacancy[]
 ): AbsenceVacancyInput | null => {
   const vacancy = vacancies[0];

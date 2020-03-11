@@ -3,7 +3,6 @@ import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import {
   PositionType,
   Location as Loc,
-  VacancyCreateInput,
   Contract,
   VacancyDetailInput,
   PayCode,
@@ -11,36 +10,25 @@ import {
 } from "graphql/server-types.gen";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryBundle } from "graphql/hooks";
-
-import { compact, sortBy } from "lodash-es";
+import { sortBy } from "lodash-es";
 import { VacancyContractSelect } from "./vacancy-contract-select";
 import { OptionTypeBase } from "react-select";
-import { Grid, Typography, Button } from "@material-ui/core";
+import { Grid, Typography, Button, Divider } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { VacancyDateSelect } from "./vacancy-date-select";
 import { startOfDay, addDays, format } from "date-fns";
 import { isSameDay } from "date-fns/esm";
-import { differenceWith, filter, find } from "lodash-es";
+import { find } from "lodash-es";
 import { VacancyIndividualDayList } from "./vacancy-individual-day-list";
 import { SelectVacancyDateDialog } from "./vacancy-date-picker-dialog";
-
-export type VacancyDetailsFormData = {
-  positionTypeId?: string;
-  contractId: string;
-  locationId: string;
-  workDayScheduleId: string;
-  notesToApprover?: string;
-  notesToReplacement?: string;
-  details: VacancyDetailInput[];
-};
+import { Input } from "ui/components/form/input";
+import { VacancyDetailsFormData } from "./vacancy";
 
 type Props = {
   orgId: string;
   positionTypes: PositionType[];
   locations: Loc[];
-  payCodes: PayCode[];
-  accountingCodes: AccountingCode[];
+  payCodes?: PayCode[];
+  accountingCodes?: AccountingCode[];
   contracts: Contract[];
   values: VacancyDetailsFormData;
   setFieldValue: (
@@ -48,7 +36,9 @@ type Props = {
     value: any,
     shouldValidate?: boolean | undefined
   ) => void;
-  setVacancyForCreate: React.Dispatch<React.SetStateAction<VacancyCreateInput>>;
+  setVacancy: React.Dispatch<React.SetStateAction<VacancyDetailsFormData>>;
+  readOnly: boolean;
+  vacancyExists: boolean;
 };
 
 export const VacancyDetailSection: React.FC<Props> = props => {
@@ -58,18 +48,24 @@ export const VacancyDetailSection: React.FC<Props> = props => {
     orgId,
     locations,
     setFieldValue,
-    setVacancyForCreate,
+    setVacancy,
     contracts,
     payCodes,
     accountingCodes,
+    readOnly,
+    vacancyExists,
   } = props;
   const { t } = useTranslation();
   const classes = useStyles();
 
   const [isSelectDatesOpen, setIsSelectDatesOpen] = useState(false);
+  const [month, setMonth] = useState(new Date());
 
   const positionTypeOptions = useMemo(
-    () => positionTypes.map((r: any) => ({ label: r.name, value: r.id })),
+    () =>
+      positionTypes
+        ? positionTypes.map((r: any) => ({ label: r.name, value: r.id }))
+        : [],
     [positionTypes]
   );
 
@@ -102,7 +98,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
       orgId: orgId,
       ...p,
     };
-    setVacancyForCreate(vacancy);
+    setVacancy(vacancy);
   };
 
   const toggleVacancyDate = (dates: Date[]) => {
@@ -119,6 +115,11 @@ export const VacancyDetailSection: React.FC<Props> = props => {
     });
     setFieldValue("details", newDetails);
     updateModel({ details: newDetails });
+    setIsSelectDatesOpen(false);
+  };
+
+  const handleCloseDateDialog = () => {
+    setMonth(new Date());
     setIsSelectDatesOpen(false);
   };
 
@@ -164,74 +165,154 @@ export const VacancyDetailSection: React.FC<Props> = props => {
     return label;
   }, [values.details]);
 
-  const buildSequenceLabel = (startDate: Date, endDate: Date) => {
-    const label = `${format(startDate, "MMM d")} - ${format(endDate, "d")}`;
-    return label;
-  };
-
   //default properties
   useEffect(() => {
-    if (!values.locationId) {
-      setFieldValue("locationId", locationOptions[0].value);
-      updateModel({ locationId: locationOptions[0].value });
+    if (
+      !values.locationId ||
+      !values.contractId ||
+      !values.workDayScheduleId ||
+      (values.title === undefined && positionTypes)
+    ) {
+      setFieldValue(
+        "locationId",
+        !values.locationId ? locationOptions[0].value : values.locationId
+      );
+      setFieldValue(
+        "contractId",
+        !values.contractId ? contracts[0].id : values.contractId
+      );
+      setFieldValue(
+        "workDayScheduleId",
+        !values.workDayScheduleId
+          ? bellScheduleOptions[0].value
+          : values.workDayScheduleId
+      );
+      setFieldValue(
+        "title",
+        !values.title
+          ? positionTypes.find(pt => pt.id === values.positionTypeId)?.name ??
+              ""
+          : values.title
+      );
+      const model = {
+        locationId: !values.locationId
+          ? locationOptions[0].value
+          : values.locationId,
+        contractId: !values.contractId ? contracts[0].id : values.contractId,
+        workDayScheduleId: !values.workDayScheduleId
+          ? bellScheduleOptions[0].value
+          : values.workDayScheduleId,
+        title: !values.title
+          ? positionTypes.find(pt => pt.id === values.positionTypeId)?.name ??
+            ""
+          : values.title,
+      };
+      updateModel(model);
     }
-    if (!values.contractId) {
-      setFieldValue("contractId", contracts[0].id);
-      updateModel({ contractId: contracts[0].id });
-    }
-    if (!values.workDayScheduleId) {
-      setFieldValue("workDayScheduleId", bellScheduleOptions[0].value);
-      updateModel({ workDayScheduleId: bellScheduleOptions[0].value });
-    }
-  }, []);
+  }, [values]);
 
   return (
     <>
       <SelectVacancyDateDialog
         open={isSelectDatesOpen}
-        onClose={() => setIsSelectDatesOpen(false)}
+        onClose={handleCloseDateDialog}
         onSetDates={toggleVacancyDate}
         contractId={values.contractId}
         vacancyDates={values.details.map((d: VacancyDetailInput) => d.date)}
+        currentMonth={month}
+        onMonthChange={setMonth}
       />
 
       <Typography variant="h6">{t("Vacancy Details")}</Typography>
       <Grid container justify="space-between">
         <Grid item xs={12} className={classes.rowContainer}>
-          <Select
-            placeholder={t("Please select a Postion type")}
-            value={{
-              value: values.positionTypeId ?? "",
-              label:
-                positionTypeOptions.find(a => a.value === values.positionTypeId)
-                  ?.label || "",
-            }}
-            options={positionTypeOptions}
-            multiple={false}
-            label={t("Position type")}
-            onChange={async (e: OptionType) => {
-              let selectedValue: any = null;
-              if (e) {
-                selectedValue = (e as OptionTypeBase).value;
-              }
-              setFieldValue("positionTypeId", selectedValue);
-              setFieldValue(
-                "contractId",
-                positionTypes.find(pt => pt.id === selectedValue)
-                  ?.defaultContractId ?? ""
-              );
-              updateModel({ positionTypeId: selectedValue });
-            }}
-            withResetValue={false}
-          ></Select>
+          {!readOnly && !vacancyExists && (
+            <Select
+              placeholder={t("Please select a Postion type")}
+              value={{
+                value: values.positionTypeId ?? "",
+                label:
+                  positionTypeOptions.find(
+                    (a: any) => a.value === values.positionTypeId
+                  )?.label || "",
+              }}
+              options={positionTypeOptions}
+              multiple={false}
+              label={t("Position type")}
+              onChange={async (e: OptionType) => {
+                let selectedValue: any = null;
+                if (e) {
+                  selectedValue = (e as OptionTypeBase).value;
+                }
+                setFieldValue("positionTypeId", selectedValue);
+                const contractId = positionTypes
+                  ? positionTypes.find(pt => pt.id === selectedValue)
+                      ?.defaultContractId ?? ""
+                  : "";
+
+                const title = positionTypes
+                  ? positionTypes.find(pt => pt.id === selectedValue)?.name ??
+                    ""
+                  : "";
+
+                setFieldValue("contractId", contractId);
+
+                setFieldValue("title", title);
+
+                updateModel({
+                  positionTypeId: selectedValue,
+                  contractId: contractId,
+                  title: title,
+                });
+              }}
+              withResetValue={false}
+            ></Select>
+          )}
+          {(readOnly || vacancyExists) && (
+            <>
+              <Typography variant="h6">{t("Position type")}</Typography>
+              <Typography>
+                {
+                  positionTypeOptions.find(
+                    a => a.value === values.positionTypeId
+                  )?.label
+                }
+              </Typography>
+            </>
+          )}
         </Grid>
         {values.positionTypeId !== "" && (
+          <Grid item container xs={12} className={classes.rowContainer}>
+            <Grid item xs={12}>
+              {!readOnly && !vacancyExists && (
+                <Input
+                  label={t("Title")}
+                  placeholder={t("Enter a title for the vacancy")}
+                  value={values.title}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    updateModel({ title: e.target.value });
+                    setFieldValue("title", e.target.value);
+                  }}
+                />
+              )}
+              {(readOnly || vacancyExists) && (
+                <>
+                  <Typography variant="h6">{t("Title")}</Typography>
+                  <Typography>{values.title}</Typography>
+                </>
+              )}
+            </Grid>
+          </Grid>
+        )}
+        {values.positionTypeId !== "" && contracts && (
           <Grid item xs={12} className={classes.rowContainer}>
             <VacancyContractSelect
               contracts={contracts}
               selectedContractId={values.contractId}
               setFieldValue={setFieldValue}
               updateModel={updateModel}
+              readOnly={readOnly}
+              vacancyExists={vacancyExists}
             />
           </Grid>
         )}
@@ -246,96 +327,137 @@ export const VacancyDetailSection: React.FC<Props> = props => {
             />
           </Grid>
               )*/}
+
+        {values.positionTypeId !== "" && (
+          <Grid item xs={12} className={classes.rowContainer}>
+            {!readOnly && !vacancyExists && (
+              <Select
+                placeholder={t("Please select a School")}
+                value={{
+                  value: values.locationId ?? locationOptions[0].value,
+                  label:
+                    locationOptions.find(
+                      (a: any) => a.value === values.locationId
+                    )?.label || locationOptions[0].label,
+                }}
+                options={locationOptions}
+                multiple={false}
+                label={t("Location")}
+                withResetValue={false}
+                onChange={async (e: OptionType) => {
+                  let selectedValue: any = null;
+                  if (e) {
+                    selectedValue = (e as OptionTypeBase).value;
+                  }
+                  setFieldValue("locationId", selectedValue);
+                  setFieldValue("workDayScheduleId", "");
+
+                  updateModel({
+                    locationId: selectedValue,
+                    workDayScheduleId: "",
+                  });
+                }}
+              ></Select>
+            )}
+            {(readOnly || vacancyExists) && (
+              <>
+                <Typography variant="h6">{t("Location")}</Typography>
+                <Typography>
+                  {locationOptions.find(
+                    (a: any) => a.value === values.locationId
+                  )?.label || locationOptions[0].label}
+                </Typography>
+              </>
+            )}
+          </Grid>
+        )}
+
+        {values.positionTypeId !== "" && (
+          <Grid item xs={12} className={classes.rowContainer}>
+            {!readOnly && (
+              <>
+                <Select
+                  value={{
+                    value:
+                      values.workDayScheduleId ?? bellScheduleOptions[0].value,
+                    label:
+                      bellScheduleOptions.find(
+                        (a: any) => a.value === values.workDayScheduleId
+                      )?.label || bellScheduleOptions[0].label,
+                  }}
+                  options={bellScheduleOptions}
+                  multiple={false}
+                  label={t("Bell Schedule")}
+                  withResetValue={false}
+                  onChange={async (e: OptionType) => {
+                    let selectedValue: any = null;
+                    if (e) {
+                      selectedValue = (e as OptionTypeBase).value;
+                    }
+                    setFieldValue("workDayScheduleId", selectedValue);
+
+                    updateModel({ workDayScheduleId: selectedValue });
+                  }}
+                ></Select>
+                <Divider variant="fullWidth" />
+              </>
+            )}
+            {readOnly && (
+              <>
+                <Typography variant="h6">{t("Bell Schedule")}</Typography>
+                <Typography>
+                  {bellScheduleOptions.find(
+                    (a: any) => a.value === values.workDayScheduleId
+                  )?.label || bellScheduleOptions[0].label}
+                </Typography>
+              </>
+            )}
+          </Grid>
+        )}
+
         {values.positionTypeId !== "" && (
           <Grid item container xs={12} className={classes.rowContainer}>
-            <Grid item xs={10}>
+            <Grid item xs={8}>
               <label>Dates</label>
               <Typography>{buildDateLabel}</Typography>
             </Grid>
-            <Grid item xs={2}>
-              <Button
-                onClick={() => {
-                  setIsSelectDatesOpen(true);
-                }}
-                variant="contained"
-              >
-                {t("Update")}
-              </Button>
+            {!readOnly && (
+              <Grid item xs={4}>
+                <Button
+                  onClick={() => {
+                    setIsSelectDatesOpen(true);
+                  }}
+                  variant="contained"
+                >
+                  {t("Select Dates")}
+                </Button>
+              </Grid>
+            )}
+          </Grid>
+        )}
+
+        {values.positionTypeId !== "" &&
+          !readOnly &&
+          payCodes &&
+          locations &&
+          accountingCodes && (
+            <Grid item xs={12} className={classes.rowContainer}>
+              <VacancyIndividualDayList
+                vacancyDays={values.details}
+                payCodes={payCodes}
+                accountingCodes={accountingCodes}
+                workDayScheduleVariant={locations
+                  .find(l => l.id === values.locationId)
+                  ?.workDaySchedules.find(
+                    w => w.id === values.workDayScheduleId
+                  )
+                  ?.variants?.find(v => v?.isStandard)}
+                orgId={orgId}
+                setFieldValue={setFieldValue}
+                updateModel={updateModel}
+              />
             </Grid>
-          </Grid>
-        )}
-
-        {values.positionTypeId !== "" && (
-          <Grid item xs={12} className={classes.rowContainer}>
-            <Select
-              placeholder={t("Please select a School")}
-              value={{
-                value: values.locationId ?? locationOptions[0].value,
-                label:
-                  locationOptions.find(
-                    (a: any) => a.value === values.locationId
-                  )?.label || locationOptions[0].label,
-              }}
-              options={locationOptions}
-              multiple={false}
-              label={t("Location")}
-              withResetValue={false}
-              onChange={async (e: OptionType) => {
-                let selectedValue: any = null;
-                if (e) {
-                  selectedValue = (e as OptionTypeBase).value;
-                }
-                setFieldValue("locationId", selectedValue);
-
-                updateModel({ locationId: selectedValue });
-              }}
-            ></Select>
-          </Grid>
-        )}
-
-        {values.positionTypeId !== "" && (
-          <Grid item xs={12} className={classes.rowContainer}>
-            <Select
-              value={{
-                value: values.workDayScheduleId ?? bellScheduleOptions[0].value,
-                label:
-                  bellScheduleOptions.find(
-                    (a: any) => a.value === values.workDayScheduleId
-                  )?.label || bellScheduleOptions[0].label,
-              }}
-              options={bellScheduleOptions}
-              multiple={false}
-              label={t("Bell Schedule")}
-              withResetValue={false}
-              onChange={async (e: OptionType) => {
-                let selectedValue: any = null;
-                if (e) {
-                  selectedValue = (e as OptionTypeBase).value;
-                }
-                setFieldValue("workDayScheduleId", selectedValue);
-
-                updateModel({ workDayScheduleId: selectedValue });
-              }}
-            ></Select>
-          </Grid>
-        )}
-
-        {values.positionTypeId !== "" && (
-          <Grid item xs={12} className={classes.rowContainer}>
-            <VacancyIndividualDayList
-              vacancyDays={values.details}
-              payCodes={payCodes}
-              accountingCodes={accountingCodes}
-              workDayScheduleVariant={locations
-                .find(l => l.id === values.locationId)
-                ?.workDaySchedules.find(w => w.id === values.workDayScheduleId)
-                ?.variants?.find(v => v?.isStandard)}
-              orgId={orgId}
-              setFieldValue={setFieldValue}
-              updateModel={updateModel}
-            />
-          </Grid>
-        )}
+          )}
       </Grid>
     </>
   );
@@ -347,6 +469,11 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.typography.pxToRem(10),
     "& label": {
       fontWeight: "bold",
+    },
+    "& hr": {
+      marginTop: theme.typography.pxToRem(30),
+      marginBottom: theme.typography.pxToRem(10),
+      border: "1px solid  #d8d8d8",
     },
   },
 }));

@@ -1,0 +1,7 @@
+mutation UpdateVacancy($vacancy: VacancyUpdateInput!) {
+  vacancy {
+    update(vacancy: $vacancy) {
+      id
+    }
+  }
+}

@@ -7,6 +7,12 @@ export const VacancyCreateRoute = defineSubRoute(
   "/vacancy/create"
 );
 
+export const VacancyViewRoute = defineSubRoute(
+  AdminChromeRoute,
+  "/vacancy/:vacancyId",
+  ["vacancyId"]
+);
+
 export const VacancyCreateLoader = asyncComponent({
   resolve: async () => {
     const VacancyCreatePage = (await import("ui/pages/vacancy/create"))
@@ -14,4 +20,12 @@ export const VacancyCreateLoader = asyncComponent({
     return VacancyCreatePage;
   },
   name: "VacancyCreate",
+});
+
+export const VacancyViewLoader = asyncComponent({
+  resolve: async () => {
+    const VacancyViewPage = (await import("ui/pages/vacancy/view")).VacancyView;
+    return VacancyViewPage;
+  },
+  name: "VacancyView",
 });

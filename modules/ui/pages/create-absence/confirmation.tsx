@@ -10,7 +10,7 @@ import {
   EmployeeCreateAbsenceRoute,
 } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
-import { Step } from "./step-params";
+import { Step } from "../../../helpers/step-params";
 import { EmployeeChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
 import {
   AdminEditAbsenceRoute,

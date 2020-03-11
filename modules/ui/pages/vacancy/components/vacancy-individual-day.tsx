@@ -31,6 +31,7 @@ type Props = {
   setVacancyPayCode: (value: VacancyDetailInput) => void;
   setVacancyAccountingCode: (value: VacancyDetailInput) => void;
   showCopyPast: boolean;
+  subTitle?: string;
 };
 
 export const VacancyIndividualDay: React.FC<Props> = props => {
@@ -47,6 +48,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     setVacancyPayCode,
     setVacancyAccountingCode,
     dayParts,
+    subTitle,
   } = props;
 
   const [startTime, setStartTime] = useState(vacancyDetail.startTime);
@@ -176,7 +178,9 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     <>
       <Grid container justify="space-between">
         <Grid item xs={9}>
-          <Typography>{format(vacancyDetail.date, "EEE, MMM d")}</Typography>
+          <label>
+            {subTitle ? subTitle : format(vacancyDetail.date, "EEE, MMM d")}
+          </label>
         </Grid>
         {showCopyPast && (
           <Grid item xs={3}>

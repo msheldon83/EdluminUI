@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
-import { VacancyDateSelect } from "./vacancy-date-select2";
+import { VacancyDateSelect } from "./vacancy-date-select";
 import { startOfDay } from "date-fns";
 import { isSameDay } from "date-fns/esm";
 import { find } from "lodash-es";
@@ -22,6 +22,8 @@ type Props = {
   onSetDates: (d: Date[]) => void;
   contractId: string;
   vacancyDates: Date[];
+  currentMonth: Date;
+  onMonthChange: (d: Date) => void;
 };
 
 export const SelectVacancyDateDialog: React.FC<Props> = props => {
@@ -59,6 +61,8 @@ export const SelectVacancyDateDialog: React.FC<Props> = props => {
           contractId={props.contractId}
           vacancySelectedDates={selectedDates}
           onSelectDates={dates => dates.forEach(d => toggleVacancyDate(d))}
+          month={props.currentMonth}
+          onMonthChange={props.onMonthChange}
         />
       </DialogContent>
 
@@ -94,6 +98,6 @@ const useStyles = makeStyles(theme => ({
   delete: { color: theme.customColors.darkRed },
   dialog: {
     width: "550px",
-    height: "400px",
+    height: "425px",
   },
 }));

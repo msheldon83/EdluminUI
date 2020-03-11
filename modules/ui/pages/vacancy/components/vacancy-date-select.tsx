@@ -22,6 +22,8 @@ type Props = {
   contractId: string;
   vacancySelectedDates: Date[];
   onSelectDates: (dates: Array<Date>) => void;
+  month: Date;
+  onMonthChange: (d: Date) => void;
 };
 
 export const VacancyDateSelect: React.FC<Props> = props => {
@@ -29,7 +31,10 @@ export const VacancyDateSelect: React.FC<Props> = props => {
   const classes = useStyles();
   const inputRef = React.useRef(null);
   const [calendarOpen, setCalendarOpen] = React.useState(false);
-  const startDate = useMemo(() => startOfWeek(new Date()), []);
+  const startDate = useMemo(() => startOfWeek(props.month), [
+    props,
+    props.month,
+  ]);
 
   const getContractScheduleDates = useQueryBundle(GetContractScheduleDates, {
     variables: {
@@ -92,33 +97,16 @@ export const VacancyDateSelect: React.FC<Props> = props => {
 
   return (
     <>
-      <Input
-        label={t("Dates")}
-        placeholder={t("Enter vacancy dates")}
-        endAdornment={
-          <ArrowDropDownIcon
-            onClick={handleArrowClick}
-            className={classes.arrowDownIcon}
-          />
-        }
-        onFocus={e => {
-          setCalendarOpen(true);
-        }}
-        onBlur={e => {
-          setCalendarOpen(false);
-        }}
-        onClick={() => setCalendarOpen(true)}
-      />
-      {calendarOpen && (
-        <div className={classes.calendarContainer}>
-          <CustomCalendar
-            variant="month"
-            customDates={customDates}
-            monthNavigation={true}
-            onSelectDates={handleSelectDates}
-          />
-        </div>
-      )}
+      <div className={classes.calendarContainer}>
+        <CustomCalendar
+          variant="month"
+          customDates={customDates}
+          monthNavigation={true}
+          onSelectDates={handleSelectDates}
+          month={props.month}
+          onMonthChange={props.onMonthChange}
+        />
+      </div>
     </>
   );
 };
