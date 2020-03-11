@@ -43,9 +43,7 @@ type Props = {
 export const AssignmentDetails: React.FC<Props> = props => {
   const { vacancy } = props;
 
-  const employeeName = `${vacancy.absence!.employee!.firstName} ${
-    vacancy.absence!.employee!.lastName
-  }`;
+  const employeeName = `${vacancy.absence?.employee?.firstName} ${vacancy.absence?.employee?.lastName}`;
 
   const locationNames = useMemo(
     () => compact(vacancy.details!.map(d => d!.location!.name)),
@@ -84,7 +82,7 @@ export const AssignmentDetails: React.FC<Props> = props => {
       startDate={vacancy.startDate}
       endDate={vacancy.endDate}
       locationNames={locationNames}
-      positionName={vacancy.position!.title}
+      positionName={vacancy.position?.title ?? ""}
     />
   );
 };

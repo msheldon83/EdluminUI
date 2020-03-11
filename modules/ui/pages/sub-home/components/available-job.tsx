@@ -7,7 +7,6 @@ import { ExpandOrCollapseIndicator } from "ui/components/substitutes/expand-or-c
 import { NotesPopper } from "ui/components/substitutes/notes-popper";
 import { AvailableJobDetail } from "./available-job-detail";
 import { isBefore, parseISO } from "date-fns";
-import { ConfirmOverrideDialog } from "./confirm-override";
 import { Warning } from "@material-ui/icons";
 
 type Props = {
@@ -43,16 +42,13 @@ type Props = {
   };
   unavailableToWork?: boolean;
   onAccept: (
-    orgId: string,
     vacancyId: string,
     unavailableToWork?: boolean,
     overridePreferred?: boolean
   ) => Promise<void>;
-  onDismiss: (orgId: string, vacancyId: string) => Promise<void>;
+  onDismiss: (vacancyId: string) => Promise<void>;
   shadeRow: boolean;
   forSingleJob?: boolean;
-  overrideDialogOpen?: boolean;
-  setOverrideDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AvailableJob: React.FC<Props> = props => {
@@ -69,19 +65,12 @@ export const AvailableJob: React.FC<Props> = props => {
   const showDetails = (expanded || forSingleJob) && hasDetails;
 
   const handleDismiss = async () => {
-    await props.onDismiss(vacancy.organization.id, vacancy.id);
+    await props.onDismiss(vacancy.id);
     setExpanded(false);
   };
 
   return (
     <>
-      <ConfirmOverrideDialog
-        open={props.overrideDialogOpen}
-        orgId={vacancy.organization.id}
-        vacancyId={vacancy.id}
-        setOverrideDialogOpen={props.setOverrideDialogOpen}
-        onAccept={props.onAccept}
-      />
       <div onClick={() => setExpanded(!expanded)}>
         <div
           className={[
@@ -123,7 +112,6 @@ export const AvailableJob: React.FC<Props> = props => {
                       onClick={async e => {
                         e.stopPropagation();
                         await props.onAccept(
-                          vacancy.organization.id,
                           vacancy.id,
                           props.unavailableToWork
                         );

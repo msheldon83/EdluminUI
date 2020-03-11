@@ -1,9 +1,11 @@
 import {
   Dialog,
   DialogActions,
+  DialogTitle,
+  DialogContent,
+  Typography,
   makeStyles,
-  Grid,
-  Box,
+  Divider,
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -12,11 +14,9 @@ import { TextButton } from "ui/components/text-button";
 
 type Props = {
   open?: boolean;
-  orgId: string;
-  vacancyId: string;
+  vacancyId: string | null;
   setOverrideDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   onAccept: (
-    orgId: string,
     vacancyId: string,
     unavailableToWork?: boolean,
     overridePreferred?: boolean
@@ -32,32 +32,27 @@ export const ConfirmOverrideDialog: React.FC<Props> = props => {
       open={props.open ?? false}
       onClose={() => props.setOverrideDialogOpen!(false)}
     >
-      <Box height={300} width={510}>
-        <div style={{ padding: 20 }}>
-          <Grid
-            container
-            direction="column"
-            justify="center"
-            alignItems="center"
-            spacing={2}
-          >
-            <Grid item>
-              {t(
-                "This assignment is in conflict with a day/time you previously specified you were not available. Are you sure you want to accept it?"
-              )}
-            </Grid>
-          </Grid>
-        </div>
-      </Box>
+      <DialogTitle disableTypography>
+        <Typography variant="h5">{t("Accept Absence")}</Typography>
+      </DialogTitle>
+      <DialogContent>
+        <Typography>
+          {t(
+            "This assignment is in conflict with a day/time you previously specified you were not available. Are you sure you want to accept it?"
+          )}
+        </Typography>
+      </DialogContent>
+      <Divider className={classes.divider} />
       <DialogActions>
-        <TextButton onClick={() => props.setOverrideDialogOpen!(false)}>
+        <TextButton
+          onClick={() => props.setOverrideDialogOpen!(false)}
+          className={classes.buttonSpacing}
+        >
           {t("No, go back")}
         </TextButton>
         <ButtonDisableOnClick
           variant="outlined"
-          onClick={() =>
-            props.onAccept(props.orgId, props.vacancyId, true, true)
-          }
+          onClick={() => props.onAccept(props.vacancyId ?? "", true, true)}
         >
           {t("Accept")}
         </ButtonDisableOnClick>
@@ -67,29 +62,11 @@ export const ConfirmOverrideDialog: React.FC<Props> = props => {
 };
 
 export const useStyles = makeStyles(theme => ({
-  dialog: {
-    maxWidth: 400,
-    maxHeight: 230,
+  buttonSpacing: {
+    paddingRight: theme.spacing(2),
   },
-  typography: {
-    padding: theme.spacing(2),
-  },
-  paper: {
-    border: "1px solid",
-    padding: theme.spacing(1),
-    backgroundColor: theme.palette.background.paper,
-  },
-  subTitle: {
-    fontSize: theme.typography.fontSize,
-  },
-  checkIcon: {
-    color: "#099E47",
-    fontSize: "3em",
-  },
-  progress: {
-    width: 300,
-    "& > * + *": {
-      marginTop: theme.spacing(2),
-    },
+  divider: {
+    color: theme.customColors.gray,
+    marginTop: theme.spacing(2),
   },
 }));

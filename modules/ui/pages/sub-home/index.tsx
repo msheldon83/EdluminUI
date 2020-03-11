@@ -49,6 +49,7 @@ import { RequestVacancy } from "./graphql/request-vacancy.gen";
 import { SubJobSearch } from "./graphql/sub-job-search.gen";
 import { Can } from "ui/components/auth/can";
 import { compact } from "lodash-es";
+import { ConfirmOverrideDialog } from "./components/confirm-override";
 
 type Props = {};
 
@@ -164,8 +165,8 @@ export const SubHome: React.FC<Props> = props => {
     [getUpcomingAssignments]
   );
 
-  const onDismissVacancy = async (orgId: string, vacancyId: string) => {
-    const employeeId = determineEmployeeId(orgId);
+  const onDismissVacancy = async (vacancyId: string) => {
+    const employeeId = determineEmployeeId(vacancyId);
     if (employeeId != 0) {
       setDismissedAssignments([...dismissedAssignments, vacancyId]);
       await Promise.resolve(
@@ -182,7 +183,10 @@ export const SubHome: React.FC<Props> = props => {
     await getVacancies.refetch();
   };
 
-  const determineEmployeeId = (orgId: string) => {
+  const determineEmployeeId = (vacancyId: string) => {
+    const orgId =
+      sortedVacancies.find(o => o.vacancy.id === vacancyId)?.vacancy.orgId ??
+      "";
     const employeeId = orgUsers.find(o => o.orgId === orgId)?.id ?? 0;
     return employeeId;
   };
@@ -194,15 +198,16 @@ export const SubHome: React.FC<Props> = props => {
   };
 
   const onAcceptVacancy = async (
-    orgId: string,
     vacancyId: string,
     unavailableToWork?: boolean,
     overridePreferred?: boolean
   ) => {
     if (unavailableToWork && !overridePreferred) {
+      setVacancyId(vacancyId);
       setOverrideDialogOpen(true);
     } else {
-      const employeeId = determineEmployeeId(orgId);
+      setOverrideDialogOpen(false);
+      const employeeId = determineEmployeeId(vacancyId);
       if (employeeId != 0) {
         await requestVacancyMutation({
           variables: {
@@ -357,8 +362,6 @@ export const SubHome: React.FC<Props> = props => {
                   onDismiss={onDismissVacancy}
                   key={index}
                   onAccept={onAcceptVacancy}
-                  overrideDialogOpen={overrideDialogOpen}
-                  setOverrideDialogOpen={setOverrideDialogOpen}
                 />
               ))
             ) : (
@@ -373,6 +376,13 @@ export const SubHome: React.FC<Props> = props => {
         onClose={onCloseRequestAbsenceDialog}
         employeeId={employeeId}
         vacancyId={vacancyId}
+      />
+
+      <ConfirmOverrideDialog
+        open={overrideDialogOpen}
+        vacancyId={vacancyId}
+        setOverrideDialogOpen={setOverrideDialogOpen}
+        onAccept={onAcceptVacancy}
       />
     </>
   );
@@ -409,11 +419,6 @@ const useStyles = makeStyles(theme => ({
   },
   upcomingWork: {
     backgroundColor: "transparent",
-
-    [theme.breakpoints.down("md")]: {
-      padding: theme.spacing(2),
-      paddingTop: 0,
-    },
   },
   lastAssignmentInList: {
     opacity: 0.4,

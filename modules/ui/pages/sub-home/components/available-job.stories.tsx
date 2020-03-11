@@ -7,8 +7,8 @@ export default {
   title: "Pages/Sub Home/AvailableJob",
 };
 
-const onDismiss = async (orgId: string, vacancyId: string) => {};
-const onAccept = async (orgId: string, vacancyId: string) => {};
+const onDismiss = async (vacancyId: string) => {};
+const onAccept = async (vacancyId: string) => {};
 
 export const AvailableJobSingleStory = () => {
   const classes = useStyles();
