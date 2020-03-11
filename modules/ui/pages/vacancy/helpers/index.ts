@@ -54,6 +54,12 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
           };
         })
       : [],
+    assignmentId:
+      v.details && v.details[0]?.assignment ? v.details[0]?.assignment.id : "",
+    assignmentRowVersion:
+      v.details && v.details[0]?.assignment
+        ? v.details[0]?.assignment.rowVersion
+        : "",
     replacementEmployeeId: v.details
       ? v.details[0]?.assignment?.employeeId ?? ""
       : "",

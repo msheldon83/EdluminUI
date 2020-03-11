@@ -19,6 +19,8 @@ query GetVacancyById($id: ID!) {
           accountingCodeId
         }
         assignment {
+          id
+          rowVersion
           employeeId
           employee {
             firstName

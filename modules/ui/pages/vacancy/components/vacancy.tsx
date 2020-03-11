@@ -40,6 +40,7 @@ import { buildVacancyCreateInput } from "../helpers";
 import { AssignVacancy } from "../graphql/assign-vacancy.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import { CancelAssignment } from "../graphql/cancel-assignment.gen";
 
 export type VacancyDetailsFormData = {
   id: string;
@@ -52,6 +53,8 @@ export type VacancyDetailsFormData = {
   details: VacancyDetailInput[];
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
+  assignmentId?: string;
+  assignmentRowVersion?: string;
   ignoreWarnings?: boolean;
   orgId: string;
   rowVersion: string;
@@ -146,6 +149,12 @@ export const VacancyUI: React.FC<Props> = props => {
     },
   });
 
+  const [cancelAssignment] = useMutationBundle(CancelAssignment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
   const showAssign: boolean = useMemo(() => {
     if (
       vacancy &&
@@ -165,6 +174,7 @@ export const VacancyUI: React.FC<Props> = props => {
   const showSubmit: boolean = useMemo(() => {
     if (
       vacancy &&
+      !vacancy.id &&
       vacancy.positionTypeId &&
       vacancy.locationId &&
       vacancy.contractId &&
@@ -187,6 +197,17 @@ export const VacancyUI: React.FC<Props> = props => {
       });
 
       if (vacancyExists) {
+        if (hasSub && vacancy.assignmentId && vacancy.assignmentRowVersion) {
+          //first cancel all assignments before assigning new sub
+          await cancelAssignment({
+            variables: {
+              assignment: {
+                assignmentId: vacancy.assignmentId,
+                rowVersion: vacancy.assignmentRowVersion,
+              },
+            },
+          });
+        }
         const result = await assignVacancy({
           variables: {
             assignment: {
@@ -298,6 +319,10 @@ export const VacancyUI: React.FC<Props> = props => {
               const result = await props.createVacancy(vacancy);
               if (result.data) {
                 setVacancyId(result.data.vacancy?.create?.id ?? "");
+                setVacancy({
+                  ...vacancy,
+                  id: result.data.vacancy?.create?.id ?? "",
+                });
                 setStep("confirmation");
                 e.resetForm();
               }
@@ -328,8 +353,7 @@ export const VacancyUI: React.FC<Props> = props => {
                   vacancyExists
                     ? match.url === location.pathname || !dirty
                     : match.url === location.pathname ||
-                      !showSubmit ||
-                      isSubmitting
+                      (!showSubmit && !isSubmitting)
                 ) {
                   return true;
                 }
