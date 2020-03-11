@@ -87,7 +87,6 @@ export const AppChrome: React.FunctionComponent = props => {
             <div className={contentFooterClasses}>
               <div className={classes.contentFooter} ref={contentFooterRef} />
             </div>
-            <HelpWidget />
           </div>
         </PageTitleProvider>
       </LoadingStateProvider>
@@ -144,7 +143,6 @@ export const AppChrome: React.FunctionComponent = props => {
                 <div className={classes.contentFooter} ref={contentFooterRef} />
               </div>
             </div>
-            <HelpWidget />
           </div>
         </PageTitleProvider>
       </LoadingStateProvider>

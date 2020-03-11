@@ -253,8 +253,8 @@ import {
   UserNotificationLogRoute,
   UserNotificationLogLoader,
 } from "./routes/notification-log";
-import { HelpWidget } from "ui/app-chrome/help-widget";
 import { AppConfigProvider } from "hooks/app-config";
+import { HelpWidget } from "./app-chrome/help-widget";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -296,7 +296,6 @@ export function App() {
                   <IfAuthenticated not>
                     <RedirectToLogin />
                   </IfAuthenticated>
-                  <HelpWidget alwaysHide={true} />
                 </AdminRouteOrganizationContextProvider>
               </Route>
               <Route path={AppChromeRoute.path}>
@@ -993,6 +992,7 @@ export function App() {
                               />
                             </Route>
                           </Switch>
+                          <HelpWidget />
                         </IfHasRole>
                         <IfHasRole role={OrgUserRole.Administrator} not>
                           <Redirect to={UnauthorizedRoute.generate({})} />
