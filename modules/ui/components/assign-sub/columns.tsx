@@ -11,6 +11,7 @@ import { AvailableIcon } from "./icons/available-icon";
 import { FavoriteIcon } from "./icons/favorite-icon";
 import { QualifiedIcon } from "./icons/qualified-icon";
 import { VisibleIcon } from "./icons/visible-icon";
+import { ValidationChecks } from "./";
 
 export type AssignSubColumn = {
   employeeId: string;
@@ -19,7 +20,7 @@ export type AssignSubColumn = {
   primaryPhone?: string | null;
   qualified: VacancyQualification;
   available: VacancyAvailability;
-  excludedSub: boolean;
+  unavailableToWork: boolean;
   isAvailableToSubWhenSearching: boolean;
   availableToSubWhenSearchingAtUtc?: string | null;
   availableToSubWhenSearchingAtLocal?: string | null;
@@ -27,16 +28,22 @@ export type AssignSubColumn = {
   isLocationPositionTypeFavorite: boolean;
   selectable: boolean;
   payCodeId?: string | null;
+  isQualified: boolean;
+  isRejected: boolean;
+  isMinorJobConflict: boolean;
+  excludedSub: boolean;
+  notIncluded: boolean;
 };
 
 export const getAssignSubColumns = (
   tableData: AssignSubColumn[],
   isAdmin: boolean,
   selectTitle: string,
-  selectReplacementEmployee: (
+  assignReplacementEmployee: (
     replacementEmployeeId: string,
     name: string,
-    payCodeId: string | undefined
+    payCodeId: string | undefined,
+    validationChecks: ValidationChecks
   ) => Promise<void>,
   isMobile: boolean,
   theme: Theme,
@@ -109,6 +116,7 @@ export const getAssignSubColumns = (
           <AvailableIcon
             available={data.available}
             excludedSub={data.excludedSub}
+            unavailableToWork={data.unavailableToWork}
           />
         );
       },
@@ -157,10 +165,19 @@ export const getAssignSubColumns = (
         disabled={!data.selectable}
         className={classes.selectButton}
         onClick={async () => {
-          await selectReplacementEmployee(
+          const validationChecks: ValidationChecks = {
+            isQualified: data.isQualified,
+            isRejected: data.isRejected,
+            isMinorJobConflict: data.isMinorJobConflict,
+            excludedSub: data.excludedSub,
+            notIncluded: data.notIncluded,
+            unavailableToWork: data.unavailableToWork,
+          };
+          await assignReplacementEmployee(
             data.employeeId,
             `${data.firstName} ${data.lastName}`,
-            data.payCodeId ? data.payCodeId : undefined
+            data.payCodeId ? data.payCodeId : undefined,
+            validationChecks
           );
         }}
       >

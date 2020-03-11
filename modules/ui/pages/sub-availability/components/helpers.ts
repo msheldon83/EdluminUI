@@ -1,11 +1,10 @@
 import i18next = require("i18next");
 import { getDisplayName } from "ui/components/enumHelpers";
-import { format } from "date-fns";
-import { midnightTime } from "helpers/time";
 import { UserAvailability } from "graphql/server-types.gen";
+import { secondsToFormattedHourMinuteString } from "helpers/time";
 
 export const formatAvailableTime = (time?: number) => {
-  return time ? format(midnightTime().setSeconds(time), "h:mm a") : undefined;
+  return time ? secondsToFormattedHourMinuteString(time) : undefined;
 };
 
 export const formatAvailabilityLabel = (

@@ -1,3 +1,5 @@
+process.env.TZ = "America/New_York";
+
 module.exports = {
   transform: {
     "\\.(js|jsx|ts|tsx)$": "ts-jest",

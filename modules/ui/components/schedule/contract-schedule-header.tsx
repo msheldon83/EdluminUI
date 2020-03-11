@@ -60,6 +60,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
     <>
       <div className={classes.select}>
         <SelectNew
+          label={t("School Year")}
           options={schoolOptions}
           value={schoolValue()}
           onChange={(e: OptionType) => {
@@ -76,6 +77,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
       </div>
       <div className={[classes.select, classes.fromSelect].join(" ")}>
         <SelectNew
+          label={t("Contract")}
           options={contractOptions}
           value={contractValue()}
           onChange={(e: OptionType) => {

@@ -156,8 +156,6 @@ export const LocationViewPage: React.FC<{}> = props => {
         )}
         {location && (
           <SubstitutePrefCard
-            favoriteHeading={t("Favorites")}
-            blockedHeading={t("Blocked")}
             heading={t("Substitute Preferences")}
             favoriteSubstitutes={
               location.substitutePreferences.favoriteSubstitutes
@@ -168,7 +166,7 @@ export const LocationViewPage: React.FC<{}> = props => {
             autoAssignedSubstitutes={
               location.substitutePreferences?.autoAssignedSubstitutes
             }
-            autoAssignedSubsOnly={Config.isDevFeatureOnly}
+            autoAssignedSubsOnly={true}
             editRoute={LocationSubPrefRoute.generate(params)}
             editing={false}
             editPermission={[PermissionEnum.LocationSave]}

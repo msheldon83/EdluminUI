@@ -31,6 +31,7 @@ type Props = {
     favoriteForLocationGroups?: Maybe<Pick<LocationGroup, "name">>[] | null;
     blockedFromLocations?: Maybe<Pick<Location, "name">>[] | null;
     favoriteForLocations?: Maybe<Pick<Location, "name">>[] | null;
+    autoAssignToLocations?: Maybe<Pick<Location, "name">>[] | null;
   }> | null;
 };
 
@@ -61,6 +62,10 @@ export const SubstitutePools: React.FC<Props> = props => {
         lg => `${lg?.name} (Group)`
       )
     ) ?? [];
+  const autoAssignLocationsList =
+    compact(
+      substitutePoolMembership?.autoAssignToLocations?.map(lg => `${lg?.name}`)
+    ) ?? [];
   const combinedBlockedLocationsList = blockedLocationGroupsList.concat(
     blockedLocationsList
   );
@@ -83,7 +88,7 @@ export const SubstitutePools: React.FC<Props> = props => {
             permissions: [PermissionEnum.SubstituteSave],
           }}
         />
-        <Grid container spacing={2}>
+        <Grid container spacing={2} alignItems="flex-start">
           <Grid container item spacing={2} xs={4}>
             <Grid item xs={12}>
               <Typography className={classes.heading}>
@@ -160,6 +165,21 @@ export const SubstitutePools: React.FC<Props> = props => {
               )}
             </Grid>
           </Grid>
+          {autoAssignLocationsList.length > 0 && (
+            <Grid container item spacing={2} xs={4}>
+              <Grid item xs={12}>
+                <Typography className={classes.heading}>
+                  {t("Auto-assigned to")}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="h6">{t("Locations")}</Typography>
+                {autoAssignLocationsList.map((name, i) => (
+                  <div key={i}>{name}</div>
+                ))}
+              </Grid>
+            </Grid>
+          )}
         </Grid>
       </Section>
     </>

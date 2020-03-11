@@ -1,6 +1,7 @@
 query GetMyAvailableTime {
   userAccess {
     me {
+      id
       user {
         id
         rowVersion

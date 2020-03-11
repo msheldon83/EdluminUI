@@ -50,6 +50,11 @@ query GetReplacementEmployeesForVacancy(
         isFavoritePositionType
         isSelectable
         payCodeId
+        unavailableToWork
+        isRejected
+        isMinorJobConflict
+        excludedSub
+        notIncluded
       }
     }
   }

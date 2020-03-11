@@ -108,6 +108,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
           organizationName={orgNameText}
           positionName={positionName}
           dayPortion={totalDayPortion}
+          absenceId={vacancy?.absence?.id}
           payInfoLabel={
             vacancyDetails[0].vacancy?.payInfoSummary?.summaryLabel ?? ""
           }

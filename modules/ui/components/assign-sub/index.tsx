@@ -10,15 +10,16 @@ import {
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useIsMobile } from "hooks";
-import { compact } from "lodash-es";
 import * as React from "react";
 import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
+import { AssignAbsenceDialog } from "ui/components/assign-absence-dialog";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
 import { VacancyDetails } from "../absence/vacancy-details";
 import { AssignSubColumn, getAssignSubColumns } from "./columns";
+import { compact, uniq } from "lodash-es";
 import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
@@ -46,7 +47,7 @@ type Props = {
   positionName?: string;
   disabledDates?: Date[];
   selectButtonText?: string;
-  onSelectReplacement: (
+  onAssignReplacement: (
     replacementId: string,
     replacementName: string,
     payCode: string | undefined,
@@ -61,6 +62,15 @@ type Props = {
   vacancyId?: string;
 };
 
+export type ValidationChecks = {
+  isQualified: boolean;
+  isRejected: boolean;
+  isMinorJobConflict: boolean;
+  excludedSub: boolean;
+  notIncluded: boolean;
+  unavailableToWork: boolean;
+};
+
 export const AssignSub: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
@@ -73,12 +83,13 @@ export const AssignSub: React.FC<Props> = props => {
     ReplacementEmployeeFilters
   >();
   const {
-    onSelectReplacement,
+    onAssignReplacement,
     vacancyDetailIdsToAssign,
     employeeToReplace = "",
   } = props;
 
-  const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
+  const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
+  const [warningDialogIsOpen, setWarningDialogIsOpen] = React.useState(false);
   const [
     replacementEmployeeName,
     setReplacementEmployeeName,
@@ -88,6 +99,12 @@ export const AssignSub: React.FC<Props> = props => {
     setReplacementEmployeePayCode,
   ] = React.useState();
   const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
+
+  const [validationChecks, setValidationChecks] = React.useState<
+    ValidationChecks
+  >();
+
+  const [messages, setMessages] = React.useState<string[]>([]);
 
   // If we don't have any info, cancel the Assign Sub action
   if (
@@ -209,6 +226,7 @@ export const AssignSub: React.FC<Props> = props => {
       primaryPhone: r.phoneNumber,
       qualified: r.levelQualified,
       available: r.levelAvailable,
+      unavailableToWork: r.unavailableToWork,
       isAvailableToSubWhenSearching: r.isAvailableToSubWhenSearching,
       availableToSubWhenSearchingAtUtc: r.availableToSubWhenSearchingAtUtc,
       availableToSubWhenSearchingAtLocal: r.availableToSubWhenSearchingAtLocal,
@@ -216,42 +234,62 @@ export const AssignSub: React.FC<Props> = props => {
       isLocationPositionTypeFavorite: r.isFavoritePositionType,
       selectable: r.isSelectable,
       payCodeId: r.payCodeId,
+      isQualified: r.isQualified,
+      isRejected: r.isRejected,
+      isMinorJobConflict: r.isMinorJobConflict,
       excludedSub: r.excludedSub,
+      notIncluded: r.notIncluded,
     }));
   }, [replacementEmployees]);
 
-  const selectReplacementEmployee = useCallback(
+  const assignReplacementEmployee = useCallback(
     async (
       replacementEmployeeId: string,
       name: string,
-      payCodeId: string | undefined
+      payCodeId: string | undefined,
+      validationChecks: ValidationChecks,
+      ignoreAndContinue?: boolean
     ) => {
-      onSelectReplacement(
-        replacementEmployeeId,
-        name,
-        payCodeId,
-        vacancyDetailIdsToAssign
-      );
+      if (!validator(validationChecks, setMessages, t) && !ignoreAndContinue) {
+        setReplacementEmployeeName(name);
+        setReplacementEmployeePayCode(payCodeId);
+        setReplacementEmployeeId(replacementEmployeeId);
+        setValidationChecks(validationChecks);
+        setWarningDialogIsOpen(true);
+      } else {
+        onAssignReplacement(
+          replacementEmployeeId,
+          name,
+          payCodeId,
+          vacancyDetailIdsToAssign
+        );
+      }
     },
-    [onSelectReplacement, vacancyDetailIdsToAssign]
+    [onAssignReplacement, vacancyDetailIdsToAssign]
   );
 
   const confirmReassign = useCallback(
     async (
       replacementEmployeeId: string,
       name: string,
-      payCodeId: string | undefined
+      payCodeId: string | undefined,
+      validationChecks: ValidationChecks
     ) => {
       if (employeeToReplace) {
         setReplacementEmployeeName(name);
         setReplacementEmployeePayCode(payCodeId);
         setReplacementEmployeeId(replacementEmployeeId);
-        setDialogIsOpen(true);
+        setReassignDialogIsOpen(true);
       } else {
-        await selectReplacementEmployee(replacementEmployeeId, name, payCodeId);
+        await assignReplacementEmployee(
+          replacementEmployeeId,
+          name,
+          payCodeId,
+          validationChecks
+        );
       }
     },
-    [selectReplacementEmployee, employeeToReplace]
+    [assignReplacementEmployee, employeeToReplace]
   );
 
   const setSearch = (filters: ReplacementEmployeeFilters) => {
@@ -359,19 +397,52 @@ export const AssignSub: React.FC<Props> = props => {
   return (
     <>
       <ReassignAbsenceDialog
-        open={dialogIsOpen}
-        onClose={() => setDialogIsOpen(false)}
+        open={reassignDialogIsOpen}
+        onClose={() => setReassignDialogIsOpen(false)}
         onAssign={async () => {
-          //call asign functionality
-          setDialogIsOpen(false);
-          await selectReplacementEmployee(
+          const validationCheck: ValidationChecks = {
+            isQualified: validationChecks!.isQualified,
+            isRejected: validationChecks!.isRejected,
+            isMinorJobConflict: validationChecks!.isMinorJobConflict,
+            excludedSub: validationChecks!.excludedSub,
+            notIncluded: validationChecks!.notIncluded,
+            unavailableToWork: validationChecks!.unavailableToWork,
+          };
+
+          setReassignDialogIsOpen(false);
+          await assignReplacementEmployee(
             replacementEmployeeId,
             replacementEmployeeName,
-            replacementEmployeePayCode
+            replacementEmployeePayCode,
+            validationCheck
           );
         }}
         currentReplacementEmployee={employeeToReplace}
         newReplacementEmployee={replacementEmployeeName}
+      />
+      <AssignAbsenceDialog
+        open={warningDialogIsOpen}
+        employeeToAssign={replacementEmployeeName}
+        messages={messages}
+        onClose={() => setWarningDialogIsOpen(false)}
+        onAssign={async () => {
+          const validationCheck: ValidationChecks = {
+            isQualified: validationChecks!.isQualified,
+            isRejected: validationChecks!.isRejected,
+            isMinorJobConflict: validationChecks!.isMinorJobConflict,
+            excludedSub: validationChecks!.excludedSub,
+            notIncluded: validationChecks!.notIncluded,
+            unavailableToWork: validationChecks!.unavailableToWork,
+          };
+          setWarningDialogIsOpen(false);
+          await assignReplacementEmployee(
+            replacementEmployeeId,
+            replacementEmployeeName,
+            replacementEmployeePayCode,
+            validationCheck,
+            true
+          );
+        }}
       />
       <AbsenceHeader
         absenceId={props.absenceId}
@@ -496,4 +567,49 @@ const AbsenceVacancyInput = (
       };
     }),
   };
+};
+
+const validator = (
+  validationChecks: ValidationChecks,
+  setMessages: any,
+  t: any
+) => {
+  const messageArray = [];
+
+  if (!validationChecks.isQualified) {
+    const m = t("They are not qualified.");
+    messageArray.push(m);
+  }
+  if (validationChecks.isRejected) {
+    const m = t("They have rejected this job.");
+    messageArray.push(m);
+  }
+  if (
+    validationChecks.isMinorJobConflict &&
+    validationChecks.unavailableToWork
+  ) {
+    const m = t("They are unavailable to work.");
+    messageArray.push(m);
+  } else if (validationChecks.isMinorJobConflict) {
+    const m = t("They have a minor job conflict.");
+    messageArray.push(m);
+  }
+  if (validationChecks.excludedSub) {
+    const m = t("They have been blocked.");
+    messageArray.push(m);
+  }
+  if (validationChecks.notIncluded) {
+    const m = t("They are not included on any Favorite lists.");
+    messageArray.push(m);
+  }
+
+  if (messageArray.length > 0) {
+    messageArray.push(t("Do you wish to continue?"));
+    const messages = uniq(compact(messageArray));
+    setMessages(messages);
+
+    return false;
+  }
+
+  return true;
 };
