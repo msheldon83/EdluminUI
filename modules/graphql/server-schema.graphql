@@ -97,6 +97,7 @@ type AbsenceQueries {
   dailyReport(orgId: ID!, date: Date!, locationIds: [ID], positionTypeIds: [ID]): DailyReport
   subSignInReport(orgId: ID!, date: Date!, locationIds: [ID]): [VacancyDetail]
   byConfirmationId(orgIds: [ID], confirmationId: String!): [ConfirmationNumberQueryResultTypeDef]
+  activityLog(id: ID!): ActivityLog
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -334,6 +335,35 @@ input AccountingCodeUpdateInput {
   externalId: String
   expired: Boolean
   locationId: ID
+}
+
+type ActivityLog {
+  _info: [ReturnMessage]
+  orgId: ID
+  objectKey: ID!
+  objectTypeId: ObjectType
+  firstActivityUtc: DateTime
+  lastActivityUtc: DateTime
+  count: Int!
+  activityLogDetails: [ActivityLogDetailTypeDef]
+}
+
+type ActivityLogDetailTypeDef {
+  _info: [ReturnMessage]
+  objectKey: ID!
+  objectTypeId: ObjectType
+  eventLogId: ID!
+  eventTypeId: EventType
+  createdUtc: DateTime!
+  actingUserId: ID!
+  actualUserId: ID!
+  actingUser: String!
+  actualUser: String!
+  actingOrgUserId: ID
+  actualOrgUserId: ID
+  title: String
+  subTitle: String
+  moreDetail: Boolean!
 }
 
 type Address {
@@ -1353,6 +1383,9 @@ type EmployeeQueries {
   employeeVacancySchedule(id: ID!, fromDate: Date!, toDate: Date!): [Vacancy]
   employeeAssignmentSchedule(id: ID!, orgId: ID, fromDate: DateTime!, toDate: Date!, limit: Int, includeCompletedToday: Boolean): [VacancyDetail]
   employeeSpecificAssignment(id: ID!, assignmentId: ID!, orgId: ID): [VacancyDetail]
+  employeeSmsLogOnDate(id: ID!, onDate: Date!, orgId: ID, limit: Int, offset: Int): [SmsMessageLog]
+  employeeSmsLogLocal(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): [SmsMessageLog]
+  employeeSmsLogUtc(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): [SmsMessageLog]
 }
 
 input EmployeeRejectVacancyInput {
@@ -2448,6 +2481,9 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   permissionSetIds: [ID]
   relatedOrgIds: [ID]
   relatedOrganizations: [Organization]
+  isShadowRecord: Boolean!
+  shadowFromOrgId: ID
+  shadowFromOrgName: String
   employee: Employee
   substitute: Substitute
   administrator: Administrator
@@ -3118,8 +3154,9 @@ type PermissionSet implements ModelObjectInterface & OrgObjectInterface & Domain
   orgUserRole: OrgUserRole
   permissionSet: [PermissionEnum]
   categories: [PermissionCategoryIdentifier!]!
-  shadowFromPermissionSetId: ID
+  isShadowRecord: Boolean!
   shadowFromOrgId: ID
+  shadowFromOrgName: String
 }
 
 input PermissionSetCreateInput {
@@ -3240,7 +3277,7 @@ input PositionCreateInput {
   endDate: Date
   positionTypeId: ID
   currentEmployeeId: ID
-  currentContractId: Int!
+  currentContractId: ID
   needsReplacement: NeedsReplacement
   isStaffAugmentation: Boolean!
   hoursPerFullWorkDay: Decimal
@@ -4468,6 +4505,23 @@ enum SeedOrgDataOptionEnum {
 
 scalar Short
 
+type SmsMessageLog {
+  _info: [ReturnMessage]
+  createdLocal: DateTime
+  createdUtc: DateTime
+  sentLocal: DateTime
+  sentUtc: DateTime
+  updateLocal: DateTime
+  updateUtc: DateTime
+  direction: String!
+  fromPhone: String!
+  toPhone: String!
+  status: String!
+  errorCode: Int
+  errorMessage: String
+  body: String!
+}
+
 input SortDetailsInput {
   sortByPropertyName: String
   sortAscending: Boolean
@@ -4636,6 +4690,8 @@ type SubstitutePoolMembership {
   favoriteForPositionTypes: [PositionType]
   blockedFromPositionTypeIds: [ID!]
   blockedFromPositionTypes: [PositionType]
+  autoAssignToLocations: [Location]
+  autoAssignToLocationIds: [ID!]
 }
 
 input SubstitutePreferenceInput {
@@ -4742,6 +4798,7 @@ type User implements ModelObjectInterface {
 
 type UserAccess {
   _info: [ReturnMessage]
+  id: ID
   user: User
   isSystemAdministrator: Boolean!
   visibleOrganizations: [Organization]
@@ -4889,6 +4946,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
+  title: String
   positionId: ID!
   contractId: ID!
   absenceId: ID
@@ -4916,6 +4974,19 @@ enum VacancyAvailability {
   YES
   MINOR_CONFLICT
   NO
+}
+
+input VacancyCreateInput {
+  orgId: ID!
+  positionTypeId: ID!
+  contractId: ID!
+  locationId: ID!
+  workDayScheduleId: ID!
+  title: String!
+  notesToReplacement: String
+  externalId: String
+  details: [VacancyDetailInput!]!
+  ignoreWarnings: Boolean
 }
 
 type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
@@ -4955,6 +5026,8 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   accountingCodeAllocations: [VacancyDetailAccountingCode]
   payCodeId: ID
   payCode: PayCode
+  vacancyReasonId: ID
+  vacancyReason: VacancyReason
   vacancy: BasicVacancy
   totalDayPortion: Decimal
   payInfo: PayInfo
@@ -4990,6 +5063,7 @@ type VacancyDetailCount {
 }
 
 input VacancyDetailInput {
+  id: ID
   date: DateTime
   startTime: Seconds
   endTime: Seconds
@@ -4997,6 +5071,7 @@ input VacancyDetailInput {
   payCodeId: ID
   accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
   vacancyReasonId: ID
+  prearrangedReplacementEmployeeId: ID
 }
 
 input VacancyDetailVerifyInput {
@@ -5055,6 +5130,9 @@ type VacancyEmployeeRequest implements ModelObjectInterface & OrgObjectInterface
 }
 
 type VacancyMutations {
+  create(vacancy: VacancyCreateInput!): Vacancy
+  update(vacancy: VacancyUpdateInput!): Vacancy
+  delete(vacancyId: ID!): Boolean
   requestVacancy(vacancyRequest: EmployeeInterestInVacancyInput!): VacancyEmployeeInterest
   rejectVacancy(vacancyRejection: EmployeeRejectVacancyInput!): VacancyEmployeeInterest
   assignVacancy(vacancyAssignment: CreateVacancyAssignmentInput!): Assignment
@@ -5105,6 +5183,8 @@ type VacancyQueries {
   userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
   vacancyNotificationLogByVacancy(vacancyId: ID!): [VacancyNotificationLog]
   vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
+  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: VacancyCreateInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
+  activityLog(id: ID!): ActivityLog
 }
 
 type VacancyReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -5197,6 +5277,17 @@ type VacancySubSearchQueryResult {
   visibleAtUtc: DateTime
   isFavoriteEmployee: Boolean!
   isFavoritePositionType: Boolean!
+}
+
+input VacancyUpdateInput {
+  id: ID!
+  rowVersion: String!
+  workDayScheduleId: ID
+  title: String
+  notesToReplacement: String
+  externalId: String
+  details: [VacancyDetailInput!]!
+  ignoreWarnings: Boolean
 }
 
 type VacancyWasAssignedResult {

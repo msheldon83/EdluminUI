@@ -60,6 +60,7 @@ import { OrgUserPermissions } from "ui/components/auth/types";
 import { canViewAsSysAdmin } from "helpers/permissions";
 import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useHistory } from "react-router";
+import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 
 type Props = {
   firstName: string;
@@ -460,7 +461,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     }
   };
 
-  const onSelectReplacement = useCallback(
+  const onAssignReplacement = useCallback(
     async (
       employeeId: string,
       name: string,
@@ -475,6 +476,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           true
         );
       }
+
       await assignVacancy({
         variables: {
           assignment: {
@@ -491,6 +493,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           },
         },
       });
+
       await props.refetchAbsence();
       setStep("absence");
     },
@@ -602,6 +605,22 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 className={classes.actionMenu}
                 options={[
                   {
+                    name: t("Activity Log"),
+                    onClick: () => {
+                      history.push(
+                        AbsenceActivityLogRoute.generate({
+                          organizationId: props.organizationId,
+                          absenceId: props.absenceId,
+                        })
+                      );
+                    },
+                    permissions: (
+                      permissions: OrgUserPermissions[],
+                      isSysAdmin: boolean,
+                      orgId?: string
+                    ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+                  },
+                  {
                     name: t("Notification Log"),
                     onClick: () => {
                       history.push(
@@ -698,7 +717,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           positionName={props.positionName}
           disabledDates={disabledDates}
           selectButtonText={t("Assign")}
-          onSelectReplacement={onSelectReplacement}
+          onAssignReplacement={onAssignReplacement}
           onCancel={() => {
             setVacancyDetailIdsToAssign(undefined);
             setEmployeeToReplace(undefined);

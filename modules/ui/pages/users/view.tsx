@@ -132,6 +132,13 @@ export const UserViewPage: React.FC<Props> = props => {
     },
   });
 
+  const triggerImpersonation = async () => {
+    // Set userId in sessionStorage
+    sessionStorage.setItem(Config.impersonation.actingUserIdKey, params.userId);
+    // Redirect current user to homepage
+    history.push("/");
+  };
+
   const getUser = useQueryBundle(GetUserById, {
     variables: { id: params.userId },
   });
@@ -278,6 +285,14 @@ export const UserViewPage: React.FC<Props> = props => {
               onClick={async () => await onResetPassword()}
             >
               {t("Reset Password")}
+            </Button>
+          </div>
+          <div className={classes.action}>
+            <Button
+              variant="outlined"
+              onClick={async () => await triggerImpersonation()}
+            >
+              {t("Impersonate")}
             </Button>
           </div>
         </Grid>

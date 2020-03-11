@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 
 type Props = {
   available: VacancyAvailability;
+  excludedSub: boolean;
+  unavailableToWork: boolean;
 };
 
 export const AvailableIcon: React.FC<Props> = props => {
@@ -17,12 +19,24 @@ export const AvailableIcon: React.FC<Props> = props => {
       return <Check className={classes.available} />;
     case VacancyAvailability.MinorConflict:
       return (
-        <Tooltip title={t("Minor conflict")}>
+        <Tooltip
+          title={
+            props.unavailableToWork
+              ? t("Unavailable to work")
+              : t("Minor conflict")
+          }
+        >
           <img src={require("ui/icons/check-info.svg")} />
         </Tooltip>
       );
     case VacancyAvailability.No:
-      return <Close className={classes.notAvailable} />;
+      return props.excludedSub ? (
+        <Tooltip title={t("Sub has been blocked")}>
+          <Close className={classes.notAvailable} />
+        </Tooltip>
+      ) : (
+        <Close className={classes.notAvailable} />
+      );
   }
 };
 

@@ -14,7 +14,7 @@ import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { secondsSinceMidnight } from "helpers/time";
 import { DatePicker } from "ui/components/form/date-picker";
-import { startOfTomorrow, isBefore, parseISO } from "date-fns";
+import { isBefore, addDays } from "date-fns";
 import { isAfterDate } from "helpers/date";
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
@@ -29,7 +29,6 @@ export const AddException: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const classes = useStyles();
-  const tomorrow = useMemo(() => startOfTomorrow(), []);
   const today = useMemo(() => new Date(), []);
 
   const availabilityOptions = [
@@ -46,8 +45,8 @@ export const AddException: React.FC<Props> = props => {
           initialValues={{
             availability: UserAvailability.NotAvailable,
             time: undefined,
-            fromDate: tomorrow,
-            toDate: tomorrow,
+            fromDate: today,
+            toDate: today,
             reason: "",
           }}
           onSubmit={async (data, e) => {
@@ -88,9 +87,9 @@ export const AddException: React.FC<Props> = props => {
             .test({
               name: "fromDateInPast",
               test: function test(value) {
-                if (isBefore(value.fromDate, today)) {
+                if (isBefore(value.fromDate, addDays(today, -1))) {
                   return new yup.ValidationError(
-                    t("Must be after today"),
+                    t("Must not start in the past"),
                     null,
                     "fromDate"
                   );

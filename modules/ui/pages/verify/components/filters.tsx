@@ -58,7 +58,7 @@ export const Filters: React.FC<Props> = props => {
     const options =
       delgateTo?.map(x => ({
         label: x.relatesToOrganization!.name,
-        value: x.id,
+        value: x.relatesToOrganization!.id,
       })) ?? [];
 
     options.unshift(

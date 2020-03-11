@@ -12,6 +12,8 @@ query GetAllPermissionSetsWithinOrg(
       description
       orgUserRole
       permissionSet
+      isShadowRecord
+      shadowFromOrgName
     }
   }
 }

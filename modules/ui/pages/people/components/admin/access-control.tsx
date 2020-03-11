@@ -30,6 +30,7 @@ const editableSections = {
 
 type Props = {
   editing: string | null;
+  editable: boolean;
   setEditing?: React.Dispatch<React.SetStateAction<string | null>>;
   isCreate?: boolean;
   orgId: string;
@@ -182,7 +183,7 @@ export const AccessControl: React.FC<Props> = props => {
                   title={t("Access Control")}
                   action={{
                     text: t("Edit"),
-                    visible: !props.editing,
+                    visible: !props.editing && props.editable,
                     execute: () => {
                       props.setEditing!(editableSections.accessControl);
                     },

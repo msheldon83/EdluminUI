@@ -65,6 +65,7 @@ export type OrgUser = {
 
 type Props = {
   editing: string | null;
+  editable: boolean;
   isCreate?: boolean;
   userId?: string | null | undefined;
   loginEmail?: string | null | undefined;
@@ -123,7 +124,6 @@ export const Information: React.FC<Props> = props => {
     skip: props.isCreate,
     onError: error => {
       // This shouldn't blow up the page
-      console.error(error);
     },
   });
 
@@ -151,10 +151,12 @@ export const Information: React.FC<Props> = props => {
   const permissionSets = usePermissionSets(orgUser.orgId!.toString(), [
     props.selectedRole,
   ]);
-  const permissionSetOptions: OptionType[] = permissionSets.map(ps => ({
-    label: ps.name,
-    value: ps.id,
-  }));
+  const permissionSetOptions: OptionType[] = permissionSets
+    .filter(ps => !ps.isShadowRecord)
+    .map(ps => ({
+      label: ps.name,
+      value: ps.id,
+    }));
 
   let permissions = props.isSuperUser ? t("Org Admin") : "";
   if (props.permissionSet) {
@@ -344,7 +346,7 @@ export const Information: React.FC<Props> = props => {
                   title={t("Information")}
                   action={{
                     text: t("Edit"),
-                    visible: !props.editing,
+                    visible: !props.editing && props.editable,
                     execute: () => {
                       props.setEditing!(editableSections.information);
                     },
@@ -582,7 +584,9 @@ export const Information: React.FC<Props> = props => {
                               <PeopleGridItem
                                 title={
                                   <span className={classes.resetPassword}>
-                                    <span className={classes.tempPasswordLabel}>{t("Temporary Password")}{" "}</span>
+                                    <span className={classes.tempPasswordLabel}>
+                                      {t("Temporary Password")}{" "}
+                                    </span>
                                     <Tooltip
                                       title={
                                         <div className={classes.tooltip}>
@@ -718,6 +722,6 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
   },
   tempPasswordLabel: {
-    fontWeight: "bold"
-  }
+    fontWeight: "bold",
+  },
 }));

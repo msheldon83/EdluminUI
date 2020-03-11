@@ -76,6 +76,10 @@ import {
   AdminEditAbsenceRoute,
   EmployeeEditAbsenceRoute,
 } from "./routes/edit-absence";
+import {
+  AbsenceActivityLogRoute,
+  AbsenceActivityLogLoader,
+} from "./routes/absence-vacancy/activity-log";
 import { EmployeeHomeLoader, EmployeeHomeRoute } from "./routes/employee-home";
 import {
   GeneralSettingsLoader,
@@ -465,6 +469,11 @@ export function App() {
                                     path={AdminEditAbsenceRoute.path}
                                     role={"admin"}
                                     permissions={[PermissionEnum.AbsVacView]}
+                                  />
+                                  <ProtectedRoute
+                                    component={AbsenceActivityLogLoader}
+                                    path={AbsenceActivityLogRoute.path}
+                                    role={"sysAdmin"}
                                   />
                                   <ProtectedRoute
                                     component={CreateAbsenceLoader}

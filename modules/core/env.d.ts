@@ -14,4 +14,9 @@ declare const Config: {
     clockSkewLeewaySeconds: number;
   };
   apiUri: string;
+  isDevFeatureOnly: boolean;
+  impersonation: {
+    actingUserIdKey: string;
+    actingOrgUserIdKey: string;
+  };
 };

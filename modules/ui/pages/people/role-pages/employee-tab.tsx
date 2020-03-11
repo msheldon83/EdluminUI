@@ -22,6 +22,8 @@ import {
   PersonViewRoute,
 } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
+import { canEditEmployee } from "helpers/permissions";
+import { useCanDo } from "ui/components/auth/can";
 
 type Props = {
   editing: string | null;
@@ -32,6 +34,7 @@ type Props = {
 
 export const EmployeeTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
+  const canDoFn = useCanDo();
   const { t } = useTranslation();
   const params = useRouteParams(PersonViewRoute);
 
@@ -55,6 +58,7 @@ export const EmployeeTab: React.FC<Props> = props => {
   }
 
   const employee = orgUser.employee;
+  const canEditThisEmployee = canDoFn(canEditEmployee, orgUser.orgId, orgUser);
 
   const onUpdateEmployee = async (employeeInput: EmployeeInput) => {
     await updateEmployee({
@@ -77,6 +81,7 @@ export const EmployeeTab: React.FC<Props> = props => {
     <>
       <Information
         editing={props.editing}
+        editable={canEditThisEmployee}
         orgUser={employee}
         permissionSet={employee.permissionSet}
         userId={orgUser?.userId}
@@ -115,8 +120,6 @@ export const EmployeeTab: React.FC<Props> = props => {
         }
       />
       <SubstitutePrefCard
-        favoriteHeading={t("Favorites")}
-        blockedHeading={t("Blocked")}
         heading={t("Substitute Preferences")}
         favoriteSubstitutes={employee.substitutePreferences.favoriteSubstitutes}
         blockedSubstitutes={employee.substitutePreferences.blockedSubstitutes}

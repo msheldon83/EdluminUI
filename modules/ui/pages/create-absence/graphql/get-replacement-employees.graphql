@@ -37,6 +37,7 @@ query GetReplacementEmployeesForVacancy(
         availableToSubWhenSearchingAtUtc
         availableToSubWhenSearchingAtLocal
         isVisible
+        excludedSub
         visibleAtUtc
         visibleAtLocal
         levelQualified
@@ -49,6 +50,11 @@ query GetReplacementEmployeesForVacancy(
         isFavoritePositionType
         isSelectable
         payCodeId
+        unavailableToWork
+        isRejected
+        isMinorJobConflict
+        excludedSub
+        notIncluded
       }
     }
   }

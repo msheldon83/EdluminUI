@@ -1,3 +1,5 @@
+import { getHours, getMinutes, format } from "date-fns";
+
 const padTime = (time: number) => {
   const timeAsString = `${time}`;
   return timeAsString.length === 2 ? timeAsString : `0${timeAsString}`;
@@ -30,17 +32,37 @@ export const timeStampToIso = (time: number): string =>
   new Date(time).toISOString();
 export const isoToTimestamp = (iso: string): number => Date.parse(iso);
 
-export const midnightTime = (): Date => {
-  const startTime = new Date();
-  startTime.setHours(0, 0, 0, 0);
-  return startTime;
+export const secondsSinceMidnight = (time: string | number): number => {
+  const currentTime = new Date(time);
+  const hours = getHours(currentTime);
+  const hoursInSeconds = hours * 60 * 60;
+  const minutes = getMinutes(currentTime);
+  const minutesInSeconds = minutes * 60;
+  const seconds = hoursInSeconds + minutesInSeconds;
+  return seconds;
 };
 
-export const secondsSinceMidnight = (time: string | number): number => {
-  const currentTime = +new Date(time);
-  const midnight = +midnightTime();
-  const seconds = (currentTime - midnight) / 1000;
-  return seconds;
+export const secondsAppliedToToday = (
+  seconds: number,
+  overrideDate?: Date
+): Date => {
+  const hours = Math.floor(seconds / 60 / 60);
+  const minutes = Math.floor((seconds - hours * 60 * 60) / 60);
+  const secondsForTodayDate = overrideDate ? overrideDate : new Date();
+  secondsForTodayDate.setHours(hours, minutes, 0, 0);
+  return secondsForTodayDate;
+};
+
+export const secondsToIsoString = (seconds: number): string => {
+  const date = secondsAppliedToToday(seconds);
+  const timeStamp = timeStampToIso(date.getTime());
+  return timeStamp;
+};
+
+export const secondsToFormattedHourMinuteString = (seconds: number): string => {
+  const date = secondsAppliedToToday(seconds);
+  const formattedDate = format(date, "h:mm a");
+  return formattedDate;
 };
 
 /*
@@ -63,9 +85,13 @@ export const parseTimeFromString = (
   const periodDefined = amFromInput || pmFromInput;
   const num = time.replace(/[^0-9]/g, "");
 
+  // The very earliest time stamp we would accept if "earliestTime" is not provided
+  const midnightTime = new Date();
+  midnightTime.setHours(0, 0, 0, 0);
+
   const earliestTimesamp = earliestTime
     ? parseTimeFromString(humanizeTimeStamp(isoToTimestamp(earliestTime)))
-    : midnightTime().getTime();
+    : midnightTime.getTime();
   const earliest = new Date(earliestTimesamp);
   const earliestHour = earliest.getHours();
   const earliestMinutes = earliest.getMinutes();

@@ -1,6 +1,7 @@
 query GetMyUserAccess {
   userAccess {
     me {
+      id
       isSystemAdministrator
       user {
         id

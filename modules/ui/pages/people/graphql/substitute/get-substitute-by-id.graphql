@@ -12,6 +12,8 @@ query GetSubstituteById($id: ID!) {
         id
         name
       }
+      isShadowRecord
+      shadowFromOrgName
       substitute {
         id
         orgId
@@ -77,6 +79,10 @@ query GetSubstituteById($id: ID!) {
             name
           }
           favoriteForLocations {
+            id
+            name
+          }
+          autoAssignToLocations {
             id
             name
           }

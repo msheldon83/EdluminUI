@@ -17,6 +17,7 @@ type Props = {
     isAdmin: boolean;
     isEmployee: boolean;
     isReplacementEmployee: boolean;
+    isShadowRecord: boolean;
   };
   selectedRole: OrgUserRole;
   setSelectedRole: React.Dispatch<React.SetStateAction<OrgUserRole | null>>;
@@ -93,7 +94,7 @@ export const RoleTabs: React.FC<Props> = props => {
             className={classes.hiddenTab}
             disabled={true}
           />
-          {!orgUser.isAdmin && (
+          {!orgUser.isAdmin && !orgUser.isShadowRecord && (
             <PermittedTab
               label={t("Administrator")}
               value={OrgUserRole.Administrator}
@@ -101,7 +102,7 @@ export const RoleTabs: React.FC<Props> = props => {
               permissions={[PermissionEnum.AdminSave]}
             />
           )}
-          {!orgUser.isEmployee && (
+          {!orgUser.isEmployee && !orgUser.isShadowRecord && (
             <PermittedTab
               label={t("Employee")}
               value={OrgUserRole.Employee}
@@ -109,7 +110,7 @@ export const RoleTabs: React.FC<Props> = props => {
               permissions={[PermissionEnum.EmployeeSave]}
             />
           )}
-          {!orgUser.isReplacementEmployee && (
+          {!orgUser.isReplacementEmployee && !orgUser.isShadowRecord && (
             <PermittedTab
               label={t("Substitute")}
               value={OrgUserRole.ReplacementEmployee}

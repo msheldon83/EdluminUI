@@ -364,7 +364,7 @@ export const EditAbsence: React.FC<Props> = props => {
         firstName={employee.firstName}
         lastName={employee.lastName}
         assignmentId={assignmentId}
-        employeeId={employee.id}
+        employeeId={employee.id}      
         rowVersion={data.rowVersion}
         needsReplacement={needsReplacement}
         notesToApprover={data.notesToApprover ?? undefined}
