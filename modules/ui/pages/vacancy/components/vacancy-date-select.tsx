@@ -31,10 +31,11 @@ export const VacancyDateSelect: React.FC<Props> = props => {
   const classes = useStyles();
   const inputRef = React.useRef(null);
   const [calendarOpen, setCalendarOpen] = React.useState(false);
-  const startDate = useMemo(() => startOfWeek(props.month), [
-    props,
-    props.month,
-  ]);
+
+  const startDate = useMemo(
+    () => startOfWeek(props.month),
+    /* eslint-disable-line react-hooks/exhaustive-deps */ [props, props.month]
+  );
 
   const getContractScheduleDates = useQueryBundle(GetContractScheduleDates, {
     variables: {
@@ -51,7 +52,9 @@ export const VacancyDateSelect: React.FC<Props> = props => {
           buttonProps: { className: classes.dateDisabled },
         };
       }),
-    [getContractScheduleDates]
+    [
+      getContractScheduleDates,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const customSelectedVacancyDates = useMemo(

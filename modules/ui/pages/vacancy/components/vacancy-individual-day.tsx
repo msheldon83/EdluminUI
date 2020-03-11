@@ -57,7 +57,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
 
   const timeOptions = useMemo(() => {
     return dayParts.map((dp: any) => ({ label: dp.label, value: dp.id }));
-  }, [props, dayParts]);
+  }, [props, dayParts]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const getTimeValue = React.useCallback(() => {
     if ((!vacancyDetail.startTime || !vacancyDetail.endTime) && !showCustom) {
@@ -99,7 +99,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     } else {
       return "custom";
     }
-  }, [timeOptions]);
+  }, [timeOptions]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const updateVacancyDetailTimes = React.useCallback(
     (timeId: string) => {
@@ -117,7 +117,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
       setShowCustom(timeId === "custom");
       setVacancyDetailTimes(newVacDetail);
     },
-    [props, dayParts]
+    [props, dayParts] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const handleSetStartTime = (t: string, valid: boolean) => {
@@ -172,7 +172,10 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
         )
       );
     }
-  }, [vacancyDetail.startTime, vacancyDetail.endTime]);
+  }, [
+    vacancyDetail.startTime,
+    vacancyDetail.endTime,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   return (
     <>

@@ -76,7 +76,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setFieldValue("details", newVacancyDays);
       updateModel({ details: newVacancyDays });
     },
-    [vacancyDays, props.vacancyDays, useSameReason]
+    [
+      vacancyDays,
+      props.vacancyDays,
+      useSameReason,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const handelSetDayTimesValue = React.useCallback(
@@ -100,7 +104,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setFieldValue("details", newVacancyDays);
       updateModel({ details: newVacancyDays });
     },
-    [vacancyDays, props.vacancyDays, useSameTime]
+    [
+      vacancyDays,
+      props.vacancyDays,
+      useSameTime,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const handleSetPayCodeValue = React.useCallback(
@@ -122,7 +130,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setFieldValue("details", newVacancyDays);
       updateModel({ details: newVacancyDays });
     },
-    [vacancyDays, props.vacancyDays, useSamePayCode]
+    [
+      vacancyDays,
+      props.vacancyDays,
+      useSamePayCode,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const handleSetAccountingCodeValue = React.useCallback(
@@ -152,7 +164,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setFieldValue("details", newVacancyDays);
       updateModel({ details: newVacancyDays });
     },
-    [vacancyDays, props.vacancyDays, useSameAccountingCode]
+    [
+      vacancyDays,
+      props.vacancyDays,
+      useSameAccountingCode,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const handleSameForAllVacReasonCheck = React.useCallback(
@@ -168,7 +184,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       }
       setUseSameReason(value);
     },
-    [vacancyDays, props.vacancyDays]
+    [
+      vacancyDays,
+      props.vacancyDays,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const handleSameForAllPayCodeCheck = React.useCallback(
@@ -184,7 +203,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       }
       setUseSamePayCode(value);
     },
-    [vacancyDays, props.vacancyDays]
+    [
+      vacancyDays,
+      props.vacancyDays,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const handleSameForAllAccountingCodeCheck = React.useCallback(
@@ -207,7 +229,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       }
       setUseSameAccountingCode(value);
     },
-    [vacancyDays, props.vacancyDays]
+    [
+      vacancyDays,
+      props.vacancyDays,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const handleSameForAllVTimeCheck = React.useCallback(
@@ -225,7 +250,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       }
       setUseSameTime(value);
     },
-    [vacancyDays, props.vacancyDays]
+    [
+      vacancyDays,
+      props.vacancyDays,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const vacancyReasons: any =
@@ -241,11 +269,14 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
 
   const payCodeOptions = useMemo(() => {
     return payCodes.map((r: any) => ({ label: r.name, value: r.id }));
-  }, [payCodes, props]);
+  }, [payCodes, props]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const accountingCodeOptions = useMemo(() => {
     return accountingCodes.map((r: any) => ({ label: r.name, value: r.id }));
-  }, [accountingCodes, props]);
+  }, [
+    accountingCodes,
+    props,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const dayParts = useMemo(() => {
     const partsArray: any = [];
@@ -320,7 +351,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     });
 
     return partsArray;
-  }, [props, workDayScheduleVariant]);
+  }, [
+    props,
+    workDayScheduleVariant,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   /* Use this effect for existing vacancies that will have existing days */
   useEffect(() => {
@@ -401,7 +435,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         updateModel({ details: vacancyDays });
       }
     }
-  }, [vacancyDays, props, useSameReason]);
+  }, [
+    vacancyDays,
+    props,
+    useSameReason,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   /* this effect is needed when we add a day and the check box is selected to use same times */
   /* we want to default the newly added day to the first start and end times*/
@@ -432,7 +470,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         updateModel({ details: vacancyDays });
       }
     }
-  }, [vacancyDays, props, useSameTime]);
+  }, [
+    vacancyDays,
+    props,
+    useSameTime,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   /* this effect is needed when we add a day and the check box is selected to use same paycodes */
   /* we want to default the newly added day to the first paycode*/
@@ -456,7 +498,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         updateModel({ details: vacancyDays });
       }
     }
-  }, [vacancyDays, props, useSamePayCode]);
+  }, [
+    vacancyDays,
+    props,
+    useSamePayCode,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   /* this effect is needed when we add a day and the check box is selected to use same accountingcode */
   /* we want to default the newly added day to the first accounting code*/
@@ -497,7 +543,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         updateModel({ details: vacancyDays });
       }
     }
-  }, [vacancyDays, props, useSameAccountingCode]);
+  }, [
+    vacancyDays,
+    props,
+    useSameAccountingCode,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   if (getvacancyReasons.state === "LOADING") {
     return <></>;

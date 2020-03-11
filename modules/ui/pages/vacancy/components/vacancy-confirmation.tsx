@@ -63,7 +63,10 @@ export const VacancyConfirmation: React.FC<Props> = props => {
     });
 
     return url;
-  }, [params, props.vacancyId]);
+  }, [
+    params,
+    props.vacancyId,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   if (!props.vacancyId) {
     // Redirect the User back to the Absence Details step

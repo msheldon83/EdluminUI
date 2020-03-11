@@ -209,7 +209,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
       };
       updateModel(model);
     }
-  }, [values]);
+  }, [values]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   return (
     <>

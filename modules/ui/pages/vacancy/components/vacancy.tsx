@@ -120,7 +120,11 @@ export const VacancyUI: React.FC<Props> = props => {
 
   const vacancyExists = useMemo(() => {
     return props.vacancy.id ? true : false;
-  }, [props.vacancy, props]);
+  }, [
+    props.vacancy,
+    props,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+
   const [vacancy, setVacancy] = useState<VacancyDetailsFormData>(props.vacancy);
 
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
@@ -184,7 +188,7 @@ export const VacancyUI: React.FC<Props> = props => {
     } else {
       return false;
     }
-  }, [vacancy, hasSub]);
+  }, [vacancy, hasSub]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const onAssignSub = React.useCallback(
     async (
@@ -224,7 +228,7 @@ export const VacancyUI: React.FC<Props> = props => {
       setHasSub(replacementName);
       setStep("vacancy");
     },
-    [setStep, vacancy]
+    [setStep, vacancy] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const onUnassignSub = React.useCallback(async () => {
@@ -232,7 +236,7 @@ export const VacancyUI: React.FC<Props> = props => {
       d.prearrangedReplacementEmployeeId = undefined;
     });
     setHasSub("");
-  }, [setStep, vacancy]);
+  }, [setStep, vacancy]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   if (
     getPositionTypes.state === "LOADING" ||
