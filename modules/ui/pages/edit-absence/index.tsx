@@ -48,27 +48,13 @@ export const EditAbsence: React.FC<Props> = props => {
       : absence.data?.absence?.byId?.organization.id.toString()
   );
 
-  const employeeInfo = useQueryBundle(GetEmployee, {
-    variables: {
-      employeeId:
-        absence.state === "DONE" && absence.data.absence?.byId?.employeeId
-          ? absence.data.absence?.byId?.employeeId
-          : "0",
-    },
-    skip: absence.state !== "DONE",
-  });
-
   const employee = useMemo(() => {
-    if (employeeInfo.state === "DONE") {
-      return employeeInfo.data.employee?.byId;
+    if (absence.state === "DONE") {
+      return absence.data.absence?.byId?.employee;
     }
-  }, [employeeInfo]);
+  }, [absence]);
 
   const locationIds = employee?.locations?.map(l => l?.id ?? "");
-
-  const returnUrl: string | undefined = useMemo(() => {
-    return history.location.state?.returnUrl;
-  }, [history.location.state]);
 
   const goBack = React.useCallback(() => {
     if (document.referrer === "") {
@@ -364,7 +350,7 @@ export const EditAbsence: React.FC<Props> = props => {
         firstName={employee.firstName}
         lastName={employee.lastName}
         assignmentId={assignmentId}
-        employeeId={employee.id}      
+        employeeId={employee.id}
         rowVersion={data.rowVersion}
         needsReplacement={needsReplacement}
         notesToApprover={data.notesToApprover ?? undefined}
