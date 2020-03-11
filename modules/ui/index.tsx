@@ -992,7 +992,6 @@ export function App() {
                               />
                             </Route>
                           </Switch>
-                          <HelpWidget />
                         </IfHasRole>
                         <IfHasRole role={OrgUserRole.Administrator} not>
                           <Redirect to={UnauthorizedRoute.generate({})} />

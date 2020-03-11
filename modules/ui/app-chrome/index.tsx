@@ -50,102 +50,111 @@ export const AppChrome: React.FunctionComponent = props => {
       */
   if (mobile) {
     return (
-      <LoadingStateProvider>
-        <PageTitleProvider>
-          <div className={classes.app}>
-            <Route path={AdminChromeRoute.path}>
-              <OrganizationSwitcherBar />
-            </Route>
-            <Route path={AdminChromeRoute.path}>
-              <OrganizationStatusBar />
-            </Route>
-            <ImpersonationStatusBar />
-            <div className={classes.outer}>
-              <MobileTopBar expandDrawer={expand} />
-              <MobileNavigationSideBar
-                expanded={expanded}
-                collapse={collapse}
-              />
-              <div className={classes.mainContent}>
-                <SnackbarProvider>
-                  <DialogProvider>
-                    <div />
-                    <div
-                      className={classes.contentView}
-                      style={{ maxWidth: appConfig.contentWidth }}
-                    >
-                      <ErrorBoundary>
-                        <LoadingStateIndicatorFullScreen>
-                          {props.children}
-                        </LoadingStateIndicatorFullScreen>
-                      </ErrorBoundary>
-                    </div>
-                  </DialogProvider>
-                </SnackbarProvider>
-              </div>
-            </div>
-            <div className={contentFooterClasses}>
-              <div className={classes.contentFooter} ref={contentFooterRef} />
-            </div>
-          </div>
-        </PageTitleProvider>
-      </LoadingStateProvider>
-    );
-  } else {
-    return (
-      <LoadingStateProvider>
-        <PageTitleProvider>
-          <div className={classes.app}>
-            <Route path={AdminChromeRoute.path}>
-              <OrganizationSwitcherBar />
-            </Route>
-            <Route path={AdminChromeRoute.path}>
-              <OrganizationStatusBar />
-            </Route>
-            <ImpersonationStatusBar />
-            <div className={classes.outer}>
-              <TopBar
-                contentClassName={
-                  expanded
-                    ? classes.leftPaddingExpanded
-                    : classes.leftPaddingCompact
-                }
-              />
-              <NavigationSideBar
-                expanded={expanded}
-                expand={expand}
-                collapse={collapse}
-              />
-              <div className={classes.container}>
-                <SnackbarProvider>
-                  <DialogProvider>
-                    <div
-                      className={`${
-                        expanded
-                          ? classes.navWidthExpanded
-                          : classes.navWidthCompact
-                      }`}
-                    ></div>
-                    <div
-                      className={classes.contentView}
-                      style={{ maxWidth: appConfig.contentWidth }}
-                    >
-                      <ErrorBoundary>
-                        <LoadingStateIndicatorFullScreen>
-                          {props.children}
-                        </LoadingStateIndicatorFullScreen>
-                      </ErrorBoundary>
-                    </div>
-                  </DialogProvider>
-                </SnackbarProvider>
+      <>
+        <LoadingStateProvider>
+          <PageTitleProvider>
+            <div className={classes.app}>
+              <Route path={AdminChromeRoute.path}>
+                <OrganizationSwitcherBar />
+              </Route>
+              <Route path={AdminChromeRoute.path}>
+                <OrganizationStatusBar />
+              </Route>
+              <ImpersonationStatusBar />
+              <div className={classes.outer}>
+                <MobileTopBar expandDrawer={expand} />
+                <MobileNavigationSideBar
+                  expanded={expanded}
+                  collapse={collapse}
+                />
+                <div className={classes.mainContent}>
+                  <SnackbarProvider>
+                    <DialogProvider>
+                      <div />
+                      <div
+                        className={classes.contentView}
+                        style={{ maxWidth: appConfig.contentWidth }}
+                      >
+                        <ErrorBoundary>
+                          <LoadingStateIndicatorFullScreen>
+                            {props.children}
+                          </LoadingStateIndicatorFullScreen>
+                        </ErrorBoundary>
+                      </div>
+                    </DialogProvider>
+                  </SnackbarProvider>
+                </div>
               </div>
               <div className={contentFooterClasses}>
                 <div className={classes.contentFooter} ref={contentFooterRef} />
               </div>
             </div>
-          </div>
-        </PageTitleProvider>
-      </LoadingStateProvider>
+          </PageTitleProvider>
+        </LoadingStateProvider>
+        <HelpWidget />
+      </>
+    );
+  } else {
+    return (
+      <>
+        <LoadingStateProvider>
+          <PageTitleProvider>
+            <div className={classes.app}>
+              <Route path={AdminChromeRoute.path}>
+                <OrganizationSwitcherBar />
+              </Route>
+              <Route path={AdminChromeRoute.path}>
+                <OrganizationStatusBar />
+              </Route>
+              <ImpersonationStatusBar />
+              <div className={classes.outer}>
+                <TopBar
+                  contentClassName={
+                    expanded
+                      ? classes.leftPaddingExpanded
+                      : classes.leftPaddingCompact
+                  }
+                />
+                <NavigationSideBar
+                  expanded={expanded}
+                  expand={expand}
+                  collapse={collapse}
+                />
+                <div className={classes.container}>
+                  <SnackbarProvider>
+                    <DialogProvider>
+                      <div
+                        className={`${
+                          expanded
+                            ? classes.navWidthExpanded
+                            : classes.navWidthCompact
+                        }`}
+                      ></div>
+                      <div
+                        className={classes.contentView}
+                        style={{ maxWidth: appConfig.contentWidth }}
+                      >
+                        <ErrorBoundary>
+                          <LoadingStateIndicatorFullScreen>
+                            {props.children}
+                          </LoadingStateIndicatorFullScreen>
+                        </ErrorBoundary>
+                      </div>
+                    </DialogProvider>
+                  </SnackbarProvider>
+                </div>
+                <div className={contentFooterClasses}>
+                  <div
+                    className={classes.contentFooter}
+                    ref={contentFooterRef}
+                  />
+                </div>
+              </div>
+            </div>
+          </PageTitleProvider>
+        </LoadingStateProvider>
+        <HelpWidget />
+      </>
     );
   }
 };
