@@ -694,6 +694,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         <EditVacancies
           orgId={props.organizationId}
           actingAsEmployee={actingAsEmployee}
+          absenceId={props.absenceId}
           employeeName={name}
           positionName={props.positionName}
           onCancel={onCancel}
@@ -708,8 +709,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         <AssignSub
           existingVacancy
           employeeName={name}
-          orgId={props.organizationId}
           absenceId={props.absenceId}
+          orgId={props.organizationId}
           vacancies={projectedVacancies || props.initialVacancies}
           userIsAdmin={!actingAsEmployee && props.userIsAdmin}
           employeeId={props.employeeId}

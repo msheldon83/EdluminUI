@@ -7,7 +7,7 @@ type Props = {
   userIsAdmin: boolean;
   employeeName: string;
   pageHeader: string;
-  onCancel: () => void;
+  onCancel?: () => void;
 };
 
 export const AbsenceHeader: React.FC<Props> = props => {
@@ -27,13 +27,6 @@ export const AbsenceHeader: React.FC<Props> = props => {
           <Button variant="outlined" onClick={props.onCancel}>
             {t("Back to Absence Details")}
           </Button>
-        </div>
-        <div>
-          {props.absenceId && (
-            <Typography variant="h6">
-              {t("Confirmation")} #{props.absenceId}
-            </Typography>
-          )}
         </div>
       </div>
     </div>

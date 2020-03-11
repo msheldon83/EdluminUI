@@ -32,6 +32,7 @@ type Props = {
   onChangedVacancies: (data: VacancyDetail[]) => void;
   employeeId: string;
   setStep: (s: "absence") => void;
+  absenceId?: string;
   disabledDates?: Date[];
   defaultAccountingCode?: string;
   defaultPayCode?: string;
@@ -173,10 +174,8 @@ export const EditVacancies: React.FC<Props> = props => {
     >
       {({ values, handleSubmit, errors }) => (
         <form onSubmit={handleSubmit}>
-
-          <Typography variant={props.actingAsEmployee ? "h1" : "h5"}>
-            {props.details.absenceId ? (): ({`${t("Substitute details for new absence")}`})}
-           
+          <Typography variant="h5">
+            {t("Substitute details for absence ")} {"#" + props.absenceId}
           </Typography>
           {!props.actingAsEmployee && (
             <Typography variant="h1">{props.employeeName}</Typography>
