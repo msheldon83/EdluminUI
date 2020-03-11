@@ -27,6 +27,7 @@ export const AssignmentRow: React.FC<Props> = props => {
 
   const confirmationNumber = a.assignment?.id ?? "";
   const employeeName = `${a.vacancy?.absence?.employee?.firstName} ${a.vacancy?.absence?.employee?.lastName}`;
+  const absenceId = a.vacancy?.absence?.id;
   const positionName = a?.vacancy?.position?.title ?? "";
   const organizationName = a?.vacancy?.organization?.name;
   const locationName = a?.location?.name ?? "";
@@ -63,6 +64,7 @@ export const AssignmentRow: React.FC<Props> = props => {
         notesToReplacement={a.vacancy?.notesToReplacement ?? undefined}
         onCancel={onCancelClick}
         className={props.className}
+        absenceId={absenceId}
         isAdmin={props.isAdmin}
         forSpecificAssignment={props.forSpecificAssignment}
       />

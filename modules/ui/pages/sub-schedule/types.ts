@@ -24,6 +24,7 @@ export type AssignmentVacancyDetails = {
       title?: string;
     } | null;
     absence: {
+      id: string;
       employee: {
         firstName: string;
         lastName: string;
