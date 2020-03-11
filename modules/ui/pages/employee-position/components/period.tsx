@@ -15,9 +15,8 @@ import { OptionTypeBase } from "react-select/src/types";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { Period, Schedule, GetError } from "./helpers";
 import { GetBellSchedulePeriods } from "../graphql/get-bell-schedule-periods.gen";
-import { format } from "date-fns";
-import { midnightTime } from "helpers/time";
 import { FormikErrors } from "formik";
+import { secondsToFormattedHourMinuteString } from "helpers/time";
 
 export type BellSchedule = {
   id: string;
@@ -97,9 +96,8 @@ export const PeriodUI: React.FC<Props> = props => {
           b?.standardPeriod?.startTime < a?.standardPeriod?.startTime ? 1 : -1
         )
         .map(p => ({
-          label: `${p?.name} (${format(
-            midnightTime().setSeconds(p?.standardPeriod?.startTime),
-            "h:mm a"
+          label: `${p?.name} (${secondsToFormattedHourMinuteString(
+            p?.standardPeriod?.startTime
           )})`,
           value: p?.id ?? "",
         })),
@@ -113,9 +111,8 @@ export const PeriodUI: React.FC<Props> = props => {
           b?.standardPeriod?.endTime < a?.standardPeriod?.endTime ? 1 : -1
         )
         .map(p => ({
-          label: `${p?.name} (${format(
-            midnightTime().setSeconds(p?.standardPeriod?.endTime),
-            "h:mm a"
+          label: `${p?.name} (${secondsToFormattedHourMinuteString(
+            p?.standardPeriod?.endTime
           )})`,
           value: p?.id ?? "",
         })),

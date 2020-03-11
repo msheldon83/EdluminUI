@@ -11,9 +11,8 @@ import {
 } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
 import {
-  midnightTime,
   secondsSinceMidnight,
-  timeStampToIso,
+  secondsToIsoString,
 } from "helpers/time";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -177,14 +176,10 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           name: p!.name,
           placeholder: "",
           startTime: matchingVariantPeriod
-            ? timeStampToIso(
-                midnightTime().setSeconds(matchingVariantPeriod.startTime)
-              )
+            ? secondsToIsoString(matchingVariantPeriod.startTime)
             : undefined,
           endTime: matchingVariantPeriod
-            ? timeStampToIso(
-                midnightTime().setSeconds(matchingVariantPeriod.endTime)
-              )
+            ? secondsToIsoString(matchingVariantPeriod.endTime)
             : undefined,
           isHalfDayMorningEnd:
             matchingVariantPeriod != null &&
