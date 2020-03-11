@@ -36,10 +36,6 @@ export const Page = () => {
           employeeAssignmentSchedule: [
             {
               id: "1010",
-              createdUtc: "2019-11-27T18:10:34.7294627" as any,
-              changedUtc: "2019-11-27T18:10:34.7294627" as any,
-              deletedUtc: "2079-11-27T18:10:34.7294627" as any,
-              isDeleted: false,
               startDate: "2019-11-19" as any,
               endDate: "2019-11-19" as any,
               startTimeLocal: "2019-11-19T08:30:00" as any,
@@ -91,10 +87,6 @@ export const Page = () => {
             } as VacancyDetail,
             {
               id: "1013",
-              createdUtc: "2019-11-27T18:10:34.7294627" as any,
-              changedUtc: "2019-11-27T18:10:34.7294627" as any,
-              deletedUtc: "2079-11-27T18:10:34.7294627" as any,
-              isDeleted: false,
               startDate: "2019-11-19" as any,
               endDate: "2019-11-19" as any,
               startTimeLocal: "2019-11-19T14:30:00" as any,
