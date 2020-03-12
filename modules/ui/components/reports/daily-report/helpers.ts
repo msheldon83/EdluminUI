@@ -439,9 +439,9 @@ export const MapDailyReportDetails = (
   const detailsForDate = details
     .filter(x => isEqual(x.date, date))
     .sort((a, b) =>
-      a.employee!.lastName > b.employee!.lastName
+      a.employee && b.employee && a.employee.lastName > b.employee.lastName
         ? 1
-        : b.employee!.lastName > a.employee!.lastName
+        : a.employee && b.employee && b.employee.lastName > a.employee.lastName
         ? -1
         : 0
     );

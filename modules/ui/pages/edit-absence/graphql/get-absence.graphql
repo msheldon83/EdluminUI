@@ -39,6 +39,18 @@ query GetAbsence($id: ID!) {
         id
         firstName
         lastName
+        locations {
+          id
+        }
+        primaryPositionId
+        primaryPosition {
+          id
+          title
+        }
+        absenceReasonBalances {
+          id
+          absenceReasonId
+        }
       }
       vacancies {
         id
