@@ -194,7 +194,7 @@ export const VacancyUI: React.FC<Props> = props => {
     async (
       replacementId: string,
       replacementName: string,
-      payCodeId: string | undefined
+      payCode: string | undefined
     ) => {
       vacancy.details.forEach(d => {
         d.prearrangedReplacementEmployeeId = replacementId;
@@ -502,7 +502,7 @@ export const VacancyUI: React.FC<Props> = props => {
                 isForVacancy={true}
                 userIsAdmin={true}
                 orgId={params.organizationId}
-                onSelectReplacement={onAssignSub}
+                onAssignReplacement={onAssignSub}
                 onCancel={onCancel}
                 assignmentsByDate={[]}
                 vacancyScheduleDays={buildScheduleDays(vacancy)}
