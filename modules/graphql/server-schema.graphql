@@ -24,7 +24,7 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   totalDuration: Int!
   totalDayPortion: Decimal!
   details: [AbsenceDetail]
-  employee: BasicEmployee
+  employee: Employee
   vacancies: [Vacancy]
   locationIds: [ID!]!
   locations: [Location]
@@ -1344,6 +1344,7 @@ input EmployeeInterestInVacancyInput {
   vacancyId: ID
   employeeId: ID
   interestRatingId: InterestRating
+  overrideNonPreferredWarning: Boolean
 }
 
 type EmployeeMutations {
@@ -2854,6 +2855,15 @@ type PagedSavedView {
 type PagedSchoolYear {
   _info: [ReturnMessage]
   results: [SchoolYear]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedSubJobSearch {
+  _info: [ReturnMessage]
+  results: [SubJobSearch]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -4603,6 +4613,12 @@ enum StateCode {
   YT
 }
 
+type SubJobSearch {
+  _info: [ReturnMessage]
+  vacancy: Vacancy!
+  unavailableToWork: Boolean!
+}
+
 type Substitute implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -5004,8 +5020,10 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   vacancyId: ID!
   startDate: Date
   startTimeLocal: DateTime
+  startTimeLocalTimeSpan: Seconds!
   endDate: Date
   endTimeLocal: DateTime
+  endTimeLocalTimeSpan: Seconds!
   startTimeUtc: DateTime
   endTimeUtc: DateTime
   actualDuration: Int
@@ -5181,6 +5199,7 @@ type VacancyQueries {
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
   userJobSearch(id: ID!, availableJobsOnly: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
+  subJobSearch(id: ID!, availableJobsOnly: Boolean, showNonPreferredJobs: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedSubJobSearch
   vacancyNotificationLogByVacancy(vacancyId: ID!): [VacancyNotificationLog]
   vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: VacancyCreateInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
