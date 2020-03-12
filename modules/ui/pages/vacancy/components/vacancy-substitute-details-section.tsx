@@ -46,7 +46,7 @@ export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
         </Grid>
         {props.scheduleDays.length === 0 && (
           <Grid item xs={12} className={classes.daysPlaceHolder}>
-            <Typography>{t("No days choosen")}</Typography>
+            <Typography>{t("No days chosen")}</Typography>
           </Grid>
         )}
         {props.scheduleDays.map((sd, i) => {
