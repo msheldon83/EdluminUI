@@ -38,7 +38,7 @@ export const VacancyReason: React.FC<Props> = props => {
 
   const getVacancyReasons = useQueryBundle(GetAllVacancyReasonsWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired: true },
-    skip: true, //CLA Added while feature is to be hidden from users
+    skip: !Config.isDevFeatureOnly, //CLA Added while feature is to be hidden from users
   });
   const [updateVacancyReason] = useMutationBundle(UpdateVacancyReason, {
     onError: error => {
