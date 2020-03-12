@@ -13,7 +13,7 @@ import { compact } from "lodash-es";
 import { Checkbox, FormControlLabel, Grid } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { isSameDay, format } from "date-fns";
-import { midnightTime, timeStampToIso } from "helpers/time";
+import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { parseISO } from "date-fns/esm";
 
 type Props = {
@@ -283,62 +283,30 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     if (!workDayScheduleVariant) return partsArray;
     partsArray.push({
       id: "full",
-      label: `Full day (${format(
-        parseISO(
-          timeStampToIso(
-            midnightTime().setSeconds(workDayScheduleVariant?.startTime)
-          )
-        ),
-        "h:mm a"
-      )}-${format(
-        parseISO(
-          timeStampToIso(
-            midnightTime().setSeconds(workDayScheduleVariant?.endTime)
-          )
-        ),
-        "h:mm a"
+      label: `Full day (${secondsToFormattedHourMinuteString(
+        workDayScheduleVariant?.startTime
+      )}-${secondsToFormattedHourMinuteString(
+        workDayScheduleVariant?.endTime
       )})`,
       start: workDayScheduleVariant?.startTime,
       end: workDayScheduleVariant?.endTime,
     });
     partsArray.push({
       id: "halfDayAM",
-      label: `Half day AM (${format(
-        parseISO(
-          timeStampToIso(
-            midnightTime().setSeconds(workDayScheduleVariant?.startTime)
-          )
-        ),
-        "h:mm a"
-      )}-${format(
-        parseISO(
-          timeStampToIso(
-            midnightTime().setSeconds(workDayScheduleVariant?.halfDayMorningEnd)
-          )
-        ),
-        "h:mm a"
+      label: `Half day AM (${secondsToFormattedHourMinuteString(
+        workDayScheduleVariant?.startTime
+      )}-${secondsToFormattedHourMinuteString(
+        workDayScheduleVariant?.halfDayMorningEnd
       )})`,
       start: workDayScheduleVariant?.startTime,
       end: workDayScheduleVariant?.halfDayMorningEnd,
     });
     partsArray.push({
       id: "halfDayPM",
-      label: `Half day PM (${format(
-        parseISO(
-          timeStampToIso(
-            midnightTime().setSeconds(
-              workDayScheduleVariant?.halfDayAfternoonStart
-            )
-          )
-        ),
-        "h:mm a"
-      )}-${format(
-        parseISO(
-          timeStampToIso(
-            midnightTime().setSeconds(workDayScheduleVariant?.endTime)
-          )
-        ),
-        "h:mm a"
+      label: `Half day PM (${secondsToFormattedHourMinuteString(
+        workDayScheduleVariant?.halfDayAfternoonStart
+      )}-${secondsToFormattedHourMinuteString(
+        workDayScheduleVariant?.endTime
       )})`,
       start: workDayScheduleVariant?.halfDayAfternoonStart,
       end: workDayScheduleVariant?.endTime,

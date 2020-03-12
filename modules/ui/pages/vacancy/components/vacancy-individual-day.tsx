@@ -9,10 +9,9 @@ import { TextButton } from "ui/components/text-button";
 import { TimeInput } from "ui/components/form/time-input";
 import { useTranslation } from "react-i18next";
 import {
-  midnightTime,
   secondsSinceMidnight,
-  timeStampToIso,
   isoToTimestamp,
+  secondsToFormattedHourMinuteString,
 } from "helpers/time";
 
 type Props = {
@@ -151,12 +150,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
       (getTimeValue() === "custom" && startTime !== vacancyDetail.startTime)
     ) {
       setStartTime(
-        format(
-          parseISO(
-            timeStampToIso(midnightTime().setSeconds(vacancyDetail.startTime))
-          ),
-          "h:mm a"
-        )
+        secondsToFormattedHourMinuteString(vacancyDetail.startTime)
       );
     }
     if (
@@ -164,12 +158,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
       (getTimeValue() !== "custom" && vacancyDetail.endTime)
     ) {
       setEndTime(
-        format(
-          parseISO(
-            timeStampToIso(midnightTime().setSeconds(vacancyDetail.endTime))
-          ),
-          "h:mm a"
-        )
+        secondsToFormattedHourMinuteString(vacancyDetail.endTime)
       );
     }
   }, [

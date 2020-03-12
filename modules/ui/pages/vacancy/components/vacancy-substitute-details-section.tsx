@@ -2,7 +2,7 @@ import * as React from "react";
 import { Grid, makeStyles, Typography, TextField } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
-import { midnightTime, timeStampToIso } from "helpers/time";
+import { secondsToFormattedHourMinuteString } from "helpers/time";
 
 export type VacancyScheduleDay = {
   date: Date;
@@ -26,10 +26,7 @@ export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const formatLabel = (d: number) => {
-    return format(
-      parseISO(timeStampToIso(midnightTime().setSeconds(d))),
-      "h:mm a"
-    );
+    return secondsToFormattedHourMinuteString(d);
   };
 
   const onNotesChange = React.useCallback(
