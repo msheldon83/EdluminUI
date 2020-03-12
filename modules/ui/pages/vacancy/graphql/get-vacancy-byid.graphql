@@ -5,6 +5,7 @@ query GetVacancyById($id: ID!) {
       notesToReplacement
       rowVersion
       details {
+        id
         locationId
         workDayScheduleId
         startTimeUtc
@@ -16,6 +17,7 @@ query GetVacancyById($id: ID!) {
         payCodeId
         vacancyReasonId
         accountingCodeAllocations {
+          id
           accountingCodeId
         }
         assignment {
@@ -23,6 +25,7 @@ query GetVacancyById($id: ID!) {
           rowVersion
           employeeId
           employee {
+            id
             firstName
             lastName
           }
@@ -31,6 +34,7 @@ query GetVacancyById($id: ID!) {
       startDate
       endDate
       position {
+        id
         title
         positionTypeId
         contractId
