@@ -19,20 +19,21 @@ import { VacancyDetail } from "../../../components/absence/types";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import { usePayCodes } from "reference-data/pay-codes";
 import * as yup from "yup";
+import { AbsenceHeader } from "ui/components/absence/header";
 import { isBefore, parseISO, isValid, areIntervalsOverlapping } from "date-fns";
 import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "ui/components/absence/date-helpers";
 
 type Props = {
   details: VacancyDetail[];
-  actingAsEmployee?: boolean;
   orgId: string;
-  positionName?: string;
   employeeName: string;
   onCancel: () => void;
   onChangedVacancies: (data: VacancyDetail[]) => void;
   employeeId: string;
   setStep: (s: "absence") => void;
   absenceId?: string;
+  actingAsEmployee?: boolean;
+  positionName?: string;
   disabledDates?: Date[];
   defaultAccountingCode?: string;
   defaultPayCode?: string;
@@ -79,6 +80,10 @@ export const EditVacancies: React.FC<Props> = props => {
     props.setStep("absence");
     return <></>;
   }
+
+  const pageHeader = props.absenceId
+    ? `${t("Substitute details for absence ")} ${"#" + props.absenceId}`
+    : t("Substitute details for a new absence");
 
   return (
     <Formik
@@ -174,12 +179,11 @@ export const EditVacancies: React.FC<Props> = props => {
     >
       {({ values, handleSubmit, errors }) => (
         <form onSubmit={handleSubmit}>
-          <Typography variant="h5">
-            {t("Substitute details for absence ")} {"#" + props.absenceId}
-          </Typography>
-          {!props.actingAsEmployee && (
-            <Typography variant="h1">{props.employeeName}</Typography>
-          )}
+          <AbsenceHeader
+            employeeName={props.employeeName}
+            pageHeader={pageHeader}
+            actingAsEmployee={props.actingAsEmployee}
+          />
           <Section className={classes.vacancyDetails}>
             <Grid
               container

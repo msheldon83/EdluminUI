@@ -279,7 +279,7 @@ export const AssignSub: React.FC<Props> = props => {
 
   const replacementEmployeeCount = replacementEmployees.length;
   const pageHeader = props.existingVacancy
-    ? t("Assign substitute for absence #") // + {props.absenceId}
+    ? `${t("Assign substitute for absence")} #${props.absenceId}`
     : `${t("Prearrange substitute for new absence")}`;
 
   const selectTitle = props.selectButtonText || t("Select")!;
@@ -362,7 +362,6 @@ export const AssignSub: React.FC<Props> = props => {
         }}
       />
       <AbsenceHeader
-        userIsAdmin={props.userIsAdmin}
         employeeName={props.employeeName}
         pageHeader={pageHeader}
         onCancel={props.onCancel}

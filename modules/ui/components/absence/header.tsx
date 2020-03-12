@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { Button, Typography, makeStyles } from "@material-ui/core";
 
 type Props = {
-  userIsAdmin: boolean;
   employeeName: string;
   pageHeader: string;
+  actingAsEmployee?: boolean | undefined;
   onCancel?: () => void;
 };
 
@@ -17,7 +17,7 @@ export const AbsenceHeader: React.FC<Props> = props => {
     <div className={classes.header}>
       <div>
         <Typography variant="h5">{props.pageHeader}</Typography>
-        {props.userIsAdmin && (
+        {!props.actingAsEmployee && (
           <Typography variant="h1">{props.employeeName}</Typography>
         )}
       </div>

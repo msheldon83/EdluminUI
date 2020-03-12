@@ -45,6 +45,7 @@ import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "./step-params";
 import { ApolloError } from "apollo-client";
 import { Prompt, useRouteMatch } from "react-router";
+import { AbsenceHeader } from "ui/components/absence/header";
 
 type Props = {
   firstName: string;
@@ -307,7 +308,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     );
   }, [actingAsEmployee, getProjectedVacancies]);
 
-  const name = `${props.firstName} ${props.lastName}`;
+  const employeeName = `${props.firstName} ${props.lastName}`;
 
   const create = async (
     formValues: CreateAbsenceFormData,
@@ -410,14 +411,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       >
         {step === "absence" && (
           <>
-            {actingAsEmployee ? (
-              <Typography variant="h1">{t("Create absence")}</Typography>
-            ) : (
-              <>
-                <Typography variant="h5">{t("Create absence")}</Typography>
-                <Typography variant="h1">{name}</Typography>
-              </>
-            )}
+            <AbsenceHeader
+              employeeName={employeeName}
+              pageHeader={t("Create absence")}
+              actingAsEmployee={actingAsEmployee}
+            />
             <Section className={classes.absenceDetails}>
               <ErrorBanner
                 errorBannerOpen={errorBannerOpen}
@@ -471,7 +469,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           <AssignSub
             orgId={props.organizationId}
             userIsAdmin={!actingAsEmployee && props.userIsAdmin}
-            employeeName={name}
+            employeeName={employeeName}
             employeeId={state.employeeId}
             positionId={props.positionId}
             positionName={props.positionName}
@@ -495,7 +493,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         <EditVacancies
           orgId={props.organizationId}
           actingAsEmployee={actingAsEmployee}
-          employeeName={name}
+          employeeName={employeeName}
           positionName={props.positionName}
           onCancel={onCancel}
           details={projectedVacancyDetails}

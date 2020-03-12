@@ -60,6 +60,7 @@ import { OrgUserPermissions } from "ui/components/auth/types";
 import { canViewAsSysAdmin } from "helpers/permissions";
 import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useHistory } from "react-router";
+import { AbsenceHeader } from "ui/components/absence/header";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 
 type Props = {
@@ -164,7 +165,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     },
   });
 
-  const name = `${props.firstName} ${props.lastName}`;
+  const employeeName = `${props.firstName} ${props.lastName}`;
   const canEdit =
     !actingAsEmployee ||
     (!props.replacementEmployeeId && !some(props.absenceDates, isPast));
@@ -582,24 +583,11 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           })}
         >
           <div className={classes.titleContainer}>
-            <div className={classes.title}>
-              {actingAsEmployee ? (
-                <>
-                  <Typography variant="h5">{t("Edit absence")}</Typography>
-                  <Typography variant="h6">
-                    {t("Confirmation")} #{props.absenceId}
-                  </Typography>
-                </>
-              ) : (
-                <>
-                  <Typography variant="h5">
-                    {t("Edit absence")} #{props.absenceId}
-                  </Typography>
-                  <Typography variant="h1">{name}</Typography>
-                </>
-              )}
-            </div>
-
+            <AbsenceHeader
+              employeeName={employeeName}
+              pageHeader={`${t("Edit absence")} #${props.absenceId}`}
+              actingAsEmployee={actingAsEmployee}
+            />
             <div className={classes.headerMenu}>
               <ActionMenu
                 className={classes.actionMenu}
@@ -695,7 +683,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           orgId={props.organizationId}
           actingAsEmployee={actingAsEmployee}
           absenceId={props.absenceId}
-          employeeName={name}
+          employeeName={employeeName}
           positionName={props.positionName}
           onCancel={onCancel}
           details={theVacancyDetails}
@@ -708,7 +696,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       {step === "preAssignSub" && (
         <AssignSub
           existingVacancy
-          employeeName={name}
+          employeeName={employeeName}
           absenceId={props.absenceId}
           orgId={props.organizationId}
           vacancies={projectedVacancies || props.initialVacancies}
