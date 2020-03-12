@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Button, Typography, makeStyles } from "@material-ui/core";
 
 type Props = {
-  absenceId?: string;
   userIsAdmin: boolean;
   employeeName: string;
   pageHeader: string;
@@ -22,13 +21,15 @@ export const AbsenceHeader: React.FC<Props> = props => {
           <Typography variant="h1">{props.employeeName}</Typography>
         )}
       </div>
-      <div className={classes.confAndReturnContainer}>
-        <div>
-          <Button variant="outlined" onClick={props.onCancel}>
-            {t("Back to Absence Details")}
-          </Button>
+      {props.onCancel && (
+        <div className={classes.confAndReturnContainer}>
+          <div>
+            <Button variant="outlined" onClick={props.onCancel}>
+              {t("Back to Absence Details")}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

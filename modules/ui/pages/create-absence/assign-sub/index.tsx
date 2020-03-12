@@ -76,15 +76,16 @@ export const AssignSub: React.FC<Props> = props => {
 
   const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
   const [warningDialogIsOpen, setWarningDialogIsOpen] = React.useState(false);
-  const [
-    replacementEmployeeName,
-    setReplacementEmployeeName,
-  ] = React.useState();
+  const [replacementEmployeeName, setReplacementEmployeeName] = React.useState<
+    string
+  >("");
   const [
     replacementEmployeePayCode,
     setReplacementEmployeePayCode,
-  ] = React.useState();
-  const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
+  ] = React.useState<string>();
+  const [replacementEmployeeId, setReplacementEmployeeId] = React.useState<
+    string
+  >("");
 
   const [validationChecks, setValidationChecks] = React.useState<
     ValidationChecks
@@ -278,7 +279,7 @@ export const AssignSub: React.FC<Props> = props => {
 
   const replacementEmployeeCount = replacementEmployees.length;
   const pageHeader = props.existingVacancy
-    ? t("Assign substitute for absence #") + {props.absenceId}
+    ? t("Assign substitute for absence #") // + {props.absenceId}
     : `${t("Prearrange substitute for new absence")}`;
 
   const selectTitle = props.selectButtonText || t("Select")!;
