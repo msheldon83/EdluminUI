@@ -1,5 +1,5 @@
 import { Grid, makeStyles } from "@material-ui/core";
-import { Formik } from "formik";
+import { Formik, ErrorMessage } from "formik";
 import { StateCode } from "graphql/server-types.gen";
 import * as yup from "yup";
 import * as React from "react";
@@ -137,9 +137,14 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                         inputStatus={
                           errors.locationGroupId ? "error" : undefined
                         }
-                        validationMessage={errors.locationGroupId}
                         options={props.locationGroupOptions}
                         multiple={false}
+                      />
+                      <ErrorMessage
+                        name="locationGroupId"
+                        render={msg => (
+                          <div className={classes.errorMessage}>{msg}</div>
+                        )}
                       />
                     </Grid>
                     <Grid item xs={12} className={classes.marginBottom}>
@@ -200,9 +205,14 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                             setFieldValue("state", selectedValue);
                           }}
                           inputStatus={errors.state ? "error" : undefined}
-                          validationMessage={errors.state}
                           multiple={false}
                           options={stateOptions}
+                        />
+                        <ErrorMessage
+                          render={msg => (
+                            <div className={classes.errorMessage}>{msg}</div>
+                          )}
+                          name="state"
                         />
                       </Grid>
                       <Grid item xs={6}>
@@ -240,5 +250,15 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(16),
     fontWeight: "bold",
     lineHeight: theme.typography.pxToRem(24),
+  },
+  errorMessage: {
+    color: "#C62828",
+    marginLeft: theme.typography.pxToRem(14),
+    marginRight: theme.typography.pxToRem(14),
+    marginTop: "3px",
+    fontSize: "0.75rem",
+    fontFamily: "Roboto",
+    fontWeight: 400,
+    lineHeight: 1.66,
   },
 }));
