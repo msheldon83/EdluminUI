@@ -75,10 +75,15 @@ export const VacancyView: React.FC<Props> = props => {
   }, [deleteVacancy, params.vacancyId, openSnackbar, t, goBack]);
 
   useEffect(() => {
-    if (getVacancy.state === "DONE") {
+    if (
+      getVacancy.state === "DONE" &&
+      getVacancy?.data?.vacancy?.byId?.rowVersion &&
+      (!vacancyRowVersion ||
+        getVacancy?.data?.vacancy?.byId?.rowVersion > vacancyRowVersion)
+    ) {
       setVacancyRowVersion(getVacancy?.data?.vacancy?.byId?.rowVersion);
     }
-  }, [getVacancy]);
+  }, [getVacancy]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const onUpdateVacancy = async (v: VacancyDetailsFormData) => {
     const vacUpdate = buildVacancyUpdateInput(v, vacancyRowVersion);

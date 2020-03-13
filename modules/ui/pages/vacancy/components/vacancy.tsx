@@ -323,26 +323,29 @@ export const VacancyUI: React.FC<Props> = props => {
   const buildScheduleDays = (
     vacancy: VacancyDetailsFormData
   ): VacancyScheduleDay[] => {
-    return vacancy.details.map((d: VacancyDetailInput) => {
-      return {
-        positionTitle: positionTypes.find(
-          (pt: any) => vacancy.positionTypeId === pt.id
-        )?.name,
-        date: d.date,
-        startTime: d.startTime,
-        endTime: d.endTime,
-        location: locations.find((l: any) => vacancy.locationId === l.id)?.name,
-        payCode: payCodes.find((p: any) => d.payCodeId === p.id)?.name,
+    return vacancy.details
+      .sort((a, b) => a.date - b.date)
+      .map((d: VacancyDetailInput) => {
+        return {
+          positionTitle: positionTypes.find(
+            (pt: any) => vacancy.positionTypeId === pt.id
+          )?.name,
+          date: d.date,
+          startTime: d.startTime,
+          endTime: d.endTime,
+          location: locations.find((l: any) => vacancy.locationId === l.id)
+            ?.name,
+          payCode: payCodes.find((p: any) => d.payCodeId === p.id)?.name,
 
-        accountingCode: !d.accountingCodeAllocations
-          ? undefined
-          : accountingCodes.find((a: any) =>
-              d.accountingCodeAllocations
-                ? a.id === d.accountingCodeAllocations[0]?.accountingCodeId
-                : false
-            )?.name,
-      };
-    });
+          accountingCode: !d.accountingCodeAllocations
+            ? undefined
+            : accountingCodes.find((a: any) =>
+                d.accountingCodeAllocations
+                  ? a.id === d.accountingCodeAllocations[0]?.accountingCodeId
+                  : false
+              )?.name,
+        };
+      });
   };
 
   return (
@@ -386,8 +389,7 @@ export const VacancyUI: React.FC<Props> = props => {
               if (result.data) {
                 const updatedVacancy = result.data.vacancy?.update;
                 const updatedDetails = updatedVacancy?.details;
-                e.resetForm();
-                setVacancy({
+                const updatedFormData = {
                   ...vacancy,
                   details: vacancy.details.map(d => {
                     return {
@@ -398,6 +400,18 @@ export const VacancyUI: React.FC<Props> = props => {
                         )?.id ?? undefined,
                     };
                   }),
+                };
+                setVacancy(updatedFormData);
+                e.resetForm({
+                  values: {
+                    positionTypeId: updatedFormData.positionTypeId,
+                    title: updatedFormData.title,
+                    locationId: updatedFormData.locationId,
+                    contractId: updatedFormData.contractId,
+                    workDayScheduleId: updatedFormData.workDayScheduleId,
+                    details: updatedFormData.details,
+                    notesToReplacement: updatedFormData.notesToReplacement,
+                  },
                 });
               }
             }
