@@ -22,6 +22,8 @@ type Props = {
   ) => Promise<void>;
   goToAbsenceEdit: (absenceId: string) => void;
   goToAbsenceEditAssign: (absenceId: string) => void;
+  goToVacancyEdit: (absenceId: string) => void;
+  goToVacancyEditAssign: (absenceId: string) => void;
   goToPersonView: (orgUserId: string | undefined) => void;
   goToLocationView: (locationId: string | undefined) => void;
   hideCheckbox: boolean;
@@ -59,6 +61,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
         />
       </Can>
       <div className={classes.locationSection}>
+        {console.log(props.detail.position)}
         <div>
           {props.detail.type === "absence" ? (
             <>
@@ -78,11 +81,11 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                 </Can>
               </div>
               <div className={classes.detailSubText}>
-                {props.detail.position?.title}
+                {props.detail.position?.name}
               </div>
             </>
           ) : (
-            <div>{props.detail.position?.title}</div>
+            <div>{`${t("Vacancy")}: ${props.detail.position?.name}`}</div>
           )}
         </div>
       </div>
@@ -159,12 +162,22 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                 canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
               }
             >
-              <Link
-                className={classes.action}
-                onClick={() => props.goToAbsenceEditAssign(props.detail.id)}
-              >
-                {t("Assign")}
-              </Link>
+              {props.detail.type === "absence" && (
+                <Link
+                  className={classes.action}
+                  onClick={() => props.goToAbsenceEditAssign(props.detail.id)}
+                >
+                  {t("Assign")}
+                </Link>
+              )}
+              {props.detail.type === "vacancy" && (
+                <Link
+                  className={classes.action}
+                  onClick={() => props.goToVacancyEditAssign(props.detail.id)}
+                >
+                  {t("Assign")}
+                </Link>
+              )}
             </Can>
           )}
           {props.detail.subTimes.map((st, i) => {
@@ -184,7 +197,10 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
               onClick={() => props.goToAbsenceEdit(props.detail.id)}
             >{`#${props.detail.id}`}</Link>
           ) : (
-            `#V${props.detail.id}`
+            <Link
+              className={classes.action}
+              onClick={() => props.goToVacancyEdit(props.detail.id)}
+            >{`#V${props.detail.id}`}</Link>
           )}
         </div>
         {props.detail.assignmentId && (

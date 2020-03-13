@@ -24,6 +24,7 @@ export const VacancyView: React.FC<Props> = props => {
 
   const getVacancy = useQueryBundle(GetVacancyById, {
     variables: { id: params.vacancyId },
+    fetchPolicy: "no-cache",
   });
 
   const [updateVacancy] = useMutationBundle(UpdateVacancy, {

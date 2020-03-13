@@ -45,6 +45,7 @@ type Props = {
     | "actualDuration"
     | "payTypeId"
     | "payInfo"
+    | "vacancyReason"
   >;
   shadeRow: boolean;
   onVerify: (verifyInput: VacancyDetailVerifyInput) => Promise<void>;
@@ -61,6 +62,7 @@ export const Assignment: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const vacancyDetail = props.vacancyDetail;
+
   const [currentPayCodeId, setCurrentPayCodeId] = useState<string | undefined>(
     vacancyDetail.payCodeId ?? undefined
   );
@@ -70,6 +72,11 @@ export const Assignment: React.FC<Props> = props => {
   const [selectedDayConversionName, setSelectedDayConversionName] = useState<
     string
   >();
+
+  const isFromVacancy = useMemo(() => {
+    return !!vacancyDetail.vacancyReason;
+  }, [vacancyDetail]);
+
   const dayConversionHourlyName = t("Hourly");
 
   // If the date is null, this record is not verified and needs to be verified
@@ -86,7 +93,7 @@ export const Assignment: React.FC<Props> = props => {
 
   const vacancyDetailStartTime = parseISO(vacancyDetail.startTimeLocal);
   const vacancyDetailEndTime = parseISO(vacancyDetail.endTimeLocal);
-  const absenceDetail = vacancyDetail.vacancy!.absence!.details!.find(o =>
+  /*const absenceDetail = vacancyDetail.vacancy!.absence!.details!.find(o =>
     isEqual(
       parseISO(o?.startDate),
       new Date(
@@ -97,7 +104,7 @@ export const Assignment: React.FC<Props> = props => {
     )
   );
   const absenceDetailStartTime = parseISO(absenceDetail?.startTimeLocal);
-  const absenceDetailEndTime = parseISO(absenceDetail?.endTimeLocal);
+  const absenceDetailEndTime = parseISO(absenceDetail?.endTimeLocal);*/
 
   const isActiveCard = props.selectedVacancyDetail
     ? vacancyDetail.id === props.selectedVacancyDetail
@@ -166,8 +173,12 @@ export const Assignment: React.FC<Props> = props => {
       : AbsenceReasonTrackingTypeId.Hourly;
   }, [selectedDayConversionName, props.vacancyDayConversions]);
 
-  const absenceReason = vacancyDetail.vacancy!.absence!.details?.[0]
-    ?.reasonUsages?.[0]?.absenceReason?.name;
+  const absenceReason = !isFromVacancy
+    ? vacancyDetail.vacancy!.absence!.details?.[0]?.reasonUsages?.[0]
+        ?.absenceReason?.name
+    : "";
+
+  const vacancyReason = vacancyDetail.vacancyReason?.name;
 
   const payLabel = useMemo(
     () =>
@@ -351,15 +362,24 @@ export const Assignment: React.FC<Props> = props => {
                     vacancyDetail.assignment!.employee!.lastName
                   }`}
                 </Typography>
-                <Typography className={classes.lightText}>{`for ${
-                  vacancyDetail.vacancy!.absence!.employee!.firstName
-                } ${
-                  vacancyDetail.vacancy!.absence!.employee!.lastName
-                }`}</Typography>
-                {absenceReason ? (
+                {!isFromVacancy && (
+                  <Typography className={classes.lightText}>{`for ${
+                    vacancyDetail.vacancy!.absence!.employee!.firstName
+                  } ${
+                    vacancyDetail.vacancy!.absence!.employee!.lastName
+                  }`}</Typography>
+                )}
+                {isFromVacancy && (
+                  <Typography className={classes.lightText}>{`for ${t(
+                    "Vacancy"
+                  )}: ${vacancyDetail.vacancy!.position!.title}`}</Typography>
+                )}
+                {!isFromVacancy && absenceReason ? (
                   <Typography
                     className={classes.lightText}
                   >{`${absenceReason}`}</Typography>
+                ) : isFromVacancy && vacancyReason ? (
+                  <></>
                 ) : (
                   <></>
                 )}

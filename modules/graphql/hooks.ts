@@ -84,7 +84,6 @@ export function useQueryBundle<Result, Vars>(
   useEffect(() => {
     if (isLoading) return startLoadingState(false, `useQueryBundle()`);
   }, [isLoading, startLoadingState]);
-
   if (ourResult.state == "ERROR") {
     const isUnauthorized =
       ourResult.error &&
