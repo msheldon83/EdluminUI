@@ -12,7 +12,7 @@ import {
   VacancySubstituteDetailsSection,
 } from "./vacancy-substitute-details-section";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { VacancyDetailSection } from "./vacancy-details-section";
 import {
   Location as Loc,
@@ -36,7 +36,7 @@ type Props = {
     React.SetStateAction<VacancyDetailsFormData>
   >;
   replacementEmployeeName?: string;
-  unassignSub: (a: string | undefined) => Promise<void>;
+  unassignSub: () => Promise<void>;
 };
 
 export const VacancyConfirmation: React.FC<Props> = props => {
@@ -44,31 +44,31 @@ export const VacancyConfirmation: React.FC<Props> = props => {
   const classes = useStyles();
   const history = useHistory();
   const params = useRouteParams(VacancyCreateRoute);
+  const [filled, setIsFilled] = useState<boolean>(
+    !!props.values.details[0]?.prearrangedReplacementEmployeeId ?? false
+  );
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const { orgId, setStep } = props;
+  const { orgId, setStep, vacancyId } = props;
 
   const editUrl = useMemo(() => {
-    if (!props.vacancyId) {
+    if (!vacancyId) {
       return "";
     }
 
     const url = VacancyViewRoute.generate({
       ...params,
       organizationId: orgId,
-      vacancyId: props.vacancyId,
+      vacancyId: vacancyId,
     });
 
     return url;
-  }, [
-    params,
-    props.vacancyId,
-  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, [params, orgId, vacancyId]);
 
-  if (!props.vacancyId) {
+  if (!vacancyId) {
     // Redirect the User back to the Absence Details step
     setStep && setStep("vacancy");
 
@@ -84,7 +84,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
               {t("Your vacancy has been saved. We'll take it from here.")}
             </div>
             <Typography variant="h1" className={classes.confirmationText}>
-              {`${t("Confirmation #")} ${props.vacancyId}`}
+              {`${t("Confirmation #")} ${vacancyId}`}
             </Typography>
           </div>
         </Grid>
@@ -103,7 +103,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
             />
           </Grid>
           <Grid item xs={6}>
-            {props.values.details[0].prearrangedReplacementEmployeeId && (
+            {filled && (
               <Grid item xs={12}>
                 <AssignedSub
                   employeeId={
@@ -117,7 +117,10 @@ export const VacancyConfirmation: React.FC<Props> = props => {
                   assignmentsByDate={props.values.details.map(d => {
                     return { date: d.date };
                   })}
-                  onCancelAssignment={props.unassignSub}
+                  onCancelAssignment={async () => {
+                    await props.unassignSub();
+                    setIsFilled(false);
+                  }}
                 />
               </Grid>
             )}

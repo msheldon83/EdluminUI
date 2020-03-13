@@ -19,6 +19,7 @@ query GetVacancyById($id: ID!) {
         accountingCodeAllocations {
           id
           accountingCodeId
+          allocation
         }
         assignment {
           id

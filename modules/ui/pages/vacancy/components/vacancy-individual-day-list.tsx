@@ -49,10 +49,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   } = props;
   const { t } = useTranslation();
   const [dayForCopy, setDayForCopy] = useState();
-  const [useSameTime, setUseSameTime] = useState();
-  const [useSameReason, setUseSameReason] = useState();
-  const [useSamePayCode, setUseSamePayCode] = useState(true);
-  const [useSameAccountingCode, setUseSameAccountingCode] = useState(true);
+  const [useSameTime, setUseSameTime] = useState(false);
+  const [useSameReason, setUseSameReason] = useState(false);
+  const [useSamePayCode, setUseSamePayCode] = useState(false);
+  const [useSameAccountingCode, setUseSameAccountingCode] = useState(false);
 
   const getvacancyReasons = useQueryBundle(GetVacancyReasonsForOrg, {
     variables: { orgId: orgId },
@@ -275,7 +275,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         id: "full",
         label: `Full day (${secondsToFormattedHourMinuteString(
           workDayScheduleVariant?.startTime
-        )}-${secondsToFormattedHourMinuteString(
+        )} - ${secondsToFormattedHourMinuteString(
           workDayScheduleVariant?.endTime
         )})`,
         start: workDayScheduleVariant?.startTime,
@@ -285,7 +285,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         id: "halfDayAM",
         label: `Half day AM (${secondsToFormattedHourMinuteString(
           workDayScheduleVariant?.startTime
-        )}-${secondsToFormattedHourMinuteString(
+        )} - ${secondsToFormattedHourMinuteString(
           workDayScheduleVariant?.halfDayMorningEnd
         )})`,
         start: workDayScheduleVariant?.startTime,
@@ -295,7 +295,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         id: "halfDayPM",
         label: `Half day PM (${secondsToFormattedHourMinuteString(
           workDayScheduleVariant?.halfDayAfternoonStart
-        )}-${secondsToFormattedHourMinuteString(
+        )} - ${secondsToFormattedHourMinuteString(
           workDayScheduleVariant?.endTime
         )})`,
         start: workDayScheduleVariant?.halfDayAfternoonStart,
@@ -351,7 +351,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       /* accounting code */
       const accountingCodeId = vacancyDays[0].accountingCodeAllocations
         ? vacancyDays[0].accountingCodeAllocations[0]?.accountingCodeId
-        : "";
+        : undefined;
       let useSAC = true;
       vacancyDays.forEach(vd => {
         if (
@@ -441,7 +441,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       if (vacancyDays.length > 0) {
         let update = false;
         const payCodeId = vacancyDays[0].payCodeId ?? defaultPayCodeId;
-        for (let i = 1; i < vacancyDays.length; i++) {
+        for (let i = 0; i < vacancyDays.length; i++) {
           if (useSamePayCode && vacancyDays[i].payCodeId !== payCodeId) {
             vacancyDays[i].payCodeId =
               payCodeId && payCodeId.length > 0 ? payCodeId : undefined;
@@ -469,7 +469,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
           vacancyDays[0].accountingCodeAllocations.length > 0
             ? vacancyDays[0].accountingCodeAllocations[0]?.accountingCodeId
             : undefined;
-        for (let i = 1; i < vacancyDays.length; i++) {
+        for (let i = 0; i < vacancyDays.length; i++) {
           if (
             useSameAccountingCode &&
             (!vacancyDays[i].accountingCodeAllocations ||

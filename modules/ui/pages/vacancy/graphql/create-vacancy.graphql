@@ -2,6 +2,14 @@ mutation CreateVacancy($vacancy: VacancyCreateInput!) {
   vacancy {
     create(vacancy: $vacancy) {
       id
+      rowVersion
+      details {
+        id
+        assignment {
+          id
+          rowVersion
+        }
+      }
     }
   }
 }

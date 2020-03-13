@@ -42,6 +42,7 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
     details: v.details
       ? v.details.map(d => {
           return {
+            id: d?.id ?? undefined,
             date: d?.startDate ? parseISO(d.startDate) : undefined,
             startTime: d?.startTimeLocalTimeSpan ?? "",
             endTime: d?.endTimeLocalTimeSpan ?? "",
@@ -52,7 +53,7 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
               ? d?.accountingCodeAllocations.map(a => {
                   return {
                     accountingCodeId: a?.accountingCodeId ?? "",
-                    allocation: 1.0,
+                    allocation: a?.allocation ?? 1.0,
                   };
                 })
               : [],
