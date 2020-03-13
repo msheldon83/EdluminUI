@@ -365,7 +365,6 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
                 ...vacancyDetail,
                 accountingCodeAllocations,
               };
-              console.log(newVacDetail);
               setVacancyAccountingCode(newVacDetail);
             }}
           ></Select>
