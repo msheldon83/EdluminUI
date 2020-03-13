@@ -2,6 +2,7 @@ query GetAbsenceReasonBalances($employeeId: ID!, $schoolYearId: ID) {
   absenceReasonBalance {
     byEmployeeId(employeeId: $employeeId, schoolYearId: $schoolYearId) {
       id
+      absenceReasonId
       absenceReason {
         id
         name
@@ -12,6 +13,7 @@ query GetAbsenceReasonBalances($employeeId: ID!, $schoolYearId: ID) {
       unusedBalance
       schoolYearId
       plannedBalance
+      balanceAsOf
     }
   }
 }

@@ -1,14 +1,11 @@
 import * as React from "react";
-import { useState, useMemo, useEffect } from "react";
-import { makeStyles, Select, MenuItem } from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { PageTitle } from "ui/components/page-title";
+import { useState, useEffect } from "react";
+import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { useGetEmployee } from "reference-data/employee";
 import { RemainingBalances } from "./components/remaining-balances";
-import { useAllSchoolYears } from "reference-data/school-years";
+import { useAllSchoolYearOptions } from "reference-data/school-years";
 import { SectionHeader } from "ui/components/section-header";
-import { parseISO, format } from "date-fns";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { SelectNew } from "ui/components/form/select-new";
 
@@ -18,8 +15,8 @@ export const EmployeePtoBalances: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const employee = useGetEmployee();
-  const orgId = employee?.orgId ?? "";
-  const schoolYears = useAllSchoolYears(orgId);
+  const orgId = employee?.orgId;
+  const schoolYearOptions = useAllSchoolYearOptions(orgId);
   const currentSchoolYear = useCurrentSchoolYear(orgId);
 
   const [schoolYearId, setSchoolYearId] = useState<string | undefined>(
@@ -27,18 +24,6 @@ export const EmployeePtoBalances: React.FC<Props> = props => {
   );
 
   useEffect(() => setSchoolYearId(currentSchoolYear?.id), [currentSchoolYear]);
-
-  const schoolYearOptions = useMemo(
-    () =>
-      schoolYears.map(sy => ({
-        label: `${format(parseISO(sy.startDate), "yyyy")}-${format(
-          parseISO(sy.endDate),
-          "yyyy"
-        )}`,
-        value: sy.id,
-      })),
-    [schoolYears]
-  );
 
   const selectedSchoolYear = schoolYearOptions.find(
     (sy: any) => sy.value === schoolYearId
@@ -49,7 +34,6 @@ export const EmployeePtoBalances: React.FC<Props> = props => {
       <SectionHeader title={t("Time off balances")} />
       <div className={classes.schoolYearSelect}>
         <SelectNew
-          label={t("School year")}
           value={selectedSchoolYear}
           multiple={false}
           options={schoolYearOptions}
@@ -65,6 +49,7 @@ export const EmployeePtoBalances: React.FC<Props> = props => {
           title={t("Remaining balances")}
           showEdit={false}
           schoolYearId={schoolYearId}
+          orgId={orgId ?? ""}
         />
       )}
     </>

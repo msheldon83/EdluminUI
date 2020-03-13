@@ -1,0 +1,10 @@
+mutation UpdateEmployeeBalances($employee: EmployeeInput!) {
+  orgUser {
+    saveEmployee(employee: $employee) {
+      id
+      employee {
+        id
+      }
+    }
+  }
+}

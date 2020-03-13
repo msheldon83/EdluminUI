@@ -4748,6 +4748,7 @@ type TestTypeDef {
 
 input TimeOffBalancesInput {
   absenceReason: LocatorInput
+  schoolYear: LocatorInput
   asOf: Date
   balance: Decimal
 }
