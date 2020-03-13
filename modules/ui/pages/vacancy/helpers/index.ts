@@ -17,7 +17,12 @@ export const buildVacancyCreateInput = (
     locationId: v.locationId,
     workDayScheduleId: v.workDayScheduleId,
     notesToReplacement: v.notesToReplacement,
-    details: v.details,
+    details: v.details.map(d => {
+      return {
+        ...d,
+        payCodeId: d.payCodeId && d.payCodeId.length > 0 ? d.payCodeId : null,
+      };
+    }),
     ignoreWarnings: true,
   };
 };
@@ -72,15 +77,21 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
 };
 
 export const buildVacancyUpdateInput = (
-  v: VacancyDetailsFormData
+  v: VacancyDetailsFormData,
+  rowVersion: string | undefined
 ): VacancyUpdateInput => {
   return {
     id: v.id,
-    rowVersion: v.rowVersion,
+    rowVersion: rowVersion ?? "",
     title: v.title,
     workDayScheduleId: v.workDayScheduleId,
     notesToReplacement: v.notesToReplacement,
-    details: v.details,
+    details: v.details.map(d => {
+      return {
+        ...d,
+        payCodeId: d.payCodeId && d.payCodeId.length > 0 ? d.payCodeId : null,
+      };
+    }),
     ignoreWarnings: true,
   };
 };

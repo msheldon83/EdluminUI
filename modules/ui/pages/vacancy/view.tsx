@@ -13,6 +13,8 @@ import { UpdateVacancy } from "./graphql/update-vacancy.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { buildFormData, buildVacancyUpdateInput } from "./helpers";
+import { Vacancy } from "graphql/server-types.gen";
+import { useState, useEffect } from "react";
 
 type Props = {};
 
@@ -21,6 +23,7 @@ export const VacancyView: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
+  const [vacancyRowVersion, setVacancyRowVersion] = useState<string>();
 
   const getVacancy = useQueryBundle(GetVacancyById, {
     variables: { id: params.vacancyId },
@@ -32,9 +35,25 @@ export const VacancyView: React.FC<Props> = props => {
     },
   });
 
+  useEffect(() => {
+    if (getVacancy.state === "DONE") {
+      setVacancyRowVersion(getVacancy?.data?.vacancy?.byId?.rowVersion);
+    }
+  }, [getVacancy]);
+
   const onUpdateVacancy = async (v: VacancyDetailsFormData) => {
-    const vacUpdate = buildVacancyUpdateInput(v);
+    const vacUpdate = buildVacancyUpdateInput(v, vacancyRowVersion);
     const result = await updateVacancy({ variables: { vacancy: vacUpdate } });
+    const vacancy = result?.data?.vacancy?.update as Vacancy;
+    if (vacancy) {
+      setVacancyRowVersion(vacancy.rowVersion);
+      openSnackbar({
+        message: t("The vacancy has been updated"),
+        dismissable: true,
+        status: "success",
+        autoHideDuration: 5000,
+      });
+    }
     return result;
   };
 
