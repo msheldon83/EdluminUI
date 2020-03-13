@@ -23,6 +23,7 @@ type Props = {
     | "assignment"
     | "location"
     | "vacancy"
+    | "vacancyReason"
   >;
   shadeRow: boolean;
   className?: string;
@@ -52,6 +53,10 @@ export const AssignmentCard: React.FC<Props> = props => {
   };
 
   const vacancyDetail = props.vacancyDetail;
+
+  const isFromVacancy = React.useMemo(() => {
+    return !!vacancyDetail.vacancyReason;
+  }, [vacancyDetail]);
 
   const parsedDay = parseISO(vacancyDetail.startTimeLocal);
   const dayLabel = isToday(parsedDay)
@@ -145,11 +150,18 @@ export const AssignmentCard: React.FC<Props> = props => {
         <Typography className={classes.text}>
           {vacancyDetail.location!.name}
         </Typography>
-        <Typography className={classes.text}>{`${
-          vacancyDetail.vacancy!.position!.title
-        } for ${vacancyDetail.vacancy!.absence!.employee!.firstName} ${
-          vacancyDetail.vacancy!.absence!.employee!.lastName
-        }`}</Typography>
+        {!isFromVacancy && (
+          <Typography className={classes.text}>{`${
+            vacancyDetail.vacancy!.position!.title
+          } ${t("for")} ${
+            vacancyDetail.vacancy!.absence!.employee!.firstName
+          } ${vacancyDetail.vacancy!.absence!.employee!.lastName}`}</Typography>
+        )}
+        {isFromVacancy && (
+          <Typography className={classes.text}>{`${t("for Vacancy")}: ${
+            vacancyDetail.vacancy!.position!.title
+          }`}</Typography>
+        )}
         <Typography className={classes.text}>{`${formatIsoDateIfPossible(
           vacancyDetail.assignment!.startTimeLocal,
           "h:mm aaa"

@@ -18,6 +18,10 @@ query GetUpcomingAssignments(
       id
       startDate
       endDate
+      vacancyReason {
+        id
+        name
+      }
       startTimeLocal
       endTimeLocal
       dayPortion

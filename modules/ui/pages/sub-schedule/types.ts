@@ -14,7 +14,7 @@ export type AssignmentVacancyDetails = {
   vacancyReason?: {
     id?: string;
     name?: string;
-  };
+  } | null;
   location: {
     name?: string;
   } | null;

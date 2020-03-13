@@ -55,6 +55,10 @@ query SubJobSearch(
           payInfo {
             label
           }
+          vacancyReason {
+            id
+            name
+          }
           startTimeLocal
           endTimeLocal
           dayPortion
