@@ -33,16 +33,17 @@ export const SelectVacancyDateDialog: React.FC<Props> = props => {
     props.vacancyDates
   );
 
-  const toggleVacancyDate = (d: Date) => {
-    const date = startOfDay(d);
-    if (find(selectedDates, sd => isSameDay(sd, date))) {
-      const newDates = selectedDates.filter(s => !isSameDay(s, date));
-      setSelectedDates(newDates);
-    } else {
-      const newDates = selectedDates.slice();
-      newDates.push(d);
-      setSelectedDates(newDates);
-    }
+  const toggleVacancyDates = (dates: Date[]) => {
+    let dateSelection: Date[] = selectedDates.slice();
+    dates.forEach(d => {
+      const date = startOfDay(d);
+      if (find(selectedDates, sd => isSameDay(sd, date))) {
+        dateSelection = dateSelection.filter(s => !isSameDay(s, date));
+      } else {
+        dateSelection.push(d);
+      }
+    });
+    setSelectedDates(dateSelection);
   };
 
   const handleSelectDates = () => {
@@ -60,7 +61,7 @@ export const SelectVacancyDateDialog: React.FC<Props> = props => {
         <VacancyDateSelect
           contractId={props.contractId}
           vacancySelectedDates={selectedDates}
-          onSelectDates={dates => dates.forEach(d => toggleVacancyDate(d))}
+          onSelectDates={toggleVacancyDates}
           month={props.currentMonth}
           onMonthChange={props.onMonthChange}
         />

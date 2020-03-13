@@ -18,6 +18,7 @@ type Props = {
   vacancyDetail: VacancyDetailInput;
   vacancyReasonOptions: OptionType[];
   payCodeOptions: OptionType[];
+  defaultPayCodeId?: string;
   accountingCodeOptions: OptionType[];
   dayParts: {
     id: string;
@@ -29,8 +30,12 @@ type Props = {
   setVacancyDetailTimes: (value: VacancyDetailInput) => void;
   setVacancyPayCode: (value: VacancyDetailInput) => void;
   setVacancyAccountingCode: (value: VacancyDetailInput) => void;
-  showCopyPast: boolean;
+  showCopyPaste: boolean;
   subTitle?: string;
+  disableTime?: boolean;
+  disableReason?: boolean;
+  disablePayCode?: boolean;
+  disableAccountingCode?: boolean;
 };
 
 export const VacancyIndividualDay: React.FC<Props> = props => {
@@ -41,13 +46,18 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     vacancyReasonOptions,
     payCodeOptions,
     accountingCodeOptions,
-    showCopyPast,
+    showCopyPaste,
     setVacancyDetailReason,
     setVacancyDetailTimes,
     setVacancyPayCode,
     setVacancyAccountingCode,
     dayParts,
     subTitle,
+    defaultPayCodeId,
+    disableTime = false,
+    disableReason = false,
+    disablePayCode = false,
+    disableAccountingCode = false,
   } = props;
 
   const [startTime, setStartTime] = useState(vacancyDetail.startTime);
@@ -143,41 +153,40 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
 
   //default properties
 
-  useEffect(() => {
-    if (
-      (!startTime && vacancyDetail.startTime) ||
-      (getTimeValue() !== "custom" && vacancyDetail.startTime) ||
-      (getTimeValue() === "custom" && startTime !== vacancyDetail.startTime)
-    ) {
-      setStartTime(
-        secondsToFormattedHourMinuteString(vacancyDetail.startTime)
-      );
-    }
-    if (
-      (!endTime && vacancyDetail.endTime) ||
-      (getTimeValue() !== "custom" && vacancyDetail.endTime)
-    ) {
-      setEndTime(
-        secondsToFormattedHourMinuteString(vacancyDetail.endTime)
-      );
-    }
-  }, [
-    vacancyDetail.startTime,
-    vacancyDetail.endTime,
-  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+  useEffect(
+    () => {
+      if (
+        (!startTime && vacancyDetail.startTime) ||
+        (getTimeValue() !== "custom" && vacancyDetail.startTime) ||
+        (getTimeValue() === "custom" && startTime !== vacancyDetail.startTime)
+      ) {
+        setStartTime(
+          secondsToFormattedHourMinuteString(vacancyDetail.startTime)
+        );
+      }
+      if (
+        (!endTime && vacancyDetail.endTime) ||
+        (getTimeValue() !== "custom" && vacancyDetail.endTime)
+      ) {
+        setEndTime(secondsToFormattedHourMinuteString(vacancyDetail.endTime));
+      }
+    },
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDetail.startTime, vacancyDetail.endTime]
+  );
 
   return (
     <>
-      <Grid container justify="space-between">
+      <Grid container justify="space-between" spacing={2}>
         <Grid item xs={9}>
           <label>
             {subTitle ? subTitle : format(vacancyDetail.date, "EEE, MMM d")}
           </label>
         </Grid>
-        {showCopyPast && (
+        {showCopyPaste && (
           <Grid item xs={3}>
-            <TextButton>Copy</TextButton>
-            <TextButton>Paste</TextButton>
+            <TextButton>{t("Copy")}</TextButton>
+            <TextButton>{t("Paste")}</TextButton>
           </Grid>
         )}
         <Grid item xs={12}>
@@ -185,6 +194,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
             multiple={false}
             withResetValue={false}
             options={vacancyReasonOptions}
+            disabled={disableReason}
             value={{
               value:
                 vacancyDetail.vacancyReasonId ?? vacancyReasonOptions[0].value,
@@ -213,6 +223,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
             <Select
               multiple={false}
               options={timeOptions}
+              disabled={disableTime}
               withResetValue={false}
               value={{
                 value: getTimeValue(),
@@ -231,71 +242,73 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
           </Grid>
         )}
         {getTimeValue() === "custom" && (
-          <Grid item xs={7}>
-            <Select
-              multiple={false}
-              options={timeOptions}
-              withResetValue={false}
-              value={{
-                value: getTimeValue(),
-                label:
-                  timeOptions.find(d => d.value === getTimeValue())?.label ||
-                  "",
-              }}
-              onChange={async (e: OptionType) => {
-                let selectedValue: any = null;
-                if (e) {
-                  selectedValue = (e as OptionTypeBase).value;
-                }
-                updateVacancyDetailTimes(selectedValue);
-              }}
-            ></Select>
-          </Grid>
+          <>
+            <Grid item xs={6}>
+              <Select
+                multiple={false}
+                options={timeOptions}
+                disabled={disableTime}
+                withResetValue={false}
+                value={{
+                  value: getTimeValue(),
+                  label:
+                    timeOptions.find(d => d.value === getTimeValue())?.label ||
+                    "",
+                }}
+                onChange={async (e: OptionType) => {
+                  let selectedValue: any = null;
+                  if (e) {
+                    selectedValue = (e as OptionTypeBase).value;
+                  }
+                  updateVacancyDetailTimes(selectedValue);
+                }}
+              ></Select>
+            </Grid>
+            <Grid item xs={3}>
+              <TimeInput
+                placeHolder={t("Start time")}
+                value={startTime}
+                label=""
+                onValidTime={(v: string) => {
+                  handleSetStartTime(v, true);
+                }}
+                onChange={(v: string) => {
+                  handleSetStartTime(v, false);
+                }}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <TimeInput
+                placeHolder={t("End time")}
+                value={endTime}
+                label=""
+                onValidTime={(v: string) => {
+                  handleSetEndTime(v, true);
+                  setEndTime(v);
+                }}
+                onChange={(v: string) => {
+                  handleSetEndTime(v, false);
+                  setEndTime(v);
+                }}
+              />
+            </Grid>
+          </>
         )}
-        {getTimeValue() === "custom" && (
-          <Grid item xs={5}>
-            <TimeInput
-              placeHolder={t("Start time")}
-              value={startTime}
-              className={classes.time}
-              label=""
-              onValidTime={(v: string) => {
-                handleSetStartTime(v, true);
-              }}
-              onChange={(v: string) => {
-                handleSetStartTime(v, false);
-              }}
-            />
-
-            <TimeInput
-              placeHolder={t("End time")}
-              className={classes.time}
-              value={endTime}
-              label=""
-              onValidTime={(v: string) => {
-                handleSetEndTime(v, true);
-                setEndTime(v);
-              }}
-              onChange={(v: string) => {
-                handleSetEndTime(v, false);
-                setEndTime(v);
-              }}
-            />
-          </Grid>
-        )}
-        <Grid item xs={12}>
+        <Grid item xs={6}>
           <Select
             multiple={false}
-            withResetValue={false}
+            withResetValue={true}
             options={payCodeOptions}
+            disabled={disablePayCode}
             value={{
-              value: vacancyDetail.payCodeId ?? payCodeOptions[0].value,
+              value: vacancyDetail.payCodeId ?? "",
               label:
-                payCodeOptions.find(a =>
-                  vacancyDetail.payCodeId
-                    ? a.value === vacancyDetail.payCodeId
-                    : a.value === payCodeOptions[0].value
-                )?.label || "",
+                vacancyDetail.payCodeId && vacancyDetail.payCodeId.length > 0
+                  ? payCodeOptions.find(
+                      a =>
+                        a.value === vacancyDetail.payCodeId ?? defaultPayCodeId
+                    )?.label || ""
+                  : "",
             }}
             onChange={async (e: OptionType) => {
               let selectedValue: any = null;
@@ -304,42 +317,51 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
               }
               const newVacDetail = {
                 ...vacancyDetail,
-                payCodeId: selectedValue,
+                payCodeId:
+                  selectedValue && selectedValue.length > 0
+                    ? selectedValue
+                    : undefined,
               };
               setVacancyPayCode(newVacDetail);
             }}
           ></Select>
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={6}>
           <Select
             multiple={false}
-            withResetValue={false}
+            withResetValue={true}
             options={accountingCodeOptions}
+            disabled={disableAccountingCode}
             value={{
-              value: vacancyDetail.accountingCodeAllocations
-                ? vacancyDetail.accountingCodeAllocations[0]
-                    ?.accountingCodeId ?? accountingCodeOptions[0].value
-                : accountingCodeOptions[0].value,
+              value:
+                vacancyDetail.accountingCodeAllocations &&
+                vacancyDetail.accountingCodeAllocations.length > 0
+                  ? vacancyDetail.accountingCodeAllocations[0]
+                      ?.accountingCodeId || ""
+                  : "",
               label:
-                accountingCodeOptions.find(a =>
-                  vacancyDetail.accountingCodeAllocations &&
-                  vacancyDetail.accountingCodeAllocations[0]?.accountingCodeId
-                    ? a.value ===
-                      vacancyDetail.accountingCodeAllocations[0]
-                        .accountingCodeId
-                    : a.value === accountingCodeOptions[0].value
-                )?.label || "",
+                vacancyDetail.accountingCodeAllocations &&
+                vacancyDetail.accountingCodeAllocations.length > 0
+                  ? accountingCodeOptions.find(
+                      a =>
+                        a.value ===
+                        vacancyDetail.accountingCodeAllocations![0]
+                          ?.accountingCodeId
+                    )?.label || ""
+                  : "",
             }}
             onChange={async (e: OptionType) => {
               let selectedValue: any = null;
               if (e) {
                 selectedValue = (e as OptionTypeBase).value;
               }
+              const accountingCodeAllocations =
+                selectedValue && selectedValue.length > 0
+                  ? [{ accountingCodeId: selectedValue, allocation: 1.0 }]
+                  : [];
               const newVacDetail = {
                 ...vacancyDetail,
-                accountingCodeAllocations: [
-                  { accountingCodeId: selectedValue, allocation: 1.0 },
-                ],
+                accountingCodeAllocations,
               };
               setVacancyAccountingCode(newVacDetail);
             }}
@@ -350,14 +372,4 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  time: {
-    width: "45%",
-    paddingLeft: theme.spacing(),
-  },
-
-  hourlyTimes: {
-    paddingLeft: theme.spacing(4),
-    display: "flex",
-  },
-}));
+const useStyles = makeStyles(theme => ({}));

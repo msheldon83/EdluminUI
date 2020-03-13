@@ -19,6 +19,7 @@ type Props = {
   onNotesChange?: (notes: string) => void;
   notes?: string;
   showNotes: boolean;
+  gridRef?: React.RefObject<HTMLDivElement>;
 };
 
 export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
@@ -40,13 +41,17 @@ export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
 
   return (
     <>
-      <Grid container className={classes.subContainer}>
+      <Grid
+        container
+        className={classes.subContainer}
+        ref={props.gridRef || null}
+      >
         <Grid item xs={12} className={classes.vacancyDetailsHeader}>
           {t("Substitute schedule")}
         </Grid>
         {props.scheduleDays.length === 0 && (
           <Grid item xs={12} className={classes.daysPlaceHolder}>
-            <Typography>{t("No days choosen")}</Typography>
+            <Typography>{t("No days chosen")}</Typography>
           </Grid>
         )}
         {props.scheduleDays.map((sd, i) => {
@@ -70,10 +75,28 @@ export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
                 <Typography>{sd.location}</Typography>
               </Grid>
               <Grid xs={6} item>
-                {`${t("Pay")}: ${sd.payCode}`}
+                {sd.payCode ? (
+                  <>{`${t("Pay")}: ${sd.payCode}`}</>
+                ) : (
+                  <>
+                    {`${t("Pay")}: `}
+                    <span className={classes.notSpecified}>
+                      {t("Not Specified")}
+                    </span>
+                  </>
+                )}
               </Grid>
               <Grid xs={6} item>
-                {`${t("Acct")}: ${sd.accountingCode}`}
+                {sd.accountingCode ? (
+                  <>{`${t("Acct")}: ${sd.accountingCode}`}</>
+                ) : (
+                  <>
+                    {`${t("Acct")}: `}
+                    <span className={classes.notSpecified}>
+                      {t("Not Specified")}
+                    </span>
+                  </>
+                )}
               </Grid>
             </Grid>
           );
@@ -149,6 +172,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(2),
   },
   notesContainer: {
+    marginTop: theme.spacing(),
     paddingLeft: theme.spacing(2),
     marginBottom: theme.typography.pxToRem(20),
   },
@@ -158,5 +182,8 @@ const useStyles = makeStyles(theme => ({
   notesSubLabelContainer: {
     paddingLeft: theme.spacing(2),
     color: theme.customColors.gray,
+  },
+  notSpecified: {
+    color: theme.customColors.edluminSubText,
   },
 }));

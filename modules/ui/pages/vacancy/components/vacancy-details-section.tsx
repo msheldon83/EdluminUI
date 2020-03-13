@@ -316,17 +316,6 @@ export const VacancyDetailSection: React.FC<Props> = props => {
             />
           </Grid>
         )}
-        {/*values.positionTypeId !== "" && (
-          <Grid item xs={12} className={classes.rowContainer}>
-            <VacancyDateSelect
-              contractId={values.contractId}
-              vacancySelectedDates={values.details.map(
-                (d: VacancyDetailInput) => d.date
-              )}
-              onSelectDates={dates => dates.forEach(d => toggleVacancyDate(d))}
-            />
-          </Grid>
-              )*/}
 
         {values.positionTypeId !== "" && (
           <Grid item xs={12} className={classes.rowContainer}>
@@ -445,6 +434,10 @@ export const VacancyDetailSection: React.FC<Props> = props => {
               <VacancyIndividualDayList
                 vacancyDays={values.details}
                 payCodes={payCodes}
+                defaultPayCodeId={
+                  positionTypes.find(pt => pt.id === values.positionTypeId)
+                    ?.payCodeId ?? undefined
+                }
                 accountingCodes={accountingCodes}
                 workDayScheduleVariant={locations
                   .find(l => l.id === values.locationId)

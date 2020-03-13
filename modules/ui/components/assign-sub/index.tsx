@@ -307,7 +307,10 @@ export const AssignSub: React.FC<Props> = props => {
           in={vacancyDetailsExpanded}
           collapsedHeight={theme.typography.pxToRem(
             vacancyDetailsHeight
-              ? Math.min(vacancyDetailsHeight, collapsedVacancyDetailsHeight)
+              ? Math.min(
+                  vacancyDetailsHeight + (props.isForVacancy ? 75 : 0),
+                  collapsedVacancyDetailsHeight
+                )
               : collapsedVacancyDetailsHeight
           )}
         >
@@ -335,6 +338,7 @@ export const AssignSub: React.FC<Props> = props => {
               <VacancySubstituteDetailsSection
                 scheduleDays={props.vacancyScheduleDays}
                 showNotes={false}
+                gridRef={vacancyDetailsRef}
               />
             </div>
           )}
