@@ -18,7 +18,7 @@ import { useTranslation } from "react-i18next";
 import { Link, Redirect, useHistory } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
 import { Table } from "ui/components/table";
-import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
+import { AllOrganizations } from "ui/pages/organizations/graphql/AllOrganizations.gen";
 import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useRouteParams } from "ui/routes/definition";
