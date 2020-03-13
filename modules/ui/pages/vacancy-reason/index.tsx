@@ -99,7 +99,7 @@ export const VacancyReason: React.FC<Props> = props => {
   if (!Config.isDevFeatureOnly) {
     return (
       <>
-        <PageTitle title={`${t("Create vacancy")}`} />
+        <PageTitle title={`${t("Vacancy Reasons")}`} />
         <UnderConstructionHeader />
       </>
     );
