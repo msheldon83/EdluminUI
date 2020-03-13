@@ -445,6 +445,10 @@ export const VacancyDetailSection: React.FC<Props> = props => {
               <VacancyIndividualDayList
                 vacancyDays={values.details}
                 payCodes={payCodes}
+                defaultPayCodeId={
+                  positionTypes.find(pt => pt.id === values.positionTypeId)
+                    ?.payCodeId ?? undefined
+                }
                 accountingCodes={accountingCodes}
                 workDayScheduleVariant={locations
                   .find(l => l.id === values.locationId)

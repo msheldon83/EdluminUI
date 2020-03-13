@@ -12,14 +12,14 @@ import { GetVacancyReasonsForOrg } from "../graphql/get-all-vacancy-reasons.gen"
 import { compact } from "lodash-es";
 import { Checkbox, FormControlLabel, Grid } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { isSameDay, format } from "date-fns";
+import { isSameDay } from "date-fns";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
-import { parseISO } from "date-fns/esm";
 
 type Props = {
   vacancyDays: VacancyDetailInput[];
   workDayScheduleVariant?: WorkDayScheduleVariant | null;
   payCodes: PayCode[];
+  defaultPayCodeId?: string;
   accountingCodes: AccountingCode[];
   setFieldValue: (
     field: any,
@@ -39,6 +39,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     workDayScheduleVariant,
     payCodes,
     accountingCodes,
+    defaultPayCodeId,
   } = props;
   const { t } = useTranslation();
   const [dayForCopy, setDayForCopy] = useState();
@@ -532,13 +533,14 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
             vacancyDetail={vacancyDays[0]}
             vacancyReasonOptions={vacancyReasonOptions}
             payCodeOptions={payCodeOptions}
+            defaultPayCodeId={defaultPayCodeId}
             accountingCodeOptions={accountingCodeOptions}
             dayParts={dayParts}
             setVacancyDetailReason={handelSetDayVacReasonValue}
             setVacancyDetailTimes={handelSetDayTimesValue}
             setVacancyPayCode={handleSetPayCodeValue}
             setVacancyAccountingCode={handleSetAccountingCodeValue}
-            showCopyPast={false}
+            showCopyPaste={false}
             subTitle={
               allCheckMarksChecked && vacancyDays.length > 1
                 ? t("Vacancy Details for all days")
@@ -617,13 +619,14 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                   vacancyDetail={d}
                   vacancyReasonOptions={vacancyReasonOptions}
                   payCodeOptions={payCodeOptions}
+                  defaultPayCodeId={defaultPayCodeId}
                   accountingCodeOptions={accountingCodeOptions}
                   dayParts={dayParts}
                   setVacancyDetailReason={handelSetDayVacReasonValue}
                   setVacancyDetailTimes={handelSetDayTimesValue}
                   setVacancyPayCode={handleSetPayCodeValue}
                   setVacancyAccountingCode={handleSetAccountingCodeValue}
-                  showCopyPast={false}
+                  showCopyPaste={false}
                 />
               </Grid>
             );

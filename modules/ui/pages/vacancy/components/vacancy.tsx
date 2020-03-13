@@ -128,7 +128,7 @@ export const VacancyUI: React.FC<Props> = props => {
   const [vacancy, setVacancy] = useState<VacancyDetailsFormData>(props.vacancy);
 
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
-    variables: { orgId: params.organizationId, includeExpired: false },
+    variables: { orgId: params.organizationId, includeExpired: false, forStaffAugmentation: true },
   });
 
   const getLocations = useQueryBundle(GetAllLocationsWithSchedulesWithinOrg, {
