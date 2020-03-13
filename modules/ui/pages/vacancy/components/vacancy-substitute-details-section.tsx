@@ -149,6 +149,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(2),
   },
   notesContainer: {
+    marginTop: theme.spacing(),
     paddingLeft: theme.spacing(2),
     marginBottom: theme.typography.pxToRem(20),
   },
