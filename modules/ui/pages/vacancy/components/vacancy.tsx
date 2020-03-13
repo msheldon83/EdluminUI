@@ -104,6 +104,7 @@ type Props = {
       }
     >
   >;
+  onDelete?: () => void;
 };
 
 export const VacancyUI: React.FC<Props> = props => {
@@ -448,6 +449,15 @@ export const VacancyUI: React.FC<Props> = props => {
                           </Typography>
                         )}
                       </div>
+                      {props.onDelete && vacancyExists && !dirty && (
+                        <Button
+                          onClick={() => props.onDelete!()}
+                          variant="text"
+                          className={classes.deleteButton}
+                        >
+                          {t("Delete")}
+                        </Button>
+                      )}
                       <Can
                         do={(
                           permissions: OrgUserPermissions[],
@@ -579,5 +589,10 @@ const useStyles = makeStyles(theme => ({
   },
   subDetailtitle: {
     marginBottom: theme.typography.pxToRem(15),
+  },
+  deleteButton: {
+    color: theme.customColors.darkRed,
+    marginRight: theme.spacing(2),
+    textDecoration: "underline",
   },
 }));
