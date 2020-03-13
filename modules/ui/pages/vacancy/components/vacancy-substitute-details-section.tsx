@@ -19,6 +19,7 @@ type Props = {
   onNotesChange?: (notes: string) => void;
   notes?: string;
   showNotes: boolean;
+  gridRef?: React.RefObject<HTMLDivElement>;
 };
 
 export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
@@ -40,7 +41,11 @@ export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
 
   return (
     <>
-      <Grid container className={classes.subContainer}>
+      <Grid
+        container
+        className={classes.subContainer}
+        ref={props.gridRef || null}
+      >
         <Grid item xs={12} className={classes.vacancyDetailsHeader}>
           {t("Substitute schedule")}
         </Grid>
