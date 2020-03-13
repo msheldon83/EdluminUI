@@ -175,8 +175,6 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     [vacancyDetail.startTime, vacancyDetail.endTime]
   );
 
-  console.log(vacancyDetail.accountingCodeAllocations);
-
   return (
     <>
       <Grid container justify="space-between" spacing={2}>
