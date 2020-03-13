@@ -13,24 +13,31 @@ import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 
 type Props = {
+  objectType: "absence" | "vacancy";
   open: boolean;
   onClose: () => void;
   onDelete: () => void;
   replacementEmployeeName?: string;
 };
 
-export const DeleteDialog: React.FC<Props> = props => {
+export const DeleteAbsenceVacancyDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
-        <Typography variant="h5">{t("Delete Absence")}</Typography>
+        <Typography variant="h5">
+          {props.objectType === "absence"
+            ? t("Delete Absence")
+            : t("Delete Vacancy")}
+        </Typography>
       </DialogTitle>
       <DialogContent>
         <Typography>
-          {t("Are you sure you would like to delete this absence?")}
+          {props.objectType === "absence"
+            ? t("Are you sure you would like to delete this absence?")
+            : t("Are you sure you would like to delete this vacancy?")}
         </Typography>
         {props.replacementEmployeeName && (
           <Typography className={classes.removeSub}>

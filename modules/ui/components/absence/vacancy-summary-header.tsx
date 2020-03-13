@@ -5,17 +5,25 @@ import { getAbsenceDateRangeDisplayTextWithOutDayOfWeekForContiguousDates } from
 import { VacancyDetailsGroup } from "./helpers";
 
 type Props = {
-  vacancyDetailGroupings: VacancyDetailsGroup[];
+  vacancyDetailGroupings?: VacancyDetailsGroup[];
   positionName?: string | null;
   disabledDates?: Date[];
+  vacancyDates?: Date[];
 };
 
 export const VacancySummaryHeader: React.FC<Props> = props => {
-  const allDates = uniq(
-    flatMap(
-      props.vacancyDetailGroupings.map(vd => vd.detailItems.map(di => di.date))
-    )
-  );
+  const allDates = props.vacancyDates
+    ? uniq(flatMap(props.vacancyDates.map(d => d)))
+    : props.vacancyDetailGroupings
+    ? uniq(
+        flatMap(
+          props.vacancyDetailGroupings.map(vd =>
+            vd.detailItems.map(di => di.date)
+          )
+        )
+      )
+    : [];
+
   const dayLengthDisplayText =
     allDates.length > 1 ? `${allDates.length} days` : `${allDates.length} day`;
 

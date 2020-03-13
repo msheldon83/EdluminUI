@@ -5,9 +5,10 @@ import { Button, Typography, makeStyles } from "@material-ui/core";
 type Props = {
   absenceId?: string;
   userIsAdmin: boolean;
-  employeeName: string;
+  employeeName?: string;
   pageHeader: string;
   onCancel: () => void;
+  isForVacancy?: boolean;
 };
 
 export const AbsenceHeader: React.FC<Props> = props => {
@@ -18,14 +19,16 @@ export const AbsenceHeader: React.FC<Props> = props => {
     <div className={classes.header}>
       <div>
         <Typography variant="h5">{props.pageHeader}</Typography>
-        {props.userIsAdmin && (
+        {props.userIsAdmin && props.employeeName && (
           <Typography variant="h1">{props.employeeName}</Typography>
         )}
       </div>
       <div className={classes.confAndReturnContainer}>
         <div>
           <Button variant="outlined" onClick={props.onCancel}>
-            {t("Back to Absence Details")}
+            {props.isForVacancy
+              ? t("Back to Vacancy Details")
+              : t("Back to Absence Details")}
           </Button>
         </div>
         <div>

@@ -21,7 +21,7 @@ import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "hooks/use-snackbar";
-import { DeleteDialog } from "./delete-absence-dialog";
+import { DeleteAbsenceVacancyDialog } from "../../components/absence-vacancy/delete-absence-vacancy-dialog";
 import { ShowErrors } from "ui/components/error-helpers";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
@@ -339,7 +339,8 @@ export const EditAbsence: React.FC<Props> = props => {
 
   return (
     <>
-      <DeleteDialog
+      <DeleteAbsenceVacancyDialog
+        objectType={"absence"}
         onDelete={onDeleteAbsence}
         onClose={() => setDeleteDialogIsOpen(false)}
         open={deleteDialogIsOpen}
