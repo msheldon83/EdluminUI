@@ -70,10 +70,28 @@ export const VacancySubstituteDetailsSection: React.FC<Props> = props => {
                 <Typography>{sd.location}</Typography>
               </Grid>
               <Grid xs={6} item>
-                {`${t("Pay")}: ${sd.payCode}`}
+                {sd.payCode ? (
+                  <>{`${t("Pay")}: ${sd.payCode}`}</>
+                ) : (
+                  <>
+                    {`${t("Pay")}: `}
+                    <span className={classes.notSpecified}>
+                      {t("Not Specified")}
+                    </span>
+                  </>
+                )}
               </Grid>
               <Grid xs={6} item>
-                {`${t("Acct")}: ${sd.accountingCode}`}
+                {sd.accountingCode ? (
+                  <>{`${t("Acct")}: ${sd.accountingCode}`}</>
+                ) : (
+                  <>
+                    {`${t("Acct")}: `}
+                    <span className={classes.notSpecified}>
+                      {t("Not Specified")}
+                    </span>
+                  </>
+                )}
               </Grid>
             </Grid>
           );
@@ -159,5 +177,8 @@ const useStyles = makeStyles(theme => ({
   notesSubLabelContainer: {
     paddingLeft: theme.spacing(2),
     color: theme.customColors.gray,
+  },
+  notSpecified: {
+    color: theme.customColors.edluminSubText,
   },
 }));

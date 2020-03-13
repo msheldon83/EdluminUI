@@ -10,7 +10,12 @@ import { VacancyIndividualDay } from "./vacancy-individual-day";
 import { useQueryBundle } from "graphql/hooks";
 import { GetVacancyReasonsForOrg } from "../graphql/get-all-vacancy-reasons.gen";
 import { compact } from "lodash-es";
-import { Checkbox, FormControlLabel, Grid } from "@material-ui/core";
+import {
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  makeStyles,
+} from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { isSameDay } from "date-fns";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
@@ -31,6 +36,7 @@ type Props = {
 };
 
 export const VacancyIndividualDayList: React.FC<Props> = props => {
+  const classes = useStyles();
   const {
     vacancyDays,
     setFieldValue,
@@ -77,11 +83,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setFieldValue("details", newVacancyDays);
       updateModel({ details: newVacancyDays });
     },
-    [
-      vacancyDays,
-      props.vacancyDays,
-      useSameReason,
-    ] /* eslint-disable-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, props.vacancyDays, useSameReason]
   );
 
   const handelSetDayTimesValue = React.useCallback(
@@ -105,11 +108,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setFieldValue("details", newVacancyDays);
       updateModel({ details: newVacancyDays });
     },
-    [
-      vacancyDays,
-      props.vacancyDays,
-      useSameTime,
-    ] /* eslint-disable-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, props.vacancyDays, useSameTime]
   );
 
   const handleSetPayCodeValue = React.useCallback(
@@ -131,11 +131,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setFieldValue("details", newVacancyDays);
       updateModel({ details: newVacancyDays });
     },
-    [
-      vacancyDays,
-      props.vacancyDays,
-      useSamePayCode,
-    ] /* eslint-disable-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, props.vacancyDays, useSamePayCode]
   );
 
   const handleSetAccountingCodeValue = React.useCallback(
@@ -145,31 +142,29 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         vacDetail.accountingCodeAllocations &&
         vacDetail.accountingCodeAllocations.length > 0
           ? vacDetail.accountingCodeAllocations[0]
-          : {
-              accountingCodeId: accountingCodeOptions[0].value,
-              allocation: 1.0,
-            };
+          : undefined;
       newVacancyDays.forEach((vd, i) => {
         newVacancyDays[i] = {
           //need this to mark form as dirty
           ...newVacancyDays[i],
         };
         if (useSameAccountingCode) {
-          newVacancyDays[i].accountingCodeAllocations = [accCode];
+          newVacancyDays[i].accountingCodeAllocations = accCode
+            ? [accCode]
+            : [];
         } else {
           if (isSameDay(vd.date, vacDetail.date)) {
-            newVacancyDays[i].accountingCodeAllocations = [accCode];
+            newVacancyDays[i].accountingCodeAllocations = accCode
+              ? [accCode]
+              : [];
           }
         }
       });
       setFieldValue("details", newVacancyDays);
       updateModel({ details: newVacancyDays });
     },
-    [
-      vacancyDays,
-      props.vacancyDays,
-      useSameAccountingCode,
-    ] /* eslint-disable-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, props.vacancyDays, useSameAccountingCode]
   );
 
   const handleSameForAllVacReasonCheck = React.useCallback(
@@ -185,10 +180,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       }
       setUseSameReason(value);
     },
-    [
-      vacancyDays,
-      props.vacancyDays,
-    ] /* eslint-disable-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, props.vacancyDays]
   );
 
   const handleSameForAllPayCodeCheck = React.useCallback(
@@ -204,10 +197,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       }
       setUseSamePayCode(value);
     },
-    [
-      vacancyDays,
-      props.vacancyDays,
-    ] /* eslint-disable-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, props.vacancyDays]
   );
 
   const handleSameForAllAccountingCodeCheck = React.useCallback(
@@ -230,10 +221,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       }
       setUseSameAccountingCode(value);
     },
-    [
-      vacancyDays,
-      props.vacancyDays,
-    ] /* eslint-disable-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, props.vacancyDays]
   );
 
   const handleSameForAllVTimeCheck = React.useCallback(
@@ -251,10 +240,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       }
       setUseSameTime(value);
     },
-    [
-      vacancyDays,
-      props.vacancyDays,
-    ] /* eslint-disable-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, props.vacancyDays]
   );
 
   const vacancyReasons: any =
@@ -272,58 +259,60 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     return payCodes.map((r: any) => ({ label: r.name, value: r.id }));
   }, [payCodes, props]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
-  const accountingCodeOptions = useMemo(() => {
-    return accountingCodes.map((r: any) => ({ label: r.name, value: r.id }));
-  }, [
-    accountingCodes,
-    props,
-  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+  const accountingCodeOptions = useMemo(
+    () => {
+      return accountingCodes.map((r: any) => ({ label: r.name, value: r.id }));
+    },
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [accountingCodes, props]
+  );
 
-  const dayParts = useMemo(() => {
-    const partsArray: any = [];
-    if (!workDayScheduleVariant) return partsArray;
-    partsArray.push({
-      id: "full",
-      label: `Full day (${secondsToFormattedHourMinuteString(
-        workDayScheduleVariant?.startTime
-      )}-${secondsToFormattedHourMinuteString(
-        workDayScheduleVariant?.endTime
-      )})`,
-      start: workDayScheduleVariant?.startTime,
-      end: workDayScheduleVariant?.endTime,
-    });
-    partsArray.push({
-      id: "halfDayAM",
-      label: `Half day AM (${secondsToFormattedHourMinuteString(
-        workDayScheduleVariant?.startTime
-      )}-${secondsToFormattedHourMinuteString(
-        workDayScheduleVariant?.halfDayMorningEnd
-      )})`,
-      start: workDayScheduleVariant?.startTime,
-      end: workDayScheduleVariant?.halfDayMorningEnd,
-    });
-    partsArray.push({
-      id: "halfDayPM",
-      label: `Half day PM (${secondsToFormattedHourMinuteString(
-        workDayScheduleVariant?.halfDayAfternoonStart
-      )}-${secondsToFormattedHourMinuteString(
-        workDayScheduleVariant?.endTime
-      )})`,
-      start: workDayScheduleVariant?.halfDayAfternoonStart,
-      end: workDayScheduleVariant?.endTime,
-    });
-    partsArray.push({
-      id: "custom",
-      label: "Custom times",
-      start: workDayScheduleVariant?.startTime,
-      end: workDayScheduleVariant?.endTime,
-    });
+  const dayParts = useMemo(
+    () => {
+      const partsArray: any = [];
+      if (!workDayScheduleVariant) return partsArray;
+      partsArray.push({
+        id: "full",
+        label: `Full day (${secondsToFormattedHourMinuteString(
+          workDayScheduleVariant?.startTime
+        )}-${secondsToFormattedHourMinuteString(
+          workDayScheduleVariant?.endTime
+        )})`,
+        start: workDayScheduleVariant?.startTime,
+        end: workDayScheduleVariant?.endTime,
+      });
+      partsArray.push({
+        id: "halfDayAM",
+        label: `Half day AM (${secondsToFormattedHourMinuteString(
+          workDayScheduleVariant?.startTime
+        )}-${secondsToFormattedHourMinuteString(
+          workDayScheduleVariant?.halfDayMorningEnd
+        )})`,
+        start: workDayScheduleVariant?.startTime,
+        end: workDayScheduleVariant?.halfDayMorningEnd,
+      });
+      partsArray.push({
+        id: "halfDayPM",
+        label: `Half day PM (${secondsToFormattedHourMinuteString(
+          workDayScheduleVariant?.halfDayAfternoonStart
+        )}-${secondsToFormattedHourMinuteString(
+          workDayScheduleVariant?.endTime
+        )})`,
+        start: workDayScheduleVariant?.halfDayAfternoonStart,
+        end: workDayScheduleVariant?.endTime,
+      });
+      partsArray.push({
+        id: "custom",
+        label: "Custom times",
+        start: workDayScheduleVariant?.startTime,
+        end: workDayScheduleVariant?.endTime,
+      });
 
-    return partsArray;
-  }, [
-    props,
-    workDayScheduleVariant,
-  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+      return partsArray;
+    },
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [props, workDayScheduleVariant]
+  );
 
   /* Use this effect for existing vacancies that will have existing days */
   useEffect(() => {
@@ -379,144 +368,132 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setUseSamePayCode(true);
       setUseSameAccountingCode(true);
     }
-  }, []);
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   /* this effect is needed when we add a day and the check box is selected to use same reason */
   /* we want to default the newly added day to the first vac reason*/
-  useEffect(() => {
-    if (vacancyDays.length > 0) {
-      let update = false;
-      const vacReasonId =
-        vacancyDays[0].vacancyReasonId ?? vacancyReasonOptions[0].value;
-      for (let i = 0; i < vacancyDays.length; i++) {
-        if (useSameReason && vacancyDays[i].vacancyReasonId !== vacReasonId) {
-          vacancyDays[i].vacancyReasonId = vacReasonId;
-          update = true;
-        } else {
-          if (!vacancyDays[i].vacancyReasonId) {
-            vacancyDays[i].vacancyReasonId = vacancyReasonOptions[0].value;
+  useEffect(
+    () => {
+      if (vacancyDays.length > 0) {
+        let update = false;
+        const vacReasonId =
+          vacancyDays[0].vacancyReasonId ?? vacancyReasonOptions[0].value;
+        for (let i = 0; i < vacancyDays.length; i++) {
+          if (useSameReason && vacancyDays[i].vacancyReasonId !== vacReasonId) {
+            vacancyDays[i].vacancyReasonId = vacReasonId;
             update = true;
+          } else {
+            if (!vacancyDays[i].vacancyReasonId) {
+              vacancyDays[i].vacancyReasonId = vacancyReasonOptions[0].value;
+              update = true;
+            }
           }
         }
+        if (update) {
+          setFieldValue("details", vacancyDays);
+          updateModel({ details: vacancyDays });
+        }
       }
-      if (update) {
-        setFieldValue("details", vacancyDays);
-        updateModel({ details: vacancyDays });
-      }
-    }
-  }, [
-    vacancyDays,
-    props,
-    useSameReason,
-  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+    },
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, useSameReason]
+  );
 
   /* this effect is needed when we add a day and the check box is selected to use same times */
   /* we want to default the newly added day to the first start and end times*/
-  useEffect(() => {
-    if (vacancyDays.length > 0) {
-      const sTime = vacancyDays[0].startTime ?? dayParts[0].start;
-      const eTime = vacancyDays[0].endTime ?? dayParts[0].end;
-      let update = false;
-      for (let i = 0; i < vacancyDays.length; i++) {
-        if (
-          useSameTime &&
-          vacancyDays[i].startTime !== sTime &&
-          vacancyDays[i].endTime !== eTime
-        ) {
-          vacancyDays[i].startTime = sTime;
-          vacancyDays[i].endTime = eTime;
-          update = true;
-        } else {
-          if (!vacancyDays[i].startTime || !vacancyDays[i].endTime) {
-            vacancyDays[i].startTime = dayParts[0].start;
-            vacancyDays[i].endTime = dayParts[0].end;
+  useEffect(
+    () => {
+      if (vacancyDays.length > 0) {
+        const sTime = vacancyDays[0].startTime ?? dayParts[0].start;
+        const eTime = vacancyDays[0].endTime ?? dayParts[0].end;
+        let update = false;
+        for (let i = 0; i < vacancyDays.length; i++) {
+          if (
+            useSameTime &&
+            vacancyDays[i].startTime !== sTime &&
+            vacancyDays[i].endTime !== eTime
+          ) {
+            vacancyDays[i].startTime = sTime;
+            vacancyDays[i].endTime = eTime;
             update = true;
+          } else {
+            if (!vacancyDays[i].startTime || !vacancyDays[i].endTime) {
+              vacancyDays[i].startTime = dayParts[0].start;
+              vacancyDays[i].endTime = dayParts[0].end;
+              update = true;
+            }
           }
         }
+        if (update) {
+          setFieldValue("details", vacancyDays);
+          updateModel({ details: vacancyDays });
+        }
       }
-      if (update) {
-        setFieldValue("details", vacancyDays);
-        updateModel({ details: vacancyDays });
-      }
-    }
-  }, [
-    vacancyDays,
-    props,
-    useSameTime,
-  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+    },
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, useSameTime]
+  );
 
   /* this effect is needed when we add a day and the check box is selected to use same paycodes */
-  /* we want to default the newly added day to the first paycode*/
-  useEffect(() => {
-    if (vacancyDays.length > 0) {
-      let update = false;
-      const payCodeId = vacancyDays[0].payCodeId ?? payCodeOptions[0].value;
-      for (let i = 0; i < vacancyDays.length; i++) {
-        if (useSamePayCode && vacancyDays[i].payCodeId !== payCodeId) {
-          vacancyDays[i].payCodeId = payCodeId;
-          update = true;
-        } else {
-          if (!vacancyDays[i].payCodeId) {
-            vacancyDays[i].payCodeId = payCodeOptions[0].value;
+  /* we want to default the newly added day to the first day's paycode*/
+  useEffect(
+    () => {
+      if (vacancyDays.length > 0) {
+        let update = false;
+        const payCodeId = vacancyDays[0].payCodeId ?? defaultPayCodeId;
+        for (let i = 1; i < vacancyDays.length; i++) {
+          if (useSamePayCode && vacancyDays[i].payCodeId !== payCodeId) {
+            vacancyDays[i].payCodeId =
+              payCodeId && payCodeId.length > 0 ? payCodeId : undefined;
             update = true;
           }
         }
+        if (update) {
+          setFieldValue("details", vacancyDays);
+          updateModel({ details: vacancyDays });
+        }
       }
-      if (update) {
-        setFieldValue("details", vacancyDays);
-        updateModel({ details: vacancyDays });
-      }
-    }
-  }, [
-    vacancyDays,
-    props,
-    useSamePayCode,
-  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+    },
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, useSamePayCode]
+  );
 
   /* this effect is needed when we add a day and the check box is selected to use same accountingcode */
-  /* we want to default the newly added day to the first accounting code*/
-  useEffect(() => {
-    if (vacancyDays.length > 0) {
-      let update = false;
-      const accountingCodeId =
-        vacancyDays[0].accountingCodeAllocations &&
-        vacancyDays[0].accountingCodeAllocations.length > 0
-          ? vacancyDays[0].accountingCodeAllocations[0]?.accountingCodeId
-          : accountingCodeOptions[0].value;
-      for (let i = 0; i < vacancyDays.length; i++) {
-        if (
-          useSameAccountingCode &&
-          vacancyDays[i].accountingCodeAllocations &&
-          !vacancyDays[i].accountingCodeAllocations?.find(
-            a => a?.accountingCodeId === accountingCodeId
-          )
-        ) {
-          vacancyDays[i].accountingCodeAllocations = [
-            { accountingCodeId: accountingCodeId, allocation: 1.0 },
-          ];
-          update = true;
-        } else {
-          if (!vacancyDays[i].accountingCodeAllocations) {
-            vacancyDays[i].accountingCodeAllocations = [
-              {
-                accountingCodeId: accountingCodeOptions[0].value,
-                allocation: 1.0,
-              },
-            ];
+  /* we want to default the newly added day to the first day's accounting code*/
+  useEffect(
+    () => {
+      if (vacancyDays.length > 0) {
+        let update = false;
+        const accountingCodeId =
+          vacancyDays[0].accountingCodeAllocations &&
+          vacancyDays[0].accountingCodeAllocations.length > 0
+            ? vacancyDays[0].accountingCodeAllocations[0]?.accountingCodeId
+            : undefined;
+        for (let i = 1; i < vacancyDays.length; i++) {
+          if (
+            useSameAccountingCode &&
+            (!vacancyDays[i].accountingCodeAllocations ||
+              (vacancyDays[i].accountingCodeAllocations &&
+                !vacancyDays[i].accountingCodeAllocations?.find(
+                  a => a?.accountingCodeId === accountingCodeId
+                )))
+          ) {
+            vacancyDays[i].accountingCodeAllocations =
+              accountingCodeId && accountingCodeId.length > 0
+                ? [{ accountingCodeId: accountingCodeId, allocation: 1.0 }]
+                : [];
             update = true;
           }
         }
+        if (update) {
+          setFieldValue("details", vacancyDays);
+          updateModel({ details: vacancyDays });
+        }
       }
-      if (update) {
-        setFieldValue("details", vacancyDays);
-        updateModel({ details: vacancyDays });
-      }
-    }
-  }, [
-    vacancyDays,
-    props,
-    useSameAccountingCode,
-  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+    },
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [vacancyDays, useSameAccountingCode]
+  );
 
   if (getvacancyReasons.state === "LOADING") {
     return <></>;
@@ -550,7 +527,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         </Grid>
         {vacancyDays.length > 1 && (
           <Grid item container xs={12}>
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -564,6 +541,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                 }
                 label={t("Same time for all days")}
               />
+            </Grid>
+            <Grid item xs={6}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -578,7 +557,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                 label={t("Same reason for all days")}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -590,8 +569,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                     }}
                   />
                 }
-                label={t("Same paycode for all days")}
+                label={t("Same pay for all days")}
               />
+            </Grid>
+            <Grid item xs={6}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -603,7 +584,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                     }}
                   />
                 }
-                label={t("Same accounting code for all days")}
+                label={t("Same account for all days")}
               />
             </Grid>
           </Grid>
@@ -614,7 +595,13 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
             return i == 0 ? (
               ""
             ) : (
-              <Grid item container xs={12} key={"vacancy-day-" + i}>
+              <Grid
+                item
+                container
+                xs={12}
+                key={"vacancy-day-" + i}
+                className={classes.additionalDays}
+              >
                 <VacancyIndividualDay
                   vacancyDetail={d}
                   vacancyReasonOptions={vacancyReasonOptions}
@@ -627,6 +614,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                   setVacancyPayCode={handleSetPayCodeValue}
                   setVacancyAccountingCode={handleSetAccountingCodeValue}
                   showCopyPaste={false}
+                  disableTime={useSameTime}
+                  disableReason={useSameReason}
+                  disablePayCode={useSamePayCode}
+                  disableAccountingCode={useSameAccountingCode}
                 />
               </Grid>
             );
@@ -635,3 +626,9 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  additionalDays: {
+    marginTop: theme.spacing(2),
+  },
+}));
