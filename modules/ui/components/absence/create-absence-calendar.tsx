@@ -32,10 +32,10 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
       getCannotCreateAbsenceDates(disabledDateObjs).map(date => {
         return {
           date,
-          buttonProps: { className: classes.dateDisabled },
+          buttonProps: { className: classes.dateDisabled + " dateDisabled" },
         };
       }),
-    [disabledDateObjs, classes.dateDisabled]
+    [disabledDateObjs, classes.dateDisabled + " dateDisabled"]
   );
 
   const customExistingAbsenceDates = useMemo(
