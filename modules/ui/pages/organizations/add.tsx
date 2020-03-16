@@ -13,7 +13,7 @@ import {
   SeedOrgDataOptionEnum,
   TimeZone,
 } from "graphql/server-types.gen";
-import { OrganizationsRoute } from "ui/routes/organizations";
+import { AdminRootChromeRoute } from "ui/routes/app-chrome";
 import { CreateOrganization } from "./graphql/create-organization.gen";
 import { Button, Typography, makeStyles } from "@material-ui/core";
 import { AddBasicInfo } from "./components/add-info";
@@ -22,7 +22,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const history = useHistory();
-  const params = useRouteParams(OrganizationsRoute);
+  const params = useRouteParams(AdminRootChromeRoute);
   const [name, setName] = React.useState<string | null>(null);
   const { openSnackbar } = useSnackbar();
   const namePlaceholder = t("Glenbrook District");
@@ -40,7 +40,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     // config: OrganizationConfigInput,
   });
 
-  //mutation
+  //Mutation
   const [createOrganization] = useMutationBundle(CreateOrganization, {
     onError: error => {
       ShowErrors(error, openSnackbar);
@@ -80,9 +80,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
           });
         }}
         onCancel={() => {
-          const url = OrganizationsRoute;
-
-          console.log(url);
+          const url = AdminRootChromeRoute.generate(params);
           history.push(url);
         }}
         onNameChange={name => setName(name)}
