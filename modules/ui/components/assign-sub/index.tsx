@@ -90,10 +90,9 @@ export const AssignSub: React.FC<Props> = props => {
 
   const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
   const [warningDialogIsOpen, setWarningDialogIsOpen] = React.useState(false);
-  const [
-    replacementEmployeeName,
-    setReplacementEmployeeName,
-  ] = React.useState();
+  const [replacementEmployeeName, setReplacementEmployeeName] = React.useState(
+    ""
+  );
   const [
     replacementEmployeePayCode,
     setReplacementEmployeePayCode,
@@ -449,12 +448,9 @@ export const AssignSub: React.FC<Props> = props => {
         }}
       />
       <AbsenceHeader
-        absenceId={props.absenceId}
-        userIsAdmin={props.userIsAdmin}
-        employeeName={props.employeeName}
+        employeeName={props.employeeName ?? ""}
         pageHeader={pageHeader}
         onCancel={props.onCancel}
-        isForVacancy={props.isForVacancy}
       />
       <Section>
         <div className={classes.vacancyDetails}>{renderVacancyDetails()}</div>

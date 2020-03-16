@@ -14,12 +14,15 @@ import { Table } from "ui/components/table";
 import { AssignAbsenceDialog } from "ui/components/assign-absence-dialog";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
 import { VacancyDetails } from "../../../components/absence/vacancy-details";
-import { AssignSubColumn, getAssignSubColumns } from "./columns";
+import {
+  AssignSubColumn,
+  getAssignSubColumns,
+} from "ui/components/assign-sub/columns";
 import { compact, uniq } from "lodash-es";
 import {
   AssignSubFilters as Filters,
   ReplacementEmployeeFilters,
-} from "./filters";
+} from "ui/components/assign-sub/filters";
 import { ReassignAbsenceDialog } from "ui/components/absence/reassign-dialog";
 import { AssignmentOnDate } from "ui/components/absence/types";
 import { AbsenceHeader } from "ui/components/absence/header";
