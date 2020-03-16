@@ -1,0 +1,17 @@
+query GetContractScheduleDates(
+  $contractId: ID!
+  $fromDate: Date!
+  $toDate: Date!
+) {
+  contractSchedule {
+    contractScheduleDates(
+      contractId: $contractId
+      fromDate: $fromDate
+      toDate: $toDate
+    ) {
+      id
+      date
+      calendarDayTypeId
+    }
+  }
+}

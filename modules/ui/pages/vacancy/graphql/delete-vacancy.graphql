@@ -1,0 +1,5 @@
+mutation DeleteVacancy($vacancyId: ID!) {
+  vacancy {
+    delete(vacancyId: $vacancyId)
+  }
+}

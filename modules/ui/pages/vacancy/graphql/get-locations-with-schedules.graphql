@@ -1,0 +1,19 @@
+query GetAllLocationsWithSchedulesWithinOrg($orgId: ID) {
+  location {
+    all(orgId: $orgId) {
+      id
+      name
+      workDaySchedules {
+        id
+        name
+        variants {
+          startTime
+          endTime
+          halfDayMorningEnd
+          halfDayAfternoonStart
+          isStandard
+        }
+      }
+    }
+  }
+}

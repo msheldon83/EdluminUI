@@ -10,15 +10,18 @@ import {
   Typography,
   Grid,
   Box,
+  Divider,
 } from "@material-ui/core";
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { TextButton } from "ui/components/text-button";
+import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { useQueryBundle } from "graphql/hooks";
 import { WasEmployeeAssignedToJob } from "../graphql/was-employee-assigned.gen";
 import { VacancyWasAssignedResult } from "graphql/server-types.gen";
 import { CheckCircle, Close } from "@material-ui/icons";
+import { useIsMobile } from "hooks";
 
 type Props = {
   open: boolean;
@@ -30,6 +33,7 @@ type Props = {
 export const RequestAbsenceDialog: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   const [seconds, setSeconds] = useState(0);
 
@@ -84,115 +88,85 @@ export const RequestAbsenceDialog: React.FC<Props> = props => {
       open={props.open}
       onClose={() => props.onClose(wasEmployeeAssigned.assignmentId)}
     >
-      <Box height={300} width={510}>
-        <div style={{ padding: 20 }}>
-          <Grid
-            container
-            direction="column"
-            justify="center"
-            alignItems="center"
-            spacing={2}
+      <DialogContent className={classes.dialog}>
+        {wasEmployeeAssigned.returnCode === 0 ? (
+          <div
+            className={isMobile ? classes.mobileContainer : classes.container}
           >
-            <Grid container item justify="flex-end">
-              <IconButton
-                onClick={() => props.onClose(wasEmployeeAssigned.assignmentId)}
-              >
-                <Close />
-              </IconButton>
-            </Grid>
-            {wasEmployeeAssigned.returnCode === 0 ? (
-              <>
-                <Grid item>
-                  <Typography className={classes.subTitle}>
-                    {t("It's all yours!")}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant="h5">{`${t("Confirmation")} #C${
-                    wasEmployeeAssigned.assignmentId
-                  }`}</Typography>
-                </Grid>
-                <Grid item>
-                  <CheckCircle className={classes.checkIcon} />
-                </Grid>
-              </>
-            ) : wasEmployeeAssigned.returnCode === -1 ? (
-              <>
-                <Grid item>
-                  <Typography variant="h5">
-                    {t("We're sorry, this assignment")}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant="h5">
-                    {t("is no longer available")}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    onClick={() =>
-                      props.onClose(wasEmployeeAssigned.assignmentId)
-                    }
-                  >
-                    {t("Return to search")}
-                  </Button>
-                </Grid>
-              </>
-            ) : wasEmployeeAssigned.returnCode === -2 ||
-              wasEmployeeAssigned.returnCode === -3 ||
-              wasEmployeeAssigned.returnCode === -4 ? (
-              <>
-                <Grid item>
-                  <Typography variant="h5">
-                    {wasEmployeeAssigned.description}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    onClick={() =>
-                      props.onClose(wasEmployeeAssigned.assignmentId)
-                    }
-                  >
-                    {t("Return to search")}
-                  </Button>
-                </Grid>
-              </>
-            ) : (
-              <>
-                <Grid item>
-                  <Typography variant="h5">{waitingTitle}</Typography>
-                </Grid>
-                <Grid item>
-                  <Typography className={classes.subTitle}>
-                    {waitingSubTitle}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <LinearProgress className={classes.progress} />
-                </Grid>
-              </>
-            )}
-          </Grid>
-        </div>
-      </Box>
+            <Typography className={classes.subTitle}>
+              {t("It's all yours!")}
+            </Typography>
+            <Typography variant="h5">{`${t("Confirmation")} #C${
+              wasEmployeeAssigned.assignmentId
+            }`}</Typography>
+            <CheckCircle className={classes.checkIcon} />
+          </div>
+        ) : wasEmployeeAssigned.returnCode === -1 ? (
+          <div
+            className={isMobile ? classes.mobileContainer : classes.container}
+          >
+            <Typography variant="h5">
+              {t("We're sorry, this assignment")}
+            </Typography>
+            <Typography variant="h5">{t("is no longer available")}</Typography>
+          </div>
+        ) : wasEmployeeAssigned.returnCode === -2 ||
+          wasEmployeeAssigned.returnCode === -3 ||
+          wasEmployeeAssigned.returnCode === -4 ? (
+          <div
+            className={isMobile ? classes.mobileContainer : classes.container}
+          >
+            <Typography variant="h5">
+              {wasEmployeeAssigned.description}
+            </Typography>
+          </div>
+        ) : (
+          <div
+            className={isMobile ? classes.mobileContainer : classes.container}
+          >
+            <Typography variant="h5">{waitingTitle}</Typography>
+            <Typography className={classes.subTitle}>
+              {waitingSubTitle}
+            </Typography>
+            <LinearProgress
+              className={isMobile ? classes.mobileProgress : classes.progress}
+            />
+          </div>
+        )}
+      </DialogContent>
+      <Divider className={classes.divider} />
+      <DialogActions>
+        <Button
+          variant="contained"
+          onClick={() => props.onClose(wasEmployeeAssigned.assignmentId)}
+        >
+          {t("Return to search")}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };
 
 export const useStyles = makeStyles(theme => ({
+  mobileContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    height: 200,
+    width: 375,
+  },
   dialog: {
-    maxWidth: 400,
-    maxHeight: 230,
+    padding: theme.spacing(2),
   },
   typography: {
     padding: theme.spacing(2),
-  },
-  paper: {
-    border: "1px solid",
-    padding: theme.spacing(1),
-    backgroundColor: theme.palette.background.paper,
   },
   subTitle: {
     fontSize: theme.typography.fontSize,
@@ -206,5 +180,15 @@ export const useStyles = makeStyles(theme => ({
     "& > * + *": {
       marginTop: theme.spacing(2),
     },
+  },
+  mobileProgress: {
+    width: 225,
+    "& > * + *": {
+      marginTop: theme.spacing(2),
+    },
+  },
+  divider: {
+    color: theme.customColors.gray,
+    marginTop: theme.spacing(1),
   },
 }));

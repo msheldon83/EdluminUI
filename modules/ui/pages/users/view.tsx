@@ -10,7 +10,7 @@ import {
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useIsMobile, useDeferredState } from "hooks";
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -30,7 +30,7 @@ import { ResetUserPassword } from "./graphql/reset-user-password.gen";
 import { InviteUser } from "./graphql/invite-user.gen";
 import { ChangeLoginEmailDialog } from "../profile/change-email-dialog";
 import { UpdateLoginEmail } from "../profile/UpdateLoginEmail.gen";
-import { format } from "date-fns";
+import { format, parseISO, isPast } from "date-fns";
 import { Table } from "ui/components/table";
 import { OrgUser } from "graphql/server-types.gen";
 import { Column } from "material-table";
@@ -167,6 +167,24 @@ export const UserViewPage: React.FC<Props> = props => {
     }
   }, [user]);
 
+  const smsStopped = useMemo(() => {
+    if (!user || !user.stopSmsUntilUtc) {
+      return false;
+    }
+
+    const stopDateTime = parseISO(user.stopSmsUntilUtc);
+    return !isPast(stopDateTime);
+  }, [user]);
+
+  const smsPaused = useMemo(() => {
+    if (!user || !user.suspendSmsUntilUtc) {
+      return false;
+    }
+
+    const suspendDateTime = parseISO(user.suspendSmsUntilUtc);
+    return !isPast(suspendDateTime);
+  }, [user]);
+
   if (getUser.state === "LOADING") {
     return <></>;
   }
@@ -290,6 +308,10 @@ export const UserViewPage: React.FC<Props> = props => {
           <div className={classes.action}>
             <Button
               variant="outlined"
+              disabled={
+                orgUsers.find(ou => ou.active) === undefined ||
+                user?.isSystemAdministrator
+              }
               onClick={async () => await triggerImpersonation()}
             >
               {t("Impersonate")}
@@ -422,6 +444,26 @@ export const UserViewPage: React.FC<Props> = props => {
                       }
                       label={t("Phone is valid for sms")}
                     />
+                    {smsStopped && (
+                      <div>
+                        {t("SMS stopped until {{date}}", {
+                          date: format(
+                            new Date(user.stopSmsUntilUtc),
+                            "MMM d yyyy h:mm aaaa"
+                          ),
+                        })}
+                      </div>
+                    )}
+                    {smsPaused && (
+                      <div>
+                        {t("SMS paused until {{date}}", {
+                          date: format(
+                            new Date(user.suspendSmsUntilUtc),
+                            "MMM d yyyy h:mm aaaa"
+                          ),
+                        })}
+                      </div>
+                    )}
                   </Grid>
                 )}
               </Grid>

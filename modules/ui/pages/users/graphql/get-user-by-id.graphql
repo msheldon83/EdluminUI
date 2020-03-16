@@ -19,6 +19,8 @@ query GetUserById($id: ID!) {
       temporaryPassword
       rowVersion
       phoneIsValidForSms
+      stopSmsUntilUtc
+      suspendSmsUntilUtc
       allOrgUsers {
         id
         firstName
