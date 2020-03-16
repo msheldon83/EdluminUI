@@ -13,6 +13,7 @@ import {
 } from "graphql/server-types.gen";
 import { CreateOrganization } from "./graphql/create-organization.gen";
 import { Button, Typography, makeStyles } from "@material-ui/core";
+import { AddBasicInfo } from "./components/add-info";
 
 export const OrganizationAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -31,7 +32,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     superUserLoginEmail: "",
     timeZoneId: TimeZone.Utc,
     seedOrgDataOption: SeedOrgDataOptionEnum.DontSeed,
-    //config:
+    config: OrganizationConfigInput,
   });
 
   //mutation
@@ -63,6 +64,13 @@ export const OrganizationAddPage: React.FC<{}> = props => {
       <Typography variant="h1">
         {name || <span className={classes.placeholder}>{namePlaceholder}</span>}
       </Typography>
+      <AddBasicInfo
+        namePlaceholder={namePlaceholder}
+        onCancel={() => {
+          const url = LocationsRoute.generate(params);
+          history.push(url);
+        }}
+      />
     </div>
   );
 };
