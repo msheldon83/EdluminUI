@@ -9,6 +9,7 @@ import { TextButton } from "ui/components/text-button";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import { Input } from "./input";
 import { useMemo } from "react";
+import { ErrorMessage } from "formik";
 
 export type SelectProps<T extends boolean> = {
   label?: string;
@@ -246,6 +247,12 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
           ) : null}
         </div>
       </div>
+      {name && (
+        <ErrorMessage
+          name={name}
+          render={msg => <div className={classes.errorMessage}>{msg}</div>}
+        />
+      )}
 
       {validationMessage && (
         <FormHelperText error={inputStatus === "error"}>
@@ -451,5 +458,15 @@ const useStyles = makeStyles(theme => ({
       right: theme.typography.pxToRem(12),
       zIndex: 1,
     },
+  },
+  errorMessage: {
+    color: "#C62828",
+    marginLeft: theme.typography.pxToRem(14),
+    marginRight: theme.typography.pxToRem(14),
+    marginTop: "3px",
+    fontSize: "0.75rem",
+    fontFamily: "Roboto",
+    fontWeight: 400,
+    lineHeight: 1.66,
   },
 }));
