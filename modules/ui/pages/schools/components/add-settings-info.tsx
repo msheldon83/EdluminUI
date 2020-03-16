@@ -1,5 +1,5 @@
 import { Grid, makeStyles } from "@material-ui/core";
-import { Formik } from "formik";
+import { Formik, ErrorMessage } from "formik";
 import { StateCode } from "graphql/server-types.gen";
 import * as yup from "yup";
 import * as React from "react";
@@ -114,7 +114,9 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                   <Grid container item xs={6} spacing={2}>
                     <Grid item xs={12}>
                       <dt className={classes.title}>{t("School group")}</dt>
+                      <span className={classes.required}>*</span>
                       <SelectNew
+                        name="locationGroupId"
                         value={{
                           value: values.locationGroupId ?? "",
                           label:
@@ -137,7 +139,6 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                         inputStatus={
                           errors.locationGroupId ? "error" : undefined
                         }
-                        validationMessage={errors.locationGroupId}
                         options={props.locationGroupOptions}
                         multiple={false}
                       />
@@ -158,6 +159,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <dt className={classes.title}>{t("Street")}</dt>
+                        <span className={classes.required}>*</span>
                         <Input
                           value={values.address1}
                           InputComponent={FormTextField}
@@ -169,6 +171,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                       </Grid>
                       <Grid item xs={12}>
                         <dt className={classes.title}>{t("City")}</dt>
+                        <span className={classes.required}>*</span>
                         <Input
                           value={values.city}
                           InputComponent={FormTextField}
@@ -180,7 +183,9 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                       </Grid>
                       <Grid item xs={6}>
                         <dt className={classes.title}>{t("State")}</dt>
+                        <span className={classes.required}>*</span>
                         <SelectNew
+                          name="state"
                           value={{
                             value: values.state ?? "",
                             label:
@@ -200,13 +205,13 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                             setFieldValue("state", selectedValue);
                           }}
                           inputStatus={errors.state ? "error" : undefined}
-                          validationMessage={errors.state}
                           multiple={false}
                           options={stateOptions}
                         />
                       </Grid>
                       <Grid item xs={6}>
                         <dt className={classes.title}>{t("Zip")}</dt>
+                        <span className={classes.required}>*</span>
                         <Input
                           value={values.postalCode}
                           InputComponent={FormTextField}
@@ -240,5 +245,11 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(16),
     fontWeight: "bold",
     lineHeight: theme.typography.pxToRem(24),
+    display: "inline-block",
+  },
+
+  required: {
+    color: "#C62828",
+    marginLeft: theme.typography.pxToRem(5),
   },
 }));

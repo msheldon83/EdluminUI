@@ -1,6 +1,16 @@
-query GetAllPositionTypesWithinOrg($orgId: ID, $includeExpired: Boolean) {
+query GetAllPositionTypesWithinOrg(
+  $orgId: ID
+  $includeExpired: Boolean
+  $forStaffAugmentation: Boolean
+  $forPermanentPositions: Boolean
+) {
   positionType {
-    all(orgId: $orgId, includeExpired: $includeExpired) {
+    all(
+      orgId: $orgId
+      includeExpired: $includeExpired
+      forStaffAugmentation: $forStaffAugmentation
+      forPermanentPositions: $forPermanentPositions
+    ) {
       id
       name
       rowVersion
@@ -16,6 +26,11 @@ query GetAllPositionTypesWithinOrg($orgId: ID, $includeExpired: Boolean) {
         name
       }
       payTypeId
+      payCodeId
+      payCode {
+        id
+        name
+      }
     }
   }
 }

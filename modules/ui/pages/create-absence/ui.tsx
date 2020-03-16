@@ -34,7 +34,7 @@ import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { ErrorBanner } from "ui/components/error-banner";
 import { VacancyDetail } from "../../components/absence/types";
-import { AssignSub } from "./assign-sub/index";
+import { AssignSub } from "../../components/assign-sub/index";
 import { Confirmation } from "./confirmation";
 import { EditVacancies } from "./edit-vacancies";
 import { CreateAbsence } from "./graphql/create.gen";
@@ -42,7 +42,7 @@ import { GetProjectedAbsenceUsage } from "./graphql/get-projected-absence-usage.
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { projectVacancyDetails } from "./project-vacancy-details";
 import { createAbsenceReducer, CreateAbsenceState } from "./state";
-import { StepParams } from "./step-params";
+import { StepParams } from "../../../helpers/step-params";
 import { ApolloError } from "apollo-client";
 import { Prompt, useRouteMatch } from "react-router";
 import { AbsenceHeader } from "ui/components/absence/header";

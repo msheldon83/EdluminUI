@@ -5,59 +5,65 @@ query SubJobSearch(
   $positionTypeIds: [ID]
   $limit: Int
   $offset: Int
+  $showNonPreferredJobs: Boolean
 ) {
   vacancy {
-    userJobSearch(
+    subJobSearch(
       id: $id
       orgIds: $orgIds
       locationIds: $locationIds
       positionTypeIds: $positionTypeIds
       limit: $limit
       offset: $offset
+      showNonPreferredJobs: $showNonPreferredJobs
     ) {
       offset
       limit
       hasMoreData
       totalCount
       results {
-        id
-        organization {
+        unavailableToWork
+        vacancy {
           id
-          name
-        }
-        position {
-          id
-          title
-        }
-        absence {
-          id
-          employee {
-            id
-            firstName
-            lastName
-          }
-        }
-        payInfoSummary {
-          summaryLabel
-        }
-        startTimeLocal
-        endTimeLocal
-        startDate
-        endDate
-        notesToReplacement
-        totalDayPortion
-        details {
-          id
-          location {
+          orgId
+          organization {
             id
             name
           }
-          payInfo {
-            label
+          position {
+            id
+            title
+          }
+          absence {
+            id
+            employee {
+              id
+              firstName
+              lastName
+            }
+          }
+          payInfoSummary {
+            summaryLabel
           }
           startTimeLocal
           endTimeLocal
-          dayPortion
+          startDate
+          endDate
+          notesToReplacement
+          totalDayPortion
+          details {
+            id
+            location {
+              id
+              name
+            }
+            payInfo {
+              label
+            }
+            startTimeLocal
+            endTimeLocal
+            dayPortion
+          }
         }
       }
     }

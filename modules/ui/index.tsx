@@ -248,6 +248,12 @@ import {
   UserViewRoute,
 } from "./routes/users";
 import {
+  VacancyCreateRoute,
+  VacancyCreateLoader,
+  VacancyViewLoader,
+  VacancyViewRoute,
+} from "./routes/vacancy";
+import {
   VacancyNotificationLogRoute,
   VacancyNotificationLogLoader,
   UserNotificationLogRoute,
@@ -431,6 +437,19 @@ export function App() {
                             <Route
                               component={OrganizationsLoader}
                               path={OrganizationsRoute.path}
+                            />
+
+                            <ProtectedRoute
+                              component={VacancyCreateLoader}
+                              path={VacancyCreateRoute.path}
+                              role={"admin"}
+                              permissions={[PermissionEnum.AbsVacSave]}
+                            />
+                            <ProtectedRoute
+                              component={VacancyViewLoader}
+                              path={VacancyViewRoute.path}
+                              role={"admin"}
+                              permissions={[PermissionEnum.AbsVacView]}
                             />
                             <ProtectedRoute
                               component={UserNotificationLogLoader}

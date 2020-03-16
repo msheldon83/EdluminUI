@@ -4794,6 +4794,8 @@ type User implements ModelObjectInterface {
   phone: String
   formattedPhone: String
   phoneIsValidForSms: Boolean
+  stopSmsUntilUtc: DateTime
+  suspendSmsUntilUtc: DateTime
   inviteSentAtUtc: DateTime
   inviteSent: Boolean!
   isAccountSetup: Boolean!

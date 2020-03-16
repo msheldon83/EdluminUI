@@ -44,7 +44,7 @@ import {
   VacancyDetail,
   AssignmentOnDate,
 } from "../../components/absence/types";
-import { AssignSub } from "../create-absence/assign-sub";
+import { AssignSub } from "../../components/assign-sub";
 import { EditVacancies } from "../create-absence/edit-vacancies";
 import { GetProjectedAbsenceUsage } from "../create-absence/graphql/get-projected-absence-usage.gen";
 import { GetProjectedVacancies } from "../create-absence/graphql/get-projected-vacancies.gen";

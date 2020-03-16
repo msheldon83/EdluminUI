@@ -40,6 +40,7 @@ import { SecurityPartnersRoute } from "ui/routes/security/partners";
 import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
 import { NavLink } from "./nav-link";
 import SearchIcon from "@material-ui/icons/Search";
+import { VacancyCreateRoute } from "ui/routes/vacancy";
 
 type Props = {
   className?: string;
@@ -67,6 +68,7 @@ export const AbsenceNavLink: React.FC<Props> = props => {
   const paramsDailyReport = useRouteParams(DailyReportRoute);
   const paramsVerify = useRouteParams(VerifyRoute);
   const paramsCreate = useRouteParams(AdminCreateAbsenceRoute);
+  const paramsVacancyCreate = useRouteParams(VacancyCreateRoute);
 
   return (
     <Can do={canViewAbsVacNavLink} orgId={props.orgId}>
@@ -79,6 +81,11 @@ export const AbsenceNavLink: React.FC<Props> = props => {
             route: AdminSelectEmployeeForCreateAbsenceRoute.generate(
               paramsCreate
             ),
+            permissions: [PermissionEnum.AbsVacSave],
+          },
+          {
+            title: t("Create Vacancy"),
+            route: VacancyCreateRoute.generate(paramsVacancyCreate),
             permissions: [PermissionEnum.AbsVacSave],
           },
           {

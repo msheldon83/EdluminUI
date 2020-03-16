@@ -3,9 +3,7 @@ import { Vacancy } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { Grid, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
-import {
-  getGroupedVacancyDetails,
-} from "./helpers";
+import { getGroupedVacancyDetails } from "./helpers";
 import { VacancySummaryHeader } from "ui/components/absence/vacancy-summary-header";
 import { VacancyDetailRow } from "./vacancy-detail-row";
 import { AssignmentOnDate } from "./types";
@@ -31,6 +29,7 @@ type Props = {
     employeeToReplace?: string
   ) => void;
   assignmentsByDate: AssignmentOnDate[];
+  isForVacancy?: boolean;
 };
 
 export const VacancyDetails: React.FC<Props> = props => {
@@ -91,10 +90,15 @@ export const VacancyDetails: React.FC<Props> = props => {
       )}
       <div className={detailsClassName}>
         <Grid item container xs={12} className={classes.vacancyDetailsHeader}>
-          <Grid item xs={props.equalWidthDetails ? 6 : 4}>
-            {t("Absence")}
-          </Grid>
-          <Grid item xs={props.equalWidthDetails ? 6 : 8}>
+          {!props.isForVacancy && (
+            <Grid item xs={props.equalWidthDetails ? 6 : 4}>
+              {t("Absence")}
+            </Grid>
+          )}
+          <Grid
+            item
+            xs={props.isForVacancy ? 12 : props.equalWidthDetails ? 6 : 8}
+          >
             {t("Substitute schedule")}
           </Grid>
         </Grid>

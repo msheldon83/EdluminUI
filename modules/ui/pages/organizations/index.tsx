@@ -121,10 +121,6 @@ export const OrganizationsPage: React.FC<Props> = props => {
     setPendingSearchText,
   ] = useDeferredState<string | undefined>(undefined, 200);
 
-  const orgUserQuery = useQueryBundle(GetMyUserAccess, {
-    fetchPolicy: "cache-first",
-  });
-
   const [getOrganizations, pagination] = usePagedQueryBundle(
     AllOrganizations,
     r => r.organization?.paged?.totalCount,
@@ -136,38 +132,22 @@ export const OrganizationsPage: React.FC<Props> = props => {
     }
   );
 
-  const isSystemAdministrator =
-    getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING"
-      ? false
-      : orgUserQuery?.data?.userAccess?.me?.isSystemAdministrator;
-  const orgUsers =
-    getOrganizations.state === "LOADING" || orgUserQuery.state === "LOADING"
-      ? []
-      : orgUserQuery?.data?.userAccess?.me?.user?.orgUsers || [];
-
-  const isAdminInOrgs = useMemo(() => {
-    return orgUsers.filter(r => r && r.isAdmin);
-  }, [orgUsers]);
-
-  let organizations = useMemo(() => {
-    return compact(isAdminInOrgs.map(r => r && r.organization));
-  }, [isAdminInOrgs]);
+  const organizations = useMemo(() => {
+    if (getOrganizations.state === "DONE") {
+      return compact(getOrganizations?.data?.organization?.paged?.results);
+    }
+    return [];
+  }, [getOrganizations]);
 
   if (
-    getOrganizations.state === "LOADING" ||
-    orgUserQuery.state === "LOADING"
+    getOrganizations.state !== "DONE" ||
+    !organizations ||
+    organizations.length === 0
   ) {
     return <></>;
   }
 
-  let organizationsCount = organizations.length;
-
-  if (isSystemAdministrator) {
-    organizations = compact(
-      getOrganizations?.data?.organization?.paged?.results ?? []
-    );
-    organizationsCount = pagination.totalCount;
-  }
+  const organizationsCount = pagination.totalCount;
 
   if (
     organizationsCount === 1 &&
