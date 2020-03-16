@@ -412,6 +412,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         {step === "absence" && (
           <>
             <AbsenceHeader
+              userIsAdmin={props.userIsAdmin}
               employeeName={employeeName}
               pageHeader={t("Create absence")}
               actingAsEmployee={actingAsEmployee}
@@ -492,6 +493,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       {step === "edit" && (
         <EditVacancies
           orgId={props.organizationId}
+          userIsAdmin={props.userIsAdmin}
           actingAsEmployee={actingAsEmployee}
           employeeName={employeeName}
           positionName={props.positionName}

@@ -31,6 +31,7 @@ type Props = {
   onChangedVacancies: (data: VacancyDetail[]) => void;
   employeeId: string;
   setStep: (s: "absence") => void;
+  userIsAdmin: boolean;
   absenceId?: string;
   actingAsEmployee?: boolean;
   positionName?: string;
@@ -180,6 +181,7 @@ export const EditVacancies: React.FC<Props> = props => {
       {({ values, handleSubmit, errors }) => (
         <form onSubmit={handleSubmit}>
           <AbsenceHeader
+            userIsAdmin={props.userIsAdmin}
             employeeName={props.employeeName}
             pageHeader={pageHeader}
             actingAsEmployee={props.actingAsEmployee}

@@ -450,6 +450,7 @@ export const AssignSub: React.FC<Props> = props => {
       <AbsenceHeader
         employeeName={props.employeeName ?? ""}
         pageHeader={pageHeader}
+        userIsAdmin={props.userIsAdmin}
         onCancel={props.onCancel}
       />
       <Section>

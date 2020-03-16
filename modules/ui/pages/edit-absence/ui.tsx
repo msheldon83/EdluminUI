@@ -585,6 +585,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           <div className={classes.titleContainer}>
             <AbsenceHeader
               employeeName={employeeName}
+              userIsAdmin={props.userIsAdmin}
               pageHeader={`${t("Edit absence")} #${props.absenceId}`}
               actingAsEmployee={actingAsEmployee}
             />
@@ -681,6 +682,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       {step === "edit" && (
         <EditVacancies
           orgId={props.organizationId}
+          userIsAdmin={props.userIsAdmin}
           actingAsEmployee={actingAsEmployee}
           absenceId={props.absenceId}
           employeeName={employeeName}
@@ -857,13 +859,16 @@ const useStyles = makeStyles(theme => ({
   titleContainer: {
     display: "flex",
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignText: "center",
+    justifyContent: "space-between",
   },
   title: { flexGrow: 1 },
   confirmationNumber: {},
   headerMenu: {
+    marginTop: "30px",
     display: "flex",
     flexDirection: "column",
+    alignText: "center",
     justifyContent: "space-between",
   },
   actionMenu: {

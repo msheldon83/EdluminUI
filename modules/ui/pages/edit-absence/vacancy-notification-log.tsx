@@ -150,6 +150,7 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
       >
         <Grid item>
           <AbsenceHeader
+            userIsAdmin={isSysAdmin ?? false}
             employeeName={employeeName}
             pageHeader={`${t("Text message log")} #${params.absenceId}`}
             onCancel={onReturn}
