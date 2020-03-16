@@ -1,8 +1,10 @@
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
+import { useHistory } from "react-router";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
+import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
 import {
   OrganizationCreateInput,
@@ -11,6 +13,7 @@ import {
   SeedOrgDataOptionEnum,
   TimeZone,
 } from "graphql/server-types.gen";
+import { OrganizationsRoute } from "ui/routes/organizations";
 import { CreateOrganization } from "./graphql/create-organization.gen";
 import { Button, Typography, makeStyles } from "@material-ui/core";
 import { AddBasicInfo } from "./components/add-info";
@@ -18,6 +21,8 @@ import { AddBasicInfo } from "./components/add-info";
 export const OrganizationAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const history = useHistory();
+  const params = useRouteParams(OrganizationsRoute);
   const [name, setName] = React.useState<string | null>(null);
   const { openSnackbar } = useSnackbar();
   const namePlaceholder = t("Glenbrook District");
@@ -32,7 +37,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     superUserLoginEmail: "",
     timeZoneId: TimeZone.Utc,
     seedOrgDataOption: SeedOrgDataOptionEnum.DontSeed,
-    config: OrganizationConfigInput,
+    // config: OrganizationConfigInput,
   });
 
   //mutation
@@ -66,10 +71,21 @@ export const OrganizationAddPage: React.FC<{}> = props => {
       </Typography>
       <AddBasicInfo
         namePlaceholder={namePlaceholder}
+        organization={organization}
+        onSubmit={(name, externalId) => {
+          setOrganization({
+            ...organization,
+            name: name,
+            externalId: externalId,
+          });
+        }}
         onCancel={() => {
-          const url = LocationsRoute.generate(params);
+          const url = OrganizationsRoute;
+
+          console.log(url);
           history.push(url);
         }}
+        onNameChange={name => setName(name)}
       />
     </div>
   );
