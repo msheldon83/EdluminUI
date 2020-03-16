@@ -92,8 +92,8 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     [getVacancy]
   );
 
-  const onDismissVacancy = async (orgId: string, vacancyId: string) => {
-    const employeeId = determineEmployeeId(orgId);
+  const onDismissVacancy = async (vacancyId: string) => {
+    const employeeId = determineEmployeeId();
     if (employeeId != 0) {
       await Promise.resolve(
         dismissVacancyMutation({
@@ -109,8 +109,9 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     history.push(SubHomeRoute.generate(params));
   };
 
-  const determineEmployeeId = (orgId: string) => {
-    const employeeId = orgUsers.find(o => o.orgId === orgId)?.id ?? 0;
+  const determineEmployeeId = () => {
+    const employeeId =
+      orgUsers.find(o => o.orgId === vacancy.organization.id)?.id ?? 0;
     return employeeId;
   };
 
@@ -123,8 +124,8 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     history.push(route);
   };
 
-  const onAcceptVacancy = async (orgId: string, vacancyId: string) => {
-    const employeeId = determineEmployeeId(orgId);
+  const onAcceptVacancy = async (vacancyId: string) => {
+    const employeeId = determineEmployeeId();
     if (employeeId != 0) {
       await requestVacancyMutation({
         variables: {
@@ -144,16 +145,13 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
       <Grid item>
         <Button
           variant={isMobile ? "text" : "outlined"}
-          onClick={() => onDismissVacancy(vacancy.organization.id, vacancy.id)}
+          onClick={() => onDismissVacancy(vacancy.id)}
         >
           {t("Dismiss")}
         </Button>
       </Grid>
       <Grid item>
-        <Button
-          variant="contained"
-          onClick={() => onAcceptVacancy(vacancy.organization.id, vacancy.id)}
-        >
+        <Button variant="contained" onClick={() => onAcceptVacancy(vacancy.id)}>
           {t("Accept")}
         </Button>
       </Grid>

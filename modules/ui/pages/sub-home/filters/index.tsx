@@ -1,4 +1,9 @@
-import { Grid, makeStyles, Paper } from "@material-ui/core";
+import {
+  Grid,
+  makeStyles,
+  FormControlLabel,
+  Checkbox,
+} from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -7,6 +12,7 @@ import { SchoolFilter } from "./school-filter";
 import { DistrictFilter } from "./org-filter";
 import { PositionTypeFilter } from "./position-type-filter";
 import { TimeFilter } from "./time-filter";
+import { PreferredFilter } from "./preferred-filter";
 
 type Props = { className?: string };
 
@@ -18,7 +24,7 @@ export const Filters: React.FC<Props> = props => {
   return (
     <Grid
       container
-      alignItems="flex-start"
+      alignItems="center"
       justify="flex-start"
       spacing={2}
       className={classes.filters}
@@ -29,6 +35,7 @@ export const Filters: React.FC<Props> = props => {
       <PositionTypeFilter {...filters} positionTypeLabel={t("Position type")} />
       <TimeFilter {...filters} timeLabel={t("Time")} />
       */}
+      <PreferredFilter {...filters} />
     </Grid>
   );
 };
