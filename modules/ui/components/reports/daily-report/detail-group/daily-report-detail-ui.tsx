@@ -61,7 +61,6 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
         />
       </Can>
       <div className={classes.locationSection}>
-        {console.log(props.detail.position)}
         <div>
           {props.detail.type === "absence" ? (
             <>
