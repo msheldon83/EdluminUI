@@ -85,6 +85,7 @@ export const SubSignInPage: React.FC<Props> = props => {
         | "dayPortion"
         | "totalDayPortion"
         | "payInfo"
+        | "vacancyReason"
       >[],
     [getFilledAbsences]
   );

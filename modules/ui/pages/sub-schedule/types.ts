@@ -11,6 +11,10 @@ export type AssignmentVacancyDetails = {
   startTimeLocal?: string;
   endTimeLocal?: string;
   dayPortion: number;
+  vacancyReason?: {
+    id?: string;
+    name?: string;
+  } | null;
   location: {
     name?: string;
   } | null;

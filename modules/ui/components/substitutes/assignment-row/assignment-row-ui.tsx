@@ -12,6 +12,7 @@ import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { canRemoveSub } from "helpers/permissions";
 import { parseISO } from "date-fns";
 import { useHistory } from "react-router";
+import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
   startDate: string;
@@ -30,6 +31,7 @@ type Props = {
   forSpecificAssignment?: boolean;
   className?: string;
   absenceId?: string;
+  vacancyId?: string;
 } /* If there are various times within the vacancy, we
      do not want to give false information. However, we still need
      a startTime to determine which day icon to use.
@@ -48,6 +50,7 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
   const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
+  const vacancyEditParams = useRouteParams(VacancyViewRoute);
   const history = useHistory();
 
   const goToAbsenceEdit = (absenceId: string) => {
@@ -58,6 +61,14 @@ export const AssignmentRowUI: React.FC<Props> = props => {
     history.push(url, {
       returnUrl: `${history.location.pathname}${history.location.search}`,
     });
+  };
+
+  const goToVacancyEdit = (vacancyId: string) => {
+    const url = VacancyViewRoute.generate({
+      ...vacancyEditParams,
+      vacancyId,
+    });
+    history.push(url);
   };
 
   return (
@@ -84,6 +95,12 @@ export const AssignmentRowUI: React.FC<Props> = props => {
                 className={classes.action}
                 onClick={() => goToAbsenceEdit(props.absenceId ?? "")}
               >{`#${props.absenceId}`}</Link>
+            )}
+            {props.isAdmin && props.vacancyId && !props.absenceId && (
+              <Link
+                className={classes.action}
+                onClick={() => goToVacancyEdit(props.vacancyId ?? "")}
+              >{`#V${props.vacancyId}`}</Link>
             )}
 
             <Typography className={classes.bold} noWrap>
