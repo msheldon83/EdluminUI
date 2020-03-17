@@ -6,8 +6,8 @@ import { formatIsoDateIfPossible } from "helpers/date";
 import { useTranslation } from "react-i18next";
 
 type Detail = {
-  startTimeLocal?: string;
-  endTimeLocal?: string;
+  startTimeLocal?: string | null;
+  endTimeLocal?: string | null;
   location?: {
     name: string | null;
   } | null;
@@ -19,6 +19,7 @@ type Detail = {
 
 type AssignmentVacancy = {
   organization: {
+    id: string;
     name: string;
   };
   position?: {
@@ -92,7 +93,7 @@ export const AssignmentDetails: React.FC<Props> = props => {
       startDate={vacancy.startDate}
       endDate={vacancy.endDate}
       locationNames={locationNames}
-      positionName={vacancy.position!.title}
+      positionName={vacancy.position?.title ?? ""}
     />
   );
 };
