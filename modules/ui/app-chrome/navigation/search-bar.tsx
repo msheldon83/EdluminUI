@@ -24,6 +24,7 @@ import {
   AdminEditAbsenceRoute,
   EmployeeEditAbsenceRoute,
 } from "ui/routes/edit-absence";
+import { VacancyViewRoute } from "ui/routes/vacancy";
 import { useHistory } from "react-router";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
@@ -95,12 +96,16 @@ export const SearchBar: React.FC<Props> = props => {
       ? searchResults?.data?.absence?.byConfirmationId
       : [];
 
-  const handleOnClick = (absId: string) => {
+  const handleOnClick = (id: string, objectTypeId: string) => {
     onClose();
     if (params.role === "admin") {
-      goToAdminAbsenceEdit(absId);
+      if (objectTypeId === "VACANCY") {
+        goToAdminVacancyEdit(id);
+      } else {
+        goToAdminAbsenceEdit(id);
+      }
     } else {
-      goToEmployeeAbsenceEdit(absId);
+      goToEmployeeAbsenceEdit(id);
     }
   };
 
@@ -108,6 +113,14 @@ export const SearchBar: React.FC<Props> = props => {
     const url = AdminEditAbsenceRoute.generate({
       organizationId: window.location.pathname.split("/")[2],
       absenceId,
+    });
+    history.push(url);
+  };
+
+  const goToAdminVacancyEdit = (vacancyId: string) => {
+    const url = VacancyViewRoute.generate({
+      organizationId: window.location.pathname.split("/")[2],
+      vacancyId,
     });
     history.push(url);
   };
@@ -170,16 +183,25 @@ export const SearchBar: React.FC<Props> = props => {
                 </Grid>
               )}
               {results.map((r: any, i) => {
-                const heading: string = r.assignmentId
-                  ? `${t("Absence")} #${r.absenceId} (${t("Assignment")} #C${
-                      r.assignmentId
-                    })`
-                  : `${t("Absence")} #${r.absenceId}`;
+                const heading: string =
+                  r.objectTypeId === "VACANCY"
+                    ? r.assignmentId
+                      ? `${t("Vacancy")} #${r.id} (${t("Assignment")} #C${
+                          r.assignmentId
+                        })`
+                      : `${t("Vacancy")} #${r.id}`
+                    : r.assignmentId
+                    ? `${t("Absence")} #${r.id} (${t("Assignment")} #C${
+                        r.assignmentId
+                      })`
+                    : `${t("Absence")} #${r.id}`;
                 const subHeading = `${format(
                   parseISO(r.absenceStartTimeUtc),
                   "EEE, MMM d, yyyy"
                 )}`;
-                const empName = `${r.employeeFirstName} ${r.employeeLastName}`;
+                const empName = r.employeeFirstName
+                  ? `${r.employeeFirstName} ${r.employeeLastName}`
+                  : r.employeeLastName;
                 const subName = `${r.subFirstName} ${r.subLastName}`;
 
                 const arr =
@@ -201,7 +223,7 @@ export const SearchBar: React.FC<Props> = props => {
 
                 return (
                   <Grid className={classes.resultItem} item xs={12} key={i}>
-                    <div onClick={() => handleOnClick(r.absenceId)}>
+                    <div onClick={() => handleOnClick(r.id, r.objectTypeId)}>
                       <div className={classes.header}>
                         {newArr.map(a => {
                           return a;

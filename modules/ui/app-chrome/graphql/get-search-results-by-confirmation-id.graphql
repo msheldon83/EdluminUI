@@ -4,7 +4,7 @@ query GetSearchResultsByConfirmationId(
 ) {
   absence {
     byConfirmationId(orgIds: $orgIds, confirmationId: $confirmationId) {
-      absenceId
+      id
       objectTypeId
       objectTypeName
       orgId
