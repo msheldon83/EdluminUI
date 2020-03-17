@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 import {
   OrganizationCreateInput,
   CountryCode,
-  OrganizationConfigInput,
   SeedOrgDataOptionEnum,
   TimeZone,
 } from "graphql/server-types.gen";
@@ -25,8 +24,9 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   const params = useRouteParams(AdminRootChromeRoute);
   const [name, setName] = React.useState<string | null>(null);
   const { openSnackbar } = useSnackbar();
-  const namePlaceholder = t("Glenbrook District");
+  const namePlaceholder = t("Glenbrook");
 
+  //Add Edustaff boolean. Add to backend as well to check and delegate additional 3 Action Handlers if true.
   const [organization, setOrganization] = React.useState<
     OrganizationCreateInput
   >({
@@ -37,7 +37,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     superUserLoginEmail: "",
     timeZoneId: TimeZone.Utc,
     seedOrgDataOption: SeedOrgDataOptionEnum.DontSeed,
-    // config: OrganizationConfigInput,
+    config: {},
   });
 
   //Mutation
