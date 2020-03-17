@@ -586,7 +586,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             <AbsenceHeader
               employeeName={employeeName}
               pageHeader={`${t("Edit absence")} #${props.absenceId}`}
-              actingAsEmployee={!props.userIsAdmin}
+              actingAsEmployee={props.actingAsEmployee}
             />
             <div className={classes.headerMenu}>
               <ActionMenu
@@ -681,7 +681,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       {step === "edit" && (
         <EditVacancies
           orgId={props.organizationId}
-          userIsAdmin={props.userIsAdmin}
           actingAsEmployee={actingAsEmployee}
           absenceId={props.absenceId}
           employeeName={employeeName}

@@ -31,7 +31,6 @@ type Props = {
   onChangedVacancies: (data: VacancyDetail[]) => void;
   employeeId: string;
   setStep: (s: "absence") => void;
-  userIsAdmin: boolean;
   absenceId?: string;
   actingAsEmployee?: boolean;
   positionName?: string;
@@ -183,7 +182,7 @@ export const EditVacancies: React.FC<Props> = props => {
           <AbsenceHeader
             employeeName={props.employeeName}
             pageHeader={pageHeader}
-            actingAsEmployee={!props.userIsAdmin}
+            actingAsEmployee={props.actingAsEmployee}
           />
           <Section className={classes.vacancyDetails}>
             <Grid

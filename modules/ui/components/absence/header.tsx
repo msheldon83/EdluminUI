@@ -5,7 +5,7 @@ import { Button, Typography, makeStyles } from "@material-ui/core";
 type Props = {
   employeeName: string;
   pageHeader: string;
-  actingAsEmployee?: boolean | undefined;
+  actingAsEmployee?: boolean;
   onCancel?: () => void;
   isForVacancy?: boolean;
 };
