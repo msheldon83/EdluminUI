@@ -33,7 +33,7 @@ export const AssignmentRow: React.FC<Props> = props => {
 
   const confirmationNumber = a.assignment?.id ?? "";
   const employeeName = isFromVacancy
-    ? `${t("Vacancy")}: ${a.vacancy?.position?.title}`
+    ? `${t("Vacancy")}`
     : `${a.vacancy?.absence?.employee?.firstName} ${a.vacancy?.absence?.employee?.lastName}`;
   const absenceId = a.vacancy?.absence?.id;
   const vacancyId = a.vacancy?.id;

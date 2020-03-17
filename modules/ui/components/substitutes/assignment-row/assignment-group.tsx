@@ -71,7 +71,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
 
   const confirmationNumber = assignment.id;
   const employeeName = isFromVacancy
-    ? `${t("Vacancy")}: ${vacancy.position?.title}`
+    ? `${t("Vacancy")}`
     : `${vacancy.absence?.employee?.firstName} ${vacancy.absence?.employee?.lastName}`;
   const positionName = vacancy.position?.title ?? "";
 

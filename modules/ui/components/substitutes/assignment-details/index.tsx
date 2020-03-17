@@ -51,7 +51,7 @@ export const AssignmentDetails: React.FC<Props> = props => {
 
   const employeeName =
     vacancy.details && vacancy.details[0]?.vacancyReason
-      ? `${t("Vacancy")}: ${vacancy.position?.title}`
+      ? `${t("Vacancy")}`
       : `${vacancy.absence!.employee!.firstName} ${
           vacancy.absence!.employee!.lastName
         }`;
