@@ -102,6 +102,7 @@ export const getIntervalDisplayTextWithDayOfWeek = (
   let currentYear = intervals[0].start.getFullYear();
   let overallDateRangeDisplay = `${currentMonth} `;
   let overallDayOfWeekDisplay = "";
+  const showDays = intervals.length === 1;
   intervals.forEach(interval => {
     if (currentYear !== interval.start.getFullYear()) {
       // New interval crosses over into a new Year from the previous interval
@@ -127,11 +128,11 @@ export const getIntervalDisplayTextWithDayOfWeek = (
       overallDateRangeDisplay += `${format(interval.start, `d`)} - ${format(
         interval.end,
         `${monthFormat} d`
-      )},`;
+      )}, `;
       overallDayOfWeekDisplay += `${format(
         interval.start,
         dayOfWeekFormat
-      )}-${format(interval.end, dayOfWeekFormat)},`;
+      )}-${format(interval.end, dayOfWeekFormat)}, `;
 
       currentYear = interval.end.getFullYear();
       currentMonth = format(interval.end, monthFormat);
@@ -140,22 +141,23 @@ export const getIntervalDisplayTextWithDayOfWeek = (
       overallDateRangeDisplay += `${format(interval.start, "d")} - ${format(
         interval.end,
         `${monthFormat} d`
-      )},`;
+      )}, `;
       overallDayOfWeekDisplay += `${format(
         interval.start,
         dayOfWeekFormat
-      )}-${format(interval.end, dayOfWeekFormat)},`;
+      )}-${format(interval.end, dayOfWeekFormat)}, `;
 
       currentMonth = format(interval.end, monthFormat);
     } else if (interval.start.getDate() === interval.end.getDate()) {
-      overallDateRangeDisplay += `${format(interval.start, "d")},`;
-      overallDayOfWeekDisplay += `${format(interval.start, dayOfWeekFormat)},`;
+      overallDateRangeDisplay += `${format(interval.start, "d")}, `;
+      overallDayOfWeekDisplay += `${format(interval.start, dayOfWeekFormat)}, `;
       currentMonth = format(interval.end, monthFormat);
     } else {
       overallDateRangeDisplay += `${format(interval.start, "d")}-${format(
         interval.end,
         "d"
-      )},`;
+      )}, `;
+
       overallDayOfWeekDisplay += `${format(
         interval.start,
         dayOfWeekFormat
@@ -165,14 +167,16 @@ export const getIntervalDisplayTextWithDayOfWeek = (
   });
 
   // Remove trailing comma from the date range display text if there is one
-  if (overallDateRangeDisplay.endsWith(",")) {
+  if (overallDateRangeDisplay.endsWith(", ")) {
     overallDateRangeDisplay = overallDateRangeDisplay.substring(
       0,
-      overallDateRangeDisplay.length - 1
+      overallDateRangeDisplay.length - 2
     );
   }
 
-  return `${overallDayOfWeekDisplay} ${overallDateRangeDisplay}`;
+  return showDays
+    ? `${overallDayOfWeekDisplay} ${overallDateRangeDisplay}`
+    : overallDateRangeDisplay;
 };
 
 export const getAbsenceDateRangeDisplayTextWithDayOfWeek = (
