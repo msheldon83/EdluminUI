@@ -8,9 +8,11 @@ import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
 import {
   OrganizationCreateInput,
-  CountryCode,
+  OrganizationType,
   SeedOrgDataOptionEnum,
   TimeZone,
+  CountryCode,
+  FeatureFlag,
 } from "graphql/server-types.gen";
 import { AdminRootChromeRoute } from "ui/routes/app-chrome";
 import { CreateOrganization } from "./graphql/create-organization.gen";
@@ -35,9 +37,28 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     superUserFirstName: "",
     superUserLastName: "",
     superUserLoginEmail: "",
-    timeZoneId: TimeZone.Utc,
-    seedOrgDataOption: SeedOrgDataOptionEnum.DontSeed,
-    config: {},
+    timeZoneId: null,
+    seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
+    config: {
+      organizationTypeId: OrganizationType.Implementing,
+      orgUsersMustAcceptEula: false,
+      featureFlags: [FeatureFlag.None],
+      defaultCountry: CountryCode.Us,
+      longTermVacancyThresholdDays: 0,
+      minLeadTimeMinutesToCancelVacancy: 0,
+      minutesBeforeStartAbsenceCanBeCreated: 0,
+      minLeadTimeMinutesToCancelVacancyWithoutPunishment: 0,
+      maxGapMinutesForSameVacancyDetail: 0,
+      minAbsenceMinutes: 0,
+      maxAbsenceDays: 0,
+      absenceCreateCutoffTime: 0,
+      requestedSubCutoffMinutes: 0,
+      minRequestedEmployeeHoldMinutes: 0,
+      maxRequestedEmployeeHoldMinutes: 0,
+      minorConflictThresholdMinutes: 0,
+      minutesRelativeToStartVacancyCanBeFilled: 0,
+      vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }],
+    },
   });
 
   //Mutation

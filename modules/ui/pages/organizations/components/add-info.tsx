@@ -1,4 +1,11 @@
-import { Grid, makeStyles, FormHelperText } from "@material-ui/core";
+import {
+  Grid,
+  makeStyles,
+  FormHelperText,
+  Checkbox,
+  Radio,
+  RadioGroup,
+} from "@material-ui/core";
 import { Formik } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -9,27 +16,64 @@ import { SectionHeader } from "ui/components/section-header";
 import * as Yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { Input } from "ui/components/form/input";
+import {
+  OrganizationType,
+  TimeZone,
+  FeatureFlag,
+  CountryCode,
+  DayConversion,
+  SeedOrgDataOptionEnum,
+} from "graphql/server-types.gen";
 
 type Props = {
-  organization: {
-    name: string;
-    externalId?: string | null | undefined;
-  };
   namePlaceholder: string;
   onSubmit: (name: string, externalId?: string | null | undefined) => void;
   onCancel: () => void;
   onNameChange: (name: string) => void;
+  organization: {
+    name: string;
+    superUserFirstName: string;
+    superUserLastName: string;
+    superUserLoginEmail: string;
+    seedOrgDataOption?: SeedOrgDataOptionEnum | null;
+    config?: {
+      organizationTypeId?: OrganizationType;
+      orgUsersMustAcceptEula?: boolean;
+      featureFlags?: FeatureFlag;
+      longTermVacancyThresholdDays?: number;
+      defaultCountry?: CountryCode;
+      minLeadTimeMinutesToCancelVacancy?: number;
+      minutesBeforeStartAbsenceCanBeCreated?: number;
+      minLeadTimeMinutesToCancelVacancyWithoutPunishment?: number;
+      maxGapMinutesForSameVacancyDetail?: number;
+      minAbsenceMinutes?: number;
+      maxAbsenceDays?: number;
+      absenceCreateCutoffTime?: number;
+      requestedSubCutoffMinutes?: number;
+      minRequestedEmployeeHoldMinutes?: number;
+      maxRequestedEmployeeHoldMinutes?: number;
+      minorConflictThresholdMinutes?: number;
+      minutesRelativeToStartVacancyCanBeFilled?: number;
+      vacancyDayConversions?: DayConversion;
+    };
+    externalId?: string;
+    timeZone?: TimeZone;
+  };
 };
 
 export const AddBasicInfo: React.FC<Props> = props => {
   const isMobile = useIsMobile();
+  const classes = useStyles();
   const { t } = useTranslation();
 
   const initialValues = {
     name: props.organization.name,
     externalId: props.organization.externalId || "",
+    superUserFirstName: props.organization.superUserFirstName || "",
+    superUserLastName: props.organization.superUserLastName || "",
   };
 
+  //Add more validation
   const validateBasicDetails = React.useMemo(
     () =>
       Yup.object().shape({
@@ -54,7 +98,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
         {({ handleSubmit, handleChange, submitForm, values }) => (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={isMobile ? 2 : 8}>
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={12} sm={6} lg={6} className={classes.padding}>
                 <Input
                   label={t("Organization name")}
                   InputComponent={FormTextField}
@@ -71,7 +115,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={12} sm={6} lg={6} className={classes.padding}>
                 <Input
                   label={t("External ID")}
                   InputComponent={FormTextField}
@@ -84,9 +128,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={3} lg={3}>
+              <div>
                 <Input
-                  label={t("Super user firstname")}
+                  label={t("Super user first name")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     placeholder: `E.g ${props.namePlaceholder}`,
@@ -100,10 +144,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     fullWidth: true,
                   }}
                 />
-              </Grid>
-              <Grid item xs={12} sm={3} lg={3}>
+
                 <Input
-                  label={t("Super user lastname")}
+                  label={t("Super user last name")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     placeholder: `E.g ${props.namePlaceholder}`,
@@ -117,7 +160,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     fullWidth: true,
                   }}
                 />
-              </Grid>
+              </div>
             </Grid>
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}
@@ -129,3 +172,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
     </Section>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  padding: {
+    padding: theme.spacing(0),
+  },
+}));
