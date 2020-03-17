@@ -84,6 +84,40 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
+              <Grid item xs={12} sm={3} lg={3}>
+                <Input
+                  label={t("Super user firstname")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    placeholder: `E.g ${props.namePlaceholder}`,
+                    name: "superUserFirstName",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                      handleChange(e);
+                      props.onNameChange(e.currentTarget.value);
+                    },
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3} lg={3}>
+                <Input
+                  label={t("Super user lastname")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    placeholder: `E.g ${props.namePlaceholder}`,
+                    name: "superUserLastName",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                      handleChange(e);
+                      props.onNameChange(e.currentTarget.value);
+                    },
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
             </Grid>
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}
