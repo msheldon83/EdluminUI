@@ -90,7 +90,11 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
       </div>
       <div className={classes.reasonSection}>
         <div>
-          <div>{props.detail.absenceReason}</div>
+          <div>
+            {props.detail.type === "absence"
+              ? props.detail.absenceReason
+              : props.detail.vacancyReason}
+          </div>
           <div className={classes.detailSubText}>{props.detail.dateRange}</div>
         </div>
       </div>

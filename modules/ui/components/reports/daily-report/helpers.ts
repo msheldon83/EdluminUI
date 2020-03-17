@@ -196,6 +196,7 @@ export const MapDailyReportDetails = (
           v.createdLocal,
           "MMM d h:mm a"
         ),
+        vacancyReason: vacancyDetail.vacancyReason?.name,
         isMultiDay: v.details && v.details.length > 1,
         substitute:
           vacancyDetail.assignment && vacancyDetail.assignment.employee
@@ -334,6 +335,7 @@ export const MapDailyReportDetails = (
           v.createdLocal,
           "MMM d h:mm a"
         ),
+        vacancyReason: vacancyDetail.vacancyReason?.name,
         subTimes: [
           {
             startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
