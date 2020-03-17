@@ -379,7 +379,9 @@ export const Assignment: React.FC<Props> = props => {
                     className={classes.lightText}
                   >{`${absenceReason}`}</Typography>
                 ) : isFromVacancy && vacancyReason ? (
-                  <></>
+                  <Typography
+                    className={classes.lightText}
+                  >{`${vacancyReason}`}</Typography>
                 ) : (
                   <></>
                 )}
