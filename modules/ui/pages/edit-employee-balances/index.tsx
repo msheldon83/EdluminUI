@@ -7,7 +7,10 @@ import {
   useAllSchoolYearOptions,
   useAllSchoolYears,
 } from "reference-data/school-years";
-import { useAbsenceReasonOptions } from "reference-data/absence-reasons";
+import {
+  useAbsenceReasonOptions,
+  useAbsenceReasons,
+} from "reference-data/absence-reasons";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { PageTitle } from "ui/components/page-title";
@@ -57,6 +60,10 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
     () => allSchoolYears.find(x => x.id === schoolYearId)?.startDate,
     [allSchoolYears, schoolYearId]
   );
+  const lastDayOfSelectedSchoolYear = useMemo(
+    () => allSchoolYears.find(x => x.id === schoolYearId)?.endDate,
+    [allSchoolYears, schoolYearId]
+  );
 
   const getAbsenceReasonBalances = useQueryBundle(GetAbsenceReasonBalances, {
     variables: {
@@ -91,13 +98,14 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
       x => !usedReasonIds.includes(x.value)
     );
   }, [balances, allAbsenceReasonOptions]);
+  const allAbsenceReasons = useAbsenceReasons(params.organizationId);
 
   const selectedSchoolYear = schoolYearOptions.find(
     (sy: any) => sy.value === schoolYearId
   ) ?? { value: "", label: "" };
 
   const onUpdateEmployeeBalances = async (employeeInput: EmployeeInput) => {
-    await updateEmployeeBalances({
+    const result = await updateEmployeeBalances({
       variables: {
         employee: {
           ...employeeInput,
@@ -105,6 +113,9 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
         },
       },
     });
+    if (result.data && creatingNew) {
+      setCreatingNew(false);
+    }
     await getAbsenceReasonBalances.refetch();
   };
 
@@ -161,6 +172,7 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
               <BalanceRow
                 key={i}
                 absenceReason={balance?.absenceReason}
+                absenceReasons={allAbsenceReasons}
                 initialBalance={balance?.initialBalance}
                 usedBalance={balance?.usedBalance}
                 plannedBalance={balance?.plannedBalance}
@@ -173,6 +185,7 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
                 creatingNew={false}
                 setCreatingNew={setCreatingNew}
                 startOfSchoolYear={firstDayOfSelectedSchoolYear}
+                endOfSchoolYear={lastDayOfSelectedSchoolYear}
               />
             );
           })}
@@ -185,6 +198,8 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
               creatingNew={creatingNew}
               setCreatingNew={setCreatingNew}
               startOfSchoolYear={firstDayOfSelectedSchoolYear}
+              endOfSchoolYear={lastDayOfSelectedSchoolYear}
+              absenceReasons={allAbsenceReasons}
             />
           )}
         </div>

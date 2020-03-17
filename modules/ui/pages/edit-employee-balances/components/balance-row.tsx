@@ -9,8 +9,9 @@ import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { DatePicker } from "ui/components/form/date-picker";
-import { parseISO } from "date-fns";
+import { parseISO, isBefore, isAfter } from "date-fns";
 import { round } from "lodash-es";
+import * as yup from "yup";
 
 type Props = {
   absenceReason?: {
@@ -31,9 +32,14 @@ type Props = {
     asOf: Date
   ) => Promise<void>;
   reasonOptions: { label: string; value: string }[];
+  absenceReasons: {
+    id: string;
+    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
+  }[];
   creatingNew: boolean;
   setCreatingNew: React.Dispatch<React.SetStateAction<boolean>>;
   startOfSchoolYear: string;
+  endOfSchoolYear: string;
 };
 
 export const BalanceRow: React.FC<Props> = props => {
@@ -54,6 +60,19 @@ export const BalanceRow: React.FC<Props> = props => {
     }
   };
 
+  const determineBalanceTypeLabel = (absenceReasonId?: string) => {
+    const selectedReason = props.creatingNew
+      ? props.absenceReasons.find(x => x.id === absenceReasonId)
+      : props.absenceReason;
+
+    return selectedReason
+      ? selectedReason.absenceReasonTrackingTypeId ===
+        AbsenceReasonTrackingTypeId.Daily
+        ? t("Days")
+        : t("Hours")
+      : "";
+  };
+
   return (
     <Formik
       initialValues={{
@@ -64,10 +83,44 @@ export const BalanceRow: React.FC<Props> = props => {
           : parseISO(props.startOfSchoolYear),
       }}
       onSubmit={async data => {
-        if (data.absenceReasonId) {
+        if (data.absenceReasonId && data.balance > 0) {
           await props.onUpdate(data.absenceReasonId, data.balance, data.asOf);
         }
       }}
+      validationSchema={yup.object({
+        absenceReasonId: yup
+          .string()
+          .nullable()
+          .required(t("A reason must be selected")),
+        balance: yup
+          .number()
+          .nullable()
+          .required(t("An initial balance is required"))
+          .test("balanceGreaterThanZero", t("Required"), function(value) {
+            if (value <= 0) {
+              return this.createError({});
+            }
+            return true;
+          }),
+        asOf: yup
+          .date()
+          .nullable()
+          .required(t("As of date is required"))
+          .test("dateInSchool", t("Date must be in school year"), function(
+            value
+          ) {
+            if (
+              isBefore(value, parseISO(props.startOfSchoolYear)) ||
+              isAfter(value, parseISO(props.endOfSchoolYear))
+            ) {
+              console.log(value);
+              return this.createError({
+                message: t("Must be in school year"),
+              });
+            }
+            return true;
+          }),
+      })}
     >
       {({
         values,
@@ -87,6 +140,7 @@ export const BalanceRow: React.FC<Props> = props => {
             <div className={classes.reasonContainer}>
               {props.creatingNew ? (
                 <SelectNew
+                  name="absenceReasonId"
                   value={
                     props.reasonOptions.find(
                       e => e.value && e.value === values.absenceReasonId
@@ -96,9 +150,10 @@ export const BalanceRow: React.FC<Props> = props => {
                   onChange={(value: any) => {
                     setFieldValue("absenceReasonId", value.value);
                   }}
+                  onBlur={() => submitForm()}
                   options={props.reasonOptions}
                   withResetValue={false}
-                  onBlur={() => submitForm()}
+                  inputStatus={errors.absenceReasonId ? "error" : "default"}
                 />
               ) : (
                 props.absenceReason?.name
@@ -118,7 +173,7 @@ export const BalanceRow: React.FC<Props> = props => {
                   />
                 }
               </div>
-              <div>{balanceTrackingType}</div>
+              <div>{determineBalanceTypeLabel(values.absenceReasonId)}</div>
             </div>
             <div className={classes.asOfContainer}>
               {
@@ -127,8 +182,10 @@ export const BalanceRow: React.FC<Props> = props => {
                   startDate={values.asOf}
                   onChange={({ startDate }) => {
                     setFieldValue("asOf", startDate);
+                    submitForm();
                   }}
-                  onBlur={() => submitForm()}
+                  inputStatus={errors.asOf ? "error" : undefined}
+                  validationMessage={errors.asOf}
                 />
               }
             </div>
