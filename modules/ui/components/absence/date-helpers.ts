@@ -1,5 +1,5 @@
 import { getContiguousDateIntervals, DateInterval } from "helpers/date";
-import { format } from "date-fns";
+import { format, getISOWeek } from "date-fns";
 
 export const getIntervalDisplayText = (
   intervals: DateInterval[],
@@ -102,23 +102,21 @@ export const getIntervalDisplayTextWithDayOfWeek = (
   let currentYear = intervals[0].start.getFullYear();
   let overallDateRangeDisplay = `${currentMonth} `;
   let overallDayOfWeekDisplay = "";
-  const showDays = intervals.length === 1;
+  let showDays = intervals.length === 1;
+
   intervals.forEach(interval => {
     if (currentYear !== interval.start.getFullYear()) {
       // New interval crosses over into a new Year from the previous interval
-      overallDateRangeDisplay += ` ${format(
-        interval.start,
-        `${monthFormat}`
-      )} `;
+      overallDateRangeDisplay += `${format(interval.start, `${monthFormat}`)} `;
       currentYear = interval.start.getFullYear();
       currentMonth = format(interval.start, monthFormat);
     }
     if (currentMonth !== format(interval.start, monthFormat)) {
       // New interval crosses into a new Month from the previous interval
-      overallDateRangeDisplay += ` ${format(
-        interval.start,
-        `${monthFormat}`
-      )} `;
+      overallDateRangeDisplay += `${format(interval.start, `${monthFormat}`)} `;
+      if (getISOWeek(interval.start) !== getISOWeek(interval.end)) {
+        showDays = false;
+      }
 
       currentMonth = format(interval.start, monthFormat);
     }
@@ -133,6 +131,9 @@ export const getIntervalDisplayTextWithDayOfWeek = (
         interval.start,
         dayOfWeekFormat
       )}-${format(interval.end, dayOfWeekFormat)}, `;
+      if (getISOWeek(interval.start) !== getISOWeek(interval.end)) {
+        showDays = false;
+      }
 
       currentYear = interval.end.getFullYear();
       currentMonth = format(interval.end, monthFormat);
@@ -147,6 +148,10 @@ export const getIntervalDisplayTextWithDayOfWeek = (
         dayOfWeekFormat
       )}-${format(interval.end, dayOfWeekFormat)}, `;
 
+      if (getISOWeek(interval.start) !== getISOWeek(interval.end)) {
+        showDays = false;
+      }
+
       currentMonth = format(interval.end, monthFormat);
     } else if (interval.start.getDate() === interval.end.getDate()) {
       overallDateRangeDisplay += `${format(interval.start, "d")}, `;
@@ -157,11 +162,14 @@ export const getIntervalDisplayTextWithDayOfWeek = (
         interval.end,
         "d"
       )}, `;
+      if (getISOWeek(interval.start) !== getISOWeek(interval.end)) {
+        showDays = false;
+      }
 
       overallDayOfWeekDisplay += `${format(
         interval.start,
         dayOfWeekFormat
-      )}-${format(interval.end, dayOfWeekFormat)},`;
+      )}-${format(interval.end, dayOfWeekFormat)}, `;
       currentMonth = format(interval.end, monthFormat);
     }
   });
@@ -172,10 +180,15 @@ export const getIntervalDisplayTextWithDayOfWeek = (
       0,
       overallDateRangeDisplay.length - 2
     );
+  } else if (overallDateRangeDisplay.endsWith(",")) {
+    overallDateRangeDisplay = overallDateRangeDisplay.substring(
+      0,
+      overallDateRangeDisplay.length - 1
+    );
   }
 
   return showDays
-    ? `${overallDayOfWeekDisplay} ${overallDateRangeDisplay}`
+    ? `${overallDayOfWeekDisplay}${overallDateRangeDisplay}`
     : overallDateRangeDisplay;
 };
 
