@@ -59,10 +59,10 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
       selectedAbsenceDates.map(date => {
         return {
           date,
-          buttonProps: { className: classes.selectedAbsenceDate },
+          buttonProps: { className: classes.selectedAbsenceDate+" selectedAbsenceDate" },
         };
       }),
-    [selectedAbsenceDates, classes.selectedAbsenceDate]
+    [selectedAbsenceDates, classes.selectedAbsenceDate+" selectedAbsenceDate"]
   );
 
   const customDates = useMemo(
