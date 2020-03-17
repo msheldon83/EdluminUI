@@ -22,10 +22,16 @@ import { useRouteParams } from "ui/routes/definition";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
 import { BalanceHeaderRow } from "./components/header-row";
 import { BalanceRow } from "./components/balance-row";
-import { UpdateEmployeeBalances } from "./graphql/update-employee-balances.gen";
+import { CreateAbsenceReasonBalance } from "./graphql/create-balance.gen";
+import { UpdateAbsenceReasonBalance } from "./graphql/update-balance.gen";
+import { DeleteAbsenceReasonBalance } from "./graphql/delete-balance.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-import { EmployeeInput } from "graphql/server-types.gen";
+import {
+  EmployeeInput,
+  AbsenceReasonBalanceCreateInput,
+  AbsenceReasonBalanceUpdateInput,
+} from "graphql/server-types.gen";
 
 export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const { openSnackbar } = useSnackbar();
@@ -35,11 +41,46 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
 
   const [creatingNew, setCreatingNew] = useState(false);
 
-  const [updateEmployeeBalances] = useMutationBundle(UpdateEmployeeBalances, {
+  const [createBalance] = useMutationBundle(CreateAbsenceReasonBalance, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
   });
+
+  const onCreateBalance = async (
+    absenceReasonBalance: AbsenceReasonBalanceCreateInput
+  ) => {
+    const result = await createBalance({ variables: { absenceReasonBalance } });
+    if (result.data) {
+      setCreatingNew(false);
+      await getAbsenceReasonBalances.refetch();
+    }
+  };
+
+  const [updateBalance] = useMutationBundle(UpdateAbsenceReasonBalance, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const onUpdateBalance = async (
+    absenceReasonBalance: AbsenceReasonBalanceUpdateInput
+  ) => {
+    const result = await updateBalance({ variables: { absenceReasonBalance } });
+    if (result.data) {
+      await getAbsenceReasonBalances.refetch();
+    }
+  };
+
+  const [deleteBalance] = useMutationBundle(DeleteAbsenceReasonBalance, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const onDeleteBalance = async (absenceReasonBalanceId: string) => {
+    await deleteBalance({ variables: { absenceReasonBalanceId } });
+  };
 
   const getEmployee = useQueryBundle(GetOrgUserById, {
     variables: {
@@ -78,17 +119,6 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
       ? []
       : getAbsenceReasonBalances.data?.absenceReasonBalance?.byEmployeeId ?? [];
 
-  const balancesInput = useMemo(
-    () =>
-      balances.map(x => ({
-        absenceReason: { id: x?.absenceReasonId },
-        asOf: x?.balanceAsOf,
-        balance: x?.initialBalance,
-        schoolYear: { id: schoolYearId },
-      })),
-    [balances, schoolYearId]
-  );
-
   const allAbsenceReasonOptions = useAbsenceReasonOptions(
     params.organizationId
   );
@@ -103,50 +133,6 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const selectedSchoolYear = schoolYearOptions.find(
     (sy: any) => sy.value === schoolYearId
   ) ?? { value: "", label: "" };
-
-  const onUpdateEmployeeBalances = async (employeeInput: EmployeeInput) => {
-    const result = await updateEmployeeBalances({
-      variables: {
-        employee: {
-          ...employeeInput,
-          id: params.orgUserId,
-        },
-      },
-    });
-    if (result.data && creatingNew) {
-      setCreatingNew(false);
-    }
-    await getAbsenceReasonBalances.refetch();
-  };
-
-  const removeBalance = async (absenceReasonId: string) => {
-    const timeOffBalances = balancesInput.filter(
-      x => x?.absenceReason.id !== absenceReasonId
-    );
-    await onUpdateEmployeeBalances({ timeOffBalances });
-  };
-
-  const updateBalance = async (
-    absenceReasonId: string,
-    initialBalance: number,
-    asOf: Date
-  ) => {
-    const balanceIndex = balancesInput.findIndex(
-      x => x.absenceReason.id === absenceReasonId
-    );
-    if (balanceIndex >= 0) {
-      balancesInput[balanceIndex].asOf = asOf;
-      balancesInput[balanceIndex].balance = initialBalance;
-    } else {
-      balancesInput.push({
-        absenceReason: { id: absenceReasonId },
-        asOf: asOf,
-        balance: initialBalance,
-        schoolYear: { id: schoolYearId },
-      });
-    }
-    await onUpdateEmployeeBalances({ timeOffBalances: balancesInput });
-  };
 
   return (
     <>
@@ -171,17 +157,14 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
             return (
               <BalanceRow
                 key={i}
-                absenceReason={balance?.absenceReason}
-                absenceReasons={allAbsenceReasons}
-                initialBalance={balance?.initialBalance}
-                usedBalance={balance?.usedBalance}
-                plannedBalance={balance?.plannedBalance}
-                remainingBalance={balance?.unusedBalance}
-                balanceAsOf={balance?.balanceAsOf}
+                absenceReasonBalance={balance}
+                orgId={params.organizationId}
                 shadeRow={i % 2 == 1}
+                onRemove={onDeleteBalance}
+                onUpdate={onUpdateBalance}
+                onCreate={onCreateBalance}
                 reasonOptions={absenceReasonOptions}
-                onRemove={removeBalance}
-                onUpdate={updateBalance}
+                absenceReasons={allAbsenceReasons}
                 creatingNew={false}
                 setCreatingNew={setCreatingNew}
                 startOfSchoolYear={firstDayOfSelectedSchoolYear}
@@ -191,15 +174,21 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
           })}
           {creatingNew && (
             <BalanceRow
-              reasonOptions={absenceReasonOptions}
-              onRemove={removeBalance}
-              onUpdate={updateBalance}
+              absenceReasonBalance={{
+                employeeId: params.orgUserId,
+                schoolYearId: schoolYearId ?? "",
+              }}
+              orgId={params.organizationId}
               shadeRow={balances.length % 2 == 1}
-              creatingNew={creatingNew}
+              onRemove={onDeleteBalance}
+              onUpdate={onUpdateBalance}
+              onCreate={onCreateBalance}
+              reasonOptions={absenceReasonOptions}
+              absenceReasons={allAbsenceReasons}
+              creatingNew={false}
               setCreatingNew={setCreatingNew}
               startOfSchoolYear={firstDayOfSelectedSchoolYear}
               endOfSchoolYear={lastDayOfSelectedSchoolYear}
-              absenceReasons={allAbsenceReasons}
             />
           )}
         </div>

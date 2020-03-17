@@ -1,7 +1,11 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
+import {
+  AbsenceReasonTrackingTypeId,
+  AbsenceReasonBalanceCreateInput,
+  AbsenceReasonBalanceUpdateInput,
+} from "graphql/server-types.gen";
 import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
 import { Formik } from "formik";
@@ -14,22 +18,31 @@ import { round } from "lodash-es";
 import * as yup from "yup";
 
 type Props = {
-  absenceReason?: {
+  absenceReasonBalance: {
     id?: string;
-    name?: string;
-    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
+    employeeId: string;
+    schoolYearId: string;
+    rowVersion?: string | null;
+    absenceReason?: {
+      id: string;
+      name: string;
+      absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
+      allowNegativeBalance: boolean;
+    } | null;
+    initialBalance?: number;
+    usedBalance?: number;
+    plannedBalance?: number;
+    unusedBalance?: number;
+    balanceAsOf?: string;
   } | null;
-  initialBalance?: number;
-  usedBalance?: number;
-  plannedBalance?: number;
-  remainingBalance?: number;
-  balanceAsOf?: string;
+  orgId: string;
   shadeRow: boolean;
-  onRemove: (absenceReasonId: string) => Promise<void>;
+  onRemove: (absenceReasonBalanceId: string) => Promise<void>;
   onUpdate: (
-    absenceReasonId: string,
-    balance: number,
-    asOf: Date
+    absenceReasonBalance: AbsenceReasonBalanceUpdateInput
+  ) => Promise<void>;
+  onCreate: (
+    absenceReasonBalance: AbsenceReasonBalanceCreateInput
   ) => Promise<void>;
   reasonOptions: { label: string; value: string }[];
   absenceReasons: {
@@ -46,24 +59,20 @@ export const BalanceRow: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const balanceTrackingType =
-    props.absenceReason?.absenceReasonTrackingTypeId ===
-    AbsenceReasonTrackingTypeId.Daily
-      ? t("Days")
-      : t("Hours");
+  const absenceReasonBalance = props.absenceReasonBalance;
 
   const handleClickRemove = async () => {
     if (props.creatingNew) {
       props.setCreatingNew(false);
     } else {
-      await props.onRemove(props.absenceReason?.id ?? "");
+      await props.onRemove(absenceReasonBalance?.id ?? "");
     }
   };
 
   const determineBalanceTypeLabel = (absenceReasonId?: string) => {
     const selectedReason = props.creatingNew
       ? props.absenceReasons.find(x => x.id === absenceReasonId)
-      : props.absenceReason;
+      : absenceReasonBalance?.absenceReason;
 
     return selectedReason
       ? selectedReason.absenceReasonTrackingTypeId ===
@@ -76,15 +85,31 @@ export const BalanceRow: React.FC<Props> = props => {
   return (
     <Formik
       initialValues={{
-        absenceReasonId: props.absenceReason?.id,
-        balance: props.initialBalance ?? 0,
-        asOf: props.balanceAsOf
-          ? parseISO(props.balanceAsOf)
+        absenceReasonId: absenceReasonBalance?.absenceReason?.id,
+        balance: absenceReasonBalance?.initialBalance ?? 0,
+        asOf: absenceReasonBalance?.balanceAsOf
+          ? parseISO(absenceReasonBalance?.balanceAsOf)
           : parseISO(props.startOfSchoolYear),
       }}
       onSubmit={async data => {
-        if (data.absenceReasonId && data.balance > 0) {
-          await props.onUpdate(data.absenceReasonId, data.balance, data.asOf);
+        if (props.creatingNew) {
+          await props.onCreate({
+            orgId: props.orgId,
+            employeeId: absenceReasonBalance?.employeeId,
+            schoolYearId: absenceReasonBalance?.schoolYearId,
+            absenceReasonId: data.absenceReasonId,
+            initialBalance: data.balance,
+            balanceAsOf: data.asOf,
+          });
+        } else {
+          await props.onUpdate({
+            id: absenceReasonBalance?.id ?? "",
+            rowVersion: absenceReasonBalance?.rowVersion ?? "",
+            schoolYearId: absenceReasonBalance?.schoolYearId,
+            absenceReasonId: data.absenceReasonId,
+            initialBalance: data.balance,
+            balanceAsOf: data.asOf,
+          });
         }
       }}
       validationSchema={yup.object({
@@ -95,13 +120,7 @@ export const BalanceRow: React.FC<Props> = props => {
         balance: yup
           .number()
           .nullable()
-          .required(t("An initial balance is required"))
-          .test("balanceGreaterThanZero", t("Required"), function(value) {
-            if (value <= 0) {
-              return this.createError({});
-            }
-            return true;
-          }),
+          .required(t("Required")),
         asOf: yup
           .date()
           .nullable()
@@ -156,7 +175,7 @@ export const BalanceRow: React.FC<Props> = props => {
                   inputStatus={errors.absenceReasonId ? "error" : "default"}
                 />
               ) : (
-                props.absenceReason?.name
+                absenceReasonBalance?.absenceReason?.name
               )}
             </div>
             <div className={classes.balanceValueContainer}>
@@ -180,9 +199,9 @@ export const BalanceRow: React.FC<Props> = props => {
                 <DatePicker
                   variant={"single-hidden"}
                   startDate={values.asOf}
-                  onChange={({ startDate }) => {
+                  onChange={async ({ startDate }) => {
                     setFieldValue("asOf", startDate);
-                    submitForm();
+                    await submitForm();
                   }}
                   inputStatus={errors.asOf ? "error" : undefined}
                   validationMessage={errors.asOf}
@@ -190,14 +209,18 @@ export const BalanceRow: React.FC<Props> = props => {
               }
             </div>
             <div className={classes.valueContainer}>
-              {props.usedBalance ? round(props.usedBalance, 1) : 0}
+              {absenceReasonBalance?.usedBalance
+                ? round(absenceReasonBalance?.usedBalance, 1)
+                : 0}
             </div>
             <div className={classes.valueContainer}>
-              {props.plannedBalance ? round(props.plannedBalance, 1) : 0}
+              {absenceReasonBalance?.plannedBalance
+                ? round(absenceReasonBalance?.plannedBalance, 1)
+                : 0}
             </div>
             <div className={classes.valueContainer}>
-              {props.remainingBalance
-                ? round(props.remainingBalance, 1)
+              {absenceReasonBalance?.unusedBalance
+                ? round(absenceReasonBalance?.unusedBalance, 1)
                 : values.balance}
             </div>
             <div className={classes.removeButton}>
