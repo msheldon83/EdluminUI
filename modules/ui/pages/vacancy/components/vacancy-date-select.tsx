@@ -40,8 +40,8 @@ export const VacancyDateSelect: React.FC<Props> = props => {
   const getContractScheduleDates = useQueryBundle(GetContractScheduleDates, {
     variables: {
       contractId: props.contractId,
-      fromDate: startDate,
-      toDate: addDays(startDate, 45),
+      fromDate: format(addMonths(month, -1), "yyyy-M-d"),
+      toDate: format(endOfMonth(addMonths(month, 2)), "yyyy-M-d"),
     },
   });
   const disabledDates = useMemo(
