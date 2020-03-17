@@ -42,6 +42,7 @@ export type Detail = {
     lastName: string;
   };
   absenceReason?: string;
+  vacancyReason?: string;
   date: Date;
   dateRange: string;
   startTime: string;
@@ -62,6 +63,7 @@ export type Detail = {
   position?: {
     id?: string;
     title: string;
+    name: string;
   };
   positionType?: {
     id: string;
@@ -146,6 +148,7 @@ export const MapDailyReportDetails = (
             ? {
                 id: a.vacancies[0].position.id,
                 name: a.vacancies[0].position.title,
+                title: a.vacancies[0].position.title,
               }
             : undefined,
         positionType:
@@ -193,6 +196,7 @@ export const MapDailyReportDetails = (
           v.createdLocal,
           "MMM d h:mm a"
         ),
+        vacancyReason: vacancyDetail.vacancyReason?.name,
         isMultiDay: v.details && v.details.length > 1,
         substitute:
           vacancyDetail.assignment && vacancyDetail.assignment.employee
@@ -214,6 +218,7 @@ export const MapDailyReportDetails = (
           ? {
               id: v.position.id,
               name: v.position.title,
+              title: v.position.title,
             }
           : undefined,
         positionType: v.position?.positionType
@@ -309,11 +314,10 @@ export const MapDailyReportDetails = (
   details.push(...unfilledAbsencesDetails);
 
   // Unfilled Vacancies
-  const unfilledVacancyDetails = flatMap(dailyReport.filledVacancies, v => {
+  const unfilledVacancyDetails = flatMap(dailyReport.unfilledVacancies, v => {
     if (!v || !v.details) {
       return [];
     }
-
     return v.details.map(d => {
       const vacancyDetail = d as VacancyDetail;
       return {
@@ -331,6 +335,7 @@ export const MapDailyReportDetails = (
           v.createdLocal,
           "MMM d h:mm a"
         ),
+        vacancyReason: vacancyDetail.vacancyReason?.name,
         subTimes: [
           {
             startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),

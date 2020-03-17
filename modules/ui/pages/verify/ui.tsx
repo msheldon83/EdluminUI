@@ -211,6 +211,7 @@ export const VerifyUI: React.FC<Props> = props => {
     | "payDurationOverride"
     | "actualDuration"
     | "payInfo"
+    | "vacancyReason"
   >[];
 
   const payCodes = usePayCodes(params.organizationId);

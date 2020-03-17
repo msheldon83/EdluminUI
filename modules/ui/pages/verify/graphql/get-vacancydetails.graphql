@@ -66,6 +66,11 @@ query GetVacancyDetails(
         postalCode
         phoneNumber
       }
+      vacancyReasonId
+      vacancyReason {
+        id
+        name
+      }
       vacancy {
         id
         absence {

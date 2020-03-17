@@ -22,6 +22,7 @@ type Props = {
     | "dayPortion"
     | "totalDayPortion"
     | "payInfo"
+    | "vacancyReason"
   >;
   shadeRow: boolean;
 };
@@ -31,6 +32,10 @@ export const VacancyDetailRow: React.FC<Props> = props => {
   const classes = useStyles();
 
   const vacancyDetail = props.vacancyDetail;
+
+  const isFromVacancy = useMemo(() => {
+    return !!vacancyDetail.vacancyReason;
+  }, [vacancyDetail]);
 
   const vacancyDetailStartTime = parseISO(vacancyDetail.startTimeLocal);
   const vacancyDetailEndTime = parseISO(vacancyDetail.endTimeLocal);
@@ -65,12 +70,21 @@ export const VacancyDetailRow: React.FC<Props> = props => {
         <div
           className={classes.subNameText}
         >{`${vacancyDetail.assignment?.employee?.firstName} ${vacancyDetail.assignment?.employee?.lastName}`}</div>
-        <div className={classes.lightText}>{`${t("in for")} ${
-          vacancyDetail.vacancy?.absence?.employee?.firstName
-        } ${vacancyDetail.vacancy?.absence?.employee?.lastName}`}</div>
-        <div
-          className={classes.lightText}
-        >{`${vacancyDetail.vacancy?.position?.title}`}</div>
+        {!isFromVacancy && (
+          <div className={classes.lightText}>{`${t("in for")} ${
+            vacancyDetail.vacancy?.absence?.employee?.firstName
+          } ${vacancyDetail.vacancy?.absence?.employee?.lastName}`}</div>
+        )}
+        {isFromVacancy && (
+          <div className={classes.lightText}>{`${t("in for Vacancy")}: ${
+            vacancyDetail.vacancy?.position?.title
+          }`}</div>
+        )}
+        {!isFromVacancy && (
+          <div
+            className={classes.lightText}
+          >{`${vacancyDetail.vacancy?.position?.title}`}</div>
+        )}
       </Grid>
       <Grid item xs={3}>
         <div className={classes.timeText}>{`${format(
@@ -83,9 +97,16 @@ export const VacancyDetailRow: React.FC<Props> = props => {
         <div
           className={classes.assignmentIdText}
         >{`#C${vacancyDetail.assignment?.id}`}</div>
-        <div className={classes.lightText}>{`${t("Absence")} #${
-          vacancyDetail.vacancy?.absence?.id
-        }`}</div>
+        {!isFromVacancy && (
+          <div className={classes.lightText}>{`${t("Absence")} #${
+            vacancyDetail.vacancy?.absence?.id
+          }`}</div>
+        )}
+        {isFromVacancy && (
+          <div className={classes.lightText}>{`${t("Vacancy")} #${
+            vacancyDetail.vacancy?.id
+          }`}</div>
+        )}
       </Grid>
       <Grid item container xs={3} alignItems="center">
         <div className={classes.signinLine}>
