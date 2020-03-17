@@ -365,7 +365,7 @@ export const AssignSub: React.FC<Props> = props => {
         }}
       />
       <AbsenceHeader
-        userIsAdmin={props.userIsAdmin}
+        actingAsEmployee={!props.userIsAdmin}
         employeeName={props.employeeName}
         pageHeader={pageHeader}
         onCancel={props.onCancel}

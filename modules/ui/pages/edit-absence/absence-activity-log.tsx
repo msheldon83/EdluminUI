@@ -50,7 +50,6 @@ export const AbsenceActivityLog: React.FC<{}> = props => {
   return (
     <>
       <AbsenceHeader
-        userIsAdmin={true}
         actingAsEmployee={false}
         employeeName={employeeName}
         pageHeader={`${t("Activity log")} #${params.absenceId}`}

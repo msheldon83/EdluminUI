@@ -585,9 +585,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           <div className={classes.titleContainer}>
             <AbsenceHeader
               employeeName={employeeName}
-              userIsAdmin={props.userIsAdmin}
               pageHeader={`${t("Edit absence")} #${props.absenceId}`}
-              actingAsEmployee={actingAsEmployee}
+              actingAsEmployee={!props.userIsAdmin}
             />
             <div className={classes.headerMenu}>
               <ActionMenu

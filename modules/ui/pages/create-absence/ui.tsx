@@ -412,10 +412,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         {step === "absence" && (
           <>
             <AbsenceHeader
-              userIsAdmin={props.userIsAdmin}
               employeeName={employeeName}
               pageHeader={t("Create absence")}
-              actingAsEmployee={actingAsEmployee}
+              actingAsEmployee={!props.userIsAdmin}
             />
             <Section className={classes.absenceDetails}>
               <ErrorBanner

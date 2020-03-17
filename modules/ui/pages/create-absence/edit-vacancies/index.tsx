@@ -181,10 +181,9 @@ export const EditVacancies: React.FC<Props> = props => {
       {({ values, handleSubmit, errors }) => (
         <form onSubmit={handleSubmit}>
           <AbsenceHeader
-            userIsAdmin={props.userIsAdmin}
             employeeName={props.employeeName}
             pageHeader={pageHeader}
-            actingAsEmployee={props.actingAsEmployee}
+            actingAsEmployee={!props.userIsAdmin}
           />
           <Section className={classes.vacancyDetails}>
             <Grid

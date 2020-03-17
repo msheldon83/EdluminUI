@@ -5,7 +5,6 @@ import { Button, Typography, makeStyles } from "@material-ui/core";
 type Props = {
   employeeName: string;
   pageHeader: string;
-  userIsAdmin: boolean;
   actingAsEmployee?: boolean | undefined;
   onCancel?: () => void;
   isForVacancy?: boolean;
@@ -18,7 +17,7 @@ export const AbsenceHeader: React.FC<Props> = props => {
   return (
     <div>
       <Typography variant="h5">{props.pageHeader}</Typography>
-      {!props.actingAsEmployee && props.userIsAdmin && (
+      {!props.actingAsEmployee && (
         <Typography variant="h1">{props.employeeName}</Typography>
       )}
       {props.onCancel && (
