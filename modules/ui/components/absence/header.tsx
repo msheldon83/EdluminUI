@@ -15,13 +15,16 @@ export const AbsenceHeader: React.FC<Props> = props => {
   const classes = useStyles();
 
   return (
-    <div>
-      <Typography variant="h5">{props.pageHeader}</Typography>
-      {!props.actingAsEmployee && (
-        <Typography variant="h1">{props.employeeName}</Typography>
-      )}
+    <div className={classes.confAndReturnContainer}>
+      <div>
+        <Typography variant="h5">{props.pageHeader}</Typography>
+        {!props.actingAsEmployee && (
+          <Typography variant="h1">{props.employeeName}</Typography>
+        )}
+      </div>
+
       {props.onCancel && (
-        <div className={classes.confAndReturnContainer}>
+        <div>
           <div>
             <Button variant="outlined" onClick={props.onCancel}>
               {props.isForVacancy
@@ -39,8 +42,7 @@ const useStyles = makeStyles(theme => ({
   confAndReturnContainer: {
     display: "flex",
     marginBottom: theme.spacing(2),
-    flexDirection: "column",
-    alignItems: "flex-end",
+    alignItems: "center",
     justifyContent: "space-between",
   },
   selectButton: {
