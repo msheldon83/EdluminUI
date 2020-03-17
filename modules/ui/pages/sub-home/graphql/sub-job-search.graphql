@@ -45,10 +45,6 @@ query SubJobSearch(
           payInfoSummary {
             summaryLabel
           }
-          vacancyReason {
-            id
-            name
-          }
           startTimeLocal
           endTimeLocal
           startDate
@@ -67,6 +63,10 @@ query SubJobSearch(
             startTimeLocal
             endTimeLocal
             dayPortion
+            vacancyReason {
+              id
+              name
+            }
           }
         }
       }
