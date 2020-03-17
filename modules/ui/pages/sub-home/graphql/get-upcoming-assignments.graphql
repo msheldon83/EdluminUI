@@ -39,6 +39,10 @@ query GetUpcomingAssignments(
         postalCode
         phoneNumber
       }
+      vacancyReason {
+        id
+        name
+      }
       vacancy {
         id
         organization {

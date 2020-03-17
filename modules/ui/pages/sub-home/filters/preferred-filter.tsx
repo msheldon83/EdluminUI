@@ -23,7 +23,7 @@ export const PreferredFilter: React.FC<Props> = props => {
               color="primary"
             />
           }
-          label={t("Show non-preferred")}
+          label={t("Show all")}
         />
       </Grid>
     </>

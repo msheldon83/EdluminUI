@@ -225,7 +225,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       allDays,
       disabledDates.map(d => d.date)
     );
-    expect(result).toBe("Mon-Tue,Thu-Fri,Mon, Dec 16-17,19-20,23");
+    expect(result).toBe("Dec 16-17, 19-20, 23");
   });
 
   it("Display multiple non-contiguous dates within a single month (no disabled dates)", () => {
@@ -236,7 +236,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
     ];
 
     const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
-    expect(result).toBe("Mon-Tue,Thu, Dec 16-17,19");
+    expect(result).toBe("Dec 16-17, 19");
   });
 
   it("Display multiple non-contiguous dates within a single month (overly complex scenario)", () => {
@@ -255,7 +255,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       allDays,
       disabledDates.map(d => d.date)
     );
-    expect(result).toBe("Mon-Tue,Thu,Sat-Tue,Fri, Nov 18-19,21,23-26,29");
+    expect(result).toBe("Nov 18-19, 21, 23-26, 29");
   });
 
   it("Display multiple contiguous dates across months", () => {
@@ -264,7 +264,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       end: startOfDay(new Date("12/3/2019")),
     });
     const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
-    expect(result).toBe("Thu-Tue, Nov 28 - Dec 3");
+    expect(result).toBe("Nov 28 - Dec 3");
   });
 
   it("Display multiple non-contiguous dates across months (1)", () => {
@@ -280,7 +280,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       allDays,
       disabledDates.map(d => d.date)
     );
-    expect(result).toBe("Thu,Sat-Tue, Nov 28,30 - Dec 3");
+    expect(result).toBe("Nov 28, 30 - Dec 3");
   });
 
   it("Display multiple non-contiguous dates across months (2)", () => {
@@ -291,7 +291,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
     ];
 
     const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
-    expect(result).toBe("Mon,Thu,Thu, Jan 20,30, Feb 6");
+    expect(result).toBe("Jan 20, 30, Feb 6");
   });
 
   it("Display multiple non-contiguous dates across months (overly complex scenario)", () => {
@@ -313,9 +313,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       allDays,
       disabledDates.map(d => d.date)
     );
-    expect(result).toBe(
-      "Mon-Tue,Thu,Sat-Tue,Fri-Mon,Wed-Thu,Sat-Mon,Wed-Thu, Nov 18-19,21,23-26,29 - Dec 2,4-5,7-9,11-12"
-    );
+    expect(result).toBe("Nov 18-19, 21, 23-26, 29 - Dec 2, 4-5, 7-9, 11-12");
   });
 
   it("Display multiple contiguous dates across years", () => {
@@ -324,7 +322,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       end: startOfDay(new Date("1/6/2020")),
     });
     const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
-    expect(result).toBe("Mon-Mon, Dec 23 - Jan 6");
+    expect(result).toBe("Dec 23 - Jan 6");
   });
 
   it("Display multiple contiguous dates across years within the same week", () => {
@@ -351,9 +349,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       allDays,
       disabledDates.map(d => d.date)
     );
-    expect(result).toBe(
-      "Mon-Tue,Thu,Sat-Wed,Fri-Mon, Dec 23-24,26,28 - Jan 1,3-6"
-    );
+    expect(result).toBe("Dec 23-24, 26, 28 - Jan 1, 3-6");
   });
 
   it("Display multiple non-contiguous single day dates that cross years", () => {
@@ -377,6 +373,6 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       allDays,
       disabledDates.map(d => d.date)
     );
-    expect(result).toBe("Mon,Wed,Fri, Dec 23, Jan 1,3");
+    expect(result).toBe("Dec 23, Jan 1, 3");
   });
 });

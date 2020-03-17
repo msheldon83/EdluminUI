@@ -29,6 +29,11 @@ query GetFilledAbsences($orgId: ID!, $date: Date!, $locationIds: [ID]) {
           summaryLabel
         }
       }
+
+      vacancyReason {
+        id
+        name
+      }
       assignment {
         id
         rowVersion

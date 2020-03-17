@@ -9,7 +9,7 @@ import {
   Tooltip,
   Link as MuiLink,
 } from "@material-ui/core";
-import { isEqual, format } from "date-fns";
+import { isEqual, format, isAfter } from "date-fns";
 import { DayIcon } from "ui/components/day-icon";
 import { Link } from "react-router-dom";
 import {
@@ -78,6 +78,10 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
         : props.absence.allDayParts.filter(x => x.dayPart === u).length;
     return `${count} ${determineDayPartLabel(u, count)}`;
   });
+
+  const canCancel = props.actingAsEmployee
+    ? isAfter(props.absence.startTimeLocal, new Date())
+    : true;
 
   return (
     <>
@@ -179,7 +183,7 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
         </Link>
       </Grid>
       <Can do={[PermissionEnum.AbsVacDelete]}>
-        {props.cancelAbsence && (
+        {props.cancelAbsence && canCancel && (
           <Grid item xs={2} className={classes.cancelButtonContainer}>
             <Button
               variant="outlined"

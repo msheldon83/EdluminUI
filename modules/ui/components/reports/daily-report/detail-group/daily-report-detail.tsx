@@ -15,6 +15,7 @@ import {
   canEditAbsence,
 } from "helpers/permissions";
 import { OrgUserPermissions } from "ui/components/auth/types";
+import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
   detail: Detail;
@@ -31,6 +32,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
+  const vacancyEditParams = useRouteParams(VacancyViewRoute);
   const isMobile = useIsMobile();
 
   const isChecked = !!props.selectedDetails.find(
@@ -56,10 +58,28 @@ export const DailyReportDetail: React.FC<Props> = props => {
     });
   };
 
+  const goToVacancyEdit = (vacancyId: string) => {
+    const url = VacancyViewRoute.generate({
+      ...vacancyEditParams,
+      vacancyId: vacancyId,
+    });
+    history.push(url);
+  };
+
   const goToAbsenceEditAssign = (absenceId: string) => {
     const url = AdminEditAbsenceRoute.generate({
       ...absenceEditParams,
       absenceId,
+    });
+    history.push(`${url}?step=preAssignSub`, {
+      returnUrl: `${history.location.pathname}${history.location.search}`,
+    });
+  };
+
+  const goToVacancyEditAssign = (vacancyId: string) => {
+    const url = VacancyViewRoute.generate({
+      ...vacancyEditParams,
+      vacancyId,
     });
     history.push(`${url}?step=preAssignSub`, {
       returnUrl: `${history.location.pathname}${history.location.search}`,
@@ -147,6 +167,8 @@ export const DailyReportDetail: React.FC<Props> = props => {
           hideCheckbox={hideCheckbox}
           goToAbsenceEdit={goToAbsenceEdit}
           goToAbsenceEditAssign={goToAbsenceEditAssign}
+          goToVacancyEdit={goToVacancyEdit}
+          goToVacancyEditAssign={goToVacancyEditAssign}
           goToPersonView={goToPersonView}
           goToLocationView={goToLocationView}
           isChecked={isChecked}

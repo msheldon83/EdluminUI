@@ -95,6 +95,10 @@ query GetDailyReport(
             id
             name
           }
+          vacancyReason {
+            id
+            name
+          }
           assignment {
             id
             rowVersion
@@ -187,6 +191,10 @@ query GetDailyReport(
           endDate
           endTimeLocal
           location {
+            id
+            name
+          }
+          vacancyReason {
             id
             name
           }
