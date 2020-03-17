@@ -60,9 +60,9 @@ export const AssignmentCard: React.FC<Props> = props => {
 
   const parsedDay = parseISO(vacancyDetail.startTimeLocal);
   const dayLabel = isToday(parsedDay)
-    ? "Today"
+    ? t("Today")
     : isTomorrow(parsedDay)
-    ? "Tomorrow"
+    ? t("Tomorrow")
     : isMobile
     ? format(parsedDay, "EEE")
     : format(parsedDay, "EEEE");
