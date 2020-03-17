@@ -14,9 +14,19 @@ import {
   GetContractScheduleDatesQuery,
   GetContractScheduleDatesQueryVariables,
 } from "../graphql/get-contract-schedule-dates.gen";
-import { addDays, isAfter, parseISO, startOfDay, startOfWeek } from "date-fns";
+import {
+  addDays,
+  isAfter,
+  parseISO,
+  startOfDay,
+  isSameDay,
+  addMonths,
+  endOfMonth,
+  format,
+} from "date-fns";
 import { useMemo, useCallback } from "react";
 import { CalendarDayType } from "graphql/server-types.gen";
+import { differenceWith } from "lodash-es";
 
 type Props = {
   contractId: string;
@@ -32,16 +42,11 @@ export const VacancyDateSelect: React.FC<Props> = props => {
   const inputRef = React.useRef(null);
   const [calendarOpen, setCalendarOpen] = React.useState(false);
 
-  const startDate = useMemo(
-    () => startOfWeek(props.month),
-    /* eslint-disable-line react-hooks/exhaustive-deps */ [props, props.month]
-  );
-
   const getContractScheduleDates = useQueryBundle(GetContractScheduleDates, {
     variables: {
       contractId: props.contractId,
-      fromDate: format(addMonths(month, -1), "yyyy-M-d"),
-      toDate: format(endOfMonth(addMonths(month, 2)), "yyyy-M-d"),
+      fromDate: format(addMonths(props.month, -1), "yyyy-M-d"),
+      toDate: format(endOfMonth(addMonths(props.month, 2)), "yyyy-M-d"),
     },
   });
   const disabledDates = useMemo(
@@ -52,9 +57,8 @@ export const VacancyDateSelect: React.FC<Props> = props => {
           buttonProps: { className: classes.dateDisabled },
         };
       }),
-    [
-      getContractScheduleDates,
-    ] /* eslint-disable-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [getContractScheduleDates]
   );
 
   const customSelectedVacancyDates = useMemo(
@@ -94,8 +98,12 @@ export const VacancyDateSelect: React.FC<Props> = props => {
       it from being toggled off for this multi-date selection
     */
     const [initialDate, ...restOfDates] = dates;
-
-    props.onSelectDates(dates.length > 1 ? restOfDates : [initialDate]);
+    const datesSelected = dates.length > 1 ? restOfDates : [initialDate];
+    // Remove any disabled dates from the list
+    const validDates = differenceWith(datesSelected, disabledDates, (a, b) =>
+      isSameDay(a, b.date)
+    );
+    props.onSelectDates(validDates);
   };
 
   return (
