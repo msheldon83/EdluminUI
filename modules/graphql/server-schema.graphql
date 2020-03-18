@@ -960,7 +960,8 @@ type ChangeLogTypeDef {
 
 type ConfirmationNumberQueryResultTypeDef {
   _info: [ReturnMessage]
-  id: ID!
+  absenceId: ID!
+  ownerId: ID!
   objectTypeId: ObjectType!
   objectTypeName: String!
   orgId: ID!
@@ -980,6 +981,7 @@ type ConfirmationNumberQueryResultTypeDef {
   subFirstName: String
   subMiddleName: String
   subLastName: String
+  isNormalVacancy: Boolean!
 }
 
 type Contract implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2471,6 +2473,8 @@ type organizationConfig {
   maxRequestedEmployeeHoldMinutes: Int!
   minorConflictThresholdMinutes: Int!
   minutesRelativeToStartVacancyCanBeFilled: Int!
+  defaultSubVisibilityPercent: Int!
+  defaultSubVisibilityMinutesMinimum: Int!
   vacancyDayConversions: [DayConversion]
 }
 
@@ -2495,6 +2499,8 @@ input organizationConfigInput {
   maxRequestedEmployeeHoldMinutes: Int
   minorConflictThresholdMinutes: Int
   minutesRelativeToStartVacancyCanBeFilled: Int
+  defaultSubVisibilityPercent: Int
+  defaultSubVisibilityMinutesMinimum: Int
   vacancyDayConversions: [DayConversionInput]
 }
 

@@ -75,7 +75,6 @@ export const SearchBar: React.FC<Props> = props => {
   );
 
   const searchResults = useQueryBundle(GetSearchResultsByConfirmationId, {
-    fetchPolicy: "cache-first",
     variables: {
       confirmationId,
       orgIds,
@@ -96,10 +95,10 @@ export const SearchBar: React.FC<Props> = props => {
       ? searchResults?.data?.absence?.byConfirmationId
       : [];
 
-  const handleOnClick = (id: string, objectTypeId: string) => {
+  const handleOnClick = (id: string, isNormalVacancy: boolean) => {
     onClose();
     if (params.role === "admin") {
-      if (objectTypeId === "VACANCY") {
+      if (isNormalVacancy) {
         goToAdminVacancyEdit(id);
       } else {
         goToAdminAbsenceEdit(id);
@@ -183,18 +182,17 @@ export const SearchBar: React.FC<Props> = props => {
                 </Grid>
               )}
               {results.map((r: any, i) => {
-                const heading: string =
-                  r.objectTypeId === "VACANCY"
-                    ? r.assignmentId
-                      ? `${t("Vacancy")} #${r.id} (${t("Assignment")} #C${
-                          r.assignmentId
-                        })`
-                      : `${t("Vacancy")} #${r.id}`
-                    : r.assignmentId
-                    ? `${t("Absence")} #${r.id} (${t("Assignment")} #C${
+                const heading: string = r.isNormalVacancy
+                  ? r.assignmentId
+                    ? `${t("Vacancy")} #${r.ownerId} (${t("Assignment")} #C${
                         r.assignmentId
                       })`
-                    : `${t("Absence")} #${r.id}`;
+                    : `${t("Vacancy")} #${r.ownerId}`
+                  : r.assignmentId
+                  ? `${t("Absence")} #${r.ownerId} (${t("Assignment")} #C${
+                      r.assignmentId
+                    })`
+                  : `${t("Absence")} #${r.ownerId}`;
                 const subHeading = `${format(
                   parseISO(r.absenceStartTimeUtc),
                   "EEE, MMM d, yyyy"
@@ -223,7 +221,11 @@ export const SearchBar: React.FC<Props> = props => {
 
                 return (
                   <Grid className={classes.resultItem} item xs={12} key={i}>
-                    <div onClick={() => handleOnClick(r.id, r.objectTypeId)}>
+                    <div
+                      onClick={() =>
+                        handleOnClick(r.ownerId, r.isNormalVacancy)
+                      }
+                    >
                       <div className={classes.header}>
                         {newArr.map(a => {
                           return a;

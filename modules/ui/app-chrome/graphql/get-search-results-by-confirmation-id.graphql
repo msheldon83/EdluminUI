@@ -4,7 +4,7 @@ query GetSearchResultsByConfirmationId(
 ) {
   absence {
     byConfirmationId(orgIds: $orgIds, confirmationId: $confirmationId) {
-      id
+      ownerId
       objectTypeId
       objectTypeName
       orgId
@@ -24,6 +24,7 @@ query GetSearchResultsByConfirmationId(
       subFirstName
       subMiddleName
       subLastName
+      isNormalVacancy
     }
   }
 }
