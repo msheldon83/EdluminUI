@@ -4,6 +4,8 @@ import { useHistory } from "react-router";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
+import { useMemo } from "react";
+import { useTimezones } from "reference-data/timezones";
 import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
 import {
@@ -15,6 +17,7 @@ import {
   FeatureFlag,
 } from "graphql/server-types.gen";
 import { AdminRootChromeRoute } from "ui/routes/app-chrome";
+import { GetTimezones } from "reference-data/get-timezones.gen";
 import { CreateOrganization } from "./graphql/create-organization.gen";
 import { Button, Typography, makeStyles } from "@material-ui/core";
 import { AddBasicInfo } from "./components/add-info";
@@ -26,6 +29,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   const params = useRouteParams(AdminRootChromeRoute);
   const [name, setName] = React.useState<string | null>(null);
   const { openSnackbar } = useSnackbar();
+  const timeZones = useTimezones();
   const namePlaceholder = t("Glenbrook");
 
   //Add Edustaff boolean. Add to backend as well to check and delegate additional 3 Action Handlers if true.
@@ -84,16 +88,88 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     return result?.data?.organization?.create?.id;
   };
 
+  const seedOrgDataOptions = useMemo(() => {
+    return [
+      {
+        value: SeedOrgDataOptionEnum.SeedAsynchronously,
+        label: t("Seed Asynchronously"),
+      },
+      {
+        value: SeedOrgDataOptionEnum.SeedSynchronously,
+        label: t("Seed Synchronously"),
+      },
+    ];
+  }, [t]);
+
+  const orgTypes = useMemo(() => {
+    return [
+      {
+        value: OrganizationType.Invalid,
+        label: t("Invalid"),
+      },
+      {
+        value: OrganizationType.Demo,
+        label: t("Demo"),
+      },
+      {
+        value: OrganizationType.Implementing,
+        label: t("Implementing"),
+      },
+      {
+        value: OrganizationType.Standard,
+        label: t("Standard"),
+      },
+    ];
+  }, [t]);
+
+  const featureFlagOptions = useMemo(() => {
+    return [
+      {
+        value: FeatureFlag.None,
+        label: t("None"),
+      },
+      {
+        value: FeatureFlag.FullDayAbsences,
+        label: t("Full Day"),
+      },
+      {
+        value: FeatureFlag.HalfDayAbsences,
+        label: t("Half Day"),
+      },
+      {
+        value: FeatureFlag.QuarterDayAbsences,
+        label: t("Quarterly"),
+      },
+      {
+        value: FeatureFlag.HourlyAbsences,
+        label: t("Hourly"),
+      },
+    ];
+  }, [t]);
+
+  const timeZoneOptions = timeZones.map(c => {
+    return { label: c!.name, value: c!.enumValue ?? "" };
+  });
+
   return (
     <div className={classes.header}>
       <PageTitle title={t("Create new organization")} />
-      <Typography variant="h1">
-        {name || <span className={classes.placeholder}>{namePlaceholder}</span>}
-      </Typography>
+      <div className={classes.paddingBottom}>
+        <Typography variant="h1">
+          {name || (
+            <span className={classes.placeholder}>{namePlaceholder}</span>
+          )}
+        </Typography>
+      </div>
       <AddBasicInfo
         namePlaceholder={namePlaceholder}
         organization={organization}
+        seedOrgDataOptions={seedOrgDataOptions}
+        organizationTypes={orgTypes}
+        timeZoneOptions={timeZoneOptions}
+        featureFlagOptions={featureFlagOptions}
         onSubmit={(name, externalId) => {
+          //TODO
           setOrganization({
             ...organization,
             name: name,
@@ -120,5 +196,8 @@ const useStyles = makeStyles(theme => ({
   placeholder: {
     opacity: "0.2",
     filter: "alpha(opacity = 20)",
+  },
+  paddingBottom: {
+    paddingBottom: theme.spacing(1),
   },
 }));
