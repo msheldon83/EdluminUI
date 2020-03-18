@@ -251,8 +251,8 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                   : "";
 
                 const title = positionTypes
-                  ? positionTypes.find(pt => pt.id === selectedValue)?.name ??
-                    ""
+                  ? `${positionTypes.find(pt => pt.id === selectedValue)
+                      ?.name ?? ""} ${t("Vacancy")}`
                   : "";
 
                 setFieldValue("contractId", contractId);
