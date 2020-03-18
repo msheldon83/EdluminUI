@@ -12,14 +12,12 @@ import {
   OrganizationCreateInput,
   OrganizationType,
   SeedOrgDataOptionEnum,
-  TimeZone,
   CountryCode,
   FeatureFlag,
 } from "graphql/server-types.gen";
 import { AdminRootChromeRoute } from "ui/routes/app-chrome";
-import { GetTimezones } from "reference-data/get-timezones.gen";
 import { CreateOrganization } from "./graphql/create-organization.gen";
-import { Button, Typography, makeStyles } from "@material-ui/core";
+import { Typography, makeStyles } from "@material-ui/core";
 import { AddBasicInfo } from "./components/add-info";
 
 export const OrganizationAddPage: React.FC<{}> = props => {
@@ -32,7 +30,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   const timeZones = useTimezones();
   const namePlaceholder = t("Glenbrook");
 
-  //Add Edustaff boolean. Add to backend as well to check and delegate additional 3 Action Handlers if true.
+  //Add Edustaff boolean. Add to backend as well to check and delegate additional 2 Action Handlers if true.
   const [organization, setOrganization] = React.useState<
     OrganizationCreateInput
   >({
@@ -43,6 +41,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     superUserLoginEmail: "",
     timeZoneId: null,
     seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
+    isEdustaffOrg: false,
     config: {
       organizationTypeId: OrganizationType.Implementing,
       orgUsersMustAcceptEula: false,
@@ -60,7 +59,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
       minRequestedEmployeeHoldMinutes: 0,
       maxRequestedEmployeeHoldMinutes: 0,
       minorConflictThresholdMinutes: 0,
-      minutesRelativeToStartVacancyCanBeFilled: 0,
+      minutesRelativeToStartVacancyCanBeFilled: 0, // Done
       vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }],
     },
   });
@@ -92,11 +91,11 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     return [
       {
         value: SeedOrgDataOptionEnum.SeedAsynchronously,
-        label: t("Seed Asynchronously"),
+        label: t("Asynchronously"),
       },
       {
         value: SeedOrgDataOptionEnum.SeedSynchronously,
-        label: t("Seed Synchronously"),
+        label: t("Synchronously"),
       },
     ];
   }, [t]);
@@ -153,7 +152,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
 
   return (
     <div className={classes.header}>
-      <PageTitle title={t("Create new organization")} />
+      <PageTitle title={t("Create New Organization")} />
       <div className={classes.paddingBottom}>
         <Typography variant="h1">
           {name || (

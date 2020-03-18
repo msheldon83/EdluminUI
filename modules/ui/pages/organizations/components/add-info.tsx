@@ -1,25 +1,19 @@
 import {
   Grid,
   makeStyles,
-  FormHelperText,
+  FormControlLabel,
   Checkbox,
   Divider,
-  Radio,
-  MenuItem,
-  RadioGroup,
 } from "@material-ui/core";
 import { Formik } from "formik";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { GetTimezones } from "reference-data/get-timezones.gen";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
-import { OptionTypeBase } from "react-select/src/types";
 import { SectionHeader } from "ui/components/section-header";
 import * as Yup from "yup";
-import * as Forms from "atomic-object/forms";
 import { ActionButtons } from "../../../components/action-buttons";
 import { Input } from "ui/components/form/input";
 import { OrganizationCreateInput, Maybe } from "graphql/server-types.gen";
@@ -47,6 +41,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
     externalId: props.organization.externalId || "",
     superUserFirstName: props.organization.superUserFirstName || "",
     superUserLastName: props.organization.superUserLastName || "",
+    isEdustaffOrg: props.organization.isEdustaffOrg || false,
   };
 
   //Add more validation
@@ -80,16 +75,16 @@ export const AddBasicInfo: React.FC<Props> = props => {
           props.onSubmit(data.name, data.externalId);
         }}
       >
-        {({ handleSubmit, handleChange, submitForm, values }) => (
+        {({
+          handleSubmit,
+          handleChange,
+          submitForm,
+          setFieldValue,
+          values,
+        }) => (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={isMobile ? 2 : 8}>
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                lg={6}
-                classes={{ root: overrideStyles.root }}
-              >
+              <Grid item xs={12} sm={6}>
                 <Input
                   label={t("Organization name")}
                   InputComponent={FormTextField}
@@ -106,13 +101,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                lg={6}
-                classes={{ root: overrideStyles.root }}
-              >
+              <Grid item xs={12} sm={6}>
                 <SelectNew
                   label={t("Time Zone")}
                   name={"timeZoneId"}
@@ -121,13 +110,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   multiple={false}
                 />
               </Grid>
-              <Grid
-                item
-                xs={12}
-                sm={3}
-                lg={3}
-                classes={{ root: overrideStyles.root }}
-              >
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("External Id")}
                   InputComponent={FormTextField}
@@ -135,18 +118,11 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     name: "externalId",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
-                    helperText: t("Usually used for data integrations"),
                     fullWidth: true,
                   }}
                 />
               </Grid>
-              <Grid
-                item
-                xs={12}
-                sm={3}
-                lg={3}
-                classes={{ root: overrideStyles.root }}
-              >
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Super User First Name")}
                   InputComponent={FormTextField}
@@ -159,13 +135,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid
-                item
-                xs={12}
-                sm={3}
-                lg={3}
-                classes={{ root: overrideStyles.root }}
-              >
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Super User Last Name")}
                   InputComponent={FormTextField}
@@ -178,13 +148,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid
-                item
-                xs={12}
-                sm={3}
-                lg={3}
-                classes={{ root: overrideStyles.root }}
-              >
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Super User Email")}
                   InputComponent={FormTextField}
@@ -197,13 +161,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid
-                item
-                xs={12}
-                sm={3}
-                lg={3}
-                classes={{ root: overrideStyles.root }}
-              >
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <SelectNew
                   label={t("Seed Data Option")}
                   name={"seedOrgDataOption"}
@@ -212,15 +170,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   multiple={false}
                 />
               </Grid>
-              <Grid
-                item
-                xs={12}
-                sm={3}
-                lg={3}
-                classes={{ root: overrideStyles.root }}
-              >
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <SelectNew
-                  label={t("Feature Flags")}
+                  label={t("Feature Flags (FIX ME!!)")}
                   name={"featureFlags"}
                   withResetValue={false}
                   options={props.featureFlagOptions}
@@ -228,8 +180,196 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   multiple={true}
                 />
               </Grid>
-            </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
+                <SelectNew
+                  label={t("Organization Type")}
+                  name={"featureFlags"}
+                  withResetValue={false}
+                  options={props.organizationTypes}
+                  multiple={false}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={values.isEdustaffOrg}
+                      onChange={e => {
+                        setFieldValue("isEdustaffOrg", e.target.checked);
+                      }}
+                      value={values.isEdustaffOrg}
+                      color="primary"
+                    />
+                  }
+                  label={t("Is this an Edustaff Org?")}
+                />
+              </Grid>
+              <Grid item xs={12} sm={12}>
+                <Divider />
+                <SectionHeader title={t("Non-required setup info")} />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Minimum Absence Minutes")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "minAbsenceMinutes",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Max Absence Days")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "maxAbsenceDays",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Absence Create Cutoff Time")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "absenceCreateCutoffTime",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Requested Sub Cutoff Minutes")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "requestedSubCutoffMinutes",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Long Term Vacancy Threshold Days")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "longTermVacancyThresholdDays",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Minimum Lead Time Minutes to Cancel Vacancy")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "minLeadTimeMinutesToCancelVacancy",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Minutes before Start Absence can be Created")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "minutesBeforeStartAbsenceCanBeCreated",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
 
+              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Max Gap Minutes For Same Vacancy Detail")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "maxGapMinutesForSameVacancyDetail",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Minimum Requested Employee Hold Minutes")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "minRequestedEmployeeHoldMinutes",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Max Requested Employee Hold Minutes")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "maxRequestedEmployeeHoldMinutes",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Minor Conflict Threshold Minutes")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "minorConflictThresholdMinutes",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Minutes Relative To Start Vacancy Can Be Filled")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "minutesRelativeToStartVacancyCanBeFilled",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Min. minutes to cancel Vacancy w/o punishment")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "minLeadTimeMinutesToCancelVacancyWithoutPunishment",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                    helperText: t(
+                      "Minimum Lead Time Minutes To Cancel Vacancy Without Punishment"
+                    ),
+                  }}
+                />
+              </Grid>
+            </Grid>
+            <Divider />
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}
               cancel={{ text: t("Cancel"), execute: props.onCancel }}
@@ -242,13 +382,13 @@ export const AddBasicInfo: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  paddingTop: {
-    paddingTop: theme.spacing(4),
+  something: {
+    padding: theme.spacing(1),
   },
 }));
 
 const rootStyles = makeStyles(theme => ({
   root: {
-    padding: `20px 32px 0px 32px !important`,
+    padding: `5px 32px 32px 32px !important`,
   },
 }));
