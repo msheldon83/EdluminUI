@@ -8,6 +8,8 @@ import {
 import { Formik } from "formik";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useIsMobile } from "hooks";
+import { useMemo, useState } from "react";
+import { OptionTypeBase } from "react-select/src/types";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { TextField as FormTextField } from "ui/components/form/text-field";
@@ -16,11 +18,26 @@ import { SectionHeader } from "ui/components/section-header";
 import * as Yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { Input } from "ui/components/form/input";
-import { OrganizationCreateInput, Maybe } from "graphql/server-types.gen";
+import {
+  OrganizationCreateInput,
+  Maybe,
+  FeatureFlag,
+  SeedOrgDataOptionEnum,
+  TimeZone,
+} from "graphql/server-types.gen";
 
 type Props = {
   namePlaceholder: string;
-  onSubmit: (name: string, externalId?: string | null | undefined) => void;
+  onSubmit: (
+    name: string,
+    superUserFirstName: string,
+    superUserLastName: string,
+    superUserLoginEmail: string,
+    seedOrgDataOption: SeedOrgDataOptionEnum,
+    featureFlags: FeatureFlag[],
+    timeZoneId: TimeZone,
+    externalId: string | null | undefined
+  ) => Promise<unknown>;
   onCancel: () => void;
   onNameChange: (name: string) => void;
   seedOrgDataOptions: OptionType[];
@@ -35,20 +52,27 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const classes = useStyles();
   const overrideStyles = rootStyles();
   const { t } = useTranslation();
+  const [featureFlagsSelected, setFeatureFlagsSelected] = useState<string[]>(
+    []
+  );
 
   const initialValues = {
-    name: props.organization.name,
+    name: props.organization.name || "",
     externalId: props.organization.externalId || "",
     superUserFirstName: props.organization.superUserFirstName || "",
     superUserLastName: props.organization.superUserLastName || "",
+    superUserLoginEmail: props.organization.superUserLoginEmail || "",
     isEdustaffOrg: props.organization.isEdustaffOrg || false,
+    timeZoneId: props.organization.timeZoneId || null,
+    seedOrgDataOption: props.organization.seedOrgDataOption,
+    featureFlagOptions: props.organization.config?.featureFlags,
   };
 
   //Add more validation
   const validateBasicDetails = React.useMemo(
     () =>
       Yup.object().shape({
-        orgName: Yup.string()
+        name: Yup.string()
           .nullable()
           .required(t("Organization name is required")),
         externalId: Yup.string().nullable(),
@@ -72,7 +96,17 @@ export const AddBasicInfo: React.FC<Props> = props => {
         initialValues={initialValues}
         validationSchema={validateBasicDetails}
         onSubmit={async (data: any) => {
-          props.onSubmit(data.name, data.externalId);
+          console.log(data);
+          props.onSubmit(
+            data.name,
+            data.superUserFirstName,
+            data.superUserLastName,
+            data.superUserLoginEmail,
+            data.seedOrgDataOption,
+            data.featureFlags,
+            data.timeZoneId,
+            data.externalId
+          );
         }}
       >
         {({
@@ -90,7 +124,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     placeholder: `E.g ${props.namePlaceholder}`,
-                    name: "orgName",
+                    name: "name",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
                     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +139,25 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 <SelectNew
                   label={t("Time Zone")}
                   name={"timeZoneId"}
+                  value={{
+                    value: values.timeZoneId ?? "",
+                    label:
+                      props.timeZoneOptions.find(
+                        a => a.value === values.timeZoneId
+                      )?.label || "",
+                  }}
                   options={props.timeZoneOptions}
+                  onChange={(e: OptionType) => {
+                    let selectedValue = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+                    setFieldValue("timeZoneId", selectedValue);
+                  }}
                   withResetValue={false}
                   multiple={false}
                 />
@@ -165,8 +217,26 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 <SelectNew
                   label={t("Seed Data Option")}
                   name={"seedOrgDataOption"}
-                  withResetValue={false}
+                  value={{
+                    value: values.seedOrgDataOption ?? "",
+                    label:
+                      props.timeZoneOptions.find(
+                        a => a.value === values.seedOrgDataOption
+                      )?.label || "",
+                  }}
                   options={props.seedOrgDataOptions}
+                  onChange={(e: OptionType) => {
+                    let selectedValue = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+                    setFieldValue("seedOrgDataOption", selectedValue);
+                  }}
+                  withResetValue={false}
                   multiple={false}
                 />
               </Grid>
@@ -174,8 +244,18 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 <SelectNew
                   label={t("Feature Flags (FIX ME!!)")}
                   name={"featureFlags"}
+                  value={props.featureFlagOptions.filter(
+                    e =>
+                      e.value &&
+                      values?.featureFlagOptions?.includes(e.value.toString())
+                  )}
                   withResetValue={false}
                   options={props.featureFlagOptions}
+                  onChange={e => {
+                    const ids = e.map((v: OptionType) => v.value.toString());
+                    setFieldValue("featureFlagOptions", ids);
+                    setFeatureFlagsSelected(ids);
+                  }}
                   //TODO: Not working.
                   multiple={true}
                 />

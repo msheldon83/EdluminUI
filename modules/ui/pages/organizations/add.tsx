@@ -13,6 +13,7 @@ import {
   OrganizationType,
   SeedOrgDataOptionEnum,
   CountryCode,
+  TimeZone,
   FeatureFlag,
 } from "graphql/server-types.gen";
 import { AdminRootChromeRoute } from "ui/routes/app-chrome";
@@ -59,8 +60,8 @@ export const OrganizationAddPage: React.FC<{}> = props => {
       minRequestedEmployeeHoldMinutes: 0,
       maxRequestedEmployeeHoldMinutes: 0,
       minorConflictThresholdMinutes: 0,
-      minutesRelativeToStartVacancyCanBeFilled: 0, // Done
-      vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }],
+      minutesRelativeToStartVacancyCanBeFilled: 0,
+      vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }], // TODO: Add to Formik
     },
   });
 
@@ -167,13 +168,33 @@ export const OrganizationAddPage: React.FC<{}> = props => {
         organizationTypes={orgTypes}
         timeZoneOptions={timeZoneOptions}
         featureFlagOptions={featureFlagOptions}
-        onSubmit={(name, externalId) => {
-          //TODO
-          setOrganization({
+        onSubmit={async (
+          name: string,
+          superUserFirstName: string,
+          superUserLastName: string,
+          superUserLoginEmail: string,
+          seedOrgDataOption: SeedOrgDataOptionEnum,
+          featureFlags: FeatureFlag[],
+          timeZoneId: TimeZone,
+          externalId?: string | null
+        ) => {
+          const newOrganization = {
             ...organization,
             name: name,
+            superUserFirstName: superUserFirstName,
+            superUserLastName: superUserLastName,
+            superUserLoginEmail: superUserLoginEmail,
+            seedOrgDataOption: seedOrgDataOption,
+            timeZoneId: timeZoneId,
             externalId: externalId,
-          });
+          };
+
+          console.log(newOrganization);
+
+          //TODO
+          //setOrganization(newOrganization);
+
+          //const result = await create(organization);
         }}
         onCancel={() => {
           const url = AdminRootChromeRoute.generate(params);
