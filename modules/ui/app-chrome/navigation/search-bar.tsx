@@ -282,6 +282,7 @@ const useStyles = makeStyles(theme => ({
   resultContainer: {
     position: "fixed",
     marginTop: theme.typography.pxToRem(2),
+    marginLeft: theme.typography.pxToRem(24),
     boxShadow: "5px 5px 5px 0px rgba(0,0,0,0.24)",
     cursor: "pointer",
     width: "50%",
