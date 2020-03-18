@@ -4,6 +4,7 @@ query GetAbsenceReasons($orgId: ID!) {
       id
       name
       absenceReasonTrackingTypeId
+      allowNegativeBalance
     }
   }
 }
