@@ -124,10 +124,10 @@ const vacancySummaryDetailsAreEqual = (
     if (
       !isEqual(
         assignmentDetail.accountingCodeAllocations.sort(
-          (a, b) => a.accountingCodeId - b.accountingCodeId
+          (a, b) => +a.accountingCodeId - +b.accountingCodeId
         ),
         vacancySummaryDetail.accountingCodeAllocations.sort(
-          (a, b) => a.accountingCodeId - b.accountingCodeId
+          (a, b) => +a.accountingCodeId - +b.accountingCodeId
         )
       )
     ) {
