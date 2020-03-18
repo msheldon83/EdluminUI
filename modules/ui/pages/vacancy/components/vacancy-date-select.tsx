@@ -177,6 +177,7 @@ const computeDisabledDates = (
   queryResult.data.contractSchedule?.contractScheduleDates?.forEach(
     contractDate => {
       switch (contractDate?.calendarDayTypeId) {
+        case CalendarDayType.TeacherWorkDay:
         case CalendarDayType.CancelledDay:
         case CalendarDayType.Invalid:
         case CalendarDayType.NonWorkDay: {
