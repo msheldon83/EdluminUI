@@ -1,12 +1,13 @@
 import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AssignmentVacancyDetails } from "../../../pages/sub-schedule/types";
 import { detailsHaveMultipleTimes } from "../assignment-details/helpers";
 import { ExpandOrCollapseIndicator } from "../expand-or-collapse-indicator";
 import { AssignmentGroupDetail } from "./assignment-group-detail/index";
 import { AssignmentRowUI } from "./assignment-row-ui";
 import { CancelDialog } from "./cancel-dialog";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   vacancyDetails: AssignmentVacancyDetails[];
@@ -21,6 +22,7 @@ type Props = {
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
+  const { t } = useTranslation();
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(
     props.forSpecificAssignment ?? false
@@ -46,6 +48,11 @@ export const AssignmentGroup: React.FC<Props> = props => {
 
   const vacancy =
     vacancyDetails[0].vacancy !== null && vacancyDetails[0].vacancy;
+
+  const isFromVacancy = React.useMemo(() => {
+    return !!vacancyDetails[0].vacancyReason;
+  }, [vacancyDetails]);
+
   if (!vacancy || !assignment) return <></>;
 
   const locationNames = [...new Set(vacancyDetails.map(a => a.location!.name))];
@@ -63,7 +70,9 @@ export const AssignmentGroup: React.FC<Props> = props => {
       : orgNames[0];
 
   const confirmationNumber = assignment.id;
-  const employeeName = `${vacancy.absence?.employee?.firstName} ${vacancy.absence?.employee?.lastName}`;
+  const employeeName = isFromVacancy
+    ? `${t("Vacancy")}`
+    : `${vacancy.absence?.employee?.firstName} ${vacancy.absence?.employee?.lastName}`;
   const positionName = vacancy.position?.title ?? "";
 
   let totalDayPortion = 0;
@@ -109,6 +118,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
           positionName={positionName}
           dayPortion={totalDayPortion}
           absenceId={vacancy?.absence?.id}
+          vacancyId={vacancy?.id}
           payInfoLabel={
             vacancyDetails[0].vacancy?.payInfoSummary?.summaryLabel ?? ""
           }
