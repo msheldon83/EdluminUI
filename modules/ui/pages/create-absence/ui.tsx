@@ -12,7 +12,6 @@ import {
   NeedsReplacement,
   Vacancy,
 } from "graphql/server-types.gen";
-import { computeAbsenceUsageText } from "helpers/absence/computeAbsenceUsageText";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
@@ -66,7 +65,6 @@ type Props = {
   initialNeedsReplacement?: boolean;
   payCodeId?: string | null;
   accountingCodeId?: string | null;
-  trackingBalanceReasonIds: Array<string | undefined>;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -285,7 +283,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           getProjectedVacancies.data?.absence?.projectedVacancies ?? []
         ) as Vacancy[]);
 
-  const absenceUsageText = useMemo(() => {
+  const absenceBalanceUsages = useMemo(() => {
     if (
       !(
         getProjectedAbsenceUsage.state === "DONE" ||
@@ -294,19 +292,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     )
       return null;
 
-    const usages = compact(
+    return compact(
       flatMap(
         getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
         d => d?.reasonUsages?.map(ru => ru)
       )
     );
-    return computeAbsenceUsageText(
-      usages as any,
-      props.trackingBalanceReasonIds,
-      t,
-      actingAsEmployee
-    );
-  }, [actingAsEmployee, getProjectedVacancies]);
+  }, [getProjectedVacancies]);
 
   const employeeName = `${props.firstName} ${props.lastName}`;
 
@@ -450,7 +442,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 vacancyDetails={projectedVacancyDetails}
                 locationIds={props.locationIds}
                 disabledDates={disabledDates}
-                balanceUsageText={absenceUsageText || undefined}
                 setVacanciesInput={setVacanciesInput}
                 replacementEmployeeId={formValues.replacementEmployeeId}
                 replacementEmployeeName={formValues.replacementEmployeeName}
@@ -461,6 +452,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 onAssignSubClick={onAssignSubClick}
                 hasEditedDetails={!!state.vacanciesInput}
                 assignmentsByDate={[]}
+                usages={absenceBalanceUsages}
               />
             </Section>
           </>
