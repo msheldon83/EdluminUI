@@ -77,7 +77,7 @@ export const getIntervalDisplayText = (
   return overallDateRangeDisplay;
 };
 
-export const getAbsenceDateRangeDisplayText = (
+export const getDateRangeDisplayText = (
   allDates: Date[],
   disabledDates?: Date[]
 ): string | null => {
@@ -192,7 +192,7 @@ export const getIntervalDisplayTextWithDayOfWeek = (
     : overallDateRangeDisplay;
 };
 
-export const getAbsenceDateRangeDisplayTextWithDayOfWeek = (
+export const getDateRangeDisplayTextWithDayOfWeek = (
   allDates: Date[],
   disabledDates?: Date[]
 ): string | null => {
@@ -204,7 +204,7 @@ export const getAbsenceDateRangeDisplayTextWithDayOfWeek = (
   return getIntervalDisplayTextWithDayOfWeek(intervals);
 };
 
-export const getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates = (
+export const getDateRangeDisplayTextWithDayOfWeekForContiguousDates = (
   allDates: Date[],
   disabledDates?: Date[]
 ): string | null => {
@@ -216,7 +216,7 @@ export const getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates = (
   }
 };
 
-export const getAbsenceDateRangeDisplayTextWithOutDayOfWeekForContiguousDates = (
+export const getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates = (
   allDates: Date[],
   disabledDates?: Date[]
 ): string | null => {

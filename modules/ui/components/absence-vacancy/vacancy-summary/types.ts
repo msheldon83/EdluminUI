@@ -22,6 +22,7 @@ export type VacancySummaryDetail = {
 export type VacancySummaryDetailByAssignmentAndDate = {
   assignmentId?: string;
   date: Date;
+  startDateAndTimeLocal: Date;
   details: VacancySummaryDetail[];
 };
 
@@ -30,6 +31,10 @@ export type VacancySummaryDetailByAssignmentAndDate = {
 export type AssignmentFor = {
   assignment?: Assignment;
   vacancyDetailIds: string[];
+  vacancyDetailIdsByDate: {
+    date: Date;
+    vacancyDetailIds: string[];
+  }[];
 };
 
 /* For relevant Assignment information. If an existing Assignment, then
@@ -47,6 +52,7 @@ export type AssignmentWithDetails = AssignmentFor & DateDetails;
 /* Specific date information and shared details on those dates */
 export type DateDetails = {
   dates: Date[];
+  startDateAndTimeLocal: Date;
   details: DateDetail[];
   absenceStartTime?: string;
   absenceEndTime?: string;

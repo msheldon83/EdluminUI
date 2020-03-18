@@ -19,7 +19,7 @@ import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { Can } from "../auth/can";
 import { AssignedSub } from "./assigned-sub";
 import { CreateAbsenceCalendar } from "./create-absence-calendar";
-import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "./date-helpers";
+import { getDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import {
   dayPartToLabel,
@@ -391,7 +391,7 @@ const getAbsenceReasonListDisplay = (
           {matchingAbsenceReason?.name}
         </div>
         <Typography variant="h6">
-          {getAbsenceDateRangeDisplayTextWithDayOfWeek(allDates, disabledDates)}
+          {getDateRangeDisplayTextWithDayOfWeekForContiguousDates(allDates, disabledDates)}
         </Typography>
         {d.simpleDetailItems &&
           d.simpleDetailItems.map((di, detailIndex) => {

@@ -12,23 +12,41 @@ export const DateDetailItem: React.FC<Props> = props => {
   const { t } = useTranslation();
   const { detail } = props;
 
-  const accountingCodeDisplayName = detail.accountingCodeAllocations ?
-    detail.accountingCodeAllocations[0]?.accountingCodeName ?? "" : "";
+  const accountingCodeDisplayName = detail.accountingCodeAllocations
+    ? detail.accountingCodeAllocations[0]?.accountingCodeName
+    : undefined;
 
   return (
-    <div>
+    <div className={classes.row}>
       <div>
+        <div>{`${detail.startTime} - ${detail.endTime}`}</div>
         <div>
-          {detail.startTime} {detail.endTime}
+          {`${t("Pay")}: ${detail.payCodeId ? detail.payCodeName : ""}`}
+          {!detail.payCodeId && (
+            <span className={classes.notSpecified}>{t("Not specified")}</span>
+          )}
         </div>
-        <div>{detail.locationName}</div>
       </div>
       <div>
-        <div>{detail.payCodeName}</div>
-        <div>{accountingCodeDisplayName}</div>
+        <div>{detail.locationName}</div>
+        <div>
+          {`${t("Acct")}: ${accountingCodeDisplayName ?? ""}`}
+          {!accountingCodeDisplayName && (
+            <span className={classes.notSpecified}>{t("Not specified")}</span>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export const useStyles = makeStyles(theme => ({}));
+export const useStyles = makeStyles(theme => ({
+  row: {
+    width: "100%",
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  notSpecified: {
+    color: theme.customColors.edluminSubText,
+  },
+}));

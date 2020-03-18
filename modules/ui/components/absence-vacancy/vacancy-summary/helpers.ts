@@ -32,6 +32,7 @@ export const buildAssignmentGroups = (
         groupAccumulator.push({
           assignmentId: summaryDetailItem.assignment?.id,
           date: summaryDetailItem.date,
+          startDateAndTimeLocal: summaryDetailItem.startTimeLocal,
           details: [summaryDetailItem],
         });
       }
@@ -67,6 +68,12 @@ export const buildAssignmentGroups = (
           lastGroup.vacancyDetailIds.push(
             ...assignmentAndDateGroupItem.details.map(d => d.vacancyDetailId)
           );
+          lastGroup.vacancyDetailIdsByDate.push({
+            date: assignmentAndDateGroupItem.date,
+            vacancyDetailIds: [
+              ...assignmentAndDateGroupItem.details.map(d => d.vacancyDetailId),
+            ],
+          });
         } else {
           // Details are different so we need to add a new group
           groupAccumulator.push(
@@ -143,9 +150,21 @@ const convertToAssignmentWithDetails = (
 ): AssignmentWithDetails => {
   const assignmentWithDetails: AssignmentWithDetails = {
     dates: [summaryDetailsByAssignmentAndDate.date],
+    startDateAndTimeLocal:
+      summaryDetailsByAssignmentAndDate.startDateAndTimeLocal,
     assignment: summaryDetailsByAssignmentAndDate.details[0].assignment,
     vacancyDetailIds: [
       ...summaryDetailsByAssignmentAndDate.details.map(d => d.vacancyDetailId),
+    ],
+    vacancyDetailIdsByDate: [
+      {
+        date: summaryDetailsByAssignmentAndDate.date,
+        vacancyDetailIds: [
+          ...summaryDetailsByAssignmentAndDate.details.map(
+            d => d.vacancyDetailId
+          ),
+        ],
+      },
     ],
     details: summaryDetailsByAssignmentAndDate.details.map(d => {
       return {
