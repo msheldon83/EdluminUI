@@ -120,7 +120,7 @@ export const AppChrome: React.FunctionComponent = props => {
                   expand={expand}
                   collapse={collapse}
                 />
-                <div className={classes.container}>
+                <div id="main-container" className={classes.container}>
                   <SnackbarProvider>
                     <DialogProvider>
                       <div
