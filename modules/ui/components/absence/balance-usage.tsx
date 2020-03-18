@@ -98,6 +98,8 @@ export const BalanceUsage: React.FC<Props> = props => {
   useEffect(() => {
     if (usageAmount?.negativeWarning) {
       setNegativeBalanceWarning(actingAsEmployee);
+    } else {
+      setNegativeBalanceWarning(false);
     }
   }, [usageAmount, setNegativeBalanceWarning, actingAsEmployee]);
 
