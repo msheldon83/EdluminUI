@@ -15,7 +15,14 @@ This project is a single-page webapp using the following technologies:
 
 ## Setup
 
-- Install Node 10 LTS and yarn. Older or newer versions may or may not work. (Recommend `nodenv` and `brew install yarn --without-node` on mac.)
+- Install Git for Windows CLI:  [Git](https://git-scm.com/download/win)
+- Install Node 10 LTS:  [Node 10](https://nodejs.org/dist/latest-v10.x/)
+- Install Yarn:  [Yarn](https://classic.yarnpkg.com/en/docs/install/#windows-stable)
+- Clone the Repo
+- Navigate to the repo in the CLI
+- Run `yarn` to install packages
+- Run `yarn start` to start the UI project.
+- Optional:  If you need to point the UI to a different api such as a local API create a `.env` file based on the `example.env` and update this variable to point to the local API like this: `DEV_SERVER_PROXY_HOST="http://localhost:5000/"`
 
 ## Configuration
 
