@@ -80,6 +80,7 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
 
   const onDeleteBalance = async (absenceReasonBalanceId: string) => {
     await deleteBalance({ variables: { absenceReasonBalanceId } });
+    await getAbsenceReasonBalances.refetch();
   };
 
   const getEmployee = useQueryBundle(GetOrgUserById, {
@@ -185,7 +186,7 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
               onCreate={onCreateBalance}
               reasonOptions={absenceReasonOptions}
               absenceReasons={allAbsenceReasons}
-              creatingNew={false}
+              creatingNew={creatingNew}
               setCreatingNew={setCreatingNew}
               startOfSchoolYear={firstDayOfSelectedSchoolYear}
               endOfSchoolYear={lastDayOfSelectedSchoolYear}
