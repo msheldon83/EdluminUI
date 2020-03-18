@@ -1,0 +1,409 @@
+query GetDailyReportV2(
+  $orgId: ID!
+  $date: Date!
+  $locationIds: [ID]
+  $positionTypeIds: [ID]
+) {
+  absence {
+    dailyReportV2(
+      orgId: $orgId
+      date: $date
+      locationIds: $locationIds
+      positionTypeIds: $positionTypeIds
+    ) {
+      unfilledAbsences {
+        id
+        createdUtc
+        createdLocal
+        changedUtc
+        changedLocal
+        rowVersion
+        startDate
+        endDate
+        numDays
+        isMultiDay
+        isClosed
+        calendarDayTypeId
+        teacher {
+          employeeId
+          firstName
+          middleName
+          lastName
+          phone
+        }
+        details {
+          absenceDetailId
+          startTimeLocal
+          endTimeLocal
+          startTimeUtc
+          endTimeUtc
+          originalStartTime
+          originalEndTime
+          dayPartId
+          isClosed
+          reasonUsages {
+            absenceReasonUsageId
+            absenceReasonId
+            absenceReason
+            absenceReasonAmount
+          }
+        }
+        vacancies {
+          id
+          absenceId
+          createdUtc
+          createdLocal
+          changedUtc
+          changedLocal
+          rowVersion
+          startDate
+          endDate
+          numDays
+          isMultiDay
+          isClosed
+          calendarDayTypeId
+          position {
+            positionId
+            name
+            positionType {
+              positionTypeId
+              name
+            }
+          }
+          details {
+            vacancyDetailId
+            startTimeLocal
+            endTimeLocal
+            startTimeUtc
+            endTimeUtc
+            originalStartTime
+            originalEndTime
+            isClosed
+            location {
+              locationId
+              name
+            }
+            assignment {
+              assignmentId
+              createdUtc
+              createdLocal
+              changedUtc
+              changedLocal
+              rowVersion
+              substitute {
+                employeeId
+                firstName
+                middleName
+                lastName
+                phone
+              }
+            }
+          }
+          locationIds
+          positionTypeIds
+        }
+        locationIds
+        positionTypeIds
+      }
+      filledAbsences {
+        id
+        createdUtc
+        createdLocal
+        changedUtc
+        changedLocal
+        rowVersion
+        startDate
+        endDate
+        numDays
+        isMultiDay
+        isClosed
+        calendarDayTypeId
+        teacher {
+          employeeId
+          firstName
+          middleName
+          lastName
+          phone
+        }
+        details {
+          absenceDetailId
+          startTimeLocal
+          endTimeLocal
+          startTimeUtc
+          endTimeUtc
+          originalStartTime
+          originalEndTime
+          dayPartId
+          isClosed
+          reasonUsages {
+            absenceReasonUsageId
+            absenceReasonId
+            absenceReason
+            absenceReasonAmount
+          }
+        }
+        vacancies {
+          id
+          absenceId
+          createdUtc
+          createdLocal
+          changedUtc
+          changedLocal
+          rowVersion
+          startDate
+          endDate
+          numDays
+          isMultiDay
+          isClosed
+          calendarDayTypeId
+          position {
+            positionId
+            name
+            positionType {
+              positionTypeId
+              name
+            }
+          }
+          details {
+            vacancyDetailId
+            startTimeLocal
+            endTimeLocal
+            startTimeUtc
+            endTimeUtc
+            originalStartTime
+            originalEndTime
+            isClosed
+            location {
+              locationId
+              name
+            }
+            assignment {
+              assignmentId
+              createdUtc
+              createdLocal
+              changedUtc
+              changedLocal
+              rowVersion
+              substitute {
+                employeeId
+                firstName
+                middleName
+                lastName
+                phone
+              }
+            }
+          }
+          locationIds
+          positionTypeIds
+        }
+        locationIds
+        positionTypeIds
+      }
+      noSubRequiredAbsences {
+        id
+        createdUtc
+        createdLocal
+        changedUtc
+        changedLocal
+        rowVersion
+        startDate
+        endDate
+        numDays
+        isMultiDay
+        isClosed
+        calendarDayTypeId
+        teacher {
+          employeeId
+          firstName
+          middleName
+          lastName
+          phone
+        }
+        details {
+          absenceDetailId
+          startTimeLocal
+          endTimeLocal
+          startTimeUtc
+          endTimeUtc
+          originalStartTime
+          originalEndTime
+          dayPartId
+          isClosed
+          reasonUsages {
+            absenceReasonUsageId
+            absenceReasonId
+            absenceReason
+            absenceReasonAmount
+          }
+        }
+        vacancies {
+          id
+          absenceId
+          createdUtc
+          createdLocal
+          changedUtc
+          changedLocal
+          rowVersion
+          startDate
+          endDate
+          numDays
+          isMultiDay
+          isClosed
+          calendarDayTypeId
+          position {
+            positionId
+            name
+            positionType {
+              positionTypeId
+              name
+            }
+          }
+          details {
+            vacancyDetailId
+            startTimeLocal
+            endTimeLocal
+            startTimeUtc
+            endTimeUtc
+            originalStartTime
+            originalEndTime
+            isClosed
+            location {
+              locationId
+              name
+            }
+            assignment {
+              assignmentId
+              createdUtc
+              createdLocal
+              changedUtc
+              changedLocal
+              rowVersion
+              substitute {
+                employeeId
+                firstName
+                middleName
+                lastName
+                phone
+              }
+            }
+          }
+          locationIds
+          positionTypeIds
+        }
+        locationIds
+        positionTypeIds
+      }
+      unfilledVacancies {
+        id
+        absenceId
+        createdUtc
+        createdLocal
+        changedUtc
+        changedLocal
+        rowVersion
+        startDate
+        endDate
+        numDays
+        isMultiDay
+        isClosed
+        calendarDayTypeId
+        position {
+          positionId
+          name
+          positionType {
+            positionTypeId
+            name
+          }
+        }
+        details {
+          vacancyDetailId
+          startTimeLocal
+          endTimeLocal
+          startTimeUtc
+          endTimeUtc
+          originalStartTime
+          originalEndTime
+          isClosed
+          location {
+            locationId
+            name
+          }
+          assignment {
+            assignmentId
+            createdUtc
+            createdLocal
+            changedUtc
+            changedLocal
+            rowVersion
+            substitute {
+              employeeId
+              firstName
+              middleName
+              lastName
+              phone
+            }
+          }
+        }
+        locationIds
+        positionTypeIds
+      }
+      filledVacancies {
+        id
+        absenceId
+        createdUtc
+        createdLocal
+        changedUtc
+        changedLocal
+        rowVersion
+        startDate
+        endDate
+        numDays
+        isMultiDay
+        isClosed
+        calendarDayTypeId
+        position {
+          positionId
+          name
+          positionType {
+            positionTypeId
+            name
+          }
+        }
+        details {
+          vacancyDetailId
+          startTimeLocal
+          endTimeLocal
+          startTimeUtc
+          endTimeUtc
+          originalStartTime
+          originalEndTime
+          isClosed
+          location {
+            locationId
+            name
+          }
+          assignment {
+            assignmentId
+            createdUtc
+            createdLocal
+            changedUtc
+            changedLocal
+            rowVersion
+            substitute {
+              employeeId
+              firstName
+              middleName
+              lastName
+              phone
+            }
+          }
+        }
+        locationIds
+        positionTypeIds
+      }
+      totalCount
+      loadTime
+      parseTime
+    }
+  }
+}

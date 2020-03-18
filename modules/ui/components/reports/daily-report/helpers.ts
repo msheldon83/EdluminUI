@@ -1,8 +1,8 @@
 import { format, parseISO, isEqual, isSameDay, isBefore } from "date-fns";
 import {
-  AbsenceDetail,
-  VacancyDetail,
-  DailyReport as DailyReportType,
+  AbsenceDetailDr,
+  VacancyDetailDr,
+  DailyReportV2 as DailyReportType,
   Vacancy,
   Maybe,
 } from "graphql/server-types.gen";
@@ -93,7 +93,7 @@ export const MapDailyReportDetails = (
     }
 
     return a.details.map(d => {
-      const absenceDetail = d as AbsenceDetail;
+      const absenceDetail = d as AbsenceDetailDr;
       const matchingVacancyDetails = getMatchingVacancyDetails(
         absenceDetail,
         a.vacancies
@@ -103,7 +103,7 @@ export const MapDailyReportDetails = (
 
       return {
         id: a.id,
-        detailId: absenceDetail.id,
+        detailId: absenceDetail.absenceDetailId,
         state: "filled",
         type: "absence",
         absenceRowVersion: a.rowVersion,
@@ -405,7 +405,7 @@ export const MapDailyReportDetails = (
       }
 
       return a.details.map(d => {
-        const absenceDetail = d as AbsenceDetail;
+        const absenceDetail = d as AbsenceDetailDr;
 
         return {
           id: a.id,
