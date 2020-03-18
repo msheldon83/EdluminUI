@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState, useMemo } from "react";
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import {
@@ -9,13 +10,14 @@ import {
 import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
 import { Formik } from "formik";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { SelectNew } from "ui/components/form/select-new";
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { DatePicker } from "ui/components/form/date-picker";
 import { parseISO, isBefore, isAfter } from "date-fns";
 import { round } from "lodash-es";
 import * as yup from "yup";
+import { ConfirmNegativeBalance } from "./confirm-negative-balance";
 
 type Props = {
   absenceReasonBalance: {
@@ -47,7 +49,9 @@ type Props = {
   reasonOptions: { label: string; value: string }[];
   absenceReasons: {
     id: string;
+    name: string;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
+    allowNegativeBalance?: boolean | null;
   }[];
   creatingNew: boolean;
   setCreatingNew: React.Dispatch<React.SetStateAction<boolean>>;
@@ -58,8 +62,11 @@ type Props = {
 export const BalanceRow: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-
+  const [overrideOpen, setOverrideOpen] = useState(false);
   const absenceReasonBalance = props.absenceReasonBalance;
+  const [absenceReasonId, setAbsenceReasonId] = useState(
+    absenceReasonBalance?.absenceReason?.id
+  );
 
   const handleClickRemove = async () => {
     if (props.creatingNew) {
@@ -69,47 +76,78 @@ export const BalanceRow: React.FC<Props> = props => {
     }
   };
 
-  const determineBalanceTypeLabel = (absenceReasonId?: string) => {
-    const selectedReason = props.creatingNew
-      ? props.absenceReasons.find(x => x.id === absenceReasonId)
-      : absenceReasonBalance?.absenceReason;
+  const creatingNew = props.creatingNew;
+  const absenceReasons = props.absenceReasons;
 
-    return selectedReason
-      ? selectedReason.absenceReasonTrackingTypeId ===
-        AbsenceReasonTrackingTypeId.Daily
-        ? t("Days")
-        : t("Hours")
-      : "";
-  };
+  const selectedReason = useMemo(
+    () =>
+      creatingNew
+        ? absenceReasons.find(x => x.id === absenceReasonId)
+        : absenceReasonBalance?.absenceReason,
+    [absenceReasonBalance, absenceReasonId, absenceReasons, creatingNew]
+  );
+
+  const balanceTypeLabel = useMemo(
+    () =>
+      selectedReason
+        ? selectedReason.absenceReasonTrackingTypeId ===
+          AbsenceReasonTrackingTypeId.Daily
+          ? t("Days")
+          : t("Hours")
+        : "",
+    [selectedReason, t]
+  );
 
   return (
     <Formik
       initialValues={{
-        absenceReasonId: absenceReasonBalance?.absenceReason?.id,
+        absenceReasonId: absenceReasonId,
         balance: absenceReasonBalance?.initialBalance ?? 0,
         asOf: absenceReasonBalance?.balanceAsOf
           ? parseISO(absenceReasonBalance?.balanceAsOf)
           : parseISO(props.startOfSchoolYear),
+        ignoreWarnings: false,
       }}
       onSubmit={async data => {
-        if (props.creatingNew) {
-          await props.onCreate({
-            orgId: props.orgId,
-            employeeId: absenceReasonBalance?.employeeId,
-            schoolYearId: absenceReasonBalance?.schoolYearId,
-            absenceReasonId: data.absenceReasonId,
-            initialBalance: data.balance,
-            balanceAsOf: data.asOf,
-          });
+        if (creatingNew) {
+          if (
+            data.balance - (absenceReasonBalance?.usedBalance ?? 0) < 0 &&
+            !absenceReasons.find(x => x.id === data.absenceReasonId)
+              ?.allowNegativeBalance &&
+            !data.ignoreWarnings
+          ) {
+            setOverrideOpen(true);
+          } else {
+            setOverrideOpen(false);
+            await props.onCreate({
+              orgId: props.orgId,
+              employeeId: absenceReasonBalance?.employeeId,
+              schoolYearId: absenceReasonBalance?.schoolYearId,
+              absenceReasonId: data.absenceReasonId,
+              initialBalance: data.balance,
+              balanceAsOf: data.asOf,
+              ignoreWarnings: data.ignoreWarnings,
+            });
+          }
         } else {
-          await props.onUpdate({
-            id: absenceReasonBalance?.id ?? "",
-            rowVersion: absenceReasonBalance?.rowVersion ?? "",
-            schoolYearId: absenceReasonBalance?.schoolYearId,
-            absenceReasonId: data.absenceReasonId,
-            initialBalance: data.balance,
-            balanceAsOf: data.asOf,
-          });
+          if (
+            data.balance - (absenceReasonBalance?.usedBalance ?? 0) < 0 &&
+            !absenceReasonBalance?.absenceReason?.allowNegativeBalance &&
+            !data.ignoreWarnings
+          ) {
+            setOverrideOpen(true);
+          } else {
+            setOverrideOpen(false);
+            await props.onUpdate({
+              id: absenceReasonBalance?.id ?? "",
+              rowVersion: absenceReasonBalance?.rowVersion ?? "",
+              schoolYearId: absenceReasonBalance?.schoolYearId,
+              absenceReasonId: data.absenceReasonId,
+              initialBalance: data.balance,
+              balanceAsOf: data.asOf,
+              ignoreWarnings: data.ignoreWarnings,
+            });
+          }
         }
       }}
       validationSchema={yup.object({
@@ -157,7 +195,7 @@ export const BalanceRow: React.FC<Props> = props => {
             })}
           >
             <div className={classes.reasonContainer}>
-              {props.creatingNew ? (
+              {creatingNew ? (
                 <SelectNew
                   name="absenceReasonId"
                   value={
@@ -167,9 +205,14 @@ export const BalanceRow: React.FC<Props> = props => {
                   }
                   multiple={false}
                   onChange={(value: any) => {
+                    setAbsenceReasonId(value.value);
                     setFieldValue("absenceReasonId", value.value);
                   }}
-                  onBlur={() => submitForm()}
+                  onBlur={async () => {
+                    if (!creatingNew) {
+                      await submitForm();
+                    }
+                  }}
                   options={props.reasonOptions}
                   withResetValue={false}
                   inputStatus={errors.absenceReasonId ? "error" : "default"}
@@ -188,11 +231,15 @@ export const BalanceRow: React.FC<Props> = props => {
                       name: "balance",
                       id: "balance",
                     }}
-                    onBlur={() => submitForm()}
+                    onBlur={async () => {
+                      if (!creatingNew) {
+                        await submitForm();
+                      }
+                    }}
                   />
                 }
               </div>
-              <div>{determineBalanceTypeLabel(values.absenceReasonId)}</div>
+              <div>{balanceTypeLabel}</div>
             </div>
             <div className={classes.asOfContainer}>
               {
@@ -201,7 +248,9 @@ export const BalanceRow: React.FC<Props> = props => {
                   startDate={values.asOf}
                   onChange={async ({ startDate }) => {
                     setFieldValue("asOf", startDate);
-                    await submitForm();
+                    if (!creatingNew) {
+                      await submitForm();
+                    }
                   }}
                   inputStatus={errors.asOf ? "error" : undefined}
                   validationMessage={errors.asOf}
@@ -223,12 +272,30 @@ export const BalanceRow: React.FC<Props> = props => {
                 ? round(absenceReasonBalance?.unusedBalance, 1)
                 : values.balance}
             </div>
-            <div className={classes.removeButton}>
-              <TextButton onClick={() => handleClickRemove()}>
-                {t("Remove")}
-              </TextButton>
+            <div className={classes.buttonContainer}>
+              {creatingNew && (
+                <div className={classes.button}>
+                  <TextButton onClick={() => handleSubmit()}>
+                    {t("Save")}
+                  </TextButton>
+                </div>
+              )}
+              <div className={classes.button}>
+                <TextButton onClick={() => handleClickRemove()}>
+                  {t("Remove")}
+                </TextButton>
+              </div>
             </div>
           </div>
+          <ConfirmNegativeBalance
+            open={overrideOpen}
+            onCancel={() => setOverrideOpen(false)}
+            onConfirm={async () => {
+              setFieldValue("ignoreWarnings", true);
+              await submitForm();
+            }}
+            reasonName={selectedReason?.name ?? ""}
+          />
         </form>
       )}
     </Formik>
@@ -270,7 +337,13 @@ const useStyles = makeStyles(theme => ({
     width: theme.typography.pxToRem(100),
     paddingLeft: theme.spacing(3),
   },
-  removeButton: {
+  button: {
+    padding: theme.spacing(0.5),
+  },
+  buttonContainer: {
     paddingLeft: theme.spacing(4),
+    display: "column",
+    alignItems: "center",
+    justifyItems: "center",
   },
 }));
