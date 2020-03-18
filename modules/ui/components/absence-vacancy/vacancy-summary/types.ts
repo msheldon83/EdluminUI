@@ -42,13 +42,18 @@ export type Assignment = {
 };
 
 /* Assignment information that applies to a set of dates and specific shared details across those dates */
-export type AssignmentWithDetails = AssignmentFor & {
+export type AssignmentWithDetails = AssignmentFor & DateDetails;
+
+/* Specific date information and shared details on those dates */
+export type DateDetails = {
   dates: Date[];
-  details: AssignmentDetail[];
+  details: DateDetail[];
+  absenceStartTime?: string;
+  absenceEndTime?: string;
 };
 
 /* Details that can be shared across dates and are used to determine if 2 dates are esssentially the same */
-export type AssignmentDetail = {
+export type DateDetail = {
   startTime: string;
   endTime: string;
   locationId: string;

@@ -1,19 +1,19 @@
 import {
   VacancySummaryDetail,
   AssignmentWithDetails,
-  AssignmentDetail,
+  DateDetail,
   VacancySummaryDetailByAssignmentAndDate,
 } from "./types";
 import { format, isEqual as isDateEqual } from "date-fns";
 import { isEqual } from "lodash-es";
 
-export const buildVacancySummaryInfo = (
+export const buildAssignmentGroups = (
   details: VacancySummaryDetail[]
 ): AssignmentWithDetails[] => {
   // Sort the details by their start times
   const sortedDetails = details
     .slice()
-    .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
+    .sort((a, b) => +a.startTimeLocal - +b.startTimeLocal);
 
   // Group our details by the Assignment Id and the date of the details
   const detailsByAssignmentAndDate: VacancySummaryDetailByAssignmentAndDate[] = sortedDetails.reduce(
@@ -90,7 +90,7 @@ export const buildVacancySummaryInfo = (
 };
 
 const vacancySummaryDetailsAreEqual = (
-  assignmentDetails: AssignmentDetail[],
+  assignmentDetails: DateDetail[],
   vacancySummaryDetails: VacancySummaryDetail[]
 ): boolean => {
   if (assignmentDetails.length !== vacancySummaryDetails.length) {
