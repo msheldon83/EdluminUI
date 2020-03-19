@@ -2,7 +2,7 @@ import { parseISO } from "date-fns";
 import { isValid, startOfDay } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { NeedsReplacement } from "graphql/server-types.gen";
-import { AbsenceReasonUsageData } from "helpers/absence/computeAbsenceUsageText";
+import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import { compact, flatMap, isNil, sortBy, uniqBy } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState } from "react";
@@ -363,9 +363,6 @@ export const EditAbsence: React.FC<Props> = props => {
           id: reasonUsage.absenceReason!.id,
           name: reasonUsage.absenceReason!.name,
         }}
-        trackingBalanceReasonIds={
-          employee.absenceReasonBalances?.map(x => x?.absenceReasonId) ?? []
-        }
         absenceId={data.id}
         absenceDates={absenceDates}
         dayPart={dayPart}

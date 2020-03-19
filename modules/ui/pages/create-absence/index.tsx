@@ -36,11 +36,6 @@ export const CreateAbsence: React.FC<Props> = props => {
     <CreateAbsenceUI
       firstName={employeeInfo.data.employee?.byId?.firstName}
       lastName={employeeInfo.data.employee?.byId?.lastName}
-      trackingBalanceReasonIds={
-        employeeInfo.data.employee?.byId?.absenceReasonBalances?.map(
-          x => x?.absenceReasonId
-        ) ?? []
-      }
       organizationId={organizationId}
       employeeId={employeeId}
       locationIds={locationIds}
