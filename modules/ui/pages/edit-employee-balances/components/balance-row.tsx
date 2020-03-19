@@ -42,10 +42,10 @@ type Props = {
   onRemove: (absenceReasonBalanceId: string) => Promise<void>;
   onUpdate: (
     absenceReasonBalance: AbsenceReasonBalanceUpdateInput
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   onCreate: (
     absenceReasonBalance: AbsenceReasonBalanceCreateInput
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   reasonOptions: { label: string; value: string }[];
   absenceReasons: {
     id: string;
@@ -62,7 +62,10 @@ type Props = {
 export const BalanceRow: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+
   const [overrideOpen, setOverrideOpen] = useState(false);
+  const [changes, setChanges] = useState(false);
+
   const absenceReasonBalance = props.absenceReasonBalance;
   const [absenceReasonId, setAbsenceReasonId] = useState(
     absenceReasonBalance?.absenceReason?.id
@@ -119,7 +122,7 @@ export const BalanceRow: React.FC<Props> = props => {
             setOverrideOpen(true);
           } else {
             setOverrideOpen(false);
-            await props.onCreate({
+            const result = await props.onCreate({
               orgId: props.orgId,
               employeeId: absenceReasonBalance?.employeeId,
               schoolYearId: absenceReasonBalance?.schoolYearId,
@@ -128,6 +131,7 @@ export const BalanceRow: React.FC<Props> = props => {
               balanceAsOf: data.asOf,
               ignoreWarnings: data.ignoreWarnings,
             });
+            if (result) setChanges(false);
           }
         } else {
           if (
@@ -138,7 +142,7 @@ export const BalanceRow: React.FC<Props> = props => {
             setOverrideOpen(true);
           } else {
             setOverrideOpen(false);
-            await props.onUpdate({
+            const result = await props.onUpdate({
               id: absenceReasonBalance?.id ?? "",
               rowVersion: absenceReasonBalance?.rowVersion ?? "",
               schoolYearId: absenceReasonBalance?.schoolYearId,
@@ -147,6 +151,7 @@ export const BalanceRow: React.FC<Props> = props => {
               balanceAsOf: data.asOf,
               ignoreWarnings: data.ignoreWarnings,
             });
+            if (result) setChanges(false);
           }
         }
       }}
@@ -207,11 +212,7 @@ export const BalanceRow: React.FC<Props> = props => {
                   onChange={(value: any) => {
                     setAbsenceReasonId(value.value);
                     setFieldValue("absenceReasonId", value.value);
-                  }}
-                  onBlur={async () => {
-                    if (!creatingNew) {
-                      await submitForm();
-                    }
+                    setChanges(true);
                   }}
                   options={props.reasonOptions}
                   withResetValue={false}
@@ -231,10 +232,9 @@ export const BalanceRow: React.FC<Props> = props => {
                       name: "balance",
                       id: "balance",
                     }}
-                    onBlur={async () => {
-                      if (!creatingNew) {
-                        await submitForm();
-                      }
+                    onChange={e => {
+                      setFieldValue("balance", e.target.value);
+                      setChanges(true);
                     }}
                   />
                 }
@@ -248,9 +248,7 @@ export const BalanceRow: React.FC<Props> = props => {
                   startDate={values.asOf}
                   onChange={async ({ startDate }) => {
                     setFieldValue("asOf", startDate);
-                    if (!creatingNew) {
-                      await submitForm();
-                    }
+                    setChanges(true);
                   }}
                   inputStatus={errors.asOf ? "error" : undefined}
                   validationMessage={errors.asOf}
@@ -258,22 +256,27 @@ export const BalanceRow: React.FC<Props> = props => {
               }
             </div>
             <div className={classes.valueContainer}>
-              {absenceReasonBalance?.usedBalance
-                ? round(absenceReasonBalance?.usedBalance, 1)
+              {absenceReasonBalance?.usedBalance != undefined &&
+              absenceReasonBalance?.plannedBalance != undefined
+                ? round(
+                    absenceReasonBalance?.usedBalance -
+                      absenceReasonBalance?.plannedBalance,
+                    1
+                  )
                 : 0}
             </div>
             <div className={classes.valueContainer}>
-              {absenceReasonBalance?.plannedBalance
+              {absenceReasonBalance?.plannedBalance != undefined
                 ? round(absenceReasonBalance?.plannedBalance, 1)
                 : 0}
             </div>
             <div className={classes.valueContainer}>
-              {absenceReasonBalance?.unusedBalance
+              {absenceReasonBalance?.unusedBalance != undefined
                 ? round(absenceReasonBalance?.unusedBalance, 1)
                 : values.balance}
             </div>
             <div className={classes.buttonContainer}>
-              {creatingNew && (
+              {changes && (
                 <div className={classes.button}>
                   <TextButton onClick={() => handleSubmit()}>
                     {t("Save")}

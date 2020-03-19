@@ -54,6 +54,9 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
     if (result.data) {
       setCreatingNew(false);
       await getAbsenceReasonBalances.refetch();
+      return true;
+    } else {
+      return false;
     }
   };
 
@@ -69,6 +72,9 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
     const result = await updateBalance({ variables: { absenceReasonBalance } });
     if (result.data) {
       await getAbsenceReasonBalances.refetch();
+      return true;
+    } else {
+      return false;
     }
   };
 
