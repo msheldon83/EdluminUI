@@ -39,6 +39,7 @@ import { useHistory } from "react-router";
 import { usePayCodes } from "reference-data/pay-codes";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";
+import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 
 type Props = {
   showVerified: boolean;
@@ -68,6 +69,7 @@ export const VerifyUI: React.FC<Props> = props => {
   const vacancyDayConversions = useOrgVacancyDayConversions(
     params.organizationId
   );
+  const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
 
   const today = useMemo(() => startOfToday(), []);
   /* Because this UI can stand alone or show up on the Admin homepage, we need
@@ -285,6 +287,16 @@ export const VerifyUI: React.FC<Props> = props => {
     setNextSelectedVacancyDetail(undefined);
   };
 
+  const goToAbsenceEdit = (absenceId: string) => {
+    const url = AdminEditAbsenceRoute.generate({
+      ...absenceEditParams,
+      absenceId,
+    });
+    history.push(url, {
+      returnUrl: `${history.location.pathname}${history.location.search}`,
+    });
+  };
+
   return (
     <>
       <DateTabs
@@ -327,6 +339,7 @@ export const VerifyUI: React.FC<Props> = props => {
                       onSelectDetail={onSelectDetail}
                       payCodeOptions={payCodeOptions}
                       vacancyDayConversions={vacancyDayConversions}
+                      goToAbsenceEdit={goToAbsenceEdit}
                     />
                   </Collapse>
                 </div>
@@ -377,6 +390,7 @@ export const VerifyUI: React.FC<Props> = props => {
                               onSelectDetail={onSelectDetail}
                               payCodeOptions={payCodeOptions}
                               vacancyDayConversions={vacancyDayConversions}
+                              goToAbsenceEdit={goToAbsenceEdit}
                             />
                           </Collapse>
                         </div>

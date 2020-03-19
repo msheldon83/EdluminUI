@@ -22,6 +22,9 @@ import { getDisplayName } from "ui/components/enumHelpers";
 import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
 import { getPayLabel } from "ui/components/helpers";
 import { Can } from "ui/components/auth/can";
+import { ActionMenu } from "ui/components/action-menu";
+import { OrgUserPermissions } from "ui/components/auth/types";
+import { canEditAbsence } from "helpers/permissions";
 
 type Props = {
   vacancyDetail: Pick<
@@ -56,6 +59,7 @@ type Props = {
     DayConversion,
     "name" | "maxMinutes" | "dayEquivalent"
   >[];
+  goToAbsenceEdit: (absenceId: string) => void;
 };
 
 export const Assignment: React.FC<Props> = props => {
@@ -283,6 +287,26 @@ export const Assignment: React.FC<Props> = props => {
     });
   };
 
+  console.log(parseISO(vacancyDetail.startDate));
+
+  const rowActions = (absenceID: string) => [
+    {
+      name: t("Edit Absence"),
+      onClick: () => props.goToAbsenceEdit(absenceID),
+      permissions: (
+        permissions: OrgUserPermissions[],
+        isSysAdmin: boolean,
+        orgId?: string
+      ) =>
+        canEditAbsence(
+          parseISO(vacancyDetail.startDate),
+          permissions,
+          isSysAdmin,
+          orgId
+        ),
+    },
+  ];
+
   return (
     <div
       onClick={() => props.onSelectDetail(vacancyDetail.id)}
@@ -345,79 +369,86 @@ export const Assignment: React.FC<Props> = props => {
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
-            <Grid
-              container
-              justify="space-between"
-              alignItems="flex-start"
-              spacing={2}
-              className={classes.container}
-            >
-              <Grid item xs={1}>
-                <Typography className={classes.boldText}>{`
+            <div className={classes.entryContainer}>
+              <div className={classes.idSection}>
+                <div>
+                  <Typography className={classes.boldText}>{`
                  #C${vacancyDetail.assignment!.id}`}</Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography className={classes.boldText}>
-                  {`${vacancyDetail.assignment!.employee!.firstName} ${
-                    vacancyDetail.assignment!.employee!.lastName
-                  }`}
-                </Typography>
-                {!isFromVacancy && (
-                  <Typography className={classes.lightText}>{`for ${
-                    vacancyDetail.vacancy!.absence!.employee!.firstName
-                  } ${
-                    vacancyDetail.vacancy!.absence!.employee!.lastName
-                  }`}</Typography>
-                )}
-                {isFromVacancy && (
-                  <Typography className={classes.lightText}>{`for ${t(
-                    "Vacancy"
-                  )}: ${vacancyDetail.vacancy!.position!.title}`}</Typography>
-                )}
-                {!isFromVacancy && absenceReason ? (
-                  <Typography
-                    className={classes.lightText}
-                  >{`${absenceReason}`}</Typography>
-                ) : isFromVacancy && vacancyReason ? (
-                  <Typography
-                    className={classes.lightText}
-                  >{`${vacancyReason}`}</Typography>
-                ) : (
-                  <></>
-                )}
-              </Grid>
-              <Grid item xs={2}>
-                <Typography className={classes.regularText}>{`${format(
-                  vacancyDetailStartTime,
-                  "h:mm aaa"
-                )} - ${format(vacancyDetailEndTime, "h:mm aaa")}`}</Typography>
-                {!isActiveCard && (
-                  <Typography className={classes.lightText}>
-                    {t("Pay: " + payLabel + "")}
+                </div>
+              </div>
+              <div className={classes.nameSection}>
+                <div>
+                  <Typography className={classes.boldText}>
+                    {`${vacancyDetail.assignment!.employee!.firstName} ${
+                      vacancyDetail.assignment!.employee!.lastName
+                    }`}
                   </Typography>
-                )}
-              </Grid>
-              <Grid item xs={3}>
-                <Typography className={classes.regularText}>
-                  {vacancyDetail.vacancy!.position!.title}
-                </Typography>
-                {!isActiveCard && (
-                  <Typography
-                    className={classes.lightText}
-                  >{`Code: ${payCodeLabel ?? t("N/A")}`}</Typography>
-                )}
-              </Grid>
-              <Grid item xs={3}>
-                <Typography className={classes.regularText}>
-                  {vacancyDetail.location!.name}
-                </Typography>
-                {!isActiveCard && (
-                  <Typography
-                    className={classes.lightText}
-                  >{`Acct: ${accountingCodeLabel ?? t("N/A")}`}</Typography>
-                )}
-              </Grid>
-              <Grid item xs={1}>
+                  {!isFromVacancy && (
+                    <Typography className={classes.lightText}>{`for ${
+                      vacancyDetail.vacancy!.absence!.employee!.firstName
+                    } ${
+                      vacancyDetail.vacancy!.absence!.employee!.lastName
+                    }`}</Typography>
+                  )}
+                  {isFromVacancy && (
+                    <Typography className={classes.lightText}>{`for ${t(
+                      "Vacancy"
+                    )}: ${vacancyDetail.vacancy!.position!.title}`}</Typography>
+                  )}
+                  {!isFromVacancy && absenceReason ? (
+                    <Typography
+                      className={classes.lightText}
+                    >{`${absenceReason}`}</Typography>
+                  ) : isFromVacancy && vacancyReason ? (
+                    <Typography
+                      className={classes.lightText}
+                    >{`${vacancyReason}`}</Typography>
+                  ) : (
+                    <></>
+                  )}
+                </div>
+              </div>
+              <div className={classes.timeSection}>
+                <div>
+                  <Typography className={classes.regularText}>{`${format(
+                    vacancyDetailStartTime,
+                    "h:mm aaa"
+                  )} - ${format(
+                    vacancyDetailEndTime,
+                    "h:mm aaa"
+                  )}`}</Typography>
+                  {!isActiveCard && (
+                    <Typography className={classes.lightText}>
+                      {t("Pay: " + payLabel + "")}
+                    </Typography>
+                  )}
+                </div>
+              </div>
+              <div className={classes.vacancySection}>
+                <div>
+                  <Typography className={classes.regularText}>
+                    {vacancyDetail.vacancy!.position!.title}
+                  </Typography>
+                  {!isActiveCard && (
+                    <Typography
+                      className={classes.lightText}
+                    >{`Code: ${payCodeLabel ?? t("N/A")}`}</Typography>
+                  )}
+                </div>
+              </div>
+              <div className={classes.schoolSection}>
+                <div>
+                  <Typography className={classes.regularText}>
+                    {vacancyDetail.location!.name}
+                  </Typography>
+                  {!isActiveCard && (
+                    <Typography
+                      className={classes.lightText}
+                    >{`Acct: ${accountingCodeLabel ?? t("N/A")}`}</Typography>
+                  )}
+                </div>
+              </div>
+              <div className={classes.buttonSection}>
                 <Button
                   variant={isActiveCard ? "contained" : "outlined"}
                   type="submit"
@@ -428,8 +459,18 @@ export const Assignment: React.FC<Props> = props => {
                 >
                   {notVerified ? t("Verify") : t("Undo verify")}
                 </Button>
-              </Grid>
-            </Grid>
+              </div>
+              <div className={classes.actionSection}>
+                <ActionMenu
+                  options={rowActions(
+                    (() => {
+                      console.log(vacancyDetail);
+                      return vacancyDetail.vacancy!.id;
+                    })()
+                  )}
+                />
+              </div>
+            </div>
             {isActiveCard && (
               <div>
                 <Grid
@@ -643,6 +684,44 @@ export const Assignment: React.FC<Props> = props => {
 };
 
 export const useStyles = makeStyles(theme => ({
+  entryContainer: {
+    display: "flex",
+    width: "100%",
+    alignItems: "start",
+    justifyContent: "space-between",
+    [theme.breakpoints.down("sm")]: {
+      alignItems: "stretch",
+    },
+  },
+  idSection: {
+    display: "flex",
+    paddingRight: 8,
+    flex: 2,
+  },
+  nameSection: {
+    display: "flex",
+    flex: 4,
+  },
+  timeSection: {
+    display: "flex",
+    flex: 4,
+  },
+  vacancySection: {
+    display: "flex",
+    flex: 6,
+  },
+  schoolSection: {
+    display: "flex",
+    flex: 6,
+  },
+  buttonSection: {
+    display: "flex",
+    flex: 2,
+  },
+  actionSection: {
+    display: "flex",
+    flex: 1,
+  },
   lightText: {
     fontSize: theme.typography.fontSize,
     color: theme.customColors.edluminSubText,
