@@ -33,6 +33,8 @@ query GetDailyReportV2(
         }
         details {
           absenceDetailId
+          startDate
+          endDate
           startTimeLocal
           endTimeLocal
           startTimeUtc
@@ -72,6 +74,8 @@ query GetDailyReportV2(
           }
           details {
             vacancyDetailId
+            startDate
+            endDate
             startTimeLocal
             endTimeLocal
             startTimeUtc
@@ -127,6 +131,8 @@ query GetDailyReportV2(
         }
         details {
           absenceDetailId
+          startDate
+          endDate
           startTimeLocal
           endTimeLocal
           startTimeUtc
@@ -166,6 +172,8 @@ query GetDailyReportV2(
           }
           details {
             vacancyDetailId
+            startDate
+            endDate
             startTimeLocal
             endTimeLocal
             startTimeUtc
@@ -221,6 +229,8 @@ query GetDailyReportV2(
         }
         details {
           absenceDetailId
+          startDate
+          endDate
           startTimeLocal
           endTimeLocal
           startTimeUtc
@@ -235,60 +245,6 @@ query GetDailyReportV2(
             absenceReason
             absenceReasonAmount
           }
-        }
-        vacancies {
-          id
-          absenceId
-          createdUtc
-          createdLocal
-          changedUtc
-          changedLocal
-          rowVersion
-          startDate
-          endDate
-          numDays
-          isMultiDay
-          isClosed
-          calendarDayTypeId
-          position {
-            positionId
-            name
-            positionType {
-              positionTypeId
-              name
-            }
-          }
-          details {
-            vacancyDetailId
-            startTimeLocal
-            endTimeLocal
-            startTimeUtc
-            endTimeUtc
-            originalStartTime
-            originalEndTime
-            isClosed
-            location {
-              locationId
-              name
-            }
-            assignment {
-              assignmentId
-              createdUtc
-              createdLocal
-              changedUtc
-              changedLocal
-              rowVersion
-              substitute {
-                employeeId
-                firstName
-                middleName
-                lastName
-                phone
-              }
-            }
-          }
-          locationIds
-          positionTypeIds
         }
         locationIds
         positionTypeIds
@@ -317,6 +273,8 @@ query GetDailyReportV2(
         }
         details {
           vacancyDetailId
+          startDate
+          endDate
           startTimeLocal
           endTimeLocal
           startTimeUtc
@@ -371,6 +329,8 @@ query GetDailyReportV2(
         }
         details {
           vacancyDetailId
+          startDate
+          endDate
           startTimeLocal
           endTimeLocal
           startTimeUtc
