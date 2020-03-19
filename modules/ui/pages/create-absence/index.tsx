@@ -1,7 +1,6 @@
 import { useQueryBundle } from "graphql/hooks";
 import { NeedsReplacement } from "graphql/server-types.gen";
 import * as React from "react";
-import { useIsAdmin } from "reference-data/is-admin";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
 import { CreateAbsenceUI } from "./ui";
@@ -19,12 +18,7 @@ export const CreateAbsence: React.FC<Props> = props => {
     },
   });
 
-  const userIsAdmin = useIsAdmin(organizationId);
-  if (
-    employeeInfo.state !== "DONE" ||
-    userIsAdmin === null ||
-    !employeeInfo.data.employee?.byId
-  ) {
+  if (employeeInfo.state !== "DONE" || !employeeInfo.data.employee?.byId) {
     return <></>;
   }
 
@@ -39,7 +33,6 @@ export const CreateAbsence: React.FC<Props> = props => {
       organizationId={organizationId}
       employeeId={employeeId}
       locationIds={locationIds}
-      userIsAdmin={userIsAdmin}
       needsReplacement={
         employeeInfo.data.employee?.byId?.primaryPosition?.needsReplacement ??
         NeedsReplacement.No

@@ -6,8 +6,6 @@ import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import { compact, flatMap, isNil, sortBy, uniqBy } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState } from "react";
-import { useIsAdmin } from "reference-data/is-admin";
-import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import {
@@ -42,11 +40,6 @@ export const EditAbsence: React.FC<Props> = props => {
       id: params.absenceId,
     },
   });
-  const userIsAdmin = useIsAdmin(
-    absence.state === "LOADING"
-      ? undefined
-      : absence.data?.absence?.byId?.organization.id.toString()
-  );
 
   const employee = useMemo(() => {
     if (absence.state === "DONE") {
@@ -269,7 +262,6 @@ export const EditAbsence: React.FC<Props> = props => {
   if (absence.state !== "DONE" && absence.state !== "UPDATING") {
     return <></>;
   }
-  if (userIsAdmin === null) return <></>;
   // @ts-ignore - I think I've found a bug in typescript?
   const data = absence.data?.absence?.byId;
   // @ts-ignore
@@ -355,7 +347,6 @@ export const EditAbsence: React.FC<Props> = props => {
         rowVersion={data.rowVersion}
         needsReplacement={needsReplacement}
         notesToApprover={data.notesToApprover ?? undefined}
-        userIsAdmin={userIsAdmin}
         positionId={position?.id ?? employee.primaryPositionId ?? undefined}
         positionName={position?.title ?? employee.primaryPosition?.title}
         organizationId={data.organization.id}

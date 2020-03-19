@@ -53,7 +53,6 @@ type Props = {
   actingAsEmployee?: boolean;
   organizationId: string;
   needsReplacement: NeedsReplacement;
-  userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
   locationIds?: string[];
@@ -406,7 +405,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             <AbsenceHeader
               employeeName={employeeName}
               pageHeader={t("Create absence")}
-              actingAsEmployee={!props.userIsAdmin}
+              actingAsEmployee={actingAsEmployee}
             />
             <Section className={classes.absenceDetails}>
               <ErrorBanner
@@ -417,6 +416,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 continueAction={async () => await create(formValues, true)}
               />
               <AbsenceDetails
+                actingAsEmployee={actingAsEmployee}
                 currentMonth={state.viewingCalendarMonth}
                 onSwitchMonth={d =>
                   dispatch({ action: "switchMonth", month: d })
@@ -435,7 +435,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 values={formValues}
                 errors={errors}
                 triggerValidation={triggerValidation}
-                isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
                 setStep={setStep}
@@ -460,7 +459,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         {step === "preAssignSub" && (
           <AssignSub
             orgId={props.organizationId}
-            userIsAdmin={!actingAsEmployee && props.userIsAdmin}
+            actingAsEmployee={actingAsEmployee}
             employeeName={employeeName}
             employeeId={state.employeeId}
             positionId={props.positionId}
@@ -477,7 +476,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             orgId={props.organizationId}
             absence={absence}
             setStep={setStep}
-            isAdmin={props.userIsAdmin}
+            actingAsEmployee={actingAsEmployee}
           />
         )}
       </form>

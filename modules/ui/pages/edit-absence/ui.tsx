@@ -68,7 +68,6 @@ type Props = {
   organizationId: string;
   needsReplacement: NeedsReplacement;
   notesToApprover?: string;
-  userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
   absenceReason: {
@@ -605,7 +604,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               setStep={setStep}
               assignmentId={props.assignmentId}
               disabledDates={disabledDates}
-              isAdmin={props.userIsAdmin}
+              actingAsEmployee={actingAsEmployee}
               needsReplacement={props.needsReplacement}
               wantsReplacement={state.needsReplacement}
               organizationId={props.organizationId}
@@ -675,7 +674,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           absenceId={props.absenceId}
           orgId={props.organizationId}
           vacancies={projectedVacancies || props.initialVacancies}
-          userIsAdmin={!actingAsEmployee && props.userIsAdmin}
+          actingAsEmployee={actingAsEmployee}
           employeeId={props.employeeId}
           positionId={props.positionId}
           positionName={props.positionName}

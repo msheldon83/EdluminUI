@@ -14,7 +14,7 @@ type Props = {
   startDate: Date;
   employeeId: string;
   usages: AbsenceReasonUsageData[] | null;
-  actingAsEmployee: boolean;
+  actingAsEmployee?: boolean;
   setNegativeBalanceWarning: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -97,7 +97,7 @@ export const BalanceUsage: React.FC<Props> = props => {
   const setNegativeBalanceWarning = props.setNegativeBalanceWarning;
   useEffect(() => {
     if (usageAmount?.negativeWarning) {
-      setNegativeBalanceWarning(actingAsEmployee);
+      setNegativeBalanceWarning(actingAsEmployee ?? false);
     } else {
       setNegativeBalanceWarning(false);
     }

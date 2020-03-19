@@ -62,7 +62,7 @@ type Props = {
   values: AbsenceDetailsFormData;
   errors: Errors;
   triggerValidation: TriggerValidation;
-  isAdmin: null | boolean;
+  actingAsEmployee?: boolean;
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
   absenceReason?: {
@@ -113,7 +113,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     organizationId,
     setValue,
     values,
-    isAdmin,
+    actingAsEmployee,
     needsReplacement,
     wantsReplacement,
     onSubstituteWantedChange,
@@ -230,7 +230,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           orgId={props.organizationId}
           employeeId={props.employeeId}
           startDate={startDate}
-          actingAsEmployee={!isAdmin}
+          actingAsEmployee={actingAsEmployee}
           usages={props.usages}
           setNegativeBalanceWarning={setNegativeBalanceWarning}
         />
@@ -302,7 +302,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             triggerValidation={triggerValidation}
             values={values}
             errors={errors}
-            isAdmin={!!isAdmin}
+            actingAsEmployee={actingAsEmployee}
             arrangeSubButtonTitle={props.arrangeSubButtonTitle}
             disabledDates={props.disabledDates}
             replacementEmployeeId={props.replacementEmployeeId}
