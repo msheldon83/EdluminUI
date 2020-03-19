@@ -10,7 +10,7 @@ import {
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
-import { parseISO, format, isEqual } from "date-fns";
+import { parseISO, format } from "date-fns";
 import clsx from "clsx";
 import * as yup from "yup";
 import { Formik } from "formik";
@@ -18,7 +18,6 @@ import { Input } from "ui/components/form/input";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { OptionTypeBase } from "react-select/src/types";
-import { getDisplayName } from "ui/components/enumHelpers";
 import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
 import { getPayLabel } from "ui/components/helpers";
 import { Can } from "ui/components/auth/can";
@@ -92,18 +91,6 @@ export const Assignment: React.FC<Props> = props => {
 
   const vacancyDetailStartTime = parseISO(vacancyDetail.startTimeLocal);
   const vacancyDetailEndTime = parseISO(vacancyDetail.endTimeLocal);
-  /*const absenceDetail = vacancyDetail.vacancy!.absence!.details!.find(o =>
-    isEqual(
-      parseISO(o?.startDate),
-      new Date(
-        vacancyDetailStartTime.getFullYear(),
-        vacancyDetailStartTime.getMonth(),
-        vacancyDetailStartTime.getDate()
-      )
-    )
-  );
-  const absenceDetailStartTime = parseISO(absenceDetail?.startTimeLocal);
-  const absenceDetailEndTime = parseISO(absenceDetail?.endTimeLocal);*/
 
   const isActiveCard = props.selectedVacancyDetail
     ? vacancyDetail.id === props.selectedVacancyDetail
@@ -148,12 +135,14 @@ export const Assignment: React.FC<Props> = props => {
       });
     }
     return options;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     props.vacancyDayConversions,
     dayConversionHourlyName,
     travelingTeacher,
     vacancyDetail.dayPortion,
   ]);
+
   // Make sure the dayConversionName is initially set
   useEffect(() => {
     if (
