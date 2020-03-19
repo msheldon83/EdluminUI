@@ -281,6 +281,11 @@ export const VacancyUI: React.FC<Props> = props => {
     }
   }, [vacancy, onCancelAssignment, vacancyExists]);
 
+  React.useEffect(() => {
+    const container = document.getElementById("main-container");
+    container?.scrollTo(0, 0);
+  }, [step]);
+
   if (
     getPositionTypes.state === "LOADING" ||
     getLocations.state === "LOADING" ||

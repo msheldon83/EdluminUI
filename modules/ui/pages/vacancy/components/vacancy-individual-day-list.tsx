@@ -569,7 +569,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                     }}
                   />
                 }
-                label={t("Same pay for all days")}
+                label={t("Same pay code for all days")}
               />
             </Grid>
             <Grid item xs={6}>
@@ -584,7 +584,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                     }}
                   />
                 }
-                label={t("Same account for all days")}
+                label={t("Same account code for all days")}
               />
             </Grid>
           </Grid>
