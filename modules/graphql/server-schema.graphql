@@ -80,6 +80,8 @@ input AbsenceDetailCreateInput {
 type AbsenceDetailDr {
   _info: [ReturnMessage]
   absenceDetailId: ID!
+  startDate: Date
+  endDate: Date
   startTimeLocal: DateTime
   endTimeLocal: DateTime
   startTimeUtc: DateTime
@@ -114,6 +116,8 @@ type AbsenceDr {
   vacancies: [VacancyDr]!
   locationIds: [ID]
   positionTypeIds: [ID]
+  positionTypes: [PositionTypeDr]!
+  locations: [LocationDr]!
 }
 
 type AbsenceMutations {
@@ -229,6 +233,7 @@ input AbsenceReasonBalanceCreateInput {
   absenceReasonId: ID
   initialBalance: Decimal
   balanceAsOf: Date
+  ignoreWarnings: Boolean
 }
 
 type AbsenceReasonBalanceMutations {
@@ -252,6 +257,7 @@ input AbsenceReasonBalanceUpdateInput {
   absenceReasonId: ID
   initialBalance: Decimal
   balanceAsOf: Date
+  ignoreWarnings: Boolean
 }
 
 input AbsenceReasonCreateInput {
@@ -961,12 +967,13 @@ type ChangeLogTypeDef {
 type ConfirmationNumberQueryResultTypeDef {
   _info: [ReturnMessage]
   absenceId: ID!
+  ownerId: ID!
   objectTypeId: ObjectType!
   objectTypeName: String!
   orgId: ID!
   createdUtc: DateTime
-  employeeId: ID!
-  employeeFirstName: String!
+  employeeId: ID
+  employeeFirstName: String
   employeeMiddleName: String
   employeeLastName: String!
   absenceStartTimeLocal: DateTime
@@ -980,6 +987,7 @@ type ConfirmationNumberQueryResultTypeDef {
   subFirstName: String
   subMiddleName: String
   subLastName: String
+  isNormalVacancy: Boolean!
 }
 
 type Contract implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -1999,6 +2007,7 @@ enum FeatureFlag {
   HALF_DAY_ABSENCES
   QUARTER_DAY_ABSENCES
   HOURLY_ABSENCES
+  VERIFY
 }
 
 enum FilePurpose {
@@ -5694,12 +5703,16 @@ type VacancyDetailCount {
 type VacancyDetailDr {
   _info: [ReturnMessage]
   vacancyDetailId: ID!
+  startDate: Date
+  endDate: Date
   startTimeLocal: DateTime
   endTimeLocal: DateTime
   startTimeUtc: DateTime
   endTimeUtc: DateTime
   originalStartTime: DateTime
   originalEndTime: DateTime
+  vacancyReasonId: ID
+  vacancyReason: String
   isClosed: Boolean!
   location: LocationDr!
   assignment: AssignmentDr
