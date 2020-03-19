@@ -22,6 +22,7 @@ import {
   OrganizationCreateInput,
   Maybe,
   FeatureFlag,
+  OrganizationType,
   SeedOrgDataOptionEnum,
   TimeZone,
 } from "graphql/server-types.gen";
@@ -35,8 +36,27 @@ type Props = {
     superUserLoginEmail: string,
     seedOrgDataOption: SeedOrgDataOptionEnum,
     featureFlags: FeatureFlag[],
+    organizationTypeId: OrganizationType,
     timeZoneId: TimeZone,
-    externalId: string | null | undefined
+    isEdustaffOrg: boolean,
+    orgUsersMustAcceptEula: boolean,
+    externalId: string | null | undefined,
+    longTermVacancyThresholdDays: number | null | undefined,
+    minLeadTimeMinutesToCancelVacancy: number | null | undefined,
+    minutesBeforeStartAbsenceCanBeCreated: number | null | undefined,
+    minLeadTimeMinutesToCancelVacancyWithoutPunishment:
+      | number
+      | null
+      | undefined,
+    maxGapMinutesForSameVacancyDetail: number | null | undefined,
+    minAbsenceMinutes: number | null | undefined,
+    maxAbsenceDays: number | null | undefined,
+    absenceCreateCutoffTime: number | null | undefined,
+    requestedSubCutoffMinutes: number | null | undefined,
+    minRequestedEmployeeHoldMinutes: number | null | undefined,
+    maxRequestedEmployeeHoldMinutes: number | null | undefined,
+    minorConflictThresholdMinutes: number | null | undefined,
+    minutesRelativeToStartVacancyCanBeFilled: number | null | undefined
   ) => Promise<unknown>;
   onCancel: () => void;
   onNameChange: (name: string) => void;
@@ -52,9 +72,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const classes = useStyles();
   const overrideStyles = rootStyles();
   const { t } = useTranslation();
-  const [featureFlagsSelected, setFeatureFlagsSelected] = useState<string[]>(
-    []
-  );
 
   const initialValues = {
     name: props.organization.name || "",
@@ -64,8 +81,36 @@ export const AddBasicInfo: React.FC<Props> = props => {
     superUserLoginEmail: props.organization.superUserLoginEmail || "",
     isEdustaffOrg: props.organization.isEdustaffOrg || false,
     timeZoneId: props.organization.timeZoneId || null,
-    seedOrgDataOption: props.organization.seedOrgDataOption,
-    featureFlagOptions: props.organization.config?.featureFlags,
+    seedOrgDataOption: props.organization.seedOrgDataOption || null,
+    featureFlagOptions: props.organization.config?.featureFlags || null,
+    organizationTypeId: props.organization?.config?.organizationTypeId,
+    orgUsersMustAcceptEula:
+      props.organization?.config?.orgUsersMustAcceptEula || false,
+    longTermVacancyThresholdDays:
+      props.organization?.config?.longTermVacancyThresholdDays || 0,
+    minLeadTimeMinutesToCancelVacancy:
+      props.organization?.config?.minLeadTimeMinutesToCancelVacancy || 0,
+    minutesBeforeStartAbsenceCanBeCreated:
+      props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated || 0,
+    minLeadTimeMinutesToCancelVacancyWithoutPunishment:
+      props.organization?.config
+        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || 0,
+    maxGapMinutesForSameVacancyDetail:
+      props.organization?.config?.maxGapMinutesForSameVacancyDetail || 0,
+    minAbsenceMinutes: props.organization?.config?.minAbsenceMinutes || 0,
+    maxAbsenceDays: props.organization?.config?.maxAbsenceDays || 0,
+    absenceCreateCutoffTime:
+      props.organization?.config?.absenceCreateCutoffTime || 0,
+    requestedSubCutoffMinutes:
+      props.organization?.config?.requestedSubCutoffMinutes || 0,
+    minRequestedEmployeeHoldMinutes:
+      props.organization?.config?.minRequestedEmployeeHoldMinutes || 0,
+    maxRequestedEmployeeHoldMinutes:
+      props.organization?.config?.maxRequestedEmployeeHoldMinutes || 0,
+    minorConflictThresholdMinutes:
+      props.organization?.config?.minorConflictThresholdMinutes || 0,
+    minutesRelativeToStartVacancyCanBeFilled:
+      props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled || 0,
   };
 
   //Add more validation
@@ -74,17 +119,32 @@ export const AddBasicInfo: React.FC<Props> = props => {
       Yup.object().shape({
         name: Yup.string()
           .nullable()
-          .required(t("Organization name is required")),
+          .required(t("* Required *")),
         externalId: Yup.string().nullable(),
         superUserFirstName: Yup.string()
           .nullable()
-          .required(t("First name is required")),
+          .required(t("* Required *")),
         superUserLastName: Yup.string()
           .nullable()
-          .required(t("Last name is required")),
+          .required(t("* Required *")),
         superUserLoginEmail: Yup.string()
+          .email()
           .nullable()
-          .required(t("email is required")),
+          .required(t("* Required *")),
+        timeZoneId: Yup.string()
+          .nullable()
+          .required(t("* Required *")),
+        seedOrgDataOption: Yup.string()
+          .nullable()
+          .required(t("* Required *")),
+        organizationTypeId: Yup.string()
+          .nullable()
+          .required(t("* Required *")),
+        //TODO: FIX Validation
+        //   featureFlags: Yup.array()
+        //   .of(Yup.string())
+        //   .min(1),
+        // //.required(t("* Required *")),
       }),
     [t]
   );
@@ -104,8 +164,24 @@ export const AddBasicInfo: React.FC<Props> = props => {
             data.superUserLoginEmail,
             data.seedOrgDataOption,
             data.featureFlags,
+            data.organizationTypeId,
             data.timeZoneId,
-            data.externalId
+            data.isEdustaffOrg,
+            data.orgUsersMustAcceptEula,
+            data.externalId,
+            data.longTermVacancyThresholdDays,
+            data.minLeadTimeMinutesToCancelVacancy,
+            data.minutesBeforeStartAbsenceCanBeCreated,
+            data.minLeadTimeMinutesToCancelVacancyWithoutPunishment,
+            data.maxGapMinutesForSameVacancyDetail,
+            data.minAbsenceMinutes,
+            data.maxAbsenceDays,
+            data.absenceCreateCutoffTime,
+            data.requestedSubCutoffMinutes,
+            data.minRequestedEmployeeHoldMinutes,
+            data.maxRequestedEmployeeHoldMinutes,
+            data.minorConflictThresholdMinutes,
+            data.minutesRelativeToStartVacancyCanBeFilled
           );
         }}
       >
@@ -135,7 +211,35 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={3}>
+                <SelectNew
+                  label={t("Organization Type")}
+                  name={"organizationTypeId"}
+                  value={{
+                    value: values.organizationTypeId ?? "",
+                    label:
+                      props.organizationTypes.find(
+                        a => a.value === values.organizationTypeId
+                      )?.label || "",
+                  }}
+                  onChange={(e: OptionType) => {
+                    let selectedValue = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+                    setFieldValue("organizationTypeId", selectedValue);
+                  }}
+                  withResetValue={false}
+                  doSort={false}
+                  options={props.organizationTypes}
+                  multiple={false}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3}>
                 <SelectNew
                   label={t("Time Zone")}
                   name={"timeZoneId"}
@@ -220,7 +324,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   value={{
                     value: values.seedOrgDataOption ?? "",
                     label:
-                      props.timeZoneOptions.find(
+                      props.seedOrgDataOptions.find(
                         a => a.value === values.seedOrgDataOption
                       )?.label || "",
                   }}
@@ -236,37 +340,28 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     }
                     setFieldValue("seedOrgDataOption", selectedValue);
                   }}
+                  doSort={false}
                   withResetValue={false}
                   multiple={false}
                 />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <SelectNew
-                  label={t("Feature Flags (FIX ME!!)")}
+                  label={t("Feature Flags")}
                   name={"featureFlags"}
                   value={props.featureFlagOptions.filter(
                     e =>
                       e.value &&
-                      values?.featureFlagOptions?.includes(e.value.toString())
+                      values.featureFlagOptions?.some(v => v === e.value)
                   )}
                   withResetValue={false}
                   options={props.featureFlagOptions}
                   onChange={e => {
                     const ids = e.map((v: OptionType) => v.value.toString());
                     setFieldValue("featureFlagOptions", ids);
-                    setFeatureFlagsSelected(ids);
                   }}
-                  //TODO: Not working.
+                  doSort={false}
                   multiple={true}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
-                <SelectNew
-                  label={t("Organization Type")}
-                  name={"featureFlags"}
-                  withResetValue={false}
-                  options={props.organizationTypes}
-                  multiple={false}
                 />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
@@ -282,6 +377,24 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     />
                   }
                   label={t("Is this an Edustaff Org?")}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={values.orgUsersMustAcceptEula}
+                      onChange={e => {
+                        setFieldValue(
+                          "orgUsersMustAcceptEula",
+                          e.target.checked
+                        );
+                      }}
+                      value={values.orgUsersMustAcceptEula}
+                      color="primary"
+                    />
+                  }
+                  label={t("Users Must Accept Eula?")}
                 />
               </Grid>
               <Grid item xs={12} sm={12}>

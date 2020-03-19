@@ -40,13 +40,17 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     superUserFirstName: "",
     superUserLastName: "",
     superUserLoginEmail: "",
-    timeZoneId: null,
+    timeZoneId: TimeZone.EasternStandardTimeUsCanada,
     seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
     isEdustaffOrg: false,
     config: {
       organizationTypeId: OrganizationType.Implementing,
       orgUsersMustAcceptEula: false,
-      featureFlags: [FeatureFlag.None],
+      featureFlags: [
+        FeatureFlag.FullDayAbsences,
+        FeatureFlag.HalfDayAbsences,
+        FeatureFlag.HourlyAbsences,
+      ],
       defaultCountry: CountryCode.Us,
       longTermVacancyThresholdDays: 0,
       minLeadTimeMinutesToCancelVacancy: 0,
@@ -61,7 +65,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
       maxRequestedEmployeeHoldMinutes: 0,
       minorConflictThresholdMinutes: 0,
       minutesRelativeToStartVacancyCanBeFilled: 0,
-      vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }], // TODO: Add to Formik
+      //vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }], // TODO: Add to Formik
     },
   });
 
@@ -85,11 +89,16 @@ export const OrganizationAddPage: React.FC<{}> = props => {
         },
       },
     });
+
     return result?.data?.organization?.create?.id;
   };
 
   const seedOrgDataOptions = useMemo(() => {
     return [
+      {
+        value: SeedOrgDataOptionEnum.DontSeed,
+        label: t("Don't Seed"),
+      },
       {
         value: SeedOrgDataOptionEnum.SeedAsynchronously,
         label: t("Asynchronously"),
@@ -129,20 +138,20 @@ export const OrganizationAddPage: React.FC<{}> = props => {
         label: t("None"),
       },
       {
-        value: FeatureFlag.FullDayAbsences,
-        label: t("Full Day"),
-      },
-      {
-        value: FeatureFlag.HalfDayAbsences,
-        label: t("Half Day"),
+        value: FeatureFlag.HourlyAbsences,
+        label: t("Hourly"),
       },
       {
         value: FeatureFlag.QuarterDayAbsences,
         label: t("Quarterly"),
       },
       {
-        value: FeatureFlag.HourlyAbsences,
-        label: t("Hourly"),
+        value: FeatureFlag.HalfDayAbsences,
+        label: t("Half Day"),
+      },
+      {
+        value: FeatureFlag.FullDayAbsences,
+        label: t("Full Day"),
       },
     ];
   }, [t]);
@@ -175,8 +184,24 @@ export const OrganizationAddPage: React.FC<{}> = props => {
           superUserLoginEmail: string,
           seedOrgDataOption: SeedOrgDataOptionEnum,
           featureFlags: FeatureFlag[],
+          organizationTypeId: OrganizationType,
           timeZoneId: TimeZone,
-          externalId?: string | null
+          isEdustaffOrg: boolean,
+          orgUsersMustAcceptEula: boolean,
+          externalId?: string | null,
+          longTermVacancyThresholdDays?: number | null,
+          minLeadTimeMinutesToCancelVacancy?: number | null,
+          minutesBeforeStartAbsenceCanBeCreated?: number | null,
+          minLeadTimeMinutesToCancelVacancyWithoutPunishment?: number | null,
+          maxGapMinutesForSameVacancyDetail?: number | null,
+          minAbsenceMinutes?: number | null,
+          maxAbsenceDays?: number | null,
+          absenceCreateCutoffTime?: number | null,
+          requestedSubCutoffMinutes?: number | null,
+          minRequestedEmployeeHoldMinutes?: number | null,
+          maxRequestedEmployeeHoldMinutes?: number | null,
+          minorConflictThresholdMinutes?: number | null,
+          minutesRelativeToStartVacancyCanBeFilled?: number | null
         ) => {
           const newOrganization = {
             ...organization,
@@ -185,16 +210,38 @@ export const OrganizationAddPage: React.FC<{}> = props => {
             superUserLastName: superUserLastName,
             superUserLoginEmail: superUserLoginEmail,
             seedOrgDataOption: seedOrgDataOption,
+            isEdustaffOrg: isEdustaffOrg,
             timeZoneId: timeZoneId,
             externalId: externalId,
+            config: {
+              organizationTypeId: organizationTypeId,
+              longTermVacancyThresholdDays: longTermVacancyThresholdDays,
+              featureFlags: featureFlags,
+              minLeadTimeMinutesToCancelVacancy: minLeadTimeMinutesToCancelVacancy,
+              orgUsersMustAcceptEula: orgUsersMustAcceptEula,
+              minutesBeforeStartAbsenceCanBeCreated: minutesBeforeStartAbsenceCanBeCreated,
+              minLeadTimeMinutesToCancelVacancyWithoutPunishment: minLeadTimeMinutesToCancelVacancyWithoutPunishment,
+              maxGapMinutesForSameVacancyDetail: maxGapMinutesForSameVacancyDetail,
+              minAbsenceMinutes: minAbsenceMinutes,
+              maxAbsenceDays: maxAbsenceDays,
+              absenceCreateCutoffTime: absenceCreateCutoffTime,
+              requestedSubCutoffMinutes: requestedSubCutoffMinutes,
+              minRequestedEmployeeHoldMinutes: minRequestedEmployeeHoldMinutes,
+              maxRequestedEmployeeHoldMinutes: maxRequestedEmployeeHoldMinutes,
+              minorConflictThresholdMinutes: minorConflictThresholdMinutes,
+              minutesRelativeToStartVacancyCanBeFilled: minutesRelativeToStartVacancyCanBeFilled,
+            },
           };
 
           console.log(newOrganization);
 
           //TODO
-          //setOrganization(newOrganization);
+          setOrganization(newOrganization);
 
-          //const result = await create(organization);
+          const result = await create(organization);
+
+          // const url = AdminRootChromeRoute.generate(params);
+          // history.push(url);
         }}
         onCancel={() => {
           const url = AdminRootChromeRoute.generate(params);

@@ -6,6 +6,30 @@ mutation CreateOrganization($organization: OrganizationCreateInput!) {
       rowVersion
       externalId
       timeZoneId
+      config {
+        organizationTypeId
+        orgUsersMustAcceptEula
+        featureFlags
+        defaultCountry
+        longTermVacancyThresholdDays
+        minLeadTimeMinutesToCancelVacancy
+        minutesBeforeStartAbsenceCanBeCreated
+        minLeadTimeMinutesToCancelVacancyWithoutPunishment
+        maxGapMinutesForSameVacancyDetail
+        minAbsenceMinutes
+        maxAbsenceDays
+        absenceCreateCutoffTime
+        requestedSubCutoffMinutes
+        minRequestedEmployeeHoldMinutes
+        maxRequestedEmployeeHoldMinutes
+        minorConflictThresholdMinutes
+        minutesRelativeToStartVacancyCanBeFilled
+        vacancyDayConversions {
+          dayEquivalent
+          maxMinutes
+          name
+        }
+      }
     }
   }
 }
