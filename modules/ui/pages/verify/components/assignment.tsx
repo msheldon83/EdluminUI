@@ -81,9 +81,10 @@ export const Assignment: React.FC<Props> = props => {
   // If it is verified, we would want to allow the record to be unverified
   const notVerified = vacancyDetail.verifiedAtLocal === null;
 
-  const accountingCodes = useAccountingCodes(vacancyDetail.orgId, [
-    vacancyDetail.location?.id,
-  ]);
+  const accountingCodes = useAccountingCodes(
+    vacancyDetail.orgId,
+    vacancyDetail.location ? [vacancyDetail.location?.id] : undefined
+  );
   const accountingCodeOptions = useMemo(
     () => accountingCodes.map(a => ({ label: a.name, value: a.id })),
     [accountingCodes]
@@ -391,9 +392,8 @@ export const Assignment: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.boldText}>
-                  {`${vacancyDetail.assignment!.employee?.firstName ?? ""} ${
-                    vacancyDetail.assignment!.employee?.lastName ?? ""
-                  }`}
+                  {`${vacancyDetail.assignment!.employee?.firstName ??
+                    ""} ${vacancyDetail.assignment!.employee?.lastName ?? ""}`}
                 </Typography>
                 {!isFromVacancy && (
                   <Typography className={classes.lightText}>{`for ${
