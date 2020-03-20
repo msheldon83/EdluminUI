@@ -79,7 +79,8 @@ input AbsenceDetailCreateInput {
 
 type AbsenceDetailDr {
   _info: [ReturnMessage]
-  absenceDetailId: ID!
+  id: ID!
+  absenceId: ID!
   startDate: Date
   endDate: Date
   startTimeLocal: DateTime
@@ -281,7 +282,8 @@ type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
 
 type AbsenceReasonUsageDr {
   _info: [ReturnMessage]
-  absenceReasonUsageId: ID!
+  id: ID!
+  absenceDetailId: ID!
   absenceReasonId: ID!
   absenceReason: String!
   absenceReasonAmount: Decimal!
@@ -596,7 +598,7 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
 
 type AssignmentDr {
   _info: [ReturnMessage]
-  assignmentId: ID!
+  id: ID!
   createdUtc: DateTime
   createdLocal: DateTime
   changedUtc: DateTime
@@ -1369,11 +1371,13 @@ input EmployeeCreateInput {
 
 type EmployeeDr {
   _info: [ReturnMessage]
-  employeeId: ID!
+  id: ID!
   firstName: String!
   middleName: String
   lastName: String!
   phone: String
+  formattedPhone: String
+  countryId: CountryCode
 }
 
 type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
@@ -2004,7 +2008,7 @@ input LocationCreateInput {
 
 type LocationDr {
   _info: [ReturnMessage]
-  locationId: ID!
+  id: ID!
   name: String!
 }
 
@@ -2342,6 +2346,7 @@ input organizationConfigInput {
 input OrganizationCreateInput {
   name: String!
   externalId: String
+  relatesToOrganizationId: ID
   superUserLoginEmail: String!
   superUserFirstName: String!
   superUserLastName: String!
@@ -3393,7 +3398,7 @@ input PositionCreateInput {
 
 type PositionDr {
   _info: [ReturnMessage]
-  positionId: ID!
+  id: ID!
   name: String!
   positionType: PositionTypeDr!
 }
@@ -3744,7 +3749,7 @@ input PositionTypeCreateInput {
 
 type PositionTypeDr {
   _info: [ReturnMessage]
-  positionTypeId: ID!
+  id: ID!
   name: String!
 }
 
@@ -5198,7 +5203,8 @@ type VacancyDetailCount {
 
 type VacancyDetailDr {
   _info: [ReturnMessage]
-  vacancyDetailId: ID!
+  id: ID!
+  vacancyId: ID!
   startDate: Date
   endDate: Date
   startTimeLocal: DateTime
@@ -5256,6 +5262,8 @@ type VacancyDr {
   details: [VacancyDetailDr]!
   locationIds: [ID]
   positionTypeIds: [ID]
+  positionTypes: [PositionTypeDr]!
+  locations: [LocationDr]!
 }
 
 type VacancyEmployeeInterest implements ModelObjectInterface & OrgObjectInterface {
