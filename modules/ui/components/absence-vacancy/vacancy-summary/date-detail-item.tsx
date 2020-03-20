@@ -5,12 +5,14 @@ import { DateDetail } from "./types";
 
 type Props = {
   detail: DateDetail;
+  showPayCodes: boolean;
+  showAccountingCodes: boolean;
 };
 
 export const DateDetailItem: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const { detail } = props;
+  const { detail, showPayCodes, showAccountingCodes } = props;
 
   const accountingCodeDisplayName = detail.accountingCodeAllocations
     ? detail.accountingCodeAllocations[0]?.accountingCodeName
@@ -20,21 +22,25 @@ export const DateDetailItem: React.FC<Props> = props => {
     <div className={classes.row}>
       <div>
         <div>{`${detail.startTime} - ${detail.endTime}`}</div>
-        <div>
-          {`${t("Pay")}: ${detail.payCodeId ? detail.payCodeName : ""}`}
-          {!detail.payCodeId && (
-            <span className={classes.notSpecified}>{t("Not specified")}</span>
-          )}
-        </div>
+        {showPayCodes && (
+          <div>
+            {`${t("Pay")}: ${detail.payCodeId ? detail.payCodeName : ""}`}
+            {!detail.payCodeId && (
+              <span className={classes.notSpecified}>{t("Not specified")}</span>
+            )}
+          </div>
+        )}
       </div>
       <div>
         <div>{detail.locationName}</div>
-        <div>
-          {`${t("Acct")}: ${accountingCodeDisplayName ?? ""}`}
-          {!accountingCodeDisplayName && (
-            <span className={classes.notSpecified}>{t("Not specified")}</span>
-          )}
-        </div>
+        {showAccountingCodes && (
+          <div>
+            {`${t("Acct")}: ${accountingCodeDisplayName ?? ""}`}
+            {!accountingCodeDisplayName && (
+              <span className={classes.notSpecified}>{t("Not specified")}</span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

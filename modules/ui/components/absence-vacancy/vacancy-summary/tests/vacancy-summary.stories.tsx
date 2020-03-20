@@ -20,6 +20,8 @@ export const SingleDayUnassigned = () => {
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
         onCancelAssignment={async () => {}}
+        showPayCodes={true}
+        showAccountingCodes={true}
       />
     </div>
   );
@@ -35,6 +37,8 @@ export const SingleDayAssigned = () => {
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
         onCancelAssignment={async () => {}}
+        showPayCodes={true}
+        showAccountingCodes={true}
       />
     </div>
   );
@@ -50,6 +54,8 @@ export const SingleDayPrearranged = () => {
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
         onCancelAssignment={async () => {}}
+        showPayCodes={true}
+        showAccountingCodes={true}
       />
     </div>
   );
@@ -67,6 +73,8 @@ export const MultiDayUnassigned = () => {
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
         onCancelAssignment={async () => {}}
+        showPayCodes={true}
+        showAccountingCodes={true}
       />
     </div>
   );
@@ -82,6 +90,8 @@ export const MultiDayAssigned = () => {
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
         onCancelAssignment={async () => {}}
+        showPayCodes={true}
+        showAccountingCodes={true}
       />
     </div>
   );
@@ -116,6 +126,8 @@ export const MultiDaySplitAssignment = () => {
             setNotesForSubstitute={() => {}}
             onAssignClick={async () => {}}
             onCancelAssignment={async () => {}}
+            showPayCodes={true}
+            showAccountingCodes={true}
           />
         </div>
       </Route>

@@ -34,6 +34,8 @@ type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
   onCancelAssignment: (vacancyDetailIds?: string[]) => Promise<void>;
   vacancyReasons: VacancyReason[];
+  orgHasPayCodesDefined: boolean;
+  orgHasAccountingCodesDefined: boolean;
 };
 
 export const VacancyConfirmation: React.FC<Props> = props => {
@@ -54,6 +56,8 @@ export const VacancyConfirmation: React.FC<Props> = props => {
     onCancelAssignment,
     notes,
     vacancyReasons,
+    orgHasPayCodesDefined,
+    orgHasAccountingCodesDefined,
   } = props;
 
   const editUrl = useMemo(() => {
@@ -110,6 +114,8 @@ export const VacancyConfirmation: React.FC<Props> = props => {
               vacancySummaryDetails={vacancySummaryDetails}
               onCancelAssignment={onCancelAssignment}
               notesForSubstitute={notes}
+              showPayCodes={orgHasPayCodesDefined}
+              showAccountingCodes={orgHasAccountingCodesDefined}
             />
           </Grid>
         </Grid>

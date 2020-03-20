@@ -292,92 +292,97 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
           </Grid>
         </>
       )}
-      <Grid item xs={6}>
-        <Select
-          multiple={false}
-          withResetValue={true}
-          options={payCodeOptions}
-          disabled={disablePayCode}
-          value={{
-            value: vacancyDetail.payCodeId ?? "",
-            label:
-              vacancyDetail.payCodeId && vacancyDetail.payCodeId.length > 0
-                ? payCodeOptions.find(
-                    a => a.value === vacancyDetail.payCodeId ?? defaultPayCodeId
-                  )?.label || ""
-                : "",
-          }}
-          onChange={async (e: OptionType) => {
-            let selectedValue: any = null;
-            let selectedLabel: any = null;
-            if (e) {
-              selectedValue = (e as OptionTypeBase).value;
-              selectedLabel = (e as OptionTypeBase).label;
-            }
-            const newVacDetail = {
-              ...vacancyDetail,
-              payCodeId:
+      {payCodeOptions.length > 0 && (
+        <Grid item xs={6}>
+          <Select
+            multiple={false}
+            withResetValue={true}
+            options={payCodeOptions}
+            disabled={disablePayCode}
+            value={{
+              value: vacancyDetail.payCodeId ?? "",
+              label:
+                vacancyDetail.payCodeId && vacancyDetail.payCodeId.length > 0
+                  ? payCodeOptions.find(
+                      a =>
+                        a.value === vacancyDetail.payCodeId ?? defaultPayCodeId
+                    )?.label || ""
+                  : "",
+            }}
+            onChange={async (e: OptionType) => {
+              let selectedValue: any = null;
+              let selectedLabel: any = null;
+              if (e) {
+                selectedValue = (e as OptionTypeBase).value;
+                selectedLabel = (e as OptionTypeBase).label;
+              }
+              const newVacDetail = {
+                ...vacancyDetail,
+                payCodeId:
+                  selectedValue && selectedValue.length > 0
+                    ? selectedValue
+                    : undefined,
+                payCodeName:
+                  selectedLabel && selectedLabel.length > 0
+                    ? selectedLabel
+                    : undefined,
+              };
+              setVacancyPayCode(newVacDetail);
+            }}
+          ></Select>
+        </Grid>
+      )}
+      {accountingCodeOptions.length > 0 && (
+        <Grid item xs={6}>
+          <Select
+            multiple={false}
+            withResetValue={true}
+            options={accountingCodeOptions}
+            disabled={disableAccountingCode}
+            value={{
+              value:
+                vacancyDetail.accountingCodeAllocations &&
+                vacancyDetail.accountingCodeAllocations.length > 0
+                  ? vacancyDetail.accountingCodeAllocations[0]
+                      ?.accountingCodeId || ""
+                  : "",
+              label:
+                vacancyDetail.accountingCodeAllocations &&
+                vacancyDetail.accountingCodeAllocations.length > 0
+                  ? accountingCodeOptions.find(
+                      a =>
+                        a.value ===
+                        vacancyDetail.accountingCodeAllocations![0]
+                          ?.accountingCodeId
+                    )?.label || ""
+                  : "",
+            }}
+            onChange={async (e: OptionType) => {
+              let selectedValue: any = null;
+              let selectedLabel: any = null;
+              if (e) {
+                selectedValue = (e as OptionTypeBase).value;
+                selectedLabel = (e as OptionTypeBase).label;
+              }
+              const accountingCodeAllocations =
                 selectedValue && selectedValue.length > 0
-                  ? selectedValue
-                  : undefined,
-              payCodeName:
-                selectedLabel && selectedLabel.length > 0
-                  ? selectedLabel
-                  : undefined,
-            };
-            setVacancyPayCode(newVacDetail);
-          }}
-        ></Select>
-      </Grid>
-      <Grid item xs={6}>
-        <Select
-          multiple={false}
-          withResetValue={true}
-          options={accountingCodeOptions}
-          disabled={disableAccountingCode}
-          value={{
-            value:
-              vacancyDetail.accountingCodeAllocations &&
-              vacancyDetail.accountingCodeAllocations.length > 0
-                ? vacancyDetail.accountingCodeAllocations[0]
-                    ?.accountingCodeId || ""
-                : "",
-            label:
-              vacancyDetail.accountingCodeAllocations &&
-              vacancyDetail.accountingCodeAllocations.length > 0
-                ? accountingCodeOptions.find(
-                    a =>
-                      a.value ===
-                      vacancyDetail.accountingCodeAllocations![0]
-                        ?.accountingCodeId
-                  )?.label || ""
-                : "",
-          }}
-          onChange={async (e: OptionType) => {
-            let selectedValue: any = null;
-            let selectedLabel: any = null;
-            if (e) {
-              selectedValue = (e as OptionTypeBase).value;
-              selectedLabel = (e as OptionTypeBase).label;
-            }
-            const accountingCodeAllocations =
-              selectedValue && selectedValue.length > 0
-                ? [
-                    {
-                      accountingCodeId: selectedValue,
-                      allocation: 1.0,
-                      accountingCodeName: selectedLabel,
-                    },
-                  ]
-                : [];
-            const newVacDetail = {
-              ...vacancyDetail,
-              accountingCodeAllocations,
-            };
-            setVacancyAccountingCode(newVacDetail);
-          }}
-        ></Select>
-      </Grid>
+                  ? [
+                      {
+                        accountingCodeId: selectedValue,
+                        allocation: 1.0,
+                        accountingCodeName: selectedLabel,
+                      },
+                    ]
+                  : [];
+              const newVacDetail = {
+                ...vacancyDetail,
+                accountingCodeAllocations,
+              };
+              setVacancyAccountingCode(newVacDetail);
+            }}
+          ></Select>
+        </Grid>
+      )}
     </Grid>
   );
 };

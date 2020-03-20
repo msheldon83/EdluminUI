@@ -8,12 +8,19 @@ import { getDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "ui/compo
 type Props = {
   dateDetails: DateDetails;
   showAbsenceTimes: boolean;
+  showPayCodes: boolean;
+  showAccountingCodes: boolean;
 };
 
 export const DateGroup: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const { dateDetails, showAbsenceTimes } = props;
+  const {
+    dateDetails,
+    showAbsenceTimes,
+    showPayCodes,
+    showAccountingCodes,
+  } = props;
 
   return (
     <div className={classes.dateGroup}>
@@ -31,7 +38,14 @@ export const DateGroup: React.FC<Props> = props => {
         )}
         <div>
           {dateDetails.details.map((d, i) => {
-            return <DateDetailItem key={i} detail={d} />;
+            return (
+              <DateDetailItem
+                key={i}
+                detail={d}
+                showPayCodes={showPayCodes}
+                showAccountingCodes={showAccountingCodes}
+              />
+            );
           })}
         </div>
       </div>

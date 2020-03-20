@@ -59,6 +59,8 @@ type Props = {
   vacancySummaryDetails?: VacancySummaryDetail[];
   vacancy?: VacancyCreateInput;
   vacancyId?: string;
+  orgHasPayCodesDefined?: boolean;
+  orgHasAccountingCodesDefined?: boolean;
 };
 
 export type ValidationChecks = {
@@ -96,6 +98,8 @@ export const AssignSub: React.FC<Props> = props => {
     isForVacancy = false,
     vacancy = undefined,
     vacancyId = undefined,
+    orgHasPayCodesDefined = true,
+    orgHasAccountingCodesDefined = true,
   } = props;
 
   const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
@@ -351,6 +355,8 @@ export const AssignSub: React.FC<Props> = props => {
                 onCancelAssignment={async () => {}}
                 detailsOnly={true}
                 divRef={vacancyDetailsRef}
+                showAccountingCodes={orgHasAccountingCodesDefined}
+                showPayCodes={orgHasPayCodesDefined}
               />
             </div>
           )}

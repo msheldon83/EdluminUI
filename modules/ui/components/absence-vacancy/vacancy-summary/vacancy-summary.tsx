@@ -9,6 +9,8 @@ import { uniqWith } from "lodash-es";
 
 type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
+  showPayCodes: boolean;
+  showAccountingCodes: boolean;
   showAbsenceTimes?: boolean;
   notesForSubstitute?: string;
   setNotesForSubstitute?: (notes: string) => void;
@@ -27,6 +29,8 @@ export const VacancySummary: React.FC<Props> = props => {
     onAssignClick,
     onCancelAssignment,
     setNotesForSubstitute,
+    showPayCodes,
+    showAccountingCodes,
     notesForSubstitute = "",
     showAbsenceTimes = false,
     disableAssignmentActions = false,
@@ -84,6 +88,8 @@ export const VacancySummary: React.FC<Props> = props => {
             onCancelAssignment={onCancelAssignment}
             disableActions={disableAssignmentActions}
             detailsOnly={detailsOnly}
+            showPayCodes={showPayCodes}
+            showAccountingCodes={showAccountingCodes}
           />
         ))}
       </div>

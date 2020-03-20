@@ -70,7 +70,7 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
             accountingCodeAllocations: d.accountingCodeAllocations.map(a => {
               return {
                 accountingCodeId: a.accountingCodeId,
-                accountingCodeName: a.accountingCode.name,
+                accountingCodeName: a.accountingCode?.name ?? "",
                 allocation: a.allocation,
               };
             }),

@@ -528,6 +528,8 @@ export const VacancyUI: React.FC<Props> = props => {
                         setFieldValue("notesToReplacement", notes);
                         vacancy.notesToReplacement = notes;
                       }}
+                      showPayCodes={payCodes.length > 0}
+                      showAccountingCodes={accountingCodes.length > 0}
                     />
                   </Grid>
                 </Grid>
@@ -631,6 +633,8 @@ export const VacancyUI: React.FC<Props> = props => {
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
                 vacancyDetailIdsToAssign={state.vacancyDetailIdsToAssign}
+                orgHasPayCodesDefined={payCodes.length > 0}
+                orgHasAccountingCodesDefined={accountingCodes.length > 0}
               />
             )}
             {step === "confirmation" && (
@@ -647,6 +651,8 @@ export const VacancyUI: React.FC<Props> = props => {
                 setVacancyForCreate={setVacancy}
                 onCancelAssignment={onCancelAssignment}
                 vacancyReasons={vacancyReasons}
+                orgHasPayCodesDefined={payCodes.length > 0}
+                orgHasAccountingCodesDefined={accountingCodes.length > 0}
               />
             )}
           </form>

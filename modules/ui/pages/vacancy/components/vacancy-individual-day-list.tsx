@@ -553,7 +553,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                 label={t("Same reason for all days")}
               />
             </Grid>
-            <Grid item xs={6}>
+            {payCodeOptions.length > 0 && (
+              <Grid item xs={6}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -568,7 +569,9 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                 label={t("Same pay code for all days")}
               />
             </Grid>
-            <Grid item xs={6}>
+            )}
+            {accountingCodeOptions && (
+              <Grid item xs={6}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -583,6 +586,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                 label={t("Same account code for all days")}
               />
             </Grid>
+            )}
           </Grid>
         )}
 

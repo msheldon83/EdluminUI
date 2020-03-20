@@ -9,6 +9,8 @@ import { DateGroup } from "./date-group";
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
   isPartiallyFilled: boolean;
+  showPayCodes: boolean;
+  showAccountingCodes: boolean;
   showAbsenceTimes: boolean;
   onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
   onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
@@ -25,6 +27,8 @@ export const AssignmentGroup: React.FC<Props> = props => {
     showAbsenceTimes,
     onAssignClick,
     onCancelAssignment,
+    showPayCodes,
+    showAccountingCodes,
     disableActions = false,
     detailsOnly = false,
   } = props;
@@ -66,6 +70,8 @@ export const AssignmentGroup: React.FC<Props> = props => {
       <DateGroup
         dateDetails={assignmentWithDetails}
         showAbsenceTimes={showAbsenceTimes}
+        showPayCodes={showPayCodes}
+        showAccountingCodes={showAccountingCodes}
       />
     </div>
   );
