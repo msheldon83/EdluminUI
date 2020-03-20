@@ -7,7 +7,6 @@ import {
   AbsenceReasonTrackingTypeId,
   DayConversion,
   PermissionEnum,
-  Maybe,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
@@ -56,7 +55,7 @@ type Props = {
     DayConversion,
     "name" | "maxMinutes" | "dayEquivalent"
   >[];
-  goToEdit: (vacancyId: string, absenceId?: Maybe<string>) => void;
+  goToEdit: (vacancyId: string, absenceId?: string | null) => void;
 };
 
 export const Assignment: React.FC<Props> = props => {

@@ -290,15 +290,13 @@ export const VerifyUI: React.FC<Props> = props => {
     setNextSelectedVacancyDetail(undefined);
   };
 
-  const goToEdit = (vacancyId: string, absenceId?: Maybe<string>) => {
+  const goToEdit = (vacancyId: string, absenceId?: string | null) => {
     if (absenceId) {
       const url = AdminEditAbsenceRoute.generate({
           ...absenceEditParams,
           absenceId}
       );
-      history.push(url, {
-        returnUrl: `${history.location.pathname}${history.location.search}`,
-      });
+      history.push(url);
     } else {
       const url = VacancyViewRoute.generate({
           ...vacancyEditParams,
