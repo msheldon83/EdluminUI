@@ -12,10 +12,6 @@ import {
   PermissionEnum,
   Vacancy,
 } from "graphql/server-types.gen";
-import {
-  AbsenceReasonUsageData,
-  computeAbsenceUsageText,
-} from "helpers/absence/computeAbsenceUsageText";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
@@ -62,6 +58,7 @@ import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useHistory } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
+import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 
 type Props = {
   firstName: string;
@@ -71,14 +68,12 @@ type Props = {
   organizationId: string;
   needsReplacement: NeedsReplacement;
   notesToApprover?: string;
-  userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
   absenceReason: {
     id: string;
     name: string;
   };
-  trackingBalanceReasonIds: Array<string | undefined>;
   absenceId: string;
   assignmentId?: string;
   dayPart?: DayPart;
@@ -338,7 +333,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     },
   });
 
-  const trackingBalanceReasonIds = props.trackingBalanceReasonIds;
   const initialAbsenceUsageData = props.initialAbsenceUsageData;
   const projectedAbsenceUsage =
     getProjectedAbsenceUsage.state === "DONE" ||
@@ -350,30 +344,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           )
         )
       : [];
-
-  const absenceUsageText = useMemo(() => {
-    if (projectedAbsenceUsage.length > 0) {
-      return computeAbsenceUsageText(
-        projectedAbsenceUsage as any,
-        trackingBalanceReasonIds,
-        t,
-        actingAsEmployee
-      );
-    } else {
-      return computeAbsenceUsageText(
-        initialAbsenceUsageData,
-        trackingBalanceReasonIds,
-        t,
-        actingAsEmployee
-      );
-    }
-  }, [
-    projectedAbsenceUsage,
-    trackingBalanceReasonIds,
-    initialAbsenceUsageData,
-    t,
-    actingAsEmployee,
-  ]);
 
   const projectedVacancies =
     getProjectedVacancies.state === "DONE" ||
@@ -635,7 +605,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               setStep={setStep}
               assignmentId={props.assignmentId}
               disabledDates={disabledDates}
-              isAdmin={props.userIsAdmin}
+              actingAsEmployee={actingAsEmployee}
               needsReplacement={props.needsReplacement}
               wantsReplacement={state.needsReplacement}
               organizationId={props.organizationId}
@@ -652,7 +622,6 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               triggerValidation={triggerValidation}
               vacancies={projectedVacancies || props.initialVacancies}
               vacancyDetails={theVacancyDetails}
-              balanceUsageText={absenceUsageText ?? undefined}
               setVacanciesInput={setVacanciesInput}
               arrangedSubText={t("assigned")}
               arrangeSubButtonTitle={t("Assign Sub")}
@@ -675,6 +644,11 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               }
               hasEditedDetails={true}
               assignmentsByDate={props.assignmentsByDate}
+              usages={
+                projectedAbsenceUsage.length > 0
+                  ? projectedAbsenceUsage
+                  : initialAbsenceUsageData
+              }
             />
           </Section>
         </form>
@@ -701,7 +675,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           absenceId={props.absenceId}
           orgId={props.organizationId}
           vacancies={projectedVacancies || props.initialVacancies}
-          userIsAdmin={!actingAsEmployee && props.userIsAdmin}
+          actingAsEmployee={actingAsEmployee}
           employeeId={props.employeeId}
           positionId={props.positionId}
           positionName={props.positionName}

@@ -4,7 +4,7 @@ import { min, startOfDay } from "date-fns";
 import { formatISO } from "date-fns/esm";
 import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { FieldError } from "react-hook-form/dist/types";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
@@ -16,6 +16,10 @@ import {
 import { SelectNew } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
 import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
+import {
+  BalanceUsage,
+  AbsenceReasonUsageData,
+} from "ui/components/absence/balance-usage";
 
 type Props = {
   organizationId: string;
@@ -36,11 +40,11 @@ type Props = {
   onHourlyEndTimeChange: (value: Date | undefined) => void;
   startTimeError?: FieldError;
   endTimeError?: FieldError;
-  isAdmin: boolean;
   wantsReplacement: boolean;
   needsReplacement?: NeedsReplacement | null;
   onNeedsReplacementChange: (needsReplacement: boolean) => void;
   isSubmitting: boolean;
+  usages: AbsenceReasonUsageData[] | null;
 };
 
 export const QuickAbsenceCreateUI: React.FC<Props> = props => {
@@ -63,12 +67,13 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
     onHourlyEndTimeChange,
     startTimeError,
     endTimeError,
-    isAdmin,
     needsReplacement,
     wantsReplacement,
     onNeedsReplacementChange,
     onMonthChange,
   } = props;
+
+  const [negativeBalanceWarning, setNegativeBalanceWarning] = useState(false);
 
   const startDate = startOfDay(min(selectedAbsenceDates));
   const selectedDayPartValue: DayPartValue = useMemo(() => {
@@ -163,6 +168,15 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
         onSelectDates={dates => dates.forEach(onToggleAbsenceDate)}
       />
 
+      <BalanceUsage
+        employeeId={props.employeeId}
+        orgId={props.organizationId}
+        startDate={startDate}
+        actingAsEmployee={true}
+        setNegativeBalanceWarning={setNegativeBalanceWarning}
+        usages={props.usages}
+      />
+
       <DayPartField
         employeeId={props.employeeId}
         organizationId={props.organizationId}
@@ -174,7 +188,7 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
       />
 
       <div className={classes.replacementNeeded}>
-        {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
+        {needsReplacement === NeedsReplacement.Sometimes ? (
           <FormControlLabel
             label={t("Requires a substitute")}
             control={
@@ -202,7 +216,11 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
         >
           {t("Add additional details")}
         </TextButton>
-        <Button disabled={props.isSubmitting} variant="outlined" type="submit">
+        <Button
+          disabled={props.isSubmitting || negativeBalanceWarning}
+          variant="outlined"
+          type="submit"
+        >
           {t("Quick Create")}
         </Button>
       </div>

@@ -361,7 +361,6 @@ export const AsAdminWithAllInformation = () => {
         <Confirmation
           orgId={"1000"}
           absence={getAbsence("1", true, true, true)}
-          isAdmin={true}
         />
       </Route>
     </Provider>
@@ -395,7 +394,6 @@ export const AsAdminWithSimpleAbsence = () => {
         <Confirmation
           orgId={"1000"}
           absence={getAbsence("1", true, false, false)}
-          isAdmin={true}
         />
       </Route>
     </Provider>
@@ -428,7 +426,6 @@ export const AsAdminWithMinimumInformation = () => {
         <Confirmation
           orgId={"1000"}
           absence={getAbsence("2", false, false, false)}
-          isAdmin={true}
         />
       </Route>
     </Provider>

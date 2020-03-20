@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import { isBefore, isSameDay, startOfDay, startOfMonth } from "date-fns";
-import { useMutationBundle } from "graphql/hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
   AbsenceCreateInput,
   DayPart,
@@ -9,14 +9,13 @@ import {
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
-import { size, some } from "lodash-es";
+import { size, some, compact, flatMap } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { useIsAdmin } from "reference-data/is-admin";
+import { useAbsenceReasonOptions } from "reference-data/absence-reasons";
 import {
   createAbsenceDetailInput,
   getAbsenceDates,
@@ -30,6 +29,7 @@ import { CreateAbsence } from "ui/pages/create-absence/graphql/create.gen";
 import { CreateAbsenceConfirmationRoute } from "ui/routes/create-absence";
 import { QuickAbsenceCreateUI } from "./quick-create-absence-ui";
 import { quickCreateAbsenceReducer, QuickCreateAbsenceState } from "./state";
+import { GetProjectedAbsenceUsage } from "ui/pages/create-absence/graphql/get-projected-absence-usage.gen";
 
 type QuickCreateAbsenceFormData = {
   absenceReason: string;
@@ -107,8 +107,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
         error,
         openDialog,
         t("There was an issue creating the absence"),
-        async () =>
-          await quickCreateAbsence(formValues, state.selectedAbsenceDates),
+        async () => await quickCreateAbsence(),
         t,
         TranslateAbsenceErrorCodeToMessage
       );
@@ -120,44 +119,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     ],
   });
 
-  const quickCreateAbsence = async (
-    formData: QuickCreateAbsenceFormData,
-    absenceDates: Date[]
-  ) => {
-    const absenceCreateInput = createQuickAbsenceInputs(
-      props.organizationId,
-      props.employeeId,
-      formData,
-      absenceDates,
-      disabledDates
-    );
-    // if (ignoreWarnings) {
-    //   absenceCreateInput = {
-    //     ...absenceCreateInput,
-    //     ignoreWarnings: true,
-    //   };
-    // }
-    if (!absenceCreateInput) return;
-    const result = await createAbsenceMutation({
-      variables: {
-        absence: absenceCreateInput,
-      },
-    });
-
-    if (result?.data?.absence?.create) {
-      history.push(
-        CreateAbsenceConfirmationRoute.generate({
-          absenceId: result.data.absence.create.id,
-        })
-      );
-    }
-  };
-
-  const absenceReasons = useAbsenceReasons(props.organizationId);
-  const absenceReasonOptions = useMemo(
-    () => absenceReasons.map(r => ({ label: r.name, value: r.id })),
-    [absenceReasons]
-  );
+  const absenceReasonOptions = useAbsenceReasonOptions(props.organizationId);
 
   const onReasonChange = React.useCallback(
     async event => {
@@ -202,7 +164,69 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     [setValue]
   );
 
-  const userIsAdmin = useIsAdmin(props.organizationId);
+  const absenceCreateInput = createQuickAbsenceInputs(
+    props.organizationId,
+    props.employeeId,
+    formValues,
+    state.selectedAbsenceDates,
+    disabledDates
+  );
+
+  const quickCreateAbsence = async () => {
+    // if (ignoreWarnings) {
+    //   absenceCreateInput = {
+    //     ...absenceCreateInput,
+    //     ignoreWarnings: true,
+    //   };
+    // }
+    if (!absenceCreateInput) return;
+    const result = await createAbsenceMutation({
+      variables: {
+        absence: absenceCreateInput,
+      },
+    });
+
+    if (result?.data?.absence?.create) {
+      history.push(
+        CreateAbsenceConfirmationRoute.generate({
+          absenceId: result.data.absence.create.id,
+        })
+      );
+    }
+  };
+
+  const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
+    variables: {
+      absence: {
+        ...absenceCreateInput!,
+        ignoreWarnings: true,
+      },
+    },
+    skip: absenceCreateInput === null,
+    // fetchPolicy: "no-cache",
+    onError: () => {
+      // This shouldn't prevent the User from continuing on
+      // with Absence Create. Any major issues will be caught
+      // and reported back to them when calling the Create mutation.
+    },
+  });
+
+  const absenceBalanceUsages = useMemo(() => {
+    if (
+      !(
+        getProjectedAbsenceUsage.state === "DONE" ||
+        getProjectedAbsenceUsage.state === "UPDATING"
+      )
+    )
+      return null;
+
+    return compact(
+      flatMap(
+        getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
+        d => d?.reasonUsages?.map(ru => ru)
+      )
+    );
+  }, [getProjectedAbsenceUsage]);
 
   const snackbar = useSnackbar();
   /* only show the form error once. this prevents it from reappearing as the user edits individual fields */
@@ -222,7 +246,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
   return (
     <form
       onSubmit={handleSubmit(async data => {
-        await quickCreateAbsence(data, state.selectedAbsenceDates);
+        await quickCreateAbsence();
       })}
     >
       <Section>
@@ -254,7 +278,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
           }
           wantsReplacement={state.needsReplacement}
           needsReplacement={props.defaultReplacementNeeded}
-          isAdmin={!!userIsAdmin}
+          usages={absenceBalanceUsages}
         />
       </Section>
     </form>

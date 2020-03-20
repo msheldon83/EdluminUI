@@ -12,6 +12,7 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
   DailyReport as DailyReportType,
   PermissionEnum,
+  FeatureFlag,
 } from "graphql/server-types.gen";
 import { not } from "helpers";
 import { useIsMobile } from "hooks";

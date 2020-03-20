@@ -11,9 +11,11 @@ import {
   AbsenceReasonTrackingTypeId,
   PermissionEnum,
 } from "graphql/server-types.gen";
+import { PeopleEmployeeBalancesEditRoute } from "ui/routes/people";
 
 type Props = {
   employeeId: string;
+  orgId: string;
   schoolYearId?: string;
   showEdit: boolean;
   editing?: string | null;
@@ -47,7 +49,10 @@ export const RemainingBalances: React.FC<Props> = props => {
             text: t("Edit"),
             visible: props.showEdit && !props.editing,
             execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
+              const editSettingsUrl = PeopleEmployeeBalancesEditRoute.generate({
+                organizationId: props.orgId,
+                orgUserId: props.employeeId,
+              });
               history.push(editSettingsUrl);
             },
             permissions: [PermissionEnum.EmployeeSave],
