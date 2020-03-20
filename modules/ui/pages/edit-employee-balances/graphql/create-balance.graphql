@@ -1,0 +1,23 @@
+mutation CreateAbsenceReasonBalance(
+  $absenceReasonBalance: AbsenceReasonBalanceCreateInput!
+) {
+  absenceReasonBalance {
+    create(absenceReasonBalance: $absenceReasonBalance) {
+      id
+      rowVersion
+      initialBalance
+      schoolYearId
+      absenceReasonId
+      absenceReason {
+        id
+        name
+      }
+      balanceAsOf
+      employeeId
+      initialBalance
+      plannedBalance
+      usedBalance
+      unusedBalance
+    }
+  }
+}

@@ -21,7 +21,7 @@ import { useMemo } from "react";
 type Props = {
   orgId: string;
   absence: Absence | undefined;
-  isAdmin: boolean;
+  actingAsEmployee?: boolean;
   setStep?: (s: Step) => void;
 };
 
@@ -29,34 +29,35 @@ export const Confirmation: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const history = useHistory();
+  const { absence, actingAsEmployee, orgId } = props;
+
   const params = useRouteParams(
-    props.isAdmin
-      ? AdminSelectEmployeeForCreateAbsenceRoute
-      : EmployeeCreateAbsenceRoute
+    actingAsEmployee
+      ? EmployeeCreateAbsenceRoute
+      : AdminSelectEmployeeForCreateAbsenceRoute
   );
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const { absence, isAdmin, orgId } = props;
   const editUrl = useMemo(() => {
     if (!absence) {
       return "";
     }
 
-    const url = isAdmin
-      ? AdminEditAbsenceRoute.generate({
+    const url = actingAsEmployee
+      ? EmployeeEditAbsenceRoute.generate({
+          ...params,
+          absenceId: absence.id,
+        })
+      : AdminEditAbsenceRoute.generate({
           ...params,
           organizationId: orgId,
           absenceId: absence.id,
-        })
-      : EmployeeEditAbsenceRoute.generate({
-          ...params,
-          absenceId: absence.id,
         });
     return url;
-  }, [params, absence, isAdmin, orgId]);
+  }, [params, absence, actingAsEmployee, orgId]);
 
   if (!absence) {
     // Redirect the User back to the Absence Details step
@@ -83,7 +84,7 @@ export const Confirmation: React.FC<Props> = props => {
             orgId={orgId}
             absence={absence}
             isConfirmation={true}
-            isAdmin={isAdmin}
+            actingAsEmployee={actingAsEmployee}
             goToEdit={() => history.push(editUrl)}
           />
         </Grid>
@@ -93,12 +94,12 @@ export const Confirmation: React.FC<Props> = props => {
               variant="outlined"
               component={Link}
               to={
-                isAdmin
-                  ? AdminSelectEmployeeForCreateAbsenceRoute.generate({
+                actingAsEmployee
+                  ? EmployeeCreateAbsenceRoute.generate(params)
+                  : AdminSelectEmployeeForCreateAbsenceRoute.generate({
                       ...params,
                       organizationId: orgId,
                     })
-                  : EmployeeCreateAbsenceRoute.generate(params)
               }
             >
               {t("Create New")}
@@ -109,15 +110,15 @@ export const Confirmation: React.FC<Props> = props => {
               variant="outlined"
               component={Link}
               to={
-                isAdmin
-                  ? AdminChromeRoute.generate({
+                actingAsEmployee
+                  ? EmployeeChromeRoute.generate(params)
+                  : AdminChromeRoute.generate({
                       ...params,
                       organizationId: orgId,
                     })
-                  : EmployeeChromeRoute.generate(params)
               }
             >
-              {isAdmin ? t("Back to List") : t("Back to Home")}
+              {actingAsEmployee ? t("Back to Home") : t("Back to List")}
             </Button>
           </Grid>
           <Grid item>

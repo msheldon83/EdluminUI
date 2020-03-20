@@ -36,7 +36,7 @@ type Props = {
   orgId: string;
   absence: Absence;
   isConfirmation?: boolean;
-  isAdmin: boolean;
+  actingAsEmployee?: boolean;
   goToEdit?: Function;
 };
 
@@ -252,7 +252,7 @@ export const View: React.FC<Props> = props => {
                       </Typography>
                     </div>
                     <>
-                      {props.isAdmin && (accountingCode || payCode) && (
+                      {!props.actingAsEmployee && (accountingCode || payCode) && (
                         <Grid item container className={classes.subCodes}>
                           {accountingCode && (
                             <Can do={[PermissionEnum.AbsVacViewAccountCode]}>

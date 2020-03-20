@@ -39,7 +39,7 @@ type Props = {
   setStep: (step: "absence" | "preAssignSub" | "edit") => void;
   triggerValidation: TriggerValidation;
   organizationId: string;
-  isAdmin: boolean;
+  actingAsEmployee?: boolean;
   errors: Errors;
   values: AbsenceDetailsFormData;
   replacementEmployeeId?: string;
@@ -83,7 +83,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     organizationId,
     locationIds,
     errors,
-    isAdmin,
+    actingAsEmployee,
     values,
     triggerValidation,
     needsReplacement,
@@ -198,7 +198,8 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
       )}
 
       <div className={classes.content}>
-        {isAdmin || needsReplacement === NeedsReplacement.Sometimes ? (
+        {!actingAsEmployee ||
+        needsReplacement === NeedsReplacement.Sometimes ? (
           <FormControlLabel
             label={t("Requires a substitute")}
             control={
@@ -219,70 +220,71 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 
         {wantsReplacement && (
           <>
-            {isAdmin && (hasAccountingCodeOptions || hasPayCodeOptions) && (
-              <Grid item container spacing={4} className={classes.subCodes}>
-                {hasAccountingCodeOptions && (
-                  <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
-                    <Grid item xs={hasPayCodeOptions ? 6 : 12}>
-                      <Typography>{t("Accounting code")}</Typography>
-                      {detailsHaveDifferentAccountingCodes ? (
-                        <div className={classes.subText}>
-                          {t(
-                            "Details have different Accounting code selections. Click on Edit Substitute Details below to manage."
-                          )}
-                        </div>
-                      ) : (
-                        <SelectNew
-                          value={{
-                            value: values.accountingCode ?? "",
-                            label:
-                              accountingCodeOptions.find(
-                                a => a.value === values.accountingCode
-                              )?.label || "",
-                          }}
-                          onChange={onAccountingCodeChange}
-                          options={accountingCodeOptions}
-                          multiple={false}
-                          inputStatus={
-                            errors.accountingCode ? "error" : undefined
-                          }
-                          validationMessage={errors.accountingCode?.message}
-                        />
-                      )}
-                    </Grid>
-                  </Can>
-                )}
-                {hasPayCodeOptions && (
-                  <Can do={[PermissionEnum.AbsVacSavePayCode]}>
-                    <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
-                      <Typography>{t("Pay code")}</Typography>
-                      {detailsHaveDifferentPayCodes ? (
-                        <div className={classes.subText}>
-                          {t(
-                            "Details have different Pay code selections. Click on Edit Substitute Details below to manage."
-                          )}
-                        </div>
-                      ) : (
-                        <SelectNew
-                          value={{
-                            value: values.payCode ?? "",
-                            label:
-                              payCodeOptions.find(
-                                a => a.value === values.payCode
-                              )?.label || "",
-                          }}
-                          onChange={onPayCodeChange}
-                          options={payCodeOptions}
-                          multiple={false}
-                          inputStatus={errors.payCode ? "error" : undefined}
-                          validationMessage={errors.payCode?.message}
-                        />
-                      )}
-                    </Grid>
-                  </Can>
-                )}
-              </Grid>
-            )}
+            {!actingAsEmployee &&
+              (hasAccountingCodeOptions || hasPayCodeOptions) && (
+                <Grid item container spacing={4} className={classes.subCodes}>
+                  {hasAccountingCodeOptions && (
+                    <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
+                      <Grid item xs={hasPayCodeOptions ? 6 : 12}>
+                        <Typography>{t("Accounting code")}</Typography>
+                        {detailsHaveDifferentAccountingCodes ? (
+                          <div className={classes.subText}>
+                            {t(
+                              "Details have different Accounting code selections. Click on Edit Substitute Details below to manage."
+                            )}
+                          </div>
+                        ) : (
+                          <SelectNew
+                            value={{
+                              value: values.accountingCode ?? "",
+                              label:
+                                accountingCodeOptions.find(
+                                  a => a.value === values.accountingCode
+                                )?.label || "",
+                            }}
+                            onChange={onAccountingCodeChange}
+                            options={accountingCodeOptions}
+                            multiple={false}
+                            inputStatus={
+                              errors.accountingCode ? "error" : undefined
+                            }
+                            validationMessage={errors.accountingCode?.message}
+                          />
+                        )}
+                      </Grid>
+                    </Can>
+                  )}
+                  {hasPayCodeOptions && (
+                    <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+                      <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
+                        <Typography>{t("Pay code")}</Typography>
+                        {detailsHaveDifferentPayCodes ? (
+                          <div className={classes.subText}>
+                            {t(
+                              "Details have different Pay code selections. Click on Edit Substitute Details below to manage."
+                            )}
+                          </div>
+                        ) : (
+                          <SelectNew
+                            value={{
+                              value: values.payCode ?? "",
+                              label:
+                                payCodeOptions.find(
+                                  a => a.value === values.payCode
+                                )?.label || "",
+                            }}
+                            onChange={onPayCodeChange}
+                            options={payCodeOptions}
+                            multiple={false}
+                            inputStatus={errors.payCode ? "error" : undefined}
+                            validationMessage={errors.payCode?.message}
+                          />
+                        )}
+                      </Grid>
+                    </Can>
+                  )}
+                </Grid>
+              )}
 
             <div className={classes.notesForReplacement}>
               <Typography variant="h6">{t("Notes for substitute")}</Typography>
