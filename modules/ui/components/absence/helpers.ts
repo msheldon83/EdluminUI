@@ -112,7 +112,7 @@ export const getReplacementEmployeeForVacancy = (
 
   const assignment = absence.vacancies![0]!.details[0]!.assignment!;
   return {
-    employeeId: assignment.employee.id,
+    employeeId: assignment.employee?.id ?? "",
     firstName: assignment.employee?.firstName || "",
     lastName: assignment.employee?.lastName || "",
     assignmentId: assignment.id,

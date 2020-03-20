@@ -391,8 +391,8 @@ export const Assignment: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.boldText}>
-                  {`${vacancyDetail.assignment!.employee.firstName} ${
-                    vacancyDetail.assignment!.employee.lastName
+                  {`${vacancyDetail.assignment!.employee?.firstName ?? ""} ${
+                    vacancyDetail.assignment!.employee?.lastName ?? ""
                   }`}
                 </Typography>
                 {!isFromVacancy && (

@@ -550,7 +550,7 @@ const getMatchingVacancyDetails = (
   }
 
   const allVacancyDetails = flatMap(vacancies, v =>
-    v.details.map(d => {
+    v!.details.map(d => {
       return {
         ...d,
         vacancyRowVersion: v!.rowVersion,
