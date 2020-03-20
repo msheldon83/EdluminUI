@@ -66,7 +66,7 @@ export const Assignment: React.FC<Props> = props => {
   );
   const [currentAccountingCodeId, setCurrentAccountingCodeId] = useState<
     string | undefined
-  >(vacancyDetail.accountingCodeAllocations![0]?.accountingCodeId ?? undefined);
+  >(vacancyDetail.accountingCodeAllocations[0]?.accountingCodeId ?? undefined);
   const [selectedDayConversionName, setSelectedDayConversionName] = useState<
     string
   >();
@@ -82,7 +82,7 @@ export const Assignment: React.FC<Props> = props => {
   const notVerified = vacancyDetail.verifiedAtLocal === null;
 
   const accountingCodes = useAccountingCodes(vacancyDetail.orgId, [
-    vacancyDetail.location!.id,
+    vacancyDetail.location?.id,
   ]);
   const accountingCodeOptions = useMemo(
     () => accountingCodes.map(a => ({ label: a.name, value: a.id })),
@@ -391,8 +391,8 @@ export const Assignment: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.boldText}>
-                  {`${vacancyDetail.assignment!.employee!.firstName} ${
-                    vacancyDetail.assignment!.employee!.lastName
+                  {`${vacancyDetail.assignment!.employee.firstName} ${
+                    vacancyDetail.assignment!.employee.lastName
                   }`}
                 </Typography>
                 {!isFromVacancy && (
@@ -442,7 +442,7 @@ export const Assignment: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={3}>
                 <Typography className={classes.regularText}>
-                  {vacancyDetail.location!.name}
+                  {vacancyDetail.location?.name ?? ""}
                 </Typography>
                 {!isActiveCard && (
                   <Typography
