@@ -581,9 +581,9 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
   assignmentTypeId: AssignmentType!
   employeeId: ID!
   positionId: ID!
-  position: Position!
+  position: Position
   contractId: ID!
-  contract: Contract!
+  contract: Contract
   vacancyId: ID
   cancellationReasonId: ID
   startTimeLocal: DateTime!
@@ -5096,7 +5096,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   details: [VacancyDetail!]!
   requestedEmployees: [VacancyEmployeeRequest]
   interestedEmployees: [VacancyEmployeeInterest]
-  position: Position!
+  position: Position
   absence: Absence
   payInfoSummary: PayInfoSummary
 }
@@ -5156,7 +5156,7 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   assignmentId: ID
   assignment: Assignment
   locationId: ID!
-  location: Location!
+  location: Location
   accountingCodeAllocations: [VacancyDetailAccountingCode!]!
   payCodeId: ID
   payCode: PayCode
@@ -5182,7 +5182,7 @@ type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInte
   vacancyId: ID!
   vacancyDetailId: ID!
   accountingCodeId: ID!
-  accountingCode: AccountingCode!
+  accountingCode: AccountingCode
   allocation: Decimal!
 }
 
