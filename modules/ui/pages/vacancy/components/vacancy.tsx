@@ -311,6 +311,14 @@ export const VacancyUI: React.FC<Props> = props => {
     return summaryDetails;
   }, [vacancy]);
 
+  const vacancySummaryDetailsToAssign = useMemo(() => {
+    return vacancySummaryDetails.filter(d =>
+      state.vacancyDetailIdsToAssign.find(
+        i => d.vacancyDetailId === i
+      )
+    );
+  }, [vacancySummaryDetails, state.vacancyDetailIdsToAssign]);
+
   React.useEffect(() => {
     const container = document.getElementById("main-container");
     container?.scrollTo(0, 0);
@@ -623,11 +631,7 @@ export const VacancyUI: React.FC<Props> = props => {
                     (pt: any) => vacancy.positionTypeId === pt.id
                   )?.name
                 }
-                vacancySummaryDetails={vacancySummaryDetails.filter(d =>
-                  state.vacancyDetailIdsToAssign.find(
-                    i => d.vacancyDetailId === i
-                  )
-                )}
+                vacancySummaryDetails={vacancySummaryDetailsToAssign}
                 vacancy={
                   vacancyExists ? undefined : buildVacancyCreateInput({
                     ...vacancy,
@@ -636,6 +640,7 @@ export const VacancyUI: React.FC<Props> = props => {
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
                 vacancyDetailIdsToAssign={state.vacancyDetailIdsToAssign}
+                employeeToReplace={vacancySummaryDetailsToAssign[0]?.assignment?.employee?.firstName ?? undefined}
                 orgHasPayCodesDefined={payCodes.length > 0}
                 orgHasAccountingCodesDefined={accountingCodes.length > 0}
               />
