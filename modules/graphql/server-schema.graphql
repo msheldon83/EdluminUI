@@ -594,17 +594,6 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
   employee: BasicEmployee
 }
 
-type AssignmentDr {
-  _info: [ReturnMessage]
-  assignmentId: ID!
-  createdUtc: DateTime
-  createdLocal: DateTime
-  changedUtc: DateTime
-  changedLocal: DateTime
-  rowVersion: String!
-  substitute: EmployeeDr!
-}
-
 type AssignmentMutations {
   cancelAssignment(cancelRequest: CancelVacancyAssignmentInput!): Assignment
 }
@@ -1225,18 +1214,6 @@ type DailyReport {
   parseTime: Float!
 }
 
-type DailyReportV2 {
-  _info: [ReturnMessage]
-  unfilledAbsences: [AbsenceDr]
-  filledAbsences: [AbsenceDr]
-  noSubRequiredAbsences: [AbsenceDr]
-  unfilledVacancies: [VacancyDr]!
-  filledVacancies: [VacancyDr]!
-  totalCount: Int!
-  loadTime: Float!
-  parseTime: Float!
-}
-
 scalar Date
 
 enum DateRangeType {
@@ -1365,15 +1342,6 @@ input EmployeeCreateInput {
   canFillVacancies: Boolean!
   primaryPositionId: ID
   primaryPosition: PositionCreateInput
-}
-
-type EmployeeDr {
-  _info: [ReturnMessage]
-  employeeId: ID!
-  firstName: String!
-  middleName: String
-  lastName: String!
-  phone: String
 }
 
 type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
@@ -2002,12 +1970,6 @@ input LocationCreateInput {
   phoneNumber: String
 }
 
-type LocationDr {
-  _info: [ReturnMessage]
-  locationId: ID!
-  name: String!
-}
-
 type LocationGroup implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -2342,6 +2304,7 @@ input organizationConfigInput {
 input OrganizationCreateInput {
   name: String!
   externalId: String
+  relatesToOrganizationId: ID
   superUserLoginEmail: String!
   superUserFirstName: String!
   superUserLastName: String!

@@ -18,11 +18,12 @@ import { useTranslation } from "react-i18next";
 import { Link, Redirect, useHistory } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
 import { Table } from "ui/components/table";
-import { AllOrganizations } from "ui/pages/organizations/AllOrganizations.gen";
+import { AllOrganizations } from "ui/pages/organizations/graphql/AllOrganizations.gen";
 import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useRouteParams } from "ui/routes/definition";
 import { UsersRoute } from "ui/routes/users";
+import { OrganizationAddRoute } from "ui/routes/organizations";
 import { canViewAsSysAdmin } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
 import { OrganizationType } from "graphql/server-types.gen";
@@ -36,6 +37,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const history = useHistory();
   const params = useRouteParams(UsersRoute);
+  const params2 = useRouteParams(OrganizationAddRoute);
 
   const columns: Column<AllOrganizations.Results>[] = [
     { title: t("Id"), field: "id", sorting: false },
@@ -169,6 +171,16 @@ export const OrganizationsPage: React.FC<Props> = props => {
         </Grid>
         <Grid item>
           <Can do={canViewAsSysAdmin}>
+            <div className={classes.paddingRight}>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  history.push(OrganizationAddRoute.generate(params2));
+                }}
+              >
+                {t("Create new org")}
+              </Button>
+            </div>
             <Button
               variant="outlined"
               onClick={() => {
@@ -242,5 +254,9 @@ const useStyles = makeStyles(theme => ({
   searchTextField: {
     width: theme.typography.pxToRem(323),
     paddingBottom: theme.spacing(3),
+  },
+  paddingRight: {
+    paddingRight: "10px",
+    display: "inline",
   },
 }));
