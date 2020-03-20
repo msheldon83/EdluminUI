@@ -45,7 +45,7 @@ import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "../../../helpers/step-params";
 import { ApolloError } from "apollo-client";
 import { Prompt, useRouteMatch } from "react-router";
-import { AbsenceHeader } from "ui/components/absence/header";
+import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 
 type Props = {
   firstName: string;
@@ -411,9 +411,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       >
         {step === "absence" && (
           <>
-            <AbsenceHeader
-              employeeName={employeeName}
+            <AbsenceVacancyHeader
               pageHeader={t("Create absence")}
+              subHeader={employeeName}
               actingAsEmployee={!props.userIsAdmin}
             />
             <Section className={classes.absenceDetails}>

@@ -169,6 +169,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
   useEffect(() => {
     if (
       !values.locationId ||
+      !values.locationName ||
       !values.contractId ||
       !values.workDayScheduleId ||
       (values.title === undefined && positionTypes)
@@ -176,6 +177,10 @@ export const VacancyDetailSection: React.FC<Props> = props => {
       setFieldValue(
         "locationId",
         !values.locationId ? locationOptions[0].value : values.locationId
+      );
+      setFieldValue(
+        "locationName",
+        !values.locationName ? locationOptions[0].label : values.locationName
       );
       setFieldValue(
         "contractId",
@@ -198,6 +203,9 @@ export const VacancyDetailSection: React.FC<Props> = props => {
         locationId: !values.locationId
           ? locationOptions[0].value
           : values.locationId,
+        locationName: !values.locationName
+          ? locationOptions[0].label
+          : values.locationName,
         contractId: !values.contractId ? contracts[0].id : values.contractId,
         workDayScheduleId: !values.workDayScheduleId
           ? bellScheduleOptions[0].value
@@ -284,7 +292,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
         {values.positionTypeId !== "" && (
           <Grid item container xs={12} className={classes.rowContainer}>
             <Grid item xs={12}>
-              {!readOnly && !vacancyExists && (
+              {!readOnly && (
                 <Input
                   label={t("Title")}
                   placeholder={t("Enter a title for the vacancy")}
@@ -295,7 +303,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                   }}
                 />
               )}
-              {(readOnly || vacancyExists) && (
+              {readOnly && (
                 <>
                   <Typography variant="h6">{t("Title")}</Typography>
                   <Typography>{values.title}</Typography>
@@ -335,14 +343,18 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                 withResetValue={false}
                 onChange={async (e: OptionType) => {
                   let selectedValue: any = null;
+                  let selectedLabel: any = null;
                   if (e) {
                     selectedValue = (e as OptionTypeBase).value;
+                    selectedLabel = (e as OptionTypeBase).label;
                   }
                   setFieldValue("locationId", selectedValue);
+                  setFieldValue("locationName", selectedLabel);
                   setFieldValue("workDayScheduleId", "");
 
                   updateModel({
                     locationId: selectedValue,
+                    locationName: selectedLabel,
                     workDayScheduleId: "",
                   });
                 }}

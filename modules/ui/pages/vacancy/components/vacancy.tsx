@@ -3,13 +3,14 @@ import { makeStyles } from "@material-ui/styles";
 import { useTranslation } from "react-i18next";
 import { Typography, Grid, Button } from "@material-ui/core";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useReducer } from "react";
 import { useRouteParams } from "ui/routes/definition";
 import {
   VacancyDetailInput,
   PermissionEnum,
   Vacancy,
   Assignment,
+  CancelVacancyAssignmentInput,
 } from "graphql/server-types.gen";
 import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/graphql/position-types.gen";
 import { GetAllLocationsWithSchedulesWithinOrg } from "../graphql/get-locations-with-schedules.gen";
@@ -35,13 +36,18 @@ import { AssignSub } from "ui/components/assign-sub";
 import { VacancyConfirmation } from "./vacancy-confirmation";
 import { compact } from "lodash-es";
 import { ExecutionResult } from "graphql";
-import Maybe from "graphql/tsutils/Maybe";
 import { Prompt, useRouteMatch } from "react-router";
 import { buildVacancyCreateInput } from "../helpers";
 import { AssignVacancy } from "../graphql/assign-vacancy.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { CancelAssignment } from "../graphql/cancel-assignment.gen";
+import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary/vacancy-summary";
+import { CreateVacancyMutation } from "../graphql/create-vacancy.gen";
+import { UpdateVacancyMutation } from "../graphql/update-vacancy.gen";
+import { convertVacancyDetailsFormDataToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
+import { vacancyReducer } from "../state";
+import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/types";
 
 export type VacancyDetailsFormData = {
   id: string;
@@ -49,9 +55,10 @@ export type VacancyDetailsFormData = {
   title: string;
   contractId: string;
   locationId: string;
+  locationName: string;
   workDayScheduleId: string;
   notesToReplacement?: string | null;
-  details: VacancyDetailInput[];
+  details: VacancyDetailItem[];
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   assignmentId?: string;
@@ -61,50 +68,39 @@ export type VacancyDetailsFormData = {
   rowVersion: string;
 };
 
+export type VacancyDetailItem = {
+  id?: string;
+  date: Date;
+  startTime: number;
+  endTime: number;
+  locationId: string;
+  payCodeId?: string;
+  payCodeName?: string;
+  accountingCodeAllocations?: {
+    accountingCodeId: string;
+    accountingCodeName: string;
+    allocation: number;
+  }[];
+  vacancyReasonId: string;
+  assignment?: {
+    id?: string;
+    rowVersion?: string;
+    employee: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+  };
+};
+
 type Props = {
-  vacancy: VacancyDetailsFormData;
+  initialVacancy: VacancyDetailsFormData;
   createVacancy?: (
     v: VacancyDetailsFormData
-  ) => Promise<
-    ExecutionResult<
-      {
-        __typename?: "Mutation" | undefined;
-      } & {
-        vacancy: Maybe<
-          {
-            __typename?: "VacancyMutations" | undefined;
-          } & {
-            create: Maybe<
-              {
-                __typename?: "Vacancy" | undefined;
-              } & Pick<Vacancy, "id" | "rowVersion" | "details">
-            >;
-          }
-        >;
-      }
-    >
-  >;
+  ) => Promise<ExecutionResult<CreateVacancyMutation>>;
   updateVacancy?: (
     v: VacancyDetailsFormData
-  ) => Promise<
-    ExecutionResult<
-      {
-        __typename?: "Mutation" | undefined;
-      } & {
-        vacancy: Maybe<
-          {
-            __typename?: "VacancyMutations" | undefined;
-          } & {
-            update: Maybe<
-              {
-                __typename?: "Vacancy" | undefined;
-              } & Pick<Vacancy, "id" | "rowVersion" | "details">
-            >;
-          }
-        >;
-      }
-    >
-  >;
+  ) => Promise<ExecutionResult<UpdateVacancyMutation>>;
   onDelete?: () => void;
 };
 
@@ -114,20 +110,21 @@ export const VacancyUI: React.FC<Props> = props => {
   const params = useRouteParams(VacancyCreateRoute);
   const [step, setStep] = useQueryParamIso(VacancyStepParams);
   const { openSnackbar } = useSnackbar();
-  const [hasSub, setHasSub] = useState(
-    props.vacancy.replacementEmployeeName ?? ""
-  );
-  const [vacancyId, setVacancyId] = useState("");
   const match = useRouteMatch();
+  const { initialVacancy, createVacancy, updateVacancy, onDelete } = props;
+
+  const [state, dispatch] = useReducer(vacancyReducer, {
+    vacancyDetailIdsToAssign: [],
+  });
 
   const vacancyExists = useMemo(() => {
-    return props.vacancy.id ? true : false;
-  }, [
-    props.vacancy,
-    props,
-  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+    return initialVacancy.id ? true : false;
+  }, [initialVacancy]);
 
-  const [vacancy, setVacancy] = useState<VacancyDetailsFormData>(props.vacancy);
+  const [vacancyId, setVacancyId] = useState("");
+  const [vacancy, setVacancy] = useState<VacancyDetailsFormData>(
+    initialVacancy
+  );
 
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
     variables: {
@@ -167,21 +164,28 @@ export const VacancyUI: React.FC<Props> = props => {
     },
   });
 
-  const showAssign: boolean = useMemo(() => {
+  const disableAssign: boolean = useMemo(() => {
     if (
       vacancy &&
       vacancy.positionTypeId &&
       vacancy.locationId &&
       vacancy.contractId &&
       vacancy.details &&
-      vacancy.details.length > 0 &&
-      !hasSub
+      vacancy.details.length > 0
     ) {
-      return true;
-    } else {
       return false;
+    } else {
+      return true;
     }
-  }, [vacancy, hasSub]);
+  }, [vacancy]);
+
+  const isUnfilled: boolean = useMemo(() => {
+    return !vacancy.details.find(d => !!d.assignment);
+  }, [vacancy]);
+
+  const showAssign: boolean = useMemo(() => {
+    return isUnfilled;
+  }, [isUnfilled]);
 
   const showSubmit: boolean = useMemo(() => {
     if (
@@ -196,31 +200,32 @@ export const VacancyUI: React.FC<Props> = props => {
     } else {
       return false;
     }
-  }, [vacancy, hasSub]); /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, [vacancy]);
 
   const onAssignSub = React.useCallback(
     async (
-      replacementId: string,
-      replacementName: string,
-      payCode: string | undefined
+      replacementEmployeeId: string,
+      replacementEmployeeFirstName: string,
+      replacementEmployeeLastName: string,
+      payCode: string | undefined,
+      vacancyDetailIds?: string[]
     ) => {
-      vacancy.details.forEach(d => {
-        d.prearrangedReplacementEmployeeId = replacementId;
-      });
+      // Get all of the matching details
+      const detailsToAssign = vacancyDetailIds
+        ? vacancy.details.filter(d => vacancyDetailIds.find(i => i === d.id))
+        : vacancy.details;
+      if (vacancy.id) {
+        // Cancel any existing assignments on these Details
+        await onCancelAssignment(vacancyDetailIds);
 
-      if (vacancyExists) {
-        if (hasSub && vacancy.assignmentId && vacancy.assignmentRowVersion) {
-          //first cancel all assignments before assigning new sub
-          await onCancelAssignment();
-        }
+        // Create an Assignment for these Details
         const result = await assignVacancy({
           variables: {
             assignment: {
               orgId: params.organizationId,
               vacancyId: vacancy.id,
-              employeeId: replacementId,
-              appliesToAllVacancyDetails: true,
-              ignoreWarnings: true,
+              employeeId: replacementEmployeeId,
+              vacancyDetailIds: detailsToAssign.map(d => d.id!),
             },
           },
         });
@@ -228,58 +233,123 @@ export const VacancyUI: React.FC<Props> = props => {
         if (assignment) {
           setVacancy({
             ...vacancy,
-            assignmentId: assignment.id,
-            assignmentRowVersion: assignment.rowVersion,
+            details: vacancy.details.map(d => {
+              if (!vacancyDetailIds?.find(i => d.id === i)) {
+                return d;
+              }
+
+              return {
+                ...d,
+                assignment: {
+                  id: assignment.id,
+                  rowVersion: assignment.rowVersion,
+                  employee: {
+                    id: replacementEmployeeId,
+                    firstName: replacementEmployeeFirstName,
+                    lastName: replacementEmployeeLastName,
+                  },
+                },
+              };
+            }),
           });
-          setHasSub(replacementName);
         }
       } else {
-        setHasSub(replacementName);
+        setVacancy({
+          ...vacancy,
+          details: vacancy.details.map(d => {
+            if (!vacancyDetailIds?.find(i => d.id === i)) {
+              return d;
+            }
+
+            return {
+              ...d,
+              assignment: {
+                employee: {
+                  id: replacementEmployeeId,
+                  firstName: replacementEmployeeFirstName,
+                  lastName: replacementEmployeeLastName,
+                },
+              },
+            };
+          }),
+        });
       }
 
       setStep("vacancy");
     },
-    [setStep, vacancy] /* eslint-disable-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [setStep, vacancy]
   );
 
   const onCancelAssignment = React.useCallback(
     async (vacancyDetailIds?: string[]) => {
-      const result = await cancelAssignment({
-        variables: {
-          assignment: {
-            assignmentId: vacancy.assignmentId ?? "",
-            rowVersion: vacancy.assignmentRowVersion ?? "",
-            vacancyDetailIds:
-              vacancyDetailIds && vacancyDetailIds.length > 0
-                ? vacancyDetailIds
-                : undefined,
-          },
-        },
-      });
+      // Get all of the matching details
+      const detailsToCancelAssignmentsFor = vacancyDetailIds
+        ? vacancy.details.filter(
+            d => !!d.assignment?.id && vacancyDetailIds.find(i => i === d.id)
+          )
+        : vacancy.details.filter(d => !!d.assignment?.id);
 
-      if (result?.data) {
-        setVacancy({
-          ...vacancy,
-          assignmentId: undefined,
-          assignmentRowVersion: undefined,
-        });
-        setHasSub("");
+      const localDetailIdsToClearAssignmentsOn: string[] = [];
+      if (vacancy.id) {
+        // Get all of the Assignment Ids and Row Versions to Cancel
+        const assignmentsToCancel: CancelVacancyAssignmentInput[] = detailsToCancelAssignmentsFor.reduce(
+          (accumulator: CancelVacancyAssignmentInput[], detail) => {
+            const matchingAssignment = accumulator.find(
+              a => a.assignmentId === detail.assignment?.id
+            );
+            if (matchingAssignment) {
+              matchingAssignment.vacancyDetailIds?.push(detail.id!);
+            } else {
+              accumulator.push({
+                assignmentId: detail.assignment?.id ?? "",
+                rowVersion: detail.assignment?.rowVersion ?? "",
+                vacancyDetailIds: [detail.id!],
+              });
+            }
+            return accumulator;
+          },
+          []
+        );
+
+        for (let index = 0; index < assignmentsToCancel.length; index++) {
+          const a = assignmentsToCancel[index];
+          const result = await cancelAssignment({
+            variables: {
+              assignment: a,
+            },
+          });
+          if (result?.data && a.vacancyDetailIds) {
+            localDetailIdsToClearAssignmentsOn.push(...a.vacancyDetailIds);
+          }
+        }
+      } else {
+        localDetailIdsToClearAssignmentsOn.push(
+          ...detailsToCancelAssignmentsFor.map(d => d.id!)
+        );
       }
+
+      // Clear out any Assignments on the details we store locally
+      setVacancy({
+        ...vacancy,
+        details: vacancy.details.map(d => {
+          if (!localDetailIdsToClearAssignmentsOn?.find(i => d.id === i)) {
+            return d;
+          }
+
+          return {
+            ...d,
+            assignment: undefined,
+          };
+        }),
+      });
     },
     [vacancy, cancelAssignment]
   );
 
-  const onUnassignSub = React.useCallback(async () => {
-    vacancy.details.forEach(d => {
-      d.prearrangedReplacementEmployeeId = undefined;
-    });
-
-    if (vacancyExists) {
-      await onCancelAssignment();
-    } else {
-      setHasSub("");
-    }
-  }, [vacancy, onCancelAssignment, vacancyExists]);
+  const vacancySummaryDetails = useMemo(() => {
+    return convertVacancyDetailsFormDataToVacancySummaryDetails(vacancy);
+  }, [vacancy]);
 
   if (
     getPositionTypes.state === "LOADING" ||
@@ -324,7 +394,7 @@ export const VacancyUI: React.FC<Props> = props => {
     vacancy: VacancyDetailsFormData
   ): VacancyScheduleDay[] => {
     return vacancy.details
-      .sort((a, b) => a.date - b.date)
+      .sort((a, b) => +a.date - +b.date)
       .map((d: VacancyDetailInput) => {
         return {
           positionTitle: positionTypes.find(
@@ -358,6 +428,7 @@ export const VacancyUI: React.FC<Props> = props => {
           positionTypeId: vacancy.positionTypeId,
           title: vacancy.title,
           locationId: vacancy.locationId,
+          locationName: vacancy.locationName,
           contractId: vacancy.contractId,
           workDayScheduleId: vacancy.workDayScheduleId,
           details: vacancy.details,
@@ -365,8 +436,8 @@ export const VacancyUI: React.FC<Props> = props => {
         }}
         onSubmit={async (data, e) => {
           if (!vacancyExists) {
-            if (props.createVacancy) {
-              const result = await props.createVacancy(vacancy);
+            if (createVacancy) {
+              const result = await createVacancy(vacancy);
               if (result.data) {
                 const createdVacancy = result.data.vacancy?.create;
                 setVacancyId(createdVacancy?.id ?? "");
@@ -378,14 +449,15 @@ export const VacancyUI: React.FC<Props> = props => {
                   id: result.data.vacancy?.create?.id ?? "",
                   assignmentId: assignment?.id,
                   assignmentRowVersion: assignment?.rowVersion,
+                  // ALSO SET THE ASSIGNMENT AND IDS ON THE DETAILS BY DATE
                 });
                 setStep("confirmation");
                 e.resetForm();
               }
             }
           } else {
-            if (props.updateVacancy) {
-              const result = await props.updateVacancy(vacancy);
+            if (updateVacancy) {
+              const result = await updateVacancy(vacancy);
               if (result.data) {
                 const updatedVacancy = result.data.vacancy?.update;
                 const updatedDetails = updatedVacancy?.details;
@@ -407,6 +479,7 @@ export const VacancyUI: React.FC<Props> = props => {
                     positionTypeId: updatedFormData.positionTypeId,
                     title: updatedFormData.title,
                     locationId: updatedFormData.locationId,
+                    locationName: updatedFormData.locationName,
                     contractId: updatedFormData.contractId,
                     workDayScheduleId: updatedFormData.workDayScheduleId,
                     details: updatedFormData.details,
@@ -480,7 +553,26 @@ export const VacancyUI: React.FC<Props> = props => {
                         {t("Substitute Details")}
                       </Typography>
                     </Grid>
-                    {hasSub && (
+                    <VacancySummary
+                      vacancySummaryDetails={vacancySummaryDetails}
+                      onAssignClick={(currentAssignmentInfo: AssignmentFor) => {
+                        dispatch({
+                          action: "setVacancyDetailIdsToAssign",
+                          vacancyDetailIdsToAssign:
+                            currentAssignmentInfo.vacancyDetailIds,
+                        });
+                        setStep("preAssignSub");
+                      }}
+                      onCancelAssignment={onCancelAssignment}
+                      notesForSubstitute={
+                        vacancy.notesToReplacement ?? undefined
+                      }
+                      setNotesForSubstitute={(notes: string) => {
+                        setFieldValue("notesToReplacement", notes);
+                        vacancy.notesToReplacement = notes;
+                      }}
+                    />
+                    {/* {hasSub && (
                       <Grid item xs={12}>
                         <AssignedSub
                           employeeId={
@@ -499,7 +591,7 @@ export const VacancyUI: React.FC<Props> = props => {
                           onCancelAssignment={onUnassignSub}
                         />
                       </Grid>
-                    )}
+                    )} */}
                     <VacancySubstituteDetailsSection
                       scheduleDays={buildScheduleDays(vacancy)}
                       showNotes={true}
@@ -521,46 +613,52 @@ export const VacancyUI: React.FC<Props> = props => {
                           </Typography>
                         )}
                       </div>
-                      {props.onDelete && vacancyExists && !dirty && (
+                      {onDelete && vacancyExists && !dirty && (
                         <Button
-                          onClick={() => props.onDelete!()}
+                          onClick={() => onDelete()}
                           variant="text"
                           className={classes.deleteButton}
                         >
                           {t("Delete")}
                         </Button>
                       )}
-                      <Can
-                        do={(
-                          permissions: OrgUserPermissions[],
-                          isSysAdmin: boolean,
-                          orgId?: string
-                        ) =>
-                          canAssignSub(
-                            parseISO(new Date().toString()),
-                            permissions,
-                            isSysAdmin,
-                            orgId
-                          )
-                        }
-                      >
-                        <Button
-                          variant="outlined"
-                          disabled={
-                            vacancyExists ? dirty : !showAssign || isSubmitting
+                      {showAssign && (
+                        <Can
+                          do={(
+                            permissions: OrgUserPermissions[],
+                            isSysAdmin: boolean,
+                            orgId?: string
+                          ) =>
+                            canAssignSub(
+                              parseISO(new Date().toString()),
+                              permissions,
+                              isSysAdmin,
+                              orgId
+                            )
                           }
-                          className={classes.preArrangeButton}
-                          onClick={() => {
-                            setStep("preAssignSub");
-                          }}
                         >
-                          {!vacancyExists
-                            ? t("Pre-arrange")
-                            : hasSub
-                            ? t("Reassign")
-                            : t("Assign")}
-                        </Button>
-                      </Can>
+                          <Button
+                            variant="outlined"
+                            disabled={
+                              vacancyExists
+                                ? dirty
+                                : disableAssign || isSubmitting
+                            }
+                            className={classes.preArrangeButton}
+                            onClick={() => {
+                              dispatch({
+                                action: "setVacancyDetailIdsToAssign",
+                                vacancyDetailIdsToAssign: vacancySummaryDetails.map(
+                                  d => d.vacancyDetailId
+                                ),
+                              });
+                              setStep("preAssignSub");
+                            }}
+                          >
+                            {!vacancyExists ? t("Pre-arrange") : t("Assign")}
+                          </Button>
+                        </Can>
+                      )}
                       <Can do={[PermissionEnum.AbsVacSave]}>
                         <Button
                           form="vacancy-form"
@@ -573,9 +671,9 @@ export const VacancyUI: React.FC<Props> = props => {
                         >
                           {vacancyExists
                             ? t("Save")
-                            : hasSub
-                            ? t("Create")
-                            : t("Create without assigning a substitute")}
+                            : isUnfilled
+                            ? t("Create without assigning a substitute")
+                            : t("Create")}
                         </Button>
                       </Can>
                     </div>
@@ -591,11 +689,21 @@ export const VacancyUI: React.FC<Props> = props => {
                 onAssignReplacement={onAssignSub}
                 onCancel={onCancel}
                 assignmentsByDate={[]}
-                vacancyScheduleDays={buildScheduleDays(vacancy)}
+                positionName={
+                  positionTypes.find(
+                    (pt: any) => vacancy.positionTypeId === pt.id
+                  )?.name
+                }
+                vacancySummaryDetails={vacancySummaryDetails.filter(d =>
+                  state.vacancyDetailIdsToAssign.find(
+                    i => d.vacancyDetailId === i
+                  )
+                )}
                 vacancy={
                   vacancyExists ? undefined : buildVacancyCreateInput(vacancy)
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
+                vacancyDetailIdsToAssign={state.vacancyDetailIdsToAssign}
               />
             )}
             {step === "confirmation" && (
@@ -611,7 +719,7 @@ export const VacancyUI: React.FC<Props> = props => {
                 contracts={contracts}
                 setVacancyForCreate={setVacancy}
                 unassignSub={onCancelAssignment}
-                replacementEmployeeName={hasSub}
+                replacementEmployeeName={""}
               />
             )}
           </form>

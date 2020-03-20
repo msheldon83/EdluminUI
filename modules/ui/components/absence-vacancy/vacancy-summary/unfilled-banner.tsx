@@ -7,7 +7,7 @@ import { canAssignSub } from "helpers/permissions";
 
 type Props = {
   assignmentStartTime: Date;
-  onAssignClick: () => Promise<void>;
+  onAssignClick: () => void;
   disableActions?: boolean;
 };
 

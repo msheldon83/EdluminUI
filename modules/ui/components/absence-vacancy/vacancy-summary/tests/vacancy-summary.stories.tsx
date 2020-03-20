@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Vacancy } from "../vacancy";
+import { VacancySummary } from "../vacancy-summary";
 import { TestCases } from "./testCases";
 import { makeStyles } from "@material-ui/core";
 import { mockProvider } from "test-helpers/mock-provider";
@@ -15,11 +15,11 @@ export const SingleDayUnassigned = () => {
 
   return (
     <div className={classes.container}>
-      <Vacancy
+      <VacancySummary
         vacancySummaryDetails={TestCases.singleDayNoAssignment}
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
-        onRemoveClick={async () => {}}
+        onCancelAssignment={async () => {}}
       />
     </div>
   );
@@ -30,11 +30,11 @@ export const SingleDayAssigned = () => {
 
   return (
     <div className={classes.container}>
-      <Vacancy
+      <VacancySummary
         vacancySummaryDetails={TestCases.singleDayWithAssignment}
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
-        onRemoveClick={async () => {}}
+        onCancelAssignment={async () => {}}
       />
     </div>
   );
@@ -45,11 +45,11 @@ export const SingleDayPrearranged = () => {
 
   return (
     <div className={classes.container}>
-      <Vacancy
+      <VacancySummary
         vacancySummaryDetails={TestCases.singleDayPrearranged}
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
-        onRemoveClick={async () => {}}
+        onCancelAssignment={async () => {}}
       />
     </div>
   );
@@ -60,13 +60,13 @@ export const MultiDayUnassigned = () => {
 
   return (
     <div className={classes.container}>
-      <Vacancy
+      <VacancySummary
         vacancySummaryDetails={
           TestCases.multipleDaysNoAssignmentAccountingCodesInDifferentOrder
         }
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
-        onRemoveClick={async () => {}}
+        onCancelAssignment={async () => {}}
       />
     </div>
   );
@@ -77,11 +77,11 @@ export const MultiDayAssigned = () => {
 
   return (
     <div className={classes.container}>
-      <Vacancy
+      <VacancySummary
         vacancySummaryDetails={TestCases.multipleDaysSingleAssignmentForAll}
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
-        onRemoveClick={async () => {}}
+        onCancelAssignment={async () => {}}
       />
     </div>
   );
@@ -109,13 +109,13 @@ export const MultiDaySplitAssignment = () => {
     <Provider>
       <Route path={AppChromeRoute.path}>
         <div className={classes.container}>
-          <Vacancy
+          <VacancySummary
             vacancySummaryDetails={
               TestCases.multipleDaysSplitVacancyWithSingleAssignment
             }
             setNotesForSubstitute={() => {}}
             onAssignClick={async () => {}}
-            onRemoveClick={async () => {}}
+            onCancelAssignment={async () => {}}
           />
         </div>
       </Route>

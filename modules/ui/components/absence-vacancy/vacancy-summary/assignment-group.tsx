@@ -10,12 +10,10 @@ type Props = {
   assignmentWithDetails: AssignmentWithDetails;
   isPartiallyFilled: boolean;
   showAbsenceTimes: boolean;
-  onAssignClick: (currentAssignmentInfo: AssignmentFor) => Promise<void>;
-  onCancelAssignment: (
-    assignmentInfo: Assignment,
-    vacancyDetailIds: string[]
-  ) => Promise<void>;
+  onAssignClick: (currentAssignmentInfo: AssignmentFor) => void;
+  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
   disableActions?: boolean;
+  detailsOnly?: boolean;
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
@@ -28,6 +26,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
     onAssignClick,
     onCancelAssignment,
     disableActions = false,
+    detailsOnly = false,
   } = props;
 
   const showUnfilledHeader =
@@ -36,21 +35,25 @@ export const AssignmentGroup: React.FC<Props> = props => {
 
   return (
     <div>
-      {showUnfilledHeader && (
-        <UnfilledBanner
-          onAssignClick={async () => onAssignClick(assignmentWithDetails)}
-          assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
-          disableActions={disableActions}
-        />
-      )}
-      {isAssigned && (
-        <AssignedBanner
-          assignmentWithDetails={assignmentWithDetails}
-          assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
-          onReassignClick={async () => onAssignClick(assignmentWithDetails)}
-          onCancelAssignment={onCancelAssignment}
-          disableActions={disableActions}
-        />
+      {!detailsOnly && (
+        <>
+          {showUnfilledHeader && (
+            <UnfilledBanner
+              onAssignClick={() => onAssignClick(assignmentWithDetails)}
+              assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
+              disableActions={disableActions}
+            />
+          )}
+          {isAssigned && (
+            <AssignedBanner
+              assignmentWithDetails={assignmentWithDetails}
+              assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
+              onReassignClick={() => onAssignClick(assignmentWithDetails)}
+              onCancelAssignment={onCancelAssignment}
+              disableActions={disableActions}
+            />
+          )}
+        </>
       )}
       <DateGroup
         dateDetails={assignmentWithDetails}

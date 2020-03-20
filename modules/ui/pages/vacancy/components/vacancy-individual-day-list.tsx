@@ -19,9 +19,10 @@ import {
 import { useTranslation } from "react-i18next";
 import { isSameDay } from "date-fns";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
+import { VacancyDetailItem } from "./vacancy";
 
 type Props = {
-  vacancyDays: VacancyDetailInput[];
+  vacancyDays: VacancyDetailItem[];
   workDayScheduleVariant?: WorkDayScheduleVariant | null;
   payCodes: PayCode[];
   defaultPayCodeId?: string;
@@ -65,7 +66,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   }, [useSameTime, useSameReason, useSamePayCode, useSameAccountingCode]);
 
   const handelSetDayVacReasonValue = React.useCallback(
-    (vacDetail: VacancyDetailInput) => {
+    (vacDetail: VacancyDetailItem) => {
       const newVacancyDays = vacancyDays.slice();
       newVacancyDays.forEach((vd, i) => {
         newVacancyDays[i] = {
@@ -88,7 +89,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   );
 
   const handelSetDayTimesValue = React.useCallback(
-    (vacDetail: VacancyDetailInput) => {
+    (vacDetail: VacancyDetailItem) => {
       const newVacancyDays = vacancyDays.slice();
       newVacancyDays.forEach((vd, i) => {
         newVacancyDays[i] = {
@@ -113,7 +114,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   );
 
   const handleSetPayCodeValue = React.useCallback(
-    (vacDetail: VacancyDetailInput) => {
+    (vacDetail: VacancyDetailItem) => {
       const newVacancyDays = vacancyDays.slice();
       newVacancyDays.forEach((vd, i) => {
         newVacancyDays[i] = {
@@ -122,9 +123,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         };
         if (useSamePayCode) {
           newVacancyDays[i].payCodeId = vacDetail.payCodeId;
+          newVacancyDays[i].payCodeName = vacDetail.payCodeName;
         } else {
           if (isSameDay(vd.date, vacDetail.date)) {
             newVacancyDays[i].payCodeId = vacDetail.payCodeId;
+            newVacancyDays[i].payCodeName = vacDetail.payCodeName;
           }
         }
       });
@@ -136,7 +139,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   );
 
   const handleSetAccountingCodeValue = React.useCallback(
-    (vacDetail: VacancyDetailInput) => {
+    (vacDetail: VacancyDetailItem) => {
       const newVacancyDays = vacancyDays.slice();
       const accCode =
         vacDetail.accountingCodeAllocations &&
@@ -189,8 +192,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       if (value) {
         const newVacancyDays = vacancyDays.slice();
         const payCodeId = newVacancyDays[0].payCodeId;
+        const payCodeName = newVacancyDays[0].payCodeName;
         newVacancyDays.forEach(vd => {
           vd.payCodeId = payCodeId;
+          vd.payCodeName = payCodeName;
         });
         setFieldValue("details", newVacancyDays);
         updateModel({ details: newVacancyDays });
@@ -205,16 +210,9 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     (value: boolean) => {
       if (value) {
         const newVacancyDays = vacancyDays.slice();
-        const accCode =
-          newVacancyDays[0].accountingCodeAllocations &&
-          newVacancyDays[0].accountingCodeAllocations.length > 0
-            ? newVacancyDays[0].accountingCodeAllocations[0]
-            : {
-                accountingCodeId: accountingCodeOptions[0].value,
-                allocation: 1.0,
-              };
         newVacancyDays.forEach(vd => {
-          vd.accountingCodeAllocations = [accCode];
+          vd.accountingCodeAllocations =
+            newVacancyDays[0].accountingCodeAllocations;
         });
         setFieldValue("details", newVacancyDays);
         updateModel({ details: newVacancyDays });
@@ -269,7 +267,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
 
   const dayParts = useMemo(
     () => {
-      const partsArray: any = [];
+      const partsArray: VacancyDayPart[] = [];
       if (!workDayScheduleVariant) return partsArray;
       partsArray.push({
         id: "full",
@@ -377,14 +375,14 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       if (vacancyDays.length > 0) {
         let update = false;
         const vacReasonId =
-          vacancyDays[0].vacancyReasonId ?? vacancyReasonOptions[0].value;
+          vacancyDays[0].vacancyReasonId ?? vacancyReasonOptions[0]?.value;
         for (let i = 0; i < vacancyDays.length; i++) {
           if (useSameReason && vacancyDays[i].vacancyReasonId !== vacReasonId) {
             vacancyDays[i].vacancyReasonId = vacReasonId;
             update = true;
           } else {
             if (!vacancyDays[i].vacancyReasonId) {
-              vacancyDays[i].vacancyReasonId = vacancyReasonOptions[0].value;
+              vacancyDays[i].vacancyReasonId = vacancyReasonOptions[0]?.value;
               update = true;
             }
           }
@@ -396,7 +394,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       }
     },
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [vacancyDays, useSameReason]
+    [vacancyDays, vacancyReasonOptions, useSameReason]
   );
 
   /* this effect is needed when we add a day and the check box is selected to use same times */
@@ -441,10 +439,15 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       if (vacancyDays.length > 0) {
         let update = false;
         const payCodeId = vacancyDays[0].payCodeId ?? defaultPayCodeId;
+        const payCodeName =
+          vacancyDays[0].payCodeName ??
+          payCodeOptions.find(o => o.value === payCodeId)?.label;
         for (let i = 0; i < vacancyDays.length; i++) {
           if (useSamePayCode && vacancyDays[i].payCodeId !== payCodeId) {
             vacancyDays[i].payCodeId =
               payCodeId && payCodeId.length > 0 ? payCodeId : undefined;
+            vacancyDays[i].payCodeName =
+              payCodeName && payCodeName.length > 0 ? payCodeName : undefined;
             update = true;
           }
         }

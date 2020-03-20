@@ -13,23 +13,20 @@ import {
   isoToTimestamp,
   secondsToFormattedHourMinuteString,
 } from "helpers/time";
+import { VacancyDetailItem } from "./vacancy";
+import { VacancyDayPart } from "../helpers/types";
 
 type Props = {
-  vacancyDetail: VacancyDetailInput;
+  vacancyDetail: VacancyDetailItem;
   vacancyReasonOptions: OptionType[];
   payCodeOptions: OptionType[];
   defaultPayCodeId?: string;
   accountingCodeOptions: OptionType[];
-  dayParts: {
-    id: string;
-    label: string;
-    start: any;
-    end: any;
-  }[];
-  setVacancyDetailReason: (value: VacancyDetailInput) => void;
-  setVacancyDetailTimes: (value: VacancyDetailInput) => void;
-  setVacancyPayCode: (value: VacancyDetailInput) => void;
-  setVacancyAccountingCode: (value: VacancyDetailInput) => void;
+  dayParts: VacancyDayPart[];
+  setVacancyDetailReason: (value: VacancyDetailItem) => void;
+  setVacancyDetailTimes: (value: VacancyDetailItem) => void;
+  setVacancyPayCode: (value: VacancyDetailItem) => void;
+  setVacancyAccountingCode: (value: VacancyDetailItem) => void;
   showCopyPaste: boolean;
   subTitle?: string;
   disableTime?: boolean;
@@ -60,8 +57,12 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     disableAccountingCode = false,
   } = props;
 
-  const [startTime, setStartTime] = useState(vacancyDetail.startTime);
-  const [endTime, setEndTime] = useState<string>(vacancyDetail.endTime);
+  const [startTime, setStartTime] = useState<string | number>(
+    vacancyDetail.startTime
+  );
+  const [endTime, setEndTime] = useState<string | number>(
+    vacancyDetail.endTime
+  );
   const [showCustom, setShowCustom] = useState(false);
 
   const timeOptions = useMemo(() => {
@@ -176,50 +177,72 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
   );
 
   return (
-    <>
-      <Grid container justify="space-between" spacing={2}>
-        <Grid item xs={9}>
-          <label>
-            {subTitle ? subTitle : format(vacancyDetail.date, "EEE, MMM d")}
-          </label>
+    <Grid container justify="space-between" spacing={2}>
+      <Grid item xs={9}>
+        <label>
+          {subTitle ? subTitle : format(vacancyDetail.date, "EEE, MMM d")}
+        </label>
+      </Grid>
+      {showCopyPaste && (
+        <Grid item xs={3}>
+          <TextButton>{t("Copy")}</TextButton>
+          <TextButton>{t("Paste")}</TextButton>
         </Grid>
-        {showCopyPaste && (
-          <Grid item xs={3}>
-            <TextButton>{t("Copy")}</TextButton>
-            <TextButton>{t("Paste")}</TextButton>
-          </Grid>
-        )}
+      )}
+      <Grid item xs={12}>
+        <Select
+          multiple={false}
+          withResetValue={false}
+          options={vacancyReasonOptions}
+          disabled={disableReason}
+          value={{
+            value:
+              vacancyDetail.vacancyReasonId ?? vacancyReasonOptions[0].value,
+            label:
+              vacancyReasonOptions.find(a =>
+                vacancyDetail.vacancyReasonId
+                  ? a.value === vacancyDetail.vacancyReasonId
+                  : a.value === vacancyReasonOptions[0].value
+              )?.label || "",
+          }}
+          onChange={async (e: OptionType) => {
+            let selectedValue: any = null;
+            if (e) {
+              selectedValue = (e as OptionTypeBase).value;
+            }
+            const newVacDetail = {
+              ...vacancyDetail,
+              vacancyReasonId: selectedValue,
+            };
+            setVacancyDetailReason(newVacDetail);
+          }}
+        ></Select>
+      </Grid>
+      {getTimeValue() !== "custom" && (
         <Grid item xs={12}>
           <Select
             multiple={false}
+            options={timeOptions}
+            disabled={disableTime}
             withResetValue={false}
-            options={vacancyReasonOptions}
-            disabled={disableReason}
             value={{
-              value:
-                vacancyDetail.vacancyReasonId ?? vacancyReasonOptions[0].value,
+              value: getTimeValue(),
               label:
-                vacancyReasonOptions.find(a =>
-                  vacancyDetail.vacancyReasonId
-                    ? a.value === vacancyDetail.vacancyReasonId
-                    : a.value === vacancyReasonOptions[0].value
-                )?.label || "",
+                timeOptions.find(d => d.value === getTimeValue())?.label || "",
             }}
             onChange={async (e: OptionType) => {
               let selectedValue: any = null;
               if (e) {
                 selectedValue = (e as OptionTypeBase).value;
               }
-              const newVacDetail = {
-                ...vacancyDetail,
-                vacancyReasonId: selectedValue,
-              };
-              setVacancyDetailReason(newVacDetail);
+              updateVacancyDetailTimes(selectedValue);
             }}
           ></Select>
         </Grid>
-        {getTimeValue() !== "custom" && (
-          <Grid item xs={12}>
+      )}
+      {getTimeValue() === "custom" && (
+        <>
+          <Grid item xs={6}>
             <Select
               multiple={false}
               options={timeOptions}
@@ -240,135 +263,123 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
               }}
             ></Select>
           </Grid>
-        )}
-        {getTimeValue() === "custom" && (
-          <>
-            <Grid item xs={6}>
-              <Select
-                multiple={false}
-                options={timeOptions}
-                disabled={disableTime}
-                withResetValue={false}
-                value={{
-                  value: getTimeValue(),
-                  label:
-                    timeOptions.find(d => d.value === getTimeValue())?.label ||
-                    "",
-                }}
-                onChange={async (e: OptionType) => {
-                  let selectedValue: any = null;
-                  if (e) {
-                    selectedValue = (e as OptionTypeBase).value;
-                  }
-                  updateVacancyDetailTimes(selectedValue);
-                }}
-              ></Select>
-            </Grid>
-            <Grid item xs={3}>
-              <TimeInput
-                placeHolder={t("Start time")}
-                value={startTime}
-                label=""
-                onValidTime={(v: string) => {
-                  handleSetStartTime(v, true);
-                }}
-                onChange={(v: string) => {
-                  handleSetStartTime(v, false);
-                }}
-              />
-            </Grid>
-            <Grid item xs={3}>
-              <TimeInput
-                placeHolder={t("End time")}
-                value={endTime}
-                label=""
-                onValidTime={(v: string) => {
-                  handleSetEndTime(v, true);
-                  setEndTime(v);
-                }}
-                onChange={(v: string) => {
-                  handleSetEndTime(v, false);
-                  setEndTime(v);
-                }}
-              />
-            </Grid>
-          </>
-        )}
-        <Grid item xs={6}>
-          <Select
-            multiple={false}
-            withResetValue={true}
-            options={payCodeOptions}
-            disabled={disablePayCode}
-            value={{
-              value: vacancyDetail.payCodeId ?? "",
-              label:
-                vacancyDetail.payCodeId && vacancyDetail.payCodeId.length > 0
-                  ? payCodeOptions.find(
-                      a =>
-                        a.value === vacancyDetail.payCodeId ?? defaultPayCodeId
-                    )?.label || ""
-                  : "",
-            }}
-            onChange={async (e: OptionType) => {
-              let selectedValue: any = null;
-              if (e) {
-                selectedValue = (e as OptionTypeBase).value;
-              }
-              const newVacDetail = {
-                ...vacancyDetail,
-                payCodeId:
-                  selectedValue && selectedValue.length > 0
-                    ? selectedValue
-                    : undefined,
-              };
-              setVacancyPayCode(newVacDetail);
-            }}
-          ></Select>
-        </Grid>
-        <Grid item xs={6}>
-          <Select
-            multiple={false}
-            withResetValue={true}
-            options={accountingCodeOptions}
-            disabled={disableAccountingCode}
-            value={{
-              value:
-                vacancyDetail.accountingCodeAllocations &&
-                vacancyDetail.accountingCodeAllocations.length > 0
-                  ? vacancyDetail.accountingCodeAllocations[0]
-                      ?.accountingCodeId || ""
-                  : "",
-              label:
-                vacancyDetail.accountingCodeAllocations &&
-                vacancyDetail.accountingCodeAllocations.length > 0
-                  ? accountingCodeOptions.find(
-                      a =>
-                        a.value ===
-                        vacancyDetail.accountingCodeAllocations![0]
-                          ?.accountingCodeId
-                    )?.label || ""
-                  : "",
-            }}
-            onChange={async (e: OptionType) => {
-              let selectedValue: any = null;
-              if (e) {
-                selectedValue = (e as OptionTypeBase).value;
-              }
-              const accountingCodeAllocations =
+          <Grid item xs={3}>
+            <TimeInput
+              placeHolder={t("Start time")}
+              value={startTime}
+              label=""
+              onValidTime={(v: string) => {
+                handleSetStartTime(v, true);
+              }}
+              onChange={(v: string) => {
+                handleSetStartTime(v, false);
+              }}
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <TimeInput
+              placeHolder={t("End time")}
+              value={endTime}
+              label=""
+              onValidTime={(v: string) => {
+                handleSetEndTime(v, true);
+                setEndTime(v);
+              }}
+              onChange={(v: string) => {
+                handleSetEndTime(v, false);
+                setEndTime(v);
+              }}
+            />
+          </Grid>
+        </>
+      )}
+      <Grid item xs={6}>
+        <Select
+          multiple={false}
+          withResetValue={true}
+          options={payCodeOptions}
+          disabled={disablePayCode}
+          value={{
+            value: vacancyDetail.payCodeId ?? "",
+            label:
+              vacancyDetail.payCodeId && vacancyDetail.payCodeId.length > 0
+                ? payCodeOptions.find(
+                    a => a.value === vacancyDetail.payCodeId ?? defaultPayCodeId
+                  )?.label || ""
+                : "",
+          }}
+          onChange={async (e: OptionType) => {
+            let selectedValue: any = null;
+            let selectedLabel: any = null;
+            if (e) {
+              selectedValue = (e as OptionTypeBase).value;
+              selectedLabel = (e as OptionTypeBase).label;
+            }
+            const newVacDetail = {
+              ...vacancyDetail,
+              payCodeId:
                 selectedValue && selectedValue.length > 0
-                  ? [{ accountingCodeId: selectedValue, allocation: 1.0 }]
-                  : [];
-              const newVacDetail = {
-                ...vacancyDetail,
-                accountingCodeAllocations,
-              };
-              setVacancyAccountingCode(newVacDetail);
-            }}
-          ></Select>
-        </Grid>
+                  ? selectedValue
+                  : undefined,
+              payCodeName:
+                selectedLabel && selectedLabel.length > 0
+                  ? selectedLabel
+                  : undefined,
+            };
+            setVacancyPayCode(newVacDetail);
+          }}
+        ></Select>
       </Grid>
-    </>
+      <Grid item xs={6}>
+        <Select
+          multiple={false}
+          withResetValue={true}
+          options={accountingCodeOptions}
+          disabled={disableAccountingCode}
+          value={{
+            value:
+              vacancyDetail.accountingCodeAllocations &&
+              vacancyDetail.accountingCodeAllocations.length > 0
+                ? vacancyDetail.accountingCodeAllocations[0]
+                    ?.accountingCodeId || ""
+                : "",
+            label:
+              vacancyDetail.accountingCodeAllocations &&
+              vacancyDetail.accountingCodeAllocations.length > 0
+                ? accountingCodeOptions.find(
+                    a =>
+                      a.value ===
+                      vacancyDetail.accountingCodeAllocations![0]
+                        ?.accountingCodeId
+                  )?.label || ""
+                : "",
+          }}
+          onChange={async (e: OptionType) => {
+            let selectedValue: any = null;
+            let selectedLabel: any = null;
+            if (e) {
+              selectedValue = (e as OptionTypeBase).value;
+              selectedLabel = (e as OptionTypeBase).label;
+            }
+            const accountingCodeAllocations =
+              selectedValue && selectedValue.length > 0
+                ? [
+                    {
+                      accountingCodeId: selectedValue,
+                      allocation: 1.0,
+                      accountingCodeName: selectedLabel,
+                    },
+                  ]
+                : [];
+            const newVacDetail = {
+              ...vacancyDetail,
+              accountingCodeAllocations,
+            };
+            setVacancyAccountingCode(newVacDetail);
+          }}
+        ></Select>
+      </Grid>
+    </Grid>
   );
 };
 

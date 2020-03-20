@@ -23,10 +23,7 @@ type Props = {
   assignmentWithDetails: AssignmentWithDetails;
   open: boolean;
   onClose: () => void;
-  onCancelAssignment: (
-    assignmentInfo: Assignment,
-    vacancyDetailIds: string[]
-  ) => Promise<void>;
+  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
 };
 
 export const CancelAssignmentDialog: React.FC<Props> = props => {
@@ -60,11 +57,9 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
       []
     );
 
-    await onCancelAssignment(
-      assignmentWithDetails.assignment!,
-      vacancyDetailIds
-    );
-  }, [assignmentWithDetails, selectedDates, onCancelAssignment]);
+    await onCancelAssignment(vacancyDetailIds);
+    onClose();
+  }, [assignmentWithDetails, selectedDates, onCancelAssignment, onClose]);
 
   const detailsDisplay = useMemo(() => {
     return assignmentWithDetails.dates.map((d, i) => {

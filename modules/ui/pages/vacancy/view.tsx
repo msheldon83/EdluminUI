@@ -129,7 +129,7 @@ export const VacancyView: React.FC<Props> = props => {
         //replacementEmployeeName={replacementEmployeeName}
       />
       <VacancyUI
-        vacancy={buildFormData(vacancy)}
+        initialVacancy={buildFormData(vacancy)}
         updateVacancy={onUpdateVacancy}
         onDelete={onClickDelete}
       />

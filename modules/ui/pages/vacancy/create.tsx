@@ -27,6 +27,7 @@ export const VacancyCreate: React.FC<Props> = props => {
     positionTypeId: "",
     contractId: "",
     locationId: "",
+    locationName: "",
     workDayScheduleId: "",
     details: [],
     id: "",
@@ -60,7 +61,7 @@ export const VacancyCreate: React.FC<Props> = props => {
         {t("Create vacancy")}
       </Typography>
       <VacancyUI
-        vacancy={defaultVacancyCreateInput}
+        initialVacancy={defaultVacancyCreateInput}
         createVacancy={onCreateVacancy}
       />
     </>

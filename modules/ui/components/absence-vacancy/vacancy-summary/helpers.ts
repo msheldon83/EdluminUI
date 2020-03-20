@@ -6,6 +6,54 @@ import {
 } from "./types";
 import { format, isEqual as isDateEqual } from "date-fns";
 import { isEqual } from "lodash-es";
+import { VacancyDetailsFormData } from "ui/pages/vacancy/components/vacancy";
+import { secondsToFormattedHourMinuteString } from "helpers/time";
+
+export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
+  vacancy: VacancyDetailsFormData
+): VacancySummaryDetail[] => {
+  const summaryDetails: VacancySummaryDetail[] = vacancy.details.map((d, i) => {
+    return {
+      vacancyId: vacancy.id,
+      vacancyDetailId: d.id ?? i.toString(),
+      date: d.date,
+      startTimeLocal: d.startTime
+        ? new Date(
+            `${d.date.toDateString()} ${secondsToFormattedHourMinuteString(
+              d.startTime
+            )}`
+          )
+        : d.date,
+      endTimeLocal: d.endTime
+        ? new Date(
+            `${d.date.toDateString()} ${secondsToFormattedHourMinuteString(
+              d.endTime
+            )}`
+          )
+        : d.date,
+      payCodeId: d.payCodeId ?? undefined,
+      payCodeName: d.payCodeName ?? undefined,
+      locationId: vacancy.locationId,
+      locationName: vacancy.locationName,
+      accountingCodeAllocations:
+        d.accountingCodeAllocations?.map(a => {
+          return {
+            accountingCodeId: a.accountingCodeId,
+            accountingCodeName: a.accountingCodeName,
+            allocation: a.allocation,
+          };
+        }) ?? [],
+      assignment: d.assignment
+        ? {
+            id: d.assignment.id,
+            rowVersion: d.assignment.rowVersion,
+            employee: d.assignment.employee,
+          }
+        : undefined,
+    };
+  });
+  return summaryDetails;
+};
 
 export const buildAssignmentGroups = (
   details: VacancySummaryDetail[]
