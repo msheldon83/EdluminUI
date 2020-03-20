@@ -591,7 +591,6 @@ export const VacancyUI: React.FC<Props> = props => {
             {step === "preAssignSub" && (
               <AssignSub
                 isForVacancy={true}
-                userIsAdmin={true}
                 orgId={params.organizationId}
                 onAssignReplacement={onAssignSub}
                 onCancel={onCancel}

@@ -147,11 +147,9 @@ export const AsAdmin = () => {
           lastName="Doe"
           employeeId="123"
           organizationId="1006"
-          userIsAdmin
           needsReplacement={NeedsReplacement.Yes}
           positionName="Math Teacher"
           positionId="1057"
-          trackingBalanceReasonIds={[]}
         />
       </Route>
     </Provider>
@@ -200,11 +198,9 @@ export const AsEmployee = () => {
           lastName="Doe"
           employeeId="123"
           organizationId="1006"
-          userIsAdmin={false}
           needsReplacement={NeedsReplacement.Sometimes}
           positionName="Math Teacher"
           positionId={"1"}
-          trackingBalanceReasonIds={[]}
         />
       </Route>
     </Provider>
@@ -254,10 +250,8 @@ export const AsSubNotNeededEmployee = () => {
           employeeId="123"
           organizationId="1006"
           needsReplacement={NeedsReplacement.No}
-          userIsAdmin={false}
           positionName="Math Teacher"
           positionId={"1"}
-          trackingBalanceReasonIds={[]}
         />
       </Route>
     </Provider>
@@ -323,11 +317,9 @@ export const AsSubNeededEmployee = () => {
           actingAsEmployee
           employeeId="123"
           organizationId="124"
-          userIsAdmin={false}
           needsReplacement={NeedsReplacement.Yes}
           positionName="Math Teacher"
           positionId={"1"}
-          trackingBalanceReasonIds={[]}
         />
       </Route>
     </Provider>

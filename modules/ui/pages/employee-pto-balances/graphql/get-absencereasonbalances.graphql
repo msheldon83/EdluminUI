@@ -2,16 +2,21 @@ query GetAbsenceReasonBalances($employeeId: ID!, $schoolYearId: ID) {
   absenceReasonBalance {
     byEmployeeId(employeeId: $employeeId, schoolYearId: $schoolYearId) {
       id
+      employeeId
+      schoolYearId
+      rowVersion
+      absenceReasonId
       absenceReason {
         id
         name
         absenceReasonTrackingTypeId
+        allowNegativeBalance
       }
       initialBalance
       usedBalance
       unusedBalance
-      schoolYearId
       plannedBalance
+      balanceAsOf
     }
   }
 }

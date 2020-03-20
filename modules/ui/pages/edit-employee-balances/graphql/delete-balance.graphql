@@ -1,0 +1,5 @@
+mutation DeleteAbsenceReasonBalance($absenceReasonBalanceId: ID!) {
+  absenceReasonBalance {
+    delete(absenceReasonBalanceId: $absenceReasonBalanceId)
+  }
+}

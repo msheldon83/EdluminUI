@@ -6,7 +6,6 @@ import { includes, values } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import { useGetEmployee } from "reference-data/employee";
-import { useIsAdmin } from "reference-data/is-admin";
 import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { CreateAbsenceUI } from "./ui";
 
@@ -31,11 +30,9 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
 
   const employee = useGetEmployee();
 
-  const userIsAdmin = useIsAdmin(employee?.orgId.toString());
   if (
-    (potentialEmployees.state !== "DONE" &&
-      potentialEmployees.state !== "UPDATING") ||
-    userIsAdmin === null
+    potentialEmployees.state !== "DONE" &&
+    potentialEmployees.state !== "UPDATING"
   ) {
     return <></>;
   }
@@ -50,12 +47,8 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
       firstName={employee.firstName}
       lastName={employee.lastName}
       employeeId={employee.id}
-      trackingBalanceReasonIds={
-        employee.absenceReasonBalances?.map(x => x?.absenceReasonId) ?? []
-      }
       actingAsEmployee
       organizationId={employee.orgId.toString()}
-      userIsAdmin={userIsAdmin}
       needsReplacement={
         employee.primaryPosition?.needsReplacement ?? NeedsReplacement.No
       }

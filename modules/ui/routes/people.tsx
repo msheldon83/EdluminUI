@@ -168,6 +168,21 @@ export const PeopleEmployeePositionEditLoader = asyncComponent({
   name: "EmployeePosition",
 });
 
+// Edit Employee Balances
+export const PeopleEmployeeBalancesEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-balances"
+);
+export const PeopleEmployeeBalancesEditLoader = asyncComponent({
+  resolve: async () => {
+    const EditEmployeeBalances = (
+      await import("ui/pages/edit-employee-balances")
+    ).EditEmployeePtoBalances;
+    return EditEmployeeBalances;
+  },
+  name: "EmployeeBalances",
+});
+
 //Edit Sub Related Orgs
 export const PeopleSubRelatedOrgsEditRoute = defineSubRoute(
   PersonViewRoute,

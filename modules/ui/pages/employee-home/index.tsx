@@ -131,9 +131,7 @@ export const EmployeeHome: React.FC<Props> = props => {
           <Section>
             <ScheduledAbsences
               header={t("Scheduled absences")}
-              absences={employeeAbsenceDetails.filter(
-                (a: EmployeeAbsenceDetail) => isAfter(a.startTimeLocal, today)
-              )}
+              absences={employeeAbsenceDetails}
               cancelAbsence={cancelAbsence}
               isLoading={
                 getAbsenceSchedule.state === "LOADING" ||

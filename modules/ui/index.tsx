@@ -124,6 +124,8 @@ import {
   PeopleSubPositionsAttributesEditLoader,
   EmployeeSubstitutePreferenceRoute,
   EmployeeSubstitutePreferenceLoader,
+  PeopleEmployeeBalancesEditRoute,
+  PeopleEmployeeBalancesEditLoader,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -620,6 +622,12 @@ export function App() {
                                     permissions={[
                                       PermissionEnum.SubstituteSave,
                                     ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={PeopleEmployeeBalancesEditLoader}
+                                    path={PeopleEmployeeBalancesEditRoute.path}
+                                    role={"admin"}
+                                    permissions={[PermissionEnum.EmployeeSave]}
                                   />
                                   <ProtectedRoute
                                     component={PeopleEmployeePositionEditLoader}

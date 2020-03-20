@@ -40,7 +40,7 @@ type Props = {
   existingVacancy?: boolean;
   vacancies?: Vacancy[];
   vacancyDetailIdsToAssign?: string[];
-  userIsAdmin: boolean;
+  actingAsEmployee?: boolean;
   employeeName?: string;
   employeeId?: string;
   positionId?: string;
@@ -369,7 +369,7 @@ export const AssignSub: React.FC<Props> = props => {
     () =>
       getAssignSubColumns(
         tableData,
-        props.userIsAdmin,
+        !props.actingAsEmployee,
         selectTitle,
         confirmReassign,
         isMobile,
@@ -379,7 +379,7 @@ export const AssignSub: React.FC<Props> = props => {
       ),
     [
       isMobile,
-      props.userIsAdmin,
+      props.actingAsEmployee,
       theme,
       classes,
       t,
@@ -450,7 +450,7 @@ export const AssignSub: React.FC<Props> = props => {
       <AbsenceHeader
         employeeName={props.employeeName ?? ""}
         pageHeader={pageHeader}
-        actingAsEmployee={!props.userIsAdmin}
+        actingAsEmployee={props.actingAsEmployee}
         onCancel={props.onCancel}
       />
       <Section>
@@ -459,7 +459,7 @@ export const AssignSub: React.FC<Props> = props => {
 
         <div className={classes.filters}>
           <Filters
-            showQualifiedAndAvailable={props.userIsAdmin}
+            showQualifiedAndAvailable={!props.actingAsEmployee}
             setSearch={setSearch}
           />
         </div>
