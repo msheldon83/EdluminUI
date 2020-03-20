@@ -180,7 +180,7 @@ export const MapDailyReportDetails = (
     }
 
     return v.details.map(d => {
-      const vacancyDetail = d as VacancyDetail;
+      const vacancyDetail = d;
       return {
         id: v.id,
         detailId: vacancyDetail.id,
@@ -319,7 +319,7 @@ export const MapDailyReportDetails = (
       return [];
     }
     return v.details.map(d => {
-      const vacancyDetail = d as VacancyDetail;
+      const vacancyDetail = d;
       return {
         id: v.id,
         detailId: vacancyDetail.id,
@@ -550,9 +550,9 @@ const getMatchingVacancyDetails = (
   }
 
   const allVacancyDetails = flatMap(vacancies, v =>
-    v!.details!.map(d => {
+    v!.details.map(d => {
       return {
-        ...(d as VacancyDetail),
+        ...d,
         vacancyRowVersion: v!.rowVersion,
         vacancyId: v!.id,
       };
