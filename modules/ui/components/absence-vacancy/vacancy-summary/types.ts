@@ -13,7 +13,7 @@ export type VacancySummaryDetail = {
   assignment?: {
     id?: string;
     rowVersion?: string;
-    employee: Employee;
+    employee?: Employee;
   };
 };
 
@@ -44,7 +44,7 @@ export type AssignmentFor = {
 export type Assignment = {
   id?: string;
   rowVersion?: string;
-  employee: Employee;
+  employee?: Employee;
 };
 
 /* Assignment information that applies to a set of dates and specific shared details across those dates */

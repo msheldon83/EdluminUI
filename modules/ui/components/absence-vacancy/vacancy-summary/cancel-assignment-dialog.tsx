@@ -38,8 +38,8 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
   ]);
   const subName = useMemo(
     () =>
-      `${assignment.employee.firstName ?? ""} ${assignment.employee.lastName ??
-        ""}`,
+      `${assignment.employee?.firstName ?? ""} ${assignment.employee
+        ?.lastName ?? ""}`,
     [assignment]
   );
 
@@ -89,18 +89,22 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
     });
   }, [assignmentWithDetails, selectedDates, setSelectedDates, selection]);
 
+  const warningMessagePrompt = assignment.employee?.firstName
+    ? t(
+        "Would you like to remove {{firstName}} from the entire assignment or only select days?",
+        { firstName: assignment.employee.firstName }
+      )
+    : t(
+        "Would you like to remove the substitute from the entire assignment or only select days?"
+      );
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle disableTypography>
         <Typography variant="h5">{`${t("Remove")} ${subName}`}</Typography>
       </DialogTitle>
       <DialogContent>
-        <Typography>
-          {t(
-            "Would you like to remove {{firstName}} from the entire assignment or only select days?",
-            { firstName: assignment.employee.firstName }
-          )}
-        </Typography>
+        <Typography>{warningMessagePrompt}</Typography>
         <RadioGroup
           value={selection}
           onChange={e => {

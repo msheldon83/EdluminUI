@@ -130,7 +130,9 @@ export const VacancyDetailSection: React.FC<Props> = props => {
       return d.date;
     });
     const label = getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates(
-      sortedDates.map(d => d.date)
+      sortedDates.map(d => d.date),
+      undefined,
+      false
     );
     return label;
   }, [values.details]);

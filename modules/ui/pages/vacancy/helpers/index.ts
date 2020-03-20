@@ -31,9 +31,8 @@ export const buildVacancyCreateInput = (
               allocation: a.allocation,
             };
           }) ?? [],
-        prearrangedReplacementEmployeeId: d.assignment
-          ? d.assignment.employee.id
-          : undefined,
+        prearrangedReplacementEmployeeId:
+          d.assignment?.employee?.id ?? undefined,
       };
     }),
     ignoreWarnings: true,
@@ -60,6 +59,7 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
       ? v.details.map((d, i) => {
           return {
             id: d.id,
+            saved: true,
             date: parseISO(d.startDate),
             startTime: d.startTimeLocalTimeSpan,
             endTime: d.endTimeLocalTimeSpan,
@@ -78,7 +78,7 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
               ? {
                   id: d.assignment.id,
                   rowVersion: d.assignment.rowVersion,
-                  employee: d.assignment.employee,
+                  employee: d.assignment.employee ?? undefined,
                 }
               : undefined,
           };

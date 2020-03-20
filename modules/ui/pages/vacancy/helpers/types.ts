@@ -38,7 +38,7 @@ export type VacancyDetailItem = {
   assignment?: {
     id?: string;
     rowVersion?: string;
-    employee: {
+    employee?: {
       id: string;
       firstName: string;
       lastName: string;

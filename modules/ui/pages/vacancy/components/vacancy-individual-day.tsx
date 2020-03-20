@@ -56,12 +56,8 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     disableAccountingCode = false,
   } = props;
 
-  const [startTime, setStartTime] = useState<string | number | undefined>(
-    vacancyDetail.startTime
-  );
-  const [endTime, setEndTime] = useState<string | number | undefined>(
-    vacancyDetail.endTime
-  );
+  const [startTime, setStartTime] = useState<string | number | undefined>();
+  const [endTime, setEndTime] = useState<string | number | undefined>();
   const [showCustom, setShowCustom] = useState(false);
 
   const timeOptions = useMemo(() => {
@@ -283,6 +279,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
               placeHolder={t("End time")}
               value={endTime?.toString() ?? ""}
               label=""
+              earliestTime={startTime ? startTime.toString() : undefined}
               onValidTime={(v: string) => {
                 handleSetEndTime(v, true);
                 setEndTime(v);

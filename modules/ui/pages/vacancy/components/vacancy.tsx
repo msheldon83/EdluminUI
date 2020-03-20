@@ -20,10 +20,6 @@ import { GetAccountingCodes } from "reference-data/get-accounting-codes.gen";
 import { VacancyCreateRoute } from "ui/routes/vacancy";
 import { useQueryParamIso } from "hooks/query-params";
 import { VacancyStepParams } from "helpers/step-params";
-import {
-  VacancyScheduleDay,
-  VacancySubstituteDetailsSection,
-} from "./vacancy-substitute-details-section";
 import { Formik } from "formik";
 import { VacancyDetailSection } from "./vacancy-details-section";
 import { ContentFooter } from "ui/components/content-footer";
@@ -354,34 +350,6 @@ export const VacancyUI: React.FC<Props> = props => {
     return vacancy.positionTypeId === "" ? "" : label;
   };
 
-  const buildScheduleDays = (
-    vacancy: VacancyDetailsFormData
-  ): VacancyScheduleDay[] => {
-    return vacancy.details
-      .sort((a, b) => +a.date - +b.date)
-      .map((d: VacancyDetailInput) => {
-        return {
-          positionTitle: positionTypes.find(
-            (pt: any) => vacancy.positionTypeId === pt.id
-          )?.name,
-          date: d.date,
-          startTime: d.startTime,
-          endTime: d.endTime,
-          location: locations.find((l: any) => vacancy.locationId === l.id)
-            ?.name,
-          payCode: payCodes.find((p: any) => d.payCodeId === p.id)?.name,
-
-          accountingCode: !d.accountingCodeAllocations
-            ? undefined
-            : accountingCodes.find((a: any) =>
-                d.accountingCodeAllocations
-                  ? a.id === d.accountingCodeAllocations[0]?.accountingCodeId
-                  : false
-              )?.name,
-        };
-      });
-  };
-
   return (
     <>
       <Typography className={classes.subHeader} variant="h4">
@@ -420,7 +388,9 @@ export const VacancyUI: React.FC<Props> = props => {
                         ? {
                             id: matchingDetail.assignment.id,
                             rowVersion: matchingDetail.assignment.rowVersion,
-                            employee: matchingDetail.assignment.employee,
+                            employee: matchingDetail.assignment.employee
+                              ? matchingDetail.assignment.employee
+                              : d.assignment?.employee,
                           }
                         : undefined,
                     };
@@ -546,15 +516,6 @@ export const VacancyUI: React.FC<Props> = props => {
                       setNotesForSubstitute={(notes: string) => {
                         setFieldValue("notesToReplacement", notes);
                         vacancy.notesToReplacement = notes;
-                      }}
-                    />
-                    <VacancySubstituteDetailsSection
-                      scheduleDays={buildScheduleDays(vacancy)}
-                      showNotes={true}
-                      notes={vacancy.notesToReplacement ?? undefined}
-                      onNotesChange={(n: string) => {
-                        setFieldValue("notesToReplacement", n);
-                        vacancy.notesToReplacement = n;
                       }}
                     />
                   </Grid>

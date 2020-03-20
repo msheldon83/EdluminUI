@@ -27,10 +27,6 @@ import {
 import { ReassignAbsenceDialog } from "ui/components/absence/reassign-dialog";
 import { AssignmentOnDate } from "ui/components/absence/types";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
-import {
-  VacancyScheduleDay,
-  VacancySubstituteDetailsSection,
-} from "ui/pages/vacancy/components/vacancy-substitute-details-section";
 import { VacancySummaryHeader } from "../absence/vacancy-summary-header";
 import { GetVacancyReplacementEmployees } from "./graphql/get-replacement-employees-for-vacancy.gen";
 import { VacancySummary } from "../absence-vacancy/vacancy-summary/vacancy-summary";

@@ -7,11 +7,6 @@ import { VacancyCreateRoute, VacancyViewRoute } from "ui/routes/vacancy";
 import { useRouteParams } from "ui/routes/definition";
 import { VacancyStep } from "helpers/step-params";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
-import {
-  VacancyScheduleDay,
-  VacancySubstituteDetailsSection,
-} from "./vacancy-substitute-details-section";
-
 import { useMemo, useState } from "react";
 import { VacancyDetailSection } from "./vacancy-details-section";
 import {
@@ -56,7 +51,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
     vacancyId,
     vacancySummaryDetails,
     onCancelAssignment,
-    notes
+    notes,
   } = props;
 
   const editUrl = useMemo(() => {

@@ -218,10 +218,11 @@ export const getDateRangeDisplayTextWithDayOfWeekForContiguousDates = (
 
 export const getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates = (
   allDates: Date[],
-  disabledDates?: Date[]
+  disabledDates?: Date[],
+  includeYear = true
 ): string | null => {
   const intervals = getContiguousDateIntervals(allDates, disabledDates);
-  return getIntervalDisplayText(intervals);
+  return getIntervalDisplayText(intervals, undefined, includeYear);
 };
 
 export const getBasicDateRangeDisplayText = (
