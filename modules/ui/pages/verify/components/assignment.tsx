@@ -83,7 +83,7 @@ export const Assignment: React.FC<Props> = props => {
 
   const accountingCodes = useAccountingCodes(
     vacancyDetail.orgId,
-    vacancyDetail.location ? [vacancyDetail.location?.id] : undefined
+    vacancyDetail.location ? [vacancyDetail.location.id] : undefined
   );
   const accountingCodeOptions = useMemo(
     () => accountingCodes.map(a => ({ label: a.name, value: a.id })),
