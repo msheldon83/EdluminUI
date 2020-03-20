@@ -295,6 +295,7 @@ export const AssignSub: React.FC<Props> = props => {
           lastName: replacementEmployeeLastName,
           payCode: payCodeId,
         });
+        setValidationChecks(validationChecks);
         setReassignDialogIsOpen(true);
       } else {
         await assignReplacementEmployee(
@@ -353,17 +354,17 @@ export const AssignSub: React.FC<Props> = props => {
                 })}
               />
               <div className={classes.vacSubDetailContainer}>
-              <VacancySummary
-                vacancySummaryDetails={vacancySummaryDetails}
-                onAssignClick={async () => {}}
-                onCancelAssignment={async () => {}}
-                detailsOnly={true}
-                divRef={vacancyDetailsRef}
-                showAccountingCodes={orgHasAccountingCodesDefined}
-                showPayCodes={orgHasPayCodesDefined}
-              />
+                <VacancySummary
+                  vacancySummaryDetails={vacancySummaryDetails}
+                  onAssignClick={async () => {}}
+                  onCancelAssignment={async () => {}}
+                  detailsOnly={true}
+                  divRef={vacancyDetailsRef}
+                  showAccountingCodes={orgHasAccountingCodesDefined}
+                  showPayCodes={orgHasPayCodesDefined}
+                />
               </div>
-              </>
+            </>
           )}
         </Collapse>
         {showViewAllDetails && (
@@ -569,7 +570,7 @@ const useStyles = makeStyles(theme => ({
   },
   vacSubDetailContainer: {
     width: "50%",
-    paddingTop: theme.spacing()
+    paddingTop: theme.spacing(),
   },
 }));
 

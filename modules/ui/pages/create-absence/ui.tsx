@@ -353,12 +353,16 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const onAssignSub = React.useCallback(
     (
       replacementId: string,
-      replacementName: string,
+      replacementFirstName: string,
+      replacementLastName: string,
       payCodeId: string | undefined
     ) => {
       /* eslint-disable @typescript-eslint/no-floating-promises */
       setValue("replacementEmployeeId", replacementId);
-      setValue("replacementEmployeeName", replacementName);
+      setValue(
+        "replacementEmployeeName",
+        `${replacementFirstName} ${replacementLastName}`
+      );
       if (payCodeId) {
         setValue("payCode", payCodeId);
       }
