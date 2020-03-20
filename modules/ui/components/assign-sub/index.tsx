@@ -576,7 +576,7 @@ const AbsenceVacancyInput = (
   return {
     positionId: vacancy.positionId,
     needsReplacement: true,
-    details: vacancy.details!.map(d => {
+    details: vacancy.details.map(d => {
       const startTimeLocal =
         d && d.startTimeLocal ? convertStringToDate(d.startTimeLocal) : null;
       const endTimeLocal =
