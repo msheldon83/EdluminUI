@@ -8,6 +8,7 @@ import {
   VacancyDetailInput,
   PayCode,
   AccountingCode,
+  VacancyReason,
 } from "graphql/server-types.gen";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -32,6 +33,7 @@ type Props = {
   payCodes?: PayCode[];
   accountingCodes?: AccountingCode[];
   contracts: Contract[];
+  vacancyReasons: VacancyReason[];
   values: VacancyDetailsFormData;
   setFieldValue: (
     field: any,
@@ -56,6 +58,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
     accountingCodes,
     readOnly,
     vacancyExists,
+    vacancyReasons,
   } = props;
   const { t } = useTranslation();
   const classes = useStyles();
@@ -423,6 +426,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                     ?.payCodeId ?? undefined
                 }
                 accountingCodes={accountingCodes}
+                vacancyReasons={vacancyReasons}
                 workDayScheduleVariant={locations
                   .find(l => l.id === values.locationId)
                   ?.workDaySchedules.find(

@@ -13,8 +13,8 @@ import {
   Location as Loc,
   PositionType,
   Contract,
+  VacancyReason,
 } from "graphql/server-types.gen";
-import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetailsFormData } from "../helpers/types";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary/vacancy-summary";
@@ -33,6 +33,7 @@ type Props = {
   >;
   vacancySummaryDetails: VacancySummaryDetail[];
   onCancelAssignment: (vacancyDetailIds?: string[]) => Promise<void>;
+  vacancyReasons: VacancyReason[];
 };
 
 export const VacancyConfirmation: React.FC<Props> = props => {
@@ -52,6 +53,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
     vacancySummaryDetails,
     onCancelAssignment,
     notes,
+    vacancyReasons,
   } = props;
 
   const editUrl = useMemo(() => {
@@ -100,6 +102,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
               setVacancy={v => {}}
               readOnly={true}
               vacancyExists={true}
+              vacancyReasons={vacancyReasons}
             />
           </Grid>
           <Grid item xs={6}>

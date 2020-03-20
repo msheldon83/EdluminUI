@@ -1,15 +1,12 @@
 import * as React from "react";
 import {
-  VacancyDetailInput,
   WorkDayScheduleVariant,
   PayCode,
   AccountingCode,
+  VacancyReason,
 } from "graphql/server-types.gen";
 import { useState, useMemo, useEffect } from "react";
 import { VacancyIndividualDay } from "./vacancy-individual-day";
-import { useQueryBundle } from "graphql/hooks";
-import { GetVacancyReasonsForOrg } from "../graphql/get-all-vacancy-reasons.gen";
-import { compact } from "lodash-es";
 import {
   Checkbox,
   FormControlLabel,
@@ -27,6 +24,7 @@ type Props = {
   payCodes: PayCode[];
   defaultPayCodeId?: string;
   accountingCodes: AccountingCode[];
+  vacancyReasons: VacancyReason[];
   setFieldValue: (
     field: any,
     value: any,
@@ -47,6 +45,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     payCodes,
     accountingCodes,
     defaultPayCodeId,
+    vacancyReasons = [],
   } = props;
   const { t } = useTranslation();
   const [dayForCopy, setDayForCopy] = useState();
@@ -54,10 +53,6 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   const [useSameReason, setUseSameReason] = useState(false);
   const [useSamePayCode, setUseSamePayCode] = useState(false);
   const [useSameAccountingCode, setUseSameAccountingCode] = useState(false);
-
-  const getvacancyReasons = useQueryBundle(GetVacancyReasonsForOrg, {
-    variables: { orgId: orgId },
-  });
 
   const allCheckMarksChecked = useMemo(() => {
     return (
@@ -242,28 +237,17 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     [vacancyDays, props.vacancyDays]
   );
 
-  const vacancyReasons: any =
-    getvacancyReasons.state === "LOADING"
-      ? []
-      : compact(getvacancyReasons?.data?.orgRef_VacancyReason?.all ?? []);
-
   const vacancyReasonOptions = useMemo(() => {
-    return getvacancyReasons.state === "LOADING"
-      ? []
-      : vacancyReasons.map((r: any) => ({ label: r.name, value: r.id }));
-  }, [vacancyReasons, getvacancyReasons]);
+    return vacancyReasons.map((r: any) => ({ label: r.name, value: r.id }));
+  }, [vacancyReasons]);
 
   const payCodeOptions = useMemo(() => {
     return payCodes.map((r: any) => ({ label: r.name, value: r.id }));
-  }, [payCodes, props]); /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, [payCodes]);
 
-  const accountingCodeOptions = useMemo(
-    () => {
-      return accountingCodes.map((r: any) => ({ label: r.name, value: r.id }));
-    },
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [accountingCodes, props]
-  );
+  const accountingCodeOptions = useMemo(() => {
+    return accountingCodes.map((r: any) => ({ label: r.name, value: r.id }));
+  }, [accountingCodes]);
 
   const dayParts = useMemo(
     () => {
@@ -510,10 +494,6 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
     [vacancyDays, useSameAccountingCode]
   );
-
-  if (getvacancyReasons.state === "LOADING") {
-    return <></>;
-  }
 
   if (vacancyDays.length === 0) {
     return <></>;

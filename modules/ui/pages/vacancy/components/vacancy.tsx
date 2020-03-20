@@ -44,6 +44,7 @@ import { convertVacancyDetailsFormDataToVacancySummaryDetails } from "ui/compone
 import { vacancyReducer } from "../state";
 import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { VacancyDetailsFormData } from "../helpers/types";
+import { GetVacancyReasonsForOrg } from "../graphql/get-all-vacancy-reasons.gen";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -99,6 +100,10 @@ export const VacancyUI: React.FC<Props> = props => {
   });
 
   const getAccountingCodes = useQueryBundle(GetAccountingCodes, {
+    variables: { orgId: params.organizationId },
+  });
+
+  const getvacancyReasons = useQueryBundle(GetVacancyReasonsForOrg, {
     variables: { orgId: params.organizationId },
   });
 
@@ -316,7 +321,8 @@ export const VacancyUI: React.FC<Props> = props => {
     getLocations.state === "LOADING" ||
     getContracts.state === "LOADING" ||
     getPayCodes.state === "LOADING" ||
-    getAccountingCodes.state === "LOADING"
+    getAccountingCodes.state === "LOADING" ||
+    getvacancyReasons.state === "LOADING"
   ) {
     return <></>;
   }
@@ -333,6 +339,10 @@ export const VacancyUI: React.FC<Props> = props => {
 
   const accountingCodes: any = compact(
     getAccountingCodes?.data?.orgRef_AccountingCode?.all ?? []
+  );
+
+  const vacancyReasons: any = compact(
+    getvacancyReasons?.data?.orgRef_VacancyReason?.all ?? []
   );
 
   const onCancel = () => {
@@ -485,6 +495,7 @@ export const VacancyUI: React.FC<Props> = props => {
                       payCodes={payCodes}
                       accountingCodes={accountingCodes}
                       contracts={contracts}
+                      vacancyReasons={vacancyReasons}
                       setVacancy={setVacancy}
                       readOnly={false}
                       vacancyExists={vacancyExists}
@@ -635,6 +646,7 @@ export const VacancyUI: React.FC<Props> = props => {
                 contracts={contracts}
                 setVacancyForCreate={setVacancy}
                 onCancelAssignment={onCancelAssignment}
+                vacancyReasons={vacancyReasons}
               />
             )}
           </form>
