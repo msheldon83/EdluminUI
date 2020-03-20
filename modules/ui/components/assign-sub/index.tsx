@@ -458,6 +458,7 @@ export const AssignSub: React.FC<Props> = props => {
         }}
         currentReplacementEmployee={employeeToReplace}
         newReplacementEmployee={`${replacementEmployeeInfo.firstName} ${replacementEmployeeInfo.lastName}`}
+        isForVacancy={isForVacancy}
       />
       <AssignAbsenceDialog
         open={warningDialogIsOpen}
