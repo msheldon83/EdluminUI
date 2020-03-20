@@ -73,13 +73,15 @@ export const BalanceUsage: React.FC<Props> = props => {
     const negativeWarning =
       balance.usedBalance + amount > balance.initialBalance &&
       !balance.absenceReason?.allowNegativeBalance;
-    return { trackingType, amount, negativeWarning };
+    const remainingBalance =
+      balance.unusedBalance - amount > 0 ? balance.unusedBalance - amount : 0;
+    return { trackingType, amount, negativeWarning, remainingBalance };
   }, [usages, employeeBalances]);
 
   const balanceUsageText = useMemo(() => {
     if (!usageAmount || !usageAmount.trackingType) return null;
 
-    const { trackingType, amount } = usageAmount;
+    const { trackingType, amount, remainingBalance } = usageAmount;
     const unitText = {
       INVALID: null,
       DAILY: ["day", "days"],
@@ -89,7 +91,9 @@ export const BalanceUsage: React.FC<Props> = props => {
     return `${t("Uses")} ${amount.toFixed(2)} ${t(
       unitText[Number(amount !== 1)]
     )} ${t("of")} ${actingAsEmployee ? t("your") : t("employee's")} ${t(
-      "balance"
+      "balance leaving"
+    )} ${remainingBalance.toFixed(2)} ${t(
+      unitText[Number(remainingBalance !== 1)]
     )}`;
   }, [usageAmount, t, actingAsEmployee]);
 
