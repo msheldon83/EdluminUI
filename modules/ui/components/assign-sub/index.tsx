@@ -180,6 +180,9 @@ export const AssignSub: React.FC<Props> = props => {
         orgId: props.orgId,
         vacancy: props.vacancy,
         vacancyId: props.vacancyId,
+        vacancyDetailIds: props.vacancyId
+          ? vacancyDetailIdsToAssign ?? undefined
+          : undefined,
         name: searchFilter?.name,
         qualified: searchFilter?.name ? undefined : searchFilter?.qualified,
         available: searchFilter?.name ? undefined : searchFilter?.available,
@@ -342,13 +345,14 @@ export const AssignSub: React.FC<Props> = props => {
             />
           )}
           {vacancySummaryDetails && isForVacancy && (
-            <div className={classes.vacSubDetailContainer}>
+            <>
               <VacancySummaryHeader
                 positionName={props.positionName}
                 vacancyDates={vacancySummaryDetails?.map((vsd: any) => {
                   return vsd.date;
                 })}
               />
+              <div className={classes.vacSubDetailContainer}>
               <VacancySummary
                 vacancySummaryDetails={vacancySummaryDetails}
                 onAssignClick={async () => {}}
@@ -358,7 +362,8 @@ export const AssignSub: React.FC<Props> = props => {
                 showAccountingCodes={orgHasAccountingCodesDefined}
                 showPayCodes={orgHasPayCodesDefined}
               />
-            </div>
+              </div>
+              </>
           )}
         </Collapse>
         {showViewAllDetails && (
@@ -564,6 +569,7 @@ const useStyles = makeStyles(theme => ({
   },
   vacSubDetailContainer: {
     width: "50%",
+    paddingTop: theme.spacing()
   },
 }));
 

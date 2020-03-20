@@ -629,7 +629,10 @@ export const VacancyUI: React.FC<Props> = props => {
                   )
                 )}
                 vacancy={
-                  vacancyExists ? undefined : buildVacancyCreateInput(vacancy)
+                  vacancyExists ? undefined : buildVacancyCreateInput({
+                    ...vacancy,
+                    details: vacancy.details.filter(d => state.vacancyDetailIdsToAssign.find(s => s === d.id))
+                  })
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
                 vacancyDetailIdsToAssign={state.vacancyDetailIdsToAssign}

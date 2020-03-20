@@ -296,8 +296,6 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     [props, workDayScheduleVariant]
   );
 
-  console.log("dayParts", dayParts);
-
   /* Use this effect for existing vacancies that will have existing days */
   useEffect(() => {
     if (vacancyDays.length > 0) {
