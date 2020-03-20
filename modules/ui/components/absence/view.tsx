@@ -424,7 +424,7 @@ const getPayCode = (
     return undefined;
   }
 
-  const firstVacancyDetail = absence.vacancies![0]!.details![0];
+  const firstVacancyDetail = absence.vacancies![0]!.details[0];
   if (!firstVacancyDetail) {
     return undefined;
   }
@@ -448,7 +448,7 @@ const getAccountingCode = (
     return undefined;
   }
 
-  const firstVacancyDetail = absence.vacancies![0]!.details![0];
+  const firstVacancyDetail = absence.vacancies![0]!.details[0];
   if (!firstVacancyDetail) {
     return undefined;
   }

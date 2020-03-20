@@ -42,6 +42,8 @@ import { AssignVacancy } from "../graphql/assign-vacancy.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { CancelAssignment } from "../graphql/cancel-assignment.gen";
+import { CreateVacancyMutation } from "../graphql/create-vacancy.gen";
+import { UpdateVacancyMutation } from "../graphql/update-vacancy.gen";
 
 export type VacancyDetailsFormData = {
   id: string;
@@ -65,46 +67,10 @@ type Props = {
   vacancy: VacancyDetailsFormData;
   createVacancy?: (
     v: VacancyDetailsFormData
-  ) => Promise<
-    ExecutionResult<
-      {
-        __typename?: "Mutation" | undefined;
-      } & {
-        vacancy: Maybe<
-          {
-            __typename?: "VacancyMutations" | undefined;
-          } & {
-            create: Maybe<
-              {
-                __typename?: "Vacancy" | undefined;
-              } & Pick<Vacancy, "id" | "rowVersion" | "details">
-            >;
-          }
-        >;
-      }
-    >
-  >;
+  ) => Promise<ExecutionResult<CreateVacancyMutation>>;
   updateVacancy?: (
     v: VacancyDetailsFormData
-  ) => Promise<
-    ExecutionResult<
-      {
-        __typename?: "Mutation" | undefined;
-      } & {
-        vacancy: Maybe<
-          {
-            __typename?: "VacancyMutations" | undefined;
-          } & {
-            update: Maybe<
-              {
-                __typename?: "Vacancy" | undefined;
-              } & Pick<Vacancy, "id" | "rowVersion" | "details">
-            >;
-          }
-        >;
-      }
-    >
-  >;
+  ) => Promise<ExecutionResult<UpdateVacancyMutation>>;
   onDelete?: () => void;
 };
 

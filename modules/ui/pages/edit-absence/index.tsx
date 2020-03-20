@@ -110,9 +110,9 @@ export const EditAbsence: React.FC<Props> = props => {
             ?.filter(vd => vd?.assignment)
             .map(vd => {
               return {
-                assignmentId: vd!.assignment!.id,
-                assignmentRowVersion: vd!.assignment!.rowVersion,
-                vacancyDetailId: vd!.id,
+                assignmentId: vd.assignment!.id,
+                assignmentRowVersion: vd.assignment!.rowVersion,
+                vacancyDetailId: vd.id,
               };
             })
         )
@@ -212,7 +212,7 @@ export const EditAbsence: React.FC<Props> = props => {
             date: d.startDate,
             startTime: d.startTimeLocal,
             endTime: d.endTimeLocal,
-            locationId: d.locationId!,
+            locationId: d.locationId,
             payCodeId: d.payCodeId,
             accountingCodeId:
               d?.accountingCodeAllocations &&
