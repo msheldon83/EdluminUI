@@ -31,7 +31,9 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   const timeZones = useTimezones();
   const namePlaceholder = t("Glenbrook");
 
-  //Add Edustaff boolean. Add to backend as well to check and delegate additional 2 Action Handlers if true.
+  //Current Staffing Partner OrgId
+  const eduStaffOrgId = Config.isDevFeatureOnly ? "1046" : "1003";
+
   const [organization, setOrganization] = React.useState<
     OrganizationCreateInput
   >({
@@ -42,7 +44,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     superUserLoginEmail: "",
     timeZoneId: TimeZone.EasternStandardTimeUsCanada,
     seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
-    isEdustaffOrg: false,
+    relatesToOrganizationId: "0",
     config: {
       organizationTypeId: OrganizationType.Implementing,
       orgUsersMustAcceptEula: false,
@@ -65,7 +67,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
       maxRequestedEmployeeHoldMinutes: null,
       minorConflictThresholdMinutes: null,
       minutesRelativeToStartVacancyCanBeFilled: null,
-      vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }], // TODO: Add to Formik?
+      vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }],
     },
   });
 
@@ -73,7 +75,6 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   const [createOrganization] = useMutationBundle(CreateOrganization, {
     onError: error => {
       ShowErrors(error, openSnackbar);
-      console.log(error);
     },
   });
 
@@ -93,7 +94,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
           superUserLoginEmail: newOrganization.superUserLoginEmail,
           timeZoneId: newOrganization.timeZoneId,
           seedOrgDataOption: newOrganization.seedOrgDataOption,
-          isEdustaffOrg: newOrganization.isEdustaffOrg,
+          relatesToOrganizationId: newOrganization.relatesToOrganizationId,
           config: {
             organizationTypeId: newOrganization.config?.organizationTypeId,
             orgUsersMustAcceptEula:
@@ -250,7 +251,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
             superUserLastName: superUserLastName,
             superUserLoginEmail: superUserLoginEmail,
             seedOrgDataOption: seedOrgDataOption,
-            isEdustaffOrg: isEdustaffOrg,
+            relatesToOrganizationId: isEdustaffOrg ? eduStaffOrgId : "0",
             timeZoneId: timeZoneId,
             externalId: externalId,
             config: {
@@ -272,8 +273,6 @@ export const OrganizationAddPage: React.FC<{}> = props => {
               minutesRelativeToStartVacancyCanBeFilled: minutesRelativeToStartVacancyCanBeFilled,
             },
           };
-
-          console.log(organization);
 
           setOrganization(newOrganization);
           const result = await create(newOrganization);

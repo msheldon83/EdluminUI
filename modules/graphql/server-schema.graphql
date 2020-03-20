@@ -2335,7 +2335,7 @@ input organizationConfigInput {
 input OrganizationCreateInput {
   name: String!
   externalId: String
-  isEdustaffOrg: Boolean
+  relatesToOrganizationId: ID
   superUserLoginEmail: String!
   superUserFirstName: String!
   superUserLastName: String!

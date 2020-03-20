@@ -76,7 +76,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
     superUserFirstName: props.organization.superUserFirstName || "",
     superUserLastName: props.organization.superUserLastName || "",
     superUserLoginEmail: props.organization.superUserLoginEmail || "",
-    isEdustaffOrg: props.organization.isEdustaffOrg || false,
+    isEdustaffOrg: false,
     timeZoneId: props.organization.timeZoneId || null,
     seedOrgDataOption: props.organization.seedOrgDataOption || null,
     featureFlags: props.organization.config?.featureFlags || null,
@@ -84,33 +84,33 @@ export const AddBasicInfo: React.FC<Props> = props => {
     orgUsersMustAcceptEula:
       props.organization?.config?.orgUsersMustAcceptEula || false,
     longTermVacancyThresholdDays:
-      props.organization?.config?.longTermVacancyThresholdDays || 0,
+      props.organization?.config?.longTermVacancyThresholdDays || null,
     minLeadTimeMinutesToCancelVacancy:
-      props.organization?.config?.minLeadTimeMinutesToCancelVacancy || 0,
+      props.organization?.config?.minLeadTimeMinutesToCancelVacancy || null,
     minutesBeforeStartAbsenceCanBeCreated:
-      props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated || 0,
+      props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated || null,
     minLeadTimeMinutesToCancelVacancyWithoutPunishment:
       props.organization?.config
-        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || 0,
+        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || null,
     maxGapMinutesForSameVacancyDetail:
-      props.organization?.config?.maxGapMinutesForSameVacancyDetail || 0,
-    minAbsenceMinutes: props.organization?.config?.minAbsenceMinutes || 0,
-    maxAbsenceDays: props.organization?.config?.maxAbsenceDays || 0,
+      props.organization?.config?.maxGapMinutesForSameVacancyDetail || null,
+    minAbsenceMinutes: props.organization?.config?.minAbsenceMinutes || null,
+    maxAbsenceDays: props.organization?.config?.maxAbsenceDays || null,
     absenceCreateCutoffTime:
-      props.organization?.config?.absenceCreateCutoffTime || 0,
+      props.organization?.config?.absenceCreateCutoffTime || null,
     requestedSubCutoffMinutes:
-      props.organization?.config?.requestedSubCutoffMinutes || 0,
+      props.organization?.config?.requestedSubCutoffMinutes || null,
     minRequestedEmployeeHoldMinutes:
-      props.organization?.config?.minRequestedEmployeeHoldMinutes || 0,
+      props.organization?.config?.minRequestedEmployeeHoldMinutes || null,
     maxRequestedEmployeeHoldMinutes:
-      props.organization?.config?.maxRequestedEmployeeHoldMinutes || 0,
+      props.organization?.config?.maxRequestedEmployeeHoldMinutes || null,
     minorConflictThresholdMinutes:
-      props.organization?.config?.minorConflictThresholdMinutes || 0,
+      props.organization?.config?.minorConflictThresholdMinutes || null,
     minutesRelativeToStartVacancyCanBeFilled:
-      props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled || 0,
+      props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled ||
+      null,
   };
 
-  //Add more validation
   const validateBasicDetails = React.useMemo(
     () =>
       Yup.object().shape({
@@ -137,11 +137,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
         organizationTypeId: Yup.string()
           .nullable()
           .required(t("* Required *")),
-        //TODO: FIX Validation
-        //   featureFlags: Yup.array()
-        //   .of(Yup.string())
-        //   .min(1),
-        // //.required(t("* Required *")),
+        featureFlags: Yup.array(Yup.string()).required(t("* Required *")),
       }),
     [t]
   );
