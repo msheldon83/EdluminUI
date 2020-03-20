@@ -25,14 +25,17 @@ query GetDailyReportV2(
         isClosed
         calendarDayTypeId
         teacher {
-          employeeId
+          id
           firstName
           middleName
           lastName
           phone
+          formattedPhone
+          countryId
         }
         details {
-          absenceDetailId
+          id
+          absenceId
           startDate
           endDate
           startTimeLocal
@@ -44,7 +47,8 @@ query GetDailyReportV2(
           dayPartId
           isClosed
           reasonUsages {
-            absenceReasonUsageId
+            id
+            absenceDetailId
             absenceReasonId
             absenceReason
             absenceReasonAmount
@@ -65,15 +69,16 @@ query GetDailyReportV2(
           isClosed
           calendarDayTypeId
           position {
-            positionId
+            id
             name
             positionType {
-              positionTypeId
+              id
               name
             }
           }
           details {
-            vacancyDetailId
+            id
+            vacancyId
             startDate
             endDate
             startTimeLocal
@@ -82,32 +87,52 @@ query GetDailyReportV2(
             endTimeUtc
             originalStartTime
             originalEndTime
+            vacancyReasonId
+            vacancyReason
             isClosed
             location {
-              locationId
+              id
               name
             }
             assignment {
-              assignmentId
+              id
               createdUtc
               createdLocal
               changedUtc
               changedLocal
               rowVersion
               substitute {
-                employeeId
+                id
                 firstName
                 middleName
                 lastName
                 phone
+                formattedPhone
+                countryId
               }
             }
           }
           locationIds
           positionTypeIds
+          positionTypes {
+            id
+            name
+          }
+          locations {
+            id
+            name
+          }
         }
         locationIds
         positionTypeIds
+        positionTypes {
+          id
+          name
+        }
+        locations {
+          id
+          name
+        }
       }
       filledAbsences {
         id
@@ -123,14 +148,17 @@ query GetDailyReportV2(
         isClosed
         calendarDayTypeId
         teacher {
-          employeeId
+          id
           firstName
           middleName
           lastName
           phone
+          formattedPhone
+          countryId
         }
         details {
-          absenceDetailId
+          id
+          absenceId
           startDate
           endDate
           startTimeLocal
@@ -142,7 +170,8 @@ query GetDailyReportV2(
           dayPartId
           isClosed
           reasonUsages {
-            absenceReasonUsageId
+            id
+            absenceDetailId
             absenceReasonId
             absenceReason
             absenceReasonAmount
@@ -163,15 +192,16 @@ query GetDailyReportV2(
           isClosed
           calendarDayTypeId
           position {
-            positionId
+            id
             name
             positionType {
-              positionTypeId
+              id
               name
             }
           }
           details {
-            vacancyDetailId
+            id
+            vacancyId
             startDate
             endDate
             startTimeLocal
@@ -180,32 +210,52 @@ query GetDailyReportV2(
             endTimeUtc
             originalStartTime
             originalEndTime
+            vacancyReasonId
+            vacancyReason
             isClosed
             location {
-              locationId
+              id
               name
             }
             assignment {
-              assignmentId
+              id
               createdUtc
               createdLocal
               changedUtc
               changedLocal
               rowVersion
               substitute {
-                employeeId
+                id
                 firstName
                 middleName
                 lastName
                 phone
+                formattedPhone
+                countryId
               }
             }
           }
           locationIds
           positionTypeIds
+          positionTypes {
+            id
+            name
+          }
+          locations {
+            id
+            name
+          }
         }
         locationIds
         positionTypeIds
+        positionTypes {
+          id
+          name
+        }
+        locations {
+          id
+          name
+        }
       }
       noSubRequiredAbsences {
         id
@@ -221,14 +271,17 @@ query GetDailyReportV2(
         isClosed
         calendarDayTypeId
         teacher {
-          employeeId
+          id
           firstName
           middleName
           lastName
           phone
+          formattedPhone
+          countryId
         }
         details {
-          absenceDetailId
+          id
+          absenceId
           startDate
           endDate
           startTimeLocal
@@ -240,14 +293,92 @@ query GetDailyReportV2(
           dayPartId
           isClosed
           reasonUsages {
-            absenceReasonUsageId
+            id
+            absenceDetailId
             absenceReasonId
             absenceReason
             absenceReasonAmount
           }
         }
+        vacancies {
+          id
+          absenceId
+          createdUtc
+          createdLocal
+          changedUtc
+          changedLocal
+          rowVersion
+          startDate
+          endDate
+          numDays
+          isMultiDay
+          isClosed
+          calendarDayTypeId
+          position {
+            id
+            name
+            positionType {
+              id
+              name
+            }
+          }
+          details {
+            id
+            vacancyId
+            startDate
+            endDate
+            startTimeLocal
+            endTimeLocal
+            startTimeUtc
+            endTimeUtc
+            originalStartTime
+            originalEndTime
+            vacancyReasonId
+            vacancyReason
+            isClosed
+            location {
+              id
+              name
+            }
+            assignment {
+              id
+              createdUtc
+              createdLocal
+              changedUtc
+              changedLocal
+              rowVersion
+              substitute {
+                id
+                firstName
+                middleName
+                lastName
+                phone
+                formattedPhone
+                countryId
+              }
+            }
+          }
+          locationIds
+          positionTypeIds
+          positionTypes {
+            id
+            name
+          }
+          locations {
+            id
+            name
+          }
+        }
         locationIds
         positionTypeIds
+        positionTypes {
+          id
+          name
+        }
+        locations {
+          id
+          name
+        }
       }
       unfilledVacancies {
         id
@@ -264,15 +395,16 @@ query GetDailyReportV2(
         isClosed
         calendarDayTypeId
         position {
-          positionId
+          id
           name
           positionType {
-            positionTypeId
+            id
             name
           }
         }
         details {
-          vacancyDetailId
+          id
+          vacancyId
           startDate
           endDate
           startTimeLocal
@@ -281,29 +413,41 @@ query GetDailyReportV2(
           endTimeUtc
           originalStartTime
           originalEndTime
+          vacancyReasonId
+          vacancyReason
           isClosed
           location {
-            locationId
+            id
             name
           }
           assignment {
-            assignmentId
+            id
             createdUtc
             createdLocal
             changedUtc
             changedLocal
             rowVersion
             substitute {
-              employeeId
+              id
               firstName
               middleName
               lastName
               phone
+              formattedPhone
+              countryId
             }
           }
         }
         locationIds
         positionTypeIds
+        positionTypes {
+          id
+          name
+        }
+        locations {
+          id
+          name
+        }
       }
       filledVacancies {
         id
@@ -320,15 +464,16 @@ query GetDailyReportV2(
         isClosed
         calendarDayTypeId
         position {
-          positionId
+          id
           name
           positionType {
-            positionTypeId
+            id
             name
           }
         }
         details {
-          vacancyDetailId
+          id
+          vacancyId
           startDate
           endDate
           startTimeLocal
@@ -337,29 +482,41 @@ query GetDailyReportV2(
           endTimeUtc
           originalStartTime
           originalEndTime
+          vacancyReasonId
+          vacancyReason
           isClosed
           location {
-            locationId
+            id
             name
           }
           assignment {
-            assignmentId
+            id
             createdUtc
             createdLocal
             changedUtc
             changedLocal
             rowVersion
             substitute {
-              employeeId
+              id
               firstName
               middleName
               lastName
               phone
+              formattedPhone
+              countryId
             }
           }
         }
         locationIds
         positionTypeIds
+        positionTypes {
+          id
+          name
+        }
+        locations {
+          id
+          name
+        }
       }
       totalCount
       loadTime
