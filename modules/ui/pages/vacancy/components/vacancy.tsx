@@ -351,6 +351,11 @@ export const VacancyUI: React.FC<Props> = props => {
     return convertVacancyDetailsFormDataToVacancySummaryDetails(vacancy);
   }, [vacancy]);
 
+  React.useEffect(() => {
+    const container = document.getElementById("main-container");
+    container?.scrollTo(0, 0);
+  }, [step]);
+
   if (
     getPositionTypes.state === "LOADING" ||
     getLocations.state === "LOADING" ||
