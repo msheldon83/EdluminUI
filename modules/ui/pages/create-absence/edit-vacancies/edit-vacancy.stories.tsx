@@ -32,12 +32,16 @@ const formVacancyValues: VacancyDetail[] = [
 
 const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
   {
+    startDate: new Date("2019-11-15"),
+    endDate: new Date("2019-11-18"),
     positionId: "1057",
     startTimeLocal: "2019-11-15T08:30:00" as any,
     endTimeLocal: "2019-11-18T12:00:00" as any,
     numDays: 2,
     details: [
       {
+        startDate: new Date("2019-11-15"),
+        endDate: new Date("2019-11-15"),
         startTimeLocal: "2019-11-15T08:30:00" as any,
         endTimeLocal: "2019-11-15T12:00:00" as any,
         locationId: "1013",
@@ -58,6 +62,8 @@ const projectedVacancies: GetProjectedVacancies.ProjectedVacancies[] = [
         ],
       },
       {
+        startDate: new Date("2019-11-18"),
+        endDate: new Date("2019-11-18"),
         startTimeLocal: "2019-11-18T08:30:00" as any,
         endTimeLocal: "2019-11-18T12:00:00" as any,
         locationId: "1013",
