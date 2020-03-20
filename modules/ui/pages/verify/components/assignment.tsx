@@ -10,7 +10,7 @@ import {
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
-import { parseISO, format, isEqual } from "date-fns";
+import { parseISO, format } from "date-fns";
 import clsx from "clsx";
 import * as yup from "yup";
 import { Formik } from "formik";
@@ -18,7 +18,6 @@ import { Input } from "ui/components/form/input";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { OptionTypeBase } from "react-select/src/types";
-import { getDisplayName } from "ui/components/enumHelpers";
 import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
 import { getPayLabel } from "ui/components/helpers";
 import { Can } from "ui/components/auth/can";
@@ -62,7 +61,6 @@ export const Assignment: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const vacancyDetail = props.vacancyDetail;
-
   const [currentPayCodeId, setCurrentPayCodeId] = useState<string | undefined>(
     vacancyDetail.payCodeId ?? undefined
   );
@@ -93,26 +91,27 @@ export const Assignment: React.FC<Props> = props => {
 
   const vacancyDetailStartTime = parseISO(vacancyDetail.startTimeLocal);
   const vacancyDetailEndTime = parseISO(vacancyDetail.endTimeLocal);
-  /*const absenceDetail = vacancyDetail.vacancy!.absence!.details!.find(o =>
-    isEqual(
-      parseISO(o?.startDate),
-      new Date(
-        vacancyDetailStartTime.getFullYear(),
-        vacancyDetailStartTime.getMonth(),
-        vacancyDetailStartTime.getDate()
-      )
-    )
-  );
-  const absenceDetailStartTime = parseISO(absenceDetail?.startTimeLocal);
-  const absenceDetailEndTime = parseISO(absenceDetail?.endTimeLocal);*/
 
   const isActiveCard = props.selectedVacancyDetail
     ? vacancyDetail.id === props.selectedVacancyDetail
     : false;
 
+  const travelingTeacher: boolean = useMemo(() => {
+    if (
+      vacancyDetail.payTypeId &&
+      vacancyDetail.payTypeId === "DAILY" &&
+      vacancyDetail.dayPortion !== 1 &&
+      vacancyDetail.dayPortion !== 0.5
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }, [vacancyDetail.payTypeId, vacancyDetail.dayPortion]);
+
   // Build dropdown options list for the Day Conversions
   const dayConversionOptions = useMemo(() => {
-    return [
+    const options = [
       ...props.vacancyDayConversions
         .sort((a, b) => {
           return b.dayEquivalent - a.dayEquivalent;
@@ -126,7 +125,24 @@ export const Assignment: React.FC<Props> = props => {
         value: AbsenceReasonTrackingTypeId.Hourly,
       },
     ];
-  }, [props.vacancyDayConversions, dayConversionHourlyName]);
+
+    if (travelingTeacher) {
+      options.push({
+        label: vacancyDetail.payInfo?.label
+          ? vacancyDetail.payInfo?.label
+          : `${parseFloat(vacancyDetail.dayPortion).toFixed(2)} ${t("Days")}`,
+        value: parseFloat(vacancyDetail.dayPortion).toFixed(2),
+      });
+    }
+    return options;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    props.vacancyDayConversions,
+    dayConversionHourlyName,
+    travelingTeacher,
+    vacancyDetail.dayPortion,
+  ]);
+
   // Make sure the dayConversionName is initially set
   useEffect(() => {
     if (
@@ -150,6 +166,16 @@ export const Assignment: React.FC<Props> = props => {
       );
       return;
     }
+
+    if (travelingTeacher) {
+      setSelectedDayConversionName(
+        dayConversionOptions.find(
+          x => x.value === parseFloat(vacancyDetail.dayPortion).toFixed(2)
+        )?.label
+      );
+      return;
+    }
+
     setSelectedDayConversionName(
       dayConversionOptions.find(
         x => x.value === AbsenceReasonTrackingTypeId.Hourly
@@ -161,8 +187,8 @@ export const Assignment: React.FC<Props> = props => {
     vacancyDetail.dayPortion,
     vacancyDetail.payTypeId,
     vacancyDetail.payInfo,
+    travelingTeacher,
   ]);
-
   // Get the current PayTypeId based on the current selectedDayConversion
   const payTypeId = useMemo(() => {
     const matchingDayConversion = props.vacancyDayConversions.find(
@@ -180,23 +206,26 @@ export const Assignment: React.FC<Props> = props => {
 
   const vacancyReason = vacancyDetail.vacancyReason?.name;
 
-  const payLabel = useMemo(
-    () =>
-      getPayLabel(
+  const payLabel = useMemo(() => {
+    if (travelingTeacher && vacancyDetail.payInfo?.label) {
+      return vacancyDetail.payInfo?.label || "";
+    } else {
+      return getPayLabel(
         vacancyDetail.payInfo?.match ?? false,
         vacancyDetail.payInfo?.payTypeId ?? AbsenceReasonTrackingTypeId.Daily,
         vacancyDetail.payInfo?.label ?? "",
         vacancyDetail.dayPortion,
         vacancyDetail.totalDayPortion,
         t
-      ),
-    [
-      vacancyDetail.dayPortion,
-      vacancyDetail.totalDayPortion,
-      vacancyDetail.payInfo,
-      t,
-    ]
-  );
+      );
+    }
+  }, [
+    vacancyDetail.dayPortion,
+    vacancyDetail.totalDayPortion,
+    vacancyDetail.payInfo,
+    travelingTeacher,
+    t,
+  ]);
 
   const payCodeLabel = props.payCodeOptions.find(
     x => x.value === currentPayCodeId
@@ -274,12 +303,14 @@ export const Assignment: React.FC<Props> = props => {
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
       dayPortion: dayConversion?.dayEquivalent ?? dayPortion,
-      payDurationOverride: !dayConversion
-        ? Number(hoursToMinutes(payDurationOverrideHours ?? undefined))
-        : null,
-      payTypeId: dayConversion
-        ? AbsenceReasonTrackingTypeId.Daily
-        : AbsenceReasonTrackingTypeId.Hourly,
+      payDurationOverride:
+        !dayConversion && !travelingTeacher
+          ? Number(hoursToMinutes(payDurationOverrideHours ?? undefined))
+          : null,
+      payTypeId:
+        dayConversion || travelingTeacher
+          ? AbsenceReasonTrackingTypeId.Daily
+          : AbsenceReasonTrackingTypeId.Hourly,
     });
   };
 
@@ -323,14 +354,16 @@ export const Assignment: React.FC<Props> = props => {
                 ]
               : [],
             dayPortion: dayConversion?.dayEquivalent ?? data.dayPortion,
-            payTypeId: dayConversion
-              ? AbsenceReasonTrackingTypeId.Daily
-              : AbsenceReasonTrackingTypeId.Hourly,
-            payDurationOverride: !dayConversion
-              ? Number(
-                  hoursToMinutes(data.payDurationOverrideHours ?? undefined)
-                )
-              : null,
+            payTypeId:
+              dayConversion || travelingTeacher
+                ? AbsenceReasonTrackingTypeId.Daily
+                : AbsenceReasonTrackingTypeId.Hourly,
+            payDurationOverride:
+              !dayConversion && !travelingTeacher
+                ? Number(
+                    hoursToMinutes(data.payDurationOverrideHours ?? undefined)
+                  )
+                : null,
             doVerify: notVerified,
           });
         }}
@@ -448,7 +481,10 @@ export const Assignment: React.FC<Props> = props => {
                       item
                       className={classes.topMargin}
                       xs={
-                        payTypeId === AbsenceReasonTrackingTypeId.Daily ? 12 : 8
+                        travelingTeacher ||
+                        payTypeId === AbsenceReasonTrackingTypeId.Daily
+                          ? 12
+                          : 8
                       }
                     >
                       <Can do={[PermissionEnum.AbsVacSave]}>
@@ -482,7 +518,8 @@ export const Assignment: React.FC<Props> = props => {
                         />
                       </Can>
                     </Grid>
-                    {payTypeId === AbsenceReasonTrackingTypeId.Hourly ? (
+                    {!travelingTeacher &&
+                    payTypeId === AbsenceReasonTrackingTypeId.Hourly ? (
                       <>
                         <Grid item xs={3} className={classes.hourlyInput}>
                           <Can do={[PermissionEnum.AbsVacSavePayCode]}>
