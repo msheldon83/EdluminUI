@@ -79,7 +79,8 @@ input AbsenceDetailCreateInput {
 
 type AbsenceDetailDr {
   _info: [ReturnMessage]
-  absenceDetailId: ID!
+  id: ID!
+  absenceId: ID!
   startDate: Date
   endDate: Date
   startTimeLocal: DateTime
@@ -281,7 +282,8 @@ type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
 
 type AbsenceReasonUsageDr {
   _info: [ReturnMessage]
-  absenceReasonUsageId: ID!
+  id: ID!
+  absenceDetailId: ID!
   absenceReasonId: ID!
   absenceReason: String!
   absenceReasonAmount: Decimal!
@@ -578,7 +580,7 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
-  assignmentTypeId: AssignmentType
+  assignmentTypeId: AssignmentType!
   employeeId: ID!
   positionId: ID!
   position: Position
@@ -586,12 +588,23 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
   contract: Contract
   vacancyId: ID
   cancellationReasonId: ID
-  startTimeLocal: DateTime
+  startTimeLocal: DateTime!
   endTimeLocal: DateTime
-  startTimeUtc: DateTime
+  startTimeUtc: DateTime!
   endTimeUtc: DateTime
   cancelledAtUtc: DateTime
   employee: BasicEmployee
+}
+
+type AssignmentDr {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime
+  createdLocal: DateTime
+  changedUtc: DateTime
+  changedLocal: DateTime
+  rowVersion: String!
+  substitute: EmployeeDr!
 }
 
 type AssignmentMutations {
@@ -878,7 +891,7 @@ input CancelVacancyAssignmentInput {
   assignmentId: ID!
   rowVersion: String!
   cancellationReasonId: ID
-  vacancyDetailIds: [ID]
+  vacancyDetailIds: [ID!]
 }
 
 type ChangeLogQueries {
@@ -1214,6 +1227,18 @@ type DailyReport {
   parseTime: Float!
 }
 
+type DailyReportV2 {
+  _info: [ReturnMessage]
+  unfilledAbsences: [AbsenceDr]
+  filledAbsences: [AbsenceDr]
+  noSubRequiredAbsences: [AbsenceDr]
+  unfilledVacancies: [VacancyDr]!
+  filledVacancies: [VacancyDr]!
+  totalCount: Int!
+  loadTime: Float!
+  parseTime: Float!
+}
+
 scalar Date
 
 enum DateRangeType {
@@ -1342,6 +1367,17 @@ input EmployeeCreateInput {
   canFillVacancies: Boolean!
   primaryPositionId: ID
   primaryPosition: PositionCreateInput
+}
+
+type EmployeeDr {
+  _info: [ReturnMessage]
+  id: ID!
+  firstName: String!
+  middleName: String
+  lastName: String!
+  phone: String
+  formattedPhone: String
+  countryId: CountryCode
 }
 
 type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
@@ -1968,6 +2004,12 @@ input LocationCreateInput {
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
   phoneNumber: String
+}
+
+type LocationDr {
+  _info: [ReturnMessage]
+  id: ID!
+  name: String!
 }
 
 type LocationGroup implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -3356,7 +3398,7 @@ input PositionCreateInput {
 
 type PositionDr {
   _info: [ReturnMessage]
-  positionId: ID!
+  id: ID!
   name: String!
   positionType: PositionTypeDr!
 }
@@ -3707,7 +3749,7 @@ input PositionTypeCreateInput {
 
 type PositionTypeDr {
   _info: [ReturnMessage]
-  positionTypeId: ID!
+  id: ID!
   name: String!
 }
 
@@ -5039,24 +5081,24 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
-  isNormalVacancy: Boolean
-  title: String
+  isNormalVacancy: Boolean!
+  title: String!
   positionId: ID!
   contractId: ID!
   absenceId: ID
-  isLongTerm: Boolean
+  isLongTerm: Boolean!
   notesToReplacement: String
   startDate: Date
-  startTimeLocal: DateTime
-  endDate: Date
-  endTimeLocal: DateTime
-  startTimeUtc: DateTime
-  endTimeUtc: DateTime
-  numDays: Int
+  startTimeLocal: DateTime!
+  endDate: Date!
+  endTimeLocal: DateTime!
+  startTimeUtc: DateTime!
+  endTimeUtc: DateTime!
+  numDays: Int!
   totalDuration: Int!
   totalDayPortion: Decimal!
-  fillStatus: FillStatus
-  details: [VacancyDetail]
+  fillStatus: FillStatus!
+  details: [VacancyDetail!]!
   requestedEmployees: [VacancyEmployeeRequest]
   interestedEmployees: [VacancyEmployeeInterest]
   position: Position
@@ -5096,18 +5138,18 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   vacancyId: ID!
-  isPartOfNormalVacancy: Boolean
-  startDate: Date
-  startTimeLocal: DateTime
+  isPartOfNormalVacancy: Boolean!
+  startDate: Date!
+  startTimeLocal: DateTime!
   startTimeLocalTimeSpan: Seconds!
-  endDate: Date
-  endTimeLocal: DateTime
+  endDate: Date!
+  endTimeLocal: DateTime!
   endTimeLocalTimeSpan: Seconds!
-  startTimeUtc: DateTime
-  endTimeUtc: DateTime
-  actualDuration: Int
+  startTimeUtc: DateTime!
+  endTimeUtc: DateTime!
+  actualDuration: Int!
   dayPortion: Decimal!
-  isFilled: Boolean
+  isFilled: Boolean!
   verifiedAtLocal: DateTime
   verifiedAtUtc: DateTime
   verifyComments: String
@@ -5118,9 +5160,9 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   workDay: WorkDay
   assignmentId: ID
   assignment: Assignment
-  locationId: ID
+  locationId: ID!
   location: Location
-  accountingCodeAllocations: [VacancyDetailAccountingCode]
+  accountingCodeAllocations: [VacancyDetailAccountingCode!]!
   payCodeId: ID
   payCode: PayCode
   vacancyReasonId: ID
@@ -5161,7 +5203,8 @@ type VacancyDetailCount {
 
 type VacancyDetailDr {
   _info: [ReturnMessage]
-  vacancyDetailId: ID!
+  id: ID!
+  vacancyId: ID!
   startDate: Date
   endDate: Date
   startTimeLocal: DateTime
@@ -5219,6 +5262,8 @@ type VacancyDr {
   details: [VacancyDetailDr]!
   locationIds: [ID]
   positionTypeIds: [ID]
+  positionTypes: [PositionTypeDr]!
+  locations: [LocationDr]!
 }
 
 type VacancyEmployeeInterest implements ModelObjectInterface & OrgObjectInterface {
