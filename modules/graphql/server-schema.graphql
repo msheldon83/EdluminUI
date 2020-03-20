@@ -591,7 +591,7 @@ type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObj
   startTimeUtc: DateTime!
   endTimeUtc: DateTime
   cancelledAtUtc: DateTime
-  employee: BasicEmployee!
+  employee: BasicEmployee
 }
 
 type AssignmentDr {
