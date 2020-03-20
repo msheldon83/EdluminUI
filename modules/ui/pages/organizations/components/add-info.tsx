@@ -8,7 +8,6 @@ import {
 import { Formik } from "formik";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useIsMobile } from "hooks";
-import { useMemo, useState } from "react";
 import { OptionTypeBase } from "react-select/src/types";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -20,7 +19,6 @@ import { ActionButtons } from "../../../components/action-buttons";
 import { Input } from "ui/components/form/input";
 import {
   OrganizationCreateInput,
-  Maybe,
   FeatureFlag,
   OrganizationType,
   SeedOrgDataOptionEnum,
@@ -69,7 +67,6 @@ type Props = {
 
 export const AddBasicInfo: React.FC<Props> = props => {
   const isMobile = useIsMobile();
-  const classes = useStyles();
   const overrideStyles = rootStyles();
   const { t } = useTranslation();
 
@@ -82,7 +79,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
     isEdustaffOrg: props.organization.isEdustaffOrg || false,
     timeZoneId: props.organization.timeZoneId || null,
     seedOrgDataOption: props.organization.seedOrgDataOption || null,
-    featureFlagOptions: props.organization.config?.featureFlags || null,
+    featureFlags: props.organization.config?.featureFlags || null,
     organizationTypeId: props.organization?.config?.organizationTypeId,
     orgUsersMustAcceptEula:
       props.organization?.config?.orgUsersMustAcceptEula || false,
@@ -156,7 +153,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
         initialValues={initialValues}
         validationSchema={validateBasicDetails}
         onSubmit={async (data: any) => {
-          console.log(data);
           props.onSubmit(
             data.name,
             data.superUserFirstName,
@@ -351,14 +347,13 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   name={"featureFlags"}
                   value={props.featureFlagOptions.filter(
                     e =>
-                      e.value &&
-                      values.featureFlagOptions?.some(v => v === e.value)
+                      e.value && values.featureFlags?.some(v => v === e.value)
                   )}
                   withResetValue={false}
                   options={props.featureFlagOptions}
                   onChange={e => {
                     const ids = e.map((v: OptionType) => v.value.toString());
-                    setFieldValue("featureFlagOptions", ids);
+                    setFieldValue("featureFlags", ids);
                   }}
                   doSort={false}
                   multiple={true}
@@ -573,12 +568,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
     </Section>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  something: {
-    padding: theme.spacing(1),
-  },
-}));
 
 const rootStyles = makeStyles(theme => ({
   root: {

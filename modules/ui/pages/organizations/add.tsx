@@ -52,20 +52,20 @@ export const OrganizationAddPage: React.FC<{}> = props => {
         FeatureFlag.HourlyAbsences,
       ],
       defaultCountry: CountryCode.Us,
-      longTermVacancyThresholdDays: 0,
-      minLeadTimeMinutesToCancelVacancy: 0,
-      minutesBeforeStartAbsenceCanBeCreated: 0,
-      minLeadTimeMinutesToCancelVacancyWithoutPunishment: 0,
-      maxGapMinutesForSameVacancyDetail: 0,
-      minAbsenceMinutes: 0,
-      maxAbsenceDays: 0,
-      absenceCreateCutoffTime: 0,
-      requestedSubCutoffMinutes: 0,
-      minRequestedEmployeeHoldMinutes: 0,
-      maxRequestedEmployeeHoldMinutes: 0,
-      minorConflictThresholdMinutes: 0,
-      minutesRelativeToStartVacancyCanBeFilled: 0,
-      //vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }], // TODO: Add to Formik
+      longTermVacancyThresholdDays: null,
+      minLeadTimeMinutesToCancelVacancy: null,
+      minutesBeforeStartAbsenceCanBeCreated: null,
+      minLeadTimeMinutesToCancelVacancyWithoutPunishment: null,
+      maxGapMinutesForSameVacancyDetail: null,
+      minAbsenceMinutes: null,
+      maxAbsenceDays: null,
+      absenceCreateCutoffTime: null,
+      requestedSubCutoffMinutes: null,
+      minRequestedEmployeeHoldMinutes: null,
+      maxRequestedEmployeeHoldMinutes: null,
+      minorConflictThresholdMinutes: null,
+      minutesRelativeToStartVacancyCanBeFilled: null,
+      vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }], // TODO: Add to Formik?
     },
   });
 
@@ -73,19 +73,59 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   const [createOrganization] = useMutationBundle(CreateOrganization, {
     onError: error => {
       ShowErrors(error, openSnackbar);
+      console.log(error);
     },
   });
 
-  const create = async (organization: OrganizationCreateInput) => {
+  const create = async (newOrganization: OrganizationCreateInput) => {
     const result = await createOrganization({
       variables: {
         organization: {
-          ...organization,
+          ...newOrganization,
+          name: newOrganization.name,
           externalId:
-            organization.externalId &&
-            organization.externalId.trim().length === 0
+            newOrganization.externalId &&
+            newOrganization.externalId.trim().length === 0
               ? null
-              : organization.externalId,
+              : newOrganization.externalId,
+          superUserFirstName: newOrganization.superUserFirstName.trim(),
+          superUserLastName: newOrganization.superUserLastName.trim(),
+          superUserLoginEmail: newOrganization.superUserLoginEmail,
+          timeZoneId: newOrganization.timeZoneId,
+          seedOrgDataOption: newOrganization.seedOrgDataOption,
+          isEdustaffOrg: newOrganization.isEdustaffOrg,
+          config: {
+            organizationTypeId: newOrganization.config?.organizationTypeId,
+            orgUsersMustAcceptEula:
+              newOrganization.config?.orgUsersMustAcceptEula,
+            featureFlags: newOrganization.config?.featureFlags,
+            defaultCountry: newOrganization.config?.defaultCountry,
+            longTermVacancyThresholdDays:
+              newOrganization.config?.longTermVacancyThresholdDays,
+            minLeadTimeMinutesToCancelVacancy:
+              newOrganization.config?.minLeadTimeMinutesToCancelVacancy,
+            minutesBeforeStartAbsenceCanBeCreated:
+              newOrganization.config?.minutesBeforeStartAbsenceCanBeCreated,
+            minLeadTimeMinutesToCancelVacancyWithoutPunishment:
+              newOrganization.config
+                ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment,
+            maxGapMinutesForSameVacancyDetail:
+              newOrganization.config?.maxGapMinutesForSameVacancyDetail,
+            minAbsenceMinutes: newOrganization.config?.minAbsenceMinutes,
+            maxAbsenceDays: newOrganization.config?.maxAbsenceDays,
+            absenceCreateCutoffTime:
+              newOrganization.config?.absenceCreateCutoffTime,
+            requestedSubCutoffMinutes:
+              newOrganization.config?.requestedSubCutoffMinutes,
+            minRequestedEmployeeHoldMinutes:
+              newOrganization.config?.minRequestedEmployeeHoldMinutes,
+            maxRequestedEmployeeHoldMinutes:
+              newOrganization.config?.maxRequestedEmployeeHoldMinutes,
+            minorConflictThresholdMinutes:
+              newOrganization.config?.minorConflictThresholdMinutes,
+            minutesRelativeToStartVacancyCanBeFilled:
+              newOrganization.config?.minutesRelativeToStartVacancyCanBeFilled,
+          },
         },
       },
     });
@@ -203,7 +243,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
           minorConflictThresholdMinutes?: number | null,
           minutesRelativeToStartVacancyCanBeFilled?: number | null
         ) => {
-          const newOrganization = {
+          const newOrganization: OrganizationCreateInput = {
             ...organization,
             name: name,
             superUserFirstName: superUserFirstName,
@@ -233,15 +273,14 @@ export const OrganizationAddPage: React.FC<{}> = props => {
             },
           };
 
-          console.log(newOrganization);
+          console.log(organization);
 
-          //TODO
           setOrganization(newOrganization);
-
-          const result = await create(organization);
-
-          // const url = AdminRootChromeRoute.generate(params);
-          // history.push(url);
+          const result = await create(newOrganization);
+          if (result) {
+            const url = AdminRootChromeRoute.generate(params);
+            history.push(url);
+          }
         }}
         onCancel={() => {
           const url = AdminRootChromeRoute.generate(params);
