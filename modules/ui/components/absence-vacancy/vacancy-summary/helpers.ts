@@ -6,8 +6,8 @@ import {
 } from "./types";
 import { format, isEqual as isDateEqual } from "date-fns";
 import { isEqual } from "lodash-es";
-import { VacancyDetailsFormData } from "ui/pages/vacancy/components/vacancy";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
+import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
 
 export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   vacancy: VacancyDetailsFormData
@@ -15,7 +15,7 @@ export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   const summaryDetails: VacancySummaryDetail[] = vacancy.details.map((d, i) => {
     return {
       vacancyId: vacancy.id,
-      vacancyDetailId: d.id ?? i.toString(),
+      vacancyDetailId: d.id ?? "",
       date: d.date,
       startTimeLocal: d.startTime
         ? new Date(
@@ -63,13 +63,20 @@ export const buildAssignmentGroups = (
     .slice()
     .sort((a, b) => +a.startTimeLocal - +b.startTimeLocal);
 
+  // When prearranging, we won't have any Assignment Ids yet, but we
+  // can use the Employee Id as a stand in for that
+  const isPrearrange = sortedDetails.length > 0 && !sortedDetails[0]?.vacancyId;
+
   // Group our details by the Assignment Id and the date of the details
   const detailsByAssignmentAndDate: VacancySummaryDetailByAssignmentAndDate[] = sortedDetails.reduce(
     (groupAccumulator, summaryDetailItem) => {
       // Find an existing group
       const matchingGroup = groupAccumulator.find(
         x =>
-          x.assignmentId === summaryDetailItem.assignment?.id &&
+          ((!isPrearrange &&
+            x.assignmentId === summaryDetailItem.assignment?.id) ||
+            (isPrearrange &&
+              summaryDetailItem.assignment?.employee?.id === x.employeeId)) &&
           isDateEqual(x.date, summaryDetailItem.date)
       );
       if (matchingGroup) {
@@ -79,6 +86,7 @@ export const buildAssignmentGroups = (
         // Add a new group for this Assignment Id and Date
         groupAccumulator.push({
           assignmentId: summaryDetailItem.assignment?.id,
+          employeeId: summaryDetailItem.assignment?.employee?.id,
           date: summaryDetailItem.date,
           startDateAndTimeLocal: summaryDetailItem.startTimeLocal,
           details: [summaryDetailItem],
@@ -100,7 +108,12 @@ export const buildAssignmentGroups = (
           : undefined;
 
       if (
-        lastGroup?.assignment?.id === assignmentAndDateGroupItem.assignmentId
+        (!isPrearrange &&
+          lastGroup?.assignment?.id ===
+            assignmentAndDateGroupItem.assignmentId) ||
+        (isPrearrange &&
+          lastGroup?.assignment?.employee?.id ===
+            assignmentAndDateGroupItem.employeeId)
       ) {
         // Matched on Assignment Id which could be present and for a real Assignment
         // OR undefined and for an Unfilled section of the Vacancy

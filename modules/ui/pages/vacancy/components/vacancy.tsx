@@ -26,7 +26,6 @@ import {
 } from "./vacancy-substitute-details-section";
 import { Formik } from "formik";
 import { VacancyDetailSection } from "./vacancy-details-section";
-import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { ContentFooter } from "ui/components/content-footer";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { Can } from "ui/components/auth/can";
@@ -48,50 +47,7 @@ import { UpdateVacancyMutation } from "../graphql/update-vacancy.gen";
 import { convertVacancyDetailsFormDataToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { vacancyReducer } from "../state";
 import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/types";
-
-export type VacancyDetailsFormData = {
-  id: string;
-  positionTypeId: string;
-  title: string;
-  contractId: string;
-  locationId: string;
-  locationName: string;
-  workDayScheduleId: string;
-  notesToReplacement?: string | null;
-  details: VacancyDetailItem[];
-  replacementEmployeeId?: string;
-  replacementEmployeeName?: string;
-  assignmentId?: string;
-  assignmentRowVersion?: string;
-  ignoreWarnings?: boolean;
-  orgId: string;
-  rowVersion: string;
-};
-
-export type VacancyDetailItem = {
-  id?: string;
-  date: Date;
-  startTime: number;
-  endTime: number;
-  locationId: string;
-  payCodeId?: string;
-  payCodeName?: string;
-  accountingCodeAllocations?: {
-    accountingCodeId: string;
-    accountingCodeName: string;
-    allocation: number;
-  }[];
-  vacancyReasonId: string;
-  assignment?: {
-    id?: string;
-    rowVersion?: string;
-    employee: {
-      id: string;
-      firstName: string;
-      lastName: string;
-    };
-  };
-};
+import { VacancyDetailsFormData } from "../helpers/types";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -286,9 +242,9 @@ export const VacancyUI: React.FC<Props> = props => {
       // Get all of the matching details
       const detailsToCancelAssignmentsFor = vacancyDetailIds
         ? vacancy.details.filter(
-            d => !!d.assignment?.id && vacancyDetailIds.find(i => i === d.id)
+            d => d.assignment && !!vacancyDetailIds.find(i => i === d.id)
           )
-        : vacancy.details.filter(d => !!d.assignment?.id);
+        : vacancy.details.filter(d => d.assignment);
 
       const localDetailIdsToClearAssignmentsOn: string[] = [];
       if (vacancy.id) {
@@ -330,25 +286,28 @@ export const VacancyUI: React.FC<Props> = props => {
       }
 
       // Clear out any Assignments on the details we store locally
-      setVacancy({
-        ...vacancy,
-        details: vacancy.details.map(d => {
-          if (!localDetailIdsToClearAssignmentsOn?.find(i => d.id === i)) {
-            return d;
-          }
-
+      const updatedDetails = vacancy.details.map(d => {
+        if (localDetailIdsToClearAssignmentsOn.find(i => d.id === i)) {
           return {
             ...d,
             assignment: undefined,
           };
-        }),
+        }
+        return d;
+      });
+      setVacancy({
+        ...vacancy,
+        details: updatedDetails,
       });
     },
     [vacancy, cancelAssignment]
   );
 
   const vacancySummaryDetails = useMemo(() => {
-    return convertVacancyDetailsFormDataToVacancySummaryDetails(vacancy);
+    const summaryDetails = convertVacancyDetailsFormDataToVacancySummaryDetails(
+      vacancy
+    );
+    return summaryDetails;
   }, [vacancy]);
 
   React.useEffect(() => {
@@ -446,15 +405,26 @@ export const VacancyUI: React.FC<Props> = props => {
               if (result.data) {
                 const createdVacancy = result.data.vacancy?.create;
                 setVacancyId(createdVacancy?.id ?? "");
-                const assignment = createdVacancy?.details
-                  ? createdVacancy?.details[0]?.assignment
-                  : undefined;
                 setVacancy({
                   ...vacancy,
                   id: result.data.vacancy?.create?.id ?? "",
-                  assignmentId: assignment?.id,
-                  assignmentRowVersion: assignment?.rowVersion,
-                  // ALSO SET THE ASSIGNMENT AND IDS ON THE DETAILS BY DATE
+                  details: vacancy.details.map(d => {
+                    const matchingDetail = createdVacancy?.details?.find(cvd =>
+                      isSameDay(parseISO(cvd?.startDate), d.date)
+                    );
+                    return {
+                      ...d,
+                      id: matchingDetail?.id ?? undefined,
+                      saved: matchingDetail ? true : false,
+                      assignment: matchingDetail?.assignment
+                        ? {
+                            id: matchingDetail.assignment.id,
+                            rowVersion: matchingDetail.assignment.rowVersion,
+                            employee: matchingDetail.assignment.employee,
+                          }
+                        : undefined,
+                    };
+                  }),
                 });
                 setStep("confirmation");
                 e.resetForm();
@@ -469,12 +439,13 @@ export const VacancyUI: React.FC<Props> = props => {
                 const updatedFormData = {
                   ...vacancy,
                   details: vacancy.details.map(d => {
+                    const matchingDetail = updatedDetails?.find(ud =>
+                      isSameDay(parseISO(ud?.startDate), d.date)
+                    );
                     return {
                       ...d,
-                      id:
-                        updatedDetails?.find(ud =>
-                          isSameDay(parseISO(ud?.startDate), d.date)
-                        )?.id ?? undefined,
+                      id: matchingDetail?.id ?? undefined,
+                      saved: matchingDetail ? true : false,
                     };
                   }),
                 };
@@ -577,26 +548,6 @@ export const VacancyUI: React.FC<Props> = props => {
                         vacancy.notesToReplacement = notes;
                       }}
                     />
-                    {/* {hasSub && (
-                      <Grid item xs={12}>
-                        <AssignedSub
-                          employeeId={
-                            vacancy.details[0]
-                              .prearrangedReplacementEmployeeId ?? ""
-                          }
-                          employeeName={hasSub}
-                          subText={
-                            vacancyExists ? t("assigned") : t("pre-arranged")
-                          }
-                          vacancies={[]}
-                          assignmentStartDate={vacancy.details[0].date}
-                          assignmentsByDate={vacancy.details.map(d => {
-                            return { date: d.date };
-                          })}
-                          onCancelAssignment={onUnassignSub}
-                        />
-                      </Grid>
-                    )} */}
                     <VacancySubstituteDetailsSection
                       scheduleDays={buildScheduleDays(vacancy)}
                       showNotes={true}
@@ -716,15 +667,14 @@ export const VacancyUI: React.FC<Props> = props => {
                 vacancyId={vacancyId}
                 orgId={params.organizationId}
                 setStep={setStep}
-                scheduleDays={buildScheduleDays(vacancy)}
+                vacancySummaryDetails={vacancySummaryDetails}
                 notes={vacancy.notesToReplacement ?? ""}
                 values={vacancy}
                 locations={locations}
                 positionTypes={positionTypes}
                 contracts={contracts}
                 setVacancyForCreate={setVacancy}
-                unassignSub={onCancelAssignment}
-                replacementEmployeeName={""}
+                onCancelAssignment={onCancelAssignment}
               />
             )}
           </form>

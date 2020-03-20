@@ -20,13 +20,14 @@ import {
   Contract,
 } from "graphql/server-types.gen";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
-import { VacancyDetailsFormData } from "./vacancy";
+import { VacancyDetailsFormData } from "../helpers/types";
+import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
+import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary/vacancy-summary";
 
 type Props = {
   orgId: string;
   vacancyId: string;
   setStep?: (s: VacancyStep) => void;
-  scheduleDays: VacancyScheduleDay[];
   notes: string;
   values: VacancyDetailsFormData;
   locations: Loc[];
@@ -35,8 +36,8 @@ type Props = {
   setVacancyForCreate: React.Dispatch<
     React.SetStateAction<VacancyDetailsFormData>
   >;
-  replacementEmployeeName?: string;
-  unassignSub: () => Promise<void>;
+  vacancySummaryDetails: VacancySummaryDetail[];
+  onCancelAssignment: (vacancyDetailIds?: string[]) => Promise<void>;
 };
 
 export const VacancyConfirmation: React.FC<Props> = props => {
@@ -44,15 +45,19 @@ export const VacancyConfirmation: React.FC<Props> = props => {
   const classes = useStyles();
   const history = useHistory();
   const params = useRouteParams(VacancyCreateRoute);
-  const [filled, setIsFilled] = useState<boolean>(
-    !!props.values.details[0]?.prearrangedReplacementEmployeeId ?? false
-  );
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const { orgId, setStep, vacancyId } = props;
+  const {
+    orgId,
+    setStep,
+    vacancyId,
+    vacancySummaryDetails,
+    onCancelAssignment,
+    notes
+  } = props;
 
   const editUrl = useMemo(() => {
     if (!vacancyId) {
@@ -103,31 +108,10 @@ export const VacancyConfirmation: React.FC<Props> = props => {
             />
           </Grid>
           <Grid item xs={6}>
-            {filled && (
-              <Grid item xs={12}>
-                <AssignedSub
-                  employeeId={
-                    props.values.details[0].prearrangedReplacementEmployeeId ??
-                    ""
-                  }
-                  employeeName={props.replacementEmployeeName ?? ""}
-                  subText={t("pre-arranged")}
-                  vacancies={[]}
-                  assignmentStartDate={props.values.details[0].date}
-                  assignmentsByDate={props.values.details.map(d => {
-                    return { date: d.date };
-                  })}
-                  onCancelAssignment={async () => {
-                    await props.unassignSub();
-                    setIsFilled(false);
-                  }}
-                />
-              </Grid>
-            )}
-            <VacancySubstituteDetailsSection
-              scheduleDays={props.scheduleDays}
-              showNotes={true}
-              notes={props.notes}
+            <VacancySummary
+              vacancySummaryDetails={vacancySummaryDetails}
+              onCancelAssignment={onCancelAssignment}
+              notesForSubstitute={notes}
             />
           </Grid>
         </Grid>
@@ -142,6 +126,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
                   positionTypeId: "",
                   contractId: "",
                   locationId: "",
+                  locationName: "",
                   workDayScheduleId: "",
                   details: [],
                   id: "",

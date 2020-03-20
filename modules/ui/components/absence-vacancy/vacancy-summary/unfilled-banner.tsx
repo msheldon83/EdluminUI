@@ -7,7 +7,7 @@ import { canAssignSub } from "helpers/permissions";
 
 type Props = {
   assignmentStartTime: Date;
-  onAssignClick: () => void;
+  onAssignClick?: () => void;
   disableActions?: boolean;
 };
 
@@ -19,21 +19,25 @@ export const UnfilledBanner: React.FC<Props> = props => {
   return (
     <div className={classes.unfilled}>
       <Typography variant={"h6"}>{t("Unfilled")}</Typography>
-      <Can
-        do={(
-          permissions: OrgUserPermissions[],
-          isSysAdmin: boolean,
-          orgId?: string
-        ) => canAssignSub(assignmentStartTime, permissions, isSysAdmin, orgId)}
-      >
-        <Button
-          variant="text"
-          onClick={onAssignClick}
-          disabled={disableActions}
+      {onAssignClick && (
+        <Can
+          do={(
+            permissions: OrgUserPermissions[],
+            isSysAdmin: boolean,
+            orgId?: string
+          ) =>
+            canAssignSub(assignmentStartTime, permissions, isSysAdmin, orgId)
+          }
         >
-          {t("Assign")}
-        </Button>
-      </Can>
+          <Button
+            variant="text"
+            onClick={onAssignClick}
+            disabled={disableActions}
+          >
+            {t("Assign")}
+          </Button>
+        </Can>
+      )}
     </div>
   );
 };

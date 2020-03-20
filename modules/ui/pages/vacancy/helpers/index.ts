@@ -1,10 +1,10 @@
-import { VacancyDetailsFormData } from "../components/vacancy";
 import {
   VacancyCreateInput,
   Vacancy,
   VacancyUpdateInput,
 } from "graphql/server-types.gen";
 import { parseISO } from "date-fns";
+import { VacancyDetailsFormData } from "./types";
 
 export const buildVacancyCreateInput = (
   v: VacancyDetailsFormData
@@ -19,7 +19,6 @@ export const buildVacancyCreateInput = (
     notesToReplacement: v.notesToReplacement,
     details: v.details.map(d => {
       return {
-        id: d.id ?? undefined,
         date: d.date,
         startTime: d.startTime,
         endTime: d.endTime,
@@ -85,20 +84,6 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
           };
         })
       : [],
-    assignmentId:
-      v.details && v.details[0]?.assignment ? v.details[0]?.assignment.id : "",
-    assignmentRowVersion:
-      v.details && v.details[0]?.assignment
-        ? v.details[0]?.assignment.rowVersion
-        : "",
-    replacementEmployeeId: v.details
-      ? v.details[0]?.assignment?.employeeId ?? ""
-      : "",
-    replacementEmployeeName:
-      v.details && v.details[0]?.assignment
-        ? `${v.details[0]?.assignment?.employee?.firstName ?? ""} ${v.details[0]
-            ?.assignment?.employee?.lastName ?? ""}` ?? ""
-        : "",
   };
 };
 
@@ -114,7 +99,7 @@ export const buildVacancyUpdateInput = (
     notesToReplacement: v.notesToReplacement,
     details: v.details.map(d => {
       return {
-        id: d.id ?? undefined,
+        id: d.saved ? d.id : undefined,
         date: d.date,
         startTime: d.startTime,
         endTime: d.endTime,

@@ -2,22 +2,17 @@ import { makeStyles, Typography, TextField } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
-import {
-  VacancySummaryDetail,
-  AssignmentFor,
-  Assignment,
-  AssignmentWithDetails,
-} from "./types";
+import { VacancySummaryDetail, AssignmentFor } from "./types";
 import { buildAssignmentGroups } from "./helpers";
 import { AssignmentGroup } from "./assignment-group";
-import { uniqBy } from "lodash-es";
+import { uniqWith } from "lodash-es";
 
 type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
   showAbsenceTimes?: boolean;
   notesForSubstitute?: string;
   setNotesForSubstitute?: (notes: string) => void;
-  onAssignClick: (currentAssignmentInfo: AssignmentFor) => void;
+  onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
   onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
   disableAssignmentActions?: boolean;
   detailsOnly?: boolean;
@@ -53,8 +48,18 @@ export const VacancySummary: React.FC<Props> = props => {
       return false;
     }
 
-    const uniqueRecords = uniqBy(vacancySummaryDetails, "assignment");
-    return uniqueRecords.length > 1 || !!uniqueRecords[0].assignment?.id;
+    const uniqueRecords = uniqWith(
+      vacancySummaryDetails,
+      (a, b) =>
+        a.assignment?.id === b.assignment?.id &&
+        a.assignment?.employee?.id === b.assignment?.employee?.id
+    );
+
+    return (
+      uniqueRecords.length > 1 ||
+      !!uniqueRecords[0].assignment?.id ||
+      !!uniqueRecords[0].assignment?.employee?.id
+    );
   }, [vacancySummaryDetails]);
 
   return (

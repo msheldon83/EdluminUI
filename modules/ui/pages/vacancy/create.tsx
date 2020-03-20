@@ -10,8 +10,9 @@ import { useMutationBundle } from "graphql/hooks";
 import { CreateVacancy } from "./graphql/create-vacancy.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-import { VacancyUI, VacancyDetailsFormData } from "./components/vacancy";
+import { VacancyUI } from "./components/vacancy";
 import { buildVacancyCreateInput } from "./helpers";
+import { VacancyDetailsFormData } from "./helpers/types";
 
 type Props = {};
 

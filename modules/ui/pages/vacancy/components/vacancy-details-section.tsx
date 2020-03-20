@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as uuid from "uuid";
 import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import {
   PositionType,
@@ -21,7 +22,8 @@ import { find } from "lodash-es";
 import { VacancyIndividualDayList } from "./vacancy-individual-day-list";
 import { SelectVacancyDateDialog } from "./vacancy-date-picker-dialog";
 import { Input } from "ui/components/form/input";
-import { VacancyDetailsFormData } from "./vacancy";
+import { VacancyDetailsFormData } from "../helpers/types";
+import { getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 
 type Props = {
   orgId: string;
@@ -90,7 +92,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
             value: r.id,
           })) ?? []
       : [];
-  }, [locations]);
+  }, [locations, values.locationId, locationOptions]);
 
   const updateModel = (p: any) => {
     const vacancy = {
@@ -110,7 +112,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
           find(values.details, vd => isSameDay(vd.date, date)) ?? {}
         );
       } else {
-        newDetails.push({ date: d });
+        newDetails.push({ date: d, id: uuid.v4() });
       }
     });
     setFieldValue("details", newDetails);
@@ -124,44 +126,12 @@ export const VacancyDetailSection: React.FC<Props> = props => {
   };
 
   const buildDateLabel = React.useMemo(() => {
-    let buildSeq = false;
-    let seqStartDate;
-    let seqEndDate;
-    let label = "";
-    let currentMonth = "";
-    const sortedArray = sortBy(values.details, d => {
+    const sortedDates = sortBy(values.details, d => {
       return d.date;
     });
-    for (let i = 0; i < sortedArray.length; i++) {
-      if (
-        i + 1 !== sortedArray.length &&
-        isSameDay(addDays(sortedArray[i].date, 1), sortedArray[i + 1].date)
-      ) {
-        //in sequence
-        if (!buildSeq) {
-          buildSeq = true;
-          seqStartDate = sortedArray[i].date;
-          currentMonth =
-            currentMonth === ""
-              ? format(sortedArray[i].date, "MMM")
-              : currentMonth;
-        }
-      } else if (buildSeq) {
-        seqEndDate = sortedArray[i].date;
-        label = `${label} ${format(seqStartDate, "MMM d")} - ${format(
-          seqEndDate,
-          "d"
-        )}`;
-        buildSeq = false;
-      } else if (!buildSeq) {
-        if (format(sortedArray[i].date, "MMM") !== currentMonth) {
-          currentMonth = format(sortedArray[i].date, "MMM");
-          label = `${label} ${format(sortedArray[i].date, "MMM d")}`;
-        } else {
-          label = `${label}, ${format(sortedArray[i].date, "d")}`;
-        }
-      }
-    }
+    const label = getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates(
+      sortedDates.map(d => d.date)
+    );
     return label;
   }, [values.details]);
 

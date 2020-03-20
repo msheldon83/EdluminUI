@@ -10,7 +10,7 @@ type Props = {
   assignmentWithDetails: AssignmentWithDetails;
   isPartiallyFilled: boolean;
   showAbsenceTimes: boolean;
-  onAssignClick: (currentAssignmentInfo: AssignmentFor) => void;
+  onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
   onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
   disableActions?: boolean;
   detailsOnly?: boolean;
@@ -39,7 +39,11 @@ export const AssignmentGroup: React.FC<Props> = props => {
         <>
           {showUnfilledHeader && (
             <UnfilledBanner
-              onAssignClick={() => onAssignClick(assignmentWithDetails)}
+              onAssignClick={
+                onAssignClick
+                  ? () => onAssignClick(assignmentWithDetails)
+                  : undefined
+              }
               assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
               disableActions={disableActions}
             />
@@ -48,7 +52,11 @@ export const AssignmentGroup: React.FC<Props> = props => {
             <AssignedBanner
               assignmentWithDetails={assignmentWithDetails}
               assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
-              onReassignClick={() => onAssignClick(assignmentWithDetails)}
+              onReassignClick={
+                onAssignClick
+                  ? () => onAssignClick(assignmentWithDetails)
+                  : undefined
+              }
               onCancelAssignment={onCancelAssignment}
               disableActions={disableActions}
             />

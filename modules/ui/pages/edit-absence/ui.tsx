@@ -465,7 +465,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const onAssignReplacement = useCallback(
     async (
       employeeId: string,
-      name: string,
+      employeeFirstName: string,
+      employeeLastName: string,
       payCode: string | undefined,
       vacancyDetailIds?: string[]
     ) => {

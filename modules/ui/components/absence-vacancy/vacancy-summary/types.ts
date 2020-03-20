@@ -21,6 +21,7 @@ export type VacancySummaryDetail = {
   date with which assignment */
 export type VacancySummaryDetailByAssignmentAndDate = {
   assignmentId?: string;
+  employeeId?: string;
   date: Date;
   startDateAndTimeLocal: Date;
   details: VacancySummaryDetail[];

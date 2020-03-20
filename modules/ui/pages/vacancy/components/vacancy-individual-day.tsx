@@ -13,8 +13,7 @@ import {
   isoToTimestamp,
   secondsToFormattedHourMinuteString,
 } from "helpers/time";
-import { VacancyDetailItem } from "./vacancy";
-import { VacancyDayPart } from "../helpers/types";
+import { VacancyDayPart, VacancyDetailItem } from "../helpers/types";
 
 type Props = {
   vacancyDetail: VacancyDetailItem;
@@ -57,10 +56,10 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     disableAccountingCode = false,
   } = props;
 
-  const [startTime, setStartTime] = useState<string | number>(
+  const [startTime, setStartTime] = useState<string | number | undefined>(
     vacancyDetail.startTime
   );
-  const [endTime, setEndTime] = useState<string | number>(
+  const [endTime, setEndTime] = useState<string | number | undefined>(
     vacancyDetail.endTime
   );
   const [showCustom, setShowCustom] = useState(false);
@@ -113,19 +112,22 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
 
   const updateVacancyDetailTimes = React.useCallback(
     (timeId: string) => {
-      const sTime: number = dayParts.find(d => {
+      const sTime: number | undefined = dayParts.find(d => {
         return d.id === timeId;
       })?.start;
-      const eTime: number = dayParts.find(d => {
+      const eTime: number | undefined = dayParts.find(d => {
         return d.id === timeId;
       })?.end;
-      const newVacDetail = {
-        ...vacancyDetail,
-        startTime: sTime,
-        endTime: eTime,
-      };
-      setShowCustom(timeId === "custom");
-      setVacancyDetailTimes(newVacDetail);
+
+      if (sTime && eTime) {
+        const newVacDetail = {
+          ...vacancyDetail,
+          startTime: sTime,
+          endTime: eTime,
+        };
+        setShowCustom(timeId === "custom");
+        setVacancyDetailTimes(newVacDetail);
+      }
     },
     [props, dayParts] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
@@ -266,7 +268,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
           <Grid item xs={3}>
             <TimeInput
               placeHolder={t("Start time")}
-              value={startTime}
+              value={startTime?.toString() ?? ""}
               label=""
               onValidTime={(v: string) => {
                 handleSetStartTime(v, true);
@@ -279,7 +281,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
           <Grid item xs={3}>
             <TimeInput
               placeHolder={t("End time")}
-              value={endTime}
+              value={endTime?.toString() ?? ""}
               label=""
               onValidTime={(v: string) => {
                 handleSetEndTime(v, true);

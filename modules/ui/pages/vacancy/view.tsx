@@ -6,7 +6,7 @@ import { VacancyViewRoute } from "ui/routes/vacancy";
 import { useTranslation } from "react-i18next";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { VacancyUI, VacancyDetailsFormData } from "./components/vacancy";
+import { VacancyUI } from "./components/vacancy";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetVacancyById } from "./graphql/get-vacancy-byid.gen";
 import { UpdateVacancy } from "./graphql/update-vacancy.gen";
@@ -19,6 +19,7 @@ import { DeleteAbsenceVacancyDialog } from "ui/components/absence-vacancy/delete
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useHistory } from "react-router";
 import { DeleteVacancy } from "./graphql/delete-vacancy.gen";
+import { VacancyDetailsFormData } from "./helpers/types";
 
 type Props = {};
 

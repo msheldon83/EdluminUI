@@ -7,12 +7,12 @@ import { AccountCircleOutlined } from "@material-ui/icons";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { canRemoveSub, canReassignSub } from "helpers/permissions";
 import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
   assignmentStartTime: Date;
-  onReassignClick: () => void;
+  onReassignClick?: () => void;
   onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
   disableActions?: boolean;
 };
@@ -47,11 +47,20 @@ export const AssignedBanner: React.FC<Props> = props => {
     }
   }, [onCancelAssignment, assignmentWithDetails]);
 
+  const componentIsMounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      componentIsMounted.current = false;
+    };
+  }, []);
+
   return (
     <>
       <CancelAssignmentDialog
         onCancelAssignment={onCancelAssignment}
-        onClose={() => setCancelAssignmentDialogIsOpen(false)}
+        onClose={() =>
+          componentIsMounted.current && setCancelAssignmentDialogIsOpen(false)
+        }
         open={cancelAssignmentDialogIsOpen}
         assignmentWithDetails={assignmentWithDetails}
       />
@@ -69,28 +78,30 @@ export const AssignedBanner: React.FC<Props> = props => {
           <div>{t("#C") + assignmentWithDetails.assignment?.id}</div>
         )}
         <div className={classes.actions}>
-          <Can
-            do={(
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string
-            ) =>
-              canReassignSub(
-                assignmentStartTime,
-                permissions,
-                isSysAdmin,
-                orgId
-              )
-            }
-          >
-            <Button
-              variant="text"
-              onClick={onReassignClick}
-              disabled={disableActions}
+          {onReassignClick && (
+            <Can
+              do={(
+                permissions: OrgUserPermissions[],
+                isSysAdmin: boolean,
+                orgId?: string
+              ) =>
+                canReassignSub(
+                  assignmentStartTime,
+                  permissions,
+                  isSysAdmin,
+                  orgId
+                )
+              }
             >
-              {t("Reassign")}
-            </Button>
-          </Can>
+              <Button
+                variant="text"
+                onClick={onReassignClick}
+                disabled={disableActions}
+              >
+                {t("Reassign")}
+              </Button>
+            </Can>
+          )}
           <Can
             do={(
               permissions: OrgUserPermissions[],

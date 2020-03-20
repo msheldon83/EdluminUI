@@ -5,9 +5,15 @@ mutation CreateVacancy($vacancy: VacancyCreateInput!) {
       rowVersion
       details {
         id
+        startDate
         assignment {
           id
           rowVersion
+          employee {
+            id
+            firstName
+            lastName
+          }
         }
       }
     }

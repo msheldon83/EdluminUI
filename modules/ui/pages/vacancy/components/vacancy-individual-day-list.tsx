@@ -19,7 +19,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { isSameDay } from "date-fns";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
-import { VacancyDetailItem } from "./vacancy";
+import { VacancyDetailItem, VacancyDayPart } from "../helpers/types";
 
 type Props = {
   vacancyDays: VacancyDetailItem[];
@@ -312,6 +312,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     [props, workDayScheduleVariant]
   );
 
+  console.log("dayParts", dayParts);
+
   /* Use this effect for existing vacancies that will have existing days */
   useEffect(() => {
     if (vacancyDays.length > 0) {
@@ -416,8 +418,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
             update = true;
           } else {
             if (!vacancyDays[i].startTime || !vacancyDays[i].endTime) {
-              vacancyDays[i].startTime = dayParts[0].start;
-              vacancyDays[i].endTime = dayParts[0].end;
+              vacancyDays[i].startTime = dayParts[0].start ?? 0;
+              vacancyDays[i].endTime = dayParts[0].end ?? 0;
               update = true;
             }
           }
@@ -472,6 +474,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
           vacancyDays[0].accountingCodeAllocations.length > 0
             ? vacancyDays[0].accountingCodeAllocations[0]?.accountingCodeId
             : undefined;
+        const accountingCodeName =
+          vacancyDays[0].accountingCodeAllocations &&
+          vacancyDays[0].accountingCodeAllocations.length > 0
+            ? vacancyDays[0].accountingCodeAllocations[0]?.accountingCodeName
+            : undefined;
         for (let i = 0; i < vacancyDays.length; i++) {
           if (
             useSameAccountingCode &&
@@ -483,7 +490,13 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
           ) {
             vacancyDays[i].accountingCodeAllocations =
               accountingCodeId && accountingCodeId.length > 0
-                ? [{ accountingCodeId: accountingCodeId, allocation: 1.0 }]
+                ? [
+                    {
+                      accountingCodeId: accountingCodeId,
+                      accountingCodeName: accountingCodeName ?? "",
+                      allocation: 1.0,
+                    },
+                  ]
                 : [];
             update = true;
           }
