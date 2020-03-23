@@ -10,7 +10,7 @@ import {
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useIsMobile, useDeferredState } from "hooks";
 import * as React from "react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -28,8 +28,8 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ResetUserPassword } from "./graphql/reset-user-password.gen";
 import { InviteUser } from "./graphql/invite-user.gen";
-import { ChangeLoginEmailDialog } from "../profile/change-email-dialog";
-import { UpdateLoginEmail } from "../profile/UpdateLoginEmail.gen";
+import { ChangeLoginEmailDialog } from "../profile/components/change-email-dialog";
+import { UpdateLoginEmail } from "../profile/graphql/UpdateLoginEmail.gen";
 import { format, parseISO, isPast } from "date-fns";
 import { Table } from "ui/components/table";
 import { OrgUser } from "graphql/server-types.gen";
@@ -45,7 +45,7 @@ export const UserViewPage: React.FC<Props> = props => {
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(UserViewRoute);
-  const [orgUsers, setOrgUsers] = React.useState<
+  const [orgUsers, setOrgUsers] = useState<
     Pick<
       OrgUser,
       | "id"
@@ -60,7 +60,35 @@ export const UserViewPage: React.FC<Props> = props => {
     >[]
   >([]);
 
-  const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
+  const getUser = useQueryBundle(GetUserById, {
+    variables: { id: params.userId },
+  });
+  const user =
+    getUser.state === "LOADING" ? undefined : getUser?.data?.user?.byId;
+
+  // On User Update, the backend doesn't return the OrgUsers
+  // associated with the User, so let's just cache them here
+  // when we get a populated list and not when the list in empty
+  useEffect(() => {
+    if (user?.allOrgUsers && user?.allOrgUsers?.length > 0) {
+      setOrgUsers(
+        (user?.allOrgUsers ?? []) as Pick<
+          OrgUser,
+          | "id"
+          | "isAdmin"
+          | "isEmployee"
+          | "isReplacementEmployee"
+          | "active"
+          | "organization"
+          | "firstName"
+          | "lastName"
+          | "email"
+        >[]
+      );
+    }
+  }, [user]);
+
+  const [changeEmailIsOpen, setChangeEmailIsOpen] = useState(false);
   const onCloseEmailDialog = React.useCallback(
     () => setChangeEmailIsOpen(false),
     [setChangeEmailIsOpen]
@@ -70,6 +98,18 @@ export const UserViewPage: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
+
+  const onUpdateLoginEmail = async (loginEmail: string) => {
+    await updateLoginEmail({
+      variables: {
+        loginEmailChange: {
+          id: params.userId,
+          rowVersion: user?.rowVersion ?? "",
+          loginEmail: loginEmail,
+        },
+      },
+    });
+  };
 
   const [updateUser] = useMutationBundle(UpdateUser, {
     onError: error => {
@@ -82,14 +122,13 @@ export const UserViewPage: React.FC<Props> = props => {
       middleName: string | undefined,
       lastName: string,
       phone: string | undefined,
-      rowVersion: string | undefined,
       phoneIsValidForSms: boolean | undefined
     ) => {
       return updateUser({
         variables: {
           user: {
             id: params.userId,
-            rowVersion: rowVersion ?? "",
+            rowVersion: user?.rowVersion ?? "",
             firstName,
             middleName,
             lastName,
@@ -99,7 +138,7 @@ export const UserViewPage: React.FC<Props> = props => {
         },
       });
     },
-    [updateUser, params]
+    [updateUser, params, user]
   );
 
   const [resetPassword] = useMutationBundle(ResetUserPassword, {
@@ -139,34 +178,6 @@ export const UserViewPage: React.FC<Props> = props => {
     history.push("/");
   };
 
-  const getUser = useQueryBundle(GetUserById, {
-    variables: { id: params.userId },
-  });
-  const user =
-    getUser.state === "LOADING" ? undefined : getUser?.data?.user?.byId;
-
-  // On User Update, the backend doesn't return the OrgUsers
-  // associated with the User, so let's just cache them here
-  // when we get a populated list and not when the list in empty
-  useEffect(() => {
-    if (user?.allOrgUsers && user?.allOrgUsers?.length > 0) {
-      setOrgUsers(
-        (user?.allOrgUsers ?? []) as Pick<
-          OrgUser,
-          | "id"
-          | "isAdmin"
-          | "isEmployee"
-          | "isReplacementEmployee"
-          | "active"
-          | "organization"
-          | "firstName"
-          | "lastName"
-          | "email"
-        >[]
-      );
-    }
-  }, [user]);
-
   const smsStopped = useMemo(() => {
     if (!user || !user.stopSmsUntilUtc) {
       return false;
@@ -190,7 +201,6 @@ export const UserViewPage: React.FC<Props> = props => {
   }
 
   const userName = `${user?.firstName} ${user?.lastName}`;
-  const rowVersion = user?.rowVersion;
   const resetPasswordTicketUrl = user?.resetPasswordTicketUrl ?? "";
 
   let pendingInvite = false;
@@ -260,8 +270,7 @@ export const UserViewPage: React.FC<Props> = props => {
       <ChangeLoginEmailDialog
         open={changeEmailIsOpen}
         onClose={onCloseEmailDialog}
-        updateLoginEmail={updateLoginEmail}
-        user={user!}
+        onUpdateLoginEmail={onUpdateLoginEmail}
         triggerReauth={false}
       />
 
@@ -335,7 +344,6 @@ export const UserViewPage: React.FC<Props> = props => {
               data.middleName,
               data.lastName,
               data.phone,
-              rowVersion,
               data.phoneIsValidForSms ? data.phoneIsValidForSms : undefined
             );
           }}
