@@ -331,7 +331,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                 }}
                 options={locationOptions}
                 multiple={false}
-                label={t("School")}
+                label={t("Location")}
                 withResetValue={false}
                 onChange={async (e: OptionType) => {
                   let selectedValue: any = null;
@@ -350,7 +350,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
             )}
             {(readOnly || vacancyExists) && (
               <>
-                <Typography variant="h6">{t("School")}</Typography>
+                <Typography variant="h6">{t("Location")}</Typography>
                 <Typography>
                   {locationOptions.find(
                     (a: any) => a.value === values.locationId
