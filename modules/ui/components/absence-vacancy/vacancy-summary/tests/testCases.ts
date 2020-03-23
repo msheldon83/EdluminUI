@@ -1,4 +1,4 @@
-export const TestCases = {
+export const AssignmentGroupTestCases = {
   singleDayNoAssignment: [
     {
       vacancyId: "1",
