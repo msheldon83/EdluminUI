@@ -9,6 +9,7 @@ import { Formik } from "formik";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useIsMobile } from "hooks";
 import { OptionTypeBase } from "react-select/src/types";
+import Button from "@material-ui/core/Button";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { TextField as FormTextField } from "ui/components/form/text-field";
@@ -67,10 +68,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const overrideStyles = rootStyles();
   const { t } = useTranslation();
 
-  const [vacancyDayConversions, setVacancyDayConversions] = React.useState<
-    DayConversionInput[]
-  >([]);
-
   const initialValues = {
     name: props.organization.name || "",
     externalId: props.organization.externalId || "",
@@ -114,7 +111,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
       props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled ||
       undefined,
     vacancyDayConversions:
-      props.organization?.config?.vacancyDayConversions || undefined,
+      props.organization?.config?.vacancyDayConversions || [],
   };
 
   const validateBasicDetails = React.useMemo(
@@ -145,6 +142,10 @@ export const AddBasicInfo: React.FC<Props> = props => {
     [t]
   );
 
+  const onRemove = (id: any) => {
+    //Remove from SetVacancy
+  };
+
   return (
     <Section>
       <SectionHeader title={t("Basic info")} />
@@ -152,7 +153,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
         initialValues={initialValues}
         validationSchema={validateBasicDetails}
         onSubmit={async (data: any) => {
-          props.onSubmit(
+          await props.onSubmit(
             data.name,
             data.superUserFirstName,
             data.superUserLastName,
@@ -176,7 +177,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
             data.maxRequestedEmployeeHoldMinutes,
             data.minorConflictThresholdMinutes,
             data.minutesRelativeToStartVacancyCanBeFilled,
-            vacancyDayConversions
+            data.vacancyDayConversions.length > 0
+              ? data.vacancyDayConversions
+              : undefined
           );
         }}
       >
@@ -363,7 +366,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   label={t("Users Must Accept Eula?")}
                 />
               </Grid>
-              <Grid item xs={12} sm={12}>
+              <Grid item xs={12}>
                 <Divider />
                 <SectionHeader title={t("Non-required setup info")} />
               </Grid>
@@ -451,7 +454,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-
               <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Max Gap Minutes For Same Vacancy Detail")}
@@ -527,14 +529,95 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
+              <Grid item xs={12}>
+                <Divider />
+                <SectionHeader title={t("Vacancy Day Conversions")} />
+              </Grid>
               <Grid
-                item
                 xs={12}
-                sm={12}
+                item
+                container
                 classes={{ root: overrideStyles.root }}
               >
-                {/* Map the grid and update the grid on adding a new Vacancy Day Conversion */}
+                <Button
+                  variant="contained"
+                  //size="small"
+                  onClick={e => {
+                    const value: DayConversionInput = {
+                      name: "",
+                      maxMinutes: 0,
+                      dayEquivalent: 0,
+                    };
+
+                    values.vacancyDayConversions.push(value);
+                    setFieldValue(
+                      "vacancyDayConversions",
+                      values.vacancyDayConversions
+                    );
+                  }}
+                >
+                  {t("Add")}
+                </Button>
               </Grid>
+
+              {values.vacancyDayConversions.map((n, i) => (
+                <Grid
+                  item
+                  key={i}
+                  container
+                  xs={12}
+                  classes={{ root: overrideStyles.root }}
+                >
+                  <Grid item xs={3}>
+                    <Input
+                      inputComponentProps={{
+                        margin: isMobile ? "normal" : "none",
+                        variant: "outlined",
+                        fullWidth: true,
+                        name: `vacancyDayConversions[${i}].name`,
+                        value: n?.name,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Input
+                      inputComponentProps={{
+                        margin: isMobile ? "normal" : "none",
+                        variant: "outlined",
+                        fullWidth: true,
+                        name: `vacancyDayConversions[${i}].maxMinutes`,
+                        value: n?.maxMinutes,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Input
+                      inputComponentProps={{
+                        margin: isMobile ? "normal" : "none",
+                        variant: "outlined",
+                        value: n?.dayEquivalent,
+                        name: `vacancyDayConversions[${i}].dayEquivalent`,
+                        fullWidth: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Button
+                      onClick={() => {
+                        values.vacancyDayConversions.splice(i, 1);
+                        setFieldValue(
+                          "vacancyDayConversions",
+                          values.vacancyDayConversions
+                        );
+                      }}
+                      variant="contained"
+                      size="small"
+                    >
+                      {t("Remove")}
+                    </Button>
+                  </Grid>
+                </Grid>
+              ))}
             </Grid>
             <Divider />
             <ActionButtons
