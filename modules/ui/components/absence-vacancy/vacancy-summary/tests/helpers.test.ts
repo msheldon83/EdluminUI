@@ -13,6 +13,13 @@ describe("buildAssignmentGroups", () => {
         dates: [new Date("2020-03-17T04:00:00.000Z")],
         assignment: undefined,
         vacancyDetailIds: ["1"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-17T04:00:00.000Z"),
+            vacancyDetailIds: ["1"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-17T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
@@ -42,6 +49,13 @@ describe("buildAssignmentGroups", () => {
           employee: { id: "7", firstName: "David", lastName: "Nawn" },
         },
         vacancyDetailIds: ["1"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-17T04:00:00.000Z"),
+            vacancyDetailIds: ["1"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-17T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
@@ -69,6 +83,13 @@ describe("buildAssignmentGroups", () => {
           employee: { id: "7", firstName: "David", lastName: "Nawn" },
         },
         vacancyDetailIds: ["1"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-17T04:00:00.000Z"),
+            vacancyDetailIds: ["1"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-17T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
@@ -102,6 +123,21 @@ describe("buildAssignmentGroups", () => {
           employee: { id: "7", firstName: "David", lastName: "Nawn" },
         },
         vacancyDetailIds: ["1", "2", "3"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-17T04:00:00.000Z"),
+            vacancyDetailIds: ["1"],
+          },
+          {
+            date: new Date("2020-03-18T04:00:00.000Z"),
+            vacancyDetailIds: ["2"],
+          },
+          {
+            date: new Date("2020-03-19T04:00:00.000Z"),
+            vacancyDetailIds: ["3"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-17T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
@@ -131,6 +167,13 @@ describe("buildAssignmentGroups", () => {
           employee: { id: "7", firstName: "David", lastName: "Nawn" },
         },
         vacancyDetailIds: ["1"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-17T04:00:00.000Z"),
+            vacancyDetailIds: ["1"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-17T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
@@ -151,6 +194,13 @@ describe("buildAssignmentGroups", () => {
           employee: { id: "7", firstName: "David", lastName: "Nawn" },
         },
         vacancyDetailIds: ["2"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-18T04:00:00.000Z"),
+            vacancyDetailIds: ["2"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-18T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
@@ -179,6 +229,17 @@ describe("buildAssignmentGroups", () => {
         ],
         assignment: undefined,
         vacancyDetailIds: ["1", "2"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-17T04:00:00.000Z"),
+            vacancyDetailIds: ["1"],
+          },
+          {
+            date: new Date("2020-03-18T04:00:00.000Z"),
+            vacancyDetailIds: ["2"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-17T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
@@ -222,6 +283,17 @@ describe("buildAssignmentGroups", () => {
           employee: { id: "7", firstName: "David", lastName: "Nawn" },
         },
         vacancyDetailIds: ["1", "2", "3", "4"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-17T04:00:00.000Z"),
+            vacancyDetailIds: ["1", "2"],
+          },
+          {
+            date: new Date("2020-03-18T04:00:00.000Z"),
+            vacancyDetailIds: ["3", "4"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-17T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
@@ -260,6 +332,13 @@ describe("buildAssignmentGroups", () => {
           employee: { id: "7", firstName: "David", lastName: "Nawn" },
         },
         vacancyDetailIds: ["1"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-16T04:00:00.000Z"),
+            vacancyDetailIds: ["1"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-16T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
@@ -276,6 +355,13 @@ describe("buildAssignmentGroups", () => {
         dates: [new Date("2020-03-17T04:00:00.000Z")],
         assignment: undefined,
         vacancyDetailIds: ["2"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-17T04:00:00.000Z"),
+            vacancyDetailIds: ["2"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-17T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
@@ -296,6 +382,13 @@ describe("buildAssignmentGroups", () => {
           employee: { id: "7", firstName: "David", lastName: "Nawn" },
         },
         vacancyDetailIds: ["3"],
+        vacancyDetailIdsByDate: [
+          {
+            date: new Date("2020-03-18T04:00:00.000Z"),
+            vacancyDetailIds: ["3"],
+          },
+        ],
+        startDateAndTimeLocal: new Date("2020-03-18T08:00:00.000"),
         details: [
           {
             startTime: "8:00 AM",
