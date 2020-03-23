@@ -1,5 +1,5 @@
 import * as React from "react";
-import { VacancySummary } from "../vacancy-summary";
+import { VacancySummary } from "..";
 import { TestCases } from "./testCases";
 import { makeStyles } from "@material-ui/core";
 import { mockProvider } from "test-helpers/mock-provider";

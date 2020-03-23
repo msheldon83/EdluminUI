@@ -37,7 +37,7 @@ import { AssignVacancy } from "../graphql/assign-vacancy.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { CancelAssignment } from "../graphql/cancel-assignment.gen";
-import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary/vacancy-summary";
+import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary";
 import { CreateVacancyMutation } from "../graphql/create-vacancy.gen";
 import { UpdateVacancyMutation } from "../graphql/update-vacancy.gen";
 import { convertVacancyDetailsFormDataToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
@@ -313,9 +313,7 @@ export const VacancyUI: React.FC<Props> = props => {
 
   const vacancySummaryDetailsToAssign = useMemo(() => {
     return vacancySummaryDetails.filter(d =>
-      state.vacancyDetailIdsToAssign.find(
-        i => d.vacancyDetailId === i
-      )
+      state.vacancyDetailIdsToAssign.find(i => d.vacancyDetailId === i)
     );
   }, [vacancySummaryDetails, state.vacancyDetailIdsToAssign]);
 
@@ -633,14 +631,21 @@ export const VacancyUI: React.FC<Props> = props => {
                 }
                 vacancySummaryDetails={vacancySummaryDetailsToAssign}
                 vacancy={
-                  vacancyExists ? undefined : buildVacancyCreateInput({
-                    ...vacancy,
-                    details: vacancy.details.filter(d => state.vacancyDetailIdsToAssign.find(s => s === d.id))
-                  })
+                  vacancyExists
+                    ? undefined
+                    : buildVacancyCreateInput({
+                        ...vacancy,
+                        details: vacancy.details.filter(d =>
+                          state.vacancyDetailIdsToAssign.find(s => s === d.id)
+                        ),
+                      })
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
                 vacancyDetailIdsToAssign={state.vacancyDetailIdsToAssign}
-                employeeToReplace={vacancySummaryDetailsToAssign[0]?.assignment?.employee?.firstName ?? undefined}
+                employeeToReplace={
+                  vacancySummaryDetailsToAssign[0]?.assignment?.employee
+                    ?.firstName ?? undefined
+                }
                 orgHasPayCodesDefined={payCodes.length > 0}
                 orgHasAccountingCodesDefined={accountingCodes.length > 0}
               />
