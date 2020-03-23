@@ -1,9 +1,15 @@
 import {
   buildAssignmentGroups,
   convertVacancyDetailsFormDataToVacancySummaryDetails,
+  vacancySummaryDetailsAreEqual,
+  convertToAssignmentWithDetails,
 } from "../helpers";
 import { AssignmentGroupTestCases } from "./testCases";
-import { VacancySummaryDetail } from "../types";
+import {
+  VacancySummaryDetail,
+  DateDetail,
+  VacancySummaryDetailByAssignmentAndDate,
+} from "../types";
 import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
 
 describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
@@ -639,5 +645,554 @@ describe("buildAssignmentGroups", () => {
         ],
       },
     ]);
+  });
+});
+
+describe("vacancySummaryDetailsAreEqual", () => {
+  it("Different number of details - not equal", () => {
+    const vacancySummaryDetails: VacancySummaryDetail[] = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "1",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T08:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T17:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        accountingCodeAllocations: [],
+      },
+    ];
+    const assignmentDetails: DateDetail[] = [
+      {
+        startTime: "8:00 AM",
+        endTime: "5:00 PM",
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+      },
+      {
+        startTime: "8:00 AM",
+        endTime: "5:00 PM",
+        locationId: "1001",
+        locationName: "Adventure Elementary School",
+      },
+    ];
+
+    const result = vacancySummaryDetailsAreEqual(
+      assignmentDetails,
+      vacancySummaryDetails
+    );
+    expect(result).toBe(false);
+  });
+
+  it("Different start times - not equal", () => {
+    const vacancySummaryDetails: VacancySummaryDetail[] = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "1",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T08:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T17:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        accountingCodeAllocations: [],
+      },
+    ];
+    const assignmentDetails: DateDetail[] = [
+      {
+        startTime: "8:01 AM",
+        endTime: "5:00 PM",
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+      },
+    ];
+
+    const result = vacancySummaryDetailsAreEqual(
+      assignmentDetails,
+      vacancySummaryDetails
+    );
+    expect(result).toBe(false);
+  });
+
+  it("Different end times - not equal", () => {
+    const vacancySummaryDetails: VacancySummaryDetail[] = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "1",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T08:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T17:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        accountingCodeAllocations: [],
+      },
+    ];
+    const assignmentDetails: DateDetail[] = [
+      {
+        startTime: "8:00 AM",
+        endTime: "5:01 PM",
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+      },
+    ];
+
+    const result = vacancySummaryDetailsAreEqual(
+      assignmentDetails,
+      vacancySummaryDetails
+    );
+    expect(result).toBe(false);
+  });
+
+  it("Different locations - not equal", () => {
+    const vacancySummaryDetails: VacancySummaryDetail[] = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "1",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T08:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T17:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        accountingCodeAllocations: [],
+      },
+    ];
+    const assignmentDetails: DateDetail[] = [
+      {
+        startTime: "8:00 AM",
+        endTime: "5:00 PM",
+        locationId: "1001",
+        locationName: "Adventure Elementary School",
+      },
+    ];
+
+    const result = vacancySummaryDetailsAreEqual(
+      assignmentDetails,
+      vacancySummaryDetails
+    );
+    expect(result).toBe(false);
+  });
+
+  it("Different pay codes - not equal", () => {
+    const vacancySummaryDetails: VacancySummaryDetail[] = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "1",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T08:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T17:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        payCodeId: "2000",
+        payCodeName: "Double Time",
+        accountingCodeAllocations: [],
+      },
+    ];
+    const assignmentDetails: DateDetail[] = [
+      {
+        startTime: "8:00 AM",
+        endTime: "5:00 PM",
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        payCodeId: "2001",
+        payCodeName: "Time and a half",
+      },
+    ];
+
+    const result = vacancySummaryDetailsAreEqual(
+      assignmentDetails,
+      vacancySummaryDetails
+    );
+    expect(result).toBe(false);
+  });
+
+  it("Different accounting codes - not equal", () => {
+    const vacancySummaryDetails: VacancySummaryDetail[] = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "1",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T08:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T17:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        payCodeId: "2000",
+        payCodeName: "Double Time",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "5001",
+            accountingCodeName: "Cash",
+            allocation: 1.0,
+          },
+        ],
+      },
+    ];
+    const assignmentDetails: DateDetail[] = [
+      {
+        startTime: "8:00 AM",
+        endTime: "5:00 PM",
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        payCodeId: "2000",
+        payCodeName: "Double Time",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "5000",
+            accountingCodeName: "Accounts Payable",
+            allocation: 1.0,
+          },
+        ],
+      },
+    ];
+
+    const result = vacancySummaryDetailsAreEqual(
+      assignmentDetails,
+      vacancySummaryDetails
+    );
+    expect(result).toBe(false);
+  });
+
+  it("Different accounting code allocations - not equal", () => {
+    const vacancySummaryDetails: VacancySummaryDetail[] = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "1",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T08:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T17:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        payCodeId: "2000",
+        payCodeName: "Double Time",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "5000",
+            accountingCodeName: "Accounts Payable",
+            allocation: 0.25,
+          },
+          {
+            accountingCodeId: "5001",
+            accountingCodeName: "Cash",
+            allocation: 0.75,
+          },
+        ],
+      },
+    ];
+    const assignmentDetails: DateDetail[] = [
+      {
+        startTime: "8:00 AM",
+        endTime: "5:00 PM",
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        payCodeId: "2000",
+        payCodeName: "Double Time",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "5000",
+            accountingCodeName: "Accounts Payable",
+            allocation: 0.45,
+          },
+          {
+            accountingCodeId: "5001",
+            accountingCodeName: "Cash",
+            allocation: 0.55,
+          },
+        ],
+      },
+    ];
+
+    const result = vacancySummaryDetailsAreEqual(
+      assignmentDetails,
+      vacancySummaryDetails
+    );
+    expect(result).toBe(false);
+  });
+
+  it("All details the same - equal", () => {
+    const vacancySummaryDetails: VacancySummaryDetail[] = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "1",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T08:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T17:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        payCodeId: "2000",
+        payCodeName: "Double Time",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "5000",
+            accountingCodeName: "Accounts Payable",
+            allocation: 1.0,
+          },
+        ],
+      },
+    ];
+    const assignmentDetails: DateDetail[] = [
+      {
+        startTime: "8:00 AM",
+        endTime: "5:00 PM",
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        payCodeId: "2000",
+        payCodeName: "Double Time",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "5000",
+            accountingCodeName: "Accounts Payable",
+            allocation: 1.0,
+          },
+        ],
+      },
+    ];
+
+    const result = vacancySummaryDetailsAreEqual(
+      assignmentDetails,
+      vacancySummaryDetails
+    );
+    expect(result).toBe(true);
+  });
+
+  it("All details the same - accounting codes in different orders - equal", () => {
+    const vacancySummaryDetails: VacancySummaryDetail[] = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "1",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T08:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T17:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        payCodeId: "2000",
+        payCodeName: "Double Time",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "5000",
+            accountingCodeName: "Accounts Payable",
+            allocation: 0.5,
+          },
+          {
+            accountingCodeId: "5001",
+            accountingCodeName: "Cash",
+            allocation: 0.5,
+          },
+        ],
+      },
+    ];
+    const assignmentDetails: DateDetail[] = [
+      {
+        startTime: "8:00 AM",
+        endTime: "5:00 PM",
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        payCodeId: "2000",
+        payCodeName: "Double Time",
+        accountingCodeAllocations: [
+          {
+            accountingCodeId: "5001",
+            accountingCodeName: "Cash",
+            allocation: 0.5,
+          },
+          {
+            accountingCodeId: "5000",
+            accountingCodeName: "Accounts Payable",
+            allocation: 0.5,
+          },
+        ],
+      },
+    ];
+
+    const result = vacancySummaryDetailsAreEqual(
+      assignmentDetails,
+      vacancySummaryDetails
+    );
+    expect(result).toBe(true);
+  });
+
+  it("All details the same - multiple details - equal", () => {
+    const vacancySummaryDetails: VacancySummaryDetail[] = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "1",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T08:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T12:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        accountingCodeAllocations: [],
+      },
+      {
+        vacancyId: "1",
+        vacancyDetailId: "2",
+        date: new Date("3/17/2020"),
+        startTimeLocal: new Date("2020-03-17T12:00:00.000"),
+        endTimeLocal: new Date("2020-03-17T17:00:00.000"),
+        locationId: "1001",
+        locationName: "Adventure Middle School",
+        accountingCodeAllocations: [],
+      },
+    ];
+    const assignmentDetails: DateDetail[] = [
+      {
+        startTime: "8:00 AM",
+        endTime: "12:00 PM",
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+      },
+      {
+        startTime: "12:00 PM",
+        endTime: "5:00 PM",
+        locationId: "1001",
+        locationName: "Adventure Middle School",
+      },
+    ];
+
+    const result = vacancySummaryDetailsAreEqual(
+      assignmentDetails,
+      vacancySummaryDetails
+    );
+    expect(result).toBe(true);
+  });
+});
+
+describe("convertToAssignmentWithDetails", () => {
+  it("Single Detail - mapped correctly", () => {
+    const summaryDetailsByAssignmentAndDate: VacancySummaryDetailByAssignmentAndDate = {
+      assignmentId: undefined,
+      employeeId: undefined,
+      date: new Date("3/23/2020"),
+      startDateAndTimeLocal: new Date("2020-03-23T10:00:00.000"),
+      details: [
+        {
+          vacancyId: "1",
+          vacancyDetailId: "2",
+          date: new Date("3/23/2020"),
+          startTimeLocal: new Date("2020-03-23T10:00:00.000"),
+          endTimeLocal: new Date("2020-03-23T17:00:00.000"),
+          locationId: "1000",
+          locationName: "Haven Elementary School",
+          accountingCodeAllocations: [],
+        },
+      ],
+    };
+
+    const result = convertToAssignmentWithDetails(
+      summaryDetailsByAssignmentAndDate
+    );
+    expect(result).toStrictEqual({
+      dates: [new Date("3/23/2020")],
+      startDateAndTimeLocal: new Date("2020-03-23T10:00:00.000"),
+      assignment: undefined,
+      vacancyDetailIds: ["2"],
+      vacancyDetailIdsByDate: [
+        {
+          date: new Date("3/23/2020"),
+          vacancyDetailIds: ["2"],
+        },
+      ],
+      details: [
+        {
+          startTime: "10:00 AM",
+          endTime: "5:00 PM",
+          locationId: "1000",
+          locationName: "Haven Elementary School",
+          payCodeId: undefined,
+          payCodeName: undefined,
+          accountingCodeAllocations: [],
+        },
+      ],
+    });
+  });
+
+  it("Multiple Details - mapped correctly", () => {
+    const summaryDetailsByAssignmentAndDate: VacancySummaryDetailByAssignmentAndDate = {
+      assignmentId: "2000",
+      employeeId: "3000",
+      date: new Date("3/23/2020"),
+      startDateAndTimeLocal: new Date("2020-03-23T10:00:00.000"),
+      details: [
+        {
+          vacancyId: "1",
+          vacancyDetailId: "2",
+          date: new Date("3/23/2020"),
+          startTimeLocal: new Date("2020-03-23T10:00:00.000"),
+          endTimeLocal: new Date("2020-03-23T12:00:00.000"),
+          locationId: "1000",
+          locationName: "Haven Elementary School",
+          accountingCodeAllocations: [],
+          assignment: {
+            id: "2000",
+            rowVersion: "3425254",
+            employee: {
+              id: "3000",
+              firstName: "John",
+              lastName: "Smith",
+            },
+          },
+        },
+        {
+          vacancyId: "1",
+          vacancyDetailId: "3",
+          date: new Date("3/23/2020"),
+          startTimeLocal: new Date("2020-03-23T12:00:00.000"),
+          endTimeLocal: new Date("2020-03-23T17:00:00.000"),
+          locationId: "1001",
+          locationName: "Adventure Middle School",
+          accountingCodeAllocations: [],
+          assignment: {
+            id: "2000",
+            rowVersion: "3425254",
+            employee: {
+              id: "3000",
+              firstName: "John",
+              lastName: "Smith",
+            },
+          },
+        },
+      ],
+    };
+
+    const result = convertToAssignmentWithDetails(
+      summaryDetailsByAssignmentAndDate
+    );
+    expect(result).toStrictEqual({
+      dates: [new Date("3/23/2020")],
+      startDateAndTimeLocal: new Date("2020-03-23T10:00:00.000"),
+      assignment: {
+        id: "2000",
+        rowVersion: "3425254",
+        employee: {
+          id: "3000",
+          firstName: "John",
+          lastName: "Smith",
+        },
+      },
+      vacancyDetailIds: ["2", "3"],
+      vacancyDetailIdsByDate: [
+        {
+          date: new Date("3/23/2020"),
+          vacancyDetailIds: ["2", "3"],
+        },
+      ],
+      details: [
+        {
+          startTime: "10:00 AM",
+          endTime: "12:00 PM",
+          locationId: "1000",
+          locationName: "Haven Elementary School",
+          payCodeId: undefined,
+          payCodeName: undefined,
+          accountingCodeAllocations: [],
+        },
+        {
+          startTime: "12:00 PM",
+          endTime: "5:00 PM",
+          locationId: "1001",
+          locationName: "Adventure Middle School",
+          payCodeId: undefined,
+          payCodeName: undefined,
+          accountingCodeAllocations: [],
+        },
+      ],
+    });
   });
 });
