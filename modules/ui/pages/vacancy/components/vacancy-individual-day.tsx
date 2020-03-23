@@ -187,37 +187,39 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
           <TextButton>{t("Paste")}</TextButton>
         </Grid>
       )}
-      <Grid item xs={12}>
-        <Select
-          multiple={false}
-          withResetValue={false}
-          label={t("Vacancy reason")}
-          options={vacancyReasonOptions}
-          disabled={disableReason}
-          value={{
-            value:
-              vacancyDetail.vacancyReasonId ?? vacancyReasonOptions[0].value,
-            label:
-              vacancyReasonOptions.find(a =>
-                vacancyDetail.vacancyReasonId
-                  ? a.value === vacancyDetail.vacancyReasonId
-                  : a.value === vacancyReasonOptions[0].value
-              )?.label || "",
-          }}
-          onChange={async (e: OptionType) => {
-            let selectedValue: any = null;
-            if (e) {
-              selectedValue = (e as OptionTypeBase).value;
-            }
-            const newVacDetail = {
-              ...vacancyDetail,
-              vacancyReasonId: selectedValue,
-            };
-            setVacancyDetailReason(newVacDetail);
-          }}
-        ></Select>
-      </Grid>
-      {getTimeValue() !== "custom" && (
+      {!disableReason && (
+        <Grid item xs={12}>
+          <Select
+            multiple={false}
+            withResetValue={false}
+            label={t("Vacancy reason")}
+            options={vacancyReasonOptions}
+            disabled={disableReason}
+            value={{
+              value:
+                vacancyDetail.vacancyReasonId ?? vacancyReasonOptions[0].value,
+              label:
+                vacancyReasonOptions.find(a =>
+                  vacancyDetail.vacancyReasonId
+                    ? a.value === vacancyDetail.vacancyReasonId
+                    : a.value === vacancyReasonOptions[0].value
+                )?.label || "",
+            }}
+            onChange={async (e: OptionType) => {
+              let selectedValue: any = null;
+              if (e) {
+                selectedValue = (e as OptionTypeBase).value;
+              }
+              const newVacDetail = {
+                ...vacancyDetail,
+                vacancyReasonId: selectedValue,
+              };
+              setVacancyDetailReason(newVacDetail);
+            }}
+          ></Select>
+        </Grid>
+      )}
+      {getTimeValue() !== "custom" && !disableTime && (
         <Grid item xs={12}>
           <Select
             multiple={false}
@@ -240,7 +242,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
           ></Select>
         </Grid>
       )}
-      {getTimeValue() === "custom" && (
+      {getTimeValue() === "custom" && !disableTime && (
         <Grid
           item
           xs={12}
@@ -302,8 +304,13 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
           </Grid>
         </Grid>
       )}
-      {payCodeOptions.length > 0 && (
-        <Grid item xs={6}>
+      {payCodeOptions.length > 0 && !disablePayCode && (
+        <Grid
+          item
+          xs={
+            accountingCodeOptions.length === 0 || disableAccountingCode ? 12 : 6
+          }
+        >
           <Select
             multiple={false}
             withResetValue={true}
@@ -343,8 +350,8 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
           ></Select>
         </Grid>
       )}
-      {accountingCodeOptions.length > 0 && (
-        <Grid item xs={6}>
+      {accountingCodeOptions.length > 0 && !disableAccountingCode && (
+        <Grid item xs={payCodeOptions.length === 0 || disablePayCode ? 12 : 6}>
           <Select
             multiple={false}
             withResetValue={true}
