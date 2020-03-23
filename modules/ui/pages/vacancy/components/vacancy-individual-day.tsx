@@ -191,6 +191,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
         <Select
           multiple={false}
           withResetValue={false}
+          label={t("Vacancy reason")}
           options={vacancyReasonOptions}
           disabled={disableReason}
           value={{
@@ -222,6 +223,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
             multiple={false}
             options={timeOptions}
             disabled={disableTime}
+            label={t("Times")}
             withResetValue={false}
             value={{
               value: getTimeValue(),
@@ -239,12 +241,20 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
         </Grid>
       )}
       {getTimeValue() === "custom" && (
-        <>
+        <Grid
+          item
+          xs={12}
+          container
+          justify="space-between"
+          alignItems="flex-end"
+          spacing={2}
+        >
           <Grid item xs={6}>
             <Select
               multiple={false}
               options={timeOptions}
               disabled={disableTime}
+              label={t("Times")}
               withResetValue={false}
               value={{
                 value: getTimeValue(),
@@ -290,7 +300,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
               }}
             />
           </Grid>
-        </>
+        </Grid>
       )}
       {payCodeOptions.length > 0 && (
         <Grid item xs={6}>
@@ -298,6 +308,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
             multiple={false}
             withResetValue={true}
             options={payCodeOptions}
+            label={t("Pay code")}
             disabled={disablePayCode}
             value={{
               value: vacancyDetail.payCodeId ?? "",
@@ -338,6 +349,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
             multiple={false}
             withResetValue={true}
             options={accountingCodeOptions}
+            label={t("Accounting code")}
             disabled={disableAccountingCode}
             value={{
               value:
