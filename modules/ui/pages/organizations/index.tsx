@@ -36,8 +36,8 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
   const history = useHistory();
-  const params = useRouteParams(UsersRoute);
-  const params2 = useRouteParams(OrganizationAddRoute);
+  const userParams = useRouteParams(UsersRoute);
+  const orgParams = useRouteParams(OrganizationAddRoute);
 
   const columns: Column<AllOrganizations.Results>[] = [
     { title: t("Id"), field: "id", sorting: false },
@@ -175,7 +175,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
               <Button
                 variant="outlined"
                 onClick={() => {
-                  history.push(OrganizationAddRoute.generate(params2));
+                  history.push(OrganizationAddRoute.generate(orgParams));
                 }}
               >
                 {t("Create new org")}
@@ -184,7 +184,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
             <Button
               variant="outlined"
               onClick={() => {
-                history.push(UsersRoute.generate(params));
+                history.push(UsersRoute.generate(userParams));
               }}
             >
               {t("Users")}

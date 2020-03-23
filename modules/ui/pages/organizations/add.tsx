@@ -14,6 +14,7 @@ import {
   SeedOrgDataOptionEnum,
   CountryCode,
   TimeZone,
+  DayConversionInput,
   FeatureFlag,
 } from "graphql/server-types.gen";
 import { AdminRootChromeRoute } from "ui/routes/app-chrome";
@@ -38,7 +39,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
     OrganizationCreateInput
   >({
     name: "",
-    externalId: null,
+    externalId: undefined,
     superUserFirstName: "",
     superUserLastName: "",
     superUserLoginEmail: "",
@@ -54,20 +55,20 @@ export const OrganizationAddPage: React.FC<{}> = props => {
         FeatureFlag.HourlyAbsences,
       ],
       defaultCountry: CountryCode.Us,
-      longTermVacancyThresholdDays: null,
-      minLeadTimeMinutesToCancelVacancy: null,
-      minutesBeforeStartAbsenceCanBeCreated: null,
-      minLeadTimeMinutesToCancelVacancyWithoutPunishment: null,
-      maxGapMinutesForSameVacancyDetail: null,
-      minAbsenceMinutes: null,
-      maxAbsenceDays: null,
-      absenceCreateCutoffTime: null,
-      requestedSubCutoffMinutes: null,
-      minRequestedEmployeeHoldMinutes: null,
-      maxRequestedEmployeeHoldMinutes: null,
-      minorConflictThresholdMinutes: null,
-      minutesRelativeToStartVacancyCanBeFilled: null,
-      vacancyDayConversions: [{ name: "", maxMinutes: 0, dayEquivalent: 0 }],
+      longTermVacancyThresholdDays: undefined,
+      minLeadTimeMinutesToCancelVacancy: undefined,
+      minutesBeforeStartAbsenceCanBeCreated: undefined,
+      minLeadTimeMinutesToCancelVacancyWithoutPunishment: undefined,
+      maxGapMinutesForSameVacancyDetail: undefined,
+      minAbsenceMinutes: undefined,
+      maxAbsenceDays: undefined,
+      absenceCreateCutoffTime: undefined,
+      requestedSubCutoffMinutes: undefined,
+      minRequestedEmployeeHoldMinutes: undefined,
+      maxRequestedEmployeeHoldMinutes: undefined,
+      minorConflictThresholdMinutes: undefined,
+      minutesRelativeToStartVacancyCanBeFilled: undefined,
+      vacancyDayConversions: undefined,
     },
   });
 
@@ -126,6 +127,8 @@ export const OrganizationAddPage: React.FC<{}> = props => {
               newOrganization.config?.minorConflictThresholdMinutes,
             minutesRelativeToStartVacancyCanBeFilled:
               newOrganization.config?.minutesRelativeToStartVacancyCanBeFilled,
+            vacancyDayConversions:
+              newOrganization.config?.vacancyDayConversions,
           },
         },
       },
@@ -153,10 +156,6 @@ export const OrganizationAddPage: React.FC<{}> = props => {
 
   const orgTypes = useMemo(() => {
     return [
-      {
-        value: OrganizationType.Invalid,
-        label: t("Invalid"),
-      },
       {
         value: OrganizationType.Demo,
         label: t("Demo"),
@@ -223,26 +222,28 @@ export const OrganizationAddPage: React.FC<{}> = props => {
           superUserFirstName: string,
           superUserLastName: string,
           superUserLoginEmail: string,
-          seedOrgDataOption: SeedOrgDataOptionEnum,
           featureFlags: FeatureFlag[],
           organizationTypeId: OrganizationType,
           timeZoneId: TimeZone,
           isEdustaffOrg: boolean,
           orgUsersMustAcceptEula: boolean,
-          externalId?: string | null,
-          longTermVacancyThresholdDays?: number | null,
-          minLeadTimeMinutesToCancelVacancy?: number | null,
-          minutesBeforeStartAbsenceCanBeCreated?: number | null,
-          minLeadTimeMinutesToCancelVacancyWithoutPunishment?: number | null,
-          maxGapMinutesForSameVacancyDetail?: number | null,
-          minAbsenceMinutes?: number | null,
-          maxAbsenceDays?: number | null,
-          absenceCreateCutoffTime?: number | null,
-          requestedSubCutoffMinutes?: number | null,
-          minRequestedEmployeeHoldMinutes?: number | null,
-          maxRequestedEmployeeHoldMinutes?: number | null,
-          minorConflictThresholdMinutes?: number | null,
-          minutesRelativeToStartVacancyCanBeFilled?: number | null
+          externalId?: string | undefined,
+          longTermVacancyThresholdDays?: number | undefined,
+          minLeadTimeMinutesToCancelVacancy?: number | undefined,
+          minutesBeforeStartAbsenceCanBeCreated?: number | undefined,
+          minLeadTimeMinutesToCancelVacancyWithoutPunishment?:
+            | number
+            | undefined,
+          maxGapMinutesForSameVacancyDetail?: number | undefined,
+          minAbsenceMinutes?: number | undefined,
+          maxAbsenceDays?: number | undefined,
+          absenceCreateCutoffTime?: number | undefined,
+          requestedSubCutoffMinutes?: number | undefined,
+          minRequestedEmployeeHoldMinutes?: number | undefined,
+          maxRequestedEmployeeHoldMinutes?: number | undefined,
+          minorConflictThresholdMinutes?: number | undefined,
+          minutesRelativeToStartVacancyCanBeFilled?: number | undefined,
+          vacancyDayConversions?: DayConversionInput[] | undefined
         ) => {
           const newOrganization: OrganizationCreateInput = {
             ...organization,
@@ -250,7 +251,6 @@ export const OrganizationAddPage: React.FC<{}> = props => {
             superUserFirstName: superUserFirstName,
             superUserLastName: superUserLastName,
             superUserLoginEmail: superUserLoginEmail,
-            seedOrgDataOption: seedOrgDataOption,
             relatesToOrganizationId: isEdustaffOrg ? eduStaffOrgId : "0",
             timeZoneId: timeZoneId,
             externalId: externalId,
@@ -271,6 +271,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
               maxRequestedEmployeeHoldMinutes: maxRequestedEmployeeHoldMinutes,
               minorConflictThresholdMinutes: minorConflictThresholdMinutes,
               minutesRelativeToStartVacancyCanBeFilled: minutesRelativeToStartVacancyCanBeFilled,
+              vacancyDayConversions: vacancyDayConversions,
             },
           };
 

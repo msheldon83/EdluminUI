@@ -20,8 +20,8 @@ import { Input } from "ui/components/form/input";
 import {
   OrganizationCreateInput,
   FeatureFlag,
+  DayConversionInput,
   OrganizationType,
-  SeedOrgDataOptionEnum,
   TimeZone,
 } from "graphql/server-types.gen";
 
@@ -32,29 +32,26 @@ type Props = {
     superUserFirstName: string,
     superUserLastName: string,
     superUserLoginEmail: string,
-    seedOrgDataOption: SeedOrgDataOptionEnum,
     featureFlags: FeatureFlag[],
     organizationTypeId: OrganizationType,
     timeZoneId: TimeZone,
     isEdustaffOrg: boolean,
     orgUsersMustAcceptEula: boolean,
-    externalId: string | null | undefined,
-    longTermVacancyThresholdDays: number | null | undefined,
-    minLeadTimeMinutesToCancelVacancy: number | null | undefined,
-    minutesBeforeStartAbsenceCanBeCreated: number | null | undefined,
-    minLeadTimeMinutesToCancelVacancyWithoutPunishment:
-      | number
-      | null
-      | undefined,
-    maxGapMinutesForSameVacancyDetail: number | null | undefined,
-    minAbsenceMinutes: number | null | undefined,
-    maxAbsenceDays: number | null | undefined,
-    absenceCreateCutoffTime: number | null | undefined,
-    requestedSubCutoffMinutes: number | null | undefined,
-    minRequestedEmployeeHoldMinutes: number | null | undefined,
-    maxRequestedEmployeeHoldMinutes: number | null | undefined,
-    minorConflictThresholdMinutes: number | null | undefined,
-    minutesRelativeToStartVacancyCanBeFilled: number | null | undefined
+    externalId: string | undefined,
+    longTermVacancyThresholdDays: number | undefined,
+    minLeadTimeMinutesToCancelVacancy: number | undefined,
+    minutesBeforeStartAbsenceCanBeCreated: number | undefined,
+    minLeadTimeMinutesToCancelVacancyWithoutPunishment: number | undefined,
+    maxGapMinutesForSameVacancyDetail: number | undefined,
+    minAbsenceMinutes: number | undefined,
+    maxAbsenceDays: number | undefined,
+    absenceCreateCutoffTime: number | undefined,
+    requestedSubCutoffMinutes: number | undefined,
+    minRequestedEmployeeHoldMinutes: number | undefined,
+    maxRequestedEmployeeHoldMinutes: number | undefined,
+    minorConflictThresholdMinutes: number | undefined,
+    minutesRelativeToStartVacancyCanBeFilled: number | undefined,
+    vacancyDayConversions: DayConversionInput[] | undefined
   ) => Promise<unknown>;
   onCancel: () => void;
   onNameChange: (name: string) => void;
@@ -70,6 +67,10 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const overrideStyles = rootStyles();
   const { t } = useTranslation();
 
+  const [vacancyDayConversions, setVacancyDayConversions] = React.useState<
+    DayConversionInput[]
+  >([]);
+
   const initialValues = {
     name: props.organization.name || "",
     externalId: props.organization.externalId || "",
@@ -78,37 +79,42 @@ export const AddBasicInfo: React.FC<Props> = props => {
     superUserLoginEmail: props.organization.superUserLoginEmail || "",
     isEdustaffOrg: false,
     timeZoneId: props.organization.timeZoneId || null,
-    seedOrgDataOption: props.organization.seedOrgDataOption || null,
     featureFlags: props.organization.config?.featureFlags || null,
     organizationTypeId: props.organization?.config?.organizationTypeId,
     orgUsersMustAcceptEula:
       props.organization?.config?.orgUsersMustAcceptEula || false,
     longTermVacancyThresholdDays:
-      props.organization?.config?.longTermVacancyThresholdDays || null,
+      props.organization?.config?.longTermVacancyThresholdDays || undefined,
     minLeadTimeMinutesToCancelVacancy:
-      props.organization?.config?.minLeadTimeMinutesToCancelVacancy || null,
+      props.organization?.config?.minLeadTimeMinutesToCancelVacancy ||
+      undefined,
     minutesBeforeStartAbsenceCanBeCreated:
-      props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated || null,
+      props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated ||
+      undefined,
     minLeadTimeMinutesToCancelVacancyWithoutPunishment:
       props.organization?.config
-        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || null,
+        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || undefined,
     maxGapMinutesForSameVacancyDetail:
-      props.organization?.config?.maxGapMinutesForSameVacancyDetail || null,
-    minAbsenceMinutes: props.organization?.config?.minAbsenceMinutes || null,
-    maxAbsenceDays: props.organization?.config?.maxAbsenceDays || null,
+      props.organization?.config?.maxGapMinutesForSameVacancyDetail ||
+      undefined,
+    minAbsenceMinutes:
+      props.organization?.config?.minAbsenceMinutes || undefined,
+    maxAbsenceDays: props.organization?.config?.maxAbsenceDays || undefined,
     absenceCreateCutoffTime:
-      props.organization?.config?.absenceCreateCutoffTime || null,
+      props.organization?.config?.absenceCreateCutoffTime || undefined,
     requestedSubCutoffMinutes:
-      props.organization?.config?.requestedSubCutoffMinutes || null,
+      props.organization?.config?.requestedSubCutoffMinutes || undefined,
     minRequestedEmployeeHoldMinutes:
-      props.organization?.config?.minRequestedEmployeeHoldMinutes || null,
+      props.organization?.config?.minRequestedEmployeeHoldMinutes || undefined,
     maxRequestedEmployeeHoldMinutes:
-      props.organization?.config?.maxRequestedEmployeeHoldMinutes || null,
+      props.organization?.config?.maxRequestedEmployeeHoldMinutes || undefined,
     minorConflictThresholdMinutes:
-      props.organization?.config?.minorConflictThresholdMinutes || null,
+      props.organization?.config?.minorConflictThresholdMinutes || undefined,
     minutesRelativeToStartVacancyCanBeFilled:
       props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled ||
-      null,
+      undefined,
+    vacancyDayConversions:
+      props.organization?.config?.vacancyDayConversions || undefined,
   };
 
   const validateBasicDetails = React.useMemo(
@@ -131,9 +137,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
         timeZoneId: Yup.string()
           .nullable()
           .required(t("* Required *")),
-        seedOrgDataOption: Yup.string()
-          .nullable()
-          .required(t("* Required *")),
         organizationTypeId: Yup.string()
           .nullable()
           .required(t("* Required *")),
@@ -154,7 +157,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
             data.superUserFirstName,
             data.superUserLastName,
             data.superUserLoginEmail,
-            data.seedOrgDataOption,
             data.featureFlags,
             data.organizationTypeId,
             data.timeZoneId,
@@ -173,7 +175,8 @@ export const AddBasicInfo: React.FC<Props> = props => {
             data.minRequestedEmployeeHoldMinutes,
             data.maxRequestedEmployeeHoldMinutes,
             data.minorConflictThresholdMinutes,
-            data.minutesRelativeToStartVacancyCanBeFilled
+            data.minutesRelativeToStartVacancyCanBeFilled,
+            vacancyDayConversions
           );
         }}
       >
@@ -203,7 +206,34 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={6}>
+                <SelectNew
+                  label={t("Time Zone")}
+                  name={"timeZoneId"}
+                  value={{
+                    value: values.timeZoneId ?? "",
+                    label:
+                      props.timeZoneOptions.find(
+                        a => a.value === values.timeZoneId
+                      )?.label || "",
+                  }}
+                  options={props.timeZoneOptions}
+                  onChange={(e: OptionType) => {
+                    let selectedValue = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+                    setFieldValue("timeZoneId", selectedValue);
+                  }}
+                  withResetValue={false}
+                  multiple={false}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <SelectNew
                   label={t("Organization Type")}
                   name={"organizationTypeId"}
@@ -228,33 +258,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   withResetValue={false}
                   doSort={false}
                   options={props.organizationTypes}
-                  multiple={false}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <SelectNew
-                  label={t("Time Zone")}
-                  name={"timeZoneId"}
-                  value={{
-                    value: values.timeZoneId ?? "",
-                    label:
-                      props.timeZoneOptions.find(
-                        a => a.value === values.timeZoneId
-                      )?.label || "",
-                  }}
-                  options={props.timeZoneOptions}
-                  onChange={(e: OptionType) => {
-                    let selectedValue = null;
-                    if (e) {
-                      if (Array.isArray(e)) {
-                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
-                      } else {
-                        selectedValue = (e as OptionTypeBase).value;
-                      }
-                    }
-                    setFieldValue("timeZoneId", selectedValue);
-                  }}
-                  withResetValue={false}
                   multiple={false}
                 />
               </Grid>
@@ -307,34 +310,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     variant: "outlined",
                     fullWidth: true,
                   }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
-                <SelectNew
-                  label={t("Seed Data Option")}
-                  name={"seedOrgDataOption"}
-                  value={{
-                    value: values.seedOrgDataOption ?? "",
-                    label:
-                      props.seedOrgDataOptions.find(
-                        a => a.value === values.seedOrgDataOption
-                      )?.label || "",
-                  }}
-                  options={props.seedOrgDataOptions}
-                  onChange={(e: OptionType) => {
-                    let selectedValue = null;
-                    if (e) {
-                      if (Array.isArray(e)) {
-                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
-                      } else {
-                        selectedValue = (e as OptionTypeBase).value;
-                      }
-                    }
-                    setFieldValue("seedOrgDataOption", selectedValue);
-                  }}
-                  doSort={false}
-                  withResetValue={false}
-                  multiple={false}
                 />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
@@ -551,6 +526,14 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     ),
                   }}
                 />
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                sm={12}
+                classes={{ root: overrideStyles.root }}
+              >
+                {/* Map the grid and update the grid on adding a new Vacancy Day Conversion */}
               </Grid>
             </Grid>
             <Divider />
