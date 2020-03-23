@@ -70,14 +70,12 @@ export const VacancyUI: React.FC<Props> = props => {
     vacancyDetailIdsToAssign: [],
   });
 
-  const vacancyExists = useMemo(() => {
-    return initialVacancy.id ? true : false;
-  }, [initialVacancy]);
-
-  const [vacancyId, setVacancyId] = useState("");
   const [vacancy, setVacancy] = useState<VacancyDetailsFormData>(
     initialVacancy
   );
+  const vacancyExists = useMemo(() => {
+    return vacancy.id ? true : false;
+  }, [vacancy]);
 
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
     variables: {
@@ -388,10 +386,9 @@ export const VacancyUI: React.FC<Props> = props => {
               const result = await createVacancy(vacancy);
               if (result.data) {
                 const createdVacancy = result.data.vacancy?.create;
-                setVacancyId(createdVacancy?.id ?? "");
                 setVacancy({
                   ...vacancy,
-                  id: result.data.vacancy?.create?.id ?? "",
+                  id: createdVacancy?.id ?? "",
                   details: vacancy.details.map(d => {
                     const matchingDetail = createdVacancy?.details?.find(cvd =>
                       isSameDay(parseISO(cvd?.startDate), d.date)
@@ -652,7 +649,7 @@ export const VacancyUI: React.FC<Props> = props => {
             )}
             {step === "confirmation" && (
               <VacancyConfirmation
-                vacancyId={vacancyId}
+                vacancyId={vacancy.id}
                 orgId={params.organizationId}
                 setStep={setStep}
                 vacancySummaryDetails={vacancySummaryDetails}
