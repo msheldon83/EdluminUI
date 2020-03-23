@@ -638,6 +638,7 @@ export const VacancyUI: React.FC<Props> = props => {
                       })
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
+                existingVacancy={vacancyExists}
                 vacancyDetailIdsToAssign={state.vacancyDetailIdsToAssign}
                 employeeToReplace={
                   vacancySummaryDetailsToAssign[0]?.assignment?.employee
