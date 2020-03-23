@@ -1,7 +1,5 @@
-import { makeStyles } from "@material-ui/core";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { AssignmentWithDetails, Assignment, AssignmentFor } from "./types";
+import { AssignmentWithDetails, AssignmentFor } from "./types";
 import { UnfilledBanner } from "./unfilled-banner";
 import { AssignedBanner } from "./assigned-banner";
 import { DateGroup } from "./date-group";
@@ -19,8 +17,6 @@ type Props = {
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
-  const classes = useStyles();
-  const { t } = useTranslation();
   const {
     assignmentWithDetails,
     isPartiallyFilled,
@@ -76,5 +72,3 @@ export const AssignmentGroup: React.FC<Props> = props => {
     </div>
   );
 };
-
-export const useStyles = makeStyles(theme => ({}));

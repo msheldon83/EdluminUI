@@ -157,7 +157,7 @@ export const buildAssignmentGroups = (
   return groupedDetails;
 };
 
-const vacancySummaryDetailsAreEqual = (
+export const vacancySummaryDetailsAreEqual = (
   assignmentDetails: DateDetail[],
   vacancySummaryDetails: VacancySummaryDetail[]
 ): boolean => {
@@ -182,10 +182,20 @@ const vacancySummaryDetailsAreEqual = (
     }
 
     // Compare Accounting Code Allocations
+
+    if (
+      !assignmentDetail.accountingCodeAllocations?.length &&
+      !vacancySummaryDetail.accountingCodeAllocations?.length
+    ) {
+      // Neither side has any Accounting Codes
+      return true;
+    }
+
     if (
       assignmentDetail.accountingCodeAllocations?.length !==
       vacancySummaryDetail.accountingCodeAllocations?.length
     ) {
+      // Difference in the number of Accounting Codes
       return false;
     }
 
@@ -199,6 +209,7 @@ const vacancySummaryDetailsAreEqual = (
         )
       )
     ) {
+      // Different accounting code lists
       return false;
     }
   }
@@ -206,7 +217,7 @@ const vacancySummaryDetailsAreEqual = (
   return true;
 };
 
-const convertToAssignmentWithDetails = (
+export const convertToAssignmentWithDetails = (
   summaryDetailsByAssignmentAndDate: VacancySummaryDetailByAssignmentAndDate
 ): AssignmentWithDetails => {
   const assignmentWithDetails: AssignmentWithDetails = {

@@ -29,7 +29,7 @@ import { AssignmentOnDate } from "ui/components/absence/types";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { VacancySummaryHeader } from "../absence/vacancy-summary-header";
 import { GetVacancyReplacementEmployees } from "./graphql/get-replacement-employees-for-vacancy.gen";
-import { VacancySummary } from "../absence-vacancy/vacancy-summary/vacancy-summary";
+import { VacancySummary } from "../absence-vacancy/vacancy-summary";
 import { VacancySummaryDetail } from "../absence-vacancy/vacancy-summary/types";
 
 type Props = {

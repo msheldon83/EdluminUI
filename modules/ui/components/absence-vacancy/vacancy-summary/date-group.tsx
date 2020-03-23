@@ -1,6 +1,5 @@
 import { makeStyles, Typography } from "@material-ui/core";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
 import { DateDetails } from "./types";
 import { DateDetailItem } from "./date-detail-item";
 import { getDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "ui/components/date-helpers";
@@ -14,7 +13,6 @@ type Props = {
 
 export const DateGroup: React.FC<Props> = props => {
   const classes = useStyles();
-  const { t } = useTranslation();
   const {
     dateDetails,
     showAbsenceTimes,

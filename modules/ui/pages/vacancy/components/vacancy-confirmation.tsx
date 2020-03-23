@@ -17,7 +17,7 @@ import {
 } from "graphql/server-types.gen";
 import { VacancyDetailsFormData } from "../helpers/types";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
-import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary/vacancy-summary";
+import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary";
 
 type Props = {
   orgId: string;
