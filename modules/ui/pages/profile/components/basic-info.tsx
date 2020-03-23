@@ -6,7 +6,7 @@ import { AvatarCard } from "ui/components/avatar-card";
 import { getInitials } from "ui/components/helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
-import { ChangeLoginEmailDialog } from "./components/change-email-dialog";
+import { ChangeLoginEmailDialog } from "./change-email-dialog";
 import { Formik } from "formik";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Input } from "ui/components/form/input";
@@ -16,6 +16,7 @@ import { SelectNew } from "ui/components/form/select-new";
 import { useIsMobile } from "hooks";
 import { UserUpdateInput, TimeZone } from "graphql/server-types.gen";
 import { TextButton } from "ui/components/text-button";
+import { isAfter, parseISO, format } from "date-fns";
 
 type Props = {
   user: {
@@ -26,13 +27,16 @@ type Props = {
     lastName: string;
     loginEmail: string;
     timeZoneId?: TimeZone | null;
+    phoneIsValidForSms?: boolean | null;
+    stopSmsUntilUtc?: string | null;
+    suspendSmsUntilUtc?: string | null;
   };
   onUpdateLoginEmail: (loginEmail: string) => Promise<any>;
   onUpdateUser: (updatedUser: UserUpdateInput) => Promise<any>;
   onResetPassword: () => Promise<any>;
 };
 
-export const ProfileUI: React.FC<Props> = props => {
+export const ProfileBasicInfo: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
@@ -58,6 +62,23 @@ export const ProfileUI: React.FC<Props> = props => {
   const cleanPhoneNumber = (phoneNumber: string) => {
     return phoneNumber.replace(/\D/g, "");
   };
+
+  const smsStartMessage = `${t(
+    "To start SMS notifications, text 'START' to: "
+  )} 1 (360) 777-6837`;
+  const smsSuspendedMessage = props.user.suspendSmsUntilUtc
+    ? isAfter(parseISO(props.user.suspendSmsUntilUtc), new Date())
+      ? `${t("SMS notifications paused until")} ${format(
+          parseISO(props.user.suspendSmsUntilUtc),
+          "LLL d, h:mm a."
+        )}`
+      : null
+    : null;
+  const smsStoppedMessage = props.user.stopSmsUntilUtc
+    ? isAfter(parseISO(props.user.stopSmsUntilUtc), new Date())
+      ? t("SMS Notifications stopped.")
+      : null
+    : null;
 
   return (
     <>
@@ -105,28 +126,31 @@ export const ProfileUI: React.FC<Props> = props => {
           <form onSubmit={handleSubmit}>
             <Section>
               <Grid container spacing={2}>
-                <Grid container item spacing={2} xs={isMobile ? 12 : 4}>
-                  <Grid container item spacing={2} xs={isMobile ? 8 : 12}>
-                    <Grid item xs={12}>
-                      <Input
-                        label={t("First Name")}
-                        InputComponent={FormTextField}
-                        inputComponentProps={{
-                          name: "firstName",
-                          fullWidth: true,
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Input
-                        label={t("Last Name")}
-                        InputComponent={FormTextField}
-                        inputComponentProps={{
-                          name: "lastName",
-                          fullWidth: true,
-                        }}
-                      />
-                    </Grid>
+                <Grid
+                  container
+                  item
+                  xs={isMobile ? 12 : 4}
+                  alignItems="stretch"
+                >
+                  <Grid item xs={12}>
+                    <Input
+                      label={t("First Name")}
+                      InputComponent={FormTextField}
+                      inputComponentProps={{
+                        name: "firstName",
+                        fullWidth: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Input
+                      label={t("Last Name")}
+                      InputComponent={FormTextField}
+                      inputComponentProps={{
+                        name: "lastName",
+                        fullWidth: true,
+                      }}
+                    />
                   </Grid>
                   {isMobile && (
                     <Grid item xs={4}>
@@ -136,8 +160,14 @@ export const ProfileUI: React.FC<Props> = props => {
                     </Grid>
                   )}
                   <Grid item xs={12}>
+                    <div className={classes.labelContainer}>
+                      <div>{t("Mobile Phone")}</div>
+                      {props.user.phoneIsValidForSms &&
+                        props.user.phone === values.phone && (
+                          <div>{t("Verified for SMS")}</div>
+                        )}
+                    </div>
                     <Input
-                      label={t("Mobile Phone")}
                       InputComponent={FormTextField}
                       inputComponentProps={{
                         name: "phone",
@@ -146,7 +176,13 @@ export const ProfileUI: React.FC<Props> = props => {
                     />
                   </Grid>
                 </Grid>
-                <Grid container item spacing={2} xs={isMobile ? 12 : 4}>
+                <Grid
+                  container
+                  item
+                  spacing={2}
+                  xs={isMobile ? 12 : 4}
+                  alignItems="center"
+                >
                   <Grid item xs={12}>
                     <div onClick={() => setChangeEmailIsOpen(true)}>
                       <div className={classes.labelContainer}>
@@ -246,6 +282,11 @@ export const ProfileUI: React.FC<Props> = props => {
                   {t("Save")}
                 </Button>
               </div>
+              {(smsSuspendedMessage || smsStoppedMessage) && (
+                <div className={classes.smsWarning}>{`${
+                  smsSuspendedMessage ? smsSuspendedMessage : smsStoppedMessage
+                } ${smsStartMessage}`}</div>
+              )}
             </Section>
           </form>
         )}
@@ -286,5 +327,10 @@ const useStyles = makeStyles(theme => ({
   },
   avatarContainer: {
     padding: theme.spacing(3),
+  },
+  smsWarning: {
+    color: theme.customColors.darkRed,
+    fontWeight: "bold",
+    fontSize: theme.typography.pxToRem(14),
   },
 }));

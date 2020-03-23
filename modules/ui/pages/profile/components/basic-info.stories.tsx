@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ProfileUI } from "./profile-ui";
+import { ProfileBasicInfo } from "./basic-info";
 import { mockProvider } from "test-helpers/mock-provider";
 
 export default {
@@ -10,7 +10,7 @@ export const Basic = () => {
   const Provider = mockProvider();
   return (
     <Provider>
-      <ProfileUI
+      <ProfileBasicInfo
         user={{
           id: "1",
           rowVersion: "1",

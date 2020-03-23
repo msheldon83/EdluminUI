@@ -1,14 +1,15 @@
 import * as React from "react";
-import { useMutationBundle } from "graphql/hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { UpdateLoginEmail } from "./graphql/UpdateLoginEmail.gen";
 import { UpdateUser } from "./graphql/UpdateUser.gen";
 import { ResetPassword } from "./graphql/ResetPassword.gen";
-import { ProfileUI } from "./profile-ui";
+import { ProfileBasicInfo } from "./components/basic-info";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { UserUpdateInput } from "graphql/server-types.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useTranslation } from "react-i18next";
+import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
 
 type Props = {};
 
@@ -18,6 +19,15 @@ export const ProfilePage: React.FC<Props> = props => {
 
   const myUserAccess = useMyUserAccess();
   const user = myUserAccess?.me?.user;
+
+  const getMyUser = useQueryBundle(GetUserById, {
+    variables: {
+      id: user?.id,
+    },
+    skip: !user?.id,
+  });
+  const myUser =
+    getMyUser.state === "LOADING" ? undefined : getMyUser?.data?.user?.byId;
 
   const [updateLoginEmail] = useMutationBundle(UpdateLoginEmail, {
     onError: error => {
@@ -51,8 +61,8 @@ export const ProfilePage: React.FC<Props> = props => {
     await updateLoginEmail({
       variables: {
         loginEmailChange: {
-          id: user?.id ?? "",
-          rowVersion: user?.rowVersion ?? "",
+          id: myUser?.id ?? "",
+          rowVersion: myUser?.rowVersion ?? "",
           loginEmail: loginEmail,
         },
       },
@@ -61,7 +71,7 @@ export const ProfilePage: React.FC<Props> = props => {
 
   const onResetPassword = async () => {
     const response = await resetPassword({
-      variables: { resetPasswordInput: { id: user?.id ?? "" } },
+      variables: { resetPasswordInput: { id: myUser?.id ?? "" } },
     });
     const result = response?.data?.user?.resetPassword;
     if (result) {
@@ -74,13 +84,13 @@ export const ProfilePage: React.FC<Props> = props => {
     }
   };
 
-  if (!user) {
+  if (!myUser) {
     return <></>;
   }
 
   return (
-    <ProfileUI
-      user={user}
+    <ProfileBasicInfo
+      user={myUser}
       onUpdateLoginEmail={onUpdateLoginEmail}
       onUpdateUser={onUpdateUser}
       onResetPassword={onResetPassword}
