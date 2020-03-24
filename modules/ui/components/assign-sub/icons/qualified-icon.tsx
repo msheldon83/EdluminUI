@@ -2,7 +2,6 @@ import * as React from "react";
 import { VacancyQualification } from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
-import SignalCellularAltIcon from "@material-ui/icons/SignalCellularAlt";
 import { CellularIcon } from "ui/components/cellular-icon";
 
 type Props = {
@@ -23,9 +22,6 @@ export const QualifiedIcon: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  available: {
-    color: theme.customColors.edluminSlate,
-  },
   notAvailable: {
     color: theme.customColors.edluminSubText,
   },

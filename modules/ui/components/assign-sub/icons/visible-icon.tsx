@@ -20,7 +20,7 @@ export const VisibleIcon: React.FC<Props> = props => {
     !props.availableToSubWhenSearchingAtLocal
   ) {
     // Sub will never be able to see this job
-    return <VisibilityOff className={classes.notVisibileIcon} />;
+    return <VisibilityOff className={classes.boldIcon} />;
   }
 
   // Determine if the time the server told us this job would be
@@ -32,7 +32,7 @@ export const VisibleIcon: React.FC<Props> = props => {
 
   if (availableToSubNow) {
     // Sub can currently see this job
-    return <Visibility className={classes.visibileIcon} />;
+    return <Visibility className={classes.lightIcon} />;
   }
 
   // Sub will eventually be able to see this job
@@ -46,10 +46,10 @@ export const VisibleIcon: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  notVisibileIcon: {
+  lightIcon: {
     color: theme.customColors.edluminSubText,
   },
-  visibileIcon: {
+  boldIcon: {
     color: theme.customColors.black,
   },
 }));

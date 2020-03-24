@@ -44,14 +44,12 @@ const useStyles = makeStyles(theme => ({
     height: "9px",
     width: "3px",
     marginLeft: "3px",
-
     display: "inline-block",
   },
   bar2: {
     height: "15px",
     width: "3px",
     marginLeft: "3px",
-
     display: "inline-block",
   },
   bar3: {
