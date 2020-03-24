@@ -4,9 +4,13 @@ import { UpdateLoginEmail } from "./graphql/UpdateLoginEmail.gen";
 import { UpdateUser } from "./graphql/UpdateUser.gen";
 import { ResetPassword } from "./graphql/ResetPassword.gen";
 import { ProfileBasicInfo } from "./components/basic-info";
+import { NotificationPreferences } from "./components/notification-preferences";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-import { UserUpdateInput } from "graphql/server-types.gen";
+import {
+  UserUpdateInput,
+  UserPreferencesInput,
+} from "graphql/server-types.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useTranslation } from "react-i18next";
 import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
@@ -84,16 +88,32 @@ export const ProfilePage: React.FC<Props> = props => {
     }
   };
 
+  const onUpdatePreferences = async (preferences: UserPreferencesInput) => {
+    await onUpdateUser({
+      id: myUser?.id ?? "",
+      rowVersion: myUser?.rowVersion ?? "",
+      preferences: preferences,
+    });
+  };
+
   if (!myUser) {
     return <></>;
   }
 
   return (
-    <ProfileBasicInfo
-      user={myUser}
-      onUpdateLoginEmail={onUpdateLoginEmail}
-      onUpdateUser={onUpdateUser}
-      onResetPassword={onResetPassword}
-    />
+    <>
+      <ProfileBasicInfo
+        user={myUser}
+        onUpdateLoginEmail={onUpdateLoginEmail}
+        onUpdateUser={onUpdateUser}
+        onResetPassword={onResetPassword}
+      />
+      {!user?.isSystemAdministrator && (
+        <NotificationPreferences
+          user={myUser}
+          onUpdatePreferences={onUpdatePreferences}
+        />
+      )}
+    </>
   );
 };

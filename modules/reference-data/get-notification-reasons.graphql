@@ -1,0 +1,10 @@
+query GetNotificationReasons {
+  referenceData {
+    notificationReasons {
+      enumValue
+      name
+      description
+      appliesToRole
+    }
+  }
+}

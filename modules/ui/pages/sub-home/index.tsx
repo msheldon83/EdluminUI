@@ -321,7 +321,7 @@ export const SubHome: React.FC<Props> = props => {
         <Section className={classes.wrapper}>
           <Grid container spacing={2} className={classes.header}>
             <Typography variant="h5" className={classes.availableJobsTitle}>
-              {t("Available Jobs")}
+              {t("Available assignments")}
             </Typography>
 
             {isMobile ? (
@@ -351,7 +351,7 @@ export const SubHome: React.FC<Props> = props => {
             <Divider className={classes.header} />
             {getVacancies.state === "LOADING" ? (
               <Typography variant="h5">
-                {t("Loading Available Jobs")}
+                {t("Loading available assignments")}
               </Typography>
             ) : vacancies.length > 0 ? (
               sortedVacancies.map((x, index) => (
@@ -365,7 +365,9 @@ export const SubHome: React.FC<Props> = props => {
                 />
               ))
             ) : (
-              <Typography variant="h5">{t("No Jobs Available")}</Typography>
+              <Typography variant="h5">
+                {t("No assignments available")}
+              </Typography>
             )}
           </div>
         </Section>
