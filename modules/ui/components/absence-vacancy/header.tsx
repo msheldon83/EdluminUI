@@ -3,14 +3,14 @@ import { useTranslation } from "react-i18next";
 import { Button, Typography, makeStyles } from "@material-ui/core";
 
 type Props = {
-  employeeName: string;
   pageHeader: string;
+  subHeader: string;
   actingAsEmployee?: boolean;
   onCancel?: () => void;
   isForVacancy?: boolean;
 };
 
-export const AbsenceHeader: React.FC<Props> = props => {
+export const AbsenceVacancyHeader: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
@@ -19,7 +19,7 @@ export const AbsenceHeader: React.FC<Props> = props => {
       <div>
         <Typography variant="h5">{props.pageHeader}</Typography>
         {!props.actingAsEmployee && (
-          <Typography variant="h1">{props.employeeName}</Typography>
+          <Typography variant="h1">{props.subHeader}</Typography>
         )}
       </div>
 

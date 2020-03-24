@@ -44,7 +44,7 @@ import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "../../../helpers/step-params";
 import { ApolloError } from "apollo-client";
 import { Prompt, useRouteMatch } from "react-router";
-import { AbsenceHeader } from "ui/components/absence/header";
+import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 
 type Props = {
   firstName: string;
@@ -353,12 +353,16 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const onAssignSub = React.useCallback(
     (
       replacementId: string,
-      replacementName: string,
+      replacementFirstName: string,
+      replacementLastName: string,
       payCodeId: string | undefined
     ) => {
       /* eslint-disable @typescript-eslint/no-floating-promises */
       setValue("replacementEmployeeId", replacementId);
-      setValue("replacementEmployeeName", replacementName);
+      setValue(
+        "replacementEmployeeName",
+        `${replacementFirstName} ${replacementLastName}`
+      );
       if (payCodeId) {
         setValue("payCode", payCodeId);
       }
@@ -402,9 +406,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       >
         {step === "absence" && (
           <>
-            <AbsenceHeader
-              employeeName={employeeName}
+            <AbsenceVacancyHeader
               pageHeader={t("Create absence")}
+              subHeader={employeeName}
               actingAsEmployee={actingAsEmployee}
             />
             <Section className={classes.absenceDetails}>

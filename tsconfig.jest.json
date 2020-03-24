@@ -1,8 +1,8 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["dom", "esnext", "esnext.asynciterable"],
-    "target": "esnext",
+    "lib": ["dom", "es2018", "esnext.asynciterable"],
+    "target": "es2018",
     "module": "system"
   }
 }

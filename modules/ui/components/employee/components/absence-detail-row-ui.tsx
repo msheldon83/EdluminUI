@@ -19,7 +19,7 @@ import {
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum, DayPart } from "graphql/server-types.gen";
 import { compact, uniq } from "lodash-es";
-import { getBasicDateRangeDisplayText } from "ui/components/absence/date-helpers";
+import { getBasicDateRangeDisplayText } from "ui/components/date-helpers";
 import { useState } from "react";
 import clsx from "clsx";
 

@@ -2,7 +2,6 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, makeStyles, Typography, Button } from "@material-ui/core";
 import { VacancyDetailsGroup } from "./helpers";
-import { getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "./date-helpers";
 import { format } from "date-fns";
 import { AssignedSub } from "./assigned-sub";
 import { useMemo } from "react";
@@ -11,6 +10,7 @@ import { OrgUserPermissions } from "../auth/types";
 import { canAssignSub } from "helpers/permissions";
 import { Can } from "../auth/can";
 import { AssignmentOnDate } from "./types";
+import { getDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 
 type Props = {
   groupedDetail: VacancyDetailsGroup;
@@ -121,7 +121,7 @@ export const VacancyDetailRow: React.FC<Props> = props => {
       )}
       <Grid item xs={12} className={classes.vacancyBlockHeader}>
         <Typography variant="h6">
-          {getAbsenceDateRangeDisplayTextWithDayOfWeekForContiguousDates(
+          {getDateRangeDisplayTextWithDayOfWeekForContiguousDates(
             allDates,
             disabledDates
           )}

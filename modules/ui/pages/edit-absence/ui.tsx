@@ -56,7 +56,7 @@ import { OrgUserPermissions } from "ui/components/auth/types";
 import { canViewAsSysAdmin } from "helpers/permissions";
 import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useHistory } from "react-router";
-import { AbsenceHeader } from "ui/components/absence/header";
+import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 
@@ -435,7 +435,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const onAssignReplacement = useCallback(
     async (
       employeeId: string,
-      name: string,
+      employeeFirstName: string,
+      employeeLastName: string,
       payCode: string | undefined,
       vacancyDetailIds?: string[]
     ) => {
@@ -553,8 +554,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           })}
         >
           <div className={classes.titleContainer}>
-            <AbsenceHeader
-              employeeName={employeeName}
+            <AbsenceVacancyHeader
+              subHeader={employeeName}
               pageHeader={`${t("Edit absence")} #${props.absenceId}`}
               actingAsEmployee={props.actingAsEmployee}
             />

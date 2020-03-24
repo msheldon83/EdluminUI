@@ -41,7 +41,8 @@ export const getAssignSubColumns = (
   selectTitle: string,
   assignReplacementEmployee: (
     replacementEmployeeId: string,
-    name: string,
+    replacementEmployeeFirstName: string,
+    replacementEmployeeLastName: string,
     payCodeId: string | undefined,
     validationChecks: ValidationChecks
   ) => Promise<void>,
@@ -175,7 +176,8 @@ export const getAssignSubColumns = (
           };
           await assignReplacementEmployee(
             data.employeeId,
-            `${data.firstName} ${data.lastName}`,
+            data.firstName,
+            data.lastName,
             data.payCodeId ? data.payCodeId : undefined,
             validationChecks
           );
