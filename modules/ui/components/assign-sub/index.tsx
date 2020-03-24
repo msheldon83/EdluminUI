@@ -26,13 +26,11 @@ import {
 } from "./filters";
 import { ReassignAbsenceDialog } from "ui/components/absence/reassign-dialog";
 import { AssignmentOnDate } from "ui/components/absence/types";
-import { AbsenceHeader } from "ui/components/absence/header";
-import {
-  VacancyScheduleDay,
-  VacancySubstituteDetailsSection,
-} from "ui/pages/vacancy/components/vacancy-substitute-details-section";
+import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { VacancySummaryHeader } from "../absence/vacancy-summary-header";
 import { GetVacancyReplacementEmployees } from "./graphql/get-replacement-employees-for-vacancy.gen";
+import { VacancySummary } from "../absence-vacancy/vacancy-summary";
+import { VacancySummaryDetail } from "../absence-vacancy/vacancy-summary/types";
 
 type Props = {
   orgId: string;
@@ -48,8 +46,9 @@ type Props = {
   disabledDates?: Date[];
   selectButtonText?: string;
   onAssignReplacement: (
-    replacementId: string,
-    replacementName: string,
+    replacementEmployeeId: string,
+    replacementEmployeeFirstName: string,
+    replacementEmployeeLastName: string,
     payCode: string | undefined,
     vacancyDetailIds?: string[]
   ) => void;
@@ -57,9 +56,11 @@ type Props = {
   employeeToReplace?: string;
   assignmentsByDate: AssignmentOnDate[];
   isForVacancy?: boolean;
-  vacancyScheduleDays?: VacancyScheduleDay[];
+  vacancySummaryDetails?: VacancySummaryDetail[];
   vacancy?: VacancyCreateInput;
   vacancyId?: string;
+  orgHasPayCodesDefined?: boolean;
+  orgHasAccountingCodesDefined?: boolean;
 };
 
 export type ValidationChecks = {
@@ -69,6 +70,13 @@ export type ValidationChecks = {
   excludedSub: boolean;
   notIncluded: boolean;
   unavailableToWork: boolean;
+};
+
+type ReplacementEmployeeInfo = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  payCode?: string;
 };
 
 export const AssignSub: React.FC<Props> = props => {
@@ -86,18 +94,23 @@ export const AssignSub: React.FC<Props> = props => {
     onAssignReplacement,
     vacancyDetailIdsToAssign,
     employeeToReplace = "",
+    vacancySummaryDetails,
+    isForVacancy = false,
+    vacancy = undefined,
+    vacancyId = undefined,
+    orgHasPayCodesDefined = true,
+    orgHasAccountingCodesDefined = true,
   } = props;
 
   const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
   const [warningDialogIsOpen, setWarningDialogIsOpen] = React.useState(false);
-  const [replacementEmployeeName, setReplacementEmployeeName] = React.useState(
-    ""
-  );
-  const [
-    replacementEmployeePayCode,
-    setReplacementEmployeePayCode,
-  ] = React.useState();
-  const [replacementEmployeeId, setReplacementEmployeeId] = React.useState();
+  const [replacementEmployeeInfo, setReplacementEmployeeInfo] = React.useState<
+    ReplacementEmployeeInfo
+  >({
+    id: "",
+    firstName: "",
+    lastName: "",
+  });
 
   const [validationChecks, setValidationChecks] = React.useState<
     ValidationChecks
@@ -107,10 +120,10 @@ export const AssignSub: React.FC<Props> = props => {
 
   // If we don't have any info, cancel the Assign Sub action
   if (
-    (!props.isForVacancy && !props.vacancies) ||
+    (!isForVacancy && !props.vacancies) ||
     props.vacancies?.length === 0 ||
-    (props.isForVacancy && !props.vacancyScheduleDays) ||
-    props.vacancyScheduleDays?.length === 0
+    (isForVacancy && !vacancySummaryDetails) ||
+    vacancySummaryDetails?.length === 0
   ) {
     props.onCancel();
   }
@@ -132,7 +145,7 @@ export const AssignSub: React.FC<Props> = props => {
     /* As of 12/2/2019, we are not going to page this data.
   We will reintroduce pagining in the future. */
   }
-  const getReplacementEmployeesForVacancyQuery = useQueryBundle(
+  const getReplacementEmployeesForAbsenceVacancyQuery = useQueryBundle(
     GetReplacementEmployeesForVacancy,
     {
       variables: {
@@ -155,18 +168,21 @@ export const AssignSub: React.FC<Props> = props => {
         limit: null,
         offset: null,
       },
-      skip: searchFilter === undefined || props.isForVacancy,
+      skip: searchFilter === undefined || isForVacancy,
     }
   );
 
   /** this query is used for vacancy subs */
-  const getVacancyReplacementEmployeesForVacancyQuery = useQueryBundle(
+  const getReplacementEmployeesForNormalVacancyQuery = useQueryBundle(
     GetVacancyReplacementEmployees,
     {
       variables: {
         orgId: props.orgId,
         vacancy: props.vacancy,
         vacancyId: props.vacancyId,
+        vacancyDetailIds: props.vacancyId
+          ? vacancyDetailIdsToAssign ?? undefined
+          : undefined,
         name: searchFilter?.name,
         qualified: searchFilter?.name ? undefined : searchFilter?.qualified,
         available: searchFilter?.name ? undefined : searchFilter?.available,
@@ -176,43 +192,35 @@ export const AssignSub: React.FC<Props> = props => {
         limit: null,
         offset: null,
       },
-      skip: searchFilter === undefined || !props.isForVacancy,
+      skip: searchFilter === undefined || !isForVacancy,
     }
   );
 
   useEffect(() => {
     if (searchFilter) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      getReplacementEmployeesForVacancyQuery.refetch();
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      getVacancyReplacementEmployeesForVacancyQuery.refetch();
+      if (isForVacancy) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        getReplacementEmployeesForNormalVacancyQuery.refetch();
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        getReplacementEmployeesForAbsenceVacancyQuery.refetch();
+      }
     }
-  }, [searchFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchFilter, isForVacancy]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /*let replacementEmployees: GetReplacementEmployeesForVacancy.Results[] = [];
-  if (
-    getReplacementEmployeesForVacancyQuery.state === "DONE" ||
-    getReplacementEmployeesForVacancyQuery.state === "UPDATING"
-  ) {
-    const qResults: GetReplacementEmployeesForVacancy.Results[] = compact(
-      getReplacementEmployeesForVacancyQuery.data?.absence
-        ?.replacementEmployeesForVacancy?.results
-    );
-    if (qResults) replacementEmployees = qResults;
-  }*/
   const replacementEmployees =
-    (!props.isForVacancy &&
-      getReplacementEmployeesForVacancyQuery.state === "DONE") ||
-    getReplacementEmployeesForVacancyQuery.state === "UPDATING"
+    (!isForVacancy &&
+      getReplacementEmployeesForAbsenceVacancyQuery.state === "DONE") ||
+    getReplacementEmployeesForAbsenceVacancyQuery.state === "UPDATING"
       ? compact(
-          getReplacementEmployeesForVacancyQuery.data?.absence
+          getReplacementEmployeesForAbsenceVacancyQuery.data?.absence
             ?.replacementEmployeesForVacancy?.results
         )
-      : (props.isForVacancy &&
-          getVacancyReplacementEmployeesForVacancyQuery.state === "DONE") ||
-        getVacancyReplacementEmployeesForVacancyQuery.state === "UPDATING"
+      : (isForVacancy &&
+          getReplacementEmployeesForNormalVacancyQuery.state === "DONE") ||
+        getReplacementEmployeesForNormalVacancyQuery.state === "UPDATING"
       ? compact(
-          getVacancyReplacementEmployeesForVacancyQuery.data?.vacancy
+          getReplacementEmployeesForNormalVacancyQuery.data?.vacancy
             ?.replacementEmployeesForVacancy?.results
         )
       : [];
@@ -244,45 +252,56 @@ export const AssignSub: React.FC<Props> = props => {
   const assignReplacementEmployee = useCallback(
     async (
       replacementEmployeeId: string,
-      name: string,
+      replacementEmployeeFirstName: string,
+      replacementEmployeeLastName: string,
       payCodeId: string | undefined,
       validationChecks: ValidationChecks,
       ignoreAndContinue?: boolean
     ) => {
       if (!validator(validationChecks, setMessages, t) && !ignoreAndContinue) {
-        setReplacementEmployeeName(name);
-        setReplacementEmployeePayCode(payCodeId);
-        setReplacementEmployeeId(replacementEmployeeId);
+        setReplacementEmployeeInfo({
+          id: replacementEmployeeId,
+          firstName: replacementEmployeeFirstName,
+          lastName: replacementEmployeeLastName,
+          payCode: payCodeId,
+        });
         setValidationChecks(validationChecks);
         setWarningDialogIsOpen(true);
       } else {
         onAssignReplacement(
           replacementEmployeeId,
-          name,
+          replacementEmployeeFirstName,
+          replacementEmployeeLastName,
           payCodeId,
           vacancyDetailIdsToAssign
         );
       }
     },
-    [onAssignReplacement, vacancyDetailIdsToAssign]
+    [onAssignReplacement, vacancyDetailIdsToAssign, t]
   );
 
   const confirmReassign = useCallback(
     async (
       replacementEmployeeId: string,
-      name: string,
+      replacementEmployeeFirstName: string,
+      replacementEmployeeLastName: string,
       payCodeId: string | undefined,
       validationChecks: ValidationChecks
     ) => {
       if (employeeToReplace) {
-        setReplacementEmployeeName(name);
-        setReplacementEmployeePayCode(payCodeId);
-        setReplacementEmployeeId(replacementEmployeeId);
+        setReplacementEmployeeInfo({
+          id: replacementEmployeeId,
+          firstName: replacementEmployeeFirstName,
+          lastName: replacementEmployeeLastName,
+          payCode: payCodeId,
+        });
+        setValidationChecks(validationChecks);
         setReassignDialogIsOpen(true);
       } else {
         await assignReplacementEmployee(
           replacementEmployeeId,
-          name,
+          replacementEmployeeFirstName,
+          replacementEmployeeLastName,
           payCodeId,
           validationChecks
         );
@@ -307,13 +326,13 @@ export const AssignSub: React.FC<Props> = props => {
           collapsedHeight={theme.typography.pxToRem(
             vacancyDetailsHeight
               ? Math.min(
-                  vacancyDetailsHeight + (props.isForVacancy ? 75 : 0),
+                  vacancyDetailsHeight + (isForVacancy ? 75 : 0),
                   collapsedVacancyDetailsHeight
                 )
               : collapsedVacancyDetailsHeight
           )}
         >
-          {props.vacancies && !props.isForVacancy && (
+          {props.vacancies && !isForVacancy && (
             <VacancyDetails
               vacancies={props.vacancies}
               vacancyDetailIds={vacancyDetailIdsToAssign}
@@ -323,23 +342,29 @@ export const AssignSub: React.FC<Props> = props => {
               disabledDates={props.disabledDates}
               detailsClassName={classes.vacancyDetailsTable}
               assignmentsByDate={props.assignmentsByDate}
-              isForVacancy={props.isForVacancy}
+              isForVacancy={isForVacancy}
             />
           )}
-          {props.vacancyScheduleDays && props.isForVacancy && (
-            <div className={classes.vacSubDetailContainer}>
+          {vacancySummaryDetails && isForVacancy && (
+            <>
               <VacancySummaryHeader
-                positionName={props.vacancyScheduleDays[0].positionTitle}
-                vacancyDates={props.vacancyScheduleDays?.map((vsd: any) => {
+                positionName={props.positionName}
+                vacancyDates={vacancySummaryDetails?.map((vsd: any) => {
                   return vsd.date;
                 })}
               />
-              <VacancySubstituteDetailsSection
-                scheduleDays={props.vacancyScheduleDays}
-                showNotes={false}
-                gridRef={vacancyDetailsRef}
-              />
-            </div>
+              <div className={classes.vacSubDetailContainer}>
+                <VacancySummary
+                  vacancySummaryDetails={vacancySummaryDetails}
+                  onAssignClick={async () => {}}
+                  onCancelAssignment={async () => {}}
+                  detailsOnly={true}
+                  divRef={vacancyDetailsRef}
+                  showAccountingCodes={orgHasAccountingCodesDefined}
+                  showPayCodes={orgHasPayCodesDefined}
+                />
+              </div>
+            </>
           )}
         </Collapse>
         {showViewAllDetails && (
@@ -360,8 +385,8 @@ export const AssignSub: React.FC<Props> = props => {
   const replacementEmployeeCount = replacementEmployees.length;
   const pageHeader = props.existingVacancy
     ? t("Assign Substitute")
-    : props.isForVacancy
-    ? `${t("Create Vacancy")}: ${t("Prearranging Substitute")}`
+    : isForVacancy
+    ? t("Prearranging Substitute")
     : `${t("Create Absence")}: ${t("Prearranging Substitute")}`;
 
   const selectTitle = props.selectButtonText || t("Select")!;
@@ -389,13 +414,23 @@ export const AssignSub: React.FC<Props> = props => {
     ]
   );
 
-  const isLoading =
-    (!props.isForVacancy &&
-      getReplacementEmployeesForVacancyQuery.state === "LOADING") ||
-    getReplacementEmployeesForVacancyQuery.state === "UPDATING" ||
-    (props.isForVacancy &&
-      getVacancyReplacementEmployeesForVacancyQuery.state === "LOADING") ||
-    getVacancyReplacementEmployeesForVacancyQuery.state === "UPDATING";
+  const isLoading = useMemo(() => {
+    if (isForVacancy) {
+      return (
+        getReplacementEmployeesForNormalVacancyQuery.state === "LOADING" ||
+        getReplacementEmployeesForNormalVacancyQuery.state === "UPDATING"
+      );
+    } else {
+      return (
+        getReplacementEmployeesForAbsenceVacancyQuery.state === "LOADING" ||
+        getReplacementEmployeesForAbsenceVacancyQuery.state === "UPDATING"
+      );
+    }
+  }, [
+    isForVacancy,
+    getReplacementEmployeesForAbsenceVacancyQuery.state,
+    getReplacementEmployeesForNormalVacancyQuery.state,
+  ]);
 
   return (
     <>
@@ -414,18 +449,20 @@ export const AssignSub: React.FC<Props> = props => {
 
           setReassignDialogIsOpen(false);
           await assignReplacementEmployee(
-            replacementEmployeeId,
-            replacementEmployeeName,
-            replacementEmployeePayCode,
+            replacementEmployeeInfo.id,
+            replacementEmployeeInfo.firstName,
+            replacementEmployeeInfo.lastName,
+            replacementEmployeeInfo.payCode,
             validationCheck
           );
         }}
         currentReplacementEmployee={employeeToReplace}
-        newReplacementEmployee={replacementEmployeeName}
+        newReplacementEmployee={`${replacementEmployeeInfo.firstName} ${replacementEmployeeInfo.lastName}`}
+        isForVacancy={isForVacancy}
       />
       <AssignAbsenceDialog
         open={warningDialogIsOpen}
-        employeeToAssign={replacementEmployeeName}
+        employeeToAssign={`${replacementEmployeeInfo.firstName} ${replacementEmployeeInfo.lastName}`}
         messages={messages}
         onClose={() => setWarningDialogIsOpen(false)}
         onAssign={async () => {
@@ -439,19 +476,21 @@ export const AssignSub: React.FC<Props> = props => {
           };
           setWarningDialogIsOpen(false);
           await assignReplacementEmployee(
-            replacementEmployeeId,
-            replacementEmployeeName,
-            replacementEmployeePayCode,
+            replacementEmployeeInfo.id,
+            replacementEmployeeInfo.firstName,
+            replacementEmployeeInfo.lastName,
+            replacementEmployeeInfo.payCode,
             validationCheck,
             true
           );
         }}
       />
-      <AbsenceHeader
-        employeeName={props.employeeName ?? ""}
+      <AbsenceVacancyHeader
         pageHeader={pageHeader}
+        subHeader={props.employeeName ?? ""}
         actingAsEmployee={props.actingAsEmployee}
         onCancel={props.onCancel}
+        isForVacancy={isForVacancy}
       />
       <Section>
         <div className={classes.vacancyDetails}>{renderVacancyDetails()}</div>
@@ -532,6 +571,7 @@ const useStyles = makeStyles(theme => ({
   },
   vacSubDetailContainer: {
     width: "50%",
+    paddingTop: theme.spacing(),
   },
 }));
 

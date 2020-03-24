@@ -6,6 +6,15 @@ mutation UpdateVacancy($vacancy: VacancyUpdateInput!) {
       details {
         id
         startDate
+        assignment {
+          id
+          rowVersion
+          employee {
+            id
+            firstName
+            lastName
+          }
+        }
       }
     }
   }

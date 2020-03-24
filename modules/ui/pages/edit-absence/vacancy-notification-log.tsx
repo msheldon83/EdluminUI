@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { Link } from "react-router-dom";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
-import { AbsenceHeader } from "ui/components/absence/header";
+import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";
 
@@ -149,9 +149,9 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
         className={classes.header}
       >
         <Grid item>
-          <AbsenceHeader
+          <AbsenceVacancyHeader
             actingAsEmployee={false}
-            employeeName={employeeName}
+            subHeader={employeeName}
             pageHeader={`${t("Text message log")} #${params.absenceId}`}
             onCancel={onReturn}
           />
