@@ -278,8 +278,6 @@ export const OrganizationAddPage: React.FC<{}> = props => {
             },
           };
 
-          console.log(newOrganization);
-
           setOrganization(newOrganization);
           const result = await create(newOrganization);
           if (result) {
