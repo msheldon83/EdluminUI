@@ -18,6 +18,7 @@ type Props = {
   onAssign: () => void;
   currentReplacementEmployee: string;
   newReplacementEmployee: string;
+  isForVacancy?: boolean;
 };
 
 export const ReassignAbsenceDialog: React.FC<Props> = props => {
@@ -27,12 +28,12 @@ export const ReassignAbsenceDialog: React.FC<Props> = props => {
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle disableTypography>
-        <Typography variant="h5">{t("Reassign Absence")}</Typography>
+        <Typography variant="h5">{props.isForVacancy ? t("Reassign Vacancy") : t("Reassign Absence")}</Typography>
       </DialogTitle>
       <DialogContent>
         <Typography>
           {`${t(
-            "Are you sure you would like to reassign this absence from "
+            "Are you sure you would like to reassign from "
           )} ${props.currentReplacementEmployee} to ${
             props.newReplacementEmployee
           }?`}

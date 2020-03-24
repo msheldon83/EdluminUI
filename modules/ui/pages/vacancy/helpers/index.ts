@@ -1,10 +1,10 @@
-import { VacancyDetailsFormData } from "../components/vacancy";
 import {
   VacancyCreateInput,
   Vacancy,
   VacancyUpdateInput,
 } from "graphql/server-types.gen";
 import { parseISO } from "date-fns";
+import { VacancyDetailsFormData } from "./types";
 
 export const buildVacancyCreateInput = (
   v: VacancyDetailsFormData
@@ -19,8 +19,20 @@ export const buildVacancyCreateInput = (
     notesToReplacement: v.notesToReplacement,
     details: v.details.map(d => {
       return {
-        ...d,
+        date: d.date,
+        startTime: d.startTime,
+        endTime: d.endTime,
+        vacancyReasonId: d.vacancyReasonId,
         payCodeId: d.payCodeId && d.payCodeId.length > 0 ? d.payCodeId : null,
+        accountingCodeAllocations:
+          d.accountingCodeAllocations?.map(a => {
+            return {
+              accountingCodeId: a.accountingCodeId,
+              allocation: a.allocation,
+            };
+          }) ?? [],
+        prearrangedReplacementEmployeeId:
+          d.assignment?.employee?.id ?? undefined,
       };
     }),
     ignoreWarnings: true,
@@ -28,6 +40,9 @@ export const buildVacancyCreateInput = (
 };
 
 export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
+  const locationId = v.details ? v.details[0]?.locationId ?? "" : "";
+  const locationName = v.details ? v.details[0]?.location?.name ?? "" : "";
+
   return {
     id: v.id ?? "",
     orgId: v.orgId,
@@ -36,44 +51,39 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
     title: v.position?.title ?? "",
     notesToReplacement: v.notesToReplacement ?? "",
     ignoreWarnings: false,
-    locationId: v.details ? v.details[0]?.locationId ?? "" : "",
+    locationId: locationId,
+    locationName: locationName,
     workDayScheduleId: v.details ? v.details[0]?.workDayScheduleId ?? "" : "",
     rowVersion: v.rowVersion,
     details: v.details
-      ? v.details.map(d => {
+      ? v.details.map((d, i) => {
           return {
-            id: d?.id ?? undefined,
-            date: d?.startDate ? parseISO(d.startDate) : undefined,
-            startTime: d?.startTimeLocalTimeSpan ?? "",
-            endTime: d?.endTimeLocalTimeSpan ?? "",
-            payCodeId: d?.payCodeId ?? "",
-            locationId: d?.locationId ?? "",
-            vacancyReasonId: d?.vacancyReasonId ?? "",
-            accountingCodeAllocations: d?.accountingCodeAllocations
-              ? d?.accountingCodeAllocations.map(a => {
-                  return {
-                    accountingCodeId: a?.accountingCodeId ?? "",
-                    allocation: a?.allocation ?? 1.0,
-                  };
-                })
-              : [],
+            id: d.id,
+            saved: true,
+            date: parseISO(d.startDate),
+            startTime: d.startTimeLocalTimeSpan,
+            endTime: d.endTimeLocalTimeSpan,
+            locationId: locationId,
+            payCodeId: d.payCodeId ?? undefined,
+            payCodeName: d.payCode?.name,
+            vacancyReasonId: d.vacancyReasonId ?? "",
+            accountingCodeAllocations: d.accountingCodeAllocations.map(a => {
+              return {
+                accountingCodeId: a.accountingCodeId,
+                accountingCodeName: a.accountingCode?.name ?? "",
+                allocation: a.allocation,
+              };
+            }),
+            assignment: d.assignment
+              ? {
+                  id: d.assignment.id,
+                  rowVersion: d.assignment.rowVersion,
+                  employee: d.assignment.employee ?? undefined,
+                }
+              : undefined,
           };
         })
       : [],
-    assignmentId:
-      v.details && v.details[0]?.assignment ? v.details[0]?.assignment.id : "",
-    assignmentRowVersion:
-      v.details && v.details[0]?.assignment
-        ? v.details[0]?.assignment.rowVersion
-        : "",
-    replacementEmployeeId: v.details
-      ? v.details[0]?.assignment?.employeeId ?? ""
-      : "",
-    replacementEmployeeName:
-      v.details && v.details[0]?.assignment
-        ? `${v.details[0]?.assignment?.employee?.firstName ?? ""} ${v.details[0]
-            ?.assignment?.employee?.lastName ?? ""}` ?? ""
-        : "",
   };
 };
 
@@ -89,8 +99,19 @@ export const buildVacancyUpdateInput = (
     notesToReplacement: v.notesToReplacement,
     details: v.details.map(d => {
       return {
-        ...d,
+        id: d.saved ? d.id : undefined,
+        date: d.date,
+        startTime: d.startTime,
+        endTime: d.endTime,
+        vacancyReasonId: d.vacancyReasonId,
         payCodeId: d.payCodeId && d.payCodeId.length > 0 ? d.payCodeId : null,
+        accountingCodeAllocations:
+          d.accountingCodeAllocations?.map(a => {
+            return {
+              accountingCodeId: a.accountingCodeId,
+              allocation: a.allocation,
+            };
+          }) ?? [],
       };
     }),
     ignoreWarnings: true,

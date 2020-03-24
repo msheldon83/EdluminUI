@@ -1,13 +1,13 @@
 import {
-  getAbsenceDateRangeDisplayText,
-  getAbsenceDateRangeDisplayTextWithDayOfWeek,
+  getDateRangeDisplayText,
+  getDateRangeDisplayTextWithDayOfWeek,
 } from "./date-helpers";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { startOfDay, eachDayOfInterval } from "date-fns";
 
-describe("getAbsenceDateRangeDisplayText", () => {
+describe("getDateRangeDisplayText", () => {
   it("Display single date", () => {
-    const result = getAbsenceDateRangeDisplayText([
+    const result = getDateRangeDisplayText([
       startOfDay(new Date("12/18/2019")),
       startOfDay(new Date("12/18/2019")),
     ]);
@@ -19,7 +19,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       start: startOfDay(new Date("12/16/2019")),
       end: startOfDay(new Date("12/20/2019")),
     });
-    const result = getAbsenceDateRangeDisplayText(allDays);
+    const result = getDateRangeDisplayText(allDays);
     expect(result).toBe("December 16-20, 2019");
   });
 
@@ -34,7 +34,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("12/23/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(
+    const result = getDateRangeDisplayText(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -48,7 +48,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       startOfDay(new Date("12/19/2019")),
     ];
 
-    const result = getAbsenceDateRangeDisplayText(allDays);
+    const result = getDateRangeDisplayText(allDays);
     expect(result).toBe("December 16-17,19, 2019");
   });
 
@@ -64,7 +64,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("11/29/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(
+    const result = getDateRangeDisplayText(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -76,7 +76,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       start: startOfDay(new Date("11/28/2019")),
       end: startOfDay(new Date("12/3/2019")),
     });
-    const result = getAbsenceDateRangeDisplayText(allDays);
+    const result = getDateRangeDisplayText(allDays);
     expect(result).toBe("November 28 - December 3, 2019");
   });
 
@@ -89,7 +89,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("12/3/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(
+    const result = getDateRangeDisplayText(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -103,7 +103,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       startOfDay(new Date("2/6/2020")),
     ];
 
-    const result = getAbsenceDateRangeDisplayText(allDays);
+    const result = getDateRangeDisplayText(allDays);
     expect(result).toBe("January 20,30, February 6, 2020");
   });
 
@@ -122,7 +122,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("12/12/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(
+    const result = getDateRangeDisplayText(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -136,7 +136,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       start: startOfDay(new Date("12/23/2019")),
       end: startOfDay(new Date("1/6/2020")),
     });
-    const result = getAbsenceDateRangeDisplayText(allDays);
+    const result = getDateRangeDisplayText(allDays);
     expect(result).toBe("December 23, 2019 - January 6, 2020");
   });
 
@@ -145,7 +145,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       start: startOfDay(new Date("12/31/2019")),
       end: startOfDay(new Date("1/1/2020")),
     });
-    const result = getAbsenceDateRangeDisplayText(allDays);
+    const result = getDateRangeDisplayText(allDays);
     expect(result).toBe("December 31, 2019 - January 1, 2020");
   });
 
@@ -160,7 +160,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("1/6/2020")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(
+    const result = getDateRangeDisplayText(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -184,7 +184,7 @@ describe("getAbsenceDateRangeDisplayText", () => {
       end: startOfDay(new Date("1/3/2020")),
     });
 
-    const result = getAbsenceDateRangeDisplayText(
+    const result = getDateRangeDisplayText(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -192,9 +192,9 @@ describe("getAbsenceDateRangeDisplayText", () => {
   });
 });
 
-describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
+describe("getDateRangeDisplayTextWithDayOfWeek", () => {
   it("Display single date", () => {
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek([
+    const result = getDateRangeDisplayTextWithDayOfWeek([
       startOfDay(new Date("12/18/2019")),
       startOfDay(new Date("12/18/2019")),
     ]);
@@ -206,7 +206,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       start: startOfDay(new Date("12/16/2019")),
       end: startOfDay(new Date("12/20/2019")),
     });
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
+    const result = getDateRangeDisplayTextWithDayOfWeek(allDays);
     expect(result).toBe("Mon-Fri, Dec 16-20");
   });
 
@@ -221,7 +221,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       end: startOfDay(new Date("12/23/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(
+    const result = getDateRangeDisplayTextWithDayOfWeek(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -235,7 +235,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       startOfDay(new Date("12/19/2019")),
     ];
 
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
+    const result = getDateRangeDisplayTextWithDayOfWeek(allDays);
     expect(result).toBe("Dec 16-17, 19");
   });
 
@@ -251,7 +251,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       end: startOfDay(new Date("11/29/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(
+    const result = getDateRangeDisplayTextWithDayOfWeek(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -263,7 +263,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       start: startOfDay(new Date("11/28/2019")),
       end: startOfDay(new Date("12/3/2019")),
     });
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
+    const result = getDateRangeDisplayTextWithDayOfWeek(allDays);
     expect(result).toBe("Nov 28 - Dec 3");
   });
 
@@ -276,7 +276,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       end: startOfDay(new Date("12/3/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(
+    const result = getDateRangeDisplayTextWithDayOfWeek(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -290,7 +290,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       startOfDay(new Date("2/6/2020")),
     ];
 
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
+    const result = getDateRangeDisplayTextWithDayOfWeek(allDays);
     expect(result).toBe("Jan 20, 30, Feb 6");
   });
 
@@ -309,7 +309,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       end: startOfDay(new Date("12/12/2019")),
     });
 
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(
+    const result = getDateRangeDisplayTextWithDayOfWeek(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -321,7 +321,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       start: startOfDay(new Date("12/23/2019")),
       end: startOfDay(new Date("1/6/2020")),
     });
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
+    const result = getDateRangeDisplayTextWithDayOfWeek(allDays);
     expect(result).toBe("Dec 23 - Jan 6");
   });
 
@@ -330,7 +330,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       start: startOfDay(new Date("12/31/2019")),
       end: startOfDay(new Date("1/1/2020")),
     });
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(allDays);
+    const result = getDateRangeDisplayTextWithDayOfWeek(allDays);
     expect(result).toBe("Tue-Wed, Dec 31 - Jan 1");
   });
 
@@ -345,7 +345,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       end: startOfDay(new Date("1/6/2020")),
     });
 
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(
+    const result = getDateRangeDisplayTextWithDayOfWeek(
       allDays,
       disabledDates.map(d => d.date)
     );
@@ -369,7 +369,7 @@ describe("getAbsenceDateRangeDisplayTextWithDayOfWeek", () => {
       end: startOfDay(new Date("1/3/2020")),
     });
 
-    const result = getAbsenceDateRangeDisplayTextWithDayOfWeek(
+    const result = getDateRangeDisplayTextWithDayOfWeek(
       allDays,
       disabledDates.map(d => d.date)
     );
