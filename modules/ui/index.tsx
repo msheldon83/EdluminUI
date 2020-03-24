@@ -262,12 +262,16 @@ import {
   UserNotificationLogLoader,
 } from "./routes/notification-log";
 import { AppConfigProvider } from "hooks/app-config";
+import {
+  endImpersonationRoute,
+  EndImpersonationLoader,
+} from "./routes/end-impersonate";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
 export function App() {
   const classes = useStyles();
-
+  console.log("impersonate end route", endImpersonationRoute.path);
   return (
     <ThemeProvider theme={EdluminTheme}>
       <AppConfigProvider>
@@ -315,7 +319,11 @@ export function App() {
                         component={ProfileLoader}
                         path={ProfileRoute.path}
                       />
-
+                      <Route
+                        exact
+                        path={endImpersonationRoute.path}
+                        component={EndImpersonationLoader}
+                      />
                       {/* Page under construction */}
                       <Route component={TbdLoader} path={tbd.path} />
 

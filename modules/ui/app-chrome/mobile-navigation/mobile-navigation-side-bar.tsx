@@ -20,6 +20,7 @@ import { RoleSwitcher } from "../role-switcher";
 import { useAuth0 } from "auth/auth0";
 import { ExitToApp, HelpOutline } from "@material-ui/icons";
 import { useTranslation } from "react-i18next";
+import { useIsImpersonating } from "reference-data/is-impersonating";
 
 type Props = {
   expanded: boolean;
@@ -32,6 +33,8 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
   const auth0 = useAuth0();
   const { t } = useTranslation();
 
+  const isImpersonating = useIsImpersonating();
+
   return (
     <Drawer
       open={props.expanded}
@@ -43,7 +46,7 @@ export const MobileNavigationSideBar: React.FC<Props> = props => {
     >
       <Grid item className={classes.avatarContainer}>
         <Link
-          to={ProfileRoute.generate(params)}
+          to={!isImpersonating ? ProfileRoute.generate(params) : ""}
           onClick={() => {
             props.collapse();
           }}

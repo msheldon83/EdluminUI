@@ -29,6 +29,8 @@ import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Input } from "ui/components/form/input";
 import * as yup from "yup";
 import { useSnackbar } from "hooks/use-snackbar";
+import { useIsImpersonating } from "reference-data/is-impersonating";
+import { useHistory } from "react-router";
 
 type Props = {
   user: GetMyUserAccess.User;
@@ -55,6 +57,7 @@ export const ProfileUI: React.FC<Props> = props => {
   const selectTimeZoneOption = props.timeZoneOptions.find(
     tz => tz && tz.enumValue === props.user.timeZoneId
   );
+  const history = useHistory();
 
   const initialBasicProfileValues = {
     firstName: props.user.firstName,
@@ -150,7 +153,13 @@ export const ProfileUI: React.FC<Props> = props => {
           .matches(phoneRegExp, t("Phone Number Is Not Valid")),
       }),
     [t, phoneRegExp]
-  );  
+  );
+
+  const isImpersonating = useIsImpersonating();
+
+  if (isImpersonating) {
+    history.push("/");
+  }
 
   return (
     <>

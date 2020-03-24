@@ -15,6 +15,7 @@ import { getBeginningOfSchoolYear } from "ui/components/helpers";
 import { numberOfMonthsInSchoolYear } from "ui/components/schedule/helpers";
 import { addMonths, endOfMonth } from "date-fns";
 import { SubAvailabilityRoute } from "ui/routes/sub-schedule";
+import { useIsImpersonating } from "reference-data/is-impersonating";
 
 type Props = {
   view: "list" | "calendar";
@@ -61,6 +62,8 @@ export const SubstituteAssignments: React.FC<Props> = props => {
     [setSelectedDate]
   );
 
+  const isImpersonating = useIsImpersonating();
+
   return (
     <>
       <div className={props.view === "calendar" ? classes.sticky : ""}>
@@ -68,7 +71,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
           <Grid item>
             <PageTitle title={t(props.pageTitle)} />
           </Grid>
-          {!props.isAdmin && (
+          {!props.isAdmin && !isImpersonating && (
             <Grid item>
               <Button
                 variant="outlined"

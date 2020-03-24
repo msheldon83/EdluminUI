@@ -7,6 +7,7 @@ import {
   MyProfileMenuLink,
   SignOutMenuLink,
 } from "../custom-menu-links";
+import { useIsImpersonating } from "reference-data/is-impersonating";
 
 type Props = {
   open: boolean;
@@ -17,6 +18,8 @@ type Props = {
 export const UserMenu: React.FC<Props> = props => {
   const classes = useStyles();
   const userMenuListClasses = useUserMenuListStyles();
+
+  const isImpersonating = useIsImpersonating();
 
   return (
     <Menu
@@ -32,10 +35,12 @@ export const UserMenu: React.FC<Props> = props => {
       classes={userMenuListClasses}
     >
       <MenuList variant="menu" className={classes.menuList}>
-        <MyProfileMenuLink
-          onClick={props.onClose}
-          className={classes.userMenuLink}
-        />
+        {!isImpersonating && (
+          <MyProfileMenuLink
+            onClick={props.onClose}
+            className={classes.userMenuLink}
+          />
+        )}
         <SignOutMenuLink
           onClick={props.onClose}
           className={classes.userMenuLink}
