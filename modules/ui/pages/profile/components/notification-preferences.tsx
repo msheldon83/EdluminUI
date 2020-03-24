@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { makeStyles, Grid } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
@@ -12,21 +12,25 @@ import {
   OrgUserRole,
 } from "graphql/server-types.gen";
 import { PreferenceRow } from "./preference-row";
-import { useNotificationReasons } from "reference-data/notification-reasons";
+import {
+  useAdminNotificationReasons,
+  useEmployeeNotificationReasons,
+  useSubstituteNotificationReasons,
+} from "reference-data/notification-reasons";
 import { useIsAdmin } from "reference-data/is-admin";
 import { useIsEmployee } from "reference-data/is-employee";
 import { useIsSubstitute } from "reference-data/is-substitute";
-import { compact } from "lodash-es";
+import { compact, debounce } from "lodash-es";
 
 type Props = {
   user: {
     preferences?: {
-      notificationPreferences?: Array<{
+      notificationPreferences: Array<{
         notificationReasonId: NotificationReason;
         receiveEmailNotifications: boolean;
         receiveSmsNotifications: boolean;
         receiveInAppNotifications: boolean;
-      } | null> | null;
+      }>;
     } | null;
   };
   onUpdatePreferences: (preferences: UserPreferencesInput) => Promise<any>;
@@ -37,27 +41,33 @@ export const NotificationPreferences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
 
+  const notificationPreferences = props.user?.preferences
+    ?.notificationPreferences
+    ? props.user.preferences.notificationPreferences
+    : [];
+
   const isAdmin = useIsAdmin();
-  const adminReasons = useNotificationReasons(OrgUserRole.Administrator);
+  const adminReasons = useAdminNotificationReasons();
   const isEmployee = useIsEmployee();
-  const employeeReasons = useNotificationReasons(OrgUserRole.Employee);
+  const employeeReasons = useEmployeeNotificationReasons();
   const isSubstitute = useIsSubstitute();
-  const subReasons = useNotificationReasons(OrgUserRole.ReplacementEmployee);
+  const subReasons = useSubstituteNotificationReasons();
 
-  const onUpdatePreference = async (
-    preference: NotificationPreferenceInput
-  ) => {};
+  const [
+    notificationPreferencesInput,
+    setNotificationPreferenceInput,
+  ] = useState<NotificationPreferenceInput[]>([]);
 
-  const notificationReasonIdsForUser = useMemo(() => {
+  const uniqueIds = useMemo(() => {
     let ids: NotificationReason[] = [];
     if (isAdmin) {
-      ids = ids.concat(compact(adminReasons.map(a => a?.enumValue)));
+      ids = ids.concat(compact(adminReasons.map(a => a.enumValue)));
     }
     if (isEmployee) {
-      ids = ids.concat(compact(employeeReasons.map(a => a?.enumValue)));
+      ids = ids.concat(compact(employeeReasons.map(a => a.enumValue)));
     }
     if (isSubstitute) {
-      ids = ids.concat(compact(subReasons.map(a => a?.enumValue)));
+      ids = ids.concat(compact(subReasons.map(a => a.enumValue)));
     }
 
     return [...new Set(ids)];
@@ -70,12 +80,48 @@ export const NotificationPreferences: React.FC<Props> = props => {
     subReasons,
   ]);
 
-  const notificationPreferences = props.user?.preferences
-    ?.notificationPreferences
-    ? props.user.preferences.notificationPreferences.filter(x =>
-        notificationReasonIdsForUser.includes(x?.notificationReasonId)
-      )
-    : [];
+  const notificationPreferencesForUser = useMemo(
+    () =>
+      notificationPreferences
+        ? notificationPreferences
+            .filter(x => uniqueIds.includes(x?.notificationReasonId ?? ""))
+            .sort((a, b) =>
+              a.notificationReasonId.toString() >
+              b.notificationReasonId.toString()
+                ? 1
+                : -1
+            )
+        : [],
+    [notificationPreferences, uniqueIds]
+  );
+
+  useEffect(
+    () => setNotificationPreferenceInput(notificationPreferencesForUser),
+    [notificationPreferencesForUser]
+  );
+
+  const debouncedUpdate = useCallback(
+    debounce(async () => {
+      await props.onUpdatePreferences({
+        notificationPreferences: notificationPreferencesInput,
+      });
+    }, 500),
+    [notificationPreferencesInput]
+  );
+
+  const onUpdatePreference = useCallback(
+    async (preference: NotificationPreferenceInput) => {
+      const index = notificationPreferencesInput.findIndex(
+        x => x.notificationReasonId === preference.notificationReasonId
+      );
+      notificationPreferencesInput[index] = preference;
+      setNotificationPreferenceInput(notificationPreferencesInput);
+      await debouncedUpdate();
+    },
+    [debouncedUpdate, notificationPreferencesInput]
+  );
+
+  console.log(notificationPreferencesInput);
 
   return (
     <>
@@ -95,7 +141,7 @@ export const NotificationPreferences: React.FC<Props> = props => {
             {t("In app")}
           </Grid>
         </Grid>
-        {notificationPreferences.map((p, i) => {
+        {notificationPreferencesForUser.map((p, i) => {
           return (
             <PreferenceRow
               key={i}

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useCallback } from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { UpdateLoginEmail } from "./graphql/UpdateLoginEmail.gen";
 import { UpdateUser } from "./graphql/UpdateUser.gen";
@@ -51,15 +52,18 @@ export const ProfilePage: React.FC<Props> = props => {
     },
   });
 
-  const onUpdateUser = async (updatedUser: UserUpdateInput) => {
-    await updateUser({
-      variables: {
-        user: {
-          ...updatedUser,
+  const onUpdateUser = useCallback(
+    async (updatedUser: UserUpdateInput) => {
+      await updateUser({
+        variables: {
+          user: {
+            ...updatedUser,
+          },
         },
-      },
-    });
-  };
+      });
+    },
+    [updateUser]
+  );
 
   const onUpdateLoginEmail = async (loginEmail: string) => {
     await updateLoginEmail({
@@ -88,13 +92,16 @@ export const ProfilePage: React.FC<Props> = props => {
     }
   };
 
-  const onUpdatePreferences = async (preferences: UserPreferencesInput) => {
-    await onUpdateUser({
-      id: myUser?.id ?? "",
-      rowVersion: myUser?.rowVersion ?? "",
-      preferences: preferences,
-    });
-  };
+  const onUpdatePreferences = useCallback(
+    async (preferences: UserPreferencesInput) => {
+      await onUpdateUser({
+        id: myUser?.id ?? "",
+        rowVersion: myUser?.rowVersion ?? "",
+        preferences: preferences,
+      });
+    },
+    [myUser, onUpdateUser]
+  );
 
   if (!myUser) {
     return <></>;
@@ -108,7 +115,7 @@ export const ProfilePage: React.FC<Props> = props => {
         onUpdateUser={onUpdateUser}
         onResetPassword={onResetPassword}
       />
-      {!user?.isSystemAdministrator && (
+      {!myUser?.isSystemAdministrator && (
         <NotificationPreferences
           user={myUser}
           onUpdatePreferences={onUpdatePreferences}

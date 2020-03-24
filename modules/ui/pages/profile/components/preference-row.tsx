@@ -8,14 +8,15 @@ import {
   NotificationReason,
 } from "graphql/server-types.gen";
 import clsx from "clsx";
+import { getDisplayName } from "ui/components/enumHelpers";
 
 type Props = {
-  notificationPreference?: {
-    notificationReasonId?: NotificationReason | null;
+  notificationPreference: {
+    notificationReasonId: NotificationReason;
     receiveEmailNotifications: boolean;
     receiveSmsNotifications: boolean;
     receiveInAppNotifications: boolean;
-  } | null;
+  };
   onUpdatePreference: (
     notificationPreference: NotificationPreferenceInput
   ) => Promise<any>;
@@ -27,73 +28,57 @@ export const PreferenceRow: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
 
+  const preference = props.notificationPreference;
   return (
     <>
-      <Formik
-        initialValues={{
-          receiveEmailNotifications:
-            props.notificationPreference?.receiveEmailNotifications ?? false,
-          receiveSmsNotifications:
-            props.notificationPreference?.receiveSmsNotifications ?? false,
-          receiveInAppNotifications:
-            props.notificationPreference?.receiveInAppNotifications ?? false,
-        }}
-        onSubmit={async data =>
-          await props.onUpdatePreference({
-            notificationReasonId:
-              props.notificationPreference?.notificationReasonId,
-            receiveEmailNotifications: data.receiveEmailNotifications,
-            receiveInAppNotifications: data.receiveInAppNotifications,
-            receiveSmsNotifications: data.receiveSmsNotifications,
-          })
-        }
+      <Grid
+        container
+        item
+        xs={6}
+        spacing={1}
+        alignItems="center"
+        className={clsx({
+          [classes.shadedRow]: props.shadeRow,
+        })}
       >
-        {({ handleSubmit, submitForm, values, setFieldValue }) => (
-          <form onSubmit={handleSubmit}>
-            <Grid
-              container
-              item
-              xs={6}
-              spacing={1}
-              alignItems="center"
-              className={clsx({
-                [classes.shadedRow]: props.shadeRow,
-              })}
-            >
-              <Grid item xs={6}>
-                {props.notificationPreference?.notificationReasonId}
-              </Grid>
-              <Grid item xs={2}>
-                <Checkbox
-                  color="primary"
-                  checked={values.receiveEmailNotifications}
-                  onChange={e =>
-                    setFieldValue("receiveEmailNotifications", e.target.checked)
-                  }
-                />
-              </Grid>
-              <Grid item xs={2}>
-                <Checkbox
-                  color="primary"
-                  checked={values.receiveSmsNotifications}
-                  onChange={e =>
-                    setFieldValue("receiveSmsNotifications", e.target.checked)
-                  }
-                />
-              </Grid>
-              <Grid item xs={2}>
-                <Checkbox
-                  color="primary"
-                  checked={values.receiveInAppNotifications}
-                  onChange={e =>
-                    setFieldValue("receiveInAppNotifications", e.target.checked)
-                  }
-                />
-              </Grid>
-            </Grid>
-          </form>
-        )}
-      </Formik>
+        <Grid item xs={6}>
+          {getDisplayName(
+            "notificationReason",
+            props.notificationPreference.notificationReasonId,
+            t
+          )}
+        </Grid>
+        <Grid item xs={2}>
+          <Checkbox
+            color="primary"
+            checked={preference.receiveEmailNotifications}
+            onChange={async e => {
+              preference.receiveEmailNotifications = e.target.checked;
+              await props.onUpdatePreference(preference);
+            }}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <Checkbox
+            color="primary"
+            checked={preference.receiveSmsNotifications}
+            onChange={async e => {
+              preference.receiveSmsNotifications = e.target.checked;
+              await props.onUpdatePreference(preference);
+            }}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <Checkbox
+            color="primary"
+            checked={preference.receiveInAppNotifications}
+            onChange={async e => {
+              preference.receiveInAppNotifications = e.target.checked;
+              await props.onUpdatePreference(preference);
+            }}
+          />
+        </Grid>
+      </Grid>
     </>
   );
 };
