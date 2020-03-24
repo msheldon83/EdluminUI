@@ -31,7 +31,7 @@ export const DateDetailItem: React.FC<Props> = props => {
           </div>
         )}
       </div>
-      <div>
+      <div className={classes.rightColumn}>
         <div>{detail.locationName}</div>
         {showAccountingCodes && (
           <div>
@@ -54,5 +54,8 @@ export const useStyles = makeStyles(theme => ({
   },
   notSpecified: {
     color: theme.customColors.edluminSubText,
+  },
+  rightColumn: {
+    textAlign: "right",
   },
 }));
