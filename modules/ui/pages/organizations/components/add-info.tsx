@@ -20,46 +20,23 @@ import { Input } from "ui/components/form/input";
 import {
   OrganizationCreateInput,
   FeatureFlag,
+  SeedOrgDataOptionEnum,
   DayConversionInput,
+  CountryCode,
   OrganizationType,
   TimeZone,
 } from "graphql/server-types.gen";
 
 type Props = {
   namePlaceholder: string;
-  onSubmit: (
-    name: string,
-    superUserFirstName: string,
-    superUserLastName: string,
-    superUserLoginEmail: string,
-    featureFlags: FeatureFlag[],
-    organizationTypeId: OrganizationType,
-    timeZoneId: TimeZone,
-    isEdustaffOrg: boolean,
-    orgUsersMustAcceptEula: boolean,
-    externalId: string | undefined,
-    longTermVacancyThresholdDays: number | undefined,
-    minLeadTimeMinutesToCancelVacancy: number | undefined,
-    minutesBeforeStartAbsenceCanBeCreated: number | undefined,
-    minLeadTimeMinutesToCancelVacancyWithoutPunishment: number | undefined,
-    maxGapMinutesForSameVacancyDetail: number | undefined,
-    minAbsenceMinutes: number | undefined,
-    maxAbsenceDays: number | undefined,
-    absenceCreateCutoffTime: number | undefined,
-    requestedSubCutoffMinutes: number | undefined,
-    minRequestedEmployeeHoldMinutes: number | undefined,
-    maxRequestedEmployeeHoldMinutes: number | undefined,
-    minorConflictThresholdMinutes: number | undefined,
-    minutesRelativeToStartVacancyCanBeFilled: number | undefined,
-    vacancyDayConversions: DayConversionInput[] | undefined
-  ) => Promise<unknown>;
+  onSubmit: (organizationCreateInput: OrganizationCreateInput) => Promise<any>;
   onCancel: () => void;
   onNameChange: (name: string) => void;
-  seedOrgDataOptions: OptionType[];
+  relatesToOrganizationId: string;
   timeZoneOptions: OptionType[];
   organizationTypes: OptionType[];
   featureFlagOptions: OptionType[];
-  organization: OrganizationCreateInput;
+  organization?: OrganizationCreateInput;
 };
 
 export const AddBasicInfo: React.FC<Props> = props => {
@@ -68,49 +45,54 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const initialValues = {
-    name: props.organization.name || "",
-    externalId: props.organization.externalId || "",
-    superUserFirstName: props.organization.superUserFirstName || "",
-    superUserLastName: props.organization.superUserLastName || "",
-    superUserLoginEmail: props.organization.superUserLoginEmail || "",
+    name: props?.organization?.name || "",
+    externalId: props?.organization?.externalId || "",
+    superUserFirstName: props?.organization?.superUserFirstName || "",
+    superUserLastName: props?.organization?.superUserLastName || "",
+    superUserLoginEmail: props?.organization?.superUserLoginEmail || "",
     isEdustaffOrg: false,
-    timeZoneId: props.organization.timeZoneId || null,
-    featureFlags: props.organization.config?.featureFlags || null,
-    organizationTypeId: props.organization?.config?.organizationTypeId,
+    timeZoneId:
+      props?.organization?.timeZoneId || TimeZone.EasternStandardTimeUsCanada,
+    featureFlags: props?.organization?.config?.featureFlags || [
+      FeatureFlag.Verify,
+      FeatureFlag.FullDayAbsences,
+      FeatureFlag.HalfDayAbsences,
+      FeatureFlag.HourlyAbsences,
+    ],
+    organizationTypeId:
+      props.organization?.config?.organizationTypeId ||
+      OrganizationType.Implementing,
     orgUsersMustAcceptEula:
       props.organization?.config?.orgUsersMustAcceptEula || false,
     longTermVacancyThresholdDays:
-      props.organization?.config?.longTermVacancyThresholdDays || undefined,
+      props.organization?.config?.longTermVacancyThresholdDays || 20,
     minLeadTimeMinutesToCancelVacancy:
-      props.organization?.config?.minLeadTimeMinutesToCancelVacancy ||
-      undefined,
+      props.organization?.config?.minLeadTimeMinutesToCancelVacancy || 240,
     minutesBeforeStartAbsenceCanBeCreated:
-      props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated ||
-      undefined,
+      props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated || 0,
     minLeadTimeMinutesToCancelVacancyWithoutPunishment:
       props.organization?.config
-        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || undefined,
+        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || 1440,
     maxGapMinutesForSameVacancyDetail:
-      props.organization?.config?.maxGapMinutesForSameVacancyDetail ||
-      undefined,
-    minAbsenceMinutes:
-      props.organization?.config?.minAbsenceMinutes || undefined,
-    maxAbsenceDays: props.organization?.config?.maxAbsenceDays || undefined,
-    absenceCreateCutoffTime:
-      props.organization?.config?.absenceCreateCutoffTime || undefined,
+      props.organization?.config?.maxGapMinutesForSameVacancyDetail || 120,
+    minAbsenceMinutes: props.organization?.config?.minAbsenceMinutes || 15,
+    maxAbsenceDays: props.organization?.config?.maxAbsenceDays || 180,
     requestedSubCutoffMinutes:
-      props.organization?.config?.requestedSubCutoffMinutes || undefined,
+      props.organization?.config?.requestedSubCutoffMinutes || 720,
     minRequestedEmployeeHoldMinutes:
-      props.organization?.config?.minRequestedEmployeeHoldMinutes || undefined,
+      props.organization?.config?.minRequestedEmployeeHoldMinutes || 10,
     maxRequestedEmployeeHoldMinutes:
-      props.organization?.config?.maxRequestedEmployeeHoldMinutes || undefined,
+      props.organization?.config?.maxRequestedEmployeeHoldMinutes || 1440,
     minorConflictThresholdMinutes:
-      props.organization?.config?.minorConflictThresholdMinutes || undefined,
+      props.organization?.config?.minorConflictThresholdMinutes || 15,
     minutesRelativeToStartVacancyCanBeFilled:
       props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled ||
-      undefined,
-    vacancyDayConversions:
-      props.organization?.config?.vacancyDayConversions || [],
+      60,
+    vacancyDayConversions: props.organization?.config
+      ?.vacancyDayConversions || [
+      { name: "Half Day", maxMinutes: 240, dayEquivalent: 0.5 },
+      { name: "Full Day", maxMinutes: 510, dayEquivalent: 1 },
+    ],
   };
 
   const validateBasicDetails = React.useMemo(
@@ -163,34 +145,48 @@ export const AddBasicInfo: React.FC<Props> = props => {
         initialValues={initialValues}
         validationSchema={validateBasicDetails}
         onSubmit={async (data: any) => {
-          await props.onSubmit(
-            data.name,
-            data.superUserFirstName,
-            data.superUserLastName,
-            data.superUserLoginEmail,
-            data.featureFlags,
-            data.organizationTypeId,
-            data.timeZoneId,
-            data.isEdustaffOrg,
-            data.orgUsersMustAcceptEula,
-            data.externalId,
-            data.longTermVacancyThresholdDays,
-            data.minLeadTimeMinutesToCancelVacancy,
-            data.minutesBeforeStartAbsenceCanBeCreated,
-            data.minLeadTimeMinutesToCancelVacancyWithoutPunishment,
-            data.maxGapMinutesForSameVacancyDetail,
-            data.minAbsenceMinutes,
-            data.maxAbsenceDays,
-            data.absenceCreateCutoffTime,
-            data.requestedSubCutoffMinutes,
-            data.minRequestedEmployeeHoldMinutes,
-            data.maxRequestedEmployeeHoldMinutes,
-            data.minorConflictThresholdMinutes,
-            data.minutesRelativeToStartVacancyCanBeFilled,
-            data.vacancyDayConversions.length > 0
-              ? data.vacancyDayConversions
-              : undefined
-          );
+          await props.onSubmit({
+            name: data.name.trim(),
+            externalId:
+              data.externalId && data.externalId.trim().length === 0
+                ? null
+                : data.externalId,
+            superUserFirstName: data.superUserFirstName.trim(),
+            superUserLastName: data.superUserLastName.trim(),
+            superUserLoginEmail: data.superUserLoginEmail,
+            timeZoneId: data.timeZoneId,
+            seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
+            relatesToOrganizationId: props.relatesToOrganizationId,
+            config: {
+              defaultCountry: CountryCode.Us,
+              featureFlags: data.featureFlags,
+              organizationTypeId: data.organizationTypeId,
+              orgUsersMustAcceptEula: data.orgUsersMustAcceptEula,
+              longTermVacancyThresholdDays: data.longTermVacancyThresholdDays,
+              minLeadTimeMinutesToCancelVacancy:
+                data.minLeadTimeMinutesToCancelVacancy,
+              minutesBeforeStartAbsenceCanBeCreated:
+                data.minutesBeforeStartAbsenceCanBeCreated,
+              minLeadTimeMinutesToCancelVacancyWithoutPunishment:
+                data.minLeadTimeMinutesToCancelVacancyWithoutPunishment,
+              maxGapMinutesForSameVacancyDetail:
+                data.maxGapMinutesForSameVacancyDetail,
+              minAbsenceMinutes: data.minAbsenceMinutes,
+              maxAbsenceDays: data.maxAbsenceDays,
+              requestedSubCutoffMinutes: data.requestedSubCutoffMinutes,
+              minRequestedEmployeeHoldMinutes:
+                data.minRequestedEmployeeHoldMinutes,
+              maxRequestedEmployeeHoldMinutes:
+                data.maxRequestedEmployeeHoldMinutes,
+              minorConflictThresholdMinutes: data.minorConflictThresholdMinutes,
+              minutesRelativeToStartVacancyCanBeFilled:
+                data.minutesRelativeToStartVacancyCanBeFilled,
+              vacancyDayConversions:
+                data.vacancyDayConversions.length > 0
+                  ? data.vacancyDayConversions
+                  : undefined,
+            },
+          });
         }}
       >
         {({
@@ -397,18 +393,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     name: "maxAbsenceDays",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    fullWidth: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
-                <Input
-                  label={t("Absence Create Cutoff Time")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "absenceCreateCutoffTime",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
                     fullWidth: true,
