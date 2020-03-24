@@ -271,7 +271,7 @@ import {
 
 export function App() {
   const classes = useStyles();
-  console.log("impersonate end route", endImpersonationRoute.path);
+
   return (
     <ThemeProvider theme={EdluminTheme}>
       <AppConfigProvider>
