@@ -64,7 +64,7 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
         <div className={headerClasses}>
           <div className={classes.employeeSection}>{t("Employee")}</div>
           <div className={classes.reasonSection}>{t("Reason")}</div>
-          <div className={classes.locationSection}>{t("Location")}</div>
+          <div className={classes.locationSection}>{t("School")}</div>
           <div className={classes.date}>{t("Created")}</div>
           <div className={classes.substituteSection}>{t("Substitute")}</div>
           <div className={classes.confirmationNumber}>{t("Conf#")}</div>
