@@ -3,7 +3,6 @@ import {
   makeStyles,
   FormControlLabel,
   Checkbox,
-  Divider,
 } from "@material-ui/core";
 import { Formik } from "formik";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
@@ -141,10 +140,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
       }),
     [t]
   );
-
-  const onRemove = (id: any) => {
-    //Remove from SetVacancy
-  };
 
   return (
     <Section>
@@ -367,7 +362,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 />
               </Grid>
               <Grid item xs={12}>
-                <Divider />
                 <SectionHeader title={t("Non-required setup info")} />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
@@ -529,19 +523,24 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <Divider />
+
+              <Grid
+                item
+                container
+                xs={12}
+                classes={{ root: overrideStyles.row }}
+              >
                 <SectionHeader title={t("Vacancy Day Conversions")} />
               </Grid>
               <Grid
                 xs={12}
                 item
                 container
-                classes={{ root: overrideStyles.root }}
+                classes={{ root: overrideStyles.row }}
               >
                 <Button
                   variant="contained"
-                  //size="small"
+                  size="small"
                   onClick={e => {
                     const value: DayConversionInput = {
                       name: "",
@@ -559,6 +558,24 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   {t("Add")}
                 </Button>
               </Grid>
+              {values.vacancyDayConversions.length > 0 && (
+                <Grid
+                  container
+                  item
+                  xs={12}
+                  classes={{ root: overrideStyles.row }}
+                >
+                  <Grid item xs={3} classes={{ root: overrideStyles.cell }}>
+                    <label>Name</label>
+                  </Grid>
+                  <Grid item xs={2} classes={{ root: overrideStyles.cell }}>
+                    <label>Day Equivalent</label>
+                  </Grid>
+                  <Grid item xs={2} classes={{ root: overrideStyles.cell }}>
+                    <label>Max Minutes</label>
+                  </Grid>
+                </Grid>
+              )}
 
               {values.vacancyDayConversions.map((n, i) => (
                 <Grid
@@ -566,42 +583,62 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   key={i}
                   container
                   xs={12}
-                  classes={{ root: overrideStyles.root }}
+                  classes={{ root: overrideStyles.row }}
                 >
-                  <Grid item xs={3}>
+                  <Grid
+                    item
+                    xs={12}
+                    sm={3}
+                    classes={{ root: overrideStyles.cell }}
+                  >
                     <Input
+                      InputComponent={FormTextField}
                       inputComponentProps={{
                         margin: isMobile ? "normal" : "none",
                         variant: "outlined",
                         fullWidth: true,
                         name: `vacancyDayConversions[${i}].name`,
-                        value: n?.name,
                       }}
                     />
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid
+                    item
+                    xs={12}
+                    sm={2}
+                    classes={{ root: overrideStyles.cell }}
+                  >
                     <Input
+                      InputComponent={FormTextField}
                       inputComponentProps={{
                         margin: isMobile ? "normal" : "none",
                         variant: "outlined",
                         fullWidth: true,
                         name: `vacancyDayConversions[${i}].maxMinutes`,
-                        value: n?.maxMinutes,
                       }}
                     />
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid
+                    item
+                    xs={12}
+                    sm={2}
+                    classes={{ root: overrideStyles.cell }}
+                  >
                     <Input
+                      InputComponent={FormTextField}
                       inputComponentProps={{
                         margin: isMobile ? "normal" : "none",
                         variant: "outlined",
-                        value: n?.dayEquivalent,
                         name: `vacancyDayConversions[${i}].dayEquivalent`,
                         fullWidth: true,
                       }}
                     />
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid
+                    item
+                    xs={12}
+                    sm={3}
+                    classes={{ root: overrideStyles.cell }}
+                  >
                     <Button
                       onClick={() => {
                         values.vacancyDayConversions.splice(i, 1);
@@ -619,7 +656,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 </Grid>
               ))}
             </Grid>
-            <Divider />
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}
               cancel={{ text: t("Cancel"), execute: props.onCancel }}
@@ -634,5 +670,11 @@ export const AddBasicInfo: React.FC<Props> = props => {
 const rootStyles = makeStyles(theme => ({
   root: {
     padding: `5px 32px 32px 32px !important`,
+  },
+  row: {
+    padding: `5px 32px 5px 32px !important`,
+  },
+  cell: {
+    paddingRight: "15px !important",
   },
 }));

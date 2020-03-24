@@ -55,20 +55,23 @@ export const OrganizationAddPage: React.FC<{}> = props => {
         FeatureFlag.HourlyAbsences,
       ],
       defaultCountry: CountryCode.Us,
-      longTermVacancyThresholdDays: undefined,
-      minLeadTimeMinutesToCancelVacancy: undefined,
-      minutesBeforeStartAbsenceCanBeCreated: undefined,
-      minLeadTimeMinutesToCancelVacancyWithoutPunishment: undefined,
-      maxGapMinutesForSameVacancyDetail: undefined,
-      minAbsenceMinutes: undefined,
-      maxAbsenceDays: undefined,
+      longTermVacancyThresholdDays: 5,
+      minLeadTimeMinutesToCancelVacancy: 240,
+      minutesBeforeStartAbsenceCanBeCreated: 0,
+      minLeadTimeMinutesToCancelVacancyWithoutPunishment: 1440,
+      maxGapMinutesForSameVacancyDetail: 120,
+      minAbsenceMinutes: 15,
+      maxAbsenceDays: 180,
       absenceCreateCutoffTime: undefined,
-      requestedSubCutoffMinutes: undefined,
-      minRequestedEmployeeHoldMinutes: undefined,
-      maxRequestedEmployeeHoldMinutes: undefined,
-      minorConflictThresholdMinutes: undefined,
-      minutesRelativeToStartVacancyCanBeFilled: undefined,
-      vacancyDayConversions: undefined,
+      requestedSubCutoffMinutes: 720,
+      minRequestedEmployeeHoldMinutes: 10,
+      maxRequestedEmployeeHoldMinutes: 1440,
+      minorConflictThresholdMinutes: 15,
+      minutesRelativeToStartVacancyCanBeFilled: 60,
+      vacancyDayConversions: [
+        { name: "Half Day", maxMinutes: 240, dayEquivalent: 0.5 },
+        { name: "Full Day", maxMinutes: 510, dayEquivalent: 1 },
+      ],
     },
   });
 
@@ -274,6 +277,8 @@ export const OrganizationAddPage: React.FC<{}> = props => {
               vacancyDayConversions: vacancyDayConversions,
             },
           };
+
+          console.log(newOrganization);
 
           setOrganization(newOrganization);
           const result = await create(newOrganization);
