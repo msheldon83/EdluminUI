@@ -33,12 +33,15 @@ import {
   VacancyDetailCount,
   VacancyDetail,
   VacancyDetailVerifyInput,
+  Maybe,
 } from "graphql/server-types.gen";
 import { Assignment } from "./components/assignment";
 import { useHistory } from "react-router";
 import { usePayCodes } from "reference-data/pay-codes";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";
+import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
   showVerified: boolean;
@@ -68,6 +71,8 @@ export const VerifyUI: React.FC<Props> = props => {
   const vacancyDayConversions = useOrgVacancyDayConversions(
     params.organizationId
   );
+  const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
+  const vacancyEditParams = useRouteParams(VacancyViewRoute);
 
   const today = useMemo(() => startOfToday(), []);
   /* Because this UI can stand alone or show up on the Admin homepage, we need
@@ -285,6 +290,22 @@ export const VerifyUI: React.FC<Props> = props => {
     setNextSelectedVacancyDetail(undefined);
   };
 
+  const goToEdit = (vacancyId: string, absenceId?: string | null) => {
+    if (absenceId) {
+      const url = AdminEditAbsenceRoute.generate({
+          ...absenceEditParams,
+          absenceId}
+      );
+      history.push(url);
+    } else {
+      const url = VacancyViewRoute.generate({
+          ...vacancyEditParams,
+          vacancyId}
+      );
+      history.push(url);
+    }
+  };
+
   return (
     <>
       <DateTabs
@@ -327,6 +348,7 @@ export const VerifyUI: React.FC<Props> = props => {
                       onSelectDetail={onSelectDetail}
                       payCodeOptions={payCodeOptions}
                       vacancyDayConversions={vacancyDayConversions}
+                      goToEdit={goToEdit}
                     />
                   </Collapse>
                 </div>
@@ -377,6 +399,7 @@ export const VerifyUI: React.FC<Props> = props => {
                               onSelectDetail={onSelectDetail}
                               payCodeOptions={payCodeOptions}
                               vacancyDayConversions={vacancyDayConversions}
+                              goToEdit={goToEdit}
                             />
                           </Collapse>
                         </div>
