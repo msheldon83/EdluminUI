@@ -14,7 +14,7 @@ export const QualifiedIcon: React.FC<Props> = props => {
 
   switch (props.qualified) {
     case VacancyQualification.Fully:
-      return <CellularIcon highlightedBars={3} />;
+      return <CellularIcon highlightedBars={3} />; // 3
     case VacancyQualification.Minimally:
       return <CellularIcon highlightedBars={1} />;
     case VacancyQualification.NotQualified:
