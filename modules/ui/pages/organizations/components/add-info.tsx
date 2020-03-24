@@ -143,9 +143,11 @@ export const AddBasicInfo: React.FC<Props> = props => {
               .nullable()
               .required(t("* Required *")),
             maxMinutes: Yup.number()
+              .max(510)
               .nullable()
               .required(t("Max of 510 Minutes")),
             dayEquivalent: Yup.number()
+              .max(1)
               .nullable()
               .required(t("Max of 1")),
           })
