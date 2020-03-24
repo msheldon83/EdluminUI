@@ -55,7 +55,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
         FeatureFlag.HourlyAbsences,
       ],
       defaultCountry: CountryCode.Us,
-      longTermVacancyThresholdDays: 5,
+      longTermVacancyThresholdDays: 20,
       minLeadTimeMinutesToCancelVacancy: 240,
       minutesBeforeStartAbsenceCanBeCreated: 0,
       minLeadTimeMinutesToCancelVacancyWithoutPunishment: 1440,

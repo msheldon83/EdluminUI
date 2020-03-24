@@ -137,6 +137,19 @@ export const AddBasicInfo: React.FC<Props> = props => {
           .nullable()
           .required(t("* Required *")),
         featureFlags: Yup.array(Yup.string()).required(t("* Required *")),
+        vacancyDayConversions: Yup.array(
+          Yup.object({
+            name: Yup.string()
+              .nullable()
+              .required(t("* Required *")),
+            maxMinutes: Yup.number()
+              .nullable()
+              .required(t("Max of 510 Minutes")),
+            dayEquivalent: Yup.number()
+              .nullable()
+              .required(t("Max of 1")),
+          })
+        ),
       }),
     [t]
   );
@@ -569,10 +582,10 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     <label>Name</label>
                   </Grid>
                   <Grid item xs={2} classes={{ root: overrideStyles.cell }}>
-                    <label>Day Equivalent</label>
+                    <label>Max Minutes</label>
                   </Grid>
                   <Grid item xs={2} classes={{ root: overrideStyles.cell }}>
-                    <label>Max Minutes</label>
+                    <label>Day Equivalent</label>
                   </Grid>
                 </Grid>
               )}
