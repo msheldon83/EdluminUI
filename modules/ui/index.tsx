@@ -1,3 +1,4 @@
+import { hot } from "react-hot-loader/root";
 import { CssBaseline } from "@material-ui/core";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import * as React from "react";
@@ -268,7 +269,7 @@ import { AppConfigProvider } from "hooks/app-config";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
-export function App() {
+export const App = hot(function() {
   const classes = useStyles();
 
   return (
@@ -1049,7 +1050,7 @@ export function App() {
       </AppConfigProvider>
     </ThemeProvider>
   );
-}
+});
 
 const useStyles = makeStyles({
   container: {
