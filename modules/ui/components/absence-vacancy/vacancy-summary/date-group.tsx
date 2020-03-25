@@ -56,9 +56,9 @@ export const useStyles = makeStyles(theme => ({
     width: "100%",
     paddingBottom: theme.spacing(),
     paddingRight: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
+    paddingLeft: theme.spacing(8),
   },
   dateGroupHeader: {
-    marginTop: theme.spacing(2),
+    paddingTop: theme.spacing(2),
   },
 }));

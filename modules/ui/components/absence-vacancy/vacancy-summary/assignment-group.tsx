@@ -3,6 +3,7 @@ import { AssignmentWithDetails, AssignmentFor } from "./types";
 import { UnfilledBanner } from "./unfilled-banner";
 import { AssignedBanner } from "./assigned-banner";
 import { DateGroup } from "./date-group";
+import { makeStyles } from "@material-ui/core";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
+  const classes = useStyles();
   const {
     assignmentWithDetails,
     isPartiallyFilled,
@@ -34,7 +36,13 @@ export const AssignmentGroup: React.FC<Props> = props => {
   const isAssigned = !!assignmentWithDetails.assignment;
 
   return (
-    <div>
+    <div className={isAssigned ? classes.filledGroup : classes.unfilledGroup}>
+      <DateGroup
+        dateDetails={assignmentWithDetails}
+        showAbsenceTimes={showAbsenceTimes}
+        showPayCodes={showPayCodes}
+        showAccountingCodes={showAccountingCodes}
+      />
       {!detailsOnly && (
         <>
           {showUnfilledHeader && (
@@ -63,12 +71,17 @@ export const AssignmentGroup: React.FC<Props> = props => {
           )}
         </>
       )}
-      <DateGroup
-        dateDetails={assignmentWithDetails}
-        showAbsenceTimes={showAbsenceTimes}
-        showPayCodes={showPayCodes}
-        showAccountingCodes={showAccountingCodes}
-      />
     </div>
   );
 };
+
+export const useStyles = makeStyles(theme => ({
+  filledGroup: {
+    backgroundColor: "#ECF9F3",
+    marginBottom: theme.typography.pxToRem(10),
+  },
+  unfilledGroup: {
+    backgroundColor: theme.customColors.lighterGray,
+    marginBottom: theme.typography.pxToRem(10),
+  },
+}));
