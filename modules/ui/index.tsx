@@ -89,6 +89,8 @@ import { OrgSettingsLoader, OrgSettingsRoute } from "./routes/org-settings";
 import {
   OrganizationsLoader,
   OrganizationsRoute,
+  OrganizationAddRoute,
+  OrganizationAddLoader,
 } from "./routes/organizations";
 import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
 import {
@@ -452,6 +454,11 @@ export function App() {
                               path={VacancyViewRoute.path}
                               role={"admin"}
                               permissions={[PermissionEnum.AbsVacView]}
+                            />
+                            <ProtectedRoute
+                              component={OrganizationAddLoader}
+                              path={OrganizationAddRoute.path}
+                              role={"sysAdmin"}
                             />
                             <ProtectedRoute
                               component={UserNotificationLogLoader}

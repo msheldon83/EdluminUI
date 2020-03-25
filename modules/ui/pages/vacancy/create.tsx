@@ -46,14 +46,6 @@ export const VacancyCreate: React.FC<Props> = props => {
     const result = await createVacancy({ variables: { vacancy: vacCreate } });
     return result;
   };
-  if (!Config.isDevFeatureOnly) {
-    return (
-      <>
-        <PageTitle title={`${t("Create vacancy")}`} />
-        <UnderConstructionHeader />
-      </>
-    );
-  }
 
   return (
     <>

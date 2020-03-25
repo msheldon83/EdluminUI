@@ -170,9 +170,13 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       if (value) {
         const newVacancyDays = vacancyDays.slice();
         const vacReasonId = newVacancyDays[0].vacancyReasonId;
-        newVacancyDays.forEach(vd => {
-          vd.vacancyReasonId = vacReasonId;
-        });
+        for (let i = 0; i < newVacancyDays.length; i++) {
+          newVacancyDays[i] = {
+            //need this to mark form as dirty
+            ...newVacancyDays[i],
+          };
+          newVacancyDays[i].vacancyReasonId = vacReasonId;
+        }
         setFieldValue("details", newVacancyDays);
         updateModel({ details: newVacancyDays });
       }
@@ -188,10 +192,14 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         const newVacancyDays = vacancyDays.slice();
         const payCodeId = newVacancyDays[0].payCodeId;
         const payCodeName = newVacancyDays[0].payCodeName;
-        newVacancyDays.forEach(vd => {
-          vd.payCodeId = payCodeId;
-          vd.payCodeName = payCodeName;
-        });
+        for (let i = 0; i < newVacancyDays.length; i++) {
+          newVacancyDays[i] = {
+            //need this to mark form as dirty
+            ...newVacancyDays[i],
+          };
+          newVacancyDays[i].payCodeId = payCodeId;
+          newVacancyDays[i].payCodeName = payCodeName;
+        }
         setFieldValue("details", newVacancyDays);
         updateModel({ details: newVacancyDays });
       }
@@ -205,10 +213,14 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     (value: boolean) => {
       if (value) {
         const newVacancyDays = vacancyDays.slice();
-        newVacancyDays.forEach(vd => {
-          vd.accountingCodeAllocations =
+        for (let i = 0; i < newVacancyDays.length; i++) {
+          newVacancyDays[i] = {
+            //need this to mark form as dirty
+            ...newVacancyDays[i],
+          };
+          newVacancyDays[i].accountingCodeAllocations =
             newVacancyDays[0].accountingCodeAllocations;
-        });
+        }
         setFieldValue("details", newVacancyDays);
         updateModel({ details: newVacancyDays });
       }
@@ -224,10 +236,14 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
         const newVacancyDays = vacancyDays.slice();
         const sTime = newVacancyDays[0].startTime;
         const eTime = newVacancyDays[0].endTime;
-        newVacancyDays.forEach(vd => {
-          vd.startTime = sTime;
-          vd.endTime = eTime;
-        });
+        for (let i = 0; i < newVacancyDays.length; i++) {
+          newVacancyDays[i] = {
+            //need this to mark form as dirty
+            ...newVacancyDays[i],
+          };
+          newVacancyDays[i].startTime = sTime;
+          newVacancyDays[i].endTime = eTime;
+        }
         setFieldValue("details", newVacancyDays);
         updateModel({ details: newVacancyDays });
       }
@@ -553,37 +569,37 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
             </Grid>
             {payCodeOptions.length > 0 && (
               <Grid item xs={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={useSamePayCode}
-                    onChange={e => {
-                      const isChecked = e.target.checked;
-                      handleSameForAllPayCodeCheck(isChecked);
-                    }}
-                  />
-                }
-                label={t("Same pay code for all days")}
-              />
-            </Grid>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      color="primary"
+                      checked={useSamePayCode}
+                      onChange={e => {
+                        const isChecked = e.target.checked;
+                        handleSameForAllPayCodeCheck(isChecked);
+                      }}
+                    />
+                  }
+                  label={t("Same pay code for all days")}
+                />
+              </Grid>
             )}
             {accountingCodeOptions && (
               <Grid item xs={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={useSameAccountingCode}
-                    onChange={e => {
-                      const isChecked = e.target.checked;
-                      handleSameForAllAccountingCodeCheck(isChecked);
-                    }}
-                  />
-                }
-                label={t("Same account code for all days")}
-              />
-            </Grid>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      color="primary"
+                      checked={useSameAccountingCode}
+                      onChange={e => {
+                        const isChecked = e.target.checked;
+                        handleSameForAllAccountingCodeCheck(isChecked);
+                      }}
+                    />
+                  }
+                  label={t("Same account code for all days")}
+                />
+              </Grid>
             )}
           </Grid>
         )}
