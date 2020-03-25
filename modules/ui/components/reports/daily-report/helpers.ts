@@ -133,7 +133,7 @@ export const MapDailyReportDetails = (
           ? {
               id: assignment.substitute.id,
               name: `${assignment.substitute.firstName} ${assignment.substitute.lastName}`,
-              phone: assignment.substitute.phone,
+              phone: assignment.substitute.formattedPhone,
             }
           : undefined,
         subTimes: !matchingVacancyDetails
@@ -206,7 +206,7 @@ export const MapDailyReportDetails = (
             ? {
                 id: vacancyDetail.assignment.substitute.id,
                 name: `${vacancyDetail.assignment.substitute.firstName} ${vacancyDetail.assignment.substitute.lastName}`,
-                phone: vacancyDetail.assignment.substitute.phone,
+                phone: vacancyDetail.assignment.substitute.formattedPhone,
               }
             : undefined,
         subTimes: [
