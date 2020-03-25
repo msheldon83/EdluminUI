@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMemo, useEffect, useState } from "react";
-import { Grid, Button, Typography, makeStyles } from "@material-ui/core";
+import { Grid, Button, Link, Typography, makeStyles } from "@material-ui/core";
 import {
   VacancyDetail,
   VacancyDetailVerifyInput,
@@ -55,6 +55,7 @@ type Props = {
     DayConversion,
     "name" | "maxMinutes" | "dayEquivalent"
   >[];
+  goToEdit: (vacancyId: string, absenceId?: string | null) => void;
 };
 
 export const Assignment: React.FC<Props> = props => {
@@ -387,8 +388,15 @@ export const Assignment: React.FC<Props> = props => {
               className={classes.container}
             >
               <Grid item xs={1}>
-                <Typography className={classes.boldText}>{`
-                 #C${vacancyDetail.assignment!.id}`}</Typography>
+                <Link
+                  className={classes.boldText}
+                  onClick={() =>
+                    props.goToEdit(vacancyDetail.vacancy!.id,
+                                   vacancyDetail.vacancy!.absence?.id)
+                  }
+                >{`
+                 #C${vacancyDetail.assignment!.id}`}
+                </Link>
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.boldText}>

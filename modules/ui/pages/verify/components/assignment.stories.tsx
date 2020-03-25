@@ -5,6 +5,9 @@ import {
   VacancyDetail,
   VacancyDetailVerifyInput,
 } from "graphql/server-types.gen";
+import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { useHistory } from "react-router";
+import { useRouteParams } from "ui/routes/definition";
 
 export default {
   title: "Pages/Verify/Assignment",
@@ -13,6 +16,18 @@ export default {
 export const AssignmentStory = () => {
   const onSelectDetail = () => {};
   const onVerify = async (vacancyDetail: VacancyDetailVerifyInput) => {};
+  const history = useHistory();
+  const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
+
+  const goToEdit = (absenceId: string) => {
+    const url = AdminEditAbsenceRoute.generate({
+      ...absenceEditParams,
+      absenceId,
+    });
+    history.push(url, {
+      returnUrl: `${history.location.pathname}${history.location.search}`,
+    });
+  };
 
   const classes = useStyles();
   return (
@@ -25,6 +40,7 @@ export const AssignmentStory = () => {
         onSelectDetail={onSelectDetail}
         payCodeOptions={payCodeOptions}
         vacancyDayConversions={vacancyDayConversions}
+        goToEdit={goToEdit}
       />
     </div>
   );

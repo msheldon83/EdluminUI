@@ -44,7 +44,6 @@ export const LocationAddPage: React.FC<Props> = props => {
     },
   });
 
-  //Set State
   const [location, setLocation] = React.useState<LocationCreateInput>({
     orgId: params.organizationId,
     name: "",

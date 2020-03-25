@@ -1,3 +1,4 @@
+import { hot } from "react-hot-loader/root";
 import { CssBaseline } from "@material-ui/core";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import * as React from "react";
@@ -89,6 +90,8 @@ import { OrgSettingsLoader, OrgSettingsRoute } from "./routes/org-settings";
 import {
   OrganizationsLoader,
   OrganizationsRoute,
+  OrganizationAddRoute,
+  OrganizationAddLoader,
 } from "./routes/organizations";
 import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
 import {
@@ -269,7 +272,7 @@ import {
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
-export function App() {
+export const App = hot(function() {
   const classes = useStyles();
 
   return (
@@ -460,6 +463,11 @@ export function App() {
                               path={VacancyViewRoute.path}
                               role={"admin"}
                               permissions={[PermissionEnum.AbsVacView]}
+                            />
+                            <ProtectedRoute
+                              component={OrganizationAddLoader}
+                              path={OrganizationAddRoute.path}
+                              role={"sysAdmin"}
                             />
                             <ProtectedRoute
                               component={UserNotificationLogLoader}
@@ -1044,7 +1052,7 @@ export function App() {
       </AppConfigProvider>
     </ThemeProvider>
   );
-}
+});
 
 const useStyles = makeStyles({
   container: {

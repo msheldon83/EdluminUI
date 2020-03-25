@@ -65,14 +65,15 @@ export const VacancyUI: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const match = useRouteMatch();
   const { initialVacancy, createVacancy, updateVacancy, onDelete } = props;
+  const [resetKey, setResetKey] = useState(0);
 
   const [state, dispatch] = useReducer(vacancyReducer, {
     vacancyDetailIdsToAssign: [],
   });
 
-  const [vacancy, setVacancy] = useState<VacancyDetailsFormData>(
-    initialVacancy
-  );
+  const [vacancy, setVacancy] = useState<VacancyDetailsFormData>({
+    ...initialVacancy,
+  });
   const vacancyExists = useMemo(() => {
     return vacancy.id ? true : false;
   }, [vacancy]);
@@ -380,6 +381,22 @@ export const VacancyUI: React.FC<Props> = props => {
           details: vacancy.details,
           notesToReplacement: vacancy.notesToReplacement,
         }}
+        onReset={(values, e) => {
+          setResetKey(resetKey + 1);
+          setVacancy({ ...initialVacancy });
+          e.resetForm({
+            values: {
+              positionTypeId: initialVacancy.positionTypeId,
+              title: initialVacancy.title,
+              locationId: initialVacancy.locationId,
+              locationName: initialVacancy.locationName,
+              contractId: initialVacancy.contractId,
+              workDayScheduleId: initialVacancy.workDayScheduleId,
+              details: initialVacancy.details,
+              notesToReplacement: initialVacancy.notesToReplacement,
+            },
+          });
+        }}
         onSubmit={async (data, e) => {
           if (!vacancyExists) {
             if (createVacancy) {
@@ -453,6 +470,7 @@ export const VacancyUI: React.FC<Props> = props => {
         {({
           values,
           handleSubmit,
+          handleReset,
           setFieldValue,
           dirty,
           isSubmitting,
@@ -490,6 +508,7 @@ export const VacancyUI: React.FC<Props> = props => {
                 >
                   <Grid item xs={12} sm={6} className={classes.vacDetailColumn}>
                     <VacancyDetailSection
+                      key={String(resetKey)}
                       orgId={params.organizationId}
                       values={vacancy}
                       setFieldValue={setFieldValue}
@@ -553,6 +572,16 @@ export const VacancyUI: React.FC<Props> = props => {
                           className={classes.deleteButton}
                         >
                           {t("Delete")}
+                        </Button>
+                      )}
+                      {vacancyExists && dirty && (
+                        <Button
+                          onClick={handleReset}
+                          variant="outlined"
+                          className={classes.cancelButton}
+                          disabled={!dirty}
+                        >
+                          {t("Discard Changes")}
                         </Button>
                       )}
                       {showAssign && (
@@ -638,6 +667,7 @@ export const VacancyUI: React.FC<Props> = props => {
                       })
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
+                existingVacancy={vacancyExists}
                 vacancyDetailIdsToAssign={state.vacancyDetailIdsToAssign}
                 employeeToReplace={
                   vacancySummaryDetailsToAssign[0]?.assignment?.employee
@@ -717,5 +747,9 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.darkRed,
     marginRight: theme.spacing(2),
     textDecoration: "underline",
+  },
+  cancelButton: {
+    marginRight: theme.spacing(2),
+    color: "#050039",
   },
 }));
