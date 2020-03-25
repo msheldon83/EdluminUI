@@ -1,6 +1,6 @@
 query GetPositionTypes($orgId: ID) {
   positionType {
-    all(orgId: $orgId) {
+    all(orgId: $orgId, forPermanentPositions: true) {
       id
       name
       needsReplacement
