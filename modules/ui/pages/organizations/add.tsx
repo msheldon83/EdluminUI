@@ -97,7 +97,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   }, [t]);
 
   const timeZoneOptions = timeZones.map(c => {
-    return { label: c!.name, value: c!.enumValue ?? "" };
+    return { label: c.name, value: c.enumValue ?? "" };
   });
 
   return (
