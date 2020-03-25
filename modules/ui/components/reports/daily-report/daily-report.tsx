@@ -120,11 +120,7 @@ export const DailyReport: React.FC<Props> = props => {
     }
   }, [selectedCard, props.date]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const serverQueryFilters = useMemo(() => filters, [
-    filters.date,
-    filters.locationIds,
-    filters.positionTypeIds,
-  ]);
+  const serverQueryFilters = useMemo(() => filters, [filters]);
   const getDailyReport = useQueryBundle(GetDailyReportV2, {
     variables: {
       date: serverQueryFilters.date,
@@ -175,8 +171,6 @@ export const DailyReport: React.FC<Props> = props => {
     groupedDetails = mappedDetails.groups;
   }
 
-  const totalCount = dailyReportDetails?.totalCount ?? 0;
-  `1`;
   const totalContractedEmployeeCount = useMemo(() => {
     if (
       !(
