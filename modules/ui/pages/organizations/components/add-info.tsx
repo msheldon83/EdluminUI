@@ -3,12 +3,12 @@ import {
   makeStyles,
   FormControlLabel,
   Checkbox,
-  Divider,
 } from "@material-ui/core";
 import { Formik } from "formik";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useIsMobile } from "hooks";
 import { OptionTypeBase } from "react-select/src/types";
+import Button from "@material-ui/core/Button";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { TextField as FormTextField } from "ui/components/form/text-field";
@@ -20,49 +20,23 @@ import { Input } from "ui/components/form/input";
 import {
   OrganizationCreateInput,
   FeatureFlag,
-  OrganizationType,
   SeedOrgDataOptionEnum,
+  DayConversionInput,
+  CountryCode,
+  OrganizationType,
   TimeZone,
 } from "graphql/server-types.gen";
 
 type Props = {
   namePlaceholder: string;
-  onSubmit: (
-    name: string,
-    superUserFirstName: string,
-    superUserLastName: string,
-    superUserLoginEmail: string,
-    seedOrgDataOption: SeedOrgDataOptionEnum,
-    featureFlags: FeatureFlag[],
-    organizationTypeId: OrganizationType,
-    timeZoneId: TimeZone,
-    isEdustaffOrg: boolean,
-    orgUsersMustAcceptEula: boolean,
-    externalId: string | null | undefined,
-    longTermVacancyThresholdDays: number | null | undefined,
-    minLeadTimeMinutesToCancelVacancy: number | null | undefined,
-    minutesBeforeStartAbsenceCanBeCreated: number | null | undefined,
-    minLeadTimeMinutesToCancelVacancyWithoutPunishment:
-      | number
-      | null
-      | undefined,
-    maxGapMinutesForSameVacancyDetail: number | null | undefined,
-    minAbsenceMinutes: number | null | undefined,
-    maxAbsenceDays: number | null | undefined,
-    absenceCreateCutoffTime: number | null | undefined,
-    requestedSubCutoffMinutes: number | null | undefined,
-    minRequestedEmployeeHoldMinutes: number | null | undefined,
-    maxRequestedEmployeeHoldMinutes: number | null | undefined,
-    minorConflictThresholdMinutes: number | null | undefined,
-    minutesRelativeToStartVacancyCanBeFilled: number | null | undefined
-  ) => Promise<unknown>;
+  onSubmit: (organizationCreateInput: OrganizationCreateInput) => Promise<any>;
   onCancel: () => void;
   onNameChange: (name: string) => void;
-  seedOrgDataOptions: OptionType[];
+  relatesToOrganizationId: string;
   timeZoneOptions: OptionType[];
   organizationTypes: OptionType[];
   featureFlagOptions: OptionType[];
-  organization: OrganizationCreateInput;
+  organization?: OrganizationCreateInput;
 };
 
 export const AddBasicInfo: React.FC<Props> = props => {
@@ -71,44 +45,54 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const initialValues = {
-    name: props.organization.name || "",
-    externalId: props.organization.externalId || "",
-    superUserFirstName: props.organization.superUserFirstName || "",
-    superUserLastName: props.organization.superUserLastName || "",
-    superUserLoginEmail: props.organization.superUserLoginEmail || "",
+    name: props?.organization?.name || "",
+    externalId: props?.organization?.externalId || "",
+    superUserFirstName: props?.organization?.superUserFirstName || "",
+    superUserLastName: props?.organization?.superUserLastName || "",
+    superUserLoginEmail: props?.organization?.superUserLoginEmail || "",
     isEdustaffOrg: false,
-    timeZoneId: props.organization.timeZoneId || null,
-    seedOrgDataOption: props.organization.seedOrgDataOption || null,
-    featureFlags: props.organization.config?.featureFlags || null,
-    organizationTypeId: props.organization?.config?.organizationTypeId,
+    timeZoneId:
+      props?.organization?.timeZoneId || TimeZone.EasternStandardTimeUsCanada,
+    featureFlags: props?.organization?.config?.featureFlags || [
+      FeatureFlag.Verify,
+      FeatureFlag.FullDayAbsences,
+      FeatureFlag.HalfDayAbsences,
+      FeatureFlag.HourlyAbsences,
+    ],
+    organizationTypeId:
+      props.organization?.config?.organizationTypeId ||
+      OrganizationType.Implementing,
     orgUsersMustAcceptEula:
       props.organization?.config?.orgUsersMustAcceptEula || false,
     longTermVacancyThresholdDays:
-      props.organization?.config?.longTermVacancyThresholdDays || null,
+      props.organization?.config?.longTermVacancyThresholdDays || 20,
     minLeadTimeMinutesToCancelVacancy:
-      props.organization?.config?.minLeadTimeMinutesToCancelVacancy || null,
+      props.organization?.config?.minLeadTimeMinutesToCancelVacancy || 240,
     minutesBeforeStartAbsenceCanBeCreated:
-      props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated || null,
+      props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated || 0,
     minLeadTimeMinutesToCancelVacancyWithoutPunishment:
       props.organization?.config
-        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || null,
+        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || 1440,
     maxGapMinutesForSameVacancyDetail:
-      props.organization?.config?.maxGapMinutesForSameVacancyDetail || null,
-    minAbsenceMinutes: props.organization?.config?.minAbsenceMinutes || null,
-    maxAbsenceDays: props.organization?.config?.maxAbsenceDays || null,
-    absenceCreateCutoffTime:
-      props.organization?.config?.absenceCreateCutoffTime || null,
+      props.organization?.config?.maxGapMinutesForSameVacancyDetail || 120,
+    minAbsenceMinutes: props.organization?.config?.minAbsenceMinutes || 15,
+    maxAbsenceDays: props.organization?.config?.maxAbsenceDays || 180,
     requestedSubCutoffMinutes:
-      props.organization?.config?.requestedSubCutoffMinutes || null,
+      props.organization?.config?.requestedSubCutoffMinutes || 720,
     minRequestedEmployeeHoldMinutes:
-      props.organization?.config?.minRequestedEmployeeHoldMinutes || null,
+      props.organization?.config?.minRequestedEmployeeHoldMinutes || 10,
     maxRequestedEmployeeHoldMinutes:
-      props.organization?.config?.maxRequestedEmployeeHoldMinutes || null,
+      props.organization?.config?.maxRequestedEmployeeHoldMinutes || 1440,
     minorConflictThresholdMinutes:
-      props.organization?.config?.minorConflictThresholdMinutes || null,
+      props.organization?.config?.minorConflictThresholdMinutes || 15,
     minutesRelativeToStartVacancyCanBeFilled:
       props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled ||
-      null,
+      60,
+    vacancyDayConversions: props.organization?.config
+      ?.vacancyDayConversions || [
+      { name: "Half Day", maxMinutes: 240, dayEquivalent: 0.5 },
+      { name: "Full Day", maxMinutes: 510, dayEquivalent: 1 },
+    ],
   };
 
   const validateBasicDetails = React.useMemo(
@@ -131,13 +115,25 @@ export const AddBasicInfo: React.FC<Props> = props => {
         timeZoneId: Yup.string()
           .nullable()
           .required(t("* Required *")),
-        seedOrgDataOption: Yup.string()
-          .nullable()
-          .required(t("* Required *")),
         organizationTypeId: Yup.string()
           .nullable()
           .required(t("* Required *")),
         featureFlags: Yup.array(Yup.string()).required(t("* Required *")),
+        vacancyDayConversions: Yup.array(
+          Yup.object({
+            name: Yup.string()
+              .nullable()
+              .required(t("* Required *")),
+            maxMinutes: Yup.number()
+              .max(510)
+              .nullable()
+              .required(t("Max of 510 Minutes")),
+            dayEquivalent: Yup.number()
+              .max(1)
+              .nullable()
+              .required(t("Max of 1")),
+          })
+        ),
       }),
     [t]
   );
@@ -149,32 +145,48 @@ export const AddBasicInfo: React.FC<Props> = props => {
         initialValues={initialValues}
         validationSchema={validateBasicDetails}
         onSubmit={async (data: any) => {
-          props.onSubmit(
-            data.name,
-            data.superUserFirstName,
-            data.superUserLastName,
-            data.superUserLoginEmail,
-            data.seedOrgDataOption,
-            data.featureFlags,
-            data.organizationTypeId,
-            data.timeZoneId,
-            data.isEdustaffOrg,
-            data.orgUsersMustAcceptEula,
-            data.externalId,
-            data.longTermVacancyThresholdDays,
-            data.minLeadTimeMinutesToCancelVacancy,
-            data.minutesBeforeStartAbsenceCanBeCreated,
-            data.minLeadTimeMinutesToCancelVacancyWithoutPunishment,
-            data.maxGapMinutesForSameVacancyDetail,
-            data.minAbsenceMinutes,
-            data.maxAbsenceDays,
-            data.absenceCreateCutoffTime,
-            data.requestedSubCutoffMinutes,
-            data.minRequestedEmployeeHoldMinutes,
-            data.maxRequestedEmployeeHoldMinutes,
-            data.minorConflictThresholdMinutes,
-            data.minutesRelativeToStartVacancyCanBeFilled
-          );
+          await props.onSubmit({
+            name: data.name.trim(),
+            externalId:
+              data.externalId && data.externalId.trim().length === 0
+                ? null
+                : data.externalId,
+            superUserFirstName: data.superUserFirstName.trim(),
+            superUserLastName: data.superUserLastName.trim(),
+            superUserLoginEmail: data.superUserLoginEmail,
+            timeZoneId: data.timeZoneId,
+            seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
+            relatesToOrganizationId: props.relatesToOrganizationId,
+            config: {
+              defaultCountry: CountryCode.Us,
+              featureFlags: data.featureFlags,
+              organizationTypeId: data.organizationTypeId,
+              orgUsersMustAcceptEula: data.orgUsersMustAcceptEula,
+              longTermVacancyThresholdDays: data.longTermVacancyThresholdDays,
+              minLeadTimeMinutesToCancelVacancy:
+                data.minLeadTimeMinutesToCancelVacancy,
+              minutesBeforeStartAbsenceCanBeCreated:
+                data.minutesBeforeStartAbsenceCanBeCreated,
+              minLeadTimeMinutesToCancelVacancyWithoutPunishment:
+                data.minLeadTimeMinutesToCancelVacancyWithoutPunishment,
+              maxGapMinutesForSameVacancyDetail:
+                data.maxGapMinutesForSameVacancyDetail,
+              minAbsenceMinutes: data.minAbsenceMinutes,
+              maxAbsenceDays: data.maxAbsenceDays,
+              requestedSubCutoffMinutes: data.requestedSubCutoffMinutes,
+              minRequestedEmployeeHoldMinutes:
+                data.minRequestedEmployeeHoldMinutes,
+              maxRequestedEmployeeHoldMinutes:
+                data.maxRequestedEmployeeHoldMinutes,
+              minorConflictThresholdMinutes: data.minorConflictThresholdMinutes,
+              minutesRelativeToStartVacancyCanBeFilled:
+                data.minutesRelativeToStartVacancyCanBeFilled,
+              vacancyDayConversions:
+                data.vacancyDayConversions.length > 0
+                  ? data.vacancyDayConversions
+                  : undefined,
+            },
+          });
         }}
       >
         {({
@@ -203,7 +215,34 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={6}>
+                <SelectNew
+                  label={t("Time Zone")}
+                  name={"timeZoneId"}
+                  value={{
+                    value: values.timeZoneId ?? "",
+                    label:
+                      props.timeZoneOptions.find(
+                        a => a.value === values.timeZoneId
+                      )?.label || "",
+                  }}
+                  options={props.timeZoneOptions}
+                  onChange={(e: OptionType) => {
+                    let selectedValue = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+                    setFieldValue("timeZoneId", selectedValue);
+                  }}
+                  withResetValue={false}
+                  multiple={false}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <SelectNew
                   label={t("Organization Type")}
                   name={"organizationTypeId"}
@@ -228,33 +267,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   withResetValue={false}
                   doSort={false}
                   options={props.organizationTypes}
-                  multiple={false}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <SelectNew
-                  label={t("Time Zone")}
-                  name={"timeZoneId"}
-                  value={{
-                    value: values.timeZoneId ?? "",
-                    label:
-                      props.timeZoneOptions.find(
-                        a => a.value === values.timeZoneId
-                      )?.label || "",
-                  }}
-                  options={props.timeZoneOptions}
-                  onChange={(e: OptionType) => {
-                    let selectedValue = null;
-                    if (e) {
-                      if (Array.isArray(e)) {
-                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
-                      } else {
-                        selectedValue = (e as OptionTypeBase).value;
-                      }
-                    }
-                    setFieldValue("timeZoneId", selectedValue);
-                  }}
-                  withResetValue={false}
                   multiple={false}
                 />
               </Grid>
@@ -311,34 +323,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <SelectNew
-                  label={t("Seed Data Option")}
-                  name={"seedOrgDataOption"}
-                  value={{
-                    value: values.seedOrgDataOption ?? "",
-                    label:
-                      props.seedOrgDataOptions.find(
-                        a => a.value === values.seedOrgDataOption
-                      )?.label || "",
-                  }}
-                  options={props.seedOrgDataOptions}
-                  onChange={(e: OptionType) => {
-                    let selectedValue = null;
-                    if (e) {
-                      if (Array.isArray(e)) {
-                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
-                      } else {
-                        selectedValue = (e as OptionTypeBase).value;
-                      }
-                    }
-                    setFieldValue("seedOrgDataOption", selectedValue);
-                  }}
-                  doSort={false}
-                  withResetValue={false}
-                  multiple={false}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
-                <SelectNew
                   label={t("Feature Flags")}
                   name={"featureFlags"}
                   value={props.featureFlagOptions.filter(
@@ -388,8 +372,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   label={t("Users Must Accept Eula?")}
                 />
               </Grid>
-              <Grid item xs={12} sm={12}>
-                <Divider />
+              <Grid item xs={12}>
                 <SectionHeader title={t("Non-required setup info")} />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
@@ -410,18 +393,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     name: "maxAbsenceDays",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    fullWidth: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
-                <Input
-                  label={t("Absence Create Cutoff Time")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "absenceCreateCutoffTime",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
                     fullWidth: true,
@@ -476,7 +447,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-
               <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Max Gap Minutes For Same Vacancy Detail")}
@@ -552,8 +522,139 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
+
+              <Grid
+                item
+                container
+                xs={12}
+                classes={{ root: overrideStyles.row }}
+              >
+                <SectionHeader title={t("Vacancy Day Conversions")} />
+              </Grid>
+              <Grid
+                xs={12}
+                item
+                container
+                classes={{ root: overrideStyles.row }}
+              >
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={e => {
+                    const value: DayConversionInput = {
+                      name: "",
+                      maxMinutes: 0,
+                      dayEquivalent: 0,
+                    };
+
+                    values.vacancyDayConversions.push(value);
+                    setFieldValue(
+                      "vacancyDayConversions",
+                      values.vacancyDayConversions
+                    );
+                  }}
+                >
+                  {t("Add")}
+                </Button>
+              </Grid>
+              {values.vacancyDayConversions.length > 0 && (
+                <Grid
+                  container
+                  item
+                  xs={12}
+                  classes={{ root: overrideStyles.row }}
+                >
+                  <Grid item xs={3} classes={{ root: overrideStyles.cell }}>
+                    <label>Name</label>
+                  </Grid>
+                  <Grid item xs={2} classes={{ root: overrideStyles.cell }}>
+                    <label>Max Minutes</label>
+                  </Grid>
+                  <Grid item xs={2} classes={{ root: overrideStyles.cell }}>
+                    <label>Day Equivalent</label>
+                  </Grid>
+                </Grid>
+              )}
+
+              {values.vacancyDayConversions.map((n, i) => (
+                <Grid
+                  item
+                  key={i}
+                  container
+                  xs={12}
+                  classes={{ root: overrideStyles.row }}
+                >
+                  <Grid
+                    item
+                    xs={12}
+                    sm={3}
+                    classes={{ root: overrideStyles.cell }}
+                  >
+                    <Input
+                      InputComponent={FormTextField}
+                      inputComponentProps={{
+                        margin: isMobile ? "normal" : "none",
+                        variant: "outlined",
+                        fullWidth: true,
+                        name: `vacancyDayConversions[${i}].name`,
+                      }}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    sm={2}
+                    classes={{ root: overrideStyles.cell }}
+                  >
+                    <Input
+                      InputComponent={FormTextField}
+                      inputComponentProps={{
+                        margin: isMobile ? "normal" : "none",
+                        variant: "outlined",
+                        fullWidth: true,
+                        name: `vacancyDayConversions[${i}].maxMinutes`,
+                      }}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    sm={2}
+                    classes={{ root: overrideStyles.cell }}
+                  >
+                    <Input
+                      InputComponent={FormTextField}
+                      inputComponentProps={{
+                        margin: isMobile ? "normal" : "none",
+                        variant: "outlined",
+                        name: `vacancyDayConversions[${i}].dayEquivalent`,
+                        fullWidth: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    sm={3}
+                    classes={{ root: overrideStyles.cell }}
+                  >
+                    <Button
+                      onClick={() => {
+                        values.vacancyDayConversions.splice(i, 1);
+                        setFieldValue(
+                          "vacancyDayConversions",
+                          values.vacancyDayConversions
+                        );
+                      }}
+                      variant="contained"
+                      size="small"
+                    >
+                      {t("Remove")}
+                    </Button>
+                  </Grid>
+                </Grid>
+              ))}
             </Grid>
-            <Divider />
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}
               cancel={{ text: t("Cancel"), execute: props.onCancel }}
@@ -568,5 +669,11 @@ export const AddBasicInfo: React.FC<Props> = props => {
 const rootStyles = makeStyles(theme => ({
   root: {
     padding: `5px 32px 32px 32px !important`,
+  },
+  row: {
+    padding: `5px 32px 5px 32px !important`,
+  },
+  cell: {
+    paddingRight: "15px !important",
   },
 }));

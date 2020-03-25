@@ -1,4 +1,4 @@
-import { makeStyles, Button, Typography } from "@material-ui/core";
+import { makeStyles, Button, Typography, Divider } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AssignmentWithDetails, Assignment } from "./types";
@@ -64,6 +64,7 @@ export const AssignedBanner: React.FC<Props> = props => {
         open={cancelAssignmentDialogIsOpen}
         assignmentWithDetails={assignmentWithDetails}
       />
+      <Divider className={classes.divider} />
       <div className={classes.assignedBanner}>
         <div className={classes.employeeInfo}>
           <AccountCircleOutlined fontSize="large" />
@@ -72,11 +73,14 @@ export const AssignedBanner: React.FC<Props> = props => {
             <div className={classes.subText}>
               {isExistingAssignment ? t("assigned") : t("pre-arranged")}
             </div>
+            {assignmentWithDetails.assignment?.id && (
+              <div className={[classes.subText, classes.assignment].join(" ")}>
+                {t("#C") + assignmentWithDetails.assignment?.id}
+              </div>
+            )}
           </div>
         </div>
-        {assignmentWithDetails.assignment?.id && (
-          <div>{t("#C") + assignmentWithDetails.assignment?.id}</div>
-        )}
+
         <div className={classes.actions}>
           {onReassignClick && (
             <Can
@@ -94,9 +98,10 @@ export const AssignedBanner: React.FC<Props> = props => {
               }
             >
               <Button
-                variant="text"
+                variant="outlined"
                 onClick={onReassignClick}
                 disabled={disableActions}
+                className={classes.reassignButton}
               >
                 {t("Reassign")}
               </Button>
@@ -113,8 +118,9 @@ export const AssignedBanner: React.FC<Props> = props => {
           >
             <Button
               disabled={disableActions}
-              variant={"text"}
+              variant={"outlined"}
               onClick={onRemoveClick}
+              className={classes.removeButton}
             >
               {t("Remove")}
             </Button>
@@ -132,8 +138,12 @@ export const useStyles = makeStyles(theme => ({
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
-    backgroundColor: "#ECF9F3",
   },
+  divider: {
+    marginLeft: theme.typography.pxToRem(60),
+    marginRight: theme.typography.pxToRem(15),
+  },
+
   employeeInfo: {
     display: "flex",
     alignItems: "center",
@@ -143,10 +153,20 @@ export const useStyles = makeStyles(theme => ({
   },
   subText: {
     fontSize: theme.typography.pxToRem(12),
+    display: "inline-block",
+  },
+  assignment: {
+    marginLeft: theme.typography.pxToRem(10),
   },
   actions: {
-    width: theme.typography.pxToRem(100),
+    width: theme.typography.pxToRem(220),
     flexWrap: "wrap",
     textAlign: "center",
+  },
+  reassignButton: {
+    marginRight: theme.typography.pxToRem(5),
+  },
+  removeButton: {
+    color: "#C62822",
   },
 }));

@@ -1,4 +1,3 @@
-import { MutationFunction } from "@apollo/react-common";
 import {
   Dialog,
   DialogActions,
@@ -6,47 +5,34 @@ import {
   DialogTitle,
   makeStyles,
 } from "@material-ui/core";
-import * as Forms from "atomic-object/forms";
 import { useAuth0 } from "auth/auth0";
 import { Formik } from "formik";
-import { UpdateLoginEmail } from "ui/pages/profile/UpdateLoginEmail.gen";
-import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
-import { UserLoginEmailChangeInput, User } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { InformationHelperText } from "ui/components/information-helper-text";
 import { TextButton } from "ui/components/text-button";
 import * as Yup from "yup";
+import { Input } from "ui/components/form/input";
+import { TextField as FormTextField } from "ui/components/form/text-field";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  user: Pick<User, "id" | "rowVersion">;
-  updateLoginEmail: MutationFunction<
-    UpdateLoginEmail.Mutation,
-    UpdateLoginEmail.Variables
-  >;
+  onUpdateLoginEmail: (loginEmail: string) => Promise<any>;
   triggerReauth: boolean;
 };
 
 export const ChangeLoginEmailDialog: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-
-  const initialValues: UserLoginEmailChangeInput = {
-    loginEmail: "",
-    id: props.user.id,
-    rowVersion: props.user.rowVersion,
-  };
   const auth0 = useAuth0();
+
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <Formik
-        initialValues={initialValues}
-        onSubmit={async (values: UserLoginEmailChangeInput) => {
-          await props.updateLoginEmail({
-            variables: { loginEmailChange: { ...values } },
-          });
+        initialValues={{ loginEmail: "" }}
+        onSubmit={async data => {
+          await props.onUpdateLoginEmail(data.loginEmail);
           if (props.triggerReauth) {
             auth0.login();
           }
@@ -63,15 +49,15 @@ export const ChangeLoginEmailDialog: React.FC<Props> = props => {
             <div className={classes.spacing}>
               <DialogTitle>{t("Change Email")}</DialogTitle>
               <DialogContent>
-                <Forms.TextField
-                  name={"loginEmail"}
-                  margin="normal"
-                  variant="outlined"
-                  placeholder={t(
-                    "profile.newEmailAddress",
-                    "New Email Address"
-                  )}
+                <Input
+                  value={values.loginEmail}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "loginEmail",
+                    id: "loginEmail",
+                  }}
                   fullWidth
+                  placeholder={t("New Email Address")}
                 />
 
                 <InformationHelperText
