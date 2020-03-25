@@ -1,0 +1,30 @@
+query GetSmsLogForUser(
+  $userId: ID!
+  $fromTime: DateTime!
+  $toTime: DateTime!
+  $orgId: ID
+  $limit: Int
+  $offset: Int
+) {
+  employee {
+    employeeSmsLogLocal(
+      id: $userId
+      fromTime: $fromTime
+      toTime: $toTime
+      orgId: $orgId
+      limit: $limit
+      offset: $offset
+    ) {
+      body
+      createdLocal
+      createdUtc
+      fromPhone
+      toPhone
+      updateLocal
+      direction
+      errorCode
+      errorMessage
+      status
+    }
+  }
+}

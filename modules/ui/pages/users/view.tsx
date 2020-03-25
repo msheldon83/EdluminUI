@@ -318,7 +318,16 @@ export const UserViewPage: React.FC<{}> = props => {
               {t("Reset Password")}
             </Button>
           </div>
-          <div className={classes.action}>
+        </Grid>
+      </Grid>
+      <Grid
+        container
+        justify="flex-end"
+        alignItems="flex-start"
+        direction="row"
+      >
+        <Grid item className={classes.actionContainer}>
+          <div className={(classes.action, classes.rowPadding)}>
             <Button
               variant="outlined"
               disabled={
@@ -332,7 +341,6 @@ export const UserViewPage: React.FC<{}> = props => {
           </div>
         </Grid>
       </Grid>
-
       <Section>
         <Formik
           initialValues={{
@@ -558,6 +566,9 @@ const useStyles = makeStyles(theme => ({
   },
   action: {
     marginLeft: theme.spacing(2),
+  },
+  rowPadding: {
+    paddingBottom: theme.spacing(2),
   },
   header: {
     marginBottom: theme.spacing(),
