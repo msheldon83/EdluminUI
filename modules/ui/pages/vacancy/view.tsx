@@ -107,15 +107,6 @@ export const VacancyView: React.FC<Props> = props => {
   }
   const vacancy: any = getVacancy?.data?.vacancy?.byId ?? undefined;
 
-  if (!Config.isDevFeatureOnly) {
-    return (
-      <>
-        <PageTitle title={`${t("Create vacancy")}`} />
-        <UnderConstructionHeader />
-      </>
-    );
-  }
-
   return (
     <>
       <PageTitle title={t("Vacancy")} withoutHeading />
