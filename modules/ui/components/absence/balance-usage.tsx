@@ -7,7 +7,7 @@ import { useAllSchoolYears } from "reference-data/school-years";
 import { isBefore, isAfter, parseISO } from "date-fns";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { compact } from "lodash-es";
+import { compact, round } from "lodash-es";
 
 type Props = {
   orgId: string;
@@ -88,11 +88,11 @@ export const BalanceUsage: React.FC<Props> = props => {
       HOURLY: ["hour", "hours"],
     }[trackingType];
     if (!unitText) return null;
-    return `${t("Uses")} ${amount.toFixed(2)} ${t(
+    return `${t("Uses")} ${round(amount, 2)} ${t(
       unitText[Number(amount !== 1)]
     )} ${t("of")} ${actingAsEmployee ? t("your") : t("employee's")} ${t(
       "balance leaving"
-    )} ${remainingBalance.toFixed(2)} ${t(
+    )} ${round(remainingBalance, 2)} ${t(
       unitText[Number(remainingBalance !== 1)]
     )}`;
   }, [usageAmount, t, actingAsEmployee]);
