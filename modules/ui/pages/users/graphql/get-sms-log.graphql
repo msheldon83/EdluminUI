@@ -15,16 +15,22 @@ query GetSmsLogForUser(
       limit: $limit
       offset: $offset
     ) {
-      body
-      createdLocal
-      createdUtc
-      fromPhone
-      toPhone
-      updateLocal
-      direction
-      errorCode
-      errorMessage
-      status
+      totalCount
+      limit
+      offset
+      hasMoreData
+      results {
+        body
+        createdLocal
+        createdUtc
+        fromPhone
+        toPhone
+        updateLocal
+        direction
+        errorCode
+        errorMessage
+        status
+      }
     }
   }
 }

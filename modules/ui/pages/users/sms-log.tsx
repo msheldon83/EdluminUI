@@ -37,15 +37,19 @@ export const SmsLogIndex: React.FC<Props> = props => {
     getUser.state === "LOADING" ? undefined : getUser?.data?.user?.byId;
 
   //Changed to Text Messages
-  const [getSmsLog, pagination] = usePagedQueryBundle(GetSmsLogForUser, {
-    variables: {
-      userId: params.userId,
-      fromDateTime: fromDate,
-      toDateTime: toDate,
-    },
-  });
+  const [getSmsLog, pagination] = usePagedQueryBundle(
+    GetSmsLogForUser,
+    r => r.employee?.employeeSmsLogLocal?.totalCount,
+    {
+      variables: {
+        userId: params.userId,
+        fromTime: fromDate,
+        toTime: toDate,
+      },
+    }
+  );
 
-  const columns: Column<GetSmsLogForUser.EmployeeSmsLogLocal>[] = [
+  const columns: Column<GetSmsLogForUser.Results>[] = [
     {
       title: t("Created Local"),
       render: data => {
@@ -67,12 +71,32 @@ export const SmsLogIndex: React.FC<Props> = props => {
       },
     },
     {
+      title: t("Error message"),
+      render: data => {
+        if (data.errorMessage) {
+          return getDisplayName("errorMessage", data.errorMessage, t);
+        } else {
+          return t("No errors");
+        }
+      },
+    },
+    {
       title: t("Status"),
       render: data => {
         if (data.status) {
           return getDisplayName("status", data.status, t);
         } else {
           return t("No status");
+        }
+      },
+    },
+    {
+      title: t("Updated Local"),
+      render: data => {
+        if (data.updateLocal) {
+          return format(new Date(data.updateLocal), "MMM d, h:mm:ss a");
+        } else {
+          return t("No updates");
         }
       },
     },
