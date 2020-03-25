@@ -7,18 +7,30 @@ query GetVacancyById($id: ID!) {
       details {
         id
         locationId
+        location {
+          id
+          name
+        }
         workDayScheduleId
         startTimeUtc
         endTimeUtc
         startDate
+        startTimeLocalTimeSpan
         endDate
         endTimeLocalTimeSpan
-        startTimeLocalTimeSpan
         payCodeId
+        payCode {
+          id
+          name
+        }
         vacancyReasonId
         accountingCodeAllocations {
           id
           accountingCodeId
+          accountingCode {
+            id
+            name
+          }
           allocation
         }
         assignment {

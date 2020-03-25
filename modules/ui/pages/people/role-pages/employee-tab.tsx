@@ -109,8 +109,9 @@ export const EmployeeTab: React.FC<Props> = props => {
       <RemainingBalances
         employeeId={employee.id}
         title={t("Time off balances")}
-        showEdit={false} // TODO: Set to true when we have an edit page
+        showEdit={true}
         editing={props.editing}
+        orgId={employee.orgId}
       />
       <ReplacementCriteria
         editing={props.editing}

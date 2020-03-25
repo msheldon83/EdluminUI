@@ -48,18 +48,18 @@ const environmentPlugins = (() => {
   }
 })();
 
-const sourceMapsMode = () =>
-  process.env.NODE_ENV == "development"
-    ? "inline-source-map"
-    : "hidden-source-map";
-
 module.exports = {
   mode: config.get("minify") ? "production" : "development",
 
-  devtool: sourceMapsMode(),
+  devtool: config.get("minify")
+    ? "hidden-source-map"
+    : "cheap-module-source-map",
+
+  cache: config.get("minify") ? false : true,
 
   entry: {
     app: [
+      "react-hot-loader/patch",
       "whatwg-fetch",
       "core-js/es/object",
       "core-js/es/array",
@@ -85,7 +85,9 @@ module.exports = {
           // },
         },
       }
-    : undefined,
+    : {
+        noEmitOnErrors: true,
+      },
 
   performance: {
     assetFilter(filename) {
@@ -175,6 +177,8 @@ module.exports = {
     path: path.resolve(__dirname, "../dist"),
     publicPath: "/",
     filename: config.get("minify") ? "client.[chunkhash].js" : "client.js",
+    chunkFilename: config.get("minify") ? "[name].[hash].js" : "[name].js",
+    pathinfo: false,
   },
 
   resolve: {
@@ -182,6 +186,7 @@ module.exports = {
     modules: [path.resolve(__dirname, "../modules"), "node_modules"],
     alias: {
       "@material-ui/core": "@material-ui/core/es",
+      "react-dom": "@hot-loader/react-dom",
     },
   },
 
@@ -197,6 +202,7 @@ module.exports = {
             loader: "babel-loader",
             options: {
               presets: ["@babel/preset-env"],
+              plugins: ["react-hot-loader/babel"],
             },
           },
         ],
@@ -205,11 +211,12 @@ module.exports = {
       loaders.graphql,
     ].concat(loaders.allImagesAndFontsArray),
   },
+
   devServer: {
     publicPath: "/",
     host: "0.0.0.0",
     port: DEV_PORT,
-    hot: false,
+    hotOnly: true,
     historyApiFallback: true,
     stats: "errors-only",
     disableHostCheck: config.get("devServer.disableHostCheck"),

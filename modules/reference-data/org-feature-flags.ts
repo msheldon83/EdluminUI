@@ -3,10 +3,11 @@ import { GetOrgConfigFeatureFlags } from "./get-org-config-feature-flags.gen";
 import { compact } from "lodash-es";
 import { useMemo } from "react";
 
-export function useOrgFeatureFlags(orgId: string) {
+export function useOrgFeatureFlags(orgId?: string) {
   const getFeatureFlags = useQueryBundle(GetOrgConfigFeatureFlags, {
     fetchPolicy: "cache-first",
     variables: { orgId },
+    skip: !orgId,
   });
 
   return useMemo(() => {

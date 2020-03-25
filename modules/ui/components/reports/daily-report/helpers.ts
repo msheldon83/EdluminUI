@@ -558,9 +558,9 @@ const getMatchingVacancyDetails = (
   }
 
   const allVacancyDetails = flatMap(vacancies, v =>
-    v!.details!.map(d => {
+    v!.details.map(d => {
       return {
-        ...(d as VacancyDetail),
+        ...d,
         vacancyRowVersion: v!.rowVersion,
         vacancyId: v!.id,
       };

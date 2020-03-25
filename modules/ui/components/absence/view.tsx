@@ -19,7 +19,7 @@ import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { Can } from "../auth/can";
 import { AssignedSub } from "./assigned-sub";
 import { CreateAbsenceCalendar } from "./create-absence-calendar";
-import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "./date-helpers";
+import { getDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
 import {
   dayPartToLabel,
@@ -36,7 +36,7 @@ type Props = {
   orgId: string;
   absence: Absence;
   isConfirmation?: boolean;
-  isAdmin: boolean;
+  actingAsEmployee?: boolean;
   goToEdit?: Function;
 };
 
@@ -252,7 +252,7 @@ export const View: React.FC<Props> = props => {
                       </Typography>
                     </div>
                     <>
-                      {props.isAdmin && (accountingCode || payCode) && (
+                      {!props.actingAsEmployee && (accountingCode || payCode) && (
                         <Grid item container className={classes.subCodes}>
                           {accountingCode && (
                             <Can do={[PermissionEnum.AbsVacViewAccountCode]}>
@@ -391,7 +391,7 @@ const getAbsenceReasonListDisplay = (
           {matchingAbsenceReason?.name}
         </div>
         <Typography variant="h6">
-          {getAbsenceDateRangeDisplayTextWithDayOfWeek(allDates, disabledDates)}
+          {getDateRangeDisplayTextWithDayOfWeekForContiguousDates(allDates, disabledDates)}
         </Typography>
         {d.simpleDetailItems &&
           d.simpleDetailItems.map((di, detailIndex) => {
@@ -424,7 +424,7 @@ const getPayCode = (
     return undefined;
   }
 
-  const firstVacancyDetail = absence.vacancies![0]!.details![0];
+  const firstVacancyDetail = absence.vacancies![0]!.details[0];
   if (!firstVacancyDetail) {
     return undefined;
   }
@@ -448,7 +448,7 @@ const getAccountingCode = (
     return undefined;
   }
 
-  const firstVacancyDetail = absence.vacancies![0]!.details![0];
+  const firstVacancyDetail = absence.vacancies![0]!.details[0];
   if (!firstVacancyDetail) {
     return undefined;
   }

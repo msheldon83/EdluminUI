@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { Absence } from "graphql/server-types.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { CreateAbsenceConfirmationRoute } from "ui/routes/create-absence";
-import { useIsAdmin } from "reference-data/is-admin";
 
 type Props = {};
 
@@ -20,11 +19,7 @@ export const QuickCreateConfirmation: React.FC<Props> = props => {
       id: params.absenceId,
     },
   });
-  const isAdmin = useIsAdmin(
-    absenceQuery.state === "LOADING"
-      ? undefined
-      : absenceQuery.data.absence?.byId?.organization.id.toString()
-  );
+
   if (absenceQuery.state === "LOADING") {
     return <></>;
   }
@@ -37,7 +32,7 @@ export const QuickCreateConfirmation: React.FC<Props> = props => {
       <Confirmation
         absence={absence}
         orgId={absence.organization.id.toString()}
-        isAdmin={!!isAdmin}
+        actingAsEmployee={true}
       />
     </>
   );

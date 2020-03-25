@@ -29,9 +29,10 @@ import { useQueryParamIso } from "hooks/query-params";
 import { FilterQueryParams } from "ui/components/reports/daily-report/filters/filter-params";
 import { SubSignInRoute } from "ui/routes/sub-sign-in";
 import { Can } from "ui/components/auth/can";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, FeatureFlag } from "graphql/server-types.gen";
 import { useLocation } from "react-router";
 import { AppConfig } from "hooks/app-config";
+import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 
 type Props = {};
 
@@ -44,6 +45,12 @@ export const AdminHome: React.FC<Props> = props => {
   const location = useLocation();
   const [selectedCard, setSelectedCard] = useState<CardType>("unfilled");
   const dailyReportRouteParams = useRouteParams(DailyReportRoute);
+
+  const orgFeatureFlags = useOrgFeatureFlags(params.organizationId);
+  const orgUsesVerify: boolean = orgFeatureFlags.includes(FeatureFlag.Verify);
+  const availableCards: CardType[] = orgUsesVerify
+    ? ["unfilled", "total", "awaitingVerification"]
+    : ["unfilled", "total"];
 
   const dateFromFilter = useMemo(() => {
     return new Date(filters.date);
@@ -117,7 +124,7 @@ export const AdminHome: React.FC<Props> = props => {
           setDate={setDate}
           header={salutation}
           showFilters={false}
-          cards={["unfilled", "total", "awaitingVerification"]}
+          cards={availableCards}
           selectedCard={selectedCard}
           isHomePage={true}
         />

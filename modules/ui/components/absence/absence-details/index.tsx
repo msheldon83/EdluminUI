@@ -17,7 +17,7 @@ import {
 } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
-import { useMemo, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { useAbsenceReasonOptions } from "reference-data/absence-reasons";
@@ -31,6 +31,10 @@ import { NoteField } from "./notes-field";
 import { SubstituteRequiredDetails } from "./substitute-required-details";
 import { uniqBy } from "lodash-es";
 import { ContentFooter } from "../../content-footer";
+import {
+  BalanceUsage,
+  AbsenceReasonUsageData,
+} from "ui/components/absence/balance-usage";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -58,7 +62,7 @@ type Props = {
   values: AbsenceDetailsFormData;
   errors: Errors;
   triggerValidation: TriggerValidation;
-  isAdmin: null | boolean;
+  actingAsEmployee?: boolean;
   needsReplacement: NeedsReplacement;
   wantsReplacement: boolean;
   absenceReason?: {
@@ -70,7 +74,6 @@ type Props = {
   locationIds?: string[];
   setStep: (S: "absence" | "preAssignSub" | "edit") => void;
   disabledDates: Date[];
-  balanceUsageText?: string;
   setVacanciesInput: (input: VacancyDetail[] | undefined) => void;
   /** default: pre-arrange */
   arrangeSubButtonTitle?: string;
@@ -98,6 +101,7 @@ type Props = {
   ) => void;
   hasEditedDetails: boolean;
   assignmentsByDate: AssignmentOnDate[];
+  usages: AbsenceReasonUsageData[] | null;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -109,7 +113,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     organizationId,
     setValue,
     values,
-    isAdmin,
+    actingAsEmployee,
     needsReplacement,
     wantsReplacement,
     onSubstituteWantedChange,
@@ -118,6 +122,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
     triggerValidation,
     assignmentsByDate,
   } = props;
+
+  const [negativeBalanceWarning, setNegativeBalanceWarning] = useState(false);
 
   const absenceReasons =
     props?.absenceReason?.name && props?.absenceReason?.id
@@ -220,14 +226,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
           onSelectDates={dates => dates.forEach(props.onToggleAbsenceDate)}
         />
 
-        {props.balanceUsageText && (
-          <div className={classes.usageTextContainer}>
-            <InfoIcon color="primary" />
-            <Typography className={classes.usageText}>
-              {props.balanceUsageText}
-            </Typography>
-          </div>
-        )}
+        <BalanceUsage
+          orgId={props.organizationId}
+          employeeId={props.employeeId}
+          startDate={startDate}
+          actingAsEmployee={actingAsEmployee}
+          usages={props.usages}
+          setNegativeBalanceWarning={setNegativeBalanceWarning}
+        />
 
         <DayPartField
           employeeId={props.employeeId}
@@ -296,7 +302,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             triggerValidation={triggerValidation}
             values={values}
             errors={errors}
-            isAdmin={!!isAdmin}
+            actingAsEmployee={actingAsEmployee}
             arrangeSubButtonTitle={props.arrangeSubButtonTitle}
             disabledDates={props.disabledDates}
             replacementEmployeeId={props.replacementEmployeeId}
@@ -368,7 +374,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 type="submit"
                 variant="contained"
                 className={classes.saveButton}
-                disabled={!props.isFormDirty}
+                disabled={!props.isFormDirty || negativeBalanceWarning}
               >
                 {props.saveLabel ?? t("Create")}
               </Button>

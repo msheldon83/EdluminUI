@@ -2,12 +2,10 @@ import { parseISO } from "date-fns";
 import { isValid, startOfDay } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { NeedsReplacement } from "graphql/server-types.gen";
-import { AbsenceReasonUsageData } from "helpers/absence/computeAbsenceUsageText";
+import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import { compact, flatMap, isNil, sortBy, uniqBy } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState } from "react";
-import { useIsAdmin } from "reference-data/is-admin";
-import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import {
@@ -42,11 +40,6 @@ export const EditAbsence: React.FC<Props> = props => {
       id: params.absenceId,
     },
   });
-  const userIsAdmin = useIsAdmin(
-    absence.state === "LOADING"
-      ? undefined
-      : absence.data?.absence?.byId?.organization.id.toString()
-  );
 
   const employee = useMemo(() => {
     if (absence.state === "DONE") {
@@ -117,9 +110,9 @@ export const EditAbsence: React.FC<Props> = props => {
             ?.filter(vd => vd?.assignment)
             .map(vd => {
               return {
-                assignmentId: vd!.assignment!.id,
-                assignmentRowVersion: vd!.assignment!.rowVersion,
-                vacancyDetailId: vd!.id,
+                assignmentId: vd.assignment!.id,
+                assignmentRowVersion: vd.assignment!.rowVersion,
+                vacancyDetailId: vd.id,
               };
             })
         )
@@ -219,7 +212,7 @@ export const EditAbsence: React.FC<Props> = props => {
             date: d.startDate,
             startTime: d.startTimeLocal,
             endTime: d.endTimeLocal,
-            locationId: d.locationId!,
+            locationId: d.locationId,
             payCodeId: d.payCodeId,
             accountingCodeId:
               d?.accountingCodeAllocations &&
@@ -269,7 +262,6 @@ export const EditAbsence: React.FC<Props> = props => {
   if (absence.state !== "DONE" && absence.state !== "UPDATING") {
     return <></>;
   }
-  if (userIsAdmin === null) return <></>;
   // @ts-ignore - I think I've found a bug in typescript?
   const data = absence.data?.absence?.byId;
   // @ts-ignore
@@ -355,7 +347,6 @@ export const EditAbsence: React.FC<Props> = props => {
         rowVersion={data.rowVersion}
         needsReplacement={needsReplacement}
         notesToApprover={data.notesToApprover ?? undefined}
-        userIsAdmin={userIsAdmin}
         positionId={position?.id ?? employee.primaryPositionId ?? undefined}
         positionName={position?.title ?? employee.primaryPosition?.title}
         organizationId={data.organization.id}
@@ -363,9 +354,6 @@ export const EditAbsence: React.FC<Props> = props => {
           id: reasonUsage.absenceReason!.id,
           name: reasonUsage.absenceReason!.name,
         }}
-        trackingBalanceReasonIds={
-          employee.absenceReasonBalances?.map(x => x?.absenceReasonId) ?? []
-        }
         absenceId={data.id}
         absenceDates={absenceDates}
         dayPart={dayPart}

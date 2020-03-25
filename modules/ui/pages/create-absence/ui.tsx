@@ -12,7 +12,6 @@ import {
   NeedsReplacement,
   Vacancy,
 } from "graphql/server-types.gen";
-import { computeAbsenceUsageText } from "helpers/absence/computeAbsenceUsageText";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
@@ -45,7 +44,7 @@ import { createAbsenceReducer, CreateAbsenceState } from "./state";
 import { StepParams } from "../../../helpers/step-params";
 import { ApolloError } from "apollo-client";
 import { Prompt, useRouteMatch } from "react-router";
-import { AbsenceHeader } from "ui/components/absence/header";
+import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 
 type Props = {
   firstName: string;
@@ -54,7 +53,6 @@ type Props = {
   actingAsEmployee?: boolean;
   organizationId: string;
   needsReplacement: NeedsReplacement;
-  userIsAdmin: boolean;
   positionId?: string;
   positionName?: string;
   locationIds?: string[];
@@ -66,7 +64,6 @@ type Props = {
   initialNeedsReplacement?: boolean;
   payCodeId?: string | null;
   accountingCodeId?: string | null;
-  trackingBalanceReasonIds: Array<string | undefined>;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -285,7 +282,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           getProjectedVacancies.data?.absence?.projectedVacancies ?? []
         ) as Vacancy[]);
 
-  const absenceUsageText = useMemo(() => {
+  const absenceBalanceUsages = useMemo(() => {
     if (
       !(
         getProjectedAbsenceUsage.state === "DONE" ||
@@ -294,19 +291,13 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     )
       return null;
 
-    const usages = compact(
+    return compact(
       flatMap(
         getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
         d => d?.reasonUsages?.map(ru => ru)
       )
     );
-    return computeAbsenceUsageText(
-      usages as any,
-      props.trackingBalanceReasonIds,
-      t,
-      actingAsEmployee
-    );
-  }, [actingAsEmployee, getProjectedVacancies]);
+  }, [getProjectedVacancies]);
 
   const employeeName = `${props.firstName} ${props.lastName}`;
 
@@ -362,12 +353,16 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const onAssignSub = React.useCallback(
     (
       replacementId: string,
-      replacementName: string,
+      replacementFirstName: string,
+      replacementLastName: string,
       payCodeId: string | undefined
     ) => {
       /* eslint-disable @typescript-eslint/no-floating-promises */
       setValue("replacementEmployeeId", replacementId);
-      setValue("replacementEmployeeName", replacementName);
+      setValue(
+        "replacementEmployeeName",
+        `${replacementFirstName} ${replacementLastName}`
+      );
       if (payCodeId) {
         setValue("payCode", payCodeId);
       }
@@ -411,10 +406,10 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       >
         {step === "absence" && (
           <>
-            <AbsenceHeader
-              employeeName={employeeName}
+            <AbsenceVacancyHeader
               pageHeader={t("Create absence")}
-              actingAsEmployee={!props.userIsAdmin}
+              subHeader={employeeName}
+              actingAsEmployee={actingAsEmployee}
             />
             <Section className={classes.absenceDetails}>
               <ErrorBanner
@@ -425,6 +420,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 continueAction={async () => await create(formValues, true)}
               />
               <AbsenceDetails
+                actingAsEmployee={actingAsEmployee}
                 currentMonth={state.viewingCalendarMonth}
                 onSwitchMonth={d =>
                   dispatch({ action: "switchMonth", month: d })
@@ -443,14 +439,12 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 values={formValues}
                 errors={errors}
                 triggerValidation={triggerValidation}
-                isAdmin={props.userIsAdmin}
                 needsReplacement={props.needsReplacement}
                 vacancies={projectedVacancies}
                 setStep={setStep}
                 vacancyDetails={projectedVacancyDetails}
                 locationIds={props.locationIds}
                 disabledDates={disabledDates}
-                balanceUsageText={absenceUsageText || undefined}
                 setVacanciesInput={setVacanciesInput}
                 replacementEmployeeId={formValues.replacementEmployeeId}
                 replacementEmployeeName={formValues.replacementEmployeeName}
@@ -461,6 +455,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 onAssignSubClick={onAssignSubClick}
                 hasEditedDetails={!!state.vacanciesInput}
                 assignmentsByDate={[]}
+                usages={absenceBalanceUsages}
               />
             </Section>
           </>
@@ -468,7 +463,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         {step === "preAssignSub" && (
           <AssignSub
             orgId={props.organizationId}
-            userIsAdmin={!actingAsEmployee && props.userIsAdmin}
+            actingAsEmployee={actingAsEmployee}
             employeeName={employeeName}
             employeeId={state.employeeId}
             positionId={props.positionId}
@@ -485,7 +480,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
             orgId={props.organizationId}
             absence={absence}
             setStep={setStep}
-            isAdmin={props.userIsAdmin}
+            actingAsEmployee={actingAsEmployee}
           />
         )}
       </form>

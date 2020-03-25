@@ -7,7 +7,7 @@ import { GetActivityLogForAbsence } from "./graphql/get-activity-log.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
-import { AbsenceHeader } from "ui/components/absence/header";
+import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { ActivityLog } from "ui/components/activity-log/activity-log";
 import { compact } from "lodash-es";
@@ -49,9 +49,9 @@ export const AbsenceActivityLog: React.FC<{}> = props => {
 
   return (
     <>
-      <AbsenceHeader
+      <AbsenceVacancyHeader
         actingAsEmployee={false}
-        employeeName={employeeName}
+        subHeader={employeeName}
         pageHeader={`${t("Activity log")} #${params.absenceId}`}
         onCancel={onReturn}
       />

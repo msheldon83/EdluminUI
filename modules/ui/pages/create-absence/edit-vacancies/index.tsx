@@ -19,9 +19,9 @@ import { VacancyDetail } from "../../../components/absence/types";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import { usePayCodes } from "reference-data/pay-codes";
 import * as yup from "yup";
-import { AbsenceHeader } from "ui/components/absence/header";
+import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { isBefore, parseISO, isValid, areIntervalsOverlapping } from "date-fns";
-import { getAbsenceDateRangeDisplayTextWithDayOfWeek } from "ui/components/absence/date-helpers";
+import { getDateRangeDisplayTextWithDayOfWeek } from "ui/components/date-helpers";
 
 type Props = {
   details: VacancyDetail[];
@@ -179,9 +179,9 @@ export const EditVacancies: React.FC<Props> = props => {
     >
       {({ values, handleSubmit, errors }) => (
         <form onSubmit={handleSubmit}>
-          <AbsenceHeader
-            employeeName={props.employeeName}
+          <AbsenceVacancyHeader
             pageHeader={pageHeader}
+            subHeader={props.employeeName}
             actingAsEmployee={props.actingAsEmployee}
           />
           <Section className={classes.vacancyDetails}>
@@ -193,7 +193,7 @@ export const EditVacancies: React.FC<Props> = props => {
             >
               <Grid item>
                 <Typography variant="h5">
-                  {getAbsenceDateRangeDisplayTextWithDayOfWeek(
+                  {getDateRangeDisplayTextWithDayOfWeek(
                     props.details.map(d => parseISO(d.date)),
                     props.disabledDates
                   )}

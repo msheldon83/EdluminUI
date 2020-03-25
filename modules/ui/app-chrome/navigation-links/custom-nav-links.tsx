@@ -22,7 +22,7 @@ import {
   canViewSchoolsNavLink,
   canViewSecurityNavLink,
 } from "helpers/permissions";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, FeatureFlag } from "graphql/server-types.gen";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Can } from "ui/components/auth/can";
@@ -41,6 +41,7 @@ import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets"
 import { NavLink } from "./nav-link";
 import SearchIcon from "@material-ui/icons/Search";
 import { VacancyCreateRoute } from "ui/routes/vacancy";
+import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 
 type Props = {
   className?: string;
@@ -70,35 +71,40 @@ export const AbsenceNavLink: React.FC<Props> = props => {
   const paramsCreate = useRouteParams(AdminCreateAbsenceRoute);
   const paramsVacancyCreate = useRouteParams(VacancyCreateRoute);
 
+  const orgFeatureFlags = useOrgFeatureFlags(props.orgId);
+  const orgUsesVerify: boolean = orgFeatureFlags.includes(FeatureFlag.Verify);
+
+  const absenceSubNavItems = [
+    {
+      title: t("Create Absence"),
+      route: AdminSelectEmployeeForCreateAbsenceRoute.generate(paramsCreate),
+      permissions: [PermissionEnum.AbsVacSave],
+    },
+    {
+      title: t("Create Vacancy"),
+      route: VacancyCreateRoute.generate(paramsVacancyCreate),
+      permissions: [PermissionEnum.AbsVacSave],
+    },
+    {
+      title: t("Daily Report"),
+      route: DailyReportRoute.generate(paramsDailyReport),
+      permissions: [PermissionEnum.AbsVacView],
+    },
+  ];
+  if (orgUsesVerify) {
+    absenceSubNavItems.push({
+      title: t("Verify"),
+      route: VerifyRoute.generate(paramsVerify),
+      permissions: [PermissionEnum.AbsVacVerify],
+    });
+  }
+
   return (
     <Can do={canViewAbsVacNavLink} orgId={props.orgId}>
       <NavLink
         title={t("Absence & Vacancy")}
         icon={<SwapCallsIcon />}
-        subNavItems={[
-          {
-            title: t("Create Absence"),
-            route: AdminSelectEmployeeForCreateAbsenceRoute.generate(
-              paramsCreate
-            ),
-            permissions: [PermissionEnum.AbsVacSave],
-          },
-          {
-            title: t("Create Vacancy"),
-            route: VacancyCreateRoute.generate(paramsVacancyCreate),
-            permissions: [PermissionEnum.AbsVacSave],
-          },
-          {
-            title: t("Daily Report"),
-            route: DailyReportRoute.generate(paramsDailyReport),
-            permissions: [PermissionEnum.AbsVacView],
-          },
-          {
-            title: t("Verify"),
-            route: VerifyRoute.generate(paramsVerify),
-            permissions: [PermissionEnum.AbsVacVerify],
-          },
-        ]}
+        subNavItems={absenceSubNavItems}
         {...props}
       />
     </Can>

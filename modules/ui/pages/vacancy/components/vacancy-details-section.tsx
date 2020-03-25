@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as uuid from "uuid";
 import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import {
   PositionType,
@@ -7,6 +8,7 @@ import {
   VacancyDetailInput,
   PayCode,
   AccountingCode,
+  VacancyReason,
 } from "graphql/server-types.gen";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -21,7 +23,8 @@ import { find } from "lodash-es";
 import { VacancyIndividualDayList } from "./vacancy-individual-day-list";
 import { SelectVacancyDateDialog } from "./vacancy-date-picker-dialog";
 import { Input } from "ui/components/form/input";
-import { VacancyDetailsFormData } from "./vacancy";
+import { VacancyDetailsFormData } from "../helpers/types";
+import { getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 
 type Props = {
   orgId: string;
@@ -30,6 +33,7 @@ type Props = {
   payCodes?: PayCode[];
   accountingCodes?: AccountingCode[];
   contracts: Contract[];
+  vacancyReasons: VacancyReason[];
   values: VacancyDetailsFormData;
   setFieldValue: (
     field: any,
@@ -54,6 +58,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
     accountingCodes,
     readOnly,
     vacancyExists,
+    vacancyReasons,
   } = props;
   const { t } = useTranslation();
   const classes = useStyles();
@@ -90,7 +95,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
             value: r.id,
           })) ?? []
       : [];
-  }, [locations]);
+  }, [locations, values.locationId, locationOptions]);
 
   const updateModel = (p: any) => {
     const vacancy = {
@@ -110,7 +115,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
           find(values.details, vd => isSameDay(vd.date, date)) ?? {}
         );
       } else {
-        newDetails.push({ date: d });
+        newDetails.push({ date: d, id: uuid.v4() });
       }
     });
     setFieldValue("details", newDetails);
@@ -124,44 +129,14 @@ export const VacancyDetailSection: React.FC<Props> = props => {
   };
 
   const buildDateLabel = React.useMemo(() => {
-    let buildSeq = false;
-    let seqStartDate;
-    let seqEndDate;
-    let label = "";
-    let currentMonth = "";
-    const sortedArray = sortBy(values.details, d => {
+    const sortedDates = sortBy(values.details, d => {
       return d.date;
     });
-    for (let i = 0; i < sortedArray.length; i++) {
-      if (
-        i + 1 !== sortedArray.length &&
-        isSameDay(addDays(sortedArray[i].date, 1), sortedArray[i + 1].date)
-      ) {
-        //in sequence
-        if (!buildSeq) {
-          buildSeq = true;
-          seqStartDate = sortedArray[i].date;
-          currentMonth =
-            currentMonth === ""
-              ? format(sortedArray[i].date, "MMM")
-              : currentMonth;
-        }
-      } else if (buildSeq) {
-        seqEndDate = sortedArray[i].date;
-        label = `${label} ${format(seqStartDate, "MMM d")} - ${format(
-          seqEndDate,
-          "d"
-        )}`;
-        buildSeq = false;
-      } else if (!buildSeq) {
-        if (format(sortedArray[i].date, "MMM") !== currentMonth) {
-          currentMonth = format(sortedArray[i].date, "MMM");
-          label = `${label} ${format(sortedArray[i].date, "MMM d")}`;
-        } else {
-          label = `${label}, ${format(sortedArray[i].date, "d")}`;
-        }
-      }
-    }
+    const label = getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates(
+      sortedDates.map(d => d.date),
+      undefined,
+      false
+    );
     return label;
   }, [values.details]);
 
@@ -169,6 +144,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
   useEffect(() => {
     if (
       !values.locationId ||
+      !values.locationName ||
       !values.contractId ||
       !values.workDayScheduleId ||
       (values.title === undefined && positionTypes)
@@ -176,6 +152,10 @@ export const VacancyDetailSection: React.FC<Props> = props => {
       setFieldValue(
         "locationId",
         !values.locationId ? locationOptions[0].value : values.locationId
+      );
+      setFieldValue(
+        "locationName",
+        !values.locationName ? locationOptions[0].label : values.locationName
       );
       setFieldValue(
         "contractId",
@@ -198,6 +178,9 @@ export const VacancyDetailSection: React.FC<Props> = props => {
         locationId: !values.locationId
           ? locationOptions[0].value
           : values.locationId,
+        locationName: !values.locationName
+          ? locationOptions[0].label
+          : values.locationName,
         contractId: !values.contractId ? contracts[0].id : values.contractId,
         workDayScheduleId: !values.workDayScheduleId
           ? bellScheduleOptions[0].value
@@ -251,8 +234,8 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                   : "";
 
                 const title = positionTypes
-                  ? positionTypes.find(pt => pt.id === selectedValue)?.name ??
-                    ""
+                  ? `${positionTypes.find(pt => pt.id === selectedValue)
+                      ?.name ?? ""} ${t("Vacancy")}`
                   : "";
 
                 setFieldValue("contractId", contractId);
@@ -284,7 +267,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
         {values.positionTypeId !== "" && (
           <Grid item container xs={12} className={classes.rowContainer}>
             <Grid item xs={12}>
-              {!readOnly && !vacancyExists && (
+              {!readOnly && (
                 <Input
                   label={t("Title")}
                   placeholder={t("Enter a title for the vacancy")}
@@ -295,7 +278,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                   }}
                 />
               )}
-              {(readOnly || vacancyExists) && (
+              {readOnly && (
                 <>
                   <Typography variant="h6">{t("Title")}</Typography>
                   <Typography>{values.title}</Typography>
@@ -335,14 +318,18 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                 withResetValue={false}
                 onChange={async (e: OptionType) => {
                   let selectedValue: any = null;
+                  let selectedLabel: any = null;
                   if (e) {
                     selectedValue = (e as OptionTypeBase).value;
+                    selectedLabel = (e as OptionTypeBase).label;
                   }
                   setFieldValue("locationId", selectedValue);
+                  setFieldValue("locationName", selectedLabel);
                   setFieldValue("workDayScheduleId", "");
 
                   updateModel({
                     locationId: selectedValue,
+                    locationName: selectedLabel,
                     workDayScheduleId: "",
                   });
                 }}
@@ -439,6 +426,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                     ?.payCodeId ?? undefined
                 }
                 accountingCodes={accountingCodes}
+                vacancyReasons={vacancyReasons}
                 workDayScheduleVariant={locations
                   .find(l => l.id === values.locationId)
                   ?.workDaySchedules.find(
