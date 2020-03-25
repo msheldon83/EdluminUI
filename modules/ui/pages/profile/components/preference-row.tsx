@@ -1,26 +1,17 @@
 import * as React from "react";
 import { makeStyles, Checkbox, Grid } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { Formik } from "formik";
 import { useIsMobile } from "hooks";
-import {
-  NotificationPreferenceInput,
-  NotificationReason,
-} from "graphql/server-types.gen";
+import { NotificationPreferenceInput } from "graphql/server-types.gen";
 import clsx from "clsx";
 import { getDisplayName } from "ui/components/enumHelpers";
 
 type Props = {
-  notificationPreference: {
-    notificationReasonId: NotificationReason;
-    receiveEmailNotifications: boolean;
-    receiveSmsNotifications: boolean;
-    receiveInAppNotifications: boolean;
-  };
-  onUpdatePreference: (
-    notificationPreference: NotificationPreferenceInput
-  ) => Promise<any>;
+  notificationPreference: NotificationPreferenceInput;
+  onSubmit: () => Promise<any>;
+  setFieldValue: Function;
   shadeRow: boolean;
+  index: number;
 };
 
 export const PreferenceRow: React.FC<Props> = props => {
@@ -53,8 +44,11 @@ export const PreferenceRow: React.FC<Props> = props => {
             color="primary"
             checked={preference.receiveEmailNotifications}
             onChange={async e => {
-              preference.receiveEmailNotifications = e.target.checked;
-              await props.onUpdatePreference(preference);
+              props.setFieldValue(
+                `notificationPreferences[${props.index}].receiveEmailNotifications`,
+                e.target.checked
+              );
+              await props.onSubmit();
             }}
           />
         </Grid>
@@ -63,8 +57,11 @@ export const PreferenceRow: React.FC<Props> = props => {
             color="primary"
             checked={preference.receiveSmsNotifications}
             onChange={async e => {
-              preference.receiveSmsNotifications = e.target.checked;
-              await props.onUpdatePreference(preference);
+              props.setFieldValue(
+                `notificationPreferences[${props.index}].receiveSmsNotifications`,
+                e.target.checked
+              );
+              await props.onSubmit();
             }}
           />
         </Grid>
@@ -73,8 +70,11 @@ export const PreferenceRow: React.FC<Props> = props => {
             color="primary"
             checked={preference.receiveInAppNotifications}
             onChange={async e => {
-              preference.receiveInAppNotifications = e.target.checked;
-              await props.onUpdatePreference(preference);
+              props.setFieldValue(
+                `notificationPreferences[${props.index}].receiveInAppNotifications`,
+                e.target.checked
+              );
+              await props.onSubmit();
             }}
           />
         </Grid>

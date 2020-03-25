@@ -5,6 +5,7 @@ query GetNotificationReasons {
       name
       description
       appliesToRole
+      visibleToUser
     }
   }
 }

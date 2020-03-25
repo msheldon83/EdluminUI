@@ -15,6 +15,8 @@ import {
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useTranslation } from "react-i18next";
 import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
+import { useNotificationPreferencesForUser } from "./components/preference-helper";
+import { debounce } from "lodash-es";
 
 type Props = {};
 
@@ -92,15 +94,22 @@ export const ProfilePage: React.FC<Props> = props => {
     }
   };
 
-  const onUpdatePreferences = useCallback(
-    async (preferences: UserPreferencesInput) => {
-      await onUpdateUser({
-        id: myUser?.id ?? "",
-        rowVersion: myUser?.rowVersion ?? "",
-        preferences: preferences,
-      });
-    },
-    [myUser, onUpdateUser]
+  const onUpdatePreferences = debounce(
+    useCallback(
+      async (preferences: UserPreferencesInput) => {
+        await onUpdateUser({
+          id: myUser?.id ?? "",
+          rowVersion: myUser?.rowVersion ?? "",
+          preferences: preferences,
+        });
+      },
+      [myUser, onUpdateUser]
+    ),
+    3000
+  );
+
+  const notificationPreferencesForUser = useNotificationPreferencesForUser(
+    myUser?.preferences?.notificationPreferences ?? []
   );
 
   if (!myUser) {
@@ -117,7 +126,9 @@ export const ProfilePage: React.FC<Props> = props => {
       />
       {!myUser?.isSystemAdministrator && (
         <NotificationPreferences
-          user={myUser}
+          preferences={{
+            notificationPreferences: notificationPreferencesForUser,
+          }}
           onUpdatePreferences={onUpdatePreferences}
         />
       )}
