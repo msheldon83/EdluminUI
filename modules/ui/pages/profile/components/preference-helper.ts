@@ -12,6 +12,7 @@ import {
   NotificationReason,
   NotificationPreferenceInput,
 } from "graphql/server-types.gen";
+import { showPreference } from "./available-notifications";
 
 export const useNotificationPreferencesForUser = (
   notificationPreferences: NotificationPreferenceInput[]
@@ -39,7 +40,11 @@ export const useNotificationPreferencesForUser = (
   return useMemo(
     () =>
       notificationPreferences
-        .filter(x => uniqueIds.includes(x.notificationReasonId ?? ""))
+        .filter(
+          x =>
+            uniqueIds.includes(x.notificationReasonId ?? "") &&
+            showPreference(x.notificationReasonId)
+        )
         .sort((a, b) =>
           a.notificationReasonId.toString() > b.notificationReasonId.toString()
             ? 1

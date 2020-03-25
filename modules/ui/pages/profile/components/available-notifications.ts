@@ -83,17 +83,28 @@ const notificationsMap = [
 
 export const showPreference = (
   id: NotificationReason,
-  notificationType: string
+  notificationType?: string
 ) => {
   const notificationPreference: any = notificationsMap.find(x => x.id === id);
-  return !Config.isDevFeatureOnly ?? notificationPreference[notificationType];
+
+  if (Config.isDevFeatureOnly) return true;
+
+  return notificationType
+    ? notificationPreference[notificationType]
+    : notificationPreference.receiveEmailNotifications ||
+        notificationPreference.receiveInAppNotifications ||
+        notificationPreference.receiveSmsNotifications;
 };
 
 export const showInApp = () => {
+  if (Config.isDevFeatureOnly) return true;
+
   return notificationsMap.some(x => x.receiveInAppNotifications);
 };
 
 export const showAny = () => {
+  if (Config.isDevFeatureOnly) return true;
+
   return notificationsMap.some(
     x =>
       x.receiveEmailNotifications ||
