@@ -135,6 +135,8 @@ export const SmsLogIndex: React.FC<Props> = props => {
   );
   const smsCount = pagination.totalCount;
 
+  console.log(sms);
+
   return (
     <>
       <Grid
@@ -151,7 +153,7 @@ export const SmsLogIndex: React.FC<Props> = props => {
           <div className={classes.subHeader}>{user?.formattedPhone}</div>
           <div>
             {t(
-              "This is a log of text messages sent to a user informing them of an available job they can accept.  It does not include any reponses we sent back after they replied, initial welcome text, or notifications about being assigned or removed from a job."
+              "This is a log incoming & outgoing text messages sent to the user within a date range."
             )}
           </div>
         </Grid>
