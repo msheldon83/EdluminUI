@@ -1,9 +1,12 @@
 import { format, parseISO, isEqual, isSameDay, isBefore } from "date-fns";
 import {
   AbsenceDetail,
+  AbsenceDetailDr,
   VacancyDetail,
-  DailyReport as DailyReportType,
+  VacancyDetailDr,
+  DailyReportV2 as DailyReportType,
   Vacancy,
+  VacancyDr,
   Maybe,
 } from "graphql/server-types.gen";
 import { flatMap, groupBy } from "lodash-es";
@@ -93,8 +96,8 @@ export const MapDailyReportDetails = (
     }
 
     return a.details.map(d => {
-      const absenceDetail = d as AbsenceDetail;
-      const matchingVacancyDetails = getMatchingVacancyDetails(
+      const absenceDetail = d as AbsenceDetailDr;
+      const matchingVacancyDetails = getMatchingVacancyDetailsV2(
         absenceDetail,
         a.vacancies
       );
@@ -109,14 +112,14 @@ export const MapDailyReportDetails = (
         absenceRowVersion: a.rowVersion,
         vacancyRowVersion: matchingVacancyDetails[0]?.vacancyRowVersion,
         vacancyId: matchingVacancyDetails[0]?.vacancyId,
-        employee: a.employee
+        employee: a.teacher
           ? {
-              id: a.employee.id,
-              name: `${a.employee.firstName} ${a.employee.lastName}`,
-              lastName: a.employee.lastName,
+              id: a.teacher.id,
+              name: `${a.teacher.firstName} ${a.teacher.lastName}`,
+              lastName: a.teacher.lastName,
             }
           : undefined,
-        absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
+        absenceReason: absenceDetail.reasonUsages[0]?.absenceReason,
         date: parseISO(absenceDetail.startDate),
         dateRange: getRangeDisplayText(a.startDate, a.endDate),
         startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
@@ -126,11 +129,11 @@ export const MapDailyReportDetails = (
           "MMM d h:mm a"
         ),
         isMultiDay: a.details && a.details.length > 1,
-        substitute: assignment?.employee
+        substitute: assignment?.substitute
           ? {
-              id: assignment.employee.id,
-              name: `${assignment.employee.firstName} ${assignment.employee.lastName}`,
-              phone: assignment.employee.formattedPhone,
+              id: assignment.substitute.id,
+              name: `${assignment.substitute.firstName} ${assignment.substitute.lastName}`,
+              phone: assignment.substitute.formattedPhone,
             }
           : undefined,
         subTimes: !matchingVacancyDetails
@@ -147,8 +150,8 @@ export const MapDailyReportDetails = (
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
                 id: a.vacancies[0].position.id,
-                name: a.vacancies[0].position.title,
-                title: a.vacancies[0].position.title,
+                name: a.vacancies[0].position.name,
+                title: a.vacancies[0].position.name,
               }
             : undefined,
         positionType:
@@ -180,7 +183,7 @@ export const MapDailyReportDetails = (
     }
 
     return v.details.map(d => {
-      const vacancyDetail = d;
+      const vacancyDetail = d as VacancyDetailDr;
       return {
         id: v.id,
         detailId: vacancyDetail.id,
@@ -196,14 +199,14 @@ export const MapDailyReportDetails = (
           v.createdLocal,
           "MMM d h:mm a"
         ),
-        vacancyReason: vacancyDetail.vacancyReason?.name,
+        vacancyReason: vacancyDetail.vacancyReason,
         isMultiDay: v.details && v.details.length > 1,
         substitute:
-          vacancyDetail.assignment && vacancyDetail.assignment.employee
+          vacancyDetail.assignment && vacancyDetail.assignment.substitute
             ? {
-                id: vacancyDetail.assignment.employee.id,
-                name: `${vacancyDetail.assignment.employee.firstName} ${vacancyDetail.assignment.employee.lastName}`,
-                phone: vacancyDetail.assignment.employee.formattedPhone,
+                id: vacancyDetail.assignment.substitute.id,
+                name: `${vacancyDetail.assignment.substitute.firstName} ${vacancyDetail.assignment.substitute.lastName}`,
+                phone: vacancyDetail.assignment.substitute.formattedPhone,
               }
             : undefined,
         subTimes: [
@@ -217,8 +220,8 @@ export const MapDailyReportDetails = (
         position: v.position
           ? {
               id: v.position.id,
-              name: v.position.title,
-              title: v.position.title,
+              name: v.position.name,
+              title: v.position.name,
             }
           : undefined,
         positionType: v.position?.positionType
@@ -245,8 +248,8 @@ export const MapDailyReportDetails = (
     }
 
     return a.details.map(d => {
-      const absenceDetail = d as AbsenceDetail;
-      const matchingVacancyDetails = getMatchingVacancyDetails(
+      const absenceDetail = d as AbsenceDetailDr;
+      const matchingVacancyDetails = getMatchingVacancyDetailsV2(
         absenceDetail,
         a.vacancies
       );
@@ -260,14 +263,14 @@ export const MapDailyReportDetails = (
         absenceRowVersion: a.rowVersion,
         vacancyRowVersion: matchingVacancyDetails[0]?.vacancyRowVersion,
         vacancyId: matchingVacancyDetails[0]?.vacancyId,
-        employee: a.employee
+        employee: a.teacher
           ? {
-              id: a.employee.id,
-              name: `${a.employee.firstName} ${a.employee.lastName}`,
-              lastName: a.employee.lastName,
+              id: a.teacher.id,
+              name: `${a.teacher.firstName} ${a.teacher.lastName}`,
+              lastName: a.teacher.lastName,
             }
           : undefined,
-        absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
+        absenceReason: absenceDetail.reasonUsages[0]?.absenceReason,
         date: parseISO(absenceDetail.startDate),
         dateRange: getRangeDisplayText(a.startDate, a.endDate),
         startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
@@ -289,7 +292,7 @@ export const MapDailyReportDetails = (
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
                 id: a.vacancies[0].position.id,
-                name: a.vacancies[0].position.title,
+                name: a.vacancies[0].position.name,
               }
             : undefined,
         positionType:
@@ -319,7 +322,7 @@ export const MapDailyReportDetails = (
       return [];
     }
     return v.details.map(d => {
-      const vacancyDetail = d;
+      const vacancyDetail = d as VacancyDetailDr;
       return {
         id: v.id,
         detailId: vacancyDetail.id,
@@ -335,7 +338,7 @@ export const MapDailyReportDetails = (
           v.createdLocal,
           "MMM d h:mm a"
         ),
-        vacancyReason: vacancyDetail.vacancyReason?.name,
+        vacancyReason: vacancyDetail.vacancyReason,
         subTimes: [
           {
             startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
@@ -346,7 +349,7 @@ export const MapDailyReportDetails = (
         position: v.position
           ? {
               id: v.position.id,
-              name: v.position.title,
+              name: v.position.name,
             }
           : undefined,
         positionType: v.position?.positionType
@@ -405,7 +408,7 @@ export const MapDailyReportDetails = (
       }
 
       return a.details.map(d => {
-        const absenceDetail = d as AbsenceDetail;
+        const absenceDetail = d as AbsenceDetailDr;
 
         return {
           id: a.id,
@@ -413,14 +416,14 @@ export const MapDailyReportDetails = (
           state: "noSubRequired",
           type: "absence",
           absenceRowVersion: a.rowVersion,
-          employee: a.employee
+          employee: a.teacher
             ? {
-                id: a.employee.id,
-                name: `${a.employee.firstName} ${a.employee.lastName}`,
-                lastName: a.employee.lastName,
+                id: a.teacher.id,
+                name: `${a.teacher.firstName} ${a.teacher.lastName}`,
+                lastName: a.teacher.lastName,
               }
             : undefined,
-          absenceReason: absenceDetail.reasonUsages![0]?.absenceReason?.name,
+          absenceReason: absenceDetail.reasonUsages[0]?.absenceReason,
           date: parseISO(absenceDetail.startDate),
           dateRange: getRangeDisplayText(a.startDate, a.endDate),
           startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
@@ -541,6 +544,11 @@ type VacancyDetailWithVacancyInfo = VacancyDetail & {
   vacancyRowVersion: string;
 };
 
+type VacancyDetailWithVacancyInfoV2 = VacancyDetailDr & {
+  vacancyId: string;
+  vacancyRowVersion: string;
+};
+
 const getMatchingVacancyDetails = (
   absenceDetail: AbsenceDetail,
   vacancies: Maybe<Vacancy>[] | null | undefined
@@ -577,6 +585,44 @@ const getMatchingVacancyDetails = (
   });
 
   return sortedVacancyDetails as VacancyDetailWithVacancyInfo[];
+};
+
+const getMatchingVacancyDetailsV2 = (
+  absenceDetail: AbsenceDetailDr,
+  vacancies: Maybe<VacancyDr>[] | null | undefined
+): VacancyDetailWithVacancyInfoV2[] => {
+  if (!vacancies) {
+    return [];
+  }
+
+  const allVacancyDetails = flatMap(vacancies, v =>
+    v!.details.map(d => {
+      return {
+        ...(d as VacancyDetailDr),
+        vacancyRowVersion: v!.rowVersion,
+        vacancyId: v!.id,
+      };
+    })
+  );
+  const matchingVacancyDetails = allVacancyDetails.filter(
+    d =>
+      d && isSameDay(parseISO(d.startDate), parseISO(absenceDetail.startDate))
+  );
+
+  // Make sure we're returning the Vacancy Details sorted by their start time
+  const sortedVacancyDetails = matchingVacancyDetails.slice().sort((a, b) => {
+    const startTimeAsDateA = parseISO(a.startTimeLocal);
+    const startTimeAsDateB = parseISO(b.startTimeLocal);
+
+    if (isEqual(startTimeAsDateA, startTimeAsDateB)) {
+      // Fairly unlikely to occur
+      return 0;
+    }
+
+    return isBefore(startTimeAsDateA, startTimeAsDateB) ? -1 : 1;
+  });
+
+  return sortedVacancyDetails as VacancyDetailWithVacancyInfoV2[];
 };
 
 export const GetUnfilled = (details: Detail[]): Detail[] => {

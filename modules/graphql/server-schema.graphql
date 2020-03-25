@@ -2191,24 +2191,34 @@ enum NotificationMessageStatus {
 
 type NotificationPreference {
   _info: [ReturnMessage]
-  notificationReasonId: NotificationReason
+  notificationReasonId: NotificationReason!
   receiveInAppNotifications: Boolean!
   receiveEmailNotifications: Boolean!
-  includeInEmailDigest: Boolean!
+  receiveSmsNotifications: Boolean!
 }
 
 input NotificationPreferenceInput {
-  notificationReasonId: NotificationReason
+  notificationReasonId: NotificationReason!
   receiveInAppNotifications: Boolean!
   receiveEmailNotifications: Boolean!
-  includeInEmailDigest: Boolean!
+  receiveSmsNotifications: Boolean!
 }
 
 enum NotificationReason {
   INVALID
-  DIGEST
-  ABSENCE_ASSIGNED
+  JOB_AVAILABLE
+  JOB_CANCELLED
+  JOB_DETAILS_CHANGED
+  JOB_FILLED
+  ABSENCE_CREATED
+  ABSENCE_APPROVED
   ABSENCE_CANCELLED
+  ABSENCE_NEEDS_APPROVAL
+  ASSIGNMENTS_NEED_VERIFIED
+  UNFILLED_TODAY
+  SUB_ASSIGNED
+  SUB_CANCELLED
+  SUB_REMOVED
 }
 
 type ObjectReplacementCriteria {
@@ -3197,6 +3207,7 @@ enum PermissionEnum {
   USER_RESET_PASSWORD
   USER_CHANGE_EMAIL
   ORG_USER_INVITE
+  ORG_USER_IMPERSONATE
   CALENDAR_CHANGE_VIEW
   SCHOOL_YEAR_VIEW
   CALENDAR_CHANGE_SAVE
@@ -4029,6 +4040,7 @@ type RefNotificationReason {
   enumValue: NotificationReason
   name: String!
   description: String
+  appliesToRole: OrgUserRole
 }
 
 type RefObjectType {
@@ -4306,7 +4318,6 @@ type ReplacementPoolConfig implements ModelObjectInterface & OrgObjectInterface 
   maxLeadTimeMinutes: Int!
   minLeadTImeMinutes: Int!
   useWhenDayExceedsWorkMinutes: Int!
-  selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
 }
@@ -4319,7 +4330,6 @@ input ReplacementPoolConfigCreateInput {
   maxLeadTimeMinutes: Int!
   minLeadTImeMinutes: Int!
   useWhenDayExceedsWorkMinutes: Int!
-  selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
 }
@@ -4345,7 +4355,6 @@ input ReplacementPoolConfigUpdateInput {
   maxLeadTimeMinutes: Int
   minLeadTImeMinutes: Int
   useWhenDayExceedsWorkMinutes: Int
-  selectable: Boolean
   percentLeadTime: Int
   replacementPoolTypeId: ReplacementPoolType
 }
@@ -5007,16 +5016,10 @@ type UserMutations {
 
 type UserPreferences {
   _info: [ReturnMessage]
-  receiveEmailDigest: Boolean
-  emailDigestReceiveAll: Boolean
-  emailDigestReceiveTime: Seconds
-  notificationPreferences: [NotificationPreference]
+  notificationPreferences: [NotificationPreference!]!
 }
 
 input UserPreferencesInput {
-  receiveEmailDigest: Boolean
-  emailDigestReceiveAll: Boolean
-  emailDigestReceiveTime: Int
   notificationPreferences: [NotificationPreferenceInput]
 }
 
