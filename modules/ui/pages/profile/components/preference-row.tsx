@@ -5,6 +5,7 @@ import { useIsMobile } from "hooks";
 import { NotificationPreferenceInput } from "graphql/server-types.gen";
 import clsx from "clsx";
 import { getDisplayName } from "ui/components/enumHelpers";
+import { showPreference, showInApp } from "./available-notifications";
 
 type Props = {
   notificationPreference: NotificationPreferenceInput;
@@ -19,13 +20,15 @@ export const PreferenceRow: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
 
+  const showInAppColumn = showInApp();
+
   const preference = props.notificationPreference;
   return (
     <>
       <Grid
         container
         item
-        xs={6}
+        xs={isMobile ? 12 : 6}
         spacing={1}
         alignItems="center"
         className={clsx({
@@ -35,49 +38,66 @@ export const PreferenceRow: React.FC<Props> = props => {
         <Grid item xs={6}>
           {getDisplayName(
             "notificationReason",
-            props.notificationPreference.notificationReasonId,
+            preference.notificationReasonId,
             t
           )}
         </Grid>
-        <Grid item xs={2}>
-          <Checkbox
-            color="primary"
-            checked={preference.receiveEmailNotifications}
-            onChange={async e => {
-              props.setFieldValue(
-                `notificationPreferences[${props.index}].receiveEmailNotifications`,
-                e.target.checked
-              );
-              await props.onSubmit();
-            }}
-          />
+        <Grid item xs={showInAppColumn ? 2 : 3}>
+          {showPreference(
+            preference.notificationReasonId,
+            "receiveEmailNotifications"
+          ) && (
+            <Checkbox
+              color="primary"
+              checked={preference.receiveEmailNotifications}
+              onChange={async e => {
+                props.setFieldValue(
+                  `notificationPreferences[${props.index}].receiveEmailNotifications`,
+                  e.target.checked
+                );
+                await props.onSubmit();
+              }}
+            />
+          )}
         </Grid>
-        <Grid item xs={2}>
-          <Checkbox
-            color="primary"
-            checked={preference.receiveSmsNotifications}
-            onChange={async e => {
-              props.setFieldValue(
-                `notificationPreferences[${props.index}].receiveSmsNotifications`,
-                e.target.checked
-              );
-              await props.onSubmit();
-            }}
-          />
+        <Grid item xs={showInAppColumn ? 2 : 3}>
+          {showPreference(
+            preference.notificationReasonId,
+            "receiveSmsNotifications"
+          ) && (
+            <Checkbox
+              color="primary"
+              checked={preference.receiveSmsNotifications}
+              onChange={async e => {
+                props.setFieldValue(
+                  `notificationPreferences[${props.index}].receiveSmsNotifications`,
+                  e.target.checked
+                );
+                await props.onSubmit();
+              }}
+            />
+          )}
         </Grid>
-        <Grid item xs={2}>
-          <Checkbox
-            color="primary"
-            checked={preference.receiveInAppNotifications}
-            onChange={async e => {
-              props.setFieldValue(
-                `notificationPreferences[${props.index}].receiveInAppNotifications`,
-                e.target.checked
-              );
-              await props.onSubmit();
-            }}
-          />
-        </Grid>
+        {showInAppColumn && (
+          <Grid item xs={2}>
+            {showPreference(
+              preference.notificationReasonId,
+              "receiveInAppNotifications"
+            ) && (
+              <Checkbox
+                color="primary"
+                checked={preference.receiveInAppNotifications}
+                onChange={async e => {
+                  props.setFieldValue(
+                    `notificationPreferences[${props.index}].receiveInAppNotifications`,
+                    e.target.checked
+                  );
+                  await props.onSubmit();
+                }}
+              />
+            )}
+          </Grid>
+        )}
       </Grid>
     </>
   );
