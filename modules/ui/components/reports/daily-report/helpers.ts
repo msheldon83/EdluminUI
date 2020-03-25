@@ -106,7 +106,7 @@ export const MapDailyReportDetails = (
 
       return {
         id: a.id,
-        detailId: absenceDetail.absenceDetailId,
+        detailId: absenceDetail.id,
         state: "filled",
         type: "absence",
         absenceRowVersion: a.rowVersion,
@@ -114,7 +114,7 @@ export const MapDailyReportDetails = (
         vacancyId: matchingVacancyDetails[0]?.vacancyId,
         employee: a.teacher
           ? {
-              id: a.teacher.employeeId,
+              id: a.teacher.id,
               name: `${a.teacher.firstName} ${a.teacher.lastName}`,
               lastName: a.teacher.lastName,
             }
@@ -131,7 +131,7 @@ export const MapDailyReportDetails = (
         isMultiDay: a.details && a.details.length > 1,
         substitute: assignment?.substitute
           ? {
-              id: assignment.substitute.employeeId,
+              id: assignment.substitute.id,
               name: `${assignment.substitute.firstName} ${assignment.substitute.lastName}`,
               phone: assignment.substitute.phone,
             }
@@ -144,12 +144,12 @@ export const MapDailyReportDetails = (
                 endTime: format(parseISO(mvd.endTimeLocal), "h:mm a"),
               };
             }),
-        assignmentId: assignment?.assignmentId,
+        assignmentId: assignment?.id,
         assignmentRowVersion: assignment?.rowVersion,
         position:
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
-                id: a.vacancies[0].position.positionId,
+                id: a.vacancies[0].position.id,
                 name: a.vacancies[0].position.name,
                 title: a.vacancies[0].position.name,
               }
@@ -160,13 +160,13 @@ export const MapDailyReportDetails = (
           a.vacancies[0].position &&
           a.vacancies[0].position.positionType
             ? {
-                id: a.vacancies[0].position.positionType.positionTypeId,
+                id: a.vacancies[0].position.positionType.id,
                 name: a.vacancies[0].position.positionType.name,
               }
             : undefined,
         location: location
           ? {
-              id: location.locationId,
+              id: location.id,
               name: location.name,
             }
           : undefined,
@@ -186,7 +186,7 @@ export const MapDailyReportDetails = (
       const vacancyDetail = d as VacancyDetailDr;
       return {
         id: v.id,
-        detailId: vacancyDetail.vacancyDetailId,
+        detailId: vacancyDetail.id,
         state: "filled",
         type: "vacancy",
         vacancyRowVersion: v.rowVersion,
@@ -204,7 +204,7 @@ export const MapDailyReportDetails = (
         substitute:
           vacancyDetail.assignment && vacancyDetail.assignment.substitute
             ? {
-                id: vacancyDetail.assignment.substitute.employeeId,
+                id: vacancyDetail.assignment.substitute.id,
                 name: `${vacancyDetail.assignment.substitute.firstName} ${vacancyDetail.assignment.substitute.lastName}`,
                 phone: vacancyDetail.assignment.substitute.phone,
               }
@@ -215,24 +215,24 @@ export const MapDailyReportDetails = (
             endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
           },
         ],
-        assignmentId: vacancyDetail?.assignment?.assignmentId,
+        assignmentId: vacancyDetail?.assignment?.id,
         assignmentRowVersion: vacancyDetail?.assignment?.rowVersion,
         position: v.position
           ? {
-              id: v.position.positionId,
+              id: v.position.id,
               name: v.position.name,
               title: v.position.name,
             }
           : undefined,
         positionType: v.position?.positionType
           ? {
-              id: v.position?.positionType.positionTypeId,
+              id: v.position?.positionType.id,
               name: v.position?.positionType.name,
             }
           : undefined,
         location: vacancyDetail.location
           ? {
-              id: vacancyDetail.location.locationId,
+              id: vacancyDetail.location.id,
               name: vacancyDetail.location.name,
             }
           : undefined,
@@ -257,7 +257,7 @@ export const MapDailyReportDetails = (
 
       return {
         id: a.id,
-        detailId: absenceDetail.absenceDetailId,
+        detailId: absenceDetail.id,
         state: "unfilled",
         type: "absence",
         absenceRowVersion: a.rowVersion,
@@ -265,7 +265,7 @@ export const MapDailyReportDetails = (
         vacancyId: matchingVacancyDetails[0]?.vacancyId,
         employee: a.teacher
           ? {
-              id: a.teacher.employeeId,
+              id: a.teacher.id,
               name: `${a.teacher.firstName} ${a.teacher.lastName}`,
               lastName: a.teacher.lastName,
             }
@@ -291,7 +291,7 @@ export const MapDailyReportDetails = (
         position:
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
-                id: a.vacancies[0].position.positionId,
+                id: a.vacancies[0].position.id,
                 name: a.vacancies[0].position.name,
               }
             : undefined,
@@ -301,13 +301,13 @@ export const MapDailyReportDetails = (
           a.vacancies[0].position &&
           a.vacancies[0].position.positionType
             ? {
-                id: a.vacancies[0].position.positionType.positionTypeId,
+                id: a.vacancies[0].position.positionType.id,
                 name: a.vacancies[0].position.positionType.name,
               }
             : undefined,
         location: location
           ? {
-              id: location.locationId,
+              id: location.id,
               name: location.name,
             }
           : undefined,
@@ -325,7 +325,7 @@ export const MapDailyReportDetails = (
       const vacancyDetail = d as VacancyDetailDr;
       return {
         id: v.id,
-        detailId: vacancyDetail.vacancyDetailId,
+        detailId: vacancyDetail.id,
         state: "unfilled",
         type: "vacancy",
         vacancyRowVersion: v.rowVersion,
@@ -348,19 +348,19 @@ export const MapDailyReportDetails = (
         isMultiDay: v.details && v.details.length > 1,
         position: v.position
           ? {
-              id: v.position.positionId,
+              id: v.position.id,
               name: v.position.name,
             }
           : undefined,
         positionType: v.position?.positionType
           ? {
-              id: v.position?.positionType.positionTypeId,
+              id: v.position?.positionType.id,
               name: v.position?.positionType.name,
             }
           : undefined,
         location: vacancyDetail.location
           ? {
-              id: vacancyDetail.location.locationId,
+              id: vacancyDetail.location.id,
               name: vacancyDetail.location.name,
             }
           : undefined,
@@ -382,7 +382,7 @@ export const MapDailyReportDetails = (
       if (a.positionTypes) {
         if (a.positionTypes.length === 1) {
           positionType = {
-            id: a.positionTypes[0]!.positionTypeId,
+            id: a.positionTypes[0]!.id,
             name: a.positionTypes[0]!.name,
           };
         } else if (a.positionTypes.length > 1) {
@@ -397,7 +397,7 @@ export const MapDailyReportDetails = (
       if (a.locations) {
         if (a.locations.length === 1) {
           location = {
-            id: a.locations[0]!.locationId,
+            id: a.locations[0]!.id,
             name: a.locations[0]!.name,
           };
         } else if (a.locations.length > 1) {
@@ -412,13 +412,13 @@ export const MapDailyReportDetails = (
 
         return {
           id: a.id,
-          detailId: absenceDetail.absenceDetailId,
+          detailId: absenceDetail.id,
           state: "noSubRequired",
           type: "absence",
           absenceRowVersion: a.rowVersion,
           employee: a.teacher
             ? {
-                id: a.teacher.employeeId,
+                id: a.teacher.id,
                 name: `${a.teacher.firstName} ${a.teacher.lastName}`,
                 lastName: a.teacher.lastName,
               }
