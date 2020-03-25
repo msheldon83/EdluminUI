@@ -35,7 +35,7 @@ import { getInitials } from "ui/components/helpers";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { TextButton } from "ui/components/text-button";
-import { ResetPassword } from "ui/pages/profile/ResetPassword.gen";
+import { ResetPassword } from "ui/pages/profile/graphql/ResetPassword.gen";
 import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
 import { GetOrgUserLastLogin } from "../graphql/get-orguser-lastlogin.gen";
