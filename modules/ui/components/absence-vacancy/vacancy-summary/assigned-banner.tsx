@@ -120,6 +120,7 @@ export const AssignedBanner: React.FC<Props> = props => {
               disabled={disableActions}
               variant={"outlined"}
               onClick={onRemoveClick}
+              className={classes.removeButton}
             >
               {t("Remove")}
             </Button>
@@ -164,5 +165,8 @@ export const useStyles = makeStyles(theme => ({
   },
   reassignButton: {
     marginRight: theme.typography.pxToRem(5),
+  },
+  removeButton: {
+    color: "#C62822",
   },
 }));
