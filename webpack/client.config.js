@@ -176,7 +176,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "../dist"),
     publicPath: "/",
-    filename: config.get("minify") ? "client.[chunkhash].js" : "client.js",
+    filename: config.get("minify") ? "client.[hash].js" : "client.js",
     chunkFilename: config.get("minify") ? "[name].[hash].js" : "[name].js",
     pathinfo: false,
   },
