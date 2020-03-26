@@ -700,7 +700,9 @@ const initialState = (props: Props): EditAbsenceState => ({
   employeeId: props.employeeId,
   absenceId: props.absenceId,
   viewingCalendarMonth: startOfMonth(props.absenceDates[0]),
-  needsReplacement: props.needsReplacement !== NeedsReplacement.No,
+  needsReplacement:
+    props.needsReplacement !== NeedsReplacement.No ||
+    props.initialVacancies.length > 0,
   absenceDates: props.absenceDates,
   customizedVacanciesInput: undefined,
 });

@@ -10,7 +10,7 @@ import {
 import { format, isFuture, startOfToday } from "date-fns";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
-  DailyReport as DailyReportType,
+  DailyReportV2 as DailyReportType,
   PermissionEnum,
   FeatureFlag,
 } from "graphql/server-types.gen";
@@ -40,7 +40,7 @@ import { DailyReportSection } from "./daily-report-section";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
 import { CancelAssignment } from "./graphql/cancel-assignment.gen";
-import { GetDailyReport } from "./graphql/get-daily-report.gen";
+import { GetDailyReportV2 } from "./graphql/get-daily-report-v2.gen";
 import { GetTotalAwaitingVerificationCountForSchoolYear } from "./graphql/get-total-awaiting-verification-count-school-year.gen";
 import { GetTotalContractedEmployeeCount } from "./graphql/get-total-employee-count.gen";
 import { SwapVacancyAssignments } from "./graphql/swap-subs.gen";
@@ -120,12 +120,8 @@ export const DailyReport: React.FC<Props> = props => {
     }
   }, [selectedCard, props.date]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const serverQueryFilters = useMemo(() => filters, [
-    filters.date,
-    filters.locationIds,
-    filters.positionTypeIds,
-  ]);
-  const getDailyReport = useQueryBundle(GetDailyReport, {
+  const serverQueryFilters = useMemo(() => filters, [filters]);
+  const getDailyReport = useQueryBundle(GetDailyReportV2, {
     variables: {
       date: serverQueryFilters.date,
       locationIds: serverQueryFilters.locationIds,
@@ -156,7 +152,7 @@ export const DailyReport: React.FC<Props> = props => {
   const dailyReportDetails = (getDailyReport.state === "LOADING" ||
   getDailyReport.state === "UPDATING"
     ? undefined
-    : getDailyReport.data?.absence?.dailyReport) as DailyReportType;
+    : getDailyReport.data?.absence?.dailyReportV2) as DailyReportType;
 
   let allDetails: Detail[] = [];
   let groupedDetails: DetailGroup[] = [];
@@ -175,7 +171,6 @@ export const DailyReport: React.FC<Props> = props => {
     groupedDetails = mappedDetails.groups;
   }
 
-  const totalCount = dailyReportDetails?.totalCount ?? 0;
   const totalContractedEmployeeCount = useMemo(() => {
     if (
       !(
