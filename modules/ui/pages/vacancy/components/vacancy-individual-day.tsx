@@ -104,7 +104,10 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     } else {
       return "custom";
     }
-  }, [timeOptions]); /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, [
+    vacancyDetail,
+    timeOptions,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const updateVacancyDetailTimes = React.useCallback(
     (timeId: string) => {
@@ -125,7 +128,10 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
         setVacancyDetailTimes(newVacDetail);
       }
     },
-    [dayParts] /* eslint-disable-line react-hooks/exhaustive-deps */
+    [
+      vacancyDetail,
+      dayParts,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const handleSetStartTime = (t: string, valid: boolean) => {
