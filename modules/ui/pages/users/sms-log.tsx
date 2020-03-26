@@ -36,7 +36,6 @@ export const SmsLogIndex: React.FC<Props> = props => {
   const user =
     getUser.state === "LOADING" ? undefined : getUser?.data?.user?.byId;
 
-  //Changed to Text Messages
   const [getSmsLog, pagination] = usePagedQueryBundle(
     GetSmsLogForUser,
     r => r.employee?.employeeSmsLogLocal?.totalCount,
@@ -48,82 +47,51 @@ export const SmsLogIndex: React.FC<Props> = props => {
       },
     }
   );
-
   const columns: Column<GetSmsLogForUser.Results>[] = [
     {
-      title: t("Created Local"),
-      render: data => {
-        if (data.createdLocal) {
-          return format(new Date(data.createdLocal), "MMM d, h:mm:ss a");
-        } else {
-          return t("Not available");
-        }
+      title: t("Date"),
+      defaultSort: "asc",
+      field: "createdLocal",
+      render: d => {
+        const value = Date.parse(d.createdLocal);
+        return new Date(value).toLocaleDateString();
+      },
+    },
+    {
+      title: t("Time"),
+      defaultSort: "asc",
+      field: "createdLocal",
+      render: d => {
+        const clearSeconds = new Date(Date.parse(d.createdLocal));
+        return new Date(clearSeconds).toLocaleTimeString();
       },
     },
     {
       title: t("Body"),
-      render: data => {
-        if (data.body) {
-          return getDisplayName("body", data.body, t);
-        } else {
-          return t("No body");
-        }
-      },
+      field: "body",
+      searchable: false,
+      hidden: isMobile,
     },
     {
-      title: t("Error message"),
-      render: data => {
-        if (data.errorMessage) {
-          return getDisplayName("errorMessage", data.errorMessage, t);
-        } else {
-          return t("No errors");
-        }
-      },
+      title: t("From Phone"),
+      field: "fromPhone",
+      searchable: false,
+      hidden: isMobile,
+    },
+    {
+      title: t("To Phone"),
+      field: "toPhone",
+      searchable: false,
+      hidden: isMobile,
     },
     {
       title: t("Status"),
-      render: data => {
-        if (data.status) {
-          return getDisplayName("status", data.status, t);
-        } else {
-          return t("No status");
-        }
+      render: d => {
+        if (d.status)
+          return d.status.charAt(0).toUpperCase() + d.status.slice(1);
+        else return t("No Status");
       },
     },
-    {
-      title: t("Updated Local"),
-      render: data => {
-        if (data.updateLocal) {
-          return format(new Date(data.updateLocal), "MMM d, h:mm:ss a");
-        } else {
-          return t("No updates");
-        }
-      },
-    },
-    // {
-    //   title: t("Replied at"),
-    //   render: data => {
-    //     if (data.repliedAtUtc) {
-    //       return format(new Date(data.repliedAtUtc), "MMM d, h:mm:ss a");
-    //     } else {
-    //       return t("No reply");
-    //     }
-    //   },
-    // },
-    // {
-    //   title: t("Response"),
-    //   render: data => {
-    //     if (data.jobNotificationResponse) {
-    //       return getDisplayName(
-    //         "jobNotificationResponse",
-    //         data.jobNotificationResponse,
-    //         t
-    //       );
-    //     } else {
-    //       return t("No response");
-    //     }
-    //   },
-    // },
   ];
 
   if (getSmsLog.state === "LOADING") {
@@ -134,8 +102,6 @@ export const SmsLogIndex: React.FC<Props> = props => {
     getSmsLog?.data?.employee?.employeeSmsLogLocal?.results ?? []
   );
   const smsCount = pagination.totalCount;
-
-  console.log(sms);
 
   return (
     <>
