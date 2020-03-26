@@ -372,7 +372,6 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   /* we want to default the newly added day to the first vac reason*/
   useEffect(
     () => {
-      console.log("me");
       if (vacancyDays.length > 0 && vacancyReasonOptions.length > 0) {
         let update = false;
         const vacReasonId =
