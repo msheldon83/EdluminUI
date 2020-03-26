@@ -2363,14 +2363,14 @@ enum NotificationMessageStatus {
 
 type NotificationPreference {
   _info: [ReturnMessage]
-  notificationReasonId: NotificationReason
+  notificationReasonId: NotificationReason!
   receiveInAppNotifications: Boolean!
   receiveEmailNotifications: Boolean!
   receiveSmsNotifications: Boolean!
 }
 
 input NotificationPreferenceInput {
-  notificationReasonId: NotificationReason
+  notificationReasonId: NotificationReason!
   receiveInAppNotifications: Boolean!
   receiveEmailNotifications: Boolean!
   receiveSmsNotifications: Boolean!
@@ -5436,6 +5436,7 @@ type UserAccess {
   user: User
   isSystemAdministrator: Boolean!
   visibleOrganizations: [Organization]
+  actualUser: User
 }
 
 type UserAccessQueries {
@@ -5508,7 +5509,7 @@ type UserMutations {
 
 type UserPreferences {
   _info: [ReturnMessage]
-  notificationPreferences: [NotificationPreference]
+  notificationPreferences: [NotificationPreference!]!
 }
 
 input UserPreferencesInput {

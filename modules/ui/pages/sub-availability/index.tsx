@@ -14,6 +14,7 @@ export const SubAvailabilityPage: React.FC<{}> = props => {
 
   const userAccess = useMyUserAccess();
   const user = userAccess?.me?.user;
+  const actualUser = userAccess?.me?.actualUser;
   const history = useHistory();
 
   const isImpersonating = useIsImpersonating();
@@ -22,7 +23,7 @@ export const SubAvailabilityPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  if (isImpersonating) {
+  if (isImpersonating && !actualUser?.isSystemAdministrator) {
     history.push("/");
   }
 
