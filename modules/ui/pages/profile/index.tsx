@@ -84,6 +84,22 @@ export const ProfilePage: React.FC<Props> = props => {
     }
   };
 
+  const onVerifyPhoneNumber = async () => {
+    console.log("here");
+    //  const response = await resetPassword({
+    //    variables: { resetPasswordInput: { id: myUser?.id ?? "" } },
+    //  });
+    //  const result = response?.data?.user?.resetPassword;
+    //  if (result) {
+    //    openSnackbar({
+    //      message: t("Phone Number could not be validated"),
+    //      dismissable: true,
+    //      status: "success",
+    //      autoHideDuration: 5000,
+    //    });
+    //  }
+  };
+
   if (!myUser) {
     return <></>;
   }
@@ -92,6 +108,7 @@ export const ProfilePage: React.FC<Props> = props => {
     <ProfileBasicInfo
       user={myUser}
       onUpdateLoginEmail={onUpdateLoginEmail}
+      onVerifyPhoneNumber={onVerifyPhoneNumber}
       onUpdateUser={onUpdateUser}
       onResetPassword={onResetPassword}
     />

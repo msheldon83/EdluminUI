@@ -31,6 +31,7 @@ type Props = {
     stopSmsUntilUtc?: string | null;
     suspendSmsUntilUtc?: string | null;
   };
+  onVerifyPhoneNumber: () => Promise<any>;
   onUpdateLoginEmail: (loginEmail: string) => Promise<any>;
   onUpdateUser: (updatedUser: UserUpdateInput) => Promise<any>;
   onResetPassword: () => Promise<any>;
@@ -175,6 +176,19 @@ export const ProfileBasicInfo: React.FC<Props> = props => {
                       }}
                     />
                   </Grid>
+                  {!props.user.phoneIsValidForSms &&
+                    props.user.phone === values.phone && (
+                      <Grid item xs={12}>
+                        <div className={classes.verifyButton}>
+                          <Button
+                            onClick={props.onVerifyPhoneNumber}
+                            variant="contained"
+                          >
+                            {t("Verify Phone Number")}
+                          </Button>
+                        </div>
+                      </Grid>
+                    )}
                 </Grid>
                 <Grid
                   container
@@ -309,6 +323,11 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     marginTop: theme.spacing(2),
     justifyContent: "flex-end",
+  },
+  verifyButton: {
+    display: "flex",
+    marginTop: theme.spacing(2),
+    justifyContent: "flex-start",
   },
   field: {
     display: "flex",
