@@ -89,7 +89,7 @@ export const ProfilePage: React.FC<Props> = props => {
     //  const response = await resetPassword({
     //    variables: { resetPasswordInput: { id: myUser?.id ?? "" } },
     //  });
-    //  const result = response?.data?.user?.resetPassword;
+    //  const result = response?.data?.user?.verifyPhoneNumber;
     //  if (result) {
     //    openSnackbar({
     //      message: t("Phone Number could not be validated"),
