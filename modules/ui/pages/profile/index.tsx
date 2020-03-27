@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
 import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";
-
 type Props = {};
 
 export const ProfilePage: React.FC<Props> = props => {
@@ -40,6 +39,12 @@ export const ProfilePage: React.FC<Props> = props => {
   });
 
   const [resetPassword] = useMutationBundle(ResetPassword, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [verifyPhoneNumber] = useMutationBundle(VerifyPhoneNumber, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -88,17 +93,11 @@ export const ProfilePage: React.FC<Props> = props => {
     }
   };
 
-  const isImpersonating = useIsImpersonating();
-
-  if (isImpersonating && !actualUser?.isSystemAdministrator) {
-    history.push("/");
-  }
-
   const onVerifyPhoneNumber = async () => {
     console.log("here");
-    //  const response = await resetPassword({
-    //    variables: { resetPasswordInput: { id: myUser?.id ?? "" } },
-    //  });
+    const response = await verifyPhoneNumber({
+      variables: { resetPasswordInput: { phoneNumber: myUser?.phone } },
+    });
     //  const result = response?.data?.user?.verifyPhoneNumber;
     //  if (result) {
     //    openSnackbar({
@@ -109,6 +108,12 @@ export const ProfilePage: React.FC<Props> = props => {
     //    });
     //  }
   };
+
+  const isImpersonating = useIsImpersonating();
+
+  if (isImpersonating && !actualUser?.isSystemAdministrator) {
+    history.push("/");
+  }
 
   if (!myUser) {
     return <></>;
