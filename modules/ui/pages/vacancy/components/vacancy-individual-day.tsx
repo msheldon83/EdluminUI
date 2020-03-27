@@ -104,7 +104,10 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     } else {
       return "custom";
     }
-  }, [timeOptions]); /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, [
+    vacancyDetail,
+    timeOptions,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const updateVacancyDetailTimes = React.useCallback(
     (timeId: string) => {
@@ -125,7 +128,10 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
         setVacancyDetailTimes(newVacDetail);
       }
     },
-    [props, dayParts] /* eslint-disable-line react-hooks/exhaustive-deps */
+    [
+      vacancyDetail,
+      dayParts,
+    ] /* eslint-disable-line react-hooks/exhaustive-deps */
   );
 
   const handleSetStartTime = (t: string, valid: boolean) => {
@@ -174,6 +180,19 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     [vacancyDetail.startTime, vacancyDetail.endTime]
   );
 
+  const selectedVacancyReason = useMemo(() => {
+    let vacancyReason = vacancyReasonOptions.find(
+      a => a.value === vacancyDetail.vacancyReasonId
+    );
+    if (!vacancyReason && vacancyReasonOptions.length > 0) {
+      vacancyReason = vacancyReasonOptions[0];
+    }
+    return {
+      value: vacancyReason?.value ?? "",
+      label: vacancyReason?.label ?? "",
+    };
+  }, [vacancyReasonOptions, vacancyDetail.vacancyReasonId]);
+
   return (
     <Grid container justify="space-between" spacing={2}>
       <Grid item xs={9}>
@@ -195,16 +214,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
             label={t("Vacancy reason")}
             options={vacancyReasonOptions}
             disabled={disableReason}
-            value={{
-              value:
-                vacancyDetail.vacancyReasonId ?? vacancyReasonOptions[0].value,
-              label:
-                vacancyReasonOptions.find(a =>
-                  vacancyDetail.vacancyReasonId
-                    ? a.value === vacancyDetail.vacancyReasonId
-                    : a.value === vacancyReasonOptions[0].value
-                )?.label || "",
-            }}
+            value={selectedVacancyReason}
             onChange={async (e: OptionType) => {
               let selectedValue: any = null;
               if (e) {
