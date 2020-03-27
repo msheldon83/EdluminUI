@@ -360,7 +360,7 @@ export const VacancyUI: React.FC<Props> = props => {
     label =
       vacancy.locationId !== "" && locations.length !== 0
         ? `${label}, ${locations.find((l: any) => l.id === vacancy.locationId)
-            .name ?? ""}`
+            ?.name ?? ""}`
         : label;
     return vacancy.positionTypeId === "" ? "" : label;
   };
@@ -401,7 +401,7 @@ export const VacancyUI: React.FC<Props> = props => {
           if (!vacancyExists) {
             if (createVacancy) {
               const result = await createVacancy(vacancy);
-              if (result.data) {
+              if (result?.data) {
                 const createdVacancy = result.data.vacancy?.create;
                 setVacancy({
                   ...vacancy,

@@ -149,24 +149,36 @@ export const VacancyDetailSection: React.FC<Props> = props => {
       !values.workDayScheduleId ||
       (values.title === undefined && positionTypes)
     ) {
-      setFieldValue(
-        "locationId",
-        !values.locationId ? locationOptions[0].value : values.locationId
-      );
-      setFieldValue(
-        "locationName",
-        !values.locationName ? locationOptions[0].label : values.locationName
-      );
-      setFieldValue(
-        "contractId",
-        !values.contractId ? contracts[0].id : values.contractId
-      );
-      setFieldValue(
-        "workDayScheduleId",
-        !values.workDayScheduleId
-          ? bellScheduleOptions[0].value
-          : values.workDayScheduleId
-      );
+      if (locationOptions[0]?.value) {
+        setFieldValue(
+          "locationId",
+          !values.locationId ? locationOptions[0].value : values.locationId
+        );
+      }
+
+      if (locationOptions[0]?.label) {
+        setFieldValue(
+          "locationName",
+          !values.locationName ? locationOptions[0].label : values.locationName
+        );
+      }
+
+      if (contracts[0]?.id) {
+        setFieldValue(
+          "contractId",
+          !values.contractId ? contracts[0]?.id : values.contractId
+        );
+      }
+
+      if (bellScheduleOptions[0]?.value) {
+        setFieldValue(
+          "workDayScheduleId",
+          !values.workDayScheduleId
+            ? bellScheduleOptions[0]?.value
+            : values.workDayScheduleId
+        );
+      }
+
       setFieldValue(
         "title",
         !values.title
@@ -176,14 +188,14 @@ export const VacancyDetailSection: React.FC<Props> = props => {
       );
       const model = {
         locationId: !values.locationId
-          ? locationOptions[0].value
+          ? locationOptions[0]?.value
           : values.locationId,
         locationName: !values.locationName
-          ? locationOptions[0].label
+          ? locationOptions[0]?.label
           : values.locationName,
-        contractId: !values.contractId ? contracts[0].id : values.contractId,
+        contractId: !values.contractId ? contracts[0]?.id : values.contractId,
         workDayScheduleId: !values.workDayScheduleId
-          ? bellScheduleOptions[0].value
+          ? bellScheduleOptions[0]?.value
           : values.workDayScheduleId,
         title: !values.title
           ? positionTypes.find(pt => pt.id === values.positionTypeId)?.name ??
@@ -192,7 +204,13 @@ export const VacancyDetailSection: React.FC<Props> = props => {
       };
       updateModel(model);
     }
-  }, [values]); /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, [
+    values.locationId,
+    values.locationName,
+    values.contractId,
+    values.workDayScheduleId,
+    values.title,
+  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   return (
     <>
@@ -306,11 +324,11 @@ export const VacancyDetailSection: React.FC<Props> = props => {
               <Select
                 placeholder={t("Please select a School")}
                 value={{
-                  value: values.locationId ?? locationOptions[0].value,
+                  value: values.locationId ?? "",
                   label:
                     locationOptions.find(
                       (a: any) => a.value === values.locationId
-                    )?.label || locationOptions[0].label,
+                    )?.label ?? "",
                 }}
                 options={locationOptions}
                 multiple={false}
@@ -354,12 +372,11 @@ export const VacancyDetailSection: React.FC<Props> = props => {
               <>
                 <Select
                   value={{
-                    value:
-                      values.workDayScheduleId ?? bellScheduleOptions[0].value,
+                    value: values.workDayScheduleId ?? "",
                     label:
                       bellScheduleOptions.find(
                         (a: any) => a.value === values.workDayScheduleId
-                      )?.label || bellScheduleOptions[0].label,
+                      )?.label ?? "",
                   }}
                   options={bellScheduleOptions}
                   multiple={false}
@@ -382,35 +399,40 @@ export const VacancyDetailSection: React.FC<Props> = props => {
               <>
                 <Typography variant="h6">{t("Bell Schedule")}</Typography>
                 <Typography>
-                  {bellScheduleOptions.find(
-                    (a: any) => a.value === values.workDayScheduleId
-                  )?.label || bellScheduleOptions[0].label}
+                  {
+                    bellScheduleOptions.find(
+                      (a: any) => a.value === values.workDayScheduleId
+                    )?.label
+                  }
                 </Typography>
               </>
             )}
           </Grid>
         )}
 
-        {values.positionTypeId !== "" && (
-          <Grid item container xs={12} className={classes.rowContainer}>
-            <Grid item xs={8}>
-              <label>Dates</label>
-              <Typography>{buildDateLabel}</Typography>
-            </Grid>
-            {!readOnly && (
-              <Grid item xs={4}>
-                <Button
-                  onClick={() => {
-                    setIsSelectDatesOpen(true);
-                  }}
-                  variant="contained"
-                >
-                  {t("Select Dates")}
-                </Button>
+        {values.positionTypeId !== "" &&
+          values.contractId !== "" &&
+          values.locationId !== "" &&
+          values.workDayScheduleId !== "" && (
+            <Grid item container xs={12} className={classes.rowContainer}>
+              <Grid item xs={8}>
+                <label>Dates</label>
+                <Typography>{buildDateLabel}</Typography>
               </Grid>
-            )}
-          </Grid>
-        )}
+              {!readOnly && (
+                <Grid item xs={4}>
+                  <Button
+                    onClick={() => {
+                      setIsSelectDatesOpen(true);
+                    }}
+                    variant="contained"
+                  >
+                    {t("Select Dates")}
+                  </Button>
+                </Grid>
+              )}
+            </Grid>
+          )}
 
         {values.positionTypeId !== "" &&
           !readOnly &&
