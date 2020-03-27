@@ -50,6 +50,7 @@ export const SmsLogIndex: React.FC<Props> = props => {
     {
       title: t("Date"),
       defaultSort: "asc",
+      sorting: false,
       field: "createdLocal",
       render: d => {
         const value = Date.parse(d.createdLocal);
@@ -59,6 +60,7 @@ export const SmsLogIndex: React.FC<Props> = props => {
     {
       title: t("Time"),
       defaultSort: "asc",
+      sorting: false,
       field: "createdLocal",
       render: d => {
         const clearSeconds = new Date(Date.parse(d.createdLocal));
@@ -68,23 +70,27 @@ export const SmsLogIndex: React.FC<Props> = props => {
     {
       title: t("Body"),
       field: "body",
+      sorting: false,
       searchable: false,
       hidden: isMobile,
     },
     {
       title: t("From Phone"),
       field: "fromPhone",
+      sorting: false,
       searchable: false,
       hidden: isMobile,
     },
     {
       title: t("To Phone"),
       field: "toPhone",
+      sorting: false,
       searchable: false,
       hidden: isMobile,
     },
     {
       title: t("Status"),
+      sorting: false,
       render: d => {
         if (d.status)
           return d.status.charAt(0).toUpperCase() + d.status.slice(1);
