@@ -8,7 +8,7 @@ import {
   FormControlLabel,
 } from "@material-ui/core";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useIsMobile, useDeferredState } from "hooks";
+import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,10 +35,9 @@ import { Table } from "ui/components/table";
 import { OrgUser } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { UserNotificationLogRoute } from "ui/routes/notification-log";
+import { UserSmsLogRoute } from "ui/routes/sms-log";
 
-type Props = {};
-
-export const UserViewPage: React.FC<Props> = props => {
+export const UserViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
@@ -296,6 +295,20 @@ export const UserViewPage: React.FC<Props> = props => {
           <div className={classes.action}>
             <Button
               variant="outlined"
+              onClick={() =>
+                history.push(
+                  UserSmsLogRoute.generate({
+                    userId: params.userId,
+                  })
+                )
+              }
+            >
+              {t("View sms log")}
+            </Button>
+          </div>
+          <div className={classes.action}>
+            <Button
+              variant="outlined"
               onClick={async () => {
                 await inviteUser({ variables: { userId: params.userId } });
                 await getUser.refetch();
@@ -314,7 +327,16 @@ export const UserViewPage: React.FC<Props> = props => {
               {t("Reset Password")}
             </Button>
           </div>
-          <div className={classes.action}>
+        </Grid>
+      </Grid>
+      <Grid
+        container
+        justify="flex-end"
+        alignItems="flex-start"
+        direction="row"
+      >
+        <Grid item className={classes.actionContainer}>
+          <div className={(classes.action, classes.rowPadding)}>
             <Button
               variant="outlined"
               disabled={
@@ -328,7 +350,6 @@ export const UserViewPage: React.FC<Props> = props => {
           </div>
         </Grid>
       </Grid>
-
       <Section>
         <Formik
           initialValues={{
@@ -553,6 +574,9 @@ const useStyles = makeStyles(theme => ({
   },
   action: {
     marginLeft: theme.spacing(2),
+  },
+  rowPadding: {
+    paddingBottom: theme.spacing(2),
   },
   header: {
     marginBottom: theme.spacing(),

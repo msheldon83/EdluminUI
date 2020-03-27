@@ -17,15 +17,19 @@ import { useTranslation } from "react-i18next";
 import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
 import { useNotificationPreferencesForUser } from "./components/preference-helper";
 import { debounce } from "lodash-es";
+import { useIsImpersonating } from "reference-data/is-impersonating";
+import { useHistory } from "react-router";
 
 type Props = {};
 
 export const ProfilePage: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
+  const history = useHistory();
 
   const myUserAccess = useMyUserAccess();
   const user = myUserAccess?.me?.user;
+  const actualUser = myUserAccess?.me?.actualUser;
 
   const getMyUser = useQueryBundle(GetUserById, {
     variables: {
@@ -111,6 +115,12 @@ export const ProfilePage: React.FC<Props> = props => {
   const notificationPreferencesForUser = useNotificationPreferencesForUser(
     myUser?.preferences?.notificationPreferences ?? []
   );
+
+  const isImpersonating = useIsImpersonating();
+
+  if (isImpersonating && !actualUser?.isSystemAdministrator) {
+    history.push("/");
+  }
 
   if (!myUser) {
     return <></>;

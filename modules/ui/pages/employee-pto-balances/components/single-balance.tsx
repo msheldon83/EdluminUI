@@ -23,9 +23,9 @@ export const SingleBalance: React.FC<Props> = props => {
       ? t("Days")
       : t("Hours");
 
-  const usedBalance = round(props.usedBalance, 1);
-  const plannedBalance = round(props.plannedBalance, 1);
-  const remainingBalance = round(props.remainingBalance, 1);
+  const usedBalance = round(props.usedBalance, 2);
+  const plannedBalance = round(props.plannedBalance, 2);
+  const remainingBalance = round(props.remainingBalance, 2);
 
   const usedPercentage = usedBalance / props.initialBalance;
   const plannedPercentage = plannedBalance / props.initialBalance;

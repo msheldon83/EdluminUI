@@ -142,49 +142,77 @@ export const PersonViewHeader: React.FC<Props> = props => {
 
   const editable = props.editing === null;
 
-  // setup 3 dot menu actions
-  const menuActions = [];
-  if (props.selectedRole === OrgUserRole.Employee && orgUser.active) {
-    menuActions.push({
-      name: t("Create Absence"),
-      onClick: () => {
-        history.push(
-          AdminCreateAbsenceRoute.generate({
-            organizationId: props.orgId,
-            employeeId: props.orgUser.id,
-          })
-        );
-      },
-      permissions: [PermissionEnum.AbsVacSave],
-    });
-  }
-  menuActions.push({
-    name: t("Change History"),
-    onClick: () => {},
-  });
-  menuActions.push({
-    name: orgUser.active ? t("Inactivate") : t("Activate"),
-    onClick: async () => {
-      await props.onSaveOrgUser({
-        rowVersion: orgUser.rowVersion,
-        id: orgUser.id,
-        active: !orgUser.active,
+  const buildActionMenu = React.useCallback(() => {
+    // setup 3 dot menu actions
+    const menuActions = [];
+    if (props.selectedRole === OrgUserRole.Employee && orgUser.active) {
+      menuActions.push({
+        name: t("Create Absence"),
+        onClick: () => {
+          history.push(
+            AdminCreateAbsenceRoute.generate({
+              organizationId: props.orgId,
+              employeeId: orgUser.id,
+            })
+          );
+        },
+        permissions: [PermissionEnum.AbsVacSave],
       });
-    },
-    permissions: canEditThisOrgUser,
-  });
-  if (orgUser.userId && orgUser.active && !orgUser.isShadowRecord) {
+    }
+    if (orgUser.active) {
+      menuActions.push({
+        name: t("Impersonate"),
+        onClick: async () => await triggerImpersonation(),
+        permissions: [PermissionEnum.OrgUserImpersonate],
+      });
+    }
     menuActions.push({
-      name: inviteSent ? t("Resend Invitation") : t("Invite"),
-      onClick: invite,
-      permissions: [PermissionEnum.OrgUserInvite],
+      name: t("Change History"),
+      onClick: () => {},
     });
-  }
-  menuActions.push({
-    name: t("Delete"),
-    onClick: props.deleteOrgUser,
-    permissions: canDeleteThisOrgUser,
-  });
+    menuActions.push({
+      name: orgUser.active ? t("Inactivate") : t("Activate"),
+      onClick: async () => {
+        await props.onSaveOrgUser({
+          rowVersion: orgUser.rowVersion,
+          id: orgUser.id,
+          active: !orgUser.active,
+        });
+      },
+      permissions: canEditThisOrgUser,
+    });
+    if (orgUser.userId && orgUser.active && !orgUser.isShadowRecord) {
+      menuActions.push({
+        name: inviteSent ? t("Resend Invitation") : t("Invite"),
+        onClick: invite,
+        permissions: [PermissionEnum.OrgUserInvite],
+      });
+    }
+    menuActions.push({
+      name: t("Delete"),
+      onClick: props.deleteOrgUser,
+      permissions: canDeleteThisOrgUser,
+    });
+
+    return menuActions;
+    /* eslint-disable-next-line */
+  }, [props.selectedRole, orgUser, props.orgId]);
+
+  const triggerImpersonation = async () => {
+    // Set userId in sessionStorage
+    if (orgUser.userId) {
+      sessionStorage.setItem(
+        Config.impersonation.actingUserIdKey,
+        orgUser.userId
+      );
+      sessionStorage.setItem(
+        Config.impersonation.actingOrgUserIdKey,
+        orgUser.id
+      );
+      // Redirect current user to homepage
+      history.push("/");
+    }
+  };
 
   return (
     <>
@@ -228,7 +256,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
           });
         }}
         onCancel={() => props.setEditing(null)}
-        actions={menuActions}
+        actions={buildActionMenu()}
         isInactive={!orgUser.active}
         inactiveDisplayText={t("This person is currently inactive.")}
         onActivate={async () => {

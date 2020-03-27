@@ -12,6 +12,7 @@ import { useMemo, useCallback } from "react";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { Close } from "@material-ui/icons";
 import { useHistory } from "react-router";
+import { useIsImpersonating } from "reference-data/is-impersonating";
 
 type Props = {};
 
@@ -37,10 +38,8 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
   }, [userAccess]);
 
   // Figure out if we are currently impersonating or not
-  const actingUserId = sessionStorage.getItem(
-    Config.impersonation.actingUserIdKey
-  );
-  const isImpersonating = useMemo(() => !!actingUserId, [actingUserId]);
+  const isImpersonating = useIsImpersonating();
+
   if (!isImpersonating) {
     return <></>;
   }
