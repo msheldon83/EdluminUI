@@ -60,7 +60,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     );
   }, [useSameTime, useSameReason, useSamePayCode, useSameAccountingCode]);
 
-  const handelSetDayVacReasonValue = React.useCallback(
+  const handleSetDayVacReasonValue = React.useCallback(
     (vacDetail: VacancyDetailItem) => {
       const newVacancyDays = vacancyDays.slice();
       newVacancyDays.forEach((vd, i) => {
@@ -80,10 +80,10 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       updateModel({ details: newVacancyDays });
     },
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [vacancyDays, props.vacancyDays, useSameReason]
+    [vacancyDays, useSameReason]
   );
 
-  const handelSetDayTimesValue = React.useCallback(
+  const handleSetDayTimesValue = React.useCallback(
     (vacDetail: VacancyDetailItem) => {
       const newVacancyDays = vacancyDays.slice();
       newVacancyDays.forEach((vd, i) => {
@@ -105,7 +105,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       updateModel({ details: newVacancyDays });
     },
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [vacancyDays, props.vacancyDays, useSameTime]
+    [vacancyDays, useSameTime]
   );
 
   const handleSetPayCodeValue = React.useCallback(
@@ -130,7 +130,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       updateModel({ details: newVacancyDays });
     },
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [vacancyDays, props.vacancyDays, useSamePayCode]
+    [vacancyDays, useSamePayCode]
   );
 
   const handleSetAccountingCodeValue = React.useCallback(
@@ -162,7 +162,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       updateModel({ details: newVacancyDays });
     },
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [vacancyDays, props.vacancyDays, useSameAccountingCode]
+    [vacancyDays, useSameAccountingCode]
   );
 
   const handleSameForAllVacReasonCheck = React.useCallback(
@@ -183,7 +183,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setUseSameReason(value);
     },
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [vacancyDays, props.vacancyDays]
+    [vacancyDays]
   );
 
   const handleSameForAllPayCodeCheck = React.useCallback(
@@ -206,7 +206,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setUseSamePayCode(value);
     },
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [vacancyDays, props.vacancyDays]
+    [vacancyDays]
   );
 
   const handleSameForAllAccountingCodeCheck = React.useCallback(
@@ -227,7 +227,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setUseSameAccountingCode(value);
     },
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [vacancyDays, props.vacancyDays]
+    [vacancyDays]
   );
 
   const handleSameForAllVTimeCheck = React.useCallback(
@@ -250,7 +250,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setUseSameTime(value);
     },
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [vacancyDays, props.vacancyDays]
+    [vacancyDays]
   );
 
   const vacancyReasonOptions = useMemo(() => {
@@ -309,7 +309,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       return partsArray;
     },
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [props, workDayScheduleVariant]
+    [workDayScheduleVariant]
   );
 
   /* Use this effect for existing vacancies that will have existing days */
@@ -372,7 +372,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   /* we want to default the newly added day to the first vac reason*/
   useEffect(
     () => {
-      if (vacancyDays.length > 0) {
+      if (vacancyDays.length > 0 && vacancyReasonOptions.length > 0) {
         let update = false;
         const vacReasonId =
           vacancyDays[0].vacancyReasonId ?? vacancyReasonOptions[0]?.value;
@@ -382,7 +382,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
             update = true;
           } else {
             if (!vacancyDays[i].vacancyReasonId) {
-              vacancyDays[i].vacancyReasonId = vacancyReasonOptions[0]?.value;
+              vacancyDays[i].vacancyReasonId =
+                vacancyReasonOptions[0]?.value ?? "";
               update = true;
             }
           }
@@ -523,8 +524,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
             defaultPayCodeId={defaultPayCodeId}
             accountingCodeOptions={accountingCodeOptions}
             dayParts={dayParts}
-            setVacancyDetailReason={handelSetDayVacReasonValue}
-            setVacancyDetailTimes={handelSetDayTimesValue}
+            setVacancyDetailReason={handleSetDayVacReasonValue}
+            setVacancyDetailTimes={handleSetDayTimesValue}
             setVacancyPayCode={handleSetPayCodeValue}
             setVacancyAccountingCode={handleSetAccountingCodeValue}
             showCopyPaste={false}
@@ -623,8 +624,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                   defaultPayCodeId={defaultPayCodeId}
                   accountingCodeOptions={accountingCodeOptions}
                   dayParts={dayParts}
-                  setVacancyDetailReason={handelSetDayVacReasonValue}
-                  setVacancyDetailTimes={handelSetDayTimesValue}
+                  setVacancyDetailReason={handleSetDayVacReasonValue}
+                  setVacancyDetailTimes={handleSetDayTimesValue}
                   setVacancyPayCode={handleSetPayCodeValue}
                   setVacancyAccountingCode={handleSetAccountingCodeValue}
                   showCopyPaste={false}

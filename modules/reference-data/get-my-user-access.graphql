@@ -3,6 +3,10 @@ query GetMyUserAccess {
     me {
       id
       isSystemAdministrator
+      actualUser {
+        id
+        isSystemAdministrator
+      }
       user {
         id
         rowVersion
@@ -49,6 +53,7 @@ query GetMyUserAccess {
             createdUtc
           }
           substitute {
+            id
             firstName
             lastName
             permissions

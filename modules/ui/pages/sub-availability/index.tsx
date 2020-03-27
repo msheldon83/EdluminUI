@@ -6,15 +6,25 @@ import { RegularSchedule } from "./components/regular-schedule";
 import { Exceptions } from "./components/exceptions";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { parseISO } from "date-fns";
+import { useIsImpersonating } from "reference-data/is-impersonating";
+import { useHistory } from "react-router";
 
 export const SubAvailabilityPage: React.FC<{}> = props => {
   const { t } = useTranslation();
 
   const userAccess = useMyUserAccess();
   const user = userAccess?.me?.user;
+  const actualUser = userAccess?.me?.actualUser;
+  const history = useHistory();
+
+  const isImpersonating = useIsImpersonating();
 
   if (!user) {
     return <></>;
+  }
+
+  if (isImpersonating && !actualUser?.isSystemAdministrator) {
+    history.push("/");
   }
 
   const userCreatedDate = parseISO(user.createdUtc);

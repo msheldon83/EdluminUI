@@ -264,7 +264,12 @@ import {
   UserNotificationLogRoute,
   UserNotificationLogLoader,
 } from "./routes/notification-log";
+import { UserSmsLogRoute, UserSmsLogLoader } from "./routes/sms-log";
 import { AppConfigProvider } from "hooks/app-config";
+import {
+  endImpersonationRoute,
+  EndImpersonationLoader,
+} from "./routes/end-impersonate";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -318,7 +323,11 @@ export const App = hot(function() {
                         component={ProfileLoader}
                         path={ProfileRoute.path}
                       />
-
+                      <Route
+                        exact
+                        path={endImpersonationRoute.path}
+                        component={EndImpersonationLoader}
+                      />
                       {/* Page under construction */}
                       <Route component={TbdLoader} path={tbd.path} />
 
@@ -464,6 +473,11 @@ export const App = hot(function() {
                             <ProtectedRoute
                               component={UserNotificationLogLoader}
                               path={UserNotificationLogRoute.path}
+                              role={"sysAdmin"}
+                            />
+                            <ProtectedRoute
+                              component={UserSmsLogLoader}
+                              path={UserSmsLogRoute.path}
                               role={"sysAdmin"}
                             />
                             <ProtectedRoute
