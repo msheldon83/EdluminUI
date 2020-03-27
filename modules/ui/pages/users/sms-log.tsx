@@ -124,7 +124,7 @@ export const SmsLogIndex: React.FC<Props> = props => {
           <div className={classes.subHeader}>{user?.formattedPhone}</div>
           <div>
             {t(
-              "This is a log incoming & outgoing text messages sent to the user within a date range."
+              "This is a log of incoming & outgoing text messages sent to the user within a date range."
             )}
           </div>
         </Grid>
