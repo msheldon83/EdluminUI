@@ -264,6 +264,7 @@ import {
   UserNotificationLogRoute,
   UserNotificationLogLoader,
 } from "./routes/notification-log";
+import { UserSmsLogRoute, UserSmsLogLoader } from "./routes/sms-log";
 import { AppConfigProvider } from "hooks/app-config";
 import {
   endImpersonationRoute,
@@ -472,6 +473,11 @@ export const App = hot(function() {
                             <ProtectedRoute
                               component={UserNotificationLogLoader}
                               path={UserNotificationLogRoute.path}
+                              role={"sysAdmin"}
+                            />
+                            <ProtectedRoute
+                              component={UserSmsLogLoader}
+                              path={UserSmsLogRoute.path}
                               role={"sysAdmin"}
                             />
                             <ProtectedRoute
