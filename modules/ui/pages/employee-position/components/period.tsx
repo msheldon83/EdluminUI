@@ -71,10 +71,12 @@ export const PeriodUI: React.FC<Props> = props => {
       })
     );
 
-    const options = bellSchedules.map(p => ({
-      label: p?.name ?? "",
-      value: p?.id ?? "",
-    }));
+    const options = bellSchedules
+      .map(p => ({
+        label: p?.name ?? "",
+        value: p?.id ?? "",
+      }))
+      .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
     options.push({ label: t("Custom"), value: "custom" });
     return options;
   }, [props.bellSchedules, t, period.locationId, period.locationGroupId]);
@@ -227,6 +229,7 @@ export const PeriodUI: React.FC<Props> = props => {
             withResetValue={false}
             inputStatus={bellScheduleError ? "error" : "default"}
             validationMessage={bellScheduleError}
+            doSort={false}
           />
         </Grid>
         <Grid container item xs={6} spacing={2} alignItems="center">
