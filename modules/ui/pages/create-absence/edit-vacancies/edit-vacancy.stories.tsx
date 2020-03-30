@@ -19,6 +19,7 @@ const formVacancyValues: VacancyDetail[] = [
     endTime: "2019-11-15T12:00:00" as any,
     locationId: "1013",
     payCodeId: "2313",
+    isClosed: false,
   },
   {
     vacancyDetailId: "2",
@@ -27,6 +28,7 @@ const formVacancyValues: VacancyDetail[] = [
     endTime: "2019-11-18T12:00:00" as any,
     locationId: "1013",
     payCodeId: "4365",
+    isClosed: false,
   },
 ];
 

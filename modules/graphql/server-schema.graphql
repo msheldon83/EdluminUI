@@ -24,6 +24,7 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   totalDuration: Int!
   totalDayPortion: Decimal!
   details: [AbsenceDetail]
+  closedDetails: [AbsenceDetail]
   employee: Employee
   vacancies: [Vacancy]
   locationIds: [ID!]!
@@ -64,6 +65,7 @@ type AbsenceDetail implements ModelObjectInterface & OrgObjectInterface {
   dayPartId: DayPart
   dayPortion: Decimal!
   description: String
+  isClosed: Boolean
   reasonUsages: [AbsenceReasonUsage]
 }
 
@@ -128,7 +130,7 @@ type AbsenceMutations {
 }
 
 type AbsenceQueries {
-  byId(id: ID!): Absence
+  byId(id: ID!, includeDeleted: Boolean): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(
     orgId: ID
@@ -1605,7 +1607,7 @@ type EmployeeQueries {
     orgId: ID
     limit: Int
     offset: Int
-  ): [SmsMessageLog]
+  ): PagedSmsMessageLog
   employeeSmsLogLocal(
     id: ID!
     fromTime: DateTime!
@@ -1613,7 +1615,7 @@ type EmployeeQueries {
     orgId: ID
     limit: Int
     offset: Int
-  ): [SmsMessageLog]
+  ): PagedSmsMessageLog
   employeeSmsLogUtc(
     id: ID!
     fromTime: DateTime!
@@ -1621,7 +1623,7 @@ type EmployeeQueries {
     orgId: ID
     limit: Int
     offset: Int
-  ): [SmsMessageLog]
+  ): PagedSmsMessageLog
 }
 
 input EmployeeRejectVacancyInput {
@@ -3317,6 +3319,15 @@ type PagedSchoolYear {
   totalCount: Int
 }
 
+type PagedSmsMessageLog {
+  _info: [ReturnMessage]
+  results: [SmsMessageLog]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedSubJobSearch {
   _info: [ReturnMessage]
   results: [SubJobSearch]
@@ -3506,6 +3517,7 @@ enum PermissionEnum {
   ABS_VAC_VIEW_ACCOUNT_CODE
   ABS_VAC_VIEW_PAY_CODE
   ABS_VAC_VIEW_NOTIFICATION_LOG
+  ABS_VAC_VIEW_CLOSED_DAYS
   ABS_VAC_SAVE
   ABS_VAC_DELETE
   ABS_VAC_REMOVE_SUB
@@ -5436,7 +5448,7 @@ type UserAccess {
   user: User
   isSystemAdministrator: Boolean!
   visibleOrganizations: [Organization]
-  actualUser: User
+  actualUser: UserAccess
 }
 
 type UserAccessQueries {
@@ -5607,6 +5619,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   totalDayPortion: Decimal!
   fillStatus: FillStatus!
   details: [VacancyDetail!]!
+  closedDetails: [VacancyDetail]
   requestedEmployees: [VacancyEmployeeRequest]
   interestedEmployees: [VacancyEmployeeInterest]
   position: Position
@@ -5676,6 +5689,7 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   vacancyReasonId: ID
   vacancyReason: VacancyReason
   vacancy: BasicVacancy
+  isClosed: Boolean
   totalDayPortion: Decimal
   payInfo: PayInfo
 }
@@ -5862,7 +5876,7 @@ enum VacancyQualification {
 }
 
 type VacancyQueries {
-  byId(id: ID!): Vacancy
+  byId(id: ID!, includeDeleted: Boolean): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(
     orgId: ID

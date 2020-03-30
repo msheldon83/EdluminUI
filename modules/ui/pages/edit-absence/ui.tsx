@@ -11,6 +11,7 @@ import {
   NeedsReplacement,
   PermissionEnum,
   Vacancy,
+  AbsenceDetail,
 } from "graphql/server-types.gen";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
@@ -59,6 +60,7 @@ import { useHistory } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
+import Maybe from "graphql/tsutils/Maybe";
 
 type Props = {
   firstName: string;
@@ -98,6 +100,9 @@ type Props = {
   onDelete: () => void;
   returnUrl?: string;
   assignmentsByDate: AssignmentOnDate[];
+  closedDates?:
+    | Maybe<Pick<AbsenceDetail, "id" | "startDate"> | null | undefined>[]
+    | null;
 };
 
 type EditAbsenceFormData = {
@@ -649,6 +654,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                   ? projectedAbsenceUsage
                   : initialAbsenceUsageData
               }
+              closedDates={props.closedDates}
             />
           </Section>
         </form>

@@ -191,10 +191,9 @@ export const EditAbsence: React.FC<Props> = props => {
   );
 
   const initialVacancyDetails: VacancyDetail[] = useMemo(() => {
-    if (absence.state !== "DONE") {
+    if (absence.state !== "DONE" || !absence.data.absence?.byId) {
       return [];
     }
-
     const absenceDetails = absence.data.absence?.byId?.details;
 
     return compact(
@@ -225,6 +224,7 @@ export const EditAbsence: React.FC<Props> = props => {
             assignmentEmployeeId: d.assignment?.employee?.id,
             assignmentEmployeeFirstName: d.assignment?.employee?.firstName,
             assignmentEmployeeLastName: d.assignment?.employee?.lastName,
+            isClosed: d.isClosed ?? false,
           };
         });
       })
@@ -232,7 +232,7 @@ export const EditAbsence: React.FC<Props> = props => {
   }, [absence]);
 
   const assignmentsByDate: AssignmentOnDate[] = useMemo(() => {
-    if (absence.state !== "DONE") {
+    if (absence.state !== "DONE" || !absence.data.absence?.byId) {
       return [];
     }
 
@@ -374,6 +374,7 @@ export const EditAbsence: React.FC<Props> = props => {
         refetchAbsence={absence.refetch}
         onDelete={onClickDelete}
         assignmentsByDate={assignmentsByDate}
+        closedDates={data.closedDetails}
       />
     </>
   );

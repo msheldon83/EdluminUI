@@ -52,6 +52,7 @@ export type Detail = {
   endTime: string;
   created: string;
   isMultiDay: boolean;
+  isClosed: boolean;
   substitute?: {
     id: string;
     name: string;
@@ -109,6 +110,7 @@ export const MapDailyReportDetails = (
         detailId: absenceDetail.id,
         state: "filled",
         type: "absence",
+        isClosed: absenceDetail.isClosed,
         absenceRowVersion: a.rowVersion,
         vacancyRowVersion: matchingVacancyDetails[0]?.vacancyRowVersion,
         vacancyId: matchingVacancyDetails[0]?.vacancyId,
@@ -189,6 +191,7 @@ export const MapDailyReportDetails = (
         detailId: vacancyDetail.id,
         state: "filled",
         type: "vacancy",
+        isClosed: vacancyDetail.isClosed,
         vacancyRowVersion: v.rowVersion,
         vacancyId: v.id,
         date: parseISO(vacancyDetail.startDate),
@@ -260,6 +263,7 @@ export const MapDailyReportDetails = (
         detailId: absenceDetail.id,
         state: "unfilled",
         type: "absence",
+        isClosed: absenceDetail.isClosed,
         absenceRowVersion: a.rowVersion,
         vacancyRowVersion: matchingVacancyDetails[0]?.vacancyRowVersion,
         vacancyId: matchingVacancyDetails[0]?.vacancyId,
@@ -327,6 +331,7 @@ export const MapDailyReportDetails = (
         id: v.id,
         detailId: vacancyDetail.id,
         state: "unfilled",
+        isClosed: vacancyDetail.isClosed,
         type: "vacancy",
         vacancyRowVersion: v.rowVersion,
         vacancyId: v.id,
@@ -416,6 +421,7 @@ export const MapDailyReportDetails = (
           state: "noSubRequired",
           type: "absence",
           absenceRowVersion: a.rowVersion,
+          isClosed: absenceDetail.isClosed,
           employee: a.teacher
             ? {
                 id: a.teacher.id,

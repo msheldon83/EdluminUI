@@ -1,8 +1,12 @@
 query GetAbsence($id: ID!) {
   absence {
-    byId(id: $id) {
+    byId(id: $id, includeDeleted: true) {
       id
       rowVersion
+      closedDetails {
+        id
+        startDate
+      }
       details {
         id
         actualDuration
@@ -11,6 +15,7 @@ query GetAbsence($id: ID!) {
         endDate
         endTimeLocal
         dayPartId
+        isClosed
         reasonUsages {
           id
           amount
@@ -70,6 +75,7 @@ query GetAbsence($id: ID!) {
         }
         details {
           id
+          isClosed
           startDate
           endDate
           startTimeLocal
