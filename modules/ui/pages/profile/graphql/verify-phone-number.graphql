@@ -2,6 +2,7 @@ mutation VerifyPhoneNumber($phoneNumber: String!, $orgId: ID) {
   user {
     verifyPhoneNumber(phoneNumber: $phoneNumber, orgId: $orgId) {
       id
+      phone
     }
   }
 }

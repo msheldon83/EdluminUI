@@ -11,6 +11,7 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 import { useTranslation } from "react-i18next";
 import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
 import { VerifyPhoneNumber } from "ui/pages/profile/graphql/verify-phone-number.gen";
+import { AlertBox } from "ui/components/alert";
 import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";
 type Props = {};
@@ -19,6 +20,8 @@ export const ProfilePage: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
   const history = useHistory();
+  const [open, setOpen] = React.useState(false);
+  const [message, setMessage] = React.useState("");
 
   const myUserAccess = useMyUserAccess();
   const user = myUserAccess?.me?.user;
@@ -95,22 +98,20 @@ export const ProfilePage: React.FC<Props> = props => {
   };
 
   const onVerifyPhoneNumber = async () => {
-    const phoneNumber = myUser?.phone;
-
     const response = await verifyPhoneNumber({
-      variables: { phoneNumber: phoneNumber ?? "" },
+      variables: { phoneNumber: myUser?.phone ?? "" },
     });
+    const phoneNumber = response.data?.user?.verifyPhoneNumber?.phone;
 
-    openSnackbar({
-      message: t(
-        "We have sent a message to " +
-          phoneNumber +
-          " to confirm that everything is working. If you do not receive that message in the next few minutes, please confirm that your number is a valid mobile number that can receive text message."
-      ),
-      dismissable: true,
-      status: "info",
-      autoHideDuration: 10000,
-    });
+    setOpen(true);
+    setMessage(
+      t(
+        `We have sent a message to ${phoneNumber} to confirm that everything is 
+          working. If you do not receive that message in the next few minutes, 
+          please confirm that your number is a valid mobile number that can 
+          receive text message.`
+      )
+    );
   };
 
   const isImpersonating = useIsImpersonating();
@@ -124,12 +125,23 @@ export const ProfilePage: React.FC<Props> = props => {
   }
 
   return (
-    <ProfileBasicInfo
-      user={myUser}
-      onUpdateLoginEmail={onUpdateLoginEmail}
-      onVerifyPhoneNumber={onVerifyPhoneNumber}
-      onUpdateUser={onUpdateUser}
-      onResetPassword={onResetPassword}
-    />
+    <>
+      <div>
+        <AlertBox
+          title={t("Alert")}
+          message={message}
+          setOpen={setOpen}
+          open={open}
+        />
+      </div>
+
+      <ProfileBasicInfo
+        user={myUser}
+        onUpdateLoginEmail={onUpdateLoginEmail}
+        onVerifyPhoneNumber={onVerifyPhoneNumber}
+        onUpdateUser={onUpdateUser}
+        onResetPassword={onResetPassword}
+      />
+    </>
   );
 };
