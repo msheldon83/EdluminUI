@@ -5018,12 +5018,12 @@ type UserMutations {
   changeLoginEmail(loginEmailChange: UserLoginEmailChangeInput!): User
   delete(id: ID!): Boolean
   resetPassword(userInfo: ResetUserPasswordInput!): User
-  verifyPhoneNumber(phoneNumber: String!): Boolean
   acceptEula: User
   invite(idsToInvite: [ID]!, orgId: ID, inviteSynchronously: Boolean): Boolean
   saveAvailableTime(availableTime: UserAvailableTimeInput!): UserAvailableTime
   saveUnavailableTime(unavailableTime: UserUnavailableTimeInput!): UserUnavailableTime
   deleteUnavailableTime(id: ID!): Boolean
+  verifyPhoneNumber(orgId: ID, phoneNumber: String!): User
 }
 
 type UserPreferences {

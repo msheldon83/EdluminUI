@@ -1,8 +1,7 @@
-mutation VerifyPhoneNumber($phoneNumber: String!) {
+mutation VerifyPhoneNumber($phoneNumber: String!, $orgId: ID) {
   user {
-    verifyPhoneNumber(phoneNumber: $phoneNumber) {
+    verifyPhoneNumber(phoneNumber: $phoneNumber, orgId: $orgId) {
       id
-      rowVersion
     }
   }
 }

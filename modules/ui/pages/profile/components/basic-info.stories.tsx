@@ -20,6 +20,7 @@ export const Basic = () => {
           phone: "610-555-1212",
           timeZoneId: "EASTERN_STANDARD_TIME_US_CANADA" as any,
         }}
+        onVerifyPhoneNumber={(): any => {}}
         onUpdateLoginEmail={(): any => {}}
         onResetPassword={(): any => {}}
         onUpdateUser={(): any => {}}

@@ -10,6 +10,7 @@ import { UserUpdateInput } from "graphql/server-types.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useTranslation } from "react-i18next";
 import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
+import { VerifyPhoneNumber } from "ui/pages/profile/graphql/verify-phone-number.gen";
 import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";
 type Props = {};
@@ -94,19 +95,22 @@ export const ProfilePage: React.FC<Props> = props => {
   };
 
   const onVerifyPhoneNumber = async () => {
-    console.log("here");
+    const phoneNumber = myUser?.phone;
+
     const response = await verifyPhoneNumber({
-      variables: { resetPasswordInput: { phoneNumber: myUser?.phone } },
+      variables: { phoneNumber: phoneNumber ?? "" },
     });
-    //  const result = response?.data?.user?.verifyPhoneNumber;
-    //  if (result) {
-    //    openSnackbar({
-    //      message: t("Phone Number could not be validated"),
-    //      dismissable: true,
-    //      status: "success",
-    //      autoHideDuration: 5000,
-    //    });
-    //  }
+
+    openSnackbar({
+      message: t(
+        "We have sent a message to " +
+          phoneNumber +
+          " to confirm that everything is working. If you do not receive that message in the next few minutes, please confirm that your number is a valid mobile number that can receive text message."
+      ),
+      dismissable: true,
+      status: "info",
+      autoHideDuration: 10000,
+    });
   };
 
   const isImpersonating = useIsImpersonating();
