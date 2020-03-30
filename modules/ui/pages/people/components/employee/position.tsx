@@ -91,15 +91,17 @@ export const Position: React.FC<Props> = props => {
       <Section>
         <SectionHeader
           title={t("Position")}
-          action={{
-            text: t("Edit"),
-            visible: !props.editing,
-            execute: () => {
-              props.setEditing(editableSections.empPosition);
-              history.push(PeopleEmployeePositionEditRoute.generate(params));
+          actions={[
+            {
+              text: t("Edit"),
+              visible: !props.editing,
+              execute: () => {
+                props.setEditing(editableSections.empPosition);
+                history.push(PeopleEmployeePositionEditRoute.generate(params));
+              },
+              permissions: [PermissionEnum.EmployeeSave],
             },
-            permissions: [PermissionEnum.EmployeeSave],
-          }}
+          ]}
           submit={{
             text: t("Save"),
             visible: props.editing === editableSections.empPosition,

@@ -74,16 +74,18 @@ export const UpcomingAbsences: React.FC<Props> = props => {
     <Section>
       <SectionHeader
         title={t("Upcoming Absences")}
-        action={{
-          text: t("View All"),
-          visible: true,
-          execute: () => {
-            const viewAllAbsencesScheduleUrl = EmployeeAbsScheduleListViewRoute.generate(
-              params
-            );
-            history.push(viewAllAbsencesScheduleUrl);
+        actions={[
+          {
+            text: t("View All"),
+            visible: true,
+            execute: () => {
+              const viewAllAbsencesScheduleUrl = EmployeeAbsScheduleListViewRoute.generate(
+                params
+              );
+              history.push(viewAllAbsencesScheduleUrl);
+            },
           },
-        }}
+        ]}
       />
       <ScheduledAbsences
         absences={employeeAbsenceDetails.slice(0, 5)}

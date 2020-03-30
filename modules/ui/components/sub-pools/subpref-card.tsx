@@ -43,14 +43,16 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
       <Section>
         <SectionHeader
           title={t(props.heading)}
-          action={{
-            text: t("Edit"),
-            visible: !props.editing,
-            execute: () => {
-              history.push(props.editRoute);
+          actions={[
+            {
+              text: t("Edit"),
+              visible: !props.editing,
+              execute: () => {
+                history.push(props.editRoute);
+              },
+              permissions: props.editPermission,
             },
-            permissions: props.editPermission,
-          }}
+          ]}
         />
 
         <Grid container spacing={2}>
