@@ -124,10 +124,6 @@ export const EdluminTheme = createMuiTheme({
           borderColor: themeColors.black,
           borderWidth: pxToRem(1),
         },
-        "&$active $notchedOutline": {
-          borderColor: themeColors.black,
-          borderWidth: pxToRem(1),
-        },
       },
     },
     MuiButton: {
