@@ -1,6 +1,12 @@
-mutation VerifyPhoneNumber($phoneNumber: String!, $orgId: ID) {
+mutation VerifyPhoneNumber(
+  $phoneNumber: String!
+  $phoneIsValidForSms: Boolean
+) {
   user {
-    verifyPhoneNumber(phoneNumber: $phoneNumber, orgId: $orgId) {
+    verifyPhoneNumber(
+      phoneNumber: $phoneNumber
+      phoneIsValidForSms: $phoneIsValidForSms
+    ) {
       id
       phone
     }

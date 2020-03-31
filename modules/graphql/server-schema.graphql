@@ -5023,7 +5023,7 @@ type UserMutations {
   saveAvailableTime(availableTime: UserAvailableTimeInput!): UserAvailableTime
   saveUnavailableTime(unavailableTime: UserUnavailableTimeInput!): UserUnavailableTime
   deleteUnavailableTime(id: ID!): Boolean
-  verifyPhoneNumber(orgId: ID, phoneNumber: String!): User
+  verifyPhoneNumber(phoneIsValidForSms: Boolean, phoneNumber: String!): User
 }
 
 type UserPreferences {

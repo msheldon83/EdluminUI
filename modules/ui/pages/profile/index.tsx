@@ -99,7 +99,10 @@ export const ProfilePage: React.FC<Props> = props => {
 
   const onVerifyPhoneNumber = async () => {
     const response = await verifyPhoneNumber({
-      variables: { phoneNumber: myUser?.phone ?? "" },
+      variables: {
+        phoneNumber: myUser?.phone ?? "",
+        phoneIsValidForSms: myUser?.phoneIsValidForSms,
+      },
     });
     const phoneNumber = response.data?.user?.verifyPhoneNumber?.phone;
 
