@@ -10,21 +10,32 @@ import { FilterList } from "@material-ui/icons";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/styles";
 import clsx from "clsx";
-import { addDays, format, isEqual, parseISO, isBefore } from "date-fns";
+import {
+  addDays,
+  format,
+  isEqual,
+  parseISO,
+  isBefore,
+  getDay,
+  startOfDay,
+} from "date-fns";
 import {
   useMutationBundle,
   usePagedQueryBundle,
   useQueryBundle,
 } from "graphql/hooks";
+import { daysOfWeekOrdered } from "helpers/day-of-week";
 import {
   OrgUser,
   VacancyDetail,
   PermissionEnum,
+  UserAvailability,
+  DayOfWeek,
 } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
@@ -47,6 +58,8 @@ import { SubJobSearch } from "./graphql/sub-job-search.gen";
 import { Can } from "ui/components/auth/can";
 import { compact } from "lodash-es";
 import { ConfirmOverrideDialog } from "./components/confirm-override";
+import { GetUnavilableTimeExceptions } from "ui/pages/sub-availability/graphql/get-unavailable-exceptions.gen";
+import { GetMyAvailableTime } from "ui/pages/sub-availability/graphql/get-available-time.gen";
 
 type Props = {
   viewingAsAdmin?: boolean;
@@ -166,6 +179,40 @@ export const SubHome: React.FC<Props> = props => {
     [getUpcomingAssignments]
   );
 
+  const [getExceptions, _] = usePagedQueryBundle(
+    GetUnavilableTimeExceptions,
+    r => r.user?.pagedUserUnavailableTime?.totalCount,
+    {
+      variables: {
+        userId: userId,
+        toDate,
+        fromDate,
+      },
+      skip: !userId || props.viewingAsAdmin,
+    }
+  );
+  const exceptions = useMemo(() => {
+    if (
+      getExceptions.state === "DONE" &&
+      getExceptions.data.user?.pagedUserUnavailableTime?.results
+    ) {
+      return (
+        compact(getExceptions.data.user?.pagedUserUnavailableTime?.results) ??
+        []
+      );
+    }
+    return [];
+  }, [getExceptions]);
+
+  const getAvailableTime = useQueryBundle(GetMyAvailableTime);
+
+  const regularAvailableTime = useMemo(() => {
+    if (getAvailableTime.state === "DONE") {
+      return getAvailableTime.data.userAccess?.me?.user?.availableTime ?? [];
+    }
+    return [];
+  }, [getAvailableTime]);
+
   const onDismissVacancy = async (vacancyId: string) => {
     const employeeId = determineEmployeeId(vacancyId);
     if (employeeId != 0) {
@@ -226,8 +273,10 @@ export const SubHome: React.FC<Props> = props => {
   };
 
   const uniqueWorkingDays = assignments
-    .map(a => parseISO(a.startDate))
-    .filter((date, i, self) => self.findIndex(d => isEqual(d, date)) === i);
+    .map(a => startOfDay(parseISO(a.startDate)))
+    .filter(
+      (date, i, self) => self.findIndex(d => isEqual(d, startOfDay(date))) === i
+    );
   const upcomingWorkTitle = isMobile
     ? t("Upcoming work")
     : `${t("Upcoming assignments for")} ${format(fromDate, "MMM d")} - ${format(
@@ -242,7 +291,8 @@ export const SubHome: React.FC<Props> = props => {
       .slice(0, numberOfAssignments)
       .map((assignment, index, assignments) => {
         const classNames = clsx({
-          [classes.lastAssignmentInList]: index == assignments.length - 1, // last one
+          [classes.lastAssignmentInList]:
+            assignments.length > 1 && index == assignments.length - 1, // last one as long as there are more than 1
         });
 
         return (
@@ -256,10 +306,99 @@ export const SubHome: React.FC<Props> = props => {
       });
   };
 
-  const activeDates = uniqueWorkingDays.map(date => ({
-    date,
-    buttonProps: { className: classes.activeDate },
-  }));
+  const uniqueNonWorkingDays = useMemo(() => {
+    const dates = [] as Date[];
+    exceptions
+      .filter(e => e.availabilityType === UserAvailability.NotAvailable)
+      .forEach(e => {
+        let startDate = parseISO(e.startDate);
+        const endDate = parseISO(e.endDate);
+        do {
+          dates.push(startOfDay(startDate));
+          startDate = addDays(startDate, 1);
+        } while (startDate <= endDate);
+      });
+
+    return dates.map(date => ({
+      date,
+      buttonProps: { className: classes.unavailableDate },
+    }));
+  }, [classes.unavailableDate, exceptions]);
+
+  const uniqueAvailableBeforeDays = useMemo(
+    () =>
+      exceptions
+        .filter(e => e.availabilityType === UserAvailability.Before)
+        .map(e => ({
+          date: startOfDay(parseISO(e.startDate)),
+          buttonProps: { className: classes.availableBeforeDate },
+        })),
+    [classes.availableBeforeDate, exceptions]
+  );
+
+  const uniqueAvailableAfterDays = useMemo(
+    () =>
+      exceptions
+        .filter(e => e.availabilityType === UserAvailability.After)
+        .map(e => ({
+          date: startOfDay(parseISO(e.startDate)),
+          buttonProps: { className: classes.availableAfterDate },
+        })),
+    [classes.availableAfterDate, exceptions]
+  );
+
+  const processRegularSchedule = () => {
+    let startDate = fromDate;
+    do {
+      const dow = getDay(startDate);
+      const dowAvailability = regularAvailableTime.find(
+        x => x?.daysOfWeek[0] === daysOfWeekOrdered[dow]
+      );
+      switch (dowAvailability?.availabilityType) {
+        case UserAvailability.NotAvailable:
+          uniqueNonWorkingDays.push({
+            date: startOfDay(startDate),
+            buttonProps: { className: classes.unavailableDate },
+          });
+          break;
+        case UserAvailability.Before:
+          uniqueAvailableBeforeDays.push({
+            date: startOfDay(startDate),
+            buttonProps: { className: classes.availableBeforeDate },
+          });
+          break;
+        case UserAvailability.After:
+          uniqueAvailableAfterDays.push({
+            date: startOfDay(startDate),
+            buttonProps: { className: classes.availableAfterDate },
+          });
+          break;
+        default:
+          break;
+      }
+      startDate = addDays(startDate, 1);
+    } while (startDate <= toDate);
+    console.log(uniqueNonWorkingDays);
+  };
+
+  const activeDates = useMemo(
+    () =>
+      uniqueWorkingDays.map(date => ({
+        date: startOfDay(date),
+        buttonProps: { className: classes.activeDate },
+      })),
+    [classes.activeDate, uniqueWorkingDays]
+  );
+
+  processRegularSchedule();
+  const disabledDates = uniqueNonWorkingDays
+    .concat(uniqueAvailableBeforeDays)
+    .concat(uniqueAvailableAfterDays)
+    .filter(
+      d => !uniqueWorkingDays.find(uwd => uwd.getTime() == d.date.getTime())
+    );
+
+  const calendarDates = disabledDates.concat(activeDates);
 
   return (
     <>
@@ -307,7 +446,7 @@ export const SubHome: React.FC<Props> = props => {
               <Section>
                 <Padding bottom={6}>
                   <CustomCalendar
-                    customDates={activeDates}
+                    customDates={calendarDates}
                     month={fromDate}
                     contained={false}
                     classes={{
@@ -444,7 +583,7 @@ const useStyles = makeStyles(theme => ({
   viewAllAssignmentsLink: {
     textDecoration: "underline",
     position: "relative",
-    top: theme.typography.pxToRem(-40),
+    top: theme.typography.pxToRem(-35),
     left: theme.spacing(3),
   },
   activeDate: {
@@ -456,6 +595,15 @@ const useStyles = makeStyles(theme => ({
       color: theme.customColors.white,
     },
   },
+  unavailableDate: {
+    backgroundColor: theme.customColors.medLightGray,
+    color: theme.palette.text.disabled,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
+      color: theme.palette.text.disabled,
+    },
+  },
   weekendDate: {
     backgroundColor: theme.customColors.lightGray,
     color: theme.palette.text.disabled,
@@ -464,5 +612,11 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.customColors.lightGray,
       color: theme.palette.text.disabled,
     },
+  },
+  availableBeforeDate: {
+    background: `linear-gradient(to left top, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
+  },
+  availableAfterDate: {
+    background: `linear-gradient(to right bottom, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
   },
 }));
