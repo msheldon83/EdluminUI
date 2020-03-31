@@ -1,57 +1,28 @@
+import * as React from "react";
 import {
-  Button,
-  Divider,
   Grid,
-  IconButton,
   Link as MuiLink,
   Typography,
+  makeStyles,
 } from "@material-ui/core";
-import { FilterList } from "@material-ui/icons";
-import RefreshIcon from "@material-ui/icons/Refresh";
-import { makeStyles } from "@material-ui/styles";
 import clsx from "clsx";
 import {
   addDays,
   format,
   isEqual,
   parseISO,
-  isBefore,
   getDay,
   startOfDay,
 } from "date-fns";
-import {
-  useMutationBundle,
-  usePagedQueryBundle,
-  useQueryBundle,
-} from "graphql/hooks";
+import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
 import { daysOfWeekOrdered } from "helpers/day-of-week";
-import {
-  OrgUser,
-  VacancyDetail,
-  PermissionEnum,
-  UserAvailability,
-} from "graphql/server-types.gen";
+import { UserAvailability } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
-import { useQueryParamIso } from "hooks/query-params";
-import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
-import { useSnackbar } from "hooks/use-snackbar";
-import { ShowErrors } from "ui/components/error-helpers";
 import { AssignmentCard } from "./components/assignment";
-import { AvailableJob } from "./components/available-job";
-import { RequestAbsenceDialog } from "./components/request-dialog";
-import { FilterQueryParams } from "./filters/filter-params";
-import { Filters } from "./filters/index";
-import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
-import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
-import { GetUpcomingAssignments } from "./graphql/get-upcoming-assignments.gen";
-import { RequestVacancy } from "./graphql/request-vacancy.gen";
-import { SubJobSearch } from "./graphql/sub-job-search.gen";
-import { Can } from "ui/components/auth/can";
 import { compact } from "lodash-es";
-import { ConfirmOverrideDialog } from "./components/confirm-override";
 import { GetUnavilableTimeExceptions } from "ui/pages/sub-availability/graphql/get-unavailable-exceptions.gen";
 import { GetMyAvailableTime } from "ui/pages/sub-availability/graphql/get-available-time.gen";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
@@ -59,9 +30,11 @@ import { Padding } from "ui/components/padding";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { SectionHeader } from "ui/components/section-header";
 import { Link } from "react-router-dom";
+import { VacancyDetail } from "./components/assignment";
 
 type Props = {
   userId?: string;
+  assignments: VacancyDetail[];
 };
 
 export const UpcomingAssignments: React.FC<Props> = props => {
@@ -72,34 +45,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
   const fromDate = useMemo(() => new Date(), []);
   const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
 
-  const getUpcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
-    variables: {
-      id: props.userId ?? "",
-      fromDate,
-      toDate,
-      includeCompletedToday: false,
-    },
-    skip: !props.userId,
-  });
-
-  const assignments = useMemo(
-    () =>
-      (getUpcomingAssignments.state === "LOADING"
-        ? []
-        : getUpcomingAssignments.data?.employee?.employeeAssignmentSchedule ??
-          []) as Pick<
-        VacancyDetail,
-        | "id"
-        | "startTimeLocal"
-        | "endTimeLocal"
-        | "assignment"
-        | "location"
-        | "vacancy"
-        | "startDate"
-        | "endDate"
-      >[],
-    [getUpcomingAssignments]
-  );
+  const assignments = props.assignments;
 
   const [getExceptions, _] = usePagedQueryBundle(
     GetUnavilableTimeExceptions,
@@ -241,7 +187,6 @@ export const UpcomingAssignments: React.FC<Props> = props => {
       }
       startDate = addDays(startDate, 1);
     } while (startDate <= toDate);
-    console.log(uniqueNonWorkingDays);
   };
 
   const activeDates = useMemo(
@@ -278,13 +223,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
           />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={6}>
-          {getUpcomingAssignments.state === "LOADING" ? (
-            <Section>
-              <Typography variant="h5">
-                {t("Loading Upcoming Assignments")}
-              </Typography>
-            </Section>
-          ) : assignments.length === 0 ? (
+          {assignments.length === 0 ? (
             <Section>
               <Typography variant="h5">
                 {t("No Assignments scheduled")}
