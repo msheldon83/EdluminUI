@@ -20,8 +20,6 @@ export const ProfilePage: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
   const history = useHistory();
-  const [open, setOpen] = React.useState(false);
-  const [message, setMessage] = React.useState("");
 
   const myUserAccess = useMyUserAccess();
   const user = myUserAccess?.me?.user;
@@ -112,18 +110,8 @@ export const ProfilePage: React.FC<Props> = props => {
       is a valid number to receive text messages.`),
       dismissable: true,
       status: "info",
-      autoHideDuration: 5000,
+      autoHideDuration: 10000,
     });
-
-    // setOpen(true);
-    // setMessage(
-    //   t(
-    //     `We have sent a message to ${phoneNumber} to confirm that everything is
-    //       working. If you do not receive that message in the next few minutes,
-    //       please confirm that your number is a valid mobile number that can
-    //       receive text messages.`
-    //   )
-    // );
   };
 
   const isImpersonating = useIsImpersonating();
@@ -138,15 +126,6 @@ export const ProfilePage: React.FC<Props> = props => {
 
   return (
     <>
-      {/* <div>
-        <AlertBox
-          title={t("Alert")}
-          message={message}
-          setOpen={setOpen}
-          open={open}
-        />
-      </div> */}
-
       <ProfileBasicInfo
         user={myUser}
         onUpdateLoginEmail={onUpdateLoginEmail}
