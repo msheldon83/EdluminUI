@@ -106,15 +106,24 @@ export const ProfilePage: React.FC<Props> = props => {
     });
     const phoneNumber = response.data?.user?.verifyPhoneNumber?.phone;
 
-    setOpen(true);
-    setMessage(
-      t(
-        `We have sent a message to ${phoneNumber} to confirm that everything is 
-          working. If you do not receive that message in the next few minutes, 
-          please confirm that your number is a valid mobile number that can 
-          receive text message.`
-      )
-    );
+    openSnackbar({
+      message: t(`We’ve sent a text message to ${phoneNumber}. 
+      If you do not receive the text please confirm your number 
+      is a valid number to receive text messages.`),
+      dismissable: true,
+      status: "info",
+      autoHideDuration: 5000,
+    });
+
+    // setOpen(true);
+    // setMessage(
+    //   t(
+    //     `We have sent a message to ${phoneNumber} to confirm that everything is
+    //       working. If you do not receive that message in the next few minutes,
+    //       please confirm that your number is a valid mobile number that can
+    //       receive text messages.`
+    //   )
+    // );
   };
 
   const isImpersonating = useIsImpersonating();
@@ -129,14 +138,14 @@ export const ProfilePage: React.FC<Props> = props => {
 
   return (
     <>
-      <div>
+      {/* <div>
         <AlertBox
           title={t("Alert")}
           message={message}
           setOpen={setOpen}
           open={open}
         />
-      </div>
+      </div> */}
 
       <ProfileBasicInfo
         user={myUser}
