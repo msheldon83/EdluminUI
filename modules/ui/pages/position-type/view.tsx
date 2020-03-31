@@ -211,17 +211,19 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
       <Section className={classes.content}>
         <SectionHeader
           title={t("Settings")}
-          action={{
-            text: t("Edit"),
-            visible: !editing,
-            execute: () => {
-              const editSettingsUrl = PositionTypeEditSettingsRoute.generate(
-                params
-              );
-              history.push(editSettingsUrl);
+          actions={[
+            {
+              text: t("Edit"),
+              visible: !editing,
+              execute: () => {
+                const editSettingsUrl = PositionTypeEditSettingsRoute.generate(
+                  params
+                );
+                history.push(editSettingsUrl);
+              },
+              permissions: [PermissionEnum.FinanceSettingsSave],
             },
-            permissions: [PermissionEnum.FinanceSettingsSave],
-          }}
+          ]}
         />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} lg={6}>

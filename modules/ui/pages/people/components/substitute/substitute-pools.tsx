@@ -78,15 +78,17 @@ export const SubstitutePools: React.FC<Props> = props => {
       <Section>
         <SectionHeader
           title={t("Substitute pools")}
-          action={{
-            text: t("Edit"),
-            visible: false,
-            execute: () => {
-              const editSettingsUrl = PeopleSubPoolEditRoute.generate(params);
-              history.push(editSettingsUrl);
+          actions={[
+            {
+              text: t("Edit"),
+              visible: false,
+              execute: () => {
+                const editSettingsUrl = PeopleSubPoolEditRoute.generate(params);
+                history.push(editSettingsUrl);
+              },
+              permissions: [PermissionEnum.SubstituteSave],
             },
-            permissions: [PermissionEnum.SubstituteSave],
-          }}
+          ]}
         />
         <Grid container spacing={2} alignItems="flex-start">
           <Grid container item spacing={2} xs={4}>
