@@ -27,6 +27,7 @@ import { useHistory } from "react-router";
 import { useIsAdmin } from "reference-data/is-admin";
 import {
   SubstituteAssignmentScheduleListViewRoute,
+  SubstituteAvailableAssignmentsRoute,
   PersonViewRoute,
 } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
@@ -147,16 +148,28 @@ export const SubstituteTab: React.FC<Props> = props => {
         <Section>
           <SectionHeader
             title={t("Upcoming Assignments")}
-            action={{
-              text: t("View All"),
-              visible: true,
-              execute: () => {
-                const viewAllAssignmentsScheduleUrl = SubstituteAssignmentScheduleListViewRoute.generate(
-                  params
-                );
-                history.push(viewAllAssignmentsScheduleUrl);
+            actions={[
+              {
+                text: t("View All"),
+                visible: true,
+                execute: () => {
+                  const viewAllAssignmentsScheduleUrl = SubstituteAssignmentScheduleListViewRoute.generate(
+                    params
+                  );
+                  history.push(viewAllAssignmentsScheduleUrl);
+                },
               },
-            }}
+              {
+                text: t("View available"),
+                visible: true,
+                execute: () => {
+                  const viewAvailableAssignmentsUrl = SubstituteAvailableAssignmentsRoute.generate(
+                    params
+                  );
+                  history.push(viewAvailableAssignmentsUrl);
+                },
+              },
+            ]}
           />
           <SubstituteAssignmentsListView
             userId={orgUser?.userId?.toString()}

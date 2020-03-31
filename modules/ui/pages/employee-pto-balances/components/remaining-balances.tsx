@@ -45,18 +45,22 @@ export const RemainingBalances: React.FC<Props> = props => {
       <Section>
         <SectionHeader
           title={props.title}
-          action={{
-            text: t("Edit"),
-            visible: props.showEdit && !props.editing,
-            execute: () => {
-              const editSettingsUrl = PeopleEmployeeBalancesEditRoute.generate({
-                organizationId: props.orgId,
-                orgUserId: props.employeeId,
-              });
-              history.push(editSettingsUrl);
+          actions={[
+            {
+              text: t("Edit"),
+              visible: props.showEdit && !props.editing,
+              execute: () => {
+                const editSettingsUrl = PeopleEmployeeBalancesEditRoute.generate(
+                  {
+                    organizationId: props.orgId,
+                    orgUserId: props.employeeId,
+                  }
+                );
+                history.push(editSettingsUrl);
+              },
+              permissions: [PermissionEnum.EmployeeSave],
             },
-            permissions: [PermissionEnum.EmployeeSave],
-          }}
+          ]}
         />
         <Grid container spacing={2} className={classes.container}>
           {getAbsenceReasonBalances.state === "LOADING" ? (

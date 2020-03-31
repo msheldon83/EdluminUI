@@ -28,17 +28,19 @@ export const OrganizationList: React.FC<Props> = props => {
       <Section>
         <SectionHeader
           title={t("Districts")}
-          action={{
-            text: t("Edit"),
-            visible: false, // !props.editing, // TODO: Remove this comment when we are ready to finish the edit page
-            execute: () => {
-              const editSettingsUrl = PeopleSubRelatedOrgsEditRoute.generate(
-                params
-              );
-              history.push(editSettingsUrl);
+          actions={[
+            {
+              text: t("Edit"),
+              visible: false, // !props.editing, // TODO: Remove this comment when we are ready to finish the edit page
+              execute: () => {
+                const editSettingsUrl = PeopleSubRelatedOrgsEditRoute.generate(
+                  params
+                );
+                history.push(editSettingsUrl);
+              },
+              permissions: [PermissionEnum.SubstituteSave],
             },
-            permissions: [PermissionEnum.SubstituteSave],
-          }}
+          ]}
         />
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={4}>

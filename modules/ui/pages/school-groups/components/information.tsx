@@ -24,14 +24,16 @@ export const LocationGroupInformation: React.FC<Props> = props => {
     <Section className={classes.customSection}>
       <SectionHeader
         title={t("Information")}
-        action={{
-          text: t("Edit"),
-          visible: !editing,
-          execute: () => {
-            setEditing(!editing);
+        actions={[
+          {
+            text: t("Edit"),
+            visible: !editing,
+            execute: () => {
+              setEditing(!editing);
+            },
+            permissions: [PermissionEnum.LocationGroupSave],
           },
-          permissions: [PermissionEnum.LocationGroupSave],
-        }}
+        ]}
         submit={{
           text: t("Save"),
           visible: editing,

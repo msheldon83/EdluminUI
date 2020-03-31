@@ -6,7 +6,7 @@ import { Can } from "./auth/can";
 type Props = {
   title: string;
   className?: string;
-  action?: Action;
+  actions?: Action[];
   cancel?: Action;
   submit?: Action;
   titleClassName?: string;
@@ -38,27 +38,31 @@ export const SectionHeader: React.FC<Props> = props => {
         </Typography>
       </Grid>
       <Grid item>
-        {props.action &&
-          props.action.visible &&
-          (props.action.permissions ? (
-            <Can do={props.action.permissions}>
-              <Button
-                variant="outlined"
-                onClick={() => props.action!.execute()}
-                className={classes.actionButon}
-              >
-                {props.action.text}
-              </Button>
-            </Can>
-          ) : (
-            <Button
-              variant="outlined"
-              onClick={() => props.action!.execute()}
-              className={classes.actionButon}
-            >
-              {props.action.text}
-            </Button>
-          ))}
+        {props.actions &&
+          props.actions.map((action, index) => {
+            if (action.visible) {
+              return action.permissions ? (
+                <Can do={action.permissions} key={index}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => action.execute()}
+                    className={classes.actionButon}
+                  >
+                    {action.text}
+                  </Button>
+                </Can>
+              ) : (
+                <Button
+                  key={index}
+                  variant="outlined"
+                  onClick={() => action.execute()}
+                  className={classes.actionButon}
+                >
+                  {action.text}
+                </Button>
+              );
+            }
+          })}
         {props.cancel && props.cancel.visible && (
           <Button
             variant="outlined"
