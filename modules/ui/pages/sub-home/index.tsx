@@ -30,21 +30,15 @@ import {
   VacancyDetail,
   PermissionEnum,
   UserAvailability,
-  DayOfWeek,
 } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { CustomCalendar } from "ui/components/form/custom-calendar";
-import { Padding } from "ui/components/padding";
 import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-import { SubScheduleRoute } from "ui/routes/sub-schedule";
 import { AssignmentCard } from "./components/assignment";
 import { AvailableJob } from "./components/available-job";
 import { RequestAbsenceDialog } from "./components/request-dialog";
@@ -60,6 +54,7 @@ import { compact } from "lodash-es";
 import { ConfirmOverrideDialog } from "./components/confirm-override";
 import { GetUnavilableTimeExceptions } from "ui/pages/sub-availability/graphql/get-unavailable-exceptions.gen";
 import { GetMyAvailableTime } from "ui/pages/sub-availability/graphql/get-available-time.gen";
+import { UpcomingAssignments } from "./upcoming-assignments";
 
 type Props = {
   viewingAsAdmin?: boolean;
@@ -147,72 +142,6 @@ export const SubHome: React.FC<Props> = props => {
   );
   const onRefreshVacancies = async () => await getVacancies.refetch();
 
-  const fromDate = useMemo(() => new Date(), []);
-  const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
-
-  const getUpcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
-    variables: {
-      id: String(userId),
-      fromDate,
-      toDate,
-      includeCompletedToday: false,
-    },
-    skip: !userId || props.viewingAsAdmin,
-  });
-
-  const assignments = useMemo(
-    () =>
-      (getUpcomingAssignments.state === "LOADING"
-        ? []
-        : getUpcomingAssignments.data?.employee?.employeeAssignmentSchedule ??
-          []) as Pick<
-        VacancyDetail,
-        | "id"
-        | "startTimeLocal"
-        | "endTimeLocal"
-        | "assignment"
-        | "location"
-        | "vacancy"
-        | "startDate"
-        | "endDate"
-      >[],
-    [getUpcomingAssignments]
-  );
-
-  const [getExceptions, _] = usePagedQueryBundle(
-    GetUnavilableTimeExceptions,
-    r => r.user?.pagedUserUnavailableTime?.totalCount,
-    {
-      variables: {
-        userId: userId,
-        toDate,
-        fromDate,
-      },
-      skip: !userId || props.viewingAsAdmin,
-    }
-  );
-  const exceptions = useMemo(() => {
-    if (
-      getExceptions.state === "DONE" &&
-      getExceptions.data.user?.pagedUserUnavailableTime?.results
-    ) {
-      return (
-        compact(getExceptions.data.user?.pagedUserUnavailableTime?.results) ??
-        []
-      );
-    }
-    return [];
-  }, [getExceptions]);
-
-  const getAvailableTime = useQueryBundle(GetMyAvailableTime);
-
-  const regularAvailableTime = useMemo(() => {
-    if (getAvailableTime.state === "DONE") {
-      return getAvailableTime.data.userAccess?.me?.user?.availableTime ?? [];
-    }
-    return [];
-  }, [getAvailableTime]);
-
   const onDismissVacancy = async (vacancyId: string) => {
     const employeeId = determineEmployeeId(vacancyId);
     if (employeeId != 0) {
@@ -272,193 +201,9 @@ export const SubHome: React.FC<Props> = props => {
     }
   };
 
-  const uniqueWorkingDays = assignments
-    .map(a => startOfDay(parseISO(a.startDate)))
-    .filter(
-      (date, i, self) => self.findIndex(d => isEqual(d, startOfDay(date))) === i
-    );
-  const upcomingWorkTitle = isMobile
-    ? t("Upcoming work")
-    : `${t("Upcoming assignments for")} ${format(fromDate, "MMM d")} - ${format(
-        toDate,
-        "MMM d"
-      )}`;
-
-  const renderAssignments = () => {
-    const numberOfAssignments = isMobile ? 2 : 3;
-
-    return assignments
-      .slice(0, numberOfAssignments)
-      .map((assignment, index, assignments) => {
-        const classNames = clsx({
-          [classes.lastAssignmentInList]:
-            assignments.length > 1 && index == assignments.length - 1, // last one as long as there are more than 1
-        });
-
-        return (
-          <AssignmentCard
-            vacancyDetail={assignment}
-            shadeRow={false}
-            key={index}
-            className={classNames}
-          />
-        );
-      });
-  };
-
-  const uniqueNonWorkingDays = useMemo(() => {
-    const dates = [] as Date[];
-    exceptions
-      .filter(e => e.availabilityType === UserAvailability.NotAvailable)
-      .forEach(e => {
-        let startDate = parseISO(e.startDate);
-        const endDate = parseISO(e.endDate);
-        do {
-          dates.push(startOfDay(startDate));
-          startDate = addDays(startDate, 1);
-        } while (startDate <= endDate);
-      });
-
-    return dates.map(date => ({
-      date,
-      buttonProps: { className: classes.unavailableDate },
-    }));
-  }, [classes.unavailableDate, exceptions]);
-
-  const uniqueAvailableBeforeDays = useMemo(
-    () =>
-      exceptions
-        .filter(e => e.availabilityType === UserAvailability.Before)
-        .map(e => ({
-          date: startOfDay(parseISO(e.startDate)),
-          buttonProps: { className: classes.availableBeforeDate },
-        })),
-    [classes.availableBeforeDate, exceptions]
-  );
-
-  const uniqueAvailableAfterDays = useMemo(
-    () =>
-      exceptions
-        .filter(e => e.availabilityType === UserAvailability.After)
-        .map(e => ({
-          date: startOfDay(parseISO(e.startDate)),
-          buttonProps: { className: classes.availableAfterDate },
-        })),
-    [classes.availableAfterDate, exceptions]
-  );
-
-  const processRegularSchedule = () => {
-    let startDate = fromDate;
-    do {
-      const dow = getDay(startDate);
-      const dowAvailability = regularAvailableTime.find(
-        x => x?.daysOfWeek[0] === daysOfWeekOrdered[dow]
-      );
-      switch (dowAvailability?.availabilityType) {
-        case UserAvailability.NotAvailable:
-          uniqueNonWorkingDays.push({
-            date: startOfDay(startDate),
-            buttonProps: { className: classes.unavailableDate },
-          });
-          break;
-        case UserAvailability.Before:
-          uniqueAvailableBeforeDays.push({
-            date: startOfDay(startDate),
-            buttonProps: { className: classes.availableBeforeDate },
-          });
-          break;
-        case UserAvailability.After:
-          uniqueAvailableAfterDays.push({
-            date: startOfDay(startDate),
-            buttonProps: { className: classes.availableAfterDate },
-          });
-          break;
-        default:
-          break;
-      }
-      startDate = addDays(startDate, 1);
-    } while (startDate <= toDate);
-    console.log(uniqueNonWorkingDays);
-  };
-
-  const activeDates = useMemo(
-    () =>
-      uniqueWorkingDays.map(date => ({
-        date: startOfDay(date),
-        buttonProps: { className: classes.activeDate },
-      })),
-    [classes.activeDate, uniqueWorkingDays]
-  );
-
-  processRegularSchedule();
-  const disabledDates = uniqueNonWorkingDays
-    .concat(uniqueAvailableBeforeDays)
-    .concat(uniqueAvailableAfterDays)
-    .filter(
-      d => !uniqueWorkingDays.find(uwd => uwd.getTime() == d.date.getTime())
-    );
-
-  const calendarDates = disabledDates.concat(activeDates);
-
   return (
     <>
-      {!props.viewingAsAdmin && (
-        <Grid
-          container
-          className={classes.upcomingWork}
-          spacing={2}
-          alignItems="stretch"
-        >
-          <Grid item xs={12} style={{ paddingBottom: 0 }}>
-            <SectionHeader
-              title={upcomingWorkTitle}
-              titleClassName={classes.title}
-            />
-          </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={6}>
-            {getUpcomingAssignments.state === "LOADING" ? (
-              <Section>
-                <Typography variant="h5">
-                  {t("Loading Upcoming Assignments")}
-                </Typography>
-              </Section>
-            ) : assignments.length === 0 ? (
-              <Section>
-                <Typography variant="h5">
-                  {t("No Assignments scheduled")}
-                </Typography>
-              </Section>
-            ) : (
-              <>
-                {renderAssignments()}
-                <MuiLink
-                  className={classes.viewAllAssignmentsLink}
-                  component={Link}
-                  to={SubScheduleRoute.generate({})}
-                >
-                  {t("View All")}
-                </MuiLink>
-              </>
-            )}
-          </Grid>
-          {!isMobile && (
-            <Grid item xs={12} sm={6} lg={6}>
-              <Section>
-                <Padding bottom={6}>
-                  <CustomCalendar
-                    customDates={calendarDates}
-                    month={fromDate}
-                    contained={false}
-                    classes={{
-                      weekend: classes.weekendDate,
-                    }}
-                  />
-                </Padding>
-              </Section>
-            </Grid>
-          )}
-        </Grid>
-      )}
+      {!props.viewingAsAdmin && <UpcomingAssignments userId={userId} />}
       <Can do={[PermissionEnum.AbsVacAssign]}>
         <Section className={classes.wrapper}>
           <Grid container spacing={2} className={classes.header}>
