@@ -8,6 +8,7 @@ import {
 import { startOfMonth } from "date-fns/esm";
 import { groupBy, range } from "lodash-es";
 import { AssignmentVacancyDetails } from "../../pages/sub-schedule/types";
+import { UserAvailability } from "graphql/server-types.gen";
 
 export interface DateGroupByMonth {
   month: string;
@@ -47,6 +48,25 @@ export const mergeAssignmentDatesByMonth = (
     const month = all.find(e => e.month === date);
     if (!month) return;
     month.dates = vacancyDetails.map(a => parseISO(a.startDate!));
+  });
+
+  return all;
+};
+
+export const mergeUnavailableDatesByMonth = (
+  emptyMap: DateGroupByMonth[],
+  exceptions: string[]
+) => {
+  const all = emptyMap;
+  Object.entries(
+    groupBy(
+      exceptions,
+      date => date && startOfMonth(parseISO(date)).toISOString()
+    )
+  ).map(([date, exceptions]) => {
+    const month = all.find(e => e.month === date);
+    if (!month) return;
+    month.dates = exceptions.map(date => parseISO(date));
   });
 
   return all;

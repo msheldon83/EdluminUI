@@ -9,6 +9,9 @@ type Props = {
   onSelectDate: (date: Date) => void;
   assignmentDates: Date[];
   selectedDate: Date;
+  unavailableDates: Date[];
+  availableBeforeDates: Date[];
+  availableAfterDates: Date[];
 };
 
 export const AssignmentCalendar: React.FC<Props> = props => {
@@ -32,19 +35,30 @@ export const AssignmentCalendar: React.FC<Props> = props => {
     [props.selectedDate, classes, className]
   );
 
-  const assignmentDates = useMemo(
-    () =>
-      checkDays
-        ? props.assignmentDates.map(d => ({
-            date: d,
-            buttonProps: { className: checkSelected(d) },
-          }))
-        : props.assignmentDates.map(d => ({
-            date: d,
-            buttonProps: { className },
-          })),
-    [props.assignmentDates, className, checkDays, checkSelected]
-  );
+  const unavailableDates = props.unavailableDates.map(d => ({
+    date: d,
+    buttonProps: { className: classes.unavailableDate },
+  }));
+
+  const availableBeforeDates = props.availableBeforeDates.map(d => ({
+    date: d,
+    buttonProps: { className: classes.availableBeforeDate },
+  }));
+
+  const availableAfterDates = props.availableAfterDates.map(d => ({
+    date: d,
+    buttonProps: { className: classes.availableAfterDate },
+  }));
+
+  const assignmentDates = checkDays
+    ? props.assignmentDates.map(d => ({
+        date: d,
+        buttonProps: { className: checkSelected(d) },
+      }))
+    : props.assignmentDates.map(d => ({
+        date: d,
+        buttonProps: { className },
+      }));
 
   // If the selected day is not in assignmentDates, add an entry for it
   checkDays &&
@@ -53,11 +67,20 @@ export const AssignmentCalendar: React.FC<Props> = props => {
       buttonProps: { className: classes.selected },
     });
 
+  const disabledDates = unavailableDates
+    .concat(availableBeforeDates)
+    .concat(availableAfterDates)
+    .filter(
+      d => !props.assignmentDates.find(ad => DateFns.isSameDay(ad, d.date))
+    );
+
+  const customDates = disabledDates.concat(assignmentDates);
+
   return (
     <div className={classes.calendar}>
       <SingleMonthCalendar
         currentMonth={parsedDate}
-        customDates={assignmentDates}
+        customDates={customDates}
         onSelectDate={props.onSelectDate}
         className={classes.calendarSize}
       />
@@ -90,5 +113,20 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.customColors.sky,
       color: theme.customColors.white,
     },
+  },
+  unavailableDate: {
+    backgroundColor: theme.customColors.medLightGray,
+    color: theme.palette.text.disabled,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
+      color: theme.palette.text.disabled,
+    },
+  },
+  availableBeforeDate: {
+    background: `linear-gradient(to left top, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
+  },
+  availableAfterDate: {
+    background: `linear-gradient(to right bottom, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
   },
 }));
