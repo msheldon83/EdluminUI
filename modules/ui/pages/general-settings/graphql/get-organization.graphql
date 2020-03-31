@@ -1,0 +1,11 @@
+query GetOrganizationById($id: ID!) {
+  organization {
+    byId(id: $id) {
+      id
+      name
+      rowVersion
+      externalId
+      timeZoneId
+    }
+  }
+}

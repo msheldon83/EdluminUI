@@ -1,43 +1,63 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/styles";
 import { useIsMobile } from "hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
-import { PageTitle } from "ui/components/page-title";
+import { ShowErrors } from "ui/components/error-helpers";
+import { GetOrganizationById } from "./graphql/get-organization.gen";
+import { useSnackbar } from "hooks/use-snackbar";
+import {
+  OrganizationUpdateInput,
+  Organization,
+} from "graphql/server-types.gen";
+import { EditGeneralSettings } from "./components/edit-settings";
 import { GeneralSettingsRoute } from "ui/routes/general-settings";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
 
 type Props = {};
 
 export const GeneralSettings: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
+  const { openSnackbar } = useSnackbar();
   const classes = useStyles();
   const isMobile = useIsMobile();
   const params = useRouteParams(GeneralSettingsRoute);
 
-  const [triggerError, setTriggerError] = React.useState(false);
+  //GraphQL
+  // const [updateOrg] = useMutationBundle(UpdateOrganization, {
+  //   onError: error => {
+  //     ShowErrors(error, openSnackbar);
+  //   },
+  // });
 
-  if (triggerError) {
-    throw Error("error!");
+  const onUpdateOrg = async (organization: OrganizationUpdateInput) => {
+    // await updateOrg({
+    //   variables: {
+    //     loginEmailChange: {
+    //       id: myUser?.id ?? "",
+    //       rowVersion: myUser?.rowVersion ?? "",
+    //       loginEmail: loginEmail,
+    //     },
+    //   },
+    // });
+  };
+
+  const getOrganization = useQueryBundle(GetOrganizationById, {
+    variables: { id: params.organizationId },
+  });
+
+  if (getOrganization.state === "LOADING") {
+    return <></>;
   }
+
+  const organization = getOrganization?.data?.organization?.byId;
 
   return (
     <>
-      <PageTitle title={`${params.organizationId} ${t("General Settings")}`} />
-      {__DEV__ && (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            setTriggerError(true);
-          }}
-        >
-          Trigger Error
-        </Button>
-      )}
+      <EditGeneralSettings
+        organization={organization}
+        onUpdateOrg={onUpdateOrg}
+      />
     </>
   );
 };
