@@ -4,11 +4,11 @@ import {
   parseISO,
   isLastDayOfMonth,
   addDays,
+  getDay,
 } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
 import { groupBy, range } from "lodash-es";
 import { AssignmentVacancyDetails } from "../../pages/sub-schedule/types";
-import { UserAvailability } from "graphql/server-types.gen";
 
 export interface DateGroupByMonth {
   month: string;

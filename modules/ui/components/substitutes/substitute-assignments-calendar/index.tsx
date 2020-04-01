@@ -12,8 +12,9 @@ import {
 } from "../grouping-helpers";
 import { GetUnavilableTimeExceptions } from "ui/pages/sub-availability/graphql/get-unavailable-exceptions.gen";
 import { GetMyAvailableTime } from "ui/pages/sub-availability/graphql/get-available-time.gen";
-import { UserAvailability } from "graphql/server-types.gen";
-import { parseISO, startOfDay, addDays } from "date-fns";
+import { UserAvailability, DayOfWeek } from "graphql/server-types.gen";
+import { daysOfWeekOrdered } from "helpers/day-of-week";
+import { parseISO, startOfDay, addDays, getDay } from "date-fns";
 
 type Props = {
   userId?: string;
@@ -25,14 +26,16 @@ type Props = {
 };
 
 export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
+  const { fromDate, toDate } = props;
+
   const [getExceptions, _] = usePagedQueryBundle(
     GetUnavilableTimeExceptions,
     r => r.user?.pagedUserUnavailableTime?.totalCount,
     {
       variables: {
         userId: props.userId ?? "",
-        fromDate: props.fromDate,
-        toDate: props.toDate,
+        fromDate,
+        toDate,
       },
       skip: !props.userId,
     }
@@ -50,14 +53,25 @@ export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
     return [];
   }, [getExceptions]);
 
+  const getAvailableTime = useQueryBundle(GetMyAvailableTime);
+
+  const regularAvailableTime = useMemo(
+    () =>
+      getAvailableTime.state === "DONE"
+        ? compact(getAvailableTime.data.userAccess?.me?.user?.availableTime) ??
+          []
+        : [],
+    [getAvailableTime]
+  );
+
   const upcomingAssignmentDates = useQueryBundle(
     GetAssignmentDatesForSubstitute,
     {
       variables: {
         id: String(props.userId),
         organizationId: props.orgId ?? null,
-        fromDate: props.fromDate,
-        toDate: props.toDate,
+        fromDate,
+        toDate,
         includeCompletedToday: true,
       },
       skip: !props.userId,
@@ -77,28 +91,43 @@ export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
   }, [upcomingAssignmentDates]);
 
   const emptyAssignmentDateMap = useMemo(
-    () => generateEmptyDateMap(props.fromDate, props.toDate),
-    [props.fromDate, props.toDate]
+    () => generateEmptyDateMap(fromDate, toDate),
+    [fromDate, toDate]
   );
 
   const emptyUnavailableDateMap = useMemo(
-    () => generateEmptyDateMap(props.fromDate, props.toDate),
-    [props.fromDate, props.toDate]
+    () => generateEmptyDateMap(fromDate, toDate),
+    [fromDate, toDate]
   );
 
   const emptyAvailableBeforeDateMap = useMemo(
-    () => generateEmptyDateMap(props.fromDate, props.toDate),
-    [props.fromDate, props.toDate]
+    () => generateEmptyDateMap(fromDate, toDate),
+    [fromDate, toDate]
   );
 
   const emptyAvailableAfterDateMap = useMemo(
-    () => generateEmptyDateMap(props.fromDate, props.toDate),
-    [props.fromDate, props.toDate]
+    () => generateEmptyDateMap(fromDate, toDate),
+    [fromDate, toDate]
   );
 
   const all = useMemo(() => {
     return mergeAssignmentDatesByMonth(emptyAssignmentDateMap, assignmentDates);
   }, [emptyAssignmentDateMap, assignmentDates]);
+
+  const checkRegularScheduleForDate = (
+    regularSchedule: {
+      availabilityType: UserAvailability;
+      daysOfWeek: DayOfWeek[];
+    }[],
+    availabilityType: UserAvailability,
+    date: Date
+  ) => {
+    const dow = getDay(date);
+    const dowAvailability = regularSchedule.find(
+      x => x?.daysOfWeek[0] === daysOfWeekOrdered[dow]
+    );
+    return dowAvailability?.availabilityType === availabilityType;
+  };
 
   const allExceptionDates = useMemo(() => {
     const all = [] as string[];
@@ -112,8 +141,20 @@ export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
           startDate = addDays(startDate, 1);
         } while (startDate <= endDate);
       });
+    let startDate = fromDate;
+    do {
+      const isRegularNonWorkDay = checkRegularScheduleForDate(
+        regularAvailableTime,
+        UserAvailability.NotAvailable,
+        startDate
+      );
+      if (isRegularNonWorkDay) {
+        all.push(startDate.toISOString());
+      }
+      startDate = addDays(startDate, 1);
+    } while (startDate <= toDate);
     return all;
-  }, [exceptions]);
+  }, [exceptions, fromDate, toDate, regularAvailableTime]);
 
   const unavailableDays = useMemo(() => {
     return mergeUnavailableDatesByMonth(
@@ -123,20 +164,60 @@ export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
   }, [allExceptionDates, emptyUnavailableDateMap]);
 
   const availableBeforeDates = useMemo(() => {
-    const dates = exceptions
+    const dates = [] as string[];
+    exceptions
       .filter(x => x.availabilityType === UserAvailability.Before)
-      .map(d => d.startDate);
+      .forEach(d => dates.push(d.startDate));
+
+    let startDate = fromDate;
+    do {
+      const isRegularNonWorkDay = checkRegularScheduleForDate(
+        regularAvailableTime,
+        UserAvailability.Before,
+        startDate
+      );
+      if (isRegularNonWorkDay) {
+        dates.push(startDate.toISOString());
+      }
+      startDate = addDays(startDate, 1);
+    } while (startDate <= toDate);
 
     return mergeUnavailableDatesByMonth(emptyAvailableBeforeDateMap, dates);
-  }, [exceptions, emptyAvailableBeforeDateMap]);
+  }, [
+    exceptions,
+    fromDate,
+    toDate,
+    emptyAvailableBeforeDateMap,
+    regularAvailableTime,
+  ]);
 
   const availableAfterDates = useMemo(() => {
-    const dates = exceptions
+    const dates = [] as string[];
+    exceptions
       .filter(x => x.availabilityType === UserAvailability.After)
-      .map(d => d.startDate);
+      .forEach(d => dates.push(d.startDate));
+
+    let startDate = fromDate;
+    do {
+      const isRegularNonWorkDay = checkRegularScheduleForDate(
+        regularAvailableTime,
+        UserAvailability.After,
+        startDate
+      );
+      if (isRegularNonWorkDay) {
+        dates.push(startDate.toISOString());
+      }
+      startDate = addDays(startDate, 1);
+    } while (startDate <= toDate);
 
     return mergeUnavailableDatesByMonth(emptyAvailableAfterDateMap, dates);
-  }, [exceptions, emptyAvailableAfterDateMap]);
+  }, [
+    exceptions,
+    fromDate,
+    toDate,
+    emptyAvailableAfterDateMap,
+    regularAvailableTime,
+  ]);
 
   if (
     upcomingAssignmentDates.state !== "DONE" &&
