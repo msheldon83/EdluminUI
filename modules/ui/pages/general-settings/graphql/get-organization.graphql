@@ -6,6 +6,16 @@ query GetOrganizationById($id: ID!) {
       name
       externalId
       timeZoneId
+      config {
+        absenceSubContact {
+          email
+          namephone
+        }
+        absenceEmployeeContact {
+          email
+          namephone
+        }
+      }
     }
   }
 }

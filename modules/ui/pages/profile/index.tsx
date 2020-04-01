@@ -13,9 +13,7 @@ import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
 import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";
 
-type Props = {};
-
-export const ProfilePage: React.FC<Props> = props => {
+export const ProfilePage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
   const history = useHistory();

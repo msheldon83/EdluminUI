@@ -13,7 +13,11 @@ import { Formik } from "formik";
 import { Button, Grid, Tooltip } from "@material-ui/core";
 import * as yup from "yup";
 import { PageTitle } from "ui/components/page-title";
-import { OrganizationUpdateInput, TimeZone } from "graphql/server-types.gen";
+import {
+  OrganizationUpdateInput,
+  TimeZone,
+  OrganizationContactInput,
+} from "graphql/server-types.gen";
 
 type Props = {
   organization: {
@@ -22,6 +26,10 @@ type Props = {
     name: string;
     timeZoneId?: TimeZone | null;
     externalId?: string | null;
+    config: {
+      absenceSubContact: OrganizationContactInput;
+      absenceEmployeeContact: OrganizationContactInput;
+    };
   };
   onUpdateOrg: (updatedOrg: OrganizationUpdateInput) => Promise<any>;
 };
