@@ -329,13 +329,6 @@ export const SubHome: React.FC<Props> = props => {
 
             {isMobile ? (
               <div className={classes.jobButtons}>
-                <Button
-                  variant="outlined"
-                  startIcon={<FilterList />}
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  {t("Filters")}
-                </Button>
                 <IconButton onClick={onRefreshVacancies}>
                   <RefreshIcon />
                 </IconButton>
@@ -348,6 +341,17 @@ export const SubHome: React.FC<Props> = props => {
               </div>
             )}
           </Grid>
+          {isMobile && (
+            <div className={classes.filterButton}>
+              <Button
+                variant="outlined"
+                startIcon={<FilterList />}
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                {t("Filters")}
+              </Button>
+            </div>
+          )}
 
           {showFilters && <Filters />}
           <div>
@@ -398,6 +402,10 @@ const useStyles = makeStyles(theme => ({
   filters: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+  },
+  filterButton: {
+    paddingLeft: theme.spacing(2),
+    paddingBottom: theme.spacing(1),
   },
   header: {
     marginBottom: theme.spacing(2),
