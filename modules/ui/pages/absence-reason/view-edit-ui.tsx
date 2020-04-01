@@ -129,17 +129,19 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
       <Section className={classes.content}>
         <SectionHeader
           title={t("Settings")}
-          action={{
-            text: t("Edit"),
-            visible: !editing,
-            execute: () => {
-              const editSettingsUrl = AbsenceReasonEditSettingsRoute.generate(
-                params
-              );
-              history.push(editSettingsUrl);
+          actions={[
+            {
+              text: t("Edit"),
+              visible: !editing,
+              execute: () => {
+                const editSettingsUrl = AbsenceReasonEditSettingsRoute.generate(
+                  params
+                );
+                history.push(editSettingsUrl);
+              },
+              permissions: [PermissionEnum.AbsVacSettingsSave],
             },
-            permissions: [PermissionEnum.AbsVacSettingsSave],
-          }}
+          ]}
         />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
