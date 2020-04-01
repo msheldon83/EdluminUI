@@ -47,34 +47,29 @@ export const EditGeneralSettings: React.FC<Props> = props => {
           timeZoneId: props.organization.timeZoneId,
           externalId: props.organization.externalId ?? "",
         }}
-        onSubmit={async data =>
+        onSubmit={async data => {
           await props.onUpdateOrg({
             orgId: props.organization.id,
             rowVersion: props.organization.rowVersion,
             name: data.name,
             externalId: data.externalId,
             timeZoneId: data.timeZoneId,
-          })
-        }
+          });
+        }}
         validationSchema={yup.object().shape({
           name: yup.string().required(t("Org name is required")),
-          lastName: yup.string().required(t("Last name is required")),
+          externalId: yup.string().nullable(),
           timeZoneId: yup.string().required(t("Time zone is required")),
         })}
       >
-        {({ handleSubmit, submitForm, values, setFieldValue }) => (
+        {({ handleSubmit, submitForm, setFieldValue }) => (
           <form onSubmit={handleSubmit}>
             <Section>
-              <Grid container spacing={2}>
-                <Grid
-                  container
-                  item
-                  xs={isMobile ? 12 : 4}
-                  alignItems="stretch"
-                >
-                  <Grid item xs={12}>
+              <Grid container spacing={isMobile ? 2 : 8}>
+                <Grid container item>
+                  <Grid item xs={isMobile ? 12 : 4}>
                     <Input
-                      label={t("Name")}
+                      label={t("Organization name")}
                       InputComponent={FormTextField}
                       inputComponentProps={{
                         name: "name",
@@ -82,17 +77,17 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={isMobile ? 12 : 4}>
                     <Input
-                      label={t("Last Name")}
+                      label={t("External Id")}
                       InputComponent={FormTextField}
                       inputComponentProps={{
-                        name: "lastName",
+                        name: "externalId",
                         fullWidth: true,
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  {/* <Grid item xs={12}>
                     <div className={classes.labelContainer}>
                       <div>{t("Mobile Phone")}</div>
                     </div>
@@ -103,8 +98,8 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                         fullWidth: true,
                       }}
                     />
-                  </Grid>
-                  <Grid item xs={12}>
+                  </Grid> */}
+                  <Grid item xs={isMobile ? 12 : 4}>
                     <div>
                       <div className={classes.labelContainer}>
                         <div>
@@ -150,6 +145,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                 </Grid>
               </Grid>
               <div className={classes.button}>
+                {/* <Button onClick={submitForm} variant="contained">
+                  {t("Cancel")}
+                </Button> */}
                 <Button onClick={submitForm} variant="contained">
                   {t("Save")}
                 </Button>
