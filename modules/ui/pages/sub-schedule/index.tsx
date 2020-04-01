@@ -47,7 +47,7 @@ export const SubSchedule: React.FC<Props> = props => {
           userId={user.id}
           listViewRoute={SubScheduleListViewRoute.generate(params)}
           calendarViewRoute={SubScheduleCalendarViewRoute.generate(params)}
-          isAdmin={false}
+          viewingAsAdmin={false}
           userCreatedDate={userCreatedDate}
         />
       )}
