@@ -18,54 +18,62 @@ export const AssignmentCalendar: React.FC<Props> = props => {
   const classes = useStyles();
   const parsedDate = useMemo(() => DateFns.parseISO(props.date), [props.date]);
 
-  const className = classes.assignment;
   const checkDays = useMemo(
     () => DateFns.isSameMonth(parsedDate, props.selectedDate),
     [parsedDate, props.selectedDate]
   );
 
-  const checkSelected = useMemo(
-    () => (d: Date) => {
-      if (DateFns.isSameDay(d, props.selectedDate)) {
-        return classes.selected;
-      } else {
-        return className;
-      }
-    },
-    [props.selectedDate, classes, className]
-  );
+  const checkSelected = (d: Date, className: string) => {
+    if (DateFns.isSameDay(d, props.selectedDate)) {
+      return classes.selected;
+    } else {
+      return className;
+    }
+  };
 
-  const unavailableDates = props.unavailableDates.map(d => ({
-    date: d,
-    buttonProps: { className: classes.unavailableDate },
-  }));
+  const unavailableDates = checkDays
+    ? props.unavailableDates.map(d => ({
+        date: d,
+        buttonProps: { className: checkSelected(d, classes.unavailableDate) },
+      }))
+    : props.unavailableDates.map(d => ({
+        date: d,
+        buttonProps: { className: classes.unavailableDate },
+      }));
 
-  const availableBeforeDates = props.availableBeforeDates.map(d => ({
-    date: d,
-    buttonProps: { className: classes.availableBeforeDate },
-  }));
+  const availableBeforeDates = checkDays
+    ? props.availableBeforeDates.map(d => ({
+        date: d,
+        buttonProps: {
+          className: checkSelected(d, classes.availableBeforeDate),
+        },
+      }))
+    : props.availableBeforeDates.map(d => ({
+        date: d,
+        buttonProps: { className: classes.availableBeforeDate },
+      }));
 
-  const availableAfterDates = props.availableAfterDates.map(d => ({
-    date: d,
-    buttonProps: { className: classes.availableAfterDate },
-  }));
+  const availableAfterDates = checkDays
+    ? props.availableAfterDates.map(d => ({
+        date: d,
+        buttonProps: {
+          className: checkSelected(d, classes.availableAfterDate),
+        },
+      }))
+    : props.availableAfterDates.map(d => ({
+        date: d,
+        buttonProps: { className: classes.availableAfterDate },
+      }));
 
   const assignmentDates = checkDays
     ? props.assignmentDates.map(d => ({
         date: d,
-        buttonProps: { className: checkSelected(d) },
+        buttonProps: { className: checkSelected(d, classes.assignment) },
       }))
     : props.assignmentDates.map(d => ({
         date: d,
-        buttonProps: { className },
+        buttonProps: { className: classes.assignment },
       }));
-
-  // If the selected day is not in assignmentDates, add an entry for it
-  checkDays &&
-    assignmentDates.push({
-      date: props.selectedDate,
-      buttonProps: { className: classes.selected },
-    });
 
   const disabledDates = unavailableDates
     .concat(availableBeforeDates)
@@ -75,6 +83,13 @@ export const AssignmentCalendar: React.FC<Props> = props => {
     );
 
   const customDates = disabledDates.concat(assignmentDates);
+
+  // If the selected day is not in customDates, add an entry for it
+  checkDays &&
+    customDates.push({
+      date: props.selectedDate,
+      buttonProps: { className: classes.selected },
+    });
 
   return (
     <div className={classes.calendar}>

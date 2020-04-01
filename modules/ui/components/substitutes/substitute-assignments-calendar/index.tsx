@@ -14,7 +14,7 @@ import { GetUnavilableTimeExceptions } from "ui/pages/sub-availability/graphql/g
 import { GetMyAvailableTime } from "ui/pages/sub-availability/graphql/get-available-time.gen";
 import { UserAvailability, DayOfWeek } from "graphql/server-types.gen";
 import { daysOfWeekOrdered } from "helpers/day-of-week";
-import { parseISO, startOfDay, addDays, getDay } from "date-fns";
+import { parseISO, addDays, getDay } from "date-fns";
 
 type Props = {
   userId?: string;
