@@ -131,7 +131,7 @@ type AbsenceMutations {
 }
 
 type AbsenceQueries {
-  byId(id: ID!, includeDeleted: Boolean): Absence
+  byId(id: ID!): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(
     orgId: ID
@@ -5878,7 +5878,7 @@ enum VacancyQualification {
 }
 
 type VacancyQueries {
-  byId(id: ID!, includeDeleted: Boolean): Vacancy
+  byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(
     orgId: ID
@@ -5916,6 +5916,15 @@ type VacancyQueries {
   ): PagedVacancy
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
+  userJobSearch(
+    id: ID!
+    availableJobsOnly: Boolean
+    orgIds: [ID]
+    locationIds: [ID]
+    positionTypeIds: [ID]
+    limit: Int
+    offset: Int
+  ): PagedVacancy
   subJobSearch(
     id: ID!
     availableJobsOnly: Boolean
