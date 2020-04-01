@@ -26,15 +26,17 @@ export const SubstitutePreferences: React.FC<Props> = props => {
       <Section>
         <SectionHeader
           title={t("Substitute preferences")}
-          action={{
-            text: t("Edit"),
-            visible: !props.editing,
-            execute: () => {
-              const editSettingsUrl = "/"; //TODO figure out the URL for editing
-              history.push(editSettingsUrl);
+          actions={[
+            {
+              text: t("Edit"),
+              visible: !props.editing,
+              execute: () => {
+                const editSettingsUrl = "/"; //TODO figure out the URL for editing
+                history.push(editSettingsUrl);
+              },
+              permissions: [PermissionEnum.EmployeeSave],
             },
-            permissions: [PermissionEnum.EmployeeSave],
-          }}
+          ]}
         />
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={4}>

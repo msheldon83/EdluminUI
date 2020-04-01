@@ -181,14 +181,16 @@ export const AccessControl: React.FC<Props> = props => {
               {!props.isCreate && (
                 <SectionHeader
                   title={t("Access Control")}
-                  action={{
-                    text: t("Edit"),
-                    visible: !props.editing && props.editable,
-                    execute: () => {
-                      props.setEditing!(editableSections.accessControl);
+                  actions={[
+                    {
+                      text: t("Edit"),
+                      visible: !props.editing && props.editable,
+                      execute: () => {
+                        props.setEditing!(editableSections.accessControl);
+                      },
+                      permissions: [PermissionEnum.AdminSave],
                     },
-                    permissions: [PermissionEnum.AdminSave],
-                  }}
+                  ]}
                   cancel={{
                     text: t("Cancel"),
                     visible: editingThis,
