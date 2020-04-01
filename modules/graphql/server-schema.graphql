@@ -14,6 +14,7 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   rowVersion: String!
   employeeId: ID!
   notesToApprover: String
+  isClosed: Boolean!
   startDate: Date
   startTimeLocal: DateTime
   endDate: Date
@@ -5608,6 +5609,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   absenceId: ID
   isLongTerm: Boolean!
   notesToReplacement: String
+  isClosed: Boolean!
   startDate: Date
   startTimeLocal: DateTime!
   endDate: Date!

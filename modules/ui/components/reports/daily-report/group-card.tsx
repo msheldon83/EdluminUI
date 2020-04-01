@@ -53,13 +53,14 @@ export const GroupCard: React.FC<Props> = props => {
   const isActiveCard = props.activeCard
     ? props.cardType === props.activeCard
     : true;
-
   let percentValue = round((data.count / data.total) * 100, 2);
   let percentLabel = percentValue
     ? `${data.label} (${percentValue}%)`
     : data.label;
   if (props.cardType === "total") {
-    const employeeOnlyAbsences = props.details.filter(x => x.employee);
+    const employeeOnlyAbsences = props.details.filter(
+      x => x.employee && !x.isClosed
+    );
     const uniqueEmployees = uniqWith(
       employeeOnlyAbsences,
       (a, b) => a.employee!.id === b.employee!.id
@@ -207,11 +208,13 @@ const getCardData = (
       data = {
         type: "unfilled",
         count:
-          countOverride ?? details.filter(x => x.state === "unfilled").length,
+          countOverride ??
+          details.filter(x => x.state === "unfilled" && !x.isClosed).length,
         total:
           totalOverride ??
-          details.filter(x => x.state === "unfilled" || x.state === "filled")
-            .length,
+          details.filter(
+            x => (x.state === "unfilled" || x.state === "filled") && !x.isClosed
+          ).length,
         label: t("Unfilled"),
         countClass: classes.unfilledCount,
         barClass: classes.unfilledCardBar,
@@ -223,11 +226,13 @@ const getCardData = (
       data = {
         type: "filled",
         count:
-          countOverride ?? details.filter(x => x.state === "filled").length,
+          countOverride ??
+          details.filter(x => x.state === "filled" && !x.isClosed).length,
         total:
           totalOverride ??
-          details.filter(x => x.state === "unfilled" || x.state === "filled")
-            .length,
+          details.filter(
+            x => (x.state === "unfilled" || x.state === "filled") && !x.isClosed
+          ).length,
         label: t("Filled"),
         countClass: classes.filledCount,
         barClass: classes.filledCardBar,
@@ -252,7 +257,7 @@ const getCardData = (
     case "total": {
       data = {
         type: "total",
-        count: countOverride ?? details.length,
+        count: countOverride ?? details.filter(x => !x.isClosed).length,
         total: totalOverride ?? 0,
         label: t("Total"),
         countClass: classes.totalCount,

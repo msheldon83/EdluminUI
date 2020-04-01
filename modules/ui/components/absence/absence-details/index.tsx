@@ -98,6 +98,7 @@ type Props = {
   onDelete?: () => void;
   onCancel?: () => void;
   isFormDirty: boolean;
+  isClosed: boolean;
   onAssignSubClick: (
     vacancyDetailIds?: string[],
     employeeToReplace?: string
@@ -208,9 +209,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
     if (showClosedDatesBanner) {
       return (
         <ul>
-          {props.closedDates?.map(c => {
+          {props.closedDates?.map((c, i) => {
             return (
-              <li>{format(parseISO(c?.startDate), "EEE MMMM d, yyyy")}</li>
+              <li key={`closed-${i}`}>
+                {format(parseISO(c?.startDate), "EEE MMMM d, yyyy")}
+              </li>
             );
           })}
         </ul>
@@ -385,7 +388,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         <Grid item xs={12} className={classes.contentFooter}>
           <div className={classes.actionButtons}>
             <div className={classes.unsavedText}>
-              {props.isFormDirty && (
+              {props.isFormDirty && !props.isClosed && (
                 <Typography>{t("This page has unsaved changes")}</Typography>
               )}
             </div>
@@ -398,7 +401,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 {t("Delete")}
               </Button>
             )}
-            {props.onCancel && props.isFormDirty && (
+            {props.onCancel && props.isFormDirty && !props.isClosed && (
               <Button
                 onClick={() => props.onCancel!()}
                 variant="outlined"
@@ -414,7 +417,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 type="submit"
                 variant="contained"
                 className={classes.saveButton}
-                disabled={!props.isFormDirty || negativeBalanceWarning}
+                disabled={
+                  !props.isFormDirty || negativeBalanceWarning || props.isClosed
+                }
               >
                 {props.saveLabel ?? t("Create")}
               </Button>

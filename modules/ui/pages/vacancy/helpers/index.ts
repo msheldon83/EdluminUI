@@ -46,6 +46,7 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
   return {
     id: v.id ?? "",
     orgId: v.orgId,
+    isClosed: v.isClosed,
     positionTypeId: v.position?.positionTypeId ?? "",
     contractId: v.position?.contractId ?? "",
     title: v.position?.title ?? "",
@@ -55,11 +56,42 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
     locationName: locationName,
     workDayScheduleId: v.details ? v.details[0]?.workDayScheduleId ?? "" : "",
     rowVersion: v.rowVersion,
+    closedDetails: v.closedDetails
+      ? v.closedDetails.map((d, i) => {
+          return {
+            id: d?.id,
+            saved: true,
+            isClosed: d?.isClosed ?? false,
+            date: parseISO(d?.startDate),
+            startTime: d?.startTimeLocalTimeSpan,
+            endTime: d?.endTimeLocalTimeSpan,
+            locationId: locationId,
+            payCodeId: d?.payCodeId ?? undefined,
+            payCodeName: d?.payCode?.name,
+            vacancyReasonId: d?.vacancyReasonId ?? "",
+            accountingCodeAllocations: d?.accountingCodeAllocations.map(a => {
+              return {
+                accountingCodeId: a.accountingCodeId,
+                accountingCodeName: a.accountingCode?.name ?? "",
+                allocation: a.allocation,
+              };
+            }),
+            assignment: d?.assignment
+              ? {
+                  id: d.assignment.id,
+                  rowVersion: d.assignment.rowVersion,
+                  employee: d.assignment.employee ?? undefined,
+                }
+              : undefined,
+          };
+        })
+      : [],
     details: v.details
       ? v.details.map((d, i) => {
           return {
             id: d.id,
             saved: true,
+            isClosed: d.isClosed ?? false,
             date: parseISO(d.startDate),
             startTime: d.startTimeLocalTimeSpan,
             endTime: d.endTimeLocalTimeSpan,

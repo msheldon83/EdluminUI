@@ -456,6 +456,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 hasEditedDetails={!!state.vacanciesInput}
                 assignmentsByDate={[]}
                 usages={absenceBalanceUsages}
+                isClosed={false}
               />
             </Section>
           </>

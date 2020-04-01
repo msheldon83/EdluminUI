@@ -8,8 +8,9 @@ import {
   Vacancy,
   VacancyDr,
   Maybe,
+  AbsenceDr,
 } from "graphql/server-types.gen";
-import { flatMap, groupBy } from "lodash-es";
+import { flatMap, groupBy, some, every } from "lodash-es";
 import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
 import { TFunction } from "i18next";
 
@@ -34,7 +35,7 @@ export type DetailGroup = {
 export type Detail = {
   id: string;
   detailId: string;
-  state: "unfilled" | "filled" | "noSubRequired";
+  state: "unfilled" | "filled" | "noSubRequired" | "closed";
   type: "absence" | "vacancy";
   absenceRowVersion?: string;
   vacancyRowVersion?: string;
@@ -90,8 +91,25 @@ export const MapDailyReportDetails = (
 ): DailyReportDetails => {
   const details: Detail[] = [];
 
+  const closedDetails: any = getClosedDays(dailyReport);
+  const filteredFilledAbsences = dailyReport.filledAbsences
+    ? filterOutAbsenceClosedDays(dailyReport.filledAbsences)
+    : [];
+  const filteredUnFilledAbsences = dailyReport.unfilledAbsences
+    ? filterOutAbsenceClosedDays(dailyReport.unfilledAbsences)
+    : [];
+  const filteredFilledVacacnies = dailyReport.filledVacancies
+    ? filterOutVacancyClosedDays(dailyReport.filledVacancies)
+    : [];
+  const filteredUnFilledVacancies = dailyReport.unfilledVacancies
+    ? filterOutVacancyClosedDays(dailyReport.unfilledVacancies)
+    : [];
+  const filteredNosubReqd = dailyReport.noSubRequiredAbsences
+    ? filterOutAbsenceClosedDays(dailyReport.noSubRequiredAbsences)
+    : [];
+
   // Filled Absences
-  const filledAbsencesDetails = flatMap(dailyReport.filledAbsences, a => {
+  const filledAbsencesDetails = flatMap(filteredFilledAbsences, a => {
     if (!a || !a.details) {
       return [];
     }
@@ -179,7 +197,7 @@ export const MapDailyReportDetails = (
   details.push(...filledAbsencesDetails);
 
   // Filled Vacancies
-  const filledVacancyDetails = flatMap(dailyReport.filledVacancies, v => {
+  const filledVacancyDetails = flatMap(filteredFilledVacacnies, v => {
     if (!v || !v.details) {
       return [];
     }
@@ -245,7 +263,7 @@ export const MapDailyReportDetails = (
   details.push(...filledVacancyDetails);
 
   // Unfilled Absences
-  const unfilledAbsencesDetails = flatMap(dailyReport.unfilledAbsences, a => {
+  const unfilledAbsencesDetails = flatMap(filteredUnFilledAbsences, a => {
     if (!a || !a.details) {
       return [];
     }
@@ -321,7 +339,7 @@ export const MapDailyReportDetails = (
   details.push(...unfilledAbsencesDetails);
 
   // Unfilled Vacancies
-  const unfilledVacancyDetails = flatMap(dailyReport.unfilledVacancies, v => {
+  const unfilledVacancyDetails = flatMap(filteredUnFilledVacancies, v => {
     if (!v || !v.details) {
       return [];
     }
@@ -375,50 +393,120 @@ export const MapDailyReportDetails = (
   details.push(...unfilledVacancyDetails);
 
   // No Sub Required Absences
-  const noSubRequiredAbsencesDetails = flatMap(
-    dailyReport.noSubRequiredAbsences,
-    a => {
-      if (!a || !a.details) {
-        return [];
-      }
+  const noSubRequiredAbsencesDetails = flatMap(filteredNosubReqd, a => {
+    if (!a || !a.details) {
+      return [];
+    }
 
-      // Determine the Position Type
-      let positionType: { id?: string; name: string } | undefined = undefined;
-      if (a.positionTypes) {
-        if (a.positionTypes.length === 1) {
-          positionType = {
-            id: a.positionTypes[0]!.id,
-            name: a.positionTypes[0]!.name,
-          };
-        } else if (a.positionTypes.length > 1) {
-          positionType = {
-            name: `(${t("Multiple")})`,
-          };
-        }
+    // Determine the Position Type
+    let positionType: { id?: string; name: string } | undefined = undefined;
+    if (a.positionTypes) {
+      if (a.positionTypes.length === 1) {
+        positionType = {
+          id: a.positionTypes[0]!.id,
+          name: a.positionTypes[0]!.name,
+        };
+      } else if (a.positionTypes.length > 1) {
+        positionType = {
+          name: `(${t("Multiple")})`,
+        };
       }
+    }
 
-      // Determine the Location
-      let location: { id?: string; name: string } | undefined = undefined;
-      if (a.locations) {
-        if (a.locations.length === 1) {
-          location = {
-            id: a.locations[0]!.id,
-            name: a.locations[0]!.name,
-          };
-        } else if (a.locations.length > 1) {
-          location = {
-            name: `(${t("Multiple")})`,
-          };
-        }
+    // Determine the Location
+    let location: { id?: string; name: string } | undefined = undefined;
+    if (a.locations) {
+      if (a.locations.length === 1) {
+        location = {
+          id: a.locations[0]!.id,
+          name: a.locations[0]!.name,
+        };
+      } else if (a.locations.length > 1) {
+        location = {
+          name: `(${t("Multiple")})`,
+        };
       }
+    }
 
-      return a.details.map(d => {
+    return a.details.map(d => {
+      const absenceDetail = d as AbsenceDetailDr;
+
+      return {
+        id: a.id,
+        detailId: absenceDetail.id,
+        state: "noSubRequired",
+        type: "absence",
+        absenceRowVersion: a.rowVersion,
+        isClosed: absenceDetail.isClosed,
+        employee: a.teacher
+          ? {
+              id: a.teacher.id,
+              name: `${a.teacher.firstName} ${a.teacher.lastName}`,
+              lastName: a.teacher.lastName,
+            }
+          : undefined,
+        absenceReason: absenceDetail.reasonUsages[0]?.absenceReason,
+        date: parseISO(absenceDetail.startDate),
+        dateRange: getRangeDisplayText(a.startDate, a.endDate),
+        startTime: format(parseISO(absenceDetail.startTimeLocal), "h:mm a"),
+        endTime: format(parseISO(absenceDetail.endTimeLocal), "h:mm a"),
+        created: GetDateInYesterdayTodayTomorrowFormat(
+          a.createdLocal,
+          "MMM d h:mm a"
+        ),
+        isMultiDay: a.details && a.details.length > 1,
+        position: positionType,
+        positionType: positionType,
+        location: location,
+        subTimes: [],
+      } as Detail;
+    });
+  });
+  details.push(...noSubRequiredAbsencesDetails);
+
+  // Closed Absences
+  const closedAbsencesDetails = flatMap(closedDetails, (a: any) => {
+    if (!a || !a.details) {
+      return [];
+    }
+
+    // Determine the Position Type
+    let positionType: { id?: string; name: string } | undefined = undefined;
+    if (a.positionTypes) {
+      if (a.positionTypes.length === 1) {
+        positionType = {
+          id: a.positionTypes[0]!.id,
+          name: a.positionTypes[0]!.name,
+        };
+      } else if (a.positionTypes.length > 1) {
+        positionType = {
+          name: `(${t("Multiple")})`,
+        };
+      }
+    }
+
+    // Determine the Location
+    let location: { id?: string; name: string } | undefined = undefined;
+    if (a.locations) {
+      if (a.locations.length === 1) {
+        location = {
+          id: a.locations[0]!.id,
+          name: a.locations[0]!.name,
+        };
+      } else if (a.locations.length > 1) {
+        location = {
+          name: `(${t("Multiple")})`,
+        };
+      }
+    }
+    if (a.__typename === "AbsenceDr") {
+      return a.details.map((d: any) => {
         const absenceDetail = d as AbsenceDetailDr;
 
         return {
           id: a.id,
           detailId: absenceDetail.id,
-          state: "noSubRequired",
+          state: "closed",
           type: "absence",
           absenceRowVersion: a.rowVersion,
           isClosed: absenceDetail.isClosed,
@@ -445,9 +533,59 @@ export const MapDailyReportDetails = (
           subTimes: [],
         } as Detail;
       });
+    } else {
+      return a.details.map((d: any) => {
+        const vacancyDetail = d as VacancyDetailDr;
+        return {
+          id: a.id,
+          detailId: vacancyDetail.id,
+          state: "closed",
+          isClosed: vacancyDetail.isClosed,
+          type: "vacancy",
+          vacancyRowVersion: a.rowVersion,
+          vacancyId: a.id,
+          date: parseISO(vacancyDetail.startDate),
+          dateRange: getRangeDisplayText(a.startDate, a.endDate),
+          startTime: format(parseISO(vacancyDetail.startTimeLocal), "h:mm a"),
+          endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
+          created: GetDateInYesterdayTodayTomorrowFormat(
+            a.createdLocal,
+            "MMM d h:mm a"
+          ),
+          vacancyReason: vacancyDetail.vacancyReason,
+          subTimes: [
+            {
+              startTime: format(
+                parseISO(vacancyDetail.startTimeLocal),
+                "h:mm a"
+              ),
+              endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
+            },
+          ],
+          isMultiDay: a.details && a.details.length > 1,
+          position: a.position
+            ? {
+                id: a.position.id,
+                name: a.position.name,
+              }
+            : undefined,
+          positionType: a.position?.positionType
+            ? {
+                id: a.position?.positionType.id,
+                name: a.position?.positionType.name,
+              }
+            : undefined,
+          location: vacancyDetail.location
+            ? {
+                id: vacancyDetail.location.id,
+                name: vacancyDetail.location.name,
+              }
+            : undefined,
+        } as Detail;
+      });
     }
-  );
-  details.push(...noSubRequiredAbsencesDetails);
+  });
+  details.push(...closedAbsencesDetails);
 
   // Filter the list by only details that match the Date we are looking for
   const detailsForDate = details
@@ -482,7 +620,13 @@ export const MapDailyReportDetails = (
       label: t("No sub required"),
       details: filteredDetails.filter(x => x.state === "noSubRequired"),
     };
-    groups.push(...[unfilledGroup, filledGroup, noSubRequiredGroup]);
+    const closedGroup = {
+      label: t("Closed"),
+      details: filteredDetails.filter(x => x.state === "closed"),
+    };
+    groups.push(
+      ...[unfilledGroup, filledGroup, noSubRequiredGroup, closedGroup]
+    );
 
     if (groupByPositionType) {
       groups.forEach(g => {
@@ -653,4 +797,85 @@ export const GetDateInYesterdayTodayTomorrowFormat = (
   const dateInput = typeof date === "string" ? parseISO(date) : date;
   const dateFormat = GetYesterdayTodayTomorrowFormat(dateInput, baseFormat);
   return format(dateInput, dateFormat);
+};
+
+const getClosedDays = (dailyReport: DailyReportType) => {
+  let closedDetails: any = [];
+  if (dailyReport.unfilledAbsences) {
+    closedDetails = closedDetails.concat(
+      dailyReport.unfilledAbsences?.filter(a => {
+        return (
+          a?.isClosed ||
+          some(a?.details, arr => {
+            return arr?.isClosed;
+          })
+        );
+      })
+    );
+  }
+  if (dailyReport.filledAbsences) {
+    closedDetails = closedDetails.concat(
+      dailyReport.filledAbsences?.filter(a => {
+        return (
+          a?.isClosed ||
+          some(a?.details, arr => {
+            return arr?.isClosed;
+          })
+        );
+      })
+    );
+  }
+  if (dailyReport.unfilledVacancies) {
+    closedDetails = closedDetails.concat(
+      dailyReport.unfilledVacancies?.filter(a => {
+        return (
+          a?.isClosed ||
+          some(a?.details, arr => {
+            return arr?.isClosed;
+          })
+        );
+      })
+    );
+  }
+  if (dailyReport.filledVacancies) {
+    closedDetails = closedDetails.concat(
+      dailyReport.filledVacancies?.filter(a => {
+        return (
+          a?.isClosed ||
+          some(a?.details, arr => {
+            return arr?.isClosed;
+          })
+        );
+      })
+    );
+  }
+  if (dailyReport.noSubRequiredAbsences) {
+    closedDetails = closedDetails.concat(
+      dailyReport.noSubRequiredAbsences?.filter(a => {
+        return (
+          a?.isClosed ||
+          some(a?.details, arr => {
+            return arr?.isClosed;
+          })
+        );
+      })
+    );
+  }
+  return closedDetails;
+};
+
+const filterOutAbsenceClosedDays = (absences: Maybe<AbsenceDr>[]) => {
+  return absences.filter(a => {
+    return every(a?.details, arr => {
+      return !arr?.isClosed;
+    });
+  });
+};
+
+const filterOutVacancyClosedDays = (vacancies: Maybe<VacancyDr>[]) => {
+  return vacancies.filter(v => {
+    return every(v?.details, arr => {
+      return !arr?.isClosed;
+    });
+  });
 };

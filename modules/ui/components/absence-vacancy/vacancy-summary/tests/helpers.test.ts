@@ -16,6 +16,7 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
   it("Basic Vacancy - single day - no assignments", () => {
     const vacancyFormData: VacancyDetailsFormData = {
       id: "100345",
+      isClosed: false,
       rowVersion: "34255463666754",
       positionTypeId: "1",
       title: "Vacancy Title",
@@ -24,9 +25,11 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
       locationName: "Haven Elementary School",
       workDayScheduleId: "4",
       orgId: "1038",
+      closedDetails: [],
       details: [
         {
           id: "1000",
+          isClosed: false,
           date: new Date("2020-03-23T04:00:00.000Z"),
           startTime: 34200,
           endTime: 54900,
@@ -60,6 +63,7 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
     const vacancyFormData: VacancyDetailsFormData = {
       id: "100345",
       rowVersion: "34255463666754",
+      isClosed: false,
       positionTypeId: "1",
       title: "Vacancy Title",
       contractId: "2",
@@ -67,10 +71,12 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
       locationName: "Haven Elementary School",
       workDayScheduleId: "4",
       orgId: "1038",
+      closedDetails: [],
       details: [
         {
           id: "1000",
           date: new Date("2020-03-23T04:00:00.000Z"),
+          isClosed: false,
           startTime: 34200,
           endTime: 54900,
           locationId: "3",
@@ -120,6 +126,8 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
     const vacancyFormData: VacancyDetailsFormData = {
       id: "100345",
       rowVersion: "34255463666754",
+      isClosed: false,
+      closedDetails: [],
       positionTypeId: "1",
       title: "Vacancy Title",
       contractId: "2",
@@ -131,6 +139,7 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
         {
           id: "1000",
           date: new Date("2020-03-23T04:00:00.000Z"),
+          isClosed: false,
           startTime: 34200,
           endTime: 54900,
           locationId: "3",
@@ -157,6 +166,7 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
         {
           id: "1001",
           date: new Date("2020-03-24T04:00:00.000Z"),
+          isClosed: false,
           startTime: 34200,
           endTime: 54900,
           locationId: "3",
