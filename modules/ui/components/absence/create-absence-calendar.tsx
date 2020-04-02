@@ -48,10 +48,14 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
         .map(date => {
           return {
             date,
-            buttonProps: { className: classes.existingDate+" existingDate"},
+            buttonProps: { className: classes.existingDate + " existingDate" },
           };
         }),
-    [disabledDateObjs, classes.existingDate+" existingDate", selectedAbsenceDates]
+    [
+      disabledDateObjs,
+      classes.existingDate + " existingDate",
+      selectedAbsenceDates,
+    ]
   );
 
   const customSelectedAbsenceDates = useMemo(
@@ -59,17 +63,19 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
       selectedAbsenceDates.map(date => {
         return {
           date,
-          buttonProps: { className: classes.selectedAbsenceDate+" selectedAbsenceDate" },
+          buttonProps: {
+            className: classes.selectedAbsenceDate + " selectedAbsenceDate",
+          },
         };
       }),
-    [selectedAbsenceDates, classes.selectedAbsenceDate+" selectedAbsenceDate"]
+    [selectedAbsenceDates, classes.selectedAbsenceDate + " selectedAbsenceDate"]
   );
-
   const customDates = useMemo(
     () =>
-      customDatesDisabled
-        .concat(customExistingAbsenceDates)
-        .concat(customSelectedAbsenceDates),
+      customSelectedAbsenceDates
+        .concat(customDatesDisabled)
+        .concat(customExistingAbsenceDates),
+
     [
       customDatesDisabled,
       customExistingAbsenceDates,

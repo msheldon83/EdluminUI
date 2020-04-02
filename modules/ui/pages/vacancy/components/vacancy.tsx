@@ -26,7 +26,7 @@ import { ContentFooter } from "ui/components/content-footer";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
-import { parseISO, isSameDay } from "date-fns";
+import { parseISO, isSameDay, format } from "date-fns";
 import { AssignSub } from "ui/components/assign-sub";
 import { VacancyConfirmation } from "./vacancy-confirmation";
 import { compact } from "lodash-es";
@@ -321,6 +321,22 @@ export const VacancyUI: React.FC<Props> = props => {
     container?.scrollTo(0, 0);
   }, [step]);
 
+  const renderClosedDaysBanner = useMemo(() => {
+    if (vacancy.closedDetails.length) {
+      return (
+        <ul>
+          {vacancy.closedDetails.map((c, i) => {
+            return (
+              <li key={`closed-${i}`}>{format(c?.date, "EEE MMMM d, yyyy")}</li>
+            );
+          })}
+        </ul>
+      );
+    } else {
+      return "";
+    }
+  }, [vacancy.closedDetails]);
+
   if (
     getPositionTypes.state === "LOADING" ||
     getLocations.state === "LOADING" ||
@@ -370,6 +386,16 @@ export const VacancyUI: React.FC<Props> = props => {
       <Typography className={classes.subHeader} variant="h4">
         {subHeader()}
       </Typography>
+      {vacancy.closedDetails.length > 0 && (
+        <Grid className={classes.closedDayBanner} item xs={12}>
+          <Typography>
+            {t(
+              "The following days were originally part of this vacancy but were removed because of a school closure:"
+            )}
+          </Typography>
+          {renderClosedDaysBanner}
+        </Grid>
+      )}
       <Formik
         initialValues={{
           positionTypeId: vacancy.positionTypeId,
@@ -559,7 +585,7 @@ export const VacancyUI: React.FC<Props> = props => {
                   <Grid item xs={12} className={classes.contentFooter}>
                     <div className={classes.actionButtons}>
                       <div className={classes.unsavedText}>
-                        {dirty && (
+                        {dirty && !vacancy.isClosed && (
                           <Typography>
                             {t("This page has unsaved changes")}
                           </Typography>
@@ -574,7 +600,7 @@ export const VacancyUI: React.FC<Props> = props => {
                           {t("Delete")}
                         </Button>
                       )}
-                      {vacancyExists && dirty && (
+                      {vacancyExists && dirty && !vacancy.isClosed && (
                         <Button
                           onClick={handleReset}
                           variant="outlined"
@@ -621,6 +647,7 @@ export const VacancyUI: React.FC<Props> = props => {
                           </Button>
                         </Can>
                       )}
+
                       <Can do={[PermissionEnum.AbsVacSave]}>
                         <Button
                           form="vacancy-form"
@@ -628,7 +655,9 @@ export const VacancyUI: React.FC<Props> = props => {
                           variant="contained"
                           className={classes.saveButton}
                           disabled={
-                            vacancyExists ? !dirty : !showSubmit || isSubmitting
+                            vacancyExists
+                              ? !dirty || vacancy.isClosed
+                              : !showSubmit || isSubmitting
                           }
                         >
                           {vacancyExists
@@ -751,5 +780,13 @@ const useStyles = makeStyles(theme => ({
   cancelButton: {
     marginRight: theme.spacing(2),
     color: "#050039",
+  },
+  closedDayBanner: {
+    marginTop: theme.typography.pxToRem(5),
+    backgroundColor: theme.customColors.yellow1,
+    padding: theme.typography.pxToRem(10),
+    borderRadius: theme.typography.pxToRem(4),
+    marginBottom: theme.typography.pxToRem(15),
+    border: `1px solid ${theme.customColors.sectionBorder}`,
   },
 }));

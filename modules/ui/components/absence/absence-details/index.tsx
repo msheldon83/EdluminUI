@@ -14,6 +14,7 @@ import {
   NeedsReplacement,
   PermissionEnum,
   Vacancy,
+  AbsenceDetail,
 } from "graphql/server-types.gen";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
@@ -35,6 +36,8 @@ import {
   BalanceUsage,
   AbsenceReasonUsageData,
 } from "ui/components/absence/balance-usage";
+import Maybe from "graphql/tsutils/Maybe";
+import { format } from "date-fns/esm";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -95,6 +98,7 @@ type Props = {
   onDelete?: () => void;
   onCancel?: () => void;
   isFormDirty: boolean;
+  isClosed: boolean;
   onAssignSubClick: (
     vacancyDetailIds?: string[],
     employeeToReplace?: string
@@ -102,6 +106,9 @@ type Props = {
   hasEditedDetails: boolean;
   assignmentsByDate: AssignmentOnDate[];
   usages: AbsenceReasonUsageData[] | null;
+  closedDates?:
+    | Maybe<Pick<AbsenceDetail, "id" | "startDate"> | null | undefined>[]
+    | null;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -194,6 +201,28 @@ export const AbsenceDetails: React.FC<Props> = props => {
     return startTime ? parseISO(startTime) : undefined;
   }, [props.vacancies]);
 
+  const showClosedDatesBanner = useMemo(() => {
+    return props.closedDates && props.closedDates.length > 0;
+  }, [props.closedDates]);
+
+  const renderClosedDaysBanner = useMemo(() => {
+    if (showClosedDatesBanner) {
+      return (
+        <ul>
+          {props.closedDates?.map((c, i) => {
+            return (
+              <li key={`closed-${i}`}>
+                {format(parseISO(c?.startDate), "EEE MMMM d, yyyy")}
+              </li>
+            );
+          })}
+        </ul>
+      );
+    } else {
+      return "";
+    }
+  }, [showClosedDatesBanner, props.closedDates]);
+
   return (
     <Grid container className={classes.absenceDetailsContainer}>
       <Grid item md={4} className={classes.spacing}>
@@ -219,12 +248,26 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         <CreateAbsenceCalendar
           monthNavigation
-          selectedAbsenceDates={props.absenceDates}
+          selectedAbsenceDates={
+            props.closedDates
+              ? props.absenceDates.concat(
+                  props.closedDates.map(c => parseISO(c?.startDate))
+                )
+              : props.absenceDates
+          }
           employeeId={props.employeeId}
           currentMonth={props.currentMonth}
           onMonthChange={onSwitchMonth}
           onSelectDates={dates => dates.forEach(props.onToggleAbsenceDate)}
         />
+        {showClosedDatesBanner && (
+          <Grid className={classes.closedDayBanner} item xs={12}>
+            <Typography>
+              {t("The following days of this absence fall on a closed day:")}
+            </Typography>
+            {renderClosedDaysBanner}
+          </Grid>
+        )}
 
         <BalanceUsage
           orgId={props.organizationId}
@@ -345,7 +388,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         <Grid item xs={12} className={classes.contentFooter}>
           <div className={classes.actionButtons}>
             <div className={classes.unsavedText}>
-              {props.isFormDirty && (
+              {props.isFormDirty && !props.isClosed && (
                 <Typography>{t("This page has unsaved changes")}</Typography>
               )}
             </div>
@@ -358,7 +401,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 {t("Delete")}
               </Button>
             )}
-            {props.onCancel && props.isFormDirty && (
+            {props.onCancel && props.isFormDirty && !props.isClosed && (
               <Button
                 onClick={() => props.onCancel!()}
                 variant="outlined"
@@ -374,7 +417,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 type="submit"
                 variant="contained"
                 className={classes.saveButton}
-                disabled={!props.isFormDirty || negativeBalanceWarning}
+                disabled={
+                  !props.isFormDirty || negativeBalanceWarning || props.isClosed
+                }
               >
                 {props.saveLabel ?? t("Create")}
               </Button>
@@ -457,5 +502,11 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  closedDayBanner: {
+    marginTop: theme.typography.pxToRem(5),
+    backgroundColor: theme.customColors.yellow1,
+    padding: theme.typography.pxToRem(10),
+    borderRadius: theme.typography.pxToRem(4),
   },
 }));

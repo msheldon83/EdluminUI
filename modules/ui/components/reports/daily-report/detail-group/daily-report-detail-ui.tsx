@@ -1,4 +1,11 @@
-import { Checkbox, Grid, Link, makeStyles, Tooltip } from "@material-ui/core";
+import {
+  Checkbox,
+  Grid,
+  Link,
+  makeStyles,
+  Tooltip,
+  Chip,
+} from "@material-ui/core";
 /* import InfoIcon from "@material-ui/icons/Info"; */
 import clsx from "clsx";
 import * as React from "react";
@@ -33,6 +40,7 @@ type Props = {
     onClick: () => void;
     permissions?: CanDo;
   }[];
+  vacancyDate?: string;
 };
 
 export const DailyReportDetailUI: React.FC<Props> = props => {
@@ -41,25 +49,32 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
 
   return (
     <div className={[classes.container, props.className].join(" ")}>
-      <Can
-        do={(
-          permissions: OrgUserPermissions[],
-          isSysAdmin: boolean,
-          orgId?: string
-        ) => canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)}
-      >
-        <Checkbox
-          color="primary"
-          className={clsx({
-            [classes.hidden]: props.hideCheckbox,
-            [classes.checkbox]: true,
-          })}
-          checked={props.isChecked}
-          onChange={e => {
-            props.updateSelectedDetails(props.detail, e.target.checked);
-          }}
-        />
-      </Can>
+      {!props.detail.isClosed && (
+        <Can
+          do={(
+            permissions: OrgUserPermissions[],
+            isSysAdmin: boolean,
+            orgId?: string
+          ) => canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)}
+        >
+          <Checkbox
+            color="primary"
+            className={clsx({
+              [classes.hidden]: props.hideCheckbox,
+              [classes.checkbox]: true,
+            })}
+            checked={props.isChecked}
+            onChange={e => {
+              props.updateSelectedDetails(props.detail, e.target.checked);
+            }}
+          />
+        </Can>
+      )}
+      {props.detail.isClosed && (
+        <div className={classes.closedSection}>
+          <Chip label={t("Closed")} />
+        </div>
+      )}
       <div className={classes.locationSection}>
         <div>
           {props.detail.type === "absence" ? (
@@ -76,26 +91,48 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                   </Link>
                 </Can>
                 <Can not do={[PermissionEnum.EmployeeView]}>
-                  {props.detail.employee?.name}
+                  <span
+                    className={props.detail.isClosed ? classes.closedText : ""}
+                  >
+                    {props.detail.employee?.name}
+                  </span>
                 </Can>
               </div>
               <div className={classes.detailSubText}>
-                {props.detail.position?.name}
+                <span
+                  className={props.detail.isClosed ? classes.closedText : ""}
+                >
+                  {props.detail.position?.name}
+                </span>
               </div>
             </>
           ) : (
-            <div>{`${t("Vacancy")}: ${props.detail.position?.name}`}</div>
+            <div>
+              <span
+                className={props.detail.isClosed ? classes.closedText : ""}
+              >{`${t("Vacancy")}: ${props.detail.position?.name}`}</span>
+            </div>
           )}
         </div>
       </div>
       <div className={classes.reasonSection}>
         <div>
           <div>
-            {props.detail.type === "absence"
-              ? props.detail.absenceReason
-              : props.detail.vacancyReason}
+            {props.detail.type === "absence" ? (
+              <span className={props.detail.isClosed ? classes.closedText : ""}>
+                {props.detail.absenceReason}
+              </span>
+            ) : (
+              <span className={props.detail.isClosed ? classes.closedText : ""}>
+                {props.detail.vacancyReason}
+              </span>
+            )}
           </div>
-          <div className={classes.detailSubText}>{props.detail.dateRange}</div>
+          <div className={classes.detailSubText}>
+            <span className={props.detail.isClosed ? classes.closedText : ""}>
+              {props.vacancyDate ? props.vacancyDate : props.detail.dateRange}
+            </span>
+          </div>
         </div>
       </div>
       <div className={classes.locationSection}>
@@ -112,19 +149,31 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
               </Link>
             </Can>
             <Can not do={[PermissionEnum.LocationView]}>
-              {props.detail.location?.name}
+              <span className={props.detail.isClosed ? classes.closedText : ""}>
+                {props.detail.location?.name}
+              </span>
             </Can>
           </div>
           <div className={classes.detailSubText}>
-            {`${props.detail.startTime} - ${props.detail.endTime}`}
+            <span
+              className={props.detail.isClosed ? classes.closedText : ""}
+            >{`${props.detail.startTime} - ${props.detail.endTime}`}</span>
           </div>
         </div>
       </div>
-      <div className={classes.date}>{props.detail.created}</div>
+      <div className={classes.date}>
+        <span className={props.detail.isClosed ? classes.closedText : ""}>
+          {props.detail.created}
+        </span>
+      </div>
       <div className={classes.substituteSection}>
         <div>
           {props.detail.state === "noSubRequired" && (
-            <div className={classes.detailSubText}>{t("Not required")}</div>
+            <div className={classes.detailSubText}>
+              <span className={props.detail.isClosed ? classes.closedText : ""}>
+                {t("Not required")}
+              </span>
+            </div>
           )}
           {props.detail.state !== "noSubRequired" && props.detail.substitute && (
             <div className={classes.subWithPhone}>
@@ -155,34 +204,44 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
               )}
             </div>
           )}
-          {props.detail.state !== "noSubRequired" && !props.detail.substitute && (
-            <Can
-              do={(
-                permissions: OrgUserPermissions[],
-                isSysAdmin: boolean,
-                orgId?: string
-              ) =>
-                canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
-              }
-            >
-              {props.detail.type === "absence" && (
-                <Link
-                  className={classes.action}
-                  onClick={() => props.goToAbsenceEditAssign(props.detail.id)}
-                >
-                  {t("Assign")}
-                </Link>
-              )}
-              {props.detail.type === "vacancy" && (
-                <Link
-                  className={classes.action}
-                  onClick={() => props.goToVacancyEditAssign(props.detail.id)}
-                >
-                  {t("Assign")}
-                </Link>
-              )}
-            </Can>
+          {props.detail.isClosed && (
+            <span className={classes.closedText}>{t("Not required")}</span>
           )}
+          {props.detail.state !== "noSubRequired" &&
+            !props.detail.isClosed &&
+            !props.detail.substitute && (
+              <Can
+                do={(
+                  permissions: OrgUserPermissions[],
+                  isSysAdmin: boolean,
+                  orgId?: string
+                ) =>
+                  canAssignSub(
+                    props.detail.date,
+                    permissions,
+                    isSysAdmin,
+                    orgId
+                  )
+                }
+              >
+                {props.detail.type === "absence" && (
+                  <Link
+                    className={classes.action}
+                    onClick={() => props.goToAbsenceEditAssign(props.detail.id)}
+                  >
+                    {t("Assign")}
+                  </Link>
+                )}
+                {props.detail.type === "vacancy" && (
+                  <Link
+                    className={classes.action}
+                    onClick={() => props.goToVacancyEditAssign(props.detail.id)}
+                  >
+                    {t("Assign")}
+                  </Link>
+                )}
+              </Can>
+            )}
           {props.detail.subTimes.map((st, i) => {
             return (
               <div className={classes.detailSubText} key={i}>
@@ -224,7 +283,7 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2),
     display: "flex",
     width: "100%",
-    alignItems: "center",
+    alignItems: "left",
     justifyContent: "space-between",
     [theme.breakpoints.down("sm")]: {
       alignItems: "stretch",
@@ -238,6 +297,11 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flex: 7,
   },
+  closedSection: {
+    display: "flex",
+    flex: 3,
+    marginRight: theme.spacing(),
+  },
   reasonSection: {
     display: "flex",
     flex: 4,
@@ -248,6 +312,10 @@ const useStyles = makeStyles(theme => ({
   },
   date: {
     flex: 4,
+  },
+  closedText: {
+    fontStyle: "italic",
+    color: "#9E9E99",
   },
   subWithPhone: {
     display: "flex",
