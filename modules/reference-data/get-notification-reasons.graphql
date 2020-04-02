@@ -5,6 +5,10 @@ query GetNotificationReasons {
       name
       description
       appliesToRole
+      methodsOfDelivery {
+        default
+        method
+      }
     }
   }
 }

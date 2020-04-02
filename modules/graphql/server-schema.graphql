@@ -14,6 +14,7 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   rowVersion: String!
   employeeId: ID!
   notesToApprover: String
+  isClosed: Boolean!
   startDate: Date
   startTimeLocal: DateTime
   endDate: Date
@@ -24,6 +25,7 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   totalDuration: Int!
   totalDayPortion: Decimal!
   details: [AbsenceDetail]
+  closedDetails: [AbsenceDetail]
   employee: Employee
   vacancies: [Vacancy]
   locationIds: [ID!]!
@@ -64,6 +66,7 @@ type AbsenceDetail implements ModelObjectInterface & OrgObjectInterface {
   dayPartId: DayPart
   dayPortion: Decimal!
   description: String
+  isClosed: Boolean!
   reasonUsages: [AbsenceReasonUsage]
 }
 
@@ -128,7 +131,7 @@ type AbsenceMutations {
 }
 
 type AbsenceQueries {
-  byId(id: ID!, includeDeleted: Boolean): Absence
+  byId(id: ID!): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
   projectedVacancies(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): [Vacancy]
@@ -1294,6 +1297,12 @@ input DayPortionOverride {
 
 scalar Decimal
 
+enum DefaultNotificationStatus {
+  ALWAYS_ON
+  ON
+  OFF
+}
+
 enum DensityUnit {
   INVALID
   POUNDS_PER_CUBIC_FOOT
@@ -1673,6 +1682,7 @@ enum EventType {
   USER_AVAILABLE_TIME_SAVED
   USER_UNAVAILABLE_TIME_SAVED
   USER_UNAVAILABLE_TIME_DELETED
+  USER_NOTIFICATION_FAILED
   ORGANIZATION_CREATED
   ORGANIZATION_UPDATED
   ORGANIZATION_DELETED
@@ -2164,7 +2174,8 @@ type NotificationLog implements ModelObjectInterface {
   title: String
   content: String
   headerMessage: String
-  link: String
+  objectTypeId: ObjectType!
+  objectKey: Int
   viewed: Boolean!
   orgId: Int
 }
@@ -2189,6 +2200,19 @@ enum NotificationMessageStatus {
   NOTHING_TO_SEND
 }
 
+enum NotificationMethod {
+  IN_APP
+  EMAIL
+  SMS
+  PUSH
+}
+
+type NotificationMethodOfDelivery {
+  _info: [ReturnMessage]
+  method: NotificationMethod
+  default: DefaultNotificationStatus
+}
+
 type NotificationPreference {
   _info: [ReturnMessage]
   notificationReasonId: NotificationReason!
@@ -2199,26 +2223,19 @@ type NotificationPreference {
 
 input NotificationPreferenceInput {
   notificationReasonId: NotificationReason!
-  receiveInAppNotifications: Boolean!
-  receiveEmailNotifications: Boolean!
-  receiveSmsNotifications: Boolean!
+  receiveInAppNotifications: Boolean
+  receiveEmailNotifications: Boolean
+  receiveSmsNotifications: Boolean
 }
 
 enum NotificationReason {
   INVALID
-  JOB_AVAILABLE
-  JOB_CANCELLED
-  JOB_DETAILS_CHANGED
-  JOB_FILLED
-  ABSENCE_CREATED
-  ABSENCE_APPROVED
-  ABSENCE_CANCELLED
-  ABSENCE_NEEDS_APPROVAL
-  ASSIGNMENTS_NEED_VERIFIED
-  UNFILLED_TODAY
-  SUB_ASSIGNED
-  SUB_CANCELLED
-  SUB_REMOVED
+  ADMIN_ABSENCE_OR_VACANCY_CREATED_BY_ANY
+  ADMIN_ABSENCE_OR_VACANCY_DELETED_BY_ANY
+  EMP_ABSENCE_CREATED_BY_OTHER
+  EMP_ABSENCE_CREATED_BY_SELF
+  EMP_ABSENCE_DELETED_BY_OTHER
+  EMP_ABSENCE_DELETED_BY_SELF
 }
 
 type ObjectReplacementCriteria {
@@ -2309,6 +2326,8 @@ type organizationConfig {
   minutesBeforeStartAbsenceCanBeCreated: Int!
   brandingId: ID!
   branding: Branding
+  absenceSubContact: OrganizationContact
+  absenceEmployeeContact: OrganizationContact
   featureFlags: [FeatureFlag]
   longTermVacancyThresholdDays: Int!
   minLeadTimeMinutesToCancelVacancy: Int!
@@ -2343,6 +2362,8 @@ input organizationConfigInput {
   minAbsenceMinutes: Int
   maxAbsenceDays: Int
   absenceCreateCutoffTime: Int
+  absenceSubContact: OrganizationContactInput
+  absenceEmployeeContact: OrganizationContactInput
   requestedSubCutoffMinutes: Int
   minRequestedEmployeeHoldMinutes: Int
   maxRequestedEmployeeHoldMinutes: Int
@@ -2351,6 +2372,19 @@ input organizationConfigInput {
   defaultSubVisibilityPercent: Int
   defaultSubVisibilityMinutesMinimum: Int
   vacancyDayConversions: [DayConversionInput]
+}
+
+type OrganizationContact {
+  _info: [ReturnMessage]
+  name: String
+  email: String
+  phone: String
+}
+
+input OrganizationContactInput {
+  name: String
+  email: String
+  phone: String
 }
 
 input OrganizationCreateInput {
@@ -4051,6 +4085,7 @@ type RefNotificationReason {
   name: String!
   description: String
   appliesToRole: OrgUserRole
+  methodsOfDelivery: [NotificationMethodOfDelivery!]!
 }
 
 type RefObjectType {
@@ -5023,6 +5058,8 @@ type UserMutations {
   saveAvailableTime(availableTime: UserAvailableTimeInput!): UserAvailableTime
   saveUnavailableTime(unavailableTime: UserUnavailableTimeInput!): UserUnavailableTime
   deleteUnavailableTime(id: ID!): Boolean
+  verifyPhoneNumber(phoneNumber: String!): User
+  sendMobileMessage(id: ID!, title: String!, message: String!): Boolean
 }
 
 type UserPreferences {
@@ -5102,6 +5139,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   absenceId: ID
   isLongTerm: Boolean!
   notesToReplacement: String
+  isClosed: Boolean!
   startDate: Date
   startTimeLocal: DateTime!
   endDate: Date!
@@ -5113,6 +5151,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   totalDayPortion: Decimal!
   fillStatus: FillStatus!
   details: [VacancyDetail!]!
+  closedDetails: [VacancyDetail]
   requestedEmployees: [VacancyEmployeeRequest]
   interestedEmployees: [VacancyEmployeeInterest]
   position: Position
@@ -5182,6 +5221,7 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   vacancyReasonId: ID
   vacancyReason: VacancyReason
   vacancy: BasicVacancy
+  isClosed: Boolean!
   totalDayPortion: Decimal
   payInfo: PayInfo
 }
@@ -5364,7 +5404,7 @@ enum VacancyQualification {
 }
 
 type VacancyQueries {
-  byId(id: ID!, includeDeleted: Boolean): Vacancy
+  byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
   getAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, limit: Int, orgId: ID!, shadowFromOrgId: ID, includeVerified: Boolean): [VacancyDetail]
