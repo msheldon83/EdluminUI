@@ -184,7 +184,7 @@ export const ProfileBasicInfo: React.FC<Props> = props => {
                             onClick={props.onVerifyPhoneNumber}
                             variant="contained"
                           >
-                            {t("Verify Phone Number")}
+                            {t("Send Test SMS")}
                           </Button>
                         </div>
                       </Grid>
