@@ -2,10 +2,13 @@ import * as React from "react";
 import { makeStyles, Checkbox, Grid } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "hooks";
-import { NotificationPreferenceInput } from "graphql/server-types.gen";
+import {
+  NotificationPreferenceInput,
+  NotificationMethod,
+  DefaultNotificationStatus,
+} from "graphql/server-types.gen";
 import clsx from "clsx";
-import { getDisplayName } from "ui/components/enumHelpers";
-import { showPreference, showInApp } from "./available-notifications";
+import { useNotificationReasons } from "reference-data/notification-reasons";
 
 type Props = {
   notificationPreference: NotificationPreferenceInput;
@@ -13,6 +16,9 @@ type Props = {
   setFieldValue: Function;
   shadeRow: boolean;
   index: number;
+  showEmailColumn: boolean;
+  showSmsColumn: boolean;
+  showInAppColumn: boolean;
 };
 
 export const PreferenceRow: React.FC<Props> = props => {
@@ -20,73 +26,92 @@ export const PreferenceRow: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
 
-  const showInAppColumn = showInApp();
-
   const preference = props.notificationPreference;
+  const { showEmailColumn, showInAppColumn, showSmsColumn } = props;
+
+  const notificationReasons = useNotificationReasons();
+  const notificationReason = notificationReasons.find(
+    x => x.enumValue === preference.notificationReasonId
+  );
+
+  // If this reason is not found, it means we haven't implemented it yet
+  if (!notificationReason) {
+    return <></>;
+  }
+
+  const columnCount = +showEmailColumn + +showSmsColumn + +showInAppColumn;
+
   return (
     <>
       <Grid
         container
-        item
-        xs={isMobile ? 12 : 6}
         spacing={1}
+        item
+        xs={12}
         alignItems="center"
         className={clsx({
           [classes.shadedRow]: props.shadeRow,
         })}
       >
         <Grid item xs={6}>
-          {getDisplayName(
-            "notificationReason",
-            preference.notificationReasonId,
-            t
-          )}
+          {notificationReason?.description}
         </Grid>
-        <Grid item xs={showInAppColumn ? 2 : 3}>
-          {showPreference(
-            preference.notificationReasonId,
-            "receiveEmailNotifications"
-          ) && (
-            <Checkbox
-              color="primary"
-              checked={preference.receiveEmailNotifications}
-              onChange={async e => {
-                props.setFieldValue(
-                  `notificationPreferences[${props.index}].receiveEmailNotifications`,
-                  e.target.checked
-                );
-                await props.onSubmit();
-              }}
-            />
-          )}
-        </Grid>
-        <Grid item xs={showInAppColumn ? 2 : 3}>
-          {showPreference(
-            preference.notificationReasonId,
-            "receiveSmsNotifications"
-          ) && (
-            <Checkbox
-              color="primary"
-              checked={preference.receiveSmsNotifications}
-              onChange={async e => {
-                props.setFieldValue(
-                  `notificationPreferences[${props.index}].receiveSmsNotifications`,
-                  e.target.checked
-                );
-                await props.onSubmit();
-              }}
-            />
-          )}
-        </Grid>
-        {showInAppColumn && (
-          <Grid item xs={2}>
-            {showPreference(
-              preference.notificationReasonId,
-              "receiveInAppNotifications"
+        {showEmailColumn && (
+          <Grid item xs={1}>
+            {notificationReason.methodsOfDelivery.find(
+              x => x.method === NotificationMethod.Email
             ) && (
               <Checkbox
                 color="primary"
-                checked={preference.receiveInAppNotifications}
+                checked={preference.receiveEmailNotifications ?? false}
+                onChange={async e => {
+                  props.setFieldValue(
+                    `notificationPreferences[${props.index}].receiveEmailNotifications`,
+                    e.target.checked
+                  );
+                  await props.onSubmit();
+                }}
+                disabled={
+                  notificationReason.methodsOfDelivery.find(
+                    x => x.method === NotificationMethod.Email
+                  )?.default === DefaultNotificationStatus.AlwaysOn
+                }
+              />
+            )}
+          </Grid>
+        )}
+        {showSmsColumn && (
+          <Grid item xs={1}>
+            {notificationReason.methodsOfDelivery.find(
+              x => x.method === NotificationMethod.Sms
+            ) && (
+              <Checkbox
+                color="primary"
+                checked={preference.receiveSmsNotifications ?? false}
+                onChange={async e => {
+                  props.setFieldValue(
+                    `notificationPreferences[${props.index}].receiveSmsNotifications`,
+                    e.target.checked
+                  );
+                  await props.onSubmit();
+                }}
+                disabled={
+                  notificationReason.methodsOfDelivery.find(
+                    x => x.method === NotificationMethod.Sms
+                  )?.default === DefaultNotificationStatus.AlwaysOn
+                }
+              />
+            )}
+          </Grid>
+        )}
+        {showInAppColumn && (
+          <Grid item xs={1}>
+            {notificationReason.methodsOfDelivery.find(
+              x => x.method === NotificationMethod.InApp
+            ) && (
+              <Checkbox
+                color="primary"
+                checked={preference.receiveInAppNotifications ?? false}
                 onChange={async e => {
                   props.setFieldValue(
                     `notificationPreferences[${props.index}].receiveInAppNotifications`,
@@ -94,6 +119,11 @@ export const PreferenceRow: React.FC<Props> = props => {
                   );
                   await props.onSubmit();
                 }}
+                disabled={
+                  notificationReason.methodsOfDelivery.find(
+                    x => x.method === NotificationMethod.InApp
+                  )?.default === DefaultNotificationStatus.AlwaysOn
+                }
               />
             )}
           </Grid>
@@ -106,7 +136,6 @@ export const PreferenceRow: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   shadedRow: {
     background: theme.customColors.lightGray,
-    border: `1px solid ${theme.customColors.lightGray}`,
   },
   checkBox: {
     padding: theme.spacing(2),
