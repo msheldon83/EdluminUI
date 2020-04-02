@@ -20,7 +20,8 @@ import { RequestAbsenceDialog } from "ui/pages/sub-home/components/request-dialo
 import { DismissVacancy } from "ui/pages/sub-home/graphql/dismiss-vacancy.gen";
 import { GetVacancyById } from "./graphql/get-opportunity-by-id.gen";
 import { RequestVacancy } from "ui/pages/sub-home/graphql/request-vacancy.gen";
-import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
+import { useMyUserAccess } from "reference-data/my-user-access";
+import { compact } from "lodash-es";
 
 type Props = {};
 
@@ -47,21 +48,10 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     },
   });
 
-  const getOrgUsers = useQueryBundle(GetMyUserAccess, {
-    fetchPolicy: "cache-first",
-  });
+  const userAccess = useMyUserAccess();
 
-  const orgUsers = (getOrgUsers.state === "LOADING" ||
-  getOrgUsers.state === "UPDATING"
-    ? []
-    : getOrgUsers.data?.userAccess?.me?.user?.orgUsers ?? []) as Pick<
-    OrgUser,
-    "id" | "orgId"
-  >[];
-  const userId =
-    getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
-      ? undefined
-      : getOrgUsers.data?.userAccess?.me?.user?.id;
+  const orgUsers = compact(userAccess?.me?.user?.orgUsers) ?? [];
+  const userId = userAccess?.me?.user?.id;
 
   const getVacancy = useQueryBundle(GetVacancyById, {
     variables: {
@@ -73,22 +63,9 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
 
   const vacancy = useMemo(
     () =>
-      (getVacancy.state === "DONE" || getVacancy.state === "UPDATING"
+      getVacancy.state === "DONE" || getVacancy.state === "UPDATING"
         ? getVacancy.data.vacancy?.specificJobSearchForUser ?? null
-        : null) as Pick<
-        Vacancy,
-        | "id"
-        | "organization"
-        | "position"
-        | "absence"
-        | "startTimeLocal"
-        | "endTimeLocal"
-        | "startDate"
-        | "endDate"
-        | "notesToReplacement"
-        | "totalDayPortion"
-        | "details"
-      >,
+        : null,
     [getVacancy]
   );
 
@@ -111,7 +88,7 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
 
   const determineEmployeeId = () => {
     const employeeId =
-      orgUsers.find(o => o.orgId === vacancy.organization.id)?.id ?? 0;
+      orgUsers.find(o => o.orgId === vacancy?.organization.id)?.id ?? 0;
     return employeeId;
   };
 
@@ -145,13 +122,16 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
       <Grid item>
         <Button
           variant={isMobile ? "text" : "outlined"}
-          onClick={() => onDismissVacancy(vacancy.id)}
+          onClick={() => onDismissVacancy(vacancy?.id ?? "")}
         >
           {t("Dismiss")}
         </Button>
       </Grid>
       <Grid item>
-        <Button variant="contained" onClick={() => onAcceptVacancy(vacancy.id)}>
+        <Button
+          variant="contained"
+          onClick={() => onAcceptVacancy(vacancy?.id ?? "")}
+        >
           {t("Accept")}
         </Button>
       </Grid>
@@ -200,10 +180,10 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
                     />
                   </Grid>
                   <Grid item xs={isMobile ? 12 : 6}>
-                    {vacancy.notesToReplacement && (
+                    {vacancy?.notesToReplacement && (
                       <>
                         <Typography variant="h6">{t("Notes")}</Typography>
-                        <div>{vacancy.notesToReplacement}</div>
+                        <div>{vacancy?.notesToReplacement}</div>
                       </>
                     )}
                   </Grid>

@@ -141,76 +141,81 @@ export const VacancyDetailSection: React.FC<Props> = props => {
   }, [values.details]);
 
   //default properties
-  useEffect(() => {
-    if (
-      !values.locationId ||
-      !values.locationName ||
-      !values.contractId ||
-      !values.workDayScheduleId ||
-      (values.title === undefined && positionTypes)
-    ) {
-      if (locationOptions[0]?.value) {
-        setFieldValue(
-          "locationId",
-          !values.locationId ? locationOptions[0].value : values.locationId
-        );
-      }
+  useEffect(
+    () => {
+      if (
+        !values.locationId ||
+        !values.locationName ||
+        !values.contractId ||
+        !values.workDayScheduleId ||
+        (values.title === undefined && positionTypes)
+      ) {
+        if (locationOptions[0]?.value) {
+          setFieldValue(
+            "locationId",
+            !values.locationId ? locationOptions[0].value : values.locationId
+          );
+        }
 
-      if (locationOptions[0]?.label) {
-        setFieldValue(
-          "locationName",
-          !values.locationName ? locationOptions[0].label : values.locationName
-        );
-      }
+        if (locationOptions[0]?.label) {
+          setFieldValue(
+            "locationName",
+            !values.locationName
+              ? locationOptions[0].label
+              : values.locationName
+          );
+        }
 
-      if (contracts[0]?.id) {
-        setFieldValue(
-          "contractId",
-          !values.contractId ? contracts[0]?.id : values.contractId
-        );
-      }
+        if (contracts[0]?.id) {
+          setFieldValue(
+            "contractId",
+            !values.contractId ? contracts[0]?.id : values.contractId
+          );
+        }
 
-      if (bellScheduleOptions[0]?.value) {
+        if (bellScheduleOptions[0]?.value) {
+          setFieldValue(
+            "workDayScheduleId",
+            !values.workDayScheduleId
+              ? bellScheduleOptions[0]?.value
+              : values.workDayScheduleId
+          );
+        }
+
         setFieldValue(
-          "workDayScheduleId",
-          !values.workDayScheduleId
+          "title",
+          !values.title
+            ? positionTypes.find(pt => pt.id === values.positionTypeId)?.name ??
+                ""
+            : values.title
+        );
+        const model = {
+          locationId: !values.locationId
+            ? locationOptions[0]?.value
+            : values.locationId,
+          locationName: !values.locationName
+            ? locationOptions[0]?.label
+            : values.locationName,
+          contractId: !values.contractId ? contracts[0]?.id : values.contractId,
+          workDayScheduleId: !values.workDayScheduleId
             ? bellScheduleOptions[0]?.value
-            : values.workDayScheduleId
-        );
-      }
-
-      setFieldValue(
-        "title",
-        !values.title
-          ? positionTypes.find(pt => pt.id === values.positionTypeId)?.name ??
+            : values.workDayScheduleId,
+          title: !values.title
+            ? positionTypes.find(pt => pt.id === values.positionTypeId)?.name ??
               ""
-          : values.title
-      );
-      const model = {
-        locationId: !values.locationId
-          ? locationOptions[0]?.value
-          : values.locationId,
-        locationName: !values.locationName
-          ? locationOptions[0]?.label
-          : values.locationName,
-        contractId: !values.contractId ? contracts[0]?.id : values.contractId,
-        workDayScheduleId: !values.workDayScheduleId
-          ? bellScheduleOptions[0]?.value
-          : values.workDayScheduleId,
-        title: !values.title
-          ? positionTypes.find(pt => pt.id === values.positionTypeId)?.name ??
-            ""
-          : values.title,
-      };
-      updateModel(model);
-    }
-  }, [
-    values.locationId,
-    values.locationName,
-    values.contractId,
-    values.workDayScheduleId,
-    values.title,
-  ]); /* eslint-disable-line react-hooks/exhaustive-deps */
+            : values.title,
+        };
+        updateModel(model);
+      }
+    },
+    /* eslint-disable-line react-hooks/exhaustive-deps */ [
+      values.locationId,
+      values.locationName,
+      values.contractId,
+      values.workDayScheduleId,
+      values.title,
+    ]
+  );
 
   return (
     <>
