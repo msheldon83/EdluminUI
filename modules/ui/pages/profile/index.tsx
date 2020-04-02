@@ -134,7 +134,7 @@ export const ProfilePage: React.FC<Props> = props => {
       },
       [myUser, onUpdateUser]
     ),
-    3000
+    2000
   );
 
   const notificationPreferencesForUser =
