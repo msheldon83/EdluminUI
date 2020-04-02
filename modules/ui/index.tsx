@@ -127,6 +127,8 @@ import {
   EmployeeSubstitutePreferenceLoader,
   PeopleEmployeeBalancesEditRoute,
   PeopleEmployeeBalancesEditLoader,
+  SubstituteAvailableAssignmentsRoute,
+  SubstituteAvailableAssignmentsLoader,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -594,6 +596,18 @@ export const App = hot(function() {
                                     }
                                     path={
                                       SubstituteAssignmentScheduleRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.SubstituteView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={
+                                      SubstituteAvailableAssignmentsLoader
+                                    }
+                                    path={
+                                      SubstituteAvailableAssignmentsRoute.path
                                     }
                                     role={"admin"}
                                     permissions={[

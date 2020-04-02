@@ -18,7 +18,6 @@ import {
 } from "graphql/hooks";
 import {
   OrgUser,
-  Vacancy,
   VacancyDetail,
   PermissionEnum,
 } from "graphql/server-types.gen";
@@ -34,8 +33,6 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-import { useRouteParams } from "ui/routes/definition";
-import { SubHomeRoute } from "ui/routes/sub-home";
 import { SubScheduleRoute } from "ui/routes/sub-schedule";
 import { AssignmentCard } from "./components/assignment";
 import { AvailableJob } from "./components/available-job";
@@ -51,12 +48,14 @@ import { Can } from "ui/components/auth/can";
 import { compact } from "lodash-es";
 import { ConfirmOverrideDialog } from "./components/confirm-override";
 
-type Props = {};
+type Props = {
+  viewingAsAdmin?: boolean;
+  userId?: string;
+};
 
 export const SubHome: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(SubHomeRoute);
   const isMobile = useIsMobile();
   const { openSnackbar } = useSnackbar();
   const [showFilters, setShowFilters] = React.useState(!isMobile);
@@ -83,6 +82,7 @@ export const SubHome: React.FC<Props> = props => {
 
   const getOrgUsers = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "cache-first",
+    skip: props.userId !== undefined,
   });
 
   const orgUsers = (getOrgUsers.state === "LOADING" ||
@@ -92,10 +92,11 @@ export const SubHome: React.FC<Props> = props => {
     OrgUser,
     "id" | "orgId"
   >[];
-  const userId =
-    getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
-      ? undefined
-      : getOrgUsers.data?.userAccess?.me?.user?.id;
+  const userId = props.userId
+    ? props.userId
+    : getOrgUsers.state === "LOADING" || getOrgUsers.state === "UPDATING"
+    ? undefined
+    : getOrgUsers.data?.userAccess?.me?.user?.id;
 
   const [getVacancies, pagination] = usePagedQueryBundle(
     SubJobSearch,
@@ -143,7 +144,7 @@ export const SubHome: React.FC<Props> = props => {
       toDate,
       includeCompletedToday: false,
     },
-    skip: !userId,
+    skip: !userId || props.viewingAsAdmin,
   });
 
   const assignments = useMemo(
@@ -262,61 +263,63 @@ export const SubHome: React.FC<Props> = props => {
 
   return (
     <>
-      <Grid
-        container
-        className={classes.upcomingWork}
-        spacing={2}
-        alignItems="stretch"
-      >
-        <Grid item xs={12} style={{ paddingBottom: 0 }}>
-          <SectionHeader
-            title={upcomingWorkTitle}
-            titleClassName={classes.title}
-          />
-        </Grid>
-        <Grid item xs={12} sm={12} md={6} lg={6}>
-          {getUpcomingAssignments.state === "LOADING" ? (
-            <Section>
-              <Typography variant="h5">
-                {t("Loading Upcoming Assignments")}
-              </Typography>
-            </Section>
-          ) : assignments.length === 0 ? (
-            <Section>
-              <Typography variant="h5">
-                {t("No Assignments scheduled")}
-              </Typography>
-            </Section>
-          ) : (
-            <>
-              {renderAssignments()}
-              <MuiLink
-                className={classes.viewAllAssignmentsLink}
-                component={Link}
-                to={SubScheduleRoute.generate(params)}
-              >
-                {t("View All")}
-              </MuiLink>
-            </>
+      {!props.viewingAsAdmin && (
+        <Grid
+          container
+          className={classes.upcomingWork}
+          spacing={2}
+          alignItems="stretch"
+        >
+          <Grid item xs={12} style={{ paddingBottom: 0 }}>
+            <SectionHeader
+              title={upcomingWorkTitle}
+              titleClassName={classes.title}
+            />
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6}>
+            {getUpcomingAssignments.state === "LOADING" ? (
+              <Section>
+                <Typography variant="h5">
+                  {t("Loading Upcoming Assignments")}
+                </Typography>
+              </Section>
+            ) : assignments.length === 0 ? (
+              <Section>
+                <Typography variant="h5">
+                  {t("No Assignments scheduled")}
+                </Typography>
+              </Section>
+            ) : (
+              <>
+                {renderAssignments()}
+                <MuiLink
+                  className={classes.viewAllAssignmentsLink}
+                  component={Link}
+                  to={SubScheduleRoute.generate({})}
+                >
+                  {t("View All")}
+                </MuiLink>
+              </>
+            )}
+          </Grid>
+          {!isMobile && (
+            <Grid item xs={12} sm={6} lg={6}>
+              <Section>
+                <Padding bottom={6}>
+                  <CustomCalendar
+                    customDates={activeDates}
+                    month={fromDate}
+                    contained={false}
+                    classes={{
+                      weekend: classes.weekendDate,
+                    }}
+                  />
+                </Padding>
+              </Section>
+            </Grid>
           )}
         </Grid>
-        {!isMobile && (
-          <Grid item xs={12} sm={6} lg={6}>
-            <Section>
-              <Padding bottom={6}>
-                <CustomCalendar
-                  customDates={activeDates}
-                  month={fromDate}
-                  contained={false}
-                  classes={{
-                    weekend: classes.weekendDate,
-                  }}
-                />
-              </Padding>
-            </Section>
-          </Grid>
-        )}
-      </Grid>
+      )}
       <Can do={[PermissionEnum.AbsVacAssign]}>
         <Section className={classes.wrapper}>
           <Grid container spacing={2} className={classes.header}>
@@ -326,13 +329,6 @@ export const SubHome: React.FC<Props> = props => {
 
             {isMobile ? (
               <div className={classes.jobButtons}>
-                <Button
-                  variant="outlined"
-                  startIcon={<FilterList />}
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  {t("Filters")}
-                </Button>
                 <IconButton onClick={onRefreshVacancies}>
                   <RefreshIcon />
                 </IconButton>
@@ -345,6 +341,17 @@ export const SubHome: React.FC<Props> = props => {
               </div>
             )}
           </Grid>
+          {isMobile && (
+            <div className={classes.filterButton}>
+              <Button
+                variant="outlined"
+                startIcon={<FilterList />}
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                {t("Filters")}
+              </Button>
+            </div>
+          )}
 
           {showFilters && <Filters />}
           <div>
@@ -362,6 +369,7 @@ export const SubHome: React.FC<Props> = props => {
                   onDismiss={onDismissVacancy}
                   key={index}
                   onAccept={onAcceptVacancy}
+                  viewingAsAdmin={props.viewingAsAdmin}
                 />
               ))
             ) : (
@@ -394,6 +402,10 @@ const useStyles = makeStyles(theme => ({
   filters: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+  },
+  filterButton: {
+    paddingLeft: theme.spacing(2),
+    paddingBottom: theme.spacing(1),
   },
   header: {
     marginBottom: theme.spacing(2),

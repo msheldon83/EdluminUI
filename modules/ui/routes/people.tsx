@@ -223,6 +223,21 @@ export const SubstituteAssignmentScheduleLoader = asyncComponent({
   name: "EmployeeAbsSchedulePage",
 });
 
+export const SubstituteAvailableAssignmentsRoute = defineSubRoute(
+  PersonViewRoute,
+  "/available-assignments"
+);
+
+export const SubstituteAvailableAssignmentsLoader = asyncComponent({
+  resolve: async () => {
+    const SubstituteAvailableAssignmentsPage = (
+      await import("ui/pages/people/substitute-available-assignments")
+    ).SubstituteAvailableAssignmentsPage;
+    return SubstituteAvailableAssignmentsPage;
+  },
+  name: "SubstituteAvailableAssignmentsPage",
+});
+
 /***** employee sub preferences *****/
 
 export const EmployeeSubstitutePreferenceRoute = defineSubRoute(

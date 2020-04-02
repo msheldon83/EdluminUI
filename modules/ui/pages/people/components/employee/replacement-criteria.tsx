@@ -69,17 +69,19 @@ export const ReplacementCriteria: React.FC<Props> = props => {
       <Section>
         <SectionHeader
           title={t("Replacement criteria")}
-          action={{
-            text: t("Edit"),
-            visible: !props.editing,
-            execute: () => {
-              const editSettingsUrl = PeopleReplacementCriteriaEditRoute.generate(
-                params
-              );
-              history.push(editSettingsUrl);
+          actions={[
+            {
+              text: t("Edit"),
+              visible: !props.editing,
+              execute: () => {
+                const editSettingsUrl = PeopleReplacementCriteriaEditRoute.generate(
+                  params
+                );
+                history.push(editSettingsUrl);
+              },
+              permissions: [PermissionEnum.EmployeeSave],
             },
-            permissions: [PermissionEnum.EmployeeSave],
-          }}
+          ]}
         />
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={8}>

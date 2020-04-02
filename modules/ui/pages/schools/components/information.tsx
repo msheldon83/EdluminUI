@@ -32,15 +32,19 @@ export const LocationsInformation: React.FC<Props> = props => {
     <Section className={classes.customSection}>
       <SectionHeader
         title={t("Information")}
-        action={{
-          text: t("Edit"),
-          visible: !editing,
-          execute: () => {
-            const editSettingsUrl = LocationEditSettingsRoute.generate(params);
-            history.push(editSettingsUrl);
+        actions={[
+          {
+            text: t("Edit"),
+            visible: !editing,
+            execute: () => {
+              const editSettingsUrl = LocationEditSettingsRoute.generate(
+                params
+              );
+              history.push(editSettingsUrl);
+            },
+            permissions: [PermissionEnum.LocationSave],
           },
-          permissions: [PermissionEnum.LocationSave],
-        }}
+        ]}
       />
       <Grid container spacing={2}>
         <Grid container item xs={12} spacing={2}>
