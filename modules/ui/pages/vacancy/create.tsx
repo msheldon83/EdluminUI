@@ -25,11 +25,13 @@ export const VacancyCreate: React.FC<Props> = props => {
   const defaultVacancyCreateInput: VacancyDetailsFormData = {
     orgId: params.organizationId,
     title: "",
+    isClosed: false,
     positionTypeId: "",
     contractId: "",
     locationId: "",
     locationName: "",
     workDayScheduleId: "",
+    closedDetails: [],
     details: [],
     id: "",
     rowVersion: "",

@@ -18,6 +18,7 @@ export type VacancyDetail = {
   absenceEndTime?: string;
   accountingCodeId?: string | null;
   payCodeId?: string | null;
+  isClosed: boolean;
 } & AssignmentInfo;
 
 export type AssignmentOnDate = {

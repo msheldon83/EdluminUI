@@ -579,6 +579,7 @@ const displaySections = (
                   selectedDetails={selectedRows}
                   updateSelectedDetails={updateSelectedDetails}
                   removeSub={removeSub}
+                  vacancyDate={format(date, "MMM d")}
                 />
               </div>
             );
