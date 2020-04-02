@@ -15,11 +15,11 @@ import {
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useTranslation } from "react-i18next";
 import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
+import { VerifyPhoneNumber } from "ui/pages/profile/graphql/verify-phone-number.gen";
 import { useNotificationPreferencesForUser } from "./components/preference-helper";
 import { debounce } from "lodash-es";
 import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";
-
 type Props = {};
 
 export const ProfilePage: React.FC<Props> = props => {
@@ -47,6 +47,12 @@ export const ProfilePage: React.FC<Props> = props => {
   });
 
   const [resetPassword] = useMutationBundle(ResetPassword, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [verifyPhoneNumber] = useMutationBundle(VerifyPhoneNumber, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -98,6 +104,24 @@ export const ProfilePage: React.FC<Props> = props => {
     }
   };
 
+  const onVerifyPhoneNumber = async () => {
+    const response = await verifyPhoneNumber({
+      variables: {
+        phoneNumber: myUser?.phone ?? "",
+      },
+    });
+    const phoneNumber = response.data?.user?.verifyPhoneNumber?.phone;
+
+    openSnackbar({
+      message: t(`We’ve sent a text message to ${phoneNumber}. 
+      If you do not receive the text please confirm your number 
+      is a valid number to receive text messages.`),
+      dismissable: true,
+      status: "info",
+      autoHideDuration: 10000,
+    });
+  };
+
   const onUpdatePreferences = debounce(
     useCallback(
       async (preferences: UserPreferencesInput) => {
@@ -131,6 +155,7 @@ export const ProfilePage: React.FC<Props> = props => {
       <ProfileBasicInfo
         user={myUser}
         onUpdateLoginEmail={onUpdateLoginEmail}
+        onVerifyPhoneNumber={onVerifyPhoneNumber}
         onUpdateUser={onUpdateUser}
         onResetPassword={onResetPassword}
       />

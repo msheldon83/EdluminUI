@@ -5058,7 +5058,7 @@ type UserMutations {
   saveAvailableTime(availableTime: UserAvailableTimeInput!): UserAvailableTime
   saveUnavailableTime(unavailableTime: UserUnavailableTimeInput!): UserUnavailableTime
   deleteUnavailableTime(id: ID!): Boolean
-  verifyPhoneNumber(phoneNumber: String!): User
+  verifyPhoneNumber(phoneIsValidForSms: Boolean, phoneNumber: String!): User
   sendMobileMessage(id: ID!, title: String!, message: String!): Boolean
 }
 
