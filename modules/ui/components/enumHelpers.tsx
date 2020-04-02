@@ -158,58 +158,6 @@ const buildEnumMap = (t: i18next.TFunction) => {
       name: "jobNotificationResponse.IGNORED",
       displayName: t("Ignored"),
     },
-    {
-      name: "notificationReason.JOB_AVAILABLE",
-      displayName: t("Assignment available"),
-    },
-    {
-      name: "notificationReason.JOB_CANCELLED",
-      displayName: t("Assignment cancelled"),
-    },
-    {
-      name: "notificationReason.JOB_DETAILS_CHANGED",
-      displayName: t("Assignment updated"),
-    },
-    {
-      name: "notificationReason.JOB_FILLED",
-      displayName: t("Assignment filled"),
-    },
-    {
-      name: "notificationReason.ABSENCE_CREATED",
-      displayName: t("Absence created"),
-    },
-    {
-      name: "notificationReason.ABSENCE_APPROVED",
-      displayName: t("Absence approved"),
-    },
-    {
-      name: "notificationReason.ABSENCE_CANCELLED",
-      displayName: t("Absence cancelled"),
-    },
-    {
-      name: "notificationReason.ABSENCE_NEEDS_APPROVAL",
-      displayName: t("Absence awaiting approval"),
-    },
-    {
-      name: "notificationReason.ASSIGNMENTS_NEED_VERIFIED",
-      displayName: t("Assignments awaiting verification"),
-    },
-    {
-      name: "notificationReason.UNFILLED_TODAY",
-      displayName: t("Absences today"),
-    },
-    {
-      name: "notificationReason.SUB_ASSIGNED",
-      displayName: t("Substitute assigned"),
-    },
-    {
-      name: "notificationReason.SUB_CANCELLED",
-      displayName: t("Substitute cancelled"),
-    },
-    {
-      name: "notificationReason.SUB_REMOVED",
-      displayName: t("Substitute removed"),
-    },
   ];
   return enumMap;
 };
