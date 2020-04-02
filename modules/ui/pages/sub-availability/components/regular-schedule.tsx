@@ -14,6 +14,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {
   userId: string;
+  isImpersonating: boolean;
 };
 
 export const RegularSchedule: React.FC<Props> = props => {
@@ -72,6 +73,7 @@ export const RegularSchedule: React.FC<Props> = props => {
                 id={at?.id}
                 availability={at?.availabilityType}
                 time={at?.availableTime}
+                isImpersonating={props.isImpersonating}
               />
             );
           })}

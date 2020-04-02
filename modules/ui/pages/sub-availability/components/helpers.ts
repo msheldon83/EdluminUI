@@ -10,15 +10,20 @@ export const formatAvailableTime = (time?: number) => {
 export const formatAvailabilityLabel = (
   t: i18next.TFunction,
   availability?: UserAvailability,
-  time?: number
+  time?: number,
+  toLower?: boolean
 ) => {
   const availableTime = formatAvailableTime(time);
+  const displayName =
+    getDisplayName(
+      "userAvailability",
+      availability ?? UserAvailability.Available,
+      t
+    ) ?? "";
 
-  const availabilityLabel = `${getDisplayName(
-    "userAvailability",
-    availability ?? UserAvailability.Available,
-    t
-  )}${availableTime ? ` ${availableTime}` : ""}`;
+  const availabilityLabel = `${
+    toLower ? displayName.toLocaleLowerCase() : displayName
+  } ${availableTime ? ` ${availableTime}` : ""}`;
 
   return availabilityLabel;
 };
