@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
 import { AddException } from "./add-exception";
 import { ExceptionList } from "./exception-list";
 import { useMutationBundle } from "graphql/hooks";
@@ -12,10 +11,10 @@ import { UserUnavailableTimeInput } from "graphql/server-types.gen";
 type Props = {
   userId: string;
   userCreatedDate: Date;
+  isImpersonating: boolean;
 };
 
 export const Exceptions: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
 
   const [saveUnavailableTime] = useMutationBundle(SaveUnavailableTime, {
@@ -52,7 +51,9 @@ export const Exceptions: React.FC<Props> = props => {
 
   return (
     <>
-      <AddException userId={props.userId} onSave={onSaveException} />
+      {!props.isImpersonating && (
+        <AddException userId={props.userId} onSave={onSaveException} />
+      )}
       <ExceptionList
         userId={props.userId}
         userCreatedDate={props.userCreatedDate}

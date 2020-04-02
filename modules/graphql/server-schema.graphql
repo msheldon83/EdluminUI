@@ -1297,6 +1297,12 @@ input DayPortionOverride {
 
 scalar Decimal
 
+enum DefaultNotificationStatus {
+  ALWAYS_ON
+  ON
+  OFF
+}
+
 enum DensityUnit {
   INVALID
   POUNDS_PER_CUBIC_FOOT
@@ -1676,6 +1682,7 @@ enum EventType {
   USER_AVAILABLE_TIME_SAVED
   USER_UNAVAILABLE_TIME_SAVED
   USER_UNAVAILABLE_TIME_DELETED
+  USER_NOTIFICATION_FAILED
   ORGANIZATION_CREATED
   ORGANIZATION_UPDATED
   ORGANIZATION_DELETED
@@ -2167,7 +2174,8 @@ type NotificationLog implements ModelObjectInterface {
   title: String
   content: String
   headerMessage: String
-  link: String
+  objectTypeId: ObjectType!
+  objectKey: Int
   viewed: Boolean!
   orgId: Int
 }
@@ -2192,6 +2200,19 @@ enum NotificationMessageStatus {
   NOTHING_TO_SEND
 }
 
+enum NotificationMethod {
+  IN_APP
+  EMAIL
+  SMS
+  PUSH
+}
+
+type NotificationMethodOfDelivery {
+  _info: [ReturnMessage]
+  method: NotificationMethod
+  default: DefaultNotificationStatus
+}
+
 type NotificationPreference {
   _info: [ReturnMessage]
   notificationReasonId: NotificationReason!
@@ -2202,26 +2223,19 @@ type NotificationPreference {
 
 input NotificationPreferenceInput {
   notificationReasonId: NotificationReason!
-  receiveInAppNotifications: Boolean!
-  receiveEmailNotifications: Boolean!
-  receiveSmsNotifications: Boolean!
+  receiveInAppNotifications: Boolean
+  receiveEmailNotifications: Boolean
+  receiveSmsNotifications: Boolean
 }
 
 enum NotificationReason {
   INVALID
-  JOB_AVAILABLE
-  JOB_CANCELLED
-  JOB_DETAILS_CHANGED
-  JOB_FILLED
-  ABSENCE_CREATED
-  ABSENCE_APPROVED
-  ABSENCE_CANCELLED
-  ABSENCE_NEEDS_APPROVAL
-  ASSIGNMENTS_NEED_VERIFIED
-  UNFILLED_TODAY
-  SUB_ASSIGNED
-  SUB_CANCELLED
-  SUB_REMOVED
+  ADMIN_ABSENCE_OR_VACANCY_CREATED_BY_ANY
+  ADMIN_ABSENCE_OR_VACANCY_DELETED_BY_ANY
+  EMP_ABSENCE_CREATED_BY_OTHER
+  EMP_ABSENCE_CREATED_BY_SELF
+  EMP_ABSENCE_DELETED_BY_OTHER
+  EMP_ABSENCE_DELETED_BY_SELF
 }
 
 type ObjectReplacementCriteria {
@@ -4071,6 +4085,7 @@ type RefNotificationReason {
   name: String!
   description: String
   appliesToRole: OrgUserRole
+  methodsOfDelivery: [NotificationMethodOfDelivery!]!
 }
 
 type RefObjectType {

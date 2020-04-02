@@ -27,8 +27,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const simpleAssignment = ({
+const simpleAssignment = {
   id: "123456789",
+  startDate: "2019-11-20T08:00",
   startTimeLocal: "2019-11-20T08:00",
   endTimeLocal: "2019-11-20T15:00",
   assignment: {
@@ -52,16 +53,8 @@ const simpleAssignment = ({
       },
     },
     position: {
-      name: "Kindergarten",
+      title: "Kindergarten",
     },
     notesToReplacement: "These are notes for the substitute.",
   },
-} as unknown) as Pick<
-  VacancyDetail,
-  | "id"
-  | "startTimeLocal"
-  | "endTimeLocal"
-  | "assignment"
-  | "location"
-  | "vacancy"
->;
+};

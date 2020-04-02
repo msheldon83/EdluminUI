@@ -14,7 +14,9 @@ export type VacancyDetailsFormData = {
   locationName: string;
   workDayScheduleId: string;
   notesToReplacement?: string | null;
+  isClosed: boolean;
   details: VacancyDetailItem[];
+  closedDetails: VacancyDetailItem[];
   ignoreWarnings?: boolean;
   orgId: string;
   rowVersion: string;
@@ -22,6 +24,7 @@ export type VacancyDetailsFormData = {
 
 export type VacancyDetailItem = {
   id: string | undefined;
+  isClosed: boolean;
   saved?: boolean;
   date: Date;
   startTime: number;

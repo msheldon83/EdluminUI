@@ -2,7 +2,7 @@ import { DayOfWeek } from "graphql/server-types.gen";
 import i18next = require("i18next");
 import { getDisplayName } from "ui/components/enumHelpers";
 
-const daysOfWeekOrdered = [
+export const daysOfWeekOrdered = [
   DayOfWeek.Sunday,
   DayOfWeek.Monday,
   DayOfWeek.Tuesday,

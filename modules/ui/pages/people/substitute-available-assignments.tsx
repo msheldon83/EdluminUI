@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SubHome } from "ui/pages/sub-home";
+import { AvailableAssignments } from "ui/pages/sub-home/available-assignments";
 import { useRouteParams } from "ui/routes/definition";
 import { SubstituteAvailableAssignmentsRoute } from "ui/routes/people";
 import { useQueryBundle } from "graphql/hooks";
@@ -25,7 +25,7 @@ export const SubstituteAvailableAssignmentsPage: React.FC<{}> = () => {
   return (
     <>
       <PageTitle title={`${user.firstName} ${user.lastName}`} />
-      <SubHome viewingAsAdmin={true} userId={user.userId} />
+      <AvailableAssignments viewingAsAdmin={true} userId={user.userId} />
     </>
   );
 };

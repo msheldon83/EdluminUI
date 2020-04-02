@@ -24,6 +24,7 @@ type Props = {
   availability?: UserAvailability;
   time?: number;
   onChange: (availableTime: UserAvailableTimeInput) => Promise<unknown>;
+  isImpersonating: boolean;
 };
 
 export const SingleDay: React.FC<Props> = props => {
@@ -181,13 +182,15 @@ export const SingleDay: React.FC<Props> = props => {
                   {t("Cancel")}
                 </Button>
               )}
-              <Button
-                onClick={submitForm}
-                variant="text"
-                className={classes.changeButton}
-              >
-                {editing ? t("Save") : t("Change")}
-              </Button>
+              {!props.isImpersonating && (
+                <Button
+                  onClick={submitForm}
+                  variant="text"
+                  className={classes.changeButton}
+                >
+                  {editing ? t("Save") : t("Change")}
+                </Button>
+              )}
             </div>
           </form>
         )}

@@ -126,12 +126,14 @@ export const VacancyConfirmation: React.FC<Props> = props => {
               onClick={() => {
                 props.setVacancyForCreate({
                   orgId: params.organizationId,
+                  isClosed: false,
                   title: "",
                   positionTypeId: "",
                   contractId: "",
                   locationId: "",
                   locationName: "",
                   workDayScheduleId: "",
+                  closedDetails: [],
                   details: [],
                   id: "",
                   rowVersion: "",
