@@ -7,14 +7,14 @@ import { useHistory } from "react-router";
 import { UpdateOrganization } from "./graphql/update-organization.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { OrganizationUpdateInput } from "graphql/server-types.gen";
-import { EditGeneralSettings } from "./components/edit-settings";
-import { GeneralSettingsRoute } from "ui/routes/general-settings";
 import { useRouteParams } from "ui/routes/definition";
+import { EditGeneralSettings } from "./components/edit-settings";
+import { SettingsRoute } from "ui/routes/settings";
 
 export const GeneralSettings: React.FC<{}> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
-  const params = useRouteParams(GeneralSettingsRoute);
+  const params = useRouteParams(SettingsRoute);
   const history = useHistory();
 
   const [updateOrg] = useMutationBundle(UpdateOrganization, {
@@ -23,8 +23,11 @@ export const GeneralSettings: React.FC<{}> = props => {
     },
   });
 
+  const onCancel = async () => {
+    history.push(SettingsRoute.generate(params));
+  };
+
   const onUpdateOrg = async (organization: OrganizationUpdateInput) => {
-    console.log(organization);
     const response = await updateOrg({
       variables: {
         organization: {
@@ -33,14 +36,17 @@ export const GeneralSettings: React.FC<{}> = props => {
           name: organization.name,
           externalId: organization.externalId,
           timeZoneId: organization.timeZoneId,
+          config: {
+            absenceSubContact: organization.config?.absenceSubContact,
+            absenceEmployeeContact: organization.config?.absenceEmployeeContact,
+          },
         },
       },
     });
 
     const result = response.data?.organization?.update;
     if (result) {
-      //Go to previous page.TODO:
-      //history.push(getViewUrl());
+      await onCancel();
     }
   };
 
@@ -63,6 +69,7 @@ export const GeneralSettings: React.FC<{}> = props => {
       <EditGeneralSettings
         organization={organization}
         onUpdateOrg={onUpdateOrg}
+        onCancel={onCancel}
       />
     </>
   );
