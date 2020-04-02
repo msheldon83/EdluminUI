@@ -2362,9 +2362,9 @@ input organizationConfigInput {
 
 type OrganizationContact {
   _info: [ReturnMessage]
-  name: String!
-  email: String!
-  phone: String!
+  name: String
+  email: String
+  phone: String
 }
 
 input OrganizationContactInput {

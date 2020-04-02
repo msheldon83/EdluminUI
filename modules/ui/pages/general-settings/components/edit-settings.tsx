@@ -26,7 +26,7 @@ type Props = {
     name: string;
     timeZoneId?: TimeZone | null;
     externalId?: string | null;
-    config: {
+    config?: {
       absenceSubContact: OrganizationContactInput;
       absenceEmployeeContact: OrganizationContactInput;
     };

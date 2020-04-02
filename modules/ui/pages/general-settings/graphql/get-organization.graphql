@@ -9,11 +9,13 @@ query GetOrganizationById($id: ID!) {
       config {
         absenceSubContact {
           email
-          namephone
+          name
+          phone
         }
         absenceEmployeeContact {
           email
-          namephone
+          name
+          phone
         }
       }
     }
